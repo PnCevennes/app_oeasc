@@ -114,6 +114,8 @@ def modifier_declaration(id_declaration):
 
     declaration_dict["foret"]["b_statut_public"] = True
     declaration_dict["foret"]["b_document"] = True
+    declaration_dict["foret"]["areas_foret"] = [{'id_area': 2917471}];
+    declaration_dict["areas_localisation"] = [{'id_area': 2918256}, {'id_area': 2918257}, {'id_area': 2918270}, {'id_area': 2918271}];
 
     return render_template('modules/oeasc/pages/modifier_ou_creer_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 

@@ -32,7 +32,7 @@ $(document).ready(function() {
     M.style.oeasc.fillPattern=null;
     M.style.oeasc.fillOpacity=0.1;
     M.l_perimetre_OEASC.setStyle(M.style.oeasc);
-    $("#legend-oeasc i").css("background", "");
+     $('#form_' + select_name).find("#legend-oeasc i").css("background", "");
 
 
     // initialisation des legendes et select pour la localisation
@@ -40,7 +40,7 @@ $(document).ready(function() {
     M.list.data.forEach(function(name) {
 
       var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + M.d_ls[name].label + '</div>';
-      $(".legend").append(s_legend);
+       $('#form_' + select_name).find(".legend").append(s_legend);
 
     });
 
@@ -48,19 +48,17 @@ $(document).ready(function() {
 
     name="LOCALISATION_SELECTION";
     var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Selection" + '</div>';
-    $(".legend").append(s_legend);
+     $('#form_' + select_name).find(".legend").append(s_legend);
 
     // on cache ttes les légendes
 
     M.list.data.forEach(function(e) {
 
-      $("#" + e).hide();
-      $("#" + e).selectpicker("refresh");
-      $("#legend-" + e).hide();
+       $('#form_' + select_name).find("#legend-" + e).hide();
 
     });
 
-    $('#chargement').hide();
+     $('#form_' + select_name).find('#chargement').hide();
 
 
 
@@ -132,12 +130,14 @@ $(document).ready(function() {
 
         name = 'OEASC_ONF_PRF';
 
+        var area_code = M.get_db('t_areas','id_area',areas_container[i].id_area).area_code
+
         var fp = {
           name: 'OEASC_ONF_FRT',
-          id_area: areas_container[i].id_area,
+          area_code: area_code,
         };
 
-        console.log(fp);
+        console.log("fp", fp);
 
         M.f_add_feature_collection_to_map(map, name, fp);
 

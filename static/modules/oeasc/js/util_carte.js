@@ -348,7 +348,7 @@ var f_on_data_loaded = function(feature_collection, map) {
 
     var $select_layer = $("#" + map.select_name);
 
-    $("#chargement").hide();
+    $("#form_" + map.select_name + " #chargement").hide();
 
     console.log("Map : " +String(Object.keys(feature_collection._layers).length) + " elements chargés pour " + name);
 
@@ -377,7 +377,7 @@ var f_on_data_loaded = function(feature_collection, map) {
 
     var d_ls = M.d_ls;
 
-    $("#chargement").show();
+    $("#form_" + map.select_name + " #chargement").show();
     $("#legend-" + name).show();
     $('#' + name).show();
 
@@ -512,7 +512,7 @@ var f_on_data_loaded = function(feature_collection, map) {
 
     var map = L.map(map_id, {zoomSnap: 0.1}).setView([44.33, 3.55], 10);
     map.id = map_id;
-    $("#chargement").appendTo("#" + map_id);
+    $("#form_" + name + " #chargement").appendTo("#" + map_id);
 
     if(tile == "mapbox") {
 

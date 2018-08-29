@@ -26,6 +26,8 @@ from pypnusershub.db.models import User
 
 from app.utils.utilssqlalchemy import as_dict
 
+from app.ref_geo.models import TAreas 
+
 bp = Blueprint('oeasc_api', __name__)
 
 
@@ -224,15 +226,15 @@ def get_db(type, key, val):
 
     switch_model = {
 
-        "user": User
-
+        "user": User,
+        "t_areas": TAreas,
     }
 
     table = switch_model.get(type, None)
 
     if table:
 
-        data = DB.session.query(User).filter(getattr(User, key) == val).first()
+        data = DB.session.query(table).filter(getattr(table, key) == val).first()
 
         if data:
 
