@@ -1,0 +1,208 @@
+{% extends "modules/oeasc/layout.html" %}
+
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+    <div class="col-md-12">
+
+        <div class="container main-zone ng-scope ">
+            <h2>Inscription</h2>
+
+            <div class="alert alert-danger" role="alert" id="login-error" style="display: none;"></div>
+
+            <div id="info_register" style="display: none;">
+
+                <p>L'inscription à été effectuée.</p>
+                <p>Un email de confirmation avec le rappel des identifiants et mot de passe à été envoyé.</p>
+                <p>Veuillez vous connecter avec votre identifiant et mot de passe <a href="{{ url_for('oeasc.login') }}">ici</a>.</p>
+
+            </div>
+
+            <form class="form-horizontal" id="form_register">
+
+                <input type="hidden" name="" id="user_app" value="{{id_app}}">
+
+                <div class="form-group">
+                    <label for="user_nom">Nom : </label>
+                    <input type="text" class="form-control" id="user_nom" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="user_prenom">Prénom : </label>
+                    <input type="text" class="form-control" id="user_prenom" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="user_email">Email : </label>
+                    <input type="email" class="form-control" id="user_email" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="user_organisme">Organisme : </label>
+                    <select class="selectpicker" id="user_organism" required>
+                        {% for organisme in liste_organismes_oeasc%}
+                        <option value="{{organisme.id_organism}}">{{ organisme.nom_organisme }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="pwd">Mot de passe : </label>
+                    <input type="password" class="form-control" id="user_pwd" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="pwd">Confirmation du mot de passe : </label>
+                    <input type="password" class="form-control" id="user_pwd_conf" required>
+                </div>
+
+
+                <button class="btn btn-default">S'incrire</button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block js_local %}
+
+{{ super() }}
+
+<script>
+
+    $(document).ready(function() {
+
+        "use scrict";
+
+
+        $("#login-error").hide();
+
+        $('#user_pwd').val("1234");
+        $('#user_pwd_conf').val("1234");
+        $('#user_nom').val("CLEMENT");
+        $('#user_prenom').val("Joel");
+        $('#user_email').val("joelclems@gmail.com");
+        $("#user_organism").val(1000177).change();
+
+        var register = function(e) {
+
+            e.preventDefault();
+
+            // gestion email
+
+            var expressionReguliere = /^(([^<>()[]\.,;:s@]+(.[^<>()[]\.,;:s@]+)*)|(.+))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/;
+
+            if(!expressionReguliere.test($('#user_email').val())) {
+
+                $("#login-error").html("L'adresse email est invalide").show();
+                $("#user_email").parent().before($("#login-error"));
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $("#login-error").offset().top - 100
+                    }, 300);
+                return false;
+            }
+
+            // gestion mot de passe
+
+            if( $('#user_pwd').val() != $('#user_pwd_conf').val()) {
+
+                $("#login-error").html("Les mots de passes ne correspondent pas.").show();
+                $("#user_pwd").parent().before($("#login-error"));
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $("#login-error").offset().top - 100
+                    }, 300);
+
+                return false;
+
+            }
+
+            // gestion identifiant non unique
+
+            if( M.get_db('user', 'email',$('#user_email').val()) != "None") {
+
+                $("#login-error").html("L'adresse email est déjà utilisé").show();
+                $("#user_email").parent().before($("#login-error"));
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: $("#login-error").offset().top - 100
+                    }, 300);
+
+                return false;
+
+            }
+
+            var id_app = {{ config.ID_APP }};
+
+            var data = {
+
+                "nom_role": $('#user_nom').val(),
+                "prenom_role": $('#user_prenom').val(),
+                "identifiant": $('#user_email').val(),
+                "email": $('#user_email').val(),
+
+                "password": $('#user_pwd').val(),
+                "password_confirmation": $('#user_pwd_conf').val(),
+
+                "applications":[{"id_app":id_app, "id_droit":1}],
+
+                "groupe": false,
+                "pn": true,
+                "remarques": "utilisateur test api",
+                "desc_role": null,
+                "id_unite": -1,
+                "id_organisme": $('#user_organism').val(),
+
+            };
+
+            console.log(data);
+
+            $("#login-error").hide();
+
+            var url_application = "{{ config.URL_APPLICATION }}";
+
+            $.post( {
+
+                url : '{{config.URL_USERHUB}}/api_register/role',
+
+                type: 'POST',
+
+                data : JSON.stringify(data),
+                contentType:"application/json; charset=utf-8",
+                dataType:"json",
+
+                success: function(response){
+                    console.log(response);
+                    $('#form_register').hide();
+                    $("#info_register").show();
+                },
+
+                error: function(error){
+                    $("#login-error" ).html("Erreur : " + error.responseJSON).show();
+                    $("#form_register").before($("#login-error"));
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: $("#login-error").offset().top - 100
+                        }, 300);
+
+                    console.log(error);
+                }
+
+            });
+
+        };
+
+        $("#form_register").submit(register);
+
+    });
+
+</script>
+
+{% endblock %}

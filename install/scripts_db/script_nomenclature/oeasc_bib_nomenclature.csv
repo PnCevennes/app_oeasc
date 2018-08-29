@@ -1,0 +1,23 @@
+'OEASC_DEGAT_TYPE';'Type de dégats de forêt';'Nomenclature des type de dégâts de forêt';'OEASC'
+'OEASC_DEGAT_GRAVITE';'Gravité des dégâts de forêt';'Nomenclature des gravités de dégâts de forêt';'OEASC'
+'OEASC_DEGAT_ETENDUE';'Étendue des dégats de forêt';'Nomenclature des étendues de dégâts de forêt';'OEASC'
+'OEASC_PEUPLEMENT_ESPECE';'Espèces dont la précense est avérée';'Nomenclature des espèces concernant les dégâts de forêt';'OEASC'
+'OEASC_DEGAT_ANTERIORITE';'Antériorité des dégats';'Nomenclature des antériorités des dégâts de forêt';'OEASC'
+
+'OEASC_PEUPLEMENT_ESSENCE';'Essences de peuplement de forêt';'Nomenclature des essences de peuplements de forêt';'OEASC'
+'OEASC_PEUPLEMENT_ORIGINE';'Origine de peuplements de forêt';'Nomenclature des origines de peuplements de forêt';'OEASC'
+'OEASC_PEUPLEMENT_TYPE';'Type de peuplements de forêt';'Nomenclature des types de peuplements de forêt';'OEASC'
+'OEASC_PEUPLEMENT_MATURITE';'Maturité de peuplements de forêt';'Nomenclature des maturité de peuplements de forêt';'OEASC'
+'OEASC_PEUPLEMENT_PROTECTION_TYPE';'Type de protection de peuplements de forêt';'Nomenclature des types de protection de peuplements de forêt';'OEASC'
+'OEASC_PEUPLEMENT_PATURAGE_TYPE';'Type de paturage';'Nomenclature des types de paturage';'OEASC'
+'OEASC_PEUPLEMENT_PATURAGE_STATUT';'Statut de paturage';'Nomenclature des status de paturage';'OEASC'
+'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE';'Fréquence de paturage';'Nomenclature des fréquences de paturage';'OEASC'
+'OEASC_PEUPLEMENT_ACCES';'Accès au peuplement de forêt';'Nomenclature des accès de peuplements de forêt';'OEASC'
+
+'OEASC_FORET_TYPE';'Type de gestion de forêt';'Nomenclature des types de gestion de forêt';'OEASC'
+
+'OEASC_PROPRIETAIRE_DECLARANT';'Le propietaire est il le déclarant';'Nomenclature des propriétaires déclarants';'OEASC'
+'OEASC_PROPRIETAIRE_TYPE';'Type de proprietaire: État, hôpital, privé, commune, etc...';'Nomenclature des types de propriétaires';'OEASC'
+
+'OEASC_FORET_DEPARTEMENT';'Liste de départements pour les forêts';'Nomenclature des départements des forêts';'OEASC'
+

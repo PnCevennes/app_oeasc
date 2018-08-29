@@ -1,0 +1,52 @@
+{% extends "modules/oeasc/layout.html" %}
+
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <h2>Utilisateurs</h2>
+
+<table>
+    <tr>
+        <th>Identifiant</th>
+        <th>Organisme</th>
+        <th>Droits</th>
+    </tr>
+
+
+    {% for user in users %}
+    <tr>
+        <td>{{user.identifiant}}</td>
+        <td>{{utils.get_organisme_name_from_id(user.id_organisme)}}</td>
+        <td>{{utils.get_description_droit(user.id_droit_max)}}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block js_local %}
+
+{{ super() }}
+
+<script>
+
+    $(document).ready(function() {
+
+
+
+    });
+
+</script>
+
+{% endblock %}

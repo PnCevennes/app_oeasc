@@ -1,0 +1,17 @@
+# Database settings
+SQLALCHEMY_DATABASE_URI = "postgresql://monuser:monpassachanger@localhost/usershubdb"
+SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+URL_APPLICATION = "localhost:5000"
+URL_USERHUB="localhost:5001"
+
+SECRET_KEY = 'super secret key'
+
+ID_APP = 1
+
+ENABLE_NOMENCLATURE_TAXONOMIC_FILTERS = True
+
+""" Authentification crypting method (hash or md5) """
+PASS_METHOD = 'hash'
+COOKIE_EXPIRATION = 3600
+COOKIE_AUTORENEW = True

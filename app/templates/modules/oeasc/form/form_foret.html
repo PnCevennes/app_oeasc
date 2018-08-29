@@ -1,0 +1,61 @@
+<div id="form_foret" data-id-foret="{{ foret.id_foret or ''}}"></div>
+
+
+
+<form id="form_foret_statut">
+
+  <h5>Statut de la forêt</h5>
+
+  {{ macros.choix("Public", "Privé", 'b_statut_public' ,'Statut de la forêt', object=foret) }}
+
+  {# <input type=submit value=Suivant class="btn btn-success float-right"> #}
+
+{# </form> #}
+
+
+{# <form id="form_foret_regime_forestier"> #}
+
+  {{ macros.choix("Oui", "Non", 'b_document' ,'La forêt relève-t-elle du régime forestier (ONF) ou possède t''elle un document de gestion durable  ?', object=foret) }}
+
+  <input type=submit value=Suivant class="btn btn-success float-right">
+
+</form>
+
+{# {% set ns.localisation_type = "" %} #}
+
+{% if foret['b_statut_public'] and foret['b_document'] %}
+{% set ns.localisation_type = "ONF_FRT" %}
+
+{% elif foret['b_statut_public']==false and foret['b_document'] %}
+{% set ns.localisation_type = "DGD" %}
+
+{% elif foret['b_document']==false %}
+{% set ns.localisation_type = "COMMUNE" %}
+
+{% endif %}
+
+
+{{ macros.select_map("areas_foret", ns.localisation_type, foret["areas_foret"]) }}
+
+{# 
+<form id="form_proprietaire_declarant">
+
+  {{ macros.radio_nomenclature("id_nomenclature_proprietaire_declarant", nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "radio", "Le Déclarant est-il le propriétaire de la forêt ?", object=foret) }}
+
+  <input type=submit value=Suivant class="btn btn-success float-right">
+
+</form> #}
+
+{% set proprietaire = foret.proprietaire %}
+{% include "modules/oeasc/form/form_proprietaire.html" %}
+
+
+<form id="form_information_foret">
+
+  <h5>Informations sur la forêt</h5>
+
+  {{ macros.input_text("s_nom_foret", "Nom de la forêt", foret) }}
+
+  <input type=submit value=Suivant class="btn btn-success float-right">
+
+</form>

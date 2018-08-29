@@ -1,0 +1,62 @@
+{% extends "modules/oeasc/layout.html" %}
+
+
+{% block title %}Accueil{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <h2>Description</h2>
+
+    <p>L’Observatoire de l’équilibre agro-sylvo-cynégétique (OEASC) est un dispositif dont l’objectif est d’apprécier et de suivre de façon objective et partagée l’état d’équilibre entre le grand gibier et les activités et milieux agricoles et forestiers sur le territoire du Parc national des Cévennes.<p>
+
+      <p>Pour cela, l’OEASC rassemblera et valorisera l’ensemble des données existantes, comprenant notamment celles relatives aux indemnisations de dégâts sur les surfaces agricoles et à la réalisation des plans de chasse. Le volet sylvo-cynégétique (interface chasse-forêt) intègrera :<p>
+
+        <ul>
+
+          <li>le  suivi des indicateurs de changement écologique (ICE), comprenant les ICE d’abondance et de performance des populations déjà suivis actuellement, et complétés par des indices de pression sur la flore (cf. guide méthodologique dédié) ;</li>
+
+          <li>un système d’alerte participatif permettant, sur la base du volontariat, la remontée d’informations de la part des propriétaires et gestionnaires forestiers sur les peuplements touchés par des dégâts d’ongulés sauvages ou présentant un déficit visible de régénération potentiellement lié à la pression du gibier ;</li>
+
+          <li>la réalisation de diagnostics sylvicoles sur des peuplements forestiers ciblés (identifiés à partir des informations collectées dans le cadre du système d’alerte ; cf. guide méthodologique dédié).</li>
+
+        </ul>
+
+        <p>Les données collectées ou centralisées dans le cadre de l’OEASC et les résultats qui en sont issus constitueront un socle de connaissances solides et fiables, qui poseront les bases d’un constat partagé par l’ensemble des acteurs concernés. Celles-ci pourront ainsi être utilisées afin d’orienter les décisions de gestion influençant l’équilibre agro-sylvo-cynégétique, dont notamment les plans de chasse ou la gestion sylvicole. La communication autour des résultats de l’OEASC permettra également de sensibiliser l’ensemble des parties prenantes à la problématique et aux enjeux liés à l’équilibre agro-sylvo-cynégétique.<p>
+
+        </div>
+
+      </div>
+
+      <h2>Zone d'étude de l'OEASC</h2>
+
+      <div id="map_acceuil" class="map"></div>
+
+      {% endblock %}
+
+      {% block js_local %}
+
+      {{ super() }}
+
+      <script>
+
+        $(document).ready(function() {
+
+          "use strict";
+
+          var map_init = M.carte_base_oeasc("acceuil");
+
+          var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas/l/AA', {style: M.style.aa}).addTo(map_init);
+          var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas/l/ZC', {style: M.style.zc}).addTo(map_init);
+
+          $(".legend").append('<div id="#legend-aa"><i style="background: ' + M.color.zc + '; border: 1px solid black;"></i> ' +"Zone Coeur" + '</div>');
+          $(".legend").append('<div id="#legend-zc"><i style="background: ' + M.color.aa + '; border: 1px solid black;"></i> ' +"Aire d'adhésion" + '</div>');
+
+        });
+
+      </script>
+
+      {% endblock %}

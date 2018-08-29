@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{% endblock %}</title>
+  {% block css %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/bootstrap/dist/css/bootstrap.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/datatables.net-dt/css/jquery.dataTables.min.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='node_modules/leaflet/dist/leaflet.css') }}">
+  <!-- <link rel="stylesheet" href="{{ url_for('static', filename='') }}"> -->
+
+
+
+  <!-- local -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+
+  {% endblock %}
+</head>
+
+<body>
+  <div class="container">
+
+    </header>
+    <section>
+      {% for message in get_flashed_messages() %}
+      <div class="flash">{{ message }}</div>
+      {% endfor %}
+    </section>
+
+
+
+    <section>
+      {% block content %}{% endblock %}
+    </section>
+  </div>
+
+  {% block js %}
+  <!-- npm import -->
+  {% block js_dist %}
+  {% set liste_js = [
+    "node_modules/jquery/dist/jquery.min.js",
+    "node_modules/datatables.net/js/jquery.dataTables.min.js",
+    "node_modules/mark.js/dist/jquery.mark.min.js",
+    "node_modules/mark.js/dist/mark.min.js",
+    "node_modules/leaflet/dist/leaflet.js",
+    "node_modules/leaflet-ajax/dist/leaflet.ajax.min.js",
+    ]%}
+    {% for js in liste_js %}<script src="{{ url_for('static', filename=js) }}"></script>
+    {% endfor %}
+    <!-- "node_modules/requirejs/require.js" -->
+
+    <!-- cdn imports -->
+    <script src="http://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.min.js"></script>
+    {% endblock js_dist%}
+
+
+    {% block js_local %}      
+    <!-- local utils -->
+    <script src="{{ url_for('static', filename='js/utils/tables.js') }}"></script>
+
+    <!-- local app -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% endblock js_local%}
+    
+    {% endblock js%}
+  </body>
+  </html>

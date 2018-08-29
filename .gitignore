@@ -1,0 +1,20 @@
+# server.py
+#OTHER/
+remove/
+*.pyc
+venv/
+var/log/error*
+config/settings.ini
+config/settings.ini_*
+config/config.py
+
+install/scripts_db/SQL/ref_geo_import.sql
+
+static/data/*.json
+
+static/node_modules
+static/documents
+static/package-lock.json
+TODO
+
+*.save

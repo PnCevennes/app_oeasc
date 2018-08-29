@@ -1,0 +1,49 @@
+{% extends "modules/oeasc/layout.html" %}
+
+
+{% block title %}plan du site{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <h2>Plan du site</h2>
+
+
+    <ul>
+
+      <li><a href="{{ url_for('oeasc.accueil') }}">Accueil</a></li>
+
+      <li><a href="{{ url_for('oeasc.signalement_degats_forestiers') }}">Signalement de dégât de forêt</a>
+        <ul>
+          <li><a href="{{ url_for('oeasc.modifier_declaration') }}">Déclaration</a></li>
+          <li><a href="{{ url_for('oeasc.declarations') }}">Voir ses déclatations</a></li>
+          <li><a href="{{ url_for('oeasc.resultats_degats_forestiers') }}">Résultats</a></li>
+        </ul>
+      </li>
+
+      <li><a href="{{ url_for('oeasc.suivi') }}">Suivi de l'équilibre ASC</a>
+        <ul>
+          <li><a href="{{ url_for('oeasc.resultats_degats_forestiers') }}">Degats forestiers</a></li>
+          <li><a href="{{ url_for('oeasc.resultats_diagnostics_sylvicoles') }}">Diagnostics sylvicoles</a></li>
+          <li><a href="{{ url_for('oeasc.resultats_ice') }}">ICE</a></li>
+          <li><a href="{{ url_for('oeasc.resultats_donnees_cynegetiques') }}">Données cynégétiques</a></li>
+          <li><a href="{{ url_for('oeasc.resultats_degats_agricoles') }}">Dégats agricoles</a></li>
+          <li><a href="{{ url_for('oeasc.resultats_peuplements_degradables') }}">Peuplements dégradables</a></li>
+        </ul>
+      </li>
+
+    <li><a href="{{ url_for('oeasc.documentation') }}">Documentation</a></li>
+    <li><a href="{{ url_for('oeasc.partenaires') }}">Partenaires</a></li>
+    <li><a href="{{ url_for('oeasc.contact') }}">Contact</a></li>
+
+    </ul>
+
+  </div> {# col #}
+
+</div> {# row #}
+
+{% endblock %}
+

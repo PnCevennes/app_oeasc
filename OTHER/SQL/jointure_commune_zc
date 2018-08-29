@@ -1,0 +1,4 @@
+SELECT st_intersection(a.geom, zc.geom), m.*
+FROM ref_geo.li_municipalities m
+ JOIN ref_geo.l_areas a ON m.id_area = a.id_area
+ JOIN (SELECT geom FROM ref_geo.l_areas WHERE id_type = 1) zc ON st_intersects(a.geom, zc.geom)

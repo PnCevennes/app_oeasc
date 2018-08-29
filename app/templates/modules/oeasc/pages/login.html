@@ -1,0 +1,90 @@
+{% extends "modules/oeasc/layout.html" %}
+
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <form class="container main-zone ng-scope " id="form_login">
+        <h2>Connexion</h2>
+
+        <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
+            Paramètres de connexion invalides
+        </div>
+        <div class="form-horizontal">
+            <input type="hidden" name="" id="user_app" value="{{id_app}}">
+            <div class="form-group">
+                <label for="user_id">Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'email utilisé pour l'inscription." class="fas fa-question-circle"></span>:</label>
+                <input type="text" class="form-control" id="user_id">
+            </div>
+            <div class="form-group">
+                <label for="pwd">Mot de passe:</label>
+                <input type="password" class="form-control" id="user_pwd">
+            </div>
+            <button class="btn btn-default">Login</button>
+        </div>
+    </form>
+
+    <div> 
+        <p>Si vous ne possédez pas de compte, vous pouvez vous inscrire <a href="{{ url_for('oeasc.register') }}">ici.</a></p>
+    </div>
+
+</div>
+
+{% endblock %}
+
+
+{% block js_local %}
+
+{{ super() }}
+
+<script>
+
+    $(document).ready(function() {
+
+        $("#login-error").hide();
+
+
+        login = function(e) {
+
+            e.preventDefault();
+
+            data ={
+                    "id_application": $('#user_app').val(),
+                    "login": $('#user_id').val(),
+                    "password" : $('#user_pwd').val()
+                };
+
+            console.log(data);
+            $("#login-error").hide();
+            $.post({
+                url : '{{config.URL_APPLICATION}}' + '/pypn/auth/login',
+                data : JSON.stringify ({
+                    "id_application": $('#user_app').val(),
+                    "login": $('#user_id').val(),
+                    "password" : $('#user_pwd').val()
+                }),
+                contentType:"application/json; charset=utf-8",
+                dataType:"json",
+                success: function(response){
+                    console.log(response);
+                    window.location.href = '{{config.URL_APPLICATION}}';
+                },
+                error: function(error){
+                    $("#login-error" ).show();
+                    console.log(error);
+                }
+            });
+        };
+
+        $("#form_login").submit(login);
+
+    });
+
+</script>
+
+{% endblock %}

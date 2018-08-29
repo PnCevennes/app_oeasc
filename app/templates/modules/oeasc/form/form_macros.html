@@ -1,0 +1,298 @@
+{% macro choix(choix1, choix2, name, title, name_test, object=None) %}
+
+  {% set ns = namespace(choix1_checked = "") %}
+  {% set ns.choix2_checked = "" %}
+
+  {% if object[name] == true %}
+
+    {% set ns.choix1_checked = "checked" %}
+
+  {% endif %}
+
+  {% if object[name] == false %}
+
+    {% set ns.choix2_checked = "checked" %}
+
+  {% endif %}
+
+<div id=name|upper>
+
+  <label for="{{ name }}">{{ title }}</label>
+
+  <div class="custom-control custom-radio custom-control-inline">
+    <input {{ns.choix1_checked}} id="{{ name }}-0" name="{{ name }}"" type="radio" value="T" required>
+    <label for="{{ name }}-0">{{ choix1 }}</label>
+  </div>
+
+  <div class="custom-control custom-radio custom-control-inline">
+    <input {{ns.choix2_checked}} id="{{ name }}-1" name="{{ name }}"" type="radio" value="F" required>
+    <label for="{{ name }}-1">{{ choix2 }}</label>
+  </div>
+
+</div>
+
+{% endmacro %}
+
+
+{% macro select_essence(name, nomenclature, titre="", object=None, multi="", required="required", data_max=3, listes_essences=listes_essences, id_nomenclature_degat_type=-1, afficher_type_essence="") %}
+
+  <div id="{{ name | upper }}">
+
+  {% set ns = namespace() %}
+
+  {% if titre != "" %}
+    <label for="{{ name }}">{{ titre }}</label>
+  {% endif %}
+
+  {% set ns.select_options="" %}
+
+  {% if multi == "multi" %}
+    {% set ns.select_options = 'data-max-options=3 multiple'%}
+  {% else %}
+    {% set ns.select_options = "show-tick"%}
+  {% endif %}
+
+    <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
+
+  {% if multi == "multi" %}
+
+    {% for d in object[name] %}
+
+      {% set elem = utils.get_nomenclature_from_id(d["id_nomenclature"], nomenclature, "") %}
+
+      <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+    {% endfor %}
+
+  {% else %}
+
+    {% if object[name] %}
+
+      {% set elem = utils.get_nomenclature_from_id(object[name], nomenclature, "") %}
+
+      <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+    {% endif %}
+
+  {% endif %}
+
+  {% if afficher_type_essence == "" %}
+
+    {% for ind in listes_essences["degats"][id_nomenclature_degat_type] %}
+
+      {% set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
+
+      <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+    {% endfor %}
+
+  {% else %}
+
+      <optgroup label="Feuillus">
+
+    {% for ind in listes_essences["feuillus"] %}
+
+      {% set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
+        <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+    {% endfor %}
+
+      </optgroup>
+      <optgroup label="Résineux">
+
+    {% for ind in listes_essences["resineux"] %}
+
+      {% set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
+        <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+    {% endfor %}
+
+    </optgroup>
+
+  {% endif %}
+
+  </select>
+
+</div>
+
+{% endmacro %}
+
+
+{% macro select(name, nomenclature, mnemonique, titre="", object=None, required="required") %}
+
+  <div id="{{ name | upper }}">
+
+  {% set ns = namespace() %}
+
+  {% if titre != "" %}
+    <label for="{{ name }}">{{ titre }}</label>
+  {% endif %}
+
+  {% set ns.select_options = 'multiple' %}
+
+
+    <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}} data-width="fit">
+
+  {% for d in object[name] %}
+
+    {% set elem = utils.get_nomenclature_from_id(d["id_nomenclature"], nomenclature, "") %}
+
+      <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+  {% endfor %}
+
+  {% for elem in nomenclature[mnemonique]['values'] %}
+
+    {% set ns.is_checked = false %}
+
+    {% for ind in object[name] %}
+
+      {% if elem["id_nomenclature"] == ind%}
+
+        {% set ns.is_checked = true %}
+
+      {% endif %}
+
+    {% endfor %}
+
+    {% if not ns.is_checked %}
+
+    <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+    {% endif %}
+
+  {% endfor %}
+
+  </select>
+
+</div>
+
+{% endmacro %}
+
+
+{% macro radio_nomenclature(name, nomenclature, mnemonique, type, titre="", object=None, add="") %}
+
+
+{% if type == "checkbox" %}
+
+  {% set classes = "checkbox-group-required" %}
+
+{% endif %}
+
+<div id="{{ name | upper }}" class="{{classes}}">
+
+  {% if titre != "" %}
+
+  <label for="{{ name }}">{{ titre }}</label>
+
+  {% endif %}
+
+  {% for elem in nomenclature[mnemonique]['values'] %}
+
+    {% set ns = namespace(checked="") %}
+
+    {% if type == "checkbox" %}
+
+      {% for d in object[name] %}
+        {% if elem.id_nomenclature|string == d["id_nomenclature"]|string %}
+          {% set ns.checked="checked" %}
+        {% endif %}
+      {% endfor %}
+
+    {% else %}
+
+      {% if elem.id_nomenclature|string == object[name]|string %}
+        {% set ns.checked = "checked" %}
+      {% endif %}
+
+    {% endif %}
+
+  <div class="custom-control">
+
+    <input id="{{ name }}{{ add|string }}-{{ loop.index0 }}" name="{{ name }}{{ add|string }}" type="{{ type }}" value="{{ elem.id_nomenclature }}" {{ns.checked}} required>
+    <label for="{{ name }}{{ add|string }}-{{ loop.index0 }}">{{ elem.label_fr }}</label>
+
+  </div>
+
+  {% endfor %}
+
+</div>
+
+{% endmacro %}
+
+{% macro input_text(name, titre="", object=None, required="required") %}
+
+<div id="{{ name | upper }}">
+  <label for="{{ name }}">{{ titre }}</label><br>
+  <input type="text" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+</div>
+
+{% endmacro %}
+
+
+
+{% macro select_map(name, localisation_type, areas, areas_container=[]) %}
+
+<form id="form_{{ name }}" data-localisation-type="{{localisation_type}}" data-areas="{{ areas }}" data-areas-container="{{ areas_container }}">
+
+  <h4>Localisation </h4>
+
+<div>{{ localisation_type }}</div>
+<div>{{ areas }}</div>
+<div>{{ areas_container }}</div>
+
+  <h5>Veuillez choisir un élément sur la carte ou dans la liste.</h5>
+
+  <div class="row">
+
+    <div class="col-md-8">
+
+      <div id="form_localisation_map_{{ name }}">
+        <div id="map_{{name}}" class="map"></div>
+        <div id="infos_map" class="infos_map"></div>
+        <div id="chargement">
+          <div>Chargement en cours <span class="fa fa-spinner"></span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+      {% set ns = namespace( multiple = 'multiple data-actions-box="true"' ) %}
+
+      {% if localisation_type in ("ONF_FRT","DGD") %}
+
+        {% set ns.multiple = "" %}
+        {% set ns.nom_type = "forêts" %}
+
+      {% elif localisation_type == "COMMUNE" %}
+
+        {% set ns.nom_type = "communes" %}
+
+      {% elif localisation_type == "CADASTRE" %}
+
+        {% set ns.nom_type = "parcelles cadastrales" %}
+
+      {% elif localisation_type == "ONF_PRF" %}
+
+        {% set ns.nom_type = "parcelles ONF" %}
+
+      {% endif %}
+
+      <div class=".localisation-select">
+        <div><label for="{{ name }}">Sélection des {{ns.nom_type}}</label></div>
+        <select name="{{ name }}" id="{{ name }}" title="Choisir un element dans la liste" {{ ns.multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
+        </select>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <input type=submit value=Suivant class="btn btn-success float-right">
+
+</form>
+
+{% endmacro %}

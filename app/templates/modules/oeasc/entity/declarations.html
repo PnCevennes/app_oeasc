@@ -1,0 +1,25 @@
+    <h2>Liste de délaration</h2>
+
+    <table class="table-striped">
+
+      {% for declaration in declarations %}
+
+      <tr>
+        <td>Déclaration {{declaration['id_declaration']}}</td> 
+        <td><a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">
+          <button type="button" title="Voir la déclaration" class="button-voir-declaration btn btn-info"><span class="fas fa-eye"></span></button>
+        </a></td>
+
+        <td><a href="{{ url_for('oeasc.modifier_declaration', id_declaration=declaration['id_declaration'])}}">
+          <button type="button" title="Modifier la déclaration" class="button-modifier-declaration btn btn-primary"><span class="fas fa-pen"></span></button>
+        </a></td>
+
+        <td><a href="#">
+          <button type="button" data-id-declaration="{{ declaration['id_declaration'] }}" title="Supprimer la déclaration" class="button-supprimer-declaration btn btn-danger"><span class="fas fa-times"></span></button>
+        </a></td>
+
+      </tr>
+
+      {% endfor %}
+
+    </table>

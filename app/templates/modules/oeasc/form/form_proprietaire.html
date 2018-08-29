@@ -1,0 +1,14 @@
+<form id="form_proprietaire" data-id-proprietaire='{{proprietaire['id_proprietaire'] or ""}}' >
+
+  <h5>Coordonnées du propriétaire</h5>
+
+  {{ macros.input_text("s_nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire) }}
+  {{ macros.input_text("s_telephone", "Téléphone", proprietaire) }}
+  {{ macros.input_text("s_email", "Email", proprietaire) }}
+  {{ macros.input_text("s_adresse", "Adresse du propriétaire (n°, rue, hameau, lieu-dit)", proprietaire) }}
+  {{ macros.input_text("s_code_postal", "Code postal", proprietaire) }}
+  {{ macros.input_text("s_commune_proprietaire", "Commune du propriétaire", proprietaire) }}
+
+  <input type=submit value=Suivant class="btn btn-success float-right">
+
+</form>

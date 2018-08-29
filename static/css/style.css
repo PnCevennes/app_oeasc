@@ -1,0 +1,129 @@
+/* datatble */
+
+body
+{
+word-break: normal;
+
+ -webkit-hyphens: none;
+
+ -moz-hyphens: none;
+
+ -ms-hyphens: none;
+
+ -o-hyphens: none;
+
+ hyphens: none;
+}
+
+.datatable {
+ width: 100%; 
+}
+
+.datatable select {
+  width: 100%;
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+.datatable mark {
+  background-color: lightgray;
+  padding: 0px;
+}
+
+/* leaftlet */
+
+#mapid,#map {
+  height: 500px;
+  padding: 100px;
+}
+
+
+/* header */
+
+header div{
+  display: inline-block;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  /* background-color: lightgray; */
+}
+
+.flex-container div {
+  /* border: 3px solid tomato; */
+}
+
+.flex-container div:nth-child(2) {
+  flex:1;
+  text-align: center;
+  /* background-color: lightgray; */
+
+}
+
+.flex-container:first-child {
+  margin-left: auto
+}
+
+nav,footer {
+  background-color: lightgray;
+}
+
+.right-header {
+  /* background-color: lightgray; */
+  width: 172px;
+  height: 172px;
+}
+
+/* content */
+
+.content h2, h3
+{
+  text-align: center;
+  margin:10px ;
+}
+
+#infos {
+  height: 200px;
+}
+
+footer {
+  margin-top: 10px;
+  /* border-width: 1px 0 0 0; */
+  /* border-style: solid; */
+
+}
+
+footer h2 {
+  text-align: center;
+}
+
+footer>.row>div {
+/* background-color: lightgray; */
+border-style: solid;
+border-color: gray;
+border-width: 0px 1px 0px 0px;
+padding:10px;
+}
+
+footer>.row>div:last-child {
+border-width: 0
+}
+
+.form-group, .form-group h4{
+  border-style: solid;
+border-color: gray;
+border-width: 1px;
+padding: 5px;
+}
+
+form label {
+  width :  100px;
+}
+
+
+form select {
+  width:  200px;
+}

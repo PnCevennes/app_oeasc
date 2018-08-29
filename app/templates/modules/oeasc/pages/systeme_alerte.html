@@ -1,0 +1,34 @@
+{% extends "modules/oeasc/layout.html" %}
+
+
+{% block title %}Signalement de dégâts forestiers{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+
+    <h2>Signalement de dégâts forestiers</h2>
+
+    <h3>Présentation du système d'alerte</h3>
+
+    <h3>Déclaration</h3>
+
+    <ul>
+
+      <li><a href="{{ url_for('oeasc.modifier_declaration')}}">Je déclare des dégats sur ma forêt (ou la forêt dont je suis le gestionnaire).</a></li>
+      <li><a href="{{ url_for('oeasc.declarations')}}">Je consulte mes alertes.</a></li> {# TODO #}
+      
+     </ul>
+
+    <h3>Résultats</h3>
+
+    <ul>
+      <li><a href="">Page de restitution des signalements</a></li>
+    </ul>
+
+  </div>
+
+</div>
+
+{% endblock %}
+

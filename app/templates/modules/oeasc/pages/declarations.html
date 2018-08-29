@@ -1,0 +1,29 @@
+{% extends "modules/oeasc/layout.html" %}
+
+
+{% block title %}Signalement de dégâts forestiers{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <div id='liste_declarations'>
+      {% include "modules/oeasc/entity/declarations.html" %}
+
+    </div>
+
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block js_local %}
+
+{{ super() }}
+
+<script src="{{ url_for('static', filename='modules/oeasc/js/declarations.js') }}"></script>
+
+{% endblock %}

@@ -1,0 +1,50 @@
+{% extends "modules/oeasc/layout.html" %}
+
+
+{% block title %}Documentation{% endblock %}
+
+{% block content %}
+
+<div class="row">
+
+  <div class="col-md-12">
+
+    <h2>Documentation</h2>
+
+    <ul>
+
+      {# <li><a target="_blank" href="{{ url_for('static', filename='documents/') }}"></a></li> #}
+
+      <li>Comptes rendus du comité de pilotage du projet OEASC
+        <ul>
+          <li><a target="_blank" href="{{ url_for('static', filename='documents/CR_COPIL-19déc2017_vf.pdf') }}">Compte rendu de décembre 2017</a></li>
+          <li><a target="_blank" href="{{ url_for('static', filename='documents/CR_COPIL-7juin2018_vf.pdf') }}">Compte rendu de Juin 2018</a></li>
+        </ul>
+      </li>
+
+      <li>Signalement de dégâts de forêt
+        <ul>
+          <li><a target="_blank" href="{{ url_for('static', filename='documents/OEASC_Formulaire-papier_juin2018.pdf') }}">Formulaire d'alerte en version papier</a></li>
+          <li><a target="_blank" href="{{ url_for('static', filename='documents/OEASC_Notice-form-alerte_janv2018.pdf') }}">Notice du formulaire d'alerte</a></li>
+        </ul>
+      </li>
+
+      <li>Méthodologies
+        <ul>
+          <li><a target="_blank" href="{{ url_for('static', filename='documents/Nméthodo_IC-IA_v01.pdf') }}">Guide méthodologique IC/IA</a></li>  
+        </ul>
+      </li>
+
+      <li>Documentation technique
+        <ul>
+          <li><a target="_blank" href="{{ url_for('static', filename='documents/Guide_pratique_CEMAGREF.pdf') }}">Guide pratique d'évaluation des dégats en milieu forestier (CEMAGREF)</a></li>  
+        </ul>
+      </li>
+
+    </ul>
+
+  </div>
+
+</div>
+
+{% endblock %}

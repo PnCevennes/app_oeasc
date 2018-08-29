@@ -1,0 +1,91 @@
+<h4>Foret</h4>
+
+<ul>
+  <li> Type de forêt : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_foret_type, nomenclature) }}</li>
+</ul>
+
+<h4>Localisation</h4>
+<ul>
+  {% for cor_area in declaration['areas'] %}
+  <li>{{cor.id_area}}</li>
+  {% endfor %}
+
+</ul>
+<h4>Peuplement</h4>
+
+<h5>Essence</h5>
+
+<ul>
+  <li>Principale : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</li>
+  <li>Secondaire(s) : {% for cor in declaration.nomenclatures_peuplement_essence_secondaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
+  <li>Complémentaires(s) : {% for cor in declaration.nomenclatures_peuplement_essence_complementaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
+</ul>
+
+
+<h5>Détails</h5>
+
+<ul>
+  <li>Origine du peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_origine, nomenclature) }} </li>
+  <li>Type de peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_type, nomenclature) }} </li>
+
+  {% if  mnemonique_peuplement_type != "PT_MIX" %}
+
+  <li>Maturité du peuplement : {% for cor in declaration.nomenclatures_peuplement_maturite %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
+
+  {% endif %}
+
+</ul>
+
+
+<h5>Protection</h5>
+
+<ul>
+  <li>Existence de protection : {% if declaration.b_peuplement_protection_existence %} oui {% else %} non {% endif %}</li>
+
+  {% if declaration['b_peuplement_protection_existence'] %}
+
+  <li>Type de protection : {% for cor in declaration.nomenclatures_peuplement_protection_type %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
+
+  {% endif %}
+
+</ul>
+
+<h5>Paturage</h5>
+
+<ul>
+  <li>Existence de paturage : {% if declaration.b_peuplement_paturage_presence %} oui {% else %} non {% endif %}</li>
+
+  {% if declaration['b_peuplement_paturage_presence'] %}
+
+  <li>Type de paturage : {% for cor in declaration.nomenclatures_peuplement_paturage_type %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
+  <li>Statut du paturage : {% for cor in declaration.nomenclatures_peuplement_paturage_statut %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
+  <li>Fréquence du paturage : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_paturage_frequence, nomenclature) }} </li>
+
+  {% endif %}
+
+</ul>
+
+<h5>Autres</h5>
+<ul>
+  <li>Accessibilité du peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_acces, nomenclature) }}</li>
+  <li>Espèce(s) avérée(s) : {% for cor in declaration.nomenclatures_peuplement_espece %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %}</li>
+</ul>
+
+<h4>Dégats</h4>
+
+<ul>
+  {% for degat in declaration.degats %}
+  <li>  {{ utils.get_nomenclature_from_id(degat.id_nomenclature_degat_type, nomenclature) }}
+    <ul>
+      {% for degat_essence in degat['degat_essences'] %}
+      <li>{{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature) }} : {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_etendue, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_gravite, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_anteriorite, nomenclature) }}
+      </li>
+      {% endfor %}
+    </ul>
+  </li>
+  {% endfor %}
+</ul>
+
+<h4>Commentaires</h4>
+
+{{ declaration.s_commentaire or "" }}

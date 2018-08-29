@@ -1,0 +1,62 @@
+{# macros pour les formulaires #}
+
+{% import "modules/oeasc/form/form_macros.html" as macros %}
+
+
+<div id="id_form" data-id-form="{{ id_form }}" style="display: none;"></div>
+
+
+{% set ns = namespace(localisation_type = "") %}
+{% set ns.localisation_type_parcelle = "" %}
+
+
+{% set foret = declaration["foret"]%}
+{% include "modules/oeasc/form/form_foret.html" %}
+
+{% if ns.localisation_type == "ONF_FRT" %}
+
+{% set ns.localisation_type_parcelle = "ONF_PRF" %}
+
+{% elif ns.localisation_type in ["COMMUNE", "DGD"]  %}
+
+{% set ns.localisation_type_parcelle = "CADASTRE" %}
+
+{% endif %}
+
+{{ macros.select_map("areas_localisation", ns.localisation_type_parcelle, declaration.areas_localisation, declaration.foret.areas_foret) }}
+
+{% include "modules/oeasc/form/form_peuplement.html" %}
+
+
+{% set degats = declaration["degats"] %}
+{% include "modules/oeasc/form/form_degats.html" %}
+
+
+<form id="form_commentaire">
+
+  <h4>Commentaires*</h4>
+
+  <textarea name="s_commentaire" id="s_commentaire" class="form-control" rows="5" maxlength="1000">
+    {{ declaration.s_commentaire or ""}}
+  </textarea>
+
+  <div><i>(*) : facultatif</i></div>
+
+  <input type=submit value=Suivant class="btn btn-success float-right">
+
+</form>
+
+
+<form id="form_declaration" data-id-declaration="{{declaration['id_declaration']}}" data-id-declarant={{session.current_user.id_role}} >
+
+  <h4>Récapitulatif de la déclaration</h4>
+
+  <div id ="declaration">
+
+    {% include "modules/oeasc/entity/declaration.html" %}
+
+  </div>
+
+  <input type=submit value="Envoyer le formulaire"  class="btn btn-success float-right">
+
+</form>
