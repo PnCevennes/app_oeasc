@@ -74,6 +74,8 @@ $(document).ready(function() {
     var f_option_hover = function(map) {
       return function(e) {
 
+        console.log("a");
+
         var $this = $(this);
 
         var area_name = $this.find('.text').html().trim();
@@ -89,8 +91,8 @@ $(document).ready(function() {
 
     };
 
-    $('#form_' + select_name).find(".localisation-select").on("mouseover", "ul.inner > li", f_option_hover(map));
-    $('#form_' + select_name).find(".localisation-select").on("mouseout", "ul.inner > li", f_option_hover(map));
+    $("#form_" + map.select_name + " .localisation-select").on("mouseover", "ul.inner > li", f_option_hover(map));
+    $("#form_" + map.select_name + " .localisation-select").on("mouseout", "ul.inner > li", f_option_hover(map));
 
 
     var localisation_type = $("#form_" + select_name).attr("data-localisation-type");
