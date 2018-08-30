@@ -12,7 +12,7 @@ $(document).ready(function() {
 
   var deferred_setBounds = function(bounds, map) {
 
-    setTimeout( setBounds, 100, bounds, map);
+    setTimeout( setBounds, 500, bounds, map);
 
   };
 
@@ -115,13 +115,7 @@ $(document).ready(function() {
 
     elem.find(':selected').each(function() {
 
-      // var $this=$(this).prop("selected", true);
-
-      // console.log($(this));
       html+=this.outerHTML;
-
-      // html+='<option value="' + this.value + '" selected>' + this.innerHTML + '</option>';
-
 
     });
 
@@ -134,15 +128,13 @@ $(document).ready(function() {
     elem.html(html);
     elem.selectpicker("refresh");
 
-    // elem.parent().find(".dropdown-menu").find('ul').scrollTop(100);
-
   };
 
 
   var f_change = function(map) { 
     return function(e) {
 
-      e.preventDefault();
+      // e.preventDefault();
 
       var $this = $(this);
 
@@ -160,8 +152,6 @@ $(document).ready(function() {
 
       }
 
-      console.log(values, $(this).val());
-
       // effacer les decochés encore selectionné sur carte
 
       get_layer_selected(map).forEach(function(_layer){
@@ -176,7 +166,6 @@ $(document).ready(function() {
 
         if(!selected) {
 
-          console.log("remove " + _layer.feature.properties.area_name);
           var index = values.indexOf("" + _layer.feature.properties.id_area);
 
           if( index != -1 ) {
@@ -202,16 +191,11 @@ $(document).ready(function() {
 
         if(!l) {
 
-          console.log("not l");
           continue;
 
         }
 
-        console.log("check " + l.feature.properties.area_name, l.selected);
-
         if( !l.selected ) {
-
-          console.log("add " + l.feature.properties.area_name);
 
           M.f_select_layer(l, map);
 
@@ -224,6 +208,8 @@ $(document).ready(function() {
   };
 
   var f_select_layer = function(layer, map) {
+
+    if(!layer) return false; 
 
     var $select = $("#" + map.select_name);
 
@@ -319,56 +305,98 @@ $(document).ready(function() {
 
     if(M.d_ls[name]) {
 
-     feature_collection = M.d_ls[name].featuresCollection;
+      feature_collection = M.d_ls[name].featuresCollection;
 
-   }
+    }
 
-   $select_layer.html('<option value=""></option>');
+    $select_layer.html('<option value=""></option>');
 
-   $legend.hide();
-   $div.hide();
+    $legend.hide();
+    $div.hide();
 
-   if(feature_collection) {
+    if(feature_collection) {
 
-    feature_collection.eachLayer( function(layer) {
+      feature_collection.eachLayer( function(layer) {
 
-      feature_collection.removeLayer(layer);
+        feature_collection.removeLayer(layer);
 
-    });
+      });
 
-  }
+    }
 
-};
+  };
 
 
-var f_on_data_loaded = function(feature_collection, map) {
+  var f_on_data_loaded = function(feature_collection, map) {
 
-  var key_0 = Object.keys(feature_collection._layers)[0];
-  var name = feature_collection._layers[key_0].feature.properties.name;
+    var key_0 = Object.keys(feature_collection._layers)[0];
+    var name = feature_collection._layers[key_0].feature.properties.name;
 
     var $select_layer = $("#" + map.select_name);
 
     $("#form_" + map.select_name + " #chargement").hide();
 
-    console.log("Map : " +String(Object.keys(feature_collection._layers).length) + " elements chargés pour " + name);
 
     deferred_setBounds(feature_collection.getBounds(), map);
 
     // selection et affichage
     var localisation_type = $("#form_" + map.select_name).attr("data-localisation-type");
 
-    var areas = JSON.parse($("#form_" + map.select_name).attr("data-areas").replace(/\'/g, '"'));
-
-    console.log(areas, "areas");
+    var areas = JSON.parse($("#form_" + map.select_name).attr("data-areas").replace(/\'/g, '"').replace(/None/g, 'null'));
 
     for(var i=0; i < areas.length; i++) {
 
-      f_select_layer(get_layer(map, 'id_area', areas[i].id_area), map);
+      var l = get_layer(map, 'id_area', areas[i].id_area);
+
+      if(l)  {
+
+      f_select_layer(l, map);
+
+      }
+
+
+    }
+
+    var selected = $select_layer.val();
+
+    if(name == "OEASC_ONF_PRF") {
+
+      var opts_list = $select_layer.find('option');
+
+      opts_list.sort(function(a, b) {
+
+        if ( a.value == "" ) return 1;
+        if ( b.value == "" ) return -1;
+
+        var s_a = $(a).html().trim();
+        var s_b = $(b).html().trim();
+
+        var i_a = parseInt(s_a.split('-')[0]);
+        var i_b = parseInt(s_b.split('-')[0]);
+
+        return i_a > i_b ? 1 : -1;
+
+      });
+
+      $select_layer.html('').append(opts_list);
+      $select_layer.val(selected);
 
     }
 
     $select_layer.selectpicker("refresh");
+
     $select_layer.change(f_change(map));
+
+
+    //bidouille bug incompréhensible
+    if( selected &&  $select_layer.val()=="" ) {
+
+      $select_layer.val(selected);
+      $select_layer.selectpicker("refresh");
+
+    }
+
+    console.log("Map : " +String(Object.keys(feature_collection._layers).length) + " elements chargés pour " + name + " selected : " + $select_layer.val());
 
   };
 

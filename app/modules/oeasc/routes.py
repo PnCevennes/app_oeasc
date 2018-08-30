@@ -18,12 +18,15 @@ from .repository import (
 from config import config
 
 from .utils import (
-    get_listes_essences
+    get_listes_essences,
+    check_foret
 )
 
 from app.utils.env import (
     DB, URL_REDIRECT
 )
+
+
 
 bp = Blueprint('oeasc', __name__)
 
@@ -114,8 +117,10 @@ def modifier_declaration(id_declaration):
 
     declaration_dict["foret"]["b_statut_public"] = True
     declaration_dict["foret"]["b_document"] = True
-    declaration_dict["foret"]["areas_foret"] = [{'id_area': 2917471}];
-    declaration_dict["areas_localisation"] = [{'id_area': 2918256}, {'id_area': 2918257}, {'id_area': 2918270}, {'id_area': 2918271}];
+    declaration_dict["foret"]["areas_foret"] = [{'id_area': 2917464}]
+    declaration_dict["areas_localisation"] = [{'id_area': 2918256}, {'id_area': 2918257}, {'id_area': 2918270}, {'id_area': 2918271}]
+
+    check_foret(declaration_dict)
 
     return render_template('modules/oeasc/pages/modifier_ou_creer_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 
@@ -132,6 +137,9 @@ def declaration(id_declaration):
 
     declaration_dict = declaration.as_dict(True)
     nomenclature = nomenclature_oeasc()
+
+    check_foret(declaration_dict)
+
 
     return render_template('modules/oeasc/pages/declaration.html', declaration=declaration_dict, nomenclature=nomenclature)
 

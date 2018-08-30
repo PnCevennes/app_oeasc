@@ -11,8 +11,10 @@ from .repository import (
     declaration_dict_sample
 )
 
-from .utils import get_listes_essences
-
+from .utils import (
+    get_listes_essences,
+    check_foret
+)
 
 from .models import (
     TDeclaration,
@@ -26,7 +28,7 @@ from pypnusershub.db.models import User
 
 from app.utils.utilssqlalchemy import as_dict
 
-from app.ref_geo.models import TAreas 
+from app.ref_geo.models import TAreas
 
 bp = Blueprint('oeasc_api', __name__)
 
@@ -81,6 +83,10 @@ def get_form_declaration():
     declaration = data['declaration']
     id_form = data['id_form']
 
+    # recherche de la  foret le cas echeant (apres un choix de foret documentee)
+
+    check_foret(declaration)
+
     listes_essences = get_listes_essences(declaration)
 
     return render_template('modules/oeasc/form/form_declaration.html', declaration=declaration, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
@@ -90,19 +96,12 @@ def get_form_declaration():
 @json_resp
 def test():
 
-    # return declaration_dict_sample()
-    return TDeclaration().as_dict(True)
-    declaration = TDeclaration().from_dict(declaration_dict_sample(), True)
+    d = declaration_dict_sample()
 
-    DB.session.add(declaration)
-    DB.session.commit()
 
-    declaration = DB.session.query(
-        TDeclaration).first()
+    dec= TDeclaration()
 
-    declaration.from_dict(declaration_dict_sample(), True)
-
-    DB.session.commit()
+    dec.from_dict(d,True)
 
     return 'ok'
 
@@ -204,6 +203,7 @@ def create_or_update_declaration():
     if declaration is None:
 
         declaration = TDeclaration()
+
         declaration.from_dict(declaration_dict, True)
         DB.session.add(declaration)
         DB.session.commit()

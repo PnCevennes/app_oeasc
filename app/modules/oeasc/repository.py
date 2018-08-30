@@ -43,9 +43,7 @@ def get_users():
 
     data = DB.session.query(AppUser).filter(AppUser.id_application == config.ID_APP)
 
-    v = [ as_dict(d) for d in data ]
-
-    print(v)
+    v = [as_dict(d) for d in data]
 
     return v
 
@@ -206,7 +204,6 @@ def declaration_dict_sample(nomenclature=None):
         "id_declarant": 1000028,
 
         "foret": foret_dict_sample(),
-        "id_foret": foret_dict_sample()["id_foret"],
 
         "degats": degats_dict_sample(),
 

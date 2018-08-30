@@ -21,6 +21,8 @@ from app.utils.utilssqlalchemy import json_resp
 
 from geojson import FeatureCollection
 
+from .repository import get_id_type
+
 
 def f_area_code(area_code, n):
     return '-'.join(str(area_code).split('-')[:n])
@@ -49,7 +51,7 @@ def get_areas(data_type, type_code, area_code, type_code_container, area_code_co
     #     else:
     #         table = TAC
 
-    id_type = DB.session.execute("select ref_geo.get_id_type(:type_code);", {'type_code': type_code}).first()[0]
+    id_type = get_id_type(type_code)
 
     if area_code != "-":
         data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code == area_code))

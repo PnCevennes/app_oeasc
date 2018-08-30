@@ -3,6 +3,9 @@ from .repository import nomenclature_oeasc
 
 from app.utils.env import DB
 from sqlalchemy import text
+from app.ref_geo.models import TAreas
+from app.ref_geo.repository import get_id_type
+from .models import TForet
 
 
 def get_listes_essences(declaration):
@@ -59,9 +62,7 @@ def get_listes_essences(declaration):
         listes_essences["degats"][id_nomenclature_degat_type] = [e for e in listes_essences["selected"]]
 
         for degat_essence in degat.get('degat_essences', []):
-            print('degat_essence', degat_essence)
             if degat_essence != {}:
-                print(listes_essences["degats"][id_nomenclature_degat_type], degat_essence["id_nomenclature_degat_essence"])
                 listes_essences["degats"][id_nomenclature_degat_type].remove(degat_essence["id_nomenclature_degat_essence"])
 
     return listes_essences
@@ -119,7 +120,37 @@ def get_description_droit(id_droit):
     return switcher.get(id_droit, 'id_droit {} invalide'.format(id_droit))
 
 
+def check_foret(declaration):
+    '''
+        recherche une foret quand une aire est renseignées
+    '''
 
+    if((not declaration["foret"]["id_foret"]) and declaration["foret"]["areas_foret"]):
+
+        # foret = get_id_foret_from_areas(declaration["foret"]["areas_foret"]):
+
+        v_id_type = [get_id_type(type) for type in ["OEASC_ONF_FRT"]]
+
+        for area in declaration["foret"]["areas_foret"]:
+
+            id_area = area['id_area']
+            data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
+
+            if data.id_type in v_id_type:
+
+                forets = DB.session.query(TForet).all()
+
+                for f in [f.as_dict(True) for f in forets]:
+
+                    for area_foret in f['areas_foret']:
+
+                        if id_area == area_foret['id_area']:
+
+                            declaration['foret'] = f
+
+                            return True
+
+    return False
 
 
 def utils_dict():

@@ -294,6 +294,114 @@ def serializeQueryTest(data, columnDef):
         rows.append(inter)
     return rows
 
+def as_dict(self, recursif=False, columns=()):
+
+    cls = self.__class__
+
+    cls_db_columns = [
+        (
+            db_col.key,
+            SERIALIZERS.get(
+                db_col.type.__class__.__name__.lower(),
+                lambda x: x
+            )
+        )
+        for db_col in cls.__mapper__.c
+        if not db_col.type.__class__.__name__ == 'Geometry'
+    ]
+
+    if columns:
+            fprops = list(filter(lambda d: d[0] in columns, cls_db_columns))
+    else:
+        fprops = cls_db_columns
+
+    out = {
+        item: _serializer(getattr(self, item)) for item, _serializer in fprops if hasattr(self, item)
+    }
+
+    if recursif is False:
+        return out
+
+    cls_db_relationships = [
+        (db_rel.key, db_rel.uselist, db_rel.argument) for db_rel in cls.__mapper__.relationships
+    ]
+
+    for (rel, uselist, argument) in cls_db_relationships:
+
+        # if (getattr(self, rel) is None):
+            # continue
+
+        if uselist is True:
+
+            out[rel] = [x.as_dict(True) for x in getattr(self, rel)]
+
+        else:
+
+            if (getattr(self, rel) is None):
+
+                out[rel] = as_dict(argument(), recursif)
+
+            else:
+
+                out[rel] = as_dict(getattr(self, rel), recursif)
+
+    return out
+
+
+def from_dict(self, dict_in, recursif=False):
+
+    if not dict_in:
+
+        return self
+
+    cls = self.__class__
+
+    cls_db_columns = [
+        (
+            db_col.key,
+            SERIALIZERS.get(
+                db_col.type.__class__.__name__.lower(),
+                lambda x: x
+            )
+        )
+        for db_col in cls.__mapper__.c
+        if not db_col.type.__class__.__name__ == 'Geometry'
+    ]
+
+    cls_db_relationships = [
+        (db_rel.key, db_rel.uselist, db_rel.argument) for db_rel in cls.__mapper__.relationships
+    ]
+
+    fprops = cls_db_columns
+
+    for item, _ in fprops:
+        val = dict_in.get(item, None)
+
+        if val is not None:
+            setattr(self, item, val)
+
+    if not recursif:
+        return self
+
+    frel = cls_db_relationships
+
+    for (rel, uselist, argument) in frel:
+
+        # if getattr(argument, 'from_dict', True):
+            # pass
+
+        if uselist:
+
+            v_obj = [from_dict(argument(), dict_obj, recursif) for dict_obj in dict_in.get(rel, [])]
+
+        else:
+
+            v_obj = from_dict(argument(), dict_in.get(rel, None), recursif)
+
+        setattr(self, rel, v_obj)
+
+    return self
+
 
 def serializable(cls):
     """
@@ -357,12 +465,12 @@ def serializable(cls):
                 # continue
 
             if uselist is True:
-                out[rel] = [x.as_dict(True) for x in getattr(self, rel)]
+                out[rel] = [as_dict(x, True) for x in getattr(self, rel)]
             else:
                 if (getattr(self, rel) is None):
-                    out[rel] = argument().as_dict(recursif)
+                    out[rel] = as_dict(argument(), recursif)
                 else:
-                    out[rel] = getattr(self, rel).as_dict(recursif)
+                    out[rel] = as_dict(getattr(self, rel), recursif)
 
         return out
 
@@ -408,114 +516,15 @@ def serializable(cls):
 
         return self
 
-    cls.as_dict = serializefn
-    cls.from_dict = unserializefn
+    # cls.as_dict = serializefn
+    # cls.from_dict = unserializefn
+    cls.as_dict = as_dict
+    cls.from_dict = from_dict
+
+
     return cls
 
 
-def as_dict(self, recursif=False, columns=()):
-
-    cls = self.__class__
-
-    cls_db_columns = [
-        (
-            db_col.key,
-            SERIALIZERS.get(
-                db_col.type.__class__.__name__.lower(),
-                lambda x: x
-            )
-        )
-        for db_col in cls.__mapper__.c
-        if not db_col.type.__class__.__name__ == 'Geometry'
-    ]
-
-    if columns:
-            fprops = list(filter(lambda d: d[0] in columns, cls_db_columns))
-    else:
-        fprops = cls_db_columns
-
-    out = {
-        item: _serializer(getattr(self, item)) for item, _serializer in fprops if hasattr(self, item)
-    }
-
-    if recursif is False:
-        return out
-
-    cls_db_relationships = [
-        (db_rel.key, db_rel.uselist, db_rel.argument) for db_rel in cls.__mapper__.relationships
-    ]
-
-    for (rel, uselist, argument) in cls_db_relationships:
-
-        # if (getattr(self, rel) is None):
-            # continue
-
-        if uselist is True:
-
-            out[rel] = [x.as_dict(True) for x in getattr(self, rel)]
-
-        else:
-
-            if (getattr(self, rel) is None):
-
-                out[rel] = as_dict(argument(), recursif)
-
-            else:
-
-                out[rel] = as_dict(getattr(self, rel), recursif)
-
-    return out
-
-
-def from_dict(self, dict_in, recursif=False):
-
-    cls = self.__class__
-
-    cls_db_columns = [
-        (
-            db_col.key,
-            SERIALIZERS.get(
-                db_col.type.__class__.__name__.lower(),
-                lambda x: x
-            )
-        )
-        for db_col in cls.__mapper__.c
-        if not db_col.type.__class__.__name__ == 'Geometry'
-    ]
-
-    cls_db_relationships = [
-        (db_rel.key, db_rel.uselist, db_rel.argument) for db_rel in cls.__mapper__.relationships
-    ]
-
-    fprops = cls_db_columns
-
-    for item, _ in fprops:
-        val = dict_in.get(item, None)
-
-        if val is not None:
-            setattr(self, item, val)
-
-    if not recursif:
-        return self
-
-    frel = cls_db_relationships
-
-    for (rel, uselist, argument) in frel:
-
-        # if getattr(argument, 'from_dict', True):
-            # pass
-
-        if uselist:
-
-            v_obj = [from_dict(argument(), dict_obj, recursif) for dict_obj in dict_in.get(rel, [])]
-
-        else:
-
-            v_obj = from_dict(argument(), dict_in.get(rel, None), recursif)
-
-        setattr(self, rel, v_obj)
-
-    return self
 
 
 def geoserializable(cls):

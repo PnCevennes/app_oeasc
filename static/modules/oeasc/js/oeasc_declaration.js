@@ -202,17 +202,15 @@ $(document).ready(function() {
 
     }
 
-    var id_form = get_id_form();
-
     if( id_form == "form_areas_localisation" || id_form == "all" ) {
 
-      setTimeout(function() { M.initialiser_form_localisation("areas_localisation") }, 100);
+      setTimeout(function() { M.initialiser_form_localisation("areas_localisation"); }, 100);
 
     }
 
     if( id_form == "form_areas_foret" || id_form == "all" ) {
 
-      setTimeout(function() { M.initialiser_form_localisation("areas_foret") }, 100);
+      setTimeout(function() { M.initialiser_form_localisation("areas_foret"); }, 100);
 
     }
 
@@ -255,18 +253,14 @@ $(document).ready(function() {
     var next = M.d_config_form[id].next;
     var prev = M.d_config_form[id].prev;
 
-    // console.log("submit : ", id, "next : ", next, "prev : ", prev);
-
     if(next) {
-
-      // console.log("go to next form : ", next);
 
       if(get_id_form() == "all") {
 
         recharger_form(null, "all");
         $([document.documentElement, document.body]).animate({
-                    scrollTop: $("#" + next).offset().top - 100
-                    }, 300);
+          scrollTop: $("#" + next).offset().top - 100
+        }, 300);
 
       }
 
@@ -279,8 +273,6 @@ $(document).ready(function() {
     }
 
     else {
-
-      // console.log("submit_form");
 
       var declaration = M.get_declaration_as_dict();
 

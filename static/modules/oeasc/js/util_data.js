@@ -75,8 +75,6 @@ $(document).ready(function() {
 
     foret.b_statut_public = get_choice("b_statut_public");
     foret.b_document = get_choice("b_document");
-    // foret.b_regime_forestier = get_choice("b_regime_forestier");
-    // foret.b_document_de_gestion = get_choice("b_document_de_gestion");
 
     // foret.id_nomenclature_proprietaire_declarant = parseInt($("[name=id_nomenclature_proprietaire_declarant] option:selected").val());
 
@@ -86,7 +84,6 @@ $(document).ready(function() {
     foret.id_proprietaire = foret.proprietaire.id_proprietaire;
 
     foret.areas_foret = get_cor("areas_foret", "id_area", "select");
-
 
     return foret;
   };
@@ -124,31 +121,36 @@ $(document).ready(function() {
     // - peuplement
 
     // - - essences
+    
     declaration.id_nomenclature_peuplement_essence_principale = parseInt($("[name=id_nomenclature_peuplement_essence_principale] option:selected").val());
     declaration.nomenclatures_peuplement_essence_secondaire = get_cor("nomenclatures_peuplement_essence_secondaire", "id_nomenclature", "select");
     declaration.nomenclatures_peuplement_essence_complementaire = get_cor("nomenclatures_peuplement_essence_complementaire", "id_nomenclature", "select");
 
     // - - details
+    
     declaration.id_nomenclature_peuplement_origine = parseInt($("[name=id_nomenclature_peuplement_origine]:checked").val());
     declaration.id_nomenclature_peuplement_type = parseInt($("[name=id_nomenclature_peuplement_type]:checked").val());
     declaration.nomenclatures_peuplement_maturite = get_cor("nomenclatures_peuplement_maturite", "id_nomenclature", "check");
 
 
     // - - protection
+    
     declaration.b_peuplement_protection_existence = get_choice("b_peuplement_protection_existence");
     declaration.nomenclatures_peuplement_protection_type = get_cor("nomenclatures_peuplement_protection_type", "id_nomenclature", "check");;
 
     // - - paturage
+
     declaration.b_peuplement_paturage_presence = get_choice("b_peuplement_paturage_presence");
     declaration.nomenclatures_peuplement_paturage_type = get_cor("nomenclatures_peuplement_paturage_type", "id_nomenclature", "check");
     declaration.nomenclatures_peuplement_paturage_statut = get_cor("nomenclatures_peuplement_paturage_statut", "id_nomenclature", "check");
     declaration.id_nomenclature_peuplement_paturage_frequence = parseInt($("[name=id_nomenclature_peuplement_paturage_frequence]:checked").val());
 
     // - - autres
+    
     declaration.id_nomenclature_peuplement_acces = parseInt($("[name=id_nomenclature_peuplement_acces]:checked").val());
     declaration.nomenclatures_peuplement_espece = get_cor("nomenclatures_peuplement_espece", "id_nomenclature", "check");;
 
-    // - - commentaires
+    // - commentaires
 
     declaration.s_commentaire = $('#s_commentaire').val().trim();
 

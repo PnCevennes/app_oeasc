@@ -17,6 +17,10 @@ DELETE FROM utilisateurs.cor_organism_tag as c
             WHERE c.id_tag = tags.id_tag AND tags.tag_code = 'ORG_OEASC';
 
 
+DELETE FROM utilisateurs.t_roles
+    USING utilisateurs.bib_organismes as b, temp as t
+    WHERE t_roles.id_organisme = b.id_organisme and b.nom_organisme = t.nom_organisme;
+
 DELETE FROM utilisateurs.bib_organismes as b USING temp as t
     WHERE b.nom_organisme = t.nom_organisme;
 

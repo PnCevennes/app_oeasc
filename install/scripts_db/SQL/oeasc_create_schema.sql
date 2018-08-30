@@ -112,13 +112,13 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
 
     CONSTRAINT fk_t_declarations_id_declarant FOREIGN KEY (id_declarant)
         REFERENCES utilisateurs.t_roles (id_role) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE NO ACTION,
+        ON UPDATE CASCADE ON DELETE CASCADE,
 
     --contrainte cle etrangere foret
 
     CONSTRAINT fk_t_declarations_id_foret FOREIGN KEY (id_foret)
         REFERENCES oeasc.t_forets (id_foret) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE NO ACTION,
+        ON UPDATE CASCADE ON DELETE CASCADE,
 
     -- contraintes localisation
 

@@ -10,7 +10,6 @@ $(document).ready(function() {
 
     if(map) {
 
-      console.log("remove");
       map.eachLayer(function(l) {
 
         map.remove(l);
@@ -74,8 +73,6 @@ $(document).ready(function() {
     var f_option_hover = function(map) {
       return function(e) {
 
-        console.log("a");
-
         var $this = $(this);
 
         var area_name = $this.find('.text').html().trim();
@@ -94,16 +91,9 @@ $(document).ready(function() {
     $("#form_" + map.select_name + " .localisation-select").on("mouseover", "ul.inner > li", f_option_hover(map));
     $("#form_" + map.select_name + " .localisation-select").on("mouseout", "ul.inner > li", f_option_hover(map));
 
-
     var localisation_type = $("#form_" + select_name).attr("data-localisation-type");
 
-    var s = $("#form_" + select_name).attr("data-areas-container");
-    s = s.replace(/\'/g, '"');
-
-    console.log(s);
-
-    var areas_container = JSON.parse(s);
-
+    var areas_container = JSON.parse($("#form_" + select_name).attr("data-areas-container").replace(/\'/g, '"').replace(/None/g, 'null'));
 
     if(localisation_type == "COMMUNE") {
 
@@ -138,8 +128,6 @@ $(document).ready(function() {
           name: 'OEASC_ONF_FRT',
           area_code: area_code,
         };
-
-        console.log("fp", fp);
 
         M.f_add_feature_collection_to_map(map, name, fp);
 
