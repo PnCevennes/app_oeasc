@@ -11,8 +11,11 @@ from config import config
 from sqlalchemy import text
 
 from pypnusershub.db.models import (
-   AppUser
+
+    AppUser
 )
+
+from app.ref_geo.models import TAreas
 
 
 
@@ -46,6 +49,7 @@ def get_users():
     v = [as_dict(d) for d in data]
 
     return v
+
 
 def nomenclature_oeasc():
 
@@ -178,6 +182,8 @@ def foret_dict_sample(nomenclature=None):
 
         nomenclature = nomenclature_oeasc()
 
+    id_area = DB.session.query(TAreas.id_area).filter(TAreas.area_name == "48-ramponenche").first()[0]
+
     foret = {
 
         "id_proprietaire": proprietaire_dict_sample(),
@@ -186,7 +192,7 @@ def foret_dict_sample(nomenclature=None):
         "b_document": False,
         "s_nom_foret": "Les sequoias",
         "d_superficie": 2.5,
-        "areas_foret": [{"id_area": 2917353}]
+        "areas_foret": [{"id_area": id_area}]
 
     }
 
@@ -199,15 +205,18 @@ def declaration_dict_sample(nomenclature=None):
 
         nomenclature = nomenclature_oeasc()
 
+    id_area0 = DB.session.query(TAreas.id_area).filter(TAreas.area_name == "0-CHIBIEL").first()[0]
+    id_area1 = DB.session.query(TAreas.id_area).filter(TAreas.area_name == "1-CHIBIEL").first()[0]
+
     declaration = {
 
-        "id_declarant": 1000028,
+        "id_declarant": 1,
 
         "foret": foret_dict_sample(),
 
         "degats": degats_dict_sample(),
 
-        'areas_localisation': [{'id_area': 2931208}],
+        'areas_localisation': [{'id_area': id_area0}, {'id_area': id_area1}],
 
         'b_peuplement_paturage_presence': True,
         'b_peuplement_protection_existence': False,

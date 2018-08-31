@@ -45,7 +45,7 @@ app.secret_key = 'dtgperçtuiperotivemrtikotiçà80979837589UJ5?OI3J?LORJ?C3LKJV
 
 app.config.from_pyfile('config/config.py', silent=True)
 
-app.config['SQLALCHEMY_ECHO'] = True
+# app.config['SQLALCHEMY_ECHO'] = True
 
 DB.init_app(app)
 

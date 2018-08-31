@@ -18,6 +18,7 @@ from .utils import (
 
 from .models import (
     TDeclaration,
+    TForet, TProprietaire
 )
 
 from app.utils.env import DB
@@ -92,26 +93,6 @@ def get_form_declaration():
     return render_template('modules/oeasc/form/form_declaration.html', declaration=declaration, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 
 
-@bp.route('test', methods=['GET'])
-@json_resp
-def test():
-
-    d = declaration_dict_sample()
-
-
-    dec= TDeclaration()
-
-    dec.from_dict(d,True)
-
-    return 'ok'
-
-
-@bp.route('test_dict', methods=['GET'])
-@json_resp
-def test_dict():
-
-    return declaration_dict_sample()
-
 
 @bp.route('test_populate', methods=['GET'])
 @json_resp
@@ -151,37 +132,71 @@ def delete_declaration(id_declaration):
     return "ok"
 
 
-@bp.route('create_or_update_declaration_test', methods=['POST'])
+@bp.route('test', methods=['GET'])
 @json_resp
-def create_or_update_declaration_test():
+def test():
 
-    declaration = TDeclaration()
-
-    declaration_dict = declaration_dict_sample()
-
-    declaration_dict["id_declaration"] = 1
-
-    id_declaration = declaration_dict["id_declaration"]
+    id_declaration = 3
 
     declaration = DB.session.query(
         TDeclaration).filter(
         TDeclaration.id_declaration == id_declaration).first()
 
-    if declaration is None:
+    if(declaration):
 
-        declaration = TDeclaration()
-        declaration.from_dict(declaration_dict, True)
-        DB.session.add(declaration)
-        DB.session.commit()
-        return "create"
+        declaration_dict = declaration.as_dict(True)
+        # declaration_dict["foret"]["id_foret"] = 82
+        declaration_dict["foret"]["proprietaire"]["s_telephone"] = "06wesh"
 
     else:
 
-        declaration.from_dict(declaration_dict, True)
+        declaration_dict = declaration_dict_sample()
+
+    return f_create_or_update_declaration(declaration_dict)
+
+
+def f_create_or_update_declaration(declaration_dict):
+
+    d_inter = TDeclaration().from_dict(declaration_dict, True)
+
+    declaration_dict = d_inter.as_dict(True)
+
+    declaration = TDeclaration()
+    id_declaration = declaration_dict["id_declaration"]
+
+    check_foret(declaration_dict)
+
+    id_foret = declaration_dict["foret"]["id_foret"]
+    id_proprietaire = declaration_dict["foret"]["proprietaire"]["id_proprietaire"]
+
+    declaration = DB.session.query(
+        TDeclaration).filter(
+        TDeclaration.id_declaration == id_declaration).first()
+
+    foret = DB.session.query(
+        TForet).filter(
+        TForet.id_foret == id_foret).first()
+
+    proprietaire = DB.session.query(
+        TProprietaire).filter(
+        TProprietaire.id_proprietaire == id_proprietaire).first()
+
+    if declaration is None:
+
+        declaration = TDeclaration()
         DB.session.add(declaration)
         DB.session.commit()
 
-        return "modify"
+        if foret:
+
+            declaration.foret = foret
+            DB.session.commit()
+
+    declaration.from_dict(declaration_dict, True)
+
+    DB.session.commit()
+
+    return [declaration.as_dict(), declaration.foret.as_dict(), declaration.foret.proprietaire.as_dict()]
 
 
 @bp.route('create_or_update_declaration', methods=['POST'])
@@ -190,34 +205,9 @@ def create_or_update_declaration():
 
     data = request.get_json()
 
-    declaration = TDeclaration()
-
     declaration_dict = data["declaration"]
 
-    id_declaration = declaration_dict["id_declaration"]
-
-    declaration = DB.session.query(
-        TDeclaration).filter(
-        TDeclaration.id_declaration == id_declaration).first()
-
-    if declaration is None:
-
-        declaration = TDeclaration()
-
-        declaration.from_dict(declaration_dict, True)
-        DB.session.add(declaration)
-        DB.session.commit()
-        return "create"
-
-    else:
-
-        declaration.from_dict(declaration_dict, True)
-
-        DB.session.add(declaration)
-
-        DB.session.commit()
-
-        return "modify"
+    return f_create_or_update_declaration(declaration_dict)
 
 
 @bp.route('get_db/<type>/<key>/<val>', methods=['GET'])

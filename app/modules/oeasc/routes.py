@@ -11,8 +11,8 @@ from pypnusershub import routes as fnauth
 from .repository import (
     nomenclature_oeasc,
     get_liste_organismes_oeasc,
-    get_users
-    # declaration_dict_sample
+    get_users,
+    declaration_dict_sample
 )
 
 from config import config
@@ -25,7 +25,6 @@ from .utils import (
 from app.utils.env import (
     DB, URL_REDIRECT
 )
-
 
 
 bp = Blueprint('oeasc', __name__)
@@ -109,16 +108,18 @@ def modifier_declaration(id_declaration):
 
     declaration_dict = declaration.as_dict(True)
 
+    declaration_dict = declaration_dict_sample()
+
     nomenclature = nomenclature_oeasc()
     listes_essences = get_listes_essences(declaration_dict)
 
     id_form = request.args.get("id_form", "form_foret_statut")
     # id_form = "all"
 
-    declaration_dict["foret"]["b_statut_public"] = True
-    declaration_dict["foret"]["b_document"] = True
-    declaration_dict["foret"]["areas_foret"] = [{'id_area': 2917464}]
-    declaration_dict["areas_localisation"] = [{'id_area': 2918256}, {'id_area': 2918257}, {'id_area': 2918270}, {'id_area': 2918271}]
+    # declaration_dict["foret"]["b_statut_public"] = True
+    # declaration_dict["foret"]["b_document"] = True
+    # declaration_dict["foret"]["areas_foret"] = [{'id_area': 2917464}]
+    # declaration_dict["areas_localisation"] = [{'id_area': 2918256}, {'id_area': 2918257}, {'id_area': 2918270}, {'id_area': 2918271}]
 
     check_foret(declaration_dict)
 

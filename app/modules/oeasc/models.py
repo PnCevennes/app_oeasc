@@ -206,7 +206,7 @@ class TDegat(DB.Model):
 
     id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'))
 
-    degat_essences = DB.relationship(TDegatEssence)
+    degat_essences = DB.relationship(TDegatEssence, cascade="save-update, merge, delete, delete-orphan")
 
 
 @serializable
@@ -220,8 +220,8 @@ class TDeclaration(DB.Model):
     # declarant = DB.relationship(User)
 
     id_foret = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_forets.id_foret'))
-    # foret = DB.relationship(TForet, backref='t_declarations', single_parent=True, cascade="save-update, merge, delete, delete-orphan")
     foret = DB.relationship(TForet, cascade="save-update, merge, delete, delete-orphan", single_parent=True)
+    # foret = DB.relationship(TForet)
 
     # id_nomenclature_foret_type = DB.Column(DB.Integer)
 
@@ -244,6 +244,6 @@ class TDeclaration(DB.Model):
     nomenclatures_peuplement_paturage_statut = DB.relationship(CorNomenclatureDeclarationPaturageStatut, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_espece = DB.relationship(CorNomenclatureDeclarationEspece, cascade="save-update, merge, delete, delete-orphan")
 
-    degats = DB.relationship(TDegat)
+    degats = DB.relationship(TDegat, cascade="save-update, merge, delete, delete-orphan")
 
     s_commentaire = DB.Column(DB.Text)

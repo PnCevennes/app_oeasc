@@ -90,6 +90,8 @@ DROP TABLE IF EXISTS ref_geo.li_OEASC_CADASTRE CASCADE;
 DELETE FROM ref_geo.l_areas
     WHERE id_type >= 300 and id_type <= 400;
 
+SELECT setval('ref_geo.l_areas_id_area_seq', (SELECT max(id_area)  FROM ref_geo.l_areas), true);
+
 DELETE FROM ref_geo.bib_areas_types CASCADE
     WHERE id_type >= 300 and id_type <= 400;
 
@@ -184,6 +186,7 @@ UPDATE ref_geo.l_areas SET geom_4326 = st_transform(geom, 4326);
 UPDATE ref_geo.l_areas
     SET area_name='48-bougès_sj'
     WHERE area_code LIKE '%BOUGESSJ';
+
 
 -- index
 

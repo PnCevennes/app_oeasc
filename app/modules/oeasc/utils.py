@@ -125,32 +125,45 @@ def check_foret(declaration):
         recherche une foret quand une aire est renseignées
     '''
 
-    if((not declaration["foret"]["id_foret"]) and declaration["foret"]["areas_foret"]):
+    foret = declaration.get("foret", None)
+
+    if not foret:
+
+        return -1
+
+    id_foret = foret.get("id_foret", None)
+    areas_foret = foret.get("areas_foret", None)
+
+    if((not id_foret) and areas_foret):
 
         # foret = get_id_foret_from_areas(declaration["foret"]["areas_foret"]):
 
         v_id_type = [get_id_type(type) for type in ["OEASC_ONF_FRT"]]
 
-        for area in declaration["foret"]["areas_foret"]:
+        for area in areas_foret:
 
+            print(areas_foret)
             id_area = area['id_area']
             data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
 
-            if data.id_type in v_id_type:
+            if data:
 
-                forets = DB.session.query(TForet).all()
+                if data.id_type in v_id_type:
 
-                for f in [f.as_dict(True) for f in forets]:
+                    forets = DB.session.query(TForet).all()
 
-                    for area_foret in f['areas_foret']:
+                    for f in [f.as_dict(True) for f in forets]:
 
-                        if id_area == area_foret['id_area']:
+                        for area_foret in f['areas_foret']:
 
-                            declaration['foret'] = f
+                            if id_area == area_foret['id_area']:
 
-                            return True
+                                declaration['foret'] = f
 
-    return False
+                                return f
+                                return True
+
+    return -2
 
 
 def utils_dict():
