@@ -142,7 +142,6 @@ def check_foret(declaration):
 
         for area in areas_foret:
 
-            print(areas_foret)
             id_area = area['id_area']
             data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
 

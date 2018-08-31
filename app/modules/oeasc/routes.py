@@ -12,7 +12,8 @@ from .repository import (
     nomenclature_oeasc,
     get_liste_organismes_oeasc,
     get_users,
-    declaration_dict_sample
+    declaration_dict_sample,
+    get_declaration
 )
 
 from config import config
@@ -97,31 +98,18 @@ def modifier_declaration(id_declaration):
         :param id_declaration: identifiant en base de l'object declaration
         :type  id_declaration: integer ou None
     '''
-
-    declaration = TDeclaration()
-
-    if id_declaration > 0:
-        declaration = DB.session.query(TDeclaration).filter(TDeclaration.id_declaration == id_declaration).first()
-
-    if declaration is None:
-        declaration = TDeclaration()
-
-    declaration_dict = declaration.as_dict(True)
+    declaration, foret, proprietaire, declaration_dict = get_declaration(id_declaration)
 
     declaration_dict = declaration_dict_sample()
+    return str(declaration_dict)
 
     nomenclature = nomenclature_oeasc()
     listes_essences = get_listes_essences(declaration_dict)
 
     id_form = request.args.get("id_form", "form_foret_statut")
-    # id_form = "all"
-
-    # declaration_dict["foret"]["b_statut_public"] = True
-    # declaration_dict["foret"]["b_document"] = True
-    # declaration_dict["foret"]["areas_foret"] = [{'id_area': 2917464}]
-    # declaration_dict["areas_localisation"] = [{'id_area': 2918256}, {'id_area': 2918257}, {'id_area': 2918270}, {'id_area': 2918271}]
 
     check_foret(declaration_dict)
+
 
     return render_template('modules/oeasc/pages/modifier_ou_creer_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 

@@ -81,7 +81,8 @@ $(document).ready(function() {
 
   var initialiser_form_peuplement = function() {
 
-    //essence
+    // essence
+
     $("#form_peuplement_essence select").selectpicker("refresh");
 
     $('#form_peuplement_essence select#id_nomenclature_peuplement_essence_principale').change(function() {
@@ -92,7 +93,7 @@ $(document).ready(function() {
 
     $('#form_peuplement_essence [id^="NOMENCLATURES_PEUPLEMENT_ESSENCE"] .bs-searchbox').focusout(f_select_focus_out);
 
-    //details
+    // details
 
     $('[name=id_nomenclature_peuplement_type]').change(function() {
 
@@ -100,7 +101,7 @@ $(document).ready(function() {
 
     });
 
-    //protection
+    // protection
 
     $('[name=b_peuplement_protection_existence]').change(function() {
 
@@ -108,7 +109,7 @@ $(document).ready(function() {
 
     });
 
-    //paturage
+    // paturage
 
     $('[name=b_peuplement_paturage_presence]').change(function() {
 
@@ -293,8 +294,10 @@ $(document).ready(function() {
       }).done(function(response) {
 
         console.log("done : " + this.url);
+        console.log(response);
 
         $("#form_send").show();
+        $("#form_send").html(JSON.stringify(response));
         $("#form_display").hide();
 
       }).fail(function(response) {
@@ -349,11 +352,10 @@ $(document).ready(function() {
     }).done(function(response) {
 
       console.log("done : " + this.url);
+
       $("#form_container").html(response);
 
       initialiser_form(id_form);
-
-      // console.log("afterSend", declaration);
 
       M.declaration_save = M.get_declaration_as_dict();
 

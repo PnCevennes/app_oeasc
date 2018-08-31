@@ -165,7 +165,7 @@ class TForet(DB.Model):
     id_foret = DB.Column(DB.Integer, primary_key=True)
 
     id_proprietaire = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_proprietaires.id_proprietaire'))
-    proprietaire = DB.relationship(TProprietaire, cascade="save-update, merge, delete, delete-orphan", single_parent=True)
+    # proprietaire = DB.relationship(TProprietaire, cascade="save-update, merge, delete, delete-orphan", single_parent=True)
     # proprietaire = DB.relationship(TProprietaire)
 
     b_statut_public = DB.Column(DB.Boolean)
@@ -220,7 +220,7 @@ class TDeclaration(DB.Model):
     # declarant = DB.relationship(User)
 
     id_foret = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_forets.id_foret'))
-    foret = DB.relationship(TForet, cascade="save-update, merge, delete, delete-orphan", single_parent=True)
+    # foret = DB.relationship(TForet, cascade="save-update, merge, delete, delete-orphan", single_parent=True)
     # foret = DB.relationship(TForet)
 
     # id_nomenclature_foret_type = DB.Column(DB.Integer)

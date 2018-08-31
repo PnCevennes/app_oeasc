@@ -59,20 +59,6 @@ def form_declaration(id_declaration):
     return declaration.as_dict(True)
 
 
-@bp.route('test_sample', methods=['POST', 'GET'])
-@json_resp
-def test_sample():
-
-    declaration = TDeclaration()
-    d = declaration_dict_sample()
-
-    declaration.from_dict(d, True)
-
-    d2 = declaration.as_dict(True)
-
-    return d2
-
-
 @bp.route('get_form_declaration', methods=['POST'])
 @json_resp
 def get_form_declaration():
@@ -94,31 +80,6 @@ def get_form_declaration():
 
 
 
-@bp.route('test_populate', methods=['GET'])
-@json_resp
-def test_populate():
-
-    # d = declaration_dict_sample()
-    # # return d;
-    # return TDeclaration().from_dict(d, True).as_dict(True)
-
-    for i in range(10):
-
-        declaration = TDeclaration()
-        declaration.from_dict(declaration_dict_sample(), True)
-
-        DB.session.add(declaration)
-        DB.session.commit()
-
-    declaration = DB.session.query(
-        TDeclaration).filter(
-        TDeclaration.id_declaration == 1).first()
-
-    return declaration.as_dict(True)
-
-    return "ok"
-
-
 @bp.route('delete_declaration/<int:id_declaration>', methods=['POST'])
 @json_resp
 def delete_declaration(id_declaration):
@@ -136,7 +97,7 @@ def delete_declaration(id_declaration):
 @json_resp
 def test():
 
-    id_declaration = 3
+    id_declaration = 100
 
     declaration = DB.session.query(
         TDeclaration).filter(
@@ -145,8 +106,9 @@ def test():
     if(declaration):
 
         declaration_dict = declaration.as_dict(True)
+        declaration_dict["id_declarant"] = 1
         # declaration_dict["foret"]["id_foret"] = 82
-        declaration_dict["foret"]["proprietaire"]["s_telephone"] = "06wesh"
+        # declaration_dict["foret"]["proprietaire"]["s_telephone"] = "06wesh"
 
     else:
 
@@ -157,11 +119,14 @@ def test():
 
 def f_create_or_update_declaration(declaration_dict):
 
+    # return (declaration_dict)
+
     d_inter = TDeclaration().from_dict(declaration_dict, True)
 
     declaration_dict = d_inter.as_dict(True)
 
-    declaration = TDeclaration()
+    declaration = proprietaire = foret = None
+
     id_declaration = declaration_dict["id_declaration"]
 
     check_foret(declaration_dict)
@@ -169,34 +134,25 @@ def f_create_or_update_declaration(declaration_dict):
     id_foret = declaration_dict["foret"]["id_foret"]
     id_proprietaire = declaration_dict["foret"]["proprietaire"]["id_proprietaire"]
 
-    declaration = DB.session.query(
-        TDeclaration).filter(
-        TDeclaration.id_declaration == id_declaration).first()
+    if id_declaration:
 
-    foret = DB.session.query(
-        TForet).filter(
-        TForet.id_foret == id_foret).first()
+        declaration = DB.session.query(
+            TDeclaration).filter(
+            TDeclaration.id_declaration == id_declaration).first()
 
-    proprietaire = DB.session.query(
-        TProprietaire).filter(
-        TProprietaire.id_proprietaire == id_proprietaire).first()
-
-    if declaration is None:
+    if not declaration:
 
         declaration = TDeclaration()
         DB.session.add(declaration)
+
+        declaration.from_dict(declaration_dict, True)
+
         DB.session.commit()
 
-        if foret:
+    else:
+        pass
 
-            declaration.foret = foret
-            DB.session.commit()
-
-    declaration.from_dict(declaration_dict, True)
-
-    DB.session.commit()
-
-    return [declaration.as_dict(), declaration.foret.as_dict(), declaration.foret.proprietaire.as_dict()]
+    return [declaration.as_dict(True)]
 
 
 @bp.route('create_or_update_declaration', methods=['POST'])

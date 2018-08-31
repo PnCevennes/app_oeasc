@@ -17,6 +17,46 @@ $(document).ready(function() {
   };
 
 
+  var set_areas_cor = function(name, data_type, val) {
+
+    var values = $('#' + name).val();
+
+    if(values == "") {
+
+      values=[];
+
+    }
+
+    else if( !(values instanceof Array) ) {
+
+      values = [values];
+
+    }
+
+    var d = [];
+
+    for(var i=0; i<values.length; i++) {
+
+      d.push({"id_area":values[i]});
+
+    }
+
+    var s = JSON.stringify(d);
+
+    $("#form_" + name).attr(data_type, s);
+
+  };
+
+  var get_areas_cor = function(name, data_type) {
+
+    var s = $("#form_" + name).attr(data_type).replace(/\'/g, '"').replace(/None/g, 'null');
+
+    var d = JSON.parse(s);
+
+    return d;
+
+  };
+
   var get_cor = function(name, id_name,type="select") {
 
     var out = [];
@@ -83,7 +123,7 @@ $(document).ready(function() {
     foret.proprietaire = get_id_proprietaire_as_dict();
     foret.id_proprietaire = foret.proprietaire.id_proprietaire;
 
-    foret.areas_foret = get_cor("areas_foret", "id_area", "select");
+    foret.areas_foret = get_areas_cor("areas_foret", "data-areas");
 
     return foret;
   };
@@ -104,10 +144,9 @@ $(document).ready(function() {
 
     declaration.id_declaration = parseInt($('#form_declaration').attr('data-id-declaration'));
 
-    //
+    // declarant
 
-    declaration.id_declarant = parseInt($('#form_declarant').attr('data-id-declarant'));
-
+    declaration.id_declarant = parseInt($('#form_declaration').attr('data-id-declarant'));
 
     // - degats
 
@@ -116,25 +155,25 @@ $(document).ready(function() {
     // - localisation
 
     // declaration.id_nomenclature_foret_type = parseInt($("[name=id_nomenclature_foret_type] option:selected").val());
-    declaration.areas_localisation = get_cor("areas_localisation", "id_area", "select");
+    declaration.areas_localisation = get_areas_cor("areas_localisation", "data-areas");
 
     // - peuplement
 
     // - - essences
-    
+
     declaration.id_nomenclature_peuplement_essence_principale = parseInt($("[name=id_nomenclature_peuplement_essence_principale] option:selected").val());
     declaration.nomenclatures_peuplement_essence_secondaire = get_cor("nomenclatures_peuplement_essence_secondaire", "id_nomenclature", "select");
     declaration.nomenclatures_peuplement_essence_complementaire = get_cor("nomenclatures_peuplement_essence_complementaire", "id_nomenclature", "select");
 
     // - - details
-    
+
     declaration.id_nomenclature_peuplement_origine = parseInt($("[name=id_nomenclature_peuplement_origine]:checked").val());
     declaration.id_nomenclature_peuplement_type = parseInt($("[name=id_nomenclature_peuplement_type]:checked").val());
     declaration.nomenclatures_peuplement_maturite = get_cor("nomenclatures_peuplement_maturite", "id_nomenclature", "check");
 
 
     // - - protection
-    
+
     declaration.b_peuplement_protection_existence = get_choice("b_peuplement_protection_existence");
     declaration.nomenclatures_peuplement_protection_type = get_cor("nomenclatures_peuplement_protection_type", "id_nomenclature", "check");;
 
@@ -146,7 +185,7 @@ $(document).ready(function() {
     declaration.id_nomenclature_peuplement_paturage_frequence = parseInt($("[name=id_nomenclature_peuplement_paturage_frequence]:checked").val());
 
     // - - autres
-    
+
     declaration.id_nomenclature_peuplement_acces = parseInt($("[name=id_nomenclature_peuplement_acces]:checked").val());
     declaration.nomenclatures_peuplement_espece = get_cor("nomenclatures_peuplement_espece", "id_nomenclature", "check");;
 
@@ -209,6 +248,9 @@ $(document).ready(function() {
 
   };
 
+
+  M.get_areas_cor = get_areas_cor;
+  M.set_areas_cor = set_areas_cor;
   M.get_declaration_as_dict=get_declaration_as_dict;
   M.get_foret_as_dict=get_foret_as_dict;
   M.get_degats_as_dict=get_degats_as_dict;

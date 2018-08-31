@@ -17,9 +17,57 @@ from pypnusershub.db.models import (
 
 from app.ref_geo.models import TAreas
 
+from .models import (
+    TDeclaration,
+    TForet,
+    TProprietaire
+)
 
 
+def dfp_form_dict(declaration, foret, proprietaire):
 
+    if not declaration:
+
+        declaration = TDeclaration()
+
+    if not foret:
+
+        foret = TForet()
+
+    if not proprietaire:
+
+        proprietaire = TProprietaire()
+
+    declaration_dict = declaration.as_dict(True)
+    declaration_dict["foret"] = foret.as_dict(True)
+    declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
+
+
+def get_declaration(id_declaration):
+
+    declaration = foret = proprietaire = None
+
+    declaration = DB.session.query(TDeclaration).filter(id_declaration == TDeclaration.id_declaration).first()
+
+    if declaration:
+
+        id_foret = declaration.id_foret
+
+        if id_foret:
+
+            foret = DB.session.query(TForet).filter(id_foret == TDeclaration.id_foret).first()
+
+            if foret:
+
+                id_proprietaire = foret.id_proprietaire
+
+                if id_proprietaire:
+
+                    proprietaire = DB.session.query(TProprietaire).filter(id_proprietaire == TDeclaration.id_proprietaire).first()
+
+    declaration_dict = dfp_form_dict(declaration, foret, proprietaire)
+
+    return (declaration, foret, proprietaire, declaration_dict)
 
 
 def get_liste_organismes_oeasc():
@@ -186,7 +234,6 @@ def foret_dict_sample(nomenclature=None):
 
     foret = {
 
-        "id_proprietaire": proprietaire_dict_sample(),
         "proprietaire": proprietaire_dict_sample(),
         "b_statut_public": False,
         "b_document": False,

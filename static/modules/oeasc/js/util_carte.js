@@ -209,7 +209,7 @@ $(document).ready(function() {
 
   var f_select_layer = function(layer, map) {
 
-    if(!layer) return false; 
+    if(!layer) return false;
 
     var $select = $("#" + map.select_name);
 
@@ -264,6 +264,8 @@ $(document).ready(function() {
       $select.find("option[value=" + fp.id_area + "]").prop("selected", true);
 
     }
+
+    M.set_areas_cor(map.select_name, "data-areas", $select.val());
 
   };
 
@@ -342,18 +344,20 @@ $(document).ready(function() {
     // selection et affichage
     var localisation_type = $("#form_" + map.select_name).attr("data-localisation-type");
 
-    var areas = JSON.parse($("#form_" + map.select_name).attr("data-areas").replace(/\'/g, '"').replace(/None/g, 'null'));
+    // var areas = JSON.parse($("#form_" + map.select_name).attr("data-areas").replace(/\'/g, '"').replace(/None/g, 'null'));
+    var areas = M.get_areas_cor(map.select_name, "data-areas");
+
+    console.log("areas", areas);
 
     for(var i=0; i < areas.length; i++) {
 
       var l = get_layer(map, 'id_area', areas[i].id_area);
 
-      if(l)  {
+      if(l) {
 
       f_select_layer(l, map);
 
       }
-
 
     }
 
@@ -508,6 +512,12 @@ $(document).ready(function() {
     M.l=null;
 
     var l_searched=null;
+
+    if (!value || !key) {
+
+      return null;
+
+    }
 
     map.eachLayer(function(l) {
 

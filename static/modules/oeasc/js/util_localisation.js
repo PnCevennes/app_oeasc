@@ -93,7 +93,10 @@ $(document).ready(function() {
 
     var localisation_type = $("#form_" + select_name).attr("data-localisation-type");
 
-    var areas_container = JSON.parse($("#form_" + select_name).attr("data-areas-container").replace(/\'/g, '"').replace(/None/g, 'null'));
+    // var areas_container = JSON.parse($("#form_" + select_name).attr("data-areas-container").replace(/\'/g, '"').replace(/None/g, 'null'));
+    var areas_container = M.get_areas_cor(select_name,"data-areas-container");
+
+
 
     if(localisation_type == "COMMUNE") {
 
