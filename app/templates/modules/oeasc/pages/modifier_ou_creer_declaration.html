@@ -12,8 +12,13 @@
 
     <h2>Signalez un dégât en forêt</h2>
 
+
     <div id="form_display">
+
+
     </div>
+
+
 
     <div id="form_container">
       {% include "modules/oeasc/form/form_declaration.html" %}
@@ -21,10 +26,10 @@
 
     <div id="form_send" style="display:none;">
 
-      <p>Votre signalement de dégat de forêt a bien été envoyé.</p>
+      <p>Votre signalement de dégât de forêt a bien été envoyé.</p>
 
       <ul>
-        <li><a href="{{ url_for('oeasc.modifier_declaration')}}">Je déclare des dégats sur ma forêt (ou la forêt dont je suis le gestionnaire).</a></li>
+        <li><a href="{{ url_for('oeasc.modifier_declaration')}}">Je déclare des dégâts sur ma forêt (ou la forêt dont je suis le gestionnaire).</a></li>
         <li><a href="{{ url_for('oeasc.declarations')}}">Je consulte mes alertes.</a></li> {# TODO #}
       </ul>
 

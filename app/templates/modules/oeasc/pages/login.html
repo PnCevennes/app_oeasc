@@ -5,6 +5,8 @@
 
 {% block content %}
 
+{{config.URL_APPLICATION}}
+
 <div class="row">
 
   <div class="col-md-12">
@@ -29,7 +31,7 @@
         </div>
     </form>
 
-    <div> 
+    <div>
         <p>Si vous ne possédez pas de compte, vous pouvez vous inscrire <a href="{{ url_for('oeasc.register') }}">ici.</a></p>
     </div>
 
@@ -59,7 +61,6 @@
                     "password" : $('#user_pwd').val()
                 };
 
-            console.log(data);
             $("#login-error").hide();
             $.post({
                 url : '{{config.URL_APPLICATION}}' + '/pypn/auth/login',
@@ -73,6 +74,7 @@
                 success: function(response){
                     console.log(response);
                     window.location.href = '{{config.URL_APPLICATION}}';
+                    // window.location.href = '{{referrer or config.URL_APPLICATION}}';
                 },
                 error: function(error){
                     $("#login-error" ).show();

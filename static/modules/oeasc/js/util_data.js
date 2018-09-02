@@ -17,7 +17,7 @@ $(document).ready(function() {
   };
 
 
-  var set_areas_cor = function(name, data_type, val) {
+  var set_areas_cor = function(name, data_type, val, data_type_2, val_2) {
 
     var values = $('#' + name).val();
 
@@ -33,27 +33,46 @@ $(document).ready(function() {
 
     }
 
-    var d = [];
+    var v = [];
 
     for(var i=0; i<values.length; i++) {
 
-      d.push({"id_area":values[i]});
+      var d = {};
+      d["id_area"] = parseInt(values[i]);
+      d[data_type_2] = val_2;
+
+      v.push(d);
 
     }
 
-    var s = JSON.stringify(d);
+    var s = JSON.stringify(v);
 
     $("#form_" + name).attr(data_type, s);
 
   };
 
+
+  var get_from_flask_json = function(s) {
+
+    s = s.replace(/\'/g, '"');
+    s = s.replace(/None/g, 'null')
+    s = s.replace(/True/g, 'true')
+    s = s.replace(/False/g, 'false')
+
+    return JSON.parse(s);
+
+  };
+
+
   var get_areas_cor = function(name, data_type) {
 
-    var s = $("#form_" + name).attr(data_type).replace(/\'/g, '"').replace(/None/g, 'null');
+    return get_from_flask_json($("#form_" + name).attr(data_type));
 
-    var d = JSON.parse(s);
+    // var s = $("#form_" + name).attr(data_type).replace(/\'/g, '"').replace(/None/g, 'null');
 
-    return d;
+    // var d = JSON.parse(s);
+
+    // return d;
 
   };
 
@@ -255,5 +274,5 @@ $(document).ready(function() {
   M.get_foret_as_dict=get_foret_as_dict;
   M.get_degats_as_dict=get_degats_as_dict;
   M.get_cor = get_cor;
-
+  M.get_from_flask_json = get_from_flask_json;
 });

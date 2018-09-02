@@ -61,6 +61,7 @@ with app.app_context():
 
     @app.after_request
     def after_login_method(response):
+
         if not request.cookies.get('token'):
             session["current_user"] = None
 

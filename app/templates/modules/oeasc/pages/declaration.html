@@ -11,10 +11,38 @@
 
     <h2>Declaration</h2>
 
-  <div id ="declaration">
-    {% include "modules/oeasc/entity/declaration.html" %}
+    <div id ="declaration" data-declaration="{{declaration}}">
+      {% include "modules/oeasc/entity/declaration.html" %}
+    </div>
+
   </div>
 
 </div>
 
+{% endblock %}
+
+
+{% block js_local %}
+
+{{ super() }}
+
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_form.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_data.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_localisation.js') }}"></script>
+
+<script>
+
+  $(document).ready(function() {
+
+    console.log($('#declaration').attr('data-declaration'));
+
+    var declaration = M.get_from_flask_json($('#declaration').attr('data-declaration'));
+
+    console.log(declaration)
+
+    M.initialiser_show_localisation("show_localisation", declaration);
+
+  });
+
+</script>
 {% endblock %}

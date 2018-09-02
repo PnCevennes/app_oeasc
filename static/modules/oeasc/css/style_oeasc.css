@@ -6,7 +6,7 @@
 }
 
 footer a {
-color:  darkgray;
+  color:  darkgray;
 }
 
 
@@ -144,20 +144,20 @@ header div{
 
 .form-degat-essence {
 
-background-color: rgba(0 ,0 ,0, 0.1);
+  background-color: rgba(0 ,0 ,0, 0.1);
 
 }
 
 .degat-essence {
 
-display: flex;
-width: 100%;
+  display: flex;
+  width: 100%;
 
 }
 
 .degat-essence-container > div {
 
-margin-bottom: 2px;
+  margin-bottom: 2px;
 }
 
 .degat-essence > div {
@@ -228,16 +228,16 @@ margin-bottom: 2px;
 
 .legend div {
 
-    border-style: solid;
-    border-width: 1px 1px 0px 1px;
-    border-color: lightgray;
-    padding: 5px;
+  border-style: solid;
+  border-width: 1px 1px 0px 1px;
+  border-color: lightgray;
+  padding: 5px;
 
 }
 
 .legend div:last-child {
 
-    border-width: 1px;
+  border-width: 1px;
 
 }
 
@@ -253,20 +253,72 @@ margin-bottom: 2px;
 
 .legend-oeasc {
 
-background: repeating-linear-gradient(
-  45deg,
-  #606dbc,
-  #606dbc 10px,
-  #465298 10px,
-  #465298 20px);
+  background: repeating-linear-gradient(
+    45deg,
+    #606dbc,
+    #606dbc 10px,
+    #465298 10px,
+    #465298 20px);
 
 }
 
-/* tricks cartes form */
+.fil-ariane {
 
-/* #form_localisation .dropdown-menu
-{
+  padding : 10px;
+  display:flex;
+  align-items: center;
+  justify-content: space-around;
 
-background-color: rgba(255, 255, 255, 0.1);
+}
 
-} */
+
+.fil-ariane a,.fil-ariane span{
+
+  color: grey;
+  padding: 10px;
+  border-radius:5px; 
+
+}
+
+.fil-ariane a {
+
+  background-color: rgba(255,255,255,0.8);
+  /* color: black; */
+
+}
+
+.fil-ariane a[disabled=disabled] {
+
+  color: grey;
+  background-color: rgba(255,255,255,0.1);
+  cursor: default;
+}
+
+
+.fil-ariane a[current=true]{
+
+  font-weight: bold;
+  color: orange;
+  text-decoration: underline;
+  border: solid 2px;
+}
+
+#fil_global {
+
+  background-color : rgb(50,50,50);
+
+}
+
+#fil_local {
+
+  background-color : rgb(80,80,80);
+  justify-content: space-around;
+
+}
+
+form h4 {
+
+  padding:10px;
+  background-color: lightgrey;
+  border-radius:0 0 10px 10px;
+}

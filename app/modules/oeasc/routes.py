@@ -13,14 +13,16 @@ from .repository import (
     get_liste_organismes_oeasc,
     get_users,
     declaration_dict_sample,
-    get_declaration
+    get_dfp,
+    dfp_as_dict,
 )
 
 from config import config
 
 from .utils import (
     get_listes_essences,
-    check_foret
+    check_foret,
+    get_liste_communes,
 )
 
 from app.utils.env import (
@@ -49,7 +51,8 @@ def login():
     '''
         page de connection
     '''
-    return render_template('modules/oeasc/pages/login.html', config=config, id_app=config.ID_APP)
+
+    return render_template('modules/oeasc/pages/login.html', config=config, id_app=config.ID_APP, referrer=request.referrer)
 
 
 @bp.route('/register')
@@ -88,8 +91,8 @@ def signalement_degats_forestiers():
     return render_template('modules/oeasc/pages/systeme_alerte.html')
 
 
-@bp.route('/creer_declaration/', defaults={'id_declaration': -1})
-@bp.route('/modifier_declaration/<int:id_declaration>')
+@bp.route('/modifier_ou_creer_declaration/', defaults={'id_declaration': -1})
+@bp.route('/modifier_ou_creer_declaration/<int:id_declaration>')
 @fnauth.check_auth(1, False, URL_REDIRECT)
 def modifier_declaration(id_declaration):
     '''
@@ -98,18 +101,21 @@ def modifier_declaration(id_declaration):
         :param id_declaration: identifiant en base de l'object declaration
         :type  id_declaration: integer ou None
     '''
-    declaration, foret, proprietaire, declaration_dict = get_declaration(id_declaration)
+    declaration, foret, proprietaire = get_dfp(id_declaration)
 
-    declaration_dict = declaration_dict_sample()
-    return str(declaration_dict)
+    if((declaration is None) and (id_declaration != -1)):
+
+        return "la declaration id_declaration : " + str(id_declaration) + " n'existe pas"
+
+    declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
 
     nomenclature = nomenclature_oeasc()
+
     listes_essences = get_listes_essences(declaration_dict)
 
     id_form = request.args.get("id_form", "form_foret_statut")
 
-    check_foret(declaration_dict)
-
+    # check_foret(declaration_dict)
 
     return render_template('modules/oeasc/pages/modifier_ou_creer_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 
@@ -122,13 +128,11 @@ def declaration(id_declaration):
         TODO
     '''
 
-    declaration = DB.session.query(TDeclaration).filter(id_declaration == TDeclaration.id_declaration).first()
+    declaration, foret, proprietaire = get_dfp(id_declaration)
+    declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
+    declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
 
-    declaration_dict = declaration.as_dict(True)
     nomenclature = nomenclature_oeasc()
-
-    check_foret(declaration_dict)
-
 
     return render_template('modules/oeasc/pages/declaration.html', declaration=declaration_dict, nomenclature=nomenclature)
 

@@ -1,0 +1,24 @@
+
+<div>Nom : {{foret.s_nom_foret}}</div>
+<div> Statut : {% if foret.b_statut_public %} public {% else %} privé {% endif %}, 
+{% if foret.b_document %}
+    {% if foret.b_statut_public %}
+        dépendant du régime ONF.
+    {% else %}
+        possédant un document de gestion durable.
+    {% endif %}
+{% else %}
+    non documenté.
+{% endif %} 
+</div>
+
+<div>
+Communes : {% for commune in foret.communes %}
+  {{commune}} 
+{% endfor %}.
+
+  {% for cor_area in foret['areas_foret'] %}
+  <li>{{cor_area.id_area}}</li>
+  {% endfor %}
+
+</div>

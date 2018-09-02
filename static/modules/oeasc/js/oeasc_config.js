@@ -25,6 +25,9 @@ $(document).ready(function() {
   color.OEASC_CADASTRE = color.p3;
   color.LOCALISATION_SELECTION = color.selected;
 
+  color.foret = color.p1
+  color.localisation = color.p3
+
 
   var stripes = new L.StripePattern({
     weight: 2,

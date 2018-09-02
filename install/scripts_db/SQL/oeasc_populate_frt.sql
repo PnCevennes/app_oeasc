@@ -56,22 +56,22 @@ SELECT  l.id_area, f.id_foret
 
 -- renseignement des communes et des departements :
 
-INSERT INTO oeasc.cor_areas_forets(
-    id_area, id_foret)
-    SELECT b.id_area, a.id_foret --,a.area_name, b.area_name, ST_AREA(ST_INTERSECTION(b.geom, a.geom))*(1./ST_AREA(b.geom) + 1./ST_AREA(a.geom))
-        FROM ref_geo.l_areas as b,
-        (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_COMMUNE',0.05) as id_com, geom
-            FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l
-            WHERE l.id_type = ref_geo.get_id_type('OEASC_ONF_FRT') AND l.id_area = c.id_area) a
-        WHERE b.id_area = a.id_com
-        ORDER BY a.area_name, b.area_name;
+-- INSERT INTO oeasc.cor_areas_forets(
+--     id_area, id_foret)
+--     SELECT b.id_area, a.id_foret --,a.area_name, b.area_name, ST_AREA(ST_INTERSECTION(b.geom, a.geom))*(1./ST_AREA(b.geom) + 1./ST_AREA(a.geom))
+--         FROM ref_geo.l_areas as b,
+--         (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_COMMUNE',0.05) as id_com, geom
+--             FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l
+--             WHERE l.id_type = ref_geo.get_id_type('OEASC_ONF_FRT') AND l.id_area = c.id_area) a
+--         WHERE b.id_area = a.id_com
+--         ORDER BY a.area_name, b.area_name;
 
-INSERT INTO oeasc.cor_areas_forets(
-    id_area, id_foret)
-    SELECT b.id_area, a.id_foret --,a.area_name, b.area_name, ST_AREA(ST_INTERSECTION(b.geom, a.geom))*(1./ST_AREA(b.geom) + 1./ST_AREA(a.geom))
-        FROM ref_geo.l_areas as b,
-        (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_DEPARTEMENT',0.05) as id_com, geom
-            FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l
-            WHERE l.id_type = ref_geo.get_id_type('OEASC_ONF_FRT') AND l.id_area = c.id_area) a
-        WHERE b.id_area = a.id_com
-        ORDER BY a.area_name, b.area_name;
+-- INSERT INTO oeasc.cor_areas_forets(
+--     id_area, id_foret)
+--     SELECT b.id_area, a.id_foret --,a.area_name, b.area_name, ST_AREA(ST_INTERSECTION(b.geom, a.geom))*(1./ST_AREA(b.geom) + 1./ST_AREA(a.geom))
+--         FROM ref_geo.l_areas as b,
+--         (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_DEPARTEMENT',0.05) as id_com, geom
+--             FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l
+--             WHERE l.id_type = ref_geo.get_id_type('OEASC_ONF_FRT') AND l.id_area = c.id_area) a
+--         WHERE b.id_area = a.id_com
+--         ORDER BY a.area_name, b.area_name;

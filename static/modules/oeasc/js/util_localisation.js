@@ -2,6 +2,89 @@ $(document).ready(function() {
 
   "use strict";
 
+  var initialiser_show_declarations = function(show_name, declarations) {
+
+    var map=M["map_" + show_name]
+
+    //reset
+
+    if(map) {
+
+      map.eachLayer(function(l) {
+
+        map.remove(l);
+
+      });
+
+    }
+
+    map = M.carte_base_oeasc(show_name, "opentopomap");
+
+    map.select_name = show_name
+
+    M.style.oeasc.fillPattern = null;
+    M.style.oeasc.fillOpacity = 0.1;
+    M.l_perimetre_OEASC.setStyle(M.style.oeasc);
+    $('#' + name).find("#legend-oeasc i").css("background", "");
+
+
+    declarations.forEach(function(e) {
+
+      M.load_declaration_centroid(e, map);
+
+    });
+
+
+  }
+
+  var initialiser_show_localisation = function(show_name, declaration) {
+
+    var map=M["map_" + show_name]
+
+    //reset
+
+    if(map) {
+
+      map.eachLayer(function(l) {
+
+        map.remove(l);
+
+      });
+
+    }
+
+    map = M.carte_base_oeasc(show_name, "opentopomap");
+
+    map.select_name = show_name
+
+    M.style.oeasc.fillPattern = null;
+    M.style.oeasc.fillOpacity = 0.1;
+    M.l_perimetre_OEASC.setStyle(M.style.oeasc);
+    $('#' + name).find("#legend-oeasc i").css("background", "");
+
+    var name = 'foret';
+    var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Foret" + '</div>';
+    $('#' + show_name).find(".legend").append(s_legend);
+
+    name = 'localisation';
+    var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Parcelle" + '</div>';
+    $('#' + show_name).find(".legend").append(s_legend);
+
+    // charger les foret
+
+    var areas_foret = declaration.foret.areas_foret;
+
+    M.load_areas(areas_foret, "foret", map);
+
+    // charger les aires
+
+    var areas_localisation = declaration.areas_localisation;
+
+    M.load_areas(areas_localisation, "localisation", map);
+
+  }
+
+
   var initialiser_form_localisation = function(select_name) {
 
     var map=M["map_" + select_name]
@@ -13,10 +96,8 @@ $(document).ready(function() {
       map.eachLayer(function(l) {
 
         map.remove(l);
-      });
 
-      // $("#map_" + select_name).remove();
-      // $("#form_localisation_map_" + select_name).append('<div id="map_' + select_name + '"></div>');
+      });
 
     }
 
@@ -28,18 +109,17 @@ $(document).ready(function() {
 
     // modification du style pour le perimetre oeasc
 
-    M.style.oeasc.fillPattern=null;
-    M.style.oeasc.fillOpacity=0.1;
+    M.style.oeasc.fillPattern = null;
+    M.style.oeasc.fillOpacity = 0.1;
     M.l_perimetre_OEASC.setStyle(M.style.oeasc);
-     $('#form_' + select_name).find("#legend-oeasc i").css("background", "");
-
+    $('#form_' + select_name).find("#legend-oeasc i").css("background", "");
 
     // initialisation des legendes et select pour la localisation
 
     M.list.data.forEach(function(name) {
 
       var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + M.d_ls[name].label + '</div>';
-       $('#form_' + select_name).find(".legend").append(s_legend);
+      $('#form_' + select_name).find(".legend").append(s_legend);
 
     });
 
@@ -47,26 +127,23 @@ $(document).ready(function() {
 
     name="LOCALISATION_SELECTION";
     var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Selection" + '</div>';
-     $('#form_' + select_name).find(".legend").append(s_legend);
+    $('#form_' + select_name).find(".legend").append(s_legend);
 
     // on cache ttes les légendes
 
     M.list.data.forEach(function(e) {
 
-       $('#form_' + select_name).find("#legend-" + e).hide();
+     $('#form_' + select_name).find("#legend-" + e).hide();
 
-    });
+   });
 
-     $('#form_' + select_name).find('#chargement').hide();
-
-
+    $('#form_' + select_name).find('#chargement').hide();
 
     $('#' + name).parent().find('.bs-select-all').click( function() {
 
       $('#' + name).change();
 
     });
-
 
     // les tooltip des layer s'affichent au survol des options
 
@@ -93,9 +170,7 @@ $(document).ready(function() {
 
     var localisation_type = $("#form_" + select_name).attr("data-localisation-type");
 
-    // var areas_container = JSON.parse($("#form_" + select_name).attr("data-areas-container").replace(/\'/g, '"').replace(/None/g, 'null'));
     var areas_container = M.get_areas_cor(select_name,"data-areas-container");
-
 
 
     if(localisation_type == "COMMUNE") {
@@ -138,8 +213,47 @@ $(document).ready(function() {
 
     }
 
+    if(localisation_type == "CADASTRE") {
+
+      for (var i =0; i<areas_container.length; i++) {
+
+        name = 'OEASC_CADASTRE';
+
+        var area = M.get_db('t_areas','id_area',areas_container[i].id_area)
+        var area_code = area.area_code;
+        var id_type = area.id_type;
+
+        var id_type_commune = M.get_id_type('OEASC_COMMUNE')
+        var id_type_dgd = M.get_id_type('OEASC_DGD')
+
+        var name_container = "";
+
+        if( id_type == id_type_commune) {
+
+          name_container = 'OEASC_COMMUNE'
+
+        } else {
+
+          name_container = 'OEASC_DGD';
+
+        }
+
+
+        var fp = {
+          name: name_container,
+          area_code: area_code,
+        };
+
+        M.f_add_feature_collection_to_map(map, name, fp);
+
+      }
+
+    }
+
   };
 
-  M.initialiser_form_localisation = initialiser_form_localisation;
 
+  M.initialiser_form_localisation = initialiser_form_localisation;
+  M.initialiser_show_localisation = initialiser_show_localisation;
+  M.initialiser_show_declarations =initialiser_show_declarations;
 });

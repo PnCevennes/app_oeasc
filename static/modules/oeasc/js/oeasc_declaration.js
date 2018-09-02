@@ -195,7 +195,64 @@ $(document).ready(function() {
 
 
 
+  var f_init_fil_ariane = function(selector) {
+
+    var disabled = false;
+
+    $(selector).each(function() {
+
+      var $this = $(this);
+      var id_form = $this.attr("data-id-form");
+      var $form = $("#" + id_form);
+
+      disabled = (!$form[0].checkValidity()) || disabled;
+
+      var declaration = M.get_declaration_as_dict();
+
+      if(id_form == "form_areas_localisation") {
+
+        disabled = (declaration["areas_localisation"].length == 0);
+
+      }
+
+      if(id_form == "form_areas_foret") {
+
+        disabled = (declaration["foret"]["areas_foret"].length == 0);
+
+      }
+
+
+      if(disabled)
+        $this.attr("disabled", disabled);
+
+      $this.attr("current", id_form == get_id_form())
+
+
+
+    });
+
+
+  };
+
   var initialiser_form = function(id_form=null) {
+
+    var declaration = M.get_declaration_as_dict()
+
+    $(".fil-ariane a").unbind("click");
+
+    $(".fil-ariane a").unbind("each");
+
+    $(".fil-ariane a").click(function(e) {
+
+      e.preventDefault();
+
+      var $this =$(this)
+
+      var id_form = $this.attr("data-id-form");
+
+      recharger_form(null, id_form);
+
+    });
 
     if( ! id_form ) {
 
@@ -208,6 +265,13 @@ $(document).ready(function() {
       setTimeout(function() { M.initialiser_form_localisation("areas_localisation"); }, 100);
 
     }
+
+    if( id_form == "form_declaration" || id_form == "all" ) {
+
+      setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
+
+    }
+
 
     if( id_form == "form_areas_foret" || id_form == "all" ) {
 
@@ -232,6 +296,7 @@ $(document).ready(function() {
       // on commence avec le statut de la foret
 
       $("#form_display").html("");
+      $("#form_display").append($("#fil_ariane"));
       $("#form_display").append($("#" + id_form));
 
     }
@@ -241,6 +306,9 @@ $(document).ready(function() {
       $("#form_display").hide("");
 
     }
+
+    f_init_fil_ariane("#fil_global a");
+    f_init_fil_ariane("#fil_local a");
 
   };
 
@@ -297,7 +365,7 @@ $(document).ready(function() {
         console.log(response);
 
         $("#form_send").show();
-        $("#form_send").html(JSON.stringify(response));
+        // $("#form_send").html(JSON.stringify(response));
         $("#form_display").hide();
 
       }).fail(function(response) {

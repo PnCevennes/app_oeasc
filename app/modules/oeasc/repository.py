@@ -24,7 +24,7 @@ from .models import (
 )
 
 
-def dfp_form_dict(declaration, foret, proprietaire):
+def dfp_as_dict(declaration, foret, proprietaire):
 
     if not declaration:
 
@@ -42,8 +42,27 @@ def dfp_form_dict(declaration, foret, proprietaire):
     declaration_dict["foret"] = foret.as_dict(True)
     declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
 
+    return declaration_dict
 
-def get_declaration(id_declaration):
+
+def get_foret(id_foret):
+
+    foret = proprietaire = None
+
+    foret = DB.session.query(TForet).filter(id_foret == TForet.id_foret).first()
+
+    if foret:
+
+        id_proprietaire = foret.id_proprietaire
+
+        if id_proprietaire:
+
+            proprietaire = DB.session.query(TProprietaire).filter(id_proprietaire == TProprietaire.id_proprietaire).first()
+
+    return foret, proprietaire
+
+
+def get_dfp(id_declaration):
 
     declaration = foret = proprietaire = None
 
@@ -55,19 +74,29 @@ def get_declaration(id_declaration):
 
         if id_foret:
 
-            foret = DB.session.query(TForet).filter(id_foret == TDeclaration.id_foret).first()
+            foret, proprietaire = get_foret(id_foret)
 
-            if foret:
+    return (declaration, foret, proprietaire)
 
-                id_proprietaire = foret.id_proprietaire
 
-                if id_proprietaire:
+def create_or_modify(model, key, val, dict_in):
 
-                    proprietaire = DB.session.query(TProprietaire).filter(id_proprietaire == TDeclaration.id_proprietaire).first()
+    elem = None
 
-    declaration_dict = dfp_form_dict(declaration, foret, proprietaire)
+    if key:
 
-    return (declaration, foret, proprietaire, declaration_dict)
+        elem = DB.session.query(model).filter(getattr(model, key) == val).first()
+
+    if elem is None:
+
+        elem = model()
+        DB.session.add(elem)
+
+    elem.from_dict(dict_in, True)
+
+    DB.session.commit()
+
+    return elem
 
 
 def get_liste_organismes_oeasc():
@@ -89,7 +118,7 @@ def get_liste_organismes_oeasc():
 
 def get_users():
     '''
-    Retroune la liste des utilisateurs OEASC
+    Retourne la liste des utilisateurs OEASC
     '''
 
     data = DB.session.query(AppUser).filter(AppUser.id_application == config.ID_APP)

@@ -1,25 +1,30 @@
+{% set foret = declaration["foret"]%}
+
 <h4>Foret</h4>
 
-<ul>
-  <li> Type de forêt : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_foret_type, nomenclature) }}</li>
-</ul>
+{% include "modules/oeasc/entity/foret.html" %}
 
 <h4>Localisation</h4>
-<ul>
-  {% for cor_area in declaration['areas'] %}
-  <li>{{cor.id_area}}</li>
-  {% endfor %}
 
-</ul>
+{% include "modules/oeasc/entity/localisation.html" %}
+
 <h4>Peuplement</h4>
 
 <h5>Essence</h5>
 
 <ul>
   <li>Principale : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</li>
+  {% if declaration.nomenclatures_peuplement_essence_secondaire | length %}
   <li>Secondaire(s) : {% for cor in declaration.nomenclatures_peuplement_essence_secondaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
+  {% endif %}
+  
+  {% if declaration.nomenclatures_peuplement_essence_complementaire | length %}
   <li>Complémentaires(s) : {% for cor in declaration.nomenclatures_peuplement_essence_complementaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
+  {% endif %}
+
 </ul>
+
+
 
 
 <h5>Détails</h5>
@@ -71,7 +76,7 @@
   <li>Espèce(s) avérée(s) : {% for cor in declaration.nomenclatures_peuplement_espece %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %}</li>
 </ul>
 
-<h4>Dégats</h4>
+<h4>Dégâts</h4>
 
 <ul>
   {% for degat in declaration.degats %}

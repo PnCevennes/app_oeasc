@@ -257,9 +257,9 @@
 
       {% set ns = namespace( multiple = 'multiple data-actions-box="true"' ) %}
 
-      {% if localisation_type in ("ONF_FRT","DGD") %}
+      {% if localisation_type in ("ONF_FRT", "DGD") %}
 
-        {% set ns.multiple = "" %}
+        {% set ns.multiple = '' %}
         {% set ns.nom_type = "forêts" %}
 
       {% elif localisation_type == "COMMUNE" %}
@@ -277,6 +277,7 @@
       {% endif %}
 
       <div class="localisation-select">
+
         <div><label for="{{ name }}">Sélection des {{ns.nom_type}}</label></div>
         <select name="{{ name }}" id="{{ name }}" title="Choisir un element dans la liste" {{ ns.multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
         </select>
@@ -287,7 +288,7 @@
   </div>
 
 
-  <input type=submit value=Suivant class="btn btn-success float-right">
+  <input type=submit Valider class="btn btn-success float-right">
 
 </form>
 

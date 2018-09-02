@@ -9,7 +9,7 @@
 
   <div id="NOMENCLATURE_DEGAT_TYPE" class="checkbox-group-required">
 
-    <label for="nomenclatures_degat_type">Type de dégat*</label>
+    <label for="nomenclatures_degat_type">Type de dégât*</label>
 
     {% for elem in nomenclature.OEASC_DEGAT_TYPE['values'] %}
 
@@ -102,7 +102,9 @@
             <div>{{ macros.radio_nomenclature("id_nomenclature_degat_anteriorite", nomenclature, "OEASC_DEGAT_ANTERIORITE", "radio", object=degat_essence, add=add) }}</div>
             <div>
 
-          {% if n_degat_essences > 0 %}
+          {% if n_degat_essences > 0 and degat_essence["id_nomenclature_degat_essence"]%}
+
+              {{degat["degat_essences"]}}
 
               <button type="button" class="button-undo-degat-essence btn btn-warning" data-degat-type="{{ elem.id_nomenclature }}" data-degat-essence='{{ degat_essence["id_nomenclature_degat_essence"] }}'><span class="fas fa-undo"></span></button>
 
@@ -142,6 +144,6 @@
   </div>
 
 
-  <input {{ ns.input_disabled }} id="input_degat_essence" type=submit value=Suivant class="btn btn-success float-right">
+  <input {{ ns.input_disabled }} id="input_degat_essence" type=submit Valider class="btn btn-success float-right">
 
 </form>

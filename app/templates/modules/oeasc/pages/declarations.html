@@ -1,9 +1,12 @@
 {% extends "modules/oeasc/layout.html" %}
 
 
+
 {% block title %}Signalement de dégâts forestiers{% endblock %}
 
 {% block content %}
+
+<div id="declarations" data-declarations="{{declarations}}"></div>
 
 <div class="row">
 
@@ -13,6 +16,21 @@
       {% include "modules/oeasc/entity/declarations.html" %}
 
     </div>
+
+    <div id="show_declarations">
+
+      <div id="map_show_declarations" class="map"></div>
+
+      <div id="infos_map" class="infos_map"></div>
+
+      <div id="chargement">
+
+        <div>Chargement en cours <span class="fa fa-spinner"></span></div>
+
+      </div>
+
+    </div>
+
 
   </div>
 
@@ -24,6 +42,45 @@
 
 {{ super() }}
 
-<script src="{{ url_for('static', filename='modules/oeasc/js/declarations.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_form.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_data.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_localisation.js') }}"></script>
+
+<script>
+
+$(document).ready(function() {
+
+  "use strict";
+
+  var declatations = M.get_from_flask_json($('#declarations').attr('data-declarations'));
+
+  M.initialiser_show_declarations('show_declarations', declatations);
+
+  $(".button-supprimer-declaration").click(function() {
+
+    var $this = $(this);
+    var id_declaration = $this.attr('data-id-declaration');
+
+    $.ajax({
+
+      type: 'POST',
+      url: "/api/oeasc/delete_declaration/" + id_declaration,
+
+    }).done(function(response) {
+
+      console.log("done : " + this.url);
+      $this.parents("tr").remove();
+
+    }).fail(function(response) {
+
+      console.log("fail : " + this.url, response);
+
+    });
+
+  });
+
+});
+
+</script>
 
 {% endblock %}

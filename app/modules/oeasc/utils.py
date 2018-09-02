@@ -5,7 +5,35 @@ from app.utils.env import DB
 from sqlalchemy import text
 from app.ref_geo.models import TAreas
 from app.ref_geo.repository import get_id_type
-from .models import TForet
+from .models import (
+    TForet,
+    TProprietaire
+)
+
+
+def get_liste_communes(declaration):
+
+    areas = declaration["foret"]["areas_foret"]
+
+    communes = []
+
+    for area in areas:
+
+        id_area = area["id_area"]
+
+        sql_text = text("SELECT b.area_name \
+         FROM ref_geo.l_areas as b, \
+         (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_COMMUNE',0.05) as id_com, geom\
+             FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l\
+             WHERE l.id_area = " + str(id_area) + " AND l.id_area = c.id_area) a\
+         WHERE b.id_area = a.id_com\
+         ORDER BY a.area_name, b.area_name;")
+
+        data = DB.engine.execute(sql_text)
+
+        [communes.append(d[0]) for d in data]
+
+    return communes
 
 
 def get_listes_essences(declaration):
@@ -62,7 +90,9 @@ def get_listes_essences(declaration):
         listes_essences["degats"][id_nomenclature_degat_type] = [e for e in listes_essences["selected"]]
 
         for degat_essence in degat.get('degat_essences', []):
-            if degat_essence != {}:
+
+            if degat_essence != {} and degat_essence["id_nomenclature_degat_essence"]:
+
                 listes_essences["degats"][id_nomenclature_degat_type].remove(degat_essence["id_nomenclature_degat_essence"])
 
     return listes_essences
@@ -157,12 +187,20 @@ def check_foret(declaration):
 
                             if id_area == area_foret['id_area']:
 
+                                id_proprietaire = f.get('id_proprietaire', None)
+
+                                if id_proprietaire:
+
+                                    proprietaire = DB.session.query(TProprietaire).filter(
+                                        id_proprietaire == TProprietaire.id_proprietaire).first()
+
+                                    f["proprietaire"] = proprietaire.as_dict(True)
+
                                 declaration['foret'] = f
 
-                                return f
-                                return True
+                                return 1
 
-    return -2
+    return -1
 
 
 def utils_dict():

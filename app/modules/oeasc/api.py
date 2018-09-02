@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*
 
+
 from pypnnomenclature.models import TNomenclatures
 
 from flask import (
@@ -8,11 +9,15 @@ from flask import (
 
 from .repository import (
     nomenclature_oeasc,
-    declaration_dict_sample
+    declaration_dict_sample,
+    create_or_modify,
+    dfp_as_dict,
+    get_dfp,
 )
 
 from .utils import (
     get_listes_essences,
+    get_liste_communes,
     check_foret
 )
 
@@ -29,7 +34,8 @@ from pypnusershub.db.models import User
 
 from app.utils.utilssqlalchemy import as_dict
 
-from app.ref_geo.models import TAreas
+from app.ref_geo.models import TAreas, LAreas
+from app.ref_geo.repository import get_id_type
 
 bp = Blueprint('oeasc_api', __name__)
 
@@ -75,9 +81,9 @@ def get_form_declaration():
     check_foret(declaration)
 
     listes_essences = get_listes_essences(declaration)
+    declaration["foret"]["communes"] = get_liste_communes(declaration)
 
     return render_template('modules/oeasc/form/form_declaration.html', declaration=declaration, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
-
 
 
 @bp.route('delete_declaration/<int:id_declaration>', methods=['POST'])
@@ -97,62 +103,43 @@ def delete_declaration(id_declaration):
 @json_resp
 def test():
 
-    id_declaration = 100
+    id_declaration = 4
 
-    declaration = DB.session.query(
-        TDeclaration).filter(
-        TDeclaration.id_declaration == id_declaration).first()
+    declaration, foret, proprietaire = get_dfp(id_declaration)
 
     if(declaration):
 
-        declaration_dict = declaration.as_dict(True)
-        declaration_dict["id_declarant"] = 1
-        # declaration_dict["foret"]["id_foret"] = 82
-        # declaration_dict["foret"]["proprietaire"]["s_telephone"] = "06wesh"
-
-    else:
-
-        declaration_dict = declaration_dict_sample()
+        declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
 
     return f_create_or_update_declaration(declaration_dict)
 
 
 def f_create_or_update_declaration(declaration_dict):
 
-    # return (declaration_dict)
-
-    d_inter = TDeclaration().from_dict(declaration_dict, True)
-
-    declaration_dict = d_inter.as_dict(True)
+    # return declaration_dict["foret"]["areas_foret"]
 
     declaration = proprietaire = foret = None
 
-    id_declaration = declaration_dict["id_declaration"]
+    id_declaration = declaration_dict.get("id_declaration", None)
 
-    check_foret(declaration_dict)
+    id_foret = declaration_dict["foret"].get("id_foret", None)
+    id_proprietaire = declaration_dict["foret"]["proprietaire"].get("id_proprietaire", None)
 
-    id_foret = declaration_dict["foret"]["id_foret"]
-    id_proprietaire = declaration_dict["foret"]["proprietaire"]["id_proprietaire"]
+    # return [id_foret, id_proprietaire, id_declaration, declaration_dict]
 
-    if id_declaration:
+    proprietaire = create_or_modify(TProprietaire, 'id_proprietaire', id_proprietaire, declaration_dict["foret"]["proprietaire"])
 
-        declaration = DB.session.query(
-            TDeclaration).filter(
-            TDeclaration.id_declaration == id_declaration).first()
+    declaration_dict['foret']['id_proprietaire'] = proprietaire.id_proprietaire
 
-    if not declaration:
+    foret = create_or_modify(TForet, 'id_foret', id_foret, declaration_dict["foret"])
 
-        declaration = TDeclaration()
-        DB.session.add(declaration)
+    declaration_dict['id_foret'] = foret.id_foret
 
-        declaration.from_dict(declaration_dict, True)
+    declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
 
-        DB.session.commit()
+    d = dfp_as_dict(declaration, foret, proprietaire)
 
-    else:
-        pass
-
-    return [declaration.as_dict(True)]
+    return [d]
 
 
 @bp.route('create_or_update_declaration', methods=['POST'])
@@ -187,3 +174,35 @@ def get_db(type, key, val):
             return as_dict(data)
 
     return "None"
+
+
+@bp.route('declaration_areas/<int:id_declaration>/<string:type>', methods=['GET'])
+@json_resp
+def declaration_areas(id_declaration, type):
+
+    declaration = DB.session.query(TDeclaration).filter(TDeclaration.id_declaration == id_declaration).first()
+
+    id_foret = declaration.id_foret
+
+    foret = DB.session.query(TForet).filter(TForet.id_foret == id_foret).first()
+
+    areas = []
+
+    if type == "foret":
+
+        areas = foret.areas_foret
+
+    else:
+
+        areas = declaration.areas_localisation
+
+    v = [a.id_area for a in areas]
+
+    out = []
+
+    for id_area in v:
+
+        data = DB.session.query(LAreas).filter(LAreas.id_area == id_area).first()
+        out.append(data.get_geofeature())
+
+    return out

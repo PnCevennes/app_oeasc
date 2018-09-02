@@ -1,12 +1,11 @@
 from flask import (
-    Blueprint
+    Blueprint,
+    request
 )
 
 from .models import (
     TAreas as TA,
     LAreas as LA,
-    # TAreasCadastre as TAC,
-    # LAreasCadastre as LAC,
 )
 
 from sqlalchemy.sql import func
@@ -31,6 +30,60 @@ def f_area_code(area_code, n):
 bp = Blueprint('ref_geo', __name__)
 
 
+@bp.route('get_id_type/<string:code_type>')
+@json_resp
+def get_id_type_api(code_type):
+
+    return get_id_type(code_type)
+
+
+@bp.route('area/<string:data_type>/<int:id_area>')
+@json_resp
+def get_area(data_type, id_area):
+
+    if data_type == 'l':
+        table = LA
+    else:
+        table = TA
+
+    data = DB.session.query(table).filter(id_area == table.id_area).all()
+
+    if data_type == 'l':
+        return FeatureCollection([d.get_geofeature() for d in data])
+    else:
+        return [d.as_dict() for d in data]
+
+
+@bp.route('areas_post/<string:data_type>', methods=['POST'])
+@json_resp
+def get_areas_post(data_type):
+
+    data_in = request.get_json()
+
+    areas = data_in['areas']
+
+    if data_type == 'l':
+        table = LA
+    else:
+        table = TA
+
+    out = []
+
+    for area in areas:
+        data = DB.session.query(table).filter(area['id_area'] == table.id_area).all()
+
+        if data_type == 'l':
+            out += [d.get_geofeature() for d in data]
+        else:
+            out += [d.as_dict() for d in data]
+
+    if data_type == 'l':
+
+        out = FeatureCollection(out)
+
+    return out
+
+
 @bp.route('areas/<string:data_type>/<string:type_code>//', defaults={'area_code': "-", 'type_code_container': "-", 'area_code_container': "-"})
 @bp.route('areas/<string:data_type>/<string:type_code>/<string:area_code>/', defaults={'type_code_container': "-", 'area_code_container': "-"})
 @bp.route('areas/<string:data_type>/<string:type_code>/<string:area_code>/<string:type_code_container>', defaults={'area_code_container': "-"})
@@ -40,16 +93,10 @@ def get_areas(data_type, type_code, area_code, type_code_container, area_code_co
 
     if data_type == 'l' or type_code_container != "-":
         table = LA
-        table_parent = LA
     else:
         table = TA
-        table_parent = LA
 
-    # if type_code == 'OEASC_CADASTRE':
-    #     if table == LA:
-    #         table = LAC
-    #     else:
-    #         table = TAC
+    table_parent = LA
 
     id_type = get_id_type(type_code)
 
