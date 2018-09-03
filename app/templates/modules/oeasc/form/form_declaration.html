@@ -29,6 +29,7 @@
 
 {{ macros.select_map("areas_localisation", ns.localisation_type_parcelle, declaration.areas_localisation, declaration.foret.areas_foret) }}
 
+
 {% include "modules/oeasc/form/form_peuplement.html" %}
 
 
@@ -39,6 +40,8 @@
 <form id="form_commentaire">
 
   <h4>Commentaires*</h4>
+
+  <label for="s_commentaire"></label>
 
   <textarea name="s_commentaire" id="s_commentaire" class="form-control" rows="5" maxlength="1000">
     {{ declaration.s_commentaire or ""}}
@@ -51,7 +54,7 @@
 </form>
 
 
-<form id="form_declaration" data-id-declaration="{{declaration['id_declaration']}}" data-id-declarant={{session.current_user.id_role}} >
+<form id="form_declaration" data-id-declaration="{{declaration['id_declaration']}}" data-id-declarant={{session.current_user.id_role}}{#  data-user={{session.current_user}} #}>
 
   <h4>Récapitulatif de la déclaration</h4>
 
@@ -64,3 +67,5 @@
   <input type=submit value="Envoyer le formulaire"  class="btn btn-success float-right">
 
 </form>
+
+{% include "modules/oeasc/form/tooltips.html" %}

@@ -88,6 +88,10 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
 
     id_nomenclature_foret_type INTEGER,
 
+    -- proprietaire-declarant
+
+    id_nomenclature_proprietaire_declarant INTEGER,
+
     -- peuplement
 
     id_nomenclature_peuplement_origine INTEGER,
@@ -128,7 +132,7 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
     CONSTRAINT check_t_declarations_id_nomenclature_foret_type CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
         id_nomenclature_foret_type, 'OEASC_FORET_TYPE')) NOT VALID,
 
-    -- contraintes cor nomenclatures peuplement
+    -- contraintes fk nomenclatures peuplement
 
     CONSTRAINT fk_t_declarations_id_nomenclature_peuplement_essence_principale FOREIGN KEY (id_nomenclature_peuplement_essence_principale)
         REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
@@ -158,7 +162,14 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
         REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT check_t_declarations_id_nomenclature_peuplement_acces CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
-        id_nomenclature_peuplement_acces, 'OEASC_PEUPLEMENT_ACCES')) NOT VALID
+        id_nomenclature_peuplement_acces, 'OEASC_PEUPLEMENT_ACCES')) NOT VALID,
+
+    CONSTRAINT fk_t_declarations_id_nomenclature_proprietaire_declarant FOREIGN KEY (id_nomenclature_proprietaire_declarant)
+        REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE NO ACTION,
+    CONSTRAINT check_t_declarations_id_nomenclature_proprietaire_declarant CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
+        id_nomenclature_proprietaire_declarant, 'OEASC_PROPRIETAIRE_DECLARANT')) NOT VALID
+
 );
 
 -- gestion des dates pour les declarations

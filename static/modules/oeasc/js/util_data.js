@@ -144,6 +144,8 @@ $(document).ready(function() {
 
     foret.areas_foret = get_areas_cor("areas_foret", "data-areas");
 
+    foret.d_superficie = parseInt($("#d_superficie").val());
+
     return foret;
   };
 
@@ -166,6 +168,9 @@ $(document).ready(function() {
     // declarant
 
     declaration.id_declarant = parseInt($('#form_declaration').attr('data-id-declarant'));
+    declaration.id_nomenclature_proprietaire_declarant = parseInt($("[name=id_nomenclature_proprietaire_declarant]:checked").val());
+
+
 
     // - degats
 

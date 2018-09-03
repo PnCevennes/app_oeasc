@@ -18,7 +18,7 @@ $(document).ready(function() {
 
     }
 
-    map = M.carte_base_oeasc(show_name, "opentopomap");
+    map = M.carte_base_oeasc(show_name, "mapbox");
 
     map.select_name = show_name
 
@@ -53,7 +53,7 @@ $(document).ready(function() {
 
     }
 
-    map = M.carte_base_oeasc(show_name, "opentopomap");
+    map = M.carte_base_oeasc(show_name, "mapbox");
 
     map.select_name = show_name
 
@@ -101,7 +101,7 @@ $(document).ready(function() {
 
     }
 
-    map = M.carte_base_oeasc(select_name, "opentopomap");
+    map = M.carte_base_oeasc(select_name, "mapbox");
 
     map.select_name = select_name;
 

@@ -181,22 +181,26 @@ def check_foret(declaration):
 
                     forets = DB.session.query(TForet).all()
 
-                    for f in [f.as_dict(True) for f in forets]:
+                    for f in forets:
 
-                        for area_foret in f['areas_foret']:
+                        f_dict = f.as_dict(True)
+
+                        for area_foret in f_dict['areas_foret']:
 
                             if id_area == area_foret['id_area']:
 
-                                id_proprietaire = f.get('id_proprietaire', None)
+                                print('AAAAAAA', f_dict['d_superficie'])
+
+                                id_proprietaire = f_dict.get('id_proprietaire', None)
 
                                 if id_proprietaire:
 
                                     proprietaire = DB.session.query(TProprietaire).filter(
                                         id_proprietaire == TProprietaire.id_proprietaire).first()
 
-                                    f["proprietaire"] = proprietaire.as_dict(True)
+                                    f_dict["proprietaire"] = proprietaire.as_dict(True)
 
-                                declaration['foret'] = f
+                                declaration['foret'] = f_dict
 
                                 return 1
 

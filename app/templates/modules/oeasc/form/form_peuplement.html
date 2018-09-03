@@ -1,6 +1,8 @@
 <form id="form_peuplement_essence">
 
-  <h4>Essences objectifs</h4>
+  <h4>Essences objectifs </h4>
+
+<label for="tooltip_essence"></label>
 
   {{ macros.select_essence("id_nomenclature_peuplement_essence_principale", nomenclature, titre="Essence objectif principale", object=declaration, listes_essences=listes_essences, afficher_type_essence="oui") }}
 
@@ -46,7 +48,7 @@
 
   {% if declaration['b_peuplement_protection_existence'] %}
 
-    {{ macros.radio_nomenclature("nomenclatures_peuplement_protection_type", nomenclature, "OEASC_PEUPLEMENT_PROTECTION_TYPE", "checkbox", "Type de protection*", object=declaration) }}
+  {{ macros.radio_nomenclature("nomenclatures_peuplement_protection_type", nomenclature, "OEASC_PEUPLEMENT_PROTECTION_TYPE", "checkbox", "Type de protection*", object=declaration) }}
 
   {% endif %}
 
@@ -65,11 +67,11 @@
 
   {% if declaration['b_peuplement_paturage_presence'] %}
 
-    {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_type", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "checkbox", "Type de pâturage*", object=declaration) }}
+  {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_type", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "checkbox", "Type de pâturage*", object=declaration) }}
 
-    {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_statut", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "checkbox", "Statut du pâturage*", object=declaration) }}
+  {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_statut", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "checkbox", "Statut du pâturage*", object=declaration) }}
 
-    {{ macros.radio_nomenclature("id_nomenclature_peuplement_paturage_frequence", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "radio", "Fréquence du pâturage", object=declaration) }}
+  {{ macros.radio_nomenclature("id_nomenclature_peuplement_paturage_frequence", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "radio", "Fréquence du pâturage", object=declaration) }}
 
   {% endif %}
 

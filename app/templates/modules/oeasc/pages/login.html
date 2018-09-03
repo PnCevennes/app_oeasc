@@ -63,7 +63,8 @@
 
             $("#login-error").hide();
             $.post({
-                url : '{{config.URL_APPLICATION}}' + '/pypn/auth/login',
+                // url : '{{config.URL_APPLICATION}}' + '/pypn/auth/login',
+                url : '/pypn/auth/login',
                 data : JSON.stringify ({
                     "id_application": $('#user_app').val(),
                     "login": $('#user_id').val(),

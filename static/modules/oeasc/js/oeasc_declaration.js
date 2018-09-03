@@ -70,9 +70,16 @@ $(document).ready(function() {
 
   };
 
+
   // initialise formulaire foret
 
   var initialiser_form_foret = function() {
+
+    $('[name=id_nomenclature_proprietaire_declarant]').change(function() {
+
+      // recharger_form();
+
+    });
 
   };
 
@@ -202,32 +209,51 @@ $(document).ready(function() {
     $(selector).each(function() {
 
       var $this = $(this);
-      var id_form = $this.attr("data-id-form");
-      var $form = $("#" + id_form);
+      var id_form_cur = $this.attr("data-id-form");
+      var id_form = get_id_form();
+
+      var $form = $("#" + id_form_cur);
 
       disabled = (!$form[0].checkValidity()) || disabled;
 
       var declaration = M.get_declaration_as_dict();
 
-      if(id_form == "form_areas_localisation") {
+      if(id_form_cur == "form_areas_localisation") {
 
         disabled = (declaration["areas_localisation"].length == 0);
 
       }
 
-      if(id_form == "form_areas_foret") {
+      if(id_form_cur == "form_areas_foret") {
 
         disabled = (declaration["foret"]["areas_foret"].length == 0);
 
       }
 
-
       if(disabled)
         $this.attr("disabled", disabled);
 
-      $this.attr("current", id_form == get_id_form())
+      var current =false;
 
+      var fil = $this.parent().attr('id')
 
+      if( fil == "fil_local") {
+
+        current = ( id_form_cur == id_form );
+
+      }
+
+      if( fil == "fil_global") {
+
+        $this.parent().next().children().each(function(index, elem) {
+
+          current = current || ( $(elem).attr("data-id-form") == id_form_cur );
+
+        });
+
+      }
+
+      $this.attr("current", current)
 
     });
 
@@ -250,7 +276,11 @@ $(document).ready(function() {
 
       var id_form = $this.attr("data-id-form");
 
+      if( !($this.attr("disabled") == "disabled") ) {
+
       recharger_form(null, id_form);
+
+      }
 
     });
 
@@ -284,6 +314,8 @@ $(document).ready(function() {
     initialiser_form_degats();
 
     M.initialiser_checkbox_group_required();
+
+    M.initialiser_tooltips();
 
     $('#form_container>form').submit(f_next);
 

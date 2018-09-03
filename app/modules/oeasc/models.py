@@ -219,6 +219,8 @@ class TDeclaration(DB.Model):
     id_declarant = DB.Column(DB.Integer, DB.ForeignKey(User.id_role))
     # declarant = DB.relationship(User)
 
+    id_nomenclature_proprietaire_declarant = DB.Column(DB.Integer)
+
     id_foret = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_forets.id_foret'))
     # foret = DB.relationship(TForet, cascade="save-update, merge, delete, delete-orphan", single_parent=True)
     # foret = DB.relationship(TForet)

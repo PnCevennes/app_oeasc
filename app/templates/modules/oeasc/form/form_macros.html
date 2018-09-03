@@ -17,7 +17,7 @@
 
 <div id=name|upper>
 
-  <label for="{{ name }}">{{ title }}</label>
+  <label for="{{ name }}">{{ title }} </label>
 
   <div class="custom-control custom-radio custom-control-inline">
     <input {{ns.choix1_checked}} id="{{ name }}-0" name="{{ name }}"" type="radio" value="T" required>
@@ -222,6 +222,7 @@
 
 {% macro input_text(name, titre="", object=None, required="required") %}
 
+
 <div id="{{ name | upper }}">
   <label for="{{ name }}">{{ titre }}</label><br>
   <input type="text" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
@@ -229,7 +230,14 @@
 
 {% endmacro %}
 
+{% macro input_double(name, titre="", object=None, required="required") %}
 
+<div id="{{ name | upper }}">
+  <label for="{{ name }}">{{ titre }}</label><br>
+  <input type="number" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+</div>
+
+{% endmacro %}
 
 {% macro select_map(name, localisation_type, areas, areas_container=[]) %}
 

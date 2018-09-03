@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, request
+    Blueprint, render_template, request, session
 )
 
 from .models import (
@@ -128,8 +128,8 @@ def declaration(id_declaration):
         TODO
     '''
 
-    declaration, foret, proprietaire = get_dfp(id_declaration)
-    declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
+    declaration, foret, proprietaire, declarant = get_dfp(id_declaration)
+    declaration_dict = dfp_as_dict(declaration, foret, proprietaire, declarant)
     declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
 
     nomenclature = nomenclature_oeasc()

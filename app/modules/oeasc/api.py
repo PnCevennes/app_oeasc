@@ -35,7 +35,6 @@ from pypnusershub.db.models import User
 from app.utils.utilssqlalchemy import as_dict
 
 from app.ref_geo.models import TAreas, LAreas
-from app.ref_geo.repository import get_id_type
 
 bp = Blueprint('oeasc_api', __name__)
 
@@ -73,17 +72,17 @@ def get_form_declaration():
 
     nomenclature = nomenclature_oeasc()
 
-    declaration = data['declaration']
+    declaration_dict = data['declaration']
     id_form = data['id_form']
 
     # recherche de la  foret le cas echeant (apres un choix de foret documentee)
 
-    check_foret(declaration)
+    check_foret(declaration_dict)
 
-    listes_essences = get_listes_essences(declaration)
-    declaration["foret"]["communes"] = get_liste_communes(declaration)
+    listes_essences = get_listes_essences(declaration_dict)
+    declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
 
-    return render_template('modules/oeasc/form/form_declaration.html', declaration=declaration, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
+    return render_template('modules/oeasc/form/form_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 
 
 @bp.route('delete_declaration/<int:id_declaration>', methods=['POST'])
@@ -103,6 +102,8 @@ def delete_declaration(id_declaration):
 @json_resp
 def test():
 
+    declaration_dict = declaration_dict_sample()
+
     id_declaration = 4
 
     declaration, foret, proprietaire = get_dfp(id_declaration)
@@ -110,6 +111,8 @@ def test():
     if(declaration):
 
         declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
+
+    check_foret(declaration_dict)
 
     return f_create_or_update_declaration(declaration_dict)
 

@@ -32,7 +32,7 @@ COPY temp
 
 INSERT INTO oeasc.t_forets (
     id_proprietaire, b_statut_public, b_document, s_nom_foret, d_superficie)
-SELECT  oeasc.get_id_proprietaire_from_name(t.nom_proprietaire), true, true, l.area_name, ROUND(ST_AREA(l.geom)/10000*10)/10
+SELECT  oeasc.get_id_proprietaire_from_name(t.nom_proprietaire), true, true, l.area_name, ROUND(ST_AREA(l.geom)/10000*1)/1
     FROM ref_geo.l_areas as l, temp as t
     WHERE id_type = ref_geo.get_id_type('OEASC_ONF_FRT')
         AND l.area_code = CONCAT(t.dept, '-', t.ccod_frt)

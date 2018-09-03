@@ -288,6 +288,8 @@ def declaration_dict_sample(nomenclature=None):
 
         "id_declarant": 1,
 
+        "id_nomenclature_proprietaire_declarant": get_nomenclature_sample(nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", 2, "id_nomenclature"),
+
         "foret": foret_dict_sample(),
 
         "degats": degats_dict_sample(),

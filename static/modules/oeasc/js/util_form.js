@@ -62,6 +62,7 @@ $(document).ready(function() {
 
   };
 
+
   var initialiser_checkbox_group_required = function() {
 
     $(".checkbox-group-required > div > input").prop("required", true);
@@ -71,6 +72,23 @@ $(document).ready(function() {
   };
 
 
+  var initialiser_tooltips = function() {
+
+    $(".custom-tooltip").each(function(index, elem) {
+
+      var $elem = $(elem);
+
+      $("label[for=" + $elem.attr("data-name") + "]").find(".custom-tooltip").remove();
+      $("label[for=" + $elem.attr("data-name") + "]").append(" ");
+      $("label[for=" + $elem.attr("data-name") + "]").append($elem.clone());
+
+    });
+
+  };
+
+
   M.initialiser_checkbox_group_required = initialiser_checkbox_group_required;
+  M.initialiser_tooltips = initialiser_tooltips;
+
 
 });

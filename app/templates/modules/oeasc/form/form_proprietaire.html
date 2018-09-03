@@ -2,6 +2,14 @@
 
   <h4>Coordonnées du propriétaire</h4>
 
+  {{declaration.declarant}}
+
+  {% if (not foret["b_statut"]) or (not foret["b_document"])  %}
+
+  {{ macros.radio_nomenclature("id_nomenclature_proprietaire_declarant", nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "radio", "Le Déclarant est-il le propriétaire de la forêt ?", object=declaration) }}
+
+  {% endif %}
+
   {{ macros.input_text("s_nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire) }}
   {{ macros.input_text("s_telephone", "Téléphone", proprietaire, required="") }}
   {{ macros.input_text("s_email", "Email", proprietaire, required="") }}
