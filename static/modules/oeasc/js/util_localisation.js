@@ -25,7 +25,7 @@ $(document).ready(function() {
     M.style.oeasc.fillPattern = null;
     M.style.oeasc.fillOpacity = 0.1;
     M.l_perimetre_OEASC.setStyle(M.style.oeasc);
-    $('#' + name).find("#legend-oeasc i").css("background", "");
+    $('#' + show_name).find("#legend-oeasc i").css("background", "");
 
 
     declarations.forEach(function(e) {

@@ -38,6 +38,8 @@ from app.utils.utilssqlalchemy import as_dict
 
 from app.ref_geo.models import TAreas, LAreas
 
+from .utils import get_organisme_name_from_declarant_id
+
 bp = Blueprint('oeasc_api', __name__)
 
 
@@ -109,23 +111,36 @@ def test_random():
     return declaration_dict
 
 
-@bp.route('test_random_populate', methods=['GET'])
+@bp.route('test_random_populate', defaults={'nb': 1}, methods=['GET'])
+@bp.route('test_random_populate/<int:nb>', methods=['GET'])
 @json_resp
-def test_random_populate():
+def test_random_populate(nb):
 
-    for i in range(20):
+    for i in range(nb):
 
         declaration_dict = declaration_dict_random_sample()
-        check_foret(declaration_dict)
 
+        if not declaration_dict:
+
+            continue
+
+        check_foret(declaration_dict)
         f_create_or_update_declaration(declaration_dict)
 
-    return "yeah"
+        print("i", i, declaration_dict["foret"]["s_nom_foret"], "public", declaration_dict["foret"]["b_statut_public"], "documenté", declaration_dict["foret"]["b_document"])
+
+    return "ok"
 
 
 @bp.route('test', methods=['GET'])
 @json_resp
 def test():
+
+
+    a = get_organisme_name_from_declarant_id(1000092)
+
+    print(a)
+    return a
 
     declaration_dict = declaration_dict_sample()
 

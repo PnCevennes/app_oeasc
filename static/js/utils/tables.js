@@ -29,7 +29,7 @@ $(document).ready(function() {
 
         column.data().unique().sort().each( function ( d, j ) {
 
-          if( d != null ) { 
+          if( d != null ) {
             if( d != "" ) {
               select.append( '<option value="'+d+'">'+d+'</option>' )
             }

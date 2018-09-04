@@ -38,7 +38,7 @@ $(document).ready(function() {
     for(var i=0; i<values.length; i++) {
 
       var d = {};
-      d["id_area"] = parseInt(values[i]);
+      d.id_area = parseInt(values[i]);
       d[data_type_2] = val_2;
 
       v.push(d);
@@ -54,10 +54,21 @@ $(document).ready(function() {
 
   var get_from_flask_json = function(s) {
 
-    s = s.replace(/\'/g, '"');
-    s = s.replace(/None/g, 'null')
-    s = s.replace(/True/g, 'true')
-    s = s.replace(/False/g, 'false')
+    s = s.replace(/{\'/g, '{"');
+    s = s.replace(/\':/g, '":');
+    s = s.replace(/: \'/g, ': "');
+    s = s.replace(/, \'/g, ', "');
+    s = s.replace(/\',/g, '",');
+    s = s.replace(/\\xa0/g, '');
+    s = s.replace(/\[\'/g, '["');
+    s = s.replace(/\'\]/g, '"]');
+
+    s = s.replace(/None/g, 'null');
+    s = s.replace(/True/g, 'true');
+    s = s.replace(/False/g, 'false');
+
+    console.log(s);
+
 
     return JSON.parse(s);
 

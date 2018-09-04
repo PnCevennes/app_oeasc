@@ -145,11 +145,20 @@ def declarations():
         TODO
     '''
 
-    declarations = DB.session.query(TDeclaration)
+    declarations_array = []
 
-    declarations_array = [declaration.as_dict(True) for declaration in declarations]
+    id_declarations = DB.session.query(TDeclaration.id_declaration)
 
-    return render_template('modules/oeasc/pages/declarations.html', declarations=declarations_array)
+    nomenclature = nomenclature_oeasc()
+
+    for id_declaration in id_declarations:
+
+        declaration, foret, proprietaire = get_dfp(id_declaration)
+        declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
+
+        declarations_array.append(declaration_dict)
+
+    return render_template('modules/oeasc/pages/declarations.html', declarations=declarations_array, nomenclature=nomenclature)
 
 
 @bp.route('/suivi_equilibre_ASC')

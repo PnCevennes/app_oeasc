@@ -14,14 +14,14 @@ footer h4 {
   text-align: center
 }
 
-footer > div > div:not(:last-child) {
+/* footer > div > div:not(:last-child) {
 
   border-style: solid;
   border-color: lightgray;
   border-width: 0 1px 1px 0;
 
 }
-
+ */
 a:hover, a.nav_link {
 
   text-decoration: none;
@@ -305,6 +305,7 @@ header div{
   color: grey;
   /* background-color: rgba(0,0,0,0.1); */
   cursor: default;
+  
 }
 
 
@@ -314,6 +315,7 @@ header div{
   /* background-color: rgba(0,0,0,0.1); */
   text-decoration: underline;
   /* border: solid 2px; */
+
 }
 
 #fil_global {
@@ -333,18 +335,22 @@ form h4 {
   padding:10px;
   background-color: lightgrey;
   border-radius:0 0 10px 10px;
+
 }
 
 .custom-tooltip {
+
   position: relative;
   display: inline-block;
   color: darkgray;
   /* border-bottom: 1px dotted black; */
+
 }
 
 
 
 .custom-tooltip .custom-tooltiptext {
+
   visibility: hidden;
   width: 600px;
   /* background-color: black; */
@@ -364,6 +370,7 @@ form h4 {
   transition: opacity 1s;
 
   box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
+
 }
 
 .custom-tooltip .custom-tooltiptext div {

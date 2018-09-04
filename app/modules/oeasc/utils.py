@@ -133,7 +133,18 @@ def get_organisme_name_from_id(id_organisme):
 
     result = DB.engine.execute(sql_text).first()
 
-    return { geometry: to_shape(result[0]) }
+    return result
+
+
+def get_organisme_name_from_declarant_id(id_declarant):
+
+    sql_text = text("SELECT b.nom_organisme \
+        FROM utilisateurs.bib_organismes as b, utilisateurs.t_roles as r \
+        WHERE b.id_organisme = r.id_organisme AND r.id_role = {};".format(id_declarant))
+
+    result = DB.engine.execute(sql_text).first()[0]
+
+    return result
 
 
 def get_description_droit(id_droit):
@@ -240,6 +251,31 @@ def check_foret(declaration_dict):
     return -1
 
 
+def get_gravite(declaration_dict, nomenclature):
+
+    # id_nomenclature_peuplement_essence_principale = declaration_dict["id_nomenclature_peuplement_essence_principale"]
+
+    id_nomenclature_degat_gravite_global = 0
+
+    for degat in declaration_dict['degats']:
+
+        for degat_essence in degat.get('degat_essences', []):
+
+            # if degat_essence.get('id_nomenclature_degat_essence') == id_nomenclature_peuplement_essence_principale:
+
+            id_nomenclature_degat_gravite = degat_essence.get('id_nomenclature_degat_gravite')
+
+            if id_nomenclature_degat_gravite > id_nomenclature_degat_gravite_global:
+
+                id_nomenclature_degat_gravite_global = id_nomenclature_degat_gravite
+
+    if id_nomenclature_degat_gravite_global == 0:
+
+        return ""
+
+    return get_nomenclature_from_id(id_nomenclature_degat_gravite_global, nomenclature)
+
+
 def utils_dict():
     """
         dictionnaire qui reference les function ci dessus pour les utiliser dans jinja cf server.py
@@ -250,6 +286,8 @@ def utils_dict():
     d["copy_list"] = copy_list
     d["get_description_droit"] = get_description_droit
     d["get_organisme_name_from_id"] = get_organisme_name_from_id
+    d["get_organisme_name_from_declarant_id"] = get_organisme_name_from_declarant_id
     d["get_nomenclature_from_id"] = get_nomenclature_from_id
+    d["get_gravite"] = get_gravite
 
     return d

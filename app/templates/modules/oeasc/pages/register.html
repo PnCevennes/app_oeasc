@@ -169,6 +169,9 @@
 
             var url_application = "{{ config.URL_APPLICATION }}";
 
+
+            console.log(JSON.stringify(data));
+
             $.post( {
 
                 url : '{{config.URL_USERHUB}}/api_register/role',

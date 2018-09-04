@@ -570,7 +570,9 @@ $(document).ready(function() {
 
     var map = L.map(map_id, {zoomSnap: 0.1}).setView([44.33, 3.55], 10);
     map.id = map_id;
-    $("#form_" + name + " #chargement").appendTo("#" + map_id);
+
+    // $("#form_" + name + " #chargement").appendTo("#" + map_id);
+    $("#" + map.id).parent().find("#chargement").appendTo("#" + map_id);
 
     if(tile == "mapbox") {
 
@@ -769,11 +771,17 @@ $(document).ready(function() {
 
     var type = 'localisation';
     var pane, color;
-
     pane = (type == "foret")? 1 : 2;
     color = M.color[type];
 
     var areas = declaration.areas_localisation;
+
+    if(!M.markers) {
+
+      M.markers = L.markerClusterGroup();
+      map.addLayer(M.markers);
+
+    }
 
     $.ajax({
 
@@ -784,9 +792,12 @@ $(document).ready(function() {
       data: JSON.stringify({areas: areas}),
       success: function (response) {
 
-      console.log(response)
+        var s_popup = '<div><a href="/oeasc/declaration/' + declaration.id_declaration + '">Alerte ' + declaration.id_declaration + ' </a></div>';
 
-      L.marker(response).addTo(map).bindPopup("Alerte Infos");
+        var marker = L.marker(response, { pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
+        marker.id_declaration = declaration.id_declaration;
+
+        M.markers.addLayer(marker);
 
         // var featuresCollection = L.geoJson(response, {
         //   pane : 'PANE_' + pane
@@ -828,13 +839,13 @@ $(document).ready(function() {
 
         // }
 
-        console.log("loaded ", type);
+        console.log("loaded ", type, declaration.id_declaration);
 
       }
 
     });
 
-  };
+      };
   // on place les fonctions et objets dans M pour les exporter
 
   M.carte_base_oeasc = carte_base_oeasc;
