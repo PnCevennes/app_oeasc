@@ -770,7 +770,7 @@ $(document).ready(function() {
     var type = 'localisation';
     var pane, color;
 
-    pane = (type=="foret")? 1 : 2;
+    pane = (type == "foret")? 1 : 2;
     color = M.color[type];
 
     var areas = declaration.areas_localisation;
@@ -778,51 +778,55 @@ $(document).ready(function() {
     $.ajax({
 
       type: "POST",
-      url: "/api/ref_geo/areas_post/l",
+      url: "/api/ref_geo/areas_centroid_post/l",
       contentType:"application/json; charset=utf-8",
       dataType:"json",
       data: JSON.stringify({areas: areas}),
       success: function (response) {
 
-        var featuresCollection = L.geoJson(response, {
-          pane : 'PANE_' + pane
-        }).addTo(map);
+      console.log(response)
 
-        featuresCollection.addTo(map);
+      L.marker(response).addTo(map).bindPopup("Alerte Infos");
 
-        var b_tooltip = false;
+        // var featuresCollection = L.geoJson(response, {
+        //   pane : 'PANE_' + pane
+        // }).addTo(map);
 
-        featuresCollection.eachLayer(function(layer) {
+        // featuresCollection.addTo(map);
 
-          if( (!b_tooltip) && (type == "localisation") ) {
+        // var b_tooltip = false;
 
-            b_tooltip = true;
-            layer.bindTooltip("Alerte", {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips, permanent: true}).addTo(map);
+        // featuresCollection.eachLayer(function(layer) {
 
-          }
+        //   if( (!b_tooltip) && (type == "localisation") ) {
 
-          layer.setStyle(M.style.default);
+        //     b_tooltip = true;
+        //     layer.bindTooltip("Alerte tooltips", {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips, permanent: true}).addTo(map);
 
-          layer.setStyle({
+        //   }
 
-            color: color,
-            fillColor: color
+        //   layer.setStyle(M.style.default);
 
-          });
+        //   layer.setStyle({
 
-          var fp = layer.feature.properties;
+        //     color: color,
+        //     fillColor: color
 
-          $("#" + map.select_name + " #infos_" + type).append("<div>" + fp.area_name + "</div>")
+        //   });
 
-        });
+        //   var fp = layer.feature.properties;
+
+        //   $("#" + map.select_name + " #infos_" + type).append("<div>" + fp.area_name + "</div>")
+
+        // });
 
         $("#" + map.select_name + " #chargement").hide();
 
-        if(type == "foret") {
+        // if(type == "foret") {
 
-          deferred_setBounds(featuresCollection.getBounds(), map);
+        //   deferred_setBounds(featuresCollection.getBounds(), map);
 
-        }
+        // }
 
         console.log("loaded ", type);
 

@@ -2,20 +2,22 @@ from pypnnomenclature.repository import (
     get_nomenclature_list
 )
 
+import random
+
 from app.utils.env import DB
 from app.utils.utilssqlalchemy import as_dict
 
-
 from config import config
-
 from sqlalchemy import text
+from sqlalchemy.sql import func
 
 from pypnusershub.db.models import (
 
     AppUser
 )
 
-from app.ref_geo.models import TAreas
+from app.ref_geo.models import TAreas, LAreas
+from app.ref_geo.repository import get_id_type
 
 from .models import (
     TDeclaration,
@@ -164,6 +166,22 @@ def nomenclature_oeasc():
     return data
 
 
+def rand_nomenclature(nomenclature, mnemonique):
+
+    return random.randint(0, len(nomenclature[mnemonique]['values']) - 1)
+
+
+def v_rand_nomenclature(nomenclature, mnemonique, k=-1):
+
+    n = len(nomenclature[mnemonique]['values'])
+
+    if k == -1:
+
+        k = random.randint(0, n - 1)
+
+    return random.sample(range(n), k)
+
+
 def get_nomenclature_sample(nomenclature, mnemonique, ind, key=""):
 
     if type(ind) == list:
@@ -191,6 +209,18 @@ def get_nomenclature_sample(nomenclature, mnemonique, ind, key=""):
     else:
 
         return v_elem[0]
+
+
+def get_nomenclature_random_sample(nomenclature, mnemonique, key=""):
+
+    ind = rand_nomenclature(nomenclature, mnemonique)
+    return get_nomenclature_sample(nomenclature, mnemonique, ind, key)
+
+
+def get_v_nomenclature_random_sample(nomenclature, mnemonique, key=""):
+
+    v_ind = v_rand_nomenclature(nomenclature, mnemonique)
+    return get_nomenclature_sample(nomenclature, mnemonique, v_ind, key)
 
 
 def degats_dict_sample(nomenclature=None):
@@ -263,7 +293,7 @@ def foret_dict_sample(nomenclature=None):
 
     foret = {
 
-        "proprietaire": proprietaire_dict_sample(),
+        "proprietaire": proprietaire_dict_random_sample(),
         "b_statut_public": False,
         "b_document": False,
         "s_nom_foret": "Les sequoias",
@@ -311,6 +341,191 @@ def declaration_dict_sample(nomenclature=None):
         'nomenclatures_peuplement_paturage_type': [{'id_nomenclature': id} for id in get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", [1], "id_nomenclature")],
         'nomenclatures_peuplement_paturage_statut': [{'id_nomenclature': id} for id in get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", [1], "id_nomenclature")],
         'nomenclatures_peuplement_espece': [{'id_nomenclature': id} for id in get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESPECE", [3, 4], "id_nomenclature")],
+
+        's_commentaire': "Un commentaire...."
+
+    }
+
+    return declaration
+
+
+def proprietaire_dict_random_sample(nomenclature=None):
+
+    if not nomenclature:
+
+        nomenclature = nomenclature_oeasc()
+    pass
+
+    proprietaire = {
+
+        "id_nomenclature_proprietaire_type": get_nomenclature_random_sample(nomenclature, "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
+        "s_nom_proprietaire": "Georges",
+        "s_telephone": "06...",
+        "s_email": "roger@rogers.frt",
+        "s_adresse": "lou_malherbous",
+        "s_code_postal": "48470",
+        "s_commune_proprietaire": "Espigoule"
+
+    }
+
+    return proprietaire
+
+
+def get_id_type_foret_statut_document(b_statut_public, b_document):
+
+    if b_statut_public and b_document:
+
+        id_type = get_id_type('OEASC_ONF_FRT')
+
+    elif (not b_statut_public) and b_document:
+
+        id_type = get_id_type('OEASC_DGD')
+
+    else:
+
+        id_type = get_id_type('OEASC_COMMUNE')
+
+    return id_type
+
+
+def get_id_type_parcelle_statut_document(b_statut_public, b_document):
+
+    if b_statut_public and b_document:
+
+        id_type = get_id_type('OEASC_ONF_PRF')
+
+    else:
+
+        id_type = get_id_type('OEASC_CADASTRE')
+
+    return id_type
+
+
+def foret_dict_random_sample(nomenclature=None):
+
+    if not nomenclature:
+
+        nomenclature = nomenclature_oeasc()
+
+        b_statut_public = random.randint(0, 1) == 1
+        b_document = random.randint(0, 1) == 1
+
+    id_type_foret = get_id_type_foret_statut_document(b_statut_public, b_document)
+
+    areas = DB.session.query(TAreas).filter(TAreas.id_type == id_type_foret).filter(TAreas.enable).all()
+
+    id_area = areas[random.randint(0, len(areas) - 1)].id_area
+
+    foret = {
+        "b_statut_public": b_statut_public,
+        "b_document": b_document,
+
+        "proprietaire": proprietaire_dict_random_sample(),
+        "s_nom_foret": "Les sequoias",
+        "d_superficie": 2.5,
+        "areas_foret": [{"id_area": id_area}]
+
+    }
+
+    return foret
+
+
+def degats_dict_random_sample(nomenclature=None):
+
+    if not nomenclature:
+
+        nomenclature = nomenclature_oeasc()
+
+    degats = []
+
+    degat_1 = {"id_nomenclature_degat_type": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_TYPE", 1, "id_nomenclature")}
+    degat_2 = {"id_nomenclature_degat_type": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_TYPE", 2, "id_nomenclature")}
+    degat_3 = {"id_nomenclature_degat_type": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_TYPE", 4, "id_nomenclature")}
+
+    degat_1_1 = {"id_nomenclature_degat_essence": get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", 1, "id_nomenclature"),
+                 "id_nomenclature_degat_etendue": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ETENDUE", 0, "id_nomenclature"),
+                 "id_nomenclature_degat_gravite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_GRAVITE", 1, "id_nomenclature"),
+                 "id_nomenclature_degat_anteriorite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ANTERIORITE", 2, "id_nomenclature")}
+
+    degat_1_2 = {"id_nomenclature_degat_essence": get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", 2, "id_nomenclature"),
+                 "id_nomenclature_degat_etendue": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ETENDUE", 1, "id_nomenclature"),
+                 "id_nomenclature_degat_gravite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_GRAVITE", 2, "id_nomenclature"),
+                 "id_nomenclature_degat_anteriorite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ANTERIORITE", 0, "id_nomenclature")}
+
+    degat_2_1 = {"id_nomenclature_degat_essence": get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", 0, "id_nomenclature"),
+                 "id_nomenclature_degat_etendue": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ETENDUE", 2, "id_nomenclature"),
+                 "id_nomenclature_degat_gravite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_GRAVITE", 0, "id_nomenclature"),
+                 "id_nomenclature_degat_anteriorite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ANTERIORITE", 1, "id_nomenclature")}
+
+    degat_1['degat_essences'] = [degat_1_1, degat_1_2]
+
+    degat_2['degat_essences'] = [degat_2_1]
+
+    degats.append(degat_1)
+    degats.append(degat_2)
+    degats.append(degat_3)
+
+    return degats
+
+
+def declaration_dict_random_sample(nomenclature=None):
+
+    if not nomenclature:
+
+        nomenclature = nomenclature_oeasc()
+
+    foret = foret_dict_random_sample()
+    b_statut_public = foret['b_statut_public']
+    b_document = foret['b_document']
+
+    id_area_foret = foret['areas_foret'][0]['id_area']
+
+    id_type_parcelle = get_id_type_parcelle_statut_document(b_statut_public, b_document)
+    # id_type_foret = get_id_type_foret_statut_document(b_statut_public, b_document)
+
+    data = DB.session.query(LAreas).filter(LAreas.id_type == id_type_parcelle)
+
+    container = DB.session.query(LAreas.geom_4326.label('geom_4326')).filter(LAreas.id_area == id_area_foret).subquery()
+
+    data = data.filter(func.ST_INTERSECTS(LAreas.geom_4326, container.c.geom_4326))
+    data = data.filter(func.ST_AREA(func.ST_INTERSECTION(LAreas.geom_4326, container.c.geom_4326)) >= 0.01 * func.ST_AREA(LAreas.geom_4326))
+
+    v = [d.id_area for d in data]
+
+    id_area = v[random.randint(0, len(v) - 1)]
+
+    areas_localisation = [{'id_area': id_area}]
+
+    v = v_rand_nomenclature(nomenclature, 'OEASC_PEUPLEMENT_ESSENCE', 7)
+
+    declaration = {
+
+        "id_declarant": 1,
+
+        "id_nomenclature_proprietaire_declarant": get_nomenclature_random_sample(nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "id_nomenclature"),
+
+        "foret": foret,
+
+        "degats": degats_dict_random_sample(),
+
+        'areas_localisation': areas_localisation,
+
+        'b_peuplement_paturage_presence': True,
+        'b_peuplement_protection_existence': False,
+
+        'id_nomenclature_peuplement_origine': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ORIGINE", "id_nomenclature"),
+        'id_nomenclature_peuplement_type': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_TYPE", "id_nomenclature"),
+        'id_nomenclature_peuplement_paturage_frequence': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "id_nomenclature"),
+        'id_nomenclature_peuplement_acces': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ACCES", "id_nomenclature"),
+
+
+        'id_nomenclature_peuplement_essence_principale': get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", v[0],"id_nomenclature"),
+        'nomenclatures_peuplement_essence_secondaire': [{'id_nomenclature': id} for id in get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", v[1:3], "id_nomenclature")],
+        'nomenclatures_peuplement_essence_complementaire': [{'id_nomenclature': id} for id in get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", v[4:6], "id_nomenclature")],
+        'nomenclatures_peuplement_maturite': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_MATURITE", "id_nomenclature")],
+        'nomenclatures_peuplement_paturage_type': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "id_nomenclature")],
+        'nomenclatures_peuplement_paturage_statut': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")],
+        'nomenclatures_peuplement_espece': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ESPECE", "id_nomenclature")],
 
         's_commentaire': "Un commentaire...."
 

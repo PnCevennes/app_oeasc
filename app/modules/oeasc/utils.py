@@ -128,12 +128,12 @@ def get_nomenclature_from_id(id_nomenclature, nomenclature, key="label_fr"):
 def get_organisme_name_from_id(id_organisme):
 
     sql_text = text("SELECT b.nom_organisme \
-  FROM utilisateurs.bib_organismes as b \
-  WHERE b.id_organisme = {};".format(id_organisme))
+        FROM utilisateurs.bib_organismes as b \
+        WHERE b.id_organisme = {};".format(id_organisme))
 
     result = DB.engine.execute(sql_text).first()
 
-    return result[0]
+    return { geometry: to_shape(result[0]) }
 
 
 def get_description_droit(id_droit):
@@ -150,23 +150,58 @@ def get_description_droit(id_droit):
     return switcher.get(id_droit, 'id_droit {} invalide'.format(id_droit))
 
 
-def check_foret(declaration):
+def check_proprietaire(declaration_dict, nomenclature):
+    '''
+        Dans le cas ou le propretaire est le declarant
+    '''
+
+    id_nomenclature_proprietaire_declarant = declaration_dict['id_nomenclature_proprietaire_declarant']
+
+    mnemonique = get_nomenclature_from_id(id_nomenclature_proprietaire_declarant, nomenclature, "mnemonique")
+
+    # si le declarant n'est pas le proprietaire
+    if mnemonique != 'P_D_O_NP':
+
+        return -1
+
+    # si le proprietaire est déjà renseigné
+    if declaration_dict['foret']['id_proprietaire']:
+
+        return -1
+
+    # sinon  on recherche le proprietaire correspondant a l'id declarant
+    id_declarant_proprietaire = declaration_dict['foret']['proprietaire']['id_declarant']
+
+    if id_declarant_proprietaire:
+
+        proprietaire = DB.session.query(TProprietaire).filter(id_declarant_proprietaire == TProprietaire.id_declarant).first()
+
+        if proprietaire:
+
+            declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
+
+            return 1
+
+    return -1
+
+
+def check_foret(declaration_dict):
     '''
         recherche une foret quand une aire est renseignées
     '''
 
-    foret = declaration.get("foret", None)
+    foret_dict = declaration_dict.get("foret", None)
 
-    if not foret:
+    if not foret_dict:
 
         return -1
 
-    id_foret = foret.get("id_foret", None)
-    areas_foret = foret.get("areas_foret", None)
+    id_foret = foret_dict.get("id_foret", None)
+    areas_foret = foret_dict.get("areas_foret", None)
 
     if((not id_foret) and areas_foret):
 
-        # foret = get_id_foret_from_areas(declaration["foret"]["areas_foret"]):
+        # foret = get_id_foret_from_areas(declaration_dict["foret"]["areas_foret"]):
 
         v_id_type = [get_id_type(type) for type in ["OEASC_ONF_FRT"]]
 
@@ -189,8 +224,6 @@ def check_foret(declaration):
 
                             if id_area == area_foret['id_area']:
 
-                                print('AAAAAAA', f_dict['d_superficie'])
-
                                 id_proprietaire = f_dict.get('id_proprietaire', None)
 
                                 if id_proprietaire:
@@ -200,7 +233,7 @@ def check_foret(declaration):
 
                                     f_dict["proprietaire"] = proprietaire.as_dict(True)
 
-                                declaration['foret'] = f_dict
+                                declaration_dict['foret'] = f_dict
 
                                 return 1
 

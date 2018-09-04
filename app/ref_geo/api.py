@@ -10,15 +10,16 @@ from .models import (
 
 from sqlalchemy.sql import func
 
-from sqlalchemy import and_
+from sqlalchemy import and_, text
 
 # from geoalchemy2 import functions
 
 from app.utils.env import DB
 
-from app.utils.utilssqlalchemy import json_resp
+from app.utils.utilssqlalchemy import json_resp, as_dict
 
 from geojson import FeatureCollection
+
 
 from .repository import get_id_type
 
@@ -82,6 +83,35 @@ def get_areas_post(data_type):
         out = FeatureCollection(out)
 
     return out
+
+
+@bp.route('areas_centroid_post/<string:data_type>', methods=['POST'])
+@json_resp
+def get_areas_centroid_post(data_type):
+
+    data_in = request.get_json()
+
+    areas = data_in['areas']
+
+    v = [area['id_area'] for area in areas]
+
+    t = tuple(v)
+
+    if len(v) == 1:
+
+        t = str(t).replace(",", "")
+
+    sql_text = text("SELECT ST_X(c),ST_Y(c) \
+        FROM (SELECT ST_CENTROID(ST_UNION(geom_4326)) as c \
+        FROM ref_geo.l_areas \
+        WHERE id_area in {} )a".format(t))
+
+    result = DB.engine.execute(sql_text).first()
+
+    v = [result[0], result[1]]
+    v = [result[1], result[0]]
+
+    return v
 
 
 @bp.route('areas/<string:data_type>/<string:type_code>//', defaults={'area_code': "-", 'type_code_container': "-", 'area_code_container': "-"})

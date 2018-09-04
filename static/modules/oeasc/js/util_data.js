@@ -112,6 +112,8 @@ $(document).ready(function() {
 
     proprietaire.id_proprietaire = parseInt($('#form_proprietaire').attr('data-id-proprietaire'));
 
+    proprietaire.id_declarant = parseInt($('#form_proprietaire').attr('data-id-declarant'));
+
     proprietaire.s_nom_proprietaire = $("#s_nom_proprietaire").val();
     proprietaire.s_telephone = $("#s_telephone").val();
     proprietaire.s_email = $("#s_email").val();

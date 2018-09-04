@@ -10,6 +10,7 @@ from flask import (
 from .repository import (
     nomenclature_oeasc,
     declaration_dict_sample,
+    declaration_dict_random_sample,
     create_or_modify,
     dfp_as_dict,
     get_dfp,
@@ -18,7 +19,8 @@ from .repository import (
 from .utils import (
     get_listes_essences,
     get_liste_communes,
-    check_foret
+    check_foret,
+    check_proprietaire
 )
 
 from .models import (
@@ -76,8 +78,8 @@ def get_form_declaration():
     id_form = data['id_form']
 
     # recherche de la  foret le cas echeant (apres un choix de foret documentee)
-
     check_foret(declaration_dict)
+    check_proprietaire(declaration_dict, nomenclature)
 
     listes_essences = get_listes_essences(declaration_dict)
     declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
@@ -96,6 +98,29 @@ def delete_declaration(id_declaration):
     DB.session.commit()
 
     return "ok"
+
+
+@bp.route('test_random', methods=['GET'])
+@json_resp
+def test_random():
+
+    declaration_dict = declaration_dict_random_sample()
+
+    return declaration_dict
+
+
+@bp.route('test_random_populate', methods=['GET'])
+@json_resp
+def test_random_populate():
+
+    for i in range(20):
+
+        declaration_dict = declaration_dict_random_sample()
+        check_foret(declaration_dict)
+
+        f_create_or_update_declaration(declaration_dict)
+
+    return "yeah"
 
 
 @bp.route('test', methods=['GET'])

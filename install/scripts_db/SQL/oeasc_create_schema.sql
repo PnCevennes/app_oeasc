@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS oeasc.t_proprietaires
 
     id_nomenclature_proprietaire_type INTEGER,
 
+    id_declarant INTEGER,
+
     -- contraintes cle primaire
 
     CONSTRAINT pk_t_proprietaires_id_proprietaire PRIMARY KEY (id_proprietaire),
@@ -36,7 +38,11 @@ CREATE TABLE IF NOT EXISTS oeasc.t_proprietaires
         REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT check_t_proprietaire_id_nomenclature_proprietaire_type CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
-        id_nomenclature_proprietaire_type, 'OEASC_PROPRIETAIRE_TYPE')) NOT VALID
+        id_nomenclature_proprietaire_type, 'OEASC_PROPRIETAIRE_TYPE')) NOT VALID,
+
+    CONSTRAINT fk_t_forets_id_declarant FOREIGN KEY (id_declarant)
+        REFERENCES utilisateurs.t_roles (id_role) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE NO ACTION
 
 );
 

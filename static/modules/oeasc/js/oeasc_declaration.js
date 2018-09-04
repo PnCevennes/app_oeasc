@@ -77,7 +77,17 @@ $(document).ready(function() {
 
     $('[name=id_nomenclature_proprietaire_declarant]').change(function() {
 
-      // recharger_form();
+      var declaration = M.get_declaration_as_dict();
+
+      var s_proprietaire_declarant = $("[name=id_nomenclature_proprietaire_declarant]:checked").next().html().trim();
+
+      if(s_proprietaire_declarant == "Oui, en son nom propre") {
+
+        $('#form_proprietaire').attr('data-id-declarant', declaration.id_declarant)
+
+      }
+
+      recharger_form();
 
     });
 
@@ -278,7 +288,7 @@ $(document).ready(function() {
 
       if( !($this.attr("disabled") == "disabled") ) {
 
-      recharger_form(null, id_form);
+        recharger_form(null, id_form);
 
       }
 

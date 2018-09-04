@@ -147,6 +147,8 @@ class TProprietaire(DB.Model):
 
     id_proprietaire = DB.Column(DB.Integer, primary_key=True)
 
+    id_declarant = DB.Column(DB.Integer)
+
     s_nom_proprietaire = DB.Column(DB.String(250))
     s_telephone = DB.Column(DB.String(20))
     s_email = DB.Column(DB.String(250))
