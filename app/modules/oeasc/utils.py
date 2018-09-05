@@ -1,5 +1,4 @@
 
-from .repository import nomenclature_oeasc
 
 from app.utils.env import DB
 from sqlalchemy import text
@@ -9,6 +8,8 @@ from .models import (
     TForet,
     TProprietaire
 )
+from .repository import nomenclature_oeasc
+from .repository import get_nomenclature_from_id
 
 
 def get_liste_communes(declaration):
@@ -101,28 +102,6 @@ def get_listes_essences(declaration):
 def copy_list(liste):
 
     return [elem for elem in liste]
-
-
-def get_nomenclature_from_id(id_nomenclature, nomenclature, key="label_fr"):
-    '''
-        retourne un element de nomenclature a partir de son id
-        si key == "", retourne l'element entier, sinon juste la clé choisie
-    '''
-    for _, nomenclature_type in nomenclature.items():
-
-        for elem in nomenclature_type["values"]:
-
-            if str(elem["id_nomenclature"]) == str(id_nomenclature):
-
-                if key != "":
-
-                    return elem[key]
-
-                else:
-
-                    return elem
-
-    return ""
 
 
 def get_organisme_name_from_id(id_organisme):

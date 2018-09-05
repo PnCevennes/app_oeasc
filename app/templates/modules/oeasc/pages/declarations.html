@@ -42,7 +42,7 @@
 
           {%- if session.current_user %}
 
-          {%- set cond_modifier_effacer = (session.current_user.id_droit_max > 5) or (session.current_user.id_role == declaration.id_role)%}
+          {%- set cond_modifier_effacer = (session.current_user.id_droit_max > 5) or (session.current_user.id_role == declaration.id_declarant)%}
 
           {%- else %}
 
