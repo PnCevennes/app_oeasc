@@ -6,9 +6,23 @@
 
   {{ macros.choix("Public", "Privé", 'b_statut_public' ,'Statut de la forêt', object=foret) }}
 
-  {{ macros.choix("Oui", "Non", 'b_document' ,'La forêt relève-t-elle du régime forestier (ONF) ou possède t''elle un document de gestion durable  ?', object=foret) }}
+  {% if foret.b_statut_public == true or foret.b_statut_public == false %}
 
-  <input type=submit Valider class="btn btn-success float-right">
+    {% if foret.b_statut_public == true %}
+
+      {% set titre_document = "La forêt relève t'elle du régime ONF" %}
+
+    {% else %}
+
+      {% set titre_document = "La forêt possède t'elle un document de gestion durable" %}
+
+    {% endif %}
+
+    {{ macros.choix("Oui", "Non" ,'b_document' ,titre_document , object=foret) }}
+
+  {% endif %}
+
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
 
@@ -34,7 +48,7 @@
 
     {{ macros.radio_nomenclature("id_nomenclature_proprietaire_declarant", nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "radio", "Le Déclarant est-il le propriétaire de la forêt ?", object=foret) }}
 
-    <input type=submit Valider class="btn btn-success float-right">
+    <input type=submit value=Suivant class="btn btn-success bottom-right">
 
   </form> #}
 
@@ -52,6 +66,6 @@
 
     {{ macros.input_double("d_superficie", "Superficie totale de la forêt", foret) }}
 
-    <input type=submit Valider class="btn btn-success float-right">
+    <input type=submit value=Suivant class="btn btn-success bottom-right">
 
   </form>

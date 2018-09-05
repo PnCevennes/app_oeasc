@@ -38,8 +38,6 @@ from app.utils.utilssqlalchemy import as_dict
 
 from app.ref_geo.models import TAreas, LAreas
 
-from .utils import get_organisme_name_from_declarant_id
-
 bp = Blueprint('oeasc_api', __name__)
 
 
@@ -61,9 +59,13 @@ def get_nomenclature(id_nomenclature):
 
 @bp.route('declaration/<int:id_declaration>', methods=['GET'])
 @json_resp
-def form_declaration(id_declaration):
+def declaration(id_declaration):
 
     declaration = DB.session.query(TDeclaration).filter(TDeclaration.id_declaration == id_declaration).first()
+
+    if not declaration:
+
+        return "La déclaration d'identifiant : " + str(id_declaration) + " n'existe pas."
 
     return declaration.as_dict(True)
 
@@ -111,10 +113,10 @@ def test_random():
     return declaration_dict
 
 
-@bp.route('test_random_populate', defaults={'nb': 1}, methods=['GET'])
-@bp.route('test_random_populate/<int:nb>', methods=['GET'])
+@bp.route('random_populate', defaults={'nb': 1}, methods=['GET'])
+@bp.route('random_populate/<int:nb>', methods=['GET'])
 @json_resp
-def test_random_populate(nb):
+def random_populate(nb):
 
     for i in range(nb):
 
@@ -123,6 +125,8 @@ def test_random_populate(nb):
         if not declaration_dict:
 
             continue
+
+        # create_date = declaration_dict['meta_create_date']
 
         check_foret(declaration_dict)
         f_create_or_update_declaration(declaration_dict)
@@ -135,12 +139,6 @@ def test_random_populate(nb):
 @bp.route('test', methods=['GET'])
 @json_resp
 def test():
-
-
-    a = get_organisme_name_from_declarant_id(1000092)
-
-    print(a)
-    return a
 
     declaration_dict = declaration_dict_sample()
 
@@ -178,7 +176,14 @@ def f_create_or_update_declaration(declaration_dict):
 
     declaration_dict['id_foret'] = foret.id_foret
 
+    if declaration_dict.get("meta_create_date", None):
+
+        declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
+        id_declaration = declaration.id_declaration
+        print(declaration_dict['meta_create_date'])
+
     declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
+
 
     d = dfp_as_dict(declaration, foret, proprietaire)
 

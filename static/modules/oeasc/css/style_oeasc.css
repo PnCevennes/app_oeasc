@@ -21,7 +21,7 @@ footer h4 {
   border-width: 0 1px 1px 0;
 
 }
- */
+*/
 a:hover, a.nav_link {
 
   text-decoration: none;
@@ -262,7 +262,7 @@ header div{
 
 .fil-ariane {
 
-  padding : 5px;
+  /* padding : 2px; */
   display:flex;
   align-items: center;
   justify-content: space-around;
@@ -273,13 +273,14 @@ header div{
 .fil-ariane a,.fil-ariane span{
 
   color: black;
-  padding: 5px;
+  padding: 2px;
   border-radius:5px; 
 
 }
 
 .fil-ariane a {
 
+  font-size: 0.8em;
   /* background-color: rgba(0,0,0,0.2); */
   /* color: black; */
 
@@ -305,7 +306,7 @@ header div{
   color: grey;
   /* background-color: rgba(0,0,0,0.1); */
   cursor: default;
-  
+
 }
 
 
@@ -319,18 +320,20 @@ header div{
 }
 
 #fil_global {
-
+  font-size: 1em;
   background-color : rgb(0,0,0, 0.1);
+  /* box-shadow: 20px 0px 20px 0px rgba(0,0,0,0.2); */
 
 }
 
 #fil_local {
 
   justify-content: space-around;
-
+  margin-bottom: 10px;
+  box-shadow: 0px 4px 4px 0px rgba(0,0,0,0.2);
 }
 
-form h4 {
+.content h4 {
 
   padding:10px;
   background-color: lightgrey;
@@ -361,7 +364,7 @@ form h4 {
   border-radius: 10px;
   /* position: absolute; */
   position: fixed;
-  z-index: 1;
+  z-index: 10;
   /* bottom: 100%; */
   /* left: 50%; */
   top:  100px;
@@ -407,4 +410,66 @@ form h4 {
 
 }
 
+.figure img{
+
+  text-align: center;
+  border: 1px solid lightgray;
+  /* font-style: italic; */
+  /* box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2); */
+}
+
+.figure figcaption{
+
+  text-align: center;
+  width: 100%;
+  font-style: italic;
+
+}
+
+form {
+  min-height: 200px;
+  position: relative;
+}
+
+.bottom-right {
+
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+
+}
+
+.top-right {
+
+  position: absolute;
+  top: 52px;
+  right: 2px;
+
+}
+
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+.accordion {
+  background-color: #eee;
+  color: #444;
+  cursor: pointer;
+  padding: 18px;
+  width: 100%;
+  border: none;
+  text-align: left;
+  outline: none;
+  font-size: 15px;
+  transition: 0.4s;
+}
+
+.active, .accordion:hover {
+  background-color: #ccc;
+}
+
+.panel {
+  padding: 0 18px;
+  background-color: white;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.2s ease-out;
+}

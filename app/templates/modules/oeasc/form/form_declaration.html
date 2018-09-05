@@ -2,13 +2,10 @@
 
 {% import "modules/oeasc/form/form_macros.html" as macros %}
 
+
 {% include "modules/oeasc/form/fil_ariane.html"%}
 
-
-
-
 <div id="id_form" data-id-form="{{ id_form }}" style="display: none;"></div>
-
 
 {% set ns = namespace(localisation_type = "") %}
 {% set ns.localisation_type_parcelle = "" %}
@@ -49,22 +46,24 @@
 
   <div><i>(*) : facultatif</i></div>
 
-  <input type=submit Valider class="btn btn-success float-right">
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
 
 
 <form id="form_declaration" data-id-declaration="{{declaration['id_declaration']}}" data-id-declarant={{session.current_user.id_role}}{#  data-user={{session.current_user}} #}>
 
-  <h4>Récapitulatif de la déclaration</h4>
+  <h4>Validation</h4>
 
-  <div id ="declaration">
+  <p>Vous pouvez vérifier ci-dessous les renseignements fournis pour la déclaration, avant de valider et envoyer le formulaire.</p>
+
+  <input type=submit value="Envoyer le formulaire"  class="btn btn-success top-right">
+
+  <div id="declaration">
 
     {% include "modules/oeasc/entity/declaration.html" %}
 
   </div>
-
-  <input type=submit value="Envoyer le formulaire"  class="btn btn-success float-right">
 
 </form>
 

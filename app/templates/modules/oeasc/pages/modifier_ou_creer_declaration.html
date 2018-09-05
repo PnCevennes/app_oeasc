@@ -30,13 +30,67 @@
 
       <ul>
         <li><a href="{{ url_for('oeasc.modifier_declaration')}}">Je déclare des dégâts sur ma forêt (ou la forêt dont je suis le gestionnaire).</a></li>
-        <li><a href="{{ url_for('oeasc.declarations')}}">Je consulte mes alertes.</a></li> {# TODO #}
+        <li><a href="{{ url_for('oeasc.declarations')}}">Je consulte les alertes.</a></li> {# TODO #}
       </ul>
 
     </div>
 
 
     <div id="infos"></div>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_attention" data-target="#modal_attention">
+  Attention
+</button>
+
+<div class="modal fade" id="modal_attention" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header btn-danger">
+        <h5 class="modal-title " id="exampleModalLongTitle">Attention!!</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+        <p>Vous êtes sur le point de quitter la page</p>
+        <p>En êtes vous sûr?</p> 
+        <p>Les informations renseignées seront perdues.</p>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Rester sur la page</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Quitter la page</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_merci" data-target="#modal_merci">
+  Merci
+</button>
+
+<div class="modal fade" id="modal_merci" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header btn-primary">
+        <h5 class="modal-title " id="exampleModalLongTitle">Information</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+
+  <p> Le formaulaire a bien été envoyé. </p>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary">Rester sur la page</button>
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Quitter la page</button>
+      </div>
+    </div>
+  </div>
+</div>
 
   </div>
 

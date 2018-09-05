@@ -93,7 +93,7 @@ def signalement_degats_forestiers():
 
 @bp.route('/modifier_ou_creer_declaration/', defaults={'id_declaration': -1})
 @bp.route('/modifier_ou_creer_declaration/<int:id_declaration>')
-@fnauth.check_auth(1, False, URL_REDIRECT)
+@fnauth.check_auth(1, False, 'oeasc/login')
 def modifier_declaration(id_declaration):
     '''
         page de declaration ou modification de degats forestiers

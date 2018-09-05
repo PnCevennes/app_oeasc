@@ -5,7 +5,11 @@ $(document).ready(function() {
 
   var setBounds = function(bounds, map) {
 
+    if(bounds.isValid()) {
+
     map.fitBounds(bounds);
+
+    }
 
   };
 
@@ -636,6 +640,9 @@ $(document).ready(function() {
 
   var load_areas = function(areas, type, map) {
 
+    if(areas == []) return ;
+
+
     $("#" + map.select_name + " #chargement").show();
 
     var pane, color;
@@ -658,16 +665,7 @@ $(document).ready(function() {
 
         featuresCollection.addTo(map);
 
-        var b_tooltip = false;
-
         featuresCollection.eachLayer(function(layer) {
-
-          if( (!b_tooltip) && (type == "localisation") ) {
-
-            b_tooltip = true;
-            layer.bindTooltip("Alerte", {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips, permanent: true}).addTo(map);
-
-          }
 
           layer.setStyle(M.style.default);
 
@@ -698,74 +696,8 @@ $(document).ready(function() {
 
   };
 
+  var load_declaration_centroid = function(declaration, b_cluster, map) {
 
-  // var load_area = function(id_declaration, type, map) {
-
-  //   $("#" + map.select_name + " #chargement").show();
-
-  //   var pane, color;
-
-  //   pane = (type=="foret")? 1 : 2;
-  //   color = M.color[type];
-
-  //   var featuresCollection = new L.GeoJSON.AJAX(
-
-  //     // '/api/ref_geo/area/l/' + id_area,
-  //     '/api/oeasc/declaration_areas/' + id_declaration + '/' + type,
-  //     { pane : 'PANE_' + pane },
-
-  //     );
-
-  //   featuresCollection.addTo(map);
-
-  //   featuresCollection.on('data:loaded', function() {
-
-  //     var b_tooltip = false;
-
-  //     this.eachLayer(function(layer) {
-
-  //       if( (!b_tooltip) && (type == "localisation") ) {
-
-  //         console.log("aaa");
-
-  //         b_tooltip = true;
-  //         layer.bindTooltip("Alerte", {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips, permanent: true}).addTo(map);
-
-  //       }
-
-  //       layer.setStyle(M.style.default);
-
-  //       layer.setStyle({
-
-  //         color: color,
-  //         fillColor: color
-  //       });
-
-  //       var fp = layer.feature.properties;
-
-  //       $("#" + map.select_name + " #infos_" + type).append("<div>" + fp.area_name + "</div>")
-
-  //     });
-
-  //     $("#" + map.select_name + " #chargement").hide();
-
-  //     if(type == "foret") {
-
-  //       deferred_setBounds(this.getBounds(), map);
-
-  //     }
-
-  //     console.log("loaded ",id_declaration, type);
-
-  //   });
-
-  // };
-
-
-
-  var load_declaration_centroid = function(declaration, map) {
-
-    $("#" + map.select_name + " #chargement").show();
 
     var type = 'localisation';
     var pane, color;
@@ -774,7 +706,11 @@ $(document).ready(function() {
 
     var areas = declaration.areas_localisation;
 
-    if(!M.markers) {
+    if(areas.length == 0) return ;
+
+    $("#" + map.select_name + " #chargement").show();
+
+    if(!M.markers && b_cluster) {
 
       M.markers = L.markerClusterGroup();
       map.addLayer(M.markers);
@@ -795,7 +731,17 @@ $(document).ready(function() {
         var marker = L.marker(response, { pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
         marker.id_declaration = declaration.id_declaration;
 
-        M.markers.addLayer(marker);
+        if(b_cluster) {
+
+          M.markers.addLayer(marker);
+
+        } else {
+
+          map.addLayer(marker);
+
+        }
+
+
 
         // var featuresCollection = L.geoJson(response, {
         //   pane : 'PANE_' + pane
@@ -841,7 +787,7 @@ $(document).ready(function() {
 
     });
 
-      };
+  };
   // on place les fonctions et objets dans M pour les exporter
 
   M.carte_base_oeasc = carte_base_oeasc;
@@ -851,6 +797,6 @@ $(document).ready(function() {
   M.get_layer = get_layer;
   M.remove_all =remove_all;
   M.load_areas = load_areas;
-  M.load_declaration_centroid = load_declaration_centroid
+  M.load_declaration_centroid = load_declaration_centroid;
 
 });

@@ -34,11 +34,7 @@
 
   $(document).ready(function() {
 
-    console.log($('#declaration').attr('data-declaration'));
-
     var declaration = M.get_from_flask_json($('#declaration').attr('data-declaration'));
-
-    console.log(declaration)
 
     M.initialiser_show_localisation("show_localisation", declaration);
 

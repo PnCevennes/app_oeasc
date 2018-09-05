@@ -251,3 +251,6 @@ class TDeclaration(DB.Model):
     degats = DB.relationship(TDegat, cascade="save-update, merge, delete, delete-orphan")
 
     s_commentaire = DB.Column(DB.Text)
+
+    meta_create_date = DB.Column(DB.DateTime)
+    meta_update_date = DB.Column(DB.DateTime)

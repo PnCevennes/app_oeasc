@@ -91,6 +91,12 @@ $(document).ready(function() {
 
     });
 
+    $('[name=b_statut_public]').change(function() {
+
+      recharger_form();
+
+    });
+
   };
 
 
@@ -409,6 +415,7 @@ $(document).ready(function() {
         $("#form_send").show();
         // $("#form_send").html(JSON.stringify(response));
         $("#form_display").hide();
+        $("#btn_modall_merci").click();
 
       }).fail(function(response) {
 
@@ -554,5 +561,6 @@ $(document).ready(function() {
   initialiser_chainage_form();
   initialiser_form();
 
+  M.get_id_form = get_id_form;
 });
 

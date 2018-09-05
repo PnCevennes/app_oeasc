@@ -178,7 +178,7 @@
    {{ super }}
 
     <script>
-      
+
       $(document).ready(function() {
 
         $('[data-toggle="tooltip"]').tooltip();
@@ -193,7 +193,7 @@
     <script src="{{ url_for('static', filename='modules/oeasc/js/util_nomenclature.js') }}"></script>
     <script src="{{ url_for('static', filename='modules/oeasc/js/oeasc_config.js') }}"></script>
     {% block js_variables %}
-    
+
     {% endblock %}
     <script src="{{ url_for('static', filename='modules/oeasc/js/util_db.js') }}"></script>
     <script src="{{ url_for('static', filename='modules/oeasc/js/util_carte.js') }}"></script>
@@ -202,6 +202,9 @@
     {% endblock js_local%}
 
 
+  {% block js_add %}
+
+  {% endblock %}
 
     {% endblock js%}
   </body>

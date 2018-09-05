@@ -92,8 +92,10 @@ def get_listes_essences(declaration):
 
         for degat_essence in degat.get('degat_essences', []):
 
-            if degat_essence != {} and degat_essence["id_nomenclature_degat_essence"]:
+            if degat_essence != {} and degat_essence["id_nomenclature_degat_essence"] and degat_essence["id_nomenclature_degat_essence"] in listes_essences["degats"][id_nomenclature_degat_type]:
 
+                print(degat_essence["id_nomenclature_degat_essence"])
+                print(listes_essences["degats"][id_nomenclature_degat_type])
                 listes_essences["degats"][id_nomenclature_degat_type].remove(degat_essence["id_nomenclature_degat_essence"])
 
     return listes_essences

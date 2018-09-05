@@ -86,6 +86,23 @@ $(document).ready(function() {
 
   };
 
+  $(".accordion").each(function(i,e){
+
+    $(e).unbind('click');
+    $(e).click(function() {
+
+      e.classList.toggle("active");
+      var panel = this.nextElementSibling;
+      if (panel.style.maxHeight){
+        panel.style.maxHeight = null;
+      } else {
+        panel.style.maxHeight = panel.scrollHeight + "px";
+      }
+
+    });
+
+  });
+
 
   M.initialiser_checkbox_group_required = initialiser_checkbox_group_required;
   M.initialiser_tooltips = initialiser_tooltips;

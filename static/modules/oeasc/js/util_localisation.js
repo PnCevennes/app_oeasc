@@ -20,7 +20,7 @@ $(document).ready(function() {
 
     map = M.carte_base_oeasc(show_name, "mapbox");
 
-    map.select_name = show_name
+    map.select_name = show_name;
 
     M.style.oeasc.fillPattern = null;
     M.style.oeasc.fillOpacity = 0.1;
@@ -30,7 +30,7 @@ $(document).ready(function() {
 
     declarations.forEach(function(e) {
 
-      M.load_declaration_centroid(e, map);
+      M.load_declaration_centroid(e , true, map);
 
     });
 
@@ -74,6 +74,7 @@ $(document).ready(function() {
 
     var areas_foret = declaration.foret.areas_foret;
 
+
     M.load_areas(areas_foret, "foret", map);
 
     // charger les aires
@@ -82,12 +83,15 @@ $(document).ready(function() {
 
     M.load_areas(areas_localisation, "localisation", map);
 
+    M.load_declaration_centroid(declaration, false, map);
+
+
   }
 
 
   var initialiser_form_localisation = function(select_name) {
 
-    var map=M["map_" + select_name]
+    var map = M["map_" + select_name];
 
     //reset
 
@@ -219,18 +223,18 @@ $(document).ready(function() {
 
         name = 'OEASC_CADASTRE';
 
-        var area = M.get_db('t_areas','id_area',areas_container[i].id_area)
+        var area = M.get_db('t_areas','id_area',areas_container[i].id_area);
         var area_code = area.area_code;
         var id_type = area.id_type;
 
-        var id_type_commune = M.get_id_type('OEASC_COMMUNE')
-        var id_type_dgd = M.get_id_type('OEASC_DGD')
+        var id_type_commune = M.get_id_type('OEASC_COMMUNE');
+        var id_type_dgd = M.get_id_type('OEASC_DGD');
 
         var name_container = "";
 
         if( id_type == id_type_commune) {
 
-          name_container = 'OEASC_COMMUNE'
+          name_container = 'OEASC_COMMUNE';
 
         } else {
 

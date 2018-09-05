@@ -2,7 +2,7 @@
 
   <h4>Essences objectifs </h4>
 
-<label for="tooltip_essence"></label>
+{# <label for="tooltip_essence"></label> #}
 
   {{ macros.select_essence("id_nomenclature_peuplement_essence_principale", nomenclature, titre="Essence objectif principale", object=declaration, listes_essences=listes_essences, afficher_type_essence="oui") }}
 
@@ -13,7 +13,7 @@
 
   <div><p><i>(*) : facultatif, 3 choix maximum.</i></p></div>
 
-  <input type=submit Valider class="btn btn-success float-right">
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
 
@@ -29,13 +29,14 @@
 
   {% set mnemonique_peuplement_type = utils.get_nomenclature_from_id(declaration["id_nomenclature_peuplement_type"], nomenclature, "mnemonique") %}
 
-  {% if  mnemonique_peuplement_type != "PT_MIX" %}
+  {# {% if  mnemonique_peuplement_type != "PT_MIX" %} #}
+  {% if  mnemonique_peuplement_type != "PT_FUTIRR" %}
 
   {{ macros.radio_nomenclature("nomenclatures_peuplement_maturite", nomenclature, "OEASC_PEUPLEMENT_MATURITE", "checkbox", "Maturité du peuplement", object=declaration) }}
 
   {% endif %}
 
-  <input type=submit Valider class="btn btn-success float-right">
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
 
@@ -54,7 +55,7 @@
 
   <div><p><i>(*) : choix multiple.</i></p></div>
 
-  <input type=submit Valider class="btn btn-success float-right">
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
 
@@ -77,7 +78,7 @@
 
   <div><p><i>(*) : choix multiple.</i></p></div>
 
-  <input type=submit Valider class="btn btn-success float-right">
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
 
@@ -92,6 +93,6 @@
 
   <div><p><i>(*) : choix multiple.</i></p></div>
 
-  <input type=submit Valider class="btn btn-success float-right">
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>

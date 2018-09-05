@@ -91,13 +91,24 @@ cat << EOF
 -- communes oeasc
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('OEASC_COMMUNE'), a.area_name, a.area_code, a.geom, a.centroid, 'OEASC', '', true
-        FROM (
-            SELECT t.area_name, t.area_code, t.geom, t.centroid
-                FROM ref_geo.l_areas as t
+    SELECT id_type, CONCAT(SUBSTRING(area_code, 1, 2), '-', area_name), area_code, b.geom, centroid, 'OEASC', '', true FROM (
+        SELECT ref_geo.get_id_type('OEASC_COMMUNE') as id_type, a.area_name, a.area_code, a.geom, a.centroid, 'OEASC', '', true
+            FROM (
+                SELECT t.area_name, t.area_code, t.geom, t.centroid
+                    FROM ref_geo.l_areas as t
                     WHERE id_type=ref_geo.get_id_type('COMMUNES') AND enable
                     )a, ref_geo.perimetre_OEASC as p
-       WHERE ST_INTERSECTS(a.geom, p.geom);
+            WHERE ST_INTERSECTS(a.geom, p.geom))b, ref_geo.perimetre_OEASC as p
+        WHERE ST_AREA(ST_INTERSECTION(b.geom, p.geom))*(1.0/ST_AREA(b.geom) + 1.0/ST_AREA(p.geom))/2 > 0.05;
+
+-- INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
+--   SELECT ref_geo.get_id_type('OEASC_COMMUNE'), a.area_name, a.area_code, a.geom, a.centroid, 'OEASC', '', true
+--        FROM (
+--           SELECT t.area_name, t.area_code, t.geom, t.centroid
+--                FROM ref_geo.l_areas as t
+--                    WHERE id_type=ref_geo.get_id_type('COMMUNES') AND enable
+--                    )a, ref_geo.perimetre_OEASC as p
+--       WHERE ST_INTERSECTS(a.geom, p.geom);
 EOF
 
 

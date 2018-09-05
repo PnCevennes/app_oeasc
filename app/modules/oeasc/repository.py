@@ -26,6 +26,9 @@ from .models import (
     TProprietaire
 )
 
+from datetime import timedelta
+from datetime import datetime
+
 
 def get_nomenclature_from_id(id_nomenclature, nomenclature, key="label_fr"):
     '''
@@ -52,7 +55,6 @@ def get_nomenclature_from_id(id_nomenclature, nomenclature, key="label_fr"):
 def dfp_as_dict(declaration, foret, proprietaire):
 
     if not declaration:
-
 
         declaration = TDeclaration()
 
@@ -114,9 +116,14 @@ def create_or_modify(model, key, val, dict_in):
         elem = DB.session.query(model).filter(getattr(model, key) == val).first()
 
     if elem is None:
-
+        print("create", model, key, val)
         elem = model()
         DB.session.add(elem)
+
+    else:
+
+        print("mod", model, key, val)
+
 
     elem.from_dict(dict_in, True)
 
@@ -463,18 +470,14 @@ def degats_dict_random_sample(v_essences, nomenclature=None):
 
     v_degat_type = get_v_nomenclature_random_sample(nomenclature, 'OEASC_DEGAT_TYPE', 'id_nomenclature')
 
-    print(v_degat_type)
-
     degats = [{"id_nomenclature_degat_type": id_nomenclature} for id_nomenclature in v_degat_type]
 
     for d in degats:
 
         mnemonique = get_nomenclature_from_id(d['id_nomenclature_degat_type'], nomenclature, "mnemonique")
         if mnemonique in ['DT_ABSC', 'DT_POC']:
-            print(mnemonique, "not")
             continue
 
-        print(mnemonique, 'yes')
         degat = {
             "id_nomenclature_degat_essence": get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", "id_nomenclature"),
             "id_nomenclature_degat_etendue": get_nomenclature_random_sample(nomenclature, "OEASC_DEGAT_ETENDUE", "id_nomenclature"),
@@ -482,33 +485,6 @@ def degats_dict_random_sample(v_essences, nomenclature=None):
             "id_nomenclature_degat_anteriorite": get_nomenclature_random_sample(nomenclature, "OEASC_DEGAT_ANTERIORITE", "id_nomenclature")}
 
         d['degat_essences'] = [degat]
-
-    # degat_1 = {"id_nomenclature_degat_type": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_TYPE", 1, "id_nomenclature")}
-    # degat_2 = {"id_nomenclature_degat_type": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_TYPE", 2, "id_nomenclature")}
-    # degat_3 = {"id_nomenclature_degat_type": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_TYPE", 4, "id_nomenclature")}
-
-    # degat_1_1 = {"id_nomenclature_degat_essence": get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", 1, "id_nomenclature"),
-    #              "id_nomenclature_degat_etendue": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ETENDUE", 0, "id_nomenclature"),
-    #              "id_nomenclature_degat_gravite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_GRAVITE", 1, "id_nomenclature"),
-    #              "id_nomenclature_degat_anteriorite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ANTERIORITE", 2, "id_nomenclature")}
-
-    # degat_1_2 = {"id_nomenclature_degat_essence": get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", 2, "id_nomenclature"),
-    #              "id_nomenclature_degat_etendue": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ETENDUE", 1, "id_nomenclature"),
-    #              "id_nomenclature_degat_gravite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_GRAVITE", 2, "id_nomenclature"),
-    #              "id_nomenclature_degat_anteriorite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ANTERIORITE", 0, "id_nomenclature")}
-
-    # degat_2_1 = {"id_nomenclature_degat_essence": get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", 0, "id_nomenclature"),
-    #              "id_nomenclature_degat_etendue": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ETENDUE", 2, "id_nomenclature"),
-    #              "id_nomenclature_degat_gravite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_GRAVITE", 0, "id_nomenclature"),
-    #              "id_nomenclature_degat_anteriorite": get_nomenclature_sample(nomenclature, "OEASC_DEGAT_ANTERIORITE", 1, "id_nomenclature")}
-
-    # degat_1['degat_essences'] = [degat_1_1, degat_1_2]
-
-    # degat_2['degat_essences'] = [degat_2_1]
-
-    # degats.append(degat_1)
-    # degats.append(degat_2)
-    # degats.append(degat_3)
 
     return degats
 
@@ -542,7 +518,11 @@ def declaration_dict_random_sample(nomenclature=None):
 
     v_essences = v_rand_nomenclature(nomenclature, 'OEASC_PEUPLEMENT_ESSENCE', 7)
 
-    print(id_declarant)
+    random_seconds = random.randint(1, 2 * 3600 * 24 * 365)
+
+    date = (datetime.strptime('1/1/2015', '%m/%d/%Y') + timedelta(seconds=random_seconds))
+
+    s_date = str(date)
 
     declaration = {
 
@@ -572,7 +552,10 @@ def declaration_dict_random_sample(nomenclature=None):
         'nomenclatures_peuplement_paturage_statut': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")],
         'nomenclatures_peuplement_espece': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ESPECE", "id_nomenclature")],
 
-        's_commentaire': "Un commentaire...."
+        's_commentaire': "Un commentaire....",
+
+        "meta_create_date": s_date,
+        "meta_update_date": s_date
 
     }
 
