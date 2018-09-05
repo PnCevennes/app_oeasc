@@ -692,8 +692,6 @@ $(document).ready(function() {
 
         }
 
-        console.log("loaded ", type);
-
       }
 
     });
@@ -838,8 +836,6 @@ $(document).ready(function() {
         //   deferred_setBounds(featuresCollection.getBounds(), map);
 
         // }
-
-        console.log("loaded ", type, declaration.id_declaration);
 
       }
 

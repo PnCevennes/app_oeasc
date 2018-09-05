@@ -1,8 +1,6 @@
 <form id="form_proprietaire" data-id-proprietaire="{{proprietaire['id_proprietaire'] or ''}}"" data-id-declarant="{{proprietaire['id_declarant'] or ''}}" >
 
   <h4>Coordonnées du propriétaire</h4>
-statut {{ foret["b_statut_public"] }}
-document {{ foret["b_document"] }}
 
   {% if (not foret["b_statut_public"]) or (not foret["b_document"])  %}
 
