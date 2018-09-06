@@ -358,6 +358,10 @@ $(document).ready(function() {
     f_init_fil_ariane("#fil_global a");
     f_init_fil_ariane("#fil_local a");
 
+    window.onbeforeunload = function(){
+      return confirm('Etes vous sur de vouloir quitter la page ?');
+    };
+
   };
 
 
@@ -415,7 +419,9 @@ $(document).ready(function() {
         $("#form_send").show();
         // $("#form_send").html(JSON.stringify(response));
         $("#form_display").hide();
-        $("#btn_modall_merci").click();
+        $("#form_container").hide();
+
+        $("#btn_modal_merci").click();
 
       }).fail(function(response) {
 

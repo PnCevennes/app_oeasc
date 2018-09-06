@@ -73,11 +73,11 @@
 
             <li><a href="#" class="nav-link"><span class="fas fa-user">{{session.current_user.identifiant}}</span></a></li>
 
-              {% if session.current_user.id_droit_max >= 4 %}
+            {% if session.current_user.id_droit_max >= 4 %}
 
-                <li><a href="{{ url_for('oeasc.users') }}" title="Gérer les utilisateurs" class="nav-link" ><span class="fas fa-users-cog"></span></a></li>
-                
-              {% endif %}
+            <li><a href="{{ url_for('oeasc.users') }}" title="Gérer les utilisateurs" class="nav-link" ><span class="fas fa-users-cog"></span></a></li>
+
+            {% endif %}
 
             <li><a href="{{ url_for('auth.logout') }}" title="Deconnexion" class="nav-link"><span class="fas fa-sign-out-alt"></span></a></li>
 
@@ -148,7 +148,7 @@
   <!-- "node_modules/chosen-js/chosen.jquery.min.js", -->
 
   {% set liste_js = [
-    
+
     "node_modules/jquery/dist/jquery.min.js",
     "node_modules/popper.js/dist/umd/popper.min.js",
     "node_modules/bootstrap/dist/js/bootstrap.min.js",
@@ -175,7 +175,7 @@
     {% block js_local %}
     <!-- local utils -->
 
-   {{ super }}
+    {{ super }}
 
     <script>
 
@@ -185,26 +185,21 @@
 
       });
 
-
     </script>
 
-
-    <!-- <script src="{{ url_for('static', filename='js/utils/tables.js') }}"></script> -->
     <script src="{{ url_for('static', filename='modules/oeasc/js/util_nomenclature.js') }}"></script>
     <script src="{{ url_for('static', filename='modules/oeasc/js/oeasc_config.js') }}"></script>
-    {% block js_variables %}
-
-    {% endblock %}
     <script src="{{ url_for('static', filename='modules/oeasc/js/util_db.js') }}"></script>
     <script src="{{ url_for('static', filename='modules/oeasc/js/util_carte.js') }}"></script>
     <script src="{{ url_for('static', filename='modules/oeasc/js/util_form.js') }}"></script>
+
     <!-- local app -->
     {% endblock js_local%}
 
 
-  {% block js_add %}
+    {% block js_add %}
 
-  {% endblock %}
+    {% endblock %}
 
     {% endblock js%}
   </body>

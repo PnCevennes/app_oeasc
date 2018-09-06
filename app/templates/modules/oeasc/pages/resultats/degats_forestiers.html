@@ -1,18 +1,22 @@
 {% extends "modules/oeasc/layout.html" %}
 
 
-{% block title %}Résultats de dégâts forestiers{% endblock %}
+{% block title %}Synthèse de dégâts forestiers{% endblock %}
 
 {% block content %}
 
-<div class="row">
+{% include 'modules/oeasc/entity/declarations.html' %}
 
-  <div class="col-md-12">
+{% endblock %}
 
-    <h2>Résultats de dégâts forestiers</h2>
+{% block js_local %}
 
-  </div>
+{{ super() }}
 
-</div>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_form.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_data.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_localisation.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/localisations.js') }}"></script>
+
 
 {% endblock %}

@@ -521,6 +521,31 @@ CREATE OR REPLACE FUNCTION oeasc.get_id_proprietaire_from_name(
 
 
 
+DROP FUNCTION IF EXISTS oeasc.get_declarations_structure_declarant(integer);
+
+CREATE OR REPLACE FUNCTION oeasc.get_declarations_structure_declarant(
+    IN myid_declarant integer)
+  RETURNS TABLE(id_declaration integer) AS
+    $BODY$
+        BEGIN
+            RETURN QUERY
+                SELECT d.id_declaration 
+            FROM oeasc.t_declarations as d, 
+                (SELECT id_role 
+                    FROM utilisateurs.t_roles r, 
+                        (SELECT id_organisme 
+                            FROM utilisateurs.t_roles 
+                            WHERE id_role = myid_declarant
+                        )a
+                    WHERE r.id_organisme = a.id_organisme
+                )b
+            WHERE d.id_declarant = b.id_role;
+          END;
+    $BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100
+  ROWS 1000;
+
 -- create ref_geo.vl_${name}
 
     CREATE OR REPLACE VIEW ref_geo.vl_OEASC_ONF_FRT AS

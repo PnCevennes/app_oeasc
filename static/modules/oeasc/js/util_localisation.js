@@ -22,6 +22,8 @@ $(document).ready(function() {
 
     map.select_name = show_name;
 
+    $('#map_' + map.select_name).find('#chargement').hide();
+
     M.style.oeasc.fillPattern = null;
     M.style.oeasc.fillOpacity = 0.1;
     M.l_perimetre_OEASC.setStyle(M.style.oeasc);
@@ -53,9 +55,12 @@ $(document).ready(function() {
 
     }
 
+
     map = M.carte_base_oeasc(show_name, "mapbox");
 
-    map.select_name = show_name
+    map.select_name = show_name;
+
+    $('#map_' + map.select_name).find('#chargement').hide();
 
     M.style.oeasc.fillPattern = null;
     M.style.oeasc.fillOpacity = 0.1;

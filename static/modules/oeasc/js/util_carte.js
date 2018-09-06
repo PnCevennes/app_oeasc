@@ -742,7 +742,6 @@ $(document).ready(function() {
         }
 
 
-
         // var featuresCollection = L.geoJson(response, {
         //   pane : 'PANE_' + pane
         // }).addTo(map);

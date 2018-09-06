@@ -14,14 +14,6 @@ footer h4 {
   text-align: center
 }
 
-/* footer > div > div:not(:last-child) {
-
-  border-style: solid;
-  border-color: lightgray;
-  border-width: 0 1px 1px 0;
-
-}
-*/
 a:hover, a.nav_link {
 
   text-decoration: none;
@@ -410,12 +402,15 @@ header div{
 
 }
 
-.figure img{
+.figure{
 
   text-align: center;
+  
+}
+
+.figure img{
+
   border: 1px solid lightgray;
-  /* font-style: italic; */
-  /* box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2); */
 }
 
 .figure figcaption{

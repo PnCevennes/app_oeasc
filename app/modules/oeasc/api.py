@@ -9,12 +9,13 @@ from flask import (
 
 from .repository import (
     nomenclature_oeasc,
-    declaration_dict_sample,
-    declaration_dict_random_sample,
     create_or_modify,
     dfp_as_dict,
     get_dfp,
+    get_declarations
 )
+
+from .declaration_sample import declaration_dict_random_sample
 
 from .utils import (
     get_listes_essences,
@@ -55,6 +56,16 @@ def get_nomenclature(id_nomenclature):
     data = DB.session.query(TNomenclatures.mnemonique).filter(TNomenclatures.id_nomenclature == id_nomenclature).first()[0]
 
     return data
+
+
+@bp.route('declarations/', defaults={'id_declarant': -1}, methods=['GET'])
+@bp.route('declarations/<int:id_declarant>', methods=['GET'])
+@json_resp
+def declarations(id_declarant):
+
+    b_synthese = id_declarant == -1
+
+    return get_declarations(b_synthese, id_declarant)
 
 
 @bp.route('declaration/<int:id_declaration>', methods=['GET'])
@@ -104,9 +115,9 @@ def delete_declaration(id_declaration):
     return "ok"
 
 
-@bp.route('test_random', methods=['GET'])
+@bp.route('random_declaration', methods=['GET'])
 @json_resp
-def test_random():
+def random_declaration():
 
     declaration_dict = declaration_dict_random_sample()
 
@@ -126,8 +137,6 @@ def random_populate(nb):
 
             continue
 
-        # create_date = declaration_dict['meta_create_date']
-
         check_foret(declaration_dict)
         f_create_or_update_declaration(declaration_dict)
 
@@ -140,7 +149,7 @@ def random_populate(nb):
 @json_resp
 def test():
 
-    declaration_dict = declaration_dict_sample()
+    declaration_dict = declaration_dict_random_sample()
 
     id_declaration = 4
 
@@ -157,8 +166,6 @@ def test():
 
 def f_create_or_update_declaration(declaration_dict):
 
-    # return declaration_dict["foret"]["areas_foret"]
-
     declaration = proprietaire = foret = None
 
     id_declaration = declaration_dict.get("id_declaration", None)
@@ -166,7 +173,6 @@ def f_create_or_update_declaration(declaration_dict):
     id_foret = declaration_dict["foret"].get("id_foret", None)
     id_proprietaire = declaration_dict["foret"]["proprietaire"].get("id_proprietaire", None)
 
-    # return [id_foret, id_proprietaire, id_declaration, declaration_dict]
 
     proprietaire = create_or_modify(TProprietaire, 'id_proprietaire', id_proprietaire, declaration_dict["foret"]["proprietaire"])
 
@@ -176,6 +182,9 @@ def f_create_or_update_declaration(declaration_dict):
 
     declaration_dict['id_foret'] = foret.id_foret
 
+    # pour le cas ou on veut generer une create date en random :
+    # - elle sera crée un fois avec la date courante
+    # - puis modifiée pour lui donner la date choisie aléatoirement
     if declaration_dict.get("meta_create_date", None):
 
         declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
@@ -183,7 +192,6 @@ def f_create_or_update_declaration(declaration_dict):
         print(declaration_dict['meta_create_date'])
 
     declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
-
 
     d = dfp_as_dict(declaration, foret, proprietaire)
 

@@ -8,8 +8,14 @@ from .models import (
     TForet,
     TProprietaire
 )
-from .repository import nomenclature_oeasc
-from .repository import get_nomenclature_from_id
+from .repository import (
+
+    nomenclature_oeasc,
+    get_nomenclature_from_id,
+    get_organisme_name_from_id_organisme,
+    get_organisme_name_from_id_declarant,
+
+)
 
 
 def get_liste_communes(declaration):
@@ -104,42 +110,6 @@ def get_listes_essences(declaration):
 def copy_list(liste):
 
     return [elem for elem in liste]
-
-
-def get_organisme_name_from_id(id_organisme):
-
-    sql_text = text("SELECT b.nom_organisme \
-        FROM utilisateurs.bib_organismes as b \
-        WHERE b.id_organisme = {};".format(id_organisme))
-
-    result = DB.engine.execute(sql_text).first()
-
-    return result
-
-
-def get_organisme_name_from_declarant_id(id_declarant):
-
-    sql_text = text("SELECT b.nom_organisme \
-        FROM utilisateurs.bib_organismes as b, utilisateurs.t_roles as r \
-        WHERE b.id_organisme = r.id_organisme AND r.id_role = {};".format(id_declarant))
-
-    result = DB.engine.execute(sql_text).first()[0]
-
-    return result
-
-
-def get_description_droit(id_droit):
-
-    switcher = {
-        1: "Declarant",
-        2: "Declarant",
-        3: "Declarant",
-        4: "Directeur",
-        5: "Directeur",
-        6: "Admin"
-    }
-
-    return switcher.get(id_droit, 'id_droit {} invalide'.format(id_droit))
 
 
 def check_proprietaire(declaration_dict, nomenclature):
@@ -257,6 +227,20 @@ def get_gravite(declaration_dict, nomenclature):
     return get_nomenclature_from_id(id_nomenclature_degat_gravite_global, nomenclature)
 
 
+def get_description_droit(id_droit):
+
+    switcher = {
+        1: "Déclarant",
+        2: "Déclarant",
+        3: "Directeur",
+        4: "Animateur",
+        5: "Animateur",
+        6: "Admin"
+    }
+
+    return switcher.get(id_droit, 'id_droit {} invalide'.format(id_droit))
+
+
 def utils_dict():
     """
         dictionnaire qui reference les function ci dessus pour les utiliser dans jinja cf server.py
@@ -266,8 +250,8 @@ def utils_dict():
 
     d["copy_list"] = copy_list
     d["get_description_droit"] = get_description_droit
-    d["get_organisme_name_from_id"] = get_organisme_name_from_id
-    d["get_organisme_name_from_declarant_id"] = get_organisme_name_from_declarant_id
+    d["get_organisme_name_from_id_organisme"] = get_organisme_name_from_id_organisme
+    d["get_organisme_name_from_id_declarant"] = get_organisme_name_from_id_declarant
     d["get_nomenclature_from_id"] = get_nomenclature_from_id
     d["get_gravite"] = get_gravite
 

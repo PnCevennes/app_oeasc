@@ -209,7 +209,7 @@
 
   {# peuplement - type #}
 
-{#   <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type">
+  {#   <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
       <h5><span class="fas fa-question-circle"></span> Type de peuplement </h5>
@@ -240,11 +240,13 @@
 
         <p><b>Futaie régulière</b> : peuplement issu de graines ou de plants dont la majorité des arbres ont approximativement le même âge, et présentent donc des dimensions globalement similaires (en hauteur et en diamètre).</p>
 
-        <figure class="figure">
-          <img src="{{ url_for('static', filename='img/tooltips/futaie_reg.jpg') }}" alt="Futaie régulière" width="100%">
-          <figcaption>Les différents stades de développement de la futaie régulière.</figcaption>
-        </figure>
+        <div class="flex-container">
 
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/futaie_reg.jpg') }}" alt="Futaie régulière" width="100%">
+            <figcaption>Les différents stades de développement de la futaie régulière.</figcaption>
+          </figure>
+        </div>
       </div>
 
     </div>
@@ -259,12 +261,13 @@
       <div>
 
         <p><b>Futaie irrégulière</b> : peuplement dont les arbres sont répartis dans toutes les classes d’âge et toutes les dimensions. On y trouve donc en mélange des semis et des arbres de petites, moyennes et grosses dimensions.</p>
+        <div class="flex-container">
 
-        <figure class="figure">
-          <img src="{{ url_for('static', filename='img/tooltips/futaie_irr.jpg') }}" alt="Futaie irrégulière" width="100%">
-          <figcaption>Futaie irrégulière.</figcaption>
-        </figure>
-
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/futaie_irr.jpg') }}" alt="Futaie irrégulière" width="100%">
+            <figcaption>Futaie irrégulière.</figcaption>
+          </figure>
+        </div>
       </div>
 
     </div>
@@ -280,10 +283,14 @@
 
         <p><b>Taillis</b> : peuplement constitué de tiges issues du développement des rejets de souche qui, après abattage des arbres de certaines espèces (feuillues le plus souvent), forment des <q>bouquets</q> (ou cépées).</p>
 
-        <figure class="figure">
-          <img src="{{ url_for('static', filename='img/tooltips/taillis.jpg') }}" alt="Taillis" width="100%">
-          <figcaption>Taillis (différents stades de développement).</figcaption>
-        </figure>
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/taillis.jpg') }}" alt="Taillis" width="100%">
+            <figcaption>Taillis (différents stades de développement).</figcaption>
+          </figure>
+
+        </div>
 
       </div>
 
@@ -291,7 +298,7 @@
 
   </div>
 
-    <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type-3">
+  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type-3">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
       <h5><span class="fas fa-question-circle"></span> Type de peuplement </h5>
@@ -300,13 +307,15 @@
 
         <p><b>Mélange taillis-futaie</b> : La futaie et le taillis peuvent être présents dans le même peuplement, en mélange. Le peuplement est alors composé à la fois d’arbres issus de graines ou de plants, et d’un taillis issu de rejets de souche.</p>
 
-        <figure class="figure">
-          <img src="{{ url_for('static', filename='img/tooltips/melange_futaie_taillis.jpg') }}" alt="Mélange futaie - taillis" width="100%">
-          <figcaption>Mélange futaie - taillis.</figcaption>
-        </figure>
+        <div class="flex-container">
 
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/melange_futaie_taillis.jpg') }}" alt="Mélange futaie - taillis" width="100%">
+            <figcaption>Mélange futaie - taillis.</figcaption>
+          </figure>
+
+        </div>
       </div>
-
     </div>
 
   </div>
@@ -351,7 +360,7 @@
 
   {# degat - type #}
 
-{#   <div class="custom-tooltip" data-name="nomenclatures_degat_type">
+  {#   <div class="custom-tooltip" data-name="nomenclatures_degat_type">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
       <h5><span class="fas fa-question-circle"></span> Type de dégats </h5>
@@ -381,6 +390,15 @@
 
         <p><b>Abroutissement</b> : prélèvement des bourgeons, des feuilles ou des pousses dans un but alimentaire.</p>
 
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/abroutissement_cervide.jpg') }}" alt="Abroutissement de cervidé" width="100%">
+            <figcaption>Abroutissement(cervidé).</figcaption>
+          </figure>
+
+        </div>
+
       </div>
 
     </div>
@@ -395,6 +413,15 @@
       <div>
 
         <p><b>Frottis</b> : blessure infligée par les cervidés mâles frottant leurs bois sur les tiges de jeunes arbres : l’écorce est arrachée et la tige est dénudée, voire cassée.</p>
+
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/frottis.jpg') }}" alt="Frottis" width="100%">
+            <figcaption>Frottis.</figcaption>
+          </figure>
+
+        </div>
 
       </div>
 
@@ -411,6 +438,14 @@
 
         <p><b>Écorçage</b> : Prélèvement par le cerf de l’écorce d’un arbre avec les dents dans un but alimentaire. Contrairement au frottis, le bord de la blessure est généralement net et aucun lambeau d’écorce ne persiste.</p>
 
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/ecorcage.jpg') }}" alt="Écorçage" width="100%">
+            <figcaption>Écorçage.</figcaption>
+          </figure>
+
+        </div>
       </div>
 
     </div>

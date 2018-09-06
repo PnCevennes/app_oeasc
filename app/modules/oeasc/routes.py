@@ -12,21 +12,22 @@ from .repository import (
     nomenclature_oeasc,
     get_liste_organismes_oeasc,
     get_users,
-    declaration_dict_sample,
     get_dfp,
     dfp_as_dict,
+    get_declarations,
 )
 
 from config import config
 
 from .utils import (
     get_listes_essences,
-    check_foret,
+    # check_foret,
     get_liste_communes,
 )
 
 from app.utils.env import (
-    DB, URL_REDIRECT
+    # DB,
+    URL_REDIRECT,
 )
 
 
@@ -129,6 +130,11 @@ def declaration(id_declaration):
     '''
 
     declaration, foret, proprietaire = get_dfp(id_declaration)
+
+    if not declaration:
+
+        return "la declaration n° " + str(id_declaration) + " n'existe pas."
+
     declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
     declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
 
@@ -138,27 +144,25 @@ def declaration(id_declaration):
 
 
 @bp.route('/declarations')
+@fnauth.check_auth(1, False, 'oeasc/login')
 def declarations():
     '''
-        page affichant une liste de declaration
-
-        TODO
+        page affichant la liste de declaration d'un utilisateur et de sa strucutre
+        (sauf le cas ou structure = 'Particulier')
+        les roles animateurs et administrateur peuvent tout voir
     '''
 
-    declarations_array = []
+    id_declarant = None
 
-    id_declarations = DB.session.query(TDeclaration.id_declaration)
+    if session.get('current_user', None):
+
+        id_declarant = session['current_user']['id_role']
 
     nomenclature = nomenclature_oeasc()
 
-    for id_declaration in id_declarations:
+    declarations = get_declarations(False, id_declarant)
 
-        declaration, foret, proprietaire = get_dfp(id_declaration)
-        declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
-
-        declarations_array.append(declaration_dict)
-
-    return render_template('modules/oeasc/pages/declarations.html', declarations=declarations_array, nomenclature=nomenclature)
+    return render_template('modules/oeasc/pages/declarations.html', declarations=declarations, nomenclature=nomenclature)
 
 
 @bp.route('/suivi_equilibre_ASC')
@@ -219,7 +223,11 @@ def resultats_degats_forestiers():
         TODO
     '''
 
-    return render_template('modules/oeasc/pages/resultats/degats_forestiers.html')
+    nomenclature = nomenclature_oeasc()
+
+    declarations = get_declarations(True)
+
+    return render_template('modules/oeasc/pages/resultats/degats_forestiers.html', nomenclature=nomenclature, declarations=declarations)
 
 
 @bp.route('/resultats/diagnostics_sylvicoles')
