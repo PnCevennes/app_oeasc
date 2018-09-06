@@ -1,14 +1,14 @@
-{% extends "modules/oeasc/layout.html" %}
+{%- extends "modules/oeasc/layout.html" %}
 
-{% block title %}Mes déclarations{% endblock %}
+{%- block title %}Mes déclarations{%- endblock %}
 
-{% block content %}
+{%- block content %}
 
-{% include 'modules/oeasc/entity/declarations.html' %}
+{%- include 'modules/oeasc/entity/declarations.html' %}
 
-{% endblock %}
+{%- endblock %}
 
-{% block js_local %}
+{%- block js_local %}
 
 {{ super() }}
 
@@ -18,4 +18,4 @@
 <script src="{{ url_for('static', filename='modules/oeasc/js/localisations.js') }}"></script>
 
 
-{% endblock %}
+{%- endblock %}

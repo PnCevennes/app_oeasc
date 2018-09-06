@@ -1,6 +1,6 @@
-{% set degats = declaration["degats"] %}
-{% set ns = namespace() %}
-{% set ns.input_disabled = "" %}
+{%- set degats = declaration["degats"] %}
+{%- set ns = namespace() %}
+{%- set ns.input_disabled = "" %}
 
 
 <form id="form_degats">
@@ -11,42 +11,42 @@
 
     <label for="nomenclatures_degat_type">Type de dégât*</label>
 
-    {% for elem in nomenclature.OEASC_DEGAT_TYPE['values'] %}
+    {%- for elem in nomenclature.OEASC_DEGAT_TYPE['values'] %}
 
-    {% set ns.checked = "" %}
-    {% set ns.ind = -1 %}
+    {%- set ns.checked = "" %}
+    {%- set ns.ind = -1 %}
 
-    {% for degat in degats %}
-    {% if elem.id_nomenclature|string == degat.id_nomenclature_degat_type|string %}
-    {% set ns.checked="checked" %}
-    {% set ns.ind=loop.index0 %}
-    {% endif %}
-    {% endfor %}
+    {%- for degat in degats %}
+    {%- if elem.id_nomenclature|string == degat.id_nomenclature_degat_type|string %}
+    {%- set ns.checked="checked" %}
+    {%- set ns.ind=loop.index0 %}
+    {%- endif %}
+    {%- endfor %}
 
 
     <div class="custom-control">
 
-      {% if ns.ind == -1 %}
-      {% set ns.id_degat = "" %}
-      {% else %}
-      {% set ns.id_degat = "degats[ns.ind].id_degat" %}
-      {% endif %}
+      {%- if ns.ind == -1 %}
+      {%- set ns.id_degat = "" %}
+      {%- else %}
+      {%- set ns.id_degat = "degats[ns.ind].id_degat" %}
+      {%- endif %}
 
-      {% if ns.ind != -1 %}
+      {%- if ns.ind != -1 %}
 
 
-      {% set degat = degats[ns.ind] %}
-      {% set mnemonique_degat_type = utils.get_nomenclature_from_id(degat["id_nomenclature_degat_type"], nomenclature, "mnemonique") %}
-      {% endif %}
+      {%- set degat = degats[ns.ind] %}
+      {%- set mnemonique_degat_type = utils.get_nomenclature_from_id(degat["id_nomenclature_degat_type"], nomenclature, "mnemonique") %}
+      {%- endif %}
 
 
       <input id="nomenclatures_degat_type-{{ loop.index0 }}" name="nomenclatures_degat_type" type="checkbox" value="{{ elem.id_nomenclature }}" {{ns.checked}} data-id-degat="{{ns.id_degat}}" >
       <label for="nomenclatures_degat_type-{{ loop.index0 }}">{{ elem.label_fr }} _{{mnemonique_degat_type}}</label>
 
 
-      {% if ns.ind != -1 and mnemonique_degat_type != "DT_POC" %}
+      {%- if ns.ind != -1 and mnemonique_degat_type != "DT_POC" %}
 
-      {% set degat = degats[ns.ind] %}
+      {%- set degat = degats[ns.ind] %}
 
 
       <div class="degat-essence custom-control">
@@ -56,7 +56,7 @@
         <div><label for="id_nomenclature_degat_etendue"><i>Étendue</i></label></div>
         <div><label for="id_nomenclature_degat_gravite"><i>Gravité</i></label></div>
         <div><label for="id_nomenclature_degat_anteriorite"><i>Antériorité</i></label></div>
-        {% else %}
+        {%- else %}
         <div></div>
         <div></div>
         <div></div>
@@ -65,24 +65,24 @@
 
       <div class="custom-control degat-essence-container" >
 
-        {% set selected_essences_locale = [] %}
-        {% set n_degat_essences = degat["degat_essences"]|length %}
+        {%- set selected_essences_locale = [] %}
+        {%- set n_degat_essences = degat["degat_essences"]|length %}
 
-        {% if n_degat_essences > 0 %}
+        {%- if n_degat_essences > 0 %}
 
-        {% set degat_essences = degat["degat_essences"] %}
+        {%- set degat_essences = degat["degat_essences"] %}
 
-        {% else %}
+        {%- else %}
 
-        {% set degat_essences = [{}] %}
+        {%- set degat_essences = [{}] %}
 
-        {% endif %}
+        {%- endif %}
 
-        {% set ns.button_disabled = "" %}
+        {%- set ns.button_disabled = "" %}
 
-        {% for degat_essence in degat_essences %}
+        {%- for degat_essence in degat_essences %}
 
-        {% if degat_essence["id_nomenclature_degat_essence"]|string != "" and degat_essence["id_nomenclature_degat_essence"] != None %}
+        {%- if degat_essence["id_nomenclature_degat_essence"]|string != "" and degat_essence["id_nomenclature_degat_essence"] != None %}
 
         <div class="strayed degat-essence" >
           <div> {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature)}} </div>
@@ -101,18 +101,18 @@
           </div>
         </div>
 
-        {% set ns.display_form='none' %}
+        {%- set ns.display_form='none' %}
 
-        {% else %}
+        {%- else %}
 
-        {% set ns.display_form='block' %}
-        {% set ns.input_disabled = "disabled" %}
+        {%- set ns.display_form='block' %}
+        {%- set ns.input_disabled = "disabled" %}
 
-        {% endif %}
+        {%- endif %}
 
         <div class="form-degat-essence" data-degat-type="{{ elem.id_nomenclature }}" data-id-degat-essence="{{degat_essence.id_degat_essence}}" style="display: {{ns.display_form}}">
 
-          {% set add = "_" + elem.id_nomenclature|string + "_" + loop.index0|string %}
+          {%- set add = "_" + elem.id_nomenclature|string + "_" + loop.index0|string %}
 
           <div class="degat-essence">
             <div>{{ macros.select_essence("id_nomenclature_degat_essence", nomenclature, object=degat_essence, listes_essences=listes_essences, id_nomenclature_degat_type=degat.id_nomenclature_degat_type, required="required") }}</div>
@@ -129,13 +129,13 @@
 
             <div>
 
-              {% if n_degat_essences > 0 and degat_essence["id_nomenclature_degat_essence"]%}
+              {%- if n_degat_essences > 0 and degat_essence["id_nomenclature_degat_essence"]%}
 
               {# {{degat["degat_essences"]}} #}
 
               <button type="button" class="button-undo-degat-essence btn btn-warning" data-degat-type="{{ elem.id_nomenclature }}" data-degat-essence='{{ degat_essence["id_nomenclature_degat_essence"] }}'><span class="fas fa-undo"></span></button>
 
-              {% endif %}
+              {%- endif %}
 
               <button class="button-valider-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}" data-degat-essence='{{ degat_essence["id_nomenclature_degat_essence"] }}'><span class="fas fa-check"></span></button>
 
@@ -144,23 +144,23 @@
 
         </div>
 
-        {% endfor %}
+        {%- endfor %}
 
-        {% if ( n_degat_essences >= 3 ) or ( ns.display_form == 'block' ) or ( n_degat_essences > ( listes_essences["degats"][degat.id_nomenclature_degat_type] | length ) ) %}
+        {%- if ( n_degat_essences >= 3 ) or ( ns.display_form == 'block' ) or ( n_degat_essences > ( listes_essences["degats"][degat.id_nomenclature_degat_type] | length ) ) %}
 
-        {% set ns.button_disabled = "disabled" %}
+        {%- set ns.button_disabled = "disabled" %}
 
-        {% endif %}
+        {%- endif %}
 
         <button type="button"  {{ ns.button_disabled }} class="button-ajouter-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}"><span class="fas fa-plus"></span></button>
 
       </div>
 
-      {% endif %}
+      {%- endif %}
 
     </div>
 
-    {% endfor %}
+    {%- endfor %}
 
   </div>
 

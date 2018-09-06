@@ -1,19 +1,19 @@
-{% macro choix(choix1, choix2, name, title, name_test, object=None) %}
+{%- macro choix(choix1, choix2, name, title, name_test, object=None) %}
 
-  {% set ns = namespace(choix1_checked = "") %}
-  {% set ns.choix2_checked = "" %}
+  {%- set ns = namespace(choix1_checked = "") %}
+  {%- set ns.choix2_checked = "" %}
 
-  {% if object[name] == true %}
+  {%- if object[name] == true %}
 
-    {% set ns.choix1_checked = "checked" %}
+    {%- set ns.choix1_checked = "checked" %}
 
-  {% endif %}
+  {%- endif %}
 
-  {% if object[name] == false %}
+  {%- if object[name] == false %}
 
-    {% set ns.choix2_checked = "checked" %}
+    {%- set ns.choix2_checked = "checked" %}
 
-  {% endif %}
+  {%- endif %}
 
 <div id=name|upper>
 
@@ -31,181 +31,181 @@
 
 </div>
 
-{% endmacro %}
+{%- endmacro %}
 
 
-{% macro select_essence(name, nomenclature, titre="", object=None, multi="", required="required", data_max=3, listes_essences=listes_essences, id_nomenclature_degat_type=-1, afficher_type_essence="") %}
+{%- macro select_essence(name, nomenclature, titre="", object=None, multi="", required="required", data_max=3, listes_essences=listes_essences, id_nomenclature_degat_type=-1, afficher_type_essence="") %}
 
   <div id="{{ name | upper }}">
 
-  {% set ns = namespace() %}
+  {%- set ns = namespace() %}
 
-  {% if titre != "" %}
+  {%- if titre != "" %}
     <label for="{{ name }}">{{ titre }}</label>
-  {% endif %}
+  {%- endif %}
 
-  {% set ns.select_options="" %}
+  {%- set ns.select_options="" %}
 
-  {% if multi == "multi" %}
-    {% set ns.select_options = 'data-max-options=3 multiple'%}
-  {% else %}
-    {% set ns.select_options = "show-tick"%}
-  {% endif %}
+  {%- if multi == "multi" %}
+    {%- set ns.select_options = 'data-max-options=3 multiple'%}
+  {%- else %}
+    {%- set ns.select_options = "show-tick"%}
+  {%- endif %}
 
     <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
 
-  {% if multi == "multi" %}
+  {%- if multi == "multi" %}
 
-    {% for d in object[name] %}
+    {%- for d in object[name] %}
 
-      {% set elem = utils.get_nomenclature_from_id(d["id_nomenclature"], nomenclature, "") %}
-
-      <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
-
-    {% endfor %}
-
-  {% else %}
-
-    {% if object[name] %}
-
-      {% set elem = utils.get_nomenclature_from_id(object[name], nomenclature, "") %}
+      {%- set elem = utils.get_nomenclature_from_id(d["id_nomenclature"], nomenclature, "") %}
 
       <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
-    {% endif %}
+    {%- endfor %}
 
-  {% endif %}
+  {%- else %}
 
-  {% if afficher_type_essence == "" %}
+    {%- if object[name] %}
 
-    {% for ind in listes_essences["degats"][id_nomenclature_degat_type] %}
+      {%- set elem = utils.get_nomenclature_from_id(object[name], nomenclature, "") %}
 
-      {% set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
+      <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+    {%- endif %}
+
+  {%- endif %}
+
+  {%- if afficher_type_essence == "" %}
+
+    {%- for ind in listes_essences["degats"][id_nomenclature_degat_type] %}
+
+      {%- set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
 
       <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
-    {% endfor %}
+    {%- endfor %}
 
-  {% else %}
+  {%- else %}
 
       <optgroup label="Feuillus">
 
-    {% for ind in listes_essences["feuillus"] %}
+    {%- for ind in listes_essences["feuillus"] %}
 
-      {% set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
+      {%- set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
         <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
-    {% endfor %}
+    {%- endfor %}
 
       </optgroup>
       <optgroup label="Résineux">
 
-    {% for ind in listes_essences["resineux"] %}
+    {%- for ind in listes_essences["resineux"] %}
 
-      {% set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
+      {%- set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
         <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
-    {% endfor %}
+    {%- endfor %}
 
     </optgroup>
 
-  {% endif %}
+  {%- endif %}
 
   </select>
 
 </div>
 
-{% endmacro %}
+{%- endmacro %}
 
 
-{% macro select(name, nomenclature, mnemonique, titre="", object=None, required="required") %}
+{%- macro select(name, nomenclature, mnemonique, titre="", object=None, required="required") %}
 
   <div id="{{ name | upper }}">
 
-  {% set ns = namespace() %}
+  {%- set ns = namespace() %}
 
-  {% if titre != "" %}
+  {%- if titre != "" %}
     <label for="{{ name }}">{{ titre }}</label>
-  {% endif %}
+  {%- endif %}
 
-  {% set ns.select_options = 'multiple' %}
+  {%- set ns.select_options = 'multiple' %}
 
 
     <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}} data-width="fit">
 
-  {% for d in object[name] %}
+  {%- for d in object[name] %}
 
-    {% set elem = utils.get_nomenclature_from_id(d["id_nomenclature"], nomenclature, "") %}
+    {%- set elem = utils.get_nomenclature_from_id(d["id_nomenclature"], nomenclature, "") %}
 
       <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
-  {% endfor %}
+  {%- endfor %}
 
-  {% for elem in nomenclature[mnemonique]['values'] %}
+  {%- for elem in nomenclature[mnemonique]['values'] %}
 
-    {% set ns.is_checked = false %}
+    {%- set ns.is_checked = false %}
 
-    {% for ind in object[name] %}
+    {%- for ind in object[name] %}
 
-      {% if elem["id_nomenclature"] == ind%}
+      {%- if elem["id_nomenclature"] == ind%}
 
-        {% set ns.is_checked = true %}
+        {%- set ns.is_checked = true %}
 
-      {% endif %}
+      {%- endif %}
 
-    {% endfor %}
+    {%- endfor %}
 
-    {% if not ns.is_checked %}
+    {%- if not ns.is_checked %}
 
     <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
-    {% endif %}
+    {%- endif %}
 
-  {% endfor %}
+  {%- endfor %}
 
   </select>
 
 </div>
 
-{% endmacro %}
+{%- endmacro %}
 
 
-{% macro radio_nomenclature(name, nomenclature, mnemonique, type, titre="", object=None, add="") %}
+{%- macro radio_nomenclature(name, nomenclature, mnemonique, type, titre="", object=None, add="") %}
 
 
-{% if type == "checkbox" %}
+{%- if type == "checkbox" %}
 
-  {% set classes = "checkbox-group-required" %}
+  {%- set classes = "checkbox-group-required" %}
 
-{% endif %}
+{%- endif %}
 
 <div id="{{ name | upper }}" class="{{classes}}">
 
-  {% if titre != "" %}
+  {%- if titre != "" %}
 
   <label for="{{ name }}">{{ titre }}</label>
 
-  {% endif %}
+  {%- endif %}
 
-  {% for elem in nomenclature[mnemonique]['values'] %}
+  {%- for elem in nomenclature[mnemonique]['values'] %}
 
-    {% set ns = namespace(checked="") %}
+    {%- set ns = namespace(checked="") %}
 
-    {% if type == "checkbox" %}
+    {%- if type == "checkbox" %}
 
-      {% for d in object[name] %}
-        {% if elem.id_nomenclature|string == d["id_nomenclature"]|string %}
-          {% set ns.checked="checked" %}
-        {% endif %}
-      {% endfor %}
+      {%- for d in object[name] %}
+        {%- if elem.id_nomenclature|string == d["id_nomenclature"]|string %}
+          {%- set ns.checked="checked" %}
+        {%- endif %}
+      {%- endfor %}
 
-    {% else %}
+    {%- else %}
 
-      {% if elem.id_nomenclature|string == object[name]|string %}
-        {% set ns.checked = "checked" %}
-      {% endif %}
+      {%- if elem.id_nomenclature|string == object[name]|string %}
+        {%- set ns.checked = "checked" %}
+      {%- endif %}
 
-    {% endif %}
+    {%- endif %}
 
   <div class="custom-control">
 
@@ -214,13 +214,13 @@
 
   </div>
 
-  {% endfor %}
+  {%- endfor %}
 
 </div>
 
-{% endmacro %}
+{%- endmacro %}
 
-{% macro input_text(name, titre="", object=None, required="required") %}
+{%- macro input_text(name, titre="", object=None, required="required") %}
 
 
 <div id="{{ name | upper }}">
@@ -228,18 +228,18 @@
   <input type="text" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
 </div>
 
-{% endmacro %}
+{%- endmacro %}
 
-{% macro input_double(name, titre="", object=None, required="required") %}
+{%- macro input_double(name, titre="", object=None, required="required") %}
 
 <div id="{{ name | upper }}">
   <label for="{{ name }}">{{ titre }}</label><br>
   <input type="number" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
 </div>
 
-{% endmacro %}
+{%- endmacro %}
 
-{% macro select_map(name, localisation_type, areas, areas_container=[]) %}
+{%- macro select_map(name, localisation_type, areas, areas_container=[]) %}
 
 <form id="form_{{ name }}" data-localisation-type="{{localisation_type}}" data-areas="{{ areas }}" data-areas-container="{{ areas_container }}">
 
@@ -263,26 +263,26 @@
 
     <div class="col-md-4">
 
-      {% set ns = namespace( multiple = 'multiple data-actions-box="true"' ) %}
+      {%- set ns = namespace( multiple = 'multiple data-actions-box="true"' ) %}
 
-      {% if localisation_type in ("ONF_FRT", "DGD") %}
+      {%- if localisation_type in ("ONF_FRT", "DGD") %}
 
-        {% set ns.multiple = '' %}
-        {% set ns.nom_type = "forêts" %}
+        {%- set ns.multiple = '' %}
+        {%- set ns.nom_type = "forêts" %}
 
-      {% elif localisation_type == "COMMUNE" %}
+      {%- elif localisation_type == "COMMUNE" %}
 
-        {% set ns.nom_type = "communes" %}
+        {%- set ns.nom_type = "communes" %}
 
-      {% elif localisation_type == "CADASTRE" %}
+      {%- elif localisation_type == "CADASTRE" %}
 
-        {% set ns.nom_type = "parcelles cadastrales" %}
+        {%- set ns.nom_type = "parcelles cadastrales" %}
 
-      {% elif localisation_type == "ONF_PRF" %}
+      {%- elif localisation_type == "ONF_PRF" %}
 
-        {% set ns.nom_type = "parcelles ONF" %}
+        {%- set ns.nom_type = "parcelles ONF" %}
 
-      {% endif %}
+      {%- endif %}
 
       <div class="localisation-select">
 
@@ -300,4 +300,4 @@
 
 </form>
 
-{% endmacro %}
+{%- endmacro %}

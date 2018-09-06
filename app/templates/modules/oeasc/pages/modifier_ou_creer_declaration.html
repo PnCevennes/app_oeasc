@@ -1,10 +1,10 @@
-{% extends "modules/oeasc/layout.html" %}
+{%- extends "modules/oeasc/layout.html" %}
 
-{% set ns = namespace() %}
+{%- set ns = namespace() %}
 
-{% block title %}Signalement de dégâts forestiers{% endblock %}
+{%- block title %}Signalement de dégâts forestiers{%- endblock %}
 
-{% block content %}
+{%- block content %}
 
 <div class="row">
 
@@ -21,7 +21,7 @@
 
 
     <div id="form_container">
-      {% include "modules/oeasc/form/form_declaration.html" %}
+      {%- include "modules/oeasc/form/form_declaration.html" %}
     </div>
 
     <div id="form_send" style="display:none;">
@@ -95,9 +95,9 @@
 
 </div>
 
-{% endblock %}
+{%- endblock %}
 
-{% block js_local %}
+{%- block js_local %}
 
 {{ super() }}
 
@@ -107,4 +107,4 @@
 
 <script src="{{ url_for('static', filename='modules/oeasc/js/oeasc_declaration.js') }}"></script>
 
-{% endblock %}
+{%- endblock %}

@@ -1,9 +1,9 @@
-{% extends "modules/oeasc/layout.html" %}
+{%- extends "modules/oeasc/layout.html" %}
 
 
-{% block title %}Login{% endblock %}
+{%- block title %}Login{%- endblock %}
 
-{% block content %}
+{%- block content %}
 
 <div class="row">
 
@@ -44,9 +44,9 @@
                 <div class="form-group">
                     <label for="user_organisme">Organisme : </label>
                     <select class="selectpicker" id="user_organism" required>
-                        {% for organisme in liste_organismes_oeasc%}
+                        {%- for organisme in liste_organismes_oeasc%}
                         <option value="{{organisme.id_organism}}">{{ organisme.nom_organisme }}</option>
-                        {% endfor %}
+                        {%- endfor %}
                     </select>
                 </div>
 
@@ -71,10 +71,10 @@
 
 </div>
 
-{% endblock %}
+{%- endblock %}
 
 
-{% block js_local %}
+{%- block js_local %}
 
 {{ super() }}
 
@@ -208,4 +208,4 @@
 
 </script>
 
-{% endblock %}
+{%- endblock %}

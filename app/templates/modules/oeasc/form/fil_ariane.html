@@ -16,7 +16,7 @@
 
   <div id="fil_local" class="fil-ariane">
 
-    {% if id_form in ["form_foret_statut", "form_areas_foret", "form_proprietaire", "form_information_foret"] %}
+    {%- if id_form in ["form_foret_statut", "form_areas_foret", "form_proprietaire", "form_information_foret"] %}
 
     <a href="#" data-id-form="form_foret_statut">1.1 - Statut</a>
     <!-- <span class="fas fa-angle-righ"></span> -->
@@ -26,23 +26,23 @@
     <!-- <span class="fas fa-angle-righ"></span> -->
     <a href="#" data-id-form="form_information_foret">1.4 - Forêt</a>
 
-    {% elif id_form in ["form_areas_localisation"] %}
+    {%- elif id_form in ["form_areas_localisation"] %}
 
     <a href="#" data-id-form="form_areas_localisation">2.1 - Localisation</a>
 
-    {% elif id_form in ["form_commentaire"] %}
+    {%- elif id_form in ["form_commentaire"] %}
 
     <a href="#" data-id-form="form_commentaire">5.1 - Commentaire</a>
 
-    {% elif id_form in ["form_degats"] %}
+    {%- elif id_form in ["form_degats"] %}
 
     <a href="#" data-id-form="form_degats">4.1 Dégâts</a>
 
-    {% elif id_form in ["form_declaration"] %}
+    {%- elif id_form in ["form_declaration"] %}
 
     <a href="#" data-id-form="form_declaration">6.1 - Résumé-Validation</a>
 
-    {% elif id_form in ["form_peuplement_essence", "form_peuplement_detail", "form_peuplement_protection", "form_peuplement_paturage", "form_peuplement_espece"] %}
+    {%- elif id_form in ["form_peuplement_essence", "form_peuplement_detail", "form_peuplement_protection", "form_peuplement_paturage", "form_peuplement_espece"] %}
 
     <a href="#" data-id-form="form_peuplement_essence">3.1 - Essences</a>
     <!-- <span class="fas fa-angle-righ"></span> -->
@@ -54,7 +54,7 @@
     <!-- <span class="fas fa-angle-righ"></span> -->
     <a href="#" data-id-form="form_peuplement_espece">3.5 - Autres</a>
 
-    {% endif %}
+    {%- endif %}
 
   </div>
   

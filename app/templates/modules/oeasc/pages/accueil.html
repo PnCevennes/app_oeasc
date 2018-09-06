@@ -1,9 +1,9 @@
-{% extends "modules/oeasc/layout.html" %}
+{%- extends "modules/oeasc/layout.html" %}
 
 
-{% block title %}Accueil{% endblock %}
+{%- block title %}Accueil{%- endblock %}
 
-{% block content %}
+{%- block content %}
 
 <div class="row">
 
@@ -35,9 +35,9 @@
 
       <div id="map_acceuil" class="map"></div>
 
-      {% endblock %}
+      {%- endblock %}
 
-      {% block js_local %}
+      {%- block js_local %}
 
       {{ super() }}
 
@@ -59,4 +59,4 @@
 
       </script>
 
-      {% endblock %}
+      {%- endblock %}

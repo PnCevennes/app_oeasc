@@ -6,39 +6,39 @@
 
   {{ macros.choix("Public", "Privé", 'b_statut_public' ,'Statut de la forêt', object=foret) }}
 
-  {% if foret.b_statut_public == true or foret.b_statut_public == false %}
+  {%- if foret.b_statut_public == true or foret.b_statut_public == false %}
 
-    {% if foret.b_statut_public == true %}
+    {%- if foret.b_statut_public == true %}
 
-      {% set titre_document = "La forêt relève t'elle du régime ONF" %}
+      {%- set titre_document = "La forêt relève t'elle du régime ONF" %}
 
-    {% else %}
+    {%- else %}
 
-      {% set titre_document = "La forêt possède t'elle un document de gestion durable" %}
+      {%- set titre_document = "La forêt possède t'elle un document de gestion durable" %}
 
-    {% endif %}
+    {%- endif %}
 
     {{ macros.choix("Oui", "Non" ,'b_document' ,titre_document , object=foret) }}
 
-  {% endif %}
+  {%- endif %}
 
   <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
 
-{% if foret['b_statut_public'] and foret['b_document'] %}
+{%- if foret['b_statut_public'] and foret['b_document'] %}
 
-  {% set ns.localisation_type = "ONF_FRT" %}
+  {%- set ns.localisation_type = "ONF_FRT" %}
 
-{% elif foret['b_statut_public']==false and foret['b_document'] %}
+{%- elif foret['b_statut_public']==false and foret['b_document'] %}
 
-  {% set ns.localisation_type = "DGD" %}
+  {%- set ns.localisation_type = "DGD" %}
 
-{% elif foret['b_document']==false %}
+{%- elif foret['b_document']==false %}
 
-  {% set ns.localisation_type = "COMMUNE" %}
+  {%- set ns.localisation_type = "COMMUNE" %}
 
-{% endif %}
+{%- endif %}
 
 
 {{ macros.select_map("areas_foret", ns.localisation_type, foret["areas_foret"]) }}
@@ -52,8 +52,8 @@
 
   </form> #}
 
-  {% set proprietaire = foret.proprietaire %}
-  {% include "modules/oeasc/form/form_proprietaire.html" %}
+  {%- set proprietaire = foret.proprietaire %}
+  {%- include "modules/oeasc/form/form_proprietaire.html" %}
 
 
   <form id="form_information_foret">

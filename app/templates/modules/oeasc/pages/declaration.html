@@ -1,9 +1,9 @@
-{% extends "modules/oeasc/layout.html" %}
+{%- extends "modules/oeasc/layout.html" %}
 
 
-{% block title %}Signalement de dégâts forestiers{% endblock %}
+{%- block title %}Signalement de dégâts forestiers{%- endblock %}
 
-{% block content %}
+{%- block content %}
 
 <div class="row">
 
@@ -12,17 +12,17 @@
     <h2>Declaration</h2>
 
     <div id ="declaration" data-declaration="{{declaration}}">
-      {% include "modules/oeasc/entity/declaration.html" %}
+      {%- include "modules/oeasc/entity/declaration.html" %}
     </div>
 
   </div>
 
 </div>
 
-{% endblock %}
+{%- endblock %}
 
 
-{% block js_local %}
+{%- block js_local %}
 
 {{ super() }}
 
@@ -41,4 +41,4 @@
   });
 
 </script>
-{% endblock %}
+{%- endblock %}

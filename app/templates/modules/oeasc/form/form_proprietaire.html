@@ -2,24 +2,24 @@
 
   <h4>Coordonnées du propriétaire</h4>
 
-  {% if (not foret["b_statut_public"]) %}
+  {%- if (not foret["b_statut_public"]) %}
 
     {{ macros.radio_nomenclature("id_nomenclature_proprietaire_declarant", nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "radio", "Le Déclarant est-il le propriétaire de la forêt ?", object=declaration) }}
 
-    {% set  required="required"%}
+    {%- set  required="required"%}
 
-  {% else%}
+  {%- else%}
 
-    {% set  required=""%}
+    {%- set  required=""%}
 
-  {% endif %}
+  {%- endif %}
 
 
-  {% if proprietaire.s_nom_proprietaire == 'État' %}
+  {%- if proprietaire.s_nom_proprietaire == 'État' %}
 
   <div><p>L'État est propriétaire de la forêt.</p></div>
 
-  {% block js_add %}
+  {%- block js_add %}
 
     {{ super() }}
 
@@ -40,9 +40,9 @@
       });
     </script>
 
-  {% endblock %}
+  {%- endblock %}
 
-  {% else %}
+  {%- else %}
 
     {{ macros.input_text("s_nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire) }}
     {{ macros.input_text("s_telephone", "Téléphone", proprietaire, required=required) }}
@@ -51,7 +51,7 @@
     {{ macros.input_text("s_code_postal", "Code postal", proprietaire, required=required) }}
     {{ macros.input_text("s_commune_proprietaire", "Commune du propriétaire", proprietaire, required=required) }}
 
-  {% endif %}
+  {%- endif %}
 
   <input type=submit value=Suivant class="btn btn-success bottom-right">
 

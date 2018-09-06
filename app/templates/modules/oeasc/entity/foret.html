@@ -1,30 +1,30 @@
 
 <div>Nom : {{foret.s_nom_foret}}</div>
-<div> Statut : {% if foret.b_statut_public %} public {% else %} privé {% endif %}, 
+<div> Statut : {%- if foret.b_statut_public %} public {%- else %} privé {%- endif %}, 
 
-  {% if foret.b_document %}
+  {%- if foret.b_document %}
 
-    {% if foret.b_statut_public %}
+    {%- if foret.b_statut_public %}
   dépendant du régime ONF.
-    {% else %}
+    {%- else %}
   possédant un document de gestion durable.
-    {% endif %}
+    {%- endif %}
 
-  {% else %}
+  {%- else %}
 
   non documenté.
 
-  {% endif %}
+  {%- endif %}
 
 </div>
 
 <div>
   Communes :
 
-  {% for commune in foret.communes %}
+  {%- for commune in foret.communes %}
 
   {{commune}} {{ "," if not loop.last else "." }}
 
-  {% endfor %}
+  {%- endfor %}
 
 </div>

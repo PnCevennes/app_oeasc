@@ -1,4 +1,4 @@
-{% block declarations %}
+{%- block declarations %}
 
 <div id="declarations">
 
@@ -31,7 +31,7 @@
 
       <tbody>
 
-        {% for declaration in declarations %}
+        {%- for declaration in declarations %}
 
         {%- if session.current_user %}
 
@@ -39,7 +39,7 @@
 
         {%- else %}
 
-        {% set cond_modifier_effacer = false %}
+        {%- set cond_modifier_effacer = false %}
 
         {%- endif %}
 
@@ -55,11 +55,11 @@
 
           <td>{{ "Régime ONF" if declaration.foret.b_statut_public else "DGD" }}</td>
 
-          {% else %}
+          {%- else %}
 
           <td>Non documentée</td>
 
-          {% endif %}
+          {%- endif %}
 
           <td>{{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</td>
 
@@ -90,7 +90,7 @@
 
         </tr>
 
-        {% endfor %}
+        {%- endfor %}
 
       </tbody>
 
@@ -115,5 +115,5 @@
 
 </div>
 
-{% endblock %}
+{%- endblock %}
 
