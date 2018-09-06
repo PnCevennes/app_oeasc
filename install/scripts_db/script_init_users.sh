@@ -67,7 +67,7 @@ nom_role=PNC
 prenom_role=directeur
 email=directeur@pnc.frt
 identifiant=$email
-id_droit=4
+id_droit=3
 id_organisme=$id_pnc
 
 curl --header "Content-Type: application/json" \
@@ -83,7 +83,7 @@ nom_role=PNC
 prenom_role=animateur
 email=animateur@pnc.frt
 identifiant=$email
-id_droit=5
+id_droit=4
 id_organisme=$id_pnc
 
 curl --header "Content-Type: application/json" \
@@ -114,7 +114,7 @@ http://localhost:5001/api_register/role
 
 nom_role=ONF
 prenom_role=agent
-email=agent@pnc.frt
+email=agent@onf.frt
 identifiant=$email
 id_droit=1
 id_organisme=$id_onf
@@ -130,9 +130,9 @@ http://localhost:5001/api_register/role
 
 nom_role=ONF
 prenom_role=directeur
-email=directeur@pnc.frt
+email=directeur@onf.frt
 identifiant=$email
-id_droit=4
+id_droit=3
 id_organisme=$id_onf
 
 curl --header "Content-Type: application/json" \

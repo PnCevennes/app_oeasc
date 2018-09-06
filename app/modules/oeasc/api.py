@@ -173,7 +173,6 @@ def f_create_or_update_declaration(declaration_dict):
     id_foret = declaration_dict["foret"].get("id_foret", None)
     id_proprietaire = declaration_dict["foret"]["proprietaire"].get("id_proprietaire", None)
 
-
     proprietaire = create_or_modify(TProprietaire, 'id_proprietaire', id_proprietaire, declaration_dict["foret"]["proprietaire"])
 
     declaration_dict['foret']['id_proprietaire'] = proprietaire.id_proprietaire

@@ -47,6 +47,20 @@ def get_organisme_name_from_id_declarant(id_declarant):
     return result
 
 
+def get_description_droit(id_droit):
+
+    switcher = {
+        1: "Déclarant",
+        2: "Déclarant",
+        3: "Directeur",
+        4: "Animateur",
+        5: "Animateur",
+        6: "Admin"
+    }
+
+    return switcher.get(id_droit, 'id_droit {} invalide'.format(id_droit))
+
+
 def get_fonction_droit(function):
     '''
         retourne le niveau de droit en fonction de la fonction renseignée

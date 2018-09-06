@@ -35,7 +35,7 @@
 
         {%- if session.current_user %}
 
-        {%- set cond_modifier_effacer = (session.current_user.id_droit_max > 5) or (session.current_user.id_role == declaration.id_declarant)%}
+        {%- set cond_modifier_effacer = (session.current_user.id_droit_max > utils.get_fonction_droit("Directeur")) or (session.current_user.id_role == declaration.id_declarant)%}
 
         {%- else %}
 

@@ -14,6 +14,8 @@ from .repository import (
     get_nomenclature_from_id,
     get_organisme_name_from_id_organisme,
     get_organisme_name_from_id_declarant,
+    get_fonction_droit,
+    get_description_droit,
 
 )
 
@@ -227,18 +229,7 @@ def get_gravite(declaration_dict, nomenclature):
     return get_nomenclature_from_id(id_nomenclature_degat_gravite_global, nomenclature)
 
 
-def get_description_droit(id_droit):
 
-    switcher = {
-        1: "Déclarant",
-        2: "Déclarant",
-        3: "Directeur",
-        4: "Animateur",
-        5: "Animateur",
-        6: "Admin"
-    }
-
-    return switcher.get(id_droit, 'id_droit {} invalide'.format(id_droit))
 
 
 def utils_dict():
@@ -254,5 +245,6 @@ def utils_dict():
     d["get_organisme_name_from_id_declarant"] = get_organisme_name_from_id_declarant
     d["get_nomenclature_from_id"] = get_nomenclature_from_id
     d["get_gravite"] = get_gravite
+    d['get_fonction_droit'] = get_fonction_droit
 
     return d
