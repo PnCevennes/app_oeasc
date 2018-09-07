@@ -1,5 +1,12 @@
 {%- block declarations %}
 
+{% macro tooltip_mnemonique(id, nomenclature) %}
+<span data-toggle="tooltip" title="{{utils.get_nomenclature_from_id(id, nomenclature)}}">
+{{utils.get_nomenclature_from_id(id, nomenclature, 'mnemonique')}}
+</span>
+
+ {% endmacro %}
+
 <div id="declarations">
 
   <div id="data_declarations">
@@ -19,11 +26,17 @@
 
         <tr>
           <th>ID</th>
+          <th>Déclarant</th>
           <th>Organisme</th>
-          <th>Statut</th>
-          <th>Documentée</th>
-          <th>Essence Objectif Principale</th>
-          <th>Gravité</th>
+          <th>Date</th>
+          <th>Nom forêt</th>
+          <th>Commune(s)</th>
+          <th>Proprietaire</th>
+          <th>UG ou parcelles</th>
+          <th>Essence Objectif Principale et secondaires</th>
+          <th>Type de peuplement</th>
+          <th>Origine</th>
+          <th>Type dégats</th>
           <th>Action</th>
         </tr>
 
@@ -47,11 +60,30 @@
 
           <td>{{ declaration['id_declaration'] }}</td>
 
+          <td>{{ declaration['declarant']['nom_role'] }} {{ declaration['declarant']['prenom_role']}}</td>
+          {# <td>{{ declaration["declaranr"]["Nom"] }} declaration["declaranr"]["prenom"] }}</td> #}
+
           <td>{{ utils.get_organisme_name_from_id_declarant(declaration['id_declarant'])}}</td>
 
-          <td>{{ "Public" if declaration['foret']['b_statut_public'] else "Privé"}}</td>
+          <td>{{declaration['meta_create_date']}}
 
-          {%- if declaration.foret.b_document %}
+            <td>{{declaration['foret']['nom_foret']}}
+
+
+              <td>{%- for commune in declaration.foret.communes %}
+
+                {{commune}}{{ "," if not loop.last else "" }}
+
+                {%- endfor %}
+              </td>
+              <td>{{declaration['foret']['proprietaire']['nom_proprietaire']}}</td>
+              <td>{% for area in declaration['areas_localisation'] %}
+                {{utils.get_db("t_areas", "id_area", area.id_area).area_name}}{{ "," if not loop.last else "" }}
+              {% endfor %}</td>
+
+              {# <td>{{ "Public" if declaration['foret']['b_statut_public'] else "Privé"}}</td> #}
+
+{#           {%- if declaration.foret.b_document %}
 
           <td>{{ "Régime ONF" if declaration.foret.b_statut_public else "DGD" }}</td>
 
@@ -60,11 +92,35 @@
           <td>Non documentée</td>
 
           {%- endif %}
+          #}
+          <td>{{ tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}
+            {%- for id in declaration.nomenclatures_peuplement_essence_secondaire %}
+          , {{tooltip_mnemonique(id.id_nomenclature, nomenclature)}}{%- endfor %}.</td>
 
-          <td>{{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</td>
+          {# <td>{{ utils.get_gravite(declaration, nomenclature) }}</td> #}
 
-          <td>{{ utils.get_gravite(declaration, nomenclature) }}</td>
+          {# <td>{{utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_type, nomenclature)}}</td> #}
+          <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_type, nomenclature)}}</td>
 
+          {# <td>{{utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_origine, nomenclature)}}</td> #}
+          <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine, nomenclature)}}</td>
+
+          <td>
+            {%- for degat in declaration["degats"] %}
+
+            {{ tooltip_mnemonique(degat.id_nomenclature_degat_type, nomenclature) }}
+            {# <span data-toggle="tooltip" title="{{utils.get_nomenclature_from_id(degat.id_nomenclature_degat_type, nomenclature)}}" class="">{{utils.get_nomenclature_from_id(degat.id_nomenclature_degat_type, nomenclature, 'mnemonique')}}</span> #}
+            {% if degat["degat_essences"] %}
+
+            ({% for degat_essence in degat["degat_essences"] %}
+            {# {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature) }} #}
+            {{ tooltip_mnemonique(degat_essence.id_nomenclature_degat_essence, nomenclature) }}
+
+            {{ "," if not loop.last else "" }}
+            {% endfor %})
+            {% endif %}
+            {%- endfor %}
+          </td>
           <td>
 
             <a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">

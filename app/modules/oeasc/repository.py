@@ -3,26 +3,51 @@ from pypnnomenclature.repository import (
     get_nomenclature_list
 )
 
-from flask import session
-
 from app.utils.env import DB
 from app.utils.utilssqlalchemy import as_dict
 
 from config import config
-from sqlalchemy import and_, text
+from sqlalchemy import text
 
 
 from pypnusershub.db.models import (
-
-    AppUser
+    User, AppUser
 )
 
+from app.ref_geo.models import TAreas
 
 from .models import (
     TDeclaration,
     TForet,
     TProprietaire
 )
+
+
+def get_liste_communes(declaration):
+
+    areas = declaration["foret"]["areas_foret"]
+
+    communes = []
+
+    for area in areas:
+
+        id_area = area["id_area"]
+
+        sql_text = text("SELECT b.area_name \
+         FROM ref_geo.l_areas as b, \
+         (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_COMMUNE',0.05) as id_com, geom\
+             FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l\
+             WHERE l.id_area = " + str(id_area) + " AND l.id_area = c.id_area) a\
+         WHERE b.id_area = a.id_com\
+         ORDER BY a.area_name, b.area_name;")
+
+        data = DB.engine.execute(sql_text)
+
+        for d in data:
+            if d[0] not in communes:
+                communes.append(d[0])
+
+    return communes
 
 
 def get_organisme_name_from_id_organisme(id_organisme):
@@ -100,7 +125,7 @@ def get_nomenclature_from_id(id_nomenclature, nomenclature, key="label_fr"):
     return ""
 
 
-def dfp_as_dict(declaration, foret, proprietaire):
+def dfpu_as_dict(declaration, foret, proprietaire, declarant):
 
     if not declaration:
 
@@ -114,9 +139,22 @@ def dfp_as_dict(declaration, foret, proprietaire):
 
         proprietaire = TProprietaire()
 
+    if not declarant:
+
+        declarant = User()
+
     declaration_dict = declaration.as_dict(True)
     declaration_dict["foret"] = foret.as_dict(True)
+    declaration_dict["declarant"] = as_dict(declarant)
     declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
+
+    return declaration_dict
+
+
+def dfpu_as_dict_from_id_declaration(id_declaration):
+
+    declaration, foret, proprietaire, declarant = get_dfpu(id_declaration)
+    declaration_dict = dfpu_as_dict(declaration, foret, proprietaire, declarant)
 
     return declaration_dict
 
@@ -138,13 +176,26 @@ def get_foret(id_foret):
     return foret, proprietaire
 
 
-def get_dfp(id_declaration):
+def get_declarant(id_declarant):
 
-    declaration = foret = proprietaire = None
+    declarant = DB.session.query(User).filter(id_declarant == User.id_role).first()
+
+    return declarant
+
+
+def get_dfpu(id_declaration):
+
+    declaration = foret = proprietaire = declarant = None
 
     declaration = DB.session.query(TDeclaration).filter(id_declaration == TDeclaration.id_declaration).first()
 
     if declaration:
+
+        id_declarant = declaration.id_declarant
+
+        if id_declarant:
+
+            declarant = get_declarant(id_declarant)
 
         id_foret = declaration.id_foret
 
@@ -152,7 +203,7 @@ def get_dfp(id_declaration):
 
             foret, proprietaire = get_foret(id_foret)
 
-    return (declaration, foret, proprietaire)
+    return (declaration, foret, proprietaire, declarant)
 
 
 def create_or_modify(model, key, val, dict_in):
@@ -164,13 +215,8 @@ def create_or_modify(model, key, val, dict_in):
         elem = DB.session.query(model).filter(getattr(model, key) == val).first()
 
     if elem is None:
-        print("create", model, key, val)
         elem = model()
         DB.session.add(elem)
-
-    else:
-
-        print("mod", model, key, val)
 
     elem.from_dict(dict_in, True)
 
@@ -201,7 +247,7 @@ def get_users():
         Retourne la liste des utilisateurs OEASC
     '''
 
-    data = DB.session.query(AppUser).filter(AppUser.id_application == config.ID_APP)
+    data = DB.session.query(AppUser).filter(User.id_application == config.ID_APP)
 
     v = [as_dict(d) for d in data]
 
@@ -257,7 +303,7 @@ def get_declarations(b_synthese, id_declarant=None):
 
     if b_synthese:
 
-        id_declarations = DB.session.query(TDeclaration.id_declaration)
+        id_declarations = DB.session.query(TDeclaration.id_declaration).all()
 
     else:
 
@@ -265,43 +311,77 @@ def get_declarations(b_synthese, id_declarant=None):
 
             return None
 
-        data = DB.session.query(AppUser).filter(and_(AppUser.id_application == config.ID_APP, id_declarant == AppUser.id_role)).first()
+        data = DB.session.query(User).filter(id_declarant == User.id_role).first()
+        data_app = DB.session.query(AppUser).filter(id_declarant == AppUser.id_role).first()
 
         if not data:
 
             return None
 
-        user = data.as_dict()
+        user = as_dict(data)
+        user_app = as_dict(data_app)
+
+        user['id_droit_max'] = user_app['id_droit_max']
+        user['id_application'] = user_app['id_application']
+
+        print(user)
 
         # administrateur et animateur
         if user["id_droit_max"] >= get_fonction_droit("Animateur") or b_synthese:
 
-            id_declarations = DB.session.query(TDeclaration.id_declaration)
+            data = DB.session.query(TDeclaration.id_declaration).all()
 
         # les declarant de la meme structure (sauf les particuliers)
         elif user["id_droit_max"] >= get_fonction_droit("Déclarant") and get_organisme_name_from_id_organisme(user['id_organisme']) != 'Particulier':
 
             sql_text = text("SELECT oeasc.get_declarations_structure_declarant({})".format(user["id_role"]))
 
-            id_declarations = DB.engine.execute(sql_text)
+            data = DB.engine.execute(sql_text)
 
         #
         elif user["id_droit_max"] >= get_fonction_droit("Déclarant"):
 
-            id_declarations = DB.session.query(TDeclaration.id_declaration).filter(id_declarant)
+            data = DB.session.query(TDeclaration.id_declaration).filter(id_declarant).all()
 
         #
         else:
 
             return None
 
-    declarations = []
+        id_declarations = [d[0] for d in data]
+
+        declarations = []
+
+    print("a", id_declarations)
 
     for id_declaration in id_declarations:
 
-        declaration, foret, proprietaire = get_dfp(id_declaration)
-        declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
+        print(id_declaration)
+
+        declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
+        declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
 
         declarations.append(declaration_dict)
 
     return declarations
+
+
+def get_db(type, key, val):
+
+    switch_model = {
+
+        "user": User,
+        "t_areas": TAreas,
+    }
+
+    table = switch_model.get(type, None)
+
+    if table:
+
+        data = DB.session.query(table).filter(getattr(table, key) == val).first()
+
+        if data:
+
+            return as_dict(data)
+
+    return "None"

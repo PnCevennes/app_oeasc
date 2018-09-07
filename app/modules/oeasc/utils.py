@@ -2,12 +2,18 @@
 
 from app.utils.env import DB
 from sqlalchemy import text
+
 from app.ref_geo.models import TAreas
-from app.ref_geo.repository import get_id_type
+
+from app.ref_geo.repository import (
+    get_id_type,
+)
+
 from .models import (
     TForet,
     TProprietaire
 )
+
 from .repository import (
 
     nomenclature_oeasc,
@@ -16,33 +22,8 @@ from .repository import (
     get_organisme_name_from_id_declarant,
     get_fonction_droit,
     get_description_droit,
-
+    get_db,
 )
-
-
-def get_liste_communes(declaration):
-
-    areas = declaration["foret"]["areas_foret"]
-
-    communes = []
-
-    for area in areas:
-
-        id_area = area["id_area"]
-
-        sql_text = text("SELECT b.area_name \
-         FROM ref_geo.l_areas as b, \
-         (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_COMMUNE',0.05) as id_com, geom\
-             FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l\
-             WHERE l.id_area = " + str(id_area) + " AND l.id_area = c.id_area) a\
-         WHERE b.id_area = a.id_com\
-         ORDER BY a.area_name, b.area_name;")
-
-        data = DB.engine.execute(sql_text)
-
-        [communes.append(d[0]) for d in data]
-
-    return communes
 
 
 def get_listes_essences(declaration):
@@ -102,8 +83,6 @@ def get_listes_essences(declaration):
 
             if degat_essence != {} and degat_essence["id_nomenclature_degat_essence"] and degat_essence["id_nomenclature_degat_essence"] in listes_essences["degats"][id_nomenclature_degat_type]:
 
-                print(degat_essence["id_nomenclature_degat_essence"])
-                print(listes_essences["degats"][id_nomenclature_degat_type])
                 listes_essences["degats"][id_nomenclature_degat_type].remove(degat_essence["id_nomenclature_degat_essence"])
 
     return listes_essences
@@ -240,6 +219,7 @@ def utils_dict():
     d = {}
 
     d["copy_list"] = copy_list
+    d["get_db"] = get_db
     d["get_description_droit"] = get_description_droit
     d["get_organisme_name_from_id_organisme"] = get_organisme_name_from_id_organisme
     d["get_organisme_name_from_id_declarant"] = get_organisme_name_from_id_declarant

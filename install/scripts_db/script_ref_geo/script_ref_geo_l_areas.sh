@@ -31,6 +31,12 @@ DROP TABLE IF EXISTS oeasc.cor_areas_declaration CASCADE;
 
 EOF
 
+cat << EOF
+
+DROP SCHEMA IF EXISTS oeasc CASCADE;
+
+EOF
+
 
 
 for name in $list_name

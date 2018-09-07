@@ -10,16 +10,16 @@ from flask import (
 from .repository import (
     nomenclature_oeasc,
     create_or_modify,
-    dfp_as_dict,
-    get_dfp,
-    get_declarations
+    dfpu_as_dict,
+    get_declarations,
+    get_liste_communes,
+    get_db,
 )
 
 from .declaration_sample import declaration_dict_random_sample
 
 from .utils import (
     get_listes_essences,
-    get_liste_communes,
     check_foret,
     check_proprietaire
 )
@@ -138,9 +138,9 @@ def random_populate(nb):
             continue
 
         check_foret(declaration_dict)
-        f_create_or_update_declaration(declaration_dict)
+        declaration_dict = f_create_or_update_declaration(declaration_dict)
 
-        print("i", i, declaration_dict["foret"]["s_nom_foret"], "public", declaration_dict["foret"]["b_statut_public"], "documenté", declaration_dict["foret"]["b_document"])
+        print("i", i, nb, declaration_dict["id_declaration"], declaration_dict["foret"]["nom_foret"], "public", declaration_dict["foret"]["b_statut_public"], "documenté", declaration_dict["foret"]["b_document"])
 
     return "ok"
 
@@ -149,19 +149,7 @@ def random_populate(nb):
 @json_resp
 def test():
 
-    declaration_dict = declaration_dict_random_sample()
-
-    id_declaration = 4
-
-    declaration, foret, proprietaire = get_dfp(id_declaration)
-
-    if(declaration):
-
-        declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
-
-    check_foret(declaration_dict)
-
-    return f_create_or_update_declaration(declaration_dict)
+    return True
 
 
 def f_create_or_update_declaration(declaration_dict):
@@ -188,13 +176,12 @@ def f_create_or_update_declaration(declaration_dict):
 
         declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
         id_declaration = declaration.id_declaration
-        print(declaration_dict['meta_create_date'])
 
     declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
 
-    d = dfp_as_dict(declaration, foret, proprietaire)
+    d = dfpu_as_dict(declaration, foret, proprietaire, None)
 
-    return [d]
+    return d
 
 
 @bp.route('create_or_update_declaration', methods=['POST'])
@@ -210,25 +197,9 @@ def create_or_update_declaration():
 
 @bp.route('get_db/<type>/<key>/<val>', methods=['GET'])
 @json_resp
-def get_db(type, key, val):
+def api_get_db(type, key, val):
 
-    switch_model = {
-
-        "user": User,
-        "t_areas": TAreas,
-    }
-
-    table = switch_model.get(type, None)
-
-    if table:
-
-        data = DB.session.query(table).filter(getattr(table, key) == val).first()
-
-        if data:
-
-            return as_dict(data)
-
-    return "None"
+    return get_db(type, key, val)
 
 
 @bp.route('declaration_areas/<int:id_declaration>/<string:type>', methods=['GET'])

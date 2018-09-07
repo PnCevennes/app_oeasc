@@ -149,10 +149,10 @@ class TProprietaire(DB.Model):
 
     id_declarant = DB.Column(DB.Integer)
 
-    s_nom_proprietaire = DB.Column(DB.String(250))
-    s_telephone = DB.Column(DB.String(20))
-    s_email = DB.Column(DB.String(250))
-    s_adresse = DB.Column(DB.String(250))
+    nom_proprietaire = DB.Column(DB.String(250))
+    telephone = DB.Column(DB.String(20))
+    email = DB.Column(DB.String(250))
+    adresse = DB.Column(DB.String(250))
     s_code_postal = DB.Column(DB.String(10))
     s_commune_proprietaire = DB.Column(DB.String(100))
 
@@ -175,9 +175,9 @@ class TForet(DB.Model):
     # b_regime_forestier = DB.Column(DB.Boolean)
     # b_document_de_gestion = DB.Column(DB.Boolean)
 
-    s_nom_foret = DB.Column(DB.String(250))
+    nom_foret = DB.Column(DB.String(250))
 
-    d_superficie = DB.Column(DB.Float)
+    superficie = DB.Column(DB.Float)
 
     areas_foret = DB.relationship(CorAreasForet, cascade="save-update, merge, delete, delete-orphan")
 
@@ -250,7 +250,7 @@ class TDeclaration(DB.Model):
 
     degats = DB.relationship(TDegat, cascade="save-update, merge, delete, delete-orphan")
 
-    s_commentaire = DB.Column(DB.Text)
+    commentaire = DB.Column(DB.Text)
 
     meta_create_date = DB.Column(DB.DateTime)
     meta_update_date = DB.Column(DB.DateTime)

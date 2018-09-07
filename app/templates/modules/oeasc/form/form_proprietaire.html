@@ -15,7 +15,7 @@
   {%- endif %}
 
 
-  {%- if proprietaire.s_nom_proprietaire == 'État' %}
+  {%- if proprietaire.nom_proprietaire == 'État' %}
 
   <div><p>L'État est propriétaire de la forêt.</p></div>
 
@@ -44,10 +44,10 @@
 
   {%- else %}
 
-    {{ macros.input_text("s_nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire) }}
-    {{ macros.input_text("s_telephone", "Téléphone", proprietaire, required=required) }}
-    {{ macros.input_text("s_email", "Email", proprietaire, required=required) }}
-    {{ macros.input_text("s_adresse", "Adresse du propriétaire (n°, rue, hameau, lieu-dit)", proprietaire, required=required) }}
+    {{ macros.input_text("nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire) }}
+    {{ macros.input_text("telephone", "Téléphone", proprietaire, required=required) }}
+    {{ macros.input_text("email", "Email", proprietaire, required=required) }}
+    {{ macros.input_text("adresse", "Adresse du propriétaire (n°, rue, hameau, lieu-dit)", proprietaire, required=required) }}
     {{ macros.input_text("s_code_postal", "Code postal", proprietaire, required=required) }}
     {{ macros.input_text("s_commune_proprietaire", "Commune du propriétaire", proprietaire, required=required) }}
 

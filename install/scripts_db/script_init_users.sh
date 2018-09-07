@@ -19,13 +19,12 @@ id_particulier=$(echo "SELECT id_organisme FROM utilisateurs.bib_organismes WHER
 
 # echo $id_pnc $id_onf $id_jubil $id_particulier
 
-# jubil -1
-
 password="1234"
 password_confirmation=$password
 remarques="utilisateur test OEASC"
 id_app=500
 
+# jubil -1
 
 nom_role=CLEMENT
 prenom_role=Joel

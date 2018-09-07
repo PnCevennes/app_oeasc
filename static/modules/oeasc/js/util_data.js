@@ -123,10 +123,10 @@ $(document).ready(function() {
 
     proprietaire.id_declarant = parseInt($('#form_proprietaire').attr('data-id-declarant'));
 
-    proprietaire.s_nom_proprietaire = $("#s_nom_proprietaire").val();
-    proprietaire.s_telephone = $("#s_telephone").val();
-    proprietaire.s_email = $("#s_email").val();
-    proprietaire.s_adresse = $("#s_adresse").val();
+    proprietaire.nom_proprietaire = $("#nom_proprietaire").val();
+    proprietaire.telephone = $("#telephone").val();
+    proprietaire.email = $("#email").val();
+    proprietaire.adresse = $("#adresse").val();
     proprietaire.s_code_postal = $("#s_code_postal").val();
     proprietaire.s_commune_proprietaire = $("#s_commune_proprietaire").val();
 
@@ -148,14 +148,14 @@ $(document).ready(function() {
 
     // foret.id_nomenclature_proprietaire_declarant = parseInt($("[name=id_nomenclature_proprietaire_declarant] option:selected").val());
 
-    foret.s_nom_foret = $("#s_nom_foret").val();
+    foret.nom_foret = $("#nom_foret").val();
 
     foret.proprietaire = get_id_proprietaire_as_dict();
     foret.id_proprietaire = foret.proprietaire.id_proprietaire;
 
     foret.areas_foret = get_areas_cor("areas_foret", "data-areas");
 
-    foret.d_superficie = parseInt($("#d_superficie").val());
+    foret.superficie = parseInt($("#superficie").val());
 
     return foret;
   };
@@ -226,7 +226,7 @@ $(document).ready(function() {
 
     // - commentaires
 
-    declaration.s_commentaire = $('#s_commentaire').val().trim();
+    declaration.commentaire = $('#commentaire').val().trim();
 
     return declaration;
 

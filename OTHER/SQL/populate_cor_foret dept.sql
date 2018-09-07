@@ -1,4 +1,4 @@
-﻿-- Function: ref_geo.intersect_rel_area(INTEGER, CHARACTER VARYING, DOUBLE PRECISION)
+-- Function: ref_geo.intersect_rel_area(INTEGER, CHARACTER VARYING, DOUBLE PRECISION)
 
 DROP FUNCTION IF EXISTS ref_geo.intersect_rel_area(INTEGER, CHARACTER VARYING, DOUBLE PRECISION) CASCADE;
 
@@ -44,7 +44,7 @@ COPY temp
 
 INSERT INTO oeasc.t_forets (
     id_proprietaire, b_statut_public, b_regime_forestier,
-        s_nom, d_superficie)
+        nom_foret, superficie)
 	SELECT  oeasc.get_id_proprietaire_from_name(t.nom_proprietaire), true, true, l.area_name, ROUND(ST_AREA(l.geom)/10000*10)/10
 		FROM ref_geo.l_areas as l, temp as t
 		WHERE id_type = ref_geo.get_id_type('OEASC_ONF_FRT')
@@ -57,7 +57,7 @@ INSERT INTO oeasc.cor_areas_forets(
 	SELECT  l.id_area, f.id_foret
 		FROM ref_geo.l_areas as l, oeasc.t_forets as f
 		WHERE id_type = ref_geo.get_id_type('OEASC_ONF_FRT')
-			AND f.s_nom = l.area_name
+			AND f.nom_foret = l.area_name
 		ORDER BY area_name;
 
 INSERT INTO oeasc.cor_areas_forets(

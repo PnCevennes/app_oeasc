@@ -12,9 +12,9 @@ from .repository import (
     nomenclature_oeasc,
     get_liste_organismes_oeasc,
     get_users,
-    get_dfp,
-    dfp_as_dict,
+    dfpu_as_dict_from_id_declaration,
     get_declarations,
+    get_liste_communes,
 )
 
 from config import config
@@ -22,7 +22,6 @@ from config import config
 from .utils import (
     get_listes_essences,
     # check_foret,
-    get_liste_communes,
 )
 
 from app.utils.env import (
@@ -102,13 +101,12 @@ def modifier_declaration(id_declaration):
         :param id_declaration: identifiant en base de l'object declaration
         :type  id_declaration: integer ou None
     '''
-    declaration, foret, proprietaire = get_dfp(id_declaration)
 
-    if((declaration is None) and (id_declaration != -1)):
+    declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
+
+    if((not declaration_dict.get('id_declaration', None)) and (id_declaration != -1)):
 
         return "la declaration id_declaration : " + str(id_declaration) + " n'existe pas"
-
-    declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
 
     nomenclature = nomenclature_oeasc()
 
@@ -128,14 +126,12 @@ def declaration(id_declaration):
 
         TODO
     '''
+    declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
 
-    declaration, foret, proprietaire = get_dfp(id_declaration)
+    if((not declaration_dict.get('id_declaration', None)) and (id_declaration != -1)):
 
-    if not declaration:
+        return "la declaration id_declaration : " + str(id_declaration) + " n'existe pas"
 
-        return "la declaration n° " + str(id_declaration) + " n'existe pas."
-
-    declaration_dict = dfp_as_dict(declaration, foret, proprietaire)
     declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
 
     nomenclature = nomenclature_oeasc()

@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS oeasc.t_proprietaires
 
     id_proprietaire serial NOT NULL,
 
-    s_nom_proprietaire CHARACTER VARYING(250),
-    s_telephone CHARACTER VARYING(20),
-    s_email CHARACTER VARYING(250),
-    s_adresse CHARACTER VARYING(250),
+    nom_proprietaire CHARACTER VARYING(250),
+    telephone CHARACTER VARYING(20),
+    email CHARACTER VARYING(250),
+    adresse CHARACTER VARYING(250),
     s_code_postal CHARACTER VARYING(10),
     s_commune_proprietaire CHARACTER VARYING(100),
 
@@ -60,9 +60,9 @@ CREATE TABLE IF NOT EXISTS oeasc.t_forets
     -- b_document_de_gestion BOOLEAN,
     b_document BOOLEAN,
 
-    s_nom_foret CHARACTER VARYING(256),
+    nom_foret CHARACTER VARYING(256),
 
-    d_superficie DOUBLE PRECISION,
+    superficie DOUBLE PRECISION,
 
     -- contraintes cle primaire
 
@@ -109,7 +109,7 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
     b_peuplement_protection_existence BOOLEAN,
     b_peuplement_paturage_presence BOOLEAN,
 
-    s_commentaire text,
+    commentaire text,
 
     meta_create_date timestamp without time zone,
     meta_update_date timestamp without time zone,
@@ -512,7 +512,7 @@ CREATE OR REPLACE FUNCTION oeasc.get_id_proprietaire_from_name(
         BEGIN
             EXECUTE format( ' SELECT  n.id_proprietaire
                 FROM oeasc.t_proprietaires n
-                WHERE s_nom_proprietaire = ''%s'' ', REPLACE(myname,'''','''''') ) INTO theidproprietaire;
+                WHERE nom_proprietaire = ''%s'' ', REPLACE(myname,'''','''''') ) INTO theidproprietaire;
             return theidproprietaire;
         END;
     $BODY$

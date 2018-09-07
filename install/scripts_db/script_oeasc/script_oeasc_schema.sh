@@ -34,10 +34,10 @@ CREATE TABLE IF NOT EXISTS oeasc.t_proprietaires
 
     id_proprietaire serial NOT NULL,
 
-    s_nom CHARACTER VARYING(250),
-    s_telephone CHARACTER VARYING(20),
-    s_email CHARACTER VARYING(250),
-    s_adresse CHARACTER VARYING(250),
+    nom_proprietaire CHARACTER VARYING(250),
+    telephone CHARACTER VARYING(20),
+    email CHARACTER VARYING(250),
+    adresse CHARACTER VARYING(250),
     s_code_postal CHARACTER VARYING(10),
     s_commune CHARACTER VARYING(100),
 
@@ -77,9 +77,9 @@ CREATE TABLE IF NOT EXISTS oeasc.t_forets
     b_regime_forestier BOOLEAN,
     b_document_de_gestion BOOLEAN,
 
-    s_nom CHARACTER VARYING(256),
+    nom_foret CHARACTER VARYING(256),
 
-    d_superficie DOUBLE PRECISION,
+    superficie DOUBLE PRECISION,
 
     -- contraintes cle primaire
 
@@ -114,7 +114,7 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
     b_peuplement_protection_existence BOOLEAN,
     b_peuplement_paturage_presence BOOLEAN,
 
-    s_commentaire text,
+    commentaire text,
 
     meta_create_date timestamp without time zone,
     meta_update_date timestamp without time zone,
@@ -326,7 +326,7 @@ CREATE OR REPLACE FUNCTION oeasc.get_id_proprietaire_from_name(
         BEGIN
             EXECUTE format( ' SELECT  n.id_proprietaire
                 FROM oeasc.t_proprietaires n
-                WHERE s_nom = ''%s'' ', REPLACE(myname,'''','''''') ) INTO theidproprietaire;
+                WHERE nom_proprietaire = ''%s'' ', REPLACE(myname,'''','''''') ) INTO theidproprietaire;
             return theidproprietaire;
         END;
     \$BODY\$
@@ -349,7 +349,7 @@ COPY temp
 
 DELETE FROM oeasc.t_proprietaires;
 
-INSERT INTO oeasc.t_proprietaires (id_nomenclature_proprietaire_type, s_nom, s_telephone, s_email, s_adresse, s_code_postal, s_commune)
+INSERT INTO oeasc.t_proprietaires (id_nomenclature_proprietaire_type, nom_proprietaire, telephone, email, adresse, s_code_postal, s_commune)
     SELECT ref_nomenclatures.get_nomenclature_id_from_label(type, 'OEASC_PROPRIETAIRE_TYPE'), name, telephone, email, adresse, code_postal, commune
     FROM temp;
 
@@ -370,7 +370,7 @@ COPY temp
 
 
 INSERT INTO oeasc.t_forets (
-    id_proprietaire, b_statut_public, b_regime_forestier, s_nom, d_superficie)
+    id_proprietaire, b_statut_public, b_regime_forestier, nom_foret, superficie)
 SELECT  oeasc.get_id_proprietaire_from_name(t.nom_proprietaire), true, true, l.area_name, ROUND(ST_AREA(l.geom)/10000*10)/10
     FROM ref_geo.l_areas as l, temp as t
     WHERE id_type = ref_geo.get_id_type('OEASC_ONF_FRT')
@@ -386,7 +386,7 @@ INSERT INTO oeasc.cor_areas_forets(
 SELECT  l.id_area, f.id_foret
     FROM ref_geo.l_areas as l, oeasc.t_forets as f
     WHERE id_type = ref_geo.get_id_type('OEASC_ONF_FRT')
-        AND f.s_nom = l.area_name
+        AND f.nom_foret = l.area_name
         ORDER BY area_name;
 
 

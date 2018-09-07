@@ -10,7 +10,7 @@ COPY temp
 
 DELETE FROM oeasc.t_proprietaires;
 
-INSERT INTO oeasc.t_proprietaires (id_nomenclature_proprietaire_type, s_nom_proprietaire, s_telephone, s_email, s_adresse, s_code_postal, s_commune_proprietaire)
+INSERT INTO oeasc.t_proprietaires (id_nomenclature_proprietaire_type, nom_proprietaire, telephone, email, adresse, s_code_postal, s_commune_proprietaire)
     SELECT ref_nomenclatures.get_nomenclature_id_from_label(type, 'OEASC_PROPRIETAIRE_TYPE'), name, telephone, email, adresse, code_postal, commune
     FROM temp;
 
@@ -31,7 +31,7 @@ COPY temp
 
 
 INSERT INTO oeasc.t_forets (
-    id_proprietaire, b_statut_public, b_document, s_nom_foret, d_superficie)
+    id_proprietaire, b_statut_public, b_document, nom_foret, superficie)
 SELECT  oeasc.get_id_proprietaire_from_name(t.nom_proprietaire), true, true, l.area_name, ROUND(ST_AREA(l.geom)/10000*1)/1
     FROM ref_geo.l_areas as l, temp as t
     WHERE id_type = ref_geo.get_id_type('OEASC_ONF_FRT')
@@ -47,7 +47,7 @@ INSERT INTO oeasc.cor_areas_forets(
 SELECT  l.id_area, f.id_foret
     FROM ref_geo.l_areas as l, oeasc.t_forets as f
     WHERE id_type = ref_geo.get_id_type('OEASC_ONF_FRT')
-        AND f.s_nom_foret = l.area_name
+        AND f.nom_foret = l.area_name
         ORDER BY area_name;
 
 

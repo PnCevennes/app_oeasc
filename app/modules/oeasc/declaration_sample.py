@@ -2,8 +2,12 @@ from app.ref_geo.models import TAreas
 from app.ref_geo.repository import get_id_type
 
 from .repository import (nomenclature_oeasc, get_nomenclature_from_id)
+from app.utils.utilssqlalchemy import as_dict
 
 from app.utils.env import DB
+from pypnusershub.db.models import (
+    User
+)
 
 import random
 
@@ -87,10 +91,10 @@ def proprietaire_dict_random_sample(nomenclature=None):
     proprietaire = {
 
         "id_nomenclature_proprietaire_type": get_nomenclature_random_sample(nomenclature, "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
-        "s_nom_proprietaire": "Georges",
-        "s_telephone": "06...",
-        "s_email": "roger@rogers.frt",
-        "s_adresse": "lou_malherbous",
+        "nom_proprietaire": "Georges",
+        "telephone": "06...",
+        "email": "roger@rogers.frt",
+        "adresse": "lou_malherbous",
         "s_code_postal": "48470",
         "s_commune_proprietaire": "Espigoule"
 
@@ -150,8 +154,8 @@ def foret_dict_random_sample(nomenclature=None):
         "b_statut_public": b_statut_public,
         "b_document": b_document,
         "proprietaire": proprietaire_dict_random_sample(),
-        "s_nom_foret": "Les sequoias",
-        "d_superficie": 2.5,
+        "nom_foret": "Les sequoias",
+        "superficie": 2.5,
         "areas_foret": [{"id_area": id_area}]
 
     }
@@ -236,6 +240,12 @@ def declaration_dict_random_sample(nomenclature=None):
 
         return None
 
+    declarant = DB.session.query(User).filter(id_declarant == User.id_role).first()
+
+    if not declarant:
+
+        return None
+
     areas_localisation = get_random_areas_localisation(id_area_foret, code_type_parcelle)
     # areas_localisation = [{"id_area": 204413}]
 
@@ -250,6 +260,8 @@ def declaration_dict_random_sample(nomenclature=None):
     declaration = {
 
         "id_declarant": id_declarant,
+
+        "declarant": as_dict(declarant),
 
         "id_nomenclature_proprietaire_declarant": get_nomenclature_random_sample(nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "id_nomenclature"),
 
@@ -275,7 +287,7 @@ def declaration_dict_random_sample(nomenclature=None):
         'nomenclatures_peuplement_paturage_statut': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")],
         'nomenclatures_peuplement_espece': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ESPECE", "id_nomenclature")],
 
-        's_commentaire': "Un commentaire....",
+        'commentaire': "Un commentaire....",
 
         "meta_create_date": s_date,
         "meta_update_date": s_date

@@ -24,6 +24,7 @@
     "datatables.net-buttons": "^1.5.3",
     "datatables.net-buttons-dt": "^1.5.3",
     "datatables.net-dt": "^1.10.19",
+    "datatables.net-rowgroup-dt": "^1.0.4",
     "exports": "0.0.1",
     "glyphicons": "^0.2.0",
     "jquery": "^3.3.1",
