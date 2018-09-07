@@ -29,8 +29,7 @@
 
   {%- set mnemonique_peuplement_type = utils.get_nomenclature_from_id(declaration["id_nomenclature_peuplement_type"], nomenclature, "mnemonique") %}
 
-  {# {%- if  mnemonique_peuplement_type != "PT_MIX" %} #}
-  {%- if  mnemonique_peuplement_type != "PT_FUTIRR" %}
+  {%- if  mnemonique_peuplement_type != "F. irr." %}
 
   {{ macros.radio_nomenclature("nomenclatures_peuplement_maturite", nomenclature, "OEASC_PEUPLEMENT_MATURITE", "checkbox", "Maturité du peuplement", object=declaration) }}
 

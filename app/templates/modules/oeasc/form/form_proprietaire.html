@@ -15,13 +15,9 @@
   {%- endif %}
 
 
-  {%- if proprietaire.nom_proprietaire == 'État' %}
+  {%- if proprietaire.nom_proprietaire == 'État'  and id_form =="form_proprietaire" %}
 
   <div><p>L'État est propriétaire de la forêt.</p></div>
-
-  {%- block js_add %}
-
-    {{ super() }}
 
     <script>
 
@@ -38,9 +34,8 @@
         }
 
       });
-    </script>
 
-  {%- endblock %}
+    </script>
 
   {%- else %}
 

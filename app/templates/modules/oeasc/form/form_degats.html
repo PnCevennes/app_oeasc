@@ -44,7 +44,7 @@
       <label for="nomenclatures_degat_type-{{ loop.index0 }}">{{ elem.label_fr }} _{{mnemonique_degat_type}}</label>
 
 
-      {%- if ns.ind != -1 and mnemonique_degat_type != "DT_POC" %}
+      {%- if ns.ind != -1 and mnemonique_degat_type != "P/C" %}
 
       {%- set degat = degats[ns.ind] %}
 
@@ -52,7 +52,7 @@
       <div class="degat-essence custom-control">
 
         <div><label for="id_nomenclature_degat_essence"><i>Essence</i></label></div>
-        {%- if mnemonique_degat_type != "DT_ABSC" %}
+        {%- if mnemonique_degat_type != "ABS" %}
         <div><label for="id_nomenclature_degat_etendue"><i>Étendue</i></label></div>
         <div><label for="id_nomenclature_degat_gravite"><i>Gravité</i></label></div>
         <div><label for="id_nomenclature_degat_anteriorite"><i>Antériorité</i></label></div>
@@ -86,7 +86,7 @@
 
         <div class="strayed degat-essence" >
           <div> {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature)}} </div>
-          {%- if mnemonique_degat_type != "DT_ABSC" %}
+          {%- if mnemonique_degat_type != "ABS" %}
           <div> {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_etendue, nomenclature)}} </div>
           <div> {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_gravite, nomenclature)}} </div>
           <div> {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_anteriorite, nomenclature)}} </div>
@@ -117,7 +117,7 @@
           <div class="degat-essence">
             <div>{{ macros.select_essence("id_nomenclature_degat_essence", nomenclature, object=degat_essence, listes_essences=listes_essences, id_nomenclature_degat_type=degat.id_nomenclature_degat_type, required="required") }}</div>
 
-            {%- if mnemonique_degat_type != "DT_ABSC" %}
+            {%- if mnemonique_degat_type != "ABS" %}
             <div>{{ macros.radio_nomenclature("id_nomenclature_degat_etendue", nomenclature, "OEASC_DEGAT_ETENDUE", "radio", object=degat_essence, add=add) }}</div>
             <div>{{ macros.radio_nomenclature("id_nomenclature_degat_gravite", nomenclature, "OEASC_DEGAT_GRAVITE", "radio", object=degat_essence, add=add) }}</div>
             <div>{{ macros.radio_nomenclature("id_nomenclature_degat_anteriorite", nomenclature, "OEASC_DEGAT_ANTERIORITE", "radio", object=degat_essence, add=add) }}</div>

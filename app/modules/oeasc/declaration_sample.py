@@ -177,7 +177,7 @@ def degats_dict_random_sample(v_essences, nomenclature=None):
 
         mnemonique = get_nomenclature_from_id(d['id_nomenclature_degat_type'], nomenclature, "mnemonique")
 
-        if mnemonique in ['DT_ABSC', 'DT_POC']:
+        if mnemonique in ['ABS', 'P/C']:
 
             continue
 

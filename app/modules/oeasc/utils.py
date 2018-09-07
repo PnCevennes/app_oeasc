@@ -69,7 +69,7 @@ def get_listes_essences(declaration):
 
                 listes_essences["resineux"].append(id)
 
-        b_feuillus = b_feuillus and (elem['mnemonique'] != "PE_AF")  # PeuplementEssence_AutresFeuillus
+        b_feuillus = b_feuillus and (elem['mnemonique'] != "AF")  # PeuplementEssence_AutresFeuillus
 
     listes_essences["degats"] = {}
 

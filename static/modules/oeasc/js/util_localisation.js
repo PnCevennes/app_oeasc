@@ -36,8 +36,8 @@ $(document).ready(function() {
 
     });
 
+  };
 
-  }
 
   var initialiser_show_localisation = function(show_name, declaration) {
 
@@ -54,7 +54,6 @@ $(document).ready(function() {
       });
 
     }
-
 
     map = M.carte_base_oeasc(show_name, "mapbox");
 

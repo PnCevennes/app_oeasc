@@ -314,7 +314,11 @@ $(document).ready(function() {
 
     if( id_form == "form_declaration" || id_form == "all" ) {
 
-      setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
+      $('[href="#localisation"]').click(function (e) {
+
+        setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
+
+      });
 
     }
 

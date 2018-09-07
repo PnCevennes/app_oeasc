@@ -77,7 +77,7 @@ def get_description_droit(id_droit):
     switcher = {
         1: "Déclarant",
         2: "Déclarant",
-        3: "Directeur",
+        3: "Responsable",
         4: "Animateur",
         5: "Animateur",
         6: "Admin"
@@ -94,7 +94,7 @@ def get_fonction_droit(function):
     dict_function = {
 
         "Déclarant": 1,
-        "Directeur": 3,
+        "Responsable": 3,
         "Animateur": 4,
         "Admin": 6,
 

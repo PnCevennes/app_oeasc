@@ -468,3 +468,10 @@ form {
   overflow: hidden;
   transition: max-height 0.2s ease-out;
 }
+
+/* datatable */
+
+.mark, mark {
+    padding: 0;
+    background-color: orange;
+}

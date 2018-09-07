@@ -1,121 +1,142 @@
 <div id="declaration">
 
-  {% set foret = declaration["foret"]%}
+  {%- set foret = declaration["foret"]%}
 
-  <button class="accordion">Forêt</button>
-  <div class="panel">
 
-    {% include "modules/oeasc/entity/foret.html" %}
+  <nav class="nav nav-tabs">
+    <a class="nav-item nav-link active" href="#foret" data-toggle="tab">Forêt</a>
+    <a class="nav-item nav-link" href="#localisation" data-toggle="tab">Localisation</a>
+    <a class="nav-item nav-link" href="#peuplement" data-toggle="tab">Peuplement</a>
+    <a class="nav-item nav-link" href="#degats" data-toggle="tab">Dégâts</a>
+    <a class="nav-item nav-link" href="#commentaire" data-toggle="tab">Commentaires</a>
+  </nav>
+
+
+  <div class="tab-content">
+    <div class="tab-pane active" id="p1">Panneau 1</div>
+    <div class="tab-pane" id="p2">Panneau 2</div>
+
+    <div class="tab-pane active" id="foret">
+
+      <h4>Forêt</h4>
+
+      {%- include "modules/oeasc/entity/foret.html" %}
+
+    </div>
+
+    <div class="tab-pane" id="localisation" >
+
+      <h4>Localisation</h4>
+
+      {%- include "modules/oeasc/entity/localisation.html" %}
+
+    </div>
+
+    <div class="tab-pane" id="peuplement">
+
+      <h4>Peuplement</h4>
+
+      <h5>Essence</h5>
+
+      <ul>
+
+        <li>Principale : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</li>
+
+        {%- if declaration.nomenclatures_peuplement_essence_secondaire | length %}
+        <li>Secondaire(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_secondaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+        {%- endif %}
+
+        {%- if declaration.nomenclatures_peuplement_essence_complementaire | length %}
+        <li>Complémentaires(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_complementaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+        {%- endif %}
+
+      </ul>
+
+
+      <h5>Détails</h5>
+
+      <ul>
+        <li>Origine du peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_origine, nomenclature) }} </li>
+        <li>Type de peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_type, nomenclature) }} </li>
+
+        {%- if  mnemonique_peuplement_type != "Mél." %}
+
+        <li>Maturité du peuplement : {%- for cor in declaration.nomenclatures_peuplement_maturite %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+
+        {%- endif %}
+
+      </ul>
+
+
+      <h5>Protection</h5>
+
+      <ul>
+        <li>Existence de protection : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}</li>
+
+        {%- if declaration['b_peuplement_protection_existence'] %}
+
+        <li>Type de protection : {%- for cor in declaration.nomenclatures_peuplement_protection_type %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+
+        {%- endif %}
+
+      </ul>
+
+      <h5>Paturage</h5>
+
+      <ul>
+        <li>Existence de paturage : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}</li>
+
+        {%- if declaration['b_peuplement_paturage_presence'] %}
+
+        <li>Type de paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_type %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+        <li>Statut du paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_statut %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+        <li>Fréquence du paturage : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_paturage_frequence, nomenclature) }} </li>
+
+        {%- endif %}
+
+      </ul>
+
+      <h5>Autres</h5>
+      <ul>
+        <li>Accessibilité du peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_acces, nomenclature) }}</li>
+        <li>Espèce(s) avérée(s) : {%- for cor in declaration.nomenclatures_peuplement_espece %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %}</li>
+      </ul>
+
+    </div>
+
+    <div class="tab-pane" id="degats">
+
+      <h4>Dégats</h4>
+
+      <ul>
+        {%- for degat in declaration.degats %}
+        <li>  {{ utils.get_nomenclature_from_id(degat.id_nomenclature_degat_type, nomenclature) }}
+          <ul>
+            {%- for degat_essence in degat['degat_essences'] %}
+            <li>{{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature) }} : {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_etendue, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_gravite, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_anteriorite, nomenclature) }}
+            </li>
+            {%- endfor %}
+          </ul>
+        </li>
+        {%- endfor %}
+      </ul>
+
+    </div>
+
+
+    {# {%- if declaration.commentaires %} #}
+
+    <div class="tab-pane" id="commentaire">
+
+      <h4>Commentaires</h4>
+
+      {{ declaration.commentaire or "" }}
+
+    </div>
+
+    {# {%- endif %} #}
 
   </div>
-
-  <button class="accordion">Localisation</button>
-  <div class="panel">
-
-    {% include "modules/oeasc/entity/localisation.html" %}
-
-  </div>
-
-  <button class="accordion">Peuplement</button>
-  <div class="panel">
-
-    <h5>Essence</h5>
-
-    <ul>
-
-      <li>Principale : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</li>
-      {% if declaration.nomenclatures_peuplement_essence_secondaire | length %}
-      <li>Secondaire(s) : {% for cor in declaration.nomenclatures_peuplement_essence_secondaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
-      {% endif %}
-
-      {% if declaration.nomenclatures_peuplement_essence_complementaire | length %}
-      <li>Complémentaires(s) : {% for cor in declaration.nomenclatures_peuplement_essence_complementaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
-      {% endif %}
-
-    </ul>
-
-
-    <h5>Détails</h5>
-
-    <ul>
-      <li>Origine du peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_origine, nomenclature) }} </li>
-      <li>Type de peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_type, nomenclature) }} </li>
-
-      {% if  mnemonique_peuplement_type != "PT_MIX" %}
-
-      <li>Maturité du peuplement : {% for cor in declaration.nomenclatures_peuplement_maturite %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
-
-      {% endif %}
-
-    </ul>
-
-
-    <h5>Protection</h5>
-
-    <ul>
-      <li>Existence de protection : {% if declaration.b_peuplement_protection_existence %} oui {% else %} non {% endif %}</li>
-
-      {% if declaration['b_peuplement_protection_existence'] %}
-
-      <li>Type de protection : {% for cor in declaration.nomenclatures_peuplement_protection_type %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
-
-      {% endif %}
-
-    </ul>
-
-    <h5>Paturage</h5>
-
-    <ul>
-      <li>Existence de paturage : {% if declaration.b_peuplement_paturage_presence %} oui {% else %} non {% endif %}</li>
-
-      {% if declaration['b_peuplement_paturage_presence'] %}
-
-      <li>Type de paturage : {% for cor in declaration.nomenclatures_peuplement_paturage_type %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
-      <li>Statut du paturage : {% for cor in declaration.nomenclatures_peuplement_paturage_statut %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %} </li>
-      <li>Fréquence du paturage : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_paturage_frequence, nomenclature) }} </li>
-
-      {% endif %}
-
-    </ul>
-
-    <h5>Autres</h5>
-    <ul>
-      <li>Accessibilité du peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_acces, nomenclature) }}</li>
-      <li>Espèce(s) avérée(s) : {% for cor in declaration.nomenclatures_peuplement_espece %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {% endfor %}</li>
-    </ul>
-
-  </div>
-
-  <button class="accordion">Dégats</button>
-  <div class="panel">
-
-    <ul>
-      {% for degat in declaration.degats %}
-      <li>  {{ utils.get_nomenclature_from_id(degat.id_nomenclature_degat_type, nomenclature) }}
-        <ul>
-          {% for degat_essence in degat['degat_essences'] %}
-          <li>{{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature) }} : {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_etendue, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_gravite, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_anteriorite, nomenclature) }}
-          </li>
-          {% endfor %}
-        </ul>
-      </li>
-      {% endfor %}
-    </ul>
-
-  </div>
-
-
-  {% if declaration.commentaires %}
-
-  <button class="accordion">Commentaires</button>
-
-  <div class="panel">
-
-    {{ declaration.commentaire or "" }}
-
-  </div>
-
-  {% endif %}
 
 </div>
 

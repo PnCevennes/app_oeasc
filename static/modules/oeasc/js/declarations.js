@@ -2,24 +2,31 @@ $(document).ready(function() {
 
   "use strict";
 
+
+  // option du tableau
+
   var table = $("#table_declarations").DataTable({
     columnDefs: [
     {
       "targets": [ 0 ],
       "visible": false,
       "searchable": false,
-      'stateSave': true
+      // 'stateSave': true
+
     }
     ],
 
     mark: true,
     language: { "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/French.json"},
+    dom: 'Bfrtip',
+    buttons: [
+    'copy', 'csv', 'excel', 'pdf', 'print'
+    ]
+    // rowGroup: {
+    //   dataSrc: 'group'
+    // },
 
-    rowGroup: {
-      dataSrc: 'group'
-    },
-
-});
+  });
 
 
 

@@ -36,7 +36,13 @@
 
     var declaration = M.get_from_flask_json($('#declaration').attr('data-declaration'));
 
-    M.initialiser_show_localisation("show_localisation", declaration);
+    $('[href="#localisation"]').click(function (e) {
+
+      setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
+
+    });
+
+    // M.initialiser_show_localisation("show_localisation", declaration);
 
   });
 
