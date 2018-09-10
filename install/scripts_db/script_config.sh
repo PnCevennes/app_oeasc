@@ -8,7 +8,7 @@ settings_file=${ROOT_DIR}/config/settings.ini
 
 . $settings_file
 
-PGPASSWORD=$user_pg_pass
+export PGPASSWORD=$user_pg_pass
 
 sql_dir=install/scripts_db
 dir_data=${ROOT_DIR}/data

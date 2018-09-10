@@ -12,6 +12,9 @@ psql -b -d $db_name -h $db_host -U $user_pg <<EOF
 SELECT pg_terminate_backend(pid), * FROM active_locks
 EOF
 
+file_SQL_ADD_FUNCTION_EXT=$ROOT_DIR/$sql_dir/SQL/add_functions_ext.sql
+$ROOT_DIR/$sql_dir/script_oeasc/script_add_functions_ext.sh >> $file_SQL_ADD_FUNCTION_EXT
+
 
 $ROOT_DIR/$sql_dir/script_create_ref_geo_import.sh
 $ROOT_DIR/$sql_dir/script_create_ref_geo_process.sh

@@ -15,13 +15,6 @@ SELECT pg_terminate_backend(pid), * FROM active_locks;
 EOF
 
 
-cat << EOF
-
-DROP TABLE IF EXISTS ref_geo.l_areas_cadastre CASCADE;
-
-EOF
-
-
 echo '-- ajouter id_type dans bib_areas_type'
 
 
@@ -54,6 +47,14 @@ DROP TABLE IF EXISTS ref_geo.li_${name} CASCADE;
 EOF
 
 done
+
+
+cat << EOF
+
+DROP TABLE IF EXISTS ref_geo.li_oeasc_cadastre CASCADE;
+
+EOF
+
 
 
 cat << EOF
