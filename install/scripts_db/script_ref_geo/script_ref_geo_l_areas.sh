@@ -89,10 +89,10 @@ INSERT INTO ref_geo.bib_areas_types (
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
         (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, '');
 
-echo "SELECT setval('ref_geo.l_areas_id_area_seq', COALESCE((SELECT MAX(id_area)+1 FROM ref_geo.l_areas), 1), false);" | psql -t -d $db_name -h $db_host -U $user_pg
 
 EOF
 
+echo "SELECT setval('ref_geo.l_areas_id_area_seq', COALESCE((SELECT MAX(id_area)+1 FROM ref_geo.l_areas), 1), false);" | psql -t -d $db_name -h $db_host -U $user_pg
 
 cat << EOF
 
