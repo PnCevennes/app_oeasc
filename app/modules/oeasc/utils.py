@@ -1,7 +1,9 @@
-
+import datetime
 
 from app.utils.env import DB
-from sqlalchemy import text
+
+from werkzeug.datastructures import Headers
+from flask import Response
 
 from app.ref_geo.models import TAreas
 
@@ -208,12 +210,57 @@ def get_gravite(declaration_dict, nomenclature):
     return get_nomenclature_from_id(id_nomenclature_degat_gravite_global, nomenclature)
 
 
+def print_date(s_date):
+    """
+        pour affichage dans tableau
 
+        s_date str
+    """
+
+    return datetime.datetime.strptime(s_date, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+
+
+def print_commune(s_commune):
+
+    return '-'.join(s_commune.split('-')[1:])
+
+
+def print_parcelle(s_parcelle):
+
+    if s_parcelle[-1] == '-':
+
+        return s_parcelle[:-1]
+
+    return s_parcelle
+
+
+def arrays_to_csv(filename, data, columns, separator):
+
+    outdata = [separator.join(columns)]
+
+    headers = Headers()
+    headers.add('Content-Type', 'text/plain')
+    headers.add(
+        'Content-Disposition',
+        'attachment',
+        filename='export_%s.csv' % filename
+    )
+
+    for l in data:
+        outdata.append(
+            separator.join(
+                '"%s"' % (str(e)) for e in l
+            )
+        )
+
+    out = '\r\n'.join(outdata)
+
+    return Response(out, headers=headers)
 
 
 def utils_dict():
     """
-        dictionnaire qui reference les function ci dessus pour les utiliser dans jinja cf server.py
+        dictionnaire qui reference des functions pour les utiliser dans jinja cf server.py
 
     """
     d = {}
@@ -226,5 +273,8 @@ def utils_dict():
     d["get_nomenclature_from_id"] = get_nomenclature_from_id
     d["get_gravite"] = get_gravite
     d['get_fonction_droit'] = get_fonction_droit
+    d['print_date'] = print_date
+    d['print_commune'] = print_commune
+    d['print_parcelle'] = print_parcelle
 
     return d

@@ -316,7 +316,11 @@ $(document).ready(function() {
 
       $('[href="#localisation"]').click(function (e) {
 
-        setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
+        if(! M["map_show_localisation"]) {
+
+          setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
+
+        }
 
       });
 

@@ -177,15 +177,24 @@ def degats_dict_random_sample(v_essences, nomenclature=None):
 
         mnemonique = get_nomenclature_from_id(d['id_nomenclature_degat_type'], nomenclature, "mnemonique")
 
-        if mnemonique in ['ABS', 'P/C']:
+        if mnemonique in ['P/C']:
 
             continue
 
-        degat = {
-            "id_nomenclature_degat_essence": get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", "id_nomenclature"),
-            "id_nomenclature_degat_etendue": get_nomenclature_random_sample(nomenclature, "OEASC_DEGAT_ETENDUE", "id_nomenclature"),
-            "id_nomenclature_degat_gravite": get_nomenclature_random_sample(nomenclature, "OEASC_DEGAT_GRAVITE", "id_nomenclature"),
-            "id_nomenclature_degat_anteriorite": get_nomenclature_random_sample(nomenclature, "OEASC_DEGAT_ANTERIORITE", "id_nomenclature")}
+        if mnemonique in ['ABS']:
+
+            degat = {
+                "id_nomenclature_degat_essence": get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", "id_nomenclature"),
+            }
+
+        else:
+
+            degat = {
+                "id_nomenclature_degat_essence": get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", "id_nomenclature"),
+                "id_nomenclature_degat_etendue": get_nomenclature_random_sample(nomenclature, "OEASC_DEGAT_ETENDUE", "id_nomenclature"),
+                "id_nomenclature_degat_gravite": get_nomenclature_random_sample(nomenclature, "OEASC_DEGAT_GRAVITE", "id_nomenclature"),
+                "id_nomenclature_degat_anteriorite": get_nomenclature_random_sample(nomenclature, "OEASC_DEGAT_ANTERIORITE", "id_nomenclature")
+            }
 
         d['degat_essences'] = [degat]
 

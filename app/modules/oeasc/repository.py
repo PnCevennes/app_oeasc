@@ -3,6 +3,10 @@ from pypnnomenclature.repository import (
     get_nomenclature_list
 )
 
+from pypnnomenclature.models import (
+    TNomenclatures
+)
+
 from app.utils.env import DB
 from app.utils.utilssqlalchemy import as_dict
 
@@ -324,8 +328,6 @@ def get_declarations(b_synthese, id_declarant=None):
         user['id_droit_max'] = user_app['id_droit_max']
         user['id_application'] = user_app['id_application']
 
-        print(user)
-
         # administrateur et animateur
         if user["id_droit_max"] >= get_fonction_droit("Animateur") or b_synthese:
 
@@ -350,13 +352,9 @@ def get_declarations(b_synthese, id_declarant=None):
 
         id_declarations = [d[0] for d in data]
 
-        declarations = []
-
-    print("a", id_declarations)
+    declarations = []
 
     for id_declaration in id_declarations:
-
-        print(id_declaration)
 
         declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
         declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
@@ -372,6 +370,7 @@ def get_db(type, key, val):
 
         "user": User,
         "t_areas": TAreas,
+        "nomenclature": TNomenclatures,
     }
 
     table = switch_model.get(type, None)

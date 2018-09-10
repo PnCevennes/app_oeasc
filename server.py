@@ -83,6 +83,9 @@ with app.app_context():
     from app.modules.oeasc import api as oeasc_api
     app.register_blueprint(oeasc_api.bp, url_prefix='/api/oeasc')
 
+    from app.modules.oeasc import api_test as oeasc_api_test
+    app.register_blueprint(oeasc_api_test.bp, url_prefix='/api_test/oeasc')
+
     from pypnnomenclature.routes import routes
     app.register_blueprint(routes, url_prefix='/api/nomenclatures')
 

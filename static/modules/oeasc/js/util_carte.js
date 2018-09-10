@@ -7,7 +7,7 @@ $(document).ready(function() {
 
     if(bounds.isValid()) {
 
-    map.fitBounds(bounds);
+      map.fitBounds(bounds);
 
     }
 
@@ -46,7 +46,7 @@ $(document).ready(function() {
 
   var f_form = function(ls, layer, fp, map) {
 
-    var $select_layer = $("#" + map.select_name);
+    var $select_layer = $("#" + map.map_name);
     var s_option = '<option value="' + fp.id_area + '"> ' + fp.area_name + " </option>";
     $select_layer.append(s_option);
 
@@ -99,7 +99,7 @@ $(document).ready(function() {
         }
 
         f_select_layer(layer, map);
-        $('#' + map.select_name).selectpicker("refresh");
+        $('#' + map.map_name).selectpicker("refresh");
 
       });
 
@@ -161,7 +161,7 @@ $(document).ready(function() {
 
         var selected = false;
 
-        $("#" + map.select_name + " :selected").each(function(i,e) {
+        $("#" + map.map_name + " :selected").each(function(i,e) {
 
           selected = (e.value == _layer.feature.properties.id_area || selected);
 
@@ -214,7 +214,7 @@ $(document).ready(function() {
 
     if(!layer) return false;
 
-    var $select = $("#" + map.select_name);
+    var $select = $("#" + map.map_name);
 
     var fp = layer.feature.properties;
 
@@ -271,13 +271,13 @@ $(document).ready(function() {
     var data_type_2 = ""
     var val = null;
 
-    if(map.select_name == "areas_foret") {
+    if(map.map_name == "areas_foret") {
 
       data_type_2 ="id_foret";
       val = parseInt($("#form_foret").attr("data-id-foret"));
     }
 
-    if(map.select_name == "areas_localisation") {
+    if(map.map_name == "areas_localisation") {
 
       data_type_2 ="id_declaration";
       val = parseInt($("#form_declaration").attr("data-id-declaration"));
@@ -285,7 +285,7 @@ $(document).ready(function() {
     }
 
 
-    M.set_areas_cor(map.select_name, "data-areas", $select.val(), data_type_2, val);
+    M.set_areas_cor(map.map_name, "data-areas", $select.val(), data_type_2, val);
 
   };
 
@@ -321,7 +321,7 @@ $(document).ready(function() {
   var remove_all  = function(name, map) {
 
     var $div = $('#' + name);
-    var $select_layer = $('#' + map.select_name);
+    var $select_layer = $('#' + map.map_name);
     var $legend = $('#legend-' + name);
     var feature_collection;
 
@@ -354,7 +354,7 @@ $(document).ready(function() {
     var key_0 = Object.keys(feature_collection._layers)[0];
     var name = feature_collection._layers[key_0].feature.properties.name;
 
-    var $select_layer = $("#" + map.select_name);
+    var $select_layer = $("#" + map.map_name);
 
     if($select_layer.val()) {
 
@@ -362,14 +362,14 @@ $(document).ready(function() {
 
     }
 
-    $("#form_" + map.select_name + " #chargement").hide();
+    $("#form_" + map.map_name + " #chargement").hide();
 
     deferred_setBounds(feature_collection.getBounds(), map);
 
     // selection et affichage
-    var localisation_type = $("#form_" + map.select_name).attr("data-localisation-type");
+    var localisation_type = $("#form_" + map.map_name).attr("data-localisation-type");
 
-    var areas = M.get_areas_cor(map.select_name, "data-areas");
+    var areas = M.get_areas_cor(map.map_name, "data-areas");
 
     for(var i=0; i < areas.length; i++) {
 
@@ -433,7 +433,7 @@ $(document).ready(function() {
 
     var d_ls = M.d_ls;
 
-    $("#form_" + map.select_name + " #chargement").show();
+    $("#form_" + map.map_name + " #chargement").show();
     $("#legend-" + name).show();
     $('#' + name).show();
 
@@ -643,7 +643,7 @@ $(document).ready(function() {
     if(areas == []) return ;
 
 
-    $("#" + map.select_name + " #chargement").show();
+    $("#" + map.map_name + " #chargement").show();
 
     var pane, color;
 
@@ -678,11 +678,11 @@ $(document).ready(function() {
 
           var fp = layer.feature.properties;
 
-          $("#" + map.select_name + " #infos_" + type).append("<div>" + fp.area_name + "</div>")
+          $("#" + map.map_name + " #infos_" + type).append("<div>" + fp.area_name + "</div>")
 
         });
 
-        $("#" + map.select_name + " #chargement").hide();
+        $("#" + map.map_name + " #chargement").hide();
 
         if(type == "foret") {
 
@@ -708,7 +708,7 @@ $(document).ready(function() {
 
     if(areas.length == 0) return ;
 
-    $("#" + map.select_name + " #chargement").show();
+    $("#" + map.map_name + " #chargement").show();
 
     if(!M.markers && b_cluster) {
 
@@ -726,61 +726,57 @@ $(document).ready(function() {
       data: JSON.stringify({areas: areas}),
       success: function (response) {
 
-        var s_popup = '<div><a href="/oeasc/declaration/' + declaration.id_declaration + '">Alerte ' + declaration.id_declaration + ' </a></div>';
+        var s_popup = '<div><a href="/oeasc/declaration/' + declaration.id_declaration + '"  target="_blank">Alerte ' + declaration.id_declaration + ' </a></div>';
 
-        var marker = L.marker(response, { pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
-        marker.id_declaration = declaration.id_declaration;
+        // s_popup  += '<div><i>Nom forêt</i> : ' + declaration.foret.nom_foret + '</div>';
+        // s_popup  += '<div><i>Essence Principale</i> : ' + M.get_db('nomenclature', 'id_nomenclature', declaration.id_nomenclature_peuplement_essence_principale).label_fr + "</div>";
 
-        if(b_cluster) {
+        // s_popup += '<div><i>Dégats</i> : ';
 
-          M.markers.addLayer(marker);
+        // for(var i=0; i<declaration.degats.length; i++) {
 
-        } else {
+        //   var degat = M.get_db('nomenclature', 'id_nomenclature', declaration.degats[i].id_nomenclature_degat_type).label_fr;
+        //   s_popup += degat;
 
-          map.addLayer(marker);
+        //   if(i==declaration.degats.length - 1)
 
-        }
+        //     s_popup += '.';
 
+        //   else
 
-        // var featuresCollection = L.geoJson(response, {
-        //   pane : 'PANE_' + pane
-        // }).addTo(map);
-
-        // featuresCollection.addTo(map);
-
-        // var b_tooltip = false;
-
-        // featuresCollection.eachLayer(function(layer) {
-
-        //   if( (!b_tooltip) && (type == "localisation") ) {
-
-        //     b_tooltip = true;
-        //     layer.bindTooltip("Alerte tooltips", {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips, permanent: true}).addTo(map);
-
-        //   }
-
-        //   layer.setStyle(M.style.default);
-
-        //   layer.setStyle({
-
-        //     color: color,
-        //     fillColor: color
-
-        //   });
-
-        //   var fp = layer.feature.properties;
-
-        //   $("#" + map.select_name + " #infos_" + type).append("<div>" + fp.area_name + "</div>")
-
-        // });
-
-        $("#" + map.select_name + " #chargement").hide();
-
-        // if(type == "foret") {
-
-        //   deferred_setBounds(featuresCollection.getBounds(), map);
+        //     s_popup += ',';
 
         // }
+
+        // s_popup += '</div>';
+
+        var marker = L.marker(response, { pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
+        
+          marker.id_declaration = declaration.id_declaration;
+
+          if(b_cluster) {
+
+            M.markers.addLayer(marker);
+
+          } else {
+
+            map.addLayer(marker);
+
+          }
+
+          marker.on("mouseover", function() {
+
+            $(document).trigger("marker_mouseover", [this.id_declaration]);
+
+          });
+        
+          marker.on("mouseout", function() {
+
+            $(document).trigger("marker_mouseout", [this.id_declaration]);
+
+          });
+        
+        $("#" + map.map_name + " #chargement").hide();
 
       }
 

@@ -26,28 +26,28 @@ id_app=500
 
 # jubil -1
 
-nom_role=CLEMENT
-prenom_role=Joel
-email=joelclems@gmail
-identifiant=$email
-id_droit=1
-id_organisme=$id_jubil
+# nom_role=CLEMENT
+# prenom_role=Joel
+# email=joelclems@gmail
+# identifiant=$email
+# id_droit=1
+# id_organisme=$id_jubil
 
-echo '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
-'"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}'
+# echo '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
+# '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
+# '"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}'
 
-curl --header "Content-Type: application/json" \
---request POST \
---data '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
-'"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}' \
-http://localhost:5001/api_register/role
+# curl --header "Content-Type: application/json" \
+# --request POST \
+# --data '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
+# '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
+# '"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}' \
+# http://localhost:5001/api_register/role
 
 # pnc - agent
 
-nom_role=PNC
-prenom_role=agent
+nom_role=Nacer
+prenom_role=Vidais
 email=agent@pnc.frt
 identifiant=$email
 id_droit=1
@@ -62,8 +62,8 @@ http://localhost:5001/api_register/role
 
 # pnc - directeur
 
-nom_role=PNC
-prenom_role=directeur
+nom_role=Vincent
+prenom_role=GLILLET
 email=directeur@pnc.frt
 identifiant=$email
 id_droit=3
@@ -78,8 +78,8 @@ http://localhost:5001/api_register/role
 
 # pnc - animateur
 
-nom_role=PNC
-prenom_role=animateur
+nom_role=José
+prenom_role=CORSAGE
 email=animateur@pnc.frt
 identifiant=$email
 id_droit=4

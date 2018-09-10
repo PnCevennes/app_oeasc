@@ -1,11 +1,6 @@
 {%- block declarations %}
 
-{%- macro tooltip_mnemonique(id, nomenclature) %}
-<span data-toggle="tooltip" title="{{utils.get_nomenclature_from_id(id, nomenclature)}}">
-  {{utils.get_nomenclature_from_id(id, nomenclature, 'mnemonique')}}
-</span>
-
-{%- endmacro %}
+{%- macro tooltip_mnemonique(id, nomenclature) %}<span data-toggle="tooltip" title="{{utils.get_nomenclature_from_id(id, nomenclature)}}">{{utils.get_nomenclature_from_id(id, nomenclature, 'mnemonique')}}</span>{%- endmacro %}
 
 <div id="declarations">
 
@@ -17,172 +12,204 @@
 
   </div>
 
-  <div id='liste_declarations'>
-    <h2>Liste de délaration</h2>
+  <nav class="nav nav-tabs">
+    <a class="nav-item nav-link active" href="#resutats" data-toggle="tab" data-type="TC">Tableau + carte</a>
+    <a class="nav-item nav-link" href="#resultats" data-toggle="tab" data-type="T">Tableau</a>
+    <a class="nav-item nav-link" href="#resultats" data-toggle="tab" data-type="C">Carte</a>
+  </nav>
 
-    <table id="table_declarations" class="table-striped">
+  <div class="tab-pane active" id="resultats">
 
-      <thead>
+    <div class="row">
 
-        <tr>
+      <div id='tableau_declarations' class="col-md-6">
 
-          <th>ID</th>
-          <th>Déclarant</th>
-          <th>Organisme</th>
-          <th>Date</th>
-          <th>Nom forêt</th>
-          <th>Commune(s)</th>
-          <th>Proprietaire</th>
-          <th>UG ou parcelles</th>
-          <th>Essence Objectif Principale et secondaires</th>
-          <th>Type de peuplement</th>
-          <th>Origine</th>
-          <th>Type dégats</th>
-          <th>Voir</th>
-          <th>Modifier</th>
+        <h2>Liste de délaration</h2>
 
-        </tr>
+        <table id="table_declarations" class="table-striped">
 
-      </thead>
+          <thead>
 
-      <tbody>
+            <tr>
 
-        {%- for declaration in declarations %}
+              <th>ID</th>
+              <th>Déclarant</th>
+              <th>Organisme</th>
+              <th>Date</th>
+              <th>Nom forêt</th>
+              <th>Commune(s)</th>
+              <th>Proprietaire</th>
+              <th>UG ou parcelles</th>
+              <th>Essence Objectif Principale et secondaires</th>
+              <th>Type de peuplement</th>
+              <th>Origine</th>
+              <th>Type_dégats</th>
+              <th>Voir</th>
+              <th>Modifier</th>
 
-        {%- if session.current_user %}
+            </tr>
+
+          </thead>
+
+          <tbody>
+
+            {%- for declaration in declarations %}
+
+            {%- if session.current_user %}
 
 
-        {%- set cond_modifier_effacer = (session.current_user.id_droit_max >= utils.get_fonction_droit("Responsable")) or (session.current_user.id_role == declaration.id_declarant)%}
+            {%- set cond_modifier_effacer = (session.current_user.id_droit_max >= utils.get_fonction_droit("Responsable")) or (session.current_user.id_role == declaration.id_declarant)%}
 
-        {%- else %}
+            {%- else %}
 
-        {%- set cond_modifier_effacer = false %}
-
-        {%- endif %}
-
-        <tr>
-
-          <td>{{ declaration['id_declaration'] }}</td>
-
-          <td>{{ declaration['declarant']['nom_role'] }} {{ declaration['declarant']['prenom_role']}}</td>
-
-          <td>{{ utils.get_organisme_name_from_id_declarant(declaration['id_declarant'])}}</td>
-
-          <td>{{declaration['meta_create_date']}}</td>
-
-          <td>{{declaration['foret']['nom_foret']}}</td>
-
-          <td>
-            {%- for commune in declaration.foret.communes %}
-
-            {{commune}}{{ "," if not loop.last else "" }}
-
-            {%- endfor %}
-          </td>
-
-          <td>{{declaration['foret']['proprietaire']['nom_proprietaire']}}</td>
-
-          <td>
-            {%- for area in declaration['areas_localisation'] %}
-            {{utils.get_db("t_areas", "id_area", area.id_area).area_name}}{{ "," if not loop.last else "" }}
-            {%- endfor %}
-          </td>
-          {#
-          <td>{{ "Public" if declaration['foret']['b_statut_public'] else "Privé"}}</td> 
-
-          {%- if declaration.foret.b_document %}
-
-          <td>{{ "Régime ONF" if declaration.foret.b_statut_public else "DGD" }}</td>
-
-          {%- else %}
-
-          <td>Non documentée</td>
-
-          {%- endif %}
-          #}
-          <td>
-            <b>{{ tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</b>
-
-            {%- for id in declaration.nomenclatures_peuplement_essence_secondaire %}, {{tooltip_mnemonique(id.id_nomenclature, nomenclature)}}{%- endfor %}.
-
-          </td>
-
-          <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_type, nomenclature)}}</td>
-
-          <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine, nomenclature)}}</td>
-
-          <td>
-            {%- for degat in declaration["degats"] %}
-
-            <b>{{ tooltip_mnemonique(degat.id_nomenclature_degat_type, nomenclature) }}</b>
-
-            {%- if degat["degat_essences"] %}
-
-            : {%- for degat_essence in degat["degat_essences"] %}
-
-            {{ tooltip_mnemonique(degat_essence.id_nomenclature_degat_essence, nomenclature) }}
-            {{ "," if not loop.last else "" }}
-
-            {%- endfor %}
-
-            <br>
+            {%- set cond_modifier_effacer = false %}
 
             {%- endif %}
 
+            <tr>
+
+              <td>{{ declaration['id_declaration'] }}</td>
+
+              <td>{{ declaration['declarant']['nom_role'] }} {{ declaration['declarant']['prenom_role']}}</td>
+
+              <td>{{ utils.get_organisme_name_from_id_declarant(declaration['id_declarant'])}}</td>
+
+              <td>{{utils.print_date(declaration['meta_create_date'])}}</td>
+
+              <td>{{declaration['foret']['nom_foret']}}</td>
+
+              <td>
+                {%- for commune in declaration.foret.communes %}
+
+                {{utils.print_commune(commune)}}{{ "," if not loop.last else "" }}
+
+                {%- endfor %}
+              </td>
+
+              <td>{{declaration['foret']['proprietaire']['nom_proprietaire']}}</td>
+
+              <td>
+                {%- for area in declaration['areas_localisation'] %}
+                {{utils.print_parcelle(utils.get_db("t_areas", "id_area", area.id_area).area_name)}}{{ "," if not loop.last else "" }}
+                {%- endfor %}
+              </td>
+              {# <td>{{ "Public" if declaration['foret']['b_statut_public'] else "Privé"}}</td> 
+
+              {%- if declaration.foret.b_document %}
+
+              <td>{{ "Régime ONF" if declaration.foret.b_statut_public else "DGD" }}</td>
+
+              {%- else %}
+
+              <td>Non documentée</td>
+
+              {%- endif %} #}
+              <td>
+                <b>{{ tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</b>{%- for id in declaration.nomenclatures_peuplement_essence_secondaire %}, {{tooltip_mnemonique(id.id_nomenclature, nomenclature)}}{%- endfor %}.
+              </td>
+
+              <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_type, nomenclature)}}</td>
+
+              <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine, nomenclature)}}</td>
+
+              <td>
+                {%- for degat in declaration["degats"] %}
+                {{ tooltip_mnemonique(degat.id_nomenclature_degat_type, nomenclature) }}{{ "," if not loop.last else "" }}
+
+                {%- if degat["degat_essences"] and false%}
+
+                : {%- for degat_essence in degat["degat_essences"] %}
+
+                {{ tooltip_mnemonique(degat_essence.id_nomenclature_degat_essence, nomenclature) }}
+                {{ "," if not loop.last else "" }}
+
+                {%- endfor %}
+
+                <br>
+
+                {%- endif %}
+
+                {%- endfor %}
+              </td>
+
+              <td>
+                <a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">
+                  <button type="button" title="Voir la déclaration" class="button-voir-declaration btn btn-info"><span class="fas fa-eye"></span></button>
+                </a>
+              </td>
+
+              {%- if cond_modifier_effacer %}
+
+              <td>
+                <a href="{{ url_for('oeasc.modifier_declaration', id_declaration=declaration['id_declaration'])}}">
+                  <button type="button" title="Modifier la déclaration" class="button-modifier-declaration btn btn-primary"><span class="fas fa-pen"></span></button>
+                </a>
+              </td>
+
+              {#           <td>
+                <a href="#">
+                  <button type="button" data-id-declaration="{{ declaration['id_declaration'] }}" title="Supprimer la déclaration" class="button-supprimer-declaration btn btn-danger"><span class="fas fa-times"></span></button>
+                </a>
+              </td> #}
+
+              {%- else %}
+
+              <td></td>
+              {# <td></td> #}
+
+              {%- endif %}
+
+            </tr>
+
             {%- endfor %}
-          </td>
 
-          <td>
-            <a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">
-              <button type="button" title="Voir la déclaration" class="button-voir-declaration btn btn-info"><span class="fas fa-eye"></span></button>
-            </a>
-          </td>
+          </tbody>
 
-          {%- if cond_modifier_effacer %}
+          <tfoot>
 
-          <td>
-            <a href="{{ url_for('oeasc.modifier_declaration', id_declaration=declaration['id_declaration'])}}">
-              <button type="button" title="Modifier la déclaration" class="button-modifier-declaration btn btn-primary"><span class="fas fa-pen"></span></button>
-            </a>
-          </td>
+            <tr>
 
-{#           <td>
-            <a href="#">
-              <button type="button" data-id-declaration="{{ declaration['id_declaration'] }}" title="Supprimer la déclaration" class="button-supprimer-declaration btn btn-danger"><span class="fas fa-times"></span></button>
-            </a>
-          </td> #}
+              <th>ID</th>
+              <th>Déclarant</th>
+              <th>Organisme</th>
+              <th>Date</th>
+              <th>Nom forêt</th>
+              <th>Commune(s)</th>
+              <th>Proprietaire</th>
+              <th>UG ou parcelles</th>
+              <th>Essence Objectif Principale et secondaires</th>
+              <th>Type de peuplement</th>
+              <th>Origine</th>
+              <th>Type_dégats</th>
+              <th>Voir</th>
+              <th>Modifier</th>
 
-          {%- else %}
+            </tr>
 
-          <td></td>
-          {# <td></td> #}
+          </tfoot>
 
-          {%- endif %}
 
-        </tr>
+        </table>
 
-        {%- endfor %}
+      </div>
 
-      </tbody>
+      <div id="show_declarations"  class="col-md-6">
 
-    </table>
+        <div id="map_show_declarations" class="map"></div>
 
-  </div>
+        <div id="infos_map" class="infos_map"></div>
 
-  <div id="show_declarations">
+        <div id="chargement">
 
-    <div id="map_show_declarations" class="map"></div>
+          <div>Chargement en cours <span class="fa fa-spinner"></span></div>
 
-    <div id="infos_map" class="infos_map"></div>
+        </div>
 
-    <div id="chargement">
-
-      <div>Chargement en cours <span class="fa fa-spinner"></span></div>
+      </div>
 
     </div>
 
   </div>
-
 
 </div>
 

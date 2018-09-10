@@ -76,7 +76,7 @@ html {
 
 body {
   /* Margin bottom by footer height */
-  margin-bottom: 200px;
+  margin-bottom: 300px;
 }
 
 .footer {
@@ -509,34 +509,22 @@ form {
 
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
-.accordion {
-  background-color: #eee;
-  color: #444;
-  cursor: pointer;
-  padding: 18px;
-  width: 100%;
-  border: none;
-  text-align: left;
-  outline: none;
-  font-size: 15px;
-  transition: 0.4s;
-}
-
-.active, .accordion:hover {
-  background-color: #ccc;
-}
-
-.panel {
-  padding: 0 18px;
-  background-color: white;
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.2s ease-out;
-}
 
 /* datatable */
 
 .mark, mark {
   padding: 0;
   background-color: orange;
+}
+
+tfoot input {
+        width: 100%;
+        padding: 3px;
+        box-sizing: border-box;
+    }
+
+.row-selected {
+
+  background-color: orange; 
+
 }

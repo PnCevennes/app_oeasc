@@ -13,12 +13,10 @@
 
 
   <div class="tab-content">
-    <div class="tab-pane active" id="p1">Panneau 1</div>
-    <div class="tab-pane" id="p2">Panneau 2</div>
 
     <div class="tab-pane active" id="foret">
 
-      <h4>Forêt</h4>
+      <!-- <h5>Forêt</h5> -->
 
       {%- include "modules/oeasc/entity/foret.html" %}
 
@@ -26,7 +24,7 @@
 
     <div class="tab-pane" id="localisation" >
 
-      <h4>Localisation</h4>
+      <!-- <h5>Localisation</h5> -->
 
       {%- include "modules/oeasc/entity/localisation.html" %}
 
@@ -34,7 +32,7 @@
 
     <div class="tab-pane" id="peuplement">
 
-      <h4>Peuplement</h4>
+      <!-- <h5>Peuplement</h5> -->
 
       <h5>Essence</h5>
 
@@ -106,14 +104,18 @@
 
     <div class="tab-pane" id="degats">
 
-      <h4>Dégats</h4>
+      <!-- <h5>Dégats</h5> -->
 
       <ul>
         {%- for degat in declaration.degats %}
         <li>  {{ utils.get_nomenclature_from_id(degat.id_nomenclature_degat_type, nomenclature) }}
           <ul>
             {%- for degat_essence in degat['degat_essences'] %}
-            <li>{{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature) }} : {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_etendue, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_gravite, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_anteriorite, nomenclature) }}
+            <li>{{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature) }}
+            {% if utils.get_nomenclature_from_id(degat.id_nomenclature_degat_type, nomenclature, 'mnemonique') != 'ABS' %}
+
+              : {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_etendue, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_gravite, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_anteriorite, nomenclature) }}
+             {% endif %}
             </li>
             {%- endfor %}
           </ul>
@@ -128,7 +130,7 @@
 
     <div class="tab-pane" id="commentaire">
 
-      <h4>Commentaires</h4>
+      <!-- <h5>Commentaires</h5> -->
 
       {{ declaration.commentaire or "" }}
 

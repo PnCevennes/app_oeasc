@@ -7,34 +7,35 @@
 
 <div class="row">
 
-  <div class="col-md-12">
+    <div class="col-md-12">
 
-    <form class="container main-zone ng-scope " id="form_login">
-        <h2>Connexion</h2>
+        <form class="container main-zone ng-scope " id="form_login">
+            <h2>Connexion</h2>
 
-        <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
-            Paramètres de connexion invalides
-        </div>
-        <div class="form-horizontal">
-            <input type="hidden" name="" id="user_app" value="{{id_app}}">
-            <div class="form-group">
-                <label for="user_id">Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'email utilisé pour l'inscription." class="fas fa-question-circle"></span>:</label>
-                <input type="text" class="form-control" id="user_id">
+            <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
+                Paramètres de connexion invalides
             </div>
-            <div class="form-group">
-                <label for="pwd">Mot de passe:</label>
-                <input type="password" class="form-control" id="user_pwd">
+            <div class="form-horizontal">
+                <input type="hidden" name="" id="user_app" value="{{id_app}}">
+                <div class="form-group">
+                    <label for="user_id">Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'email utilisé pour l'inscription." class="fas fa-question-circle"></span>:</label>
+                    <input type="text" class="form-control" id="user_id">
+                </div>
+                <div class="form-group">
+                    <label for="pwd">Mot de passe:</label>
+                    <input type="password" class="form-control" id="user_pwd">
+                </div>
+                <button class="btn btn-default">Login</button>
             </div>
-            <button class="btn btn-default">Login</button>
-        </div>
-    </form>
+        </form
 
-    <div>
-        <p>Si vous ne possédez pas de compte, vous pouvez vous inscrire <a href="{{ url_for('oeasc.register') }}">ici.</a></p>
+        <div>
+            <p>Si vous ne possédez pas de compte, vous pouvez vous inscrire <a href="{{ url_for('oeasc.register') }}">ici.</a></p>
+        </div>
+
     </div>
 
 </div>
-
 {%- endblock %}
 
 
@@ -54,10 +55,10 @@
             e.preventDefault();
 
             data ={
-                    "id_application": $('#user_app').val(),
-                    "login": $('#user_id').val(),
-                    "password" : $('#user_pwd').val()
-                };
+                "id_application": $('#user_app').val(),
+                "login": $('#user_id').val(),
+                "password" : $('#user_pwd').val()
+            };
 
             $("#login-error").hide();
             $.post({

@@ -10,6 +10,8 @@ $(document).ready(function() {
 
     if(map) {
 
+
+      console.log("reset");
       map.eachLayer(function(l) {
 
         map.remove(l);
@@ -20,9 +22,11 @@ $(document).ready(function() {
 
     map = M.carte_base_oeasc(show_name, "mapbox");
 
-    map.select_name = show_name;
+    M["map_" + show_name] = map;
 
-    $('#map_' + map.select_name).find('#chargement').hide();
+    map.map_name = show_name;
+
+    $('#map_' + map.map_name).find('#chargement').hide();
 
     M.style.oeasc.fillPattern = null;
     M.style.oeasc.fillOpacity = 0.1;
@@ -57,9 +61,11 @@ $(document).ready(function() {
 
     map = M.carte_base_oeasc(show_name, "mapbox");
 
-    map.select_name = show_name;
+    M["map_" + show_name] = map;
 
-    $('#map_' + map.select_name).find('#chargement').hide();
+    map.map_name = show_name;
+
+    $('#map_' + map.map_name).find('#chargement').hide();
 
     M.style.oeasc.fillPattern = null;
     M.style.oeasc.fillOpacity = 0.1;
@@ -93,9 +99,9 @@ $(document).ready(function() {
   }
 
 
-  var initialiser_form_localisation = function(select_name) {
+  var initialiser_form_localisation = function(map_name) {
 
-    var map = M["map_" + select_name];
+    var map = M["map_" + map_name];
 
     //reset
 
@@ -109,25 +115,25 @@ $(document).ready(function() {
 
     }
 
-    map = M.carte_base_oeasc(select_name, "mapbox");
+    map = M.carte_base_oeasc(map_name, "mapbox");
 
-    map.select_name = select_name;
+    map.map_name = map_name;
 
-    M["map_" + select_name] = map;
+    M["map_" + map_name] = map;
 
     // modification du style pour le perimetre oeasc
 
     M.style.oeasc.fillPattern = null;
     M.style.oeasc.fillOpacity = 0.1;
     M.l_perimetre_OEASC.setStyle(M.style.oeasc);
-    $('#form_' + select_name).find("#legend-oeasc i").css("background", "");
+    $('#form_' + map_name).find("#legend-oeasc i").css("background", "");
 
     // initialisation des legendes et select pour la localisation
 
     M.list.data.forEach(function(name) {
 
       var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + M.d_ls[name].label + '</div>';
-      $('#form_' + select_name).find(".legend").append(s_legend);
+      $('#form_' + map_name).find(".legend").append(s_legend);
 
     });
 
@@ -135,17 +141,17 @@ $(document).ready(function() {
 
     name="LOCALISATION_SELECTION";
     var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Selection" + '</div>';
-    $('#form_' + select_name).find(".legend").append(s_legend);
+    $('#form_' + map_name).find(".legend").append(s_legend);
 
     // on cache ttes les légendes
 
     M.list.data.forEach(function(e) {
 
-     $('#form_' + select_name).find("#legend-" + e).hide();
+     $('#form_' + map_name).find("#legend-" + e).hide();
 
    });
 
-    $('#form_' + select_name).find('#chargement').hide();
+    $('#form_' + map_name).find('#chargement').hide();
 
     $('#' + name).parent().find('.bs-select-all').click( function() {
 
@@ -173,12 +179,12 @@ $(document).ready(function() {
 
     };
 
-    $("#form_" + map.select_name + " .localisation-select").on("mouseover", "ul.inner > li", f_option_hover(map));
-    $("#form_" + map.select_name + " .localisation-select").on("mouseout", "ul.inner > li", f_option_hover(map));
+    $("#form_" + map.map_name + " .localisation-select").on("mouseover", "ul.inner > li", f_option_hover(map));
+    $("#form_" + map.map_name + " .localisation-select").on("mouseout", "ul.inner > li", f_option_hover(map));
 
-    var localisation_type = $("#form_" + select_name).attr("data-localisation-type");
+    var localisation_type = $("#form_" + map_name).attr("data-localisation-type");
 
-    var areas_container = M.get_areas_cor(select_name,"data-areas-container");
+    var areas_container = M.get_areas_cor(map_name,"data-areas-container");
 
 
     if(localisation_type == "COMMUNE") {

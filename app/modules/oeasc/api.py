@@ -145,13 +145,6 @@ def random_populate(nb):
     return "ok"
 
 
-@bp.route('test', methods=['GET'])
-@json_resp
-def test():
-
-    return True
-
-
 def f_create_or_update_declaration(declaration_dict):
 
     declaration = proprietaire = foret = None
