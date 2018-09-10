@@ -17,7 +17,7 @@
 
 <div id=name|upper>
 
-  <label for="{{ name }}">{{ title }} </label>
+  <label for="{{ name }}">{{ title }} <span class="rouge">*</span></label>
 
   <div class="custom-control custom-radio custom-control-inline">
     <input {{ns.choix1_checked}} id="{{ name }}-0" name="{{ name }}"" type="radio" value="T" required>
@@ -41,7 +41,7 @@
   {%- set ns = namespace() %}
 
   {%- if titre != "" %}
-    <label for="{{ name }}">{{ titre }}</label>
+    <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
   {%- endif %}
 
   {%- set ns.select_options="" %}
@@ -125,7 +125,7 @@
   {%- set ns = namespace() %}
 
   {%- if titre != "" %}
-    <label for="{{ name }}">{{ titre }}</label>
+    <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
   {%- endif %}
 
   {%- set ns.select_options = 'multiple' %}
@@ -183,7 +183,7 @@
 
   {%- if titre != "" %}
 
-  <label for="{{ name }}">{{ titre }}</label>
+  <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
 
   {%- endif %}
 
@@ -224,7 +224,7 @@
 
 
 <div id="{{ name | upper }}">
-  <label for="{{ name }}">{{ titre }}</label><br>
+  <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
   <input type="text" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
 </div>
 
@@ -233,7 +233,7 @@
 {%- macro input_double(name, titre="", object=None, required="required") %}
 
 <div id="{{ name | upper }}">
-  <label for="{{ name }}">{{ titre }}</label><br>
+  <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
   <input type="number" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
 </div>
 
@@ -286,7 +286,7 @@
 
       <div class="localisation-select">
 
-        <div><label for="{{ name }}">Sélection des {{ns.nom_type}}</label></div>
+        <div><label for="{{ name }}">Sélection des {{ns.nom_type}}<span class="rouge">*</span></label></div>
         <select name="{{ name }}" id="{{ name }}" title="Choisir un element dans la liste" {{ ns.multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
         </select>
       </div>

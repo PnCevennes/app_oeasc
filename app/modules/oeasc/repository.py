@@ -251,9 +251,12 @@ def get_users():
         Retourne la liste des utilisateurs OEASC
     '''
 
-    data = DB.session.query(AppUser).filter(User.id_application == config.ID_APP)
+    # data = DB.session.query(AppUser)
+    data = DB.session.query(AppUser).filter(AppUser.id_application == config.ID_APP)
 
     v = [as_dict(d) for d in data]
+
+    print(v)
 
     return v
 

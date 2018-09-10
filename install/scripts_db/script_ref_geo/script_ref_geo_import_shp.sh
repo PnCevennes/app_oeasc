@@ -39,6 +39,7 @@ do
 
     cat <<EOF >> $tmp_file_i
     DROP TABLE IF EXISTS ref_geo.${table} CASCADE;
+    
 EOF
 
 

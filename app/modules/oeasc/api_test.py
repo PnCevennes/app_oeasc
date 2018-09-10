@@ -11,10 +11,7 @@ from .repository import (
 
 )
 
-# from app.utils.utilssqlalchemy import json_resp, csv_resp
-
-
-bp = Blueprint('oeasc_api_test', __name__)
+bp = Blueprint('oeasc_export', __name__)
 
 
 @bp.route('csv', methods=['GET'])
@@ -84,8 +81,6 @@ def csv():
                 degat_etendue = utils.get_nomenclature_from_id(degat_essence['id_nomenclature_degat_etendue'], nomenclature)
                 degat_anteriorite = utils.get_nomenclature_from_id(degat_essence['id_nomenclature_degat_anteriorite'], nomenclature)
                 degat_gravite = utils.get_nomenclature_from_id(degat_essence['id_nomenclature_degat_gravite'], nomenclature)
-
-        # proprietaire = declaration['foret']['proprietaire']
 
                 d = [
 

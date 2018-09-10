@@ -60,9 +60,7 @@
 
     <h4>Informations sur la forêt</h4>
 
-
-
-    {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required="required" if foret['b_statut'] else '') }}
+    {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required="required" if foret['b_statut_public'] else '') }}
 
     {{ macros.input_double("superficie", "Superficie totale de la forêt", foret) }}
 

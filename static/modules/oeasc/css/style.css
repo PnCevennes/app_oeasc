@@ -200,6 +200,13 @@ header div{
 }
 
 
+.rouge {
+
+  color: red;
+
+}
+
+
 /* form declaration */
 
 #form_display {
@@ -528,3 +535,7 @@ tfoot input {
   background-color: orange; 
 
 }
+
+{{ ns.button_disabled }}
+
+

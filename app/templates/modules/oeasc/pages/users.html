@@ -11,24 +11,28 @@
 
     <h2>Utilisateurs</h2>
 
-<table>
-    <tr>
-        <th>Identifiant</th>
-        <th>Organisme</th>
-        <th>Droits</th>
-    </tr>
+    <table>
+
+        <tr>
+            <th>Identifiant</th>
+            <th>Organisme</th>
+            <th>Droits</th>
+        </tr>
 
 
-    {%- for user in users %}
-    <tr>
-        <td>{{user.identifiant}}</td>
-        <td>{{utils.get_organisme_name_from_id_organisme(user.id_organisme)}}</td>
-        <td>{{utils.get_description_droit(user.id_droit_max)}}</td>
-    </tr>
-    {%- endfor %}
-</table>
+        {%- for user in users %}
 
-  </div>
+        <tr>
+            <td>{{user.identifiant}}</td>
+            <td>{{utils.get_organisme_name_from_id_organisme(user.id_organisme)}}</td>
+            <td>{{utils.get_description_droit(user.id_droit_max)}}</td>
+        </tr>
+
+        {%- endfor %}
+        
+    </table>
+
+</div>
 
 </div>
 

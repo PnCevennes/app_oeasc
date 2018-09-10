@@ -9,7 +9,7 @@
 
   <div id="NOMENCLATURE_DEGAT_TYPE" class="checkbox-group-required">
 
-    <label for="nomenclatures_degat_type">Type de dégât*</label>
+    <label for="nomenclatures_degat_type">Type de dégât*<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
 
     {%- for elem in nomenclature.OEASC_DEGAT_TYPE['values'] %}
 
@@ -152,7 +152,7 @@
 
         {%- endif %}
 
-        <button type="button"  {{ ns.button_disabled }} class="button-ajouter-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}"><span class="fas fa-plus"></span></button>
+        <button type="button"  {{ ns.button_disabled }} class="button-ajouter-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}"><span class="fas fa-plus"></span>{{ " Ajouter une essence" if not ns.button_disabled else "" }}</button>
 
       </div>
 
