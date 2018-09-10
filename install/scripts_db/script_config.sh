@@ -11,7 +11,7 @@ settings_file=${ROOT_DIR}/config/settings.ini
 alias psqlexec='psql -d $db_name -h $db_host -U $user_pg'
 
 sql_dir=install/scripts_db
-dir_data=${ROOT_DIR}/Data
+dir_data=${ROOT_DIR}/data
 
 config_csv=$ROOT_DIR/$sql_dir/config.csv
 
