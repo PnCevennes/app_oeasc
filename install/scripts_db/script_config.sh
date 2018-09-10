@@ -8,7 +8,7 @@ settings_file=${ROOT_DIR}/config/settings.ini
 
 . $settings_file
 
-alias psqlexec='psql -d $db_name -h $db_host -U $user_pg'
+PGPASSWORD=$user_pg_pass
 
 sql_dir=install/scripts_db
 dir_data=${ROOT_DIR}/data
@@ -20,8 +20,9 @@ OEASC_ONF_FRT forets_gestion_onf_pec            CP1250          "dept,'-',ccod_f
 OEASC_ONF_PRF parcellaire_foret_publique_pec    CP1250          "dept,'-',ccod_frt,'-',ccod_prf"                        "ccod_prf,'-',llib_prf"
 OEASC_ONF_UG  unites_gestion_foret_publique_pec latin1          "dept,'-',ccod_frt,'-',ccod_prf,'-',ccod_ug,'-',suffix" "ccod_prf,'-',ccod_ug"
 OEASC_DGD documents_gestion_durable_pec         ISO-8859-1      "proref"                                                "forinsee,'-',fornom"
-OEASC_CADASTRE  cadastre_pec                      windows-1250    "id_parc" "insee_com,'-',section,'-',num_parc"
 EOF
+
+#OEASC_CADASTRE  cadastre_pec                      windows-1250    "id_parc" "insee_com,'-',section,'-',num_parc"
 
 list_name=$(awk '{print $1}' $config_csv)
 for name in $list_name

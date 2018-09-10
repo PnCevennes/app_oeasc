@@ -92,7 +92,7 @@ INSERT INTO ref_geo.bib_areas_types (
 
 EOF
 
-echo "SELECT setval('ref_geo.l_areas_id_area_seq', COALESCE((SELECT MAX(id_area)+1 FROM ref_geo.l_areas), 1), false);" | psql -t -d $db_name -h $db_host -U $user_pg
+echo "SELECT setval('ref_geo.l_areas_id_area_seq', COALESCE((SELECT MAX(id_area)+1 FROM ref_geo.l_areas), 1), false);"
 
 cat << EOF
 
