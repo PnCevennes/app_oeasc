@@ -70,6 +70,9 @@ DROP TABLE IF EXISTS ref_geo.l_areas_cadastre CASCADE;
 DROP TABLE IF EXISTS oeasc.cor_areas_declaration CASCADE;
 
 
+DROP SCHEMA IF EXISTS oeasc CASCADE;
+
+
 DROP TABLE IF EXISTS ref_geo.li_OEASC_ONF_FRT CASCADE;
 
 
@@ -115,6 +118,8 @@ INSERT INTO ref_geo.bib_areas_types (
         (306, 'COMMUNES OEASC', 'OEASC_COMMUNE', 'Communes de l''oeasc', 'OEASC', 2018, ''),
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
         (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, '');
+
+echo "SELECT setval('ref_geo.l_areas_id_area_seq', COALESCE((SELECT MAX(id_area)+1 FROM ref_geo.l_areas), 1), false);" | psql -t -d geonature2db -h localhost -U dbadmin
 
 
 -- communes oeasc

@@ -344,7 +344,7 @@ DROP TABLE IF EXISTS temp;
 CREATE TABLE temp (type text, name text, telephone text, email text, adresse text, code_postal text, commune text);
 
 COPY temp
-    FROM '/home/joel/Info/PNC/OEASC/app_oeasc/install/scripts_db/script_oeasc/liste_proprietaires_publics_oeasc.csv'
+    FROM '${ROOT_DIR}/install/scripts_db/script_oeasc/liste_proprietaires_publics_oeasc.csv'
     WITH DELIMITER ';' CSV QUOTE AS '''';
 
 DELETE FROM oeasc.t_proprietaires;
@@ -365,7 +365,7 @@ DELETE FROM oeasc.t_forets;
 CREATE TABLE temp (dept text, ccod_frt text, nom_proprietaire text);
 
 COPY temp
-    FROM '/home/joel/Info/PNC/OEASC/app_oeasc/install/scripts_db/script_oeasc/liens_proprietaires_publics_forets.csv'
+    FROM '${ROOT_DIR}/install/scripts_db/script_oeasc/liens_proprietaires_publics_forets.csv'
     WITH DELIMITER ';' CSV QUOTE AS '''';
 
 
