@@ -268,6 +268,26 @@ def declaration_dict_random_sample(nomenclature=None):
 
     s_date = str(date)
 
+    nomenclatures_peuplement_paturage_statut = []
+    nomenclatures_peuplement_paturage_type = []
+    id_nomenclature_peuplement_paturage_frequence = None
+
+    b_peuplement_paturage_presence = random.randint(0, 1) == 1
+
+    if b_peuplement_paturage_presence:
+
+        nomenclatures_peuplement_paturage_type = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "id_nomenclature")],
+        nomenclatures_peuplement_paturage_statut = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")],
+        id_nomenclature_peuplement_paturage_frequence = get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "id_nomenclature")
+
+    nomenclatures_peuplement_protection_type = []
+
+    b_peuplement_protection_existence = random.randint(0, 1) == 1
+
+    if b_peuplement_protection_existence:
+
+        nomenclatures_peuplement_protection_type = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PROTECTION_TYPE", "id_nomenclature")]
+
     nomenclatures_peuplement_espece = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ESPECE", "id_nomenclature")]
 
     for elem in nomenclatures_peuplement_espece:
@@ -298,7 +318,6 @@ def declaration_dict_random_sample(nomenclature=None):
 
         'id_nomenclature_peuplement_origine': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ORIGINE", "id_nomenclature"),
         'id_nomenclature_peuplement_type': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_TYPE", "id_nomenclature"),
-        'id_nomenclature_peuplement_paturage_frequence': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "id_nomenclature"),
         'id_nomenclature_peuplement_acces': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ACCES", "id_nomenclature"),
 
         'id_nomenclature_peuplement_essence_principale': get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", v_essences[0], "id_nomenclature"),
@@ -307,10 +326,12 @@ def declaration_dict_random_sample(nomenclature=None):
         'nomenclatures_peuplement_essence_complementaire': [{'id_nomenclature': id} for id in get_nomenclature_sample(nomenclature, "OEASC_PEUPLEMENT_ESSENCE", v_essences[4:7], "id_nomenclature")],
 
         'nomenclatures_peuplement_maturite': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_MATURITE", "id_nomenclature")],
-        'nomenclatures_peuplement_paturage_type': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "id_nomenclature")],
-        'nomenclatures_peuplement_paturage_statut': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")],
 
-        'nomenclatures_peuplement_protection_type': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PROTECTION_TYPE", "id_nomenclature")],
+        'id_nomenclature_peuplement_paturage_frequence': id_nomenclature_peuplement_paturage_frequence,
+        'nomenclatures_peuplement_paturage_type': nomenclatures_peuplement_paturage_type,
+        'nomenclatures_peuplement_paturage_statut': nomenclatures_peuplement_paturage_statut,
+
+        'nomenclatures_peuplement_protection_type': nomenclatures_peuplement_protection_type,
 
         'nomenclatures_peuplement_espece': nomenclatures_peuplement_espece,
 
