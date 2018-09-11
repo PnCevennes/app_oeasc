@@ -17,11 +17,11 @@
 'OEASC_DEGAT_ANTERIORITE';'DA_RECC';'Récurrents';'Récurrents( les dégâts sont constatés de façon régulière depuis plusieurs années)';'OEASC'
 'OEASC_DEGAT_ANTERIORITE';'DA_NSP';'Ne sais pas';'Ne sais pas (l’antériorité des dégâts ne peut être déterminée)';'OEASC'
 
-'OEASC_PEUPLEMENT_ESPECE';'PES_CERF';'Cerf';'Cerf (Obervation d’individus ou indices de présence)';'OEASC'
-'OEASC_PEUPLEMENT_ESPECE';'PES_CHEVREUIL';'Chevreuil';'Chevreuil (Obervation d’individus ou indices de présence)';'OEASC'
-'OEASC_PEUPLEMENT_ESPECE';'PES_SANG';'Sanglier';'Sanglier (Obervation d’individus ou indices de présence)';'OEASC'
-'OEASC_PEUPLEMENT_ESPECE';'PES_MOUF';'Mouflon';'Mouflon (Obervation d’individus ou indices de présence)';'OEASC'
-'OEASC_PEUPLEMENT_ESPECE';'PES_ESP_NSP';'Ne sais pas';'Ne sais pas ( Pas d’obervation d’individus ou indices de présence)';'OEASC'
+'OEASC_PEUPLEMENT_ESPECE';'CERF';'Cerf';'Cerf (Obervation d’individus ou indices de présence)';'OEASC'
+'OEASC_PEUPLEMENT_ESPECE';'CHEVREUIL';'Chevreuil';'Chevreuil (Obervation d’individus ou indices de présence)';'OEASC'
+'OEASC_PEUPLEMENT_ESPECE';'SANG';'Sanglier';'Sanglier (Obervation d’individus ou indices de présence)';'OEASC'
+'OEASC_PEUPLEMENT_ESPECE';'MOUF';'Mouflon';'Mouflon (Obervation d’individus ou indices de présence)';'OEASC'
+'OEASC_PEUPLEMENT_ESPECE';'NSP';'Ne sais pas';'Ne sais pas ( Pas d’obervation d’individus ou indices de présence)';'OEASC'
 
 'OEASC_PEUPLEMENT_ESSENCE';'ALB';'Alisier blanc';'Alisier blanc (feuillu)';'OEASC'
 'OEASC_PEUPLEMENT_ESSENCE';'BOU';'Bouleau';'Bouleau (feuillu)';'OEASC'

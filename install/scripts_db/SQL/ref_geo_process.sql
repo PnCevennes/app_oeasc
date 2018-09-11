@@ -60,7 +60,7 @@ UPDATE ref_geo.l_OEASC_ONF_UG as c
 
 -- l_areas
 
-SELECT pg_terminate_backend(pid), * FROM active_locks;
+-- SELECT pg_terminate_backend(pid), * FROM active_locks;
 
 -- ajouter id_type dans bib_areas_type
 

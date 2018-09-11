@@ -133,7 +133,7 @@ CREATE OR REPLACE FUNCTION ref_nomenclatures.get_nomenclature_id_from_label(
 
 -- oeasc schema
 
-SELECT pg_terminate_backend(pid), * FROM active_locks;
+-- SELECT pg_terminate_backend(pid), * FROM active_locks;
 
 
 DROP SCHEMA IF EXISTS oeasc CASCADE;
