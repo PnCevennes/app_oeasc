@@ -4,4 +4,3 @@ Postgis type: MULTIPOLYGON[2]
 Field qsret_frt is an FTDouble with width 13 and precision 6
 Shapefile type: Polygon
 Postgis type: MULTIPOLYGON[2]
-
