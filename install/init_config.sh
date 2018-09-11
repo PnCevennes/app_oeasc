@@ -1,3 +1,5 @@
+#!/bin/bash
+
 echo "config settings"
 
 if [[ "$ROOT_DIR" = "" ]]; then

@@ -60,7 +60,7 @@ UPDATE ref_geo.l_OEASC_ONF_UG as c
 
 -- l_areas
 
-SELECT pg_terminate_backend(pid), * FROM active_locks;
+-- -- SELECT pg_terminate_backend(pid), * FROM active_locks;
 
 -- ajouter id_type dans bib_areas_type
 
@@ -80,6 +80,9 @@ DROP TABLE IF EXISTS ref_geo.li_OEASC_ONF_UG CASCADE;
 
 
 DROP TABLE IF EXISTS ref_geo.li_OEASC_DGD CASCADE;
+
+
+DROP TABLE IF EXISTS ref_geo.li_OEASC_CADASTRE CASCADE;
 
 
 DROP TABLE IF EXISTS ref_geo.li_oeasc_cadastre CASCADE;
@@ -179,6 +182,11 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
     SELECT ref_geo.get_id_type('OEASC_DGD'), CONCAT(forinsee,'-',fornom), CONCAT(proref), geom, ST_CENTROID(geom), 'OEASC', '', true
     FROM ref_geo.l_OEASC_DGD;
+
+
+INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
+    SELECT ref_geo.get_id_type('OEASC_CADASTRE'), CONCAT(insee_com,'-',section,'-',num_parc), CONCAT(id_parc), geom, ST_CENTROID(geom), 'OEASC', '', true
+    FROM ref_geo.l_OEASC_CADASTRE;
 
 
 -- add column geom_4326
@@ -443,6 +451,6 @@ INSERT INTO ref_geo.li_OEASC_CADASTRE (id_area, area_code, insee_com, nom_com, i
     SELECT la.id_area, la.area_code, insee_com, nom_com, id_parc, annee, section, num_parc,
        surf_parc, cpte_com
 --       , lib_prop, civilite, date_acte, val_droit, nat_dem, type_pers, gr_pers_m, tous_prop
-        FROM ref_geo., ref_geo.l_areas as la
-        WHERE la.id_type = ref_geo.get_id_type('OEASC_CADASTRE') and la.area_code = CONCAT();
+        FROM ref_geo.l_OEASC_CADASTRE, ref_geo.l_areas as la
+        WHERE la.id_type = ref_geo.get_id_type('OEASC_CADASTRE') and la.area_code = CONCAT(id_parc);
 

@@ -9,7 +9,7 @@ config_file=${ROOT_DIR}/install/scripts_db/script_config.sh
 echo ${0##/*/}
 
 psql -b -d $db_name -h $db_host -U $user_pg <<EOF
-SELECT pg_terminate_backend(pid), * FROM active_locks
+-- -- SELECT pg_terminate_backend(pid), * FROM active_locks
 EOF
 
 
