@@ -8,6 +8,21 @@ config_file=${ROOT_DIR}/install/scripts_db/script_config.sh
 
 echo ${0##/*/}
 
+
+#init app
+
+echo "DELETE FROM utilisateurs.t_applications WHERE nom_application='oeasc'" | psql -t -d $db_name -h $db_host -U $user_pg
+
+echo "INSERT INTO utilisateurs.t_applications(
+            id_application, nom_application, desc_application)
+    VALUES (500, 'oeasc', 'application oeasc')
+    " | psql -t -d $db_name -h $db_host -U $user_pg
+
+echo "DELETE FROM utilisateurs.cor_role_droit_application WHERE id_role=1 and id_application=500"
+
+echo "INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_application)
+    VALUES (1, 6, 500)"
+
 echo "DELETE FROM utilisateurs.t_roles WHERE remarques = 'utilisateur test OEASC'" | psql -t -d $db_name -h $db_host -U $user_pg
 
 echo "SELECT setval('utilisateurs.t_roles_id_role_seq', COALESCE((SELECT MAX(id_role)+1 FROM utilisateurs.t_roles), 1), false);" | psql -t -d $db_name -h $db_host -U $user_pg
