@@ -23,7 +23,7 @@ $(document).ready(function() {
 
     if(values == "") {
 
-      values=[];
+      values = [];
 
     }
 

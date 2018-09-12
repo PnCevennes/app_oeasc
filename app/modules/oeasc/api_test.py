@@ -7,11 +7,44 @@ import app.modules.oeasc.utils as utils
 from .repository import (
 
     get_db,
-    get_declarations
+    get_declarations,
+    nomenclature_oeasc,
+    get_declaration_nomenclature,
+    get_dict_nomenclature_areas,
+)
+
+from .declaration_sample import declaration_dict_random_sample
+
+from app.utils.utilssqlalchemy import (
+
+    json_resp
 
 )
 
 bp = Blueprint('oeasc_export', __name__)
+
+
+@bp.route('test_get_nomenclature', methods=['GET'])
+@json_resp
+def test_get_nomenclature():
+
+    declaration = declaration_dict_random_sample()
+
+    nomenclature = nomenclature_oeasc()
+
+    get_dict_nomenclature_areas(declaration, nomenclature)
+    # get_dict_nomenclature_areas(declaration['foret'], nomenclature)
+    # get_dict_nomenclature_areas(declaration['foret']['proprietaire'], nomenclature)
+
+    # for degat in declaration['degats']:
+
+    #     get_dict_nomenclature_areas(degat, nomenclature)
+
+    #     for degat_essence in degat.get('degat_essences', []):
+
+    #         get_dict_nomenclature_areas(degat_essence, nomenclature)
+
+    return declaration
 
 
 @bp.route('csv', methods=['GET'])
@@ -153,3 +186,5 @@ def csv():
                 data.append(d)
 
     return utils.arrays_to_csv(filename, data, colums, separator)
+
+

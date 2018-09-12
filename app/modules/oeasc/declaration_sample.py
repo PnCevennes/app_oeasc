@@ -257,8 +257,8 @@ def declaration_dict_random_sample(nomenclature=None):
 
         return None
 
-    areas_localisation = get_random_areas_localisation(id_area_foret, code_type_parcelle)
-    # areas_localisation = [{"id_area": 204413}]
+    # areas_localisation = get_random_areas_localisation(id_area_foret, code_type_parcelle)
+    areas_localisation = [{"id_area": 204413}]
 
     v_essences = v_rand_nomenclature(nomenclature, 'OEASC_PEUPLEMENT_ESSENCE')
 
@@ -276,8 +276,8 @@ def declaration_dict_random_sample(nomenclature=None):
 
     if b_peuplement_paturage_presence:
 
-        nomenclatures_peuplement_paturage_type = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "id_nomenclature")],
-        nomenclatures_peuplement_paturage_statut = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")],
+        nomenclatures_peuplement_paturage_type = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "id_nomenclature")]
+        nomenclatures_peuplement_paturage_statut = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")]
         id_nomenclature_peuplement_paturage_frequence = get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "id_nomenclature")
 
     nomenclatures_peuplement_protection_type = []
@@ -334,8 +334,6 @@ def declaration_dict_random_sample(nomenclature=None):
         'nomenclatures_peuplement_protection_type': nomenclatures_peuplement_protection_type,
 
         'nomenclatures_peuplement_espece': nomenclatures_peuplement_espece,
-
-
 
         'commentaire': "Un commentaire....",
 

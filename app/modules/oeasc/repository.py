@@ -107,11 +107,15 @@ def get_fonction_droit(function):
     return dict_function.get(function, None)
 
 
-def get_nomenclature_from_id(id_nomenclature, nomenclature, key="label_fr"):
+def get_nomenclature_from_id(id_nomenclature, nomenclature, key=""):
     '''
         retourne un element de nomenclature a partir de son id
         si key == "", retourne l'element entier, sinon juste la clé choisie
     '''
+    if not id_nomenclature:
+
+        return None
+
     for _, nomenclature_type in nomenclature.items():
 
         for elem in nomenclature_type["values"]:
@@ -126,7 +130,99 @@ def get_nomenclature_from_id(id_nomenclature, nomenclature, key="label_fr"):
 
                     return elem
 
-    return ""
+    return None
+
+
+def get_area_from_id(id_area):
+
+    data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
+
+    if not data:
+
+        return None
+
+    out = data.as_dict(columns=['id_area', 'id_type', 'area_name', 'area_code'])
+
+    return out
+
+
+def get_dict_nomenclature_areas(dict_in, nomenclature, indent=[]):
+    '''
+        récupère les nomenclatures et les aires dans un dictionnaire pour les element d'un dictionnaire
+        qui commencent par 'id_nomenclature' ou 'nomenclatures'
+        la fonction est appliquées récursivement aux dictionnaire et aux listes
+    '''
+
+    indent.append('____')
+
+    if not isinstance(dict_in, dict):
+
+        return dict_in
+
+    for key in dict_in:
+
+        if key.startswith("id_nomenclature_"):
+
+            dict_in[key] = get_nomenclature_from_id(dict_in.get(key, None), nomenclature)
+            continue
+
+        if key.startswith("areas"):
+
+            dict_in[key] = [get_area_from_id(elem['id_area']) for elem in dict_in[key]]
+
+        if key.startswith("nomenclatures_"):
+
+            dict_in[key] = [get_nomenclature_from_id(elem['id_nomenclature'], nomenclature) for elem in dict_in[key]]
+            continue
+
+        if isinstance(dict_in[key], dict):
+
+            dict_in[key] = get_dict_nomenclature_areas(dict_in[key], nomenclature, indent)
+            continue
+
+        if isinstance(dict_in[key], list):
+
+            dict_in[key] = [get_dict_nomenclature_areas(elem, nomenclature, indent) for elem in dict_in[key]]
+            continue
+
+        print(key)
+
+    indent.pop()
+
+    return dict_in
+
+
+def get_declaration_nomenclature(declaration, nomenclature):
+
+    type_list = [
+        'id_nomenclature_proprietaire_declarant',
+        'id_nomenclature_paturage_frequence',
+        'id_nomenclature_peuplement_origine',
+        'id_nomenclature_peuplement_type',
+        'id_nomenclature_peuplement_paturage_frequence',
+        'id_nomenclature_peuplement_acces',
+        'id_nomenclature_peuplement_essence_principale',
+    ]
+
+    for type in type_list:
+
+        declaration[type] = get_nomenclature_from_id(declaration.get(type, None), nomenclature)
+
+    v_type_list = [
+        'nomenclatures_peuplement_essence_secondaire',
+        'nomenclatures_peuplement_essence_complementaire',
+        'nomenclatures_peuplement_maturite',
+        'nomenclatures_peuplement_protection_type',
+        'nomenclatures_peuplement_paturage_type',
+        'nomenclatures_peuplement_paturage_statut',
+        'nomenclatures_peuplement_espece',
+    ]
+
+    for type in v_type_list:
+
+        declaration[type] = [get_nomenclature_from_id(elem['id_nomenclature'], nomenclature) for elem in declaration[type]]
+
+    return declaration
 
 
 def dfpu_as_dict(declaration, foret, proprietaire, declarant):
@@ -261,8 +357,12 @@ def get_users():
     return v
 
 
-def nomenclature_oeasc():
 
+def nomenclature_oeasc():
+    '''
+        fonction pour récuprér toutes les nomenclatures qui concernent l'oeasc
+        à l'aide de la commande get_nomenclature_list du module pypnnomenclature
+    '''
     list_data = [
         'OEASC_PEUPLEMENT_ESSENCE',
         'OEASC_PEUPLEMENT_MATURITE',
@@ -293,6 +393,24 @@ def nomenclature_oeasc():
 
         data[code_type] = get_nomenclature_list(code_type=code_type)
         data[code_type]["values"].reverse()
+
+        # on ne garde que les colonnes qui nous intéresse
+
+        cols = ['id_nomenclature', 'mnemonique', 'label_fr']
+
+        values = []
+
+        for d in data[code_type]["values"]:
+
+            d_new = {}
+
+            for key in cols:
+
+                d_new[key] = d.get(key, None)
+
+            values.append(d_new)
+
+        data[code_type]["values"] = values
 
     return data
 
