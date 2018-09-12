@@ -4,4 +4,21 @@
 {%- block title %}Accueil{%- endblock %}
 
 {%- block content %}
+
 {%- endblock %}
+
+{% block js_local %}
+
+{{ super() }}
+
+<script>
+
+  $(document).ready(function() {
+
+    console.log(M.get_db('t_areas', 'id_area', 100));
+
+  });
+
+</script>
+
+{% endblock %}
