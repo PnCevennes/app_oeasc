@@ -73,8 +73,8 @@
                 dataType:"json",
                 success: function(response){
                     console.log(response);
-                    window.location.href = '{{config.URL_APPLICATION}}';
-                    // window.location.href = '{{referrer or config.URL_APPLICATION}}';
+                    // window.location.href = '{{config.URL_APPLICATION}}';
+                    window.location.href = '{{ referrer }}';
                 },
                 error: function(error){
                     $("#login-error" ).show();
