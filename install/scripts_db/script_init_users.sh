@@ -18,10 +18,10 @@ echo "INSERT INTO utilisateurs.t_applications(
     VALUES (500, 'oeasc', 'application oeasc')
     " | psql -t -d $db_name -h $db_host -U $user_pg
 
-echo "DELETE FROM utilisateurs.cor_role_droit_application WHERE id_role=1 and id_application=500"
+echo "DELETE FROM utilisateurs.cor_role_droit_application WHERE id_role=1 and id_application=500" | psql -t -d $db_name -h $db_host -U $user_pg
 
 echo "INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_application)
-    VALUES (1, 6, 500)"
+    VALUES (1, 6, 500)" | psql -t -d $db_name -h $db_host -U $user_pg
 
 echo "DELETE FROM utilisateurs.t_roles WHERE remarques = 'utilisateur test OEASC'" | psql -t -d $db_name -h $db_host -U $user_pg
 
