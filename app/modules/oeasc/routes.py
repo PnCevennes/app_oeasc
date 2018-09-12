@@ -24,17 +24,11 @@ from .utils import (
     # check_foret,
 )
 
-from app.utils.env import (
-    # DB,
-    URL_REDIRECT,
-)
-
-
 bp = Blueprint('oeasc', __name__)
 
 
-@fnauth.check_auth(4, False, URL_REDIRECT)
 @bp.route('/users')
+@fnauth.check_auth(4, False, 'oeasc/login?redirect="oeasc/users"')
 def users():
     '''
         page de connection
@@ -52,7 +46,9 @@ def login():
         page de connection
     '''
 
-    return render_template('modules/oeasc/pages/login.html', config=config, id_app=config.ID_APP, referrer=request.referrer)
+    redirect = request.args.get('redirect', "")
+
+    return render_template('modules/oeasc/pages/login.html', config=config, id_app=config.ID_APP, redirect=redirect)
 
 
 @bp.route('/register')
@@ -93,7 +89,7 @@ def signalement_degats_forestiers():
 
 @bp.route('/modifier_ou_creer_declaration/', defaults={'id_declaration': -1})
 @bp.route('/modifier_ou_creer_declaration/<int:id_declaration>')
-@fnauth.check_auth(1, False, 'oeasc/login')
+@fnauth.check_auth(1, False, 'oeasc/login?redirect="oeasc/modifier_ou_creer_declaration/"')
 def modifier_declaration(id_declaration):
     '''
         page de declaration ou modification de degats forestiers
@@ -140,7 +136,7 @@ def declaration(id_declaration):
 
 
 @bp.route('/declarations')
-@fnauth.check_auth(1, False, 'oeasc/login')
+@fnauth.check_auth(1, False, 'oeasc/login?redirect="oeasc/declarations"')
 def declarations():
     '''
         page affichant la liste de declaration d'un utilisateur et de sa strucutre

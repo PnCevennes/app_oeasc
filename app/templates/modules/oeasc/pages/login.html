@@ -27,7 +27,7 @@
                 </div>
                 <button class="btn btn-default">Login</button>
             </div>
-        </form
+        </form>
 
         <div>
             <p>Si vous ne possédez pas de compte, vous pouvez vous inscrire <a href="{{ url_for('oeasc.register') }}">ici.</a></p>
@@ -47,14 +47,19 @@
 
     $(document).ready(function() {
 
+        "use strict";
+
         $("#login-error").hide();
 
+        var redirection = $(location).attr('origin') + '/'+ '{{ redirect }}'.replace(/\&#34;/g, '');
 
-        login = function(e) {
+        console.log(redirection);
+
+        var login = function(e) {
 
             e.preventDefault();
 
-            data ={
+            var data ={
                 "id_application": $('#user_app').val(),
                 "login": $('#user_id').val(),
                 "password" : $('#user_pwd').val()
@@ -74,7 +79,7 @@
                 success: function(response){
                     console.log(response);
                     // window.location.href = '{{config.URL_APPLICATION}}';
-                    window.location.href = '{{ referrer }}';
+                    window.location.href = redirection;
                 },
                 error: function(error){
                     $("#login-error" ).show();
