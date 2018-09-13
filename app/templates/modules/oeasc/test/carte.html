@@ -1,0 +1,10 @@
+{%- extends "modules/oeasc/layout.html" %}
+
+
+{%- block title %}Accueil{%- endblock %}
+
+{%- block content %}
+
+{{ macros.select_map("areas_localisation", "CADASTRE") }}
+
+{%- endblock %}
