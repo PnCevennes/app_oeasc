@@ -177,7 +177,7 @@ $('#table_declarations tbody tr').on('click', function() {
 
   } else {
 
-    $(this).css( "background-color", "Orange" );
+    $(this).css( "background-color", "orange" );
 
     var index = $(this).index();
 
