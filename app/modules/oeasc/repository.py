@@ -146,14 +146,12 @@ def get_area_from_id(id_area):
     return out
 
 
-def get_dict_nomenclature_areas(dict_in, nomenclature, indent=[]):
+def get_dict_nomenclature_areas(dict_in, nomenclature):
     '''
         récupère les nomenclatures et les aires dans un dictionnaire pour les element d'un dictionnaire
         qui commencent par 'id_nomenclature' ou 'nomenclatures'
         la fonction est appliquées récursivement aux dictionnaire et aux listes
     '''
-
-    indent.append('____')
 
     if not isinstance(dict_in, dict):
 
@@ -177,17 +175,13 @@ def get_dict_nomenclature_areas(dict_in, nomenclature, indent=[]):
 
         if isinstance(dict_in[key], dict):
 
-            dict_in[key] = get_dict_nomenclature_areas(dict_in[key], nomenclature, indent)
+            dict_in[key] = get_dict_nomenclature_areas(dict_in[key], nomenclature)
             continue
 
         if isinstance(dict_in[key], list):
 
-            dict_in[key] = [get_dict_nomenclature_areas(elem, nomenclature, indent) for elem in dict_in[key]]
+            dict_in[key] = [get_dict_nomenclature_areas(elem, nomenclature) for elem in dict_in[key]]
             continue
-
-        print(key)
-
-    indent.pop()
 
     return dict_in
 
@@ -325,6 +319,39 @@ def create_or_modify(model, key, val, dict_in):
     return elem
 
 
+def f_create_or_update_declaration(declaration_dict):
+
+    declaration = proprietaire = foret = None
+
+    id_declaration = declaration_dict.get("id_declaration", None)
+
+    id_foret = declaration_dict["foret"].get("id_foret", None)
+    id_proprietaire = declaration_dict["foret"]["proprietaire"].get("id_proprietaire", None)
+
+    proprietaire = create_or_modify(TProprietaire, 'id_proprietaire', id_proprietaire, declaration_dict["foret"]["proprietaire"])
+
+    declaration_dict['foret']['id_proprietaire'] = proprietaire.id_proprietaire
+
+    foret = create_or_modify(TForet, 'id_foret', id_foret, declaration_dict["foret"])
+
+    declaration_dict['id_foret'] = foret.id_foret
+
+    # pour le cas ou on veut generer une create date en random :
+    # - elle sera crée un fois avec la date courante
+    # - puis modifiée pour lui donner la date choisie aléatoirement
+    if declaration_dict.get("meta_create_date", None):
+
+        print(declaration_dict.get("meta_create_date", None))
+        declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
+        id_declaration = declaration.id_declaration
+
+    declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
+
+    d = dfpu_as_dict(declaration, foret, proprietaire, None)
+
+    return d
+
+
 def get_liste_organismes_oeasc():
     '''
         Retourne la liste des organisme concernés par l'OEASC
@@ -351,8 +378,6 @@ def get_users():
     data = DB.session.query(AppUser).filter(AppUser.id_application == config.ID_APP)
 
     v = [as_dict(d) for d in data]
-
-    print(v)
 
     return v
 

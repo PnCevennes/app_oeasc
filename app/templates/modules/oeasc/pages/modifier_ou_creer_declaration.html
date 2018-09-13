@@ -38,67 +38,79 @@
 
     <div id="infos"></div>
 
-{# <button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_attention" data-target="#modal_attention">
-  Attention
-</button>
+    {# <button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_attention" data-target="#modal_attention">
+      Attention
+    </button>
 
-<div class="modal fade" id="modal_attention" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header btn-danger">
-        <h5 class="modal-title " id="exampleModalLongTitle">Attention!!</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
+    <div class="modal fade" id="modal_attention" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header btn-danger">
+            <h5 class="modal-title " id="exampleModalLongTitle">Attention!!</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <p>Vous êtes sur le point de quitter la page</p>
+            <p>En êtes vous sûr?</p>
+            <p>Les informations renseignées seront perdues.</p>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary">Rester sur la page</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Quitter la page</button>
+          </div>
+        </div>
       </div>
-      <div class="modal-body">
+    </div> #}
 
-        <p>Vous êtes sur le point de quitter la page</p>
-        <p>En êtes vous sûr?</p>
-        <p>Les informations renseignées seront perdues.</p>
+    <button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_merci" data-target="#modal_merci" style="display:none">
+      Merci
+    </button>
 
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary">Rester sur la page</button>
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Quitter la page</button>
+    <div class="modal fade" id="modal_merci" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title " id="exampleModalLongTitle">Information</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btn-close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+
+            <p> Le formulaire a bien été envoyé. </p>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="btn_ok">Ok</button>
+          </div>
+        </div>
       </div>
     </div>
+
   </div>
-</div> #}
-
-<button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_merci" data-target="#modal_merci" style="display:none">
-  Merci
-</button>
-
-<div class="modal fade" id="modal_merci" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title " id="exampleModalLongTitle">Information</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-
-        <p> Le formulaire a bien été envoyé. </p>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary">Ok</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-</div>
 
 </div>
 
 {%- endblock %}
 
 {%- block js_local %}
+<script>
 
+  $(document).ready(function() {
+
+    $("btn_ok").click(function(){
+
+      $("btn-close").click();
+
+    })
+
+  });
+
+</script>
 {{ super() }}
 
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_form.js') }}"></script>

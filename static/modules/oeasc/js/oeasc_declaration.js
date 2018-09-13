@@ -3,6 +3,8 @@ $(document).ready(function() {
   "use strict";
 
 
+  M.declaration_effectuee = false;
+
   // pour retrouver le formulaire en cours
 
   var get_id_form = function() {
@@ -367,7 +369,12 @@ $(document).ready(function() {
     f_init_fil_ariane("#fil_local a");
 
     window.onbeforeunload = function(){
-      return confirm('Etes vous sur de vouloir quitter la page ?');
+
+      if (!M.declaration_effectuee) {
+
+        return confirm('Etes vous sur de vouloir quitter la page ?');
+
+      }
     };
 
   };
@@ -420,6 +427,9 @@ $(document).ready(function() {
 
         },
       }).done(function(response) {
+
+        M.declaration_effectuee=true
+
 
         console.log("done : " + this.url);
         console.log(response);

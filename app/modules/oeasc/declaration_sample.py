@@ -257,8 +257,8 @@ def declaration_dict_random_sample(nomenclature=None):
 
         return None
 
-    # areas_localisation = get_random_areas_localisation(id_area_foret, code_type_parcelle)
-    areas_localisation = [{"id_area": 204413}]
+    # areas_localisation = [{"id_area": 204413}]
+    areas_localisation = get_random_areas_localisation(id_area_foret, code_type_parcelle)
 
     v_essences = v_rand_nomenclature(nomenclature, 'OEASC_PEUPLEMENT_ESSENCE')
 

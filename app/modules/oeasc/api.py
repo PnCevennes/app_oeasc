@@ -9,11 +9,10 @@ from flask import (
 
 from .repository import (
     nomenclature_oeasc,
-    create_or_modify,
-    dfpu_as_dict,
     get_declarations,
     get_liste_communes,
     get_db,
+    f_create_or_update_declaration,
 )
 
 from .declaration_sample import declaration_dict_random_sample
@@ -143,39 +142,6 @@ def random_populate(nb):
         print("i", i, nb, declaration_dict["id_declaration"], declaration_dict["foret"]["nom_foret"], "public", declaration_dict["foret"]["b_statut_public"], "documenté", declaration_dict["foret"]["b_document"])
 
     return "ok"
-
-
-def f_create_or_update_declaration(declaration_dict):
-
-    declaration = proprietaire = foret = None
-
-    id_declaration = declaration_dict.get("id_declaration", None)
-
-    id_foret = declaration_dict["foret"].get("id_foret", None)
-    id_proprietaire = declaration_dict["foret"]["proprietaire"].get("id_proprietaire", None)
-
-    proprietaire = create_or_modify(TProprietaire, 'id_proprietaire', id_proprietaire, declaration_dict["foret"]["proprietaire"])
-
-    declaration_dict['foret']['id_proprietaire'] = proprietaire.id_proprietaire
-
-    foret = create_or_modify(TForet, 'id_foret', id_foret, declaration_dict["foret"])
-
-    declaration_dict['id_foret'] = foret.id_foret
-
-    # pour le cas ou on veut generer une create date en random :
-    # - elle sera crée un fois avec la date courante
-    # - puis modifiée pour lui donner la date choisie aléatoirement
-    if declaration_dict.get("meta_create_date", None):
-
-        declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
-        id_declaration = declaration.id_declaration
-
-    declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
-
-    d = dfpu_as_dict(declaration, foret, proprietaire, None)
-
-    return d
-
 
 @bp.route('create_or_update_declaration', methods=['POST'])
 @json_resp

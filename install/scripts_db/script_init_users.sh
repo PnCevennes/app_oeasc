@@ -11,7 +11,7 @@ echo ${0##/*/}
 
 #init app
 
-echo "DELETE FROM utilisateurs.t_applications WHERE nom_application='oeasc'" | psql -t -d $db_name -h $db_host -U $user_pg
+echo "DELETE FROM utilisateurs.t_applications WHERE nom_application='oeasc' OR id_application=500" | psql -t -d $db_name -h $db_host -U $user_pg
 
 echo "INSERT INTO utilisateurs.t_applications(
             id_application, nom_application, desc_application)

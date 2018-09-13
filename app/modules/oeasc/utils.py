@@ -1,4 +1,4 @@
-import datetime
+from dateutil import parser
 
 from app.utils.env import DB
 
@@ -213,11 +213,8 @@ def get_gravite(declaration_dict, nomenclature):
 def print_date(s_date):
     """
         pour affichage dans tableau
-
-        s_date str
     """
-
-    return datetime.datetime.strptime(s_date, "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+    return parser.parse(s_date).strftime("%Y-%m-%d")
 
 
 def print_commune(s_commune):
