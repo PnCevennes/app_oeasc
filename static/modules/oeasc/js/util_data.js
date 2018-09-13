@@ -76,13 +76,17 @@ $(document).ready(function() {
   var get_areas_cor = function(name, data_type) {
 
     // return get_from_flask_json($("#form_" + name).attr(data_type));
-    return JSON.parse($("#form_" + name).attr(data_type));
+    var s = $("#form_" + name).attr(data_type);
 
-    // var s = $("#form_" + name).attr(data_type).replace(/\'/g, '"').replace(/None/g, 'null');
+    if( s == "" ) {
 
-    // var d = JSON.parse(s);
+      return [];
 
-    // return d;
+    }
+
+    // s = s.replace(/None/g, 'null');
+
+    return JSON.parse(s);
 
   };
 
@@ -291,5 +295,5 @@ $(document).ready(function() {
   M.get_foret_as_dict=get_foret_as_dict;
   M.get_degats_as_dict=get_degats_as_dict;
   M.get_cor = get_cor;
-  M.get_from_flask_json = get_from_flask_json;
+  // M.get_from_flask_json = get_from_flask_json;
 });

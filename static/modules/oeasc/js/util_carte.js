@@ -284,7 +284,6 @@ $(document).ready(function() {
 
     }
 
-
     M.set_areas_cor(map.map_name, "data-areas", $select.val(), data_type_2, val);
 
   };

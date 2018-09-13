@@ -7,7 +7,7 @@
   <div id="data_declarations">
 
     {%- for declaration in declarations %}
-    <div class="data-declaration" data-declaration='{{ declaration | tojson }}' style="display:none;"></div>
+    <div class="data-declaration" data-declaration='{{ declaration | tojson if declaration else "" }}' style="display:none;"></div>
     {%- endfor %}
 
   </div>
