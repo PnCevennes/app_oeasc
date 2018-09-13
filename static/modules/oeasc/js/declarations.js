@@ -195,8 +195,6 @@ $('#table_declarations tbody tr').on('click', function() {
 
     M.markers.eachLayer(function(l){
 
-      // l.closePopup()
-
       if(l.id_declaration == id_declaration) {
 
         M.markers.zoomToShowLayer(l, function(){l.openPopup()});
