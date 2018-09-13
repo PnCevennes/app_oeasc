@@ -356,7 +356,8 @@ $('#table_declarations tbody tr').on('click', function() {
 
     $(".data-declaration").each(function(){
 
-      var declaration = M.get_from_flask_json($(this).attr("data-declaration"));
+      // var declaration = M.get_from_flask_json($(this).attr("data-declaration"));
+      var declaration = JSON.parse($(this).attr("data-declaration"));
       declarations.push(declaration);
 
     });

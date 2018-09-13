@@ -585,13 +585,13 @@ def json_resp(fn):
     def _json_resp(*args, **kwargs):
         res = fn(*args, **kwargs)
         if isinstance(res, tuple):
-            return to_json_resp(*res)
+            return tojson_resp(*res)
         else:
-            return to_json_resp(res)
+            return tojson_resp(res)
     return _json_resp
 
 
-def to_json_resp(
+def tojson_resp(
 
     res,
     status=200,

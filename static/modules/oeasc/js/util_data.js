@@ -52,30 +52,31 @@ $(document).ready(function() {
   };
 
 
-  var get_from_flask_json = function(s) {
+  // var get_from_flask_json = function(s) {
 
-    s = s.replace(/{\'/g, '{"');
-    s = s.replace(/\'}/g, '"}');
-    s = s.replace(/\':/g, '":');
-    s = s.replace(/: \'/g, ': "');
-    s = s.replace(/, \'/g, ', "');
-    s = s.replace(/\',/g, '",');
-    s = s.replace(/\\xa0/g, '');
-    s = s.replace(/\[\'/g, '["');
-    s = s.replace(/\'\]/g, '"]');
+  //   s = s.replace(/{\'/g, '{"');
+  //   s = s.replace(/\'}/g, '"}');
+  //   s = s.replace(/\':/g, '":');
+  //   s = s.replace(/: \'/g, ': "');
+  //   s = s.replace(/, \'/g, ', "');
+  //   s = s.replace(/\',/g, '",');
+  //   s = s.replace(/\\xa0/g, '');
+  //   s = s.replace(/\[\'/g, '["');
+  //   s = s.replace(/\'\]/g, '"]');
 
-    s = s.replace(/None/g, 'null');
-    s = s.replace(/True/g, 'true');
-    s = s.replace(/False/g, 'false');
+  //   s = s.replace(/None/g, 'null');
+  //   s = s.replace(/True/g, 'true');
+  //   s = s.replace(/False/g, 'false');
 
-    return JSON.parse(s);
+  //   return JSON.parse(s);
 
-  };
+  // };
 
 
   var get_areas_cor = function(name, data_type) {
 
-    return get_from_flask_json($("#form_" + name).attr(data_type));
+    // return get_from_flask_json($("#form_" + name).attr(data_type));
+    return JSON.parse($("#form_" + name).attr(data_type));
 
     // var s = $("#form_" + name).attr(data_type).replace(/\'/g, '"').replace(/None/g, 'null');
 

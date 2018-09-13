@@ -97,7 +97,7 @@
       <h5>Autres</h5>
       <ul>
         <li>Accessibilité du peuplement : {{ declaration.id_nomenclature_peuplement_acces.label_fr }}</li>
-        <li>Espèce(s) avérée(s) : {%- for cor in declaration.nomenclatures_peuplement_espece %} {{ cor.label_fr, nomenclature) }} {%- endfor %}</li>
+        <li>Espèce(s) avérée(s) : {%- for cor in declaration.nomenclatures_peuplement_espece %} {{ cor.label_fr }} {%- endfor %}</li>
       </ul>
 
     </div>

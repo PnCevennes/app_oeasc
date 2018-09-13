@@ -230,9 +230,10 @@
 
 {%- endmacro %}
 
+
 {%- macro select_map(name, localisation_type, areas, areas_container=[]) %}
 
-<form id="form_{{ name }}" data-localisation-type="{{localisation_type}}" data-areas="{{ areas }}" data-areas-container="{{ areas_container }}">
+<form id="form_{{ name }}" data-localisation-type="{{localisation_type}}" data-areas="{{ areas | tojson }}" data-areas-container="{{ areas_container }}">
 
   <h4>Localisation </h4>
 

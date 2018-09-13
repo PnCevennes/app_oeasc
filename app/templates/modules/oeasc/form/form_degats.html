@@ -36,7 +36,7 @@
 
 
       {%- set degat = degats[ns.ind] %}
-      {%- set mnemonique_degat_type = degat["id_nomenclature_degat_type"].mnemonique) %}
+      {%- set mnemonique_degat_type = degat["id_nomenclature_degat_type"].mnemonique %}
       {%- endif %}
 
 
@@ -66,9 +66,9 @@
       <div class="custom-control degat-essence-container" >
 
         {%- set selected_essences_locale = [] %}
-        {%- set n_degat_essences = degat["degat_essences"]|length %}
+        {%- set n_degat_essences = (degat["degat_essences"] | length) %}
 
-        {%- if n_degat_essences > 0 %}
+        {%- if ( n_degat_essences > 0 ) %}
 
         {%- set degat_essences = degat["degat_essences"] %}
 

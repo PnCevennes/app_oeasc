@@ -10,7 +10,6 @@ $(document).ready(function() {
 
     if(map) {
 
-
       console.log("reset");
       map.eachLayer(function(l) {
 
@@ -252,10 +251,11 @@ $(document).ready(function() {
 
         }
 
-
         var fp = {
+
           name: name_container,
           area_code: area_code,
+
         };
 
         M.f_add_feature_collection_to_map(map, name, fp);
@@ -266,8 +266,8 @@ $(document).ready(function() {
 
   };
 
-
   M.initialiser_form_localisation = initialiser_form_localisation;
   M.initialiser_show_localisation = initialiser_show_localisation;
   M.initialiser_show_declarations =initialiser_show_declarations;
+
 });
