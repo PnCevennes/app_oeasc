@@ -38,14 +38,14 @@
 
       <ul>
 
-        <li>Principale : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</li>
+        <li>Principale : {{ declaration.id_nomenclature_peuplement_essence_principale.label_fr }}</li>
 
         {%- if declaration.nomenclatures_peuplement_essence_secondaire | length %}
-        <li>Secondaire(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_secondaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+        <li>Secondaire(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_secondaire %} {{ cor.label_fr }} {%- endfor %} </li>
         {%- endif %}
 
         {%- if declaration.nomenclatures_peuplement_essence_complementaire | length %}
-        <li>Complémentaires(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_complementaire %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+        <li>Complémentaires(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_complementaire %} {{ cor.label_fr }} {%- endfor %} </li>
         {%- endif %}
 
       </ul>
@@ -54,12 +54,12 @@
       <h5>Détails</h5>
 
       <ul>
-        <li>Origine du peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_origine, nomenclature) }} </li>
-        <li>Type de peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_type, nomenclature) }} </li>
+        <li>Origine du peuplement : {{ declaration.id_nomenclature_peuplement_origine.label_fr }} </li>
+        <li>Type de peuplement : {{ declaration.id_nomenclature_peuplement_type.label_fr }} </li>
 
-        {%- if  mnemonique_peuplement_type != "Mél." %}
+        {%- if  declaration.id_nomenclature_peuplement_type.mnemonique != "F. irr." %}
 
-        <li>Maturité du peuplement : {%- for cor in declaration.nomenclatures_peuplement_maturite %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+        <li>Maturité du peuplement : {%- for cor in declaration.nomenclatures_peuplement_maturite %} {{ cor.label_fr }} {%- endfor %} </li>
 
         {%- endif %}
 
@@ -73,7 +73,7 @@
 
         {%- if declaration['b_peuplement_protection_existence'] %}
 
-        <li>Type de protection : {%- for cor in declaration.nomenclatures_peuplement_protection_type %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
+        <li>Type de protection : {%- for cor in declaration.nomenclatures_peuplement_protection_type %} {{ cor.label_fr }} {%- endfor %} </li>
 
         {%- endif %}
 
@@ -86,9 +86,9 @@
 
         {%- if declaration['b_peuplement_paturage_presence'] %}
 
-        <li>Type de paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_type %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
-        <li>Statut du paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_statut %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %} </li>
-        <li>Fréquence du paturage : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_paturage_frequence, nomenclature) }} </li>
+        <li>Type de paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_type %} {{ cor.label_fr }} {%- endfor %} </li>
+        <li>Statut du paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_statut %} {{ cor.label_fr }} {%- endfor %} </li>
+        <li>Fréquence du paturage : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr }} </li>
 
         {%- endif %}
 
@@ -96,8 +96,8 @@
 
       <h5>Autres</h5>
       <ul>
-        <li>Accessibilité du peuplement : {{ utils.get_nomenclature_from_id(declaration.id_nomenclature_peuplement_acces, nomenclature) }}</li>
-        <li>Espèce(s) avérée(s) : {%- for cor in declaration.nomenclatures_peuplement_espece %} {{ utils.get_nomenclature_from_id(cor.id_nomenclature, nomenclature) }} {%- endfor %}</li>
+        <li>Accessibilité du peuplement : {{ declaration.id_nomenclature_peuplement_acces.label_fr }}</li>
+        <li>Espèce(s) avérée(s) : {%- for cor in declaration.nomenclatures_peuplement_espece %} {{ cor.label_fr, nomenclature) }} {%- endfor %}</li>
       </ul>
 
     </div>
@@ -108,13 +108,13 @@
 
       <ul>
         {%- for degat in declaration.degats %}
-        <li>  {{ utils.get_nomenclature_from_id(degat.id_nomenclature_degat_type, nomenclature) }}
+        <li>  {{ degat.id_nomenclature_degat_type.labe_fr }}
           <ul>
             {%- for degat_essence in degat['degat_essences'] %}
-            <li>{{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature) }}
-            {% if utils.get_nomenclature_from_id(degat.id_nomenclature_degat_type, nomenclature, 'mnemonique') != 'ABS' %}
+            <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr }}
+            {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
 
-              : {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_etendue, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_gravite, nomenclature) }}, {{ utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_anteriorite, nomenclature) }}
+              : {{ degat_essence.id_nomenclature_degat_etendue.label_fr }}, {{ degat_essence.id_nomenclature_degat_gravite.label_fr }}, {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr }}
              {% endif %}
             </li>
             {%- endfor %}

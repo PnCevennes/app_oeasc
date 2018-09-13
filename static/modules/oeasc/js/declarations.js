@@ -114,15 +114,15 @@ $(document).ready(function() {
     if(table.listen_visibility) {
 
       init_column_search();
-      
+
     }
 
   });
 
 
-// survol des markers
+// click sur les markers
 
-$(document).on("marker_mouseover", function(e, id_declaration){
+$(document).on("marker_click", function(e, id_declaration){
 
 
   var table_filtered = table.rows( { filter : 'applied'} ).data()
@@ -131,31 +131,25 @@ $(document).on("marker_mouseover", function(e, id_declaration){
 
     if( parseInt(e[0]) == id_declaration) {
 
-      $('.dataTables_scrollBody').animate({
-        // scrollTop: $('#table_declarations tbody tr').eq(i).offset().top - $('.dataTables_scrollBody').offset().top
-        scrollTop: $('#table_declarations tbody tr').eq(i).offset().top - $('#table_declarations tbody tr').eq(0).offset().top
-      }, 800);
+      if($('#table_declarations tbody tr').eq(i).css("background-color") == ("orange")) {
 
-      console.log($('#table_declarations tbody tr').eq(i).offset().top, $('.dataTables_scrollBody').offset().top);
-      console.log($('#table_declarations tbody tr').eq(i).offset().top - $('.dataTables_scrollBody').offset().top);
-      $('#table_declarations tbody tr').eq(i).css( "background-color", "Orange" );
+        $('#table_declarations tbody tr').eq(i).css("background-color", "" );
 
-    }
+      } else {
 
-  })
+        $('.dataTables_scrollBody').animate({
+          scrollTop: $('#table_declarations tbody tr').eq(i).offset().top - $('#table_declarations tbody tr').eq(0).offset().top
+        }, 800);
 
-});
+        console.log($('#table_declarations tbody tr').eq(i).offset().top, $('.dataTables_scrollBody').offset().top);
+        console.log($('#table_declarations tbody tr').eq(i).offset().top - $('.dataTables_scrollBody').offset().top);
+        $('#table_declarations tbody tr').eq(i).css("background-color", "Orange" );
 
-$(document).on("marker_mouseout", function(e, id_declaration){
+      }
 
-  var table_filtered = table.rows( { filter : 'applied'} ).data()
+    } else {
 
-  table_filtered.each(function(e,i){
-
-    if( parseInt(e[0]) == id_declaration) {
-      $('#table_declarations tbody tr').eq(i).css( "background-color", "" );
-
-      // $('#table_declarations tbody tr').eq(i).removeClass('row-selected');
+      $('#table_declarations tbody tr').eq(i).css("background-color", "" );
 
     }
 
@@ -164,53 +158,48 @@ $(document).on("marker_mouseout", function(e, id_declaration){
 });
 
 
-$('#table_declarations tbody tr').on('mouseover', function() {
-
-  $(this).css( "background-color", "Orange" );
-
-  var index = $(this).index();
-
-  var table_filtered = table.rows( { filter : 'applied'} ).data()
-
-  var id_declaration = parseInt(table_filtered[index][0]);
-
-  M.markers.eachLayer(function(l){
-
-    l.closePopup()
-
-    if(l.id_declaration == id_declaration) {
-
-      // console.log("a");
-      M.markers.zoomToShowLayer(l, function(){l.openPopup()});
-      // l.openPopup();
-// M.markers.disableClusteringAtZoom=1;
-    }
-
-  });
-
-});
+$('#table_declarations tbody tr').on('click', function() {
 
 
-$('#table_declarations tbody tr').on('mouseout', function() {
+  if($('#table_declarations tbody tr').eq(i).css("background-color") == ("orange")) {
 
-  $(this).css( "background-color", "" );
+    $(this).css( "background-color", "" );
 
-  var index = $(this).index();
+    M.markers.eachLayer(function(l){
 
-  var table_filtered = table.rows( { filter : 'applied'} ).data()
+      if(l.id_declaration == id_declaration) {
 
-  var id_declaration = parseInt(table_filtered[index][0]);
+        M.markers.zoomToShowLayer(l, function(){l.closePopup()});
 
-// M.markers.zoomToBounds();
+      }
 
-  M.markers.eachLayer(function(l){
+    });
 
-    l.closePopup();
+  } else {
 
-  });
+    $(this).css( "background-color", "Orange" );
+
+    var index = $(this).index();
+
+    var table_filtered = table.rows( { filter : 'applied'} ).data()
+
+    var id_declaration = parseInt(table_filtered[index][0]);
+
+    M.markers.eachLayer(function(l){
+
+      // l.closePopup()
+
+      if(l.id_declaration == id_declaration) {
+
+        M.markers.zoomToShowLayer(l, function(){l.openPopup()});
+
+      }
+
+    });
+
+  }
 
 });
-
 
 
   // synchronisation de la carte avec les filtres du tableau

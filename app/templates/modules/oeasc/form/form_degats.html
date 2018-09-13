@@ -36,7 +36,7 @@
 
 
       {%- set degat = degats[ns.ind] %}
-      {%- set mnemonique_degat_type = utils.get_nomenclature_from_id(degat["id_nomenclature_degat_type"], nomenclature, "mnemonique") %}
+      {%- set mnemonique_degat_type = degat["id_nomenclature_degat_type"].mnemonique) %}
       {%- endif %}
 
 
@@ -85,11 +85,11 @@
         {%- if degat_essence["id_nomenclature_degat_essence"]|string != "" and degat_essence["id_nomenclature_degat_essence"] != None %}
 
         <div class="strayed degat-essence" >
-          <div> {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_essence, nomenclature)}} </div>
+          <div> {{degat_essence.id_nomenclature_degat_essence.label_fr}} </div>
           {%- if mnemonique_degat_type != "ABS" %}
-          <div> {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_etendue, nomenclature)}} </div>
-          <div> {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_gravite, nomenclature)}} </div>
-          <div> {{utils.get_nomenclature_from_id(degat_essence.id_nomenclature_degat_anteriorite, nomenclature)}} </div>
+          <div> {{degat_essence.id_nomenclature_degat_etendue.label_fr}} </div>
+          <div> {{degat_essence.id_nomenclature_degat_gravite.label_fr}} </div>
+          <div> {{degat_essence.id_nomenclature_degat_anteriorite.label_fr}} </div>
           {%- else %}
           <div></div>
           <div></div>

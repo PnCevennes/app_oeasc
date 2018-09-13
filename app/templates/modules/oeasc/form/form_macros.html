@@ -56,9 +56,7 @@
 
   {%- if multi == "multi" %}
 
-    {%- for d in object[name] %}
-
-      {%- set elem = utils.get_nomenclature_from_id(d["id_nomenclature"], nomenclature, "") %}
+    {%- for elem in object[name] %}
 
       <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
@@ -68,7 +66,7 @@
 
     {%- if object[name] %}
 
-      {%- set elem = utils.get_nomenclature_from_id(object[name], nomenclature, "") %}
+      {%- set elem = object[name] %}
 
       <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
@@ -78,9 +76,7 @@
 
   {%- if afficher_type_essence == "" %}
 
-    {%- for ind in listes_essences["degats"][id_nomenclature_degat_type] %}
-
-      {%- set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
+    {%- for elem in listes_essences["degats"][id_nomenclature_degat_type] %}
 
       <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
@@ -90,9 +86,8 @@
 
       <optgroup label="Feuillus">
 
-    {%- for ind in listes_essences["feuillus"] %}
+    {%- for elem in listes_essences["feuillus"] %}
 
-      {%- set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
         <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
     {%- endfor %}
@@ -100,9 +95,8 @@
       </optgroup>
       <optgroup label="Résineux">
 
-    {%- for ind in listes_essences["resineux"] %}
+    {%- for elem in listes_essences["resineux"] %}
 
-      {%- set elem = utils.get_nomenclature_from_id(ind, nomenclature, "") %}
         <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
     {%- endfor %}
@@ -118,7 +112,7 @@
 {%- endmacro %}
 
 
-{%- macro select(name, nomenclature, mnemonique, titre="", object=None, required="required") %}
+{# {%- macro select(name, nomenclature, mnemonique, titre="", object=None, required="required") %}
 
   <div id="{{ name | upper }}">
 
@@ -133,9 +127,7 @@
 
     <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}} data-width="fit">
 
-  {%- for d in object[name] %}
-
-    {%- set elem = utils.get_nomenclature_from_id(d["id_nomenclature"], nomenclature, "") %}
+  {%- for elem in object[name] %}
 
       <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
 
@@ -167,11 +159,10 @@
 
 </div>
 
-{%- endmacro %}
+{%- endmacro %} #}
 
 
 {%- macro radio_nomenclature(name, nomenclature, mnemonique, type, titre="", object=None, add="") %}
-
 
 {%- if type == "checkbox" %}
 

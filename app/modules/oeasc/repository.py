@@ -498,12 +498,16 @@ def get_declarations(b_synthese, id_declarant=None):
 
         id_declarations = [d[0] for d in data]
 
+    nomenclature = nomenclature_oeasc()
+
     declarations = []
 
     for id_declaration in id_declarations:
 
         declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
         declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
+
+        get_dict_nomenclature_areas(declaration_dict, nomenclature)
 
         declarations.append(declaration_dict)
 

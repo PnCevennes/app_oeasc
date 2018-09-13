@@ -751,31 +751,25 @@ $(document).ready(function() {
         // s_popup += '</div>';
 
         var marker = L.marker(response, { pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
-        
-          marker.id_declaration = declaration.id_declaration;
 
-          if(b_cluster) {
+        marker.id_declaration = declaration.id_declaration;
 
-            M.markers.addLayer(marker);
+        if(b_cluster) {
 
-          } else {
+          M.markers.addLayer(marker);
 
-            map.addLayer(marker);
+        } else {
 
-          }
+          map.addLayer(marker);
 
-          marker.on("mouseover", function() {
+        }
 
-            $(document).trigger("marker_mouseover", [this.id_declaration]);
+        marker.on("click", function() {
 
-          });
-        
-          marker.on("mouseout", function() {
+          $(document).trigger("marker_click", [this.id_declaration]);
 
-            $(document).trigger("marker_mouseout", [this.id_declaration]);
+        });
 
-          });
-        
         $("#" + map.map_name + " #chargement").hide();
 
       }

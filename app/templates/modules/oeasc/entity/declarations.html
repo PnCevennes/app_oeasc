@@ -1,6 +1,6 @@
 {%- block declarations %}
 
-{%- macro tooltip_mnemonique(id, nomenclature) %}<span data-toggle="tooltip" title="{{utils.get_nomenclature_from_id(id, nomenclature)}}">{{utils.get_nomenclature_from_id(id, nomenclature, 'mnemonique')}}</span>{%- endmacro %}
+{%- macro tooltip_mnemonique(elem) %}<span data-toggle="tooltip" title="{{elem.label_fr}}">{{elem.mnemonique}}</span>{%- endmacro %}
 
 <div id="declarations">
 
@@ -90,7 +90,7 @@
 
               <td>
                 {%- for area in declaration['areas_localisation'] %}
-                {{utils.print_parcelle(utils.get_db("t_areas", "id_area", area.id_area).area_name)}}{{ "," if not loop.last else "" }}
+                {{area.area_name}}{{ "," if not loop.last else "" }}
                 {%- endfor %}
               </td>
               {# <td>{{ "Public" if declaration['foret']['b_statut_public'] else "Privé"}}</td> 
@@ -105,22 +105,22 @@
 
               {%- endif %} #}
               <td>
-                <b>{{ tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale, nomenclature) }}</b>{%- for id in declaration.nomenclatures_peuplement_essence_secondaire %}, {{tooltip_mnemonique(id.id_nomenclature, nomenclature)}}{%- endfor %}.
+                <b>{{ tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale) }}</b>{%- for elem in declaration.nomenclatures_peuplement_essence_secondaire %}, {{tooltip_mnemonique(elem)}}{%- endfor %}.
               </td>
 
-              <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_type, nomenclature)}}</td>
+              <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_type)}}</td>
 
-              <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine, nomenclature)}}</td>
+              <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine)}}</td>
 
               <td>
                 {%- for degat in declaration["degats"] %}
-                {{ tooltip_mnemonique(degat.id_nomenclature_degat_type, nomenclature) }}{{ "," if not loop.last else "" }}
+                {{ tooltip_mnemonique(degat.id_nomenclature_degat_type) }}{{ "," if not loop.last else "" }}
 
                 {%- if degat["degat_essences"] and false%}
 
                 : {%- for degat_essence in degat["degat_essences"] %}
 
-                {{ tooltip_mnemonique(degat_essence.id_nomenclature_degat_essence, nomenclature) }}
+                {{ tooltip_mnemonique(degat_essence.id_nomenclature_degat_essence) }}
                 {{ "," if not loop.last else "" }}
 
                 {%- endfor %}
