@@ -131,7 +131,7 @@ $(document).on("marker_click", function(e, id_declaration){
 
     if( parseInt(e[0]) == id_declaration) {
 
-      if($('#table_declarations tbody tr').eq(i).css("background-color") == ("orange")) {
+      if($('#table_declarations tbody tr').eq(i).css("background-color") == "rgb(255, 165, 0)") {
 
         $('#table_declarations tbody tr').eq(i).css("background-color", "" );
 
@@ -160,16 +160,24 @@ $(document).on("marker_click", function(e, id_declaration){
 
 $('#table_declarations tbody tr').on('click', function() {
 
+  var $this = $(this);
 
-  if($('#table_declarations tbody tr').eq(i).css("background-color") == ("orange")) {
 
-    $(this).css( "background-color", "" );
+  $('#table_declarations tbody tr').css( "background-color", "" );
+
+  if($this.css("background-color") == "rgb(255, 165, 0)" ) {
+
+    $this.css( "background-color", "" );
 
     M.markers.eachLayer(function(l){
 
       if(l.id_declaration == id_declaration) {
 
-        M.markers.zoomToShowLayer(l, function(){l.closePopup()});
+        M.markers.zoomToShowLayer(l, function() {
+
+          l.closePopup();
+
+        });
 
       }
 
@@ -177,9 +185,9 @@ $('#table_declarations tbody tr').on('click', function() {
 
   } else {
 
-    $(this).css( "background-color", "orange" );
+    $this.css( "background-color", "orange" );
 
-    var index = $(this).index();
+    var index = $this.index();
 
     var table_filtered = table.rows( { filter : 'applied'} ).data()
 
