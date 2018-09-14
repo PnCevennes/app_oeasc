@@ -8,6 +8,17 @@ config_file=${ROOT_DIR}/install/scripts_db/script_config.sh
 
 cat << EOF
 
+CREATE OR REPLACE FUNCTION array_sort_unique (ANYARRAY) RETURNS ANYARRAY
+LANGUAGE SQL
+AS $body$
+  SELECT ARRAY(
+    SELECT DISTINCT $1[s.i]
+    FROM generate_series(array_lower($1,1), array_upper($1,1)) AS s(i)
+    ORDER BY 1
+  );
+$body$;
+
+
 -- Function: ref_geo.get_id_type(character varying)
 
 DROP FUNCTION IF EXISTS ref_geo.get_id_type(character varying) CASCADE;

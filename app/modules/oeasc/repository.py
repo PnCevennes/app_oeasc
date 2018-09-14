@@ -414,10 +414,10 @@ def nomenclature_oeasc():
 
     data = {}
 
-    for code_type in list_data:
+    for type_code in list_data:
 
-        data[code_type] = get_nomenclature_list(code_type=code_type)
-        data[code_type]["values"].reverse()
+        data[type_code] = get_nomenclature_list(type_code=type_code)
+        data[type_code]["values"].reverse()
 
         # on ne garde que les colonnes qui nous intéresse
 
@@ -425,7 +425,7 @@ def nomenclature_oeasc():
 
         values = []
 
-        for d in data[code_type]["values"]:
+        for d in data[type_code]["values"]:
 
             d_new = {}
 
@@ -435,7 +435,7 @@ def nomenclature_oeasc():
 
             values.append(d_new)
 
-        data[code_type]["values"] = values
+        data[type_code]["values"] = values
 
     return data
 

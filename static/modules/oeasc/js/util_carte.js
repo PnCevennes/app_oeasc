@@ -218,7 +218,9 @@ $(document).ready(function() {
 
     var fp = layer.feature.properties;
 
-    var ls = M.d_ls[layer.feature.properties.name];
+    var name = layer.feature.properties.name;
+
+    var ls = M.d_ls[name];
 
     if(layer.selected) {
 
@@ -243,7 +245,7 @@ $(document).ready(function() {
 
       });
 
-      if( ! ls.select_multi ) {
+      if( ! $select.prop("multiple") ) {
 
         $select.find("option:selected").prop("selected", false);
 
@@ -271,13 +273,13 @@ $(document).ready(function() {
     var data_type_2 = ""
     var val = null;
 
-    if(map.map_name == "areas_foret") {
+    if( M.type_codes_areas_foret.indexOf(map.map_name)>= 0 ) {
 
       data_type_2 ="id_foret";
       val = parseInt($("#form_foret").attr("data-id-foret"));
     }
 
-    if(map.map_name == "areas_localisation") {
+    if( M.type_codes_areas_localisation.indexOf(map.map_name )>= 0 ) {
 
       data_type_2 ="id_declaration";
       val = parseInt($("#form_declaration").attr("data-id-declaration"));
@@ -363,7 +365,12 @@ $(document).ready(function() {
 
     $("#form_" + map.map_name + " #chargement").hide();
 
-    deferred_setBounds(feature_collection.getBounds(), map);
+    var ls = M.d_ls[name];
+    if(ls.featuresCollection) {
+
+      deferred_setBounds(ls.featuresCollection.getBounds(), map);
+
+    }
 
     // selection et affichage
     var localisation_type = $("#form_" + map.map_name).attr("data-localisation-type");
@@ -428,7 +435,7 @@ $(document).ready(function() {
   };
 
 
-  var f_add_feature_collection_to_map = function (map, name, fp=null) {
+  var f_add_feature_collection_to_map = function (map, name, id_area_container=null) {
 
     var d_ls = M.d_ls;
 
@@ -437,22 +444,18 @@ $(document).ready(function() {
     $('#' + name).show();
 
     var ls = d_ls[name];
-    var url = ls.url;
-    url+= "l/";
+
+    var url_base = "/api/ref_geo/areas_from_type_code/";
+    var url= "l/";
     url+= name;
 
-    if(fp) {
+    if(id_area_container) {
 
-      url+= "/-/" + fp.name + "/" + fp.area_code;
-
+      url_base = "/api/ref_geo/areas_from_type_code_container/";
+      url += "/" + id_area_container;
     }
 
-    else {
-
-      url+= "/-/OEASC_PERIMETRE";
-
-    }
-
+    url = url_base + url
     // requete ajax des aires
 
     var featuresCollection = new L.GeoJSON.AJAX(
@@ -626,7 +629,7 @@ $(document).ready(function() {
 
     legend.addTo(map);
 
-    var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas/l/OEASC_PERIMETRE', {style: M.style.oeasc, pane: 'PANE_0'}).addTo(map);
+    var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_from_type_code/l/OEASC_PERIMETRE', {style: M.style.oeasc, pane: 'PANE_0'}).addTo(map);
     l_perimetre_OEASC.on("data:loaded", function(){ map.fitBounds(this.getBounds());});
     M.l_perimetre_OEASC = l_perimetre_OEASC;
 

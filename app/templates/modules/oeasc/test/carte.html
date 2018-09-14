@@ -9,7 +9,8 @@
 
 {%- block content %}
 
-{{ macros.select_map("areas_foret", "COMMUNE", [{"id_area":18375,"id_foret":"None"},{"id_area":18419,"id_foret":None}]) }}
+{{ macros.select_map(data.type_code, [], areas_container=data.areas_container) }}
+{# {{ macros.select_map(data.type_code, [], areas_container=[{'id_area':data.id_area_container}, {'id_area':data.id_area_container+1}]) }} #}
 
 {%- endblock %}
 
@@ -26,7 +27,45 @@
 
   $(document).ready(function() {
 
-    M.initialiser_form_localisation("areas_foret")
+    d_next = {
+
+      'OEASC_COMMUNE' : 'OEASC_SECTION',
+      'OEASC_DGD' : 'OEASC_CADASTRE',
+      'OEASC_SECTION' : 'OEASC_CADASTRE',
+      'OEASC_ONF_FRT' : 'OEASC_ONF_PRF',
+      'OEASC_ONF_PRF' : 'OEASC_ONF_UG',
+    }
+
+    M.initialiser_form_localisation("{{ data.type_code }}")
+
+    $('form').submit(function(e) {
+
+      e.preventDefault();
+
+      var type_code = $("form").attr("data-type-code");
+      var areas = JSON.parse($("form").attr("data-areas"));
+
+      var id_areas = []
+
+      for(var i=0; i<areas.length; i++) {
+
+        id_areas.push("" + areas[i]["id_area"]);
+
+      }
+
+      id_areas = id_areas.join(",");
+
+      console.log(type_code, areas, id_areas)
+
+      var url_base = $(location).attr('origin') + '/test/carte/'
+
+      if(d_next[type_code]) {
+
+        window.location.href = url_base + d_next[type_code] +"/" + id_areas;
+      }
+
+
+    });
 
   });
 

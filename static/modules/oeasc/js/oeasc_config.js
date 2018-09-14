@@ -17,12 +17,13 @@ $(document).ready(function() {
   color.p3 = '#006600';
   color.selected = '#fd8d3c';
 
-  color.OEASC_ONF_FRT = color.p1;
+  color.OEASC_ONF_FRT = color.p2;
   color.OEASC_ONF_PRF = color.p2;
-  color.OEASC_ONF_UG = color.p3;
-  color.OEASC_DGD = color.p1;
-  color.OEASC_COMMUNE = color.p1;
-  color.OEASC_CADASTRE = color.p3;
+  color.OEASC_ONF_UG = color.p2;
+  color.OEASC_DGD = color.p2;
+  color.OEASC_COMMUNE = color.p2;
+  color.OEASC_CADASTRE = color.p2;
+  color.OEASC_SECTION = color.p2;
   color.LOCALISATION_SELECTION = color.selected;
 
   color.foret = color.p1
@@ -87,7 +88,6 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_ONF_FRT = {
     name: "OEASC_ONF_FRT",
-    url: "/api/ref_geo/areas/",
     label: "ONF : Forêt",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_ONF_FRT,
@@ -96,27 +96,22 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_ONF_PRF = {
     name: "OEASC_ONF_PRF",
-    url: "/api/ref_geo/areas/",
     label: "ONF : Parcelle",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_ONF_PRF,
     pane: 2,
-    select_multi: true,
   };
 
   d_ls.OEASC_ONF_UG = {
     name: "OEASC_ONF_UG",
-    url: "/api/ref_geo/areas/",
     label: "ONF : Unité de gestion",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_ONF_UG,
     pane: 3,
-    select_multi: true,
   };
 
   d_ls.OEASC_DGD = {
     name: "OEASC_DGD",
-    url: "/api/ref_geo/areas/",
     label: "Document de gestion durable",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_DGD,
@@ -125,27 +120,57 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_COMMUNE = {
     name: "OEASC_COMMUNE",
-    url: "/api/ref_geo/areas/",
     label: "Commune",
     keys: [ "area_name" ],
     color: color.OEASC_COMMUNE,
     pane: 1,
-    select_multi: true,
+  };
+
+  d_ls.OEASC_SECTION = {
+    name: "OEASC_SECTION",
+    label: "Section",
+    keys: [ "area_name" ],
+    color: color.OEASC_SECTION,
+    pane: 1,
   };
 
   d_ls.OEASC_CADASTRE = {
     name: "OEASC_CADASTRE",
-    url: "/api/ref_geo/areas/",
     label: "Cadastre",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_CADASTRE,
     pane: 2,
-    select_multi: true,
   };
 
 // formulaire
 
 var list = {};
+
+var type_codes_areas_localisation = [
+
+  "OEASC_COMMUNE",
+  "OEASC_DGD",
+  "OEASC_ONF_FRT",
+  "OEASC_SECTION",
+
+];
+
+var type_codes_areas_foret = [
+
+  "OEASC_COMMUNE",
+  "OEASC_DGD",
+  "OEASC_ONF_FRT",
+  "OEASC_SECTION",
+
+];
+
+var type_codes_areas_localisation = [
+
+  "OEASC_CADASTRE",
+  "OEASC_ONF_UG",
+  "OEASC_ONF_PRF",
+
+]
 
 list.data=[
 "OEASC_ONF_FRT",
@@ -169,6 +194,9 @@ M.stripes = stripes;
 M.list = list;
 
 M.d_ls = d_ls;
+
+M.type_codes_areas_localisation = type_codes_areas_localisation;
+M.type_codes_areas_foret = type_codes_areas_foret;
 
 
 });

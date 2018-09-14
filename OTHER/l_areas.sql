@@ -9,14 +9,14 @@ AS $body$
 $body$;
 
 
-DROP TABLE IF EXISTS temp;
+DROP TABLE IF EXISTS ref_geo.cor_old_communes;
 
-CREATE TABLE IF NOT EXISTS temp(
+CREATE TABLE IF NOT EXISTS ref_geo.cor_old_communes(
 area_code character varying, 
 area_code2 character varying
 );
 
-INSERT INTO temp
+INSERT INTO ref_geo.cor_old_communes
 SELECT l.area_code, a.area_code
 --SELECT l.area_code, array_sort_unique(array_agg(a.area_code)) 
 --, array_sort_unique(array_agg(a.area_name)), array_sort_unique(array_agg(a.area_code))
@@ -28,18 +28,24 @@ AND l.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
 GROUP BY l.area_code, a.area_code
 ORDER BY l.area_code;
 
-SELECT *
-FROM temp;
+CREATE OR REPLACE FUNCTION ref_geo.get_old_communes(
+    IN myarea_code character varying)
 
-SELECT area_name
-FROM ref_geo.l_areas
-WHERE id_type = ref_geo.get_id_type('OEASC_CADASTRE')
-LIMIT 10;
+  RETURNS TABLE(area_code character varying) AS
+$BODY$
+        BEGIN
+            RETURN QUERY
 
-SELECT t.area_code, l.area_code, l.area_name
-FROM ref_geo.l_areas as l, temp as t
-WHERE l.area_name LIKE CONCAT(t.area_code2, '%')
-AND t.area_code='48166'
-AND l.id_type = ref_geo.get_id_type('OEASC_CADASTRE')
-ORDER BY t.area_code2
+                SELECT t.area_code2
+			FROM ref_geo.cor_old_communes as t
+			WHERE t.area_code=myarea_code
+			ORDER BY t.area_code2;
 
+          END;
+    $BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100
+  ROWS 1000;
+
+SELECT ref_geo.get_old_communes('48116');
+SELECT * FROM temp ORDER BY area_code;

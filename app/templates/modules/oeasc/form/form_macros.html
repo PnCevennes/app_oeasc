@@ -231,9 +231,11 @@
 {%- endmacro %}
 
 
-{%- macro select_map(name, localisation_type, areas, areas_container=[]) %}
+{%- macro select_map(type_code, areas, titre="", b_multiple=true, type_code_container="", areas_container=[]) %}
 
-<form id="form_{{ name }}" data-localisation-type="{{localisation_type}}" data-areas='{{ areas|tojson }}' data-areas-container='{{ areas_container|tojson }}'>
+  {%- set  name = type_code %}
+
+<form id="form_{{ name }}" data-type-code='{{ type_code }}' data-areas='{{ areas|tojson }}' data-type-code-container='{{ type_code_container }}' data-areas-container='{{ areas_container|tojson }}'>
 
   <h4>Localisation </h4>
 
@@ -243,8 +245,8 @@
 
     <div class="col-md-8">
 
-      <div id="form_localisation_map_{{ name }}">
-        <div id="map_{{name}}" class="map"></div>
+      <div id="form_localisation_map_{{ type_code }}">
+        <div id="map_{{type_code}}" class="map"></div>
         <div id="infos_map" class="infos_map"></div>
         <div id="chargement">
           <div>Chargement en cours <span class="fa fa-spinner"></span></div>
@@ -255,31 +257,20 @@
 
     <div class="col-md-4">
 
-      {%- set ns = namespace( multiple = 'multiple data-actions-box="true"' ) %}
-
-      {%- if localisation_type in ("ONF_FRT", "DGD") %}
-
-        {%- set ns.multiple = '' %}
-        {%- set ns.nom_type = "forêts" %}
-
-      {%- elif localisation_type == "COMMUNE" %}
-
-        {%- set ns.nom_type = "communes" %}
-
-      {%- elif localisation_type == "CADASTRE" %}
-
-        {%- set ns.nom_type = "parcelles cadastrales" %}
-
-      {%- elif localisation_type == "ONF_PRF" %}
-
-        {%- set ns.nom_type = "parcelles ONF" %}
-
-      {%- endif %}
-
       <div class="localisation-select">
 
-        <div><label for="{{ name }}">Sélection des {{ns.nom_type}}<span class="rouge">*</span></label></div>
-        <select name="{{ name }}" id="{{ name }}" title="Choisir un element dans la liste" {{ ns.multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
+        {% if b_multiple %}
+
+          {% set multiple = 'multiple data-actions-box="true"' %}
+
+        {% else %}
+
+          {% set multiple = '' %}
+
+        {% endif %}
+
+        <div><label for="{{ name }}">{{ titre }}<span class="rouge">*</span></label></div>
+        <select name="{{ name }}" id="{{ name }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
         </select>
       </div>
 

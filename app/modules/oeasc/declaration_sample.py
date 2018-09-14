@@ -105,35 +105,35 @@ def proprietaire_dict_random_sample(nomenclature=None):
     return proprietaire
 
 
-def get_code_type_statut_document(b_statut_public, b_document, type):
+def get_type_code_statut_document(b_statut_public, b_document, type):
 
-    code_type = ""
+    type_code = ""
 
     if type == "foret":
 
         if b_statut_public and b_document:
 
-            code_type = 'OEASC_ONF_FRT'
+            type_code = 'OEASC_ONF_FRT'
 
         elif (not b_statut_public) and b_document:
 
-            code_type = 'OEASC_DGD'
+            type_code = 'OEASC_DGD'
 
         else:
 
-            code_type = 'OEASC_COMMUNE'
+            type_code = 'OEASC_COMMUNE'
 
     if type == "parcelle":
 
         if b_statut_public and b_document:
 
-            code_type = 'OEASC_ONF_PRF'
+            type_code = 'OEASC_ONF_PRF'
 
         else:
 
-            code_type = 'OEASC_CADASTRE'
+            type_code = 'OEASC_CADASTRE'
 
-    return code_type
+    return type_code
 
 
 def foret_dict_random_sample(nomenclature=None):
@@ -145,7 +145,7 @@ def foret_dict_random_sample(nomenclature=None):
         b_statut_public = random.randint(0, 1) == 1
         b_document = random.randint(0, 1) == 1
 
-    id_type_foret = get_id_type(get_code_type_statut_document(b_statut_public, b_document, "foret"))
+    id_type_foret = get_id_type(get_type_code_statut_document(b_statut_public, b_document, "foret"))
 
     areas = DB.session.query(TAreas.id_area).filter(TAreas.id_type == id_type_foret).filter(TAreas.enable).all()
 
@@ -215,9 +215,9 @@ def get_random_id_declarant():
     return id_declarant
 
 
-def get_random_areas_localisation(id_area_foret, code_type_parcelle):
+def get_random_areas_localisation(id_area_foret, type_code_parcelle):
 
-    sql_text = text("SELECT ref_geo.intersect_rel_area({}, '{}', 0.05)".format(id_area_foret, code_type_parcelle))
+    sql_text = text("SELECT ref_geo.intersect_rel_area({}, '{}', 0.05)".format(id_area_foret, type_code_parcelle))
     data = DB.engine.execute(sql_text)
     v = [d[0] for d in data]
 
@@ -243,7 +243,7 @@ def declaration_dict_random_sample(nomenclature=None):
 
     id_area_foret = foret['areas_foret'][0]['id_area']
 
-    code_type_parcelle = get_code_type_statut_document(b_statut_public, b_document, "parcelle")
+    type_code_parcelle = get_type_code_statut_document(b_statut_public, b_document, "parcelle")
 
     id_declarant = get_random_id_declarant()
 
@@ -258,7 +258,7 @@ def declaration_dict_random_sample(nomenclature=None):
         return None
 
     # areas_localisation = [{"id_area": 204413}]
-    areas_localisation = get_random_areas_localisation(id_area_foret, code_type_parcelle)
+    areas_localisation = get_random_areas_localisation(id_area_foret, type_code_parcelle)
 
     v_essences = v_rand_nomenclature(nomenclature, 'OEASC_PEUPLEMENT_ESSENCE')
 
