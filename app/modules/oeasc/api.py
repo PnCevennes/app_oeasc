@@ -10,9 +10,9 @@ from flask import (
 from .repository import (
     nomenclature_oeasc,
     get_declarations,
-    get_liste_communes,
     get_db,
     f_create_or_update_declaration,
+    get_dict_nomenclature_areas,
 )
 
 from .declaration_sample import declaration_dict_random_sample
@@ -95,8 +95,9 @@ def get_form_declaration():
     check_foret(declaration_dict)
     check_proprietaire(declaration_dict, nomenclature)
 
+    get_dict_nomenclature_areas(declaration_dict, nomenclature)
+
     listes_essences = get_listes_essences(declaration_dict)
-    declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
 
     return render_template('modules/oeasc/form/form_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 

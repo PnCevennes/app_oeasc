@@ -93,6 +93,7 @@
     {%- endfor %}
 
       </optgroup>
+
       <optgroup label="Résineux">
 
     {%- for elem in listes_essences["resineux"] %}
@@ -192,7 +193,7 @@
 
     {%- else %}
 
-      {%- if elem.id_nomenclature|string == object[name]|string %}
+      {%- if elem.id_nomenclature|string == object[name]["id_nomenclature"]|string %}
         {%- set ns.checked = "checked" %}
       {%- endif %}
 
@@ -211,8 +212,8 @@
 
 {%- endmacro %}
 
-{%- macro input_text(name, titre="", object=None, required="required") %}
 
+{%- macro input_text(name, titre="", object=None, required="required") %}
 
 <div id="{{ name | upper }}">
   <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
@@ -231,15 +232,19 @@
 {%- endmacro %}
 
 
-{%- macro select_map(type_code, areas, titre="", b_multiple=true, type_code_container="", areas_container=[]) %}
+{%- macro select_map(type_code, areas, type_code_container="", titre="", b_multiple=true) %}
 
-  {%- set  name = type_code %}
+  {% set areas_container = utils.get_areas_from_type_code(areas, type_code_container) %}
 
-<form id="form_{{ name }}" data-type-code='{{ type_code }}' data-areas='{{ areas|tojson }}' data-type-code-container='{{ type_code_container }}' data-areas-container='{{ areas_container|tojson }}'>
+  {% if area_container != [] or type_code_container == "" %}
+
+  {% set areas_selected = utils.get_areas_from_type_code(areas, type_code) %}
+
+<div id="select_map_{{ type_code }}" class="select_map" data-type-code='{{ type_code }}'  data-type-code-container='{{ type_code_container }}'>
 
   <h4>Localisation </h4>
 
-  <p>Veuillez choisir un élément sur la carte ou dans la liste.<label for="tooltip_{{ name }}"></label></p>
+  <p>Veuillez choisir un élément sur la carte ou dans la liste.<label for="tooltip_{{ type_code }}"></label></p>
 
   <div class="row">
 
@@ -269,8 +274,8 @@
 
         {% endif %}
 
-        <div><label for="{{ name }}">{{ titre }}<span class="rouge">*</span></label></div>
-        <select name="{{ name }}" id="{{ name }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
+        <div><label for="{{ type_code }}">{{ titre }}<span class="rouge">*</span></label></div>
+        <select name="{{ type_code }}" id="{{ type_code }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
         </select>
       </div>
 
@@ -278,9 +283,8 @@
 
   </div>
 
+</div>
 
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
-
-</form>
+  {% endif %}
 
 {%- endmacro %}

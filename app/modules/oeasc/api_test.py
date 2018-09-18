@@ -24,9 +24,9 @@ from app.utils.utilssqlalchemy import (
 bp = Blueprint('oeasc_export', __name__)
 
 
-@bp.route('test_get_nomenclature', methods=['GET'])
+@bp.route('get_nomenclature', methods=['GET'])
 @json_resp
-def test_get_nomenclature():
+def get_nomenclature():
 
     declaration = declaration_dict_random_sample()
 

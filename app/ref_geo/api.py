@@ -188,23 +188,22 @@ def get_areas_from_type_code_container(data_type, type_code, id_area_container):
 
         data = data.all()
 
-
         data2 = []
 
         for d in data:
 
-            a = DB.session.query(
+            # a = DB.session.query(
 
-                func.ST_AREA(func.ST_INTERSECTION(d.geom_4326, container.geom_4326)) * (
-                    1.0 / (func.ST_AREA(d.geom_4326) + 1.0 / container_area))).first()[0]
+            #     func.ST_AREA(func.ST_INTERSECTION(d.geom_4326, container.geom_4326)) * (
+            #         1.0 / (func.ST_AREA(d.geom_4326) + 1.0 / container_area))).first()[0]
 
             ia = DB.session.query(func.ST_AREA(func.ST_INTERSECTION(d.geom_4326, container.geom_4326))).first()[0]
 
             da = DB.session.query(func.ST_AREA(d.geom_4326)).first()[0]
 
-            print(a, container_area, ia, da, )
+            print(container_area, ia, da)
 
-            rel = ia*(1./container_area + 1./da)
+            rel = ia * (1. / container_area + 1. / da)
 
             if rel > 0.05:
                 data2.append(d)
@@ -213,7 +212,6 @@ def get_areas_from_type_code_container(data_type, type_code, id_area_container):
         # data = DB.session.query(table).filter(table.id_area == data.c.id_area).filter(func.ST_AREA(
         #     func.ST_INTERSECTION(data.c.geom_4326, container.geom_4326)) * ((
         #         1.0 / (func.ST_AREA(data.c.geom_4326) + 1.0 / container_area))) >= 0.01)
-
 
         if data_type == 'l':
 

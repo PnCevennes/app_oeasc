@@ -275,8 +275,8 @@ $(document).ready(function() {
 
     });
 
-
   };
+
 
   var initialiser_form = function(id_form=null) {
 
@@ -372,7 +372,7 @@ $(document).ready(function() {
 
       if (!M.declaration_effectuee) {
 
-        return confirm('Etes vous sur de vouloir quitter la page ?');
+        // return confirm('Etes vous sur de vouloir quitter la page ?');
 
       }
     };
@@ -389,14 +389,30 @@ $(document).ready(function() {
     var next = M.d_config_form[id].next;
     var prev = M.d_config_form[id].prev;
 
+    var id_form = get_id_form();
+
     if(next) {
 
-      if(get_id_form() == "all") {
+      if(id_form == "all") {
 
         recharger_form(null, "all");
         $([document.documentElement, document.body]).animate({
           scrollTop: $("#" + next).offset().top - 100
         }, 300);
+
+      }
+
+      else if(["form_areas_foret", "form_areas_localisation"].indexOf(id_form) >= 0) {
+
+        var type_code = $("#" + id_form + " .select_map").attr("data-type-code");
+
+        if(["OEASC_COMMUNE", "OEASC_ONF_PRF"].indexOf(type_code) >= 0) {
+
+          next = id_form;
+
+        }
+
+          recharger_form(null, next);
 
       }
 

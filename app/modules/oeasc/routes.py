@@ -14,7 +14,6 @@ from .repository import (
     get_users,
     dfpu_as_dict_from_id_declaration,
     get_declarations,
-    get_liste_communes,
 )
 
 from config import config
@@ -127,8 +126,6 @@ def declaration(id_declaration):
     if((not declaration_dict.get('id_declaration', None)) and (id_declaration != -1)):
 
         return "la declaration id_declaration : " + str(id_declaration) + " n'existe pas"
-
-    declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
 
     nomenclature = nomenclature_oeasc()
 

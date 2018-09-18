@@ -20,6 +20,10 @@ from pypnusershub.db.models import (
 
 from app.ref_geo.models import TAreas
 
+from app.ref_geo.repository import (
+    get_type_code,
+)
+
 from .models import (
     TDeclaration,
     TForet,
@@ -27,31 +31,31 @@ from .models import (
 )
 
 
-def get_liste_communes(declaration):
+# def get_liste_communes(declaration):
 
-    areas = declaration["foret"]["areas_foret"]
+#     areas = declaration["foret"]["areas_foret"]
 
-    communes = []
+#     communes = []
 
-    for area in areas:
+#     for area in areas:
 
-        id_area = area["id_area"]
+#         id_area = area["id_area"]
 
-        sql_text = text("SELECT b.area_name \
-         FROM ref_geo.l_areas as b, \
-         (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_COMMUNE',0.05) as id_com, geom\
-             FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l\
-             WHERE l.id_area = " + str(id_area) + " AND l.id_area = c.id_area) a\
-         WHERE b.id_area = a.id_com\
-         ORDER BY a.area_name, b.area_name;")
+#         sql_text = text("SELECT b.area_name \
+#          FROM ref_geo.l_areas as b, \
+#          (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_COMMUNE',0.05) as id_com, geom\
+#              FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l\
+#              WHERE l.id_area = " + str(id_area) + " AND l.id_area = c.id_area) a\
+#          WHERE b.id_area = a.id_com\
+#          ORDER BY a.area_name, b.area_name;")
 
-        data = DB.engine.execute(sql_text)
+#         data = DB.engine.execute(sql_text)
 
-        for d in data:
-            if d[0] not in communes:
-                communes.append(d[0])
+#         for d in data:
+#             if d[0] not in communes:
+#                 communes.append(d[0])
 
-    return communes
+#     return communes
 
 
 def get_organisme_name_from_id_organisme(id_organisme):
@@ -142,6 +146,8 @@ def get_area_from_id(id_area):
         return None
 
     out = data.as_dict(columns=['id_area', 'id_type', 'area_name', 'area_code'])
+
+    out['type_code'] = get_type_code(out['id_type'])
 
     return out
 
@@ -416,7 +422,7 @@ def nomenclature_oeasc():
 
     for type_code in list_data:
 
-        data[type_code] = get_nomenclature_list(type_code=type_code)
+        data[type_code] = get_nomenclature_list(code_type=type_code)
         data[type_code]["values"].reverse()
 
         # on ne garde que les colonnes qui nous intéresse
@@ -505,7 +511,6 @@ def get_declarations(b_synthese, id_declarant=None):
     for id_declaration in id_declarations:
 
         declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
-        declaration_dict["foret"]["communes"] = get_liste_communes(declaration_dict)
 
         get_dict_nomenclature_areas(declaration_dict, nomenclature)
 

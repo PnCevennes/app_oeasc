@@ -84,7 +84,7 @@ with app.app_context():
     app.register_blueprint(oeasc_api.bp, url_prefix='/api/oeasc')
 
     from app.modules.oeasc import api_test as api_test
-    app.register_blueprint(api_test.bp, url_prefix='/api_test')
+    app.register_blueprint(api_test.bp, url_prefix='/api/test')
 
     from app.modules.oeasc import route_test as route_test
     app.register_blueprint(route_test.bp, url_prefix='/test')

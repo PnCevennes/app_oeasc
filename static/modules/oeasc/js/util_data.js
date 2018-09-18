@@ -2,6 +2,7 @@ $(document).ready(function() {
 
   "use strict";
 
+
   var get_choice = function(name) {
 
     var b = $("[name=" + name + "]:checked").val();
@@ -17,9 +18,16 @@ $(document).ready(function() {
   };
 
 
-  var set_areas_cor = function(name, data_type, val, data_type_2, val_2) {
+  var set_areas_cor = function(form_id, type_code, val, data_type_2, val_2) {
 
-    var values = $('#' + name).val();
+    // form_id "form_area_foret" ou "form_area_localisation"
+    // type_code OEASC_CADASTRE, ect...
+    // data_type_2 id_declaration ou id_foret
+
+    var v_init = get_areas_cor(form_id);
+    v_init = v_init.filter(area => area.type_code != type_code);
+
+    var values = $('#' + type_code).val();
 
     if(values == "") {
 
@@ -38,57 +46,49 @@ $(document).ready(function() {
     for(var i=0; i<values.length; i++) {
 
       var d = {};
+
       d.id_area = parseInt(values[i]);
       d[data_type_2] = val_2;
+      d["type_code"] = type_code;
 
       v.push(d);
 
     }
 
+    v = v_init.concat(v);
+
     var s = JSON.stringify(v);
 
-    $("#form_" + name).attr(data_type, s);
+    $("#" + form_id).attr("data-areas", s);
 
   };
 
 
-  // var get_from_flask_json = function(s) {
+  var get_areas_cor = function(form_id, type_code="") {
 
-  //   s = s.replace(/{\'/g, '{"');
-  //   s = s.replace(/\'}/g, '"}');
-  //   s = s.replace(/\':/g, '":');
-  //   s = s.replace(/: \'/g, ': "');
-  //   s = s.replace(/, \'/g, ', "');
-  //   s = s.replace(/\',/g, '",');
-  //   s = s.replace(/\\xa0/g, '');
-  //   s = s.replace(/\[\'/g, '["');
-  //   s = s.replace(/\'\]/g, '"]');
+    // form_id "form_area_foret" ou "form_area_localisation"
+    // type_code OEASC_CADASTRE, ect...
 
-  //   s = s.replace(/None/g, 'null');
-  //   s = s.replace(/True/g, 'true');
-  //   s = s.replace(/False/g, 'false');
+    var s = $("#" + form_id).attr("data-areas");
 
-  //   return JSON.parse(s);
-
-  // };
-
-
-  var get_areas_cor = function(name, data_type) {
-
-    // return get_from_flask_json($("#form_" + name).attr(data_type));
-    var s = $("#form_" + name).attr(data_type);
-
-    if( s == "" ) {
+    if(!s) {
 
       return [];
 
     }
 
-    // s = s.replace(/None/g, 'null');
+    var out = JSON.parse(s);
 
-    return JSON.parse(s);
+    if(type_code) {
+
+      out = out.filter(area => area.type_code == type_code);
+
+    }
+
+    return out;
 
   };
+
 
   var get_cor = function(name, id_name,type="select") {
 
@@ -158,7 +158,7 @@ $(document).ready(function() {
     foret.proprietaire = get_id_proprietaire_as_dict();
     foret.id_proprietaire = foret.proprietaire.id_proprietaire;
 
-    foret.areas_foret = get_areas_cor("areas_foret", "data-areas");
+    foret.areas_foret = get_areas_cor("form_areas_foret");
 
     foret.superficie = parseInt($("#superficie").val());
 
@@ -195,7 +195,7 @@ $(document).ready(function() {
     // - localisation
 
     // declaration.id_nomenclature_foret_type = parseInt($("[name=id_nomenclature_foret_type] option:selected").val());
-    declaration.areas_localisation = get_areas_cor("areas_localisation", "data-areas");
+    declaration.areas_localisation = get_areas_cor("form_areas_localisation");
 
     // - peuplement
 

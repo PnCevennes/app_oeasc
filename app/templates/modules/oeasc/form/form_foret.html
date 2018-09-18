@@ -26,22 +26,43 @@
 
 </form>
 
-{%- if foret['b_statut_public'] and foret['b_document'] %}
+<form id="form_areas_foret" data-areas='{{ foret["areas_foret"]|tojson if foret["areas_foret"] is defined else [] }}'>
 
-  {%- set ns.localisation_type = "ONF_FRT" %}
+{# cas ONF #}
+{%- if foret['b_statut_public'] == true and foret['b_document'] == true %}
 
-{%- elif foret['b_statut_public']==false and foret['b_document'] %}
+  {{ macros.select_map("OEASC_ONF_FRT", foret['areas_foret']) }}
 
-  {%- set ns.localisation_type = "DGD" %}
+{# cas DGD #}
+{%- elif foret['b_statut_public']==false and foret['b_document'] ==true %}
 
-{%- elif foret['b_document']==false %}
+  {{ macros.select_map("OEASC_DGD", foret["areas_foret"]) }}
 
-  {%- set ns.localisation_type = "COMMUNE" %}
+{# cas autres (communes et sections) #}
+{%- elif foret['b_document'] == false %}
+
+  {% if utils.get_areas_from_type_code(foret["areas_foret"], "OEASC_COMMUNE") == [] %}
+
+    {{ macros.select_map("OEASC_COMMUNE", foret["areas_foret"]) }}
+
+  {% endif %}
+
+  {% if utils.get_areas_from_type_code(foret["areas_foret"], "OEASC_COMMUNE") %}
+
+    {{ macros.select_map("OEASC_SECTION", foret["areas_foret"], "OEASC_COMMUNE") }}
+
+  {% endif %}
 
 {%- endif %}
 
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
-{{ macros.select_map("areas_foret", ns.localisation_type, foret["areas_foret"]) }}
+</form>
+
+{# {{ macros.select_map("areas_foret", ns.localisation_type, foret["areas_foret"]) }} #}
+
+
+
 
 {#
   <form id="form_proprietaire_declarant">

@@ -272,21 +272,24 @@ $(document).ready(function() {
 
     var data_type_2 = ""
     var val = null;
+    var form_name;
 
     if( M.type_codes_areas_foret.indexOf(map.map_name)>= 0 ) {
 
+      form_name = "form_areas_foret"
       data_type_2 ="id_foret";
       val = parseInt($("#form_foret").attr("data-id-foret"));
     }
 
     if( M.type_codes_areas_localisation.indexOf(map.map_name )>= 0 ) {
 
+      form_name = "form_areas_declaration";
       data_type_2 ="id_declaration";
       val = parseInt($("#form_declaration").attr("data-id-declaration"));
 
     }
 
-    M.set_areas_cor(map.map_name, "data-areas", $select.val(), data_type_2, val);
+    M.set_areas_cor(form_name, name, $select.val(), data_type_2, val);
 
   };
 
@@ -363,7 +366,7 @@ $(document).ready(function() {
 
     }
 
-    $("#form_" + map.map_name + " #chargement").hide();
+    $("#select_map_" + map.map_name + " #chargement").hide();
 
     var ls = M.d_ls[name];
     if(ls.featuresCollection) {
@@ -373,15 +376,15 @@ $(document).ready(function() {
     }
 
     // selection et affichage
-    var localisation_type = $("#form_" + map.map_name).attr("data-localisation-type");
-
-    var areas = M.get_areas_cor(map.map_name, "data-areas");
+    var form_id = $select_layer.parents("form").attr("id");
+    var areas = M.get_areas_cor(form_id, name);
 
     for(var i=0; i < areas.length; i++) {
 
       var l = get_layer(map, 'id_area', areas[i].id_area);
 
       if(l) {
+
         f_select_layer(l, map);
 
       }
@@ -439,7 +442,7 @@ $(document).ready(function() {
 
     var d_ls = M.d_ls;
 
-    $("#form_" + map.map_name + " #chargement").show();
+    $("#select_map_" + map.map_name + " #chargement").show();
     $("#legend-" + name).show();
     $('#' + name).show();
 
@@ -577,7 +580,6 @@ $(document).ready(function() {
     var map = L.map(map_id, {zoomSnap: 0.1}).setView([44.33, 3.55], 10);
     map.id = map_id;
 
-    // $("#form_" + name + " #chargement").appendTo("#" + map_id);
     $("#" + map.id).parent().find("#chargement").appendTo("#" + map_id);
 
     if(tile == "mapbox") {

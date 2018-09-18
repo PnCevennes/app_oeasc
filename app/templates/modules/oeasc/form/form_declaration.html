@@ -6,25 +6,48 @@
 
 <div id="id_form" data-id-form="{{ id_form }}" style="display: none;"></div>
 
-{%- set ns = namespace(localisation_type = "") %}
-{%- set ns.localisation_type_parcelle = "" %}
-
 
 {%- set foret = declaration["foret"]%}
 {%- include "modules/oeasc/form/form_foret.html" %}
 
-{%- if ns.localisation_type == "ONF_FRT" %}
 
-{%- set ns.localisation_type_parcelle = "ONF_PRF" %}
+<form id="form_areas_localisation" data-areas='{{ declaration["areas_localisation"]|tojson if declaration["areas_declaration"] is defined else [] }}'>
 
-{%- elif ns.localisation_type in ["COMMUNE", "DGD"]  %}
+{%- if foret['b_statut_public'] == true and foret['b_document'] == true %}
 
-{%- set ns.localisation_type_parcelle = "CADASTRE" %}
+  {% if utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_ONF_FRT') %}
+
+    {{ macros.select_map("OEASC_ONF_PRF", declaration['areas_localisation'], "OEASC_ONF_FRT") }}
+
+  {% endif %}
+
+  {% if utils.get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_ONF_PRF') %}
+
+    {{ macros.select_map("OEASC_ONF_UG", declaration['areas_localisation'], 'OEASC_ONF_PRF') }}
+
+  {% endif %}
+
+{%- elif foret['b_statut_public']==false and foret['b_document'] ==true %}
+
+  {% if utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_DGD') %}
+
+    {{ macros.select_map("OEASC_CADASTRE", declaration['areas_localisation'], 'OEASC_DGD') }}
+
+  {% endif %}
+
+{%- elif foret['b_statut_public'] == false and foret['b_document'] == false %}
+
+  {% if utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_SECTION') %}
+
+    {{ macros.select_map("OEASC_CADASTRE", declaration['areas_localisation'], 'OEASC_SECTION') }}
+
+  {% endif %}
 
 {%- endif %}
 
-{{ macros.select_map("areas_localisation", ns.localisation_type_parcelle, declaration.areas_localisation, declaration.foret.areas_foret) }}
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
+</form>
 
 {%- include "modules/oeasc/form/form_peuplement.html" %}
 
@@ -40,7 +63,9 @@
   <label for="commentaire"></label>
 
   <textarea name="commentaire" id="commentaire" class="form-control" rows="5" maxlength="1000">
+
     {{ declaration.commentaire or ""}}
+
   </textarea>
 
   <div><i>(*) : facultatif</i></div>

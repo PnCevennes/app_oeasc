@@ -46,6 +46,7 @@ def get_listes_essences(declaration):
     listes_essences["selected"] = []
 
     id = declaration.get("id_nomenclature_peuplement_essence_principale", None)
+
     if id:
         listes_essences["selected"].append(id)
 
@@ -86,6 +87,17 @@ def get_listes_essences(declaration):
             if degat_essence != {} and degat_essence["id_nomenclature_degat_essence"] and degat_essence["id_nomenclature_degat_essence"] in listes_essences["degats"][id_nomenclature_degat_type]:
 
                 listes_essences["degats"][id_nomenclature_degat_type].remove(degat_essence["id_nomenclature_degat_essence"])
+
+    for key in listes_essences:
+
+        v = []
+
+        for e in listes_essences[key]:
+
+            elem = get_nomenclature_from_id(e, nomenclature)
+            v.append(elem)
+
+        listes_essences[key] = v
 
     return listes_essences
 
@@ -255,6 +267,19 @@ def arrays_to_csv(filename, data, columns, separator):
     return Response(out, headers=headers)
 
 
+def get_areas_from_type_code(areas, type_code):
+
+    out = []
+
+    for area in areas:
+
+        if area['type_code'] == type_code:
+
+            out.append(area)
+
+    return out
+
+
 def utils_dict():
     """
         dictionnaire qui reference des functions pour les utiliser dans jinja cf server.py
@@ -273,5 +298,6 @@ def utils_dict():
     d['print_date'] = print_date
     d['print_commune'] = print_commune
     d['print_parcelle'] = print_parcelle
+    d['get_areas_from_type_code'] = get_areas_from_type_code
 
     return d

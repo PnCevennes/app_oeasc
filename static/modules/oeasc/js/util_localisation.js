@@ -11,7 +11,6 @@ $(document).ready(function() {
 
     if(map) {
 
-      console.log("reset");
       map.eachLayer(function(l) {
 
         map.remove(l);
@@ -39,7 +38,6 @@ $(document).ready(function() {
   var initialiser_show_declarations = function(map_name, declarations) {
 
     var map = init_map(map_name);
-
 
     declarations.forEach(function(e) {
 
@@ -81,7 +79,24 @@ $(document).ready(function() {
   };
 
 
-  var initialiser_form_localisation = function(map_name) {
+  var initialiser_form_localisation = function(id_form) {
+
+    $('#form_' + id_form + ' .select_map').each(function() {
+
+      var type_code = $(this).attr("data-type-code");
+
+      if(type_code) {
+
+        initialiser_select_map(type_code);
+
+      }
+
+    });
+
+  }
+
+
+  var initialiser_select_map = function(map_name) {
 
     var map = init_map(map_name);
 
@@ -90,7 +105,7 @@ $(document).ready(function() {
     M.list.data.forEach(function(name) {
 
       var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + M.d_ls[name].label + '</div>';
-      $('#form_' + map_name).find(".legend").append(s_legend);
+      $('#select_map_' + map_name).find(".legend").append(s_legend);
 
     });
 
@@ -98,17 +113,17 @@ $(document).ready(function() {
 
     name="LOCALISATION_SELECTION";
     var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Selection" + '</div>';
-    $('#form_' + map_name).find(".legend").append(s_legend);
+    $('#select_map_' + map_name).find(".legend").append(s_legend);
 
     // on cache ttes les légendes
 
     M.list.data.forEach(function(e) {
 
-     $('#form_' + map_name).find("#legend-" + e).hide();
+     $('#select_map_' + map_name).find("#legend-" + e).hide();
 
    });
 
-    $('#form_' + map_name).find('#chargement').hide();
+    $('#select_map_' + map_name).find('#chargement').hide();
 
     $('#' + name).parent().find('.bs-select-all').click( function() {
 
@@ -136,15 +151,15 @@ $(document).ready(function() {
 
     };
 
-    $("#form_" + map.map_name + " .localisation-select").on("mouseover", "ul.inner > li", f_option_hover(map));
-    $("#form_" + map.map_name + " .localisation-select").on("mouseout", "ul.inner > li", f_option_hover(map));
+    $("#select_map_" + map.map_name + " .localisation-select").on("mouseover", "ul.inner > li", f_option_hover(map));
+    $("#select_map_" + map.map_name + " .localisation-select").on("mouseout", "ul.inner > li", f_option_hover(map));
 
-    var type_code = $("#form_" + map_name).attr("data-type-code");
+    var type_code = $("#select_map_" + map_name).attr("data-type-code");
+    var type_code_container = $("#select_map_" + map_name).attr("data-type-code-container");
 
-    var areas_container = M.get_areas_cor(map_name,"data-areas-container");
-    // var type_code_container = $("#form_" + map_name).attr("data-type-code-container");
+    var areas_container = M.get_areas_cor("form_areas_foret", type_code_container);
 
-    if(areas_container.length > 0) {
+    if(areas_container.length > 0 && type_code_container) {
 
       for (var i=0; i<areas_container.length; i++) {
 
@@ -159,85 +174,6 @@ $(document).ready(function() {
        M.f_add_feature_collection_to_map(map, type_code);
 
    }
-
-
-    // if(localisation_type == "COMMUNE") {
-
-    //   name = 'OEASC_COMMUNE';
-    //   M.f_add_feature_collection_to_map(map, name);
-
-    // }
-
-    // if(localisation_type == "ONF_FRT") {
-
-    //   name = 'OEASC_ONF_FRT';
-    //   M.f_add_feature_collection_to_map(map, name);
-
-    // }
-
-    // if(localisation_type == "DGD") {
-
-    //   name = 'OEASC_DGD';
-    //   M.f_add_feature_collection_to_map(map, name);
-
-    // }
-
-    // if(localisation_type == "ONF_PRF") {
-
-    //   for (var i =0; i<areas_container.length; i++) {
-
-    //     name = 'OEASC_ONF_PRF';
-
-    //     var area_code = M.get_db('t_areas','id_area',areas_container[i].id_area).area_code
-
-    //     var fp = {
-    //       name: 'OEASC_ONF_FRT',
-    //       area_code: area_code,
-    //     };
-
-    //     M.f_add_feature_collection_to_map(map, name, fp);
-
-    //   }
-
-    // }
-
-    // if(localisation_type == "CADASTRE") {
-
-    //   for (var i =0; i<areas_container.length; i++) {
-
-    //     name = 'OEASC_CADASTRE';
-
-    //     var area = M.get_db('t_areas','id_area',areas_container[i].id_area);
-    //     var area_code = area.area_code;
-    //     var id_type = area.id_type;
-
-    //     var id_type_commune = M.get_id_type('OEASC_COMMUNE');
-    //     var id_type_dgd = M.get_id_type('OEASC_DGD');
-
-    //     var name_container = "";
-
-    //     if( id_type == id_type_commune) {
-
-    //       name_container = 'OEASC_COMMUNE';
-
-    //     } else {
-
-    //       name_container = 'OEASC_DGD';
-
-    //     }
-
-    //     var fp = {
-
-    //       name: name_container,
-    //       area_code: area_code,
-
-    //     };
-
-    //     M.f_add_feature_collection_to_map(map, name, fp);
-
-    //   }
-
-    // }
 
   };
 
