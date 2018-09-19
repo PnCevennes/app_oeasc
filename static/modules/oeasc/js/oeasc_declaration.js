@@ -99,6 +99,15 @@ $(document).ready(function() {
 
     });
 
+    $()
+    $('#form_areas_foret select').change(function() {
+
+      console.log("reset selections");
+
+      $("form_areas_localisation").attr("data-areas", "[]");
+
+    });
+
   };
 
 
@@ -310,7 +319,7 @@ $(document).ready(function() {
 
     if( id_form == "form_areas_localisation" || id_form == "all" ) {
 
-      setTimeout(function() { M.initialiser_form_localisation("areas_localisation"); }, 100);
+      setTimeout(function() { M.initialiser_form_localisation("form_areas_localisation"); }, 100);
 
     }
 
@@ -328,10 +337,9 @@ $(document).ready(function() {
 
     }
 
-
     if( id_form == "form_areas_foret" || id_form == "all" ) {
 
-      setTimeout(function() { M.initialiser_form_localisation("areas_foret"); }, 100);
+      setTimeout(function() { M.initialiser_form_localisation("form_areas_foret"); }, 100);
 
     }
 

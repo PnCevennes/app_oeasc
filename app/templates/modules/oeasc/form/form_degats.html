@@ -17,7 +17,7 @@
     {%- set ns.ind = -1 %}
 
     {%- for degat in degats %}
-    {%- if elem.id_nomenclature|string == degat.id_nomenclature_degat_type|string %}
+    {%- if elem.id_nomenclature|string == degat.id_nomenclature_degat_type.id_nomenclature|string %}
     {%- set ns.checked="checked" %}
     {%- set ns.ind=loop.index0 %}
     {%- endif %}
@@ -115,16 +115,21 @@
           {%- set add = "_" + elem.id_nomenclature|string + "_" + loop.index0|string %}
 
           <div class="degat-essence">
-            <div>{{ macros.select_essence("id_nomenclature_degat_essence", nomenclature, object=degat_essence, listes_essences=listes_essences, id_nomenclature_degat_type=degat.id_nomenclature_degat_type, required="required") }}</div>
+
+            <div>{{ macros.select_essence("id_nomenclature_degat_essence", nomenclature, object=degat_essence, listes_essences=listes_essences, id_nomenclature_degat_type=degat.id_nomenclature_degat_type.id_nomenclature, required="required") }}</div>
 
             {%- if mnemonique_degat_type != "ABS" %}
+
             <div>{{ macros.radio_nomenclature("id_nomenclature_degat_etendue", nomenclature, "OEASC_DEGAT_ETENDUE", "radio", object=degat_essence, add=add) }}</div>
             <div>{{ macros.radio_nomenclature("id_nomenclature_degat_gravite", nomenclature, "OEASC_DEGAT_GRAVITE", "radio", object=degat_essence, add=add) }}</div>
             <div>{{ macros.radio_nomenclature("id_nomenclature_degat_anteriorite", nomenclature, "OEASC_DEGAT_ANTERIORITE", "radio", object=degat_essence, add=add) }}</div>
+
             {%- else %}
+
             <div></div>
             <div></div>
             <div></div>
+
             {%- endif %}
 
             <div>
@@ -146,13 +151,15 @@
 
         {%- endfor %}
 
-        {%- if ( n_degat_essences >= 3 ) or ( ns.display_form == 'block' ) or ( n_degat_essences > ( listes_essences["degats"][degat.id_nomenclature_degat_type] | length ) ) %}
+        <div>{{ n_degat_essences }} {{listes_essences["degats"][degat.id_nomenclature_degat_type.id_nomenclature]}} %}</div>
+
+        {%- if ( n_degat_essences >= 3 ) or ( ns.display_form == 'block' ) or ( n_degat_essences > ( listes_essences["degats"][degat.id_nomenclature_degat_type.id_nomenclature] | length ) ) %}
 
         {%- set ns.button_disabled = "disabled" %}
 
         {%- endif %}
 
-        <button type="button"  {{ ns.button_disabled }} class="button-ajouter-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}"><span class="fas fa-plus"></span>{{ " Ajouter une essence" if not ns.button_disabled else "" }}</button>
+        <button type="button"  {{ ns.button_disabled }} class="button-ajouter-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}"><span class="fas fa-plus"></span>{{ " Ajouter une essence"}}</button>
 
       </div>
 

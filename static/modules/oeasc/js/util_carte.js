@@ -283,13 +283,20 @@ $(document).ready(function() {
 
     if( M.type_codes_areas_localisation.indexOf(map.map_name )>= 0 ) {
 
-      form_name = "form_areas_declaration";
+      form_name = "form_areas_localisation";
       data_type_2 ="id_declaration";
       val = parseInt($("#form_declaration").attr("data-id-declaration"));
 
     }
 
     M.set_areas_cor(form_name, name, $select.val(), data_type_2, val);
+
+    if(form_name == "form_areas_foret" && M["form_areas_foret"].b_loaded) {
+
+      console.log("reset form_areas_localisation")
+      $("#form_areas_localisation").attr("data-areas", "[]");
+
+    }
 
   };
 
@@ -432,6 +439,8 @@ $(document).ready(function() {
       $select_layer.val(selected);
       $select_layer.selectpicker("refresh");
     }
+
+    M[form_id].b_loaded=true;
 
     console.log("Map : " +String(Object.keys(feature_collection._layers).length) + " elements chargés pour " + name + " selected : " + $select_layer.val());
 

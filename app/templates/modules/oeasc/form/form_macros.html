@@ -191,7 +191,7 @@
         {%- endif %}
       {%- endfor %}
 
-    {%- else %}
+    {%- elif object[name] is defined %}
 
       {%- if elem.id_nomenclature|string == object[name]["id_nomenclature"]|string %}
         {%- set ns.checked = "checked" %}
@@ -232,15 +232,9 @@
 {%- endmacro %}
 
 
-{%- macro select_map(type_code, areas, type_code_container="", titre="", b_multiple=true) %}
+{%- macro select_map(type_code, areas, areas_container=[],  titre="", b_multiple=true) %}
 
-  {% set areas_container = utils.get_areas_from_type_code(areas, type_code_container) %}
-
-  {% if area_container != [] or type_code_container == "" %}
-
-  {% set areas_selected = utils.get_areas_from_type_code(areas, type_code) %}
-
-<div id="select_map_{{ type_code }}" class="select_map" data-type-code='{{ type_code }}'  data-type-code-container='{{ type_code_container }}'>
+<div id="select_map_{{ type_code }}" class="select_map" data-type-code='{{ type_code }}'  data-areas-container='{{ areas_container|tojson if areas_container is defined else [] }}'>
 
   <h4>Localisation </h4>
 
@@ -284,7 +278,5 @@
   </div>
 
 </div>
-
-  {% endif %}
 
 {%- endmacro %}

@@ -81,7 +81,11 @@ $(document).ready(function() {
 
   var initialiser_form_localisation = function(id_form) {
 
-    $('#form_' + id_form + ' .select_map').each(function() {
+    $('#' + id_form + ' .select_map').each(function() {
+
+      M[id_form] = {}
+      M[id_form].b_loaded = false;
+
 
       var type_code = $(this).attr("data-type-code");
 
@@ -155,11 +159,9 @@ $(document).ready(function() {
     $("#select_map_" + map.map_name + " .localisation-select").on("mouseout", "ul.inner > li", f_option_hover(map));
 
     var type_code = $("#select_map_" + map_name).attr("data-type-code");
-    var type_code_container = $("#select_map_" + map_name).attr("data-type-code-container");
+    var areas_container = JSON.parse($("#select_map_" + map_name).attr("data-areas-container"));
 
-    var areas_container = M.get_areas_cor("form_areas_foret", type_code_container);
-
-    if(areas_container.length > 0 && type_code_container) {
+    if(areas_container.length > 0) {
 
       for (var i=0; i<areas_container.length; i++) {
 
@@ -171,14 +173,14 @@ $(document).ready(function() {
 
    } else {
 
-       M.f_add_feature_collection_to_map(map, type_code);
+     M.f_add_feature_collection_to_map(map, type_code);
 
    }
 
-  };
+ };
 
-  M.initialiser_form_localisation = initialiser_form_localisation;
-  M.initialiser_show_localisation = initialiser_show_localisation;
-  M.initialiser_show_declarations =initialiser_show_declarations;
+ M.initialiser_form_localisation = initialiser_form_localisation;
+ M.initialiser_show_localisation = initialiser_show_localisation;
+ M.initialiser_show_declarations =initialiser_show_declarations;
 
 });

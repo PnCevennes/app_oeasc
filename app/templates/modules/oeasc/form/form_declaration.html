@@ -11,35 +11,55 @@
 {%- include "modules/oeasc/form/form_foret.html" %}
 
 
-<form id="form_areas_localisation" data-areas='{{ declaration["areas_localisation"]|tojson if declaration["areas_declaration"] is defined else [] }}'>
+<form id="form_areas_localisation" data-areas='{{ declaration["areas_localisation"]|tojson if declaration["areas_localisation"] is defined else [] }}'>
+
+{# cas ONF #}
 
 {%- if foret['b_statut_public'] == true and foret['b_document'] == true %}
 
-  {% if utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_ONF_FRT') %}
+  {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_ONF_PRF") %}
+  {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_ONF_FRT') %}
 
-    {{ macros.select_map("OEASC_ONF_PRF", declaration['areas_localisation'], "OEASC_ONF_FRT") }}
+  {% if areas_container and areas_selected == [] %}
+
+    {{ macros.select_map("OEASC_ONF_PRF", areas_selected, areas_container) }}
+
+  {% else %}
+
+    {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_ONF_UG") %}
+    {% set areas_container = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_ONF_PRF") %}
+
+    {% if areas_container %}
+
+      {{ macros.select_map("OEASC_ONF_UG", areas_selected, areas_container) }}
+
+    {% endif %}
 
   {% endif %}
 
-  {% if utils.get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_ONF_PRF') %}
-
-    {{ macros.select_map("OEASC_ONF_UG", declaration['areas_localisation'], 'OEASC_ONF_PRF') }}
-
-  {% endif %}
+{# cas DGD #}
 
 {%- elif foret['b_statut_public']==false and foret['b_document'] ==true %}
 
-  {% if utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_DGD') %}
+  {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_CADASTRE") %}
+  {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_DGD') %}
 
-    {{ macros.select_map("OEASC_CADASTRE", declaration['areas_localisation'], 'OEASC_DGD') }}
+  {% if areas_container %}
+
+    {{ macros.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
 
   {% endif %}
 
+{# cas non documentés #}
+
 {%- elif foret['b_statut_public'] == false and foret['b_document'] == false %}
 
-  {% if utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_SECTION') %}
+  {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_CADASTRE") %}
+  {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_SECTION') %}
 
-    {{ macros.select_map("OEASC_CADASTRE", declaration['areas_localisation'], 'OEASC_SECTION') }}
+  {% if aera_container %}
+
+    {{ macros.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
 
   {% endif %}
 

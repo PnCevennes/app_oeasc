@@ -44,14 +44,17 @@ def get_listes_essences(declaration):
     listes_essences["feuillus"] = []
     listes_essences["resineux"] = []
     listes_essences["selected"] = []
+    listes_essences["selected_degat"] = []
 
-    id = declaration.get("id_nomenclature_peuplement_essence_principale", None)
+    d = declaration.get("id_nomenclature_peuplement_essence_principale", None)
 
-    if id:
-        listes_essences["selected"].append(id)
+    if d:
+        listes_essences["selected"].append(d["id_nomenclature"])
+        listes_essences["selected_degat"].append(d["id_nomenclature"])
 
     for d in declaration["nomenclatures_peuplement_essence_secondaire"]:
         listes_essences["selected"].append(d["id_nomenclature"])
+        listes_essences["selected_degat"].append(d["id_nomenclature"])
 
     for d in declaration["nomenclatures_peuplement_essence_complementaire"]:
         listes_essences["selected"].append(d["id_nomenclature"])
@@ -78,26 +81,41 @@ def get_listes_essences(declaration):
 
     for degat in declaration["degats"]:
 
-        id_nomenclature_degat_type = degat["id_nomenclature_degat_type"]
+        id_nomenclature_degat_type = degat["id_nomenclature_degat_type"]["id_nomenclature"]
 
-        listes_essences["degats"][id_nomenclature_degat_type] = [e for e in listes_essences["selected"]]
+        listes_essences["degats"][id_nomenclature_degat_type] = [e for e in listes_essences["selected_degat"]]
 
         for degat_essence in degat.get('degat_essences', []):
 
-            if degat_essence != {} and degat_essence["id_nomenclature_degat_essence"] and degat_essence["id_nomenclature_degat_essence"] in listes_essences["degats"][id_nomenclature_degat_type]:
+            if degat_essence != {} and degat_essence["id_nomenclature_degat_essence"] and degat_essence["id_nomenclature_degat_essence"]["id_nomenclature"] in listes_essences["degats"][id_nomenclature_degat_type]:
 
-                listes_essences["degats"][id_nomenclature_degat_type].remove(degat_essence["id_nomenclature_degat_essence"])
+                listes_essences["degats"][id_nomenclature_degat_type].remove(degat_essence["id_nomenclature_degat_essence"]["id_nomenclature"])
 
     for key in listes_essences:
 
-        v = []
+        if key == "degats":
 
-        for e in listes_essences[key]:
+            for key_ in listes_essences["degats"]:
 
-            elem = get_nomenclature_from_id(e, nomenclature)
-            v.append(elem)
+                v = []
 
-        listes_essences[key] = v
+                for e in listes_essences["degats"][key_]:
+
+                    elem = get_nomenclature_from_id(e, nomenclature)
+                    v.append(elem)
+
+                listes_essences["degats"][key_] = v
+
+        else:
+
+            v = []
+
+            for e in listes_essences[key]:
+
+                elem = get_nomenclature_from_id(e, nomenclature)
+                v.append(elem)
+
+            listes_essences[key] = v
 
     return listes_essences
 
