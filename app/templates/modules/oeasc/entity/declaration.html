@@ -104,23 +104,38 @@
 
     <div class="tab-pane" id="degats">
 
-      <!-- <h5>Dégats</h5> -->
-
       <ul>
-        {%- for degat in declaration.degats %}
-        <li>  {{ degat.id_nomenclature_degat_type.labe_fr }}
-          <ul>
-            {%- for degat_essence in degat['degat_essences'] %}
-            <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr }}
-            {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
 
-              : {{ degat_essence.id_nomenclature_degat_etendue.label_fr }}, {{ degat_essence.id_nomenclature_degat_gravite.label_fr }}, {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr }}
-             {% endif %}
+        {%- for degat in declaration.degats %}
+
+        <li>  {{ degat.id_nomenclature_degat_type.labe_fr }}
+
+          <ul>
+
+            {%- for degat_essence in degat['degat_essences'] %}
+
+              {% if degat_essence != {} %}
+
+            <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr }}
+
+                {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
+
+                  : {{ degat_essence.id_nomenclature_degat_etendue.label_fr }}, {{ degat_essence.id_nomenclature_degat_gravite.label_fr }}, {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr }}
+
+                {% endif %}
+
             </li>
+
+              {% endif %}
+
             {%- endfor %}
+
           </ul>
+
         </li>
+
         {%- endfor %}
+
       </ul>
 
     </div>

@@ -117,6 +117,7 @@ INSERT INTO ref_geo.bib_areas_types (
         (305, 'CADASTRE', 'OEASC_CADASTRE', 'Cadastre pour l''oeasc', 'OEASC', 2018, ''),
         (306, 'COMMUNES OEASC', 'OEASC_COMMUNE', 'Communes de l''oeasc', 'OEASC', 2018, ''),
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
+        (308, 'Section cadastrale', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, ''),
         (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, '');
 
 
@@ -185,7 +186,7 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
 
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('OEASC_CADASTRE'), CONCAT(insee_com,'-',section,'-',num_parc), CONCAT(id_parc), geom, ST_CENTROID(geom), 'OEASC', '', true
+    SELECT ref_geo.get_id_type('OEASC_CADASTRE'), CONCAT(insee_com,'-',section,'-',num_parc), CONCAT(insee_com,'-',section,'-',num_parc), geom, ST_CENTROID(geom), 'OEASC', '', true
     FROM ref_geo.l_OEASC_CADASTRE;
 
 
@@ -195,6 +196,23 @@ ALTER TABLE ref_geo.l_areas ADD COLUMN geom_4326 geometry(MultiPolygon,4326);
 
 
 UPDATE ref_geo.l_areas SET geom_4326 = st_transform(geom, 4326);
+
+
+-- SECTIONS CADASTRALES
+
+DROP TABLE IF EXISTS temp;
+
+CREATE TABLE temp(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
+
+INSERT INTO temp(area_code, area_name, geom)
+SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_UNION(geom))
+  FROM ref_geo.l_oeasc_cadastre
+  GROUP BY insee_com, nom_com, section
+  ORDER BY insee_com, nom_com, section;
+
+INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
+    SELECT ref_geo.get_id_type('OEASC_SECTION'), t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
+    FROM temp as t;
 
 
 -- bidouille pour ne pas avoir deux fois le nom 48-bougès pff
@@ -228,6 +246,47 @@ CREATE INDEX idx_l_areas_code_area
     ON ref_geo.l_areas
     USING btree
     (area_code);
+
+
+-- cor vielles communes
+
+DROP TABLE IF EXISTS ref_geo.cor_old_communes;
+
+CREATE TABLE IF NOT EXISTS ref_geo.cor_old_communes(
+area_code character varying, 
+area_code2 character varying
+);
+
+INSERT INTO ref_geo.cor_old_communes
+SELECT l.area_code, a.area_code
+--SELECT l.area_code, array_sort_unique(array_agg(a.area_code)) 
+--, array_sort_unique(array_agg(a.area_name)), array_sort_unique(array_agg(a.area_code))
+FROM ref_geo.l_areas as l, (SELECT id_area, area_name, area_code, geom
+FROM ref_geo.l_areas
+WHERE id_type = ref_geo.get_id_type('COMMUNES'))a
+WHERE ST_AREA(ST_INTERSECTION(a.geom, l.geom)) * ( 1.0 / (ST_AREA(a.geom)) + 1.0 / (ST_AREA(l.geom)) ) > 0.05
+AND l.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
+GROUP BY l.area_code, a.area_code
+ORDER BY l.area_code;
+
+CREATE OR REPLACE FUNCTION ref_geo.get_old_communes(
+    IN myarea_code character varying)
+
+  RETURNS TABLE(area_code character varying) AS
+$BODY$
+        BEGIN
+            RETURN QUERY
+
+                SELECT t.area_code2
+            FROM ref_geo.cor_old_communes as t
+            WHERE t.area_code=myarea_code
+            ORDER BY t.area_code2;
+
+          END;
+    $BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100
+  ROWS 1000;
 
 -- create ref_geo.li_${name}
 
@@ -452,5 +511,5 @@ INSERT INTO ref_geo.li_OEASC_CADASTRE (id_area, area_code, insee_com, nom_com, i
        surf_parc, cpte_com
 --       , lib_prop, civilite, date_acte, val_droit, nat_dem, type_pers, gr_pers_m, tous_prop
         FROM ref_geo.l_OEASC_CADASTRE, ref_geo.l_areas as la
-        WHERE la.id_type = ref_geo.get_id_type('OEASC_CADASTRE') and la.area_code = CONCAT(id_parc);
+        WHERE la.id_type = ref_geo.get_id_type('OEASC_CADASTRE') and la.area_code = CONCAT(insee_com,'-',section,'-',num_parc);
 

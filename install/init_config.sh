@@ -15,7 +15,7 @@ echo aa $config_file
 echo "Creation de config/config.py"
 cp config/config.py.sample config/config.py
 
-DB_URI="postgresql:\/\/$user_pg:$user_pg_pass@$db_host:$pg_port\/$db_name"
+DB_URI="postgresql:\/\/$user_pg:$user_pg_pass@$db_host:$db_port\/$db_name"
 
 echo $DB_URI
 
