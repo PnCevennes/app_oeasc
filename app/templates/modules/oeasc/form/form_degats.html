@@ -151,8 +151,6 @@
 
         {%- endfor %}
 
-        <div>{{ n_degat_essences }} {{listes_essences["degats"][degat.id_nomenclature_degat_type.id_nomenclature]}} %}</div>
-
         {%- if ( n_degat_essences >= 3 ) or ( ns.display_form == 'block' ) or ( n_degat_essences > ( listes_essences["degats"][degat.id_nomenclature_degat_type.id_nomenclature] | length ) ) %}
 
         {%- set ns.button_disabled = "disabled" %}

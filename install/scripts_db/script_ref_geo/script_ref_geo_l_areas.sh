@@ -88,7 +88,7 @@ INSERT INTO ref_geo.bib_areas_types (
         (305, 'CADASTRE', 'OEASC_CADASTRE', 'Cadastre pour l''oeasc', 'OEASC', 2018, ''),
         (306, 'COMMUNES OEASC', 'OEASC_COMMUNE', 'Communes de l''oeasc', 'OEASC', 2018, ''),
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
-        (308, 'Section cadastrale', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, '');
+        (308, 'Section cadastrale', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, ''),
         (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, '');
 
 
@@ -273,7 +273,7 @@ CREATE OR REPLACE FUNCTION ref_geo.get_old_communes(
     IN myarea_code character varying)
 
   RETURNS TABLE(area_code character varying) AS
-$BODY$
+\$BODY\$
         BEGIN
             RETURN QUERY
 
@@ -283,7 +283,7 @@ $BODY$
             ORDER BY t.area_code2;
 
           END;
-    $BODY$
+    \$BODY\$
   LANGUAGE plpgsql IMMUTABLE
   COST 100
   ROWS 1000;
