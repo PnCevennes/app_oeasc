@@ -310,6 +310,7 @@ SELECT a.area_code, l.area_code
         WHERE id_type=ref_geo.get_id_type('OEASC_DGD'))a
     WHERE l.id_area = a.id_area_cadastre;
 
+
 -- sauvegarde des données pour ne pas tout recalculer par la suite
 
 COPY 
