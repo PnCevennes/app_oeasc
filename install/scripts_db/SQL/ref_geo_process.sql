@@ -90,21 +90,25 @@ DROP TABLE IF EXISTS ref_geo.li_oeasc_cadastre CASCADE;
 
 -- bib_areas_type
 
+ALTER TABLE ref_geo.l_areas DISABLE TRIGGER ALL;
+
 DELETE FROM ref_geo.l_areas
     WHERE id_type >= 300 and id_type <= 400;
+
+ALTER TABLE ref_geo.l_areas ENABLE TRIGGER ALL;
 
 SELECT setval('ref_geo.l_areas_id_area_seq', (SELECT max(id_area)  FROM ref_geo.l_areas), true);
 
 DELETE FROM ref_geo.bib_areas_types CASCADE
     WHERE id_type >= 300 and id_type <= 400;
 
-UPDATE ref_geo.bib_areas_types
-    SET type_code='COMMUNES'
-    WHERE id_type=101;
+-- UPDATE ref_geo.bib_areas_types
+--    SET type_code='COM'
+--    WHERE id_type=101;
 
-UPDATE ref_geo.bib_areas_types
-    SET type_code='DEPARTEMENTS'
-    WHERE id_type=102;
+-- UPDATE ref_geo.bib_areas_types
+--    SET type_code='DEPARTEMENTS'
+--    WHERE id_type=102;
 
 
 INSERT INTO ref_geo.bib_areas_types (
@@ -117,11 +121,7 @@ INSERT INTO ref_geo.bib_areas_types (
         (305, 'CADASTRE', 'OEASC_CADASTRE', 'Cadastre pour l''oeasc', 'OEASC', 2018, ''),
         (306, 'COMMUNES OEASC', 'OEASC_COMMUNE', 'Communes de l''oeasc', 'OEASC', 2018, ''),
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
-<<<<<<< HEAD
-        (308, 'Section cadastrale', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, '');
-=======
         (308, 'Section cadastrale', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, ''),
->>>>>>> ceee23bf3b6df3da26e377765000154fadef17e5
         (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, '');
 
 
@@ -135,19 +135,11 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
             FROM (
                 SELECT t.area_name, t.area_code, t.geom, t.centroid
                     FROM ref_geo.l_areas as t
-                    WHERE id_type=ref_geo.get_id_type('COMMUNES') AND enable
+                    WHERE id_type=ref_geo.get_id_type('COM') AND enable
                     )a, ref_geo.perimetre_OEASC as p
             WHERE ST_INTERSECTS(a.geom, p.geom))b, ref_geo.perimetre_OEASC as p
         WHERE ST_AREA(ST_INTERSECTION(b.geom, p.geom))*(1.0/ST_AREA(b.geom) + 1.0/ST_AREA(p.geom))/2 > 0.05;
 
--- INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
---   SELECT ref_geo.get_id_type('OEASC_COMMUNE'), a.area_name, a.area_code, a.geom, a.centroid, 'OEASC', '', true
---        FROM (
---           SELECT t.area_name, t.area_code, t.geom, t.centroid
---                FROM ref_geo.l_areas as t
---                    WHERE id_type=ref_geo.get_id_type('COMMUNES') AND enable
---                    )a, ref_geo.perimetre_OEASC as p
---       WHERE ST_INTERSECTS(a.geom, p.geom);
 
 -- departements oeasc
 
@@ -156,7 +148,7 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
         FROM (
             SELECT t.area_name, t.area_code, t.geom, t.centroid
                 FROM ref_geo.l_areas as t
-                    WHERE id_type=ref_geo.get_id_type('DEPARTEMENTS') AND enable
+                    WHERE id_type=ref_geo.get_id_type('DEP') AND enable
                     )a, ref_geo.perimetre_OEASC as p
        WHERE ST_INTERSECTS(a.geom, p.geom);
 
@@ -185,7 +177,7 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
 
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('OEASC_DGD'), CONCAT(forinsee,'-',fornom), CONCAT(proref), geom, ST_CENTROID(geom), 'OEASC', '', true
+    SELECT ref_geo.get_id_type('OEASC_DGD'), CONCAT(forinsee,'-',fornom), CONCAT(forid,'-',proref), geom, ST_CENTROID(geom), 'OEASC', '', true
     FROM ref_geo.l_OEASC_DGD;
 
 
@@ -235,7 +227,6 @@ CREATE INDEX idx_l_areas_type_code_area
     USING btree
     (id_type, area_code);
 
-
 DROP INDEX ref_geo.idx_l_areas_type;
 
 CREATE INDEX idx_l_areas_type
@@ -254,274 +245,48 @@ CREATE INDEX idx_l_areas_code_area
 
 -- cor vielles communes
 
+DROP TABLE IF EXISTS temp;
+
+CREATE TABLE temp(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
+
+INSERT INTO temp(area_code, geom)
+    SELECT SUBSTR(area_code, 1,5) as code, ST_UNION(geom) as geom  
+        FROM ref_geo.l_areas
+        WHERE id_type = ref_geo.get_id_type('OEASC_SECTION')
+        GROUP BY code
+        ORDER BY code;
+
 DROP TABLE IF EXISTS ref_geo.cor_old_communes;
 
 CREATE TABLE IF NOT EXISTS ref_geo.cor_old_communes(
 area_code character varying, 
-area_code2 character varying
+old_area_codes character varying[]
 );
 
 INSERT INTO ref_geo.cor_old_communes
-SELECT l.area_code, a.area_code
---SELECT l.area_code, array_sort_unique(array_agg(a.area_code)) 
---, array_sort_unique(array_agg(a.area_name)), array_sort_unique(array_agg(a.area_code))
-FROM ref_geo.l_areas as l, (SELECT id_area, area_name, area_code, geom
-FROM ref_geo.l_areas
-WHERE id_type = ref_geo.get_id_type('COMMUNES'))a
-WHERE ST_AREA(ST_INTERSECTION(a.geom, l.geom)) * ( 1.0 / (ST_AREA(a.geom)) + 1.0 / (ST_AREA(l.geom)) ) > 0.05
-AND l.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
-GROUP BY l.area_code, a.area_code
-ORDER BY l.area_code;
+SELECT l.area_code, array_sort_unique(array_agg(t.area_code))
+    FROM temp AS t, ref_geo.l_areas AS l
+    WHERE l.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
+    AND ST_INTERSECTS(t.geom, l.geom)
+    AND ST_AREA(ST_INTERSECTION(t.geom, l.geom)) * ( 1.0 / ST_AREA(t.geom) + 1.0 / ST_AREA(l.geom) ) > 0.05
+    GROUP BY l.area_code
+    ORDER BY l.area_code;
+
 
 CREATE OR REPLACE FUNCTION ref_geo.get_old_communes(
     IN myarea_code character varying)
 
-  RETURNS TABLE(area_code character varying) AS
-<<<<<<< HEAD
-$
-=======
+  RETURNS TABLE(old_area_code character varying) AS
 $BODY$
->>>>>>> ceee23bf3b6df3da26e377765000154fadef17e5
         BEGIN
             RETURN QUERY
 
-                SELECT t.area_code2
-            FROM ref_geo.cor_old_communes as t
-            WHERE t.area_code=myarea_code
-            ORDER BY t.area_code2;
-
+        SELECT UNNEST(old_area_codes)
+        FROM ref_geo.cor_old_communes
+        WHERE area_code = myarea_code; 
           END;
-<<<<<<< HEAD
-    $
-=======
     $BODY$
->>>>>>> ceee23bf3b6df3da26e377765000154fadef17e5
   LANGUAGE plpgsql IMMUTABLE
   COST 100
   ROWS 1000;
-
--- create ref_geo.li_${name}
-
-DROP VIEW IF EXISTS ref_geo.vl_OEASC_ONF_FRT;
-DROP TABLE IF EXISTS ref_geo.li_OEASC_ONF_FRT;
-
-CREATE TABLE ref_geo.li_OEASC_ONF_FRT
-(
-    id serial NOT NULL,
-    id_area integer NOT NULL,
-    area_code character varying(25),
-    ccod_frt character varying(11),
-    ccod_tpde character varying(4),
-    ccod_ut character varying(8),
-    llib_frt character varying(80),
-    llib_ut character varying(50),
-    qsret_frt double precision,
-    dept character varying(4),
-    date_maj character varying(10),
-    CONSTRAINT pk_li_OEASC_ONF_FRT PRIMARY KEY (id),
-    CONSTRAINT fk_li_OEASC_ONF_FRT_id_area FOREIGN KEY (id_area)
-    REFERENCES ref_geo.l_areas (id_area) MATCH SIMPLE
-    ON UPDATE CASCADE ON DELETE NO ACTION
-)
-WITH (
-    OIDS=FALSE
-);
-
-INSERT INTO ref_geo.li_OEASC_ONF_FRT (id_area, area_code, ccod_frt, ccod_tpde, ccod_ut, llib_frt, llib_ut, qsret_frt, dept, date_maj)
-    SELECT la.id_area, la.area_code, ccod_frt, ccod_tpde, ccod_ut, llib_frt, llib_ut, qsret_frt, dept, date_maj
-        FROM ref_geo.l_OEASC_ONF_FRT, ref_geo.l_areas as la
-        WHERE la.id_type = ref_geo.get_id_type('OEASC_ONF_FRT') and la.area_code = CONCAT(dept,'-',ccod_frt);
-
--- create ref_geo.li_${name}
-
-DROP VIEW IF EXISTS ref_geo.vl_OEASC_ONF_PRF;
-DROP TABLE IF EXISTS ref_geo.li_OEASC_ONF_PRF;
-
-CREATE TABLE ref_geo.li_OEASC_ONF_PRF
-(
-    id serial NOT NULL,
-    id_area integer NOT NULL,
-    area_code character varying(25),
-    objectid integer,
-    ccod_tpde character varying(5),
-    ccod_frt character varying(8),
-    llib_ut character varying(50),
-    llib_prf character varying(50),
-    qsret_prf double precision,
-    dept character varying(4),
-    ccod_pst character varying(10),
-    ccod_ut bigint,
-    llib_frt character varying(50),
-    agent_pst character varying(50),
-    ccod_prf character varying(5),
-    date_maj character varying(10),
-    concat character varying(50),
-    CONSTRAINT pk_li_OEASC_ONF_PRF PRIMARY KEY (id),
-    CONSTRAINT fk_li_OEASC_ONF_PRF_id_area FOREIGN KEY (id_area)
-    REFERENCES ref_geo.l_areas (id_area) MATCH SIMPLE
-    ON UPDATE CASCADE ON DELETE NO ACTION
-)
-WITH (
-    OIDS=FALSE
-);
-
-
-INSERT INTO ref_geo.li_OEASC_ONF_PRF (id_area, area_code, objectid, ccod_tpde, ccod_frt, llib_ut, llib_prf, qsret_prf,
-        dept, ccod_pst, ccod_ut, llib_frt, agent_pst, ccod_prf, date_maj, concat)
-    SELECT la.id_area, la.area_code, objectid, ccod_tpde, ccod_frt, llib_ut, llib_prf, qsret_prf,
-        dept, ccod_pst, ccod_ut, llib_frt, agent_pst, ccod_prf, date_maj, concat
-        FROM ref_geo.l_OEASC_ONF_PRF, ref_geo.l_areas as la
-        WHERE la.id_type = ref_geo.get_id_type('OEASC_ONF_PRF') and la.area_code = CONCAT(dept,'-',ccod_frt,'-',ccod_prf);
-
--- create ref_geo.li_${name}
-
-DROP VIEW IF EXISTS ref_geo.vl_OEASC_ONF_UG;
-DROP TABLE IF EXISTS ref_geo.li_OEASC_ONF_UG;
-
-CREATE TABLE ref_geo.li_OEASC_ONF_UG
-(
-    id serial NOT NULL,
-    id_area integer NOT NULL,
-    area_code character varying(25),
-    objectid bigint,
-    ccod_frt character varying(11),
-    ccod_prf character varying(11),
-    ccod_ug character varying(10),
-    ccod_ut character varying(9),
-    maj_date character varying(10),
-    camgt_prf character varying(12),
-    llib_prf character varying(25),
-    qsret_prf double precision,
-    qsret_ugs double precision,
-    qssy_ugs double precision,
-    cgrpl_ug character varying(11),
-    cgrpn_ug character varying(11),
-    llib_grpn character varying(16),
-    concat character varying(20),
-    dept character varying(4),
-    ccod_tpde character varying(4),
-    llib_frt character varying(200),
-    agent_pst character varying(50),
-    ccod_pst character varying(10),
-    cvrai_ug character varying(1),
-    llib_ut character varying(50),
-    concat_ug character varying(40),
-    suffix integer,
-    CONSTRAINT pk_li_OEASC_ONF_UG PRIMARY KEY (id),
-    CONSTRAINT fk_li_OEASC_ONF_UG_id_area FOREIGN KEY (id_area)
-    REFERENCES ref_geo.l_areas (id_area) MATCH SIMPLE
-    ON UPDATE CASCADE ON DELETE NO ACTION
-)
-WITH (
-    OIDS=FALSE
-);
-
-
-INSERT INTO ref_geo.li_OEASC_ONF_UG (id_area, area_code, objectid, ccod_frt, ccod_prf, ccod_ug, ccod_ut, maj_date, 
-       camgt_prf, llib_prf, qsret_prf, qsret_ugs, qssy_ugs, cgrpl_ug, 
-       cgrpn_ug, llib_grpn, concat, dept, ccod_tpde, llib_frt, agent_pst, 
-       ccod_pst, cvrai_ug, llib_ut, concat_ug, suffix)
-    SELECT la.id_area, la.area_code, objectid, ccod_frt, ccod_prf, ccod_ug, ccod_ut, maj_date, 
-       camgt_prf, llib_prf, qsret_prf, qsret_ugs, qssy_ugs, cgrpl_ug, 
-       cgrpn_ug, llib_grpn, concat, dept, ccod_tpde, llib_frt, agent_pst, 
-       ccod_pst, cvrai_ug, llib_ut, concat_ug, suffix
-        FROM ref_geo.l_OEASC_ONF_UG, ref_geo.l_areas as la
-        WHERE la.id_type = ref_geo.get_id_type('OEASC_ONF_UG') and la.area_code = CONCAT(dept,'-',ccod_frt,'-',ccod_prf,'-',ccod_ug,'-',suffix);
-
--- create ref_geo.li_${name}
-
-DROP VIEW IF EXISTS ref_geo.vl_OEASC_DGD;
-DROP TABLE IF EXISTS ref_geo.li_OEASC_DGD;
-
-CREATE TABLE ref_geo.li_OEASC_DGD
-(
-  id serial NOT NULL,
-  id_area integer NOT NULL,
-  area_code character varying(25),
-  forid bigint,
-  fornom character varying(50),
-  forsur numeric,
-  forinsee character varying(5),
-  dgdtype character varying(5),
-  proid bigint,
-  proref character varying(14),
-  prosur numeric,
-  progen character varying(30),
-  proetat character varying(2),
-  proexp character varying(30),
-  prodecdat character varying(30),
-  prop character varying(38),
-  perlig1 character varying(38),
-  perlig2 character varying(38),
-  perlig3 character varying(38),
-  perlig4 character varying(38),
-  percp character varying(5),
-  perbur character varying(35),
-  x numeric,
-  y numeric,
-  surface numeric,
-  CONSTRAINT pk_li_OEASC_DGD PRIMARY KEY (id),
-  CONSTRAINT fk_li_OEASC_DGD_id_area FOREIGN KEY (id_area)
-  REFERENCES ref_geo.l_areas (id_area) MATCH SIMPLE
-  ON UPDATE CASCADE ON DELETE NO ACTION
-)
-WITH (
-  OIDS=FALSE
-);
-
-
-INSERT INTO ref_geo.li_OEASC_DGD (id_area, area_code, forid, fornom, forsur, forinsee, dgdtype, proid, proref,
-            prosur, progen, proetat, proexp, prodecdat, prop, perlig1, perlig2,
-            perlig3, perlig4, percp, perbur, x, y, surface)
-    SELECT la.id_area, la.area_code, forid, fornom, forsur, forinsee, dgdtype, proid, proref,
-            prosur, progen, proetat, proexp, prodecdat, prop, perlig1, perlig2,
-            perlig3, perlig4, percp, perbur, x, y, surface
-        FROM ref_geo.l_OEASC_DGD, ref_geo.l_areas as la
-        WHERE la.id_type = ref_geo.get_id_type('OEASC_DGD') and la.area_code = CONCAT(proref);
-
--- create ref_geo.li_${name}
-
-DROP VIEW IF EXISTS ref_geo.vl_OEASC_CADASTRE;
-DROP TABLE IF EXISTS ref_geo.li_OEASC_CADASTRE;
-
-CREATE TABLE ref_geo.li_OEASC_CADASTRE
-(
-  id serial NOT NULL,
-  id_area integer NOT NULL,
-  area_code character varying(25),
-  insee_com character varying(5),
-  nom_com character varying(30),
-  id_parc character varying(19),
-  annee character varying(4),
-  section character varying(2),
-  num_parc character varying(4),
-  surf_parc bigint,
-  cpte_com character varying(15),
---  lib_prop character varying(60),
---  civilite character varying(3),
---  date_acte date,
---  val_droit character varying(51),
---  nat_dem character varying(22),
---  type_pers character varying(8),
---  gr_pers_m character varying(46),
---  tous_prop character varying(250),
-  CONSTRAINT pk_li_OEASC_CADASTRE PRIMARY KEY (id),
-  CONSTRAINT fk_li_OEASC_CADASTRE_id_area FOREIGN KEY (id_area)
-  REFERENCES ref_geo.l_areas (id_area) MATCH SIMPLE
-  ON UPDATE CASCADE ON DELETE NO ACTION
-)
-WITH (
-  OIDS=FALSE
-);
-
-
-INSERT INTO ref_geo.li_OEASC_CADASTRE (id_area, area_code, insee_com, nom_com, id_parc, annee, section, num_parc,
-       surf_parc, cpte_com
---      ,lib_prop, civilite, date_acte, val_droit, nat_dem, type_pers, gr_pers_m, tous_prop
-      )
-    SELECT la.id_area, la.area_code, insee_com, nom_com, id_parc, annee, section, num_parc,
-       surf_parc, cpte_com
---       , lib_prop, civilite, date_acte, val_droit, nat_dem, type_pers, gr_pers_m, tous_prop
-        FROM ref_geo.l_OEASC_CADASTRE, ref_geo.l_areas as la
-        WHERE la.id_type = ref_geo.get_id_type('OEASC_CADASTRE') and la.area_code = CONCAT(insee_com,'-',section,'-',num_parc);
 

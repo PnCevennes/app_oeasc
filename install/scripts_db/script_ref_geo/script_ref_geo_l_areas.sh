@@ -61,21 +61,25 @@ cat << EOF
 
 -- bib_areas_type
 
+ALTER TABLE ref_geo.l_areas DISABLE TRIGGER ALL;
+
 DELETE FROM ref_geo.l_areas
     WHERE id_type >= 300 and id_type <= 400;
+
+ALTER TABLE ref_geo.l_areas ENABLE TRIGGER ALL;
 
 SELECT setval('ref_geo.l_areas_id_area_seq', (SELECT max(id_area)  FROM ref_geo.l_areas), true);
 
 DELETE FROM ref_geo.bib_areas_types CASCADE
     WHERE id_type >= 300 and id_type <= 400;
 
-UPDATE ref_geo.bib_areas_types
-    SET type_code='COMMUNES'
-    WHERE id_type=101;
+-- UPDATE ref_geo.bib_areas_types
+--    SET type_code='COM'
+--    WHERE id_type=101;
 
-UPDATE ref_geo.bib_areas_types
-    SET type_code='DEPARTEMENTS'
-    WHERE id_type=102;
+-- UPDATE ref_geo.bib_areas_types
+--    SET type_code='DEPARTEMENTS'
+--    WHERE id_type=102;
 
 
 INSERT INTO ref_geo.bib_areas_types (
@@ -106,19 +110,11 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
             FROM (
                 SELECT t.area_name, t.area_code, t.geom, t.centroid
                     FROM ref_geo.l_areas as t
-                    WHERE id_type=ref_geo.get_id_type('COMMUNES') AND enable
+                    WHERE id_type=ref_geo.get_id_type('COM') AND enable
                     )a, ref_geo.perimetre_OEASC as p
             WHERE ST_INTERSECTS(a.geom, p.geom))b, ref_geo.perimetre_OEASC as p
         WHERE ST_AREA(ST_INTERSECTION(b.geom, p.geom))*(1.0/ST_AREA(b.geom) + 1.0/ST_AREA(p.geom))/2 > 0.05;
 
--- INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
---   SELECT ref_geo.get_id_type('OEASC_COMMUNE'), a.area_name, a.area_code, a.geom, a.centroid, 'OEASC', '', true
---        FROM (
---           SELECT t.area_name, t.area_code, t.geom, t.centroid
---                FROM ref_geo.l_areas as t
---                    WHERE id_type=ref_geo.get_id_type('COMMUNES') AND enable
---                    )a, ref_geo.perimetre_OEASC as p
---       WHERE ST_INTERSECTS(a.geom, p.geom);
 EOF
 
 
@@ -131,7 +127,7 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
         FROM (
             SELECT t.area_name, t.area_code, t.geom, t.centroid
                 FROM ref_geo.l_areas as t
-                    WHERE id_type=ref_geo.get_id_type('DEPARTEMENTS') AND enable
+                    WHERE id_type=ref_geo.get_id_type('DEP') AND enable
                     )a, ref_geo.perimetre_OEASC as p
        WHERE ST_INTERSECTS(a.geom, p.geom);
 EOF
@@ -228,7 +224,6 @@ CREATE INDEX idx_l_areas_type_code_area
     USING btree
     (id_type, area_code);
 
-
 DROP INDEX ref_geo.idx_l_areas_type;
 
 CREATE INDEX idx_l_areas_type
@@ -250,38 +245,45 @@ cat << EOF
 
 -- cor vielles communes
 
+DROP TABLE IF EXISTS temp;
+
+CREATE TABLE temp(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
+
+INSERT INTO temp(area_code, geom)
+    SELECT SUBSTR(area_code, 1,5) as code, ST_UNION(geom) as geom  
+        FROM ref_geo.l_areas
+        WHERE id_type = ref_geo.get_id_type('OEASC_SECTION')
+        GROUP BY code
+        ORDER BY code;
+
 DROP TABLE IF EXISTS ref_geo.cor_old_communes;
 
 CREATE TABLE IF NOT EXISTS ref_geo.cor_old_communes(
 area_code character varying, 
-area_code2 character varying
+old_area_codes character varying[]
 );
 
 INSERT INTO ref_geo.cor_old_communes
-SELECT l.area_code, a.area_code
---SELECT l.area_code, array_sort_unique(array_agg(a.area_code)) 
---, array_sort_unique(array_agg(a.area_name)), array_sort_unique(array_agg(a.area_code))
-FROM ref_geo.l_areas as l, (SELECT id_area, area_name, area_code, geom
-FROM ref_geo.l_areas
-WHERE id_type = ref_geo.get_id_type('COMMUNES'))a
-WHERE ST_AREA(ST_INTERSECTION(a.geom, l.geom)) * ( 1.0 / (ST_AREA(a.geom)) + 1.0 / (ST_AREA(l.geom)) ) > 0.05
-AND l.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
-GROUP BY l.area_code, a.area_code
-ORDER BY l.area_code;
+SELECT l.area_code, array_sort_unique(array_agg(t.area_code))
+    FROM temp AS t, ref_geo.l_areas AS l
+    WHERE l.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
+    AND ST_INTERSECTS(t.geom, l.geom)
+    AND ST_AREA(ST_INTERSECTION(t.geom, l.geom)) * ( 1.0 / ST_AREA(t.geom) + 1.0 / ST_AREA(l.geom) ) > 0.05
+    GROUP BY l.area_code
+    ORDER BY l.area_code;
+
 
 CREATE OR REPLACE FUNCTION ref_geo.get_old_communes(
     IN myarea_code character varying)
 
-  RETURNS TABLE(area_code character varying) AS
+  RETURNS TABLE(old_area_code character varying) AS
 \$BODY\$
         BEGIN
             RETURN QUERY
 
-                SELECT t.area_code2
-            FROM ref_geo.cor_old_communes as t
-            WHERE t.area_code=myarea_code
-            ORDER BY t.area_code2;
-
+        SELECT UNNEST(old_area_codes)
+        FROM ref_geo.cor_old_communes
+        WHERE area_code = myarea_code; 
           END;
     \$BODY\$
   LANGUAGE plpgsql IMMUTABLE

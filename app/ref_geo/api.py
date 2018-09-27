@@ -130,7 +130,7 @@ def get_areas_from_type_code(data_type, type_code):
 
     id_type = get_id_type(type_code)
 
-    data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable)).all()
+    data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable)).order_by(table.area_name).all()
 
     if data_type == 'l':
         return FeatureCollection([d.get_geofeature() for d in data])
@@ -171,7 +171,7 @@ def get_areas_from_type_code_container(data_type, type_code, id_area_container):
 
             area_code = r[0]
 
-            data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(area_code + "-%"))).all()
+            data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(area_code + "-%"))).order_by(table.area_name).all()
 
             if data_type == 'l':
 
@@ -195,7 +195,7 @@ def get_areas_from_type_code_container(data_type, type_code, id_area_container):
         data = data.filter(func.ST_INTERSECTS(table.geom_4326, container.geom_4326))
 
         print("avant req")
-        data = data.all()
+        data = data.order_by(table.area_name).all()
         print("apres_req")
 
 
@@ -229,7 +229,7 @@ def get_areas_from_type_code_container(data_type, type_code, id_area_container):
     # autres cas ONF
     else:
 
-        data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(container.area_code + "-%"))).all()
+        data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(container.area_code + "-%"))).order_by(table.area_name).all()
 
         if data_type == 'l':
 

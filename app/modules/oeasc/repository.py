@@ -192,37 +192,33 @@ def get_dict_nomenclature_areas(dict_in, nomenclature):
     return dict_in
 
 
-def get_declaration_nomenclature(declaration, nomenclature):
+def get_foret_type(foret_dict):
 
-    type_list = [
-        'id_nomenclature_proprietaire_declarant',
-        'id_nomenclature_paturage_frequence',
-        'id_nomenclature_peuplement_origine',
-        'id_nomenclature_peuplement_type',
-        'id_nomenclature_peuplement_paturage_frequence',
-        'id_nomenclature_peuplement_acces',
-        'id_nomenclature_peuplement_essence_principale',
-    ]
+    print(foret_dict)
 
-    for type in type_list:
+    if not foret_dict['proprietaire']['id_nomenclature_proprietaire_type']:
 
-        declaration[type] = get_nomenclature_from_id(declaration.get(type, None), nomenclature)
+        return False
 
-    v_type_list = [
-        'nomenclatures_peuplement_essence_secondaire',
-        'nomenclatures_peuplement_essence_complementaire',
-        'nomenclatures_peuplement_maturite',
-        'nomenclatures_peuplement_protection_type',
-        'nomenclatures_peuplement_paturage_type',
-        'nomenclatures_peuplement_paturage_statut',
-        'nomenclatures_peuplement_espece',
-    ]
+    proprietaire_type = foret_dict['proprietaire']['id_nomenclature_proprietaire_type']['label_fr']
 
-    for type in v_type_list:
+    d_prop_foret_type = {
 
-        declaration[type] = [get_nomenclature_from_id(elem['id_nomenclature'], nomenclature) for elem in declaration[type]]
+        'État': 'Domainiale',
+        'Centre hospitalier': 'Autre forêt publique',
+        'EP PNC': 'Autre forêt publique',
+        'Commune': 'Communale',
+        'Groupement forestier': 'Groupement forestier',
+        'Section / hameau': 'Sectionale',
+        'Privé': 'Privée'
 
-    return declaration
+    }
+
+    foret_type = d_prop_foret_type.get(proprietaire_type, "")
+
+    foret['foret_type'] = foret_type
+
+    return True
 
 
 def dfpu_as_dict(declaration, foret, proprietaire, declarant):
@@ -247,6 +243,11 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant):
     declaration_dict["foret"] = foret.as_dict(True)
     declaration_dict["declarant"] = as_dict(declarant)
     declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
+
+    nomenclature = nomenclature_oeasc();
+    get_dict_nomenclature_areas(declaration_dict, nomenclature)
+
+    get_foret_type(declaration_dict["foret"])
 
     return declaration_dict
 
@@ -423,7 +424,7 @@ def nomenclature_oeasc():
     for type_code in list_data:
 
         data[type_code] = get_nomenclature_list(code_type=type_code)
-        data[type_code]["values"].reverse()
+        # data[type_code]["values"].reverse()
 
         # on ne garde que les colonnes qui nous intéresse
 
@@ -511,8 +512,6 @@ def get_declarations(b_synthese, id_declarant=None):
     for id_declaration in id_declarations:
 
         declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
-
-        get_dict_nomenclature_areas(declaration_dict, nomenclature)
 
         declarations.append(declaration_dict)
 

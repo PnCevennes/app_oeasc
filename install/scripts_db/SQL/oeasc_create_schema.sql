@@ -2,7 +2,7 @@
 
 -- oeasc schema
 
--- -- SELECT pg_terminate_backend(pid), * FROM active_locks;
+SELECT pg_terminate_backend(pid), * FROM active_locks;
 
 
 DROP SCHEMA IF EXISTS oeasc CASCADE;
@@ -548,56 +548,56 @@ CREATE OR REPLACE FUNCTION oeasc.get_declarations_structure_declarant(
 
 -- create ref_geo.vl_${name}
 
-    CREATE OR REPLACE VIEW ref_geo.vl_OEASC_ONF_FRT AS
-        SELECT li.*, la.geom_4326
-            FROM ref_geo.li_OEASC_ONF_FRT as li, ref_geo.l_areas as la,
-            (SELECT geom_4326
-                FROM ref_geo.l_areas
-                WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
-            )a
-        WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
+--     CREATE OR REPLACE VIEW ref_geo.vl_OEASC_ONF_FRT AS
+--         SELECT li.*, la.geom_4326
+--             FROM ref_geo.li_OEASC_ONF_FRT as li, ref_geo.l_areas as la,
+--             (SELECT geom_4326
+--                 FROM ref_geo.l_areas
+--                 WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
+--             )a
+--         WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
 
--- create ref_geo.vl_${name}
+-- -- create ref_geo.vl_${name}
 
-    CREATE OR REPLACE VIEW ref_geo.vl_OEASC_ONF_PRF AS
-        SELECT li.*, la.geom_4326
-            FROM ref_geo.li_OEASC_ONF_PRF as li, ref_geo.l_areas as la,
-            (SELECT geom_4326
-                FROM ref_geo.l_areas
-                WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
-            )a
-        WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
+--     CREATE OR REPLACE VIEW ref_geo.vl_OEASC_ONF_PRF AS
+--         SELECT li.*, la.geom_4326
+--             FROM ref_geo.li_OEASC_ONF_PRF as li, ref_geo.l_areas as la,
+--             (SELECT geom_4326
+--                 FROM ref_geo.l_areas
+--                 WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
+--             )a
+--         WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
 
--- create ref_geo.vl_${name}
+-- -- create ref_geo.vl_${name}
 
-    CREATE OR REPLACE VIEW ref_geo.vl_OEASC_ONF_UG AS
-        SELECT li.*, la.geom_4326
-            FROM ref_geo.li_OEASC_ONF_UG as li, ref_geo.l_areas as la,
-            (SELECT geom_4326
-                FROM ref_geo.l_areas
-                WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
-            )a
-        WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
+--     CREATE OR REPLACE VIEW ref_geo.vl_OEASC_ONF_UG AS
+--         SELECT li.*, la.geom_4326
+--             FROM ref_geo.li_OEASC_ONF_UG as li, ref_geo.l_areas as la,
+--             (SELECT geom_4326
+--                 FROM ref_geo.l_areas
+--                 WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
+--             )a
+--         WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
 
--- create ref_geo.vl_${name}
+-- -- create ref_geo.vl_${name}
 
-    CREATE OR REPLACE VIEW ref_geo.vl_OEASC_DGD AS
-        SELECT li.*, la.geom_4326
-            FROM ref_geo.li_OEASC_DGD as li, ref_geo.l_areas as la,
-            (SELECT geom_4326
-                FROM ref_geo.l_areas
-                WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
-            )a
-        WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
+--     CREATE OR REPLACE VIEW ref_geo.vl_OEASC_DGD AS
+--         SELECT li.*, la.geom_4326
+--             FROM ref_geo.li_OEASC_DGD as li, ref_geo.l_areas as la,
+--             (SELECT geom_4326
+--                 FROM ref_geo.l_areas
+--                 WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
+--             )a
+--         WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
 
--- create ref_geo.vl_${name}
+-- -- create ref_geo.vl_${name}
 
-    CREATE OR REPLACE VIEW ref_geo.vl_OEASC_CADASTRE AS
-        SELECT li.*, la.geom_4326
-            FROM ref_geo.li_OEASC_CADASTRE as li, ref_geo.l_areas as la,
-            (SELECT geom_4326
-                FROM ref_geo.l_areas
-                WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
-            )a
-        WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
+--     CREATE OR REPLACE VIEW ref_geo.vl_OEASC_CADASTRE AS
+--         SELECT li.*, la.geom_4326
+--             FROM ref_geo.li_OEASC_CADASTRE as li, ref_geo.l_areas as la,
+--             (SELECT geom_4326
+--                 FROM ref_geo.l_areas
+--                 WHERE id_type=ref_geo.get_id_type('OEASC_PERIMETRE')
+--             )a
+--         WHERE la.area_code = li.area_code AND ST_INTERSECTS(la.geom_4326, a.geom_4326);
 

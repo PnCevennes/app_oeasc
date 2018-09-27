@@ -325,6 +325,8 @@ $(document).ready(function() {
 
     if( id_form == "form_declaration" || id_form == "all" ) {
 
+      M.remove_map(M["map_show_localisation"]);
+
       $('[href="#localisation"]').click(function (e) {
 
         if(! M["map_show_localisation"]) {

@@ -9,7 +9,6 @@ from .repository import (
     get_db,
     get_declarations,
     nomenclature_oeasc,
-    get_declaration_nomenclature,
     get_dict_nomenclature_areas,
 )
 
@@ -33,16 +32,6 @@ def get_nomenclature():
     nomenclature = nomenclature_oeasc()
 
     get_dict_nomenclature_areas(declaration, nomenclature)
-    # get_dict_nomenclature_areas(declaration['foret'], nomenclature)
-    # get_dict_nomenclature_areas(declaration['foret']['proprietaire'], nomenclature)
-
-    # for degat in declaration['degats']:
-
-    #     get_dict_nomenclature_areas(degat, nomenclature)
-
-    #     for degat_essence in degat.get('degat_essences', []):
-
-    #         get_dict_nomenclature_areas(degat_essence, nomenclature)
 
     return declaration
 

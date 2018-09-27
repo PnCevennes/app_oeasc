@@ -3,11 +3,9 @@ $(document).ready(function() {
   "use strict";
 
 
-  var init_map = function(map_name) {
+  var remove_map = function(map_name) {
 
     var map=M["map_" + map_name]
-
-    //reset
 
     if(map) {
 
@@ -18,6 +16,18 @@ $(document).ready(function() {
       });
 
     }
+
+    delete M["map_" + map_name];
+
+  }
+
+
+  var init_map = function(map_name) {
+
+    //reset
+    remove_map(map_name)
+
+    var map=M["map_" + map_name]
 
     map = M.carte_base_oeasc(map_name, "mapbox");
 
@@ -181,6 +191,7 @@ $(document).ready(function() {
 
  M.initialiser_form_localisation = initialiser_form_localisation;
  M.initialiser_show_localisation = initialiser_show_localisation;
- M.initialiser_show_declarations =initialiser_show_declarations;
+ M.initialiser_show_declarations = initialiser_show_declarations;
+ M.remove_map = remove_map;
 
 });

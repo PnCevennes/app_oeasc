@@ -11,9 +11,7 @@
 
     <h2>Declaration</h2>
 
-    <div id ="declaration" data-declaration="{{ declaration | tojson if declaration else ""  }}">
       {%- include "modules/oeasc/entity/declaration.html" %}
-    </div>
 
   </div>
 
@@ -34,7 +32,6 @@
 
   $(document).ready(function() {
 
-    // var declaration = M.get_from_flask_json($('#declaration').attr('data-declaration'));
     var declaration = JSON.parse($('#declaration').attr('data-declaration'));
 
     $('[href="#localisation"]').click(function (e) {
@@ -42,8 +39,6 @@
       setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
 
     });
-
-    // M.initialiser_show_localisation("show_localisation", declaration);
 
   });
 

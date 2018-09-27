@@ -14,7 +14,6 @@
 <form id="form_areas_localisation" data-areas='{{ declaration["areas_localisation"]|tojson if declaration["areas_localisation"] is defined else [] }}'>
 
 {# cas ONF #}
-
 {%- if foret['b_statut_public'] == true and foret['b_document'] == true %}
 
   {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_ONF_PRF") %}
@@ -38,7 +37,6 @@
   {% endif %}
 
 {# cas DGD #}
-
 {%- elif foret['b_statut_public']==false and foret['b_document'] ==true %}
 
   {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_CADASTRE") %}
@@ -51,13 +49,14 @@
   {% endif %}
 
 {# cas non documentés #}
+{%- elif foret['b_document'] == false %}
 
-{%- elif foret['b_statut_public'] == false and foret['b_document'] == false %}
+  aaa
 
   {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_CADASTRE") %}
   {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_SECTION') %}
 
-  {% if aera_container %}
+  {% if areas_container %}
 
     {{ macros.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
 

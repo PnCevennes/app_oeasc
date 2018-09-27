@@ -48,6 +48,8 @@ def get_listes_essences(declaration):
 
     d = declaration.get("id_nomenclature_peuplement_essence_principale", None)
 
+    print(d)
+
     if d:
         listes_essences["selected"].append(d["id_nomenclature"])
         listes_essences["selected_degat"].append(d["id_nomenclature"])

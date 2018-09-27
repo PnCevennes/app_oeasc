@@ -563,7 +563,7 @@ $(document).ready(function() {
 
         if(l.feature.properties[key]) {
 
-          if( l.feature.properties[key].toString() == value.toString() ) {
+          if( l.feature.properties[key].toString().trim() == value.toString().trim() ) {
 
             l_searched = l;
 

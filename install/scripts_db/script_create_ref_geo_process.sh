@@ -23,4 +23,4 @@ $ROOT_DIR/$sql_dir/script_ref_geo/script_ref_geo_merge_or_index.sh >> $file_SQL_
 $ROOT_DIR/$sql_dir/script_ref_geo/script_ref_geo_l_areas.sh >> $file_SQL_REF_GEO_PROCESS
 
 #remplir li_{nom de la table} pour les données attributs
-$ROOT_DIR/$sql_dir/script_ref_geo/script_ref_geo_li_attributes.sh >> $file_SQL_REF_GEO_PROCESS
+#$ROOT_DIR/$sql_dir/script_ref_geo/script_ref_geo_li_attributes.sh >> $file_SQL_REF_GEO_PROCESS

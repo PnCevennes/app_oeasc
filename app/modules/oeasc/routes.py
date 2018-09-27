@@ -99,17 +99,28 @@ def modifier_declaration(id_declaration):
 
     declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
 
+    print("a")
+
     if((not declaration_dict.get('id_declaration', None)) and (id_declaration != -1)):
 
         return "la declaration id_declaration : " + str(id_declaration) + " n'existe pas"
 
+    print("b")
+
+
     nomenclature = nomenclature_oeasc()
 
+    print("c", declaration_dict)
+
     listes_essences = get_listes_essences(declaration_dict)
+
+    print("d")
+
 
     id_form = request.args.get("id_form", "form_foret_statut")
 
     # check_foret(declaration_dict)
+
 
     return render_template('modules/oeasc/pages/modifier_ou_creer_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 
