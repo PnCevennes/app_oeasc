@@ -9,7 +9,7 @@
 
   <div id="NOMENCLATURE_DEGAT_TYPE" class="checkbox-group-required">
 
-    <label for="nomenclatures_degat_type">Type de dégât*<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+    <label for="nomenclatures_degat_type">Type de dégât <i>(QCM)</i> <span class="rouge">{{ "*" if required!="" else "" }}</span></label>
 
     {%- for elem in nomenclature.OEASC_DEGAT_TYPE['values'] %}
 
@@ -170,7 +170,6 @@
   </div>
 
   <div>
-    <p><i>(*) : choix multiple.</i></p>
     <p>Plus d'exemples de dégats sur <a href={{ url_for('static', filename='documents/extrait_CEMAGREF.pdf') }} target="#_blank">l'extrait du Guide pratique d'évaluation des dégâts en milieu forestier (CEMAGREF)</a></p>
   </div>
 

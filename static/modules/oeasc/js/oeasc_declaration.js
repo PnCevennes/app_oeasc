@@ -93,7 +93,11 @@ $(document).ready(function() {
 
     });
 
-    $('[name=b_statut_public]').change(function() {
+    $('[name=b_statut_public], [name=b_document]').change(function() {
+
+      // reset area_selection pour areas_localisation et areas_foret
+      $("form_areas_localisation").attr("data-areas", "[]");
+      $("form_areas_foret").attr("data-areas", "[]");
 
       recharger_form();
 
@@ -401,28 +405,28 @@ $(document).ready(function() {
 
     var id_form = get_id_form();
 
+    // si next existe on passe au suivant
     if(next) {
 
-      if(id_form == "all") {
-
-        recharger_form(null, "all");
-        $([document.documentElement, document.body]).animate({
-          scrollTop: $("#" + next).offset().top - 100
-        }, 300);
-
-      }
-
-      else if(["form_areas_foret", "form_areas_localisation"].indexOf(id_form) >= 0) {
+      if(["form_areas_foret", "form_areas_localisation"].includes(id)) {
 
         var type_code = $("#" + id_form + " .select_map").attr("data-type-code");
 
-        if(["OEASC_COMMUNE", "OEASC_ONF_PRF"].indexOf(type_code) >= 0) {
+        if(["OEASC_COMMUNE", "OEASC_ONF_PRF"].includes(type_code)) {
 
           next = id_form;
 
         }
 
-          recharger_form(null, next);
+      }
+
+      if(id_form == "all") {
+
+        recharger_form(null, "all");
+
+        $([document.documentElement, document.body]).animate({
+          scrollTop: $("#" + next).offset().top - 100
+        }, 300);
 
       }
 
@@ -434,6 +438,7 @@ $(document).ready(function() {
 
     }
 
+    //s'il ny a plus de suivant on envoie le formulaire au backend
     else {
 
       var declaration = M.get_declaration_as_dict();

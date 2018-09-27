@@ -175,7 +175,7 @@
 
   {%- if titre != "" %}
 
-  <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+  <label for="{{ name }}">{{ titre }} <i small>{{'(QCM)' if type == "checkbox" else ''}}</i> <span class="rouge">{{ "*" if required!="" else "" }}</span></label>
 
   {%- endif %}
 
@@ -225,7 +225,7 @@
 {%- macro input_double(name, titre="", object=None, required="required") %}
 
 <div id="{{ name | upper }}">
-  <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
+  <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" }}</span></label><br>
   <input type="number" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
 </div>
 
@@ -234,11 +234,30 @@
 
 {%- macro select_map(type_code, areas, areas_container=[],  titre="", b_multiple=true) %}
 
+{%- set dict_label = {
+  "OEASC_ONF_FRT" : "forêts ONF",
+  "OEASC_ONF_PRF" : "parcelles ONF",
+  "OEASC_ONF_UG" : "unités de gestion ONF",
+  "OEASC_DGD" : "fôrets possédant un document de gestion",
+  "OEASC_CADASTRE" : "parcelles cadastrales",
+  "OEASC_SECTION" : "sections cadastrales",
+  "OEASC_COMMUNE" : "communes",
+  } %}
+
+{%- set dict_label_container = {
+  "OEASC_ONF_FRT" : "Forêt ONF",
+  "OEASC_ONF_PRF" : "Parcelle(s) ONF",
+  "OEASC_DGD" : "Fôret possédant un document de gestion",
+  "OEASC_SECTION" : "Section(s) cadastrale(s)",
+  "OEASC_COMMUNE" : "Commune(s)",
+  } %}
+
 <div id="select_map_{{ type_code }}" class="select_map" data-type-code='{{ type_code }}'  data-areas-container='{{ areas_container|tojson if areas_container is defined else [] }}'>
 
   <h4>Localisation </h4>
 
-  <p>Veuillez choisir un élément sur la carte ou dans la liste.<label for="tooltip_{{ type_code }}"></label></p>
+
+  <p>Veuillez choisir un {{ "ou plusieurs éléments" if b_multiple else "élément"}} parmis les {{ dict_label[type_code] }} sur la carte ou dans la liste.<label for="tooltip_{{ type_code }}"></label></p>
 
   <div class="row">
 
@@ -256,6 +275,24 @@
 
     <div class="col-md-4">
 
+      {%- if areas_container %}
+
+      <div>
+
+        <p> {{ dict_label_container[areas_container[0]["type_code"]] }} </p>
+
+        <ul>
+        {%- for area in areas_container %}
+
+          <li>{{area['area_name']}}</li>
+
+        {% endfor %}
+        </ul>
+
+      </div>
+
+      {% endif %}
+
       <div class="localisation-select">
 
         {% if b_multiple %}
@@ -268,7 +305,7 @@
 
         {% endif %}
 
-        <div><label for="{{ type_code }}">{{ titre }}<span class="rouge">*</span></label></div>
+        <div><label for="{{ type_code }}">Liste des {{ dict_label[type_code] }}<span class="rouge">*</span></label></div>
         <select name="{{ type_code }}" id="{{ type_code }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
         </select>
       </div>

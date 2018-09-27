@@ -143,7 +143,10 @@ def get_areas_from_type_code(data_type, type_code):
 def get_areas_from_type_code_container(data_type, type_code, id_area_container):
     '''
         retourne toutes les aires pour un type_code donne (par exemple OEASC _CADASTRE)
-        et étant contenue dans la geometrie d'id_rea id_area_container
+        et étant contenue dans la geometrie identifiée par son id_area : id_area_container
+        la recherche de ses élément se fait par rapport aux area_code:
+            - soit en comparant les area_code des contenus et du contenant (cas général)
+            - soit en se servant d'une table de correlation precalculée pour le cas des forêts avec DGD
     '''
 
     if data_type == 'l':
