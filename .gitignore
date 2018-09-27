@@ -10,6 +10,7 @@ config/settings.ini_*
 config/config.py
 
 install/scripts_db/SQL/ref_geo_import.sql
+install/scripts_db/SQL/ref_geo_process.sql
 
 install/scripts_db/script_ref_geo/*_oeasc.csv
 

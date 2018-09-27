@@ -25,6 +25,8 @@ CREATE TABLE temp
 
 COPY temp FROM '/tmp/l_areas_oeasc.csv';
 
+SELECT setval('ref_geo.l_areas_id_area_seq', (SELECT max(id_area)  FROM ref_geo.l_areas), true);
+
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source,
        comment, enable, geom_4326)
        SELECT * FROM temp;
