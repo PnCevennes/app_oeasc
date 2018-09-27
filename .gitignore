@@ -11,6 +11,8 @@ config/config.py
 
 install/scripts_db/SQL/ref_geo_import.sql
 
+install/scripts_db/script_ref_geo/*_oeasc.csv
+
 static/data/*.json
 
 static/node_modules

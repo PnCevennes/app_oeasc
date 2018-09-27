@@ -259,8 +259,11 @@ INSERT INTO temp(area_code, geom)
 DROP TABLE IF EXISTS ref_geo.cor_old_communes;
 
 CREATE TABLE IF NOT EXISTS ref_geo.cor_old_communes(
-area_code character varying, 
-old_area_codes character varying[]
+    area_code character varying, 
+    old_area_codes character varying[],
+
+    CONSTRAINT pk_cor_old_communes PRIMARY KEY (area_code)
+
 );
 
 INSERT INTO ref_geo.cor_old_communes
@@ -289,5 +292,34 @@ CREATE OR REPLACE FUNCTION ref_geo.get_old_communes(
   LANGUAGE plpgsql IMMUTABLE
   COST 100
   ROWS 1000;
+
+
+DROP TABLE IF EXISTS ref_geo.cor_dgd_cadastre;
+
+CREATE TABLE ref_geo.cor_dgd_cadastre
+(
+    area_code_dgd CHARACTER VARYING, 
+    area_code_cadastre CHARACTER VARYING
+
+);
+
+INSERT INTO ref_geo.cor_dgd_cadastre
+SELECT a.area_code, l.area_code
+    FROM ref_geo.l_areas as l, (SELECT area_code, ref_geo.intersect_rel_area(id_area, 'OEASC_CADASTRE', 0.05) as id_area_cadastre
+        FROM ref_geo.l_areas
+        WHERE id_type=ref_geo.get_id_type('OEASC_DGD'))a
+    WHERE l.id_area = a.id_area_cadastre;
+
+-- sauvegarde des données pour ne pas tout recalculer par la suite
+
+COPY 
+(SELECT id_type, area_name, area_code, geom, centroid, source, 
+       comment, enable, geom_4326
+    FROM ref_geo.l_areas
+    WHERE id_type >= 300 AND id_type < 400)
+    TO '/tmp/l_areas_oeasc.csv';
+
+COPY ref_geo.cor_old_communes TO '/tmp/cor_old_communes_oeasc.csv';
+COPY ref_geo.cor_dgd_cadastre TO '/tmp/cor_dgd_cadastre_oeasc.csv';
 
 EOF

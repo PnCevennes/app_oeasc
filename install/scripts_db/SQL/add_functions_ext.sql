@@ -155,3 +155,24 @@ CREATE OR REPLACE FUNCTION ref_nomenclatures.get_nomenclature_id_from_label(
     $BODY$
     LANGUAGE plpgsql IMMUTABLE
     COST 100;
+
+CREATE OR REPLACE FUNCTION ref_geo.check_area_type_code(
+    id integer,
+    mytype character varying)
+  RETURNS boolean AS
+$BODY$
+--Function that checks if an id_nomenclature matches with wanted nomenclature type (use mnemonique type)
+  BEGIN
+    IF (id IN (SELECT id_area FROM ref_geo.l_areas WHERE id_type = ref_geo.get_id_type(mytype))
+        OR id IS NULL) THEN
+      RETURN true;
+    ELSE
+        RAISE EXCEPTION 'Error : id_area --> (%) and type_code --> (%) type didn''t match. Use id_area in corresponding type_code. See ref_geo.l_areas.id_type.', id,mytype;
+    END IF;
+    RETURN false;
+  END;
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;
+ALTER FUNCTION ref_geo.check_area_code_type(integer, character varying)
+  OWNER TO joel;
