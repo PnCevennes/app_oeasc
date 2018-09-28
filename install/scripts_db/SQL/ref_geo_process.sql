@@ -172,7 +172,7 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
 
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('OEASC_ONF_UG'), CONCAT(ccod_prf,'-',ccod_ug), CONCAT(dept,'-',ccod_frt,'-',ccod_prf,'-',ccod_ug,'-',suffix), geom, ST_CENTROID(geom), 'OEASC', '', true
+    SELECT ref_geo.get_id_type('OEASC_ONF_UG'), CONCAT(ccod_prf,'-',ccod_ug,'_',suffix), CONCAT(dept,'-',ccod_frt,'-',ccod_prf,'-',ccod_ug,'-',suffix), geom, ST_CENTROID(geom), 'OEASC', '', true
     FROM ref_geo.l_OEASC_ONF_UG;
 
 
@@ -309,6 +309,7 @@ SELECT a.area_code, l.area_code
         FROM ref_geo.l_areas
         WHERE id_type=ref_geo.get_id_type('OEASC_DGD'))a
     WHERE l.id_area = a.id_area_cadastre;
+
 
 -- sauvegarde des données pour ne pas tout recalculer par la suite
 
