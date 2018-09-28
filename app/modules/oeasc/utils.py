@@ -176,43 +176,51 @@ def check_foret(declaration_dict):
     id_foret = foret_dict.get("id_foret", None)
     areas_foret = foret_dict.get("areas_foret", None)
 
-    if((not id_foret) and areas_foret):
+    if id_foret or not area_foret:
 
-        # foret = get_id_foret_from_areas(declaration_dict["foret"]["areas_foret"]):
+        return -1
 
-        v_id_type = [get_id_type(type) for type in ["OEASC_ONF_FRT"]]
+    v_id_type = [get_id_type(type) for type in ["OEASC_ONF_FRT"]]
 
-        for area in areas_foret:
+    for area in areas_foret:
 
-            id_area = area['id_area']
-            data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
+        id_area = area['id_area']
+        data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
 
-            if data:
+        if not data:
 
-                if data.id_type in v_id_type:
+            return -1
 
-                    forets = DB.session.query(TForet).all()
+        if data.id_type not in v_id_type:
 
-                    for f in forets:
+            return -1
 
-                        f_dict = f.as_dict(True)
+        forets = DB.session.query(TForet).all()
 
-                        for area_foret in f_dict['areas_foret']:
+        for f in forets:
 
-                            if id_area == area_foret['id_area']:
+            f_dict = f.as_dict(True)
 
-                                id_proprietaire = f_dict.get('id_proprietaire', None)
+            for area_foret in f_dict['areas_foret']:
 
-                                if id_proprietaire:
+                if id_area != area_foret['id_area']:
 
-                                    proprietaire = DB.session.query(TProprietaire).filter(
-                                        id_proprietaire == TProprietaire.id_proprietaire).first()
+                    continue
 
-                                    f_dict["proprietaire"] = proprietaire.as_dict(True)
+                id_proprietaire = f_dict.get('id_proprietaire', None)
 
-                                declaration_dict['foret'] = f_dict
+                if not id_proprietaire:
 
-                                return 1
+                    continue
+
+                proprietaire = DB.session.query(TProprietaire).filter(
+                    id_proprietaire == TProprietaire.id_proprietaire).first()
+
+                f_dict["proprietaire"] = proprietaire.as_dict(True)
+
+            declaration_dict['foret'] = f_dict
+
+            return 1
 
     return -1
 

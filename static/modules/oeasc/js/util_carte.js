@@ -47,6 +47,13 @@ $(document).ready(function() {
   var f_form = function(ls, layer, fp, map) {
 
     var $select_layer = $("#" + map.map_name);
+
+    var area_name = fp.area_name;
+
+    area_name.replace(/-_/g, "_")
+    area_name.replace(/_$/g, "")
+    area_name.replace(/-$/g, "")
+
     var s_option = '<option value="' + fp.id_area + '"> ' + fp.area_name + " </option>";
     $select_layer.append(s_option);
 
@@ -111,28 +118,28 @@ $(document).ready(function() {
   // gerer les evenements sur le select
 
 
-  var f_order_select = function(elem) {
+  // var f_order_select = function(elem) {
 
-    var html='<option value=""></option>';
+  //   var html='<option value=""></option>';
 
 
 
-    elem.find(':selected').each(function() {
+  //   elem.find(':selected').each(function() {
 
-      html+=this.outerHTML;
+  //     html+=this.outerHTML;
 
-    });
+  //   });
 
-    elem.find(':not([value=""]):not(:selected)').each(function() {
+  //   elem.find(':not([value=""]):not(:selected)').each(function() {
 
-      html+=this.outerHTML;
+  //     html+=this.outerHTML;
 
-    });
+  //   });
 
-    elem.html(html);
-    elem.selectpicker("refresh");
+  //   elem.html(html);
+  //   elem.selectpicker("refresh");
 
-  };
+  // };
 
   var f_change = function(map) { 
     return function(e) {
@@ -279,6 +286,7 @@ $(document).ready(function() {
       form_name = "form_areas_foret"
       data_type_2 ="id_foret";
       val = parseInt($("#form_foret").attr("data-id-foret"));
+
     }
 
     if( M.type_codes_areas_localisation.indexOf(map.map_name )>= 0 ) {
