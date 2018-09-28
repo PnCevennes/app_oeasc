@@ -174,5 +174,3 @@ $BODY$
 $BODY$
   LANGUAGE plpgsql IMMUTABLE
   COST 100;
-ALTER FUNCTION ref_geo.check_area_code_type(integer, character varying)
-  OWNER TO joel;

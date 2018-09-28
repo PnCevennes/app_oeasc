@@ -92,8 +92,8 @@ def get_form_declaration():
     id_form = data['id_form']
 
     # recherche de la  foret le cas echeant (apres un choix de foret documentee)
-    check_foret(declaration_dict)
-    check_proprietaire(declaration_dict, nomenclature)
+    # check_foret(declaration_dict)
+    # check_proprietaire(declaration_dict, nomenclature)
 
     get_dict_nomenclature_areas(declaration_dict, nomenclature)
 
@@ -143,6 +143,7 @@ def random_populate(nb):
         print("i", i, nb, declaration_dict["id_declaration"], declaration_dict["foret"]["nom_foret"], "public", declaration_dict["foret"]["b_statut_public"], "documenté", declaration_dict["foret"]["b_document"])
 
     return "ok"
+
 
 @bp.route('create_or_update_declaration', methods=['POST'])
 @json_resp
