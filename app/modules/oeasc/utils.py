@@ -176,11 +176,11 @@ def check_foret(declaration_dict):
     id_foret = foret_dict.get("id_foret", None)
     areas_foret = foret_dict.get("areas_foret", None)
 
-    if id_foret or not area_foret:
+    if id_foret or not areas_foret:
 
         return -1
 
-    v_id_type = [get_id_type(type) for type in ["OEASC_ONF_FRT"]]
+    v_id_type = [get_id_type(type) for type in ["OEASC_ONF_FRT", "OEASC_DGD"]]
 
     for area in areas_foret:
 
@@ -223,31 +223,6 @@ def check_foret(declaration_dict):
             return 1
 
     return -1
-
-
-def get_gravite(declaration_dict, nomenclature):
-
-    # id_nomenclature_peuplement_essence_principale = declaration_dict["id_nomenclature_peuplement_essence_principale"]
-
-    id_nomenclature_degat_gravite_global = 0
-
-    for degat in declaration_dict['degats']:
-
-        for degat_essence in degat.get('degat_essences', []):
-
-            # if degat_essence.get('id_nomenclature_degat_essence') == id_nomenclature_peuplement_essence_principale:
-
-            id_nomenclature_degat_gravite = degat_essence.get('id_nomenclature_degat_gravite')
-
-            if id_nomenclature_degat_gravite > id_nomenclature_degat_gravite_global:
-
-                id_nomenclature_degat_gravite_global = id_nomenclature_degat_gravite
-
-    if id_nomenclature_degat_gravite_global == 0:
-
-        return ""
-
-    return get_nomenclature_from_id(id_nomenclature_degat_gravite_global, nomenclature)
 
 
 def print_date(s_date):
@@ -321,7 +296,6 @@ def utils_dict():
     d["get_organisme_name_from_id_organisme"] = get_organisme_name_from_id_organisme
     d["get_organisme_name_from_id_declarant"] = get_organisme_name_from_id_declarant
     d["get_nomenclature_from_id"] = get_nomenclature_from_id
-    d["get_gravite"] = get_gravite
     d['get_fonction_droit'] = get_fonction_droit
     d['print_date'] = print_date
     d['print_commune'] = print_commune

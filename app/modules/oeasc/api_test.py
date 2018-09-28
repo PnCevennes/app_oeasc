@@ -10,6 +10,13 @@ from .repository import (
     get_declarations,
     nomenclature_oeasc,
     get_dict_nomenclature_areas,
+
+)
+
+from .utils import (
+
+    check_foret
+
 )
 
 from .declaration_sample import declaration_dict_random_sample
@@ -21,6 +28,21 @@ from app.utils.utilssqlalchemy import (
 )
 
 bp = Blueprint('oeasc_export', __name__)
+
+
+@bp.route('test_check_foret/<int:id_area>', methods=['GET'])
+@json_resp
+def test_check_foret(id_area):
+
+    declaration = declaration_dict_random_sample()
+
+    nomenclature = nomenclature_oeasc()
+
+    get_dict_nomenclature_areas(declaration, nomenclature)
+
+    check_foret(declaration)
+
+    return declaration
 
 
 @bp.route('get_nomenclature', methods=['GET'])
