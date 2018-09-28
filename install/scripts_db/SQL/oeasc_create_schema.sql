@@ -56,8 +56,7 @@ CREATE TABLE IF NOT EXISTS oeasc.t_forets
     id_proprietaire INTEGER,
 
     b_statut_public BOOLEAN,
-    -- b_regime_forestier BOOLEAN,
-    -- b_document_de_gestion BOOLEAN,
+
     b_document BOOLEAN,
 
     nom_foret CHARACTER VARYING(256),

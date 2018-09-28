@@ -1,5 +1,9 @@
 OEASC_ONF_FRT forets_gestion_onf_pec            CP1250          "dept,'-',ccod_frt"                                     "dept,'-',llib_frt"
 OEASC_ONF_PRF parcellaire_foret_publique_pec    CP1250          "dept,'-',ccod_frt,'-',ccod_prf"                        "ccod_prf,'-',llib_prf"
+<<<<<<< HEAD
 OEASC_ONF_UG  unites_gestion_foret_publique_pec latin1          "dept,'-',ccod_frt,'-',ccod_prf,'-',ccod_ug,'-',suffix" "ccod_prf,'-',ccod_ug,'_',suffix"
+=======
+OEASC_ONF_UG  unites_gestion_foret_publique_pec latin1          "dept,'-',ccod_frt,'-',ccod_prf,'-',ccod_ug,'-',suffix" "ccod_prf,'-',ccod_ug,'-',suffix"
+>>>>>>> f9c0592a24608aff252486b8b5f6351b512e0fe4
 OEASC_DGD documents_gestion_durable_pec         ISO-8859-1      "forid,'-',proref"                                                "forinsee,'-',fornom"
 OEASC_CADASTRE  cadastre_pec                      windows-1250    "insee_com,'-',section,'-',num_parc" "insee_com,'-',section,'-',num_parc"
