@@ -25,6 +25,7 @@ from .repository import (
     get_fonction_droit,
     get_description_droit,
     get_db,
+    get_dict_nomenclature_areas,
 )
 
 
@@ -47,8 +48,6 @@ def get_listes_essences(declaration):
     listes_essences["selected_degat"] = []
 
     d = declaration.get("id_nomenclature_peuplement_essence_principale", None)
-
-    print(d)
 
     if d:
         listes_essences["selected"].append(d["id_nomenclature"])
@@ -162,67 +161,70 @@ def check_proprietaire(declaration_dict, nomenclature):
     return -1
 
 
-def check_foret(declaration_dict):
+def get_foret_from_name(nom_foret):
+
+    data = DB.session.query(TForet).filter(TForet.nom_foret == nom_foret).first()
+
+    if not data:
+
+        return None
+
+    return data.as_dict(True)
+
+
+def check_foret(declaration_dict, nomenclature):
     '''
-        recherche une foret quand une aire est renseignées
+        recherche une foret quand une aire de type ONF_FRT ou DGD est renseignée
     '''
 
     foret_dict = declaration_dict.get("foret", None)
 
     if not foret_dict:
 
-        return -1
+        return False
 
     id_foret = foret_dict.get("id_foret", None)
     areas_foret = foret_dict.get("areas_foret", None)
 
     if id_foret or not areas_foret:
 
-        return -1
+        return False
 
-    v_id_type = [get_id_type(type) for type in ["OEASC_ONF_FRT", "OEASC_DGD"]]
+    v_type_code = ["OEASC_ONF_FRT", "OEASC_DGD"]
 
-    for area in areas_foret:
+    areas_foret = list(filter(lambda x: x.get("type_code", None) in v_type_code, areas_foret))
 
-        id_area = area['id_area']
-        data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
+    if not areas_foret:
 
-        if not data:
+        return False
 
-            return -1
+    nom_foret = areas_foret[0].get('area_name', "")
 
-        if data.id_type not in v_id_type:
+    foret = get_foret_from_name(nom_foret)
 
-            return -1
+    if not foret:
 
-        forets = DB.session.query(TForet).all()
+        return False
 
-        for f in forets:
+    # declaration_dict['foret'] = foret
 
-            f_dict = f.as_dict(True)
+    id_proprietaire = foret.get('id_proprietaire', None)
 
-            for area_foret in f_dict['areas_foret']:
+    if not id_proprietaire:
 
-                if id_area != area_foret['id_area']:
+        return False
 
-                    continue
+    proprietaire = DB.session.query(TProprietaire).filter(
+        id_proprietaire == TProprietaire.id_proprietaire).first()
 
-                id_proprietaire = f_dict.get('id_proprietaire', None)
+    if not proprietaire:
 
-                if not id_proprietaire:
+        return False
 
-                    continue
+    foret['proprietaire'] = proprietaire.as_dict(True)
+    get_dict_nomenclature_areas(foret, nomenclature)
 
-                proprietaire = DB.session.query(TProprietaire).filter(
-                    id_proprietaire == TProprietaire.id_proprietaire).first()
-
-                f_dict["proprietaire"] = proprietaire.as_dict(True)
-
-            declaration_dict['foret'] = f_dict
-
-            return 1
-
-    return -1
+    declaration_dict["foret"] = foret
 
 
 def print_date(s_date):

@@ -90,7 +90,7 @@ INSERT INTO oeasc.t_forets (
     SELECT oeasc.get_id_proprietaire_from_name(p.nom_proprietaire), true, true, l.area_name, ROUND(ST_AREA(l.geom)/10000*1)/1 as s
         FROM oeasc.t_proprietaires as p, ref_geo.l_oeasc_dgd as d, ref_geo.l_areas as l
         WHERE p.nom_proprietaire = d.prop
-        AND d.proref = l.area_code;
+        AND CONCAT(d.forid,'-', d.proref) = l.area_code;
 
 -- renseignement des communes et des departements :
 

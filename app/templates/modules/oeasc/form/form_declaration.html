@@ -51,8 +51,6 @@
 {# cas non documentés #}
 {%- elif foret['b_document'] == false %}
 
-  aaa
-
   {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_CADASTRE") %}
   {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_SECTION') %}
 

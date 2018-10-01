@@ -170,11 +170,13 @@ def get_areas_from_type_code_container(data_type, type_code, id_area_container):
 
         result = DB.engine.execute(sql_text)
 
+        data = []
+
         for r in result:
 
             area_code = r[0]
 
-            data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(area_code + "-%"))).order_by(table.area_name).all()
+            data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(area_code + "-%"))).order_by(table.area_name).all() + data
 
     # cas des dgd
     elif(container.id_type == id_type_dgd):
@@ -188,40 +190,12 @@ def get_areas_from_type_code_container(data_type, type_code, id_area_container):
 
         data = DB.session.query(table).filter(table.area_code.in_(v)).all()
 
-        # print("avant exec")
-
-        # aire_container = DB.session.query(func.ST_AREA(container.geom_4326)).first()[0]
-
-        # data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable))
-        # # data = data.filter(func.ST_INTERSECTS(table.geom_4326, container.geom_4326)).subquery()
-        # data = data.filter(func.ST_INTERSECTS(table.geom_4326, container.geom_4326))
-
-        # print("avant req")
-        # data = data.order_by(table.area_name).all()
-        # print("apres_req")
-
-        # data2 = []
-
-        # for d in data:
-
-        #     aire_intersection = DB.session.query(func.ST_AREA(func.ST_INTERSECTION(d.geom_4326, container.geom_4326))).first()[0]
-
-        #     aire_geom = DB.session.query(func.ST_AREA(d.geom_4326)).first()[0]
-
-        #     print(aire_container, aire_intersection, aire_geom)
-
-        #     rel = aire_intersection * (1. / aire_container + 1. / aire_geom)
-
-        #     if rel > 0.05:
-        #         data2.append(d)
-
-        # data = data2
-
     # autres cas ONF
     else:
 
         data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(container.area_code + "-%"))).order_by(table.area_name).all()
 
+    # output
     if data_type == 'l':
 
         out = FeatureCollection([d.get_geofeature() for d in data])

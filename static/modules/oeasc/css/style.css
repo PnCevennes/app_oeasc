@@ -6,7 +6,6 @@
 
 
 /* header titre */
-
 .img-titre h1 {
   font-weight: bold;
   border-radius: 5px;
@@ -256,6 +255,18 @@ header div{
 .degat-essence > div:last-child {
 
   width: 15%;
+
+}
+
+.form {
+
+  border: 1px solid lightblue;
+  display: inline-block;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  
 
 }
 
@@ -525,10 +536,10 @@ form {
 }
 
 tfoot input {
-        width: 100%;
-        padding: 3px;
-        box-sizing: border-box;
-    }
+  width: 100%;
+  padding: 3px;
+  box-sizing: border-box;
+}
 
 .row-selected {
 

@@ -24,6 +24,8 @@ from app.ref_geo.repository import (
     get_type_code,
 )
 
+import re
+
 from .models import (
     TDeclaration,
     TForet,
@@ -151,7 +153,6 @@ def get_area_from_id(id_area):
 
     return out
 
-
 def get_dict_nomenclature_areas(dict_in, nomenclature):
     '''
         récupère les nomenclatures et les aires dans un dictionnaire pour les element d'un dictionnaire
@@ -171,7 +172,6 @@ def get_dict_nomenclature_areas(dict_in, nomenclature):
             continue
 
         if key.startswith("areas"):
-
             dict_in[key] = [get_area_from_id(elem['id_area']) for elem in dict_in[key]]
 
         if key.startswith("nomenclatures_"):
@@ -193,8 +193,6 @@ def get_dict_nomenclature_areas(dict_in, nomenclature):
 
 
 def get_foret_type(foret_dict):
-
-    print(foret_dict)
 
     if not foret_dict['proprietaire']['id_nomenclature_proprietaire_type']:
 
@@ -332,16 +330,22 @@ def f_create_or_update_declaration(declaration_dict):
 
     id_declaration = declaration_dict.get("id_declaration", None)
 
-    id_foret = declaration_dict["foret"].get("id_foret", None)
-    id_proprietaire = declaration_dict["foret"]["proprietaire"].get("id_proprietaire", None)
+    # on n'ecrit la foret ou le proprietaire dans la base dans la base que dans le cas d'une foret non documentée
+    if not declaration_dict["foret"]["b_document"]:
 
-    proprietaire = create_or_modify(TProprietaire, 'id_proprietaire', id_proprietaire, declaration_dict["foret"]["proprietaire"])
+        id_foret = declaration_dict["foret"].get("id_foret", None)
+        id_proprietaire = declaration_dict["foret"]["proprietaire"].get("id_proprietaire", None)
 
-    declaration_dict['foret']['id_proprietaire'] = proprietaire.id_proprietaire
+        proprietaire = create_or_modify(TProprietaire, 'id_proprietaire', id_proprietaire, declaration_dict["foret"]["proprietaire"])
 
-    foret = create_or_modify(TForet, 'id_foret', id_foret, declaration_dict["foret"])
+        declaration_dict['foret']['id_proprietaire'] = proprietaire.id_proprietaire
 
-    declaration_dict['id_foret'] = foret.id_foret
+        foret = create_or_modify(TForet, 'id_foret', id_foret, declaration_dict["foret"])
+
+        declaration_dict['id_foret'] = foret.id_foret
+
+    # else:
+
 
     # pour le cas ou on veut generer une create date en random :
     # - elle sera crée un fois avec la date courante
@@ -354,9 +358,10 @@ def f_create_or_update_declaration(declaration_dict):
 
     declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
 
-    d = dfpu_as_dict(declaration, foret, proprietaire, None)
+#    d = dfpu_as_dict(declaration, foret, proprietaire, None)
 
-    return d
+#    return d
+    return True
 
 
 def get_liste_organismes_oeasc():

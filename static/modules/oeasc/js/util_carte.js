@@ -43,16 +43,9 @@ $(document).ready(function() {
 
 
   // ajouter l'option au select
-
   var f_form = function(ls, layer, fp, map) {
 
     var $select_layer = $("#" + map.map_name);
-
-    var area_name = fp.area_name;
-
-    area_name.replace(/-_/g, "_")
-    area_name.replace(/_$/g, "")
-    area_name.replace(/-$/g, "")
 
     var s_option = '<option value="' + fp.id_area + '"> ' + fp.area_name + " </option>";
     $select_layer.append(s_option);
@@ -301,7 +294,6 @@ $(document).ready(function() {
 
     if(form_name == "form_areas_foret" && M["form_areas_foret"].b_loaded) {
 
-      console.log("reset form_areas_localisation")
       $("#form_areas_localisation").attr("data-areas", "[]");
 
     }

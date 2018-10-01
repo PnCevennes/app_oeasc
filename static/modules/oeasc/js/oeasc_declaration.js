@@ -49,7 +49,6 @@ $(document).ready(function() {
 
     liste_forms.forEach(function(e, i) {
 
-
       d_config_form[e] = {};
 
       var n = liste_forms.length;
@@ -96,8 +95,7 @@ $(document).ready(function() {
     $('[name=b_statut_public], [name=b_document]').change(function() {
 
       // reset area_selection pour areas_localisation et areas_foret
-      $("form_areas_localisation").attr("data-areas", "[]");
-      $("form_areas_foret").attr("data-areas", "[]");
+      M.reset_foret();
 
       recharger_form();
 
@@ -106,9 +104,7 @@ $(document).ready(function() {
     $()
     $('#form_areas_foret select').change(function() {
 
-      console.log("reset selections");
-
-      $("form_areas_localisation").attr("data-areas", "[]");
+      $("#form_areas_localisation").attr("data-areas", "[]");
 
     });
 
@@ -410,11 +406,11 @@ $(document).ready(function() {
 
       if(["form_areas_foret", "form_areas_localisation"].includes(id)) {
 
-        var type_code = $("#" + id_form + " .select_map").attr("data-type-code");
+        var type_code = $("#" + id + " .select_map").attr("data-type-code");
 
         if(["OEASC_COMMUNE", "OEASC_ONF_PRF"].includes(type_code)) {
 
-          next = id_form;
+          next = id;
 
         }
 

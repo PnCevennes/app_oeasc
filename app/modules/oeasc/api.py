@@ -92,10 +92,9 @@ def get_form_declaration():
     id_form = data['id_form']
 
     # recherche de la  foret le cas echeant (apres un choix de foret documentee)
-    # check_foret(declaration_dict)
-    # check_proprietaire(declaration_dict, nomenclature)
-
     get_dict_nomenclature_areas(declaration_dict, nomenclature)
+
+    check_foret(declaration_dict, nomenclature)
 
     listes_essences = get_listes_essences(declaration_dict)
 
@@ -138,7 +137,7 @@ def random_populate(nb):
             continue
 
         check_foret(declaration_dict)
-        declaration_dict = f_create_or_update_declaration(declaration_dict)
+        f_create_or_update_declaration(declaration_dict)
 
         print("i", i, nb, declaration_dict["id_declaration"], declaration_dict["foret"]["nom_foret"], "public", declaration_dict["foret"]["b_statut_public"], "documenté", declaration_dict["foret"]["b_document"])
 

@@ -70,32 +70,23 @@
 
 </form>
 
-{# {{ macros.select_map("areas_foret", ns.localisation_type, foret["areas_foret"]) }} #}
+
+{% if foret['b_document'] ==false %}
+
+<form id="form_information_foret">
+
+  <h4>Informations sur la forêt</h4>
+
+  {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required="required" if foret['b_statut_public'] else '') }}
+
+  {{ macros.input_double("superficie", "Superficie totale de la forêt", foret) }}
+
+  <input type=submit value=Suivant class="btn btn-success bottom-right">
+
+</form>
 
 
+{%- set proprietaire = foret.proprietaire %}
+{%- include "modules/oeasc/form/form_proprietaire.html" %}
 
-
-{#
-  <form id="form_proprietaire_declarant">
-
-    {{ macros.radio_nomenclature("id_nomenclature_proprietaire_declarant", nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "radio", "Le Déclarant est-il le propriétaire de la forêt ?", object=foret) }}
-
-    <input type=submit value=Suivant class="btn btn-success bottom-right">
-
-  </form> #}
-
-  {%- set proprietaire = foret.proprietaire %}
-  {%- include "modules/oeasc/form/form_proprietaire.html" %}
-
-
-  <form id="form_information_foret">
-
-    <h4>Informations sur la forêt</h4>
-
-    {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required="required" if foret['b_statut_public'] else '') }}
-
-    {{ macros.input_double("superficie", "Superficie totale de la forêt", foret) }}
-
-    <input type=submit value=Suivant class="btn btn-success bottom-right">
-
-  </form>
+{% endif %}

@@ -3,6 +3,33 @@ $(document).ready(function() {
   "use strict";
 
 
+
+var reset_proprietaire = function() {
+
+    $('#form_proprietaire').attr('data-id-proprietaire', "");
+
+    $("#nom_proprietaire").val("");
+    $("#telephone").val("");
+    $("#email").val("");
+    $("#adresse").val("");
+    $("#s_code_postal").val("");
+    $("#s_commune_proprietaire").val("");
+
+}
+
+  var reset_foret = function() {
+
+    reset_proprietaire();
+
+    // re-initialise data-areas foret, data-areas localisation et id_foret
+    $("#form_areas_localisation").attr("data-areas", "[]");
+    $("#form_areas_foret").attr("data-areas", "[]");
+    $('#form_foret').attr('data-id-foret', "");
+    $("#nom_foret").val("");
+    $("#superficie").val("");
+
+  };
+
   var get_choice = function(name) {
 
     var b = $("[name=" + name + "]:checked").val();
@@ -295,5 +322,6 @@ $(document).ready(function() {
   M.get_foret_as_dict=get_foret_as_dict;
   M.get_degats_as_dict=get_degats_as_dict;
   M.get_cor = get_cor;
+  M.reset_foret = reset_foret;
   // M.get_from_flask_json = get_from_flask_json;
 });
