@@ -39,26 +39,6 @@ password_confirmation=$password
 remarques="utilisateur test OEASC"
 id_app=500
 
-# jubil -1
-
-# nom_role=CLEMENT
-# prenom_role=Joel
-# email=joelclems@gmail
-# identifiant=$email
-# id_droit=1
-# id_organisme=$id_jubil
-
-# echo '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
-# '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-# '"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}'
-
-# curl --header "Content-Type: application/json" \
-# --request POST \
-# --data '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
-# '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-# '"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}' \
-# $URL_USERHUB/api_register/role
-
 # pnc - agent
 
 nom_role=Nacer
@@ -72,7 +52,7 @@ curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
 '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}' \
+'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":"Agent","id_unite":-1,"id_organisme":"'$id_organisme'"}' \
 $URL_USERHUB/api_register/role
 
 # pnc - directeur
@@ -88,7 +68,7 @@ curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
 '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}' \
+'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":"Directeur","id_unite":-1,"id_organisme":"'$id_organisme'"}' \
 $URL_USERHUB/api_register/role
 
 # pnc - animateur
@@ -104,7 +84,7 @@ curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
 '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}' \
+'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":"Animateur","id_unite":-1,"id_organisme":"'$id_organisme'"}' \
 $URL_USERHUB/api_register/role
 
 # pnc - administrateur
@@ -120,7 +100,7 @@ curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
 '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}' \
+'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":"Animateur","id_unite":-1,"id_organisme":"'$id_organisme'"}' \
 $URL_USERHUB/api_register/role
 
 
@@ -137,7 +117,7 @@ curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
 '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}' \
+'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":"Agent","id_unite":-1,"id_organisme":"'$id_organisme'"}' \
 $URL_USERHUB/api_register/role
 
 # onf directeur
@@ -153,5 +133,5 @@ curl --header "Content-Type: application/json" \
 --request POST \
 --data '{"nom_role":"'$nom_role'","prenom_role":"'$prenom_role'","identifiant":"'$identifiant'","email":"'$email'",'\
 '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
-'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":null,"id_unite":-1,"id_organisme":"'$id_organisme'"}' \
+'"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":"Directeur","id_unite":-1,"id_organisme":"'$id_organisme'"}' \
 $URL_USERHUB/api_register/role

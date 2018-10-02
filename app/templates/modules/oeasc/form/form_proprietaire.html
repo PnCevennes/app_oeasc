@@ -1,8 +1,8 @@
-<form id="form_proprietaire" data-id-proprietaire="{{proprietaire['id_proprietaire'] or ''}}"" data-id-declarant="{{proprietaire['id_declarant'] or ''}}" >
+<form id="form_proprietaire" data-id-proprietaire="{{proprietaire['id_proprietaire'] or ''}}"" data-id-declarant="{{proprietaire['id_declarant'] or ''}}" data-id-nomenclature-proprietaire-type="{{proprietaire['id_nomenclature_proprietaire_type'] or ''}}" >
 
   <h4>Coordonnées du propriétaire</h4>
 
-  {%- if (not foret["b_statut_public"]) %}
+  {%- if (foret["b_document"]==false) %}
 
     {{ macros.radio_nomenclature("id_nomenclature_proprietaire_declarant", nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "radio", "Le Déclarant est-il le propriétaire de la forêt ?", object=declaration) }}
 
@@ -14,39 +14,12 @@
 
   {%- endif %}
 
-
-  {%- if proprietaire.nom_proprietaire == 'État'  and id_form =="form_proprietaire" %}
-
-  <div><p>L'État est propriétaire de la forêt.</p></div>
-
-    <script>
-
-      $(document).ready(function() {
-
-        "use strict";
-
-        var id_form = M.get_id_form();
-
-        if(id_form == "form_proprietaire") {
-
-          $("#form_proprietaire").submit();
-
-        }
-
-      });
-
-    </script>
-
-  {%- else %}
-
-    {{ macros.input_text("nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire) }}
-    {{ macros.input_text("telephone", "Téléphone", proprietaire, required=required) }}
-    {{ macros.input_text("email", "Email", proprietaire, required=required) }}
+    {{ macros.input_text("nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire, required=required) }}
+    {{ macros.input_tel("telephone", "Téléphone", proprietaire, required=required) }}
+    {{ macros.input_email("email", "Email", proprietaire, required=required) }}
     {{ macros.input_text("adresse", "Adresse du propriétaire (n°, rue, hameau, lieu-dit)", proprietaire, required=required) }}
-    {{ macros.input_text("s_code_postal", "Code postal", proprietaire, required=required) }}
+    {{ macros.input_cp("s_code_postal", "Code postal", proprietaire, required=required) }}
     {{ macros.input_text("s_commune_proprietaire", "Commune du propriétaire", proprietaire, required=required) }}
-
-  {%- endif %}
 
   <input type=submit value=Suivant class="btn btn-success bottom-right">
 

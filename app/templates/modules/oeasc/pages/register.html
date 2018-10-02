@@ -51,6 +51,15 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="desc_role">Fonction : </label>
+                    <select class="selectpicker" id="desc_role" required>
+                        <option value="Agent">Agent</option>
+                        <option value="Directeur">Directeur</option>
+                        <option value="Particulier">Particulier</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="pwd">Mot de passe : </label>
                     <input type="password" class="form-control" id="user_pwd" required>
                 </div>
@@ -86,13 +95,6 @@
 
 
         $("#login-error").hide();
-
-        // $('#user_pwd').val("1234");
-        // $('#user_pwd_conf').val("1234");
-        // $('#user_nom').val("CLEMENT");
-        // $('#user_prenom').val("Joel");
-        // $('#user_email').val("jloubijlouba@gmail.com");
-        // $("#user_organism").val(1000177).change();
 
         var register = function(e) {
 
@@ -160,6 +162,7 @@
                 "desc_role": null,
                 "id_unite": -1,
                 "id_organisme": $('#user_organism').val(),
+                "desc_role": $('#desc_role').val(),
 
             };
 

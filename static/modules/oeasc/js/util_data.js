@@ -154,6 +154,7 @@ var reset_proprietaire = function() {
     proprietaire.id_proprietaire = parseInt($('#form_proprietaire').attr('data-id-proprietaire'));
 
     proprietaire.id_declarant = parseInt($('#form_proprietaire').attr('data-id-declarant'));
+    proprietaire.id_nomenclature_proprietaire_type = parseInt($('#form_proprietaire').attr('data-id-nomenclature-proprietaire-type'));
 
     proprietaire.nom_proprietaire = $("#nom_proprietaire").val();
     proprietaire.telephone = $("#telephone").val();
@@ -214,7 +215,6 @@ var reset_proprietaire = function() {
     declaration.id_nomenclature_proprietaire_declarant = parseInt($("[name=id_nomenclature_proprietaire_declarant]:checked").val());
 
 
-
     // - degats
 
     declaration.degats = get_degats_as_dict();
@@ -223,6 +223,7 @@ var reset_proprietaire = function() {
 
     // declaration.id_nomenclature_foret_type = parseInt($("[name=id_nomenclature_foret_type] option:selected").val());
     declaration.areas_localisation = get_areas_cor("form_areas_localisation");
+
 
     // - peuplement
 
@@ -255,6 +256,7 @@ var reset_proprietaire = function() {
 
     declaration.id_nomenclature_peuplement_acces = parseInt($("[name=id_nomenclature_peuplement_acces]:checked").val());
     declaration.nomenclatures_peuplement_espece = get_cor("nomenclatures_peuplement_espece", "id_nomenclature", "check");;
+
 
     // - commentaires
 
@@ -315,7 +317,6 @@ var reset_proprietaire = function() {
 
   };
 
-
   M.get_areas_cor = get_areas_cor;
   M.set_areas_cor = set_areas_cor;
   M.get_declaration_as_dict=get_declaration_as_dict;
@@ -323,5 +324,6 @@ var reset_proprietaire = function() {
   M.get_degats_as_dict=get_degats_as_dict;
   M.get_cor = get_cor;
   M.reset_foret = reset_foret;
-  // M.get_from_flask_json = get_from_flask_json;
+  M.reset_proprietaire = reset_proprietaire;
+
 });

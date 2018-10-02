@@ -3,15 +3,15 @@
   <div id="fil_global" class="fil-ariane">
     <a href="#" data-id-form="form_foret_statut">1 - Foret-Propriétaire</a>
     <!-- <span class="fas fa-angle-righ"></span> -->
-    <a href="#" data-id-form="form_areas_localisation">2 - Localisation parcelles</a>
+    <!-- <a href="#" data-id-form="form_areas_localisation">2 - Localisation parcelles</a> -->
     <!-- <span class="fas fa-angle-righ"></span> -->
-    <a href="#" data-id-form="form_peuplement_essence">3 - Peuplement</a>
+    <a href="#" data-id-form="form_peuplement_description">2 - Peuplement</a>
     <!-- <span class="fas fa-angle-righ"></span> -->
-    <a href="#" data-id-form="form_degats">4 - Dégâts</a>
+    <a href="#" data-id-form="form_degats">3 - Dégâts</a>
     <!-- <span class="fas fa-angle-righ"></span> -->
-    <a href="#" data-id-form="form_commentaire">5 - Commentaires</a>
+    <a href="#" data-id-form="form_commentaire">4 - Commentaires</a>
     <!-- <span class="fas fa-angle-righ"></span> -->
-    <a href="#" data-id-form="form_declaration">6 - Résumé-Validation</a>
+    <a href="#" data-id-form="form_declaration">5 - Résumé-Validation</a>
   </div>
 
   <div id="fil_local" class="fil-ariane">
@@ -26,36 +26,30 @@
     <!-- <span class="fas fa-angle-righ"></span> -->
     <a href="#" data-id-form="form_information_foret">1.4 - Forêt</a>
 
-    {%- elif id_form in ["form_areas_localisation"] %}
-
-    <a href="#" data-id-form="form_areas_localisation">2.1 - Localisation</a>
-
     {%- elif id_form in ["form_commentaire"] %}
 
-    <a href="#" data-id-form="form_commentaire">5.1 - Commentaire</a>
+    <a href="#" data-id-form="form_commentaire">4.1 - Commentaire</a>
 
     {%- elif id_form in ["form_degats"] %}
 
-    <a href="#" data-id-form="form_degats">4.1 Dégâts</a>
+    <a href="#" data-id-form="form_degats">3.1 Dégâts</a>
 
     {%- elif id_form in ["form_declaration"] %}
 
-    <a href="#" data-id-form="form_declaration">6.1 - Résumé-Validation</a>
+    <a href="#" data-id-form="form_declaration">5.1 - Résumé-Validation</a>
 
-    {%- elif id_form in ["form_peuplement_essence", "form_peuplement_detail", "form_peuplement_protection", "form_peuplement_paturage", "form_peuplement_espece"] %}
-
-    <a href="#" data-id-form="form_peuplement_essence">3.1 - Essences</a>
-    <!-- <span class="fas fa-angle-righ"></span> -->
-    <a href="#" data-id-form="form_peuplement_detail">3.2 - Détails</a>
-    <!-- <span class="fas fa-angle-righ"></span> -->
+    {%- elif id_form in ["form_areas_localisation", "form_peuplement_description", "form_peuplement_detail", "form_peuplement_protection", "form_peuplement_paturage", "form_peuplement_espece"] %}
+    <a href="#" data-id-form="form_areas_localisation">3.1 - Localisation</a>
+    <a href="#" data-id-form="form_peuplement_description">3.2 - Description</a>
     <a href="#" data-id-form="form_peuplement_protection">3.3 - Protection</a>
-    <!-- <span class="fas fa-angle-righ"></span> -->
-    <a href="#" data-id-form="form_peuplement_paturage">3.4 - Pâturage</a>
-    <!-- <span class="fas fa-angle-righ"></span> -->
-    <a href="#" data-id-form="form_peuplement_espece">3.5 - Autres</a>
+    <a href="#" data-id-form="form_peuplement_paturage">3.4 - Pâturage</a>    <!-- <span class="fas fa-angle-righ"></span> -->
+    <a href="#" data-id-form="form_peuplement_espece">3.5 - Autre</a>
 
     {%- endif %}
 
   </div>
-  
+
+    <div class=progression><span id="progress_text" class="small"></span><div id="progress_bar" class="small"></div></div>
+  <div class='small red'><i>Pour revenir à un étape précédente, cliquer sur le liens correspondant dans le menu c-dessus.</i></div>
+
 </div>

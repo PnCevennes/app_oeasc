@@ -79,7 +79,7 @@
 
             {%- if session.current_user %}
 
-            <li><a href="#" class="nav-link"><span class="fas fa-user">{{session.current_user.identifiant}}</span></a></li>
+            <li><a href="{{ url_for('oeasc.user') }}" class="nav-link"><span class="fas fa-user">{{session.current_user.identifiant}}</span></a></li>
 
             {%- if session.current_user.id_droit_max >= 4 %}
 
@@ -87,12 +87,12 @@
 
             {%- endif %}
 
-            <li><a href="{{ url_for('auth.logout') }}" title="Deconnexion" class="nav-link"><span class="fas fa-sign-out-alt"></span></a></li>
+            <li><a href="{{ url_for('auth.logout') }}" title="Deconnexion" class="nav-link"><span class="fas fa-sign-out-alt"></span> Se déconnecter</a></li>
 
             {%- else %}
 
-            <li><a href="{{ url_for('oeasc.register') }}" title="Inscription" class="nav-link"><span class="fas fa-user-plus"></span></a></li>
-            <li><a href="{{ url_for('oeasc.login') }}" title="Se connecter" class="nav-link"><span class="fas fa-sign-in-alt"></span></a></li>
+            <li><a href="{{ url_for('oeasc.register') }}" title="Inscription" class="nav-link"><span class="fas fa-user-plus"></span> Inscription</a></li>
+            <li><a href="{{ url_for('oeasc.login') }}" title="Se connecter" class="nav-link"><span class="fas fa-sign-in-alt"></span> Se connecter</a></li>
 
             {%- endif %}
 

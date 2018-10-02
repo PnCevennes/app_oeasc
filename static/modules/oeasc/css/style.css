@@ -266,7 +266,6 @@ header div{
   border-radius: 10px;
   margin-bottom: 10px;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  
 
 }
 
@@ -356,26 +355,66 @@ header div{
 
   color: black;
   padding: 2px;
-  border-radius:5px; 
-
+  text-align: center;
+  width: 100%;
+  margin:1px 1px;
 }
 
 .fil-ariane a {
 
   font-size: 0.8em;
-  /* background-color: rgba(0,0,0,0.2); */
+  background-color: #ff9933;
   /* color: black; */
 
 }
 
 .fil-ariane a:hover {
 
-  color : orange;
+  color : grey;
   /* background-color: rgba(0,0,0,0.2); */
   /* color: black; */
 
 }
 
+.small{
+
+  font-size: 0.8em;
+
+}
+
+.red {
+
+  color: red;
+
+}
+
+div.progression {
+
+  /* display: flex; */
+  position: relative;
+  height: 20px;
+  margin-top: 2px;
+
+  /* background-color: #ccffff; */
+
+}
+
+#progress_bar {
+
+  /* position: absolute; */
+  /* left: 0; */
+  height: 20px;
+  background-color: #99ccff;
+  /* z-index: 1; */
+}
+
+#progress_text {
+
+  position: absolute;
+  left: 10px;
+  /* z-index: 2; */
+
+}
 
 .fil-ariane a[disabled=disabled]:hover {
 
@@ -386,6 +425,7 @@ header div{
 .fil-ariane a[disabled=disabled] {
 
   color: grey;
+  background-color: rgba(0,0,0,0);
   /* background-color: rgba(0,0,0,0.1); */
   cursor: default;
 
@@ -403,7 +443,7 @@ header div{
 
 #fil_global {
   font-size: 1em;
-  background-color : rgb(0,0,0, 0.1);
+  background-color : #ffffcc;
   /* box-shadow: 20px 0px 20px 0px rgba(0,0,0,0.2); */
 
 }
@@ -411,7 +451,9 @@ header div{
 #fil_local {
 
   justify-content: space-around;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
+  background-color : #ffcc99;
+
   box-shadow: 0px 4px 4px 0px rgba(0,0,0,0.2);
 }
 
@@ -547,6 +589,9 @@ tfoot input {
 
 }
 
-{{ ns.button_disabled }}
+.input input {
 
+  width :  400px;
+
+}
 

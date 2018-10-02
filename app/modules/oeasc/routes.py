@@ -12,6 +12,7 @@ from .repository import (
     nomenclature_oeasc,
     get_liste_organismes_oeasc,
     get_users,
+    get_user,
     dfpu_as_dict_from_id_declaration,
     get_declarations,
 )
@@ -37,6 +38,23 @@ def users():
     users = get_users()
 
     return render_template('modules/oeasc/pages/users.html', users=users)
+
+
+@bp.route('/user')
+@fnauth.check_auth(1, False, 'oeasc/login?redirect="oeasc/user"')
+def user():
+    '''
+        page de connection
+
+    '''
+
+    if session.get('current_user', None):
+
+        id_declarant = session['current_user']['id_role']
+
+    user = get_user(id_declarant)
+
+    return render_template('modules/oeasc/pages/user.html', user=user)
 
 
 @bp.route('/login')

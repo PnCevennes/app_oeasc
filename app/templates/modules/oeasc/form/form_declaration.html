@@ -2,6 +2,8 @@
 
 {%- import "modules/oeasc/form/form_macros.html" as macros %}
 
+
+
 {%- include "modules/oeasc/form/fil_ariane.html"%}
 
 <div id="id_form" data-id-form="{{ id_form }}" style="display: none;"></div>
@@ -9,62 +11,6 @@
 
 {%- set foret = declaration["foret"]%}
 {%- include "modules/oeasc/form/form_foret.html" %}
-
-
-<form id="form_areas_localisation" data-areas='{{ declaration["areas_localisation"]|tojson if declaration["areas_localisation"] is defined else [] }}'>
-
-{# cas ONF #}
-{%- if foret['b_statut_public'] == true and foret['b_document'] == true %}
-
-  {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_ONF_PRF") %}
-  {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_ONF_FRT') %}
-
-  {% if areas_container and areas_selected == [] %}
-
-    {{ macros.select_map("OEASC_ONF_PRF", areas_selected, areas_container) }}
-
-  {% else %}
-
-    {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_ONF_UG") %}
-    {% set areas_container = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_ONF_PRF") %}
-
-    {% if areas_container %}
-
-      {{ macros.select_map("OEASC_ONF_UG", areas_selected, areas_container) }}
-
-    {% endif %}
-
-  {% endif %}
-
-{# cas DGD #}
-{%- elif foret['b_statut_public']==false and foret['b_document'] ==true %}
-
-  {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_CADASTRE") %}
-  {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_DGD') %}
-
-  {% if areas_container %}
-
-    {{ macros.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
-
-  {% endif %}
-
-{# cas non documentés #}
-{%- elif foret['b_document'] == false %}
-
-  {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_CADASTRE") %}
-  {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_SECTION') %}
-
-  {% if areas_container %}
-
-    {{ macros.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
-
-  {% endif %}
-
-{%- endif %}
-
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
-
-</form>
 
 {%- include "modules/oeasc/form/form_peuplement.html" %}
 

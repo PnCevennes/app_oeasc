@@ -22,6 +22,8 @@
 
   {%- endif %}
 
+  <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
+
   <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
@@ -66,20 +68,22 @@
 
 {%- endif %}
 
+  <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
+
   <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
 
 
-{% if foret['b_document'] ==false %}
-
 <form id="form_information_foret">
 
   <h4>Informations sur la forêt</h4>
 
-  {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required="required" if foret['b_statut_public'] else '') }}
+  {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required='') }}
 
-  {{ macros.input_double("superficie", "Superficie totale de la forêt", foret) }}
+  {{ macros.input_double("superficie", "Superficie totale de la forêt", foret, required='' if foret['b_document'] else "required") }}
+
+  <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
   <input type=submit value=Suivant class="btn btn-success bottom-right">
 
@@ -88,5 +92,3 @@
 
 {%- set proprietaire = foret.proprietaire %}
 {%- include "modules/oeasc/form/form_proprietaire.html" %}
-
-{% endif %}

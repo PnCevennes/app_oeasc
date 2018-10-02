@@ -139,6 +139,29 @@ def get_nomenclature_from_id(id_nomenclature, nomenclature, key=""):
     return None
 
 
+def get_nomenclature(key_in, value_in, type_code, nomenclature, key_out=""):
+
+    nomemclature_type = nomenclature.get(type_code, None)
+
+    if not nomemclature_type:
+
+        return None
+
+    for elem in nomemclature_type["values"]:
+
+        if str(elem[key_in]) == str(value_in):
+
+            if key_out != "":
+
+                return elem[key_out]
+
+            else:
+
+                return elem
+
+    return None
+
+
 def get_area_from_id(id_area):
 
     data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
@@ -152,6 +175,7 @@ def get_area_from_id(id_area):
     out['type_code'] = get_type_code(out['id_type'])
 
     return out
+
 
 def get_dict_nomenclature_areas(dict_in, nomenclature):
     '''
@@ -214,7 +238,7 @@ def get_foret_type(foret_dict):
 
     foret_type = d_prop_foret_type.get(proprietaire_type, "")
 
-    foret['foret_type'] = foret_type
+    foret_dict['foret_type'] = foret_type
 
     return True
 
@@ -344,8 +368,10 @@ def f_create_or_update_declaration(declaration_dict):
 
         declaration_dict['id_foret'] = foret.id_foret
 
-    # else:
+    else:
 
+        proprietaire = TProprietaire().from_dict(declaration_dict["foret"]["proprietaire"], True)
+        foret = TForet().from_dict(declaration_dict["foret"], True)
 
     # pour le cas ou on veut generer une create date en random :
     # - elle sera crée un fois avec la date courante
@@ -358,10 +384,9 @@ def f_create_or_update_declaration(declaration_dict):
 
     declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
 
-#    d = dfpu_as_dict(declaration, foret, proprietaire, None)
+    d = dfpu_as_dict(declaration, foret, proprietaire, None)
 
-#    return d
-    return True
+    return d
 
 
 def get_liste_organismes_oeasc():
@@ -386,13 +411,55 @@ def get_users():
         Retourne la liste des utilisateurs OEASC
     '''
 
-    # data = DB.session.query(AppUser)
-    data = DB.session.query(AppUser).filter(AppUser.id_application == config.ID_APP)
-
+    data = DB.session.query(User)
     v = [as_dict(d) for d in data]
 
-    return v
+    print(config.ID_APP)
 
+    data_app = DB.session.query(AppUser).filter(AppUser.id_application == config.ID_APP)
+    v_app = [as_dict(d) for d in data_app]
+
+    v_out = []
+
+    for user in v:
+
+        if user['id_organisme']:
+
+            user['organisme'] = get_organisme_name_from_id_organisme(user['id_organisme'])
+
+        for user_app in v_app:
+
+            if user['id_role'] == user_app['id_role']:
+
+                user['id_droit_max'] = user_app['id_droit_max']
+                user['id_application'] = user_app['id_application']
+
+                v_out.append(user)
+
+    return v_out
+
+
+def get_user(id_declarant):
+    '''
+        Retourne l'utilisateur ayant pour id_role id_declarant
+    '''
+
+    data = DB.session.query(User).filter(User.id_role == id_declarant).first()
+    data_app = DB.session.query(AppUser).filter(id_declarant == AppUser.id_role).first()
+
+    if not data or not data_app:
+
+        return None
+
+
+    user = as_dict(data)
+    user_app = as_dict(data_app)
+
+    user['id_droit_max'] = user_app['id_droit_max']
+    user['id_application'] = user_app['id_application']
+    user['organisme'] = get_organisme_name_from_id_organisme(user['id_organisme'])
+
+    return user
 
 
 def nomenclature_oeasc():

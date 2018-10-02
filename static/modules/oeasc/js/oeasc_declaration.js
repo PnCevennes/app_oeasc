@@ -37,31 +37,31 @@ $(document).ready(function() {
 
   var initialiser_chainage_form = function() {
 
-    var liste_forms = [];
+    M.liste_forms = [];
 
     $('#form_container form').each(function() {
 
-      liste_forms.push(this.id);
+      M.liste_forms.push(this.id);
 
     });
 
     var d_config_form = {};
 
-    liste_forms.forEach(function(e, i) {
+    M.liste_forms.forEach(function(e, i) {
 
       d_config_form[e] = {};
 
-      var n = liste_forms.length;
+      var n = M.liste_forms.length;
 
       if( ( i - 1 ) >= 0 ) {
 
-        d_config_form[e].prev=liste_forms[i - 1];
+        d_config_form[e].prev=M.liste_forms[i - 1];
 
       }
 
       if( ( i + 1 ) <= n ) {
 
-        d_config_form[e].next=liste_forms[i + 1];
+        d_config_form[e].next=M.liste_forms[i + 1];
 
       }
 
@@ -88,6 +88,13 @@ $(document).ready(function() {
 
       }
 
+      else {
+
+        $('#form_proprietaire').attr('data-id-declarant', "");
+        M.reset_proprietaire();
+
+      }
+
       recharger_form();
 
     });
@@ -101,12 +108,14 @@ $(document).ready(function() {
 
     });
 
-    $()
     $('#form_areas_foret select').change(function() {
 
       $("#form_areas_localisation").attr("data-areas", "[]");
 
     });
+
+    $
+
 
   };
 
@@ -117,15 +126,15 @@ $(document).ready(function() {
 
     // essence
 
-    $("#form_peuplement_essence select").selectpicker("refresh");
+    $("#form_peuplement_description select").selectpicker("refresh");
 
-    $('#form_peuplement_essence select#id_nomenclature_peuplement_essence_principale').change(function() {
+    $('#form_peuplement_description select#id_nomenclature_peuplement_essence_principale').change(function() {
 
       recharger_form();
 
     });
 
-    $('#form_peuplement_essence [id^="NOMENCLATURES_PEUPLEMENT_ESSENCE"] .bs-searchbox').focusout(f_select_focus_out);
+    $('#form_peuplement_description [id^="NOMENCLATURES_PEUPLEMENT_ESSENCE"] .bs-searchbox').focusout(f_select_focus_out);
 
     // details
 
@@ -232,6 +241,9 @@ $(document).ready(function() {
   var f_init_fil_ariane = function(selector) {
 
     var disabled = false;
+    var first = true
+    var nb = 0; 
+    var nb_all = 0;
 
     $(selector).each(function() {
 
@@ -241,7 +253,16 @@ $(document).ready(function() {
 
       var $form = $("#" + id_form_cur);
 
+      var fil = $this.parent().attr('id')
+
       disabled = (!$form[0].checkValidity()) || disabled;
+
+      // if (fil == "fil_global" && disabled && first) {
+
+      //   first = false;
+      //   disabled = false;
+
+      // }
 
       var declaration = M.get_declaration_as_dict();
 
@@ -257,12 +278,13 @@ $(document).ready(function() {
 
       }
 
-      if(disabled)
+      if(disabled) {
+
         $this.attr("disabled", disabled);
 
-      var current =false;
+      }
 
-      var fil = $this.parent().attr('id')
+      var current =false;
 
       if( fil == "fil_local") {
 
@@ -280,9 +302,20 @@ $(document).ready(function() {
 
       }
 
-      $this.attr("current", current)
+      if(current || !disabled) {
 
-    });
+       $this.attr("disabled", false);
+       nb += 1;
+
+     }
+
+      nb_all += 1;
+
+     $this.attr("current", current)
+
+   });
+
+    return {'nb': nb, 'nb_all': nb_all}
 
   };
 
@@ -375,9 +408,20 @@ $(document).ready(function() {
 
     }
 
-    f_init_fil_ariane("#fil_global a");
-    f_init_fil_ariane("#fil_local a");
+    var res_ariane_global = f_init_fil_ariane("#fil_global a");
+    var res_ariane_local = f_init_fil_ariane("#fil_local a");
 
+    // var progression = 1.0 * Math.max(res_ariane_global.nb - 1, 0) / res_ariane_global.nb_all + 1.0 * Math.max(res_ariane_local.nb -1, 0) / res_ariane_local.nb_all / res_ariane_global.nb_all;
+
+    var progression = M.liste_forms.indexOf(id_form)/M.liste_forms.length
+
+    var s_progress = parseFloat(Math.round(progression * 100)) + "%";
+
+
+    $("#progress_text").html("Progression : " + s_progress);
+
+
+    $('#progress_bar').width(s_progress);
     window.onbeforeunload = function(){
 
       if (!M.declaration_effectuee) {
@@ -413,6 +457,12 @@ $(document).ready(function() {
           next = id;
 
         }
+
+      }
+
+      if(next == "form_information_foret" && M.declaration_save.foret.b_document == true) {
+
+        next = "form_areas_localisation";
 
       }
 

@@ -40,7 +40,7 @@
 
 {%- macro select_essence(name, nomenclature, titre="", object=None, multi="", required="required", data_max=3, listes_essences=listes_essences, id_nomenclature_degat_type=-1, afficher_type_essence="") %}
   <div>
-    
+
     <div id="{{ name | upper }}" class="form">
 
     {%- set ns = namespace() %}
@@ -122,7 +122,7 @@
 
 {# {%- macro select(name, nomenclature, mnemonique, titre="", object=None, required="required") %}
   <div>
-    
+
     <div id="{{ name | upper }}" class=form>
 
     {%- set ns = namespace() %}
@@ -229,14 +229,51 @@
 
 {%- macro input_text(name, titre="", object=None, required="required") %}
 <div>
-  
-  <div id="{{ name | upper }}" class="form">
+
+  <div id="{{ name | upper }}" class="form input">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
     <input type="text" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
   </div>
 
 </div>
 {%- endmacro %}
+
+
+{%- macro input_tel(name, titre="", object=None, required="required") %}
+<div>
+
+  <div id="{{ name | upper }}" class="form input">
+    <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
+    <input type="tel" pattern="[0-9]{10}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+  </div>
+
+</div>
+{%- endmacro %}
+
+
+{%- macro input_email(name, titre="", object=None, required="required") %}
+<div>
+  
+  <div id="{{ name | upper }}" class="form input">
+    <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
+    <input type="email" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+  </div>
+
+</div>
+{%- endmacro %}
+
+
+{%- macro input_cp(name, titre="", object=None, required="required") %}
+<div>
+  
+  <div id="{{ name | upper }}" class="form input">
+    <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
+    <input type="text" pattern="[0-9]{5}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+  </div>
+
+</div>
+{%- endmacro %}
+
 
 {%- macro input_double(name, titre="", object=None, required="required") %}
 <div>
@@ -302,7 +339,7 @@
         <ul>
         {%- for area in areas_container %}
 
-          <li>{{area['area_name']}}</li>
+          <li>{{area['area_name']}} {{ "(" + area['area_code'] + ")" if area['type_code'] == 'OEASC_SECTION' else ''}}</li>
 
         {% endfor %}
         </ul>

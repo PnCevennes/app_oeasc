@@ -48,6 +48,13 @@
 
       {%- set degat = degats[ns.ind] %}
 
+      <div class="small red degat-essence" style="display: {{ns.display_form}}" >
+        {%- if mnemonique_degat_type != "ABS" %}
+        Indiquez les essences touchées, et pour chacune d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis valider
+        {%- else %}
+        Indiquez les essences concernées.
+        {%- endif %}
+      </div>
 
       <div class="degat-essence custom-control">
 
@@ -157,7 +164,7 @@
 
         {%- endif %}
 
-        <button type="button"  {{ ns.button_disabled }} class="button-ajouter-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}"><span class="fas fa-plus"></span>{{ " Ajouter une essence"}}</button>
+        <button type="button"  {{ ns.button_disabled }} class="button-ajouter-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}"><span class="fas fa-plus"></span>{{ " Ajouter une essence touchée"}}</button>
 
       </div>
 
@@ -177,6 +184,7 @@
 
   </div>
 
+  <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
   <input {{ ns.input_disabled }} id="input_degat_essence" type=submit Valider class="btn btn-success float-right">
 
