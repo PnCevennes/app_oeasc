@@ -122,6 +122,7 @@ INSERT INTO ref_geo.bib_areas_types (
         (306, 'COMMUNES OEASC', 'OEASC_COMMUNE', 'Communes de l''oeasc', 'OEASC', 2018, ''),
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
         (308, 'Section cadastrale', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, ''),
+        (309, 'Section cadastrale simplifiée', 'OEASC_SECTION_SIMPLE', 'Section cadastrale simplifiée', 'OEASC', 2018, ''),
         (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, '');
 
 
@@ -186,6 +187,21 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
     FROM ref_geo.l_OEASC_CADASTRE;
 
 
+-- correct nom ONF UG et ONF PRF
+
+ALTER TABLE ref_geo.l_areas DISABLE TRIGGER ALL;
+
+UPDATE ref_geo.l_areas SET area_name = regexp_replace(area_name, '-_', '_', 'g') WHERE id_type = ref_geo.get_id_type('OEASC_ONF_PRF') OR id_type = ref_geo.get_id_type('OEASC_ONF_UG');
+UPDATE ref_geo.l_areas SET area_name = regexp_replace(area_name, '-$', '', 'g') WHERE id_type = ref_geo.get_id_type('OEASC_ONF_PRF') OR id_type = ref_geo.get_id_type('OEASC_ONF_UG');
+UPDATE ref_geo.l_areas SET area_name = regexp_replace(area_name, '_$', '', 'g') WHERE id_type = ref_geo.get_id_type('OEASC_ONF_PRF') OR id_type = ref_geo.get_id_type('OEASC_ONF_UG');
+
+ALTER TABLE ref_geo.l_areas ENABLE TRIGGER ALL;
+
+-- add column geom_4326
+
+ALTER TABLE ref_geo.l_areas ADD COLUMN geom_4326 geometry(MultiPolygon,4326);
+
+
 -- add column geom_4326
 
 ALTER TABLE ref_geo.l_areas ADD COLUMN geom_4326 geometry(MultiPolygon,4326);
@@ -201,7 +217,7 @@ DROP TABLE IF EXISTS temp;
 CREATE TABLE temp(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
 
 INSERT INTO temp(area_code, area_name, geom)
-SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_UNION(geom))
+SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_CONCAVEHULL(ST_UNION(geom), 0.7))
   FROM ref_geo.l_oeasc_cadastre
   GROUP BY insee_com, nom_com, section
   ORDER BY insee_com, nom_com, section;
