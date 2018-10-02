@@ -13,9 +13,7 @@ CREATE TABLE temp2(area_code character varying(256), area_name character varying
 
 INSERT INTO temp2 
 SELECT area_code, area_name, ST_MULTI(ST_CONCAVEHULL(geom, 0.7, true))
-FROM temp
-WHERE area_code IN (SELECT ref_geo.get_old_communes('48116-%')
-;
+FROM temp;
 
 --INSERT INTO temp2
 --SELECT area_code, area_name,
@@ -31,7 +29,8 @@ UPDATE temp2 SET (geom) =
 	(SELECT ST_INTERSECTION(t.geom, c.geom) 
 		FROM temp2 as t, ref_geo.l_areas as c 
 		WHERE temp2.area_code=t.area_code 
-		AND c.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
+		AND 
+		c.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
 		AND SUBSTR(t.area_code, 1, 5) IN ( SELECT ref_geo.get_old_communes(c.area_code))
 		);
 
