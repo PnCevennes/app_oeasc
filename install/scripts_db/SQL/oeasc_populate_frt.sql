@@ -92,8 +92,6 @@ INSERT INTO oeasc.t_forets (
         WHERE p.nom_proprietaire = d.prop
         AND CONCAT(d.forid,'-', d.proref) = l.area_code;
 
--- renseignement des communes et des departements :
-
 INSERT INTO oeasc.cor_areas_forets(
     id_area, id_foret)
 SELECT  l.id_area, f.id_foret
@@ -101,17 +99,18 @@ SELECT  l.id_area, f.id_foret
     WHERE id_type = ref_geo.get_id_type('OEASC_DGD')
         AND f.nom_foret = l.area_name;
 
+-- renseignement des communes et des departements :
 
 INSERT INTO oeasc.cor_areas_forets(
      id_area, id_foret)
-SELECT ref_geo.intersect_rel_area(l.id_area, 'OEASC_COMMUNE', 0.05), c.id_foret  
+SELECT ref_geo.intersect_rel_area(l.id_area, 'OEASC_COMMUNE', 0.05), c.id_foret
     FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l
     WHERE (l.id_type = ref_geo.get_id_type('OEASC_ONF_FRT') OR l.id_type = ref_geo.get_id_type('OEASC_DGD')) AND l.id_area = c.id_area
     ORDER BY c.id_foret;
 
 -- INSERT INTO oeasc.cor_areas_forets(
 --      id_area, id_foret)
--- SELECT ref_geo.intersect_rel_area(l.id_area, 'OEASC_SECTION', 0.05), c.id_foret  
+-- SELECT ref_geo.intersect_rel_area(l.id_area, 'OEASC_SECTION', 0.05), c.id_foret
 --     FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l
 --     WHERE (l.id_type = ref_geo.get_id_type('OEASC_ONF_FRT') OR l.id_type = ref_geo.get_id_type('OEASC_DGD')) AND l.id_area = c.id_area
 --     ORDER BY c.id_foret;

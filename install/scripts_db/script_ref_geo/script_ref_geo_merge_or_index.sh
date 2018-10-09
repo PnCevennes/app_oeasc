@@ -15,4 +15,3 @@ $ROOT_DIR/$sql_dir/script_ref_geo/script_ref_geo_merge_by_keys.sh $name
 name='OEASC_ONF_UG'
 $ROOT_DIR/$sql_dir/script_ref_geo/script_ref_geo_index_by_keys.sh $name
 
-
