@@ -78,3 +78,45 @@ CREATE TABLE ref_geo.cor_dgd_cadastre
 );
 
 COPY ref_geo.cor_dgd_cadastre FROM '/tmp/cor_dgd_cadastre_oeasc.csv';
+
+
+DROP INDEX ref_geo.idx_l_areas_type_code_area;
+
+CREATE INDEX idx_l_areas_type_code_area
+    ON ref_geo.l_areas
+    USING btree
+    (id_type, area_code);
+
+DROP INDEX ref_geo.idx_l_areas_type;
+
+CREATE INDEX idx_l_areas_type
+    ON ref_geo.l_areas
+    USING btree
+    (id_type);
+
+
+DROP INDEX ref_geo.idx_l_areas_code_area;
+
+CREATE INDEX idx_l_areas_code_area
+    ON ref_geo.l_areas
+    USING btree
+    (area_code);
+
+
+
+CREATE OR REPLACE FUNCTION ref_geo.get_old_communes(
+    IN myarea_code character varying)
+
+  RETURNS TABLE(old_area_code character varying) AS
+$BODY$
+        BEGIN
+            RETURN QUERY
+
+        SELECT UNNEST(old_area_codes)
+        FROM ref_geo.cor_old_communes
+        WHERE area_code = myarea_code; 
+          END;
+    $BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100
+  ROWS 1000;
