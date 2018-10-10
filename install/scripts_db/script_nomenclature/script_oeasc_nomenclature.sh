@@ -18,11 +18,12 @@ DELETE FROM ref_nomenclatures.bib_nomenclatures_types
 
 EOF
 
+dir_data_nomenclature=${ROOT_DIR}/data/csv/nomenclature
 
 echo '-- table ref_nomenclatures.bib_nomenclatures_types'
 
 f_sh=${ROOT_DIR}/install/scripts_db/script_nomenclature/script_oeasc_bib_nomenclature_csv.sh
-f_csv=${ROOT_DIR}/install/scripts_db/script_nomenclature/oeasc_bib_nomenclature.csv
+f_csv=${dir_data_nomenclature}/oeasc_bib_nomenclature.csv
 
 $f_sh $f_csv
 
@@ -30,7 +31,7 @@ $f_sh $f_csv
 echo '-- table ref_nomenclatures.bib_nomenclatures_types'
 
 f_sh=${ROOT_DIR}/install/scripts_db/script_nomenclature/script_oeasc_nomenclature_csv.sh
-f_csv=${ROOT_DIR}/install/scripts_db/script_nomenclature/oeasc_nomenclature.csv
+f_csv=${dir_data_nomenclature}/oeasc_nomenclature.csv
 
 $f_sh $f_csv
 

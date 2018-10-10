@@ -14,12 +14,14 @@ DROP SCHEMA IF EXISTS oeasc CASCADE;
 EOF
 
 
+dir_data_ref_geo=${ROOT_DIR}/data/csv/ref_geo
+
 ${ROOT_DIR}/install/scripts_db/script_add_functions_ext.sh
 
-if [[ -f ${ROOT_DIR}/install/scripts_db/script_ref_geo/l_areas_oeasc.csv ]]; then
+if [[ -f ${dir_data_ref_geo}/l_areas_oeasc.csv ]]; then
 
     # si on a un fichier de sauvegarde des aires qui concernent l'oeasc on fait la copie
-    cp ${ROOT_DIR}/install/scripts_db/script_ref_geo/*_oeasc.csv /tmp/.
+    cp ${dir_data_ref_geo}/*_oeasc.csv /tmp/.
 
     echo copy ref_geo data
     cat ${ROOT_DIR}/install/scripts_db/SQL/get_areas_from_csv.sql | psql -b -d $db_name -h $db_host -U $user_pg
@@ -35,7 +37,7 @@ else
     echo process ref_geo data
     ${ROOT_DIR}/install/scripts_db/script_exec_ref_geo_process.sh
 
-    cp /tmp/*_oeasc.csv ${ROOT_DIR}/install/scripts_db/script_ref_geo/.
+    cp /tmp/*_oeasc.csv ${dir_data_ref_geo}/.
 
 fi
 

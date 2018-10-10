@@ -8,7 +8,7 @@ CREATE TABLE temp (nom_organisme text, adresse_organisme text, cp_organisme text
 
 
 COPY temp
-    FROM '__ROOT_DIR__/install/scripts_db/script_oeasc/organismes.csv'
+    FROM '/tmp/organismes.csv'
     WITH DELIMITER ';' CSV QUOTE AS '''';
 
 

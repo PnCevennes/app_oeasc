@@ -75,8 +75,11 @@ def register():
     '''
 
     liste_organismes_oeasc = get_liste_organismes_oeasc()
+    nomenclature = nomenclature_oeasc(['OEASC_DECLARANT_FONCTION'])
 
-    return render_template('modules/oeasc/pages/register.html', config=config, id_app=config.ID_APP, liste_organismes_oeasc=liste_organismes_oeasc)
+    print(nomenclature)
+
+    return render_template('modules/oeasc/pages/register.html', config=config, id_app=config.ID_APP, liste_organismes_oeasc=liste_organismes_oeasc, nomenclature=nomenclature)
 
 
 @bp.route('/')

@@ -26,51 +26,72 @@
 
                 <input type="hidden" name="" id="user_app" value="{{id_app}}">
 
-                <div class="form-group">
-                    <label for="user_nom">Nom : </label>
-                    <input type="text" class="form-control" id="user_nom" required>
+                <div>
+                    <div class="form">
+
+                        <div class="form-group">
+                            <label for="user_nom">Nom : </label>
+                            <input type="text" class="form-control" id="user_nom" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user_prenom">Prénom : </label>
+                            <input type="text" class="form-control" id="user_prenom" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user_email">Email : </label>
+                            <input type="email" class="form-control" id="user_email" required>
+                        </div>
+
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="user_prenom">Prénom : </label>
-                    <input type="text" class="form-control" id="user_prenom" required>
+                <div>
+                    <div class="form">
+
+                        <div class="form-group">
+                            <label for="user_organisme">Organisme : </label>
+                            <select class="selectpicker" id="user_organism" required>
+                                {%- for organisme in liste_organismes_oeasc%}
+                                <option value="{{organisme.id_organism}}">{{ organisme.nom_organisme }}</option>
+                                {%- endfor %}
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="desc_role">Fonction : </label>
+                            <select class="selectpicker" id="desc_role" required>
+
+                                {%- for elem in nomenclature['OEASC_DECLARANT_FONCTION']['values'] %}
+
+                                <option value="{{elem.label_fr}}">{{elem['label_fr']}}</option>
+
+                                {%- endfor %}
+
+                            </select>
+                        </div>
+
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="user_email">Email : </label>
-                    <input type="email" class="form-control" id="user_email" required>
+                <div>
+                    <div class="form">
+
+                        <div class="form-group">
+                            <label for="pwd">Mot de passe : </label>
+                            <input type="password" class="form-control" id="user_pwd" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="pwd">Confirmation du mot de passe : </label>
+                            <input type="password" class="form-control" id="user_pwd_conf" required>
+                        </div>
+
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label for="user_organisme">Organisme : </label>
-                    <select class="selectpicker" id="user_organism" required>
-                        {%- for organisme in liste_organismes_oeasc%}
-                        <option value="{{organisme.id_organism}}">{{ organisme.nom_organisme }}</option>
-                        {%- endfor %}
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="desc_role">Fonction : </label>
-                    <select class="selectpicker" id="desc_role" required>
-                        <option value="Agent">Agent</option>
-                        <option value="Directeur">Directeur</option>
-                        <option value="Particulier">Particulier</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
-                    <label for="pwd">Mot de passe : </label>
-                    <input type="password" class="form-control" id="user_pwd" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="pwd">Confirmation du mot de passe : </label>
-                    <input type="password" class="form-control" id="user_pwd_conf" required>
-                </div>
-
-
-                <button class="btn btn-default">S'incrire</button>
+                <button class="btn btn-default float-left">S'incrire</button>
 
             </form>
 
@@ -96,23 +117,23 @@
 
         $("#login-error").hide();
 
-        var register = function(e) {
+            var register = function(e) {
 
-            e.preventDefault();
+                e.preventDefault();
 
             // gestion email
 
             var expressionReguliere = /^(([^<>()[]\.,;:s@]+(.[^<>()[]\.,;:s@]+)*)|(.+))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/;
 
-            if(!expressionReguliere.test($('#user_email').val())) {
+if(!expressionReguliere.test($('#user_email').val())) {
 
-                $("#login-error").html("L'adresse email est invalide").show();
-                $("#user_email").parent().before($("#login-error"));
-                $([document.documentElement, document.body]).animate({
-                    scrollTop: $("#login-error").offset().top - 100
-                    }, 300);
-                return false;
-            }
+    $("#login-error").html("L'adresse email est invalide").show();
+    $("#user_email").parent().before($("#login-error"));
+    $([document.documentElement, document.body]).animate({
+        scrollTop: $("#login-error").offset().top - 100
+    }, 300);
+        return false;
+    }
 
             // gestion mot de passe
 
@@ -122,11 +143,11 @@
                 $("#user_pwd").parent().before($("#login-error"));
                 $([document.documentElement, document.body]).animate({
                     scrollTop: $("#login-error").offset().top - 100
-                    }, 300);
+                }, 300);
 
-                return false;
+                    return false;
 
-            }
+                }
 
             // gestion identifiant non unique
 
@@ -136,78 +157,77 @@
                 $("#user_email").parent().before($("#login-error"));
                 $([document.documentElement, document.body]).animate({
                     scrollTop: $("#login-error").offset().top - 100
-                    }, 300);
+                }, 300);
 
-                return false;
+                    return false;
 
-            }
+                }
 
-            var id_app = {{ config.ID_APP }};
+                var id_app = {{ config.ID_APP }};
 
-            var data = {
+                var data = {
 
-                "nom_role": $('#user_nom').val(),
+                    "nom_role": $('#user_nom').val(),
                 "prenom_role": $('#user_prenom').val(),
                 "identifiant": $('#user_email').val(),
                 "email": $('#user_email').val(),
 
-                "password": $('#user_pwd').val(),
-                "password_confirmation": $('#user_pwd_conf').val(),
+    "password": $('#user_pwd').val(),
+"password_confirmation": $('#user_pwd_conf').val(),
 
-                "applications":[{"id_app":id_app, "id_droit":1}],
+"applications":[{"id_app":id_app, "id_droit":1}],
 
-                "groupe": false,
-                "pn": true,
-                "remarques": "utilisateur test api",
-                "desc_role": null,
-                "id_unite": -1,
-                "id_organisme": $('#user_organism').val(),
-                "desc_role": $('#desc_role').val(),
+"groupe": false,
+"pn": true,
+"remarques": "utilisateur test api",
+"id_unite": -1,
+"id_organisme": $('#user_organism').val(),
+"desc_role": $('#desc_role').val(),
 
-            };
+};
 
-            console.log(data);
+console.log(data);
 
-            $("#login-error").hide();
+$("#login-error").hide();
 
-            var url_application = "{{ config.URL_APPLICATION }}";
+    var url_application = "{{ config.URL_APPLICATION }}";
 
 
-            console.log(JSON.stringify(data));
+    console.log(JSON.stringify(data));
 
-            $.post( {
+    $.post( {
 
-                url : '{{config.URL_USERHUB}}/api_register/role',
+        url : '{{config.URL_USERHUB}}/api_register/role',
 
-                type: 'POST',
+        type: 'POST',
 
-                data : JSON.stringify(data),
-                contentType:"application/json; charset=utf-8",
-                dataType:"json",
+        data : JSON.stringify(data),
+        contentType:"application/json; charset=utf-8",
+        dataType:"json",
 
-                success: function(response){
-                    console.log(response);
-                    $('#form_register').hide();
-                    $("#info_register").show();
-                },
+        success: function(response){
+            console.log(response);
+            $('#form_register').hide();
+            $("#info_register").show();
+        },
 
-                error: function(error){
-                    $("#login-error" ).html("Erreur : " + error.responseJSON).show();
-                    $("#form_register").before($("#login-error"));
-                    $([document.documentElement, document.body]).animate({
-                        scrollTop: $("#login-error").offset().top - 100
-                        }, 300);
+        error: function(error){
+            $("#login-error" ).html("Erreur : " + error.responseJSON).show();
+            $("#form_register").before($("#login-error"));
+            $([document.documentElement, document.body]).animate({
+                scrollTop: $("#login-error").offset().top - 100
+            }, 300);
 
-                    console.log(error);
-                }
-
-            });
-
-        };
-
-        $("#form_register").submit(register);
+            console.log(error);
+        }
 
     });
+
+};
+
+$("#form_register").submit(register);
+
+});
 
 </script>
 

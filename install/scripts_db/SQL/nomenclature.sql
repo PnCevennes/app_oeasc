@@ -28,7 +28,8 @@ INSERT INTO ref_nomenclatures.bib_nomenclatures_types (mnemonique, label_default
 ('OEASC_FORET_TYPE', 'Type de gestion de forêt', 'Nomenclature des types de gestion de forêt', 'Type de gestion de forêt', 'Nomenclature des types de gestion de forêt', 'OEASC', 'Validé'),
 ('OEASC_PROPRIETAIRE_DECLARANT', 'Le propietaire est il le déclarant', 'Nomenclature des propriétaires déclarants', 'Le propietaire est il le déclarant', 'Nomenclature des propriétaires déclarants', 'OEASC', 'Validé'),
 ('OEASC_PROPRIETAIRE_TYPE', 'Type de proprietaire: État, hôpital, privé, commune, etc...', 'Nomenclature des types de propriétaires', 'Type de proprietaire: État, hôpital, privé, commune, etc...', 'Nomenclature des types de propriétaires', 'OEASC', 'Validé'),
-('OEASC_FORET_DEPARTEMENT', 'Liste de départements pour les forêts', 'Nomenclature des départements des forêts', 'Liste de départements pour les forêts', 'Nomenclature des départements des forêts', 'OEASC', 'Validé');
+('OEASC_FORET_DEPARTEMENT', 'Liste de départements pour les forêts', 'Nomenclature des départements des forêts', 'Liste de départements pour les forêts', 'Nomenclature des départements des forêts', 'OEASC', 'Validé'),
+('OEASC_DECLARANT_FONCTION', 'Liste des fonctions des déclarants', 'Nomenclature des fonctions des déclarants', 'Liste des fonctions des déclarants', 'Nomenclature des fonctions des déclarants', 'OEASC', 'Validé');
 -- table ref_nomenclatures.bib_nomenclatures_types
 
 INSERT INTO ref_nomenclatures.t_nomenclatures (id_type, cd_nomenclature, mnemonique,
@@ -123,4 +124,13 @@ source, statut)
 (ref_nomenclatures.get_id_nomenclature_type('OEASC_PROPRIETAIRE_TYPE'), 5, 'PT_GF', 'Groupement forestier', 'Groupement forestier', 'Groupement forestier', 'Groupement forestier', 'OEASC', 'Validé'),
 (ref_nomenclatures.get_id_nomenclature_type('OEASC_PROPRIETAIRE_TYPE'), 6, 'PT_CO', 'Commune', 'Commune', 'Commune', 'Commune', 'OEASC', 'Validé'),
 (ref_nomenclatures.get_id_nomenclature_type('OEASC_PROPRIETAIRE_TYPE'), 7, 'PT_CO', 'Section / hameau', 'Section / hameau', 'Section / hameau', 'Section / hameau', 'OEASC', 'Validé'),
-(ref_nomenclatures.get_id_nomenclature_type('OEASC_PROPRIETAIRE_TYPE'), 8, 'PT_PRI', 'Privé', 'Privé', 'Privé', 'Privé', 'OEASC', 'Validé');
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_PROPRIETAIRE_TYPE'), 8, 'PT_PRI', 'Privé', 'Privé', 'Privé', 'Privé', 'OEASC', 'Validé'),
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_DECLARANT_FONCTION'), 1, 'DIR', 'Directeur-rice', 'Directeur-rice', 'Directeur-rice', 'Directeur-rice', 'OEASC', 'Validé'),
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_DECLARANT_FONCTION'), 2, 'PRE', 'Président-e', 'Président-e', 'Président-e', 'Président-e', 'OEASC', 'Validé'),
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_DECLARANT_FONCTION'), 3, 'RESP', 'Responsable / Chef-fe de service', 'Responsable / Chef-fe de service', 'Responsable / Chef-fe de service', 'Responsable / Chef-fe de service', 'OEASC', 'Validé'),
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_DECLARANT_FONCTION'), 4, 'TECH', 'Technicien-ne / Agent-e / garde', 'Technicien-ne / Agent-e / garde', 'Technicien-ne / Agent-e / garde', 'Technicien-ne / Agent-e / garde', 'OEASC', 'Validé'),
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_DECLARANT_FONCTION'), 5, 'ING', 'Ingénieur-e / Chargé-e de mission / Chargé-e de projet', 'Ingénieur-e / Chargé-e de mission / Chargé-e de projet', 'Ingénieur-e / Chargé-e de mission / Chargé-e de projet', 'Ingénieur-e / Chargé-e de mission / Chargé-e de projet', 'OEASC', 'Validé'),
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_DECLARANT_FONCTION'), 6, 'MENB', 'Membre / Adhérent-e / Bénévole', 'Membre / Adhérent-e / Bénévole', 'Membre / Adhérent-e / Bénévole', 'Membre / Adhérent-e / Bénévole', 'OEASC', 'Validé'),
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_DECLARANT_FONCTION'), 7, 'GER', 'Gérant / Expert forestier', 'Gérant / Expert forestier', 'Gérant / Expert forestier', 'Gérant / Expert forestier', 'OEASC', 'Validé'),
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_DECLARANT_FONCTION'), 8, 'STAG', 'Stagiaire', 'Stagiaire', 'Stagiaire', 'Stagiaire', 'OEASC', 'Validé'),
+(ref_nomenclatures.get_id_nomenclature_type('OEASC_DECLARANT_FONCTION'), 9, 'AUT', 'Autre', 'Autre', 'Autre', 'Autre', 'OEASC', 'Validé');

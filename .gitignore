@@ -1,6 +1,8 @@
 # server.py
 #OTHER/
-data
+data/donnees_gestion_foret
+data/Zonage_OEASC
+data/csv/ref_geo
 remove/
 *.pyc
 venv/
@@ -12,13 +14,12 @@ config/config.py
 install/scripts_db/SQL/ref_geo_import.sql
 install/scripts_db/SQL/ref_geo_process.sql
 
-install/scripts_db/script_ref_geo/*_oeasc.csv
+install/script_db/config.csv
 
 static/data/*.json
 
 static/node_modules
 static/documents
 static/package-lock.json
-TODO
 
 *.save

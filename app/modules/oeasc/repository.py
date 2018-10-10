@@ -462,34 +462,38 @@ def get_user(id_declarant):
     return user
 
 
-def nomenclature_oeasc():
+def nomenclature_oeasc(list_data=None):
     '''
         fonction pour récuprér toutes les nomenclatures qui concernent l'oeasc
         à l'aide de la commande get_nomenclature_list du module pypnnomenclature
     '''
-    list_data = [
-        'OEASC_PEUPLEMENT_ESSENCE',
-        'OEASC_PEUPLEMENT_MATURITE',
-        'OEASC_PEUPLEMENT_PROTECTION_TYPE',
-        'OEASC_PEUPLEMENT_PATURAGE_TYPE',
-        'OEASC_PEUPLEMENT_PATURAGE_STATUT',
-        'OEASC_PEUPLEMENT_ESPECE',
-        'OEASC_PEUPLEMENT_ORIGINE',
-        'OEASC_PEUPLEMENT_TYPE',
-        'OEASC_PEUPLEMENT_ACCES',
-        'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE',
-        'OEASC_DEGAT_TYPE',
-        'OEASC_DEGAT_GRAVITE',
-        'OEASC_DEGAT_ETENDUE',
-        'OEASC_DEGAT_ANTERIORITE',
-        'OEASC_PEUPLEMENT_ESSENCE',
-        'OEASC_DEGAT_GRAVITE',
-        'OEASC_DEGAT_ETENDUE',
-        'OEASC_DEGAT_ANTERIORITE',
-        'OEASC_FORET_TYPE',
-        'OEASC_PROPRIETAIRE_DECLARANT',
-        'OEASC_PROPRIETAIRE_TYPE',
-    ]
+
+    if not list_data:
+
+        list_data = [
+            'OEASC_PEUPLEMENT_ESSENCE',
+            'OEASC_PEUPLEMENT_MATURITE',
+            'OEASC_PEUPLEMENT_PROTECTION_TYPE',
+            'OEASC_PEUPLEMENT_PATURAGE_TYPE',
+            'OEASC_PEUPLEMENT_PATURAGE_STATUT',
+            'OEASC_PEUPLEMENT_ESPECE',
+            'OEASC_PEUPLEMENT_ORIGINE',
+            'OEASC_PEUPLEMENT_TYPE',
+            'OEASC_PEUPLEMENT_ACCES',
+            'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE',
+            'OEASC_DEGAT_TYPE',
+            'OEASC_DEGAT_GRAVITE',
+            'OEASC_DEGAT_ETENDUE',
+            'OEASC_DEGAT_ANTERIORITE',
+            'OEASC_PEUPLEMENT_ESSENCE',
+            'OEASC_DEGAT_GRAVITE',
+            'OEASC_DEGAT_ETENDUE',
+            'OEASC_DEGAT_ANTERIORITE',
+            'OEASC_FORET_TYPE',
+            'OEASC_PROPRIETAIRE_DECLARANT',
+            'OEASC_PROPRIETAIRE_TYPE',
+            'OEASC_DECLARANT_FONCTION',
+        ]
 
     data = {}
 

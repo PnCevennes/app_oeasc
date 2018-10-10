@@ -81,11 +81,11 @@
 
             <li><a href="{{ url_for('oeasc.user') }}" class="nav-link"><span class="fas fa-user">{{session.current_user.identifiant}}</span></a></li>
 
-            {%- if session.current_user.id_droit_max >= 4 %}
+              {%- if session.current_user.id_droit_max >= 4 %}
 
             <li><a href="{{ url_for('oeasc.users') }}" title="Gérer les utilisateurs" class="nav-link" ><span class="fas fa-users-cog"></span></a></li>
 
-            {%- endif %}
+              {%- endif %}
 
             <li><a href="{{ url_for('auth.logout') }}" title="Deconnexion" class="nav-link"><span class="fas fa-sign-out-alt"></span> Se déconnecter</a></li>
 

@@ -103,3 +103,13 @@
 'OEASC_PROPRIETAIRE_TYPE';'PT_CO';'Commune';'Commune';'OEASC'
 'OEASC_PROPRIETAIRE_TYPE';'PT_CO';'Section / hameau';'Section / hameau';'OEASC'
 'OEASC_PROPRIETAIRE_TYPE';'PT_PRI';'Privé';'Privé';'OEASC'
+
+'OEASC_DECLARANT_FONCTION';'DIR';'Directeur-rice';'Directeur-rice';'OEASC'
+'OEASC_DECLARANT_FONCTION';'PRE';'Président-e';'Président-e';'OEASC'
+'OEASC_DECLARANT_FONCTION';'RESP';'Responsable / Chef-fe de service';'Responsable / Chef-fe de service';'OEASC'
+'OEASC_DECLARANT_FONCTION';'TECH';'Technicien-ne / Agent-e / garde';'Technicien-ne / Agent-e / garde';'OEASC'
+'OEASC_DECLARANT_FONCTION';'ING';'Ingénieur-e / Chargé-e de mission / Chargé-e de projet';'Ingénieur-e / Chargé-e de mission / Chargé-e de projet';'OEASC'
+'OEASC_DECLARANT_FONCTION';'MENB';'Membre / Adhérent-e / Bénévole';'Membre / Adhérent-e / Bénévole';'OEASC'
+'OEASC_DECLARANT_FONCTION';'GER';'Gérant / Expert forestier';'Gérant / Expert forestier';'OEASC'
+'OEASC_DECLARANT_FONCTION';'STAG';'Stagiaire';'Stagiaire';'OEASC'
+'OEASC_DECLARANT_FONCTION';'AUT';'Autre';'Autre';'OEASC'

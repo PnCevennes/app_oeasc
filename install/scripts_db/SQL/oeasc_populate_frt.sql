@@ -5,7 +5,7 @@ DROP TABLE IF EXISTS temp;
 CREATE TABLE temp (type text, name text, telephone text, email text, adresse text, code_postal text, commune text);
 
 COPY temp
-    FROM '__ROOT_DIR__/install/scripts_db/script_oeasc/liste_proprietaires_publics_oeasc.csv'
+    FROM '/tmp/liste_proprietaires_publics_oeasc.csv'
     WITH DELIMITER ';' CSV QUOTE AS '''';
 
 DELETE FROM oeasc.t_proprietaires;
@@ -29,7 +29,7 @@ INSERT INTO oeasc.t_proprietaires (id_nomenclature_proprietaire_type, nom_propri
 DROP TABLE IF EXISTS temp;
 CREATE TABLE temp (dept text, ccod_frt text, nom_foret text);
 COPY temp
-    FROM '__ROOT_DIR__/install/scripts_db/script_oeasc/liens_foret_onf_nom_propre.csv'
+    FROM '/tmp/liens_foret_onf_nom_propre.csv'
     WITH DELIMITER ';' CSV QUOTE AS '''';
 
 UPDATE ref_geo.l_areas
@@ -41,17 +41,21 @@ UPDATE ref_geo.l_areas
 
 -- DGD on refait les codes aussi avec id_frt sinon on a pas unicité pff
 DROP TABLE IF EXISTS temp;
-CREATE TABLE temp (id_frt text, ccod_frt text, ccod_frt_propre text, nom_foret_propre text);
+CREATE TABLE temp (id_frt text, ccod_frt text, ccod_frt_propre text, nom_foret_propre text, nom_foret_propre2 text);
+
 COPY temp
-    FROM '__ROOT_DIR__/install/scripts_db/script_oeasc/liens_dgd_nom_propre.csv'
+    FROM '/tmp/liens_dgd_nom_propre.csv'
     WITH DELIMITER ';' CSV QUOTE AS '''';
 
 UPDATE ref_geo.l_areas
-    SET area_name = CONCAT(t.ccod_frt_propre, ' ', t.nom_foret_propre)
+    -- SET area_name = CONCAT(t.ccod_frt_propre, ' ', t.nom_foret_propre)
+    SET area_name = t.nom_foret_propre2
         FROM temp as t
         WHERE CONCAT(t.id_frt, '-', t.ccod_frt) = area_code
             AND id_type = ref_geo.get_id_type('OEASC_DGD');
 
+
+SELECT 'a';
 
 -- insertion des forets pour les forets publiques
 
@@ -60,7 +64,7 @@ DELETE FROM oeasc.t_forets;
 DROP TABLE IF EXISTS temp;
 CREATE TABLE temp (dept text, ccod_frt text, nom_proprietaire text);
 COPY temp
-    FROM '__ROOT_DIR__/install/scripts_db/script_oeasc/liens_proprietaires_publics_forets.csv'
+    FROM '/tmp/liens_proprietaires_publics_forets.csv'
     WITH DELIMITER ';' CSV QUOTE AS '''';
 
 

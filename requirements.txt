@@ -26,6 +26,6 @@ Werkzeug==0.14.1
 WTForms==2.2.1
 #https://github.com/PnX-SI/UsersHub-authentification-module/develop.zip
 https://github.com/PnX-SI/Nomenclature-api-module/archive/develop.zip
-git+https://github.com/PnX-SI/UsersHub-authentification-module@develop
+git+https://github.com/joelclems/UsersHub-authentification-module@develop
 
 

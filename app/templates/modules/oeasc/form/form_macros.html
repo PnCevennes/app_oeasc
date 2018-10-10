@@ -19,18 +19,21 @@
 
     <div id=name|upper class="form">
 
-      <label for="{{ name }}">{{ title }} <span class="rouge">*</span></label>
+      <label class="label-question" for="{{ name }}">{{ title }} <span class="rouge">*</span></label>
 
-      <div class="custom-control custom-radio custom-control-inline">
-        <input {{ns.choix1_checked}} id="{{ name }}-0" name="{{ name }}"" type="radio" value="T" required>
-        <label for="{{ name }}-0">{{ choix1 }}</label>
+      <div class=choice>
+        
+        <div class="custom-control custom-radio custom-control-inline">
+          <input {{ns.choix1_checked}} id="{{ name }}-0" name="{{ name }}"" type="radio" value="T" required>
+          <label class='label-choice' for="{{ name }}-0"> {{ choix1 }} </label>
+        </div>
+
+        <div class="custom-control custom-radio custom-control-inline">
+          <input {{ns.choix2_checked}} id="{{ name }}-1" name="{{ name }}"" type="radio" value="F" required>
+          <label class="labe-choice" for="{{ name }}-1"> {{ choix2 }} </label>
+        </div>
+
       </div>
-
-      <div class="custom-control custom-radio custom-control-inline">
-        <input {{ns.choix2_checked}} id="{{ name }}-1" name="{{ name }}"" type="radio" value="F" required>
-        <label for="{{ name }}-1">{{ choix2 }}</label>
-      </div>
-
     </div>
 
   </div>

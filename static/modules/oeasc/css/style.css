@@ -262,6 +262,7 @@ header div{
 
   border: 1px solid lightblue;
   display: inline-block;
+  min-width: 600px;
   padding: 10px;
   border-radius: 10px;
   margin-bottom: 10px;
@@ -269,6 +270,37 @@ header div{
 
 }
 
+/* .form-group label {
+
+  width: 200px;
+
+}
+
+input.form-control{
+
+  display: inline-block;
+  width: 300px;
+
+} */
+
+.label-question {
+
+  width: 300px;
+
+}
+
+.label-choice {
+
+  
+
+}
+
+.choice {
+
+display: inline-block;
+float: right;
+
+}
 
 .flex-container {
 
