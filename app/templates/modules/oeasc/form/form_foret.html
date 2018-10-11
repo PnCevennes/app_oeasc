@@ -4,6 +4,8 @@
 
   <h4>Statut de la forêt</h4>
 
+  <div class="form-group">
+
   {{ macros.choix("Public", "Privé", 'b_statut_public' ,'Statut de la forêt', object=foret) }}
 
   {%- if foret.b_statut_public == true or foret.b_statut_public == false %}
@@ -21,6 +23,8 @@
     {{ macros.choix("Oui", "Non" ,'b_document' ,titre_document , object=foret) }}
 
   {%- endif %}
+
+  </div>
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
@@ -69,8 +73,8 @@
 {%- endif %}
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
+  {# <input type=submit value=Suivant class="btn btn-success top-right"> #}
 
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>
 
@@ -79,9 +83,13 @@
 
   <h4>Informations sur la forêt</h4>
 
+  <div class="form-group">
+
   {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required='') }}
 
-  {{ macros.input_double("superficie", "Superficie totale de la forêt", foret, required='' if foret['b_document'] else "required") }}
+  {{ macros.input_double("superficie", "Superficie totale de la forêt (ha)", foret, required='' if foret['b_document'] else "required") }}
+
+  </div>
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 

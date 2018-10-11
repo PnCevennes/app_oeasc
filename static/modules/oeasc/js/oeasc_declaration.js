@@ -420,16 +420,16 @@ $(document).ready(function() {
 
     $("#progress_text").html("Progression : " + s_progress);
 
-
     $('#progress_bar').width(s_progress);
-    window.onbeforeunload = function(){
 
+    $(window).bind('beforeunload', function(event){
+
+
+      console.log("a", M.declaration_effectuee)
       if (!M.declaration_effectuee) {
-
-        // return confirm('Etes vous sur de vouloir quitter la page ?');
-
+        return 'Etes vous sur de vouloir quitter la page ? Pour revenir à un étape précédente, cliquer sur le liens correspondant dans le menu situé en haut de la page.';
       }
-    };
+    });
 
   };
 
