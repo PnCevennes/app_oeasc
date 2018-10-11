@@ -17,12 +17,12 @@
 
   <div>
 
-    <div id=name|upper class="form">
+    <div id=name|upper class="form-question">
 
       <label class="label-question" for="{{ name }}">{{ title }} <span class="rouge">*</span></label>
 
       <div class=choice>
-        
+
         <div class="custom-control custom-radio custom-control-inline">
           <input {{ns.choix1_checked}} id="{{ name }}-0" name="{{ name }}"" type="radio" value="T" required>
           <label class='label-choice' for="{{ name }}-0"> {{ choix1 }} </label>
@@ -44,7 +44,7 @@
 {%- macro select_essence(name, nomenclature, titre="", object=None, multi="", required="required", data_max=3, listes_essences=listes_essences, id_nomenclature_degat_type=-1, afficher_type_essence="") %}
   <div>
 
-    <div id="{{ name | upper }}" class="form">
+    <div id="{{ name | upper }}">
 
     {%- set ns = namespace() %}
 
@@ -60,6 +60,7 @@
       {%- set ns.select_options = "show-tick"%}
     {%- endif %}
 
+    <div class={{"select-essence" if afficher_type_essence!="" else ""}}>
       <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
 
     {%- if multi == "multi" %}
@@ -115,6 +116,7 @@
     {%- endif %}
 
       </select>
+    </div>
 
     </div>
 
@@ -126,7 +128,7 @@
 {# {%- macro select(name, nomenclature, mnemonique, titre="", object=None, required="required") %}
   <div>
 
-    <div id="{{ name | upper }}" class=form>
+    <div id="{{ name | upper }}">
 
     {%- set ns = namespace() %}
 
@@ -186,7 +188,7 @@
 
 <div>
 
-  <div id="{{ name | upper }}" class="{{classes}} form">
+  <div id="{{ name | upper }}" class="{{classes}}">
 
     {%- if titre != "" %}
 
@@ -233,9 +235,9 @@
 {%- macro input_text(name, titre="", object=None, required="required") %}
 <div>
 
-  <div id="{{ name | upper }}" class="form input">
-    <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
-    <input type="text" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+  <div id="{{ name | upper }}" class="form-question">
+    <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+    <input class="form-control" type="text" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
   </div>
 
 </div>
@@ -245,9 +247,9 @@
 {%- macro input_tel(name, titre="", object=None, required="required") %}
 <div>
 
-  <div id="{{ name | upper }}" class="form input">
-    <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
-    <input type="tel" pattern="[0-9]{10}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+  <div id="{{ name | upper }}" class="form-question">
+    <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+    <input class="form-control" type="tel" pattern="[0-9]{10}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
   </div>
 
 </div>
@@ -257,9 +259,9 @@
 {%- macro input_email(name, titre="", object=None, required="required") %}
 <div>
   
-  <div id="{{ name | upper }}" class="form input">
+  <div id="{{ name | upper }}" class="form-question">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
-    <input type="email" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+    <input class="form-control" type="email" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
   </div>
 
 </div>
@@ -269,9 +271,9 @@
 {%- macro input_cp(name, titre="", object=None, required="required") %}
 <div>
   
-  <div id="{{ name | upper }}" class="form input">
+  <div id="{{ name | upper }}" class="form-question">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
-    <input type="text" pattern="[0-9]{5}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+    <input class="form-control" type="text" pattern="[0-9]{5}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
   </div>
 
 </div>
@@ -281,9 +283,9 @@
 {%- macro input_double(name, titre="", object=None, required="required") %}
 <div>
   
-  <div id="{{ name | upper }}" class="form">
+  <div id="{{ name | upper }}">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" }}</span></label><br>
-    <input type="number" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+    <input class="form-control" type="number" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
   </div>
 
 </div>
@@ -351,7 +353,7 @@
 
       {% endif %}
 
-      <div class="localisation-select form">
+      <div class="localisation-select form-group">
 
         {% if b_multiple %}
 
@@ -367,6 +369,8 @@
         <select name="{{ type_code }}" id="{{ type_code }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
         </select>
       </div>
+
+   <input type=submit value=Suivant class="btn btn-success float-right">
 
     </div>
 

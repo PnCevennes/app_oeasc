@@ -7,7 +7,7 @@
 
   <h4>Degat</h4>
 
-  <div id="NOMENCLATURE_DEGAT_TYPE" class="checkbox-group-required form" style="display: block;">
+  <div id="NOMENCLATURE_DEGAT_TYPE" class="checkbox-group-required form-group" style="display: block;">
 
     <label for="nomenclatures_degat_type">Type de dégât <i>(QCM)</i> <span class="rouge">{{ "*" if required!="" else "" }}</span></label>
 
@@ -186,6 +186,6 @@
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
-  <input {{ ns.input_disabled }} id="input_degat_essence" type=submit Valider class="btn btn-success float-right">
+  <input {{ ns.input_disabled }} id="input_degat_essence" type=submit value=Suivant class="btn btn-success float-right">
 
 </form>
