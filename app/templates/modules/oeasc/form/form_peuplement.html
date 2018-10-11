@@ -64,11 +64,9 @@
 
   {{ macros.select_essence("id_nomenclature_peuplement_essence_principale", nomenclature, titre="Essence objectif principale", object=declaration, listes_essences=listes_essences, afficher_type_essence="oui") }}
 
-  {{ macros.select_essence("nomenclatures_peuplement_essence_secondaire", nomenclature, titre="Essence(s) Objectif(s) secondaire(s)*", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
+  {{ macros.select_essence("nomenclatures_peuplement_essence_secondaire", nomenclature, titre="Essence(s) objectif secondaire(s) - 3 essences maximum", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
 
-  {{ macros.select_essence("nomenclatures_peuplement_essence_complementaire", nomenclature, titre="Essence(s) complémentaires(s)*", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
-
-  <div><p><i>* QCM, 3 choix maximum.</i></p></div>
+  {{ macros.select_essence("nomenclatures_peuplement_essence_complementaire", nomenclature, titre="Essence(s) complémentaires(s) - 3 essences maximum", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
 
 </div>
 <br>
@@ -95,7 +93,7 @@
 
 <div class="form-group">
   
-  {{ macros.choix("Oui", "Non", 'b_peuplement_protection_existence' ,'Existence de protection', object=declaration) }}
+  {{ macros.choix("Oui", "Non", 'b_peuplement_protection_existence' ,'Existence de dispositifs protection contre les ongulés sauvages', object=declaration) }}
 
   {%- if declaration['b_peuplement_protection_existence'] %}
 
@@ -120,11 +118,13 @@
 
   {%- if declaration['b_peuplement_paturage_presence'] %}
 
+<div class="flex">
   {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_type", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "checkbox", "Type de pâturage", object=declaration) }}
 
   {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_statut", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "checkbox", "Statut du pâturage", object=declaration) }}
 
   {{ macros.radio_nomenclature("id_nomenclature_peuplement_paturage_frequence", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "radio", "Fréquence du pâturage", object=declaration) }}
+</div>
 
   {%- endif %}
 

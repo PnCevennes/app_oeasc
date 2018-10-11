@@ -181,11 +181,8 @@ def get_areas_from_type_code_container(data_type, type_code, id_area_container):
     # cas des dgd
     elif(container.id_type == id_type_dgd):
 
-        print("a")
-
         res = DB.engine.execute(text("SELECT area_code_cadastre FROM ref_geo.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(container.area_code)))
 
-        print("b")
         v = [r[0] for r in res]
 
         data = DB.session.query(table).filter(table.area_code.in_(v)).all()

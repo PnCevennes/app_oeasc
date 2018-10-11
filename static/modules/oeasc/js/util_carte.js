@@ -98,7 +98,14 @@ $(document).ready(function() {
 
         }
 
+        if(map.map_name == 'OEASC_DGD' || map.map_name == 'OEASC_ONF_FRT') {
+
+          M.reset_foret();
+
+        }
+
         f_select_layer(layer, map);
+
         $('#' + map.map_name).selectpicker("refresh");
 
       });
@@ -618,7 +625,7 @@ $(document).ready(function() {
 
     }
 
-    M.stripes.addTo(map);
+    // M.stripes.addTo(map);
 
     for(var i=0; i < 10; i++) {
 
@@ -633,7 +640,8 @@ $(document).ready(function() {
     legend.onAdd = function (map) {
 
       var div=L.DomUtil.create('div','legend');
-      div.innerHTML +='<div id="legend-oeasc"><i style="background: repeating-linear-gradient(45deg, ' + M.color.oeasc + ', ' + M.color.oeasc + ' 2px, white 2px, white 5px); border: 2px solid black;"></i> ' +"OEASC" + '</div>';
+      // div.innerHTML +='<div id="legend-oeasc"><i style="background: repeating-linear-gradient(45deg, ' + M.color.oeasc + ', ' + M.color.oeasc + ' 2px, white 2px, white 5px); border: 2px solid black;"></i> ' +"OEASC" + '</div>';
+      div.innerHTML +='<div id="legend-oeasc"><i style="border: 2px solid black;"></i> ' + "Périmètre de l'OEASC" + '</div>';
       return div;
 
     };

@@ -88,7 +88,7 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_ONF_FRT = {
     name: "OEASC_ONF_FRT",
-    label: "ONF : Forêt",
+    label: "Forêt relevant du régime forestier",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_ONF_FRT,
     pane: 1,
@@ -112,7 +112,7 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_DGD = {
     name: "OEASC_DGD",
-    label: "Document de gestion durable",
+    label: "Forêt possédent un document de gestion durable",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_DGD,
     pane: 1,

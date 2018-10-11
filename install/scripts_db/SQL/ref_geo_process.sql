@@ -122,7 +122,6 @@ INSERT INTO ref_geo.bib_areas_types (
         (306, 'COMMUNES OEASC', 'OEASC_COMMUNE', 'Communes de l''oeasc', 'OEASC', 2018, ''),
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
         (308, 'Section cadastrale', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, ''),
-        (309, 'Section cadastrale simplifiée', 'OEASC_SECTION_SIMPLE', 'Section cadastrale simplifiée', 'OEASC', 2018, ''),
         (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, '');
 
 
@@ -152,7 +151,6 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
                     WHERE id_type=ref_geo.get_id_type('DEP') AND enable
                     )a, ref_geo.perimetre_OEASC as p
        WHERE ST_INTERSECTS(a.geom, p.geom);
-
 
 -- insert OEASC Périmetre
 
@@ -217,7 +215,8 @@ DROP TABLE IF EXISTS temp;
 CREATE TABLE temp(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
 
 INSERT INTO temp(area_code, area_name, geom)
-SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_CONCAVEHULL(ST_UNION(geom), 0.7))
+-- SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_CONCAVEHULL(ST_UNION(geom), 0.7))
+SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_UNION(geom))
   FROM ref_geo.l_oeasc_cadastre
   GROUP BY insee_com, nom_com, section
   ORDER BY insee_com, nom_com, section;

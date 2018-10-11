@@ -58,7 +58,7 @@
             {%- if session.current_user %}
 
 
-            {%- set cond_modifier_effacer = (session.current_user.id_droit_max >= utils.get_fonction_droit("Responsable")) or (session.current_user.id_role == declaration.id_declarant)%}
+            {%- set cond_modifier_effacer = (session.current_user.id_droit_max >= utils.get_fonction_droit("Responsable") or (session.current_user.id_role == declaration.id_declarant)) %}
 
             {%- else %}
 
@@ -79,9 +79,10 @@
               <td>{{declaration['foret']['nom_foret']}}</td>
 
               <td>
-                {%- for commune in declaration.foret.communes %}
+                {% set communes = utils.get_areas_from_type_code(declaration["foret"]["areas_foret"], "OEASC_COMMUNE") %}
+                {%- for commune in communes %}
 
-                {{utils.print_commune(commune)}}{{ "," if not loop.last else "" }}
+                {{utils.print_commune(commune.area_name)}}{{ "," if not loop.last else "" }}
 
                 {%- endfor %}
               </td>

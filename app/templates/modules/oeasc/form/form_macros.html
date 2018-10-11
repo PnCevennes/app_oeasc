@@ -61,7 +61,7 @@
     {%- endif %}
 
     <div class={{"select-essence" if afficher_type_essence!="" else ""}}>
-      <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
+      <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit" data-dropup-auto=false>
 
     {%- if multi == "multi" %}
 
@@ -139,7 +139,7 @@
     {%- set ns.select_options = 'multiple' %}
 
 
-      <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}} data-width="fit">
+      <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}} data-width="fit" data-dropup-auto=false>
 
     {%- for elem in object[name] %}
 
@@ -232,60 +232,60 @@
 {%- endmacro %}
 
 
-{%- macro input_text(name, titre="", object=None, required="required") %}
+{%- macro input_text(name, titre="", object=None, required="required", disabled="") %}
 <div>
 
   <div id="{{ name | upper }}" class="form-question">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
-    <input class="form-control" type="text" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+    <input class="form-control" type="text" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} >
   </div>
 
 </div>
 {%- endmacro %}
 
 
-{%- macro input_tel(name, titre="", object=None, required="required") %}
+{%- macro input_tel(name, titre="", object=None, required="required", disabled="") %}
 <div>
 
   <div id="{{ name | upper }}" class="form-question">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
-    <input class="form-control" type="tel" pattern="[0-9]{10}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+    <input class="form-control" type="tel" pattern="[0-9]{10}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} >
   </div>
 
 </div>
 {%- endmacro %}
 
 
-{%- macro input_email(name, titre="", object=None, required="required") %}
+{%- macro input_email(name, titre="", object=None, required="required", disabled="") %}
 <div>
   
   <div id="{{ name | upper }}" class="form-question">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
-    <input class="form-control" type="email" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+    <input class="form-control" type="email" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} >
   </div>
 
 </div>
 {%- endmacro %}
 
 
-{%- macro input_cp(name, titre="", object=None, required="required") %}
+{%- macro input_cp(name, titre="", object=None, required="required", disabled="") %}
 <div>
   
   <div id="{{ name | upper }}" class="form-question">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
-    <input class="form-control" type="text" pattern="[0-9]{5}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+    <input class="form-control" type="text" pattern="[0-9]{5}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} >
   </div>
 
 </div>
 {%- endmacro %}
 
 
-{%- macro input_double(name, titre="", object=None, required="required") %}
+{%- macro input_double(name, titre="", object=None, required="required", disabled="") %}
 <div>
   
   <div id="{{ name | upper }}">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" }}</span></label><br>
-    <input class="form-control" type="number" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} >
+    <input class="form-control" type="number" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} >
   </div>
 
 </div>
@@ -295,13 +295,23 @@
 {%- macro select_map(type_code, areas, areas_container=[],  titre="", b_multiple=true) %}
 
 {%- set dict_label = {
-  "OEASC_ONF_FRT" : "forêts ONF",
-  "OEASC_ONF_PRF" : "parcelles ONF",
-  "OEASC_ONF_UG" : "unités de gestion ONF",
+  "OEASC_ONF_FRT" : "celles",
+  "OEASC_ONF_PRF" : "celles",
+  "OEASC_ONF_UG" : "celles",
   "OEASC_DGD" : "fôrets possédant un document de gestion",
   "OEASC_CADASTRE" : "parcelles cadastrales",
   "OEASC_SECTION" : "sections cadastrales",
   "OEASC_COMMUNE" : "communes",
+  } %}
+
+  {%- set dict_label_elem = {
+  "OEASC_ONF_FRT" : "la forêt concernée",
+  "OEASC_ONF_PRF" : "la ou les parcelles convernées",
+  "OEASC_ONF_UG" : "la ou les unités de gestion concernées",
+  "OEASC_DGD" : "la fôret",
+  "OEASC_CADASTRE" : "la ou les parcelles cadastrales",
+  "OEASC_SECTION" : "la ou lessections cadastrales",
+  "OEASC_COMMUNE" : "la ou les communes concernées",
   } %}
 
 {%- set dict_label_container = {
@@ -316,8 +326,7 @@
 
   <h4>Localisation </h4>
 
-
-  <p>Veuillez choisir un {{ "ou plusieurs éléments" if b_multiple else "élément"}} parmis les {{ dict_label[type_code] }} sur la carte ou dans la liste.<label for="tooltip_{{ type_code }}"></label></p>
+  <p>Veuillez choisir {{dict_label_elem[type_code]}} parmis celles figurant sur la carte ci-dessous ou dans la liste ci-contre.<label for="tooltip_{{ type_code }}"></label></p>
 
   <div class="row">
 

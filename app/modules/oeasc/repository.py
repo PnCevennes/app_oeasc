@@ -33,33 +33,6 @@ from .models import (
 )
 
 
-# def get_liste_communes(declaration):
-
-#     areas = declaration["foret"]["areas_foret"]
-
-#     communes = []
-
-#     for area in areas:
-
-#         id_area = area["id_area"]
-
-#         sql_text = text("SELECT b.area_name \
-#          FROM ref_geo.l_areas as b, \
-#          (SELECT l.id_area as id_area, c.id_foret, l.area_name,  ref_geo.intersect_rel_area(c.id_area,'OEASC_COMMUNE',0.05) as id_com, geom\
-#              FROM oeasc.cor_areas_forets as c, ref_geo.l_areas as l\
-#              WHERE l.id_area = " + str(id_area) + " AND l.id_area = c.id_area) a\
-#          WHERE b.id_area = a.id_com\
-#          ORDER BY a.area_name, b.area_name;")
-
-#         data = DB.engine.execute(sql_text)
-
-#         for d in data:
-#             if d[0] not in communes:
-#                 communes.append(d[0])
-
-#     return communes
-
-
 def get_organisme_name_from_id_organisme(id_organisme):
 
     sql_text = text("SELECT b.nom_organisme \
@@ -354,7 +327,7 @@ def f_create_or_update_declaration(declaration_dict):
 
     id_declaration = declaration_dict.get("id_declaration", None)
 
-    # on n'ecrit la foret ou le proprietaire dans la base dans la base que dans le cas d'une foret non documentée
+    # on n'écrit la foret ou le proprietaire dans la base dans la base que dans le cas d'une foret non documentée
     if not declaration_dict["foret"]["b_document"]:
 
         id_foret = declaration_dict["foret"].get("id_foret", None)
@@ -413,8 +386,6 @@ def get_users():
 
     data = DB.session.query(User)
     v = [as_dict(d) for d in data]
-
-    print(config.ID_APP)
 
     data_app = DB.session.query(AppUser).filter(AppUser.id_application == config.ID_APP)
     v_app = [as_dict(d) for d in data_app]

@@ -1,0 +1,2 @@
+shp2pgsql -W ISO-8859-1 -s 2154 -d -D -I /home/joel/Info/PNC/OEASC/app_oeasc/install/scripts_db/script_ref_geo/../../../data/limites_pnc/zone_coeur.shp ref_geo.zc_pnc | psql -b -d geonature2db -h localhost -U dbadmin
+shp2pgsql -W ISO-8859-1 -s 2154 -d -D -I /home/joel/Info/PNC/OEASC/app_oeasc/install/scripts_db/script_ref_geo/../../../data/limites_pnc/aire_adhesion.shp ref_geo.aa_pnc | psql -b -d geonature2db -h localhost -U dbadmin

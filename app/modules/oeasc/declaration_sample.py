@@ -18,11 +18,17 @@ from datetime import datetime
 
 
 def rand_nomenclature(nomenclature, mnemonique):
-
+    '''
+        renvoie un entier compris entre 0 et le nombre de nomenclature pour un type (ou mnemonique) donné
+    '''
     return random.randint(0, len(nomenclature[mnemonique]['values']) - 1)
 
 
 def v_rand_nomenclature(nomenclature, mnemonique, k=-1):
+    '''
+        renvoie un echantillion de k entiers entiers compris en 0 et le nombre de nomenclature pour un type (ou mnemonique) donné
+        si k=-1 k est choisi de façcon aléatoire
+    '''
 
     n = len(nomenclature[mnemonique]['values'])
 
@@ -36,6 +42,13 @@ def v_rand_nomenclature(nomenclature, mnemonique, k=-1):
 
 
 def get_nomenclature_sample(nomenclature, mnemonique, ind, key=""):
+    '''
+        si ind est un indice => retourne un elment de nomenclature
+        si ind est un tableau => retourne un tableau d'element de nomenclature
+
+        si key=="" renvoie toute un dictionnaire contenant toutes les clé de nomenclature
+        si key est renseigné (ex key='label_fr' ou key='mnemonique') renvoie juste cette valeur
+    '''
 
     if type(ind) == list:
         _ind = ind
@@ -65,6 +78,10 @@ def get_nomenclature_sample(nomenclature, mnemonique, ind, key=""):
 
 
 def get_nomenclature_random_sample(nomenclature, mnemonique, key=""):
+    '''
+        renvoie un element de nomenclature au hasard pour un type donné
+        tout si key="" ou juste la valeur associée à la clé (ex key='label_fr')
+    '''
 
     ind = rand_nomenclature(nomenclature, mnemonique)
 
@@ -72,6 +89,10 @@ def get_nomenclature_random_sample(nomenclature, mnemonique, key=""):
 
 
 def get_v_nomenclature_random_sample(nomenclature, mnemonique, key=""):
+    '''
+        renvoie un tableau d'element de nomenclature au hasard pour un type donné, la taille du tableau est aléatoire
+        tout si key="" ou juste la valeur associée à la clé (ex key='label_fr')
+    '''
 
     v_ind = []
 
@@ -84,6 +105,10 @@ def get_v_nomenclature_random_sample(nomenclature, mnemonique, key=""):
 
 
 def proprietaire_dict_random_sample(nomenclature=None):
+    '''
+        Renvoie un proprietaire aleatoire
+        TODO
+    '''
 
     if not nomenclature:
 
@@ -106,7 +131,9 @@ def proprietaire_dict_random_sample(nomenclature=None):
 
 
 def get_type_code_statut_document(b_statut_public, b_document, type):
-
+    '''
+        Renvoie le type code de géométrie correspondant aux statuts de la foret (documentée/ou non, public/privé)
+    '''
     type_code = ""
 
     if type == "foret":
@@ -137,7 +164,9 @@ def get_type_code_statut_document(b_statut_public, b_document, type):
 
 
 def foret_dict_random_sample(nomenclature=None):
-
+    '''
+        Renvoie un foret aleatoire
+    '''
     if not nomenclature:
 
         nomenclature = nomenclature_oeasc()
@@ -166,7 +195,9 @@ def foret_dict_random_sample(nomenclature=None):
 
 
 def degats_dict_random_sample(v_essences, nomenclature=None):
-
+    '''
+        Renvoie des degats aléatoires
+    '''
     if not nomenclature:
 
         nomenclature = nomenclature_oeasc()
@@ -204,7 +235,9 @@ def degats_dict_random_sample(v_essences, nomenclature=None):
 
 
 def get_random_id_declarant():
-
+    ''' 
+        renvoie un id_declarant aléatoire
+    '''
     sql_text = text("SELECT id_role FROM utilisateurs.t_roles WHERE remarques = 'utilisateur test OEASC'")
     data = DB.engine.execute(sql_text)
     v = [d[0] for d in data]
@@ -216,7 +249,10 @@ def get_random_id_declarant():
 
 
 def get_random_areas_localisation(id_area_foret, type_code_parcelle):
-
+    '''
+        renvoie des localisations aléatoires
+        TODO 
+    '''
     sql_text = text("SELECT ref_geo.intersect_rel_area({}, '{}', 0.05)".format(id_area_foret, type_code_parcelle))
     data = DB.engine.execute(sql_text)
     v = [d[0] for d in data]
@@ -232,7 +268,9 @@ def get_random_areas_localisation(id_area_foret, type_code_parcelle):
 
 
 def declaration_dict_random_sample(nomenclature=None):
-
+    '''
+        Renvoie une déclaration aléatoire
+    '''
     if not nomenclature:
 
         nomenclature = nomenclature_oeasc()
@@ -257,7 +295,6 @@ def declaration_dict_random_sample(nomenclature=None):
 
         return None
 
-    # areas_localisation = [{"id_area": 204413}]
     areas_localisation = get_random_areas_localisation(id_area_foret, type_code_parcelle)
 
     v_essences = v_rand_nomenclature(nomenclature, 'OEASC_PEUPLEMENT_ESSENCE')

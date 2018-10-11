@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*
-
-
-from pypnnomenclature.models import TNomenclatures
-
 from flask import (
     Blueprint, render_template, request
 )
@@ -25,18 +21,15 @@ from .utils import (
 
 from .models import (
     TDeclaration,
-    TForet, TProprietaire
+    TForet
 )
 
 from app.utils.env import DB
 
 from app.utils.utilssqlalchemy import json_resp
 
-from pypnusershub.db.models import User
+from app.ref_geo.models import LAreas
 
-from app.utils.utilssqlalchemy import as_dict
-
-from app.ref_geo.models import TAreas, LAreas
 
 bp = Blueprint('oeasc_api', __name__)
 
@@ -44,23 +37,26 @@ bp = Blueprint('oeasc_api', __name__)
 @bp.route('get_nomenclature_oeasc', methods=['GET'])
 @json_resp
 def get_nomenclature_oeasc():
+    '''
+        Retourne un dictionnaire contenant toutes les nomenclatures concernant l'oeasc
+
+        Exemple:
+
+        nomenclature = nomenclature_oeasc()
+        for elem in nomenclature["OEASC_PEUPLEMENT_ESSENCE"]["values"]:
+            print(elem.label_fr)
+    '''
 
     return nomenclature_oeasc()
-
-
-@bp.route('get_nomenclature_mnemonique/<int:id_nomenclature>', methods=['GET'])
-@json_resp
-def get_nomenclature(id_nomenclature):
-
-    data = DB.session.query(TNomenclatures.mnemonique).filter(TNomenclatures.id_nomenclature == id_nomenclature).first()[0]
-
-    return data
 
 
 @bp.route('declarations/', defaults={'id_declarant': -1}, methods=['GET'])
 @bp.route('declarations/<int:id_declarant>', methods=['GET'])
 @json_resp
 def declarations(id_declarant):
+    '''
+        Retourne les declarations accessible pour le declarant de id_role id_declarant
+    '''
 
     b_synthese = id_declarant == -1
 
@@ -70,6 +66,9 @@ def declarations(id_declarant):
 @bp.route('declaration/<int:id_declaration>', methods=['GET'])
 @json_resp
 def declaration(id_declaration):
+    '''
+        Retourne la declaration d'id id_declaration
+    '''
 
     declaration = DB.session.query(TDeclaration).filter(TDeclaration.id_declaration == id_declaration).first()
 
@@ -83,6 +82,9 @@ def declaration(id_declaration):
 @bp.route('get_form_declaration', methods=['POST'])
 @json_resp
 def get_form_declaration():
+    '''
+        Retourne le formulaire correspondant à la déclaration envoyée en post dans data['declaration']
+    '''
 
     data = request.get_json()
 
@@ -105,6 +107,9 @@ def get_form_declaration():
 @bp.route('delete_declaration/<int:id_declaration>', methods=['POST'])
 @json_resp
 def delete_declaration(id_declaration):
+    '''
+        Supprime une déclaration (id_déclaration)
+    '''
 
     DB.session.query(
         TDeclaration).filter(
@@ -118,6 +123,9 @@ def delete_declaration(id_declaration):
 @bp.route('random_declaration', methods=['GET'])
 @json_resp
 def random_declaration():
+    '''
+        Renvoie une déclaration crée aléatoirement
+    '''
 
     declaration_dict = declaration_dict_random_sample()
 
@@ -128,6 +136,9 @@ def random_declaration():
 @bp.route('random_populate/<int:nb>', methods=['GET'])
 @json_resp
 def random_populate(nb):
+    '''
+        Crée et ajoute en base nb déclarations
+    '''
 
     for i in range(nb):
 
@@ -151,6 +162,11 @@ def random_populate(nb):
 @bp.route('create_or_update_declaration', methods=['POST'])
 @json_resp
 def create_or_update_declaration():
+    '''
+        cree une nvlle déclaration quand id déclaration est renseigné
+        ou
+        update une declaration existante
+    '''
 
     data = request.get_json()
 
@@ -162,14 +178,18 @@ def create_or_update_declaration():
 @bp.route('get_db/<type>/<key>/<val>', methods=['GET'])
 @json_resp
 def api_get_db(type, key, val):
-
+    '''
+        pfff
+    '''
     return get_db(type, key, val)
 
 
 @bp.route('declaration_areas/<int:id_declaration>/<string:type>', methods=['GET'])
 @json_resp
 def declaration_areas(id_declaration, type):
-
+    '''
+        renvoie les aires forêt (Commune, Section, DGD, ONF_FRT) ou localisation (ONF_PRF, ONF_UG, CADASTRE).
+    '''
     declaration = DB.session.query(TDeclaration).filter(TDeclaration.id_declaration == id_declaration).first()
 
     id_foret = declaration.id_foret

@@ -5,6 +5,7 @@ $(document).ready(function() {
 
   M.declaration_effectuee = false;
 
+
   // pour retrouver le formulaire en cours
 
   var get_id_form = function() {
@@ -91,6 +92,7 @@ $(document).ready(function() {
       else {
 
         $('#form_proprietaire').attr('data-id-declarant', "");
+
         M.reset_proprietaire();
 
       }
@@ -111,11 +113,9 @@ $(document).ready(function() {
     $('#form_areas_foret select').change(function() {
 
       $("#form_areas_localisation").attr("data-areas", "[]");
+      M.reset_foret();
 
     });
-
-    $
-
 
   };
 
@@ -241,9 +241,6 @@ $(document).ready(function() {
   var f_init_fil_ariane = function(selector) {
 
     var disabled = false;
-    var first = true
-    var nb = 0; 
-    var nb_all = 0;
 
     $(selector).each(function() {
 
@@ -256,13 +253,6 @@ $(document).ready(function() {
       var fil = $this.parent().attr('id')
 
       disabled = (!$form[0].checkValidity()) || disabled;
-
-      // if (fil == "fil_global" && disabled && first) {
-
-      //   first = false;
-      //   disabled = false;
-
-      // }
 
       var declaration = M.get_declaration_as_dict();
 
@@ -305,17 +295,14 @@ $(document).ready(function() {
       if(current || !disabled) {
 
        $this.attr("disabled", false);
-       nb += 1;
 
      }
 
-      nb_all += 1;
-
-     $this.attr("current", current)
+     $this.attr("current", current);
 
    });
 
-    return {'nb': nb, 'nb_all': nb_all}
+    return 0;
 
   };
 
@@ -408,10 +395,8 @@ $(document).ready(function() {
 
     }
 
-    var res_ariane_global = f_init_fil_ariane("#fil_global a");
-    var res_ariane_local = f_init_fil_ariane("#fil_local a");
-
-    // var progression = 1.0 * Math.max(res_ariane_global.nb - 1, 0) / res_ariane_global.nb_all + 1.0 * Math.max(res_ariane_local.nb -1, 0) / res_ariane_local.nb_all / res_ariane_global.nb_all;
+    f_init_fil_ariane("#fil_global a");
+    f_init_fil_ariane("#fil_local a");
 
     var progression = M.liste_forms.indexOf(id_form)/M.liste_forms.length
 
@@ -424,11 +409,23 @@ $(document).ready(function() {
 
     $(window).bind('beforeunload', function(event){
 
-
       console.log("a", M.declaration_effectuee)
       if (!M.declaration_effectuee) {
+
+        var e = e || window.event;
+
+        if (e) {
+          e.returnValue = 'Any string';
+        }
+
+
+        return 'Any string';
         return 'Etes vous sur de vouloir quitter la page ? Pour revenir à un étape précédente, cliquer sur le liens correspondant dans le menu situé en haut de la page.';
+
       }
+
+
+
     });
 
   };
@@ -460,11 +457,11 @@ $(document).ready(function() {
 
       }
 
-      if(next == "form_information_foret" && M.declaration_save.foret.b_document == true) {
+      // if(next == "form_information_foret" && M.declaration_save.foret.b_document == true) {
 
-        next = "form_areas_localisation";
+      //   next = "form_areas_localisation";
 
-      }
+      // }
 
       if(id_form == "all") {
 

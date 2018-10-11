@@ -137,26 +137,21 @@ def check_proprietaire(declaration_dict, nomenclature):
     '''
 
     if declaration_dict['foret'].get('b_document', None) != False or declaration_dict['foret'].get('b_statut_public', None) != False:
-        print('1')
         return -1
 
     # si le proprietaire est déjà renseigné
     if declaration_dict['foret']['id_proprietaire']:
-        print('2')
 
         return -1
 
     if not declaration_dict['id_nomenclature_proprietaire_declarant']:
-        print('3')
 
         return -1
 
     mnemonique = declaration_dict['id_nomenclature_proprietaire_declarant']['mnemonique']
-    print(mnemonique)
 
     # si le declarant n'est pas le proprietaire
     if mnemonique != 'P_D_O_NP':
-        print('4')
 
         declaration_dict['foret']['proprietaire'] = TProprietaire().as_dict()
         return -1
@@ -164,13 +159,10 @@ def check_proprietaire(declaration_dict, nomenclature):
     # sinon  on recherche le proprietaire correspondant a l'id declarant
     id_declarant_proprietaire = declaration_dict['foret']['proprietaire']['id_declarant']
 
-    print(id_declarant_proprietaire)
     if id_declarant_proprietaire:
 
         proprietaire = DB.session.query(TProprietaire).filter(id_declarant_proprietaire == TProprietaire.id_declarant).first()
-        print(proprietaire)
         if proprietaire:
-            print(proprietaire.as_dict(True))
             declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
 
             return 1
@@ -191,8 +183,8 @@ def check_proprietaire(declaration_dict, nomenclature):
             proprietaire_dict["email"] = user_dict["email"]
             proprietaire_dict["id_declarant"] = user_dict["id_role"]
             proprietaire_dict["id_nomenclature_proprietaire_type"] = get_nomenclature('mnemonique', 'PT_PRI', 'OEASC_PROPRIETAIRE_TYPE', nomenclature, 'id_nomenclature')
-            print(user_dict, proprietaire_dict)
             declaration_dict['foret']['proprietaire'] = proprietaire_dict
+
             return 1
 
     return -1

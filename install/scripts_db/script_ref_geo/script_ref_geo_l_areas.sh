@@ -4,9 +4,7 @@ fi
 config_file=${ROOT_DIR}/install/scripts_db/script_config.sh
 . $config_file
 
-
 echo '-- l_areas'
-
 
 cat << EOF
 
@@ -29,8 +27,6 @@ cat << EOF
 DROP SCHEMA IF EXISTS oeasc CASCADE;
 
 EOF
-
-
 
 for name in $list_name
 do
@@ -93,13 +89,15 @@ INSERT INTO ref_geo.bib_areas_types (
         (306, 'COMMUNES OEASC', 'OEASC_COMMUNE', 'Communes de l''oeasc', 'OEASC', 2018, ''),
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
         (308, 'Section cadastrale', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, ''),
-        (309, 'Section cadastrale simplifiée', 'OEASC_SECTION_SIMPLE', 'Section cadastrale simplifiée', 'OEASC', 2018, ''),
-        (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, '');
+        (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, ''),
+        (321, 'ZC_PNC', 'ZC_PERIMETRE', 'Zone Coeur du PNC', 'OEASC', 2018, ''),
+        (322, 'AA_PNC', 'AA_PERIMETRE', 'Aire d''adhésion du PNC', 'OEASC', 2018, '');
 
 
 EOF
 
 echo "SELECT setval('ref_geo.l_areas_id_area_seq', COALESCE((SELECT MAX(id_area)+1 FROM ref_geo.l_areas), 1), false);"
+
 
 cat << EOF
 
@@ -136,16 +134,32 @@ EOF
 
 cat << EOF
 
-
--- insert OEASC Périmetre
+-- AA et ZC
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('OEASC_PERIMETRE'), 'Périmètre OEASC', 'OEASC_PERIMETRE', geom, ST_CENTROID(geom), 'OEASC', '', true
-    FROM ref_geo.perimetre_oeasc;
+    SELECT ref_geo.get_id_type('ZC_PERIMETRE'), 'Zone coeur du parc des cévennes', 'ZC_PNC', geom, ST_CENTROID(geom), 'OEASC', '', true
+    FROM ref_geo.zc_pnc;
+
+ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
+    SELECT ref_geo.get_id_type('AA_PERIMETRE'), 'Aire adhésion parc des cévennes', 'AA_PNC', geom, ST_CENTROID(geom), 'OEASC', '', true
+    FROM ref_geo.aa_pnc;
 
 EOF
 
+
+cat << EOF
+
+-- insert AA PNC
+
+INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
+    SELECT ref_geo.get_id_type('AA_PNC'), 'Aire adhésion parc des cévennes', 'AA_PNC', geom, ST_CENTROID(geom), 'OEASC', '', true
+    FROM ref_geo.aa_pnc;
+
+EOF
+
+
 echo '-- placer dans l_areas et faire les tables d attributs'
+
 
 for name in $list_name
 do
@@ -155,7 +169,6 @@ do
     table=${!table}
     keys=${!keys}
     keys_label=${!keys_label}
-
 
 cat << EOF
 
@@ -212,7 +225,8 @@ DROP TABLE IF EXISTS temp;
 CREATE TABLE temp(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
 
 INSERT INTO temp(area_code, area_name, geom)
-SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_CONCAVEHULL(ST_UNION(geom), 0.7))
+-- SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_CONCAVEHULL(ST_UNION(geom), 0.7))
+SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_UNION(geom))
   FROM ref_geo.l_oeasc_cadastre
   GROUP BY insee_com, nom_com, section
   ORDER BY insee_com, nom_com, section;
@@ -270,7 +284,7 @@ DROP TABLE IF EXISTS temp;
 CREATE TABLE temp(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
 
 INSERT INTO temp(area_code, geom)
-    SELECT SUBSTR(area_code, 1,5) as code, ST_UNION(geom) as geom  
+    SELECT SUBSTR(area_code, 1,5) as code, ST_UNION(geom) as geom
         FROM ref_geo.l_areas
         WHERE id_type = ref_geo.get_id_type('OEASC_SECTION')
         GROUP BY code
@@ -279,7 +293,7 @@ INSERT INTO temp(area_code, geom)
 DROP TABLE IF EXISTS ref_geo.cor_old_communes;
 
 CREATE TABLE IF NOT EXISTS ref_geo.cor_old_communes(
-    area_code character varying, 
+    area_code character varying,
     old_area_codes character varying[],
 
     CONSTRAINT pk_cor_old_communes PRIMARY KEY (area_code)
@@ -291,7 +305,7 @@ SELECT l.area_code, array_sort_unique(array_agg(t.area_code))
     FROM temp AS t, ref_geo.l_areas AS l
     WHERE l.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
     AND ST_INTERSECTS(t.geom, l.geom)
-    AND ST_AREA(ST_INTERSECTION(t.geom, l.geom)) * ( 1.0 / ST_AREA(t.geom) + 1.0 / ST_AREA(l.geom) ) > 0.05
+    AND ST_AREA(ST_INTERSECTION(t.geom, l.geom)) * ( 1.0 / ST_AREA(t.geom) + 1.0 / ST_AREA(l.geom) ) > 0.5
     GROUP BY l.area_code
     ORDER BY l.area_code;
 
@@ -306,7 +320,7 @@ CREATE OR REPLACE FUNCTION ref_geo.get_old_communes(
 
         SELECT UNNEST(old_area_codes)
         FROM ref_geo.cor_old_communes
-        WHERE area_code = myarea_code; 
+        WHERE area_code = myarea_code;
           END;
     \$BODY\$
   LANGUAGE plpgsql IMMUTABLE
@@ -318,9 +332,8 @@ DROP TABLE IF EXISTS ref_geo.cor_dgd_cadastre;
 
 CREATE TABLE ref_geo.cor_dgd_cadastre
 (
-    area_code_dgd CHARACTER VARYING, 
+    area_code_dgd CHARACTER VARYING,
     area_code_cadastre CHARACTER VARYING
-
 );
 
 INSERT INTO ref_geo.cor_dgd_cadastre
@@ -333,8 +346,8 @@ SELECT a.area_code, l.area_code
 
 -- sauvegarde des données pour ne pas tout recalculer par la suite
 
-COPY 
-(SELECT id_type, area_name, area_code, geom, centroid, source, 
+COPY
+(SELECT id_type, area_name, area_code, geom, centroid, source,
        comment, enable, geom_4326
     FROM ref_geo.l_areas
     WHERE id_type >= 300 AND id_type < 400)

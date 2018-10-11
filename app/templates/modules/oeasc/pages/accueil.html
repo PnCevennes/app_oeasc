@@ -5,4 +5,64 @@
 
 {%- block content %}
 
+<div class="row">
+
+  <div class="col-md-6">
+
+    <p>Bienvenue sur le site de l’Observatoire partagé de l’équilibre agro-sylvo-cynégétique du territoire du Parc national des Cévennes !</p>
+
+    <p>Pour comprendre la démarche, nous vous le présentons ici en 4 questions. Pour aller plus loin, n’hésitez pas à consulter <a href="{{url_for('oeasc.presentation')}}">les pages détaillant les principes et le contenu.</a></p>
+
+    <h2>L’Observatoire, qu’est-ce que c’est ?</h2>
+
+    <p>L’OEASC est un dispositif qui vise à apprécier et suivre l’équilibre entre les populations d’ongulés sauvages (cerfs, chevreuil, sangliers et mouflons), leur milieu de vie et les activités humaines (et notamment agricoles et forestières).</p>
+
+    <h2>L’Observatoire, à quoi ça sert ?</h2>
+    <p>L’OEASC constitue un outil d’aide à la décision. Les données qui y sont collectées et centralisées permettent aux gestionnaires (chasseurs, forestiers, agriculteurs, services de l’État) de définir des mesures de gestion des populations et des milieux naturel ou semi-naturels adaptées aux réalités de terrain et répondant aux préoccupations de tous.</p>
+
+    <h2>Qui participe à l’Observatoire ?</h2>
+
+    <p>L’OEASC est un outil qui se veut collectif et participatif. Il rassemble des représentants du secteur forestier, du secteur agricole, du monde de la chasse, l’établissement public du Parc national des Cévennes, les services de l’État et des experts scientifiques nationaux (voir la liste des partenairesimpliqués dans la démarche ici).</p>
+
+    <h2>Quel est le territoire concerné par l’Observatoire ?</h2>
+
+    <p>Le périmètre de l’OEASC est constitué des communes de l’aire optimale d’adhésion du Parc national des Cévennes limitrophes au cœur du Parc national ou en partie incluse dans celui-ci.</p>
+
+  </div>
+
+  <div class="col-md-6">
+
+    <h2>Zone d'étude de l'OEASC</h2>
+
+    <div id="map_acceuil" class="map"></div>
+
+  </div>
+
+</div>
+
+{%- endblock %}
+
+
+{%- block js_local %}
+
+{{ super() }}
+
+<script>
+
+  $(document).ready(function() {
+
+    "use strict";
+
+    var map_init = M.carte_base_oeasc("acceuil");
+
+    var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_from_type_code/l/AA_PERIMETRE', {style: M.style.aa}).addTo(map_init);
+    var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas_from_type_code/l/ZC_PERIMETRE', {style: M.style.zc}).addTo(map_init);
+
+    $(".legend").append('<div id="#legend-aa"><i style="background: ' + M.color.zc + '; border: 1px solid black;"></i> ' +"Zone Coeur" + '</div>');
+    $(".legend").append('<div id="#legend-zc"><i style="background: ' + M.color.aa + '; border: 1px solid black;"></i> ' +"Aire d'adhésion" + '</div>');
+
+  });
+
+</script>
+
 {%- endblock %}

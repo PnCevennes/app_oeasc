@@ -12,11 +12,11 @@
 
     {%- if foret.b_statut_public == true %}
 
-      {%- set titre_document = "La forêt relève t'elle du régime ONF" %}
+      {%- set titre_document = "La forêt relève-t-elle du régime ONF" %}
 
     {%- else %}
 
-      {%- set titre_document = "La forêt possède t'elle un document de gestion durable" %}
+      {%- set titre_document = "La forêt est-elle dotée d'un document de gestion durable" %}
 
     {%- endif %}
 
@@ -39,7 +39,7 @@
 
   {% set areas_selected = utils.get_areas_from_type_code(foret["areas_foret"], "OEASC_ONF_FRT")%}
 
-  {{ macros.select_map("OEASC_ONF_FRT", areas_selected, b_multiple=false, titre="Forêt ONF") }}
+  {{ macros.select_map("OEASC_ONF_FRT", areas_selected, b_multiple=false, titre="Forêt relevant du régime forestier") }}
 
 {# cas DGD #}
 {%- elif foret['b_statut_public']==false and foret['b_document'] ==true %}
@@ -73,7 +73,6 @@
 {%- endif %}
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
-  {# <input type=submit value=Suivant class="btn btn-success top-right"> #}
 
 
 </form>
@@ -83,11 +82,29 @@
 
   <h4>Informations sur la forêt</h4>
 
+  {%- set disabled=''%}
+
+  {%- if foret["b_document"]==true  %}
+
+  <div>
+
+    <p>Le nom de la forêt et sa superificie sont issues {{ "de données provenant de l'ONF et relatives aux forêts publiques ayant un régime forestier" if foret["b_statut_public"] else "de données relatives aux forêts privées ayant un document de gestion"}}.<br>
+
+    Veuillez vérifier l'exactitude des données et appuyer sur suivant.</p>
+
+    <p>Si vous voulez signaler une erreur, vous pouvez envoyer un email à baptiste.algoet@cevennes-parcnational.fr.</p>
+
+  </div>
+  {%- set disabled='disabled'%}
+
+  {%- endif %}
+
+
   <div class="form-group">
 
-  {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required='') }}
+  {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required='', disabled=disabled) }}
 
-  {{ macros.input_double("superficie", "Superficie totale de la forêt (ha)", foret, required='' if foret['b_document'] else "required") }}
+  {{ macros.input_double("superficie", "Superficie totale de la forêt (ha)", foret, required='' if foret['b_document'] else "required", disabled=disabled) }}
 
   </div>
 

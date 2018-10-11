@@ -2,7 +2,7 @@
 
       {%- set foret = declaration["foret"]%}
 
-
+{# 
       <nav class="nav nav-tabs">
         <a class="nav-item nav-link active" href="#foret" data-toggle="tab">Forêt</a>
         <a class="nav-item nav-link" href="#localisation" data-toggle="tab">Localisation</a>
@@ -10,8 +10,174 @@
         <a class="nav-item nav-link" href="#degats" data-toggle="tab">Dégâts</a>
         <a class="nav-item nav-link" href="#commentaire" data-toggle="tab">Commentaires</a>
       </nav>
+ #}
+      <div>
+
+        <div>
+
+          <h4>Forêt</h4>
+
+          <div>Nom : {{foret.nom_foret if foret.nom_foret!="" else "nom inconnu"}}.</div>
+          <div> Statut : {%- if foret.b_statut_public %} public {%- else %} privé {%- endif %}, 
+
+            {%- if foret.b_document %}
+
+            {%- if foret.b_statut_public %}
+            dépendant du régime ONF.
+            {%- else %}
+            possédant un document de gestion durable.
+            {%- endif %}
+
+            {%- else %}
+
+            non documenté.
+
+            {%- endif %}
+
+          </div>
+
+          <div>
+            Communes :
+
+            {%- set communes = utils.get_areas_from_type_code(declaration["foret"]["areas_foret"], "OEASC_COMMUNE") %}
+
+            {%- for commune in communes %}
+
+            {{utils.print_commune(commune.area_name)}} {{ "," if not loop.last else "." }}
+
+            {%- endfor %}
+
+          </div>
+
+        </div>
+
+        <div>
+
+          <h4>Peuplement</h4>
 
 
+          <h5>Essence</h5>
+
+          <ul>
+
+            <li>Principale : {{ declaration.id_nomenclature_peuplement_essence_principale.label_fr }}</li>
+
+            {%- if declaration.nomenclatures_peuplement_essence_secondaire | length %}
+            <li>Secondaire(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_secondaire %} {{ cor.label_fr }} {%- endfor %} </li>
+            {%- endif %}
+
+            {%- if declaration.nomenclatures_peuplement_essence_complementaire | length %}
+            <li>Complémentaires(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_complementaire %} {{ cor.label_fr }} {%- endfor %} </li>
+            {%- endif %}
+
+          </ul>
+
+
+          <h5>Détails</h5>
+
+          <ul>
+            <li>Origine du peuplement : {{ declaration.id_nomenclature_peuplement_origine.label_fr }} </li>
+            <li>Type de peuplement : {{ declaration.id_nomenclature_peuplement_type.label_fr }} </li>
+
+            {%- if  declaration.id_nomenclature_peuplement_type.mnemonique != "F. irr." %}
+
+            <li>Maturité du peuplement : {%- for cor in declaration.nomenclatures_peuplement_maturite %} {{ cor.label_fr }} {%- endfor %} </li>
+
+            {%- endif %}
+
+          </ul>
+
+
+          <h5>Protection</h5>
+
+          <ul>
+            <li>Existence de protection : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}</li>
+
+            {%- if declaration['b_peuplement_protection_existence'] %}
+
+            <li>Type de protection : {%- for cor in declaration.nomenclatures_peuplement_protection_type %} {{ cor.label_fr }} {%- endfor %} </li>
+
+            {%- endif %}
+
+          </ul>
+
+          <h5>Paturage</h5>
+
+          <ul>
+            <li>Existence de paturage : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}</li>
+
+            {%- if declaration['b_peuplement_paturage_presence'] %}
+
+            <li>Type de paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_type %} {{ cor.label_fr }} {%- endfor %} </li>
+            <li>Statut du paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_statut %} {{ cor.label_fr }} {%- endfor %} </li>
+            <li>Fréquence du paturage : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr }} </li>
+
+            {%- endif %}
+
+          </ul>
+
+          <h5>Autres</h5>
+
+          <ul>
+            <li>Accessibilité du peuplement : {{ declaration.id_nomenclature_peuplement_acces.label_fr }}</li>
+            <li>Espèce(s) avérée(s) : {%- for cor in declaration.nomenclatures_peuplement_espece %} {{ cor.label_fr }} {%- endfor %}</li>
+          </ul>
+
+        </div>
+
+        <div>
+
+          <h4>Dégâts</h4>
+
+           <ul>
+
+            {%- for degat in declaration.degats %}
+
+            <li>  {{ degat.id_nomenclature_degat_type.label_fr }}
+
+              <ul>
+
+                {%- for degat_essence in degat['degat_essences'] %}
+
+                {% if degat_essence != {} %}
+
+                <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr }}
+
+                  {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
+
+                  : {{ degat_essence.id_nomenclature_degat_etendue.label_fr }}, {{ degat_essence.id_nomenclature_degat_gravite.label_fr }}, {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr }}
+
+                  {% endif %}
+
+                </li>
+
+                {% endif %}
+
+                {%- endfor %}
+
+              </ul>
+
+            </li>
+
+            {%- endfor %}
+
+          </ul>
+
+        </div>
+
+        <div>
+
+          <h4>Commentaires</h4>
+
+          {{ declaration.commentaire or "" }}
+
+        </div>
+
+      </div>
+
+
+
+      {#
       <div class="tab-content">
 
         <div class="tab-pane active" id="foret">
@@ -134,17 +300,13 @@
 
         </div>
 
-
-        {# {%- if declaration.commentaires %} #}
-
         <div class="tab-pane" id="commentaire">
 
           {{ declaration.commentaire or "" }}
 
         </div>
 
-        {# {%- endif %} #}
-
       </div>
+ #}
 
     </div>

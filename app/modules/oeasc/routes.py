@@ -77,8 +77,6 @@ def register():
     liste_organismes_oeasc = get_liste_organismes_oeasc()
     nomenclature = nomenclature_oeasc(['OEASC_DECLARANT_FONCTION'])
 
-    print(nomenclature)
-
     return render_template('modules/oeasc/pages/register.html', config=config, id_app=config.ID_APP, liste_organismes_oeasc=liste_organismes_oeasc, nomenclature=nomenclature)
 
 
@@ -91,12 +89,36 @@ def accueil():
     return render_template('modules/oeasc/pages/accueil.html')
 
 
-@bp.route('/description')
-def description():
+@bp.route('/presentation')
+def presentation():
     '''
-        description du projet OEASC
+        presentation du projet OEASC
     '''
-    return render_template('modules/oeasc/pages/description.html')
+    return render_template('modules/oeasc/pages/presentation.html')
+
+
+@bp.route('/pourquoi')
+def pourquoi():
+    '''
+        pourquoi du projet OEASC
+    '''
+    return render_template('modules/oeasc/pages/pourquoi.html')
+
+
+@bp.route('/objectifs')
+def objectifs():
+    '''
+        objectifs du projet OEASC
+    '''
+    return render_template('modules/oeasc/pages/objectifs.html')
+
+
+@bp.route('/contenu')
+def contenu():
+    '''
+        contenu du projet OEASC
+    '''
+    return render_template('modules/oeasc/pages/contenu.html')
 
 
 @bp.route('/signalement_degats_forestiers')

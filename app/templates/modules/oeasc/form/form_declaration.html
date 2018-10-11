@@ -2,8 +2,6 @@
 
 {%- import "modules/oeasc/form/form_macros.html" as macros %}
 
-
-
 {%- include "modules/oeasc/form/fil_ariane.html"%}
 
 <div id="id_form" data-id-form="{{ id_form }}" style="display: none;"></div>
@@ -18,12 +16,27 @@
 {%- set degats = declaration["degats"] %}
 {%- include "modules/oeasc/form/form_degats.html" %}
 
-
 <form id="form_commentaire">
 
   <h4>Commentaires</h4>
 
   <label for="commentaire"></label>
+
+  <div>
+
+    <p>Le déclarant est invité ici à fournir toute information complémentaire qu’il jugerait utile. Cette rubrique peut notamment être utilisée afin de :</p>
+
+    <ul>
+
+      <li>préciser certaines réponses fournies dans le formulaire d’alerte ;</li>
+      <li>décrire plus précisément un cas particulier non prévu par le formulaire ;</li>
+      <li>indiquer les difficultés rencontrées par le déclarant pour renseigner certaines parties du formulaire ;</li>
+      <li>fournir des indications complémentaires sur le peuplement touché (description qualitative ou quantitative, historique, localisation plus précise, etc.) ;</li>
+      <li>partager un avis sur le formulaire, le système d’alerte ou l’Observatoire de l’équilibre agro-sylvo-cynégétique en général.</li>
+
+    </ul>
+
+  </div>
 
   <textarea name="commentaire" id="commentaire" class="form-control" rows="5" maxlength="1000">
 

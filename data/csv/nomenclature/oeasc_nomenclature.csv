@@ -64,8 +64,8 @@
 'OEASC_PEUPLEMENT_MATURITE';'PM_L';'Hauteur > 3m et diamètre > 20cm';'Hauteur > 3m et diamètre > 20cm';'OEASC'
 
 'OEASC_PEUPLEMENT_PROTECTION_TYPE';'PPRT_REP';'Répulsif';'Répulsif';'OEASC'
-'OEASC_PEUPLEMENT_PROTECTION_TYPE';'PPRT_MANCH';'Manchon';'Manchon';'OEASC'
-'OEASC_PEUPLEMENT_PROTECTION_TYPE';'PPRT_FILET';'Filet';'Filet';'OEASC'
+'OEASC_PEUPLEMENT_PROTECTION_TYPE';'PPRT_MANCH';'Manchon / gaine';'Manchon';'OEASC'
+'OEASC_PEUPLEMENT_PROTECTION_TYPE';'PPRT_FILET';'Filet extensible (protection contre l'écorçage)';'Filet';'OEASC'
 'OEASC_PEUPLEMENT_PROTECTION_TYPE';'PPRT_AFS';'Arbre de fer ou spirale';'Arbre de fer ou spirale';'OEASC'
 'OEASC_PEUPLEMENT_PROTECTION_TYPE';'PPRT_CLO';'Clôture';'Clôture';'OEASC'
 

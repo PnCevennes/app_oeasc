@@ -73,8 +73,8 @@
 
     var map_init = M.carte_base_oeasc("acceuil");
 
-    var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_from_type_code/l/AA', {style: M.style.aa}).addTo(map_init);
-    var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas_from_type_code/l/ZC', {style: M.style.zc}).addTo(map_init);
+    var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_from_type_code/l/AA_PERIMETRE', {style: M.style.aa}).addTo(map_init);
+    var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas_from_type_code/l/ZC_PERIMETRE', {style: M.style.zc}).addTo(map_init);
 
     $(".legend").append('<div id="#legend-aa"><i style="background: ' + M.color.zc + '; border: 1px solid black;"></i> ' +"Zone Coeur" + '</div>');
     $(".legend").append('<div id="#legend-zc"><i style="background: ' + M.color.aa + '; border: 1px solid black;"></i> ' +"Aire d'adhésion" + '</div>');
