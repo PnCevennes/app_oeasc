@@ -106,8 +106,8 @@ $(document).ready(function() {
 
         f_select_layer(layer, map);
 
-//        $('#' + map.map_name).selectpicker("refresh");
         $('#' + map.map_name).selectpicker();
+        $('#' + map.map_name).selectpicker("render");
 
       });
 
@@ -411,11 +411,11 @@ $(document).ready(function() {
 
     $select_layer.change(f_change(map));
 
-    if( $('#id_form').attr('data-id-form') != "all" ) {
+    // if( $('#id_form').attr('data-id-form') != "all" ) {
 
-      $select_layer.selectpicker('toggle');
+      // $select_layer.selectpicker('toggle');
 
-    }
+    // }
 
     //bidouille bug incompréhensible
     if( selected &&  $select_layer.val()=="" ) {

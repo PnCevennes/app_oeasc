@@ -9,8 +9,11 @@
 
 {%- block content %}
 
+<div id="select_map_test">
+  
 {{ macros.select_map(data.type_code, [], areas_container=data.areas_container) }}
-{# {{ macros.select_map(data.type_code, [], areas_container=[{'id_area':data.id_area_container}, {'id_area':data.id_area_container+1}]) }} #}
+
+</div>
 
 {%- endblock %}
 
@@ -34,9 +37,10 @@
       'OEASC_SECTION' : 'OEASC_CADASTRE',
       'OEASC_ONF_FRT' : 'OEASC_ONF_PRF',
       'OEASC_ONF_PRF' : 'OEASC_ONF_UG',
+
     }
 
-    M.initialiser_form_localisation("{{ data.type_code }}")
+    M.initialiser_form_localisation("select_map_test")
 
     $('form').submit(function(e) {
 
@@ -62,8 +66,8 @@
       if(d_next[type_code]) {
 
         window.location.href = url_base + d_next[type_code] +"/" + id_areas;
-      }
 
+      }
 
     });
 

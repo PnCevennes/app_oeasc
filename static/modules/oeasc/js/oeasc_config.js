@@ -126,8 +126,24 @@ style.pane.tooltips = 5;
     pane: 1,
   };
 
+  d_ls.OEASC_COMMUNE_SIMPLE = {
+    name: "OEASC_COMMUNE_SIMPLE",
+    label: "Commune",
+    keys: [ "area_name" ],
+    color: color.OEASC_COMMUNE,
+    pane: 1,
+  };
+
   d_ls.OEASC_SECTION = {
     name: "OEASC_SECTION",
+    label: "Section",
+    keys: [ "area_name" ],
+    color: color.OEASC_SECTION,
+    pane: 1,
+  };
+
+  d_ls.OEASC_SECTION_RAW = {
+    name: "<OEASC_SECTION_RAW></OEASC_SECTION_RAW>",
     label: "Section",
     keys: [ "area_name" ],
     color: color.OEASC_SECTION,

@@ -17,6 +17,7 @@ $ROOT_DIR/install/scripts_db/script_exec_nomenclature.sh
 
 #functions
 cat $ROOT_DIR/$sql_dir/SQL/functions.sql | psql -d $db_name -h $db_host -U $user_pg
+cat $ROOT_DIR/$sql_dir/SQL/functions_simplify_geom.sql | psql -d $db_name -h $db_host -U $user_pg
 
 #schema oeasc
 cat $ROOT_DIR/$sql_dir/SQL/oeasc_create_schema.sql |psql -d $db_name -h $db_host -U $user_pg

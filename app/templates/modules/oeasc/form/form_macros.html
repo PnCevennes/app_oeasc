@@ -337,11 +337,11 @@
 
 {%- macro select_map(type_code, areas, areas_container=[],  titre="", b_multiple=true) %}
 
-{%- set dict_label = {
+  {%- set dict_label = {
   "OEASC_ONF_FRT" : "forêts relevant du regime forestier",
   "OEASC_ONF_PRF" : "parcelles forestières",
   "OEASC_ONF_UG" : "unités de gestion forestières",
-  "OEASC_DGD" : "fôrets possédant un document de gestion",
+  "OEASC_DGD" : "forêts possédant un document de gestion",
   "OEASC_CADASTRE" : "parcelles cadastrales",
   "OEASC_SECTION" : "sections cadastrales",
   "OEASC_COMMUNE" : "communes",
@@ -351,16 +351,16 @@
   "OEASC_ONF_FRT" : "la forêt concernée",
   "OEASC_ONF_PRF" : "la ou les parcelles forestières sur lesquelles est située le peuplement concerné par les dégats",
   "OEASC_ONF_UG" : "la ou les unités de gestion forestières sur lesquelles est située le peuplement concerné par les dégats",
-  "OEASC_DGD" : "la fôret",
+  "OEASC_DGD" : "la forêt",
   "OEASC_CADASTRE" : "la ou les parcelles forestières cadastrales sur lesquelles est située le peuplement concerné par les dégats",
   "OEASC_SECTION" : "la ou les sections cadastrales concernées",
   "OEASC_COMMUNE" : "la ou les communes concernées",
   } %}
 
-{%- set dict_label_container = {
+  {%- set dict_label_container = {
   "OEASC_ONF_FRT" : "Forêt relevant du regime forestier",
   "OEASC_ONF_PRF" : "Parcelles forestières",
-  "OEASC_DGD" : "Fôret possédant un document de gestion",
+  "OEASC_DGD" : "Forêt possédant un document de gestion",
   "OEASC_SECTION" : "Sections cadastrales",
   "OEASC_COMMUNE" : "Communes",
   } %}
@@ -393,6 +393,7 @@
       <div>
 
         <p> {{ dict_label_container[areas_container[0]["type_code"]] }} </p>
+
         <div class="scroll">
           <ul>
             {%- for area in areas_container %}
@@ -402,10 +403,11 @@
             {% endfor %}
           </ul>
         </div>
+
         {% if type_code in ['OEASC_SECTION', 'OEASC_ONF_UG'] %}
-          
+
         <button type=button id="reinit_container" class="btn btn-danger">Réinitialiser les {{ dict_label_container[areas_container[0]["type_code"]] | lower }}</button>
-   
+
         {% endif %}
 
       </div>

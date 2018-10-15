@@ -88,11 +88,12 @@ INSERT INTO ref_geo.bib_areas_types (
         (305, 'CADASTRE', 'OEASC_CADASTRE', 'Cadastre pour l''oeasc', 'OEASC', 2018, ''),
         (306, 'COMMUNES OEASC', 'OEASC_COMMUNE', 'Communes de l''oeasc', 'OEASC', 2018, ''),
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
-        (308, 'Section cadastrale', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, ''),
+        (308, 'Section cadastrale simplifiées', 'OEASC_SECTION', 'Section cadastrale', 'OEASC', 2018, ''),
         (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, ''),
         (321, 'ZC_PNC', 'ZC_PERIMETRE', 'Zone Coeur du PNC', 'OEASC', 2018, ''),
-        (322, 'AA_PNC', 'AA_PERIMETRE', 'Aire d''adhésion du PNC', 'OEASC', 2018, '');
-
+        (322, 'AA_PNC', 'AA_PERIMETRE', 'Aire d''adhésion du PNC', 'OEASC', 2018, ''),
+        (336, 'Communes simplifiées', 'OEASC_COMMUNES_SIMPLE', 'Communes simplifiées', 'OEASC', 2018, ''),
+        (338, 'Section cadastrale completes', 'OEASC_SECTION_RAW', 'Section cadastrale completes', 'OEASC', 2018, '');
 
 EOF
 
@@ -214,22 +215,48 @@ EOF
 
 cat << EOF
 
--- SECTIONS CADASTRALES
+-- SECTIONS CADASTRALES RAW
+
+ DROP TABLE IF EXISTS temp;
+
+CREATE TABLE temp(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
+
+INSERT INTO temp(area_code, area_name, geom)
+    SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_UNION(geom))
+        FROM ref_geo.l_oeasc_cadastre
+        GROUP BY insee_com, nom_com, section
+        ORDER BY insee_com, nom_com, section;
+
+INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
+    SELECT ref_geo.get_id_type('OEASC_SECTION_RAW'), t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
+    FROM temp as t;
+
+-- SECTIONS CADASTRALES SIMPLE
 
 DROP TABLE IF EXISTS temp;
 
 CREATE TABLE temp(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
 
 INSERT INTO temp(area_code, area_name, geom)
--- SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_CONCAVEHULL(ST_UNION(geom), 0.7))
-SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_MULTI(ST_UNION(geom))
+SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_UNION(ST_BUFFER(geom,20))
   FROM ref_geo.l_oeasc_cadastre
   GROUP BY insee_com, nom_com, section
   ORDER BY insee_com, nom_com, section;
 
+
+DROP TABLE IF EXISTS temp2;
+
+CREATE TABLE temp2(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
+
+SELECT 'aa';
+
+INSERT INTO temp2(area_code, area_name, geom)
+    SELECT area_code, area_name, ST_MULTI(ST_SIMPLIFY(geom, 50, true))
+    FROM temp;
+
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
     SELECT ref_geo.get_id_type('OEASC_SECTION'), t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
-    FROM temp as t;
+    FROM temp2 as t;
 
 EOF
 
@@ -282,7 +309,7 @@ CREATE TABLE temp(area_code character varying(256), area_name character varying(
 INSERT INTO temp(area_code, geom)
     SELECT SUBSTR(area_code, 1,5) as code, ST_UNION(geom) as geom
         FROM ref_geo.l_areas
-        WHERE id_type = ref_geo.get_id_type('OEASC_SECTION')
+        WHERE id_type = ref_geo.get_id_type('OEASC_SECTION_RAW')
         GROUP BY code
         ORDER BY code;
 
