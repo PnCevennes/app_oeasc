@@ -222,6 +222,13 @@ header div{
 
 }
 
+.scroll {
+
+  overflow: auto;
+  max-height: 100px;
+
+}
+
 .degat-essence {
 
   display: flex;
@@ -265,30 +272,29 @@ header div{
 
 }
 
+.centrage {text-align: center;}
+
 .form-group {
 
   display: inline-block;
-
   border: 1px solid lightblue;
   min-width: 600px;
-  padding: 10px;
+  /* width: 1000px; */
+  padding: 5px 10px;
   border-radius: 10px;
   margin-bottom: 10px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  margin-right: auto;
+  margin-left: auto;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.19);
 
 }
 
-
-
+body {
+  margin: 0; /* pour éviter les marges */
+}
 .label-question {
 
   min-width: 300px;
-
-}
-
-.label-choice {
-
-
 
 }
 
@@ -299,10 +305,35 @@ header div{
   margin-top: 8px;
 }
 
+input[type=radio] {
+
+  margin:6px;
+}
+
 .select-essence {
 
   display: inline-block;
   float: right;
+
+}
+
+#reinit_container{
+  margin-bottom: 5px;
+}
+
+
+.flex-container-form {
+
+  display: flex;
+  justify-content: center;
+  /* align-items: center; */
+  width: 100%;
+
+}
+
+.flex-container-form > div {
+
+  margin-right: 20px;
 
 }
 
@@ -325,6 +356,13 @@ header div{
 .flex-container:first-child {
 
   margin-left: auto
+
+}
+
+.center{
+
+  display: flex;
+  justify-content: center;
 
 }
 
@@ -532,6 +570,10 @@ div.progression {
 
 }
 
+.custom-tooltiptext.left{
+  left: 100px;
+}
+
 .custom-tooltip .custom-tooltiptext div {
 
   padding: 10px;
@@ -555,6 +597,15 @@ div.progression {
 .custom-tooltip:hover .custom-tooltiptext {
   visibility: visible;
   opacity: 1;
+}
+
+#confirm {
+
+  position: fixed;
+  width: 400px;
+  margin: 0 auto;
+  top: 200px;
+
 }
 
 .fa-spinner {
@@ -583,7 +634,7 @@ div.progression {
 }
 
 form {
-  min-height: 200px;
+  /* min-height: 200px; */
   position: relative;
 }
 

@@ -138,9 +138,9 @@ def get_areas_from_type_code(data_type, type_code):
         return [d.as_dict() for d in data]
 
 
-@bp.route('areas_from_type_code_container/<string:data_type>/<string:type_code>/<int:id_area_container>')
+@bp.route('areas_from_type_code_container/<string:data_type>/<string:type_code>/<string:ids_area_container>')
 @json_resp
-def get_areas_from_type_code_container(data_type, type_code, id_area_container):
+def get_areas_from_type_code_container(data_type, type_code, ids_area_container):
     '''
         retourne toutes les aires pour un type_code donne (par exemple OEASC _CADASTRE)
         et étant contenue dans la geometrie identifiée par son id_area : id_area_container
@@ -155,50 +155,57 @@ def get_areas_from_type_code_container(data_type, type_code, id_area_container):
         table = TA
 
     id_type = get_id_type(type_code)
-
-    container = DB.session.query(table).filter(table.id_area == id_area_container).first()
-
-    id_type_commune = get_id_type('OEASC_COMMUNE')
-    id_type_dgd = get_id_type('OEASC_DGD')
+    v = ids_area_container.split("-")
 
     out = []
 
-    # cas des section de communes
-    if(container.id_type == id_type_commune):
+    for id_area_container in v :
+        container = DB.session.query(table).filter(table.id_area == id_area_container).first()
 
-        sql_text = text("SELECT ref_geo.get_old_communes('{}')".format(container.area_code))
+        id_type_commune = get_id_type('OEASC_COMMUNE')
+        id_type_dgd = get_id_type('OEASC_DGD')
 
-        result = DB.engine.execute(sql_text)
+        # cas des section de communes
+        if(container.id_type == id_type_commune):
 
-        data = []
+            sql_text = text("SELECT ref_geo.get_old_communes('{}')".format(container.area_code))
 
-        for r in result:
+            result = DB.engine.execute(sql_text)
 
-            area_code = r[0]
+            data = []
 
-            data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(area_code + "-%"))).order_by(table.area_name).all() + data
+            for r in result:
 
-    # cas des dgd
-    elif(container.id_type == id_type_dgd):
+                area_code = r[0]
 
-        res = DB.engine.execute(text("SELECT area_code_cadastre FROM ref_geo.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(container.area_code)))
+                data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(area_code + "-%"))).order_by(table.area_name).all() + data
 
-        v = [r[0] for r in res]
+        # cas des dgd
+        elif(container.id_type == id_type_dgd):
 
-        data = DB.session.query(table).filter(table.area_code.in_(v)).all()
+            res = DB.engine.execute(text("SELECT area_code_cadastre FROM ref_geo.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(container.area_code)))
 
-    # autres cas ONF
-    else:
+            v = [r[0] for r in res]
 
-        data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(container.area_code + "-%"))).order_by(table.area_name).all()
+            data = DB.session.query(table).filter(table.area_code.in_(v)).all()
 
-    # output
+        # autres cas ONF
+        else:
+
+            data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(container.area_code + "-%"))).order_by(table.area_name).all()
+
+        # output
+        if data_type == 'l':
+
+            out = out + [d.get_geofeature() for d in data]
+
+        else:
+
+            out = out + [d.as_dict() for d in data]
+
+    # output final
     if data_type == 'l':
 
-        out = FeatureCollection([d.get_geofeature() for d in data])
-
-    else:
-
-        out = [d.as_dict() for d in data]
+        out = FeatureCollection(out)
 
     return out

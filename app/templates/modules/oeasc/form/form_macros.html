@@ -61,7 +61,7 @@
     {%- endif %}
 
     <div class={{"select-essence" if afficher_type_essence!="" else ""}}>
-      <select name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit" data-dropup-auto=false>
+      <select data-dropup-auto="false" name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
 
     {%- if multi == "multi" %}
 
@@ -192,7 +192,7 @@
 
     {%- if titre != "" %}
 
-    <label for="{{ name }}">{{ titre }} <i small>{{'(QCM)' if type == "checkbox" else ''}}</i> <span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+    <label for="{{ name }}">{{ titre }} <i small>{{'(plusieurs réponses possibles)' if type == "checkbox" else ''}}</i> <span class="rouge">{{ "*" if required!="" else "" }}</span></label>
 
     {%- endif %}
 
@@ -292,12 +292,55 @@
 {%- endmacro %}
 
 
+{%- macro list_areas(type_code, titre, areas, balise) %}
+
+  {%- set areas_selected = utils.get_areas_from_type_code(areas, type_code) %}
+
+  {%- if areas_selected %}
+
+  <{{balise}}>
+
+    {%- for area in areas_selected %}
+
+      {%- if type_code == 'OEASC_COMMUNE' %}
+        <b>{{titre + " : " if loop.first}}</b>{{utils.print_commune(area.area_name)}}{{ "," if not loop.last else "." }}
+      {% else %}
+        <b>{{titre + " : " if loop.first}}</b>{{area.area_name}}{{ "," if not loop.last else "." }}
+      {% endif %}
+
+    {%- endfor %}
+
+  </{{balise}}>
+
+  {% endif %}
+
+{% endmacro%}
+
+
+{%- macro list_nomenclatures(titre, nomenclatures, balise) %}
+
+  {%- if nomenclatures %}
+
+  <{{balise}}>
+
+    {%- for elem in nomenclatures %}
+
+        <b>{{titre + " : " if loop.first}}</b>{{elem.label_fr | lower}}{{ "," if not loop.last else "." }}
+    {%- endfor %}
+
+  </{{balise}}>
+
+  {% endif %}
+
+{% endmacro%}
+
+
 {%- macro select_map(type_code, areas, areas_container=[],  titre="", b_multiple=true) %}
 
 {%- set dict_label = {
-  "OEASC_ONF_FRT" : "celles",
-  "OEASC_ONF_PRF" : "celles",
-  "OEASC_ONF_UG" : "celles",
+  "OEASC_ONF_FRT" : "forêts relevant du regime forestier",
+  "OEASC_ONF_PRF" : "parcelles forestières",
+  "OEASC_ONF_UG" : "unités de gestion forestières",
   "OEASC_DGD" : "fôrets possédant un document de gestion",
   "OEASC_CADASTRE" : "parcelles cadastrales",
   "OEASC_SECTION" : "sections cadastrales",
@@ -306,27 +349,28 @@
 
   {%- set dict_label_elem = {
   "OEASC_ONF_FRT" : "la forêt concernée",
-  "OEASC_ONF_PRF" : "la ou les parcelles convernées",
-  "OEASC_ONF_UG" : "la ou les unités de gestion concernées",
+  "OEASC_ONF_PRF" : "la ou les parcelles forestières sur lesquelles est située le peuplement concerné par les dégats",
+  "OEASC_ONF_UG" : "la ou les unités de gestion forestières sur lesquelles est située le peuplement concerné par les dégats",
   "OEASC_DGD" : "la fôret",
-  "OEASC_CADASTRE" : "la ou les parcelles cadastrales",
-  "OEASC_SECTION" : "la ou lessections cadastrales",
+  "OEASC_CADASTRE" : "la ou les parcelles forestières cadastrales sur lesquelles est située le peuplement concerné par les dégats",
+  "OEASC_SECTION" : "la ou les sections cadastrales concernées",
   "OEASC_COMMUNE" : "la ou les communes concernées",
   } %}
 
 {%- set dict_label_container = {
-  "OEASC_ONF_FRT" : "Forêt ONF",
-  "OEASC_ONF_PRF" : "Parcelle(s) ONF",
+  "OEASC_ONF_FRT" : "Forêt relevant du regime forestier",
+  "OEASC_ONF_PRF" : "Parcelles forestières",
   "OEASC_DGD" : "Fôret possédant un document de gestion",
-  "OEASC_SECTION" : "Section(s) cadastrale(s)",
-  "OEASC_COMMUNE" : "Commune(s)",
+  "OEASC_SECTION" : "Sections cadastrales",
+  "OEASC_COMMUNE" : "Communes",
   } %}
 
 <div id="select_map_{{ type_code }}" class="select_map" data-type-code='{{ type_code }}'  data-areas-container='{{ areas_container|tojson if areas_container is defined else [] }}'>
 
-  <h4>Localisation </h4>
+  <h4>Localisation : {{dict_label[type_code]}}</h4>
 
-  <p>Veuillez choisir {{dict_label_elem[type_code]}} parmis celles figurant sur la carte ci-dessous ou dans la liste ci-contre.<label for="tooltip_{{ type_code }}"></label></p>
+  <p>Veuillez sélectionner {{dict_label_elem[type_code]}}.<br>
+  Choisir parmi celles figurant sur la carte ci-dessous ou dans la liste ci-contre.<label for="tooltip_{{ type_code }}"></label></p>
 
   <div class="row">
 
@@ -349,14 +393,20 @@
       <div>
 
         <p> {{ dict_label_container[areas_container[0]["type_code"]] }} </p>
+        <div class="scroll">
+          <ul>
+            {%- for area in areas_container %}
 
-        <ul>
-        {%- for area in areas_container %}
+            <li>{{area['area_name']}} {{ "(" + area['area_code'] + ")" if area['type_code'] == 'OEASC_SECTION' else ''}}</li>
 
-          <li>{{area['area_name']}} {{ "(" + area['area_code'] + ")" if area['type_code'] == 'OEASC_SECTION' else ''}}</li>
-
-        {% endfor %}
-        </ul>
+            {% endfor %}
+          </ul>
+        </div>
+        {% if type_code in ['OEASC_SECTION', 'OEASC_ONF_UG'] %}
+          
+        <button type=button id="reinit_container" class="btn btn-danger">Réinitialiser les {{ dict_label_container[areas_container[0]["type_code"]] | lower }}</button>
+   
+        {% endif %}
 
       </div>
 
@@ -375,11 +425,14 @@
         {% endif %}
 
         <div><label for="{{ type_code }}">Liste des {{ dict_label[type_code] }}<span class="rouge">*</span></label></div>
-        <select name="{{ type_code }}" id="{{ type_code }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
+        <select data-dropup-auto="false" name="{{ type_code }}" id="{{ type_code }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
         </select>
       </div>
 
    <input type=submit value=Suivant class="btn btn-success float-right">
+
+
+
 
     </div>
 

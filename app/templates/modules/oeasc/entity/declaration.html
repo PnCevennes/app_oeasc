@@ -2,311 +2,192 @@
 
       {%- set foret = declaration["foret"]%}
 
-{# 
-      <nav class="nav nav-tabs">
-        <a class="nav-item nav-link active" href="#foret" data-toggle="tab">Forêt</a>
-        <a class="nav-item nav-link" href="#localisation" data-toggle="tab">Localisation</a>
-        <a class="nav-item nav-link" href="#peuplement" data-toggle="tab">Peuplement</a>
-        <a class="nav-item nav-link" href="#degats" data-toggle="tab">Dégâts</a>
-        <a class="nav-item nav-link" href="#commentaire" data-toggle="tab">Commentaires</a>
-      </nav>
- #}
-      <div>
+      <div class=row>
 
-        <div>
+        <div class="col-md-6">
 
-          <h4>Forêt</h4>
+          <div class="form-group">
 
-          <div>Nom : {{foret.nom_foret if foret.nom_foret!="" else "nom inconnu"}}.</div>
-          <div> Statut : {%- if foret.b_statut_public %} public {%- else %} privé {%- endif %}, 
+            <h5>Forêt</h5>
+            <ul>
 
-            {%- if foret.b_document %}
+              <li><b>Nom de la forêt</b> : {{foret.nom_foret if foret.nom_foret!="" else "nom inconnu"}}.</li>
+              <li><b>Statut de la forêt</b> : {%- if foret.b_statut_public %} public {%- else %} privé {%- endif %}, 
 
-            {%- if foret.b_statut_public %}
-            dépendant du régime ONF.
-            {%- else %}
-            possédant un document de gestion durable.
-            {%- endif %}
+                {%- if foret.b_document %}
 
-            {%- else %}
+                {%- if foret.b_statut_public %}
+                dépendant du régime ONF.
+                {%- else %}
+                possédant un document de gestion durable.
+                {%- endif %}
 
-            non documenté.
+                {%- else %}
 
-            {%- endif %}
+                non documenté.
+
+                {%- endif %}
+
+              </li>
+
+              {{ macros.list_areas('OEASC_COMMUNE', 'Commune(s)', declaration["foret"]["areas_foret"], 'li') }}
+              {{ macros.list_areas('OEASC_SECTION', 'Section(s) cadastrale(s)', declaration["foret"]["areas_foret"], 'li') }}
+
+            </ul>
+          </div>
+
+          <div class="form-group">
+
+            <h5>Peuplement - localisation</h5>
+
+            <ul>
+
+              {{ macros.list_areas('OEASC_CADASTRE', 'Parcelle(s) cadastrales(s)', declaration["areas_localisation"], 'li') }}
+              {{ macros.list_areas('OEASC_ONF_PRF', 'Parcelle(s) forestière(s)', declaration["areas_localisation"], 'li') }}
+              {{ macros.list_areas('OEASC_ONF_UG', 'Unité(s) de gestion forestière(s)', declaration["areas_localisation"], 'li') }}
+
+            </ul>
 
           </div>
 
-          <div>
-            Communes :
+          <div class="form-group">
 
-            {%- set communes = utils.get_areas_from_type_code(declaration["foret"]["areas_foret"], "OEASC_COMMUNE") %}
+            <h5>Caractétisation des dégâts</h5>
 
-            {%- for commune in communes %}
+            <ul>
 
-            {{utils.print_commune(commune.area_name)}} {{ "," if not loop.last else "." }}
+              {%- for degat in declaration.degats %}
 
-            {%- endfor %}
+              <li>  <b>{{ degat.id_nomenclature_degat_type.label_fr }}</b>
+
+                <ul>
+
+                  {%- for degat_essence in degat['degat_essences'] %}
+
+                  {% if degat_essence != {} %}
+
+                  <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.mnemonique == 'ABS' else " :"}}
+
+                    {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
+                    <ul>
+
+                      <li><i>étendue</i> : {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},</li>
+                      <li><i>gravité</i> : {{ degat_essence.id_nomenclature_degat_gravite.label_fr | lower}},</li>
+                      <li><i>antériorité</i> : {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr | lower}}.</li>
+
+                    </ul>
+
+                    {% endif %}
+
+                  </li>
+
+                  {% endif %}
+
+                  {%- endfor %}
+
+                </ul>
+
+              </li>
+
+              {%- endfor %}
+
+            </ul>
+
+          </div>
+
+          <div class="form-group">
+
+            <h5>Commentaires</h5>
+
+            {{ declaration.commentaire or "" }}
 
           </div>
 
         </div>
-
-        <div>
-
-          <h4>Peuplement</h4>
+        <div class="col-md-6">
 
 
-          <h5>Essence</h5>
+          <div class="form-group">
 
-          <ul>
+            <h5>Peuplement - essence(s)</h5>
 
-            <li>Principale : {{ declaration.id_nomenclature_peuplement_essence_principale.label_fr }}</li>
+            <ul>
 
-            {%- if declaration.nomenclatures_peuplement_essence_secondaire | length %}
-            <li>Secondaire(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_secondaire %} {{ cor.label_fr }} {%- endfor %} </li>
-            {%- endif %}
+              <li><b>Principale</b> : {{ declaration.id_nomenclature_peuplement_essence_principale.label_fr | lower }}.</li>
 
-            {%- if declaration.nomenclatures_peuplement_essence_complementaire | length %}
-            <li>Complémentaires(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_complementaire %} {{ cor.label_fr }} {%- endfor %} </li>
-            {%- endif %}
+              {{macros.list_nomenclatures('Secondaire(s)', declaration.nomenclatures_peuplement_essence_secondaire, 'li')}}
 
-          </ul>
+              {{macros.list_nomenclatures('Complémentaire(s)', declaration.nomenclatures_peuplement_essence_complémentaire, 'li')}}
 
+            </ul>
 
-          <h5>Détails</h5>
+          </div>
 
-          <ul>
-            <li>Origine du peuplement : {{ declaration.id_nomenclature_peuplement_origine.label_fr }} </li>
-            <li>Type de peuplement : {{ declaration.id_nomenclature_peuplement_type.label_fr }} </li>
+          <div class="form-group">
 
-            {%- if  declaration.id_nomenclature_peuplement_type.mnemonique != "F. irr." %}
+            <h5>Peuplement - détails</h5>
 
-            <li>Maturité du peuplement : {%- for cor in declaration.nomenclatures_peuplement_maturite %} {{ cor.label_fr }} {%- endfor %} </li>
+            <ul>
+              <li><b>Origine du peuplement</b> : {{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}.</li>
+              <li><b>Type de peuplement</b> : {{ declaration.id_nomenclature_peuplement_type.label_fr | lower }}.</li>
 
-            {%- endif %}
+              {%- if  declaration.id_nomenclature_peuplement_type.mnemonique != "F. irr." %}
 
-          </ul>
+              {{macros.list_nomenclatures('Maturité du peuplement', declaration.nomenclatures_peuplement_maturite, 'li')}}
 
+              {%- endif %}
 
-          <h5>Protection</h5>
+            </ul>
 
-          <ul>
-            <li>Existence de protection : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}</li>
+          </div>
 
-            {%- if declaration['b_peuplement_protection_existence'] %}
+          <div class="form-group">
 
-            <li>Type de protection : {%- for cor in declaration.nomenclatures_peuplement_protection_type %} {{ cor.label_fr }} {%- endfor %} </li>
+            <h5>Peuplement- protection</h5>
 
-            {%- endif %}
+            <ul>
+              <li><b>Existence de protection</b> : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}.</li>
 
-          </ul>
+              {{macros.list_nomenclatures('Type de protection', declaration.nomenclatures_peuplement_protection_type, 'li')}}
 
-          <h5>Paturage</h5>
+            </ul>
 
-          <ul>
-            <li>Existence de paturage : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}</li>
+          </div>
 
-            {%- if declaration['b_peuplement_paturage_presence'] %}
+          <div class="form-group">
 
-            <li>Type de paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_type %} {{ cor.label_fr }} {%- endfor %} </li>
-            <li>Statut du paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_statut %} {{ cor.label_fr }} {%- endfor %} </li>
-            <li>Fréquence du paturage : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr }} </li>
+            <h5>Peuplement - paturage</h5>
 
-            {%- endif %}
+            <ul>
+              <li><b>Existence de paturage</b> : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}.</li>
 
-          </ul>
+              {%- if declaration['b_peuplement_paturage_presence'] %}
 
-          <h5>Autres</h5>
+              {{macros.list_nomenclatures('Type de paturage', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
+              {{macros.list_nomenclatures('Fréquence du paturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
-          <ul>
-            <li>Accessibilité du peuplement : {{ declaration.id_nomenclature_peuplement_acces.label_fr }}</li>
-            <li>Espèce(s) avérée(s) : {%- for cor in declaration.nomenclatures_peuplement_espece %} {{ cor.label_fr }} {%- endfor %}</li>
-          </ul>
+              <li><b>Fréquence du paturage</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | lower }}. </li>
 
-        </div>
+              {%- endif %}
 
-        <div>
+            </ul>
 
-          <h4>Dégâts</h4>
+          </div>
 
-           <ul>
+          <div class="form-group">
 
-            {%- for degat in declaration.degats %}
+            <h5>Peuplement - autres</h5>
 
-            <li>  {{ degat.id_nomenclature_degat_type.label_fr }}
+            <ul>
+              <li><b>Accessibilité du peuplement</b> : {{ declaration.id_nomenclature_peuplement_acces.label_fr | lower }}.</li>
 
-              <ul>
+              {{macros.list_nomenclatures('Espèce(s) avérée(s)', declaration.nomenclatures_peuplement_espece, 'li')}}
 
-                {%- for degat_essence in degat['degat_essences'] %}
+            </ul>
 
-                {% if degat_essence != {} %}
-
-                <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr }}
-
-                  {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
-
-                  : {{ degat_essence.id_nomenclature_degat_etendue.label_fr }}, {{ degat_essence.id_nomenclature_degat_gravite.label_fr }}, {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr }}
-
-                  {% endif %}
-
-                </li>
-
-                {% endif %}
-
-                {%- endfor %}
-
-              </ul>
-
-            </li>
-
-            {%- endfor %}
-
-          </ul>
-
-        </div>
-
-        <div>
-
-          <h4>Commentaires</h4>
-
-          {{ declaration.commentaire or "" }}
-
-        </div>
+          </div>
+        </div>      
 
       </div>
-
-
-
-      {#
-      <div class="tab-content">
-
-        <div class="tab-pane active" id="foret">
-
-          {%- include "modules/oeasc/entity/foret.html" %}
-
-        </div>
-
-        <div class="tab-pane" id="localisation" >
-
-          {%- include "modules/oeasc/entity/localisation.html" %}
-
-        </div>
-
-        <div class="tab-pane" id="peuplement">
-
-          <h5>Essence</h5>
-
-          <ul>
-
-            <li>Principale : {{ declaration.id_nomenclature_peuplement_essence_principale.label_fr }}</li>
-
-            {%- if declaration.nomenclatures_peuplement_essence_secondaire | length %}
-            <li>Secondaire(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_secondaire %} {{ cor.label_fr }} {%- endfor %} </li>
-            {%- endif %}
-
-            {%- if declaration.nomenclatures_peuplement_essence_complementaire | length %}
-            <li>Complémentaires(s) : {%- for cor in declaration.nomenclatures_peuplement_essence_complementaire %} {{ cor.label_fr }} {%- endfor %} </li>
-            {%- endif %}
-
-          </ul>
-
-
-          <h5>Détails</h5>
-
-          <ul>
-            <li>Origine du peuplement : {{ declaration.id_nomenclature_peuplement_origine.label_fr }} </li>
-            <li>Type de peuplement : {{ declaration.id_nomenclature_peuplement_type.label_fr }} </li>
-
-            {%- if  declaration.id_nomenclature_peuplement_type.mnemonique != "F. irr." %}
-
-            <li>Maturité du peuplement : {%- for cor in declaration.nomenclatures_peuplement_maturite %} {{ cor.label_fr }} {%- endfor %} </li>
-
-            {%- endif %}
-
-          </ul>
-
-
-          <h5>Protection</h5>
-
-          <ul>
-            <li>Existence de protection : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}</li>
-
-            {%- if declaration['b_peuplement_protection_existence'] %}
-
-            <li>Type de protection : {%- for cor in declaration.nomenclatures_peuplement_protection_type %} {{ cor.label_fr }} {%- endfor %} </li>
-
-            {%- endif %}
-
-          </ul>
-
-          <h5>Paturage</h5>
-
-          <ul>
-            <li>Existence de paturage : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}</li>
-
-            {%- if declaration['b_peuplement_paturage_presence'] %}
-
-            <li>Type de paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_type %} {{ cor.label_fr }} {%- endfor %} </li>
-            <li>Statut du paturage : {%- for cor in declaration.nomenclatures_peuplement_paturage_statut %} {{ cor.label_fr }} {%- endfor %} </li>
-            <li>Fréquence du paturage : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr }} </li>
-
-            {%- endif %}
-
-          </ul>
-
-          <h5>Autres</h5>
-          <ul>
-            <li>Accessibilité du peuplement : {{ declaration.id_nomenclature_peuplement_acces.label_fr }}</li>
-            <li>Espèce(s) avérée(s) : {%- for cor in declaration.nomenclatures_peuplement_espece %} {{ cor.label_fr }} {%- endfor %}</li>
-          </ul>
-
-        </div>
-
-        <div class="tab-pane" id="degats">
-
-          <ul>
-
-            {%- for degat in declaration.degats %}
-
-            <li>  {{ degat.id_nomenclature_degat_type.label_fr }}
-
-              <ul>
-
-                {%- for degat_essence in degat['degat_essences'] %}
-
-                {% if degat_essence != {} %}
-
-                <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr }}
-
-                  {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
-
-                  : {{ degat_essence.id_nomenclature_degat_etendue.label_fr }}, {{ degat_essence.id_nomenclature_degat_gravite.label_fr }}, {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr }}
-
-                  {% endif %}
-
-                </li>
-
-                {% endif %}
-
-                {%- endfor %}
-
-              </ul>
-
-            </li>
-
-            {%- endfor %}
-
-          </ul>
-
-        </div>
-
-        <div class="tab-pane" id="commentaire">
-
-          {{ declaration.commentaire or "" }}
-
-        </div>
-
-      </div>
- #}
 
     </div>

@@ -1,10 +1,10 @@
-<div id="form_tooltips" stype="display:none">
+<div id="form_tooltips" style="display:none">
 
   {# localisation #}
 
   {# localisation - foret #}
 
-  <div class="custom-tooltip" data-name="tooltip_areas_foret">
+{#   <div class="custom-tooltip" data-name="tooltip_areas_foret">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
       <h5><span class="fas fa-question-circle"></span> Selection d'une forêt</h5>
@@ -21,9 +21,9 @@
     </div>
   </div>
 
+ #}
 
-
-  <div class="custom-tooltip" data-name="tooltip_areas_localisation">
+{#   <div class="custom-tooltip" data-name="tooltip_areas_localisation">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
       <h5><span class="fas fa-question-circle"></span> Selection de parcelles (ONF ou cadastre)</h5>
@@ -40,7 +40,7 @@
 
     </div>
   </div>
-
+ #}
 
   {# foret #}
 
@@ -48,15 +48,15 @@
 
   <div class="custom-tooltip" data-name="OEASC_ONF_FRT">
     <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Choix d'une forêt ONF</h5>
+    <div class="custom-tooltiptext left">
+      <h5><span class="fas fa-question-circle"></span> Forêt relevant du régime forestier</h5>
 
       <div>
-        Certaines forêt sont préfixées des acronymes suivants :
+        <p>N° de département - Nom de la forêt</p>
         <ul>
-          <li><b>FD</b> :  forêt domainiale.</li>
-          <li><b>FC</b> :  forêt communale.</li>
-          <li><b>FS</b> :  forêt sectionnale.</li>
+          <li><b>FD</b> =  forêt domaniale.</li>
+          <li><b>FC</b> =  forêt communale.</li>
+          <li><b>FS</b> =  forêt sectionnale.</li>
         </ul>
       </div>
 
@@ -65,6 +65,7 @@
 
   {# foret - localisation - ONF PRF #}
 
+{#
   <div class="custom-tooltip" data-name="OEASC_ONF_PRF">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
@@ -80,21 +81,21 @@
     </div>
 
   </div>
+  #}
 
   {# foret - localisation - ONF UG #}
 
   <div class="custom-tooltip" data-name="OEASC_ONF_UG">
     <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Choix d'une unité de gestion forêt ONF</h5>
+    <div class="custom-tooltiptext left">
+      <h5><span class="fas fa-question-circle"></span> Choix d'une unité de gestion forêt relevant du régime forestier</h5>
 
       <div>
-        Les unité de gestion ONF sont nommées de la façon suivante :<br>
 
-        <b>N° de parcelle - Code de l'unité des gestion _ suffixe</b>
+        <p><b>N° de parcelle</b> - <b>Code de l'unité des gestion</b> _ <b>suffixe</b></b>
         <ul>
           <li><b> Code de l'unité des gestion </b> : généralement un lettre,</li>
-          <li><b>suffixe</b> : un indice qui permet de différencier les UG qui on un même code.</li>
+          <li><b>suffixe</b> : un indice qui permet de différencier les UG qui on un même code et qui présentent des géométries éparses.</li>
         </ul>
       </div>
 
@@ -106,11 +107,11 @@
 
   <div class="custom-tooltip" data-name="OEASC_DGD">
     <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
+    <div class="custom-tooltiptext left">
       <h5><span class="fas fa-question-circle"></span> Choix d'une forêt possédant un document de gestion durable (DGD)</h5>
 
       <div>
-        Les forêt sont présentées de la manières suivante:<br> <b>N°PSG nom_foret</b>
+        <p><b>nom de la forêt</b> - <b>N°PSG</b></p>
         <ul>
           <li><b>N°PSG</b> : numéro de plan de gestion durable.</li>
           <li><b>nom_foret</b> :  les libellés indiqués ici correspondent au nom de la forêt enregistrée dans la base de données du CRPF, quand celui-ci est disponible.</li>
@@ -124,11 +125,11 @@
 
   <div class="custom-tooltip" data-name="OEASC_CADASTRE">
     <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
+    <div class="custom-tooltiptext left">
       <h5><span class="fas fa-question-circle"></span> Choix d'une parcelle cadastrale</h5>
 
       <div>
-        Les parcelles cadastrale sont nommées selon le schéma suivant:<br> <b>N° Insee commune - N° section - N° parcelle</b>
+        <p><b>N° Insee commune</b> - <b>N° section</b> - <b>N° parcelle</b></p>
       </div>
 
     </div>
@@ -139,167 +140,182 @@
   {# foret - statut #}
 
   <div class="custom-tooltip" data-name="b_statut_public">
+
     <span class="fas fa-question-circle"></span>
+
     <div class="custom-tooltiptext">
+
       <h5><span class="fas fa-question-circle"></span> Statut de la forêt</h5>
 
       <div>
-        <ul>
-          <li><b>Public</b> :  s’il s’agit de forêts appartenant à l’État, à des collectivités territoriales ou à tout autre établissement public (même si celui-ci est propriétaire au titre de son domaine privé). <b>Les forêts sectionales</b> (appartenant à une section de commune) <b>sont également considérés comme publiques</b></li>
-          <li><b>Privé</b> : s’il s’agit de forêts appartenant à un propriétaire privé (<b>personne physique</b>) ou à une <b>personne morale de droit privé</b> (entreprise commerciale, société civile, groupement foncier agricole ou forestier, association, etc.).</li>
-        </ul>
-      </div>
-
-    </div>
-  </div>
-
-  {# foret - nom #}
-
-  <div class="custom-tooltip" data-name="nom_foret">
-    <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Nom de la forêt (ha)</h5>
-
-      <div>
-
-        <p>Information obligatoire pour les forêts publiques, facultative pour les forêts privées.</p>
-        <p> Indiquez le nom officiel ou usuel de la forêt concernée par l’alerte (si elle en possède un). Le cas échéant, utilisez le nom figurant sur le document de gestion durable. </p>
-        <p>Si le formulaire est renseigné en ligne et que la forêt concernée est sélectionnée à partir de la carte interactive, ce champ sera renseigné automatiquement. </p>
-        <p>Il convient alors simplement de vérifier son exactitude, et de le corriger si nécessaire.</p>
-
-      </div>
-
-    </div>
-  </div>
-
-  {# foret - superficie #}
-
-  <div class="custom-tooltip" data-name="superficie">
-    <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Superficie totale de la forêt (ha)</h5>
-
-      <div>
-
-        <p>Indiquez la superficie totale de l’ensemble de la forêt au sein de laquelle se situe le peuplement concerné par l’alerte (cf. définitions fournies en introduction).</p>
-        <p>L'indiquer en hectares, et arrondir à l’hectare près.</p>
-        <p> Si la forêt concernée est sélectionnée à partir de la carte interactive, ce champ sera renseigné automatiquement. </p>
-        <p>Il convient alors simplement de vérifier son exactitude, et de le corriger si nécessaire.</p>
-
-      </div>
-
-    </div>
-  </div>
-
-
-  {# peuplement #}
-
-  {# peuplement - accessibilité #}
-
-  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_acces">
-    <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Accessibilité du peuplement </h5>
-
-      <div>
 
         <ul>
-          <li> <b>Aisée</b> : si une piste carrossable par des véhicules standards permet d’accéder à proximité du peuplement.</li>
-          <li><b>Uniquement en 4x4</b> : si ce dernier est desservi par une piste praticable uniquement par des véhicules tout-terrain.</li>
-          <li><b>Uniquement à pied</b> : si aucune piste carrossable ne mène à proximité du peuplement concerné.</li>
-        </ul>
 
-      </div>
+          <li>
 
-    </div>
-  </div>
+           Cochez « <b>public</b> » s’il s’agit de forêt <b>domaniale</b>, <b>communale</b>, <b>sectionale</b> ou  appartenant  à <b>tout  autre  établissement  public</b> (même  au  titre  de  son domaine privé).
 
-  {# peuplement - essence objectif principale #}
+         </li>
 
-  <div class="custom-tooltip" data-name="tooltip_essence">
-    <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Essence(s) objectif(s)</h5>
+         <li>
 
-      <div>
+          Cochez « <b>privé</b> » si  le  propriétaire  est  une <b>personne  physique</b> ou  une personne <b>morale   de   droit   privé</b> (groupement   forestier   ou   foncier, entreprise, SCI, association, etc.)
 
-        <ul>
-          <li><b>Principale</b> : Indiquez l’essence constituant l’essentiel de l’intérêt économique (actuel ou à venir) du peuplement à vocation de production concerné par l’alerte.</li>
-          <li><b>Secondaire(s)</b> : Listez la ou les essences contribuant significativement, en sus de l’essence objectif principale, à l’intérêt économique du peuplement à vocation de production concerné par l’alerte.</li>
-          <li><b>Complémentaire(s)</b> : Indiquez les essences également présentes de façon significative au sein du peuplement, mais ne constituant pas un enjeu économique en terme de production forestière.</li>
-        </ul>
+        </li>
 
-      </div>
-
-    </div>
-  </div>
-
-
-  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_essence_principale">
-    <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Essence objectif principale </h5>
-
-      <div>
-
-        <p>Indiquez l’essence constituant l’essentiel de l’intérêt économique (actuel ou à venir) du peuplement à vocation de production concerné par l’alerte.</p>
-
-      </div>
-
-    </div>
-  </div>
-
-  {# peuplement - essence(s) objectif(s) secondaire(s) #}
-
-  <div class="custom-tooltip" data-name="nomenclatures_peuplement_essence_secondaire">
-    <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Essence(s) objectif(s) secondaire(s) </h5>
-
-      <div>
-
-        <p>Listez la ou les essences contribuant significativement, en sus de l’essence objectif principale, à l’intérêt économique du peuplement à vocation de production concerné par l’alerte.</p>
-
-      </div>
-
-    </div>
-  </div>
-
-  {# peuplement - essence(s) objectif(s) complementaires(s) #}
-
-  <div class="custom-tooltip" data-name="nomenclatures_peuplement_essence_complementaire">
-    <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Essence(s) objectif(s) complémentaire(s) </h5>
-
-      <div>
-
-        <p>Indiquez les essences également présentes de façon significative au sein du peuplement, mais ne constituant pas un enjeu économique en terme de production forestière.</p>
-
-      </div>
-
-    </div>
-  </div>
-
-  {# peuplement - origine #}
-
-  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_origine">
-    <span class="fas fa-question-circle"></span>
-    <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Origine du peuplement </h5>
-
-      <div>
-
-        <p>Précisez si le peuplement actuel est issu de régénération naturelle ou de plantation.</p>
-        <p> Dans le cas où des plantations d’enrichissement ont été effectuées au sein de la régénération naturelle, cochez <b>Mixte</b>.</p>
-
-      </div>
+      </ul>
 
     </div>
 
   </div>
 
-  {# peuplement - type #}
+</div>
+
+{# foret - nom #}
+
+<div class="custom-tooltip" data-name="nom_foret">
+  <span class="fas fa-question-circle"></span>
+  <div class="custom-tooltiptext">
+    <h5><span class="fas fa-question-circle"></span> Nom de la forêt (ha)</h5>
+
+    <div>
+
+      <p>Information obligatoire pour les forêts publiques, facultative pour les forêts privées.</p>
+      <p> Indiquez le nom officiel ou usuel de la forêt concernée par l’alerte (si elle en possède un). Le cas échéant, utilisez le nom figurant sur le document de gestion durable. </p>
+      <p>Si le formulaire est renseigné en ligne et que la forêt concernée est sélectionnée à partir de la carte interactive, ce champ sera renseigné automatiquement. </p>
+      <p>Il convient alors simplement de vérifier son exactitude, et de le corriger si nécessaire.</p>
+
+    </div>
+
+  </div>
+</div>
+
+{# foret - superficie #}
+
+<div class="custom-tooltip" data-name="superficie">
+  <span class="fas fa-question-circle"></span>
+  <div class="custom-tooltiptext">
+    <h5><span class="fas fa-question-circle"></span> Superficie totale de la forêt (ha)</h5>
+
+    <div>
+
+      <p>Indiquez la superficie totale de l’ensemble de la forêt au sein de laquelle se situe le peuplement concerné par l’alerte (cf. définitions fournies en introduction).</p>
+      <p>L'indiquer en hectares, et arrondir à l’hectare près.</p>
+      <p> Si la forêt concernée est sélectionnée à partir de la carte interactive, ce champ sera renseigné automatiquement. </p>
+      <p>Il convient alors simplement de vérifier son exactitude, et de le corriger si nécessaire.</p>
+
+    </div>
+
+  </div>
+</div>
+
+
+{# peuplement #}
+
+{# peuplement - accessibilité #}
+
+<div class="custom-tooltip" data-name="id_nomenclature_peuplement_acces">
+  <span class="fas fa-question-circle"></span>
+  <div class="custom-tooltiptext">
+    <h5><span class="fas fa-question-circle"></span> Accessibilité du peuplement </h5>
+
+    <div>
+
+      <ul>
+        <li> <b>Aisée</b> <span class="fas fa-arrow-right"></span> si une piste carrossable par des véhicules standards permet d’accéder à proximité du peuplement.</li>
+        <li><b>Uniquement en 4x4</b> <span class="fas fa-arrow-right"></span> si ce dernier est desservi par une piste praticable uniquement par des véhicules tout-terrain.</li>
+        <li><b>Uniquement à pied</b> <span class="fas fa-arrow-right"></span> si aucune piste carrossable ne mène à proximité du peuplement concerné.</li>
+      </ul>
+
+    </div>
+
+  </div>
+</div>
+
+{# peuplement - essence objectif principale #}
+
+<div class="custom-tooltip" data-name="tooltip_essence">
+  <span class="fas fa-question-circle"></span>
+  <div class="custom-tooltiptext">
+    <h5><span class="fas fa-question-circle"></span> Essence(s) objectif(s)</h5>
+
+    <div>
+
+      <ul>
+        <li><b>Principale</b> : Indiquez l’essence constituant l’essentiel de l’intérêt économique (actuel ou à venir) du peuplement à vocation de production concerné par l’alerte.</li>
+        <li><b>Secondaire(s)</b> : Listez la ou les essences contribuant significativement, en sus de l’essence objectif principale, à l’intérêt économique du peuplement à vocation de production concerné par l’alerte.</li>
+        <li><b>Complémentaire(s)</b> : Indiquez les essences également présentes de façon significative au sein du peuplement, mais ne constituant pas un enjeu économique en terme de production forestière.</li>
+      </ul>
+
+    </div>
+
+  </div>
+</div>
+
+
+<div class="custom-tooltip" data-name="id_nomenclature_peuplement_essence_principale">
+  <span class="fas fa-question-circle"></span>
+  <div class="custom-tooltiptext">
+    <h5><span class="fas fa-question-circle"></span> Essence objectif principale </h5>
+
+    <div>
+
+      <p>Essence constituant l’essentiel de l’intérêt économique (actuel ou à  venir) du peuplement.</p>
+
+    </div>
+
+  </div>
+</div>
+
+{# peuplement - essence(s) objectif(s) secondaire(s) #}
+
+<div class="custom-tooltip" data-name="nomenclatures_peuplement_essence_secondaire">
+  <span class="fas fa-question-circle"></span>
+  <div class="custom-tooltiptext">
+    <h5><span class="fas fa-question-circle"></span> Essence(s) objectif secondaire(s) </h5>
+
+    <div>
+
+      <p>Essence(s) autre(s) que l'essence principale contribuant significativement à l'intérêt économique du peuplement.</p>
+
+    </div>
+
+  </div>
+</div>
+
+{# peuplement - essence(s) objectif(s) complementaires(s) #}
+
+<div class="custom-tooltip" data-name="nomenclatures_peuplement_essence_complementaire">
+  <span class="fas fa-question-circle"></span>
+  <div class="custom-tooltiptext">
+    <h5><span class="fas fa-question-circle"></span> Essence(s) complémentaire(s) </h5>
+
+    <div>
+
+      <p>Essence(s) présente(s) de façon significative dans le peuplement, mais ne constituant pas (ou peu) un enjeu économique.</p>
+
+    </div>
+
+  </div>
+</div>
+
+{# peuplement - origine #}
+
+<div class="custom-tooltip" data-name="id_nomenclature_peuplement_origine">
+  <span class="fas fa-question-circle"></span>
+  <div class="custom-tooltiptext">
+    <h5><span class="fas fa-question-circle"></span> Origine du peuplement </h5>
+
+    <div>
+      <p> Dans le cas où des plantations d’enrichissement ont été effectuées au sein de la régénération naturelle, cochez <b>Mixte</b>.</p>
+
+    </div>
+
+  </div>
+
+</div>
+
+{# peuplement - type #}
 
   {#   <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type">
     <span class="fas fa-question-circle"></span>
@@ -421,9 +437,10 @@
 
       <div>
 
-        <p>Précisez le stade de développement majoritaire du peuplement, en fonction de la hauteur (inférieure ou supérieure à 3 mètres) et du diamètre (inférieur ou supérieur à 20 cm) des arbres qui le constituent (sauf dans le cas de la futaie irrégulière, composée par définition d’arbres de toutes classes d’âge et de toutes dimensions).</p>
-        <p> Si plusieurs stades de développement sont présents en proportion relativement équivalente, plusieurs réponses peuvent être cochées.</p>
+        <p>Indiquez le(s) stade(s) de développement <b>majoritaire(s)</b> du peuplement selon la hauteur et le diamètre des arbres qui le constituent.</p>
 
+        <p>Plusieurs réponses sont possibles si plusieurs stades de maturité sont présents de façon significative</p>
+ 
       </div>
 
     </div>
@@ -432,7 +449,7 @@
 
   {# peuplement - espèce(s)#}
 
-  <div class="custom-tooltip" data-name="nomenclatures_peuplement_espece">
+{#   <div class="custom-tooltip" data-name="nomenclatures_peuplement_espece">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
       <h5><span class="fas fa-question-circle"></span> Espèce(s) avérée(s) </h5>
@@ -446,7 +463,7 @@
     </div>
 
   </div>
-
+  #}
 
   {# degats #}
 
@@ -455,7 +472,7 @@
   {#   <div class="custom-tooltip" data-name="nomenclatures_degat_type">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Type de dégats </h5>
+      <h5><span class="fas fa-question-circle"></span> Type de dégâts </h5>
 
       <div>
 
@@ -476,7 +493,7 @@
   <div class="custom-tooltip" data-name="nomenclatures_degat_type-0">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Type de dégats </h5>
+      <h5><span class="fas fa-question-circle"></span> Type de dégâts </h5>
 
       <div>
 
@@ -486,7 +503,7 @@
 
           <figure class="figure">
             <img src="{{ url_for('static', filename='img/tooltips/abroutissement_cervide.jpg') }}" alt="Abroutissement de cervidé" width="100%">
-            <figcaption>Abroutissement(cervidé).</figcaption>
+            <figcaption>Abroutissement d'un semis de sapin par les cervidés.</figcaption>
           </figure>
 
         </div>
@@ -500,7 +517,7 @@
   <div class="custom-tooltip" data-name="nomenclatures_degat_type-1">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Type de dégats </h5>
+      <h5><span class="fas fa-question-circle"></span> Type de dégâts </h5>
 
       <div>
 
@@ -510,7 +527,7 @@
 
           <figure class="figure">
             <img src="{{ url_for('static', filename='img/tooltips/frottis.jpg') }}" alt="Frottis" width="100%">
-            <figcaption>Frottis.</figcaption>
+            <figcaption>Jeune épicéa ayant subi des dégâts de frottis.</figcaption>
           </figure>
 
         </div>
@@ -524,17 +541,17 @@
   <div class="custom-tooltip" data-name="nomenclatures_degat_type-2">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Type de dégats </h5>
+      <h5><span class="fas fa-question-circle"></span> Type de dégâts </h5>
 
       <div>
 
-        <p><b>Écorçage</b> : Prélèvement par le cerf de l’écorce d’un arbre avec les dents dans un but alimentaire. Contrairement au frottis, le bord de la blessure est généralement net et aucun lambeau d’écorce ne persiste.</p>
+        <p><b>Écorçage</b> : Prélèvement par le cerf de l’écorce d’un arbre dans un but alimentaire. Contrairement au frottis, le bord de la blessure est généralement net et aucun lambeau d’écorce ne persiste.</p>
 
         <div class="flex-container">
 
           <figure class="figure">
             <img src="{{ url_for('static', filename='img/tooltips/ecorcage.jpg') }}" alt="Écorçage" width="100%">
-            <figcaption>Écorçage.</figcaption>
+            <figcaption>Écorçage récent sur un épicéa.</figcaption>
           </figure>
 
         </div>
@@ -547,11 +564,11 @@
   <div class="custom-tooltip" data-name="nomenclatures_degat_type-3">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Type de dégats </h5>
+      <h5><span class="fas fa-question-circle"></span> Type de dégâts </h5>
 
       <div>
 
-        <p><b>Dégâts de sanglier</b> : Le plus souvent, déterrage ou endommagement de plants ou de semis naturels dans un objectif de consommation de la racine. D’autres dégâts peuvent également être constatés ponctuellement (fouissement, piétinement, gîte, etc.).</p>
+        <p><b>Dégâts de sanglier</b> : Le plus souvent, déterrage ou endommagement de plants ou de semis naturels dans un objectif de consommation de la racine. D’autres dégâts peuvent également être constatés (fouissement, piétinement, gîte, etc.).</p>
 
       </div>
 
@@ -561,7 +578,8 @@
 
   {# degat - essence #}
 
-  <div class="custom-tooltip" data-name="id_nomenclature_degat_essence">
+{#
+    <div class="custom-tooltip" data-name="id_nomenclature_degat_essence">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
       <h5><span class="fas fa-question-circle"></span> Essence(s) touchée(s) </h5>
@@ -575,22 +593,23 @@
     </div>
 
   </div>
+#}
 
   {# degat - gravite #}
 
   <div class="custom-tooltip" data-name="id_nomenclature_degat_gravite">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Gravité des dégats </h5>
+      <h5><span class="fas fa-question-circle"></span> Gravité des dégâts </h5>
 
       <div>
 
-        <p>Évaluez la gravité du dégat selectionné, en fonction de leur impact sur le peuplement :</p>
-
+        <p>La gravité des dégâts dépend de leur impact sur la valeur économique du peuplement ou l'apparition d'une régénération naturelle satisfaisante.</p>
+        <p>Si, selon vous :</p>
         <ul>
-          <li><b>Importante</b> : la valeur économique du peuplement ou l’avenir de la régénération sont fortement compromis.</li>
-          <li><b>« Modérée »</b> : les impacts des dégâts sur la valeur ou la régénération du peuplement sont significatifs, mais restent incertains quant à la rentabilité des activités sylvicoles ou l’avenir du peuplement.</li>
-          <li><b>« Faible »</b> : les dégâts ne mettent pas significativement en danger la valeur économique du peuplement ou la croissance d’une régénération naturelle viable.</li>
+          <li>la valeur du peuplement est <b>fortement compromise</b>, cochez « <b>Importants</b> » </li>
+          <li>l'impact des dégâts est <b>significatif</b>, mais reste <b>incertain</b> quant à la rentabilité des activité agricoles, cochez « <b>Modérés</b> »</li>
+          <li>les dégâts <b>ne remettent pas en cause significativement</b> la valeur du peuplement, cochez « <b>Faibles</b> »</li>
         </ul>
 
       </div>
@@ -604,13 +623,13 @@
   <div class="custom-tooltip" data-name="id_nomenclature_degat_etendue">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Étendue des dégats </h5>
+      <h5><span class="fas fa-question-circle"></span> Étendue des dégâts </h5>
 
       <div>
-
+        <p>Si les dégâts concernent :</p>
         <ul>
-          <li><b>Localisée</b> : les dégâts touchent moins de la moitié de la surface du peuplement.</li>
-          <li><b>Généralisée</b> : les dégâts sont constatés sur plus de 50 % de sa superficie.</li>
+          <li>moins de 50% de la superficie du peuplement, cochez  « <b>Localisés</b> » </li>
+          <li>plus de 50% de la superficie du peuplement, cochez  « <b>Généralisés</b> » </li>
         </ul>
 
       </div>
@@ -620,11 +639,11 @@
   </div>
 
   {# degat - étendue #}
-
+{#
   <div class="custom-tooltip" data-name="id_nomenclature_degat_anteriorite">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Antériorité des dégats </h5>
+      <h5><span class="fas fa-question-circle"></span> Antériorité des dégâts </h5>
 
       <div>
 
@@ -639,6 +658,7 @@
     </div>
 
   </div>
+#}
 
 
   {# commentaires #}
@@ -647,7 +667,7 @@
   <div class="custom-tooltip" data-name="commentaire">
     <span class="fas fa-question-circle"></span>
     <div class="custom-tooltiptext">
-      <h5><span class="fas fa-question-circle"></span> Antériorité des dégats </h5>
+      <h5><span class="fas fa-question-circle"></span> Antériorité des dégâts </h5>
 
       <div>
 
@@ -667,7 +687,7 @@
     </div>
 
   </div>
-#}
+  #}
 </div>
 
 

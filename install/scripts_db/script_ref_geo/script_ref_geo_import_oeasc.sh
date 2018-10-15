@@ -23,7 +23,7 @@ shp2pgsql  -W ${codage} -s 2154 -d -D -I ${dir_data}/Zonage_OEASC/${shp}.shp ${d
 
 
 shp2pgsql  -W ${codage} -s 2154 -d -D -I ${dir_data}/limites_pnc/zone_coeur.shp ref_geo.zc_pnc >> $tmp_file
-shp2pgsql  -W ${codage} -s 2154 -d -D -I ${dir_data}/limites_pnc/aire_adhesion.shp ref_geo.zc_pnc >> $tmp_file
+shp2pgsql  -W ${codage} -s 2154 -d -D -I ${dir_data}/limites_pnc/aire_adhesion.shp ref_geo.aa_pnc >> $tmp_file
 
 
 

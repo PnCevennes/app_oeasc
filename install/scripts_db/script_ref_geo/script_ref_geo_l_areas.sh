@@ -141,19 +141,15 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, sourc
     FROM ref_geo.zc_pnc;
 
  INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('AA_PERIMETRE'), 'Aire adhésion parc des cévennes', 'AA_PNC', geom, ST_CENTROID(geom), 'OEASC', '', true
+    SELECT ref_geo.get_id_type('AA_PERIMETRE'), 'Aire adhésion parc des cévenness', 'AA_PNC', geom, ST_CENTROID(geom), 'OEASC', '', true
     FROM ref_geo.aa_pnc;
 
-EOF
-
-
-cat << EOF
-
--- insert AA PNC
+-- perimetre oeasc
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('AA_PNC'), 'Aire adhésion parc des cévennes', 'AA_PNC', geom, ST_CENTROID(geom), 'OEASC', '', true
-    FROM ref_geo.aa_pnc;
+    SELECT ref_geo.get_id_type('OEASC_PERIMETRE'), 'Perimetre OEASC', 'OEASC_PERIMETRE', geom, ST_CENTROID(geom), 'OEASC', '', true
+    FROM ref_geo.perimetre_oeasc;
+
 
 EOF
 

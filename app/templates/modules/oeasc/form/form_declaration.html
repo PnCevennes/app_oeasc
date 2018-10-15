@@ -24,25 +24,19 @@
 
   <div>
 
-    <p>Le déclarant est invité ici à fournir toute information complémentaire qu’il jugerait utile. Cette rubrique peut notamment être utilisée afin de :</p>
+<p>Utilisez le cadre de libre expression ci-dessous pour :</p>
 
-    <ul>
-
-      <li>préciser certaines réponses fournies dans le formulaire d’alerte ;</li>
-      <li>décrire plus précisément un cas particulier non prévu par le formulaire ;</li>
-      <li>indiquer les difficultés rencontrées par le déclarant pour renseigner certaines parties du formulaire ;</li>
-      <li>fournir des indications complémentaires sur le peuplement touché (description qualitative ou quantitative, historique, localisation plus précise, etc.) ;</li>
-      <li>partager un avis sur le formulaire, le système d’alerte ou l’Observatoire de l’équilibre agro-sylvo-cynégétique en général.</li>
-
-    </ul>
+<ul>
+  <li>préciser certaines de vos réponses ;</li>
+  <li>décrire plus précisément un cas particulier non prévu par le formulaire ;</li>
+  <li>fournir   des   indications   complémentaires   sur   le   peuplement   ou   les   dégats constatés (description, pourcentage de tiges touchée, historique, précision sur la localisation, etc.) ;</li>
+  <li>signaler  un  changement  de  situation  par  rapport  aux données utilisées dans les cartes  interactives  (changement  récent  de  propriétaire,  document  de  gestion durable récemment élaboré, etc.) ;</li>
+  <li>partager un avis personnel sur le formulaire, le système d’alerte ou l’Observatoire de l’équilibre agro-sylvo-cynégétique en général.</li>
+</ul>
 
   </div>
 
-  <textarea name="commentaire" id="commentaire" class="form-control" rows="5" maxlength="1000">
-
-    {{ declaration.commentaire or ""}}
-
-  </textarea>
+  <textarea name="commentaire" id="commentaire" class="form-control" rows="5" maxlength="1000">{{ declaration.commentaire or ""}}</textarea>
 
   <input type=submit value=Suivant class="btn btn-success bottom-right">
 
@@ -53,15 +47,12 @@
 
   <h4>Validation</h4>
 
-  <p>Vous pouvez vérifier ci-dessous les renseignements fournis pour la déclaration, avant de valider et envoyer le formulaire.</p>
+  <p>Vérifiez ci-dessous le contenu de  votre déclaration de dégâts, puis cliquer sur le bouton ci-contre pour 
+ valider définitivement et envoyer le formulaire.</p>
 
   <input type=submit value="Envoyer le formulaire"  class="btn btn-success top-right">
 
-  <div id="declaration">
-
     {%- include "modules/oeasc/entity/declaration.html" %}
-
-  </div>
 
 </form>
 

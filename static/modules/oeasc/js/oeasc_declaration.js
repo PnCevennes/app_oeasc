@@ -21,6 +21,7 @@ $(document).ready(function() {
 
     var $this = $(this);
 
+    console.log("a");
     setTimeout(function() {
 
       if (! $this.is(':visible') ) {
@@ -29,7 +30,7 @@ $(document).ready(function() {
 
       }
 
-    },100);
+    },200);
 
   };
 
@@ -117,6 +118,26 @@ $(document).ready(function() {
 
     });
 
+    $('#reinit_container').click(function() {
+
+      var type_code = $('#reinit_container').parents('.select_map').attr('data-type-code')
+
+      if(type_code == 'OEASC_SECTION') {
+
+        M.reset_foret();
+        recharger_form();
+
+      }
+
+      if(type_code == 'OEASC_ONF_UG') {
+
+        $("#form_areas_localisation").attr("data-areas", "[]");
+        recharger_form();
+
+      }
+
+    });
+
   };
 
 
@@ -126,7 +147,8 @@ $(document).ready(function() {
 
     // essence
 
-    $("#form_peuplement_description select").selectpicker("refresh");
+    // $("#form_peuplement_description select").selectpicker("refresh");
+    $("#form_peuplement_description select").selectpicker();
 
     $('#form_peuplement_description select#id_nomenclature_peuplement_essence_principale').change(function() {
 
@@ -232,7 +254,8 @@ $(document).ready(function() {
 
     });
 
-    $("#form_degats select").selectpicker("refresh");
+    // $("#form_degats select").selectpicker("refresh");
+    $("#form_degats select").selectpicker();
 
   };
 
@@ -402,29 +425,24 @@ $(document).ready(function() {
 
     var s_progress = parseFloat(Math.round(progression * 100)) + "%";
 
-
     $("#progress_text").html("Progression : " + s_progress);
 
     $('#progress_bar').width(s_progress);
 
+    $('#confirm').hide();
+
     $(window).bind('beforeunload', function(event){
 
-      console.log("a", M.declaration_effectuee)
       if (!M.declaration_effectuee) {
 
-        var e = e || window.event;
 
-        if (e) {
-          e.returnValue = 'Any string';
+        if (event) {
+          event.returnValue = 'Any string';
         }
 
-
         return 'Any string';
-        return 'Etes vous sur de vouloir quitter la page ? Pour revenir à un étape précédente, cliquer sur le liens correspondant dans le menu situé en haut de la page.';
 
       }
-
-
 
     });
 
@@ -609,13 +627,15 @@ $(document).ready(function() {
 
     var $this = $(this);
     var id_nomenclature_degat_type = $this.attr("data-degat-type");
-    var id_nomenclature_degat_essence = $this.attr("data-degat-essence");
+    var id_nomenclature_degat_essence = JSON.parse($this.attr("data-degat-essence")).id_nomenclature;
     var declaration = M.get_declaration_as_dict();
     var degats = declaration.degats;
 
     for(var i=0; i< degats.length; i++) {
 
       var degat = degats[i];
+
+      console.log(degat.id_nomenclature_degat_type)
 
       if (degat.id_nomenclature_degat_type == id_nomenclature_degat_type) {
 

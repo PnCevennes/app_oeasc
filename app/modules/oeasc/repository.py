@@ -199,7 +199,7 @@ def get_foret_type(foret_dict):
 
     d_prop_foret_type = {
 
-        'État': 'Domainiale',
+        'État': 'Domaniale',
         'Centre hospitalier': 'Autre forêt publique',
         'EP PNC': 'Autre forêt publique',
         'Commune': 'Communale',

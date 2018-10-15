@@ -29,7 +29,7 @@ $(document).ready(function() {
 
     var map=M["map_" + map_name]
 
-    map = M.carte_base_oeasc(map_name, "mapbox");
+    map = M.carte_base_oeasc(map_name, false);
 
     map.map_name = map_name;
 
@@ -75,14 +75,14 @@ $(document).ready(function() {
 
     var areas_foret = declaration.foret.areas_foret;
 
-    M.load_areas(areas_foret, "foret", map);
+    M.load_areas(areas_foret, "foret", map, true);
 
 
     // charger les aires
 
     var areas_localisation = declaration.areas_localisation;
 
-    M.load_areas(areas_localisation, "localisation", map);
+    M.load_areas(areas_localisation, "localisation", map, false);
 
     M.load_declaration_centroid(declaration, false, map);
 
@@ -173,17 +173,23 @@ $(document).ready(function() {
 
     if(areas_container.length > 0) {
 
-      for (var i=0; i<areas_container.length; i++) {
+      var b_zoom = true;
+      M.f_add_feature_collection_to_map(map, type_code, b_zoom, areas_container);
 
-       M.f_add_feature_collection_to_map(map, type_code, areas_container[i].id_area);
+     var type = "foret";
+
+     if (areas_container[0].type_code=="OEASC_ONF_PRF") {
+
+      type = 'localisation';
 
      }
 
-     M.load_areas(areas_container, 'foret', map);
+     M.load_areas(areas_container, type, map, false);
 
    } else {
 
-     M.f_add_feature_collection_to_map(map, type_code);
+      var b_zoom=true;
+      M.f_add_feature_collection_to_map(map, type_code, b_zoom);
 
    }
 

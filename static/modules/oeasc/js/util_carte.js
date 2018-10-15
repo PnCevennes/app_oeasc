@@ -106,7 +106,8 @@ $(document).ready(function() {
 
         f_select_layer(layer, map);
 
-        $('#' + map.map_name).selectpicker("refresh");
+//        $('#' + map.map_name).selectpicker("refresh");
+        $('#' + map.map_name).selectpicker();
 
       });
 
@@ -114,32 +115,6 @@ $(document).ready(function() {
 
   };
 
-
-  // gerer les evenements sur le select
-
-
-  // var f_order_select = function(elem) {
-
-  //   var html='<option value=""></option>';
-
-
-
-  //   elem.find(':selected').each(function() {
-
-  //     html+=this.outerHTML;
-
-  //   });
-
-  //   elem.find(':not([value=""]):not(:selected)').each(function() {
-
-  //     html+=this.outerHTML;
-
-  //   });
-
-  //   elem.html(html);
-  //   elem.selectpicker("refresh");
-
-  // };
 
   var f_change = function(map) { 
     return function(e) {
@@ -367,7 +342,7 @@ $(document).ready(function() {
   };
 
 
-  var f_on_data_loaded = function(feature_collection, map) {
+  var f_on_data_loaded = function(feature_collection, map, b_zoom) {
 
     var key_0 = Object.keys(feature_collection._layers)[0];
     var name = feature_collection._layers[key_0].feature.properties.name;
@@ -383,7 +358,7 @@ $(document).ready(function() {
     $("#select_map_" + map.map_name + " #chargement").hide();
 
     var ls = M.d_ls[name];
-    if(ls.featuresCollection) {
+    if(ls.featuresCollection && b_zoom) {
 
       deferred_setBounds(ls.featuresCollection.getBounds(), map);
 
@@ -431,7 +406,8 @@ $(document).ready(function() {
 
     }
 
-    $select_layer.selectpicker("refresh");
+    // $select_layer.selectpicker("refresh");
+    $select_layer.selectpicker();
 
     $select_layer.change(f_change(map));
 
@@ -444,7 +420,8 @@ $(document).ready(function() {
     //bidouille bug incompréhensible
     if( selected &&  $select_layer.val()=="" ) {
       $select_layer.val(selected);
-      $select_layer.selectpicker("refresh");
+      // $select_layer.selectpicker("refresh");
+      $select_layer.selectpicker();
     }
 
     M[form_id].b_loaded=true;
@@ -454,7 +431,7 @@ $(document).ready(function() {
   };
 
 
-  var f_add_feature_collection_to_map = function (map, name, id_area_container=null) {
+  var f_add_feature_collection_to_map = function (map, name, b_zoom, areas_container=null) {
 
     var d_ls = M.d_ls;
 
@@ -468,10 +445,17 @@ $(document).ready(function() {
     var url= "l/";
     url+= name;
 
-    if(id_area_container) {
+    if(areas_container) {
+
+      var i;
+      var v=[];
+      for(i=0;i<areas_container.length; i++) {
+
+        v.push(areas_container[i].id_area)
+      }
 
       url_base = "/api/ref_geo/areas_from_type_code_container/";
-      url += "/" + id_area_container;
+      url += "/" + v.join("-");
     }
 
     url = url_base + url
@@ -498,7 +482,7 @@ $(document).ready(function() {
 
         });
 
-        f_on_data_loaded(this, map);
+        f_on_data_loaded(this, map, b_zoom);
 
       });
 
@@ -514,7 +498,7 @@ $(document).ready(function() {
 
       ls.featuresCollection.on('data:loaded', function() {
 
-        f_on_data_loaded(this, map);
+        f_on_data_loaded(this, map, b_zoom);
 
       });
 
@@ -589,7 +573,7 @@ $(document).ready(function() {
   };
 
 
-  var carte_base_oeasc = function(name, tile="mapbox") {
+  var carte_base_oeasc = function(name, b_zoom_perimetre=true, tile="mapbox") {
 
     var map_id = 'map_' + name;
 
@@ -649,7 +633,13 @@ $(document).ready(function() {
     legend.addTo(map);
 
     var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_from_type_code/l/OEASC_PERIMETRE', {style: M.style.oeasc, pane: 'PANE_0'}).addTo(map);
-    l_perimetre_OEASC.on("data:loaded", function(){ map.fitBounds(this.getBounds());});
+
+    if(b_zoom_perimetre) {
+
+      l_perimetre_OEASC.on("data:loaded", function(){ map.fitBounds(this.getBounds());});
+
+    }
+
     M.l_perimetre_OEASC = l_perimetre_OEASC;
 
 
@@ -659,7 +649,7 @@ $(document).ready(function() {
   };
 
 
-  var load_areas = function(areas, type, map) {
+  var load_areas = function(areas, type, map, b_zoom) {
 
     if(areas == []) return ;
 
@@ -679,6 +669,8 @@ $(document).ready(function() {
       dataType:"json",
       data: JSON.stringify({areas: areas}),
       success: function (response) {
+
+        console.log("map.map_name", map.map_name);
 
         var featuresCollection = L.geoJson(response, {
           pane : 'PANE_' + pane
@@ -705,7 +697,7 @@ $(document).ready(function() {
 
         $("#" + map.map_name + " #chargement").hide();
 
-        if(type == "foret") {
+        if(type == "foret" && b_zoom) {
 
           deferred_setBounds(featuresCollection.getBounds(), map);
 

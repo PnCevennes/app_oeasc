@@ -22,9 +22,16 @@
 
     {{ macros.choix("Oui", "Non" ,'b_document' ,titre_document , object=foret) }}
 
+
   {%- endif %}
 
   </div>
+  
+  {%- if foret.b_statut_public == false %}
+
+  <p><i>Document de gestion durable = plan simple de gestion (PSG) ou code de bonnes pratiques sylvicoles (CBPS)</i></p>
+
+  {%- endif %}
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 

@@ -10,6 +10,11 @@ file_SQL_OEASC=$ROOT_DIR/$sql_dir/SQL/oeasc.sql
 
 echo process file $file_SQL_OEASC
 
+
+#nomenclature
+$ROOT_DIR/install/scripts_db/script_create_nomenclature.sh
+$ROOT_DIR/install/scripts_db/script_exec_nomenclature.sh
+
 #functions
 cat $ROOT_DIR/$sql_dir/SQL/functions.sql | psql -d $db_name -h $db_host -U $user_pg
 
