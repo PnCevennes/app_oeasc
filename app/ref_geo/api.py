@@ -159,7 +159,8 @@ def get_areas_from_type_code_container(data_type, type_code, ids_area_container)
 
     out = []
 
-    for id_area_container in v :
+    for id_area_container in v:
+
         container = DB.session.query(table).filter(table.id_area == id_area_container).first()
 
         id_type_commune = get_id_type('OEASC_COMMUNE')

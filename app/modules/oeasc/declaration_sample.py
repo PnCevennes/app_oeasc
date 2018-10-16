@@ -2,12 +2,16 @@ from app.ref_geo.models import TAreas
 from app.ref_geo.repository import get_id_type
 
 from .repository import (nomenclature_oeasc, get_nomenclature_from_id)
+from .models import TForet, TProprietaire
+
 from app.utils.utilssqlalchemy import as_dict
 
 from app.utils.env import DB
 from pypnusershub.db.models import (
     User
 )
+
+from sqlalchemy.sql import func
 
 import random
 
@@ -104,7 +108,7 @@ def get_v_nomenclature_random_sample(nomenclature, mnemonique, key=""):
     return get_nomenclature_sample(nomenclature, mnemonique, v_ind, key)
 
 
-def proprietaire_dict_random_sample(nomenclature=None):
+def proprietaire_dict_random_sample(b_statut_public, nom_commune, nomenclature=None):
     '''
         Renvoie un proprietaire aleatoire
         TODO
@@ -113,19 +117,23 @@ def proprietaire_dict_random_sample(nomenclature=None):
     if not nomenclature:
 
         nomenclature = nomenclature_oeasc()
-    pass
 
-    proprietaire = {
+    if b_statut_public:
 
-        "id_nomenclature_proprietaire_type": get_nomenclature_random_sample(nomenclature, "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
-        "nom_proprietaire": "Georges",
-        "telephone": "06...",
-        "email": "roger@rogers.frt",
-        "adresse": "lou_malherbous",
-        "s_code_postal": "48470",
-        "s_commune_proprietaire": "Espigoule"
+        proprietaire = {
 
-    }
+            "nom_proprietaire": nom_commune,
+
+        }
+
+    else:
+
+        proprietaire = {
+
+            "id_nomenclature_proprietaire_type": get_nomenclature_random_sample(nomenclature, "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
+            "nom_proprietaire": "Privé",
+
+        }
 
     return proprietaire
 
@@ -163,35 +171,165 @@ def get_type_code_statut_document(b_statut_public, b_document, type):
     return type_code
 
 
+def test():
+
+    return get_random_area_section('48150')
+
+    d = declaration_dict_random_sample()
+
+    v = [
+        'b_peuplement_paturage_presence',
+        'id_nomenclature_peuplement_paturage_frequence',
+        'nomenclatures_peuplement_paturage_type',
+        'nomenclatures_peuplement_paturage_statut',
+        'b_peuplement_protection_existence',
+        'nomenclatures_peuplement_protection_type'
+    ]
+
+    d2 = {}
+    for e in v:
+        d2[e] = d[e]
+
+    return d2
+
+    foret = foret_dict_random_sample()
+
+    areas_localisation = get_random_areas_localisation(foret)
+
+    return [foret, areas_localisation]
+
+
+def get_random_area_commune():
+
+    area = DB.session.query(TAreas).filter(TAreas.id_type == get_id_type('OEASC_COMMUNE')).order_by(func.random()).first()
+
+    if area:
+
+        return area.as_dict()
+
+    return None
+
+
+def get_random_area_section(area_code_commune):
+
+    area = DB.session.query(TAreas).filter(TAreas.id_type == get_id_type('OEASC_SECTION')).filter(TAreas.area_code.like(area_code_commune + '-%')).order_by(func.random()).first()
+
+    if area:
+
+        return area.as_dict()
+
+    return None
+
+
+def get_random_area_onf_prf(area_code_onf_frt):
+
+    area = DB.session.query(TAreas).filter(TAreas.id_type == get_id_type('OEASC_ONF_PRF')).filter(TAreas.area_code.like(area_code_onf_frt + '-%')).order_by(func.random()).first()
+
+    if area:
+
+        return area.as_dict()
+
+    return None
+
+
+def get_random_area_onf_ug(area_code_onf_prf):
+
+    area = DB.session.query(TAreas).filter(TAreas.id_type == get_id_type('OEASC_ONF_UG')).filter(TAreas.area_code.like(area_code_onf_prf + '-%')).order_by(func.random()).first()
+
+    if area:
+
+        return area.as_dict()
+
+    return None
+
+
+def get_random_area_dgd_cadastre(area_code_dgd):
+
+    res = DB.engine.execute(text("SELECT area_code_cadastre FROM ref_geo.cor_dgd_cadastre WHERE area_code_dgd = '{}' ORDER BY RANDOM() LIMIT 1;".format(area_code_dgd))).first()[0]
+
+    area_code = res
+
+    area = DB.session.query(TAreas).filter(TAreas.id_type == get_id_type('OEASC_CADASTRE')).filter(TAreas.area_code == area_code).first()
+
+    if area:
+
+        return area.as_dict()
+
+    return None
+
+
+def get_random_area_section_cadastre(area_code_section):
+
+    area = DB.session.query(TAreas).filter(TAreas.id_type == get_id_type('OEASC_CADASTRE')).filter(TAreas.area_code.like(area_code_section + '-%')).order_by(func.random()).first()
+
+    if area:
+
+        return area.as_dict()
+
+    return None
+
+
 def foret_dict_random_sample(nomenclature=None):
     '''
-        Renvoie un foret aleatoire
+        Renvoie une foret aleatoire
     '''
     if not nomenclature:
 
         nomenclature = nomenclature_oeasc()
 
-        b_statut_public = random.randint(0, 1) == 1
-        b_document = random.randint(0, 1) == 1
+    b_statut_public = random.randint(0, 1) == 1
+    b_document = random.randint(0, 1) == 1
 
-    id_type_foret = get_id_type(get_type_code_statut_document(b_statut_public, b_document, "foret"))
+    # cas docmumenté : on récupère en base
+    if b_document:
 
-    areas = DB.session.query(TAreas.id_area).filter(TAreas.id_type == id_type_foret).filter(TAreas.enable).all()
+        foret = DB.session.query(TForet).filter(TForet.b_statut_public == b_statut_public).order_by(func.random()).first()
 
-    id_area = areas[random.randint(0, len(areas) - 1)][0]
+        if not foret:
 
-    foret = {
+            return None
 
-        "b_statut_public": b_statut_public,
-        "b_document": b_document,
-        "proprietaire": proprietaire_dict_random_sample(),
-        "nom_foret": "Les sequoias",
-        "superficie": 2.5,
-        "areas_foret": [{"id_area": id_area}]
+        proprietaire = DB.session.query(TForet).filter(TProprietaire.id_proprietaire == foret.id_proprietaire).first()
 
-    }
+        if not proprietaire:
 
-    return foret
+            return None
+
+        foret_dict = foret.as_dict(True)
+
+        foret_dict['proprietaire'] = proprietaire.as_dict()
+
+        return foret_dict
+
+    # cas nom documenté on invente
+    else:
+
+        area_commune = get_random_area_commune()
+
+        if not area_commune:
+
+            return None
+
+        area_section = get_random_area_section(area_commune['area_code'])
+
+        if not area_section:
+
+            return None
+
+        areas_foret = [{'id_area': area_section['id_area']}, {'id_area': area_commune['id_area']}]
+
+        foret = {
+
+            "b_statut_public": b_statut_public,
+            "b_document": False,
+            "proprietaire": proprietaire_dict_random_sample(b_statut_public, area_commune['area_name'], nomenclature),
+            "nom_foret": "foret au hasard ",
+            "superficie": random.randint(0, 1000),
+            "areas_foret": areas_foret
+
+        }
+
+        return foret
 
 
 def degats_dict_random_sample(v_essences, nomenclature=None):
@@ -235,7 +373,7 @@ def degats_dict_random_sample(v_essences, nomenclature=None):
 
 
 def get_random_id_declarant():
-    ''' 
+    '''
         renvoie un id_declarant aléatoire
     '''
     sql_text = text("SELECT id_role FROM utilisateurs.t_roles WHERE remarques = 'utilisateur test OEASC'")
@@ -248,23 +386,65 @@ def get_random_id_declarant():
     return id_declarant
 
 
-def get_random_areas_localisation(id_area_foret, type_code_parcelle):
+def get_random_areas_localisation(foret):
     '''
         renvoie des localisations aléatoires
-        TODO 
+        TODO
     '''
-    sql_text = text("SELECT ref_geo.intersect_rel_area({}, '{}', 0.05)".format(id_area_foret, type_code_parcelle))
-    data = DB.engine.execute(sql_text)
-    v = [d[0] for d in data]
 
-    if v == []:
+    id_area = foret['areas_foret'][0]['id_area']
+
+    area_foret = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
+
+    areas_localisation = []
+
+    if area_foret.id_type == get_id_type('OEASC_ONF_FRT'):
+
+        area_ONF_PRF = get_random_area_onf_prf(area_foret.area_code)
+        areas_localisation.append({'id_area': area_ONF_PRF['id_area']})
+
+        area_ONF_UG = get_random_area_onf_ug(area_ONF_PRF['area_code'])
+        areas_localisation.append({'id_area': area_ONF_UG['id_area']})
+
+    if area_foret.id_type == get_id_type('OEASC_SECTION'):
+
+        area = get_random_area_section_cadastre(area_foret.area_code)
+        areas_localisation.append({'id_area': area['id_area']})
+
+    if area_foret.id_type == get_id_type('OEASC_DGD'):
+
+        area = get_random_area_dgd_cadastre(area_foret.area_code)
+        areas_localisation.append({'id_area': area['id_area']})
+
+    return areas_localisation
+
+
+def get_random_declarant():
+
+    id_declarant = get_random_id_declarant()
+
+    if not id_declarant:
 
         return None
 
-    id_area = v[random.randint(0, len(v) - 1)]
-    areas_localisation = [{'id_area': id_area}]
+    declarant = DB.session.query(User).filter(id_declarant == User.id_role).first()
 
-    return areas_localisation
+    return as_dict(declarant)
+
+
+def get_random_date():
+
+    time_ref = datetime.strptime('1/1/2015', '%m/%d/%Y')
+
+    diff = datetime.now() - time_ref
+
+    random_seconds = random.randint(0,int(diff.total_seconds()))
+
+    date = (time_ref + timedelta(seconds=random_seconds))
+
+    s_date = str(date)
+
+    return s_date
 
 
 def declaration_dict_random_sample(nomenclature=None):
@@ -276,34 +456,23 @@ def declaration_dict_random_sample(nomenclature=None):
         nomenclature = nomenclature_oeasc()
 
     foret = foret_dict_random_sample()
-    b_statut_public = foret['b_statut_public']
-    b_document = foret['b_document']
 
-    id_area_foret = foret['areas_foret'][0]['id_area']
-
-    type_code_parcelle = get_type_code_statut_document(b_statut_public, b_document, "parcelle")
-
-    id_declarant = get_random_id_declarant()
-
-    if not id_declarant:
+    if not foret:
 
         return None
 
-    declarant = DB.session.query(User).filter(id_declarant == User.id_role).first()
+    areas_localisation = get_random_areas_localisation(foret)
+
+    declarant = get_random_declarant()
 
     if not declarant:
 
         return None
 
-    areas_localisation = get_random_areas_localisation(id_area_foret, type_code_parcelle)
-
     v_essences = v_rand_nomenclature(nomenclature, 'OEASC_PEUPLEMENT_ESSENCE')
 
-    random_seconds = random.randint(1, 2 * 3600 * 24 * 365)
-
-    date = (datetime.strptime('1/1/2015', '%m/%d/%Y') + timedelta(seconds=random_seconds))
-
-    s_date = str(date)
+    # random_seconds = random.randint(1, 2 * 3600 * 24 * 365)
+    time_ref = datetime.strptime('1/1/2015', '%m/%d/%Y')
 
     nomenclatures_peuplement_paturage_statut = []
     nomenclatures_peuplement_paturage_type = []
@@ -336,11 +505,13 @@ def declaration_dict_random_sample(nomenclature=None):
             nomenclatures_peuplement_espece = [elem]
             break
 
+    s_date = get_random_date()
+
     declaration = {
 
-        "id_declarant": id_declarant,
+        "id_declarant": declarant['id_role'],
 
-        "declarant": as_dict(declarant),
+        "declarant": declarant,
 
         "id_nomenclature_proprietaire_declarant": get_nomenclature_random_sample(nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "id_nomenclature"),
 
@@ -350,8 +521,8 @@ def declaration_dict_random_sample(nomenclature=None):
 
         'areas_localisation': areas_localisation,
 
-        'b_peuplement_paturage_presence': True,
-        'b_peuplement_protection_existence': False,
+        'b_peuplement_paturage_presence': b_peuplement_paturage_presence,
+        'b_peuplement_protection_existence': b_peuplement_protection_existence,
 
         'id_nomenclature_peuplement_origine': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_ORIGINE", "id_nomenclature"),
         'id_nomenclature_peuplement_type': get_nomenclature_random_sample(nomenclature, "OEASC_PEUPLEMENT_TYPE", "id_nomenclature"),

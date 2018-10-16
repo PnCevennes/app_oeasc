@@ -351,7 +351,6 @@ def f_create_or_update_declaration(declaration_dict):
     # - puis modifiée pour lui donner la date choisie aléatoirement
     if declaration_dict.get("meta_create_date", None):
 
-        print(declaration_dict.get("meta_create_date", None))
         declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
         id_declaration = declaration.id_declaration
 

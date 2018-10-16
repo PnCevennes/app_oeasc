@@ -150,9 +150,9 @@ def random_populate(nb):
 
         nomenclature = nomenclature_oeasc()
 
-        check_foret(declaration_dict, nomenclature)
-        check_proprietaire(declaration_dict, nomenclature)
-        f_create_or_update_declaration(declaration_dict)
+        # check_foret(declaration_dict, nomenclature)
+        # check_proprietaire(declaration_dict, nomenclature)
+        declaration_dict = f_create_or_update_declaration(declaration_dict)
 
         print("i", i, nb, declaration_dict["id_declaration"], declaration_dict["foret"]["nom_foret"], "public", declaration_dict["foret"]["b_statut_public"], "documenté", declaration_dict["foret"]["b_document"])
 
