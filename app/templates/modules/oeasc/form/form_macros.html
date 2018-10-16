@@ -61,7 +61,8 @@
     {%- endif %}
 
     <div class={{"select-essence" if afficher_type_essence!="" else ""}}>
-      <select data-dropup-auto="false" name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
+      {# <select data-dropup-auto="false" name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit"> #}
+      <select data-dropup-auto="true" name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
 
     {%- if multi == "multi" %}
 
@@ -427,7 +428,8 @@
         {% endif %}
 
         <div><label for="{{ type_code }}">Liste des {{ dict_label[type_code] }}<span class="rouge">*</span></label></div>
-        <select data-dropup-auto="false" name="{{ type_code }}" id="{{ type_code }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
+        {# <select data-dropup-auto="false" name="{{ type_code }}" id="{{ type_code }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true"> #}
+        <select data-dropup-auto="true" name="{{ type_code }}" id="{{ type_code }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
         </select>
       </div>
 

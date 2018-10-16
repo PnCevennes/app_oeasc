@@ -132,3 +132,9 @@ form select {
 
   font-size: 0.9em;
 }
+
+div.dropdown-menu  {
+
+  z-index: 2000;
+}
+
