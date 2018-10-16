@@ -257,8 +257,8 @@ SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_UNION(ST
   ORDER BY insee_com, nom_com, section;
 
 
-DROP TABLE IF EXISTS temp2;
 
+DROP TABLE IF EXISTS temp2;
 CREATE TABLE temp2(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
 
 SELECT 'aa';
@@ -274,11 +274,9 @@ INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, cent
 
 SELECT ref_geo.simplify_by_type_code('OEASC_DGD_RAW', 'OEASC_DGD', 20);
 SELECT ref_geo.simplify_by_type_code('OEASC_COMMUNE_RAW', 'OEASC_COMMUNE', 20);
+SELECT ref_geo.simplify_by_type_code('OEASC_ONF_FRT_RAW', 'OEASC_ONF_FRT', 20);
 --SELECT ref_geo.simplify_by_type_code('OEASC_ONF_UG_RAW', 'OEASC_ONF_UG', 5);
 --SELECT ref_geo.simplify_by_type_code('OEASC_ONF_PRF_RAW', 'OEASC_ONF_PRF', 5);
---SELECT ref_geo.simplify_by_type_code('OEASC_ONF_FRT_RAW', 'OEASC_ONF_FRT', 20);
-
-
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
     SELECT ref_geo.get_id_type('OEASC_CADASTRE') as id_type, t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true

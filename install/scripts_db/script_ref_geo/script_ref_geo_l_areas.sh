@@ -190,9 +190,9 @@ cat << EOF
 
 ALTER TABLE ref_geo.l_areas DISABLE TRIGGER ALL;
 
-UPDATE ref_geo.l_areas SET area_name = regexp_replace(area_name, '-_', '_', 'g') WHERE id_type = ref_geo.get_id_type('OEASC_ONF_PRF') OR id_type = ref_geo.get_id_type('OEASC_ONF_UG');
-UPDATE ref_geo.l_areas SET area_name = regexp_replace(area_name, '-$', '', 'g') WHERE id_type = ref_geo.get_id_type('OEASC_ONF_PRF') OR id_type = ref_geo.get_id_type('OEASC_ONF_UG');
-UPDATE ref_geo.l_areas SET area_name = regexp_replace(area_name, '_$', '', 'g') WHERE id_type = ref_geo.get_id_type('OEASC_ONF_PRF') OR id_type = ref_geo.get_id_type('OEASC_ONF_UG');
+UPDATE ref_geo.l_areas SET area_name = regexp_replace(area_name, '-_', '_', 'g') WHERE id_type = ref_geo.get_id_type('OEASC_ONF_PRF_RAW') OR id_type = ref_geo.get_id_type('OEASC_ONF_UG_RAW');
+UPDATE ref_geo.l_areas SET area_name = regexp_replace(area_name, '-$', '', 'g') WHERE id_type = ref_geo.get_id_type('OEASC_ONF_PRF_RAW') OR id_type = ref_geo.get_id_type('OEASC_ONF_UG_RAW');
+UPDATE ref_geo.l_areas SET area_name = regexp_replace(area_name, '_$', '', 'g') WHERE id_type = ref_geo.get_id_type('OEASC_ONF_PRF_RAW') OR id_type = ref_geo.get_id_type('OEASC_ONF_UG_RAW');
 
 ALTER TABLE ref_geo.l_areas ENABLE TRIGGER ALL;
 
