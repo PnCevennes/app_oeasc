@@ -50,50 +50,13 @@
 
           </div>
 
+
           <div class="form-group">
 
-            <h5>Caractétisation des dégâts</h5>
-
-            <ul>
-
-              {%- for degat in declaration.degats %}
-
-              <li>  <b>{{ degat.id_nomenclature_degat_type.label_fr }}</b>
-
-                <ul>
-
-                  {%- for degat_essence in degat['degat_essences'] %}
-
-                  {% if degat_essence != {} %}
-
-                  <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.mnemonique == 'ABS' else " :"}}
-
-                    {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
-                    <ul>
-
-                      <li><i>étendue</i> : {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},</li>
-                      <li><i>gravité</i> : {{ degat_essence.id_nomenclature_degat_gravite.label_fr | lower}},</li>
-                      <li><i>antériorité</i> : {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr | lower}}.</li>
-
-                    </ul>
-
-                    {% endif %}
-
-                  </li>
-
-                  {% endif %}
-
-                  {%- endfor %}
-
-                </ul>
-
-              </li>
-
-              {%- endfor %}
-
-            </ul>
+            {%- include "modules/oeasc/entity/degats.html"%}
 
           </div>
+
 
           <div class="form-group">
 
@@ -104,8 +67,8 @@
           </div>
 
         </div>
-        <div class="col-md-6">
 
+        <div class="col-md-6">
 
           <div class="form-group">
 
