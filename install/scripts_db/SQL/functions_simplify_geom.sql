@@ -120,7 +120,10 @@ $$ language plpgsql strict;
 
 --simplify set
 
-CREATE OR REPLACE FUNCTION ref_geo.simplify_by_id_type(mytype_code character varying, mytype_code_new character varying, myid_type_new integer, my_label_new character varying, my_simplification_parametrer DOUBLE PRECISION)
+DROP FUNCTION IF EXISTS ref_geo.simplify_by_type_code(mytype_code character varying, mytype_code_new character varying, tolerance float);
+
+CREATE OR REPLACE FUNCTION ref_geo.simplify_by_type_code(mytype_code character varying, mytype_code_new character varying, tolerance float)
+
     RETURNS VOID AS
     $$
     BEGIN
@@ -130,21 +133,16 @@ CREATE OR REPLACE FUNCTION ref_geo.simplify_by_id_type(mytype_code character var
 
         DROP TABLE IF EXISTS temp_simple;
 
-        CREATE TABLE temp_simple AS SELECT * FROM simplifyLayerPreserveTopology('' ,'test', 'id_area', 'geom', 200) as (id_area int, geom geometry);
+        CREATE TABLE temp_simple AS SELECT * FROM simplifyLayerPreserveTopology('' ,'temp', 'id_area', 'geom', tolerance) as (id_area int, geom geometry);
 
-        DELETE FROM ref_geo.l_areas WHERE id_type=myid_type_new;
-        DELETE FROM ref_geo.bib_areas_types WHERE id_type=myid_type_new;
-
-        INSERT INTO ref_geo.bib_areas_types (
-            id_type, type_name, type_code, type_desc, ref_name, ref_version, num_version)
-        VALUES
-            (myid_type_new, my_label_new, mytype_code_new, my_label_new, 'OEASC', 2018, '');
+        DELETE FROM ref_geo.l_areas WHERE id_type=ref_geo.get_id_type(mytype_code_new);
 
         INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
             SELECT ref_geo.get_id_type(mytype_code_new), l.area_name, l.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
             FROM temp_simple as t, ref_geo.l_areas as l
             WHERE t.id_area=l.id_area;
-END;
+    END;
+
 $$ language plpgsql strict;
 
 -- SELECT ref_geo.simplify_by_id_type('OEASC_DGD', 'OEASC_DGD_SIMPLE', 333, 'DGD simplifié', 50)

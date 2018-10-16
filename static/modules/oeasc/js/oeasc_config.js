@@ -118,6 +118,15 @@ style.pane.tooltips = 5;
     pane: 1,
   };
 
+  d_ls.OEASC_DGD_SIMPLE = {
+    name: "OEASC_DGD_SIMPLE",
+    label: "Forêt possédent un document de gestion durable",
+    keys: [ "area_code", "area_name" ],
+    color: color.OEASC_DGD,
+    pane: 1,
+  };
+
+
   d_ls.OEASC_COMMUNE = {
     name: "OEASC_COMMUNE",
     label: "Commune",
@@ -136,14 +145,6 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_SECTION = {
     name: "OEASC_SECTION",
-    label: "Section",
-    keys: [ "area_name" ],
-    color: color.OEASC_SECTION,
-    pane: 1,
-  };
-
-  d_ls.OEASC_SECTION_RAW = {
-    name: "<OEASC_SECTION_RAW></OEASC_SECTION_RAW>",
     label: "Section",
     keys: [ "area_name" ],
     color: color.OEASC_SECTION,
@@ -197,9 +198,14 @@ list.data=[
 "OEASC_CADASTRE",
 ];
 
+
 M.select = {};
 list.data.forEach(function(e){
+
   M.select[e] = $("#" + e.toLowerCase());
+  d_ls[e+'_RAW'] = d_ls[e];
+  d_ls[e+'_RAW'].name = d_ls[e].name+"_RAW";
+
 });
 
 
