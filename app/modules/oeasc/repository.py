@@ -353,10 +353,10 @@ def f_create_or_update_declaration(declaration_dict):
 
     else:
 
-        # proprietaire = TProprietaire().from_dict(declaration_dict["foret"]["proprietaire"], True)
-        # foret = TForet().from_dict(declaration_dict["foret"], True)
-        proprietaire = DB.session.query(TProprietaire).filter(TProprietaire.id_proprietaire == declaration_dict["foret"]["proprietaire"]["id_proprietaire"])
-        foret = DB.session.query(TForet).filter(TForet.id_foret == declaration_dict["foret"]["proprietaire"]["id_foret"])
+        proprietaire = TProprietaire().from_dict(declaration_dict["foret"]["proprietaire"], True)
+        foret = TForet().from_dict(declaration_dict["foret"], True)
+        # proprietaire = DB.session.query(TProprietaire).filter(TProprietaire.id_proprietaire == declaration_dict["foret"]["proprietaire"]["id_proprietaire"])
+        # foret = DB.session.query(TForet).filter(TForet.id_foret == declaration_dict["foret"]["proprietaire"]["id_foret"])
 
     # pour le cas ou on veut generer une create date en random :
     # - elle sera crée un fois avec la date courante
