@@ -14,6 +14,8 @@ var reset_proprietaire = function() {
     $("#adresse").val("");
     $("#s_code_postal").val("");
     $("#s_commune_proprietaire").val("");
+    // $("#id_nomenclature_proprietaire_type").val("");
+
 
 }
 
@@ -162,7 +164,6 @@ var reset_proprietaire = function() {
     proprietaire.adresse = $("#adresse").val();
     proprietaire.s_code_postal = $("#s_code_postal").val();
     proprietaire.s_commune_proprietaire = $("#s_commune_proprietaire").val();
-
     return proprietaire;
 
   };

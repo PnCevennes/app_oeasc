@@ -94,10 +94,10 @@ def get_form_declaration():
     id_form = data['id_form']
 
     # recherche de la  foret le cas echeant (apres un choix de foret documentee)
-    get_dict_nomenclature_areas(declaration_dict, nomenclature)
+    get_dict_nomenclature_areas(declaration_dict)
 
-    check_foret(declaration_dict, nomenclature)
-    check_proprietaire(declaration_dict, nomenclature)
+    check_foret(declaration_dict)
+    check_proprietaire(declaration_dict)
 
     listes_essences = get_listes_essences(declaration_dict)
 
