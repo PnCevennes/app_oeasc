@@ -699,3 +699,9 @@ h2 {
 
   font-size: 1em;
 }
+
+div.dropdown-menu {
+
+  z-index: 2000;
+
+}
