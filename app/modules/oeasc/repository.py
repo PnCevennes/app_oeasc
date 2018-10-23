@@ -24,6 +24,10 @@ from app.ref_geo.repository import (
     get_type_code,
 )
 
+import datetime
+
+from flask import g
+
 import re
 
 from .models import (
@@ -86,7 +90,7 @@ def get_fonction_droit(function):
     return dict_function.get(function, None)
 
 
-def get_nomenclature_from_id(id_nomenclature, nomenclature, key=""):
+def get_nomenclature_from_id(id_nomenclature, key=""):
     '''
         retourne un element de nomenclature a partir de son id
         si key == "", retourne l'element entier, sinon juste la clé choisie
@@ -95,7 +99,7 @@ def get_nomenclature_from_id(id_nomenclature, nomenclature, key=""):
 
         return None
 
-    for _, nomenclature_type in nomenclature.items():
+    for _, nomenclature_type in nomenclature_oeasc().items():
 
         for elem in nomenclature_type["values"]:
 
@@ -112,9 +116,9 @@ def get_nomenclature_from_id(id_nomenclature, nomenclature, key=""):
     return None
 
 
-def get_nomenclature(key_in, value_in, type_code, nomenclature, key_out=""):
+def get_nomenclature(key_in, value_in, type_code, key_out=""):
 
-    nomemclature_type = nomenclature.get(type_code, None)
+    nomemclature_type = nomenclature_oeasc().get(type_code, None)
 
     if not nomemclature_type:
 
@@ -137,20 +141,28 @@ def get_nomenclature(key_in, value_in, type_code, nomenclature, key_out=""):
 
 def get_area_from_id(id_area):
 
-    data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
+    if not getattr(g, '_areas', None):
 
-    if not data:
+        g._areas = {}
 
-        return None
+    if not getattr(g._areas, str(id_area), None):
 
-    out = data.as_dict(columns=['id_area', 'id_type', 'area_name', 'area_code'])
+        data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
 
-    out['type_code'] = get_type_code(out['id_type'])
+        if not data:
 
-    return out
+            return None
+
+        out = data.as_dict(columns=['id_area', 'id_type', 'area_name', 'area_code'])
+
+        out['type_code'] = get_type_code(out['id_type'])
+
+        g._areas[str(id_area)] = out
+
+    return g._areas[str(id_area)]
 
 
-def get_dict_nomenclature_areas(dict_in, nomenclature):
+def get_dict_nomenclature_areas(dict_in):
     '''
         récupère les nomenclatures et les aires dans un dictionnaire pour les element d'un dictionnaire
         qui commencent par 'id_nomenclature' ou 'nomenclatures'
@@ -164,8 +176,7 @@ def get_dict_nomenclature_areas(dict_in, nomenclature):
     for key in dict_in:
 
         if key.startswith("id_nomenclature_"):
-
-            dict_in[key] = get_nomenclature_from_id(dict_in.get(key, None), nomenclature)
+            dict_in[key] = get_nomenclature_from_id(dict_in.get(key, None))
             continue
 
         if key.startswith("areas"):
@@ -173,27 +184,27 @@ def get_dict_nomenclature_areas(dict_in, nomenclature):
 
         if key.startswith("nomenclatures_"):
 
-            dict_in[key] = [get_nomenclature_from_id(elem['id_nomenclature'], nomenclature) for elem in dict_in[key]]
+            dict_in[key] = [get_nomenclature_from_id(elem['id_nomenclature']) for elem in dict_in[key]]
             continue
 
         if isinstance(dict_in[key], dict):
 
-            dict_in[key] = get_dict_nomenclature_areas(dict_in[key], nomenclature)
+            dict_in[key] = get_dict_nomenclature_areas(dict_in[key])
             continue
 
         if isinstance(dict_in[key], list):
 
-            dict_in[key] = [get_dict_nomenclature_areas(elem, nomenclature) for elem in dict_in[key]]
+            dict_in[key] = [get_dict_nomenclature_areas(elem) for elem in dict_in[key]]
             continue
 
     return dict_in
 
 
 def get_foret_type(foret_dict):
-
+    print(foret_dict['proprietaire'])
     if not foret_dict['proprietaire']['id_nomenclature_proprietaire_type']:
 
-        return False
+        return "Indéterminé"
 
     proprietaire_type = foret_dict['proprietaire']['id_nomenclature_proprietaire_type']['label_fr']
 
@@ -213,7 +224,7 @@ def get_foret_type(foret_dict):
 
     foret_dict['foret_type'] = foret_type
 
-    return True
+    return foret_type
 
 
 def dfpu_as_dict(declaration, foret, proprietaire, declarant):
@@ -239,8 +250,7 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant):
     declaration_dict["declarant"] = as_dict(declarant)
     declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
 
-    nomenclature = nomenclature_oeasc();
-    get_dict_nomenclature_areas(declaration_dict, nomenclature)
+    get_dict_nomenclature_areas(declaration_dict)
 
     get_foret_type(declaration_dict["foret"])
 
@@ -248,6 +258,7 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant):
 
 
 def dfpu_as_dict_from_id_declaration(id_declaration):
+
 
     declaration, foret, proprietaire, declarant = get_dfpu(id_declaration)
     declaration_dict = dfpu_as_dict(declaration, foret, proprietaire, declarant)
@@ -292,7 +303,6 @@ def get_dfpu(id_declaration):
         if id_declarant:
 
             declarant = get_declarant(id_declarant)
-
         id_foret = declaration.id_foret
 
         if id_foret:
@@ -345,13 +355,14 @@ def f_create_or_update_declaration(declaration_dict):
 
         proprietaire = TProprietaire().from_dict(declaration_dict["foret"]["proprietaire"], True)
         foret = TForet().from_dict(declaration_dict["foret"], True)
+        # proprietaire = DB.session.query(TProprietaire).filter(TProprietaire.id_proprietaire == declaration_dict["foret"]["proprietaire"]["id_proprietaire"])
+        # foret = DB.session.query(TForet).filter(TForet.id_foret == declaration_dict["foret"]["proprietaire"]["id_foret"])
 
     # pour le cas ou on veut generer une create date en random :
     # - elle sera crée un fois avec la date courante
     # - puis modifiée pour lui donner la date choisie aléatoirement
     if declaration_dict.get("meta_create_date", None):
 
-        print(declaration_dict.get("meta_create_date", None))
         declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
         id_declaration = declaration.id_declaration
 
@@ -433,15 +444,17 @@ def get_user(id_declarant):
     return user
 
 
-def nomenclature_oeasc(list_data=None):
+def nomenclature_oeasc():
     '''
         fonction pour récuprér toutes les nomenclatures qui concernent l'oeasc
         à l'aide de la commande get_nomenclature_list du module pypnnomenclature
     '''
 
-    if not list_data:
+    # on regarde si la nomenclature existe dans la variable globale g
+    if not getattr(g, '_nomenclature', None):
 
         list_data = [
+
             'OEASC_PEUPLEMENT_ESSENCE',
             'OEASC_PEUPLEMENT_MATURITE',
             'OEASC_PEUPLEMENT_PROTECTION_TYPE',
@@ -464,34 +477,40 @@ def nomenclature_oeasc(list_data=None):
             'OEASC_PROPRIETAIRE_DECLARANT',
             'OEASC_PROPRIETAIRE_TYPE',
             'OEASC_DECLARANT_FONCTION',
+
         ]
 
-    data = {}
+        data = {}
 
-    for type_code in list_data:
+        for type_code in list_data:
 
-        data[type_code] = get_nomenclature_list(code_type=type_code)
-        # data[type_code]["values"].reverse()
+            data[type_code] = get_nomenclature_list(code_type=type_code)
 
-        # on ne garde que les colonnes qui nous intéresse
+            if not data[type_code]:
 
-        cols = ['id_nomenclature', 'mnemonique', 'label_fr']
+                continue
 
-        values = []
+            # on ne garde que les colonnes qui nous intéresse
 
-        for d in data[type_code]["values"]:
+            cols = ['id_nomenclature', 'mnemonique', 'label_fr']
 
-            d_new = {}
+            values = []
 
-            for key in cols:
+            for d in data[type_code]["values"]:
 
-                d_new[key] = d.get(key, None)
+                d_new = {}
 
-            values.append(d_new)
+                for key in cols:
 
-        data[type_code]["values"] = values
+                    d_new[key] = d.get(key, None)
 
-    return data
+                values.append(d_new)
+
+            data[type_code]["values"] = values
+
+        g._nomenclature = data
+
+    return g._nomenclature
 
 
 def get_declarations(b_synthese, id_declarant=None):
@@ -552,15 +571,13 @@ def get_declarations(b_synthese, id_declarant=None):
 
         id_declarations = [d[0] for d in data]
 
-    nomenclature = nomenclature_oeasc()
-
     declarations = []
 
     for id_declaration in id_declarations:
 
         declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
-
         declarations.append(declaration_dict)
+
 
     return declarations
 

@@ -23,7 +23,8 @@
   <label for="commentaire"></label>
 
   <div>
-
+<div class="form-group">
+  
 <p>Utilisez le cadre de libre expression ci-dessous pour :</p>
 
 <ul>
@@ -34,9 +35,11 @@
   <li>partager un avis personnel sur le formulaire, le système d’alerte ou l’Observatoire de l’équilibre agro-sylvo-cynégétique en général.</li>
 </ul>
 
+  <textarea name="commentaire" id="commentaire" class="form-control" rows="5" maxlength="1000">{{ declaration.commentaire or ""}}</textarea>
+
   </div>
 
-  <textarea name="commentaire" id="commentaire" class="form-control" rows="5" maxlength="1000">{{ declaration.commentaire or ""}}</textarea>
+</div>
 
   <input type=submit value=Suivant class="btn btn-success bottom-right">
 

@@ -431,7 +431,7 @@ $(document).ready(function() {
   };
 
 
-  var f_add_feature_collection_to_map = function (map, name, b_zoom, areas_container=null) {
+  var f_add_feature_collection_to_map = function(map, name, b_zoom, areas_container=null) {
 
     var d_ls = M.d_ls;
 

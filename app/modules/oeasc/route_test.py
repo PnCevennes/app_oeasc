@@ -2,6 +2,11 @@ from flask import (
     Blueprint, render_template
 )
 
+from .declaration_sample import test
+
+from app.utils.utilssqlalchemy import json_resp
+
+
 bp = Blueprint('test', __name__)
 
 
@@ -30,3 +35,12 @@ def carte(type_code, id_areas):
     }
 
     return render_template('modules/oeasc/test/carte.html', data=data)
+
+
+@bp.route('/random/')
+@json_resp
+def random():
+    '''
+    test random
+    '''
+    return test()

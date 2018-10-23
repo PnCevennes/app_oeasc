@@ -31,6 +31,7 @@ from .repository import (
     get_description_droit,
     get_db,
     get_dict_nomenclature_areas,
+    get_foret_type,
 )
 
 
@@ -107,7 +108,7 @@ def get_listes_essences(declaration):
 
                 for e in listes_essences["degats"][key_]:
 
-                    elem = get_nomenclature_from_id(e, nomenclature)
+                    elem = get_nomenclature_from_id(e)
                     v.append(elem)
 
                 listes_essences["degats"][key_] = v
@@ -118,7 +119,7 @@ def get_listes_essences(declaration):
 
             for e in listes_essences[key]:
 
-                elem = get_nomenclature_from_id(e, nomenclature)
+                elem = get_nomenclature_from_id(e)
                 v.append(elem)
 
             listes_essences[key] = v
@@ -131,13 +132,17 @@ def copy_list(liste):
     return [elem for elem in liste]
 
 
-def check_proprietaire(declaration_dict, nomenclature):
+def check_proprietaire(declaration_dict):
     '''
         Dans le cas ou le propretaire est le declarant
     '''
 
+    nomenclature = nomenclature_oeasc()
+
     if declaration_dict['foret'].get('b_document', None) != False or declaration_dict['foret'].get('b_statut_public', None) != False:
         return -1
+
+    print("check_proprietaire")
 
     # si le proprietaire est déjà renseigné
     if declaration_dict['foret']['id_proprietaire']:
@@ -201,10 +206,12 @@ def get_foret_from_name(nom_foret):
     return data.as_dict(True)
 
 
-def check_foret(declaration_dict, nomenclature):
+def check_foret(declaration_dict):
     '''
         recherche une foret quand une aire de type ONF_FRT ou DGD est renseignée
     '''
+
+    nomenclature = nomenclature_oeasc()
 
     foret_dict = declaration_dict.get("foret", None)
 
@@ -218,6 +225,8 @@ def check_foret(declaration_dict, nomenclature):
     if id_foret or not areas_foret:
 
         return False
+
+    print('check_foret')
 
     v_type_code = ["OEASC_ONF_FRT", "OEASC_DGD"]
 
@@ -251,7 +260,7 @@ def check_foret(declaration_dict, nomenclature):
         return False
 
     foret['proprietaire'] = proprietaire.as_dict(True)
-    get_dict_nomenclature_areas(foret, nomenclature)
+    get_dict_nomenclature_areas(foret)
 
     declaration_dict["foret"] = foret
 
@@ -332,5 +341,5 @@ def utils_dict():
     d['print_commune'] = print_commune
     d['print_parcelle'] = print_parcelle
     d['get_areas_from_type_code'] = get_areas_from_type_code
-
+    d['get_foret_type'] = get_foret_type
     return d

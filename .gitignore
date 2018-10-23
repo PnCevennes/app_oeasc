@@ -1,6 +1,7 @@
 # server.py
 #OTHER/
 data/donnees_gestion_foret
+data/limites_pnc
 data/Zonage_OEASC
 data/csv/ref_geo
 remove/

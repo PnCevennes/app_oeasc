@@ -694,3 +694,14 @@ h2 {
 
   margin-bottom: 20px;
 }
+
+.dropdown-menu a {
+
+  font-size: 1em;
+}
+
+div.dropdown-menu {
+
+  z-index: 2000;
+
+}

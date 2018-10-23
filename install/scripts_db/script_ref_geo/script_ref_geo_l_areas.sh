@@ -90,17 +90,10 @@ INSERT INTO ref_geo.bib_areas_types (
         (306, 'COMMUNES OEASC', 'OEASC_COMMUNE', 'Communes de l''oeasc', 'OEASC', 2018, ''),
         (307, 'DEPARTEMENTS OEASC', 'OEASC_DEPARTEMENT', 'Départements de l''oeasc', 'OEASC', 2018, ''),
         (308, 'SECTION', 'OEASC_SECTION', 'Sections cadastrales pour l''oeasc', 'OEASC', 2018, ''),
+        (309, 'SECTION', 'OEASC_SECTION_RAW', 'Sections cadastrales pour l''oeasc', 'OEASC', 2018, ''),
         (320, 'OEASC Périmètre', 'OEASC_PERIMETRE', 'Périmetre de l''OEASC', 'OEASC', 2018, ''),
         (321, 'ZC_PNC', 'ZC_PERIMETRE', 'Zone Coeur du PNC', 'OEASC', 2018, ''),
-        (322, 'AA_PNC', 'AA_PERIMETRE', 'Aire d''adhésion du PNC', 'OEASC', 2018, ''),
-        (331, 'ONF Forêts', 'OEASC_ONF_FRT_RAW', 'Forêts ONF', 'ONF', 2018, ''),
-        (332, 'ONF Parcelles', 'OEASC_ONF_PRF_RAW', 'Parcelles ONF', 'ONF', 2018, ''),
-        (333, 'ONF UG', 'OEASC_ONF_UG_RAW', 'Unités de gestion ONF', 'ONF', 2018, ''),
-        (334, 'DGD', 'OEASC_DGD_RAW', 'Document de gestion durable', 'ONF', 2018, ''),
-        (335, 'CADASTRE', 'OEASC_CADASTRE_RAW', 'Cadastre pour l''oeasc', 'OEASC', 2018, ''),
-        (336, 'COMMUNES OEASC', 'OEASC_COMMUNE_RAW', 'Communes de l''oeasc', 'OEASC', 2018, ''),
-        (338, 'SECTION', 'OEASC_SECTION_RAW', 'Sections cadastrales pour l''oeasc', 'OEASC', 2018, '')
-        ;
+        (322, 'AA_PNC', 'AA_PERIMETRE', 'Aire d''adhésion du PNC', 'OEASC', 2018, '')        ;
 EOF
 
 echo "SELECT setval('ref_geo.l_areas_id_area_seq', COALESCE((SELECT MAX(id_area)+1 FROM ref_geo.l_areas), 1), false);"
@@ -112,7 +105,7 @@ cat << EOF
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
     SELECT id_type, CONCAT(SUBSTRING(area_code, 1, 2), '-', area_name), area_code, b.geom, centroid, 'OEASC', '', true FROM (
-        SELECT ref_geo.get_id_type('OEASC_COMMUNE_RAW') as id_type, a.area_name, a.area_code, a.geom, a.centroid, 'OEASC', '', true
+        SELECT ref_geo.get_id_type('OEASC_COMMUNE') as id_type, a.area_name, a.area_code, a.geom, a.centroid, 'OEASC', '', true
             FROM (
                 SELECT t.area_name, t.area_code, t.geom, t.centroid
                     FROM ref_geo.l_areas as t
@@ -176,7 +169,7 @@ do
 cat << EOF
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type(CONCAT('${name}', '_RAW')), CONCAT(${keys_label}), CONCAT(${keys}), geom, ST_CENTROID(geom), 'OEASC', '', true
+    SELECT ref_geo.get_id_type(CONCAT('${name}', '')), CONCAT(${keys_label}), CONCAT(${keys}), geom, ST_CENTROID(geom), 'OEASC', '', true
     FROM ref_geo.${table};
 
 EOF
@@ -201,17 +194,6 @@ ALTER TABLE ref_geo.l_areas ENABLE TRIGGER ALL;
 ALTER TABLE ref_geo.l_areas ADD COLUMN geom_4326 geometry(MultiPolygon,4326);
 
 EOF
-
-
-
-cat << EOF
-
--- add column geom_4326
-
-ALTER TABLE ref_geo.l_areas ADD COLUMN geom_4326 geometry(MultiPolygon,4326);
-
-EOF
-
 
 cat << EOF
 
@@ -254,8 +236,6 @@ SELECT CONCAT(insee_com, '-',section), CONCAT(nom_com, '-',section), ST_UNION(ST
 DROP TABLE IF EXISTS temp2;
 CREATE TABLE temp2(area_code character varying(256), area_name character varying(256), geom GEOMETRY);
 
-SELECT 'aa';
-
 INSERT INTO temp2(area_code, area_name, geom)
     SELECT area_code, area_name, ST_MULTI(ST_SIMPLIFY(geom, 50, true))
     FROM temp;
@@ -268,26 +248,26 @@ EOF
 
 cat << EOF
 
-SELECT ref_geo.simplify_by_type_code('OEASC_DGD_RAW', 'OEASC_DGD', 20);
-SELECT ref_geo.simplify_by_type_code('OEASC_COMMUNE_RAW', 'OEASC_COMMUNE', 20);
-SELECT ref_geo.simplify_by_type_code('OEASC_ONF_FRT_RAW', 'OEASC_ONF_FRT', 20);
+--SELECT ref_geo.simplify_by_type_code('OEASC_DGD_RAW', 'OEASC_DGD', 20);
+--SELECT ref_geo.simplify_by_type_code('OEASC_COMMUNE_RAW', 'OEASC_COMMUNE', 20);
+--SELECT ref_geo.simplify_by_type_code('OEASC_ONF_FRT_RAW', 'OEASC_ONF_FRT', 20);
 --SELECT ref_geo.simplify_by_type_code('OEASC_ONF_UG_RAW', 'OEASC_ONF_UG', 5);
 --SELECT ref_geo.simplify_by_type_code('OEASC_ONF_PRF_RAW', 'OEASC_ONF_PRF', 5);
 
-INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('OEASC_CADASTRE') as id_type, t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
-    FROM ref_geo.l_areas as t
-    WHERE t.id_type = ref_geo.get_id_type('OEASC_CADASTRE_RAW');
+--INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
+--    SELECT ref_geo.get_id_type('OEASC_CADASTRE') as id_type, t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
+--    FROM ref_geo.l_areas as t
+--    WHERE t.id_type = ref_geo.get_id_type('OEASC_CADASTRE_RAW');
 
-INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('OEASC_ONF_PRF') as id_type, t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
-    FROM ref_geo.l_areas as t
-    WHERE t.id_type = ref_geo.get_id_type('OEASC_ONF_PRF_RAW');
+--INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
+--    SELECT ref_geo.get_id_type('OEASC_ONF_PRF') as id_type, t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
+--    FROM ref_geo.l_areas as t
+--    WHERE t.id_type = ref_geo.get_id_type('OEASC_ONF_PRF_RAW');
 
-INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
-    SELECT ref_geo.get_id_type('OEASC_ONF_UG') as id_type, t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
-    FROM ref_geo.l_areas as t
-    WHERE t.id_type = ref_geo.get_id_type('OEASC_ONF_UG_RAW');
+--INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
+--    SELECT ref_geo.get_id_type('OEASC_ONF_UG') as id_type, t.area_name, t.area_code, t.geom, ST_TRANSFORM(t.geom, 4326), ST_CENTROID(t.geom), 'OEASC', '', true
+--    FROM ref_geo.l_areas as t
+--    WHERE t.id_type = ref_geo.get_id_type('OEASC_ONF_UG_RAW');
 
 
 
@@ -356,7 +336,7 @@ CREATE TABLE IF NOT EXISTS ref_geo.cor_old_communes(
 INSERT INTO ref_geo.cor_old_communes
 SELECT l.area_code, array_sort_unique(array_agg(t.area_code))
     FROM temp AS t, ref_geo.l_areas AS l
-    WHERE l.id_type = ref_geo.get_id_type('OEASC_COMMUNE_RAW')
+    WHERE l.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
     AND ST_INTERSECTS(t.geom, l.geom)
     AND ST_AREA(ST_INTERSECTION(t.geom, l.geom)) * ( 1.0 / ST_AREA(t.geom) + 1.0 / ST_AREA(l.geom) ) > 0.5
     GROUP BY l.area_code
@@ -391,9 +371,9 @@ CREATE TABLE ref_geo.cor_dgd_cadastre
 
 INSERT INTO ref_geo.cor_dgd_cadastre
     SELECT a.area_code, l.area_code
-        FROM ref_geo.l_areas as l, (SELECT area_code, ref_geo.intersect_rel_area(id_area, 'OEASC_CADASTRE_RAW', 0.05) as id_area_cadastre
+        FROM ref_geo.l_areas as l, (SELECT area_code, ref_geo.intersect_rel_area(id_area, 'OEASC_CADASTRE', 0.05) as id_area_cadastre
             FROM ref_geo.l_areas
-            WHERE id_type=ref_geo.get_id_type('OEASC_DGD_RAW'))a
+            WHERE id_type=ref_geo.get_id_type('OEASC_DGD'))a
         WHERE l.id_area = a.id_area_cadastre;
 
 
