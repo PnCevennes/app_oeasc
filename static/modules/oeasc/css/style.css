@@ -361,7 +361,10 @@ input[type=radio] {
 
 
 .flex-container-form > div {
-    border-left: solid 1px white;
+
+  margin-right: 10px;
+  margin-left: 10px;
+
 }
 
 .flex-container {
