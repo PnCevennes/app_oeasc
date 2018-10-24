@@ -11,6 +11,7 @@ body {
 
 
 /* header titre */
+
 .img-titre h1 {
   font-weight: bold;
   border-radius: 5px;
@@ -23,8 +24,6 @@ body {
 
 .img-titre {
 
-  /* background-image: url(/static/img/image_titre_1100x172.jpg); */
-  /* background-image: url(/static/img/image_titre.jpg); */
   background-image: url(/static/img/image_titre-2.jpg);
   background-repeat:no-repeat;
   background-position:right top;
@@ -84,6 +83,7 @@ body {
 }
 
 .footer {
+
   position: absolute;
   bottom: 0;
   width: 98%;
@@ -272,34 +272,43 @@ header div{
 
 .form-question {
 
-  min-width: 600px;
-  display: inline-block;
+  max-width: 800px;
+  /* display: inline-block; */
 
 }
 
 .centrage {text-align: center;}
 
+
+
 .form-group {
 
-  display: inline-block;
+  /* display: inline-block; */
   border: 1px solid lightblue;
-  min-width: 600px;
   /* width: 1000px; */
   padding: 5px 10px;
   border-radius: 10px;
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
   margin-right: auto;
   margin-left: auto;
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 10px 0 rgba(0, 0, 0, 0.19);
 
 }
 
+.form-text {
+
+  min-width: 600px;
+
+}
+
 body {
   margin: 0; /* pour éviter les marges */
 }
+
 .label-question {
 
   min-width: 300px;
+  margin-right: 20px;
 
 }
 
@@ -327,18 +336,33 @@ input[type=radio] {
 }
 
 
-.flex-container-form {
+.flex {
 
   display: flex;
   justify-content: center;
-  /* align-items: center; */
+  align-items: center;
   width: 100%;
 
+}
+
+.flex > div {
+
+  margin: 10px;
+}
+
+.flex-container-form {
+
+  display: flex;
+  justify-content: right: ;
+  /* align-items: center; */
+  width: 100%;
+  flex-wrap: wrap;
 }
 
 .flex-container-form > div {
 
   margin-right: 20px;
+  /* flex: 1 1 500px; */
 
 }
 
@@ -467,6 +491,18 @@ input[type=radio] {
 
 }
 
+.blue {
+
+  color: darkblue;
+
+}
+
+.big {
+
+  font-size: 2em;
+
+}
+
 div.progression {
 
   /* display: flex; */
@@ -555,7 +591,7 @@ div.progression {
   /* Fade in tooltip - takes 1 second to go from 0% to 100% opac: */
   opacity: 0;
   top: -200px;
-  transition: opacity 0.5s, top 0.5s;
+  transition: opacity 0.5s, top 0.5s, z-index 1s;
 
   box-shadow: 2px 4px 8px 2px rgba(0,0,0,0.2);
 
@@ -641,19 +677,22 @@ form {
   position: relative;
 }
 
-.bottom-right {
 
-  position: absolute;
-  bottom: 2px;
-  right: 2px;
+.align-right {
+
+  text-align:  right;
+  margin-bottom: 10px;
+}
+
+.lg {
+
+  color: lightgray;
 
 }
 
-.top-right {
+.dg {
 
-  position: absolute;
-  top: 52px;
-  right: 2px;
+  color: darkgray;
 
 }
 
@@ -684,6 +723,8 @@ tfoot input {
   width :  400px;
 
 }
+
+
 
 .text {
 

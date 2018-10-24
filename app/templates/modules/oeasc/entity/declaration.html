@@ -62,9 +62,9 @@
 
           <div class="form-group">
 
-            <h5>Commentaires</h5>
+            <h5>Commentairess</h5>
 
-            {{ declaration.commentaire or "" }}
+            {{ declaration.commentaire|nl2br or "" }}
 
           </div>
 
@@ -108,7 +108,7 @@
 
           <div class="form-group">
 
-            <h5>Peuplement- protection</h5>
+            <h5>Peuplement - protection</h5>
 
             <ul>
               <li><b>Existence de protection</b> : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}.</li>
@@ -131,7 +131,7 @@
               {{macros.list_nomenclatures('Type de paturage', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
               {{macros.list_nomenclatures('Fréquence du paturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
-              <li><b>Fréquence du paturage</b> : {{ utils.nopar(declaration.id_nomenclature_peuplement_paturage_frequence.label_fr) | lower }}. </li>
+              <li><b>Fréquence du paturage</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | nopar | lower }}. </li>
 
               {%- endif %}
 
@@ -151,7 +151,8 @@
             </ul>
 
           </div>
-        </div>      
+
+        </div>
 
       </div>
 

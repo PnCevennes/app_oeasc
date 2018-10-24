@@ -9,7 +9,9 @@ from config import config
 
 from app.modules.oeasc.utils import utils_dict
 
-""" Serveur de l'application Suivi autorisations """
+import re
+
+from jinja2 import evalcontextfilter, Markup, escape
 
 
 class ReverseProxied(object):
@@ -98,3 +100,28 @@ if __name__ == '__main__':
 
 
 app.jinja_env.globals["utils"] = utils_dict()
+
+
+_paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
+
+
+@app.template_filter()
+@evalcontextfilter
+def nl2br(eval_ctx, value):
+    result = u'\n\n'.join(u'<p>%s</p>' % p.replace('\n', '<br>\n') \
+        for p in _paragraph_re.split(escape(value)))
+    if eval_ctx.autoescape:
+        result = Markup(result)
+    return result
+
+
+@app.template_filter()
+@evalcontextfilter
+def nopar(eval_ctx, value):
+
+    if not value:
+
+        return ""
+
+    s2 = re.sub(r"\(.*\)", "", value)
+    return s2

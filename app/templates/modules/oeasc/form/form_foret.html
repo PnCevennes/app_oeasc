@@ -4,8 +4,9 @@
 
   <h4>Statut de la forêt</h4>
 
+<div>
+  <div class="center">
   <div class="form-group">
-
   {{ macros.choix("Public", "Privé", 'b_statut_public' ,'Statut de la forêt', object=foret) }}
 
   {%- if foret.b_statut_public == true or foret.b_statut_public == false %}
@@ -24,9 +25,10 @@
 
 
   {%- endif %}
-
+</div>
   </div>
-  
+</div>
+
   {%- if foret.b_statut_public == false %}
 
   <p><i>Document de gestion durable = plan simple de gestion (PSG) ou code de bonnes pratiques sylvicoles (CBPS)</i></p>
@@ -35,7 +37,9 @@
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
+<div class="align-right">
+  <input type=submit value=Suivant class="btn btn-success">
+</div>
 
 </form>
 
@@ -106,8 +110,9 @@
 
   {%- endif %}
 
-
-  <div class="form-group">
+<div class="center">
+<!-- <div> -->
+  <div class="form-group form-text">
 
   {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required='', disabled=disabled) }}
 
@@ -115,9 +120,15 @@
 
   </div>
 
+</div>
+
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
+  <div class="align-right">
+
+    <input type=submit value=Suivant class="btn btn-success">
+
+  </div>
 
 </form>
 

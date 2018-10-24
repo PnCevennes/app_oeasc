@@ -23,8 +23,8 @@
 
         <p>Pour les forêts publiques, la forêt correspond au territoire couvert par l’aménagement forestier.</p>
 
-      <p>Pour les forêts privées, la forêt correspond aux parcelles forestières appartenant à un même propriétaire, situées sur une même commune ou des communes contigües, ou à celles faisant l’objet d’un plan simple de gestion (PSG) ou d’un Code de bonnes pratiques sylvicoles (CBPS).</p>
-    </li>
+        <p>Pour les forêts privées, la forêt correspond aux parcelles forestières appartenant à un même propriétaire, situées sur une même commune ou des communes contigües, ou à celles faisant l’objet d’un plan simple de gestion (PSG) ou d’un Code de bonnes pratiques sylvicoles (CBPS).</p>
+      </li>
 
       <li>
         <p>Celui du <b>propriétaire</b> de la forêt concernée.</p> 
@@ -33,7 +33,11 @@
         <p>Le propriétaire peut être une personne physique (propriétaire privé), une personne morale de droit public (État, collectivité territoriale, établissement public) ou une personne morale de droit privé (association, entreprise commerciale, groupement foncier agricole ou forestier, société civile, etc...).</p>
 
       </li>
-      <li>Celui du <b>peuplement forestier</b> subissant les dégâts. Un <b>peuplement</b> est défini comme une population d’arbres présentant une <b>structure</b> (hauteur et diamètre des arbres) et une <b>composition</b> (essences) relativement <b>homogènes</b> sur un espace déterminé.</li>
+
+      <li>
+        <p>Celui du <b>peuplement forestier</b> subissant les dégâts.</p> 
+        <p>Un <b>peuplement</b> est défini comme une population d’arbres présentant une <b>structure</b> (hauteur et diamètre des arbres) et une <b>composition</b> (essences) relativement <b>homogènes</b> sur un espace déterminé.</p>
+      </li>
     </ul>
 
     <p><b>Un formulaire doit être renseigné <u>pour chaque peuplement</u></b> pour lequel vous souhaitez signaler une alerte. Si plusieurs peuplements sont touchés par des dégâts de gibier (au sein d’une même foret ou non), nous vous remercions de bien vouloir renseigner plusieurs formulaires (un pour chaque peuplement).</p>
@@ -41,7 +45,7 @@
 
     <p>Lors du renseignement du formulaire, des info-bulles vous fourniront des précisions complémentaires afin de vous aider à répondre aux questions posées. En cas de doute ou d’incompréhension, nous vous invitons à contacter l’une des personnes référentes suivantes :</p>
 
-</div>
+  </div>
   <div class="col-md-12">
     <table class="table">
       <thead class="thead-dark">
@@ -88,26 +92,42 @@
       </tbody>
 
     </table>
-</div>
+  </div>
+
   <div class="col-md-12 text">
+
     <hr>
+
     <div>
+
       <div class="form-group">
-        
-    <p class=red><span class="fas fa-exclamation-triangle"></span> La notion d’équilibre sylvo-cynégétique étant étroitement liée à la pérennité économique des activités sylvicoles, seules les forêts à vocation de production peuvent faire l’objet d’une alerte.</p>
+
+        <div class="flex">
+
+          <div>
+            <span class="big red fas fa-exclamation-triangle"></span> 
+          </div>
+
+          <div>
+            <p class=red>La notion d’équilibre sylvo-cynégétique étant étroitement liée à la pérennité économique des activités sylvicoles, seules les forêts à vocation de production peuvent faire l’objet d’une alerte.</p>
+          </div>
+
+        </div>
+
       </div>
 
-    </div>    
-    <hr>
+      <hr>
 
-<div class="">
-  
-    <p><b>Pour signaler un dégât en forêt, cliquer <a href="{{ url_for('oeasc.modifier_declaration')}}">ici</a> </b></p>
-</div>
+      <div class="">
+
+        {% set href=url_for('oeasc.modifier_declaration')%}
+        <button class='btn btn-primary' onclick="location.href='{{href}}'">Signaler un dégât en forêt</button>
+
+      </div>
+    </div>
 
   </div>
 
 </div>
-
 {%- endblock %}
 

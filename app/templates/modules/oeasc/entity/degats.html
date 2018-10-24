@@ -25,7 +25,7 @@
  #}
         {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},
         {{ degat_essence.id_nomenclature_degat_gravite.label_fr | lower}},
-        {{ utils.nopar(degat_essence.id_nomenclature_degat_anteriorite.label_fr) | lower}}.
+        {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr | nopar | lower}}.
 
         {% endif %}
 

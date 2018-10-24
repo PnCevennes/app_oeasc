@@ -304,16 +304,6 @@ def print_parcelle(s_parcelle):
     return s_parcelle
 
 
-def nopar(s):
-
-    if not s:
-
-        return ""
-
-    s2 = re.sub(r"\(.*\)", "", s)
-    return s2
-
-
 def arrays_to_csv(filename, data, columns, separator):
 
     outdata = [separator.join(columns)]
@@ -370,5 +360,4 @@ def utils_dict():
     d['print_parcelle'] = print_parcelle
     d['get_areas_from_type_code'] = get_areas_from_type_code
     d['get_foret_type'] = get_foret_type
-    d['nopar'] = nopar
     return d

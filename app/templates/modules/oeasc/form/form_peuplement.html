@@ -51,8 +51,6 @@
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
-  {# <input type=submit value=Suivant class="btn btn-success bottom-right"> #}
-
 </form>
 
 
@@ -60,113 +58,151 @@
 
   <h4>Description du peuplement : essence(s), origine, structure, maturité</h4>
 
-  <div class="form-group">
-
-    <div>
-      {{ macros.select_essence("id_nomenclature_peuplement_essence_principale", nomenclature, titre="Essence objectif principale", object=declaration, listes_essences=listes_essences, afficher_type_essence="oui") }}
-    </div>
-
-    <div>
-
-      {{ macros.select_essence("nomenclatures_peuplement_essence_secondaire", nomenclature, titre="Essence(s) objectif secondaire(s) - 3 essences maximum", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
-    </div>
-    <div>
-      {{ macros.select_essence("nomenclatures_peuplement_essence_complementaire", nomenclature, titre="Essence(s) complémentaires(s) - 3 essences maximum", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
-    </div>
-
-  </div>
-  <br>
-
+  <div class="center">
 
     <div class="form-group">
-        {{ macros.radio_nomenclature("id_nomenclature_peuplement_origine", nomenclature, "OEASC_PEUPLEMENT_ORIGINE", "radio", "Origine du peuplement", object=declaration) }}
-        {{ macros.radio_nomenclature("id_nomenclature_peuplement_type", nomenclature, "OEASC_PEUPLEMENT_TYPE", "radio", "Type de peuplement", object=declaration) }}
-      {%- if  declaration.id_nomenclature_peuplement_type.mnemonique != "F. irr." %}
-        {{ macros.radio_nomenclature("nomenclatures_peuplement_maturite", nomenclature, "OEASC_PEUPLEMENT_MATURITE", "checkbox", "Maturité du peuplement", object=declaration) }}
-      {%- endif %}
+
+      <div>
+        {{ macros.select_essence("id_nomenclature_peuplement_essence_principale", nomenclature, titre="Essence objectif principale", object=declaration, listes_essences=listes_essences, afficher_type_essence="oui") }}
+      </div>
+
+      <div>
+
+        {{ macros.select_essence("nomenclatures_peuplement_essence_secondaire", nomenclature, titre="Essence(s) objectif secondaire(s) - 3 essences maximum", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
+      </div>
+      <div>
+        {{ macros.select_essence("nomenclatures_peuplement_essence_complementaire", nomenclature, titre="Essence(s) complémentaires(s) - 3 essences maximum", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
+      </div>
+
+    </div>
+  </div>
+
+  <br>
+
+  <div class="center">
+
+    <div class="form-group form-text">
+
+      <div class="flex-container-form">
+
+        <div>
+          {{ macros.radio_nomenclature("id_nomenclature_peuplement_origine", nomenclature, "OEASC_PEUPLEMENT_ORIGINE", "radio", "Origine du peuplement", object=declaration) }}
+        </div>
+
+        <div>
+          {{ macros.radio_nomenclature("id_nomenclature_peuplement_type", nomenclature, "OEASC_PEUPLEMENT_TYPE", "radio", "Type de peuplement", object=declaration) }}
+        </div>
+
+        <div>
+          {%- if  declaration.id_nomenclature_peuplement_type.mnemonique != "F. irr." %}
+          {{ macros.radio_nomenclature("nomenclatures_peuplement_maturite", nomenclature, "OEASC_PEUPLEMENT_MATURITE", "checkbox", "Maturité du peuplement", object=declaration) }}
+          {%- endif %}
+        </div>
+
+      </div>
+
     </div>
 
-  <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
-
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
-
-</form>
-
-
-<form id="form_peuplement_protection">
-
-  <h4>Protection du peuplement</h4>
-
-  <div class="form-group">
-
-    {{ macros.choix("Oui", "Non", 'b_peuplement_protection_existence' ,'Existence de dispositifs de protection contre les ongulés sauvages', object=declaration) }}
-
-    {%- if declaration['b_peuplement_protection_existence'] %}
-
-    {{ macros.radio_nomenclature("nomenclatures_peuplement_protection_type", nomenclature, "OEASC_PEUPLEMENT_PROTECTION_TYPE", "checkbox", "Type de protection", object=declaration) }}
-
-    {%- endif %}
   </div>
 
-  <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
+    <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
+    <div class="align-right">
+      <input type=submit value=Suivant class="btn btn-success">
+    </div>
 
-</form>
+  </form>
 
 
-<form id="form_peuplement_paturage">
+  <form id="form_peuplement_protection">
 
-  <h4>Pâturage domenstique</h4>
-  <div class="form-group">
+    <h4>Protection du peuplement</h4>
 
-    {{ macros.choix("Oui", "Non", 'b_peuplement_paturage_presence' ,'Présence de pâturage domestique', object=declaration) }}
+    <div class="center">
+      <div class="form-group form-text">
 
-    {%- if declaration['b_peuplement_paturage_presence'] %}
+        {{ macros.choix("Oui", "Non", 'b_peuplement_protection_existence' ,'Existence de dispositifs de protection contre les ongulés sauvages', object=declaration) }}
 
-    <div class="flex-container-form">
-      <div>
+        {%- if declaration['b_peuplement_protection_existence'] %}
 
-        {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_type", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "checkbox", "Type de pâturage", object=declaration) }}
-      </div>
+        {{ macros.radio_nomenclature("nomenclatures_peuplement_protection_type", nomenclature, "OEASC_PEUPLEMENT_PROTECTION_TYPE", "checkbox", "Type de protection", object=declaration) }}
 
-      <div>
-
-        {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_statut", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "checkbox", "Statut du pâturage", object=declaration) }}
-      </div>
-
-      <div>
-
-        {{ macros.radio_nomenclature("id_nomenclature_peuplement_paturage_frequence", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "radio", "Fréquence du pâturage", object=declaration) }}
+        {%- endif %}
       </div>
     </div>
 
-    {%- endif %}
+    <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
-  </div>
+    <div class="align-right">
+      <input type=submit value=Suivant class="btn btn-success">
+    </div>
 
-  <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
-
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
-
-
-
-</form>
+  </form>
 
 
-<form id="form_peuplement_espece">
+  <form id="form_peuplement_paturage">
 
-  <h4>Autres</h4>
-  <div class="form-group">
+    <h4>Pâturage domestique</h4>
 
-    {{ macros.radio_nomenclature("id_nomenclature_peuplement_acces", nomenclature, "OEASC_PEUPLEMENT_ACCES", "radio", "Accessibilité du peuplement", object=declaration) }}
+    <div class="center">
 
-    {{ macros.radio_nomenclature("nomenclatures_peuplement_espece", nomenclature, "OEASC_PEUPLEMENT_ESPECE", "checkbox", "Espèces d’ongulés sauvages dont la présence est avérée sur le peuplement (observations directes ou indices de présence)", object=declaration) }}
+      <div class="form-group">
 
-  </div>
+        {{ macros.choix("Oui", "Non", 'b_peuplement_paturage_presence' ,'Présence de pâturage domestique', object=declaration) }}
 
-  <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
+        {%- if declaration['b_peuplement_paturage_presence'] %}
 
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
+        <div class="flex-container-form">
 
-</form>
+          <div>
+            {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_type", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "checkbox", "Type de pâturage", object=declaration) }}
+          </div>
+
+          <div>
+            {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_statut", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "checkbox", "Statut du pâturage", object=declaration) }}
+          </div>
+
+          <div>
+            {{ macros.radio_nomenclature("id_nomenclature_peuplement_paturage_frequence", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "radio", "Fréquence du pâturage", object=declaration) }}
+          </div>
+
+        </div>
+
+        {%- endif %}
+
+      </div>
+
+    </div>
+
+    <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
+
+    <div class="align-right">
+      <input type=submit value=Suivant class="btn btn-success">
+    </div>
+
+
+
+  </form>
+
+
+  <form id="form_peuplement_espece">
+
+    <h4>Autres</h4>
+    <div class="center">
+
+      <div class="form-group">
+
+        {{ macros.radio_nomenclature("id_nomenclature_peuplement_acces", nomenclature, "OEASC_PEUPLEMENT_ACCES", "radio", "Accessibilité du peuplement", object=declaration) }}
+
+        {{ macros.radio_nomenclature("nomenclatures_peuplement_espece", nomenclature, "OEASC_PEUPLEMENT_ESPECE", "checkbox", "Espèces d’ongulés sauvages dont la présence est avérée sur le peuplement (observations directes ou indices de présence)", object=declaration) }}
+
+      </div>
+    </div>
+
+    <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
+
+    <div class="align-right">
+      <input type=submit value=Suivant class="btn btn-success">
+    </div>
+
+  </form>
