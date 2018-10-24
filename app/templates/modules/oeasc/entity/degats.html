@@ -15,13 +15,17 @@
       <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.mnemonique == 'ABS' else " :"}}
 
         {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
-        <ul>
+{#         <ul>
 
           <li><i>étendue</i> : {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},</li>
           <li><i>gravité</i> : {{ degat_essence.id_nomenclature_degat_gravite.label_fr | lower}},</li>
           <li><i>antériorité</i> : {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr | lower}}.</li>
 
         </ul>
+ #}
+        {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},
+        {{ degat_essence.id_nomenclature_degat_gravite.label_fr | lower}},
+        {{ utils.nopar(degat_essence.id_nomenclature_degat_anteriorite.label_fr) | lower}}.
 
         {% endif %}
 

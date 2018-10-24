@@ -43,18 +43,16 @@
       <input id="nomenclatures_degat_type-{{ loop.index0 }}" name="nomenclatures_degat_type" type="checkbox" value="{{ elem.id_nomenclature }}" {{ns.checked}} data-id-degat="{{ns.id_degat}}" >
       <label for="nomenclatures_degat_type-{{ loop.index0 }}">{{ elem.label_fr }}</label>
 
-
       {%- if ns.ind != -1 and mnemonique_degat_type != "P/C" %}
-
       {%- set degat = degats[ns.ind] %}
 
-      <div class="red degat-essence" style="display: {{ns.display_form}}" >
+<!--       <div class="red degat-essence" >
         {%- if mnemonique_degat_type != "ABS" %}
         Indiquez les essences touchées, et pour chacune d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis validez.
         {%- else %}
         Indiquez les essences concernées.
         {%- endif %}
-      </div>
+      </div> -->
 
       <div class="degat-essence custom-control">
 
@@ -121,6 +119,14 @@
 
           {%- set add = "_" + elem.id_nomenclature|string + "_" + loop.index0|string %}
 
+          <div class="red degat-essence" >
+            {%- if mnemonique_degat_type != "ABS" %}
+            Indiquez les essences touchées, et pour chacune d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis validez.
+            {%- else %}
+            Indiquez les essences concernées.
+            {%- endif %}
+          </div>
+
           <div class="degat-essence">
 
             <div>{{ macros.select_essence("id_nomenclature_degat_essence", nomenclature, object=degat_essence, listes_essences=listes_essences, id_nomenclature_degat_type=degat.id_nomenclature_degat_type.id_nomenclature, required="required") }}</div>
@@ -153,6 +159,8 @@
 
             </div>
           </div>
+
+
 
         </div>
 
@@ -188,6 +196,6 @@
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
-  <input {{ ns.input_disabled }} id="input_degat_essence" type=submit value=Suivant class="btn btn-success float-right">
+  <input {{ ns.input_disabled }} id="input_degat_essence" type=submit value=Suivant class="btn btn-success float-right" title="{{'Veuillez valider les dégats avant de passer à la suite' if ns.input_disabled!='' else ''}}">
 
 </form>

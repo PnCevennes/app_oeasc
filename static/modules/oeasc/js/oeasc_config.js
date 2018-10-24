@@ -145,7 +145,7 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_SECTION = {
     name: "OEASC_SECTION",
-    label: "Section",
+    label: "Section cadastrale",
     keys: [ "area_name" ],
     color: color.OEASC_SECTION,
     pane: 1,
@@ -153,7 +153,7 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_CADASTRE = {
     name: "OEASC_CADASTRE",
-    label: "Cadastre",
+    label: "Parcelle cadastrale",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_CADASTRE,
     pane: 2,
@@ -195,6 +195,7 @@ list.data=[
 "OEASC_ONF_UG",
 "OEASC_DGD",
 "OEASC_COMMUNE",
+"OEASC_SECTION",
 "OEASC_CADASTRE",
 ];
 

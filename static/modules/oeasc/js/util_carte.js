@@ -431,7 +431,7 @@ $(document).ready(function() {
   };
 
 
-  var f_add_feature_collection_to_map = function(map, name, b_zoom, areas_container=null) {
+  var f_add_feature_collection_to_map = function (map, name, b_zoom, areas_container=null) {
 
     var d_ls = M.d_ls;
 
@@ -661,6 +661,8 @@ $(document).ready(function() {
     pane = (type=="foret")? 1 : 2;
     color = M.color[type];
 
+    $('#legend-' + name).show()
+
     $.ajax({
 
       type: "POST",
@@ -690,8 +692,10 @@ $(document).ready(function() {
           });
 
           var fp = layer.feature.properties;
-
-          $("#" + map.map_name + " #infos_" + type).append("<div>" + fp.area_name + "</div>")
+          var type_code = M.get_type_code(fp.id_type);
+          $('#legend-' + type_code).show();
+          $('#legend-' + type_code + ' > i').css('background-color', M.color.foret);
+          // $("#" + map.map_name + " #infos_" + type).append("<div>" + fp.area_name + "</div>")
 
         });
 

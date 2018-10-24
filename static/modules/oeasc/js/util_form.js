@@ -74,6 +74,7 @@ $(document).ready(function() {
 
   var initialiser_tooltips = function() {
 
+
     $(".custom-tooltip").each(function(index, elem) {
 
       var $elem = $(elem);
@@ -84,7 +85,12 @@ $(document).ready(function() {
 
     });
 
+    $(".custom-tooltip").hover(function(e) {e.preventDefault()});
+
   };
+
+
+
 
   $(".accordion").each(function(i,e){
 

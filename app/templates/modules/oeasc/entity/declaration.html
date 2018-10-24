@@ -131,7 +131,7 @@
               {{macros.list_nomenclatures('Type de paturage', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
               {{macros.list_nomenclatures('Fréquence du paturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
-              <li><b>Fréquence du paturage</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | lower }}. </li>
+              <li><b>Fréquence du paturage</b> : {{ utils.nopar(declaration.id_nomenclature_peuplement_paturage_frequence.label_fr) | lower }}. </li>
 
               {%- endif %}
 

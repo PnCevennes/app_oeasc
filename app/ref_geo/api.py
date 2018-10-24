@@ -6,11 +6,9 @@ from flask import (
 from .models import (
     TAreas as TA,
     LAreas as LA,
+    BibAreasType,
 )
 
-import time
-
-from sqlalchemy.sql import func
 
 from sqlalchemy import and_, text
 
@@ -22,15 +20,21 @@ from app.utils.utilssqlalchemy import json_resp, as_dict
 
 from geojson import FeatureCollection
 
-
 from .repository import get_id_type
 
 
-def f_area_code(area_code, n):
-    return '-'.join(str(area_code).split('-')[:n])
-
-
 bp = Blueprint('ref_geo', __name__)
+
+
+@bp.route('type_codes_oeasc')
+@json_resp
+def get_type_code_oeasc():
+    '''
+        renvoie les element de bibareastype relatifs à l'OEASC
+    '''
+    data = DB.session.query(BibAreasType).filter(BibAreasType.ref_name.in_(('OEASC', 'ONF')))
+
+    return [d.as_dict() for d in data]
 
 
 @bp.route('get_id_type/<string:type_code>')

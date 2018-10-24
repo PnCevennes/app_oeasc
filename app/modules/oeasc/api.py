@@ -88,6 +88,8 @@ def get_form_declaration():
 
     data = request.get_json()
 
+    print(data)
+
     nomenclature = nomenclature_oeasc()
 
     declaration_dict = data['declaration']
@@ -190,6 +192,7 @@ def declaration_areas(id_declaration, type):
     '''
         renvoie les aires forêt (Commune, Section, DGD, ONF_FRT) ou localisation (ONF_PRF, ONF_UG, CADASTRE).
     '''
+
     declaration = DB.session.query(TDeclaration).filter(TDeclaration.id_declaration == id_declaration).first()
 
     id_foret = declaration.id_foret

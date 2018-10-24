@@ -13,6 +13,8 @@ from app.ref_geo.repository import (
     get_id_type,
 )
 
+import re
+
 from pypnusershub.db.models import User
 
 from .models import (
@@ -142,11 +144,27 @@ def check_proprietaire(declaration_dict):
     if declaration_dict['foret'].get('b_document', None) != False or declaration_dict['foret'].get('b_statut_public', None) != False:
         return -1
 
-    print("check_proprietaire")
+    print("check_proprietaire", declaration_dict['foret']['proprietaire'] )
 
     # si le proprietaire est déjà renseigné
     if declaration_dict['foret']['id_proprietaire']:
 
+        return -1
+
+    proprietaire_dict = declaration_dict['foret']['proprietaire']
+
+    # si les champs sont déjà tous remplis
+    cond = proprietaire_dict["nom_proprietaire"] \
+        and proprietaire_dict["email"] \
+        and proprietaire_dict["id_declarant"] \
+        and proprietaire_dict["adresse"] \
+        and proprietaire_dict["s_code_postal"] \
+        and proprietaire_dict["s_commune_proprietaire"] \
+        and proprietaire_dict["id_nomenclature_proprietaire_type"]
+
+    if cond:
+
+        print('cond')
         return -1
 
     if not declaration_dict['id_nomenclature_proprietaire_declarant']:
@@ -187,9 +205,9 @@ def check_proprietaire(declaration_dict):
             proprietaire_dict["nom_proprietaire"] = user_dict["nom_role"] + " " + user_dict["prenom_role"]
             proprietaire_dict["email"] = user_dict["email"]
             proprietaire_dict["id_declarant"] = user_dict["id_role"]
-            proprietaire_dict["id_nomenclature_proprietaire_type"] = get_nomenclature('mnemonique', 'PT_PRI', 'OEASC_PROPRIETAIRE_TYPE', nomenclature, 'id_nomenclature')
+            proprietaire_dict["id_nomenclature_proprietaire_type"] = get_nomenclature('mnemonique', 'PT_PRI', 'OEASC_PROPRIETAIRE_TYPE')
             declaration_dict['foret']['proprietaire'] = proprietaire_dict
-
+            print("get user", proprietaire_dict)
             return 1
 
     return -1
@@ -286,6 +304,16 @@ def print_parcelle(s_parcelle):
     return s_parcelle
 
 
+def nopar(s):
+
+    if not s:
+
+        return ""
+
+    s2 = re.sub(r"\(.*\)", "", s)
+    return s2
+
+
 def arrays_to_csv(filename, data, columns, separator):
 
     outdata = [separator.join(columns)]
@@ -342,4 +370,5 @@ def utils_dict():
     d['print_parcelle'] = print_parcelle
     d['get_areas_from_type_code'] = get_areas_from_type_code
     d['get_foret_type'] = get_foret_type
+    d['nopar'] = nopar
     return d

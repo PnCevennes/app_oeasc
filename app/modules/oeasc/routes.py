@@ -31,7 +31,6 @@ bp = Blueprint('oeasc', __name__)
 @fnauth.check_auth(4, False, 'oeasc/login?redirect="oeasc/users"')
 def users():
     '''
-        page de connection
 
     '''
 
@@ -44,7 +43,6 @@ def users():
 @fnauth.check_auth(1, False, 'oeasc/login?redirect="oeasc/user"')
 def user():
     '''
-        page de connection
 
     '''
 
@@ -127,6 +125,16 @@ def signalement_degats_forestiers():
         accueil pour les signalement de degat forestiers
     '''
     return render_template('modules/oeasc/pages/systeme_alerte.html')
+
+
+@bp.route('informations_declaration')
+@fnauth.check_auth(1, False, 'oeasc/login?redirect="oeasc/informations_declaration"')
+def informations_declaration():
+    '''
+        page d'informations, en prélude au formulaire
+    '''
+
+    return render_template("modules/oeasc/pages/informations_declaration.html")
 
 
 @bp.route('/modifier_ou_creer_declaration/', defaults={'id_declaration': -1})
