@@ -4,25 +4,25 @@
 
   {%- if foret["b_document"]==true  %}
 
-    {%- if foret["b_statut_public"]==true  %}
+  {%- if foret["b_statut_public"]==true  %}
 
-    <p> Les informations concernant le propriétaire sont issues de données provenant de l'ONF et relatives aux forêts publiques ayant un régime forestier
+  <p> Les informations concernant le propriétaire sont issues de données provenant de l'ONF et relatives aux forêts publiques ayant un régime forestier
 
-      .<br>
+    .<br>
 
-    Veuillez vérifier l'exactitude des données et appuyer sur suivant.</p>
+  Veuillez vérifier l'exactitude des données et appuyer sur suivant.</p>
 
-    <p>Si vous voulez signaler une erreur, vous pouvez envoyer un email à baptiste.algoet@cevennes-parcnational.fr.</p>
+  <p>Si vous voulez signaler une erreur, vous pouvez envoyer un email à baptiste.algoet@cevennes-parcnational.fr.</p>
 
-    {%- else %}
+  {%- else %}
 
-      <p> Les informations concernant le propriétaire sont issues de données relatives aux forêts privées ayant un document de gestion. Elle ne peuvent pas être communiquées dans le cadre de l'alerte OEASC.
+  <p> Les informations concernant le propriétaire sont issues de données relatives aux forêts privées ayant un document de gestion. Elle ne peuvent pas être communiquées dans le cadre de l'alerte OEASC.
 
-      .<br>
+    .<br>
 
-    Veuillez appuyer sur Suivant.</p>
+  Veuillez appuyer sur Suivant.</p>
 
-    {%- endif %}
+  {%- endif %}
 
   {%- endif %}
 
@@ -53,42 +53,56 @@
 
   <br>
 
-    {%- set  required="required"%}
+  {%- set  required="required"%}
 
   {%- else%}
 
-    {%- set  required=""%}
+  {%- set  required=""%}
 
   {%- endif %}
 
-  <div class="form-group">
-    {{ macros.input_text("nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire, required=required, disabled=disabled) }}
+  <div class="row">
+
+    <div class="col-md-6">
+
+      <div class="form-group">
+        {{ macros.input_text("nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire, required=required, disabled=disabled) }}
+      </div>
+
+      <br>
+
+      <div class="form-group">
+        {{ macros.input_tel("telephone", "Téléphone", proprietaire, required=required, disabled=disabled) }}
+      </div>
+
+      <br>
+
+      <div class="form-group">
+        {{ macros.input_email("email", "Email", proprietaire, required=required, disabled=disabled) }}
+      </div>
+
+      <br>
+
+    </div>
+
+    <div class="col-md-6">
+
+      <div class="form-group">
+
+        <h5>Adresse</h5>
+
+        {{ macros.input_text("adresse", "n°, rue, hameau, lieu-dit", proprietaire, required=required, disabled=disabled) }}
+        {{ macros.input_cp("s_code_postal", "Code postal", proprietaire, required=required, disabled=disabled) }}
+        {{ macros.input_text("s_commune_proprietaire", "Commune", proprietaire, required=required, disabled=disabled) }}
+
+      </div>
+
+    </div>
+
   </div>
-
-  <br>
-
-  <div class="form-group">
-    {{ macros.input_tel("telephone", "Téléphone", proprietaire, required=required, disabled=disabled) }}
+  
+  <div class="align-right">
+    <input type=submit value=Suivant class="btn btn-success">
   </div>
-
-  <br>
-
-  <div class="form-group">
-    {{ macros.input_email("email", "Email", proprietaire, required=required, disabled=disabled) }}
-  </div>
-
-  <br>
-
-  <div class="form-group">
-
-    <h5>Adresse</h5>
-
-    {{ macros.input_text("adresse", "n°, rue, hameau, lieu-dit", proprietaire, required=required, disabled=disabled) }}
-    {{ macros.input_cp("s_code_postal", "Code postal", proprietaire, required=required, disabled=disabled) }}
-    {{ macros.input_text("s_commune_proprietaire", "Commune", proprietaire, required=required, disabled=disabled) }}
-
-  </div>
-
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
 
 </form>

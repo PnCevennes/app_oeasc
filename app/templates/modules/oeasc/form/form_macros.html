@@ -49,7 +49,7 @@
     {%- set ns = namespace() %}
 
     {%- if titre != "" %}
-      <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+      <label class="label-question" for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
     {%- endif %}
 
     {%- set ns.select_options="" %}
@@ -61,7 +61,6 @@
     {%- endif %}
 
     <div class={{"select-essence" if afficher_type_essence!="" else ""}}>
-      {# <select data-dropup-auto="false" name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit"> #}
       <select data-dropup-auto="true" name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
 
     {%- if multi == "multi" %}
@@ -250,7 +249,9 @@
 
   <div id="{{ name | upper }}" class="form-question">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
-    <input class="form-control" type="tel" pattern="[0-9]{10}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} >
+    <input class="form-control" type="tel" pattern="[0-9]{10}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} 
+    oninvalid="this.setCustomValidity('Entrer un numéro à 10 chiffres, ex 0123456789')"
+    oninput="this.setCustomValidity('')">
   </div>
 
 </div>
@@ -271,10 +272,12 @@
 
 {%- macro input_cp(name, titre="", object=None, required="required", disabled="") %}
 <div>
-  
+
   <div id="{{ name | upper }}" class="form-question">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label><br>
-    <input class="form-control" type="text" pattern="[0-9]{5}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} >
+    <input class="form-control" type="text" pattern="[0-9]{5}" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }}
+    oninvalid="this.setCustomValidity('Entrer un numéro à 5 chiffres, ex 54321')"
+    oninput="this.setCustomValidity('')">
   </div>
 
 </div>
@@ -283,10 +286,10 @@
 
 {%- macro input_double(name, titre="", object=None, required="required", disabled="") %}
 <div>
-  
+
   <div id="{{ name | upper }}">
     <label for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" }}</span></label><br>
-    <input class="form-control" type="number" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} >
+    <input class="form-control" type="number" onchange="(function(el){el.value=parseFloat(el.value).toFixed(0);})(this)" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }} >
   </div>
 
 </div>
@@ -326,7 +329,7 @@
 
     {%- for elem in nomenclatures %}
 
-        <b>{{titre + " : " if loop.first}}</b>{{elem.label_fr | lower}}{{ "," if not loop.last else "." }}
+        <b>{{titre + " : " if loop.first}}</b>{{elem.label_fr | nopar | lower}}{{ "," if not loop.last else "." }}
     {%- endfor %}
 
   </{{balise}}>
@@ -407,7 +410,7 @@
 
         {% if type_code in ['OEASC_SECTION', 'OEASC_ONF_UG'] %}
 
-        <button type=button id="reinit_container" class="btn btn-danger">Réinitialiser les {{ dict_label_container[areas_container[0]["type_code"]] | lower }}</button>
+        <button type=button id="reinit_container" class="btn btn-danger">Revenir au choix des {{ dict_label_container[areas_container[0]["type_code"]] | lower }}</button>
 
         {% endif %}
 

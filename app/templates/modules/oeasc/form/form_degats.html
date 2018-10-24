@@ -7,9 +7,12 @@
 
   <h4>Caractérisation des dégats</h4>
 
+  <div>
+  <!-- <div class="center"> -->
+    
   <div id="NOMENCLATURE_DEGAT_TYPE" class="checkbox-group-required form-group" style="display: block;">
 
-    <label for="nomenclatures_degat_type">Type de dégât <i>(plusieurs réponses possibles)</i> <span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+    <label for="nomenclatures_degat_type"><b>Type de dégât</b> <i>(plusieurs réponses possibles)</i> <span class="rouge">{{ "*" if required!="" else "" }}</span></label>
 
     {%- for elem in nomenclature.OEASC_DEGAT_TYPE['values'] %}
 
@@ -43,26 +46,24 @@
       <input id="nomenclatures_degat_type-{{ loop.index0 }}" name="nomenclatures_degat_type" type="checkbox" value="{{ elem.id_nomenclature }}" {{ns.checked}} data-id-degat="{{ns.id_degat}}" >
       <label for="nomenclatures_degat_type-{{ loop.index0 }}">{{ elem.label_fr }}</label>
 
-
       {%- if ns.ind != -1 and mnemonique_degat_type != "P/C" %}
-
       {%- set degat = degats[ns.ind] %}
 
-      <div class="red degat-essence" style="display: {{ns.display_form}}" >
+<!--       <div class="red degat-essence" >
         {%- if mnemonique_degat_type != "ABS" %}
         Indiquez les essences touchées, et pour chacune d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis validez.
         {%- else %}
         Indiquez les essences concernées.
         {%- endif %}
-      </div>
+      </div> -->
 
-      <div class="degat-essence custom-control">
+      <div class="degat-essence custom-control"  class="dg">
 
-        <div><label for="id_nomenclature_degat_essence"><i>Essence - (3 essences maximum)</i></label></div>
+        <div><label for="id_nomenclature_degat_essence"><i class="dg">Essence - (3 essences maximum)</i></label></div>
         {%- if mnemonique_degat_type != "ABS" %}
-        <div><label for="id_nomenclature_degat_etendue"><i>Étendue des dégats</i></label></div>
-        <div><label for="id_nomenclature_degat_gravite"><i>Gravité des dégats</i></label></div>
-        <div><label for="id_nomenclature_degat_anteriorite"><i>Antériorité des dégats</i></label></div>
+        <div><label for="id_nomenclature_degat_etendue"><i class="dg">Étendue des dégats</i></label></div>
+        <div><label for="id_nomenclature_degat_gravite"><i class="dg">Gravité des dégats</i></label></div>
+        <div><label for="id_nomenclature_degat_anteriorite"><i class="dg">Antériorité des dégats</i></label></div>
         {%- else %}
         <div></div>
         <div></div>
@@ -121,6 +122,14 @@
 
           {%- set add = "_" + elem.id_nomenclature|string + "_" + loop.index0|string %}
 
+          <div class="red degat-essence" >
+            {%- if mnemonique_degat_type != "ABS" %}
+            Indiquez les essences touchées, et pour chacune d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis validez.
+            {%- else %}
+            Indiquez les essences concernées.
+            {%- endif %}
+          </div>
+
           <div class="degat-essence">
 
             <div>{{ macros.select_essence("id_nomenclature_degat_essence", nomenclature, object=degat_essence, listes_essences=listes_essences, id_nomenclature_degat_type=degat.id_nomenclature_degat_type.id_nomenclature, required="required") }}</div>
@@ -154,17 +163,22 @@
             </div>
           </div>
 
+
+
         </div>
 
         {%- endfor %}
 
+        {%- set ns.button_hidden = "" %}
+
         {%- if ( n_degat_essences >= 3 ) or ( ns.display_form == 'block' ) or ( ( listes_essences["degats"][degat.id_nomenclature_degat_type.id_nomenclature] | length ) == 0 ) %}
 
         {%- set ns.button_disabled = "disabled" %}
+        {%- set ns.button_hidden = "hidden" %}
 
         {%- endif %}
 
-        <button type="button"  {{ ns.button_disabled }} class="button-ajouter-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}"><span class="fas fa-plus"></span>{{ " Ajouter une essence touchée"}}</button>
+        <button type="button"  {{ ns.button_hidden }} {{ ns.button_disabled }} class="button-ajouter-degat-essence btn btn-success" data-degat-type="{{ elem.id_nomenclature }}"><span class="fas fa-plus"></span>{{ " Ajouter une essence touchée"}}</button>
 
       </div>
 
@@ -175,8 +189,9 @@
     {%- endfor %}
 
   </div>
+  </div>
 
-  <div class=red>
+  <div class=blue>
 
     <p>Des illustrations complémentaires des différents types de dégâts  sont  fournis  dans l'extrait du Guide pratique d'évaluation des dégâts en milieu forestier (CEMAGREF, 2009), <a href={{ url_for('static', filename='documents/extrait_CEMAGREF.pdf') }} target="#_blank">cliquez ici</a>.</p>
 
@@ -188,6 +203,8 @@
 
   <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
 
-  <input {{ ns.input_disabled }} id="input_degat_essence" type=submit value=Suivant class="btn btn-success float-right">
+<div class="align-right">
+  <input {{ ns.input_disabled }} id="input_degat_essence" type=submit value=Suivant class="btn btn-success" title="{{'Veuillez valider les dégats avant de passer à la suite' if ns.input_disabled!='' else ''}}">
+</div>
 
 </form>

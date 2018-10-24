@@ -110,6 +110,24 @@ $(document).ready(function() {
   }
 
 
+  var f_option_hover = function(map) {
+    return function(e) {
+
+      var $this = $(this);
+
+      var area_name = $this.find('.text').html().trim();
+
+      var l = M.get_layer(map, "area_name", area_name);
+
+      if( l ) {
+
+        l.fire(e.type);
+      }
+
+    };
+
+  };
+
   var initialiser_select_map = function(map_name) {
 
     var map = init_map(map_name);
@@ -147,24 +165,6 @@ $(document).ready(function() {
 
     // les tooltip des layer s'affichent au survol des options
 
-    var f_option_hover = function(map) {
-      return function(e) {
-
-        var $this = $(this);
-
-        var area_name = $this.find('.text').html().trim();
-
-        var l = M.get_layer(map, "area_name", area_name);
-
-        if( l ) {
-
-          l.fire(e.type);
-        }
-
-      };
-
-    };
-
     $("#select_map_" + map.map_name + " .localisation-select").on("mouseover", "ul.inner > li", f_option_hover(map));
     $("#select_map_" + map.map_name + " .localisation-select").on("mouseout", "ul.inner > li", f_option_hover(map));
 
@@ -176,28 +176,28 @@ $(document).ready(function() {
       var b_zoom = true;
       M.f_add_feature_collection_to_map(map, type_code, b_zoom, areas_container);
 
-     var type = "foret";
+      var type = "foret";
 
-     if (areas_container[0].type_code=="OEASC_ONF_PRF") {
+      if (areas_container[0].type_code=="OEASC_ONF_PRF") {
 
-      type = 'localisation';
+        type = 'localisation';
 
-     }
+      }
 
-     M.load_areas(areas_container, type, map, false);
+      M.load_areas(areas_container, type, map, false);
 
-   } else {
+    } else {
 
       var b_zoom=true;
       M.f_add_feature_collection_to_map(map, type_code, b_zoom);
 
-   }
+    }
 
- };
+  };
 
- M.initialiser_form_localisation = initialiser_form_localisation;
- M.initialiser_show_localisation = initialiser_show_localisation;
- M.initialiser_show_declarations = initialiser_show_declarations;
- M.remove_map = remove_map;
+  M.initialiser_form_localisation = initialiser_form_localisation;
+  M.initialiser_show_localisation = initialiser_show_localisation;
+  M.initialiser_show_declarations = initialiser_show_declarations;
+  M.remove_map = remove_map;
 
 });

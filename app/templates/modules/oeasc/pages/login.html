@@ -11,11 +11,20 @@
 
         <form class="container main-zone ng-scope " id="form_login">
 
+            {% if "modifier_ou_creer_declaration" in redirect %}
+
+            <p class='red'> Vous devez vous identifier afin de déclarer des dégâts en forêt.</p>
+
+            {% endif %}
+
+            <p >Si vous ne possédez pas encore de compte, vous pouvez vous inscrire <a href="{{ url_for('oeasc.register') }}">ici.</a></p>
+
             <h2>Connexion</h2>
 
             <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
                 Paramètres de connexion invalides
             </div>
+
             <div class="form-horizontal">
                 <input type="hidden" name="" id="user_app" value="{{id_app}}">
                 <div class="form-group">
@@ -31,10 +40,6 @@
                 <button class="btn btn-default">Login</button>
             </div>
         </form>
-
-        <div>
-            <p>Si vous ne possédez pas de compte, vous pouvez vous inscrire <a href="{{ url_for('oeasc.register') }}">ici.</a></p>
-        </div>
 
     </div>
 

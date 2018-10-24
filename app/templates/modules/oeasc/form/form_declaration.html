@@ -1,3 +1,4 @@
+
 {# macros pour les formulaires #}
 
 {%- import "modules/oeasc/form/form_macros.html" as macros %}
@@ -5,7 +6,6 @@
 {%- include "modules/oeasc/form/fil_ariane.html"%}
 
 <div id="id_form" data-id-form="{{ id_form }}" style="display: none;"></div>
-
 
 {%- set foret = declaration["foret"]%}
 {%- include "modules/oeasc/form/form_foret.html" %}
@@ -24,7 +24,7 @@
 
   <div>
 <div class="form-group">
-  
+
 <p>Utilisez le cadre de libre expression ci-dessous pour :</p>
 
 <ul>
@@ -40,8 +40,10 @@
   </div>
 
 </div>
-
-  <input type=submit value=Suivant class="btn btn-success bottom-right">
+<div class="align-right">
+  
+  <input type=submit value=Suivant class="btn btn-success">
+</div>
 
 </form>
 
@@ -53,7 +55,9 @@
   <p>Vérifiez ci-dessous le contenu de  votre déclaration de dégâts, puis cliquer sur le bouton ci-contre pour 
  valider définitivement et envoyer le formulaire.</p>
 
-  <input type=submit value="Envoyer le formulaire"  class="btn btn-success top-right">
+<div class="align-right">
+  <input type=submit value="Envoyer le formulaire"  class="btn btn-success">
+</div>
 
     {%- include "modules/oeasc/entity/declaration.html" %}
 

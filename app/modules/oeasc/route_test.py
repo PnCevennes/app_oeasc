@@ -44,3 +44,12 @@ def random():
     test random
     '''
     return test()
+
+
+@bp.route('/d3/')
+def test_d3():
+    '''
+        test graphes
+    '''
+
+    return render_template('modules/oeasc/test/d3.html')

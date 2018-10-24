@@ -177,6 +177,7 @@ def get_dict_nomenclature_areas(dict_in):
 
         if key.startswith("id_nomenclature_"):
             dict_in[key] = get_nomenclature_from_id(dict_in.get(key, None))
+            print(key, dict_in[key])
             continue
 
         if key.startswith("areas"):
@@ -205,6 +206,12 @@ def get_foret_type(foret_dict):
     if not foret_dict['proprietaire']['id_nomenclature_proprietaire_type']:
 
         return "Indéterminé"
+
+    if not isinstance(foret_dict['proprietaire']['id_nomenclature_proprietaire_type'], dict):
+
+        foret_dict['proprietaire']['id_nomenclature_proprietaire_type'] = get_nomenclature_from_id(foret_dict['proprietaire']['id_nomenclature_proprietaire_type'])
+
+    print(foret_dict['proprietaire']['id_nomenclature_proprietaire_type'])
 
     proprietaire_type = foret_dict['proprietaire']['id_nomenclature_proprietaire_type']['label_fr']
 

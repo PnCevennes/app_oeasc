@@ -13,6 +13,14 @@ from .repository import (
 
 )
 
+from .models import (
+
+    TDeclaration
+
+)
+
+from app.utils.env import DB
+
 from .utils import (
 
     check_foret
@@ -56,6 +64,21 @@ def get_nomenclature():
     get_dict_nomenclature_areas(declaration, nomenclature)
 
     return declaration
+
+
+@bp.route('get_declarations', methods=['GET'])
+@json_resp
+def get_declaration():
+
+    data = DB.session.query(TDeclaration).all()
+
+    if not data:
+
+        return None
+
+    out = [get_dict_nomenclature_areas(d.as_dict()) for d in data]
+
+    return out
 
 
 @bp.route('csv', methods=['GET'])
@@ -197,5 +220,6 @@ def csv():
                 data.append(d)
 
     return utils.arrays_to_csv(filename, data, colums, separator)
+
 
 
