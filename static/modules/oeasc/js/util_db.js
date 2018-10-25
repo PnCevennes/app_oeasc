@@ -34,7 +34,7 @@ $(document).ready(function() {
 
   }
 
-  // M.get_db = get_db;
+  M.get_db = get_db;
   // M.get_id_type = get_id_type;
   M.get_type_code = get_type_code;
 
