@@ -144,8 +144,6 @@ def check_proprietaire(declaration_dict):
     if declaration_dict['foret'].get('b_document', None) != False or declaration_dict['foret'].get('b_statut_public', None) != False:
         return -1
 
-    print("check_proprietaire", declaration_dict['foret']['proprietaire'] )
-
     # si le proprietaire est déjà renseigné
     if declaration_dict['foret']['id_proprietaire']:
 
@@ -164,7 +162,6 @@ def check_proprietaire(declaration_dict):
 
     if cond:
 
-        print('cond')
         return -1
 
     if not declaration_dict['id_nomenclature_proprietaire_declarant']:
@@ -207,7 +204,6 @@ def check_proprietaire(declaration_dict):
             proprietaire_dict["id_declarant"] = user_dict["id_role"]
             proprietaire_dict["id_nomenclature_proprietaire_type"] = get_nomenclature('mnemonique', 'PT_PRI', 'OEASC_PROPRIETAIRE_TYPE')
             declaration_dict['foret']['proprietaire'] = proprietaire_dict
-            print("get user", proprietaire_dict)
             return 1
 
     return -1
@@ -243,8 +239,6 @@ def check_foret(declaration_dict):
     if id_foret or not areas_foret:
 
         return False
-
-    print('check_foret')
 
     v_type_code = ["OEASC_ONF_FRT", "OEASC_DGD"]
 

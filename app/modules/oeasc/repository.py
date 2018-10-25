@@ -201,7 +201,7 @@ def get_dict_nomenclature_areas(dict_in):
 
 
 def get_foret_type(foret_dict):
-    print(foret_dict['proprietaire'])
+
     if not foret_dict['proprietaire']['id_nomenclature_proprietaire_type']:
 
         return "Indéterminé"
@@ -209,8 +209,6 @@ def get_foret_type(foret_dict):
     if not isinstance(foret_dict['proprietaire']['id_nomenclature_proprietaire_type'], dict):
 
         foret_dict['proprietaire']['id_nomenclature_proprietaire_type'] = get_nomenclature_from_id(foret_dict['proprietaire']['id_nomenclature_proprietaire_type'])
-
-    print(foret_dict['proprietaire']['id_nomenclature_proprietaire_type'])
 
     proprietaire_type = foret_dict['proprietaire']['id_nomenclature_proprietaire_type']['label_fr']
 
