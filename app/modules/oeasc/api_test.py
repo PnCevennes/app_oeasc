@@ -66,9 +66,7 @@ def get_nomenclature():
     return declaration
 
 
-@bp.route('get_declarations', methods=['GET'])
-@json_resp
-def get_declaration():
+def get_all_declarations():
 
     data = DB.session.query(TDeclaration).all()
 
@@ -76,7 +74,48 @@ def get_declaration():
 
         return None
 
-    out = [get_dict_nomenclature_areas(d.as_dict()) for d in data]
+    out = [get_dict_nomenclature_areas(d.as_dict(True)) for d in data]
+
+    return out
+
+
+@bp.route('get_declarations', methods=['GET'])
+@json_resp
+def declarations():
+
+    return get_all_declarations()
+
+
+@bp.route('get_degats', methods=['GET'])
+@json_resp
+def get_degats():
+
+    data = get_all_declarations()
+
+    nb_alertes = len(data)
+
+    out = {'nb_alertes': nb_alertes}
+
+    degat_types = {}
+
+    for d in data:
+
+        degats = d.get('degats', None)
+
+        for degat in degats:
+
+            degat_type = degat['id_nomenclature_degat_type']['label_fr']
+            degat_type_mnem = degat['id_nomenclature_degat_type']['mnemonique']
+
+            if not degat_types.get(degat_type_mnem, None):
+
+                degat_types[degat_type_mnem] = {'name': degat_type_mnem, 'label': degat_type, 'value': 1}
+
+            else:
+
+                degat_types[degat_type_mnem]['value'] += 1
+
+    out['data'] = [degat_types[v] for v in degat_types]
 
     return out
 

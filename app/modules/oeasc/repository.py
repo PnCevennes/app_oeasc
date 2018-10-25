@@ -177,7 +177,6 @@ def get_dict_nomenclature_areas(dict_in):
 
         if key.startswith("id_nomenclature_"):
             dict_in[key] = get_nomenclature_from_id(dict_in.get(key, None))
-            print(key, dict_in[key])
             continue
 
         if key.startswith("areas"):

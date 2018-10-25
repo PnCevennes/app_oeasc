@@ -8,16 +8,20 @@
 
 
 {%- block content %}
+
 <style>
 
-.chart rect {
-  fill: steelblue;
-}
-
-.chart text {
-  fill: white;
-  font: 10px sans-serif;
-  text-anchor: end;
+div.tooltip { 
+  position: absolute;     
+  text-align: center;     
+  /* min-width: 60px;           */
+  /* height: 28px;          */
+  padding: 10px;       
+  font: 12px sans-serif;    
+  background: lightsteelblue; 
+  border: 0px;    
+  border-radius: 8px;     
+  pointer-events: none;     
 }
 
 </style>
@@ -31,50 +35,143 @@
 
 {{ super() }}
 
-<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://d3js.org/d3.v4.min.js"></script>
 
 <script>
 
-var data = [4, 8, 15, 16, 23, 42];
+  var init_bar_chart = function(response) {
 
-$.ajax('/api/test/get_declarations')
+    var data = response.data;
+
+    var nb_alertes = response.nb_alertes;
+
+    var width = 1000;
+
+    var margin = ({top: 20, right: 0, bottom: 30, left: 100})
+
+    var height = data.length * 25 + margin.top + margin.bottom
+
+
+    x = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.value)])
+    .range([margin.left, width - margin.right])
+
+
+    x2 = d3.scaleLinear()
+    .domain([0, d3.max(data, d => d.value)/nb_alertes])
+    .range([margin.left, width - margin.right])
+
+
+    y = d3.scaleBand()
+    .domain(data.map(d => d.name))
+    .range([margin.top, height - margin.bottom])
+    .padding(0.1)
+
+    var yAxis = g => g
+    .attr("transform", `translate(${margin.left},0)`)
+    .call(d3.axisLeft(y).tickSizeOuter(0))
+
+    var xAxis = g => g
+    .attr("transform", `translate(0,${margin.top})`)
+    .call(d3.axisTop(x).ticks(width / 80))
+    .call(g => g.select(".domain").remove());
+
+    format2 = d3.format(".1f");
+
+
+    var xAxis2 = g => g
+    .attr("transform", `translate(0, ${height - margin.bottom})`)
+    .call(d3.axisBottom(x2).ticks(width / 80).tickFormat(d3.format(".0%")))
+    .call(g => g.select(".domain").remove())
+    
+
+    format = d3.format(".0f");
+
+    var div = d3.select("body").append("div") 
+    .attr("class", "tooltip")       
+    .style("opacity", 0);
+
+
+    const svg = d3.select('.chart');
+
+    svg.append("g")
+    .attr("fill", "steelblue")
+    .selectAll("rect")
+    .data(data)
+    .enter().append("rect")
+    .attr("x", x(0))
+    .attr("y", d => y(d.name))
+
+    .attr("width", 0).
+    transition().duration(1000).delay(function(d,i){return (100*i);})
+    .attr("width", d => x(d.value) - x(0))
+    .attr("height", y.bandwidth());
+
+    svg.append("g")
+    .attr("fill", "white")
+    .attr("text-anchor", "end")
+    .style("font", "12px sans-serif")
+    .selectAll("text")
+    .data(data)
+    .enter().append("text")
+    .attr("x", d => x(d.value) - 4)
+    .attr("y", d => y(d.name) + y.bandwidth() / 2)
+    .attr("dy", "0.35em")
+    .text(d => format(d.value));
+
+    svg.append("g")
+    .call(xAxis);
+
+    svg.append("g")
+    .call(xAxis2);
+
+
+    svg.append("g")
+    .attr("class", "y axis")
+    .call(yAxis);
+
+
+
+    svg.style('height',height + 'px')
+    svg.style('width',width + 'px')
+
+    d3.selectAll('.y .tick text').on('mouseover',function(){
+
+      name = $(this).html();
+      label = data.filter(d => d.name == name)[0].label
+      position = $(this).offset();
+      console.log("aa",label);
+
+      // position.left += 20;
+      position.top -= 40;
+
+      $(this).attr('fill', 'red');
+      $("div.tooltip").css(position);
+      $("div.tooltip").html(label);
+      // $("div.tooltip").html('labeleeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
+      div.transition().duration(500).style("opacity", 0.9);
+    });
+    d3.selectAll('.y .tick text').on('mouseout',function(){
+      div.transition().duration(500).style("opacity", 0);
+      $(this).attr('fill', 'black');
+
+
+    });
+
+  }
+
+  $.ajax('/api/test/get_degats')
   .done(function(response){
 
     data = response
     console.log(data);
 
+    init_bar_chart(data);
+
   });
 
 
-var width = 420,
-    barHeight = 20;
 
-var x = d3.scale.linear()
-    .domain([0, d3.max(data)])
-    .range([0, width]);
-
-var chart = d3.select(".chart")
-    .attr("width", width)
-    .attr("height", barHeight * data.length);
-
-var bar = chart.selectAll("g")
-    .data(data)
-  .enter().append("g")
-    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
-
-bar.append("rect")
-    .attr("width", 0)
-    .transition()
-    .duration(function(d,i){return 1000*(i+1)})
-    .attr("width", x)
-    .attr("height", barHeight - 1);
-
-
-bar.append("text")
-    .attr("x", function(d) { return x(d) - 3; })
-    .attr("y", barHeight / 2)
-    .attr("dy", ".35em")
-    .text(function(d) { return d; });
 
 </script>
 

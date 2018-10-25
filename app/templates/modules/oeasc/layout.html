@@ -85,24 +85,31 @@
 
           <ul class="navbar-nav ml-auto">
 
-            {%- if session.current_user %}
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="fas fa-user"></a>
+              <div class="dropdown-menu right" style="right: 0;" aria-labelledby="navbarDropdown">
+                        {%- if session.current_user %}
 
-            <li><a href="{{ url_for('oeasc.user') }}" class="nav-link"><span class="fas fa-user">{{session.current_user.identifiant}}</span></a></li>
+            <a class="dropdown-item" href="{{ url_for('oeasc.user') }}" class="nav-link"><span class="fas fa-user"> {{session.current_user.identifiant}}</span></a>
 
             {%- if session.current_user.id_droit_max >= 4 %}
 
-            <li><a href="{{ url_for('oeasc.users') }}" title="Gérer les utilisateurs" class="nav-link" ><span class="fas fa-users-cog"></span></a></li>
+            <a class="dropdown-item" href="{{ url_for('oeasc.users') }}" title="Gérer les utilisateurs" class="nav-link" ><span class="fas fa-users-cog"> Gérer les utilisateurs</span></a>
 
             {%- endif %}
 
-            <li><a href="{{ url_for('auth.logout') }}" title="Deconnexion" class="nav-link"><span class="fas fa-sign-out-alt"></span> Se déconnecter</a></li>
+            <a class="dropdown-item" href="{{ url_for('auth.logout') }}" title="Deconnexion" class="nav-link"><span class="fas fa-sign-out-alt"></span> Se déconnecter</a>
 
             {%- else %}
 
-            <li><a href="{{ url_for('oeasc.register') }}" title="Inscription" class="nav-link"><span class="fas fa-user-plus"></span> Inscription</a></li>
-            <li><a href="{{ url_for('oeasc.login') }}" title="Se connecter" class="nav-link"><span class="fas fa-sign-in-alt"></span> Se connecter</a></li>
+            <a class="dropdown-item" href="{{ url_for('oeasc.register') }}" title="Inscription" class="nav-link"><span class="fas fa-user-plus"></span> Inscription</a>
+            <a class="dropdown-item" href="{{ url_for('oeasc.login') }}" title="Se connecter" class="nav-link"><span class="fas fa-sign-in-alt"></span> Se connecter</a>
 
             {%- endif %}
+              </div>
+            </li>
+
+
 
           </ul>
 

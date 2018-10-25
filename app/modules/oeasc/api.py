@@ -88,8 +88,6 @@ def get_form_declaration():
 
     data = request.get_json()
 
-    print(data)
-
     nomenclature = nomenclature_oeasc()
 
     declaration_dict = data['declaration']

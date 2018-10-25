@@ -113,9 +113,18 @@ footer h4 {
 /* old */
 /* general */
 
+nav .dropdown-menu.right {
 
+  right: 0;
+  left: -300%;
+  width: 200px;
+}
 
+nav .dropdown-menu {
 
+  background-color: darkgrey;
+  color:  lightgray;
+}
 
 a:hover, a.nav_link {
 
@@ -761,14 +770,21 @@ form div.dropdown-menu {
 nav .dropdown:hover > .dropdown-menu {
 
   display: block;
-
-}
-
-nav .dropdown-menu {
-
+  opacity: 1;
   top: 95%;
 
 }
+
+
+nav .dropdown-menu {
+
+  opacity: 0;
+  position: absolute;
+  top: -2000px;
+
+}
+
+
 
 /* .dropdown > .dropdown-toggle:active {
     Without this, clicking will make it sticky
