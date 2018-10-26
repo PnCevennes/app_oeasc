@@ -47,7 +47,7 @@ div.tooltip {
 
     var width = 1000;
 
-    var margin = ({top: 70, right: 70, bottom: 100, left: 70})
+    var margin = ({top: 70, right: 170, bottom: 100, left: 70})
 
     var height = data.length * 25 + margin.top + margin.bottom
 
@@ -66,6 +66,13 @@ div.tooltip {
     .domain(data.map(d => d.name))
     .range([margin.top, height - margin.bottom])
     .padding(0.1)
+
+    y_legend = d3.scaleBand()
+    .domain(names_origin)
+    .range([margin.top, height - margin.bottom])
+    .padding(0.1)
+
+
 
     var yAxis = g => g
     .attr("transform", `translate(${margin.left},0)`)
@@ -116,65 +123,109 @@ div.tooltip {
     for ( ind in names_origin) {
 
       name = names_origin[ind];
-      console.log(name);
-
-      console.log(data[0].values_origin[names_origin[0]])
 
       svg.append("g")
-        .selectAll("rect")
-        .data(data)
-        .enter().append("rect")
-          .attr("fill", color[ind])
-          .attr("width", 0)
-          .attr("height", y.bandwidth())
-          .attr("y", function(d) { return y(d.name) } )
-          .attr("x", x(0))
-          .transition()
-          .duration(1000)
-          .attr("x", function(d) { dec = 0; for(j=0; j<ind; j++) {dec += d.values_origin[names_origin[j]]}; return x(dec);})
-          .attr("width", d => x(d.values_origin[name]) - x(0) )
+      .selectAll("rect")
+      .data(data)
+      .enter().append("rect")
+      .attr("fill", color[ind])
+      .attr("width", 0)
+      .attr("height", y.bandwidth())
+      .attr("y", function(d) { return y(d.name) } )
+      .attr("x", x(0))
+      .transition()
+      .duration(1000)
+      .attr("x", function(d) { dec = 0; for(j=0; j<ind; j++) {dec += d.values_origin[names_origin[j]]}; return x(dec);})
+      .attr("width", d => x(d.values_origin[name]) - x(0) )
+
+      svg.append("g")
+      .attr("fill", "black")
+      .attr("text-anchor", "end")
+      .style("font", "12px sans-serif")
+      .selectAll("text")
+      .data(data)
+      .enter().append("text")
+      .attr("x", x(0))
+      .attr("y", d => y(d.name) + y.bandwidth() / 2)
+      .attr("dy", "0.35em")
+      .style("opacity", 0)
+      .transition()
+      .duration(1000)
+      .style("opacity", 1)
+      .attr("x", function(d) { dec = 0; for(j=0; j<ind; j++) {dec += d.values_origin[names_origin[j]]}; return x(dec + d.values_origin[name]) - 4})
+      .text(d => format(d.values_origin[names_origin[j]]));
+
+      console.log(name, y_legend(name))
 
     }
 
 
 
-// text
     svg.append("g")
-    .attr("fill", "white")
-    .attr("text-anchor", "end")
+    .selectAll("rect")
+    .data(names_origin)
+    .enter().append('rect')
+    .attr("fill", function(d, i) {return color[i]})
+    .attr('x', width - margin.right + 20)
+    .attr('y', d => y_legend(d))
+    .attr("height", y.bandwidth())
+    .attr("width", 20)
+
+    svg.append("g")
+    .attr("fill", "black")
+    .attr("text-anchor", "begin")
     .style("font", "12px sans-serif")
     .selectAll("text")
-    .data(data)
-    .enter().append("text")
-    .attr("x", d => x(d.value) - 4)
-    .attr("y", d => y(d.name) + y.bandwidth() / 2)
+    .data(names_origin)
+    .enter().append('text')
+    .attr("fill", 'black')
+    .attr('x', width - margin.right + 50)
+    .attr('y', d => y_legend(d)  + y.bandwidth() / 2)
     .attr("dy", "0.35em")
-    .text(d => format(d.value));
-
-    svg.append("g")
-    .call(xAxis);
-
-    svg.append("g")
-    .call(xAxis2);
+    .text(d => d)
+    .on("click", function() { 
+      name = $(this).html(); data.sort((a, b) => a.values_origin[name] - b.values_origin[name]); for(d in data) console.log(data[d]); d3.select('.chart').transition();
+    });
 
 
-    svg.append("g")
-    .attr("class", "y axis")
-    .call(yAxis);
 
-    svg
-        .append("text")
-        .attr('fill', 'black')
-        .attr("x", (width / 2))
-        .attr("y", height - 30)
-        .attr("text-anchor", "middle")
-        .style("font-size", "18px")
-        .style("text-decoration", "underline")
-        .text("Répartion des différents types de dégâts");
+// text
+// svg.append("g")
+// .attr("fill", "white")
+// .attr("text-anchor", "end")
+// .style("font", "12px sans-serif")
+// .selectAll("text")
+// .data(data)
+// .enter().append("text")
+// .attr("x", d => x(d.value) - 4)
+// .attr("y", d => y(d.name) + y.bandwidth() / 2)
+// .attr("dy", "0.35em")
+// .text(d => format(d.value));
+
+svg.append("g")
+.call(xAxis);
+
+svg.append("g")
+.call(xAxis2);
+
+
+svg.append("g")
+.attr("class", "y axis")
+.call(yAxis);
+
+svg
+.append("text")
+.attr('fill', 'black')
+.attr("x", (width / 2))
+.attr("y", height - 30)
+.attr("text-anchor", "middle")
+.style("font-size", "18px")
+.style("text-decoration", "underline")
+.text("Répartion des différents types de dégâts");
 
       // text label for the y axis
-  svg.append("text")
-        .style("font-size", "12px")
+      svg.append("text")
+      .style("font-size", "12px")
       .attr("transform", "rotate(-90)")
       .attr("y", 10 )
       .attr("x",0 - (height / 2))
@@ -184,34 +235,34 @@ div.tooltip {
 
   // text label for the x axis
   svg.append("text")
-        .style("font-size", "12px")
-      .attr("transform",
-            "translate(" + (width/2) + " ," +
-                           (height - margin.bottom + 40) + ")")
-      .style("text-anchor", "middle")
-      .text("Pourcentage");
+  .style("font-size", "12px")
+  .attr("transform",
+    "translate(" + (width/2) + " ," +
+    (height - margin.bottom + 40) + ")")
+  .style("text-anchor", "middle")
+  .text("Pourcentage");
 
 
   // text label for the x axis
   svg.append("text")
-        .style("font-size", "12px")
+  .style("font-size", "12px")
 
-      .attr("transform",
-            "translate(" + (width/2) + " ," +
-                           (margin.top -30) + ")")
-      .style("text-anchor", "middle")
-      .text("Nombre (pour un total de " + nb_alertes + " alertes)");
+  .attr("transform",
+    "translate(" + (width/2) + " ," +
+    (margin.top -30) + ")")
+  .style("text-anchor", "middle")
+  .text("Nombre (pour un total de " + nb_alertes + " alertes)");
 
 
-    svg.style('height',height + 'px')
-    svg.style('width',width + 'px')
+  svg.style('height',height + 'px')
+  svg.style('width',width + 'px')
 
-    d3.selectAll('.y .tick text').on('mouseover',function(){
+  d3.selectAll('.y .tick text').on('mouseover',function(){
 
-      name = $(this).html();
-      label = data.filter(d => d.name == name)[0].label
-      position = $(this).offset();
-      console.log("aa",label);
+    name = $(this).html();
+    label = data.filter(d => d.name == name)[0].label
+    position = $(this).offset();
+    console.log("aa",label);
 
       // position.left += 20;
       position.top -= 40;
@@ -221,53 +272,53 @@ div.tooltip {
       $("div.tooltip").html(label);
       div.transition().duration(500).style("opacity", 0.9);
     });
-    d3.selectAll('.y .tick text').on('mouseout',function(){
-      div.transition().duration(500).style("opacity", 0);
-      $(this).attr('fill', 'black');
+  d3.selectAll('.y .tick text').on('mouseout',function(){
+    div.transition().duration(500).style("opacity", 0);
+    $(this).attr('fill', 'black');
 
 
-    });
+  });
 
-  }
+}
 
-  $.ajax('/api/test/get_declarations')
-  .done(function(response){
+$.ajax('/api/test/get_declarations')
+.done(function(response){
 
-    console.log(response);
-    declarations = response
-
-
-    dict_data = {}
-    names_origin = []
-    nb_alertes = declarations.length;
-
-    declarations.forEach(function(declaration){
-
-      nomenclature_type = 'id_nomenclature_peuplement_origine'
-
-      origine_peuplement = declaration[nomenclature_type]
-      origine_peuplement_name = declaration[nomenclature_type]['mnemonique']
+  console.log(response);
+  declarations = response
 
 
-      degats = declaration['degats']
+  dict_data = {}
+  names_origin = []
+  nb_alertes = declarations.length;
 
-      degats.forEach(function(degat){
+  declarations.forEach(function(declaration){
 
-        degat_type = degat['id_nomenclature_degat_type']
-        name = degat['id_nomenclature_degat_type']['mnemonique']
-        label = degat['id_nomenclature_degat_type']['label_fr']
+    nomenclature_type = 'id_nomenclature_peuplement_origine'
 
-        if (! dict_data[name]) {
+    origine_peuplement = declaration[nomenclature_type]
+    origine_peuplement_name = declaration[nomenclature_type]['mnemonique']
 
-          dict_data[name] = {'name' : name, 'label':label, value: 0, 'values_origin': {}}
 
-        }
+    degats = declaration['degats']
 
-        if (! names_origin.includes(origine_peuplement_name)) {
+    degats.forEach(function(degat){
 
-          names_origin.push(origine_peuplement_name);
+      degat_type = degat['id_nomenclature_degat_type']
+      name = degat['id_nomenclature_degat_type']['mnemonique']
+      label = degat['id_nomenclature_degat_type']['label_fr']
 
-        }
+      if (! dict_data[name]) {
+
+        dict_data[name] = {'name' : name, 'label':label, value: 0, 'values_origin': {}}
+
+      }
+
+      if (! names_origin.includes(origine_peuplement_name)) {
+
+        names_origin.push(origine_peuplement_name);
+
+      }
 
         // if (! dict_data['names_origin'].includes(origine_peuplement_name)) {
 
@@ -287,25 +338,25 @@ div.tooltip {
 
       })
 
-    });
-
-    console.log("dict_data", dict_data);
-
-    data = []
-
-    for( key in dict_data) {
-
-      data.push(dict_data[key])
-
-    }
-
-    data.sort((a, b) => a.value - b. value);
-
-    console.log(data)
-
-    init_bar_chart({'data': data, 'nb_alertes': nb_alertes}, 'names_origin', names_origin);
-
   });
+
+  console.log("dict_data", dict_data);
+
+  data = []
+
+  for( key in dict_data) {
+
+    data.push(dict_data[key])
+
+  }
+
+  data.sort((a, b) => a.value - b. value);
+
+  console.log(data)
+
+  init_bar_chart({'data': data, 'nb_alertes': nb_alertes}, 'names_origin', names_origin);
+
+});
 
 </script>
 
