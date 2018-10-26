@@ -12,16 +12,14 @@
 <style>
 
 div.tooltip { 
-  position: absolute;     
-  text-align: center;     
-  /* min-width: 60px;           */
-  /* height: 28px;          */
-  padding: 10px;       
-  font: 12px sans-serif;    
-  background: lightsteelblue; 
-  border: 0px;    
-  border-radius: 8px;     
-  pointer-events: none;     
+  position: absolute;
+  text-align: center;
+  padding: 10px;
+  font: 12px sans-serif;
+  background: lightsteelblue;
+  border: 0px;
+  border-radius: 8px;
+  pointer-events: none;
 }
 
 </style>
@@ -98,19 +96,49 @@ div.tooltip {
 
     svg.style('background-color', 'lightgray')
 
-    svg.append("g")
-    .attr("fill", "steelblue")
-    .selectAll("rect")
-    .data(data)
-    .enter().append("rect")
-    .attr("x", x(0))
-    .attr("y", d => y(d.name))
+// rect
+    // svg.append("g")
+    // .attr("fill", "steelblue")
+    // .selectAll("rect")
+    // .data(data)
+    // .enter().append("rect")
+    // .attr("x", x(0))
+    // .attr("y", d => y(d.name))
 
-    .attr("width", 0).
-    transition().duration(1000).delay(function(d,i){return (100*i);})
-    .attr("width", d => x(d.value) - x(0))
-    .attr("height", y.bandwidth());
+    // .attr("width", 0).
+    // transition().duration(1000).delay(function(d,i){return (100*i);})
+    // .attr("width", d => x(d.value) - x(0))
+    // .attr("height", y.bandwidth());
 
+
+    color = ['red', 'orange', 'yellow'];
+
+    for ( ind in names_origin) {
+
+      name = names_origin[ind];
+      console.log(name);
+
+      console.log(data[0].values_origin[names_origin[0]])
+
+      svg.append("g")
+        .selectAll("rect")
+        .data(data)
+        .enter().append("rect")
+          .attr("fill", color[ind])
+          .attr("width", 0)
+          .attr("height", y.bandwidth())
+          .attr("y", function(d) { return y(d.name) } )
+          .attr("x", x(0))
+          .transition()
+          .duration(1000)
+          .attr("x", function(d) { dec = 0; for(j=0; j<ind; j++) {dec += d.values_origin[names_origin[j]]}; return x(dec);})
+          .attr("width", d => x(d.values_origin[name]) - x(0) )
+
+    }
+
+
+
+// text
     svg.append("g")
     .attr("fill", "white")
     .attr("text-anchor", "end")
@@ -152,13 +180,13 @@ div.tooltip {
       .attr("x",0 - (height / 2))
       .attr("dy", "1em")
       .style("text-anchor", "middle")
-      .text("Type de dégât"); 
+      .text("Type de dégât");
 
   // text label for the x axis
   svg.append("text")
         .style("font-size", "12px")
       .attr("transform",
-            "translate(" + (width/2) + " ," + 
+            "translate(" + (width/2) + " ," +
                            (height - margin.bottom + 40) + ")")
       .style("text-anchor", "middle")
       .text("Pourcentage");
@@ -169,7 +197,7 @@ div.tooltip {
         .style("font-size", "12px")
 
       .attr("transform",
-            "translate(" + (width/2) + " ," + 
+            "translate(" + (width/2) + " ," +
                            (margin.top -30) + ")")
       .style("text-anchor", "middle")
       .text("Nombre (pour un total de " + nb_alertes + " alertes)");
@@ -210,12 +238,15 @@ div.tooltip {
 
 
     dict_data = {}
+    names_origin = []
     nb_alertes = declarations.length;
 
     declarations.forEach(function(declaration){
 
-      origine_peuplement = declaration['id_nomenclature_peuplement_origine']
-      origine_peuplement_name = declaration['id_nomenclature_peuplement_origine']['mnemonique']
+      nomenclature_type = 'id_nomenclature_peuplement_origine'
+
+      origine_peuplement = declaration[nomenclature_type]
+      origine_peuplement_name = declaration[nomenclature_type]['mnemonique']
 
 
       degats = declaration['degats']
@@ -232,8 +263,20 @@ div.tooltip {
 
         }
 
+        if (! names_origin.includes(origine_peuplement_name)) {
 
-        if ( ! dict_data[name]['values_origin'][origine_peuplement_name]) {
+          names_origin.push(origine_peuplement_name);
+
+        }
+
+        // if (! dict_data['names_origin'].includes(origine_peuplement_name)) {
+
+        //   dict_data['names_origin'].push(origine_peuplement_name);
+
+        // }
+
+
+        if (! dict_data[name]['values_origin'][origine_peuplement_name]) {
 
           dict_data[name]['values_origin'][origine_peuplement_name] = 0
 
@@ -242,11 +285,11 @@ div.tooltip {
         dict_data[name]['value'] += 1;
         dict_data[name]['values_origin'][origine_peuplement_name] += 1
 
-      });
+      })
 
     });
 
-    console.log(dict_data);
+    console.log("dict_data", dict_data);
 
     data = []
 
@@ -256,17 +299,13 @@ div.tooltip {
 
     }
 
-    // data.sort((a, b) => b.value - a. value);
     data.sort((a, b) => a.value - b. value);
 
     console.log(data)
 
-    init_bar_chart({'data': data, 'nb_alertes': nb_alertes});
+    init_bar_chart({'data': data, 'nb_alertes': nb_alertes}, 'names_origin', names_origin);
 
   });
-
-
-
 
 </script>
 
