@@ -23,4 +23,6 @@ static/node_modules
 static/documents
 static/package-lock.json
 
+procedure_install_server.sh
+
 *.save

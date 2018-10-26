@@ -7,9 +7,7 @@ CREATE TABLE temp (nom_organisme text, adresse_organisme text, cp_organisme text
             ville_organisme text, tel_organisme text, email_organisme text);
 
 
-COPY temp
-    FROM '/tmp/organismes.csv'
-    WITH DELIMITER ';' CSV QUOTE AS '''';
+\COPY temp FROM '/tmp/organismes.csv' WITH DELIMITER ';' CSV QUOTE AS ''''
 
 
 DELETE FROM utilisateurs.cor_organism_tag as c

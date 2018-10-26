@@ -139,10 +139,12 @@ def random_populate(nb):
     '''
         Crée et ajoute en base nb déclarations
     '''
+    print(nb)
 
     for i in range(nb):
 
         declaration_dict = declaration_dict_random_sample()
+        print(i, declaration_dict)
 
         if not declaration_dict:
 

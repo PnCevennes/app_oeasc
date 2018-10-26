@@ -463,6 +463,8 @@ def declaration_dict_random_sample():
     '''
     foret = foret_dict_random_sample()
 
+    print(foret)
+
     if not foret:
 
         return None
