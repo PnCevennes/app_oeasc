@@ -45,9 +45,11 @@ div.tooltip {
 
     var nb_alertes = response.nb_alertes;
 
+    console.log(nb_alertes, response)
+
     var width = 1000;
 
-    var margin = ({top: 20, right: 0, bottom: 30, left: 100})
+    var margin = ({top: 70, right: 70, bottom: 100, left: 70})
 
     var height = data.length * 25 + margin.top + margin.bottom
 
@@ -83,16 +85,18 @@ div.tooltip {
     .attr("transform", `translate(0, ${height - margin.bottom})`)
     .call(d3.axisBottom(x2).ticks(width / 80).tickFormat(d3.format(".0%")))
     .call(g => g.select(".domain").remove())
-    
+
 
     format = d3.format(".0f");
 
-    var div = d3.select("body").append("div") 
-    .attr("class", "tooltip")       
+    var div = d3.select("body").append("div")
+    .attr("class", "tooltip")
     .style("opacity", 0);
 
 
     const svg = d3.select('.chart');
+
+    svg.style('background-color', 'lightgray')
 
     svg.append("g")
     .attr("fill", "steelblue")
@@ -130,6 +134,45 @@ div.tooltip {
     .attr("class", "y axis")
     .call(yAxis);
 
+    svg
+        .append("text")
+        .attr('fill', 'black')
+        .attr("x", (width / 2))
+        .attr("y", height - 30)
+        .attr("text-anchor", "middle")
+        .style("font-size", "18px")
+        .style("text-decoration", "underline")
+        .text("Répartion des différents types de dégâts");
+
+      // text label for the y axis
+  svg.append("text")
+        .style("font-size", "12px")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 10 )
+      .attr("x",0 - (height / 2))
+      .attr("dy", "1em")
+      .style("text-anchor", "middle")
+      .text("Type de dégât"); 
+
+  // text label for the x axis
+  svg.append("text")
+        .style("font-size", "12px")
+      .attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (height - margin.bottom + 40) + ")")
+      .style("text-anchor", "middle")
+      .text("Pourcentage");
+
+
+  // text label for the x axis
+  svg.append("text")
+        .style("font-size", "12px")
+
+      .attr("transform",
+            "translate(" + (width/2) + " ," + 
+                           (margin.top -30) + ")")
+      .style("text-anchor", "middle")
+      .text("Nombre (pour un total de " + nb_alertes + " alertes)");
 
 
     svg.style('height',height + 'px')
@@ -148,7 +191,6 @@ div.tooltip {
       $(this).attr('fill', 'red');
       $("div.tooltip").css(position);
       $("div.tooltip").html(label);
-      // $("div.tooltip").html('labeleeeeeeeeeeeeeeeeeeeeeeeeeeeeee');
       div.transition().duration(500).style("opacity", 0.9);
     });
     d3.selectAll('.y .tick text').on('mouseout',function(){
@@ -160,13 +202,66 @@ div.tooltip {
 
   }
 
-  $.ajax('/api/test/get_degats')
+  $.ajax('/api/test/get_declarations')
   .done(function(response){
 
-    data = response
-    console.log(data);
+    console.log(response);
+    declarations = response
 
-    init_bar_chart(data);
+
+    dict_data = {}
+    nb_alertes = declarations.length;
+
+    declarations.forEach(function(declaration){
+
+      origine_peuplement = declaration['id_nomenclature_peuplement_origine']
+      origine_peuplement_name = declaration['id_nomenclature_peuplement_origine']['mnemonique']
+
+
+      degats = declaration['degats']
+
+      degats.forEach(function(degat){
+
+        degat_type = degat['id_nomenclature_degat_type']
+        name = degat['id_nomenclature_degat_type']['mnemonique']
+        label = degat['id_nomenclature_degat_type']['label_fr']
+
+        if (! dict_data[name]) {
+
+          dict_data[name] = {'name' : name, 'label':label, value: 0, 'values_origin': {}}
+
+        }
+
+
+        if ( ! dict_data[name]['values_origin'][origine_peuplement_name]) {
+
+          dict_data[name]['values_origin'][origine_peuplement_name] = 0
+
+        }
+
+        dict_data[name]['value'] += 1;
+        dict_data[name]['values_origin'][origine_peuplement_name] += 1
+
+      });
+
+    });
+
+    console.log(dict_data);
+
+    data = []
+
+    for( key in dict_data) {
+
+      data.push(dict_data[key])
+
+    }
+
+    // data.sort((a, b) => b.value - a. value);
+    data.sort((a, b) => a.value - b. value);
+
+    console.log(data)
+
+    init_bar_chart({'data': data, 'nb_alertes': nb_alertes});
 
   });
 
