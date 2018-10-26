@@ -1,0 +1,64 @@
+sudo apt-get install vim
+
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    software-properties-common
+
+curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
+
+sudo apt-key fingerprint 0EBFCD88
+
+sudo add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/debian \
+   $(lsb_release -cs) \
+   stable"
+
+sudo apt-get update
+
+sudo apt-get install docker-ce
+
+
+
+git clone https://github.com/PnCevennes/docker.git
+
+cd docker/dockers_geonature/geonature/
+
+./get_repository.sh
+
+if ! [ -f ./settings.ini ]
+then
+
+    echo le fichier $(pwd)/settings.ini n''estpas présent
+    echo vous pouvez le créer à partir de l'' exemple $(pwd)/GeoNature/config/settings.ini.sample
+    exit 1
+
+fi
+
+cp settings.ini GeoNature/config/.
+
+cd GeoNature/install/
+
+./install_db
+
+cd ../../../../docker_oeasc/oeasc
+
+./install.sh
+
+if ! [ -d ../../../data_oeasc ]
+then
+
+    echo le repertoire ${HOME}/data_oeasc n''est pas présent 
+    echo vous pouvez le récupérer kekpar???
+    exit 1
+
+fi
+
+cp -r ../../../data_oeasc/* app_oeasc/.
+
+cp settings.ini app_oeasc/config/.
+
+cd app_oeasc
+
+install/scripts_db/script_all.sh
