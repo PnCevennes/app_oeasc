@@ -130,3 +130,7 @@ CREATE OR REPLACE FUNCTION ref_nomenclatures.get_nomenclature_id_from_label(
     $BODY$
     LANGUAGE plpgsql IMMUTABLE
     COST 100;
+
+
+
+

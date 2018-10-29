@@ -1,0 +1,84 @@
+-- Function: ref_geo.get_id_type(character varying)
+
+DROP FUNCTION IF EXISTS ref_geo.get_id_type(character varying) CASCADE;
+
+CREATE OR REPLACE FUNCTION ref_geo.get_id_type(mytypecode CHARACTER VARYING)
+    RETURNS INTEGER AS
+    $BODY$
+    --
+    -- Returns the id_type from the type code of bib_areas_type
+    --
+        DECLARE thetypecode INTEGER;
+        BEGIN
+            SELECT INTO thetypecode id_type FROM ref_geo.bib_areas_types WHERE type_code = mytypecode;
+            return thetypecode;
+        END;
+    $BODY$
+
+    LANGUAGE plpgsql IMMUTABLE
+    COST 100;
+
+
+-- Function: ref_geo.intersect(INTEGER, CHARACTER VARYING)
+
+DROP FUNCTION IF EXISTS ref_geo.intersect(INTEGER, CHARACTER VARYING) CASCADE;
+
+CREATE OR REPLACE FUNCTION ref_geo.intersect(
+    myidarea INTEGER,
+    mytypecode CHARACTER VARYING)
+    RETURNS TABLE (id_area INT, area_code VARCHAR) AS
+    --
+    -- Returns the id_area(s) of the areas of type code intersecting with area id_area
+    --
+    $$
+        BEGIN
+            RETURN QUERY
+                WITH test AS (SELECT l.geom as geom
+                    FROM ref_geo.l_areas as l
+                    WHERE L.id_area=myidarea)
+                SELECT l.id_area, l.area_name
+                    FROM ref_geo.l_areas as l, test
+                    WHERE l.id_type = ref_geo.get_id_type(mytypecode) AND ST_INTERSECTS(l.geom, test.geom);
+        END;
+    $$
+
+    LANGUAGE plpgsql IMMUTABLE
+    COST 100;
+
+
+DROP FUNCTION IF EXISTS ref_geo.intersect_rel_area(INTEGER, CHARACTER VARYING, DOUBLE PRECISION) CASCADE;
+
+CREATE OR REPLACE FUNCTION ref_geo.intersect_rel_area(
+    myidarea INTEGER,
+    mytypecode CHARACTER VARYING,
+    seuil DOUBLE PRECISION)
+
+    RETURNS TABLE (id_area INT) AS
+    --
+    -- Returns the id_area(s) of the areas of type code intersecting with area id_area
+    --
+    $$
+        BEGIN
+            RETURN QUERY
+
+                WITH test AS (SELECT l.geom as geom
+                    FROM ref_geo.l_areas as l
+                    WHERE L.id_area=myidarea)
+
+                SELECT(c.id_area)
+                    FROM (
+                        SELECT a.id_area
+                            FROM (
+                                SELECT l.id_area, l.geom
+                                    FROM ref_geo.l_areas as l, test
+                                    WHERE l.id_type = ref_geo.get_id_type(mytypecode) AND
+                                    ST_INTERSECTS(l.geom, test.geom)
+                                )a, test
+                            WHERE ST_AREA(ST_INTERSECTION(a.geom, test.geom))*(1.0/ST_AREA(a.geom) + 1.0/ST_AREA(test.geom))/2 > seuil
+                    )c;
+          END;
+    $$
+
+    LANGUAGE plpgsql IMMUTABLE
+    COST 100;
+

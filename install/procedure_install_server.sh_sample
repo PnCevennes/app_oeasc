@@ -62,3 +62,5 @@ cp settings.ini app_oeasc/config/.
 cd app_oeasc
 
 install/scripts_db/script_all.sh
+
+#TODO cp data files

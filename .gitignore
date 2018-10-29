@@ -25,4 +25,6 @@ static/package-lock.json
 
 procedure_install_server.sh
 
+var/log/*.log
+
 *.save
