@@ -6,7 +6,7 @@
 # initialisation
 
 if [[ "$ROOT_DIR" = "" ]]; then
-    ROOT_DIR=$(readlink -e "${0%/*}")/..
+    ROOT_DIR=$(readlink -e "${0%/*}")/../..
 fi
 
 dir_sql=$ROOT_DIR/install/install_db/sql
@@ -74,18 +74,34 @@ fi
 
 echo mise en place de la BDD $db_name  sur le serveur $db_host pour l''oeasc
 
-echo "DROP SCHEMA oeasc CASCADE" | $psqla
+echo "DROP SCHEMA IF EXISTS oeasc CASCADE" | $psqla >> $log_file
+
 
 # les fonctions additionelles (ref_geo et nomenclatures)
 
 echo ajout des fonctions additionelles pour ref_geo
-$psqla -f $dir_sql/fonctions_ref_geo.sql >> $log_file
+$psqla -f $dir_script/ref_geo/fonctions_ref_geo.sql >> $log_file
+$psqla -f $dir_script/ref_geo/fonctions_simplify_geom.sql >> $log_file
+
 
 # les données geographiques
+
 echo ajout des données géographiques
-. ${dir_script}/install_ref_geo.sh
+. ${dir_script}/ref_geo/install_ref_geo.sh
 
 # les données de nomenclature
 
+. ${dir_script}/nomenclature/nomenclature.sh
+
+
 # la base oeasc
 
+. ${dir_script}/oeasc/oeasc.sh
+
+
+# les utilisateurs
+
+. ${dir_script}/user/user.sh
+
+
+#creation de la base

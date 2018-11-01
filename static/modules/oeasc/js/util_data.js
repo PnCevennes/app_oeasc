@@ -28,7 +28,8 @@ var reset_proprietaire = function() {
     $("#form_areas_foret").attr("data-areas", "[]");
     $('#form_foret').attr('data-id-foret', "");
     $("#nom_foret").val("");
-    $("#superficie").val("");
+    $("#label_foret").val("");
+    $("#surface_renseignee").val("");
 
   };
 
@@ -182,14 +183,19 @@ var reset_proprietaire = function() {
 
     // foret.id_nomenclature_proprietaire_declarant = parseInt($("[name=id_nomenclature_proprietaire_declarant] option:selected").val());
 
-    foret.nom_foret = $("#nom_foret").val();
+    foret.label_foret = $("#label_foret").val();
+    foret.nom_foret = foret.label_foret;
+    foret.code_foret = foret.label_foret;
+
 
     foret.proprietaire = get_id_proprietaire_as_dict();
     foret.id_proprietaire = foret.proprietaire.id_proprietaire;
 
     foret.areas_foret = get_areas_cor("form_areas_foret");
 
-    foret.superficie = parseInt($("#superficie").val());
+    // foret.superficie = parseInt($("#superficie").val());
+    foret.surface_renseignee = parseInt($("#surface_renseignee").val());
+    foret.surface_calculee = foret.surface_renseignee;
 
     return foret;
   };

@@ -2,9 +2,7 @@ from flask import Flask, redirect, session, request
 
 import json
 
-# from flask_sqlalchemy import SQLAlchemy
-
-from app.utils.env import DB
+from app.utils.env import DB, mail
 from config import config
 
 from app.modules.oeasc.utils import utils_dict
@@ -37,7 +35,6 @@ class ReverseProxied(object):
             environ['HTTP_HOST'] = server
         return self.app(environ, start_response)
 
-
 app = Flask(__name__, template_folder="app/templates", static_folder='static')
 
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
@@ -47,11 +44,10 @@ app.secret_key = 'dtgperçtuiperotivemrtikotiçà80979837589UJ5?OI3J?LORJ?C3LKJV
 
 app.config.from_pyfile('config/config.py', silent=True)
 
-# app.config['SQLALCHEMY_ECHO'] = True
 
+mail.init_app(app)
 DB.init_app(app)
 
-# import pdb; pdb.set_trace()
 
 
 @app.route('/')

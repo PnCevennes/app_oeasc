@@ -9,11 +9,18 @@ SECRET_KEY = 'super secret key'
 
 ID_APP = 1
 
+PASS_METHOD = 'md5'
+
 ENABLE_NOMENCLATURE_TAXONOMIC_FILTERS = True
 
 """ Authentification crypting method (hash or md5) """
-PASS_METHOD = 'hash'
-COOKIE_EXPIRATION = 3600
-COOKIE_AUTORENEW = True
+MAIL_ANIMATEUR=''
 
-SQLALCHEMY_POOL_SIZE=20
+DEFAULT_MAIL_SENDER=''
+
+MAIL_SERVER = 'smtp.gmail.com',
+MAIL_PORT = 587,
+MAIL_USE_TLS = True,
+MAIL_USE_SSL = False,
+MAIL_USERNAME = ''
+MAIL_PASSWORD = ''

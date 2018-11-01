@@ -35,6 +35,10 @@ from app.utils.utilssqlalchemy import (
 
 )
 
+from .mail import (
+    send_mail_test,
+    display_mail_test,
+)
 bp = Blueprint('oeasc_export', __name__)
 
 
@@ -118,6 +122,20 @@ def get_degats():
     out['data'] = [degat_types[v] for v in degat_types]
 
     return out
+
+
+@bp.route("send_mail", methods=['GET'])
+def test_mail():
+
+    send_mail_test()
+
+    return "ok"
+
+
+@bp.route("display_mail", methods=['GET'])
+def test_mail_display():
+
+    return display_mail_test()
 
 
 @bp.route('csv', methods=['GET'])

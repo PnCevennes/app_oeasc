@@ -23,7 +23,7 @@ $(document).ready(function() {
 
   var f_tooltip = function(layer, map, fp) {
 
-    var s_tooltip  = fp.area_name;
+    var s_tooltip  = fp.label;
 
     layer.bindTooltip(s_tooltip, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips}).addTo(map);
 
@@ -47,7 +47,7 @@ $(document).ready(function() {
 
     var $select_layer = $("#" + map.map_name);
 
-    var s_option = '<option value="' + fp.id_area + '"> ' + fp.area_name + " </option>";
+    var s_option = '<option value="' + fp.id_area + '"> ' + fp.label + " </option>";
     $select_layer.append(s_option);
 
   };
@@ -441,7 +441,7 @@ $(document).ready(function() {
 
     var ls = d_ls[name];
 
-    var url_base = "/api/ref_geo/areas_from_type_code/";
+    var url_base = "/api/ref_geo/areas_simples_from_type_code/";
     var url= "l/";
     url+= name;
 
@@ -454,7 +454,7 @@ $(document).ready(function() {
         v.push(areas_container[i].id_area)
       }
 
-      url_base = "/api/ref_geo/areas_from_type_code_container/";
+      url_base = "/api/ref_geo/areas_simples_from_type_code_container/";
       url += "/" + v.join("-");
     }
 
@@ -632,7 +632,7 @@ $(document).ready(function() {
 
     legend.addTo(map);
 
-    var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_from_type_code/l/OEASC_PERIMETRE', {style: M.style.oeasc, pane: 'PANE_0'}).addTo(map);
+    var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/OEASC_PERIMETRE', {style: M.style.oeasc, pane: 'PANE_0'}).addTo(map);
 
     if(b_zoom_perimetre) {
 
@@ -695,7 +695,6 @@ $(document).ready(function() {
           var type_code = M.get_type_code(fp.id_type);
           $('#legend-' + type_code).show();
           $('#legend-' + type_code + ' > i').css('background-color', M.color.foret);
-          // $("#" + map.map_name + " #infos_" + type).append("<div>" + fp.area_name + "</div>")
 
         });
 
@@ -714,7 +713,6 @@ $(document).ready(function() {
   };
 
   var load_declaration_centroid = function(declaration, b_cluster, map) {
-
 
     var type = 'localisation';
     var pane, color;

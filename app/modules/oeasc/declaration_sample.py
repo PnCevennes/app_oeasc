@@ -1,7 +1,12 @@
 from app.ref_geo.models import TAreas
 from app.ref_geo.repository import get_id_type
 
-from .repository import (nomenclature_oeasc, get_nomenclature_from_id)
+from .repository import (
+    nomenclature_oeasc,
+    get_nomenclature_from_id,
+    get_nomenclature,
+)
+
 from .models import TForet, TProprietaire
 
 from app.utils.utilssqlalchemy import as_dict
@@ -121,12 +126,11 @@ def proprietaire_dict_random_sample(b_statut_public, nom_commune):
         TODO
     '''
 
-    nomenclature = nomenclature_oeasc()
-
     if b_statut_public:
 
         proprietaire = {
 
+            "id_nomenclature_proprietaire_type": get_nomenclature("mnemonique", "PT_CO", "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
             "nom_proprietaire": nom_commune,
 
         }
@@ -134,8 +138,7 @@ def proprietaire_dict_random_sample(b_statut_public, nom_commune):
     else:
 
         proprietaire = {
-
-            "id_nomenclature_proprietaire_type": get_nomenclature_random_sample("OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
+            "id_nomenclature_proprietaire_type": get_nomenclature("mnemonique", "PT_PRI", "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
             "nom_proprietaire": "Privé",
 
         }
@@ -295,7 +298,7 @@ def foret_dict_random_sample():
 
             return None
 
-        proprietaire = DB.session.query(TForet).filter(TProprietaire.id_proprietaire == foret.id_proprietaire).first()
+        proprietaire = DB.session.query(TProprietaire).filter(TProprietaire.id_proprietaire == foret.id_proprietaire).first()
 
         if not proprietaire:
 
@@ -330,7 +333,9 @@ def foret_dict_random_sample():
             "b_document": False,
             "proprietaire": proprietaire_dict_random_sample(b_statut_public, area_commune['area_name']),
             "nom_foret": "foret au hasard ",
-            "superficie": random.randint(0, 1000),
+            "label_foret": "foret au hasard ",
+            "surface_renseignee": random.randint(0, 1000),
+            "surface_calculee": random.randint(0, 1000),
             "areas_foret": areas_foret
 
         }
@@ -462,8 +467,6 @@ def declaration_dict_random_sample():
         Renvoie une déclaration aléatoire
     '''
     foret = foret_dict_random_sample()
-
-    print(foret)
 
     if not foret:
 

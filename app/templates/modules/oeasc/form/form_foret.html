@@ -114,9 +114,9 @@
 <!-- <div> -->
   <div class="form-group form-text">
 
-  {{ macros.input_text("nom_foret", "Nom de la forêt", foret, required='', disabled=disabled) }}
+  {{ macros.input_text("label_foret", "Nom de la forêt", foret, required='', disabled=disabled) }}
 
-  {{ macros.input_double("superficie", "Superficie totale de la forêt (ha)", foret, required='' if foret['b_document'] else "required", disabled=disabled) }}
+  {{ macros.input_double("surface_renseignee", "Superficie totale de la forêt (ha)", foret, required='' if foret['b_document'] else "required", disabled=disabled) }}
 
   </div>
 

@@ -30,6 +30,8 @@ from app.utils.utilssqlalchemy import json_resp
 
 from app.ref_geo.models import LAreas
 
+from .mail import send_mail_validation_declaration
+
 
 bp = Blueprint('oeasc_api', __name__)
 
@@ -174,7 +176,11 @@ def create_or_update_declaration():
 
     declaration_dict = data["declaration"]
 
-    return f_create_or_update_declaration(declaration_dict)
+    d = f_create_or_update_declaration(declaration_dict)
+
+    send_mail_validation_declaration(declaration_dict)
+
+    return d
 
 
 @bp.route('get_db/<type>/<key>/<val>', methods=['GET'])

@@ -74,7 +74,7 @@ CREATE OR REPLACE FUNCTION ref_geo.intersect_rel_area(
                                     WHERE l.id_type = ref_geo.get_id_type(mytypecode) AND
                                     ST_INTERSECTS(l.geom, test.geom)
                                 )a, test
-                            WHERE ST_AREA(ST_INTERSECTION(a.geom, test.geom))*(1.0/ST_AREA(a.geom) + 1.0/ST_AREA(test.geom))/2 > seuil
+                            WHERE ST_AREA(ST_INTERSECTION(ST_MAKEVALID(a.geom), test.geom))*(1.0/ST_AREA(a.geom) + 1.0/ST_AREA(test.geom))/2 > seuil
                     )c;
           END;
     $$
@@ -82,3 +82,64 @@ CREATE OR REPLACE FUNCTION ref_geo.intersect_rel_area(
     LANGUAGE plpgsql IMMUTABLE
     COST 100;
 
+
+DROP FUNCTION IF EXISTS ref_geo.clean_ug_name(text) CASCADE;
+
+CREATE OR REPLACE FUNCTION ref_geo.clean_ug_name(
+    name text)
+
+    RETURNS text AS
+    --
+    -- Returns the id_area(s) of the areas of type code intersecting with area id_area
+    --
+    $BODY$
+            DECLARE name_out TEXT;
+    BEGIN
+            SELECT INTO name_out regexp_replace(b.name, '-$', '', 'g')
+                FROM (SELECT regexp_replace(a.name, '_$', '', 'g') as name
+                    FROM (SELECT regexp_replace(name, '-_', '_', 'g') as name)a
+                    )b;
+            return name_out;
+         END;
+    $BODY$
+
+    LANGUAGE plpgsql IMMUTABLE
+    COST 100;
+
+
+CREATE OR REPLACE FUNCTION ref_geo.get_old_communes(
+    IN myarea_code character varying)
+
+  RETURNS TABLE(old_area_code character varying) AS
+$BODY$
+        BEGIN
+            RETURN QUERY
+
+        SELECT UNNEST(old_area_codes)
+        FROM ref_geo.cor_old_communes
+        WHERE area_code = myarea_code;
+          END;
+    $BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100
+  ROWS 1000;
+
+
+  CREATE OR REPLACE FUNCTION table_exists(schema_name character varying, table_name character varying)
+   RETURNS boolean AS
+$BODY$
+BEGIN
+   IF EXISTS(
+       SELECT *
+       FROM pg_class as tbl
+       INNER JOIN pg_namespace as schm on tbl.relnamespace = schm.oid
+       WHERE schm.nspname = '' || schema_name || ''
+       AND tbl.relname = '' || table_name || ''
+   ) THEN
+       RETURN true;
+   ELSE
+       RETURN false;
+   END IF;
+END;
+$BODY$
+LANGUAGE 'plpgsql' VOLATILE;

@@ -269,8 +269,6 @@ cat << EOF
 --    FROM ref_geo.l_areas as t
 --    WHERE t.id_type = ref_geo.get_id_type('OEASC_ONF_UG_RAW');
 
-
-
 -- bidouille pour ne pas avoir deux fois le nom 48-bougès pff
 
 UPDATE ref_geo.l_areas

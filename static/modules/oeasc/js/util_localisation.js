@@ -115,9 +115,9 @@ $(document).ready(function() {
 
       var $this = $(this);
 
-      var area_name = $this.find('.text').html().trim();
+      var label = $this.find('.text').html().trim();
 
-      var l = M.get_layer(map, "area_name", area_name);
+      var l = M.get_layer(map, "label", label);
 
       if( l ) {
 

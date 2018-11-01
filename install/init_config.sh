@@ -24,4 +24,13 @@ sed -i -e s/'^URL_APPLICATION.*'/"URL_APPLICATION = \"http:\/\/"$URL_APPLICATION
 sed -i -e s/'^URL_USERHUB.*'/"URL_USERHUB = \"http:\/\/"$URL_USERHUB\"/ config/config.py
 sed -i -e s/'^ID_APP.*'/"ID_APP = "$ID_APP/ config/config.py
 
+sed -i -e s/'^MAIL_ANIMATEUR.*'/"MAIL_ANIMATEUR = '"$MAIL_ANIMATEUR"'"/ config/config.py
+sed -i -e s/'^DEFAULT_MAIL_SENDER.*'/"DEFAULT_MAIL_SENDER = '"$DEFAULT_MAIL_SENDER"'"/ config/config.py
+sed -i -e s/'^MAIL_SERVER.*'/"MAIL_SERVER = '"$MAIL_SERVER"'"/ config/config.py
+sed -i -e s/'^MAIL_PORT.*'/"MAIL_PORT = "$MAIL_PORT/ config/config.py
+sed -i -e s/'^MAIL_USERNAME.*'/"MAIL_USERNAME = '"$MAIL_USERNAME"'"/ config/config.py
+sed -i -e s/'^MAIL_PASSWORD.*'/"MAIL_PASSWORD = '"$MAIL_PASSWORD"'"/ config/config.py
+sed -i -e s/'^MAIL_USE_TLS.*'/"MAIL_USE_TLS = "$MAIL_USE_TLS/ config/config.py
+sed -i -e s/'^MAIL_USE_SSL.*'/"MAIL_USE_SSL = "$MAIL_USE_SSL/ config/config.py
+
 cat config/config.py

@@ -120,9 +120,9 @@ $$ language plpgsql strict;
 
 --simplify set
 
-DROP FUNCTION IF EXISTS ref_geo.simplify_by_type_code(mytype_code character varying, tolerance float);
+DROP FUNCTION IF EXISTS ref_geo.simplify_by_type_code(mytype_code character varying, tolerance_in float);
 
-CREATE OR REPLACE FUNCTION ref_geo.simplify_by_type_code(mytype_code character varying, tolerance float)
+CREATE OR REPLACE FUNCTION ref_geo.simplify_by_type_code(mytype_code character varying, tolerance_in float)
 
     RETURNS VOID AS
     $$
@@ -133,12 +133,12 @@ CREATE OR REPLACE FUNCTION ref_geo.simplify_by_type_code(mytype_code character v
 
         DROP TABLE IF EXISTS temp_simple;
 
-        CREATE TABLE temp_simple AS SELECT * FROM simplifyLayerPreserveTopology('' ,'temp', 'id_area', 'geom', tolerance) as (id_area int, geom geometry);
+        CREATE TABLE temp_simple AS SELECT * FROM simplifyLayerPreserveTopology('' ,'temp', 'id_area', 'geom', tolerance_in) as (id_area int, geom geometry);
 
-        DELETE FROM ref_geo.l_areas_simple WHERE id_type=ref_geo.get_id_type(mytype_code);
+        DELETE FROM ref_geo.l_areas_simples WHERE id_type=ref_geo.get_id_type(mytype_code);
 
-        INSERT INTO ref_geo.l_areas_simples(id_area, id_type, area_name, area_code, geom_4326, source)
-            SELECT l.id_area, ref_geo.get_id_type(mytype_code), l.area_name, l.area_code, ST_TRANSFORM(t.geom, 4326), 'OEASC'
+        INSERT INTO ref_geo.l_areas_simples(id_area, id_type, area_name, area_code, geom_4326, source, tolerance)
+            SELECT l.id_area, ref_geo.get_id_type(mytype_code), l.area_name, l.area_code, ST_TRANSFORM(t.geom, 4326), 'OEASC', tolerance_in
             FROM temp_simple as t, ref_geo.l_areas as l
             WHERE t.id_area=l.id_area;
 

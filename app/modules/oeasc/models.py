@@ -176,8 +176,11 @@ class TForet(DB.Model):
     # b_document_de_gestion = DB.Column(DB.Boolean)
 
     nom_foret = DB.Column(DB.String(250))
+    code_foret = DB.Column(DB.String(250))
+    label_foret = DB.Column(DB.String(250))
 
-    superficie = DB.Column(DB.Float)
+    surface_calculee = DB.Column(DB.Float)
+    surface_renseignee = DB.Column(DB.Float)
 
     areas_foret = DB.relationship(CorAreasForet, cascade="save-update, merge, delete, delete-orphan")
 

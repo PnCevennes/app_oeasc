@@ -115,8 +115,10 @@ footer h4 {
 
 nav .dropdown-menu.right {
 
-  right: 0;
-  left: -300%;
+  position: absolute;
+  top: 30px;
+  right: 10px;
+  /* left: -300%; */
   width: 200px;
 }
 
