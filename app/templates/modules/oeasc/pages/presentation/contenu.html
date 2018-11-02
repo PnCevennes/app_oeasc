@@ -1,0 +1,100 @@
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
+
+
+{%- block title %} le contenu {%- endblock %}
+
+{%- block sidebar %}
+
+ {% include "modules/oeasc/site/sidebar_presentation.html" %}
+
+{%- endblock %}
+
+{%- block contentright %}
+
+  <div class=text>
+
+    <p>À l’heure actuelle, il n’existe malheureusement pas de méthode simple, fiable, objective, peu onéreuse, scientifiquement valable, statistiquement représentative pour évaluer l’état d’équilibre entre ongulés sauvages, forêts et agriculture. Chacun des dispositifs et données existants présente des atouts et des faiblesses. C’est pourquoi le comité de pilotage de l’OEASC a opté pour la construction d’un Observatoire composé de plusieurs volets complémentaires les uns aux autres :</p>
+
+    <ul>
+      <li><a class="scroll-anime" href="#donnees_milieu_agricole">Données sur les milieux agricoles</a></li>
+      <li><a class="scroll-anime" href="#donnees_cynegetiques">Données cynégétiques</a></li>
+      <li><a class="scroll-anime" href="#ICE">Indicateurs de changement écologique (ICE)</a></li>
+      <li><a class="scroll-anime" href="#systeme_alerte">Système d’alerte (déclaration de dégâts)</a></li>
+      <li><a class="scroll-anime" href="#diagnostic_sylvicole">Diagnostics sylvicoles (évaluation des dégâts de cervidés en milieu forestier)</a></li>
+      <li><a class="scroll-anime" href="#recensement_peuplement_degradable">Recensement des peuplements dégradables</a></li>
+    </ul>
+
+    Le contenu détaillé de ces différents volets est présenté ci-dessous.
+
+    <h2 id="donnees_milieu_agricole">Données sur les milieux agricoles</h2>
+
+    <p>Il s’agit essentiellement de valoriser les données existantes, principalement celles liées à l’indemnisation des dégâts agricoles par les Fédérations départementales de chasseurs. D’autres données, telles celles relatives aux demandes de financement au titre des contrats de prévention aux particuliers (dispositif propre au Parc national des Cévennes), aux plaintes et doléances reçues par les acteurs du territoire, pourront progressivement être intégrées à l’Observatoire.</p>
+
+    <h2 id="donnees_cynegetiques">Données cynégétiques</h2>
+
+    <p>Les données relatives aux attributions maximales et minimales et aux nombre d’animaux prélevés par la chasse sont collectées depuis de nombreuses années par l’établissement public du Parc national des Cévennes (pour le cœur du Parc national) et les Fédérations départementales des chasseurs (en dehors du cœur du Parc national). Elles ont donc été intégrées à l’Observatoire.</p>
+
+    <h2 id='ICE'>Indicateurs de changement écologique (ICE)</h2>
+
+    <p>Les indicateurs de changement écologique (ICE) sont des outils conçus par l’Office national de la chasse et de la faune sauvage (ONCFS) reposant sur le concept de densité-dépendance (phénomène lié au fait qu’à partir d’un certain niveau de densité de populations, les ressources alimentaires disponibles par individu diminuent, ce qui est susceptible d’entrainer des modifications biologiques : performance physique, reproduction, survie, etc.). Ces ICE permettent ainsi de suivre les réponses du système population-environnement aux variations d’abondance d’animaux et de ressources disponibles (voir en savoir plus, consulter la documentation spécifique de l’ONCFS). Ils permettent, à partir de paramètres relativement faciles à mesurer et selon des méthodes scientifiquement validées à l’échelle nationale, de suivre l’évolution temporelle de l’équilibre entre le grand gibier et son milieu de vie.</p> 
+
+    <p>Il s’agit donc ici de suivre les variations dans le temps d’un équilibre « biologique » entre la faune et son habitat (et sa ressource alimentaire), qui ne tient pas spécifiquement compte des activités sylvicoles et de leurs objectifs économiques. Les ICE sont répartis en 3 familles : l’abondance relative des populations, la performance des individus – assimilable à leur condition physique – et la pression exercée sur la végétation.</p>
+
+    <p>Pour en savoir plus : <a href="{{url_for('oeasc.documentation')}}">lien vers la page de documentation</a></p>
+
+    <h3>Indices d’abondance</h3>
+
+    <p>L’établissement public du Parc national des Cévennes met en œuvre le suivi de l’indice nocturne sur depuis 2012 sur le Causse Méjean, depuis 2016 sur le massif de l’Aigoual, et depuis 2017sur le Mont Lozère. Ce suivi, valable pour le Cerf, est basé sur la réalisation de comptages nocturnes (au phare, en véhicule), selon une méthodologie et sur des circuits prédéfinis. Ces comptages sont effectués par des équipes constituées d’au moins un professionnel (établissement public du Parc national des Cévennes, Fédérations départementales des chasseurs, ONF ou ONCFS) et de bénévoles (parmi lesquels figurent un nombre important de chasseurs locaux).</p>
+
+    <p>Bien que tous les animaux présents sur le territoire ne soient pas comptés (il est tout à fait illusoire de penser pouvoir y parvenir), l’ONCFS a démontré que les variations de cet indice sont fortement corrélées aux variations d’effectifs de l’ensemble de la population, ce qui permet de suivre son évolution dans le temps.</p>
+
+    <h3>Indices de performance</h3>
+
+    <p>Les indices de performance permettent d’évaluer la condition physique des jeunes animaux, qui est directement influencée par l’état d’équilibre entre les niveaux de population et les ressources alimentaires disponibles.</p>
+
+    <p>Depuis 2013, deux indices de performance sont également suivis à partir des données collectées et enregistrées sur les fiches de constat de tir renseignées lors de l’abattage des cervidés dans le cœur du Parc national. Il s’agit de la masse corporelle des jeunes de l’année (indice valable pour toutes les espèces de cervidés) et de la longueur des dagues des daguets (cerfs mâles de deuxième année ; indice uniquement valable pour le Cerf). Il est envisageable de compléter ou de préciser ce suivi par un autre indice de performance, généralement plus représentatif : la longueur de la patte arrière.</p>
+
+    <h3>Indices de pression sur la végétation</h3>
+
+    <p>Dans le cadre de l’OEASC, le suivi des indices de consommation et d’abroutissement (IC/IA) a été mis en place en 2018 sur une zone d’environ 3 300 hectares située sur le Mont Aigoual et représentative de ce massif, contenant 321 placettes. Ces relevés sont effectués par un réseau d’experts constitué des agents de l’EP PNC, de l’ONF et du CRPF, formé spécifiquement à la méthodologie à mettre en œuvre. Le choix de mettre en place ce suivi sur un seul secteur d’étude (dans un premier temps) est lié à l’importance des moyens humains à mobiliser chaque année pour effectuer ces relevés. Ce choix s’est porté sur le massif du Mont Aigoual en raison de l’importance des enjeux en terme d’équilibre agro-sylvo-cynégétique (vocation de production des forêts et importance des populations d’ongulés sauvages).</p>
+
+    <p>??Insérer carte de la zone de suivi et du plan d’échantillonnage??</p>
+
+    <h2 id='systeme_alerte'>Système d’alerte</h2>
+    <p>Le système d’alerte de l’OEASC permet aux propriétaires et aux gestionnaires forestiers de faire remonter des informations standardisées sur des peuplements touchés par des dégâts d’ongulés sauvages. Un formulaire d’alerte simple, accessible et rapide à renseigner peut être complété en ligne <a href="url_for('oeasc.modifier_declaration')">(cliquez ici)</a>.</p>
+
+    <p>Ce système d’alerte permet à la fois :</p>
+
+    <ul>
+      <li>de prendre en compte les objectifs sylvicoles et économiques des propriétaires forestiers (ce qui est incontournable au sens de la définition de l’équilibre agro-sylvo-cynégétique fourni);</li>
+      <li>d’associer les propriétaires forestiers à l’Observatoire par une démarche participative basée sur le volontariat et de valoriser leurs connaissances du territoire ;</li>
+      <li>d’alimenter les bases de données utilisées par les gestionnaires des écosystèmes avec une importante quantité d’informations relatives aux dégâts de gibier sur les peuplements forestiers.</li>
+    </ul>
+
+    <p>Bien que les informations récoltées soient inévitablement subjectives et dépendantes de la sensibilité de la personne signalant une alerte, ce dispositif permettra d’identifier et de localiser les secteurs géographiques les plus touchés par les dégâts d’ongulés sauvages, ou tout au moins sur lesquels il existe des enjeux importants en termes d’équilibre sylvo-cynégétique.</p>
+
+    <h2 id="diagnostic_sylvicole">Diagnostics sylvicoles </h2>
+    <h5>(Évaluation des dégâts de cervidés en milieu forestier)</h5>
+
+    <p>Parmi les peuplements signalés par le biais du système d’alerte, plusieurs seront sélectionnés chaque année (par un groupe de travail réunissant les partenaires forestiers et cynégtiques, selon des critères prédéfinis) afin de faire l’objet d’un diagnostic sylvicole. Celui-ci vise à évaluer, à l’échelle d’un peuplement forestier, l’impact des dégâts de cervidés sur l’avenir et la valeur sylvicole du peuplement, au regard des objectifs de production du propriétaire.</p>
+
+    <p>Les protocoles mis en œuvre sont décrits par le guide pratique d’évaluation des dégâts en milieu forestier publié en 2009 par le Cemagref (Centre national du machinisme agricole, du génie rural et des eaux et forêts, devenu Irstea depuis). Selon la nature des dégâts subis (frottis, abroutissement ou écorçage) et l’origine du peuplement (plantation ou régénération naturelle), trois protocoles différents, basés sur des relevés sur un réseau de 40 à 80 placettes, pourront être mis en œuvre. Grâce à la description des tiges inventoriées via la notion de viabilité, ces protocoles permettent de comparer la densité de tiges viables aux densités attendues par le propriétaire ou le gestionnaire, et de conclure quant à l’avenir du peuplement diagnostiqué (absence de problème, pronostic incertain ou avenir compromis).</p>
+
+    <p>Bien que ce dispositif ne permette pas d’apprécier l’état d’équilibre agro-sylvo-cynégétique à l’échelle d’un massif, il présente l’avantage d’évaluer de façon objective, et selon une méthode scientifiquement validée, les dégâts de cervidés sur un peuplement donné en tenant compte de sa vocation économique et des objectifs sylvicoles du propriétaire. Il permet ainsi de fournir à ce dernier des éléments utiles à la définition de mesures adéquates, et de mettre en lumière des situations pouvant localement s’avérer particulièrement préoccupantes du point de vue forestier. Les résultats de ces diagnostics seront également communiqués aux chasseurs, afin d’envisager, le cas échéant, d’augmenter localement la pression de chasse sur un peuplement subissant d’importants dégâts pour améliorer ses chances de régénération.</p>
+
+    <p>Ces relevés seront mis en œuvre par un réseau d’experts de l’établissement public du Parc national des Cévennes et des partenaires forestiers de l’Observatoire, formé spécifiquement à l’application de ces méthodologies.</p>
+
+    <h2 id="recensement_peuplement_degradable">Recensement des peueplements dégradables</h2>
+
+    <p>Indépendamment de la taille des populations d’ongulés sauvages et des dégâts qu’ils provoquent, l’équilibre agro-sylvo-cynégétique est également lié à certaines caractéristiques des peuplements forestiers, et notamment à la superficie occupée par les peuplements dits « dégradables » (sensibles aux dégâts). En effet, à titre d’exemple, une plantation de sapin d’un hectare située au cœur d’un vaste massif de peuplements matures subira inévitablement des dégâts importants, quelque soit le niveau de population de cervidés, et sans que cela traduise pour autant une situation de déséquilibre.</p>
+
+    <p>La période de vulnérabilité des peuplements forestiers dépend du type de dégâts (abroutissement,frottis, écorçage) et des essences, mais les peuplements sont généralement considérés commedégradables au cours de leurs premiers stades de développement.</p>
+
+    <p>Il s’agira donc de créer, d’alimenteret de mettre régulièrement à jour une cartographie dynamique des peuplements sensibles, etnotamment les peuplements dont le processus de régénération (naturelle ou par plantation) a été initié ou est programmé.Ces informations pourront notamment être utilisées afin d’adapter la pression de chasse (en l’accentuant localement pendant plusieurs années, par exemple, sur une zone où des plantations ou travaux de mise en régénération sont programmés). Les données fourniront également des indications sur le degré de vulnérabilité des peuplements en régénération, via le ratio superficie forestière dégradable / superficie forestière totale, par exemple.</p>
+
+    <p>À l’heure actuelle, la méthodologie de mise en œuvre de ce volet de l’Observatoire n’a pas été définie. Elle le sera ultérieurement, en concertation avec les partenaires concernés.</p>
+
+  </div>
+
+{%- endblock %}
+

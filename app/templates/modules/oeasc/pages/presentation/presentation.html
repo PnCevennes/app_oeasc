@@ -1,13 +1,17 @@
-{%- extends "modules/oeasc/layout.html" %}
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
 
 
-{%- block title %}OEASC{%- endblock %}
+{%- block title %} presentation {%- endblock %}
 
-{%- block content %}
+{%- block sidebar %}
 
-<div class="row">
+ {% include "modules/oeasc/site/sidebar_presentation.html" %}
 
-  <div class="col-md-12 text">
+{%- endblock %}
+
+{%- block contentright %}
+
+    <div class=text>
 
     <h2>Présentation de l'observatoire</h2>
 
@@ -22,8 +26,6 @@
     </ul>
 
   </div>
-
-</div>
 
 {%- endblock %}
 

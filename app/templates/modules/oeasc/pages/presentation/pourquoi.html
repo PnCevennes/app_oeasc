@@ -1,18 +1,20 @@
-{%- extends "modules/oeasc/layout.html" %}
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
 
 
-{%- block title %}Accueil{%- endblock %}
+{%- block title %} pourquoi {%- endblock %}
 
-{%- block content %}
+{%- block sidebar %}
 
-<div class="row">
+ {% include "modules/oeasc/site/sidebar_presentation.html" %}
 
-  <div class="col-md-12">
+{%- endblock %}
+
+{%- block contentright %}
 
     <div class=text>
 
       <h2>Pourquoi un Observatoire de l’équilibre agro-syvo-cynégétique ?</h2>
-      <p>Depuis leur réintroduction dans les années 1970, les populations de cervidés sont globalement en nette progression. Les populations de sangliers présentent actuellement elles aussi une forte dynamique d’accroissement. Or, les ongulés sauvages exercent une certaine pression sur les milieux agricoles et forestiers, pouvant parfois aller jusqu’à remettre en cause la pérennité des activitésagricoles et sylvicoles.</p> 
+      <p>Depuis leur réintroduction dans les années 1970, les populations de cervidés sont globalement en nette progression. Les populations de sangliers présentent actuellement elles aussi une forte dynamique d’accroissement. Or, les ongulés sauvages exercent une certaine pression sur les milieux agricoles et forestiers, pouvant parfois aller jusqu’à remettre en cause la pérennité des activitésagricoles et sylvicoles.</p>
 
       <p>Depuis plusieurs années, nombre de gestionnaires ou de propriétaires forestiers, d’exploitants agricoles, mais également de résidents déclarent subir des dégâts importants liés à cette pression des ongulés sauvages.</p>
 
@@ -23,9 +25,5 @@
       <p>C’est pour répondre à ce défi complexe que l’établissement public du Parc national des Cévennes s’est engagé, avec ses partenaires, à la création et à la mise en œuvre d’un Observatoire partagé de l’équilibre agro-sylvo-cynégétique.</p>
 
     </div>
-
-  </div>
-
-</div>
 
 {%- endblock %}

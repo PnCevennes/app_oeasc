@@ -16,7 +16,7 @@ from .repository import (
 from .declaration_sample import declaration_dict_random_sample
 
 
-def display_mail_test():
+def display_mail_test(destinataire):
 
     declaration = declaration_dict_random_sample()
 
@@ -26,7 +26,7 @@ def display_mail_test():
 
     email_user = user['email']
 
-    return render_template('modules/oeasc/mail/validation_declaration.html', destinataire='user', declaration=declaration, user=user)
+    return render_template('modules/oeasc/mail/validation_declaration.html', destinataire=destinataire, declaration=declaration, user=user)
 
 
 def send_mail_test():

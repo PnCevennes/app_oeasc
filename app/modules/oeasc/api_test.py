@@ -132,10 +132,10 @@ def test_mail():
     return "ok"
 
 
-@bp.route("display_mail", methods=['GET'])
-def test_mail_display():
+@bp.route("display_mail/<string:destinataire>", methods=['GET'])
+def test_mail_display(destinataire):
 
-    return display_mail_test()
+    return display_mail_test(destinataire)
 
 
 @bp.route('csv', methods=['GET'])
@@ -159,7 +159,7 @@ def csv():
         'Essence(s) Complementaire(s)',
         'Type de peuplement',
         'Origine du peuplement',
-        'Paturage type',
+        'Pâturage type',
         'Pâturage statut',
         'Pâturage frequence',
         'Protection type ',

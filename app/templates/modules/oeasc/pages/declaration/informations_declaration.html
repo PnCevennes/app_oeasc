@@ -1,0 +1,136 @@
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
+
+
+{%- block title %} informations {%- endblock %}
+
+{%- block sidebar %}
+
+{% include "modules/oeasc/site/sidebar_declaration.html" %}
+
+{%- endblock %}
+
+{%- block contentright %}
+
+<div class="text">
+
+  <h2 id="avant_de_commencer">Avant de commencer</h2>
+
+  <p>Avant de débuter, nous vous remercions de bien vouloir prendre connaissance attentivement des informations et renseignements ci-dessous.</p>
+
+  <p>Le formulaire de déclaration de dégâts comporte plusieurs parties afin de collecter des renseignements à plusieurs niveaux :</p>
+
+  <ul>
+    <li>
+      <p>Celui de la <b>forêt</b> concernée par les dégâts.</p> 
+
+      <p><b>La forêt</b> doit être considérée ici au sens de la <b>propriété forestière</b>, et mise en relation avec un éventuel document de gestion (s’il existe).</p>
+
+      <p>Pour les forêts publiques, la forêt correspond au territoire couvert par l’aménagement forestier.</p>
+
+      <p>Pour les forêts privées, la forêt correspond aux parcelles forestières appartenant à un même propriétaire, situées sur une même commune ou des communes contigües, ou à celles faisant l’objet d’un plan simple de gestion (PSG) ou d’un Code de bonnes pratiques sylvicoles (CBPS).</p>
+    </li>
+
+    <li>
+      <p>Celui du <b>propriétaire</b> de la forêt concernée.</p> 
+      <p>Le terme englobe ici <b>toutes les formes de propriété</b> (pleine propriété, copropriété ou indivision), ainsi que les différentes situations de cession des droits de jouissance (usufruit, emphytéose, etc.).</p> 
+
+      <p>Le propriétaire peut être une personne physique (propriétaire privé), une personne morale de droit public (État, collectivité territoriale, établissement public) ou une personne morale de droit privé (association, entreprise commerciale, groupement foncier agricole ou forestier, société civile, etc...).</p>
+
+    </li>
+
+    <li>
+      <p>Celui du <b>peuplement forestier</b> subissant les dégâts.</p> 
+      <p>Un <b>peuplement</b> est défini comme une population d’arbres présentant une <b>structure</b> (hauteur et diamètre des arbres) et une <b>composition</b> (essences) relativement <b>homogènes</b> sur un espace déterminé.</p>
+    </li>
+  </ul>
+
+  <p><b>Un formulaire doit être renseigné <u>pour chaque peuplement</u></b> pour lequel vous souhaitez signaler une alerte. Si plusieurs peuplements sont touchés par des dégâts de gibier (au sein d’une même foret ou non), nous vous remercions de bien vouloir renseigner plusieurs formulaires (un pour chaque peuplement).</p>
+
+
+  <p>Lors du renseignement du formulaire, des info-bulles vous fourniront des précisions complémentaires afin de vous aider à répondre aux questions posées. En cas de doute ou d’incompréhension, nous vous invitons à contacter l’une des personnes référentes suivantes :</p>
+
+</div>
+
+<div>
+  <table class="table"  id="contacts">
+    <thead class="thead-dark">
+
+      <tr>
+        <th scope="col">Structure</th>
+        <th scope="col">Nom et prénom</th>
+        <th scope="col">N° de téléphone</th>
+        <th scope="col">Adresse e mail</th>
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr>
+        <td>Établissement du parc national des Cévennes</td>
+        <td>ALGOËT Baptiste</td>
+        <td>04 66 49 53 60</td>
+        <td>baptiste.algoet@cevennes-parcnational.fr</td>
+      </tr>
+
+      <tr>
+        <td>Centre régional de la propriété forestière</td>
+        <td>MOLINES Loïc</td>
+        <td>06 73 84 89 27</td>
+        <td>loic.molines@crpf.fr</td>
+      </tr>
+
+      <tr>
+        <td>Syndicat lozérien de la forêt privée</td>
+        <td>LAFONT Jean-Pierre</td>
+        <td>06 47 48 14 76</td>
+        <td>jpl.48@orange.fr</td>
+      </tr>
+
+      <tr>
+        <td>Syndicat des forestiers privés du Gard</td>
+        <td>CORRE Isabelle</td>
+        <td>06 08 16 63 59</td>
+        <td>isa.corre83@gmail.com</td>
+      </tr>
+
+    </tbody>
+
+  </table>
+</div>
+
+<div class="text">
+
+  <hr>
+
+  <div>
+
+    <div class="form-group">
+
+      <div class="flex">
+
+        <div>
+          <span class="big red fas fa-exclamation-triangle"></span> 
+        </div>
+
+        <div>
+          <p class=red>La notion d’équilibre sylvo-cynégétique étant étroitement liée à la pérennité économique des activités sylvicoles, seules les forêts à vocation de production peuvent faire l’objet d’une alerte.</p>
+        </div>
+
+      </div>
+
+    </div>
+
+    <hr>
+
+    <div class="">
+
+      {% set href=url_for('oeasc.modifier_declaration')%}
+      <button class='btn btn-primary' onclick="location.href='{{href}}'">Signaler un dégât en forêt</button>
+
+    </div>
+  </div>
+</div>
+
+{%- endblock %}
+

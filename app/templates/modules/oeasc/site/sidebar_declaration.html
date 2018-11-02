@@ -1,0 +1,27 @@
+{%- import "modules/oeasc/macros/macros.html" as m %}
+
+
+<div id="sidebar_sticky">
+
+  <ul>
+
+    <li>{{ m.link_bold("Le système d'alerte",'oeasc.signalement_degats_forestiers') }}</li>
+
+    <hr>
+
+    <li>{{ m.link_bold("Je déclare une nouvelle alerte",'oeasc.informations_declaration') }}</li>
+    <li>{{ m.link_bold("Je consulte mes alertes",'oeasc.declarations') }}</li>
+
+    {% if request.endpoint == 'oeasc.informations_declaration' %}
+    
+    <hr>
+
+    <li><a class="scroll-anime" href="#avant_de_commencer">Avant de commencer</a></li>
+    <li><a class="scroll-anime" href="#contacts">Contacts</a></li>
+    <li>{% set href=url_for('oeasc.modifier_declaration')%}
+      <button class='btn btn-primary' onclick="location.href='{{href}}'">Signaler un dégât en forêt</button></li>
+    {% endif %}  
+
+  </ul>
+
+</div>

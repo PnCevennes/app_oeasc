@@ -122,6 +122,19 @@ nav .dropdown-menu.right {
   width: 200px;
 }
 
+#sidebar_sticky {
+
+  position: sticky;
+  text-align: left;
+
+}
+
+#sidebar_sticky > ul {
+
+  list-style-type: none;
+  
+}
+
 nav .dropdown-menu {
 
   background-color: darkgrey;
@@ -134,6 +147,16 @@ a:hover, a.nav_link {
   color: darkorange;
 
 }
+
+#sidebar {
+
+  width: 300px;
+  /* position: fixed; */
+  left: 10px;
+  text-align: left;
+
+}
+
 
 .hidden {
 

@@ -92,7 +92,7 @@ def presentation():
     '''
         presentation du projet OEASC
     '''
-    return render_template('modules/oeasc/pages/presentation.html')
+    return render_template('modules/oeasc/pages/presentation/presentation.html')
 
 
 @bp.route('/pourquoi')
@@ -100,7 +100,7 @@ def pourquoi():
     '''
         pourquoi du projet OEASC
     '''
-    return render_template('modules/oeasc/pages/pourquoi.html')
+    return render_template('modules/oeasc/pages/presentation/pourquoi.html')
 
 
 @bp.route('/objectifs')
@@ -108,7 +108,7 @@ def objectifs():
     '''
         objectifs du projet OEASC
     '''
-    return render_template('modules/oeasc/pages/objectifs.html')
+    return render_template('modules/oeasc/pages/presentation/objectifs.html')
 
 
 @bp.route('/contenu')
@@ -116,7 +116,7 @@ def contenu():
     '''
         contenu du projet OEASC
     '''
-    return render_template('modules/oeasc/pages/contenu.html')
+    return render_template('modules/oeasc/pages/presentation/contenu.html')
 
 
 @bp.route('/signalement_degats_forestiers')
@@ -124,7 +124,7 @@ def signalement_degats_forestiers():
     '''
         accueil pour les signalement de degat forestiers
     '''
-    return render_template('modules/oeasc/pages/systeme_alerte.html')
+    return render_template('modules/oeasc/pages/declaration/systeme_alerte.html')
 
 
 @bp.route('informations_declaration')
@@ -134,7 +134,7 @@ def informations_declaration():
         page d'informations, en prélude au formulaire
     '''
 
-    return render_template("modules/oeasc/pages/informations_declaration.html")
+    return render_template("modules/oeasc/pages/declaration/informations_declaration.html")
 
 
 @bp.route('/modifier_ou_creer_declaration/', defaults={'id_declaration': -1})
@@ -162,7 +162,7 @@ def modifier_declaration(id_declaration):
 
     # check_foret(declaration_dict)
 
-    return render_template('modules/oeasc/pages/modifier_ou_creer_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
+    return render_template('modules/oeasc/pages/declaration/modifier_ou_creer_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 
 
 @bp.route('/declaration/<int:id_declaration>')
@@ -180,7 +180,7 @@ def declaration(id_declaration):
 
     nomenclature = nomenclature_oeasc()
 
-    return render_template('modules/oeasc/pages/declaration.html', declaration=declaration_dict, nomenclature=nomenclature)
+    return render_template('modules/oeasc/pages/declaration/declaration.html', declaration=declaration_dict, nomenclature=nomenclature)
 
 
 @bp.route('/declarations')
@@ -202,18 +202,18 @@ def declarations():
 
     declarations = get_declarations(False, id_declarant)
 
-    return render_template('modules/oeasc/pages/declarations.html', declarations=declarations, nomenclature=nomenclature)
+    return render_template('modules/oeasc/pages/declaration/declarations.html', declarations=declarations, nomenclature=nomenclature)
 
 
 @bp.route('/suivi_equilibre_ASC')
-def suivi():
+def resultats():
     '''
         page du suvi de l'équilibre ASC
 
         TODO
     '''
 
-    return render_template('modules/oeasc/pages/suivi.html')
+    return render_template('modules/oeasc/pages/resultats/resultats.html')
 
 
 @bp.route('/plan_site')

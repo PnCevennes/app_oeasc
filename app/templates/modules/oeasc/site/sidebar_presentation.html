@@ -1,0 +1,32 @@
+{%- import "modules/oeasc/macros/macros.html" as m %}
+
+
+<div id="sidebar_sticky">
+
+  <ul>
+
+    <li>{{ m.link_bold("Présentation",'oeasc.presentation') }}</li>
+
+    <hr>
+
+    <li>{{ m.link_bold("Pourquoi",'oeasc.pourquoi') }}</li>
+    <li>{{ m.link_bold("Les objectifs",'oeasc.objectifs') }}</li>
+    <li>{{ m.link_bold("Le contenu",'oeasc.contenu') }}</li>
+
+
+    {% if request.endpoint == 'oeasc.contenu' %}
+    
+    <hr>
+
+    <li><a class="scroll-anime" href="#donnees_milieu_agricole"><i>Données sur les milieux agricoles</i></a></li>
+    <li><a class="scroll-anime" href="#donnees_cynegetiques"><i>Données cynégétiques</i></a></li>
+    <li><a class="scroll-anime" href="#ICE"><i>ICE</i></a></li>
+    <li><a class="scroll-anime" href="#systeme_alerte"><i>Système d’alerte</i></a></li>
+    <li><a class="scroll-anime" href="#diagnostic_sylvicole"><i>Diagnostics sylvicoles</i></a></li>
+    <li><a class="scroll-anime" href="#recensement_peuplement_degradable"><i>Recensement des peuplements dégradables</i></a></li>
+
+    {% endif %}  
+
+  </ul>
+
+</div>

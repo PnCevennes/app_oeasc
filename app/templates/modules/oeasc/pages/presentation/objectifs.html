@@ -1,17 +1,19 @@
-{%- extends "modules/oeasc/layout.html" %}
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
 
 
-{%- block title %}Accueil{%- endblock %}
+{%- block title %} objectifs {%- endblock %}
 
-{%- block content %}
+{%- block sidebar %}
 
-<div class="row">
+ {% include "modules/oeasc/site/sidebar_presentation.html" %}
 
-  <div class="col-md-12">
+{%- endblock %}
+
+{%- block contentright %}
 
     <div class=text>
 
-      <h2>Les objectifs de l’Observatoire</h2>
+      <h2>Les objectifs de l’observatoire</h2>
 
       <p>L’objectif global de l’Observatoire de l’équilibre agro-sylvo-cynégétique est d’apprécier et de suivre l’état d’équilibre entre les populations d’ongulés sauvages (cerfs, chevreuil, sangliers et mouflons), leur milieu de vie et les activités humaines (et notamment agricoles et forestières).</p>
 
@@ -24,10 +26,6 @@
       <p>Enfin, il est essentiel de rappeler que l’Observatoire de l’équilibre agro-sylvo-cynégétique a vocation à constituer un outil d’aide à la gestion et à la décision. Les données, collectées selon des méthodologies validées par l’ensemble des partenaires, et les résultats qui en sont issus, sont destinées à être utilisées par les gestionnaires lors de la détermination des modalités de gestion des populations d’ongulés sauvages et des milieux forestiers et agricoles.</p>
 
     </div>
-
-  </div>
-
-</div>
 
 {%- endblock %}
 

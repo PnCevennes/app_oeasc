@@ -121,17 +121,17 @@
 
           <div class="form-group">
 
-            <h5>Peuplement - paturage</h5>
+            <h5>Peuplement - pâturage</h5>
 
             <ul>
-              <li><b>Existence de paturage</b> : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}.</li>
+              <li><b>Existence de pâturage</b> : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}.</li>
 
               {%- if declaration['b_peuplement_paturage_presence'] %}
 
-              {{macros.list_nomenclatures('Type de paturage', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
-              {{macros.list_nomenclatures('Fréquence du paturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
+              {{macros.list_nomenclatures('Type de pâturage', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
+              {{macros.list_nomenclatures('Fréquence du pâturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
-              <li><b>Fréquence du paturage</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | nopar | lower }}. </li>
+              <li><b>Fréquence du pâturage</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | nopar | lower }}. </li>
 
               {%- endif %}
 
