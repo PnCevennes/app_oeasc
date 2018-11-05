@@ -125,6 +125,7 @@ def get_degats():
 
 
 @bp.route("send_mail", methods=['GET'])
+@check_auth_redirect_login(1)
 def test_mail():
 
     send_mail_test()

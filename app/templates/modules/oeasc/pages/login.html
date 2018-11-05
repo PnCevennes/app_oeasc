@@ -11,7 +11,7 @@
 
         <form class="container main-zone ng-scope " id="form_login">
 
-            {% if "modifier_ou_creer_declaration" in redirect %}
+            {% if "modifier_ou_creer_declaration" in redirect_url %}
 
             <p class='red'> Vous devez vous identifier afin de déclarer des dégâts en forêt.</p>
 
@@ -59,7 +59,8 @@
 
         $("#login-error").hide();
 
-        var redirection = $(location).attr('origin') + '/'+ '{{ redirect }}'.replace(/\&#34;/g, '');
+        // var redirection = $(location).attr('origin') + '/'+ '{{ redirect_url }}'.replace(/\&#34;/g, '');
+        var redirection = '{{ redirect_url }}'.replace(/\&#34;/g, '');
 
         console.log(redirection);
 

@@ -4,7 +4,7 @@
     {%- set foret = declaration["foret"]%}
 
 
-    <p>Utilisateur</p>
+    <p>Utilisateur :</p>
 
     <ul>
       <li><b>Nom - prénom</b> : {{user.nom_role}} {{user.prenom_role}}</li>
@@ -15,7 +15,7 @@
     </ul>
 
 
-    <p>Forêt</p>
+    <p>Forêt :</p>
     <ul>
 
       <li><b>Nom de la forêt</b> : {{foret.nom_foret if foret.nom_foret!="" else "nom inconnu"}}.</li>
@@ -41,10 +41,10 @@
 
     </ul>
 
-    <p>Peuplement</p>
+    <p>Peuplement :</p>
 
     <ul>
-      <li>Localisation
+      <li>Localisation :
         <ul>
           {{ macros.list_areas('OEASC_CADASTRE', 'Parcelle(s) cadastrales(s)', declaration["areas_localisation"], 'li') }}
           {{ macros.list_areas('OEASC_ONF_PRF', 'Parcelle(s) forestière(s)', declaration["areas_localisation"], 'li') }}
@@ -52,7 +52,7 @@
         </ul>
       </li>
 
-      <li>Essence(s)
+      <li>Essence(s) :
         <ul>
           <li><b>Principale</b> : {{ declaration.id_nomenclature_peuplement_essence_principale.label_fr | lower }}.</li>
           {{macros.list_nomenclatures('Secondaire(s)', declaration.nomenclatures_peuplement_essence_secondaire, 'li')}}
@@ -60,7 +60,7 @@
         </ul>
       </li>
 
-      <li>Détails
+      <li>Détails :
 
         <ul>
           <li><b>Origine du peuplement</b> : {{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}.</li>
@@ -75,7 +75,7 @@
         </ul>
       </li>
 
-      <li>Protection
+      <li>Protection :
 
         <ul>
           <li><b>Existence de protection</b> : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}.</li>
@@ -87,7 +87,7 @@
 
 
 
-      <li>Pâturage
+      <li>Pâturage :
 
         <ul>
           <li><b>Existence de paturage</b> : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}.</li>
@@ -105,7 +105,7 @@
       </li>
 
 
-      <li>Peuplement - autres
+      <li>Autres :
 
         <ul>
           <li><b>Accessibilité du peuplement</b> : {{ declaration.id_nomenclature_peuplement_acces.label_fr | lower }}.</li>
@@ -115,13 +115,55 @@
         </ul>
 
       </li>
+</ul>
+
+      <p>Caractétisation des dégâts :</p>
+
+<ul>
+
+  {%- for degat in declaration.degats %}
+
+  <li>  <b>{{ degat.id_nomenclature_degat_type.label_fr }}</b>
+
+    <ul>
+
+      {%- for degat_essence in degat['degat_essences'] %}
+
+      {% if degat_essence != {} %}
+
+      <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.mnemonique == 'ABS' else " :"}}
+
+        {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
+{#         <ul>
+
+          <li><i>étendue</i> : {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},</li>
+          <li><i>gravité</i> : {{ degat_essence.id_nomenclature_degat_gravite.label_fr | lower}},</li>
+          <li><i>antériorité</i> : {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr | lower}}.</li>
+
+        </ul>
+ #}
+        {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},
+        {{ degat_essence.id_nomenclature_degat_gravite.label_fr | lower}},
+        {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr | nopar | lower}}.
+
+        {% endif %}
+
+      </li>
+
+      {% endif %}
+
+      {%- endfor %}
+
+    </ul>
+
+  </li>
+
+  {%- endfor %}
+
+</ul>
 
 
-      {%- include "modules/oeasc/entity/degats.html"%}
 
 
+      <p>Commentaires : {{ declaration.commentaire|nl2br or "" }}</p>
 
-
-      <h5>Commentairess</h5>
-
-      {{ declaration.commentaire|nl2br or "" }}

@@ -32,6 +32,8 @@ from app.ref_geo.models import LAreas
 
 from .mail import send_mail_validation_declaration
 
+from .utils import check_auth_redirect_login
+
 
 bp = Blueprint('oeasc_api', __name__)
 
@@ -82,6 +84,7 @@ def declaration(id_declaration):
 
 
 @bp.route('get_form_declaration', methods=['POST'])
+@check_auth_redirect_login(1)
 @json_resp
 def get_form_declaration():
     '''
@@ -107,6 +110,7 @@ def get_form_declaration():
 
 
 @bp.route('delete_declaration/<int:id_declaration>', methods=['POST'])
+@check_auth_redirect_login(4)
 @json_resp
 def delete_declaration(id_declaration):
     '''
@@ -123,6 +127,7 @@ def delete_declaration(id_declaration):
 
 
 @bp.route('random_declaration', methods=['GET'])
+@check_auth_redirect_login(5)
 @json_resp
 def random_declaration():
     '''
@@ -136,6 +141,7 @@ def random_declaration():
 
 @bp.route('random_populate', defaults={'nb': 1}, methods=['GET'])
 @bp.route('random_populate/<int:nb>', methods=['GET'])
+@check_auth_redirect_login(5)
 @json_resp
 def random_populate(nb):
     '''
@@ -164,6 +170,7 @@ def random_populate(nb):
 
 
 @bp.route('create_or_update_declaration', methods=['POST'])
+@check_auth_redirect_login(1)
 @json_resp
 def create_or_update_declaration():
     '''

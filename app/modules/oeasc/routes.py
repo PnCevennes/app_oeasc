@@ -1,12 +1,10 @@
 from flask import (
-    Blueprint, render_template, request, session
+    Blueprint, render_template, request, session, g, redirect, url_for
 )
 
 from .models import (
     TDeclaration,
 )
-
-from pypnusershub import routes as fnauth
 
 from .repository import (
     nomenclature_oeasc,
@@ -19,16 +17,23 @@ from .repository import (
 
 from config import config
 
+from .utils import check_auth_redirect_login
+
 from .utils import (
     get_listes_essences,
     # check_foret,
 )
 
+
+
+
+
+
 bp = Blueprint('oeasc', __name__)
 
 
 @bp.route('/users')
-@fnauth.check_auth(4, False, 'oeasc/login?redirect="oeasc/users"')
+@check_auth_redirect_login(4)
 def users():
     '''
 
@@ -40,7 +45,7 @@ def users():
 
 
 @bp.route('/user')
-@fnauth.check_auth(1, False, 'oeasc/login?redirect="oeasc/user"')
+@check_auth_redirect_login(1)
 def user():
     '''
 
@@ -61,9 +66,9 @@ def login():
         page de connection
     '''
 
-    redirect = request.args.get('redirect', "")
+    redirect_url = request.args.get('redirect', "")
 
-    return render_template('modules/oeasc/pages/login.html', config=config, id_app=config.ID_APP, redirect=redirect)
+    return render_template('modules/oeasc/pages/login.html', config=config, id_app=config.ID_APP, redirect_url=redirect_url)
 
 
 @bp.route('/register')
@@ -128,7 +133,7 @@ def signalement_degats_forestiers():
 
 
 @bp.route('informations_declaration')
-@fnauth.check_auth(1, False, 'oeasc/login?redirect="oeasc/informations_declaration"')
+@check_auth_redirect_login(1)
 def informations_declaration():
     '''
         page d'informations, en prélude au formulaire
@@ -139,7 +144,7 @@ def informations_declaration():
 
 @bp.route('/modifier_ou_creer_declaration/', defaults={'id_declaration': -1})
 @bp.route('/modifier_ou_creer_declaration/<int:id_declaration>')
-@fnauth.check_auth(1, False, 'oeasc/login?redirect="oeasc/modifier_ou_creer_declaration/"')
+@check_auth_redirect_login(1)
 def modifier_declaration(id_declaration):
     '''
         page de declaration ou modification de degats forestiers
@@ -184,7 +189,7 @@ def declaration(id_declaration):
 
 
 @bp.route('/declarations')
-@fnauth.check_auth(1, False, 'oeasc/login?redirect="oeasc/declarations"')
+@check_auth_redirect_login(1)
 def declarations():
     '''
         page affichant la liste de declaration d'un utilisateur et de sa strucutre

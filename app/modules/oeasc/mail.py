@@ -35,19 +35,7 @@ def send_mail_test():
 
     declaration = f_create_or_update_declaration(declaration)
 
-    user = get_user(declaration['id_declarant'])
-
-    email_user = user['email']
-
-    msg = Message(
-        '[OEASC] Votre déclaration a bien été prise en compte',
-        sender=config.DEFAULT_MAIL_SENDER,
-        recipients=[email_user],
-        bcc=[config.MAIL_ANIMATEUR])
-
-    msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='user', declaration=declaration, user=user)
-
-    mail.send(msg)
+    return send_mail_validation_declaration(declaration)
 
 
 def send_mail_validation_declaration(declaration):
@@ -58,11 +46,20 @@ def send_mail_validation_declaration(declaration):
 
     email_user = user['email']
 
-    msg = Message(
-        '[OEASC] Votre déclaration a bien été prise en compte',
-        sender=config.DEFAULT_MAIL_SENDER,
-        recipients=[email_user],
-        bcc=[config.MAIL_ANIMATEUR])
-    msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='user', declaration=declaration, user=user)
+    with mail.connect() as conn:
 
-    mail.send(msg)
+        msg = Message(
+            '[OEASC] Votre déclaration a bien été prise en compte',
+            sender=config.DEFAULT_MAIL_SENDER,
+            recipients=[email_user])
+        msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='user', declaration=declaration, user=user)
+
+        conn.send(msg)
+
+        msg = Message(
+            '[OEASC] Nouvelle déclaration',
+            sender=config.DEFAULT_MAIL_SENDER,
+            recipients=[config.MAIL_ANIMATEUR])
+        msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='animateur', declaration=declaration, user=user)
+
+        conn.send(msg)

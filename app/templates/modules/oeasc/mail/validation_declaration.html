@@ -1,8 +1,23 @@
+{% if destinataire == "user" %}
 
-{{destinataire}}
+<p>Votre déclaration à bien été prise en compte</p>
+
+{% else %}
 
 <p>Une nouvelle déclaration a été effectuée</p>
 
-<p> voici les détails de la déclaration : </p>
+{% endif %}
+
+<a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">
+Voir la déclaration
+</a>
+
+<br>
+
+<a href="{{ url_for('oeasc.modifier_declaration', id_declaration=declaration['id_declaration'])}}">
+Modifier la déclaration
+</a>
+
+<p> Voici les détails de la déclaration : </p>
 
 {%- include "modules/oeasc/mail/declaration_mail.html" %}
