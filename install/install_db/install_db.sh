@@ -39,14 +39,16 @@ fi
 
 if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
 then
+
     user_pg=$user_install
-    EXPORT PGPASSWORD="$user_install_pass"
+    export PGPASSWORD="$user_install_pass"
 
 else
 
-    EXPORT PGPASSWORD="$user_pg_pass"
+    export PGPASSWORD="$user_pg_pass"
 
 fi
+
 
 # test de la connextion SQL
 
