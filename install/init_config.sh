@@ -51,12 +51,12 @@ sed -i -e s/'^URL_USERHUB.*'/"URL_USERHUB = \"http:\/\/"$URL_USERHUB\"/ config/c
 sed -i -e s/'^SQLALCHEMY_DATABASE_URI.*'/"SQLALCHEMY_DATABASE_URI = \""$DB_URI\"/ config/config.py #> config/config.py
 
 
-for var in "MAIL_ANIMATEUR" "DEFAULT_MAIL_SENDER" "MAIL_SERVER" "MAIL_PORT" "MAIL_PASSWORD" "MAIL_USE_TLS" "MAIL_USERNAME" "MAIL_ANIMATEUR" "MAIL_USE_SSL";
+for var in "MAIL_ANIMATEUR" "DEFAULT_MAIL_SENDER" "MAIL_SERVER" "MAIL_PORT" "MAIL_PASSWORD" "MAIL_USERNAME" "MAIL_ANIMATEUR" "MAIL_USE_SSL";
 do
     replace_str $var
 done
 
-for var in "ID_APP"
+for var in "ID_APP" "MAIL_USE_TLS" "MAIL_USE_SSL"
 do
     replace_num $var
 done
