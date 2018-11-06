@@ -125,6 +125,8 @@ then
 echo "GRANT USAGE ON SCHEMA oeasc TO $user_pg_save;
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oeasc TO $user_pg_save;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA oeasc TO $user_pg_save;
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ref_geo TO $user_pg_save;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA ref_geo TO $user_pg_save;
 " | $psqla >> $log_file
 
 fi
