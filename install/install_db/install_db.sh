@@ -122,7 +122,7 @@ echo ajout des données géographiques
 if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
 then
 
-echo "GRANT SELECT ON ALL TABLES IN SCHEMA oeasc TO ROLE $user_pg_save;" | $psqla >> $log_file
+echo "GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO $user_pg_save;" | $psqla >> $log_file
 
 fi
 
