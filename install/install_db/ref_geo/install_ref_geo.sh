@@ -30,7 +30,13 @@ modifs=0
 # clear_geometry OEASC_COMMUNE
 # clear_geometry OEASC_ONF_UG
 
-#clear_all
+if [ "$reset_geom" == "true" ]
+then
+
+echo reinit geometries
+clear_all
+
+fi
 
 reinit_seq_l_areas
 #Perimetres

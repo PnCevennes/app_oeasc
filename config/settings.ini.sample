@@ -15,7 +15,7 @@ user_install=""
 #user propriétaire de la base de l'application
 user_install_pass=""
 
-
+reset_geom=false
 
 #Configuration python
 ###########################

@@ -178,9 +178,9 @@
 {%- endmacro %} #}
 
 
-{%- macro radio_nomenclature(name, nomenclature, mnemonique, type, titre="", object=None, add="") %}
+{%- macro radio_nomenclature(name, nomenclature, mnemonique, type, titre="", object=None, add="", required="required") %}
 
-{%- if type == "checkbox" %}
+{%- if type == "checkbox" and required %}
 
   {%- set classes = "checkbox-group-required" %}
 
@@ -218,8 +218,11 @@
 
     <div class="custom-control">
 
-      <input id="{{ name }}{{ add|string }}-{{ loop.index0 }}" name="{{ name }}{{ add|string }}" type="{{ type }}" value="{{ elem.id_nomenclature }}" {{ns.checked}} required>
+{#       <input id="{{ name }}{{ add|string }}-{{ loop.index0 }}" name="{{ name }}{{ add|string }}" type="{{ type }}" value="{{ elem.id_nomenclature }}" {{ns.checked}} required>
       <label for="{{ name }}{{ add|string }}-{{ loop.index0 }}">{{ elem.label_fr }}</label>
+ #}
+      <input id="{{ name }}{{ add|string }}-{{ elem.mnemonique | cleanid }}" name="{{ name }}{{ add|string }}" type="{{ type }}" value="{{ elem.id_nomenclature }}" {{ns.checked}} {{required}}>
+      <label for="{{ name }}{{ add|string }}-{{ elem.mnemonique | cleanid }}">{{ elem.label_fr }}</label>
 
     </div>
 

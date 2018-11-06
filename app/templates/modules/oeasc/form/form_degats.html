@@ -43,8 +43,13 @@
       {%- endif %}
 
 
-      <input id="nomenclatures_degat_type-{{ loop.index0 }}" name="nomenclatures_degat_type" type="checkbox" value="{{ elem.id_nomenclature }}" {{ns.checked}} data-id-degat="{{ns.id_degat}}" >
+{#
+       <input id="nomenclatures_degat_type-{{ loop.index0 }}" name="nomenclatures_degat_type" type="checkbox" value="{{ elem.id_nomenclature }}" {{ns.checked}} data-id-degat="{{ns.id_degat}}" >
       <label for="nomenclatures_degat_type-{{ loop.index0 }}">{{ elem.label_fr }}</label>
+ #}
+
+      <input id="nomenclatures_degat_type-{{ elem.mnemonique }}" name="nomenclatures_degat_type" type="checkbox" value="{{ elem.id_nomenclature }}" {{ns.checked}} data-id-degat="{{ns.id_degat}}" >
+      <label for="nomenclatures_degat_type-{{ elem.mnemonique }}">{{ elem.label_fr }}</label>
 
       {%- if ns.ind != -1 and mnemonique_degat_type != "P/C" %}
       {%- set degat = degats[ns.ind] %}

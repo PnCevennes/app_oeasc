@@ -122,3 +122,17 @@ def nopar(eval_ctx, value):
     s2 = re.sub(r"\(.*\)", "", value)
     s2 = s2.strip()
     return s2
+
+
+@app.template_filter()
+@evalcontextfilter
+def cleanid(eval_ctx, value):
+
+    if not value:
+
+        return ""
+
+    s2 = value.replace(" ", "")
+    s2 = s2.replace(".", "")
+    s2 = s2.strip()
+    return s2
