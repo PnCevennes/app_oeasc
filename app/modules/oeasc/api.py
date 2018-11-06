@@ -16,7 +16,8 @@ from .declaration_sample import declaration_dict_random_sample
 from .utils import (
     get_listes_essences,
     check_foret,
-    check_proprietaire
+    check_proprietaire,
+    check_massif,
 )
 
 from .models import (
@@ -103,6 +104,7 @@ def get_form_declaration():
 
     check_foret(declaration_dict)
     check_proprietaire(declaration_dict)
+    check_massif(declaration_dict)
 
     listes_essences = get_listes_essences(declaration_dict)
 
@@ -185,7 +187,7 @@ def create_or_update_declaration():
 
     d = f_create_or_update_declaration(declaration_dict)
 
-    send_mail_validation_declaration(declaration_dict)
+    send_mail_validation_declaration(d)
 
     return d
 

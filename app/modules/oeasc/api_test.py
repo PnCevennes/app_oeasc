@@ -39,6 +39,9 @@ from .mail import (
     send_mail_test,
     display_mail_test,
 )
+
+from .utils import check_auth_redirect_login
+
 bp = Blueprint('oeasc_export', __name__)
 
 

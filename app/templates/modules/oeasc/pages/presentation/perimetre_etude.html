@@ -1,0 +1,64 @@
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
+
+
+{%- block title %} zone d'étude {%- endblock %}
+
+{%- block sidebar %}
+
+{% include "modules/oeasc/site/sidebar_presentation.html" %}
+
+{%- endblock %}
+
+{%- block contentright %}
+
+
+<div class="text">
+  <h2>Périmètre de l'Observatoire</h2>
+
+  <p>Le périmètre de l’Observatoire de l’équilibre agro-sylvo-cynégétique est constitué des communes (d’après leurs limites avant les fusions les plus récentes de certaines communes<sup><small>1</small></sup>) en partie incluses dans le cœur du Parc national des Cévennes ou frontalières avec celui-ci.</p>
+
+  <p>Le périmètre a été découpé en quatre secteurs d’étude, correspondant aux quatre grandes entités biogéographiques du territoire : le Mont Lozère au nord, les Vallées cévenoles à l’est, les Causses et les gorges à l’ouest, et le Mont Aigoual au sud. Le découpage en secteurs d’étude a également tenu compte des habitudes de chasse et des territoires de chasse utilisés pour la définition des plans de chasse.</p>
+
+<hr>
+<small><i>(1) : fusion ayant abouti à la création des nouvelles communes de Massegros-Causses-Gorges, Gorges-du-Tarn-Causses, Mont-Lozère-et-Goulet</i></small>
+</div>
+<div>
+
+
+  <div id="map_acceuil" class="map"></div>
+
+</div>
+
+<div class=text>
+
+</div>
+
+{%- endblock %}
+
+{%- block js_local %}
+
+{{ super() }}
+
+<script>
+
+  $(document).ready(function() {
+
+    "use strict";
+
+    var map_init = M.carte_base_oeasc("acceuil");
+
+    var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/AA_PNC', {style: M.style.aa}).addTo(map_init);
+    var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/ZC_PNC', {style: M.style.zc}).addTo(map_init);
+    var l_secteurs_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR', {style: M.style.oeasc, pane: 'PANE_0'}).addTo(map_init);
+
+
+
+    $(".legend").append('<div id="#legend-aa"><i style="background: ' + M.color.zc + '; border: 1px solid black;"></i> ' +"Zone cœur du Parc National" + '</div>');
+    $(".legend").append('<div id="#legend-zc"><i style="background: ' + M.color.aa + '; border: 1px solid black;"></i> ' +"Aire d'adhésion du Parc National" + '</div>');
+
+  });
+
+</script>
+
+{%- endblock %}
+

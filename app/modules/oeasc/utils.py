@@ -40,6 +40,8 @@ from flask import request
 from functools import wraps
 from pypnusershub import routes as fnauth
 
+from sqlalchemy import func
+
 def check_auth_redirect_login(level):
     '''
         use fnauth.check_auth to check user auth
@@ -151,12 +153,41 @@ def copy_list(liste):
     return [elem for elem in liste]
 
 
+def check_massif(declaration_dict):
+    '''
+        renseigne le massif dans declaration_dict['areas_localisation'] si non renseigné
+    '''
+
+    areas = get_areas_from_type_code(declaration_dict['areas_localisation'], 'OEASC_CADASTRE')
+    areas += get_areas_from_type_code(declaration_dict['areas_localisation'], 'OEASC_ONF_UG')
+
+    if not areas:
+
+        return
+
+    areas_massif = get_areas_from_type_code(declaration_dict['areas_localisation'], 'OEASC_SECTEUR')
+
+    if areas_massif:
+
+        return
+
+    id_areas = [area['id_area'] for area in areas]
+
+    area = DB.session.query(TAreas).filter(TAreas.id_area == func.ref_geo.get_massif(id_areas)).first()
+
+    if not area:
+
+        return
+
+    declaration_dict['areas_localisation'].append({'id_area': area.id_area})
+
+    get_dict_nomenclature_areas(declaration_dict)
+
+
 def check_proprietaire(declaration_dict):
     '''
         Dans le cas ou le propretaire est le declarant
     '''
-
-    nomenclature = nomenclature_oeasc()
 
     if declaration_dict['foret'].get('b_document', None) != False or declaration_dict['foret'].get('b_statut_public', None) != False:
         return -1

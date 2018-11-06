@@ -121,7 +121,7 @@
     <div class="center">
       <div class="form-group form-text">
 
-        {{ macros.choix("Oui", "Non", 'b_peuplement_protection_existence' ,'Existence de dispositifs de protection contre les ongulés sauvages', object=declaration) }}
+        {{ macros.choix("Oui", "Non", 'b_peuplement_protection_existence' ,'Existence de dispositifs de protection contre le grand gibier', object=declaration) }}
 
         {%- if declaration['b_peuplement_protection_existence'] %}
 
@@ -194,7 +194,7 @@
 
         {{ macros.radio_nomenclature("id_nomenclature_peuplement_acces", nomenclature, "OEASC_PEUPLEMENT_ACCES", "radio", "Accessibilité du peuplement", object=declaration) }}
 
-        {{ macros.radio_nomenclature("nomenclatures_peuplement_espece", nomenclature, "OEASC_PEUPLEMENT_ESPECE", "checkbox", "Espèces d’ongulés sauvages dont la présence est avérée sur le peuplement (observations directes ou indices de présence)", object=declaration) }}
+        {{ macros.radio_nomenclature("nomenclatures_peuplement_espece", nomenclature, "OEASC_PEUPLEMENT_ESPECE", "checkbox", "Grand gibier dont la présence est avérée sur le peuplement (observations directes ou indices de présence)", object=declaration) }}
 
       </div>
     </div>

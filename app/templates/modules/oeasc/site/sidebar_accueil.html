@@ -1,0 +1,26 @@
+{%- import "modules/oeasc/macros/macros.html" as m %}
+
+
+<div id="sidebar_sticky">
+
+  <ul>
+
+<li>{% set href=url_for('oeasc.informations_declaration')%}
+      <button class='btn btn-primary' onclick="location.href='{{href}}'">Signaler un dégât en forêt</button></li>
+
+    <hr>
+
+    <li>{{ m.link_bold("Présentation",'oeasc.presentation') }}</li>
+
+    <hr>
+
+    <li>{{ m.link_bold("Le système d'alerte",'oeasc.signalement_degats_forestiers') }}</li>
+
+    <hr>
+
+    <li>{{ m.link_bold("Le suivi de l'équilibre agro-sylvo-cynégétique",'oeasc.resultats') }}</li>
+
+
+  </ul>
+
+</div>

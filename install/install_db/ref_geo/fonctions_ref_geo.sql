@@ -143,3 +143,29 @@ BEGIN
 END;
 $BODY$
 LANGUAGE 'plpgsql' VOLATILE;
+
+
+DROP FUNCTION IF EXISTS ref_geo.get_massif(integer []);
+
+CREATE OR REPLACE FUNCTION ref_geo.get_massif(
+    IN myidareas integer[])
+  
+  RETURNS integer AS
+$BODY$
+    DECLARE id_area_out INTEGER;
+        BEGIN
+        
+                WITH centroid AS (SELECT ST_CENTROID(ST_UNION(l.geom)) as geom
+                    FROM ref_geo.l_areas as l
+                    WHERE l.id_area = ANY(myidareas))
+
+        SELECT into id_area_out l.id_area
+            FROM ref_geo.l_areas as l, centroid
+            WHERE l.id_type = ref_geo.get_id_type('OEASC_SECTEUR') AND
+            ST_INTERSECTS(l.geom, centroid.geom);
+            
+        RETURN id_area_out;
+          END;
+    $BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;

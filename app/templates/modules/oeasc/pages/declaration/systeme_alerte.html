@@ -15,24 +15,21 @@
 
     <h2>Le système d'alerte</h2>
 
-    <h3>Description</h3>
+    <h3>Déclaration de dégâts de gibier en forêt</h3>
 
-    <p>Le système d’alerte de l’Observatoire vous permet de faire remonter des informations sur les dégâts d’ongulés sauvages constatés sur votre forêt (ou celle dont vous êtes gestionnaire gestionnaire).</p>
+<p>Le système d’alerte de l’Observatoire vous permet de signaler des dégâts de grand gibier (cerf, chevreuil, sanglier, mouflon) constatés sur votre forêt, ou celle dont vous êtes gestionnaire.
+En renseignant un formulaire en ligne, <b>vous participez donc à la transmission d’informations essentielles</b> aux décideurs pour la définition de meures de gestion pertinentes et adaptées à la réalité de terrain.</p>
 
-    <p>En renseignant un formulaire en ligne, vous participez donc à la transmission d’informations essentielles aux décideurs pour la définition de meures de gestion pertinentes et adaptées à la réalité de terrain.</p>
+<p>Que vous soyez propriétaire ou gestionnaire de vastes superficies forestières ou de quelques petites parcelles occupées par de la forêt, si vous y constatez des dégâts de grand gibier, nous vous invitons donc à prendre le temps de <a href="{{url_for('oeasc.register')}}"><b>créer un compte « utilisateur »</b></a> et à <b>renseigner le formulaire d’alerte en ligne.</b><p>
 
-    <p>Que vous soyez propriétaire de vastes superficies forestières ou de quelques parcelles réduites occupées par de la forêt, gestionnaire de forêts privées ou agent d’un établissement ayant en charge la gestion de forêts publiques, si vous constatez des dégâts d’ongulés sauvages (cerf, chevreuil, sanglier, mouflon) sur votre forêt (ou celle dont vous êtes gestionnaire), nous vous invitons donc à prendre le temps de créer un compte « utilisateur » et à signaler une alerte en ligne.</p>
+<hr>
 
-    <p>La notion d’équilibre sylvo-cynégétique étant étroitement liée à la pérennité économique des activités sylvicoles, seules les forêts à vocation de production peuvent faire l’objet d’une alerte.</p>
+<p><b>Les informations fournies resteront strictement confidentielles</b></p>
 
-    <h3>Déclaration et consultation des alertes</h3>
+<hr>
 
-    <ul>
-
-        <li><a href="{{ url_for('oeasc.informations_declaration') }}">Je déclare des dégâts sur ma forêt (ou la forêt dont je suis le gestionnaire).</a></li>
-        <li><a href="{{ url_for('oeasc.declarations') }}">Je consulte mes alertes.</a></li>
-
-    </ul>
+<p>Pour toute information complémentaire, nous vous invitons à consulter les réponses aux questions principales ci-dessous.
+Si vous n’y trouvez pas les informations souhaitées, vous pouvez <a href="{{ url_for('oeasc.contact')}}">contacter directement l’animateur de l’Observatoire de l’équilibre agro-sylvo-cynégétique.</a></p>
 
     <h3>F. A. Q.</h3>
 
@@ -48,7 +45,8 @@
             </div>
             <div id="q1" class="collapse" data-parent="#accordion">
                 <div class="card-body">
-                    <p>Vous pouvez signaler des dégâts d’abroutissement, de frottis et d’écorçage, ou de signaler une situation où l’absence de régénération dans votre forêt vous semble anormale et pourrait être liée à la présence de cervidés. Vous pouvez également signaler des dégâts sur les pistes ou les clôtures de votre forêt. Les différents types de dégâts sont décrits et présentés <a href="{{url_for('static', filename='documents/extrait_CEMAGREF.pdf')}}">ici</a></p>
+                    <p>Vous pouvez signaler des dégâts d’abroutissement, de frottis et d’écorçage, ou signaler une absence de régénération qui vous semble anormale et pourrait être liée à la présence de cervidés.
+                    Vous pouvez également signaler des dégâts sur les pistes ou les clôtures de votre forêt. Les différents types de dégâts sont décrits et présentés <a href="{{url_for('static', filename='documents/extrait_CEMAGREF.pdf')}}">ici</a></p>
                 </div>
             </div>
         </div>
@@ -61,7 +59,7 @@
             </div>
             <div id="q2" class="collapse" data-parent="#accordion">
                 <div class="card-body">
-                    <p>Rien de plus simple ! Cliquez <a href="{{url_for('oeasc.modifier_declaration')}}">ici</a>, connectez à votre compte « utilisateur » (si vous ne l’avez pas créé, vous pouvez le faire en cliquant <a href="{{url_for('oeasc.register')}}">ici</a>), et suivez les étapes du formulaire en ligne.</p>
+                    <p>Rien de plus simple ! Connectez à votre compte « utilisateur » (si vous ne l’avez pas encore fait, vous pouvez le créer en cliquant <a href="{{url_for('oeasc.register')}}">ici</a>), et suivez les étapes du <a href={{ url_for('oeasc.informations_declaration')}}>formulaire en ligne.</a></p>
                 </div>
             </div>
         </div>
@@ -74,7 +72,20 @@
             </div>
             <div id="q3" class="collapse" data-parent="#accordion">
                 <div class="card-body">
-                    <p>Le renseignement du formulaire d’alerte en ligne prend en moyenne entre 10 et 20 minutes.</p>
+                    <p>Le renseignement du formulaire d’alerte en ligne se veut relativement rapide et ne vous prendra en moyenne qu'entre 10 et 20 minutes.</p>
+                </div>
+            </div>
+        </div>
+
+<div class="card">
+            <div class="card-header">
+                <a class="card-link" data-toggle="collapse" href="#q31">
+                    Y a-t-il des restrictions géographiques pour signaler des dégâts ?
+                </a>
+            </div>
+            <div id="q31" class="collapse" data-parent="#accordion">
+                <div class="card-body">
+                    Vous pouvez déclarer des dégâts sur les forêts situées dans le <a href="{{ url_for('oeasc.perimetre_etude') }}">périmètre de l’Observatoire.</a>
                 </div>
             </div>
         </div>
@@ -87,8 +98,7 @@
             </div>
             <div id="q4" class="collapse" data-parent="#accordion">
                 <div class="card-body">
-                    <p>Non. . Le formulaire est basé sur des questions simples, et a été conçu a afin de pouvoir être renseigné sur la base des connaissances élémentaires que vous avez de votre forêt, et peut donc être rempli
-                    directement depuis chez vous, devant votre ordinateur.</p>
+                    <p>Non, pas obligatoirement. Le formulaire est constitué de questions simples. Il a été conçu afin de pouvoir être renseigné sur la base des connaissances élémentaires que vous avez de votre forêt, et peut donc être rempli directement chez vous, depuis votre ordinateur.</p>
                 </div>
             </div>
         </div>
@@ -101,10 +111,17 @@
             </div>
             <div id="q5" class="collapse" data-parent="#accordion">
                 <div class="card-body">
-                    <p>En renseignant un formulaire d’alerte, vous attirez l’attention des décideurs sur votre propriété et le problème potentiel d’équilibre sylvo-cynégétique la concernant.</p>
-                    <p>Vous contribuez ainsi à fournir des informations qui seront utilisées pour définir des mesures de gestion justes et adaptées aux réalités du terrain.</p>
-                    <p>Les alertes signalées pourront notamment influencer des décisions telles que les attributions fixées par les plans de chasse (nombre d’animaux pouvant être prélevés chaque année).</p> 
-                    <p>Au-delà de la simple satisfaction de contribuer à la gestion durable des écosystèmes et de la faune sauvage, vous rendez également possible la programmation d’actions de chasse ciblées sur un secteur géographique, afin d’accentuer localement la pression de chasse pour limiter l’impact des ongulés sauvages sur votre forêt. Enfin, chaque année, certaines alertes reçues seront sélectionnées afin que le peuplement fasse l’objet d’un diagnostic sylvicole complet qui permettra d’évaluer précisément et objectivement les dégâts subis au regard de vos objectifs sylvicoles.</p>
+                    <p>En renseignant un formulaire d’alerte, vous :</p> 
+                    <ul>
+                        <li>attirez l’attention des décideurs sur votre propriété et un potentiel problème d’équilibre sylvo-cynégétique ; </li>
+
+                        <li>contribuez à fournir des informations qui seront utilisées pour définir des mesures de gestion justes et adaptées à la situation (les alertes pourront notamment influencer des décisions telles que les attributions des plans de chasse) ; </li>
+
+                        <li>contribuez ainsi à la gestion durable du territoire dont fait partie votre forêt ; </li>
+                        <li>rendez possible la programmation d’actions de chasse localement ciblées, si nécessaire, afin d’accentuer la pression de chasse et de limiter la pression du grand gibier sur la végétation ; </li>
+
+                        <li>vous ouvrez la possibilité à votre forêt de bénéficier d’un diagnostic sylvicole qui permettra d’évaluer précisément et objectivement les dégâts subis au regard de vos objectifs sylvicoles. </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -117,7 +134,7 @@
             </div>
             <div id="q6" class="collapse" data-parent="#accordion">
                 <div class="card-body">
-                    <p>Oui ! Soyez rassuré·e, lorsque vous signalez une alerte, toutes les informations fournies restent strictement confidentielles et ne seront aucunement utilisées à des fins commerciales. Les données issues du système d’alerte seront traitées de façon globale, et aucunement de façon nominative.</p>
+                    <p> Soyez rassuré·e, toutes les informations fournies restent strictement confidentielles et ne seront pas utilisées à des fins commerciales. Les données issues du système d’alerte seront traitées de façon globale, et non nominative.</p>
                 </div>
             </div>
         </div>
@@ -125,12 +142,17 @@
         <div class="card">
             <div class="card-header">
                 <a class="card-link" data-toggle="collapse" href="#q7">
-                    J’ai déjà déclaré des dégâts, par le passé, par l’intermédiaire du syndicat de propriétaires forestiers : quelle différence y a-t-il cette fois-ci par rapport aux précédentes ?
+                    J’ai déjà déclaré des dégâts, à l’époque, par l’intermédiaire du syndicat de propriétaires forestiers, et rien n’a été fait: quelle différence cette fois-ci ?
                 </a>
             </div>
             <div id="q7" class="collapse" data-parent="#accordion">
                 <div class="card-body">
-                    <p>Souvent, par le passé, les informations que vous aviez pris la peine de fournir n’ont pas été utilisées ou valorisées par la suite, et vous avez l’impression que cela n’a servi à rien. C’est justement pour remédier à cela que le système d’alerte de l’Observatoire a été créé. Grâce à la centralisation de données standardisées sur un vaste périmètre et au partage des résultats avec les partenaires de l’Observatoire, les informations transmises seront valorisées et contribueront directement à la définition de mesures de gestion. Le dispositif développé ici permettra également un suivi de l’évolution de la situation, et certains peuplements feront l’objet d’un diagnostic sylvicole complet visant à évaluer précisément et objectivement les dégâts subis au regard de vos objectifs sylvicoles.</p>
+                    <p>Vous avez peut-être déjà, par le passé, pris la peine de renseigner une déclaration de dégâts de gibier, et vous avez peut-être été déçu de voir que rien n’avait été fait ensuite, ou avez l’impression que cela n’a servi à rien.</p> 
+
+                    <p>Souvent, et malheureusement, les informations que vous aviez fournies n’ont jusqu’ici pas été utilisées ou valorisées. C’est justement pour remédier à cela que le système d’alerte de l’Observatoire a été créé.
+                    Grace à leur centralisation sur un vaste périmètre, les données collectées grâce à vous contribueront directement à la définition de mesures de gestion. Les informations que vous avez pris la peine de fournir ne seront pas archivées puis oubliées, mais analysées finement, et les résultats seront partagés avec les partenaires de l’Observatoire afin de les valoriser au mieux.</p>
+
+                    <p>Ce système d’alerte permettra également de suivre l’évolution de la situation dans le temps. Enfin, certains peuplements feront l’objet d’un diagnostic sylvicole qui évaluera précisément et objectivement les dégâts subis au regard de vos objectifs sylvicoles.</p>
                 </div>
             </div>
         </div>

@@ -48,6 +48,14 @@ def get_organisme_name_from_id_organisme(id_organisme):
     return result
 
 
+def test_db():
+
+    sql_text = text("SELECT 'a'")
+    result = DB.engine.execute(sql_text).first()[0]
+
+    return result
+
+
 def get_organisme_name_from_id_declarant(id_declarant):
 
     sql_text = text("SELECT b.nom_organisme \

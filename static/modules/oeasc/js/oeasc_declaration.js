@@ -423,7 +423,7 @@ $(document).ready(function() {
 
     var progression = M.liste_forms.indexOf(id_form)/M.liste_forms.length
 
-    var s_progress = parseFloat(Math.round(progression * 100)) + "%";
+    var s_progress = parseFloat(Math.round(progression * 100 / 5) * 5) + "%";
 
     $("#progress_text").html("Progression : " + s_progress);
 

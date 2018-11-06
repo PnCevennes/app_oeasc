@@ -1,17 +1,21 @@
-{%- extends "modules/oeasc/site/layout.html" %}
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
 
 
-{%- block title %}Résultats données cynégétiques{%- endblock %}
+{%- block title %} données cynégétiques {%- endblock %}
 
-{%- block content %}
+{%- block sidebar %}
 
-<div class="row">
+{% include "modules/oeasc/site/sidebar_resultats.html" %}
 
-  <div class="col-md-12">
+{%- endblock %}
 
-    <h2>Résultats données cynégétiques</h2>
+{%- block contentright %}
 
-  </div>
+<div class="text">
+
+  <h2>Données cynégétiques</h2>
+
+  <p>Page en construction.</p>
 
 </div>
 

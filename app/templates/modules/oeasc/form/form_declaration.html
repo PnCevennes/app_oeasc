@@ -23,27 +23,27 @@
   <label for="commentaire"></label>
 
   <div>
-<div class="form-group">
+    <div class="form-group">
 
-<p>Utilisez le cadre de libre expression ci-dessous pour :</p>
+      <p>Utilisez le cadre de libre expression ci-dessous pour :</p>
 
-<ul>
-  <li>préciser certaines de vos réponses ;</li>
-  <li>décrire plus précisément un cas particulier non prévu par le formulaire ;</li>
-  <li>fournir   des   indications   complémentaires   sur   le   peuplement   ou   les   dégats constatés (description, pourcentage de tiges touchée, historique, précision sur la localisation, etc.) ;</li>
-  <li>signaler  un  changement  de  situation  par  rapport  aux données utilisées dans les cartes  interactives  (changement  récent  de  propriétaire,  document  de  gestion durable récemment élaboré, etc.) ;</li>
-  <li>partager un avis personnel sur le formulaire, le système d’alerte ou l’Observatoire de l’équilibre agro-sylvo-cynégétique en général.</li>
-</ul>
+      <ul>
+        <li>préciser certaines de vos réponses ;</li>
+        <li>décrire plus précisément un cas particulier non prévu par le formulaire ;</li>
+        <li>fournir   des   indications   complémentaires   sur   le   peuplement   ou   les   dégats constatés (description, pourcentage de tiges touchée, historique, précision sur la localisation, etc.) ;</li>
+        <li>signaler  un  changement  de  situation  par  rapport  aux données utilisées dans les cartes  interactives  (changement  récent  de  propriétaire,  document  de  gestion durable récemment élaboré, etc.) ;</li>
+        <li>partager un avis personnel sur le formulaire, le système d’alerte ou l’Observatoire de l’équilibre agro-sylvo-cynégétique en général.</li>
+      </ul>
 
-  <textarea name="commentaire" id="commentaire" class="form-control" rows="5" maxlength="1000">{{ declaration.commentaire or ""}}</textarea>
+      <textarea name="commentaire" id="commentaire" class="form-control" rows="5" maxlength="1000">{{ declaration.commentaire or ""}}</textarea>
+
+    </div>
 
   </div>
+  <div class="align-right">
 
-</div>
-<div class="align-right">
-  
-  <input type=submit value=Suivant class="btn btn-success">
-</div>
+    <input type=submit value=Suivant class="btn btn-success">
+  </div>
 
 </form>
 
@@ -52,14 +52,24 @@
 
   <h4>Validation</h4>
 
-  <p>Vérifiez ci-dessous le contenu de  votre déclaration de dégâts, puis cliquer sur le bouton ci-contre pour 
- valider définitivement et envoyer le formulaire.</p>
+<div class="table">
+  <div class=form-group>
+    <h5>Charte de déontologie : une question de confiance...</h5>
 
-<div class="align-right">
-  <input type=submit value="Envoyer le formulaire"  class="btn btn-success">
+    <p>L’Observatoire de l’équilibre agro-sylvo-cynégétique est un outil collectif et participatif. L’un de ses fondements est la confiance entre les partenaires. Cette confiance, vous en bénéficiez aussi lorsque vous renseignez un formulaire d’alerte. Les informations que vous fournissez dans ce formulaire  engagent  votre responsabilité morale. En le validant, vous certifiez que les informations qu’il contient sont exactes. Des vérifications ponctuelles sont susceptibles d’être effectuées sur le terrain par les salariés des structures partenaires de l’Observatoire. Dans le cas où d’importantes différences seraient constatées entre les informations fournies et la réalité, la déclaration de dégâts que vous avez renseignée sera annulée, et dans le pire des cas, votre compte « utilisateur » est susceptible d’être supprimé.</p>
+
+    <p>Nous comptons donc sur vous et votre honnêteté pour honorer la confiance que nous vous accordons, et éviter toute déclaration volontairement fausse ou disproportionnée par rapport à la situation réelle, sur le terrain.</p>
+  </div>
 </div>
 
-    {%- include "modules/oeasc/entity/declaration.html" %}
+  <p>Vérifiez ci-dessous le contenu de  votre déclaration de dégâts, puis cliquer sur le bouton ci-contre pour 
+  valider définitivement et envoyer le formulaire.</p>
+
+  <div class="align-right">
+    <input type=submit value="Envoyer le formulaire"  class="btn btn-success">
+  </div>
+
+  {%- include "modules/oeasc/entity/declaration.html" %}
 
 </form>
 

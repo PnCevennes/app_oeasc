@@ -55,9 +55,9 @@ body {
 
 .content h4 {
 
-  padding:10px;
+  /* padding:10px;
   background-color: lightgrey;
-  border-radius:0 0 10px 10px;
+  border-radius:0 0 10px 10px; */
 
 }
 
@@ -660,7 +660,7 @@ div.progression {
 .custom-tooltip:hover .custom-tooltiptext {
   visibility: visible;
   opacity: 1;
-  z-index: 100;
+  z-index: 1000;
 
   top: 100px;
   right: 100px;

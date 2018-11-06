@@ -9,7 +9,7 @@
 
     <div class="col-md-12">
 
-        <div class="container main-zone ng-scope ">
+        <div class="container">
             <h2>Inscription</h2>
 
             <div class="alert alert-danger" role="alert" id="login-error" style="display: none;"></div>
@@ -58,9 +58,7 @@
                                 <option value="{{organisme.id_organism}}">{{ organisme.nom_organisme }}</option>
                                 {%- endfor %}
                             </select>
-                        </div>
-
-                        <div class="form-group">
+                       <!-- <hr> -->
                             <label for="desc_role">Fonction : </label>
                             <select class="selectpicker" id="desc_role" required>
                                 <option value=""></option>

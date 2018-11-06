@@ -1,22 +1,22 @@
-{%- extends "modules/oeasc/site/layout.html" %}
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
 
 
-{%- block title %}Synthèse de dégâts forestiers{%- endblock %}
+{%- block title %} dégâts forestiers {%- endblock %}
 
-{%- block content %}
+{%- block sidebar %}
 
-<!-- {%- include 'modules/oeasc/entity/declarations.html' %} -->
+{% include "modules/oeasc/site/sidebar_resultats.html" %}
 
 {%- endblock %}
 
-{%- block js_local %}
+{%- block contentright %}
 
-{{ super() }}
+<div class="text">
 
-<script src="{{ url_for('static', filename='modules/oeasc/js/util_form.js') }}"></script>
-<script src="{{ url_for('static', filename='modules/oeasc/js/util_data.js') }}"></script>
-<script src="{{ url_for('static', filename='modules/oeasc/js/util_localisation.js') }}"></script>
-<script src="{{ url_for('static', filename='modules/oeasc/js/declarations.js') }}"></script>
+  <h2>Suivi des dégâts forestiers</h2>
 
+  <p>Page en construction.</p>
+
+</div>
 
 {%- endblock %}

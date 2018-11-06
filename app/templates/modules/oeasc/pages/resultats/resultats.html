@@ -15,19 +15,31 @@
 
   <h2>Suivi de l'équilibre agro-sylvo-cygénétique</h2>
 
-  <h3>Résultats détaillés</h3>
+  <p>Cette page présentera, à l’avenir, les résultats du suivi de l’équilibre agro-sylvo-cynégétique, à partir des données collectées ou centralisées dans le cadre de l’Observatoire.
+  Elles pourront être présentées selon une entrée géographique (par secteur d’étude) ou thématique (par volet de l’Observatoire).</p>
+
+  <p>Afficher les résultats du suivi de l’équilibre agro-sylvo-cynégétique :</p>
 
   <ul>
+    <li> Par secteur d'étude :
+      <ul>
+        <li><a href="{{ url_for('oeasc.resultats_mont_aigoual') }}">Mont Aigoual</a></li>
+        <li><a href="{{ url_for('oeasc.resultats_vallees_cevenoles') }}">Vallées cévenoles</a></li>
+        <li><a href="{{ url_for('oeasc.resultats_causses_gorges') }}">Causses et gorges</a></li>
+        <li><a href="{{ url_for('oeasc.resultats_mont_lozere') }}">Mont Lozère</a></li>
+      </ul>
+    </li>
 
-    <li><a href="{{ url_for('oeasc.resultats_degats_forestiers') }}">Dégâts forestiers</a></li>
-    <li><a href="{{ url_for('oeasc.resultats_diagnostics_sylvicoles') }}">Diagnostics sylvicoles</a></li>
-    <li><a href="{{ url_for('oeasc.resultats_ice') }}">ICE</a></li>
-    <li><a href="{{ url_for('oeasc.resultats_donnees_cynegetiques') }}">Données cynégétiques</a></li>
-    <li><a href="{{ url_for('oeasc.resultats_degats_agricoles') }}">Dégâts agricoles</a></li>
-    <li><a href="{{ url_for('oeasc.resultats_peuplements_degradables') }}">Peuplements dégradables</a></li>
-
+    <li> Par volet :
+      <ul>
+        <li><a href="{{ url_for('oeasc.resultats_degats_forestiers') }}">Système d'alerte (déclaration de dégâts)</a></li>
+        <li><a href="{{ url_for('oeasc.resultats_ice') }}">Indicateur de changement écologique (ICE)</a></li>
+        <li><a href="{{ url_for('oeasc.resultats_diagnostics_sylvicoles') }}">Diagnostics sylvicoles (évaluation des dégâts en milieu forestier)</a></li>
+        <li><a href="{{ url_for('oeasc.resultats_degats_agricoles') }}">Données sur les égâts agricoles</a></li>
+        <li><a href="{{ url_for('oeasc.resultats_donnees_cynegetiques') }}">Suivi des plans de chasse</a></li>
+      </ul>
+    </li>
   </ul>
-
 </div>
 
 

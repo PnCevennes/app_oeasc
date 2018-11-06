@@ -59,8 +59,15 @@
 
         $("#login-error").hide();
 
-        // var redirection = $(location).attr('origin') + '/'+ '{{ redirect_url }}'.replace(/\&#34;/g, '');
+        console.log('{{ redirect_url }}');
+
         var redirection = '{{ redirect_url }}'.replace(/\&#34;/g, '');
+
+        if (redirection == "") {
+
+            redirection = $(location).attr('origin');
+
+        }
 
         console.log(redirection);
 

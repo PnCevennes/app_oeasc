@@ -11,6 +11,7 @@ import re
 
 from jinja2 import evalcontextfilter, Markup, escape
 
+from app.modules.oeasc.repository import test_db
 
 class ReverseProxied(object):
 
@@ -35,6 +36,7 @@ class ReverseProxied(object):
             environ['HTTP_HOST'] = server
         return self.app(environ, start_response)
 
+
 app = Flask(__name__, template_folder="app/templates", static_folder='static')
 
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
@@ -47,8 +49,6 @@ app.config.from_pyfile('config/config.py', silent=True)
 
 mail.init_app(app)
 DB.init_app(app)
-
-
 
 @app.route('/')
 def accueil():
@@ -120,4 +120,5 @@ def nopar(eval_ctx, value):
         return ""
 
     s2 = re.sub(r"\(.*\)", "", value)
+    s2 = s2.strip()
     return s2

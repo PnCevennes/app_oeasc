@@ -9,18 +9,31 @@
 
     <hr>
 
-    <li>{{ m.link_bold("Je déclare une nouvelle alerte",'oeasc.informations_declaration') }}</li>
-    <li>{{ m.link_bold("Je consulte mes alertes",'oeasc.declarations') }}</li>
+    <li>{{ m.link_bold("Les dégâts de grand gibier",'oeasc.degats_gibier') }}</li>
+
+    {% if request.endpoint != 'oeasc.informations_declaration' %}
+
+    <hr>
+
+<li>{% set href=url_for('oeasc.informations_declaration')%}
+      <button class='btn btn-primary' onclick="location.href='{{href}}'">Je déclare une nouvelle alerte</button></li>
+
+      <hr>
+
+      <li>{% set href=url_for('oeasc.declarations')%}
+      <button class='btn btn-warning' onclick="location.href='{{href}}'">Je consulte les alertes que j'ai déclaré</button></li>
+    {% endif %}
+    <!-- <li>{{ m.link_bold("Je consulte mes alertes",'oeasc.declarations') }}</li> -->
 
     {% if request.endpoint == 'oeasc.informations_declaration' %}
     
     <hr>
 
-    <li><a class="scroll-anime" href="#avant_de_commencer">Avant de commencer</a></li>
-    <li><a class="scroll-anime" href="#contacts">Contacts</a></li>
+    <li><a class="scroll-anime" href="#avant_de_commencer"><i>Avant de commencer</i></a></li>
+    <li><a class="scroll-anime" href="#contacts"><i>Contacts</i></a></li>
     <li>{% set href=url_for('oeasc.modifier_declaration')%}
-      <button class='btn btn-primary' onclick="location.href='{{href}}'">Signaler un dégât en forêt</button></li>
-    {% endif %}  
+      <button class='btn btn-primary' onclick="location.href='{{href}}'">Commencer la déclaration des dégâts</button></li>
+    {% endif %}
 
   </ul>
 

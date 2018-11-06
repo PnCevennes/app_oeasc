@@ -625,7 +625,7 @@ $(document).ready(function() {
 
       var div=L.DomUtil.create('div','legend');
       // div.innerHTML +='<div id="legend-oeasc"><i style="background: repeating-linear-gradient(45deg, ' + M.color.oeasc + ', ' + M.color.oeasc + ' 2px, white 2px, white 5px); border: 2px solid black;"></i> ' +"OEASC" + '</div>';
-      div.innerHTML +='<div id="legend-oeasc"><i style="border: 2px solid black;"></i> ' + "Périmètre de l'OEASC" + '</div>';
+      div.innerHTML +='<div id="legend-oeasc"><i style="border: 2px solid black;"></i> ' + "Périmètre de l'Observatoire" + '</div>';
       return div;
 
     };

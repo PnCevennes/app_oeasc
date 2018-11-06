@@ -11,7 +11,7 @@ DELETE FROM ref_nomenclatures.bib_nomenclatures_types
     WHERE source = 'OEASC';
 
 SELECT setval('ref_nomenclatures.t_nomenclatures_id_nomenclature_seq', COALESCE((SELECT MAX(id_nomenclature)+1 FROM ref_nomenclatures.t_nomenclatures), 1), false);
-SELECT setval('<ref_nomenclatures class="bib_nomenclatures_types_id"></ref_nomenclatures>_type_seq', COALESCE((SELECT MAX(id_type)+1 FROM ref_nomenclatures.bib_nomenclatures_types), 1), false);
+SELECT setval('ref_nomenclatures.bib_nomenclatures_types_id_type_seq', COALESCE((SELECT MAX(id_type)+1 FROM ref_nomenclatures.bib_nomenclatures_types), 1), false);
 
 DROP TABLE IF EXISTS temp;
 

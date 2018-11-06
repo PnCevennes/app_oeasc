@@ -46,6 +46,8 @@ def send_mail_validation_declaration(declaration):
 
     email_user = user['email']
 
+    print(user, declaration['id_declaration'])
+
     with mail.connect() as conn:
 
         msg = Message(

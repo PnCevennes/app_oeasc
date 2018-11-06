@@ -1,49 +1,46 @@
-{%- extends "modules/oeasc/site/layout.html" %}
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
 
 
-{%- block title %} accueil {%- endblock %}
+{%- block title %} le contenu {%- endblock %}
 
-{%- block content %}
+{%- block sidebar %}
 
-<div class="row">
+ {% include "modules/oeasc/site/sidebar_accueil.html" %}
 
-  <div class="col-md-6">
+{%- endblock %}
+
+{%- block contentright %}
+
+  <div class="text">
 
     <p>Bienvenue sur le site de l’Observatoire partagé de l’équilibre agro-sylvo-cynégétique du territoire du Parc national des Cévennes !</p>
 
-    <p>Pour comprendre la démarche, nous vous le présentons ici en 4 questions. Pour aller plus loin, n’hésitez pas à consulter <a href="{{url_for('oeasc.presentation')}}">les pages détaillant les principes et le contenu.</a></p>
+    <p>Pour comprendre la démarche, nous vous la présentons ici en 4 questions. Pour aller plus loin, n’hésitez pas à consulter <a href="{{url_for('oeasc.presentation')}}">les pages détaillant les principes et le contenu.</a></p>
 
     <h2>L’Observatoire, qu’est-ce que c’est ?</h2>
 
-    <p>L’OEASC est un dispositif qui vise à apprécier et suivre l’équilibre entre les populations d’ongulés sauvages (cerfs, chevreuil, sangliers et mouflons), leur milieu de vie et les activités humaines (et notamment agricoles et forestières).</p>
+    <p>C'est un dispositif qui vise à apprécier et suivre l’équilibre entre les populations de grand gibier (cerfs, chevreuil, sangliers et mouflons), leur milieu de vie et les activités humaines (et notamment agricoles et forestières).</p>
 
     <h2>L’Observatoire, à quoi ça sert ?</h2>
-    <p>L’OEASC constitue un outil d’aide à la décision. Les données qui y sont collectées et centralisées permettent aux gestionnaires (chasseurs, forestiers, agriculteurs, services de l’État) de définir des mesures de gestion des populations et des milieux naturel ou semi-naturels adaptées aux réalités de terrain et répondant aux préoccupations de tous.</p>
+
+    <p>Il constitue un outil d’aide à la décision. Les données qu’il collecte et centralise permettent aux acteurs du territoire et aux décideurs de définir des mesures de gestion des populations animales et des milieux naturels adaptées aux réalités de terrain et répondant aux préoccupations de tous.</p>
 
     <h2>Qui participe à l’Observatoire ?</h2>
 
-    <p>L’OEASC est un outil qui se veut collectif et participatif. Il rassemble des représentants du secteur forestier, du secteur agricole, du monde de la chasse, l’établissement public du Parc national des Cévennes, les services de l’État et des experts scientifiques nationaux (voir la liste des partenairesimpliqués dans la démarche ici).</p>
+    <p>L’Observatoire est un outil collectif et participatif. Il rassemble des représentants du secteur forestier, du monde agricole et des chasseurs, ainsi que l’établissement public du Parc national des Cévennes, les services de l’État et des experts scientifiques nationaux (voir la liste des partenaires impliqués dans la démarche <a href="{{ url_for('oeasc.partenaires') }}">ici</a>).</p>
 
     <h2>Quel est le territoire concerné par l’Observatoire ?</h2>
 
-    <p>Le périmètre de l’OEASC est constitué des communes de l’aire optimale d’adhésion du Parc national des Cévennes limitrophes au cœur du Parc national ou en partie incluse dans celui-ci.</p>
+    <p>Il s’agit des communes en partie incluses ou limitrophes au cœur du Parc national des Cévennes voir la carte <a href="{{url_for('oeasc.perimetre_etude')}}">ici</a>.</p>
 
   </div>
 
-  <div class="col-md-6">
-
-    <h2>Zone d'étude de l'OEASC</h2>
-
-    <div id="map_acceuil" class="map"></div>
-
-  </div>
-
-</div>
+    
 
 {%- endblock %}
 
 
-{%- block js_local %}
+{# {%- block js_local %}
 
 {{ super() }}
 
@@ -68,4 +65,4 @@
 
 </script>
 
-{%- endblock %}
+{%- endblock %} #}

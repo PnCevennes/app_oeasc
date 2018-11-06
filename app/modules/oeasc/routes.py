@@ -13,6 +13,7 @@ from .repository import (
     get_user,
     dfpu_as_dict_from_id_declaration,
     get_declarations,
+    test_db,
 )
 
 from config import config
@@ -89,6 +90,10 @@ def accueil():
     '''
         page d'accueil de l'OEASC, description synthetique
     '''
+
+    test_db()
+
+
     return render_template('modules/oeasc/pages/accueil.html')
 
 
@@ -106,6 +111,14 @@ def pourquoi():
         pourquoi du projet OEASC
     '''
     return render_template('modules/oeasc/pages/presentation/pourquoi.html')
+
+
+@bp.route('/perimetre_etude')
+def perimetre_etude():
+    '''
+        pourquoi du projet OEASC
+    '''
+    return render_template('modules/oeasc/pages/presentation/perimetre_etude.html')
 
 
 @bp.route('/objectifs')
@@ -209,6 +222,16 @@ def declarations():
 
     return render_template('modules/oeasc/pages/declaration/declarations.html', declarations=declarations, nomenclature=nomenclature)
 
+
+@bp.route('/degats_grand_gibier')
+def degats_gibier():
+    '''
+        page du suvi de l'équilibre ASC
+
+        TODO
+    '''
+
+    return render_template('modules/oeasc/pages/declaration/degats_gibier.html')
 
 @bp.route('/suivi_equilibre_ASC')
 def resultats():
@@ -323,3 +346,43 @@ def resultats_degats_agricoles():
     '''
 
     return render_template('modules/oeasc/pages/resultats/degats_agricoles.html')
+
+
+@bp.route('/resultats/mont_aigoual')
+def resultats_mont_aigoual():
+    '''
+        resultats pour les mont_aigoual
+        TODO
+    '''
+
+    return render_template('modules/oeasc/pages/resultats/mont_aigoual.html')
+
+
+@bp.route('/resultats/vallees_cevenoles')
+def resultats_vallees_cevenoles():
+    '''
+        resultats pour les vallees_cevenoles
+        TODO
+    '''
+
+    return render_template('modules/oeasc/pages/resultats/vallees_cevenoles.html')
+
+
+@bp.route('/resultats/mont_lozere')
+def resultats_mont_lozere():
+    '''
+        resultats pour les mont_lozere
+        TODO
+    '''
+
+    return render_template('modules/oeasc/pages/resultats/mont_lozere.html')
+
+
+@bp.route('/resultats/causses_gorges')
+def resultats_causses_gorges():
+    '''
+        resultats pour les causses_gorges
+        TODO
+    '''
+
+    return render_template('modules/oeasc/pages/resultats/causses_gorges.html')

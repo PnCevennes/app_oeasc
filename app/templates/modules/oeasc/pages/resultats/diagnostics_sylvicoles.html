@@ -1,16 +1,21 @@
-{%- extends "modules/oeasc/site/layout.html" %}
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
 
-{%- block title %}Résultats diagnostics sylvicoles{%- endblock %}
 
-{%- block content %}
+{%- block title %} diagnoctics sylvicoles {%- endblock %}
 
-<div class="row">
+{%- block sidebar %}
 
-  <div class="col-md-12">
+{% include "modules/oeasc/site/sidebar_resultats.html" %}
 
-    <h2>Résultats diagnostics sylvicoles</h2>
+{%- endblock %}
 
-  </div>
+{%- block contentright %}
+
+<div class="text">
+
+  <h2>Diagnoctics sylvicoles</h2>
+
+  <p>Page en construction.</p>
 
 </div>
 
