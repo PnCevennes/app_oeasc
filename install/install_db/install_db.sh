@@ -123,7 +123,9 @@ if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
 then
 
 echo "GRANT USAGE ON SCHEMA oeasc TO $user_pg_save;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oeasc TO $user_pg_save;" | $psqla >> $log_file
+GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oeasc TO $user_pg_save;
+GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA oeasc TO $user_pg_save;
+" | $psqla >> $log_file
 
 fi
 
