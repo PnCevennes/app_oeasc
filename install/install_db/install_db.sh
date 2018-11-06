@@ -40,6 +40,7 @@ fi
 if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
 then
 
+    user_pg_save=$user_pg
     user_pg=$user_install
     export PGPASSWORD="$user_install_pass"
 
@@ -121,7 +122,7 @@ echo ajout des données géographiques
 if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
 then
 
-echo "GRANT SELECT ON ALL TABLES IN SCHEMA oeasc TO ROLE $user_pg;" | $psqla >> $log_file
+echo "GRANT SELECT ON ALL TABLES IN SCHEMA oeasc TO ROLE $user_pg_save;" | $psqla >> $log_file
 
 fi
 
