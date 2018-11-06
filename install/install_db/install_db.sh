@@ -118,5 +118,11 @@ echo ajout des données géographiques
 
 . ${dir_script}/user/user.sh
 
+if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
+then
+
+echo "GRANT SELECT ON ALL TABLES IN SCHEMA oeasc TO ROLE $user_pg;" | $psqla >> $log_file
+
+fi
 
 #creation de la base
