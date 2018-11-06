@@ -26,7 +26,7 @@ toml==0.9.4
 Werkzeug==0.14.1
 WTForms==2.2.1
 #https://github.com/PnX-SI/UsersHub-authentification-module/develop.zip
-https://github.com/PnX-SI/Nomenclature-api-module/archive/develop.zip
+https://github.com/PnX-SI/Nomenclature-api-module/archive/master.zip
 git+https://github.com/joelclems/UsersHub-authentification-module@develop
 
 

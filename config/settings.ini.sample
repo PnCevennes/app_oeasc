@@ -9,6 +9,14 @@ user_pg=geonatuser
 #user propriétaire de la base de l'application
 user_pg_pass=monpassachanger
 
+# facultatif
+#nom de l'utilisateur ayant des droit superutilisateur
+user_install=""
+#user propriétaire de la base de l'application
+user_install_pass=""
+
+
+
 #Configuration python
 ###########################
 #Notice: n'est compatible qu'avec python3

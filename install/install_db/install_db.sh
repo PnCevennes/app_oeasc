@@ -29,10 +29,23 @@ fi
 
 . $setting_file
 
-if [ "$db_name" = "" ] || [ "$db_host" = "" ] || [ "$db_port" = "" ] || [ "$user_pg" = "" ]
+if [ "$db_name" = "" ] || [ "$db_host" = "" ] || [ "$db_port" = "" ] || [ "$user_pg" = "" ] || [ "$user_pg_pass" = "" ]
 then
     echo Le fichier $setting_file est mal configuré
     exit -1;
+fi
+
+# si on a besoin d'installer avec un autre utilisateur qui a plus de droits
+
+if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
+then
+    user_pg=$user_install
+    EXPORT PGPASSWORD="$user_install_pass"
+
+else
+
+    EXPORT PGPASSWORD="$user_pg_pass"
+
 fi
 
 # test de la connextion SQL
