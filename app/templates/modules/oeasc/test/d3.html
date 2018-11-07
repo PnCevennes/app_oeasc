@@ -52,6 +52,8 @@ div.tooltip {
     var height = data.length * 25 + margin.top + margin.bottom
 
 
+    var d_max = d3.max(data, d => d.value)
+
     x = d3.scaleLinear()
     .domain([0, d3.max(data, d => d.value)])
     .range([margin.left, width - margin.right])
@@ -157,9 +159,26 @@ div.tooltip {
       .attr("x", function(d) { dec = 0; for(j=0; j<ind; j++) {dec += d.values_origin[names_origin[j]]}; return x(dec + d.values_origin[name]) - 4})
       .text(d => format(d.values_origin[names_origin[j]]));
 
-      console.log(name, y_legend(name))
 
     }
+
+svg.append("g")
+      .attr("fill", "black")
+      .attr("text-anchor", "start")
+      .style("font", "15px bold sans-serif")
+      .selectAll("text")
+      .data(data)
+      .enter().append("text")
+      .attr('class', "bars-text")
+      .attr("x", x(0))
+      .attr("y", d => y(d.name) + y.bandwidth() / 2)
+      .attr("dy", "0.35em")
+      .style("opacity", 0)
+      .transition()
+      .duration(1000)
+      .style("opacity", 1)
+      .attr("x", d => x(d.value) + 4)
+      .text(d => format(d.value));
 
 
 
@@ -245,7 +264,7 @@ svg
 .attr("text-anchor", "middle")
 .style("font-size", "18px")
 .style("text-decoration", "underline")
-.text("Répartion des différents types de dégâts");
+.text("Histogramme des différents types de dégâts avec répartition par orgine de peuplement");
 
       // text label for the y axis
       svg.append("text")
@@ -260,8 +279,9 @@ svg
   // text label for the x axis
   svg.append("text")
   .style("font-size", "12px")
+  .attr('x', x(d_max/2))
   .attr("transform",
-    "translate(" + (width/2) + " ," +
+    "translate(" + (0 * width/2) + " ," +
     (height - margin.bottom + 40) + ")")
   .style("text-anchor", "middle")
   .text("Pourcentage");
@@ -270,9 +290,9 @@ svg
   // text label for the x axis
   svg.append("text")
   .style("font-size", "12px")
-
+  .attr('x', x(d_max/2))
   .attr("transform",
-    "translate(" + (width/2) + " ," +
+    "translate(" + (0 * width/2) + " ," +
     (margin.top -30) + ")")
   .style("text-anchor", "middle")
   .text("Nombre (pour un total de " + nb_alertes + " alertes)");
