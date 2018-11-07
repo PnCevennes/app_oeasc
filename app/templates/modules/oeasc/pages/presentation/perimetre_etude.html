@@ -48,16 +48,21 @@
     var map_init = M.carte_base_oeasc("acceuil");
 
     var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/AA_PNC', {
+      pane: 'PANE_1',
       style: M.style.aa,
     }).addTo(map_init);
 
-    var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/ZC_PNC', {style: M.style.zc}).addTo(map_init);
+    var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/ZC_PNC', {
+      pane: 'PANE_1',
+      style: M.style.zc
+    }).addTo(map_init);
 
     var l_secteurs_OEASC = new L.GeoJSON.AJAX(
       '/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR',
       {
         style: M.style.secteur,
         onEachFeature: function(feature, layer) {
+          pane: 'PANE_2',
 
           var center = layer.getBounds().getCenter();
           console.log(feature, layer, center);
