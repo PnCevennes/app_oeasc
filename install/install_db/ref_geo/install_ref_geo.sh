@@ -1,5 +1,6 @@
 # install_ref_geo.sh
 
+geom_to_clear=$1
 
 # load shell functions
 . ${dir_script}/ref_geo/fonctions_ref_geo.sh
@@ -30,11 +31,18 @@ modifs=0
 # clear_geometry OEASC_COMMUNE
 # clear_geometry OEASC_ONF_UG
 
-if [ "$reset_geom" == "true" ]
+if [ "$reset_geom" == "true" ] || [ "$geom_to_clear" == "all" ]
 then
 
 echo reinit geometries
 clear_all
+
+fi
+
+if [ "$geom_to_clear" != "" ]
+then
+
+clear_geometry $geom_to_clear
 
 fi
 
@@ -144,7 +152,8 @@ select=0
 
 # clear_geometry $name
 process_geom $name
-simplify_geom $name 50
+# simplify_topology_geom $name 10
+simplify_geom $name 20
 
 
 

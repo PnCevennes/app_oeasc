@@ -1,5 +1,7 @@
 # script d'installation de la base donnée pour l'oeasc
 
+geom_to_clear=$1
+
 # on part d'une base geonature existante
 
 
@@ -103,7 +105,7 @@ $psqla -f $dir_script/ref_geo/fonctions_simplify_geom.sql >> $log_file
 # les données geographiques
 
 echo ajout des données géographiques
-. ${dir_script}/ref_geo/install_ref_geo.sh
+. ${dir_script}/ref_geo/install_ref_geo.sh $geom_to_clear
 
 # les données de nomenclature
 

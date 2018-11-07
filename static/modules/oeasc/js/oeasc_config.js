@@ -30,27 +30,29 @@ $(document).ready(function() {
   color.localisation = color.p3
 
 
-  var stripes = new L.StripePattern({
-    weight: 2,
-    opacity: 0.5,
-    angle: 45,
-    color: color.oeasc
-  });
 
   var style={};
 
   style.oeasc = {
     weight: 2,
     opacity: 0.5,
-    fillOpacity: 0.5,
+    fillOpacity: 0.1,
     color: color.black,
-    fillPattern: stripes,
+    // fillColor : color.oeasc,
+  };
+
+style.secteur = {
+    weight: 1,
+    // dashArray: 8,
+    opacity: 0.5,
+    fillOpacity: 0,
+    color: color.black,
     // fillColor : color.oeasc,
   };
 
   style.zc = {
     weight: 1,
-    opacity: 0.5,
+    opacity: 0.2,
     fillOpacity: 0.5,
     color : color.black,
     fillColor: color.zc,
@@ -58,7 +60,7 @@ $(document).ready(function() {
 
   style.aa = {
     weight: 1,
-    opacity: 0.5,
+    opacity: 0.2,
     fillOpacity: 0.5,
     color: color.black,
     fillColor : color.aa,
@@ -204,15 +206,12 @@ M.select = {};
 list.data.forEach(function(e){
 
   M.select[e] = $("#" + e.toLowerCase());
-  d_ls[e+'_RAW'] = d_ls[e];
-  d_ls[e+'_RAW'].name = d_ls[e].name+"_RAW";
 
 });
 
 
 M.style = style;
 M.color = color;
-M.stripes = stripes;
 
 M.list = list;
 

@@ -18,7 +18,7 @@
     <p>Forêt :</p>
     <ul>
 
-      <li><b>Nom de la forêt</b> : {{foret.nom_foret if foret.nom_foret!="" else "nom inconnu"}}.</li>
+      <li><b>Nom de la forêt</b> : {{foret.label_foret if foret.label_foret!="" else "nom inconnu"}}.</li>
       <li><b>Statut de la forêt</b> : {%- if foret.b_statut_public %} public {%- else %} privé {%- endif %},
 
         {%- if foret.b_document %}

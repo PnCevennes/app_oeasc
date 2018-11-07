@@ -28,13 +28,6 @@
   {%- endif %}
 
 
-
-  {%- if ( foret["b_document"]==true and foret["b_statut_public"]==false ) %}
-
-  {%- set proprietaire={'nom_proprietaire':'privé', 'telephone':'privé', 'adresse':'privé', 's_code_postal':'privé', 's_commune_proprietaire':'privé', 'email':'privé'} %}
-
-  {%- endif %}
-
   {%- set disabled=''%}
 
   {%- if foret["b_document"]==true  %}
@@ -42,6 +35,13 @@
   {%- set disabled='disabled'%}
 
   {%- endif %}
+
+  {%- if ( foret["b_document"]==true and foret["b_statut_public"]==false ) %}
+
+  {%- set proprietaire={'nom_proprietaire':'privé', 'telephone':'privé', 'adresse':'privé', 's_code_postal':'privé', 's_commune_proprietaire':'privé', 'email':'privé'} %}
+
+  {%- endif %}
+
 
 
 
@@ -66,19 +66,20 @@
 
     <div class="col-md-6">
 
+
       <div class="form-group">
-        {{ macros.input_text("nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire, required=required, disabled=disabled) }}
+        {{ macros.input_text("nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire, required=required, disabled=disabled, hidden=hidden) }}
       </div>
 
       <br>
 
-      <div class="form-group">
+      <div class="form-group" {{"hidden" if disabled and not proprietaire['telephone']}}>
         {{ macros.input_tel("telephone", "Téléphone", proprietaire, required=required, disabled=disabled) }}
       </div>
 
       <br>
 
-      <div class="form-group">
+      <div class="form-group" {{"hidden" if disabled and not proprietaire['email']}}>
         {{ macros.input_email("email", "Email", proprietaire, required=required, disabled=disabled) }}
       </div>
 
@@ -88,7 +89,7 @@
 
     <div class="col-md-6">
 
-      <div class="form-group">
+      <div class="form-group" {{"hidden" if disabled and not proprietaire['adresse'] and not proprietaire['s_code_postal'] and not proprietaire['s_commune_proprietaire']}}>
 
         <h5>Adresse</h5>
 

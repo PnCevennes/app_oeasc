@@ -472,25 +472,25 @@ $(document).ready(function() {
 
     // si des objects ont deja été ajoutés avant ou ajoute les nouveaux aux anciens
 
-    if(ls.featuresCollection) {
+    // if(ls.featuresCollection) {
 
-      featuresCollection.on('data:loaded', function() {
+    //   featuresCollection.on('data:loaded', function() {
 
-        featuresCollection.eachLayer(function(l) {
+    //     featuresCollection.eachLayer(function(l) {
 
-          ls.featuresCollection.addLayer(l);
+    //       ls.featuresCollection.addLayer(l);
 
-        });
+    //     });
 
-        f_on_data_loaded(this, map, b_zoom);
+    //     f_on_data_loaded(this, map, b_zoom);
 
-      });
+    //   });
 
-    }
+    // }
 
-    // sinon on ajoute les nouveaux à la carte
+    // // sinon on ajoute les nouveaux à la carte
 
-    else {
+    // else {
 
       ls.featuresCollection=featuresCollection;
 
@@ -502,7 +502,7 @@ $(document).ready(function() {
 
       });
 
-    }
+    // }
 
   };
 
@@ -609,8 +609,6 @@ $(document).ready(function() {
 
     }
 
-    // M.stripes.addTo(map);
-
     for(var i=0; i < 10; i++) {
 
       map.createPane('PANE_' + i);
@@ -625,7 +623,7 @@ $(document).ready(function() {
 
       var div=L.DomUtil.create('div','legend');
       // div.innerHTML +='<div id="legend-oeasc"><i style="background: repeating-linear-gradient(45deg, ' + M.color.oeasc + ', ' + M.color.oeasc + ' 2px, white 2px, white 5px); border: 2px solid black;"></i> ' +"OEASC" + '</div>';
-      div.innerHTML +='<div id="legend-oeasc"><i style="border: 2px solid black;"></i> ' + "Périmètre de l'Observatoire" + '</div>';
+      div.innerHTML +='<div id="legend-oeasc"><i style="background: lightgrey;border: 2px solid black;"></i> ' + "Périmètre de l'Observatoire" + '</div>';
       return div;
 
     };
@@ -661,7 +659,7 @@ $(document).ready(function() {
     pane = (type=="foret")? 1 : 2;
     color = M.color[type];
 
-    $('#legend-' + name).show()
+    $("#map_" + map.map_name + ' #legend-' + name).show()
 
     $.ajax({
 
@@ -693,14 +691,15 @@ $(document).ready(function() {
 
           var fp = layer.feature.properties;
           var type_code = M.get_type_code(fp.id_type);
-          $('#legend-' + type_code).show();
-          $('#legend-' + type_code + ' > i').css('background-color', M.color.foret);
+          $("#map_" + map.map_name + ' #legend-' + type_code).show();
+          $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', M.color.foret);
 
         });
 
         $("#" + map.map_name + " #chargement").hide();
 
-        if(type == "foret" && b_zoom) {
+        // if(type == "foret" && b_zoom) {
+        if(b_zoom) {
 
           deferred_setBounds(featuresCollection.getBounds(), map);
 

@@ -19,8 +19,8 @@
 
   <p>Le périmètre a été découpé en quatre secteurs d’étude, correspondant aux quatre grandes entités biogéographiques du territoire : le Mont Lozère au nord, les Vallées cévenoles à l’est, les Causses et les gorges à l’ouest, et le Mont Aigoual au sud. Le découpage en secteurs d’étude a également tenu compte des habitudes de chasse et des territoires de chasse utilisés pour la définition des plans de chasse.</p>
 
-<hr>
-<small><i>(1) : fusion ayant abouti à la création des nouvelles communes de Massegros-Causses-Gorges, Gorges-du-Tarn-Causses, Mont-Lozère-et-Goulet</i></small>
+  <hr>
+  <small><i>(1) : fusion ayant abouti à la création des nouvelles communes de Massegros-Causses-Gorges, Gorges-du-Tarn-Causses, Mont-Lozère-et-Goulet</i></small>
 </div>
 <div>
 
@@ -47,14 +47,43 @@
 
     var map_init = M.carte_base_oeasc("acceuil");
 
-    var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/AA_PNC', {style: M.style.aa}).addTo(map_init);
+    var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/AA_PNC', {
+      style: M.style.aa,
+    }).addTo(map_init);
+
     var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/ZC_PNC', {style: M.style.zc}).addTo(map_init);
-    var l_secteurs_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR', {style: M.style.oeasc, pane: 'PANE_0'}).addTo(map_init);
+
+    var l_secteurs_OEASC = new L.GeoJSON.AJAX(
+      '/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR',
+      {
+        style: M.style.secteur,
+        onEachFeature: function(feature, layer) {
+
+          var center = layer.getBounds().getCenter();
+          console.log(feature, layer, center);
+          layer.bindTooltip(feature.properties.label, {
+            pane: 'PANE_4',
+            permanent: true,
+            direction: 'center',
+            opacity: 1,
+            fillOpacity: 1,
+            className: 'secteur',
+          });
+
+          // var label = L.DomUtil.create('div','secteur');
+          // console.log(label);
+          // label._div.innerHTML='<h3>' + feature.properties.label + '</h3>';
+          // label.addTo(map);
+        },
+      }
+      ).addTo(map_init);
 
 
+    $(".legend").append('<div id="#legend-zc"><i style="background: lightgrey; border: 1px solid black;"></i> ' +"Secteurs d'étude de l'Observatoire" + '</div>');
 
-    $(".legend").append('<div id="#legend-aa"><i style="background: ' + M.color.zc + '; border: 1px solid black;"></i> ' +"Zone cœur du Parc National" + '</div>');
-    $(".legend").append('<div id="#legend-zc"><i style="background: ' + M.color.aa + '; border: 1px solid black;"></i> ' +"Aire d'adhésion du Parc National" + '</div>');
+    $(".legend").append('<div id="#legend-aa"><i style="background: ' + M.color.zc + '; border: 1px solid darkgrey;"></i> ' +"Zone cœur du Parc National" + '</div>');
+
+    $(".legend").append('<div id="#legend-zc"><i style="background: ' + M.color.aa + '; border: 1px solid darkgrey;"></i> ' +"Aire d'adhésion du Parc National" + '</div>');
 
   });
 

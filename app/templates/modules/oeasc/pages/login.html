@@ -7,7 +7,10 @@
 
 <div class="row">
 
-    <div class="col-md-12">
+    <div class="col-md-12 text">
+
+        <h2>Connexion</h2>
+
 
         <form class="container main-zone ng-scope " id="form_login">
 
@@ -17,11 +20,11 @@
 
             {% endif %}
 
-            <p >Si vous ne possédez pas encore de compte, vous pouvez vous inscrire <a href="{{ url_for('oeasc.register') }}">ici.</a></p>
+            <p >Si vous ne possédez pas encore de compte, vous pouvez {% set href=url_for('oeasc.register')%}
+              <button class='btn btn-primary' onclick="location.href='{{href}}'">créer un compte</button></p>
 
-            <h2>Connexion</h2>
 
-            <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
+              <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
                 Paramètres de connexion invalides
             </div>
 
@@ -37,7 +40,7 @@
                     <input type="password" class="form-control" id="user_pwd">
                 </div>
                 <br>
-                <button class="btn btn-default">Login</button>
+                <button class="btn btn-success">Login</button>
             </div>
         </form>
 
@@ -75,19 +78,13 @@
 
             e.preventDefault();
 
-            var data ={
-                "id_application": $('#user_app').val(),
-                "login": $('#user_id').val().trim(),
-                "password" : $('#user_pwd').val()
-            };
-
             $("#login-error").hide();
             $.post({
                 // url : '{{config.URL_APPLICATION}}' + '/pypn/auth/login',
                 url : '/pypn/auth/login',
                 data : JSON.stringify ({
                     "id_application": $('#user_app').val(),
-                    "login": $('#user_id').val(),
+                    "login": $('#user_id').val().trim(),
                     "password" : $('#user_pwd').val()
                 }),
                 contentType:"application/json; charset=utf-8",
