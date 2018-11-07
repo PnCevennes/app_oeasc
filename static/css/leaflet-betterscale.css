@@ -1,6 +1,8 @@
 .leaflet-control-better-scale {
-  height: 30px;
+  height: 50px;
+  /* background-color: black; */
 }
+
 .leaflet-control-better-scale-upper-first-piece {
     top: 0%;
     left: 0%;
@@ -46,10 +48,10 @@
     color: #fff;
     font: sans-serif;
     font-weight: bold;
-    font-size: 12px;
+    font-size: 15px;
     height: 5px;
     top: -1px;
-     text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+    text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
 }
 .leaflet-control-better-scale-first-number {
     left: 45%;
@@ -59,5 +61,13 @@
 }
 
 .leaflet-control-better-scale-coeff{
-    top: -10%;
+    top: -100%;
+    color: #fff;
+    font-size: 15px;
+    text-align: center;
+
+    font-weight: bold;
+    font: sans-serif;
+    text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
+
 }
