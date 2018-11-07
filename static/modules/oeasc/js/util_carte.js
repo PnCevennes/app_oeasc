@@ -572,8 +572,89 @@ $(document).ready(function() {
 
   };
 
+  var init_tiles = function() {
 
-  var carte_base_oeasc = function(name, b_zoom_perimetre=true, tile="mapbox") {
+    if(M['tiles']) {
+
+      return;
+
+    }
+
+
+    var tile_opacity = 0.7;
+
+    var mapbox = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+
+      maxZoom: 18,
+      opacity: tile_opacity,
+      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+      '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+      'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      id: 'mapbox.streets'
+
+    })
+
+    var opentopo = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+
+      maxZoom: 16,
+        // opacity: 0.6,
+        opacity: tile_opacity,
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+        'map style © <a href="https://opentopomap.org/">OpenTopoMap</a>',
+        id: 'mapbox.streets'
+
+      });
+
+    var key = 'choisirgeoportail';
+
+    var s_layer = 'GEOGRAPHICALGRIDSYSTEMS.MAPS';
+
+    var ign = L.tileLayer("http://wxs.ign.fr/" + key
+      + "/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&"
+      + "LAYER=" + s_layer + "&STYLE=normal&TILEMATRIXSET=PM&"
+      + "TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg", {
+        opacity: tile_opacity,
+        maxZoom: 18,
+        id: 'mapbox.streets',
+        attribution: '&copy; <a href="http://www.ign.fr/">IGN</a>'
+
+      });
+
+
+    var s_layer = 'ORTHOIMAGERY.ORTHOPHOTOS';
+
+    var ign_ortho = L.tileLayer("http://wxs.ign.fr/" + key
+      + "/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&"
+      + "LAYER=" + s_layer + "&STYLE=normal&TILEMATRIXSET=PM&"
+      + "TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg", {
+        opacity: tile_opacity,
+        maxZoom: 18,
+        id: 'mapbox.streets',
+        attribution: '&copy; <a href="http://www.ign.fr/">IGN</a>'
+
+      });
+
+    var base_maps = {
+
+      "Mapbox": mapbox,
+      "OpenTopoMap": opentopo,
+      "Cartes (IGN)": ign,
+      "Vue aérienne (IGN)": ign_ortho
+
+    };
+
+    if(! M.cur_tile_name ) {
+
+      M.cur_tile_name = "Mapbox";
+
+    }
+
+    return base_maps;
+
+  }
+
+  var carte_base_oeasc = function(name, b_zoom_perimetre=true) {
 
     var map_id = 'map_' + name;
 
@@ -582,32 +663,18 @@ $(document).ready(function() {
 
     $("#" + map.id).parent().find("#chargement").appendTo("#" + map_id);
 
-    if(tile == "mapbox") {
 
-      L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+    var base_maps=init_tiles();
 
-        maxZoom: 18,
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: 'mapbox.streets'
+    base_maps[M.cur_tile_name].addTo(map);
 
-      }).addTo(map);
+    L.control.layers(base_maps).addTo(map);
 
-    }
+    map.on('baselayerchange', function(e) {
 
-    else if(tile == "opentopomap") {
+      M.cur_tile_name=e.name;
 
-      L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 16,
-        opacity: 0.6,
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-        '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-        'map style © <a href="https://opentopomap.org/">OpenTopoMap</a>',
-        id: 'mapbox.streets'
-      }).addTo(map);
-
-    }
+    });
 
     for(var i=0; i < 10; i++) {
 
@@ -630,7 +697,10 @@ $(document).ready(function() {
 
     legend.addTo(map);
 
-    var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/OEASC_PERIMETRE', {style: M.style.oeasc, pane: 'PANE_0'}).addTo(map);
+    var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/OEASC_PERIMETRE', {
+      style: M.style.oeasc,
+      pane: 'PANE_1'
+    }).addTo(map);
 
     if(b_zoom_perimetre) {
 
@@ -699,15 +769,15 @@ $(document).ready(function() {
         $("#" + map.map_name + " #chargement").hide();
 
         // if(type == "foret" && b_zoom) {
-        if(b_zoom) {
+          if(b_zoom) {
 
-          deferred_setBounds(featuresCollection.getBounds(), map);
+            deferred_setBounds(featuresCollection.getBounds(), map);
+
+          }
 
         }
 
-      }
-
-    });
+      });
 
   };
 

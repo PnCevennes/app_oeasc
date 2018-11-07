@@ -155,6 +155,9 @@ process_geom $name
 # simplify_topology_geom $name 10
 simplify_geom $name 50
 
+# correction nom
+echo "UPDATE ref_geo.li_areas SET label = 'Mont Aigoual' WHERE area_name = 'Aigoual'" | psqla >> $log_file
+
 
 
 #AA
