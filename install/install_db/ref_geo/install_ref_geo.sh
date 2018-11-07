@@ -153,7 +153,7 @@ select=0
 # clear_geometry $name
 process_geom $name
 # simplify_topology_geom $name 10
-simplify_geom $name 20
+simplify_geom $name 50
 
 
 
