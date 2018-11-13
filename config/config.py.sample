@@ -1,28 +1,35 @@
 # Database settings
+
 SQLALCHEMY_DATABASE_URI = "postgresql://monuser:monpassachanger@localhost/usershubdb"
 SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+
+# Applications
 
 URL_APPLICATION = "localhost:5000"
 URL_USERHUB="localhost:5001"
 
-SECRET_KEY = 'super secret key'
-
 ID_APP = 1
-
+SECRET_KEY = 'super secret key'
 PASS_METHOD = 'md5'
 COOKIE_EXPIRATION = 7200
 
 ENABLE_NOMENCLATURE_TAXONOMIC_FILTERS = True
 
-""" Authentification crypting method (hash or md5) """
-MAIL_ANIMATEUR=''
 
-DEFAULT_MAIL_SENDER=''
+# Administrateur OEASC
 
+ADMIN_OEASC_LOGIN=""
+ADMIN_OEASC_PASSWORD=""
+ADMIN_OEASC_MAIL=""
+
+
+# mail configuration
+
+DEFAULT_MAIL_SENDER="joel.clement@cevennes-parcnational.fr"
 MAIL_SERVER = 'smtp.gmail.com'
 MAIL_PORT = 587
 MAIL_USERNAME = ''
 MAIL_PASSWORD = ''
 
-
-SQLALCHEMY_POOL_SIZE = 100
+DB=""

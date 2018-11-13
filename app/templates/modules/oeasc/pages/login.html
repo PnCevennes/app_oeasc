@@ -9,8 +9,17 @@
 
     <div class="col-md-12 text">
 
-        <h2>Connexion</h2>
+        <div>
 
+            {%- if validation_compte %}
+
+            <p class="red"> Votre compte à bien été validé. Veuillez vous indentifier avec votre identifiant (email) et votre mot de passe.</p>
+
+            {%- endif %}
+
+        </div>
+
+        <h2>Connexion</h2>
 
         <form class="container main-zone ng-scope " id="form_login">
 
@@ -20,11 +29,26 @@
 
             {% endif %}
 
-            <p >Si vous ne possédez pas encore de compte, vous pouvez {% set href=url_for('oeasc.register')%}
-              <button class='btn btn-primary' onclick="location.href='{{href}}'">créer un compte</button></p>
+            {% if type == "add_droit" %}
 
+            <p class=red> Connecter vous  afin de créer des droits pour l'application OEASC sur votre compte déjà  existant.</p>
 
-              <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
+            {% else %}
+<hr>
+            <p >Si vous ne possédez pas encore de compte, vous pouvez
+                {% set href=url_for('oeasc.register')%}
+                <button class='btn btn-primary' onclick="location.href='{{href}}'">créer un compte</button>
+            </p>
+<hr>
+<p> Vous avez oublié votre mot de passe, vous pouvez
+                {% set href=url_for('oeasc.reset_password')%}
+                <button class='btn btn-info' onclick="location.href='{{href}}'">changer de mot de passe</button>
+</p>
+<hr>
+
+            {% endif %}
+
+            <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
                 Paramètres de connexion invalides
             </div>
 
@@ -32,7 +56,7 @@
                 <input type="hidden" name="" id="user_app" value="{{id_app}}">
                 <div class="form-group">
                     <label for="user_id">Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'email utilisé pour l'inscription." class="fas fa-question-circle"></span>:</label>
-                    <input type="text" class="form-control" id="user_id">
+                    <input type="text" class="form-control" id="user_id" value={{identifiant}}>
                 </div>
                 <br>
                 <div class="form-group">
@@ -60,9 +84,12 @@
 
         "use strict";
 
+        var type="{{ type }}";
+
         $("#login-error").hide();
 
         console.log('{{ redirect_url }}');
+        console.log(type);
 
         var redirection = '{{ redirect_url }}'.replace(/\&#34;/g, '');
 
@@ -74,13 +101,10 @@
 
         console.log(redirection);
 
-        var login = function(e) {
+        var login_request = function() {
 
-            e.preventDefault();
-
-            $("#login-error").hide();
             $.post({
-                // url : '{{config.URL_APPLICATION}}' + '/pypn/auth/login',
+
                 url : '/pypn/auth/login',
                 data : JSON.stringify ({
                     "id_application": $('#user_app').val(),
@@ -91,7 +115,6 @@
                 dataType:"json",
                 success: function(response){
                     console.log(response);
-                    // window.location.href = '{{config.URL_APPLICATION}}';
                     window.location.href = redirection;
                 },
                 error: function(error){
@@ -99,11 +122,49 @@
                     console.log(error);
                 }
             });
-        };
 
-        $("#form_login").submit(login);
+        }
 
-    });
+        var login = function(e) {
+
+            e.preventDefault();
+
+            $("#login-error").hide();
+
+            if(type == "add_droit") {
+
+                $.post({
+                    url : '/api/user/add_application_right_to_role',
+                    data : JSON.stringify ({
+                        "id_application": $('#user_app').val(),
+                    "login": $('#user_id').val().trim(),
+                "password" : $('#user_pwd').val()}  ),
+    contentType:"application/json; charset=utf-8",
+    dataType:"json",
+    success: function(response){
+        console.log(response);
+        login_request();
+
+                    // window.location.href = redirection;
+                },
+                error: function(error){
+                    $("#login-error" ).show();
+                    console.log(error);
+                }
+            });
+        } else {
+
+            login_request();
+        }
+
+
+
+
+    };
+
+    $("#form_login").submit(login);
+
+});
 
 </script>
 

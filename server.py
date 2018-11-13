@@ -5,13 +5,10 @@ import json
 from app.utils.env import DB, mail
 from config import config
 
-from app.modules.oeasc.utils import utils_dict
-
 import re
 
 from jinja2 import evalcontextfilter, Markup, escape
 
-from app.modules.oeasc.repository import test_db
 
 class ReverseProxied(object):
 
@@ -69,11 +66,11 @@ with app.app_context():
 
         return response
 
-    from pypnusershub import routes
-    app.register_blueprint(routes.routes, url_prefix='/pypn/auth')
-
     from app.ref_geo import api as ref_geo_api
     app.register_blueprint(ref_geo_api.bp, url_prefix='/api/ref_geo')
+
+    from app.user import api as user_api
+    app.register_blueprint(user_api.bp, url_prefix='/api/user')
 
     from app.modules.oeasc import routes as oeasc_routes
     app.register_blueprint(oeasc_routes.bp, url_prefix='/oeasc')
@@ -87,6 +84,9 @@ with app.app_context():
     from app.modules.oeasc import route_test as route_test
     app.register_blueprint(route_test.bp, url_prefix='/test')
 
+    from pypnusershub import routes
+    app.register_blueprint(routes.routes, url_prefix='/pypn/auth')
+
     from pypnnomenclature.routes import routes
     app.register_blueprint(routes, url_prefix='/api/nomenclatures')
 
@@ -95,6 +95,8 @@ if __name__ == '__main__':
     app.run(debug=config.DEBUG, port=config.PORT)
 
 
+
+from app.modules.oeasc.utils import utils_dict
 app.jinja_env.globals["utils"] = utils_dict()
 
 
@@ -136,3 +138,20 @@ def cleanid(eval_ctx, value):
     s2 = s2.replace(".", "")
     s2 = s2.strip()
     return s2
+
+
+import click
+from flask.cli import with_appcontext
+from flask import Flask
+
+from flask_bcrypt import (
+    generate_password_hash
+)
+
+@with_appcontext
+@app.cli.command()
+@click.argument('password')
+def password_hash(password):
+
+    password_hash = generate_password_hash(password.encode('utf-8')).decode('utf-8')
+    print(password_hash)

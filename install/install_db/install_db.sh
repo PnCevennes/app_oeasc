@@ -1,6 +1,38 @@
 # script d'installation de la base donnée pour l'oeasc
 
-geom_to_clear=$1
+usage ()
+{
+    echo 'Usage install.sh'
+    echo 'Options :'
+    echo '    -remove-venv : remove the venv directory'
+    exit
+}
+
+DB_TYPE="all"
+GEOM_TO_CLEAR=""
+
+while getopts ":ht:g:" opt; do
+    case $opt in
+        h)
+            usage
+            exit 1
+            ;;
+        t)
+            DB_TYPE="${OPTARG}"
+            ;;
+        g)
+            GEOM_TO_CLEAR="${OPTARG}"
+            ;;
+        h)
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+
+echo DB_TYPE $DB_TYPE
+echo GEOM_TO_CLEAR $GEOM_TO_CLEAR
 
 # on part d'une base geonature existante
 
@@ -104,32 +136,57 @@ $psqla -f $dir_script/ref_geo/fonctions_simplify_geom.sql >> $log_file
 
 # les données geographiques
 
-echo ajout des données géographiques
-. ${dir_script}/ref_geo/install_ref_geo.sh $geom_to_clear
+if [ "$DB_TYPE" == "all" ] || [ "$DB_TYPE" == "geometrie" ]
+then
+
+    echo ajout des données géographiques
+    . ${dir_script}/ref_geo/install_ref_geo.sh
+
+fi
 
 # les données de nomenclature
 
-. ${dir_script}/nomenclature/nomenclature.sh
+if [ "$DB_TYPE" == "all" ] || [ "$DB_TYPE" == "nomenclature" ]
+then
 
+    echo ajout des données nomenclature
+    . ${dir_script}/nomenclature/nomenclature.sh
+
+fi
 
 # la base oeasc
 
-. ${dir_script}/oeasc/oeasc.sh
+if [ "$DB_TYPE" == "all" ] || [ "$DB_TYPE" == "nomenclature" ]
+then
 
+    echo ajout du shéma oeasc
+    . ${dir_script}/oeasc/oeasc.sh
+
+fi
 
 # les utilisateurs
 
-. ${dir_script}/user/user.sh
+if [ "$DB_TYPE" == "all" ] || [ "$DB_TYPE" == "user" ]
+then
+
+    echo ajout de l''application oeasc et utilisateurs de base 
+    . ${dir_script}/user/user.sh
+
+fi
+
+
+# cas ou l'utilisateur n'est pas superuser
+# on donne les droits a l'utilisateur pour le schema oeasc et +
 
 if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
 then
 
-echo "GRANT USAGE ON SCHEMA oeasc TO $user_pg_save;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oeasc TO $user_pg_save;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA oeasc TO $user_pg_save;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ref_geo TO $user_pg_save;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA ref_geo TO $user_pg_save;
-" | $psqla >> $log_file
+    echo "GRANT USAGE ON SCHEMA oeasc TO $user_pg_save;
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oeasc TO $user_pg_save;
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA oeasc TO $user_pg_save;
+    GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA ref_geo TO $user_pg_save;
+    GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA ref_geo TO $user_pg_save;
+    " | $psqla >> $log_file
 
 fi
 

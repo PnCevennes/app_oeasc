@@ -1,6 +1,20 @@
 
 echo init user >> $log_file
-cat <<EOF | $psqla >> $log_file
+
+
+md5_admin_oeasc=$(echo -n $ADMIN_OEASC_PASSWORD | md5sum | awk '{print "'\''" $1 "'\''"}')
+# sha1=$(echo -n $ADMIN_OEASC_PASSWORD | sha1sum | awk '{print "'\''" $1 "'\''"}')
+
+export FLASK_APP=server
+. venv/bin/activate
+
+echo flask password_hash $ADMIN_OEASC_PASSWORD
+sha1_admin_oeasc="'"$(flask password_hash $ADMIN_OEASC_PASSWORD)"'"
+
+identifiant_admin_oeasc="'"${ADMIN_OEASC_LOGIN}"'"
+email_admin_oeasc="'"${ADMIN_OEASC_MAIL}"'"'
+
+cat << EOF | $psqla #>> $log_file
 
 DELETE FROM utilisateurs.t_applications WHERE nom_application='oeasc' OR id_application=500;
 
@@ -16,9 +30,38 @@ DELETE FROM utilisateurs.cor_role_droit_application WHERE id_role=1 and id_appli
 INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_application)
     VALUES (1, 6, 500);
 
+-- creation utilisateur admin_oeasc avec droits pour userhub
+
+DELETE FROM utilisateurs.cor_role_droit_application as c
+    USING utilisateurs.t_roles as r
+    WHERE r.id_role = c.id_role
+        AND r.identifiant='admin_oeasc';
+
+DELETE FROM utilisateurs.t_roles
+    WHERE identifiant='admin_oeasc';
+
 DELETE FROM utilisateurs.t_roles WHERE remarques = 'utilisateur test OEASC';
 
 SELECT setval('utilisateurs.t_roles_id_role_seq', COALESCE((SELECT MAX(id_role)+1 FROM utilisateurs.t_roles), 1), false);
+
+INSERT INTO utilisateurs.t_roles(identifiant, nom_role, pass, pass_plus, email, organisme)
+    VALUES ($identifiant_admin_oeasc, 'Admin_OEASC', $md5_admin_oeasc, $sha1_admin_oeasc, $email_admin_oeasc, 'PNC');
+
+-- ajout droits OEASC (6)
+INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_application)
+    (SELECT id_role, 6, 500
+        FROM utilisateurs.t_roles
+        WHERE identifiant='admin_oeasc');
+
+-- ajout droits USERSHUB (5)
+INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_application)
+    (SELECT r.id_role, 5, a.id_application
+        FROM utilisateurs.t_roles as r, utilisateurs.t_applications as a
+        WHERE r.identifiant = 'admin_oeasc'
+        AND a.nom_application = 'UsersHub');
+
+
+
 EOF
 
 id_pnc=$(echo "SELECT id_organisme FROM utilisateurs.bib_organismes WHERE nom_organisme = 'EP PNC'" | psql -t -d $db_name -h $db_host -U $user_pg | awk '{print $1}')

@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint
+    Blueprint, g
 )
 
 import app.modules.oeasc.utils as utils
@@ -10,8 +10,11 @@ from .repository import (
     get_declarations,
     nomenclature_oeasc,
     get_dict_nomenclature_areas,
+    pre_get_dict_nomenclature_areas,
 
 )
+
+from datetime import datetime
 
 from .models import (
 
@@ -75,13 +78,24 @@ def get_nomenclature():
 
 def get_all_declarations():
 
+    print("g", "areas", len(getattr(g, '_areas', [])))
+
+    print("0", datetime.now())
+
     data = DB.session.query(TDeclaration).all()
 
     if not data:
 
         return None
+    print("a", datetime.now())
+    declarations = [d.as_dict(True) for d in data]
+    print("b", datetime.now())
 
-    out = [get_dict_nomenclature_areas(d.as_dict(True)) for d in data]
+    pre_get_dict_nomenclature_areas(declarations)
+    print("c", datetime.now())
+
+    out = [get_dict_nomenclature_areas(d) for d in declarations]
+    print("d", datetime.now())
 
     return out
 

@@ -18,7 +18,7 @@ from pypnusershub.db.models import (
     User, AppUser
 )
 
-from app.ref_geo.models import TAreas
+from app.ref_geo.models import VAreas as VA, TAreas
 
 from app.ref_geo.repository import (
     get_type_code,
@@ -147,15 +147,49 @@ def get_nomenclature(key_in, value_in, type_code, key_out=""):
     return None
 
 
+def get_areas_from_ids(id_areas):
+    '''
+        search areas attributes in db if not yet in g._areas
+    '''
+    if not getattr(g, '_areas', None):
+
+        g._areas = {}
+
+    id_areas_to_query = []
+
+    for id in id_areas:
+
+        if not g._areas.get(str(id), None):
+
+            id_areas_to_query.append(id)
+
+    if id_areas_to_query:
+
+        print("get areas from db ", len(id_areas_to_query))
+
+
+        data = DB.session.query(VA).filter(VA.id_area.in_(id_areas_to_query))
+
+        for d in data:
+
+            d_dict = d.as_dict()
+            g._areas[str(d_dict['id_area'])] = d_dict
+
+
 def get_area_from_id(id_area):
+    '''
+        search areas attributes in db if not yet in g._areas
+    '''
 
     if not getattr(g, '_areas', None):
 
         g._areas = {}
 
-    if not getattr(g._areas, str(id_area), None):
+    if not g._areas.get(str(id_area), None):
 
-        data = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
+        print("get single area from db")
+
+        data = DB.session.query(VA).filter(id_area == VA.id_area).first()
 
         if not data:
 
@@ -168,6 +202,32 @@ def get_area_from_id(id_area):
         g._areas[str(id_area)] = out
 
     return g._areas[str(id_area)]
+
+
+def pre_get_dict_nomenclature_areas(declarations):
+    '''
+        pre process pour recuperer les id_areas contenues dans un tableau de déclaration
+        et faire une seule requete en bdd
+    '''
+    v_id_areas = []
+
+    for declaration in declarations:
+
+        for area in declaration.get('areas_localisation', []):
+
+            v_id_areas.append(area['id_area'])
+
+        foret = declaration.get('foret', None)
+
+        if not foret:
+
+            continue
+
+        for area in declaration.get('areas_foret', []):
+
+            v_id_areas.append(area['id_area'])
+
+    get_areas_from_ids(v_id_areas)
 
 
 def get_dict_nomenclature_areas(dict_in):
@@ -611,6 +671,6 @@ def get_db(type, key, val):
 
         if data:
 
-            return as_dict(data)
+            return as_dict(data, True)
 
     return "None"

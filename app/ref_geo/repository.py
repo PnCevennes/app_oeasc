@@ -45,7 +45,7 @@ def set_table(b_simple, data_type):
 
     else:
 
-        table = attributs    
+        table = attributs
 
     return table
 

@@ -68,8 +68,21 @@ def login():
     '''
 
     redirect_url = request.args.get('redirect', "")
+    validation_compte = request.args.get('validation_compte', "")
+    identifiant = request.args.get('identifiant', "")
+    type = request.args.get('type', "")
 
-    return render_template('modules/oeasc/pages/login.html', config=config, id_app=config.ID_APP, redirect_url=redirect_url)
+    return render_template('modules/oeasc/pages/login.html', config=config, id_app=config.ID_APP, redirect_url=redirect_url, validation_compte=validation_compte, identifiant=identifiant, type=type)
+
+
+@bp.route('/reset_password/', defaults={'token': ""}, methods=['GET'])
+@bp.route('/reset_password/<string:token>', methods=['GET'])
+def reset_password(token):
+    '''
+        page pour recreer un mot de passe
+    '''
+
+    return render_template('modules/oeasc/pages/reset_password.html', token=token)
 
 
 @bp.route('/register')

@@ -15,6 +15,8 @@ user_install=""
 #user propriétaire de la base de l'application
 user_install_pass=""
 
+
+
 reset_geom=false
 
 #Configuration python
@@ -26,6 +28,9 @@ ID_APP=500
 URL_APPLICATION="localhost:5000"
 URL_USERHUB="localhost:5001"
 
+ADMIN_OEASC_LOGIN=""
+ADMIN_OEASC_PASSWORD=""
+ADMIN_OEASC_MAIL=""
 
 #####################
 ### Gunicorn settings
@@ -38,7 +43,6 @@ gun_port=5001
 ##### mail
 
 MAIL_ANIMATEUR=somemail
-DEFAULT_MAIL_SENDER=somemail
 
 MAIL_SERVER=smtp.gmail.com,
 MAIL_PORT=465

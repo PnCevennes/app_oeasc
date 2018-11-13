@@ -198,7 +198,8 @@ def api_get_db(type, key, val):
     '''
         pfff
     '''
-    return get_db(type, key, val)
+    out = get_db(type, key, val)
+    return out
 
 
 @bp.route('declaration_areas/<int:id_declaration>/<string:type>', methods=['GET'])

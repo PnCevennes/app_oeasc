@@ -294,6 +294,7 @@ def serializeQueryTest(data, columnDef):
         rows.append(inter)
     return rows
 
+
 def as_dict(self, recursif=False, columns=()):
 
     cls = self.__class__
@@ -333,17 +334,18 @@ def as_dict(self, recursif=False, columns=()):
 
         if uselist is True:
 
-            out[rel] = [x.as_dict(True) for x in getattr(self, rel)]
+            # out[rel] = [as_dict(x, recursif=recursif) for x in getattr(self, rel)]
+            out[rel] = [as_dict(x) for x in getattr(self, rel)]
 
         else:
 
             if (getattr(self, rel) is None):
 
-                out[rel] = as_dict(argument(), recursif)
+                out[rel] = as_dict(argument(), recursif=recursif)
 
             else:
 
-                out[rel] = as_dict(getattr(self, rel), recursif)
+                out[rel] = as_dict(getattr(self, rel), recursif=recursif)
 
     return out
 
