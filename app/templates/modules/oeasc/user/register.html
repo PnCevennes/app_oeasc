@@ -219,7 +219,7 @@
                 "remarques": "creé depuis le site OEASC",
                 "id_unite": -1,
                 "id_organisme": $('#user_organism').val(),
-                // "organisme": $('#user_organism :selected').html(), // trop long pour varchar(32) pffffffffffffffff
+                "organisme": $('#user_organism :selected').html().substr(0,32), // trop long pour varchar(32) pffffffffffffffff
                 "desc_role": $('#desc_role').val(),
 
             };
