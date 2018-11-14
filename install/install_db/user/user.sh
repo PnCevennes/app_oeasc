@@ -1,8 +1,7 @@
 
 echo init user >> $log_file
 
-
-md5_admin_oeasc=$(echo -n $ADMIN_OEASC_PASSWORD | md5sum | awk '{print "'\''" $1 "'\''"}')
+md5_admin_oeasc=$(echo -n $ADMIN_APPLICATION_PASSWORD | md5sum | awk '{print "'\''" $1 "'\''"}')
 # sha1=$(echo -n $ADMIN_OEASC_PASSWORD | sha1sum | awk '{print "'\''" $1 "'\''"}')
 
 # export FLASK_APP=server.py
