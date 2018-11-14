@@ -128,7 +128,7 @@
             $("#user_email").val("joelclems@gmail.com");
             $('#user_pwd').val("1234");
             $('#user_pwd_conf').val("1234");
-            var id_organisme = parseInt($("#user_organism option")[1].value);
+            var id_organisme = parseInt($("#user_organism option")[3].value);
             $('#user_organism').selectpicker('val', id_organisme);
             $('#desc_role').selectpicker('val', "Salarié ou agent");
 
@@ -219,7 +219,7 @@
                 "remarques": "creé depuis le site OEASC",
                 "id_unite": -1,
                 "id_organisme": $('#user_organism').val(),
-                "organisme": $('#user_organism :selected').html(),
+                // "organisme": $('#user_organism :selected').html(), // trop long pour varchar(32) pffffffffffffffff
                 "desc_role": $('#desc_role').val(),
 
             };

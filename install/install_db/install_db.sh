@@ -169,7 +169,7 @@ fi
 if [ "$DB_TYPE" == "all" ] || [ "$DB_TYPE" == "user" ]
 then
 
-    echo ajout de l''application oeasc et utilisateurs de base 
+    echo ajout de l''application oeasc et utilisateurs de base
     . ${dir_script}/user/user.sh
 
 fi
@@ -180,8 +180,6 @@ fi
 
 if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
 then
-
-    echo walouch!!
 
     echo "GRANT USAGE ON SCHEMA oeasc TO $user_pg_save;
     GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA oeasc TO $user_pg_save;
