@@ -34,7 +34,7 @@ INSERT INTO utilisateurs.t_applications(
             id_application, nom_application, desc_application)
     VALUES (500, 'OEASC', 'application oeasc');
 
-DELETE FROM utilisateurs.cor_role_droit_application WHERE id_role=1 and id_application=500;
+-- DELETE FROM utilisateurs.cor_role_droit_application WHERE id_role=1 and id_application=500;
 
 -- ajout des droit pour admin
 INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_application)
@@ -49,8 +49,6 @@ DELETE FROM utilisateurs.cor_role_droit_application as c
 
 DELETE FROM utilisateurs.t_roles
     WHERE identifiant=$identifiant_admin_oeasc;
-
-DELETE FROM utilisateurs.t_roles WHERE remarques = 'utilisateur test OEASC';
 
 SELECT setval('utilisateurs.t_roles_id_role_seq', COALESCE((SELECT MAX(id_role)+1 FROM utilisateurs.t_roles), 1), false);
 
@@ -69,11 +67,9 @@ INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_applic
         FROM utilisateurs.t_roles as r, utilisateurs.t_applications as a
         WHERE r.identifiant = $identifiant_admin_oeasc
         AND a.nom_application = 'UsersHub');
-
-
-
 EOF
 
+exit 1
 
 password="1234"
 password_confirmation=$password

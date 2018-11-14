@@ -59,7 +59,7 @@ do
     replace_str $var
 done
 
-for var in "ID_APP" "MAIL_USE_TLS" "MAIL_USE_SSL" "MODE_TEST"
+for var in "ID_APP" "MAIL_USE_TLS" "MAIL_USE_SSL" "MODE_TEST" "MAIL_USE_TLS"
 do
     replace_num $var
 done
