@@ -26,7 +26,7 @@ col_id_pnc="'"$id_pnc"'"
 
 cat << EOF | $psqla >> $log_file
 
-DELETE FROM utilisateurs.t_applications WHERE nom_application='oeasc' OR id_application=500;
+DELETE FROM utilisateurs.t_applications WHERE nom_application='OEASC' OR id_application=500;
 
 -- add application
 
