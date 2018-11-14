@@ -69,7 +69,8 @@ INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_applic
         AND a.nom_application = 'UsersHub');
 EOF
 
-exit 1
+if [ "cpasvrai" == "ouicpasvrai" ]
+then
 
 password="1234"
 password_confirmation=$password
@@ -193,3 +194,5 @@ curl --header "Content-Type: application/json" \
 '"password":"'$password'","password_confirmation":"'$password_confirmation'","applications":[{"id_app":'$id_app',"id_droit":'$id_droit'}],'\
 '"groupe":false,"pn":true,"remarques":"'"$remarques"'","desc_role":"Directeur","id_unite":-1,"id_organisme":"'$id_organisme'"}' \
 $URL_USERHUB/api_register/role
+
+fi
