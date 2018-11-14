@@ -29,4 +29,3 @@ WTForms==2.2.1
 https://github.com/PnX-SI/Nomenclature-api-module/archive/master.zip
 git+https://github.com/joelclems/UsersHub-authentification-module@develop
 Flask-Bcrypt==0.7.1
-
