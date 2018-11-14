@@ -11,7 +11,7 @@ from .models import TForet, TProprietaire
 
 from app.utils.utilssqlalchemy import as_dict
 
-from app.utils.env import DB
+from app.utils.env import DB, config
 from pypnusershub.db.models import (
     User
 )
@@ -385,7 +385,7 @@ def get_random_id_declarant():
     '''
         renvoie un id_declarant aléatoire
     '''
-    sql_text = text("SELECT id_role FROM utilisateurs.t_roles WHERE remarques = 'utilisateur test OEASC'")
+    sql_text = text("SELECT r.id_role FROM utilisateurs.t_roles r, utilisateurs.cor_role_droit_application c WHERE c.id_role = r.id_role AND c.id_application = " + str(config.ID_APP) + "")
     data = DB.engine.execute(sql_text)
     v = [d[0] for d in data]
     if v == []:
@@ -468,6 +468,8 @@ def declaration_dict_random_sample():
     '''
     foret = foret_dict_random_sample()
 
+    print("foret", foret)
+
     if not foret:
 
         return None
@@ -475,6 +477,10 @@ def declaration_dict_random_sample():
     areas_localisation = get_random_areas_localisation(foret)
 
     declarant = get_random_declarant()
+
+    print("areas_localisation", areas_localisation)
+
+    print("declarant", declarant)
 
     if not declarant:
 

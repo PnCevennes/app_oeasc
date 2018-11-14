@@ -1,9 +1,15 @@
-<p>Votre déclaration de création de compte pour l'OEASC à bien été prise en compte</p>
+<p>Bonjour,</p>
 
-<p>Une nouvelle déclaration a été effectuée</p>
+<p>vous venez de vous créer un compte Utilisateur sur le site Internet de l'Observatoire de l'équilibre agro-sylvo-cynégétique.</p>
 
-Veuillez cliquer sur ce lien pour valider votre inscription :
+<p><b>Nous vous en remercions !</b> Cela vous permettra notamment de signaler des dégâts de grand gibier en forêt.</p>
 
-<a href="{{ url_validation }}">
-  Valider votre inscription
-</a>
+<p>Avant toute chose, et par mesure de sécurité, nous vous remercions de bien vouloir <b>valider votre adresse e-mail</b> et <b>confirmer la création de votre compte</b> en cliquant <a href="{{ url_validation }}">ici</a>.</p>
+
+<p>Vous pouvez également accéder à tout moment à votre espace Utilisateur et modifier vos informations personnelles en cliquant <a href="{{config['URL_APPLICATION']}}{{url_for('oeasc.user')}}">ici</a>.</p>
+
+<p>Cordialement,</p>
+
+<p>Les partenaires de l'Observatoire de l'équilibre agro-sylvo-cynégétique"</p>
+
+{% include "modules/oeasc/mail/footer.html" %}

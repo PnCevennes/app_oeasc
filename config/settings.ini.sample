@@ -24,13 +24,15 @@ reset_geom=false
 #Notice: n'est compatible qu'avec python3
 python_path=/usr/bin/python3
 
+MODE_TEST=0
+
 ID_APP=500
 URL_APPLICATION="localhost:5000"
 URL_USERHUB="localhost:5001"
 
-ADMIN_OEASC_LOGIN=""
-ADMIN_OEASC_PASSWORD=""
-ADMIN_OEASC_MAIL=""
+ADMIN_APPLICATION_LOGIN=""
+ADMIN_APPLICATION_PASSWORD=""
+ADMIN_APPLICATION_MAIL=""
 
 #####################
 ### Gunicorn settings
@@ -41,8 +43,7 @@ gun_port=5001
 
 
 ##### mail
-
-MAIL_ANIMATEUR=somemail
+ANIMATEUR_APPLICATION_MAIL=somemail
 
 MAIL_SERVER=smtp.gmail.com,
 MAIL_PORT=465

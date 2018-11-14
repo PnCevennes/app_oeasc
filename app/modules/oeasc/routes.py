@@ -42,7 +42,7 @@ def users():
 
     users = get_users()
 
-    return render_template('modules/oeasc/pages/users.html', users=users)
+    return render_template('modules/oeasc/user/users.html', users=users)
 
 
 @bp.route('/user')
@@ -58,7 +58,7 @@ def user():
 
     user = get_user(id_declarant)
 
-    return render_template('modules/oeasc/pages/user.html', user=user)
+    return render_template('modules/oeasc/user/user.html', user=user)
 
 
 @bp.route('/login')
@@ -72,17 +72,17 @@ def login():
     identifiant = request.args.get('identifiant', "")
     type = request.args.get('type', "")
 
-    return render_template('modules/oeasc/pages/login.html', config=config, id_app=config.ID_APP, redirect_url=redirect_url, validation_compte=validation_compte, identifiant=identifiant, type=type)
+    return render_template('modules/oeasc/user/login.html', config=config, id_app=config.ID_APP, redirect_url=redirect_url, validation_compte=validation_compte, identifiant=identifiant, type=type)
 
 
-@bp.route('/reset_password/', defaults={'token': ""}, methods=['GET'])
-@bp.route('/reset_password/<string:token>', methods=['GET'])
-def reset_password(token):
+@bp.route('/change_password/', defaults={'token': ""}, methods=['GET'])
+@bp.route('/change_password/<string:token>', methods=['GET'])
+def change_password(token):
     '''
         page pour recreer un mot de passe
     '''
 
-    return render_template('modules/oeasc/pages/reset_password.html', token=token)
+    return render_template('modules/oeasc/user/change_password.html', config=config, token=token)
 
 
 @bp.route('/register')
@@ -94,7 +94,7 @@ def register():
     liste_organismes_oeasc = get_liste_organismes_oeasc()
     nomenclature = nomenclature_oeasc()
 
-    return render_template('modules/oeasc/pages/register.html', config=config, id_app=config.ID_APP, liste_organismes_oeasc=liste_organismes_oeasc, nomenclature=nomenclature)
+    return render_template('modules/oeasc/user/register.html', config=config, liste_organismes_oeasc=liste_organismes_oeasc, nomenclature=nomenclature)
 
 
 @bp.route('/')

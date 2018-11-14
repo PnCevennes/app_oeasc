@@ -1,23 +1,30 @@
 {% if destinataire == "user" %}
 
-<p>Votre déclaration à bien été prise en compte</p>
+<p>Bonjour,</p>
+
+<p>vous avez effectué une déclaration de dégâts de grand gibier en forêt sur le site Internet de l'Observatoire de l'équilibre agro-sylvo-cynégétique. Nous vous remercions pour votre contribution. Grâce aux données fournies, vous participez à l'appréciation et au suivi de l'équilibre agro-sylvo-cynégétique, et à la définition de mesures de gestion pertinentes. En tant que propriétaire ou gestionnaire forestier, vous vous inscrivez ainsi pleinement dans la démarche de gestion durable de votre territoire.</p>
+
+<p>Vous pouvez visualiser (et éventuellement modifier) les alertes que vous avez déclarées en cliquant <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.declarations') }}">ici</a>.</p>
+
+<p>Si vous souhaitez signaler des dégâts sur un autre peuplement, vous pouvez également le faire en cliquant <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.modifier_declaration') }}">ici</a>.</p>
+
+<p>Pour consulter les résultats des suivis réalisés dans le cadre de l'Observatoire, cliquez <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.resultats_degats_forestiers') }}">ici</a>.</p>
+
+<p>L'alerte que vous avez signalée a une durée de validité de 3 ans. A l'issue de ce délai, vous serez recontacté afin de vous permettre de signaler l'évolution ou non de la situation.</p>
+
+<p>Si le peuplement touché par les dégâts que vous avez signalés est retenu pour faire l'objet d'un diagnostic sylvicole complet, vous serez contacté directement par l'animateur de l'Observatoire.</p>
+
+<p>Vous remerciant à nouveau pour votre participation,</p>
+<p>Cordialement,</p>
+
+<p>Les partenaires de l'Observatoire de l'équilibre agro-sylvo-cynégétique</p>
 
 {% else %}
 
-<p>Une nouvelle déclaration a été effectuée</p>
+<p>Une nouvelle déclaration à été effectuée.</p>
+
+<p>Vous pouvez voir les détails de la déclaration en cliquant <a href="{{config.URL_APPLICATION}}{{url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">ici</a>.</p>
 
 {% endif %}
 
-<a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">
-Voir la déclaration
-</a>
-
-<br>
-
-<a href="{{ url_for('oeasc.modifier_declaration', id_declaration=declaration['id_declaration'])}}">
-Modifier la déclaration
-</a>
-
-<p> Voici les détails de la déclaration : </p>
-
-{%- include "modules/oeasc/mail/declaration_mail.html" %}
+{% include "modules/oeasc/mail/footer.html" %}

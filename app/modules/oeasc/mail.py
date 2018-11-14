@@ -20,6 +20,8 @@ def display_mail_test(destinataire):
 
     declaration = declaration_dict_random_sample()
 
+    print(declaration)
+
     declaration = f_create_or_update_declaration(declaration)
 
     user = get_user(declaration['id_declarant'])
@@ -52,16 +54,16 @@ def send_mail_validation_declaration(declaration):
 
         msg = Message(
             '[OEASC] Votre déclaration a bien été prise en compte',
-            sender=config.DEFAULT_MAIL_SENDER,
+            sender=config.ANIMATEUR_APPLICATION_MAIL,
             recipients=[email_user])
         msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='user', declaration=declaration, user=user)
 
         conn.send(msg)
 
         msg = Message(
-            '[OEASC] Nouvelle déclaration',
-            sender=config.DEFAULT_MAIL_SENDER,
-            recipients=[config.MAIL_ANIMATEUR])
+            '[OEASC] [ANIMATEUR] Nouvelle déclaration',
+            sender=config.ANIMATEUR_APPLICATION_MAIL,
+            recipients=[config.ANIMATEUR_APPLICATION_MAIL, config.ADMIN_APPLICATION_MAIL])
         msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='animateur', declaration=declaration, user=user)
 
         conn.send(msg)

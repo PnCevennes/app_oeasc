@@ -1,4 +1,4 @@
-from flask import Flask, redirect, session, request
+from flask import Flask, redirect, session, request, url_for
 
 import json
 
@@ -47,6 +47,23 @@ app.config.from_pyfile('config/config.py', silent=True)
 mail.init_app(app)
 DB.init_app(app)
 
+app.config['DB'] = DB
+app.config['MAIL'] = mail
+
+
+def redirect_on_valid_temp_user(dict_in):
+
+    identifiant = dict_in["identifiant"]
+    return url_for('oeasc.login', identifiant=identifiant, validation_compte="valid")
+
+
+app.config['redirect_on_valid_temp_user'] = redirect_on_valid_temp_user
+app.config["route_change_password"] = "oeasc.change_password"
+# app.config["route_valid_temp_user"] = "register.valid_temp_user"
+app.config['template_demande_validation_compte'] = 'modules/oeasc/mail/demande_validation_compte.html'
+app.config['template_change_password'] = 'modules/oeasc/mail/change_password.html'
+
+
 @app.route('/')
 def accueil():
     return redirect("/oeasc", code=302)
@@ -69,9 +86,6 @@ with app.app_context():
     from app.ref_geo import api as ref_geo_api
     app.register_blueprint(ref_geo_api.bp, url_prefix='/api/ref_geo')
 
-    from app.user import api as user_api
-    app.register_blueprint(user_api.bp, url_prefix='/api/user')
-
     from app.modules.oeasc import routes as oeasc_routes
     app.register_blueprint(oeasc_routes.bp, url_prefix='/oeasc')
 
@@ -87,13 +101,16 @@ with app.app_context():
     from pypnusershub import routes
     app.register_blueprint(routes.routes, url_prefix='/pypn/auth')
 
+    from pypnusershub import routes_register
+    app.register_blueprint(routes_register.bp, url_prefix='/pypn/register')
+
     from pypnnomenclature.routes import routes
     app.register_blueprint(routes, url_prefix='/api/nomenclatures')
 
 
+
 if __name__ == '__main__':
     app.run(debug=config.DEBUG, port=config.PORT)
-
 
 
 from app.modules.oeasc.utils import utils_dict
@@ -141,14 +158,12 @@ def cleanid(eval_ctx, value):
 
 
 import click
-from flask.cli import with_appcontext
 from flask import Flask
 
 from flask_bcrypt import (
     generate_password_hash
 )
 
-@with_appcontext
 @app.cli.command()
 @click.argument('password')
 def password_hash(password):
