@@ -5,10 +5,12 @@ echo init user >> $log_file
 md5_admin_oeasc=$(echo -n $ADMIN_OEASC_PASSWORD | md5sum | awk '{print "'\''" $1 "'\''"}')
 # sha1=$(echo -n $ADMIN_OEASC_PASSWORD | sha1sum | awk '{print "'\''" $1 "'\''"}')
 
-export FLASK_APP=server.py
-. venv/bin/activate
+# export FLASK_APP=server.py
+# . venv/bin/activate
 
-sha1_admin_oeasc="'"$(flask password_hash $ADMIN_APPLICATION_PASSWORD)"'"
+# sha1_admin_oeasc="'"$(flask password_hash $ADMIN_APPLICATION_PASSWORD)"'"
+sha1_admin_oeasc="''"
+
 
 identifiant_admin_oeasc="'"${ADMIN_APPLICATION_LOGIN}"'"
 email_admin_oeasc="'"${ADMIN_APPLICATION_MAIL}"'"
