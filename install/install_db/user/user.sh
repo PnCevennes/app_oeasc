@@ -46,10 +46,10 @@ INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_applic
 DELETE FROM utilisateurs.cor_role_droit_application as c
     USING utilisateurs.t_roles as r
     WHERE r.id_role = c.id_role
-        AND r.identifiant='admin_oeasc';
+        AND r.identifiant=$identifiant_admin_oeasc;
 
 DELETE FROM utilisateurs.t_roles
-    WHERE identifiant='admin_oeasc';
+    WHERE identifiant=$identifiant_admin_oeasc;
 
 DELETE FROM utilisateurs.t_roles WHERE remarques = 'utilisateur test OEASC';
 
@@ -62,13 +62,13 @@ INSERT INTO utilisateurs.t_roles(identifiant, nom_role, pass, pass_plus, email, 
 INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_application)
     (SELECT id_role, 6, 500
         FROM utilisateurs.t_roles
-        WHERE identifiant='admin_oeasc');
+        WHERE identifiant=$identifiant_admin_oeasc);
 
 -- ajout droits USERSHUB (5)
 INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_droit, id_application)
     (SELECT r.id_role, 5, a.id_application
         FROM utilisateurs.t_roles as r, utilisateurs.t_applications as a
-        WHERE r.identifiant = 'admin_oeasc'
+        WHERE r.identifiant = $identifiant_admin_oeasc
         AND a.nom_application = 'UsersHub');
 
 
