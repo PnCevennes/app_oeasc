@@ -33,3 +33,5 @@ git+https://github.com/joelclems/UsersHub-authentification-module@develop
 Flask-Bcrypt==0.7.1
 
 
+
+
