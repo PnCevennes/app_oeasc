@@ -51,25 +51,18 @@ app.config['DB'] = DB
 app.config['MAIL'] = mail
 
 
-def redirect_on_valid_temp_user(dict_in):
-
-    identifiant = dict_in["identifiant"]
-    return url_for('oeasc.login', identifiant=identifiant, validation_compte="valid")
-
-
-app.config['redirect_on_valid_temp_user'] = redirect_on_valid_temp_user
-app.config["route_change_password"] = "oeasc.change_password"
-# app.config["route_valid_temp_user"] = "register.valid_temp_user"
-app.config['template_demande_validation_compte'] = 'modules/oeasc/mail/demande_validation_compte.html'
-app.config['template_change_password'] = 'modules/oeasc/mail/change_password.html'
-
-
 @app.route('/')
 def accueil():
     return redirect("/oeasc", code=302)
 
 
 with app.app_context():
+
+    from app.modules.oeasc.mail_user import function_dict
+    app.config['after_USERSHUB_request'] = function_dict
+
+    from app.modules.oeasc.utils import utils_dict
+    app.jinja_env.globals["utils"] = utils_dict
 
     @app.after_request
     def after_login_method(response):
@@ -88,6 +81,9 @@ with app.app_context():
 
     from app.modules.oeasc import routes as oeasc_routes
     app.register_blueprint(oeasc_routes.bp, url_prefix='/oeasc')
+
+    from app.modules.oeasc import routes_user as oeasc_routes_user
+    app.register_blueprint(oeasc_routes_user.bp, url_prefix='/user')
 
     from app.modules.oeasc import api as oeasc_api
     app.register_blueprint(oeasc_api.bp, url_prefix='/api/oeasc')
@@ -113,8 +109,6 @@ if __name__ == '__main__':
     app.run(debug=config.DEBUG, port=config.PORT)
 
 
-from app.modules.oeasc.utils import utils_dict
-app.jinja_env.globals["utils"] = utils_dict()
 
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')

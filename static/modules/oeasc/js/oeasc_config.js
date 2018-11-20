@@ -98,7 +98,7 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_ONF_PRF = {
     name: "OEASC_ONF_PRF",
-    label: "ONF : Parcelle",
+    label: "Parcelle forestière",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_ONF_PRF,
     pane: 2,
@@ -106,7 +106,7 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_ONF_UG = {
     name: "OEASC_ONF_UG",
-    label: "ONF : Unité de gestion",
+    label: "Unité de gestion forestièreS",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_ONF_UG,
     pane: 3,

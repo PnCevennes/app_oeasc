@@ -1,0 +1,73 @@
+            <form id="form_register">
+
+                <input type="hidden" name="" id="user_app" value="{{config.ID_APP}}">
+
+                <div>
+                    <div>
+
+                        <div class="form-group">
+                            <label for="user_nom">Nom : </label>
+                            <input type="text" class="form-control" id="user_nom" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user_prenom">Prénom : </label>
+                            <input type="text" class="form-control" id="user_prenom" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="user_email">E-mail : </label>
+                            <input type="email" class="form-control" id="user_email" required>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div>
+                    <div>
+
+                        <div class="form-group">
+                            <label for="user_organisme">Organisme : </label>
+                            <select class="selectpicker" id="user_organism" required>
+                                <option value=""></option>
+                                {%- for organisme in liste_organismes_oeasc%}
+                                <option value="{{organisme.id_organism}}">{{ organisme.nom_organisme }}</option>
+                                {%- endfor %}
+                            </select>
+                            <!-- <hr> -->
+                            <label for="desc_role">Fonction : </label>
+                            <select class="selectpicker" id="desc_role" required>
+                                <option value=""></option>
+
+                                {%- for elem in nomenclature['OEASC_DECLARANT_FONCTION']['values'] %}
+
+                                <option value="{{elem.label_fr}}">{{elem['label_fr']}}</option>
+
+                                {%- endfor %}
+
+                            </select>
+
+                            <div id="nom_organisme_div" style="display: none">
+                                <label for="nom_organisme">Préciser organisme : </label>
+                                <input type="text" class="form-control" id="nom_organisme"  maxlength=32 required>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form">
+
+                    <div class="form-group">
+                        <label for="pwd">Mot de passe : </label>
+                        <input type="password" class="form-control" id="user_pwd" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pwd">Confirmation du mot de passe : </label>
+                        <input type="password" class="form-control" id="user_pwd_conf" required>
+                    </div>
+
+                </div>
+
+                <button id="button_register" class="btn btn-default btn-success float-left">S'incrire</button>
+
+            </form>

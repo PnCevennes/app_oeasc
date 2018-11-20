@@ -1,22 +1,14 @@
 from flask import (
-    Blueprint, render_template, request, session, g, redirect, url_for
+    Blueprint, render_template, request, session
 )
 
-from .models import (
-    TDeclaration,
-)
 
 from .repository import (
     nomenclature_oeasc,
-    get_liste_organismes_oeasc,
-    get_users,
-    get_user,
     dfpu_as_dict_from_id_declaration,
     get_declarations,
     test_db,
 )
-
-from config import config
 
 from .utils import check_auth_redirect_login
 
@@ -25,76 +17,7 @@ from .utils import (
     # check_foret,
 )
 
-
-
-
-
-
 bp = Blueprint('oeasc', __name__)
-
-
-@bp.route('/users')
-@check_auth_redirect_login(4)
-def users():
-    '''
-
-    '''
-
-    users = get_users()
-
-    return render_template('modules/oeasc/user/users.html', users=users)
-
-
-@bp.route('/user')
-@check_auth_redirect_login(1)
-def user():
-    '''
-
-    '''
-
-    if session.get('current_user', None):
-
-        id_declarant = session['current_user']['id_role']
-
-    user = get_user(id_declarant)
-
-    return render_template('modules/oeasc/user/user.html', user=user)
-
-
-@bp.route('/login')
-def login():
-    '''
-        page de connection
-    '''
-
-    redirect_url = request.args.get('redirect', "")
-    validation_compte = request.args.get('validation_compte', "")
-    identifiant = request.args.get('identifiant', "")
-    type = request.args.get('type', "")
-
-    return render_template('modules/oeasc/user/login.html', config=config, id_app=config.ID_APP, redirect_url=redirect_url, validation_compte=validation_compte, identifiant=identifiant, type=type)
-
-
-@bp.route('/change_password/', defaults={'token': ""}, methods=['GET'])
-@bp.route('/change_password/<string:token>', methods=['GET'])
-def change_password(token):
-    '''
-        page pour recreer un mot de passe
-    '''
-
-    return render_template('modules/oeasc/user/change_password.html', config=config, token=token)
-
-
-@bp.route('/register')
-def register():
-    '''
-        page d'inscription
-    '''
-
-    liste_organismes_oeasc = get_liste_organismes_oeasc()
-    nomenclature = nomenclature_oeasc()
-
-    return render_template('modules/oeasc/user/register.html', config=config, liste_organismes_oeasc=liste_organismes_oeasc, nomenclature=nomenclature)
 
 
 @bp.route('/')
@@ -105,7 +28,6 @@ def accueil():
     '''
 
     test_db()
-
 
     return render_template('modules/oeasc/pages/accueil.html')
 
@@ -245,6 +167,7 @@ def degats_gibier():
     '''
 
     return render_template('modules/oeasc/pages/declaration/degats_gibier.html')
+
 
 @bp.route('/suivi_equilibre_ASC')
 def resultats():

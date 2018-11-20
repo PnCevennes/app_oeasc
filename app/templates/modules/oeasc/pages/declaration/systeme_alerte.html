@@ -23,9 +23,9 @@
 
   <hr>
 
-  <p>Le système d’alerte de l’Observatoire vous permet de signaler des dégâts de grand gibier (cerf, chevreuil, sanglier, mouflon) constatés sur votre forêt, ou celle dont vous êtes gestionnaire. En renseignant un formulaire en ligne, <b>vous participez donc à la transmission d’informations essentielles</b> aux décideurs pour la définition de meures de gestion pertinentes et adaptées à la réalité de terrain.</p>
+  <p>Le système d’alerte de l’Observatoire vous permet de signaler des dégâts de grand gibier (cerf, chevreuil, sanglier, mouflon) constatés sur votre forêt, ou celle dont vous êtes gestionnaire. En renseignant un formulaire en ligne, <b>vous participez donc à la transmission d’informations essentielles</b> aux décideurs pour la définition de mesures de gestion pertinentes et adaptées à la réalité de terrain.</p>
 
-  <p>Que vous soyez propriétaire ou gestionnaire de vastes superficies forestières ou de quelques petites parcelles occupées par de la forêt, si vous y constatez des dégâts de grand gibier, nous vous invitons donc à prendre le temps de <a href="{{url_for('oeasc.register')}}"><b>créer un compte « utilisateur »</b></a> et à <b>renseigner le formulaire d’alerte en ligne.</b></p>
+  <p>Que vous soyez propriétaire ou gestionnaire de vastes superficies forestières ou de quelques petites parcelles occupées par de la forêt, si vous y constatez des dégâts de grand gibier, nous vous invitons donc à prendre le temps de <a href="{{url_for('user.user')}}"><b>créer un compte « utilisateur »</b></a> et à <b>renseigner le formulaire d’alerte en ligne.</b></p>
 
   <hr>
 
@@ -68,7 +68,7 @@
             </div>
             <div id="q2" class="collapse" data-parent="#accordion">
                 <div class="card-body">
-                    <p>Rien de plus simple ! Connectez à votre compte « utilisateur » (si vous ne l’avez pas encore fait, vous pouvez le créer en cliquant <a href="{{url_for('oeasc.register')}}">ici</a>), et suivez les étapes du <a href={{ url_for('oeasc.informations_declaration')}}>formulaire en ligne.</a></p>
+                    <p>Rien de plus simple ! Connectez à votre compte « utilisateur » (si vous ne l’avez pas encore fait, vous pouvez le créer en cliquant <a href="{{url_for('user.user')}}">ici</a>), et suivez les étapes du <a href={{ url_for('oeasc.informations_declaration')}}>formulaire en ligne.</a></p>
                 </div>
             </div>
         </div>
@@ -94,7 +94,8 @@
             </div>
             <div id="q31" class="collapse" data-parent="#accordion">
                 <div class="card-body">
-                    Vous pouvez déclarer des dégâts sur les forêts situées dans le <a href="{{ url_for('oeasc.perimetre_etude') }}">périmètre de l’Observatoire.</a>
+                    <p>Vous pouvez déclarer des dégâts sur les forêts situées dans le <a href="{{ url_for('oeasc.perimetre_etude') }}">périmètre de l’Observatoire.</a></p>
+                    Ce périmètre est constitué de l'ensemble des communes de la zone coeur du Parc nationnal des Cévennes.
                 </div>
             </div>
         </div>

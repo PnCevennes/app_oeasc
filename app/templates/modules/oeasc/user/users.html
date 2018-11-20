@@ -1,20 +1,64 @@
 {%- extends "modules/oeasc/site/layout.html" %}
 
 
-{%- block title %}Login{%- endblock %}
+{%- block title %} utilisateurs {%- endblock %}
 
 {%- block content %}
 
 <div class="row">
 
-    <div class="col-md-12">
+  <div class="col-md-12">
 
-        <h2>Utilisateurs</h2>
+    <h2>Utilisateurs</h2>
 
-        {%- include "modules/oeasc/entity/users.html" %}
+    <div id="info"></div>
 
+    <table class="table">
 
-    </div>
+      <tr>
+        <th>Identifiant</th>
+        <th>Nom</th>
+        <th>Prénom</th>
+        <th>E-mail</th>
+        <th>Organisme</th>
+        <th>Rôle</th>
+        <th>Droits</th>
+      </tr>
+
+      {% for user in users %}
+
+      <tr id="role_"{{user.id_role}}>
+        <td>{{user.identifiant}}</td>
+        <td>{{user.nom_role}}</td>
+        <td>{{user.prenom_role}}</td>
+        <td>{{user.email}}</td>
+        <td>{{user.organisme}}</td>
+        <td>{{user.desc_role}}</td>
+        <td>
+
+          {% if current_user.id_droit_max > user.id_droit_max %}
+
+          <select class="selectpicker change_droit" name="droit_user_{{user.id_role}}" id="droit_user_{{user.id_role}}" data-id_role="{{user.id_role}}">
+            {% for ind in range(1, current_user.id_droit_max + 1) %}
+
+            <option value="{{ind}}" {{"selected" if ind == user.id_droit_max }}>{{ind}}</option>
+            {% endfor %}
+          </select>
+
+          {% else %}
+
+          {{user.id_droit_max}}
+
+          {% endif %}
+
+        </td>
+      </tr>
+
+      {% endfor %}
+
+    </table>
+
+  </div>
 
 </div>
 
@@ -27,11 +71,43 @@
 
 <script>
 
-    $(document).ready(function() {
+  $(document).ready(function() {
 
+    "use strict";
 
+    var id_application = "{{config.ID_APP}}"
+
+    $(".change_droit").change(function() {
+
+      var id_role = parseInt($(this).attr("data-id_role"));
+
+      var id_droit = parseInt(this.value);
+
+      var data = {'id_role': id_role, 'id_droit': id_droit, 'id_application' :id_application};
+
+      var url_post = '/pypn/register/post_usershub/change_application_right'
+
+      console.log(data)
+
+      $.ajax({
+        url : url_post,
+        type: 'POST',
+        data : JSON.stringify(data),
+        contentType:"application/json; charset=utf-8",
+        dataType:"json",
+      })
+      .done(function(response){
+        console.log(response.responseText);
+        $("#info").html("<p>Changement de droit pour l'utilisateur " + response.id_role + "</p>")
+      })
+      .fail(function(response){
+        console.log(response);
+        $('#info').html(response.responseText);
+      });
 
     });
+
+  });
 
 </script>
 

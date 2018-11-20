@@ -126,6 +126,21 @@ class CorNomenclatureDeclarationPaturageStatut(DB.Model):
 
 
 @serializable
+class CorNomenclatureDeclarationPaturageSaison(DB.Model):
+
+    __tablename__ = 'cor_nomenclature_declarations_paturage_saison'
+    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+
+    id_nomenclature = DB.Column(DB.Integer, primary_key=True)
+    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
+
+    def __init__(self, id_nomenclature=None):
+
+        super(CorNomenclatureDeclarationPaturageSaison, self).__init__()
+        self.id_nomenclature = id_nomenclature
+
+
+@serializable
 class CorNomenclatureDeclarationEspece(DB.Model):
 
     __tablename__ = 'cor_nomenclature_declarations_espece'
@@ -249,10 +264,12 @@ class TDeclaration(DB.Model):
     nomenclatures_peuplement_protection_type = DB.relationship(CorNomenclatureDeclarationProtectionType, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_paturage_type = DB.relationship(CorNomenclatureDeclarationPaturageType, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_paturage_statut = DB.relationship(CorNomenclatureDeclarationPaturageStatut, cascade="save-update, merge, delete, delete-orphan")
+    nomenclatures_peuplement_paturage_saison = DB.relationship(CorNomenclatureDeclarationPaturageSaison, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_espece = DB.relationship(CorNomenclatureDeclarationEspece, cascade="save-update, merge, delete, delete-orphan")
 
     degats = DB.relationship(TDegat, cascade="save-update, merge, delete, delete-orphan")
 
+    autre_protection = DB.Column(DB.Text)
     commentaire = DB.Column(DB.Text)
 
     meta_create_date = DB.Column(DB.DateTime)

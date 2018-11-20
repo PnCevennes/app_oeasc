@@ -82,12 +82,10 @@ def get_areas_post(data_type):
 @json_resp
 def get_areas_test_post(data_type):
 
-
-    areas=[{'id_area': 277431}]
+    areas = [{'id_area': 277431}]
     b_simple = False
 
     return areas_post(b_simple, data_type, areas)
-
 
 
 @bp.route('areas_simples_post/<string:data_type>', methods=['POST'])

@@ -18,83 +18,12 @@
             <div id="info_register" style="display: none;">
 
                 <p>Votre demande d'inscription est bien prise en compte.</p>
-                <p>Un email de vérification a été envoyé.</p>
-                <p>Veuillez cliquer sur le lien de confirmation présent dans cet email afin de valider votre compte.</p>
+                <p>Un e-mail de vérification a été envoyé.</p>
+                <p>Veuillez cliquer sur le lien de confirmation présent dans cet e-mail afin de valider votre compte.</p>
 
             </div>
 
-            <form class="form-horizontal" id="form_register">
-
-                <input type="hidden" name="" id="user_app" value="{{config.ID_APP}}">
-
-                <div>
-                    <div class="form">
-
-                        <div class="form-group">
-                            <label for="user_nom">Nom : </label>
-                            <input type="text" class="form-control" id="user_nom" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="user_prenom">Prénom : </label>
-                            <input type="text" class="form-control" id="user_prenom" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="user_email">Email : </label>
-                            <input type="email" class="form-control" id="user_email" required>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div>
-                    <div class="form">
-
-                        <div class="form-group">
-                            <label for="user_organisme">Organisme : </label>
-                            <select class="selectpicker" id="user_organism" required>
-                                <option value=""></option>
-                                {%- for organisme in liste_organismes_oeasc%}
-                                <option value="{{organisme.id_organism}}">{{ organisme.nom_organisme }}</option>
-                                {%- endfor %}
-                            </select>
-                            <!-- <hr> -->
-                            <label for="desc_role">Fonction : </label>
-                            <select class="selectpicker" id="desc_role" required>
-                                <option value=""></option>
-
-                                {%- for elem in nomenclature['OEASC_DECLARANT_FONCTION']['values'] %}
-
-                                <option value="{{elem.label_fr}}">{{elem['label_fr']}}</option>
-
-                                {%- endfor %}
-
-                            </select>
-                        </div>
-
-                    </div>
-                </div>
-
-                <div>
-                    <div class="form">
-
-                        <div class="form-group">
-                            <label for="pwd">Mot de passe : </label>
-                            <input type="password" class="form-control" id="user_pwd" required>
-                        </div>
-
-                        <div class="form-group">
-                            <label for="pwd">Confirmation du mot de passe : </label>
-                            <input type="password" class="form-control" id="user_pwd_conf" required>
-                        </div>
-
-                    </div>
-                </div>
-
-                <button id="button_register" class="btn btn-default btn-success float-left">S'incrire</button>
-
-            </form>
+            {%- include "modules/oeasc/form/form_user.html" %}
 
         </div>
 
@@ -115,11 +44,33 @@
 
         "use scrict";
 
-        var id_app = {{config.ID_APP}};
-
-        console.log("id_app", id_app);
-
         var test = "{{config.MODE_TEST}}" == "1";
+        var id_app = {{config.ID_APP}};
+        var url_post = '{{config.URL_APPLICATION}}/pypn/register/post_usershub/create_temp_user'
+        var url_mail = '{{config.URL_APPLICATION}}/api/mail/create_temp_user'
+
+        $('#nom_organisme_div').hide();
+
+        $('#user_organism').change(function() {
+
+            var nom_organisme = $('#user_organism :selected').html();
+
+            
+            if (nom_organisme == "Autre (préciser)") {
+
+                console.log(nom_organisme)
+                $('#nom_organisme_div').show();
+                $('#nom_organisme').val("");
+
+            } else {
+
+                $('#nom_organisme_div').hide();
+                $('#nom_organisme').val(nom_organisme);
+
+            }
+
+        });
+
 
         if(test) {
 
@@ -128,8 +79,9 @@
             $("#user_email").val("joelclems@gmail.com");
             $('#user_pwd').val("1234");
             $('#user_pwd_conf').val("1234");
-            var id_organisme = parseInt($("#user_organism option")[3].value);
+            var id_organisme = parseInt($("#user_organism option")[2].value);
             $('#user_organism').selectpicker('val', id_organisme);
+            $('#user_organism').change()
             $('#desc_role').selectpicker('val', "Salarié ou agent");
 
         };
@@ -147,6 +99,7 @@
             }, 300);
 
         };
+
 
         var register = function(e) {
 
@@ -176,12 +129,12 @@
                 // et qu'il a déjà les droits pour cette application
                 if(user.app_users.some(a => a.id_application == id_app)) {
 
-                    show_error('user_email', 'Cette adresse email est déjà utilisé pour cette application. Veuillez vous rendre à la <a href="' + "{{url_for('oeasc.login')}}" + '?identifiant=' + user.email + '">page de connexion</a> ou choisir une adresse mail différente.');
+                    show_error('user_email', 'Cette adresse email est déjà utilisé pour cette application. Veuillez vous rendre à la <a href="' + "{{url_for('user.login')}}" + '?identifiant=' + user.email + '">page de connexion</a> ou choisir une adresse mail différente.');
                     return false;
 
                 } else {
 
-                    show_error('user_email', 'Un compte existe déjà avec cette adresse mail, mais il ne possède pas encore les droits pour cette application. Pour activer ce compte sur cette application <a href="' + "{{url_for('oeasc.login')}}" + '?type=add_droit&identifiant=' + user.email + '">cliquer ici</a>.');
+                    show_error('user_email', 'Un compte existe déjà avec cette adresse mail, mais il ne possède pas encore les droits pour cette application. Pour activer ce compte sur cette application <a href="' + "{{url_for('user.login')}}" + '?type=add_droit&identifiant=' + user.email + '">cliquer ici</a>.');
                     return false;
 
                 }
@@ -219,28 +172,27 @@
                 "remarques": "creé depuis le site OEASC",
                 "id_unite": -1,
                 "id_organisme": $('#user_organism').val(),
-                "organisme": $('#user_organism :selected').html().substr(0,32), // trop long pour varchar(32) pffffffffffffffff
+                "organisme": $('#nom_organisme').val().substr(0,32),
                 "desc_role": $('#desc_role').val(),
 
             };
 
             $("#login-error").hide();
 
-            var url_application = "{{ config.URL_APPLICATION }}";
+            console.log(url_post)
 
             $.post( {
-                url : '{{config.URL_APPLICATION}}/pypn/register/create_temp_user',
+                url : url_post,
                 type: 'POST',
                 data : JSON.stringify(data),
                 contentType:"application/json; charset=utf-8",
                 dataType:"json",
             }).done(function(response){
-
-                console.log(response);
-                $('#form_register').hide();
-                $("#info_register").show();
-
-            }).fail(function(error){
+               console.log(response);
+               $('#form_register').hide();
+               $("#info_register").show();
+           })
+            .fail(function(error){
 
                 console.log("error", error)
                 show_error("button_register", "Erreur : " + error.responseText)
@@ -250,7 +202,8 @@
 
         };
 
-        $("#form_register").submit(register);
+
+        $("#form_user").submit(register);
 
     });
 

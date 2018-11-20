@@ -83,7 +83,7 @@
     <tbody>
 
       <tr>
-        <td>Établissement du parc national des Cévennes</td>
+        <td>Établissement public du Parc national des Cévennes</td>
         <td>ALGOËT Baptiste</td>
         <td>04 66 49 53 60</td>
         <td>baptiste.algoet@cevennes-parcnational.fr</td>
@@ -114,6 +114,10 @@
 
   </table>
 </div>
+
+     {% set href=url_for('oeasc.modifier_declaration')%}
+      <button class='btn btn-primary' onclick="location.href='{{href}}'">Commencer la déclaration des dégâts</button>
+    
 
 
 {%- endblock %}

@@ -42,6 +42,7 @@ from pypnusershub import routes as fnauth
 
 from sqlalchemy import func
 
+
 def check_auth_redirect_login(level):
     '''
         use fnauth.check_auth to check user auth
@@ -50,7 +51,7 @@ def check_auth_redirect_login(level):
     def _check_auth_redirect_login(f):
         @wraps(f)
         def __check_auth_redirect_login(*args, **kwargs):
-            redirect_url = 'oeasc/login?redirect="' + request.url + '"'
+            redirect_url = 'user/login?redirect="' + request.url + '"'
             return fnauth.check_auth(level, False, redirect_url)(f)(*args, **kwargs)
         return __check_auth_redirect_login
     return _check_auth_redirect_login
@@ -383,23 +384,17 @@ def get_areas_from_type_code(areas, type_code):
     return out
 
 
-def utils_dict():
-    """
-        dictionnaire qui reference des functions pour les utiliser dans jinja cf server.py
-
-    """
-    d = {}
-
-    d["copy_list"] = copy_list
-    d["get_db"] = get_db
-    d["get_description_droit"] = get_description_droit
-    d["get_organisme_name_from_id_organisme"] = get_organisme_name_from_id_organisme
-    d["get_organisme_name_from_id_declarant"] = get_organisme_name_from_id_declarant
-    d["get_nomenclature_from_id"] = get_nomenclature_from_id
-    d['get_fonction_droit'] = get_fonction_droit
-    d['print_date'] = print_date
-    d['print_commune'] = print_commune
-    d['print_parcelle'] = print_parcelle
-    d['get_areas_from_type_code'] = get_areas_from_type_code
-    d['get_foret_type'] = get_foret_type
-    return d
+utils_dict = {
+    "copy_list": copy_list,
+    "get_db": get_db,
+    "get_description_droit": get_description_droit,
+    "get_organisme_name_from_id_organisme": get_organisme_name_from_id_organisme,
+    "get_organisme_name_from_id_declarant": get_organisme_name_from_id_declarant,
+    "get_nomenclature_from_id": get_nomenclature_from_id,
+    'get_fonction_droit': get_fonction_droit,
+    'print_date': print_date,
+    'print_commune': print_commune,
+    'print_parcelle': print_parcelle,
+    'get_areas_from_type_code': get_areas_from_type_code,
+    'get_foret_type': get_foret_type,
+}

@@ -111,6 +111,8 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
     b_peuplement_protection_existence BOOLEAN,
     b_peuplement_paturage_presence BOOLEAN,
 
+    autre_protection text,
+
     commentaire text,
 
     meta_create_date timestamp without time zone,
@@ -409,6 +411,28 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_type
 
     CONSTRAINT check_cor_nomenclature_declarations_paturage_type_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
         id_nomenclature, 'OEASC_PEUPLEMENT_PATURAGE_TYPE')) NOT VALID
+);
+
+
+DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_paturage_saison CASCADE;
+
+CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_saison
+(
+    id_declaration integer NOT NULL,
+    id_nomenclature integer NOT NULL,
+
+    CONSTRAINT pk_cor_nomenclature_declarations_paturage_saison PRIMARY KEY (id_declaration, id_nomenclature),
+
+    CONSTRAINT fk_cor_nomenclature_declarations_paturage_saison_id_declaration FOREIGN KEY (id_declaration)
+        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+
+    CONSTRAINT fk_cor_nomenclature_declarations_paturage_saison_id_nomenclature FOREIGN KEY (id_nomenclature)
+        REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
+
+    CONSTRAINT check_cor_nomenclature_declarations_paturage_saison_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
+        id_nomenclature, 'OEASC_PEUPLEMENT_PATURAGE_SAISON')) NOT VALID
 );
 
 

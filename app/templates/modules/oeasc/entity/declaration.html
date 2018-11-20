@@ -115,6 +115,9 @@
 
               {{macros.list_nomenclatures('Type de protection', declaration.nomenclatures_peuplement_protection_type, 'li')}}
 
+              {%- if declaration.autre_protection %}
+              <li><b>Autre protection</b> : {{ declaration.autre_protection }}.
+              {% endif %}
             </ul>
 
           </div>
@@ -132,6 +135,11 @@
               {{macros.list_nomenclatures('Fréquence du pâturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
               <li><b>Fréquence du pâturage</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | nopar | lower }}. </li>
+
+              {% set elem = declaration.id_nomenclature_peuplement_paturage_frequence %}
+                {% if elem['mnemonique'] == "PPAF_PER" %}
+              {{macros.list_nomenclatures('Saisonalité du pâturage', declaration.nomenclatures_peuplement_paturage_saison, 'li')}}
+                {% endif %}
 
               {%- endif %}
 

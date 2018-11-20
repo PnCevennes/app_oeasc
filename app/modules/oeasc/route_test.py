@@ -2,6 +2,9 @@ from flask import (
     Blueprint, render_template
 )
 
+from pypnusershub import routes as fnauth
+
+
 from .declaration_sample import test
 
 from app.utils.utilssqlalchemy import json_resp
@@ -37,13 +40,11 @@ def carte(type_code, id_areas):
     return render_template('modules/oeasc/test/carte.html', data=data)
 
 
-@bp.route('/random/')
+@bp.route('/test_connexion', methods=['GET', 'POST'])
+@fnauth.check_auth(1)
 @json_resp
-def random():
-    '''
-    test random
-    '''
-    return test()
+def test_connexion():
+    return {"msg": "ok"}
 
 
 @bp.route('/d3/')

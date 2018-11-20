@@ -74,19 +74,16 @@ $(document).ready(function() {
       fp.name = name;
       f_tooltip(layer, map, fp);
       f_form(ls, layer, fp, map);
-      var s_label = f_label(ls, fp);
 
       layer.on("mouseover", function (e) {
 
         layer.setStyle(M.style.highlight);
-        $("#infos_map").html(s_label);
 
       });
 
       layer.on("mouseout", function (e) {
 
         layer.setStyle(M.style.default);
-        $("#infos_map").html("");
 
       });
 
@@ -283,34 +280,6 @@ $(document).ready(function() {
   };
 
 
-  var f_label = function(ls, fp) {
-
-    var s_label = "<h3>" + ls.label + "</h3>";
-    s_label+= "<table>";
-    s_label+= "<tr>";
-
-    ls.keys.forEach(function(elt){
-
-      s_label+= "<th>" + elt + "</th>";
-
-    });
-
-    s_label+= "</tr>";
-    s_label+= "<tr>";
-
-    ls.keys.forEach(function(elt){
-
-      s_label+= "<td>" + fp[elt] + "</td>";
-
-    });
-
-    s_label+= "</tr>";
-    s_label+= "</table>";
-
-    return s_label;
-
-  };
-
   var remove_all  = function(name, map) {
 
     var $div = $('#' + name);
@@ -468,29 +437,6 @@ $(document).ready(function() {
         onEachFeature: f_layer(name, d_ls, map),
 
       });
-
-
-    // si des objects ont deja été ajoutés avant ou ajoute les nouveaux aux anciens
-
-    // if(ls.featuresCollection) {
-
-    //   featuresCollection.on('data:loaded', function() {
-
-    //     featuresCollection.eachLayer(function(l) {
-
-    //       ls.featuresCollection.addLayer(l);
-
-    //     });
-
-    //     f_on_data_loaded(this, map, b_zoom);
-
-    //   });
-
-    // }
-
-    // // sinon on ajoute les nouveaux à la carte
-
-    // else {
 
       ls.featuresCollection=featuresCollection;
 

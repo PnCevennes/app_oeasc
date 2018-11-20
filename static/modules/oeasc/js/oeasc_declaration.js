@@ -147,7 +147,6 @@ $(document).ready(function() {
 
     // essence
 
-    // $("#form_peuplement_description select").selectpicker("refresh");
     $("#form_peuplement_description select").selectpicker();
 
     $('#form_peuplement_description select#id_nomenclature_peuplement_essence_principale').change(function() {
@@ -181,6 +180,22 @@ $(document).ready(function() {
       recharger_form();
 
     });
+
+    $('[name=id_nomenclature_peuplement_paturage_frequence]').change(function() {
+
+      recharger_form();
+
+    });
+
+
+    // protection
+
+    $('[name=nomenclatures_peuplement_protection_type]').change(function() {
+
+      recharger_form();
+
+    });
+
 
   };
 

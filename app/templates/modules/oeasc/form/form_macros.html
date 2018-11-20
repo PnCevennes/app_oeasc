@@ -49,7 +49,7 @@
     {%- set ns = namespace() %}
 
     {%- if titre != "" %}
-      <label class="label-question" for="{{ name }}">{{ titre }}<span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+      <label class="label-question" for="{{ name }}">{{ titre }} <i>{{" - 3 essences max." if multi}}</i><span class="rouge">{{ "*" if required!="" else "" }}</span></label>
     {%- endif %}
 
     {%- set ns.select_options="" %}
@@ -376,8 +376,7 @@
 
   <h4>Localisation : {{dict_label[type_code]}}</h4>
 
-  <p>Veuillez sélectionner {{dict_label_elem[type_code]}}.<br>
-  Choisir parmi celles figurant sur la carte ci-dessous ou dans la liste ci-contre.<label for="tooltip_{{ type_code }}"></label></p>
+  <p>Veuillez sélectionner {{dict_label_elem[type_code]}} sur la carte ci-dessous ou dans la liste ci-contre.<label for="tooltip_{{ type_code }}"></label></p>
 
   <div class="row">
 
@@ -405,7 +404,7 @@
           <ul>
             {%- for area in areas_container %}
 
-            <li>{{area['area_name']}} {{ "(" + area['area_code'] + ")" if area['type_code'] == 'OEASC_SECTION' else ''}}</li>
+            <li>{{area['label']}} {{ "(" + area['area_code'] + ")" if area['type_code'] == 'OEASC_SECTION' else ''}}</li>
 
             {% endfor %}
           </ul>

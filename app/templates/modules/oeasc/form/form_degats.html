@@ -5,14 +5,16 @@
 
 <form id="form_degats">
 
-  <h4>Caractérisation des dégats</h4>
+  <h4>Caractérisation des dégâts</h4>
 
+
+<p><i>Sélectionnez les types de dégâts constatés et pour chacun d’eux, renseignez les informations requises.</i></p>
   <div>
   <!-- <div class="center"> -->
     
   <div id="NOMENCLATURE_DEGAT_TYPE" class="checkbox-group-required form-group" style="display: block;">
 
-    <label for="nomenclatures_degat_type"><b>Type de dégât</b> <i>(plusieurs réponses possibles)</i> <span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+    <label for="nomenclatures_degat_type"><b>Type de dégât</b><span class="rouge">{{ "*" if required!="" else "" }}</span></label>
 
     {%- for elem in nomenclature.OEASC_DEGAT_TYPE['values'] %}
 
@@ -54,21 +56,13 @@
       {%- if ns.ind != -1 and mnemonique_degat_type != "P/C" %}
       {%- set degat = degats[ns.ind] %}
 
-<!--       <div class="red degat-essence" >
-        {%- if mnemonique_degat_type != "ABS" %}
-        Indiquez les essences touchées, et pour chacune d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis validez.
-        {%- else %}
-        Indiquez les essences concernées.
-        {%- endif %}
-      </div> -->
-
       <div class="degat-essence custom-control"  class="dg">
 
         <div><label for="id_nomenclature_degat_essence"><i class="dg">Essence - (3 essences maximum)</i></label></div>
         {%- if mnemonique_degat_type != "ABS" %}
-        <div><label for="id_nomenclature_degat_etendue"><i class="dg">Étendue des dégats</i></label></div>
-        <div><label for="id_nomenclature_degat_gravite"><i class="dg">Gravité des dégats</i></label></div>
-        <div><label for="id_nomenclature_degat_anteriorite"><i class="dg">Antériorité des dégats</i></label></div>
+        <div><label for="id_nomenclature_degat_etendue"><i class="dg">Étendue des dégâts</i></label></div>
+        <div><label for="id_nomenclature_degat_gravite"><i class="dg">Gravité des dégâts</i></label></div>
+        <div><label for="id_nomenclature_degat_anteriorite"><i class="dg">Antériorité des dégâts</i></label></div>
         {%- else %}
         <div></div>
         <div></div>

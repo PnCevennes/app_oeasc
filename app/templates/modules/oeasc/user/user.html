@@ -7,14 +7,130 @@
 
 <div class="row">
 
-    <div class="col-md-12">
+  <div class="col-md-12">
 
-        <h2>Utilisateur</h2>
+    <div class="text">
 
-        {%- include "modules/oeasc/entity/user.html" %}
+      {% if user %}
+
+      <div class="alert alert-danger" role="alert" id="login-error" style="display: none;"></div>
+
+      <h2>{{"Espace Utilisateur" if user.id_role else "Inscription"}}</h2>
+
+      <div id="user" hidden data-user='{{user|tojson or ""}}' ></div>
+      <div id="id_app" hidden data-id_app='{{config.ID_APP}}' ></div>
+
+      <div id="info_register" style="display: none;">
+
+        <p>Votre demande d'inscription est bien prise en compte.</p>
+        <p>Un e-mail de vérification a été envoyé.</p>
+        <p>Veuillez cliquer sur le lien de confirmation présent dans cet e-mail afin de valider votre compte.</p>
+
+      </div>
+
+      <div id="info_update" style="display: none;">
+
+        <p>Votre modifications ont bien été prise en compte.</p>
+
+      </div>
+
+      <form id="form_user">
+
+        <table class="table" id="user_information">
+
+          <tbody>
+
+            <tr>
+              <th>Nom</th>
+              <td id="info_nom_role" class="info">{{user.nom_role}}</td>
+              <td class="input">
+                <input type="text" class="form-control" id="nom_role" required>
+              </td>
+            </tr>
+            <tr>
+              <th>Prénom</th>
+              <td id="info_prenom_role" class="info">{{user.prenom_role}}</td>
+              <td class="input">
+                <input type="text" class="form-control" id="prenom_role" required>
+              </td>
+            </tr>
+            <tr>
+              <th>Email</th>
+              <td id="info_email" class="info">{{user.email}}</td>
+              <td class="input">
+                <input type="email" class="form-control" id="email" required>
+              </td>
+            </tr>
+            <tr>
+              <th>Organisme</th>
+              <td id="info_organisme" class="info">{{user.organisme}}</td>
+              <td class="input">
+                <select class="selectpicker" title="Choisir organisme" id="id_organisme" required data-width="fit" >
+                  {%- for organisme in liste_organismes_oeasc%}
+                  <option value="{{organisme.id_organism}}">{{ organisme.nom_organisme }}</option>
+                  {%- endfor %}
+                </select>
+              </td>
+              <td  class="input">
+                <input type="text" class="form-control" id="organisme" maxlength="32">
+              </td>
+            </tr>
+            <tr>
+              <th>Rôle</th>
+              <td id="info_desc_role" class="info">{{user.desc_role}}</td>
+              <td class="input">
+                <select class="selectpicker" title="Choisir fonction" id="desc_role" required data-width="fit">
+                  {%- for elem in nomenclature['OEASC_DECLARANT_FONCTION']['values'] %}
+                  <option value="{{elem.label_fr}}">{{elem['label_fr']}}</option>
+                  {%- endfor %}
+                </select>
+              </td>
+            </tr>
+
+            {% if not user.id_role %}
+
+            <tr class="password">
+              <th>Password</th>
+              <td class="info"></td>
+              <td class="input">
+                <input type="password" class="form-control" id="password" required>
+              </td>
+            </tr>
+            <tr class="password">
+              <th>Password confirmation</th>
+              <td class="info"></td>
+              <td class="input">
+                <input type="password" class="form-control" id="password_confirmation" required>
+              </td>
+            </tr>
+
+            {% endif %}
+
+          </tbody>
+
+        </table>
+
+        <hr>
+
+        <button id="btn_validation" class="input btn btn-success">{{ "Modifier" if user.id_role else "S'inscrire"}} </span></button>
+
+      </form>
+
+      {% if modify and user['id_role']%}
+
+      <button id="modifier_infos" class="btn btn-primary"><span class="fas fa-pen"> Modifier les informations</span></button>
+
+      <hr>
+      {% set href=url_for('user.change_password')%}
+      <button class="btn btn-warning" onclick="location.href='{{href}}'"></span>Modifier le mot de passe</button>
+
+      {% endif %}
+
+      {% endif %}
 
     </div>
 
+  </div>
 </div>
 
 {%- endblock %}
@@ -24,14 +140,6 @@
 
 {{ super() }}
 
-<script>
-
-    $(document).ready(function() {
-
-
-
-    });
-
-</script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/user.js') }}"></script>
 
 {%- endblock %}

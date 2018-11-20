@@ -252,12 +252,23 @@ var reset_proprietaire = function() {
     declaration.b_peuplement_protection_existence = get_choice("b_peuplement_protection_existence");
     declaration.nomenclatures_peuplement_protection_type = get_cor("nomenclatures_peuplement_protection_type", "id_nomenclature", "check");;
 
+    if($('#autre_protection').length) {
+
+      declaration.autre_protection = $('#autre_protection').val().trim();
+
+    } else {
+
+      declaration.autre_protection = '';
+
+    }
+
     // - - paturage
 
     declaration.b_peuplement_paturage_presence = get_choice("b_peuplement_paturage_presence");
     declaration.nomenclatures_peuplement_paturage_type = get_cor("nomenclatures_peuplement_paturage_type", "id_nomenclature", "check");
     declaration.nomenclatures_peuplement_paturage_statut = get_cor("nomenclatures_peuplement_paturage_statut", "id_nomenclature", "check");
     declaration.id_nomenclature_peuplement_paturage_frequence = parseInt($("[name=id_nomenclature_peuplement_paturage_frequence]:checked").val());
+    declaration.nomenclatures_peuplement_paturage_saison = get_cor("nomenclatures_peuplement_paturage_saison", "id_nomenclature", "check");
 
     // - - autres
 

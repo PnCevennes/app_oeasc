@@ -17,3 +17,4 @@
 'OEASC_PROPRIETAIRE_TYPE';'Type de proprietaire: État, hôpital, privé, commune, etc...';'Nomenclature des types de propriétaires'
 'OEASC_FORET_DEPARTEMENT';'Liste de départements pour les forêts';'Nomenclature des départements des forêts'
 'OEASC_DECLARANT_FONCTION';'Liste des fonctions des déclarants';'Nomenclature des fonctions des déclarants'
+'OEASC_PEUPLEMENT_PATURAGE_SAISON';'Liste des saisons';'Nomenclature des saisons'

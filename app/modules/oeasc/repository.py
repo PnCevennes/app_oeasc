@@ -24,11 +24,7 @@ from app.ref_geo.repository import (
     get_type_code,
 )
 
-import datetime
-
-from flask import g
-
-import re
+from flask import g, session
 
 from .models import (
     TDeclaration,
@@ -195,7 +191,7 @@ def get_area_from_id(id_area):
 
             return None
 
-        out = data.as_dict(columns=['id_area', 'id_type', 'area_name', 'area_code'])
+        out = data.as_dict(columns=['id_area', 'id_type', 'area_name', 'area_code', 'label'])
 
         out['type_code'] = get_type_code(out['id_type'])
 
@@ -465,7 +461,10 @@ def get_liste_organismes_oeasc():
 def get_users():
     '''
         Retourne la liste des utilisateurs OEASC
+        filtre selon l'utilisateur qui demande
     '''
+
+    current_user = session['current_user']
 
     data = DB.session.query(User)
     v = [as_dict(d) for d in data]
@@ -477,10 +476,6 @@ def get_users():
 
     for user in v:
 
-        if user['id_organisme']:
-
-            user['organisme'] = get_organisme_name_from_id_organisme(user['id_organisme'])
-
         for user_app in v_app:
 
             if user['id_role'] == user_app['id_role']:
@@ -488,7 +483,9 @@ def get_users():
                 user['id_droit_max'] = user_app['id_droit_max']
                 user['id_application'] = user_app['id_application']
 
-                v_out.append(user)
+                if(current_user['id_droit_max'] >= 5 or (current_user['id_organisme'] == user['id_organisme'])):
+
+                    v_out.append(user)
 
     return v_out
 
@@ -505,20 +502,19 @@ def get_user(id_declarant):
 
         return None
 
-
     user = as_dict(data)
     user_app = as_dict(data_app)
 
     user['id_droit_max'] = user_app['id_droit_max']
     user['id_application'] = user_app['id_application']
-    user['organisme'] = get_organisme_name_from_id_organisme(user['id_organisme'])
+    # user['organisme'] = get_organisme_name_from_id_organisme(user['id_organisme'])
 
     return user
 
 
 def nomenclature_oeasc():
     '''
-        fonction pour récuprér toutes les nomenclatures qui concernent l'oeasc
+        fonction pour récupérer toutes les nomenclatures qui concernent l'oeasc
         à l'aide de la commande get_nomenclature_list du module pypnnomenclature
     '''
 
@@ -537,6 +533,7 @@ def nomenclature_oeasc():
             'OEASC_PEUPLEMENT_TYPE',
             'OEASC_PEUPLEMENT_ACCES',
             'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE',
+            'OEASC_PEUPLEMENT_PATURAGE_SAISON',
             'OEASC_DEGAT_TYPE',
             'OEASC_DEGAT_GRAVITE',
             'OEASC_DEGAT_ETENDUE',

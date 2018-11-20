@@ -6,6 +6,7 @@
 body {
 
   text-align:  justify;
+  word-wrap: break-word;
 
 }
 
@@ -132,7 +133,7 @@ nav .dropdown-menu.right {
 #sidebar_sticky > ul {
 
   list-style-type: none;
-  
+
 }
 
 nav .dropdown-menu {
@@ -769,8 +770,9 @@ tfoot input {
 
 }
 
-.table {
-max-width: 1000px;
+.text-large {
+
+  max-width: 1000px;
   float: none;
   margin: 0 auto;
 
@@ -812,8 +814,15 @@ nav .dropdown-menu {
 
 .secteur {
 
-  border:  1px solid;
+  border-radius: 5px;
+  border:  0px solid;
   font-weight: bold;
+  color: white;
+  text-shadow: black 0.1em 0.1em 0.2em;
+  font-size: 16px;
+  /* text-shadow: -1px 0 black, 0 1px black, */
+  background-color: rgba(0, 0, 0, 0.2);
+  /* background-color: rgba(255, 255, 255, 0.5); */
   box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6);
 
 }
