@@ -2,9 +2,10 @@
 
 usage ()
 {
-    echo 'Usage install.sh'
+    echo 'Usage install_bd.sh'
     echo 'Options :'
-    echo '    -remove-venv : remove the venv directory'
+    echo '    -g : geom to clear (all for all)'
+    echo '    -t : type '
     exit
 }
 

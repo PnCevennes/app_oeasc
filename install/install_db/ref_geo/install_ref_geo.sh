@@ -223,7 +223,7 @@ select=1
 
 # clear_geometry    $name
 process_geom
-simplify_geom OEASC_ONF_PRF 10
+simplify_geom OEASC_ONF_PRF 1
 
 
 #ONF UG
@@ -252,7 +252,7 @@ select=1
 
 # clear_geometry    $name
 process_geom
-simplify_geom OEASC_ONF_UG 10
+simplify_geom OEASC_ONF_UG 1
 
 
 
