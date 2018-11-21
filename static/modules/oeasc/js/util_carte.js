@@ -319,7 +319,7 @@ $(document).ready(function() {
       return 0
 
     }
-    var nb_layers = 
+    var nb_layers = feature_collection._layers.length;
     var key_0 = Object.keys(feature_collection._layers)[0];
     var name = feature_collection._layers[key_0].feature.properties.name;
 
