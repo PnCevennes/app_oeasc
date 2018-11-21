@@ -2,7 +2,7 @@
 
     "use strict";
 
-    var test = 1;
+    var test = 0;
 
     $('#organisme').hide();
 
