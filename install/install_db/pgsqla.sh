@@ -1,12 +1,6 @@
 # pgsqla.sh
 
-if [[ "$ROOT_DIR" = "" ]]; then
-    ROOT_DIR=$(readlink -e "${0%/*}")/../..
-fi
-
-setting_file=${ROOT_DIR}/config/settings.ini
-
-. $setting_file
+. config/settings.ini
 
 psqla=$(echo "psql -d $db_name -h $db_host -U $user_pg")
 
