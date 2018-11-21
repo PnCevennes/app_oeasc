@@ -91,6 +91,7 @@
 'OEASC_DECLARANT_FONCTION';'DF_PRI';'Propriétaire forestier privé';'Propriétaire forestier privé'
 'OEASC_DECLARANT_FONCTION';'DF_AGT';'Salarié ou agent';'Salarié ou agent'
 'OEASC_DECLARANT_FONCTION';'DF_EXP';'Expert forestier indépendant';'Expert forestier indépendant'
+'OEASC_DECLARANT_FONCTION';'DF_AUT';'Autre';'Autre'
 'OEASC_PEUPLEMENT_PATURAGE_SAISON';'SAI_HIV';'Hiver';'Hiver'
 'OEASC_PEUPLEMENT_PATURAGE_SAISON';'SAI_PRI';'Printemps';'Printemps'
 'OEASC_PEUPLEMENT_PATURAGE_SAISON';'SAI_ETE';'Été';'Été'
