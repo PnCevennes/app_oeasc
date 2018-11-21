@@ -1,4 +1,5 @@
 function import_shp() {
+
     name=$1
     shp_file=$2
     file_coding=$3
@@ -479,7 +480,7 @@ INSERT INTO ref_geo.bib_areas_types (type_name, type_code, type_desc, ref_name, 
 DELETE FROM ref_geo.l_areas_simples WHERE id_type=ref_geo.get_id_type('$name');
 
 INSERT INTO ref_geo.l_areas(id_type, area_name, area_code, geom, geom_4326, centroid, source, comment, enable)
-    SELECT id_type, CONCAT(SUBSTRING(area_code, 1, 2), '-', area_name), area_code, b.geom, ST_TRANSFORM(b.geom, 4326), centroid, 'OEASC', '', true FROM (
+    SELECT id_type, area_name, area_code, b.geom, ST_TRANSFORM(b.geom, 4326), centroid, 'OEASC', '', true FROM (
         SELECT ref_geo.get_id_type('$name') as id_type, a.area_name, a.area_code, a.geom, a.centroid, 'OEASC', '', true
             FROM (
                 SELECT t.area_name, t.area_code, t.geom, t.centroid

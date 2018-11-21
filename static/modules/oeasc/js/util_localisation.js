@@ -113,14 +113,23 @@ $(document).ready(function() {
   var f_option_hover = function(map) {
     return function(e) {
 
+      // remove all tooltips
+      map.eachLayer(function(layer) {
+        if(layer._tooltip) {
+          layer.closeTooltip();
+        }
+      });
+
       var $this = $(this);
 
       var label = $this.find('.text').html().trim();
 
+      // get layer
       var l = M.get_layer(map, "label", label);
 
       if( l ) {
 
+        // fire mouseout or mouseover event
         l.fire(e.type);
       }
 

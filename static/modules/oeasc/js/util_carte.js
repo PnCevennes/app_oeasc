@@ -113,7 +113,7 @@ $(document).ready(function() {
   };
 
 
-  var f_change = function(map) { 
+  var f_change = function(map) {
     return function(e) {
 
       // e.preventDefault();
@@ -277,6 +277,8 @@ $(document).ready(function() {
 
     }
 
+    f_sort_selected($select, name);
+
   };
 
 
@@ -309,6 +311,38 @@ $(document).ready(function() {
     }
 
   };
+
+
+  var f_sort_selected = function($select, name) {
+
+    var opts_list = $select.find('option');
+
+    opts_list = opts_list.sort(function(a, b) {
+
+      if (a.selected == b.selected) {
+
+        if ( ["OEASC_ONF_PRF", "OEASC_ONF_UG"].includes(name) ) {
+
+          return parseInt(a.innerHTML) > parseInt(b.innerHTML)? 1 : -1;
+
+        } else {
+
+          return a.innerHTML > b.innerHTML? 1 : -1;
+
+        }
+
+      } else {
+
+        return a.selected ? -1 : 1;
+
+      }
+
+    });
+
+    $select.html('').append(opts_list);
+
+    $select.selectpicker("refresh")
+  }
 
 
   var f_on_data_loaded = function(feature_collection, map, b_zoom) {
@@ -358,47 +392,17 @@ $(document).ready(function() {
 
     var selected = $select_layer.val();
 
-    if(name == "OEASC_ONF_PRF") {
-
-      var opts_list = $select_layer.find('option');
-
-      opts_list.sort(function(a, b) {
-
-        if ( a.value == "" ) return 1;
-        if ( b.value == "" ) return -1;
-
-        var s_a = $(a).html().trim();
-        var s_b = $(b).html().trim();
-
-        var i_a = parseInt(s_a.split('-')[0]);
-        var i_b = parseInt(s_b.split('-')[0]);
-
-        return i_a > i_b ? 1 : -1;
-
-      });
-
-      $select_layer.html('').append(opts_list);
-      $select_layer.val(selected);
-
-    }
-
-    // $select_layer.selectpicker("refresh");
     $select_layer.selectpicker();
 
     $select_layer.change(f_change(map));
 
-    // if( $('#id_form').attr('data-id-form') != "all" ) {
-
-      // $select_layer.selectpicker('toggle');
-
-    // }
-
     //bidouille bug incompréhensible
     if( selected &&  $select_layer.val()=="" ) {
       $select_layer.val(selected);
-      // $select_layer.selectpicker("refresh");
       $select_layer.selectpicker();
     }
+
+    f_sort_selected($select_layer, name);
 
     M[form_id].b_loaded=true;
 
@@ -447,15 +451,15 @@ $(document).ready(function() {
 
       });
 
-      ls.featuresCollection=featuresCollection;
+    ls.featuresCollection=featuresCollection;
 
-      ls.featuresCollection.addTo(map);
+    ls.featuresCollection.addTo(map);
 
-      ls.featuresCollection.on('data:loaded', function() {
+    ls.featuresCollection.on('data:loaded', function() {
 
-        f_on_data_loaded(this, map, b_zoom);
+      f_on_data_loaded(this, map, b_zoom);
 
-      });
+    });
 
     // }
 
