@@ -77,13 +77,35 @@ def valid_temp_user(data):
     subject = ' [ANIMATEUR] création d'' un nouvel utilisateur'
 
     msg_html = "<p>Un nouvel utilisateur viens de s'enregister</p>"
-    msg_html += "<hr><p>Identifiant : {}</p><p>Email : {}</p><p>Nom : {}</p><p>Prenom : {}</p><p>Organisme : {}</p>".format(
+    msg_html += "<hr><p>Identifiant : {}</p><p>E-mail : {}</p><p>Nom : {}</p><p>Prenom : {}</p><p>Organisme : {}</p>".format(
         role['identifiant'].strip(),
         role['email'].strip(),
         role['nom_role'].strip(),
         role['prenom_role'].strip(),
         role['organisme'].strip()
     )
+
+    return send_mail(
+        recipients,
+        subject,
+        msg_html
+    )
+
+
+def change_application_right(data):
+
+    role = data['role']
+
+    id_droit = data['id_droit']
+
+    if not role:
+
+        return {"msg": "Pas de role pour valid_temp_user"}
+
+    recipients = [role['email']]
+    subject = ' modification de votre niveau de droit '
+
+    msg_html = render_template('modules/oeasc/mail/change_application_right.html', role=role, id_droit=id_droit)
 
     return send_mail(
         recipients,
@@ -115,12 +137,6 @@ def create_cor_role_token(data):
 function_dict = {
     'create_cor_role_token': create_cor_role_token,
     'create_temp_user': create_temp_user,
-    'valid_temp_user': valid_temp_user
+    'valid_temp_user': valid_temp_user,
+    'change_application_right': change_application_right
 }
-
-# def function_dict():
-#     return {
-#         'create_cor_role_token': create_cor_role_token,
-#         'create_temp_user': create_temp_user,
-#         'valid_temp_user': valid_temp_user
-#     }

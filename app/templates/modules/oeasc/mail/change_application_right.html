@@ -1,0 +1,21 @@
+{# change_application_right.html #}
+
+<p> Vos droit ont été modifiés pour l'application OEASC </p>
+<p> Vous niveau de droit est {{ id_droit }}</p>
+<p> Vous pouvez désormais : </p>
+<ul>
+  <li>déclarer des alertes</li>
+
+  {% if id_droit >= 2 %}
+  <li> voir les alertes de votre organisme </li>
+  {% endif %}
+
+  {% if id_droit >= 4 %}
+  <li> gérer les utilisateurs de votre organisme </li>
+  {% endif %}
+
+  {% if id_droit >= 5 %}
+  <li> gérer tous les utilisateurs de droit < 5 </li>
+  {% endif %}
+
+</ul>

@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, request, session, current_app
+    Blueprint, render_template, request, session, url_for, redirect
 )
 
 from .utils import check_auth_redirect_login
@@ -26,13 +26,24 @@ bp = Blueprint('user', __name__)
 @check_auth_redirect_login(4)
 def users():
     '''
-
+        liste des utilisateurs
+        possibilité de modifier les droits des utilisateurs
     '''
     current_user = session['current_user']
 
     users = get_users()
 
     return render_template('modules/oeasc/user/users.html', users=users, current_user=current_user, config=config)
+
+
+@bp.route('/espace_personnel')
+@check_auth_redirect_login(1)
+def espace_personnel():
+    '''
+        accès à l'espace personnel
+        redirection vers la route user en s'assurant d'être connecté
+    '''
+    return redirect(url_for('user.user'))
 
 
 @bp.route('/', defaults={'id_user': 0})
@@ -105,15 +116,3 @@ def change_password(token):
     '''
 
     return render_template('modules/oeasc/user/change_password.html', config=config, token=token)
-
-
-# @bp.route('/register')
-# def register():
-#     '''
-#         page d'inscription
-#     '''
-
-#     liste_organismes_oeasc = get_liste_organismes_oeasc()
-#     nomenclature = nomenclature_oeasc()
-
-#     return render_template('modules/oeasc/user/register.html', config=config, liste_organismes_oeasc=liste_organismes_oeasc, nomenclature=nomenclature)

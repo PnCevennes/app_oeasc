@@ -50,7 +50,7 @@
             <input type="hidden" name="" id="user_app" value="{{id_app}}">
             <table class="table">
                 <tr>
-                    <th>Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'email utilisé pour l'inscription." class="fas fa-question-circle"></span> :
+                    <th>Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'e-mail utilisé pour l'inscription." class="fas fa-question-circle"></span> :
                     </th>
                     <td>
                         <input type="text" class="form-control" id="user_id" value={{identifiant}}>
@@ -73,137 +73,124 @@
                     </td>
                 </tr>
             </table>
-            {#
-                <div class="form-group">
-                    <label for="user_id">Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'email utilisé pour l'inscription." class="fas fa-question-circle"></span>:</label>
-                    <input type="text" class="form-control" id="user_id" value={{identifiant}}>
-                </div>
-                <br>
-                <div class="form-group">
-                    <label for="pwd">Mot de passe: </label>
-                    <span style='float:right;font-size: 0.8em' ><a href="{{url_for('user.change_password')}}">Mot de passe oublié ?</a></span>
-                    <input type="password" class="form-control" id="user_pwd">
-                </div>
-                <br>
-                #}
-            </form>
-
-        </div>
+        </form>
 
     </div>
-    {%- endblock %}
+
+</div>
+{%- endblock %}
 
 
-    {%- block js_local %}
+{%- block js_local %}
 
-    {{ super() }}
+{{ super() }}
 
-    <script>
+<script>
 
-        $(document).ready(function() {
+    $(document).ready(function() {
 
-            "use strict";
+        "use strict";
 
-            var type = "{{ type }}";
-            var token = "{{ token }}";
-            var id_application = "{{ config.ID_APP }}"
+        var type = "{{ type }}";
+        var token = "{{ token }}";
+        var id_application = "{{ config.ID_APP }}"
+        $("#login-error").hide();
+
+        console.log("token", token)
+
+        if (token) {
+
+            $("#validation_compte").hide();
+
+            $.post({
+
+                url: '/pypn/register/post_usershub/valid_temp_user',
+                data: JSON.stringify({
+                    token: token,
+                    id_application: id_application,
+                }),
+                contentType:"application/json; charset=utf-8",
+                dataType: "json",
+
+            }).done(function(response) {
+
+                console.log("validation done", response);
+                $("#validation_compte").show();
+
+            }).fail(function(response) {
+
+                console.log("validation failed", response);
+
+            });
+
+        }
+
+
+        var redirection = '{{ redirect_url }}'.replace(/\&#34;/g, '');
+
+        if (redirection == "") {
+
+            redirection = $(location).attr('origin');
+
+        }
+
+        console.log(redirection);
+
+        var login_request = function() {
+
+            $.post({
+
+                url : '/pypn/auth/login',
+                data : JSON.stringify ({
+                    "id_application": $('#user_app').val(),
+                    "login": $('#user_id').val().trim(),
+                    "password" : $('#user_pwd').val()
+                }),
+                contentType:"application/json; charset=utf-8",
+                dataType:"json"})
+            .done(function(response){
+                console.log("done", response);
+                window.location.href = redirection;})
+            .fail(function(error){
+                console.log("fail", error);
+                $("#login-error" ).show();
+            });
+        }
+
+        var login = function(e) {
+
+            e.preventDefault();
+
             $("#login-error").hide();
 
-            console.log("token", token)
-
-            if (token) {
-
-                $("#validation_compte").hide();
+            if(type == "add_droit") {
 
                 $.post({
-
-                    url: '/pypn/register/post_usershub/valid_temp_user',
-                    data: JSON.stringify({
-                        token: token,
-                        id_application: id_application,
-                    }),
-                    contentType:"application/json; charset=utf-8",
-                    dataType: "json",
-
-                }).done(function(response) {
-
-                    console.log("validation done", response);
-                    $("#validation_compte").show();
-
-                }).fail(function(response) {
-
-                    console.log("validation failed", response);
-
-                });
-
-            }
-
-
-            var redirection = '{{ redirect_url }}'.replace(/\&#34;/g, '');
-
-            if (redirection == "") {
-
-                redirection = $(location).attr('origin');
-
-            }
-
-            console.log(redirection);
-
-            var login_request = function() {
-
-                $.post({
-
-                    url : '/pypn/auth/login',
+                    url : '/pypn/register/post_usershub/add_application_right_to_role',
                     data : JSON.stringify ({
                         "id_application": $('#user_app').val(),
                         "login": $('#user_id').val().trim(),
-                        "password" : $('#user_pwd').val()
-                    }),
+                        "password" : $('#user_pwd').val()}  ),
                     contentType:"application/json; charset=utf-8",
                     dataType:"json"})
                 .done(function(response){
-                    console.log("done", response);
-                    window.location.href = redirection;})
+                    console.log(response);
+                    login_request();})
                 .fail(function(error){
-                    console.log("fail", error);
                     $("#login-error" ).show();
-                });
+                    $("#login-error" ).html(error.responseText);
+                    console.log(error);});
+            } else {
+
+                login_request();
             }
 
-            var login = function(e) {
+        };
 
-                e.preventDefault();
+        $("#form_login").submit(login);
 
-                $("#login-error").hide();
+    });
 
-                if(type == "add_droit") {
+</script>
 
-                    $.post({
-                        url : '/pypn/register/post_usershub/add_application_right_to_role',
-                        data : JSON.stringify ({
-                            "id_application": $('#user_app').val(),
-                            "login": $('#user_id').val().trim(),
-                            "password" : $('#user_pwd').val()}  ),
-                        contentType:"application/json; charset=utf-8",
-                        dataType:"json"})
-                    .done(function(response){
-                        console.log(response);
-                        login_request();})
-                    .fail(function(error){
-                        $("#login-error" ).show();
-                        $("#login-error" ).html(error.responseText);
-                        console.log(error);});
-                } else {
-
-                    login_request();
-                }
-
-            };
-
-            $("#form_login").submit(login);
-
-        });
-
-    </script>
-
-    {%- endblock %}
+{%- endblock %}

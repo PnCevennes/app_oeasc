@@ -313,6 +313,13 @@ $(document).ready(function() {
 
   var f_on_data_loaded = function(feature_collection, map, b_zoom) {
 
+    // dans le cas ou on a rien
+    if ( ! feature_collection._layers) {
+
+      return 0
+
+    }
+    var nb_layers = 
     var key_0 = Object.keys(feature_collection._layers)[0];
     var name = feature_collection._layers[key_0].feature.properties.name;
 
@@ -396,6 +403,8 @@ $(document).ready(function() {
     M[form_id].b_loaded=true;
 
     console.log("Map : " +String(Object.keys(feature_collection._layers).length) + " elements chargés pour " + name + " selected : " + $select_layer.val());
+
+    return nb_layers;
 
   };
 

@@ -63,6 +63,10 @@
     }
 
 
+    var liste_organismes_oeasc = [];
+    $('#id_organisme option').each((i, e) => liste_organismes_oeasc.push(e.innerHTML));
+
+
     $('#id_organisme').change(function() {
 
       var nom_organisme = $('#id_organisme :selected').html();
@@ -73,11 +77,18 @@
 
         console.log(nom_organisme)
         $('#organisme').show();
-        $('#organisme').val('');
+        $('#organisme').prop('required', true);
+
+        if(liste_organismes_oeasc.includes($("#organisme").val())) {
+
+          $('#organisme').val('');
+
+        }
 
       } else {
 
         $('#organisme').hide();
+        $('#organisme').prop('required', false);
         $('#organisme').val(nom_organisme);
 
       }
@@ -240,6 +251,7 @@
     e.preventDefault();
     $('.info').hide();
     $('.input').show();
+    $('#id_organisme').change();
     $("#modifier_infos").hide();
 
   });

@@ -42,7 +42,7 @@ def send_mail_test():
 
 def send_mail_validation_declaration(declaration):
     '''
-        Evoie un email quand une declaration est validée
+        Evoie un e-mail quand une declaration est validée
     '''
     user = get_user(session['current_user']['id_role'])
 

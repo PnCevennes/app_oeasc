@@ -63,13 +63,13 @@
     <div class="form-group">
 
       <div>
-        {{ macros.select_essence("id_nomenclatur e_peuplement_essence_principale", nomenclature, titre="Essence objectif principale", object=declaration, listes_essences=listes_essences, afficher_type_essence="oui") }}
+        {{ macros.select_essence("id_nomenclature_peuplement_essence_principale", nomenclature, titre="Essence objectif principale", object=declaration, listes_essences=listes_essences, afficher_type_essence="oui") }}
       </div>
 
       <div>
-
         {{ macros.select_essence("nomenclatures_peuplement_essence_secondaire", nomenclature, titre="Essence(s) objectif secondaire(s)", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
       </div>
+
       <div>
         {{ macros.select_essence("nomenclatures_peuplement_essence_complementaire", nomenclature, titre="Essence(s) complémentaires(s)", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
       </div>

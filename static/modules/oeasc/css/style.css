@@ -661,7 +661,7 @@ div.progression {
 .custom-tooltip:hover .custom-tooltiptext {
   visibility: visible;
   opacity: 1;
-  z-index: 1000;
+  z-index: 1003;
 
   top: 100px;
   right: 100px;
@@ -781,6 +781,7 @@ tfoot input {
 h2 {
 
   margin-bottom: 20px;
+
 }
 
 .dropdown-menu a {
