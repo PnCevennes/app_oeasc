@@ -149,7 +149,7 @@ $(document).ready(function() {
 
     $("#form_peuplement_description select").selectpicker();
 
-    $('#form_peuplement_description select#id_nomenclature_peuplement_essence_principale').change(function() {
+    $('#id_nomenclature_peuplement_essence_principale').change(function() {
 
       recharger_form();
 
