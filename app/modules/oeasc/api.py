@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*
 from flask import (
-    Blueprint, render_template, request
+    Blueprint, render_template, request, current_app
 )
 
 from .repository import (
@@ -25,7 +25,7 @@ from .models import (
     TForet
 )
 
-from app.utils.env import DB
+# from app.utils.env import DB
 
 from app.utils.utilssqlalchemy import json_resp
 
@@ -35,6 +35,8 @@ from .mail import send_mail_validation_declaration
 
 from .utils import check_auth_redirect_login
 
+config = current_app.config
+DB = config['DB']
 
 bp = Blueprint('oeasc_api', __name__)
 
@@ -103,8 +105,11 @@ def get_form_declaration():
     get_dict_nomenclature_areas(declaration_dict)
 
     check_foret(declaration_dict)
+    
     check_proprietaire(declaration_dict)
+
     check_massif(declaration_dict)
+
 
     listes_essences = get_listes_essences(declaration_dict)
 

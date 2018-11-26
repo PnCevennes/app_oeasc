@@ -1,0 +1,287 @@
+/* main.css */
+
+html {
+
+  position: relative;
+  min-height: 100%;
+
+}
+
+body {
+
+  margin: 0; /* pour éviter les marges */
+  text-align:  justify;
+  word-wrap: break-word;
+  /* margin-bottom: 300px; /* footer */ */
+
+}
+
+
+/* header titre */
+
+.flex-container {
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+
+}
+
+.flex-container div:nth-child(2) {
+
+  flex:1;
+  text-align: center;
+
+}
+
+.flex-container:first-child {
+
+  margin-left: auto
+
+}
+
+header div {
+
+  display: inline-block;
+
+}
+
+.img-titre h1 {
+  font-weight: bold;
+  border-radius: 5px;
+  background-color:  rgba(0, 0, 0, .5);
+  padding:  10px;
+  margin: 0 100px;
+  color: white;
+
+}
+
+.img-titre {
+
+  background-image: url(/static/img/image_titre-2.jpg);
+  background-repeat:no-repeat;
+  background-position:right top;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  background-size: cover;
+}
+
+.img-pnc{
+
+  opacity: 0.7;
+
+}
+
+.right-header {
+
+  width: 172px;
+  height: 172px;
+  background-color: rgba(255, 255, 255, 0.5);
+
+}
+
+
+/* footer */
+
+.footer {
+
+  position: absolute;
+  bottom: 0;
+  width: 98%;
+  /* Set the fixed height of the footer here */
+  height: 300px;
+  /* line-height: 60px; Vertically center the text there */
+  background-color: #f5f5f5;
+}
+
+footer a {
+  color:  darkgray;
+}
+
+footer h4 {
+  text-align: center
+}
+
+
+
+/* content */
+
+.content {
+
+  margin: 50px;
+}
+
+.content a {
+
+  color: orange;
+
+}
+
+.content a:hover {
+
+  color: darkorange;
+
+}
+
+a:hover {
+
+  color: darkorange;
+
+}
+
+/* sidebars */
+
+#sidebar_sticky {
+
+  position: sticky;
+  text-align: left;
+
+}
+
+#sidebar_sticky > ul {
+
+  list-style-type: none;
+
+}
+
+@keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+
+.fa-spinner {
+
+  animation:spin 2s linear infinite;
+
+}
+
+figure{
+
+  text-align: center;
+
+}
+
+.figure img{
+
+  border: 1px solid lightgray;
+}
+
+.figure figcaption{
+
+  text-align: center;
+  width: 100%;
+  font-style: italic;
+
+}
+
+.text {
+
+  max-width: 800px;
+  float: none;
+  margin: 0 auto;
+
+}
+
+.text-large {
+
+  max-width: 1000px;
+  float: none;
+  margin: 0 auto;
+
+}
+
+nav .dropdown:hover > .dropdown-menu {
+
+  display: block;
+  opacity: 1;
+  top: 95%;
+
+}
+
+nav .dropdown-menu {
+
+  opacity: 0;
+  position: absolute;
+  top: -2000px;
+
+}
+
+.secteur {
+
+  border-radius: 5px;
+  border:  0px solid;
+  font-weight: bold;
+  color: white;
+  text-shadow: black 0.1em 0.1em 0.2em;
+  font-size: 16px;
+  /* text-shadow: -1px 0 black, 0 1px black, */
+  background-color: rgba(0, 0, 0, 0.2);
+  /* background-color: rgba(255, 255, 255, 0.5); */
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6);
+
+}
+
+.info, .input {
+  display: none;
+}
+
+h2 {
+
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    padding: .75rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    text-align: center;
+}
+
+form h4 {
+
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    padding: .75rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    text-align: center;
+}
+
+/* h3 {
+    color: #004085;
+    background-color: #cce5ff;
+    border-color: #b8daff;
+    padding: .5rem 1rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    text-align: center;
+}
+ */
+
+.mark, mark {
+  padding: 0;
+  background-color: orange;
+}
+
+tfoot input {
+  width: 100%;
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+table
+
+.row-selected {
+
+  background-color: orange;
+
+}
+
+.input input {
+
+  width :  400px;
+
+}
+
+#tableau_declarations table {
+
+  min-height: 100px;
+
+}

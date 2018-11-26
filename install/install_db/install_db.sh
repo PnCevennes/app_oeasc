@@ -24,6 +24,9 @@ while getopts ":ht:g:" opt; do
         g)
             GEOM_TO_CLEAR="${OPTARG}"
             ;;
+        n)
+            CLEAR_NOMENCLATURE="${OPTARG}"
+            ;;
         h)
             usage
             exit 1

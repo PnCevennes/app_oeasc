@@ -7,10 +7,8 @@ from pypnnomenclature.models import (
     TNomenclatures
 )
 
-from app.utils.env import DB
 from app.utils.utilssqlalchemy import as_dict
 
-from config import config
 from sqlalchemy import text
 
 
@@ -24,7 +22,7 @@ from app.ref_geo.repository import (
     get_type_code,
 )
 
-from flask import g, session
+from flask import g, session, current_app
 
 from .models import (
     TDeclaration,
@@ -32,16 +30,17 @@ from .models import (
     TProprietaire
 )
 
+config = current_app.config
+DB = config['DB']
+# def get_organisme_name_from_id_organisme(id_organisme):
 
-def get_organisme_name_from_id_organisme(id_organisme):
+#     sql_text = text("SELECT b.nom_organisme \
+#         FROM utilisateurs.bib_organismes as b \
+#         WHERE b.id_organisme = {};".format(id_organisme))
 
-    sql_text = text("SELECT b.nom_organisme \
-        FROM utilisateurs.bib_organismes as b \
-        WHERE b.id_organisme = {};".format(id_organisme))
+#     result = DB.engine.execute(sql_text).first()[0]
 
-    result = DB.engine.execute(sql_text).first()[0]
-
-    return result
+#     return result
 
 
 def test_db():
@@ -52,46 +51,61 @@ def test_db():
     return result
 
 
-def get_organisme_name_from_id_declarant(id_declarant):
+def get_id_organismes_from_id(liste_nom):
 
-    sql_text = text("SELECT b.nom_organisme \
-        FROM utilisateurs.bib_organismes as b, utilisateurs.t_roles as r \
-        WHERE b.id_organisme = r.id_organisme AND r.id_role = {};".format(id_declarant))
+    liste_nom_ = [nom.replace("'", "''") for nom in liste_nom]
 
-    result = DB.engine.execute(sql_text).first()[0]
+    sql_text = "SELECT id_organisme \
+        FROM utilisateurs.bib_organismes\
+        WHERE nom_organisme in ('" + "','".join(liste_nom_) + "');"
 
-    return result
+    result = DB.engine.execute(text(sql_text))
 
+    out = [res[0] for res in result]
 
-def get_description_droit(id_droit):
-
-    switcher = {
-        1: "Déclarant",
-        2: "Déclarant",
-        3: "Responsable",
-        4: "Animateur",
-        5: "Animateur",
-        6: "Admin"
-    }
-
-    return switcher.get(id_droit, 'id_droit {} invalide'.format(id_droit))
+    return out
 
 
-def get_fonction_droit(function):
-    '''
-        retourne le niveau de droit en fonction de la fonction renseignée
-    '''
+# def get_organisme_name_from_id_declarant(id_declarant):
 
-    dict_function = {
+#     sql_text = text("SELECT b.nom_organisme \
+#         FROM utilisateurs.bib_organismes as b, utilisateurs.t_roles as r \
+#         WHERE b.id_organisme = r.id_organisme AND r.id_role = {};".format(id_declarant))
 
-        "Déclarant": 1,
-        "Responsable": 3,
-        "Animateur": 4,
-        "Admin": 6,
+#     result = DB.engine.execute(sql_text).first()[0]
 
-    }
+#     return result
 
-    return dict_function.get(function, None)
+
+# def get_description_droit(id_droit):
+
+#     switcher = {
+#         1: "Déclarant",
+#         2: "Déclarant",
+#         3: "Responsable",
+#         4: "Animateur",
+#         5: "Animateur",
+#         6: "Admin"
+#     }
+
+#     return switcher.get(id_droit, 'id_droit {} invalide'.format(id_droit))
+
+
+# def get_fonction_droit(function):
+#     '''
+#         retourne le niveau de droit en fonction de la fonction renseignée
+#     '''
+
+#     dict_function = {
+
+#         "Déclarant": 1,
+#         "Responsable": 3,
+#         "Animateur": 4,
+#         "Admin": 6,
+
+#     }
+
+#     return dict_function.get(function, None)
 
 
 def get_nomenclature_from_id(id_nomenclature, key=""):
@@ -162,7 +176,6 @@ def get_areas_from_ids(id_areas):
     if id_areas_to_query:
 
         print("get areas from db ", len(id_areas_to_query))
-
 
         data = DB.session.query(VA).filter(VA.id_area.in_(id_areas_to_query))
 
@@ -245,19 +258,17 @@ def get_dict_nomenclature_areas(dict_in):
 
         if key.startswith("areas"):
             dict_in[key] = [get_area_from_id(elem['id_area']) for elem in dict_in[key]]
+            continue
 
         if key.startswith("nomenclatures_"):
-
             dict_in[key] = [get_nomenclature_from_id(elem['id_nomenclature']) for elem in dict_in[key]]
             continue
 
         if isinstance(dict_in[key], dict):
-
             dict_in[key] = get_dict_nomenclature_areas(dict_in[key])
             continue
 
         if isinstance(dict_in[key], list):
-
             dict_in[key] = [get_dict_nomenclature_areas(elem) for elem in dict_in[key]]
             continue
 
@@ -326,7 +337,6 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant):
 
 
 def dfpu_as_dict_from_id_declaration(id_declaration):
-
 
     declaration, foret, proprietaire, declarant = get_dfpu(id_declaration)
     declaration_dict = dfpu_as_dict(declaration, foret, proprietaire, declarant)
@@ -469,7 +479,7 @@ def get_users():
     data = DB.session.query(User)
     v = [as_dict(d) for d in data]
 
-    data_app = DB.session.query(AppUser).filter(AppUser.id_application == config.ID_APP)
+    data_app = DB.session.query(AppUser).filter(AppUser.id_application == config['ID_APP'])
     v_app = [as_dict(d) for d in data_app]
 
     v_out = []
@@ -507,7 +517,6 @@ def get_user(id_declarant):
 
     user['id_droit_max'] = user_app['id_droit_max']
     user['id_application'] = user_app['id_application']
-    # user['organisme'] = get_organisme_name_from_id_organisme(user['id_organisme'])
 
     return user
 
@@ -521,6 +530,7 @@ def nomenclature_oeasc():
     # on regarde si la nomenclature existe dans la variable globale g
     if not getattr(g, '_nomenclature', None):
 
+        # TODO auto tout de l'oeasc from db ?
         list_data = [
 
             'OEASC_PEUPLEMENT_ESSENCE',
@@ -561,7 +571,7 @@ def nomenclature_oeasc():
 
             # on ne garde que les colonnes qui nous intéresse
 
-            cols = ['id_nomenclature', 'mnemonique', 'label_fr']
+            cols = ['id_nomenclature', 'mnemonique', 'cd_nomenclature', 'label_fr']
 
             values = []
 
@@ -616,22 +626,24 @@ def get_declarations(b_synthese, id_declarant=None):
         user['id_droit_max'] = user_app['id_droit_max']
         user['id_application'] = user_app['id_application']
 
-        # administrateur et animateur
-        if user["id_droit_max"] >= get_fonction_droit("Animateur") or b_synthese:
+        liste_id_organismes_solo = get_id_organismes_from_id(['Autre (préciser)', "Pas d'organisme"])
+
+        # administrateur et animateur >=5
+        if user["id_droit_max"] >= 5 or b_synthese:
 
             data = DB.session.query(TDeclaration.id_declaration).all()
 
-        # les declarant de la meme structure (sauf les particuliers)
-        elif user["id_droit_max"] >= get_fonction_droit("Déclarant") and get_organisme_name_from_id_organisme(user['id_organisme']) != 'Particulier':
+        # les declarant de la meme structure (sauf les particuliers) >=)2
+        elif user["id_droit_max"] >= 2 and user['id_organisme'] not in liste_id_organismes_solo:
 
             sql_text = text("SELECT oeasc.get_declarations_structure_declarant({})".format(user["id_role"]))
 
             data = DB.engine.execute(sql_text)
 
         #
-        elif user["id_droit_max"] >= get_fonction_droit("Déclarant"):
+        elif user["id_droit_max"] >= 1:
 
-            data = DB.session.query(TDeclaration.id_declaration).filter(id_declarant).all()
+            data = DB.session.query(TDeclaration.id_declaration).filter(TDeclaration.id_declarant == id_declarant).all()
 
         #
         else:
@@ -646,7 +658,6 @@ def get_declarations(b_synthese, id_declarant=None):
 
         declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
         declarations.append(declaration_dict)
-
 
     return declarations
 

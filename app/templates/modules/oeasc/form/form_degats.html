@@ -1,3 +1,7 @@
+{%- import "modules/oeasc/macros/macros_form_essence.html" as macros_essence %}
+{%- import "modules/oeasc/macros/macros_form.html" as macros_form %}
+
+
 {%- set degats = declaration["degats"] %}
 {%- set ns = namespace() %}
 {%- set ns.input_disabled = "" %}
@@ -8,7 +12,7 @@
   <h4>Caractérisation des dégâts</h4>
 
 
-<p><i>Sélectionnez les types de dégâts constatés et pour chacun d’eux, renseignez les informations requises.</i></p>
+<p class="alert alert-info"><i>Sélectionnez les types de dégâts constatés et pour chacun d’eux, renseignez les informations requises.</i></p>
   <div>
   <!-- <div class="center"> -->
     
@@ -41,7 +45,7 @@
 
 
       {%- set degat = degats[ns.ind] %}
-      {%- set mnemonique_degat_type = degat["id_nomenclature_degat_type"].mnemonique %}
+      {%- set cd_nomenclature_degat_type = degat["id_nomenclature_degat_type"].cd_nomenclature %}
       {%- endif %}
 
 
@@ -50,16 +54,16 @@
       <label for="nomenclatures_degat_type-{{ loop.index0 }}">{{ elem.label_fr }}</label>
  #}
 
-      <input id="nomenclatures_degat_type-{{ elem.mnemonique }}" name="nomenclatures_degat_type" type="checkbox" value="{{ elem.id_nomenclature }}" {{ns.checked}} data-id-degat="{{ns.id_degat}}" >
-      <label for="nomenclatures_degat_type-{{ elem.mnemonique }}">{{ elem.label_fr }}</label>
+      <input id="nomenclatures_degat_type-{{ elem.cd_nomenclature }}" name="nomenclatures_degat_type" type="checkbox" value="{{ elem.id_nomenclature }}" {{ns.checked}} data-id-degat="{{ns.id_degat}}" >
+      <label for="nomenclatures_degat_type-{{ elem.cd_nomenclature }}">{{ elem.label_fr }}</label>
 
-      {%- if ns.ind != -1 and mnemonique_degat_type != "P/C" %}
+      {%- if ns.ind != -1 and cd_nomenclature_degat_type != "P/C" %}
       {%- set degat = degats[ns.ind] %}
 
       <div class="degat-essence custom-control"  class="dg">
 
         <div><label for="id_nomenclature_degat_essence"><i class="dg">Essence - (3 essences maximum)</i></label></div>
-        {%- if mnemonique_degat_type != "ABS" %}
+        {%- if cd_nomenclature_degat_type != "ABS" %}
         <div><label for="id_nomenclature_degat_etendue"><i class="dg">Étendue des dégâts</i></label></div>
         <div><label for="id_nomenclature_degat_gravite"><i class="dg">Gravité des dégâts</i></label></div>
         <div><label for="id_nomenclature_degat_anteriorite"><i class="dg">Antériorité des dégâts</i></label></div>
@@ -93,7 +97,7 @@
 
         <div class="strayed degat-essence" >
           <div> {{degat_essence.id_nomenclature_degat_essence.label_fr}} </div>
-          {%- if mnemonique_degat_type != "ABS" %}
+          {%- if cd_nomenclature_degat_type != "ABS" %}
           <div> {{degat_essence.id_nomenclature_degat_etendue.label_fr}} </div>
           <div> {{degat_essence.id_nomenclature_degat_gravite.label_fr}} </div>
           <div> {{degat_essence.id_nomenclature_degat_anteriorite.label_fr}} </div>
@@ -121,8 +125,8 @@
 
           {%- set add = "_" + elem.id_nomenclature|string + "_" + loop.index0|string %}
 
-          <div class="red degat-essence" >
-            {%- if mnemonique_degat_type != "ABS" %}
+          <div class="alert alert-info degat-essence" >
+            {%- if cd_nomenclature_degat_type != "ABS" %}
             Indiquez les essences touchées, et pour chacune d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis validez.
             {%- else %}
             Indiquez les essences concernées.
@@ -131,13 +135,13 @@
 
           <div class="degat-essence">
 
-            <div>{{ macros.select_essence("id_nomenclature_degat_essence", nomenclature, object=degat_essence, listes_essences=listes_essences, id_nomenclature_degat_type=degat.id_nomenclature_degat_type.id_nomenclature, required="required") }}</div>
+            <div>{{ macros_essence.select_essence("id_nomenclature_degat_essence", nomenclature, object=degat_essence, listes_essences=listes_essences, id_nomenclature_degat_type=degat.id_nomenclature_degat_type.id_nomenclature, required="required") }}</div>
 
-            {%- if mnemonique_degat_type != "ABS" %}
+            {%- if cd_nomenclature_degat_type != "ABS" %}
 
-            <div>{{ macros.radio_nomenclature("id_nomenclature_degat_etendue", nomenclature, "OEASC_DEGAT_ETENDUE", "radio", object=degat_essence, add=add) }}</div>
-            <div>{{ macros.radio_nomenclature("id_nomenclature_degat_gravite", nomenclature, "OEASC_DEGAT_GRAVITE", "radio", object=degat_essence, add=add) }}</div>
-            <div>{{ macros.radio_nomenclature("id_nomenclature_degat_anteriorite", nomenclature, "OEASC_DEGAT_ANTERIORITE", "radio", object=degat_essence, add=add) }}</div>
+            <div>{{ macros_form.radio_nomenclature("id_nomenclature_degat_etendue", nomenclature, "OEASC_DEGAT_ETENDUE", "radio", object=degat_essence, add=add) }}</div>
+            <div>{{ macros_form.radio_nomenclature("id_nomenclature_degat_gravite", nomenclature, "OEASC_DEGAT_GRAVITE", "radio", object=degat_essence, add=add) }}</div>
+            <div>{{ macros_form.radio_nomenclature("id_nomenclature_degat_anteriorite", nomenclature, "OEASC_DEGAT_ANTERIORITE", "radio", object=degat_essence, add=add) }}</div>
 
             {%- else %}
 
@@ -192,7 +196,7 @@
 
   <div class=blue>
 
-    <p>Des illustrations complémentaires des différents types de dégâts  sont  fournis  dans l'extrait du Guide pratique d'évaluation des dégâts en milieu forestier (CEMAGREF, 2009), <a href="{{ url_for('static', filename='documents/extrait_CEMAGREF.pdf') }}" target="#_blank">cliquez ici</a>.</p>
+    <p class="alert alert-primary">Des illustrations complémentaires des différents types de dégâts  sont  fournis  dans l'extrait du Guide pratique d'évaluation des dégâts en milieu forestier (CEMAGREF, 2009), <a href="{{ url_for('static', filename='documents/extrait_CEMAGREF.pdf') }}" target="#_blank">cliquez ici</a>.</p>
 
   </div>
 

@@ -12,9 +12,9 @@
 
       {% if degat_essence != {} %}
 
-      <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.mnemonique == 'ABS' else " :"}}
+      <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.cd_nomenclature == 'ABS' else " :"}}
 
-        {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
+        {% if degat.id_nomenclature_degat_type.cd_nomenclature != 'ABS' %}
 {#         <ul>
 
           <li><i>étendue</i> : {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},</li>

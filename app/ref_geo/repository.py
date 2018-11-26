@@ -1,5 +1,3 @@
-from app.utils.env import DB
-
 from sqlalchemy import and_, text
 
 from geojson import FeatureCollection
@@ -10,6 +8,11 @@ from .models import (
     VAreasSimples as VAS,
     VLAreasSimples as VLAS,
 )
+
+from flask import current_app
+
+config = current_app.config
+DB = config['DB']
 
 
 def get_id_type(type_code):

@@ -11,10 +11,11 @@ from .models import TForet, TProprietaire
 
 from app.utils.utilssqlalchemy import as_dict
 
-from app.utils.env import DB, config
 from pypnusershub.db.models import (
     User
 )
+
+from flask import current_app
 
 from sqlalchemy.sql import func
 
@@ -24,6 +25,9 @@ from sqlalchemy import text
 
 from datetime import timedelta
 from datetime import datetime
+
+config = current_app.config
+DB = config['DB']
 
 
 def rand_nomenclature(mnemonique):
@@ -130,7 +134,7 @@ def proprietaire_dict_random_sample(b_statut_public, nom_commune):
 
         proprietaire = {
 
-            "id_nomenclature_proprietaire_type": get_nomenclature("mnemonique", "PT_CO", "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
+            "id_nomenclature_proprietaire_type": get_nomenclature("cd_nomenclature", "PT_CO", "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
             "nom_proprietaire": nom_commune,
 
         }
@@ -138,7 +142,7 @@ def proprietaire_dict_random_sample(b_statut_public, nom_commune):
     else:
 
         proprietaire = {
-            "id_nomenclature_proprietaire_type": get_nomenclature("mnemonique", "PT_PRI", "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
+            "id_nomenclature_proprietaire_type": get_nomenclature("cd_nomenclature", "PT_PRI", "OEASC_PROPRIETAIRE_TYPE", "id_nomenclature"),
             "nom_proprietaire": "Privé",
 
         }
@@ -348,20 +352,19 @@ def degats_dict_random_sample(v_essences):
         Renvoie des degats aléatoires
     '''
 
-
     v_degat_type = get_v_nomenclature_random_sample('OEASC_DEGAT_TYPE', 'id_nomenclature')
 
     degats = [{"id_nomenclature_degat_type": id_nomenclature} for id_nomenclature in v_degat_type]
 
     for d in degats:
 
-        mnemonique = get_nomenclature_from_id(d['id_nomenclature_degat_type'], "mnemonique")
+        cd_nomenclature = get_nomenclature_from_id(d['id_nomenclature_degat_type'], "cd_nomenclature")
 
-        if mnemonique in ['P/C']:
+        if cd_nomenclature in ['P/C']:
 
             continue
 
-        if mnemonique in ['ABS']:
+        if cd_nomenclature in ['ABS']:
 
             degat = {
                 "id_nomenclature_degat_essence": get_nomenclature_random_sample("OEASC_PEUPLEMENT_ESSENCE", "id_nomenclature"),
@@ -385,7 +388,7 @@ def get_random_id_declarant():
     '''
         renvoie un id_declarant aléatoire
     '''
-    sql_text = text("SELECT r.id_role FROM utilisateurs.t_roles r, utilisateurs.cor_role_droit_application c WHERE c.id_role = r.id_role AND c.id_application = " + str(config.ID_APP) + "")
+    sql_text = text("SELECT r.id_role FROM utilisateurs.t_roles r, utilisateurs.cor_role_droit_application c WHERE c.id_role = r.id_role AND c.id_application = " + str(config['ID_APP']) + "")
     data = DB.engine.execute(sql_text)
     v = [d[0] for d in data]
     if v == []:
@@ -453,7 +456,7 @@ def get_random_date():
 
     diff = datetime.now() - time_ref
 
-    random_seconds = random.randint(0,int(diff.total_seconds()))
+    random_seconds = random.randint(0, int(diff.total_seconds()))
 
     date = (time_ref + timedelta(seconds=random_seconds))
 
@@ -488,11 +491,9 @@ def declaration_dict_random_sample():
 
     v_essences = v_rand_nomenclature('OEASC_PEUPLEMENT_ESSENCE')
 
-    # random_seconds = random.randint(1, 2 * 3600 * 24 * 365)
-    time_ref = datetime.strptime('1/1/2015', '%m/%d/%Y')
-
     nomenclatures_peuplement_paturage_statut = []
     nomenclatures_peuplement_paturage_type = []
+    nomenclatures_peuplement_paturage_saison = []
     id_nomenclature_peuplement_paturage_frequence = None
 
     b_peuplement_paturage_presence = random.randint(0, 1) == 1
@@ -502,6 +503,14 @@ def declaration_dict_random_sample():
         nomenclatures_peuplement_paturage_type = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_TYPE", "id_nomenclature")]
         nomenclatures_peuplement_paturage_statut = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")]
         id_nomenclature_peuplement_paturage_frequence = get_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "id_nomenclature")
+
+        if id_nomenclature_peuplement_paturage_frequence['cd_nomenclature'] == 'PPAF_PER':
+
+            nomenclatures_peuplement_paturage_saison == [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")]
+
+            if len(nomenclatures_peuplement_paturage_saison) == 4:
+
+                nomenclatures_peuplement_paturage_saison.pop()
 
     nomenclatures_peuplement_protection_type = []
 
@@ -515,9 +524,9 @@ def declaration_dict_random_sample():
 
     for elem in nomenclatures_peuplement_espece:
 
-        mnemonique = get_nomenclature_from_id(elem['id_nomenclature'], "mnemonique")
+        cd_nomenclature = get_nomenclature_from_id(elem['id_nomenclature'], "cd_nomenclature")
 
-        if mnemonique == 'NSP':
+        if cd_nomenclature == 'NSP':
 
             nomenclatures_peuplement_espece = [elem]
             break

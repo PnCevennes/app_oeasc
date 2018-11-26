@@ -23,9 +23,10 @@
 
   <hr>
 
-  <div class="form-group">
+  <div class="alert alert-primary">
 
     <h3>Les 3 définitions à retenir </h3>
+
     <ul>
       <hr>
       <li><b><u>Forêt</u></b> = <b>propriété forestière</u></b>. Pour les forêts privées, elle correspond aux parcelles forestières <b>appartenant à un même propriétaire</b>, situées sur une même commune ou des communes contigües. Pour les forêts relevant du régime forestier, elle correspond au territoire couvert par l’aménagement forestier.</li>
@@ -38,7 +39,7 @@
 
   <hr>
 
-  <div class="form-group">
+  <div class="alert alert-danger">
 
     <h3>La règle d'or </h3>
     <hr>
@@ -50,8 +51,10 @@
   </div>
 
   <hr>
+</div>
 
-  <div class="form-group">
+<div>
+  <div class="alert alert-warning">
 
     <h3>Si vous avez besoin d’aide </h3>
     <hr>
@@ -61,63 +64,61 @@
       </li>
     </ul>
 
+
+
+    <hr>
+
+    <table class="table"  id="contacts">
+      <thead class="thead-dark">
+
+        <tr>
+          <th scope="col">Structure</th>
+          <th scope="col">Nom et prénom</th>
+          <th scope="col">N° de téléphone</th>
+          <th scope="col">Adresse e mail</th>
+        </tr>
+
+      </thead>
+
+      <tbody>
+
+        <tr>
+          <td>Établissement public du Parc national des Cévennes</td>
+          <td>ALGOËT Baptiste</td>
+          <td>04 66 49 53 60</td>
+          <td>baptiste.algoet@cevennes-parcnational.fr</td>
+        </tr>
+
+        <tr>
+          <td>Centre régional de la propriété forestière</td>
+          <td>MOLINES Loïc</td>
+          <td>06 73 84 89 27</td>
+          <td>loic.molines@crpf.fr</td>
+        </tr>
+
+        <tr>
+          <td>Syndicat lozérien de la forêt privée</td>
+          <td>LAFONT Jean-Pierre</td>
+          <td>06 47 48 14 76</td>
+          <td>jpl.48@orange.fr</td>
+        </tr>
+
+        <tr>
+          <td>Syndicat des forestiers privés du Gard</td>
+          <td>CORRE Isabelle</td>
+          <td>06 08 16 63 59</td>
+          <td>isa.corre83@gmail.com</td>
+        </tr>
+
+      </tbody>
+
+    </table>
   </div>
-
 </div>
 
-<hr>
+{% set href=url_for('oeasc.modifier_declaration')%}
+<button class='btn btn-primary' onclick="location.href='{{href}}'">Commencer la déclaration des dégâts</button>
 
-<div>
-  <table class="table"  id="contacts">
-    <thead class="thead-dark">
-
-      <tr>
-        <th scope="col">Structure</th>
-        <th scope="col">Nom et prénom</th>
-        <th scope="col">N° de téléphone</th>
-        <th scope="col">Adresse e mail</th>
-      </tr>
-
-    </thead>
-
-    <tbody>
-
-      <tr>
-        <td>Établissement public du Parc national des Cévennes</td>
-        <td>ALGOËT Baptiste</td>
-        <td>04 66 49 53 60</td>
-        <td>baptiste.algoet@cevennes-parcnational.fr</td>
-      </tr>
-
-      <tr>
-        <td>Centre régional de la propriété forestière</td>
-        <td>MOLINES Loïc</td>
-        <td>06 73 84 89 27</td>
-        <td>loic.molines@crpf.fr</td>
-      </tr>
-
-      <tr>
-        <td>Syndicat lozérien de la forêt privée</td>
-        <td>LAFONT Jean-Pierre</td>
-        <td>06 47 48 14 76</td>
-        <td>jpl.48@orange.fr</td>
-      </tr>
-
-      <tr>
-        <td>Syndicat des forestiers privés du Gard</td>
-        <td>CORRE Isabelle</td>
-        <td>06 08 16 63 59</td>
-        <td>isa.corre83@gmail.com</td>
-      </tr>
-
-    </tbody>
-
-  </table>
-</div>
-
-     {% set href=url_for('oeasc.modifier_declaration')%}
-      <button class='btn btn-primary' onclick="location.href='{{href}}'">Commencer la déclaration des dégâts</button>
-    
 
 
 {%- endblock %}

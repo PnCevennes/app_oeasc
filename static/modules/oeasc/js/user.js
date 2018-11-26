@@ -2,8 +2,6 @@
 
     "use strict";
 
-    var test = 0;
-
     $('#organisme').hide();
 
     var get_json = function(id) {
@@ -19,18 +17,17 @@
 
     }
 
-    // get user
-    var user = get_json('user');
-    var id_app = parseInt($("#id_app").attr("data-id_app"));
+    var user = M.current_user;
+    var id_app = M.config.ID_APP;
 
-    if(! user) {
+    if( ! user ) {
 
       return;
     }
 
-    function set_user(user_) {
+    function set_user(user_in) {
 
-      user = user_;
+      user = user_in;
       $('#nom_role').val(user.nom_role);
       $('#prenom_role').val(user.prenom_role);
       $('#email').val(user.email);
@@ -46,16 +43,14 @@
 
     }
 
-    console.log(test, user.id_role, id_app, user.organisme)
-
-    if(test && !user.id_role) {
+    if(M.config.MODE_TEST && !user.id_role) {
 
       user.nom_role = "CLEMENT";
       user.prenom_role = "Joel";
       user.email = "joelclems@gmail.com";
-      user.id_organisme = $("#id_organisme option")[0].value;
-      user.desc_role = "Salarié ou agent";
       user.organisme = "Mairie";
+      user.id_organisme = $("#id_organisme option")[1].value;
+      user.desc_role = "Salarié ou agent";
 
       $('#password').val("1234");
       $('#password_confirmation').val("1234");
@@ -71,11 +66,8 @@
 
       var nom_organisme = $('#id_organisme :selected').html();
 
-      console.log(nom_organisme)
-
       if (nom_organisme == "Autre (préciser)") {
 
-        console.log(nom_organisme)
         $('#organisme').show();
         $('#organisme').prop('required', true);
 
@@ -102,20 +94,22 @@
       $('.input').hide();
       $('.password').hide();
 
+      $('.info').show();
+
     }
 
     else {
 
       $('.info').hide();
+      $('.input').show();
+
 
     }
 
     var show_error = function(elem="", msg="") {
 
-      console.log(elem)
-      console.log($("#" + elem))
       $("#login-error").html(msg).show();
-      $("#" + elem).parent().before($("#login-error"));
+      $("#" + elem).parent().after($("#login-error"));
       $([document.documentElement, document.body]).animate({
         scrollTop: $("#login-error").offset().top - 100
       }, 300);
@@ -125,6 +119,8 @@
 
       e.preventDefault();
 
+    $('#email').parent().prev().prev().css('color', 'black')
+    $('#id_organisme').parents("td").prev().prev().css('color', 'black')
       // gestion email
       var expressionReguliere = /^(([^<>()[]\.,;:s@]+(.[^<>()[]\.,;:s@]+)*)|(.+))@(([[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}])|(([a-zA-Z-0-9]+.)+[a-zA-Z]{2,}))$/;
 
@@ -134,35 +130,50 @@
         return false;
       }
 
-      // gestion mot de passe
-      if( $('#user_pwd').val() != $('#user_pwd_conf').val()) {
-        show_error('user_pwd', 'Les mots de passes ne correspondent pas.');
-        return false;
 
-      }
+      if(! user.id_role) {
 
-      // gestion identifiant (ici email) non unique et droits
-      var user_;
-      // si on a déjà un utilisateur avec ce mail
-      if( (user_ = M.get_db('user', 'email',$('#user_email').val())) != "None") {
+        // gestion identifiant (ici email) non unique et droits
+        var user_from_mail = M.get_db('user', 'email',$('#email').val());
 
-      // et qu'il a déjà les droits pour cette application
-      if(user_.app_users.some(a => a.id_application == id_app)) {
+        // si on a déjà un utilisateur avec ce mail
+        if( user_from_mail != "None") {
 
-        show_error('user_email', 'Cette adresse email est déjà utilisé pour cette application. Veuillez vous rendre à la <a href="' + "{{url_for('user.login')}}" + '?identifiant=' + user.email + '">page de connexion</a> ou choisir une adresse mail différente.');
-        return false;
+        // et qu'il a déjà les droits pour cette application
+        if(user_from_mail.app_users.some(a => a.id_application == id_app)) {
 
-      } else {
+          show_error('email', '<p>Cette adresse email est déjà utilisé pour cette application.</p> \
+            <p>Veuillez vous identifier à la \
+            <a href="' + "{{url_for('user.login')}}" + '?identifiant=' + user.email + '">\
+            page de connexion\
+            </a> ou choisir une adresse mail différente.</p>');
+          return false;
 
-        show_error('user_email', 'Un compte existe déjà avec cette adresse mail, mais il ne possède pas encore les droits pour cette application. Pour activer ce compte sur cette application <a href="' + "{{url_for('user.login')}}" + '?type=add_droit&identifiant=' + user.email + '">cliquer ici</a>.');
-        return false;
+        } else {
+
+          show_error('email', '<p>Un compte existe déjà avec cette adresse mail,\
+            mais il ne possède pas encore les droits pour cette application.</p> \
+            <p>Pour activer ce compte sur cette application \
+            <a href="/user/login?type=add_droit&identifiant=' + user.email + '">\
+            cliquer ici\
+            </a>.</p>');
+          return false;
+
+        }
 
       }
 
     }
 
+      // gestion mot de passe
+      if( $('#password').val() != $('#password_confirmation').val()) {
+        show_error('password', 'Les mots de passe renseignés ne correspondent pas.');
+        return false;
+
+      }
+
     // gestion organisme non choisi
-    if( $('#user_organism').val() == "" ) {
+    if( $('#organism').val() == "" ) {
 
       show_error('user_organism', 'Choisir un organisme.');
       return false;
@@ -170,7 +181,7 @@
     }
 
     // gestion fonction non choisie
-    if( $('#user_fonction').val() == "" ) {
+    if( $('#fonction').val() == "" ) {
 
       show_error("#user_fonction", "Choisir une fonction.")
       return false;
@@ -205,7 +216,7 @@
 
       url_post = '/pypn/register/post_usershub/create_temp_user'
       done = function(response) {
-        console.log("done", response);
+        $("#pending").hide();
         $('#form_user').hide();
         $("#info_register").show();
       }
@@ -215,19 +226,21 @@
       url_post = '/pypn/register/post_usershub/update_user'
       data.id_role = user.id_role;
       done = function(response) {
-        console.log("done", response);
+        $("#pending").hide();
+        $('#form_user').show();
         $('.input').hide();
         $('.info').show();
         $("#modifier_infos").show();
         $("#info_update").show();
+        console.log("a")
         set_user(response);
 
       }
 
     }
 
-    console.log(url_post, user.id_role)
-
+    $("#form_user").hide();
+    $("#pending").show();
     $.ajax( {
       url : url_post,
       type: 'POST',
@@ -235,10 +248,10 @@
       contentType:"application/json; charset=utf-8",
       dataType:"json",
     }).done(done)
-    .fail(function(error){
-      console.log("fail", error)
-      show_error("form_user", "Erreur : " + error.responseText)
-      console.log(error);
+    .fail(function(data){
+      var msg = data.responseJSON ? data.responseJSON.msg : data.responseText
+      console.log("fail", data, msg)
+      show_error("form_user_top", "Erreur : " + msg)
     });
 
 
@@ -252,6 +265,16 @@
     $('.info').hide();
     $('.input').show();
     $('#id_organisme').change();
+    $('#id_organisme').change();
+    $('#email').prop("disabled", true);
+    $('#id_organisme').prop("disabled", true);
+    $('#id_organisme').selectpicker('refresh');
+
+    $('#email').parent().prev().prev().css('color', 'lightblue')
+    $('#id_organisme').parents("td").prev().prev().css('color', 'lightblue')
+
+    $('#organisme').prop("disabled", true);
+
     $("#modifier_infos").hide();
 
   });

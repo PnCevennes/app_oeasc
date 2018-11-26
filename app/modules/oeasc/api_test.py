@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, g
+    Blueprint, g, current_app
 )
 
 import app.modules.oeasc.utils as utils
@@ -22,8 +22,6 @@ from .models import (
 
 )
 
-from app.utils.env import DB
-
 from .utils import (
 
     check_foret
@@ -44,6 +42,10 @@ from .mail import (
 )
 
 from .utils import check_auth_redirect_login
+
+config = current_app.config
+DB = config['DB']
+
 
 bp = Blueprint('oeasc_export', __name__)
 
@@ -218,7 +220,7 @@ def csv():
         s_essence_complementaire = ", ".join(sorted(essences))
 
         nom_declarant = declarant['nom_role'] + ' ' + declarant['prenom_role']
-        organisme_declarant = utils.get_organisme_name_from_id_declarant(declaration['id_declarant'])
+        organisme_declarant = declarant['organisme']
         date = utils.print_date(declaration['meta_create_date'])
 
         nom_foret = foret["nom_foret"]

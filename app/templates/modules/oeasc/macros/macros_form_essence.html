@@ -1,0 +1,84 @@
+{# macros_form_essence.html #}
+
+{%- macro select_essence(name, nomenclature, titre="", object=None, multi="", required="required", data_max=3, listes_essences=listes_essences, id_nomenclature_degat_type=-1, afficher_type_essence="") %}
+  <div>
+
+    <div id="{{ name | upper }}">
+
+    {%- set ns = namespace() %}
+
+    {%- if titre != "" %}
+      <label class="label-question" for="{{ name }}">{{ titre }} <i>{{" - 3 essences max." if multi}}</i><span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+    {%- endif %}
+
+    {%- set ns.select_options="" %}
+
+    {%- if multi == "multi" %}
+      {%- set ns.select_options = 'data-max-options=3 multiple'%}
+    {%- else %}
+      {%- set ns.select_options = "show-tick"%}
+    {%- endif %}
+
+    <div class={{"select-essence" if afficher_type_essence!="" else ""}}>
+      <select data-dropup-auto="true" name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
+
+    {%- if multi == "multi" %}
+
+      {%- for elem in object[name] %}
+
+        <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+      {%- endfor %}
+
+    {%- else %}
+
+      {%- if object[name] %}
+
+        {%- set elem = object[name] %}
+
+        <option selected value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+      {%- endif %}
+
+    {%- endif %}
+
+    {%- if afficher_type_essence == "" %}
+
+      {%- for elem in listes_essences["degats"][id_nomenclature_degat_type] %}
+
+        <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+      {%- endfor %}
+
+    {%- else %}
+
+        <optgroup label="Feuillus">
+
+      {%- for elem in listes_essences["feuillus"] %}
+
+          <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+      {%- endfor %}
+
+        </optgroup>
+
+        <optgroup label="Résineux">
+
+      {%- for elem in listes_essences["resineux"] %}
+
+          <option value="{{ elem.id_nomenclature }}">{{ elem.label_fr }}</option>
+
+      {%- endfor %}
+
+        </optgroup>
+
+    {%- endif %}
+
+      </select>
+    </div>
+
+    </div>
+
+  </div>
+
+{%- endmacro %}

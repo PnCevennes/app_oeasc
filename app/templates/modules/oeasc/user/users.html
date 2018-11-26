@@ -16,6 +16,7 @@
     <table class="table">
 
       <tr>
+        <th>id</th>
         <th>Identifiant</th>
         <th>Nom</th>
         <th>Prénom</th>
@@ -28,6 +29,7 @@
       {% for user in users %}
 
       <tr id="role_"{{user.id_role}}>
+        <td>{{user.id_role}}</td>
         <td>{{user.identifiant}}</td>
         <td>{{user.nom_role}}</td>
         <td>{{user.prenom_role}}</td>
@@ -98,7 +100,7 @@
       })
       .done(function(response){
         console.log(response.responseText);
-        $("#info").html("<p>Changement de droit pour l'utilisateur " + response.id_role + "</p>")
+        $("#info").html("<p class='alert alert-success'>Changement de droit pour l'utilisateur " + response.id_role + "</p>")
       })
       .fail(function(response){
         console.log(response);

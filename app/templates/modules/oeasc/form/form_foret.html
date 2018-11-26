@@ -1,3 +1,6 @@
+{%- import "modules/oeasc/macros/macros_form.html" as macros_form %}
+{%- import "modules/oeasc/macros/macros_form_map.html" as macros_map %}
+
 <div id="form_foret" data-id-foret="{{ foret.id_foret or ''}}"></div>
 
 <form id="form_foret_statut">
@@ -7,7 +10,7 @@
 <div>
   <div class="center">
   <div class="form-group">
-  {{ macros.choix("Public", "Privé", 'b_statut_public' ,'Statut de la forêt', object=foret) }}
+  {{ macros_form.choix("Public", "Privé", 'b_statut_public' ,'Statut de la forêt', object=foret) }}
 
   {%- if foret.b_statut_public == true or foret.b_statut_public == false %}
 
@@ -21,7 +24,7 @@
 
     {%- endif %}
 
-    {{ macros.choix("Oui", "Non" ,'b_document' ,titre_document , object=foret) }}
+    {{ macros_form.choix("Oui", "Non" ,'b_document' ,titre_document , object=foret) }}
 
 
   {%- endif %}
@@ -50,14 +53,14 @@
 
   {% set areas_selected = utils.get_areas_from_type_code(foret["areas_foret"], "OEASC_ONF_FRT")%}
 
-  {{ macros.select_map("OEASC_ONF_FRT", areas_selected, b_multiple=false, titre="Forêt relevant du régime forestier") }}
+  {{ macros_map.select_map("OEASC_ONF_FRT", areas_selected, b_multiple=false, titre="Forêt relevant du régime forestier") }}
 
 {# cas DGD #}
 {%- elif foret['b_statut_public']==false and foret['b_document'] ==true %}
 
   {% set areas_selected = utils.get_areas_from_type_code(foret["areas_foret"], "OEASC_DGD")%}
 
-  {{ macros.select_map("OEASC_DGD", areas_selected, b_multiple=false) }}
+  {{ macros_map.select_map("OEASC_DGD", areas_selected, b_multiple=false) }}
 
 {# cas autres (communes et sections) #}
 {%- elif foret['b_document'] == false %}
@@ -66,7 +69,7 @@
 
   {% if not areas_selected %}
 
-    {{ macros.select_map("OEASC_COMMUNE", areas_selected) }}
+    {{ macros_map.select_map("OEASC_COMMUNE", areas_selected) }}
 
   {% else %}
 
@@ -75,7 +78,7 @@
 
     {% if areas_container %}
 
-      {{ macros.select_map("OEASC_SECTION", areas_selected, areas_container) }}
+      {{ macros_map.select_map("OEASC_SECTION", areas_selected, areas_container) }}
 
     {% endif %}
 
@@ -116,9 +119,9 @@
 <!-- <div> -->
   <div class="form-group form-text">
 
-  {{ macros.input_text("label_foret", "Nom de la forêt", foret, required='', disabled=disabled) }}
+  {{ macros_form.input_text("label_foret", "Nom de la forêt", foret, required='', disabled=disabled) }}
 
-  {{ macros.input_double("surface_renseignee", "Superficie totale de la forêt (ha)", foret, required='' if foret['b_document'] else "required", disabled=disabled) }}
+  {{ macros_form.input_double("surface_renseignee", "Superficie totale de la forêt (ha)", foret, required='' if foret['b_document'] else "required", disabled=disabled) }}
 
   </div>
 

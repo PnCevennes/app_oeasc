@@ -1,4 +1,4 @@
-    {%- import "modules/oeasc/form/form_macros.html" as macros %}
+    {%- import "modules/oeasc/macros/form_display.html" as macros_dsiplay %}
 
 
     {%- set foret = declaration["foret"]%}
@@ -36,8 +36,8 @@
         {%- endif %}
       </li>
       <li><b>Type de forêt</b> : {{ utils.get_foret_type(declaration['foret']) | lower}}.</li>
-      {{ macros.list_areas('OEASC_COMMUNE', 'Commune(s)', declaration["foret"]["areas_foret"], 'li') }}
-      {{ macros.list_areas('OEASC_SECTION', 'Section(s) cadastrale(s)', declaration["foret"]["areas_foret"], 'li') }}
+      {{ macros_display.list_areas('OEASC_COMMUNE', 'Commune(s)', declaration["foret"]["areas_foret"], 'li') }}
+      {{ macros_display.list_areas('OEASC_SECTION', 'Section(s) cadastrale(s)', declaration["foret"]["areas_foret"], 'li') }}
 
     </ul>
 
@@ -46,17 +46,17 @@
     <ul>
       <li>Localisation :
         <ul>
-          {{ macros.list_areas('OEASC_CADASTRE', 'Parcelle(s) cadastrales(s)', declaration["areas_localisation"], 'li') }}
-          {{ macros.list_areas('OEASC_ONF_PRF', 'Parcelle(s) forestière(s)', declaration["areas_localisation"], 'li') }}
-          {{ macros.list_areas('OEASC_ONF_UG', 'Unité(s) de gestion forestière(s)', declaration["areas_localisation"], 'li') }}
+          {{ macros_display.list_areas('OEASC_CADASTRE', 'Parcelle(s) cadastrales(s)', declaration["areas_localisation"], 'li') }}
+          {{ macros_display.list_areas('OEASC_ONF_PRF', 'Parcelle(s) forestière(s)', declaration["areas_localisation"], 'li') }}
+          {{ macros_display.list_areas('OEASC_ONF_UG', 'Unité(s) de gestion forestière(s)', declaration["areas_localisation"], 'li') }}
         </ul>
       </li>
 
       <li>Essence(s) :
         <ul>
           <li><b>Principale</b> : {{ declaration.id_nomenclature_peuplement_essence_principale.label_fr | lower }}.</li>
-          {{macros.list_nomenclatures('Secondaire(s)', declaration.nomenclatures_peuplement_essence_secondaire, 'li')}}
-          {{macros.list_nomenclatures('Complémentaire(s)', declaration.nomenclatures_peuplement_essence_complémentaire, 'li')}}
+          {{macros_display.list_nomenclatures('Secondaire(s)', declaration.nomenclatures_peuplement_essence_secondaire, 'li')}}
+          {{macros_display.list_nomenclatures('Complémentaire(s)', declaration.nomenclatures_peuplement_essence_complémentaire, 'li')}}
         </ul>
       </li>
 
@@ -66,9 +66,9 @@
           <li><b>Origine du peuplement</b> : {{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}.</li>
           <li><b>Type de peuplement</b> : {{ declaration.id_nomenclature_peuplement_type.label_fr | lower }}.</li>
 
-          {%- if  declaration.id_nomenclature_peuplement_type.mnemonique != "F. irr." %}
+          {%- if  declaration.id_nomenclature_peuplement_type.cd_nomenclature != "F. irr." %}
 
-          {{macros.list_nomenclatures('Maturité du peuplement', declaration.nomenclatures_peuplement_maturite, 'li')}}
+          {{macros_display.list_nomenclatures('Maturité du peuplement', declaration.nomenclatures_peuplement_maturite, 'li')}}
 
           {%- endif %}
 
@@ -80,7 +80,7 @@
         <ul>
           <li><b>Existence de protection</b> : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}.</li>
 
-          {{macros.list_nomenclatures('Type de protection', declaration.nomenclatures_peuplement_protection_type, 'li')}}
+          {{macros_display.list_nomenclatures('Type de protection', declaration.nomenclatures_peuplement_protection_type, 'li')}}
 
         </ul>
       </li>
@@ -94,8 +94,8 @@
 
           {%- if declaration['b_peuplement_paturage_presence'] %}
 
-          {{macros.list_nomenclatures('Type de paturage', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
-          {{macros.list_nomenclatures('Fréquence du paturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
+          {{macros_display.list_nomenclatures('Type de paturage', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
+          {{macros_display.list_nomenclatures('Fréquence du paturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
           <li><b>Fréquence du paturage</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | nopar | lower }}. </li>
 
@@ -110,7 +110,7 @@
         <ul>
           <li><b>Accessibilité du peuplement</b> : {{ declaration.id_nomenclature_peuplement_acces.label_fr | lower }}.</li>
 
-          {{macros.list_nomenclatures('Espèce(s) avérée(s)', declaration.nomenclatures_peuplement_espece, 'li')}}
+          {{macros_display.list_nomenclatures('Espèce(s) avérée(s)', declaration.nomenclatures_peuplement_espece, 'li')}}
 
         </ul>
 
@@ -131,9 +131,9 @@
 
       {% if degat_essence != {} %}
 
-      <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.mnemonique == 'ABS' else " :"}}
+      <li>{{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.cd_nomenclature == 'ABS' else " :"}}
 
-        {% if degat.id_nomenclature_degat_type.mnemonique != 'ABS' %}
+        {% if degat.id_nomenclature_degat_type.cd_nomenclature != 'ABS' %}
 {#         <ul>
 
           <li><i>étendue</i> : {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},</li>

@@ -1,9 +1,12 @@
-from app.utils.env import DB
+from flask import current_app
 from app.utils.utilssqlalchemy import (
     serializable
 )
 
 from pypnusershub.db.models import User
+
+config = current_app.config
+DB = config['DB']
 
 
 @serializable

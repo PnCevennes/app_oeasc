@@ -2,8 +2,12 @@ from app.utils.utilssqlalchemy import (
     serializable, geoserializable
 )
 
-from app.utils.env import DB
 from geoalchemy2 import Geometry
+
+from flask import current_app
+
+config = current_app.config
+DB = config['DB']
 
 
 @serializable

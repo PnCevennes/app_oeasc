@@ -1,6 +1,5 @@
 from dateutil import parser
 
-from app.utils.env import DB
 
 from app.utils.utilssqlalchemy import as_dict
 
@@ -8,12 +7,6 @@ from werkzeug.datastructures import Headers
 from flask import Response
 
 from app.ref_geo.models import TAreas
-
-from app.ref_geo.repository import (
-    get_id_type,
-)
-
-import re
 
 from pypnusershub.db.models import User
 
@@ -27,20 +20,19 @@ from .repository import (
     nomenclature_oeasc,
     get_nomenclature_from_id,
     get_nomenclature,
-    get_organisme_name_from_id_organisme,
-    get_organisme_name_from_id_declarant,
-    get_fonction_droit,
-    get_description_droit,
     get_db,
     get_dict_nomenclature_areas,
     get_foret_type,
 )
 
-from flask import request
+from flask import request, current_app
 from functools import wraps
 from pypnusershub import routes as fnauth
 
 from sqlalchemy import func
+
+config = current_app.config
+DB = config['DB']
 
 
 def check_auth_redirect_login(level):
@@ -104,7 +96,7 @@ def get_listes_essences(declaration):
 
                 listes_essences["resineux"].append(id)
 
-        b_feuillus = b_feuillus and (elem['mnemonique'] != "AF")  # PeuplementEssence_AutresFeuillus
+        b_feuillus = b_feuillus and (elem['cd_nomenclature'] != "AF")  # PeuplementEssence_AutresFeuillus
 
     listes_essences["degats"] = {}
 
@@ -161,6 +153,7 @@ def check_massif(declaration_dict):
 
     areas = get_areas_from_type_code(declaration_dict['areas_localisation'], 'OEASC_CADASTRE')
     areas += get_areas_from_type_code(declaration_dict['areas_localisation'], 'OEASC_ONF_UG')
+    areas += get_areas_from_type_code(declaration_dict['areas_localisation'], 'OEASC_ONF_PRF')
 
     if not areas:
 
@@ -180,9 +173,12 @@ def check_massif(declaration_dict):
 
         return
 
-    declaration_dict['areas_localisation'].append({'id_area': area.id_area})
+    dict_massif = {'areas_localisation': [{'id_area': area.id_area}]}
+    get_dict_nomenclature_areas(dict_massif)
+    # declaration_dict['areas_localisation'].append({'id_area': area.id_area})
+    declaration_dict['areas_localisation'].append(dict_massif['areas_localisation'][0])
 
-    get_dict_nomenclature_areas(declaration_dict)
+    # get_dict_nomenclature_areas(declaration_dict)
 
 
 def check_proprietaire(declaration_dict):
@@ -217,10 +213,10 @@ def check_proprietaire(declaration_dict):
 
         return -1
 
-    mnemonique = declaration_dict['id_nomenclature_proprietaire_declarant']['mnemonique']
+    cd_nomenclature = declaration_dict['id_nomenclature_proprietaire_declarant']['cd_nomenclature']
 
     # si le declarant n'est pas le proprietaire
-    if mnemonique != 'P_D_O_NP':
+    if cd_nomenclature != 'P_D_O_NP':
 
         declaration_dict['foret']['proprietaire'] = TProprietaire().as_dict()
         return -1
@@ -251,7 +247,7 @@ def check_proprietaire(declaration_dict):
             proprietaire_dict["nom_proprietaire"] = user_dict["nom_role"] + " " + user_dict["prenom_role"]
             proprietaire_dict["email"] = user_dict["email"]
             proprietaire_dict["id_declarant"] = user_dict["id_role"]
-            proprietaire_dict["id_nomenclature_proprietaire_type"] = get_nomenclature('mnemonique', 'PT_PRI', 'OEASC_PROPRIETAIRE_TYPE')
+            proprietaire_dict["id_nomenclature_proprietaire_type"] = get_nomenclature('cd_nomenclature', 'PT_PRI', 'OEASC_PROPRIETAIRE_TYPE')
             declaration_dict['foret']['proprietaire'] = proprietaire_dict
             return 1
 
@@ -384,17 +380,26 @@ def get_areas_from_type_code(areas, type_code):
     return out
 
 
+def get_some_config(config_text):
+
+    keys = [
+        "ID_APP",
+        "MODE_TEST",
+        "URL_USERHUB",
+        "URL_APPLICATION",
+    ]
+
+    return {k: v for k, v in config_text.items() if k in keys}
+
+
 utils_dict = {
     "copy_list": copy_list,
     "get_db": get_db,
-    "get_description_droit": get_description_droit,
-    "get_organisme_name_from_id_organisme": get_organisme_name_from_id_organisme,
-    "get_organisme_name_from_id_declarant": get_organisme_name_from_id_declarant,
     "get_nomenclature_from_id": get_nomenclature_from_id,
-    'get_fonction_droit': get_fonction_droit,
     'print_date': print_date,
     'print_commune': print_commune,
     'print_parcelle': print_parcelle,
     'get_areas_from_type_code': get_areas_from_type_code,
     'get_foret_type': get_foret_type,
+    'get_some_config': get_some_config,
 }

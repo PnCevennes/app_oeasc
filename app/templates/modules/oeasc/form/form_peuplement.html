@@ -1,3 +1,7 @@
+{%- import "modules/oeasc/macros/macros_form.html" as macros_form %}
+{%- import "modules/oeasc/macros/macros_form_essence.html" as macros_essence %}
+{%- import "modules/oeasc/macros/macros_form_map.html" as macros_map %}
+
 <form id="form_areas_localisation" data-areas='{{ declaration["areas_localisation"]|tojson if declaration["areas_localisation"] is defined else [] }}'>
 
   {# cas ONF #}
@@ -8,7 +12,7 @@
 
   {% if areas_container and areas_selected == [] %}
 
-  {{ macros.select_map("OEASC_ONF_PRF", areas_selected, areas_container) }}
+  {{ macros_map.select_map("OEASC_ONF_PRF", areas_selected, areas_container) }}
 
   {% else %}
 
@@ -17,7 +21,7 @@
 
   {% if areas_container %}
 
-  {{ macros.select_map("OEASC_ONF_UG", areas_selected, areas_container) }}
+  {{ macros_map.select_map("OEASC_ONF_UG", areas_selected, areas_container) }}
 
   {% endif %}
 
@@ -31,7 +35,7 @@
 
   {% if areas_container %}
 
-  {{ macros.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
+  {{ macros_map.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
 
   {% endif %}
 
@@ -43,7 +47,7 @@
 
   {% if areas_container %}
 
-  {{ macros.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
+  {{ macros_map.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
 
   {% endif %}
 
@@ -62,15 +66,15 @@
     <div class="form-group">
 
       <div>
-        {{ macros.select_essence("id_nomenclature_peuplement_essence_principale", nomenclature, titre="Essence objectif principale", object=declaration, listes_essences=listes_essences, afficher_type_essence="oui") }}
+        {{ macros_essence.select_essence("id_nomenclature_peuplement_essence_principale", nomenclature, titre="Essence objectif principale", object=declaration, listes_essences=listes_essences, afficher_type_essence="oui") }}
       </div>
 
       <div>
-        {{ macros.select_essence("nomenclatures_peuplement_essence_secondaire", nomenclature, titre="Essence(s) objectif secondaire(s)", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
+        {{ macros_essence.select_essence("nomenclatures_peuplement_essence_secondaire", nomenclature, titre="Essence(s) objectif secondaire(s)", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
       </div>
 
       <div>
-        {{ macros.select_essence("nomenclatures_peuplement_essence_complementaire", nomenclature, titre="Essence(s) complémentaires(s)", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
+        {{ macros_essence.select_essence("nomenclatures_peuplement_essence_complementaire", nomenclature, titre="Essence(s) complémentaires(s)", object=declaration, multi="multi", required="", listes_essences=listes_essences, afficher_type_essence="oui") }}
       </div>
 
     </div>
@@ -85,16 +89,16 @@
       <div class="flex-container-form">
 
         <div>
-          {{ macros.radio_nomenclature("id_nomenclature_peuplement_origine", nomenclature, "OEASC_PEUPLEMENT_ORIGINE", "radio", "Origine du peuplement", object=declaration) }}
+          {{ macros_form.radio_nomenclature("id_nomenclature_peuplement_origine", nomenclature, "OEASC_PEUPLEMENT_ORIGINE", "radio", "Origine du peuplement", object=declaration) }}
         </div>
 
         <div>
-          {{ macros.radio_nomenclature("id_nomenclature_peuplement_type", nomenclature, "OEASC_PEUPLEMENT_TYPE", "radio", "Type de peuplement", object=declaration) }}
+          {{ macros_form.radio_nomenclature("id_nomenclature_peuplement_type", nomenclature, "OEASC_PEUPLEMENT_TYPE", "radio", "Type de peuplement", object=declaration) }}
         </div>
 
         <div>
-          {%- if  declaration.id_nomenclature_peuplement_type.mnemonique != "F. irr." %}
-          {{ macros.radio_nomenclature("nomenclatures_peuplement_maturite", nomenclature, "OEASC_PEUPLEMENT_MATURITE", "checkbox", "Maturité du peuplement", object=declaration) }}
+          {%- if  declaration.id_nomenclature_peuplement_type.cd_nomenclature != "FIRR" %}
+          {{ macros_form.radio_nomenclature("nomenclatures_peuplement_maturite", nomenclature, "OEASC_PEUPLEMENT_MATURITE", "checkbox", "Maturité du peuplement", object=declaration) }}
           {%- endif %}
         </div>
 
@@ -120,15 +124,15 @@
     <div class="center">
       <div class="form-group form-text">
 
-        {{ macros.choix("Oui", "Non", 'b_peuplement_protection_existence' ,'Existence de dispositifs de protection contre le grand gibier', object=declaration) }}
+        {{ macros_form.choix("Oui", "Non", 'b_peuplement_protection_existence' ,'Existence de dispositifs de protection contre le grand gibier', object=declaration) }}
 
         {%- if declaration['b_peuplement_protection_existence'] %}
 
-        {{ macros.radio_nomenclature("nomenclatures_peuplement_protection_type", nomenclature, "OEASC_PEUPLEMENT_PROTECTION_TYPE", "checkbox", "Type de protection", object=declaration) }}
+        {{ macros_form.radio_nomenclature("nomenclatures_peuplement_protection_type", nomenclature, "OEASC_PEUPLEMENT_PROTECTION_TYPE", "checkbox", "Type de protection", object=declaration) }}
 
         {% for elem in declaration["nomenclatures_peuplement_protection_type"] %}
-        {% if elem['mnemonique'] == "PPRT_AUT" %}
-                {{ macros.input_text("autre_protection", "Autre protection", declaration, required="required") }}
+        {% if elem['cd_nomenclature'] == "PPRT_AUT" %}
+                {{ macros_form.input_text("autre_protection", "Autre protection", declaration, required="required") }}
 
         {% endif %}
         {% endfor %}
@@ -157,32 +161,32 @@
 
       <div class="form-group">
 
-        {{ macros.choix("Oui", "Non", 'b_peuplement_paturage_presence' ,'Présence de pâturage domestique', object=declaration) }}
+        {{ macros_form.choix("Oui", "Non", 'b_peuplement_paturage_presence' ,'Présence de pâturage domestique', object=declaration) }}
 
         {%- if declaration['b_peuplement_paturage_presence'] %}
 
         <div class="flex-container-form">
 
           <div>
-            {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_type", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "checkbox", "Type de pâturage", object=declaration) }}
+            {{ macros_form.radio_nomenclature("nomenclatures_peuplement_paturage_type", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_TYPE", "checkbox", "Type de pâturage", object=declaration) }}
           </div>
 
           <div>
-            {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_statut", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "checkbox", "Statut du pâturage", object=declaration, required="") }}
+            {{ macros_form.radio_nomenclature("nomenclatures_peuplement_paturage_statut", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_STATUT", "checkbox", "Statut du pâturage", object=declaration, required="") }}
           </div>
         </div>
 
         <div class="flex-container-form">
           <div>
-            {{ macros.radio_nomenclature("id_nomenclature_peuplement_paturage_frequence", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "radio", "Fréquence du pâturage", object=declaration) }}
+            {{ macros_form.radio_nomenclature("id_nomenclature_peuplement_paturage_frequence", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "radio", "Fréquence du pâturage", object=declaration) }}
           </div>
 
           {% set elem  =declaration['id_nomenclature_peuplement_paturage_frequence'] %}
 
-            {% if elem['mnemonique'] == "PPAF_PER" %}
+            {% if elem['cd_nomenclature'] == "PPAF_PER" %}
 
           <div>
-            {{ macros.radio_nomenclature("nomenclatures_peuplement_paturage_saison", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_SAISON", "checkbox", "Saisonalité du pâturage", object=declaration) }}
+            {{ macros_form.radio_nomenclature("nomenclatures_peuplement_paturage_saison", nomenclature, "OEASC_PEUPLEMENT_PATURAGE_SAISON", "checkbox", "Saisonalité du pâturage", object=declaration) }}
           </div>
 
           {% endif %}
@@ -213,9 +217,9 @@
 
       <div class="form-group">
 
-        {{ macros.radio_nomenclature("id_nomenclature_peuplement_acces", nomenclature, "OEASC_PEUPLEMENT_ACCES", "radio", "Accessibilité du peuplement", object=declaration) }}
+        {{ macros_form.radio_nomenclature("id_nomenclature_peuplement_acces", nomenclature, "OEASC_PEUPLEMENT_ACCES", "radio", "Accessibilité du peuplement", object=declaration) }}
 
-        {{ macros.radio_nomenclature("nomenclatures_peuplement_espece", nomenclature, "OEASC_PEUPLEMENT_ESPECE", "checkbox", "Espèces de grand gibier dont la présence est avérée sur le peuplement (observations directes ou indices de présence)", object=declaration) }}
+        {{ macros_form.radio_nomenclature("nomenclatures_peuplement_espece", nomenclature, "OEASC_PEUPLEMENT_ESPECE", "checkbox", "Espèces de grand gibier dont la présence est avérée sur le peuplement (observations directes ou indices de présence)", object=declaration) }}
 
       </div>
     </div>

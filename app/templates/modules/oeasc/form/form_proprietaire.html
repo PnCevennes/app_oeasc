@@ -1,3 +1,5 @@
+{%- import "modules/oeasc/macros/macros_form.html" as macros_form %}
+
 <form id="form_proprietaire" data-id-proprietaire="{{proprietaire['id_proprietaire'] or ''}}"" data-id-declarant="{{proprietaire['id_declarant'] or ''}}" data-id-nomenclature-proprietaire-type="{{proprietaire['id_nomenclature_proprietaire_type']['id_nomenclature'] or ''}}" >
 
   <h4>Coordonnées du propriétaire</h4>
@@ -49,7 +51,7 @@
   {%- if ( foret["b_document"]==false and foret["b_statut_public"]==false ) %}
   <div class="form-group">
 
-    {{ macros.radio_nomenclature("id_nomenclature_proprietaire_declarant", nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "radio", "Le Déclarant est-il le propriétaire de la forêt ?", object=declaration) }}
+    {{ macros_form.radio_nomenclature("id_nomenclature_proprietaire_declarant", nomenclature, "OEASC_PROPRIETAIRE_DECLARANT", "radio", "Le Déclarant est-il le propriétaire de la forêt ?", object=declaration) }}
 
   </div>
 
@@ -69,19 +71,19 @@
 
 
       <div class="form-group">
-        {{ macros.input_text("nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire, required=required, disabled=disabled, hidden=hidden) }}
+        {{ macros_form.input_text("nom_proprietaire", "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire :", proprietaire, required=required, disabled=disabled, hidden=hidden) }}
       </div>
 
       <br>
 
       <div class="form-group" {{"hidden" if disabled and not proprietaire['telephone']}}>
-        {{ macros.input_tel("telephone", "Téléphone", proprietaire, required=required, disabled=disabled) }}
+        {{ macros_form.input_tel("telephone", "Téléphone", proprietaire, required=required, disabled=disabled) }}
       </div>
 
       <br>
 
       <div class="form-group" {{"hidden" if disabled and not proprietaire['email']}}>
-        {{ macros.input_email("email", "E-mail", proprietaire, required=required, disabled=disabled) }}
+        {{ macros_form.input_email("email", "E-mail", proprietaire, required=required, disabled=disabled) }}
       </div>
 
       <br>
@@ -94,9 +96,9 @@
 
         <h5>Adresse</h5>
 
-        {{ macros.input_text("adresse", "n°, rue, hameau, lieu-dit", proprietaire, required=required, disabled=disabled) }}
-        {{ macros.input_cp("s_code_postal", "Code postal", proprietaire, required=required, disabled=disabled) }}
-        {{ macros.input_text("s_commune_proprietaire", "Commune", proprietaire, required=required, disabled=disabled) }}
+        {{ macros_form.input_text("adresse", "n°, rue, hameau, lieu-dit", proprietaire, required=required, disabled=disabled) }}
+        {{ macros_form.input_cp("s_code_postal", "Code postal", proprietaire, required=required, disabled=disabled) }}
+        {{ macros_form.input_text("s_commune_proprietaire", "Commune", proprietaire, required=required, disabled=disabled) }}
 
       </div>
 

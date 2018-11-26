@@ -3,10 +3,8 @@ from flask_mail import Message
 from app.utils.env import mail
 
 from flask import (
-    render_template, session
+    render_template, session, current_app
 )
-
-from config import config
 
 from .repository import (
     get_user,
@@ -14,6 +12,9 @@ from .repository import (
 )
 
 from .declaration_sample import declaration_dict_random_sample
+
+
+config = current_app.config
 
 
 def display_mail_test(destinataire):
@@ -54,7 +55,7 @@ def send_mail_validation_declaration(declaration):
 
         msg = Message(
             '[OEASC] Votre déclaration a bien été prise en compte',
-            sender=config.ANIMATEUR_APPLICATION_MAIL,
+            sender=config['ANIMATEUR_APPLICATION_MAIL'],
             recipients=[email_user])
         msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='user', declaration=declaration, user=user)
 
@@ -62,8 +63,8 @@ def send_mail_validation_declaration(declaration):
 
         msg = Message(
             '[OEASC] [ANIMATEUR] Nouvelle déclaration',
-            sender=config.ANIMATEUR_APPLICATION_MAIL,
-            recipients=[config.ANIMATEUR_APPLICATION_MAIL, config.ADMIN_APPLICATION_MAIL])
+            sender=config['ANIMATEUR_APPLICATION_MAIL'],
+            recipients=[config['ANIMATEUR_APPLICATION_MAIL'], config['ADMIN_APPLICATION_MAIL']])
         msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='animateur', declaration=declaration, user=user)
 
         conn.send(msg)

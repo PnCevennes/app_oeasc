@@ -16,12 +16,12 @@ from geojson import Feature, FeatureCollection
 from geoalchemy2 import Geometry
 from geoalchemy2.shape import to_shape
 
-from app.utils.env import DB
 from app.utils.errors import GeonatureApiError
 
-# from app.utils.utilsshapefile import(
-# create_shapes, create_shapes_generic
-# )
+from flask import current_app
+
+config = current_app.config
+DB = config['DB']
 
 
 def testDataType(value, sqlType, paramName):

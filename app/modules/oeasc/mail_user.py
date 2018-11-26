@@ -1,12 +1,10 @@
 from flask import (
-    Blueprint, render_template, request, current_app, url_for
+    Blueprint, render_template, current_app, url_for
 )
 from flask_mail import Message
-from pypnusershub.db.models import Application, User, UserApplicationRight
+from pypnusershub.db.models import Application, User
 from pypnusershub.db.models_register import TempUser
-from app.utils.utilssqlalchemy import json_resp
 
-from pypnusershub.routes import check_auth
 
 config = current_app.config
 MAIL = config.get('MAIL', None)
@@ -19,7 +17,7 @@ def send_mail(recipients, subject, msg_html):
 
     if not MAIL and config.get('ANIMATEUR_APPLICATION_MAIL', None):
 
-        return {"msg": "les paramètres d'envoie de mail ne sont pas correctement définis"}
+        return {"msg": "les paramètres d'envoi de mail ne sont pas correctement définis"}
 
     application = DB.session.query(Application).filter(Application.id_application == config['ID_APP']).one()
 
@@ -52,7 +50,7 @@ def create_temp_user(data):
     recipients = [role.email]
     subject = 'demande de création de compte'
     msg_html = render_template(
-        'modules/oeasc/mail/demande_validation_compte.html',
+        'modules/oeasc/mail/create_temp_user.html',
         url_validation=url_validation,
         identifiant=role.identifiant,
         config=config
@@ -76,7 +74,7 @@ def valid_temp_user(data):
     recipients = [config['ANIMATEUR_APPLICATION_MAIL'], config['ADMIN_APPLICATION_MAIL']]
     subject = ' [ANIMATEUR] création d'' un nouvel utilisateur'
 
-    msg_html = "<p>Un nouvel utilisateur viens de s'enregister</p>"
+    msg_html = "<p>Un nouvel utilisateur vient de s'enregister</p>"
     msg_html += "<hr><p>Identifiant : {}</p><p>E-mail : {}</p><p>Nom : {}</p><p>Prenom : {}</p><p>Organisme : {}</p>".format(
         role['identifiant'].strip(),
         role['email'].strip(),

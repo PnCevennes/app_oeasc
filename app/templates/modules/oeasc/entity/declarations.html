@@ -58,7 +58,7 @@
             {%- if session.current_user %}
 
 
-            {%- set cond_modifier_effacer = (session.current_user.id_droit_max >= utils.get_fonction_droit("Responsable") or (session.current_user.id_role == declaration.id_declarant)) %}
+            {%- set cond_modifier_effacer = (session.current_user.id_droit_max >= 4) or (session.current_user.id_role == declaration.id_declarant) %}
 
             {%- else %}
 
@@ -72,7 +72,7 @@
 
               <td>{{ declaration['declarant']['nom_role'] }} {{ declaration['declarant']['prenom_role']}}</td>
 
-              <td>{{ utils.get_organisme_name_from_id_declarant(declaration['id_declarant'])}}</td>
+              <td>{{ declaration['declarant']['organisme']}}</td>
 
               <td>{{utils.print_date(declaration['meta_create_date'])}}</td>
 

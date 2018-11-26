@@ -1,5 +1,5 @@
 from flask import (
-    Blueprint, render_template, request, session, url_for, redirect
+    Blueprint, render_template, request, session, url_for, redirect, current_app
 )
 
 from .utils import check_auth_redirect_login
@@ -15,9 +15,7 @@ from pypnusershub.db.models import (
     User
 )
 
-
-from config import config
-
+config = current_app.config
 
 bp = Blueprint('user', __name__)
 
@@ -105,7 +103,7 @@ def login():
     identifiant = request.args.get('identifiant', "")
     type = request.args.get('type', "")
 
-    return render_template('modules/oeasc/user/login.html', config=config, id_app=config.ID_APP, redirect_url=redirect_url, token=token, identifiant=identifiant, type=type)
+    return render_template('modules/oeasc/user/login.html', config=config, redirect_url=redirect_url, token=token, identifiant=identifiant, type=type)
 
 
 @bp.route('/change_password/', defaults={'token': ""}, methods=['GET'])

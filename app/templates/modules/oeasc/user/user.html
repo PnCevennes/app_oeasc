@@ -22,24 +22,27 @@
 
       <div id="info_register" style="display: none;">
 
-        <p>Votre demande d'inscription est bien prise en compte.</p>
+        <p class="alert alert-success">Votre demande d'inscription est bien prise en compte.</p>
         <p>Un e-mail de vérification a été envoyé.</p>
+        <p class="alert alert-warning">Il est possible que celui-ci ait été placé par votre boite mail dans votre dossier <i>"spam"</i> ou <i>"courrier indésirable"</i>, donc pensez à vérifier celui-ci si vous ne trouvez pas notre e-mail dans votre boîte de réception habituelle.</p>
         <p>Veuillez cliquer sur le lien de confirmation présent dans cet e-mail afin de valider votre compte.</p>
 
       </div>
 
       <div id="info_update" style="display: none;">
 
-        <p>Vos modifications ont bien été prises en compte.</p>
+        <p class="alert alert-success">Vos modifications ont bien été prises en compte.</p>
 
       </div>
 
-      <form id="form_user">
+      <div id="pending"  class="alert alert-warning" style="display: none">Requête en cours. Veuillez patienter.</div>
 
+            <div><div id="form_user_top"></div></div>
+
+      <form id="form_user">
         <table class="table" id="user_information">
 
           <tbody>
-
             <tr>
               <th>Nom</th>
               <td id="info_nom_role" class="info">{{user.nom_role}}</td>
@@ -80,9 +83,13 @@
               <td id="info_desc_role" class="info">{{user.desc_role}}</td>
               <td class="input">
                 <select class="selectpicker" title="Choisir fonction" id="desc_role" required data-width="fit">
-                  {%- for elem in nomenclature['OEASC_DECLARANT_FONCTION']['values'] %}
+                  <option value="Propriétaire forestier privé">Propriétaire forestier privé</option>
+                  <option value="Salarié ou agent">Salarié ou agent</option>
+                  <option value="Expert forestier indépendant">Expert forestier indépendant</option>
+                  <option value="Autre">Autre</option>
+                  {# {%- for elem in nomenclature['OEASC_DECLARANT_FONCTION']['values'] %}
                   <option value="{{elem.label_fr}}">{{elem['label_fr']}}</option>
-                  {%- endfor %}
+                  {%- endfor %} #}
                 </select>
               </td>
             </tr>
@@ -110,7 +117,6 @@
 
         </table>
 
-        <hr>
 
         <button id="btn_validation" class="input btn btn-success">{{ "Modifier" if user.id_role else "S'inscrire"}} </span></button>
 

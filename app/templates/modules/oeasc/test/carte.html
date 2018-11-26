@@ -1,4 +1,4 @@
-{%- import "modules/oeasc/form/form_macros.html" as macros %}
+{%- import "modules/oeasc/macros/macros_form_map.html" as macros_map %}
 
 
 {%- extends "modules/oeasc/site/layout.html" %}
@@ -10,8 +10,8 @@
 {%- block content %}
 
 <div id="select_map_test">
-  
-{{ macros.select_map(data.type_code, [], areas_container=data.areas_container) }}
+
+{{ macros_map.select_map(data.type_code, [], areas_container=data.areas_container) }}
 
 </div>
 

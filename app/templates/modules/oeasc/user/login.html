@@ -4,72 +4,71 @@
 {%- block title %}Login{%- endblock %}
 
 {%- block content %}
-
 <div class="row">
 
     <div class="col-md-12 text">
 
-        <div>
+        <h2>Connexion</h2>
 
+        <div>
             {%- if token %}
 
-            <p class="red" id="validation_compte" style="display: none;"> Votre compte à bien été validé. Veuillez vous indentifier avec votre identifiant et votre mot de passe.</p>
+            <p class="alert alert-success" id="validation_compte" style="display: none;"> Votre compte à bien été validé. Veuillez vous connecter avec votre identifiant et votre mot de passe.</p>
 
             {%- endif %}
-
         </div>
 
-        <h2>Connexion</h2>
+        <div id="pending" class="alert alert-info" style="display: none">Requête en cours. Veuillez patienter.</div>
 
         <form class="container main-zone ng-scope " id="form_login">
 
-            {% if "modifier_ou_creer_declaration" in redirect_url %}
+            {% if "modifier_ou_creer_declaration" in redirect_url 
+            or "informations" in redirect_url %}
 
-            <p class='red'> Vous devez vous identifier afin de déclarer des dégâts en forêt.</p>
+            <p class='alert alert-info'> Vous devez vous identifier afin de déclarer des dégâts en forêt.</p>
 
             {% endif %}
 
             {% if type == "add_droit" %}
 
-            <p class=red> Connecter vous  afin de créer des droits pour l'application OEASC sur votre compte déjà  existant.</p>
+            <p class="alert alert-info"> Connecter vous  afin de créer des droits pour l'application OEASC sur votre compte déjà  existant.</p>
 
-            {% else %}
+            {% endif %}
+
+            {% if not token and type != "add_droit" %}
             <hr>
             <p >Si vous ne possédez pas encore de compte, vous pouvez
                 {% set href=url_for('user.user')%}
                 <button type=button class='btn btn-primary' onclick="location.href='{{href}}'">créer un compte</button>
             </p>
-            <hr>
-
             {% endif %}
 
             <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
                 Paramètres de connexion invalides
             </div>
 
-            <input type="hidden" name="" id="user_app" value="{{id_app}}">
             <table class="table">
                 <tr>
                     <th>Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'e-mail utilisé pour l'inscription." class="fas fa-question-circle"></span> :
                     </th>
                     <td>
-                        <input type="text" class="form-control" id="user_id" value={{identifiant}}>
+                        <input type="text" class="form-control" id="identifiant" value={{identifiant}}>
                     </td>
                 </tr>
                 <tr>
                     <th>
                         Mot de passe :
                         <br>
-                        <span style='font-size: 0.8em' ><a href="{{url_for('user.change_password')}}">Mot de passe oublié ?</a></span>
+                        <span style='font-size: 0.8em' ><a title="Vous pouvez faire une demande de changement de mot de passe en cliquant sur ce lien." href="{{url_for('user.change_password')}}">Mot de passe oublié ?</a></span>
 
                     </th>
                     <td>
-                        <input type="password" class="form-control" id="user_pwd">
+                        <input type="password" class="form-control" id="password">
                     </td>
                 </tr>
                 <tr>
                     <td>
-                        <button class="btn btn-success">Login</button>
+                        <button class="btn btn-success">Se connecter</button>
                     </td>
                 </tr>
             </table>
@@ -93,7 +92,7 @@
 
         var type = "{{ type }}";
         var token = "{{ token }}";
-        var id_application = "{{ config.ID_APP }}"
+
         $("#login-error").hide();
 
         console.log("token", token)
@@ -101,30 +100,37 @@
         if (token) {
 
             $("#validation_compte").hide();
-
-            $.post({
-
+            $("#pending").show();
+            $("form").hide();
+            $.ajax({
+                type:'POST',
                 url: '/pypn/register/post_usershub/valid_temp_user',
                 data: JSON.stringify({
                     token: token,
-                    id_application: id_application,
+                    id_application: M.config.ID_APP,
                 }),
                 contentType:"application/json; charset=utf-8",
                 dataType: "json",
 
             }).done(function(response) {
-
+                $("#pending").hide();
+                $("form").show();
                 console.log("validation done", response);
                 $("#validation_compte").show();
+                $("#identifiant").val(response.identifiant)
 
-            }).fail(function(response) {
+            }).fail(function(error) {
 
-                console.log("validation failed", response);
+                console.log("fail", error);
+                $("#pending").hide();
+                $("form").show();
+                var msg = error.responseJSON ? error.responseJSON.msg : error.responseText;
+                $("#login-error" ).html(msg);
+                $("#login-error" ).show();
 
             });
 
         }
-
 
         var redirection = '{{ redirect_url }}'.replace(/\&#34;/g, '');
 
@@ -138,13 +144,13 @@
 
         var login_request = function() {
 
-            $.post({
-
+            $.ajax({
+                type:'POST',
                 url : '/pypn/auth/login',
                 data : JSON.stringify ({
-                    "id_application": $('#user_app').val(),
-                    "login": $('#user_id').val().trim(),
-                    "password" : $('#user_pwd').val()
+                    "id_application": M.config.ID_APP,
+                    "login": $('#identifiant').val().trim(),
+                    "password" : $('#password').val()
                 }),
                 contentType:"application/json; charset=utf-8",
                 dataType:"json"})
@@ -153,6 +159,8 @@
                 window.location.href = redirection;})
             .fail(function(error){
                 console.log("fail", error);
+                var msg = error.responseJSON ? error.responseJSON.msg : error.responseText;
+                $("#login-error" ).html(msg);
                 $("#login-error" ).show();
             });
         }
@@ -168,18 +176,25 @@
                 $.post({
                     url : '/pypn/register/post_usershub/add_application_right_to_role',
                     data : JSON.stringify ({
-                        "id_application": $('#user_app').val(),
-                        "login": $('#user_id').val().trim(),
-                        "password" : $('#user_pwd').val()}  ),
+                        "id_application": M.config.ID_APP,
+                        "login": $('#identifiant').val().trim(),
+                        "password" : $('#password').val()}  ),
                     contentType:"application/json; charset=utf-8",
                     dataType:"json"})
                 .done(function(response){
+
                     console.log(response);
-                    login_request();})
+                    login_request();
+                })
                 .fail(function(error){
+
+                    console.log("fail", error);
+                    var msg = error.responseJSON ? error.responseJSON.msg : error.responseText;
+                    $("#login-error" ).html(msg);
                     $("#login-error" ).show();
-                    $("#login-error" ).html(error.responseText);
-                    console.log(error);});
+
+                });
+
             } else {
 
                 login_request();
