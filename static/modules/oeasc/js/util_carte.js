@@ -347,9 +347,11 @@ $(document).ready(function() {
 
   var f_on_data_loaded = function(feature_collection, map, b_zoom) {
 
+    
+
     // dans le cas ou on a rien
     if ( ! feature_collection._layers) {
-
+      console.log("yak")
       return 0
 
     }
