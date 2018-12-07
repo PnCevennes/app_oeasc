@@ -18,7 +18,7 @@
     
   <div id="NOMENCLATURE_DEGAT_TYPE" class="checkbox-group-required form-group" style="display: block;">
 
-    <label for="nomenclatures_degat_type"><b>Type de dégât</b><span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+    <label for="nomenclatures_degat_type"><b>Types de dégâts</b><span class="rouge">{{ "*" if required!="" else "" }}</span></label>
 
     {%- for elem in nomenclature.OEASC_DEGAT_TYPE['values'] %}
 
@@ -196,7 +196,7 @@
 
   <div class=blue>
 
-    <p class="alert alert-primary">Des illustrations complémentaires des différents types de dégâts  sont  fournis  dans l'extrait du Guide pratique d'évaluation des dégâts en milieu forestier (CEMAGREF, 2009), <a href="{{ url_for('static', filename='documents/extrait_CEMAGREF.pdf') }}" target="#_blank">cliquez ici</a>.</p>
+    <p class="alert alert-primary">Des illustrations complémentaires des différents types de dégâts sont fournis dans <a href="{{ url_for('static', filename='documents/extrait_CEMAGREF.pdf') }}" target="#_blank">cet extrait du Guide pratique d'évaluation des dégâts en milieu forestier (CEMAGREF, 2009)</a>.</p>
 
   </div>
 

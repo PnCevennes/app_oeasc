@@ -13,21 +13,21 @@
             <h5>Forêt</h5>
             <ul>
 
-              <li><b>Nom de la forêt</b> : {{foret.label_foret if foret.label_foret!="" else "nom inconnu"}}.</li>
-              <li><b>Statut de la forêt</b> : {%- if foret.b_statut_public %} public {%- else %} privé {%- endif %}.</li>
+              <li><b>Nom de la forêt</b> : {{foret.label_foret if foret.label_foret!="" else "nom inconnu"}}</li>
+              <li><b>Statut</b> : {%- if foret.b_statut_public %} public {%- else %} privé {%- endif %}</li>
               <li><b>Documentée</b> :
 
                 {%- if foret.b_document %}
 
                 {%- if foret.b_statut_public %}
-                oui <i>(régime forestier)</i>.
+                oui <i>(régime forestier)</i>
                 {%- else %}
-                oui <i>(document de gestion durable)</i>.
+                oui <i>(document de gestion durable)</i>
                 {%- endif %}
 
                 {%- else %}
 
-                non.
+                non
 
                 {%- endif %}
               </li>
@@ -40,13 +40,13 @@
 
           <div class="form-group">
 
-            <h5>Peuplement - localisation</h5>
+            <h5>Localisation du peuplement</h5>
 
             <ul>
 
-              {{ macros_display.list_areas('OEASC_CADASTRE', 'Parcelle(s) cadastrales(s)', declaration["areas_localisation"], 'li') }}
-              {{ macros_display.list_areas('OEASC_ONF_PRF', 'Parcelle(s) forestière(s)', declaration["areas_localisation"], 'li') }}
-              {{ macros_display.list_areas('OEASC_ONF_UG', 'Unité(s) de gestion forestière(s)', declaration["areas_localisation"], 'li') }}
+              {{ macros_display.list_areas('OEASC_CADASTRE', 'Parcelle(s)', declaration["areas_localisation"], 'li') }}
+              {{ macros_display.list_areas('OEASC_ONF_PRF', 'Parcelle(s)', declaration["areas_localisation"], 'li') }}
+              {{ macros_display.list_areas('OEASC_ONF_UG', 'Unité(s) de gestion', declaration["areas_localisation"], 'li') }}
 
             </ul>
 
@@ -62,7 +62,7 @@
 
           <div class="form-group">
 
-            <h5>Commentairess</h5>
+            <h5>Commentaires</h5>
 
             {{ declaration.commentaire|nl2br or "" }}
 
@@ -74,7 +74,7 @@
 
           <div class="form-group">
 
-            <h5>Peuplement - essence(s)</h5>
+            <h5>Essences objectif</h5>
 
             <ul>
 
@@ -90,15 +90,15 @@
 
           <div class="form-group">
 
-            <h5>Peuplement - détails</h5>
+            <h5>Description du peuplement</h5>
 
             <ul>
-              <li><b>Origine du peuplement</b> : {{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}.</li>
-              <li><b>Type de peuplement</b> : {{ declaration.id_nomenclature_peuplement_type.label_fr | lower }}.</li>
+              <li><b>Origine</b> : {{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}.</li>
+              <li><b>Type</b> : {{ declaration.id_nomenclature_peuplement_type.label_fr | lower }}.</li>
 
               {%- if  declaration.id_nomenclature_peuplement_type.cd_nomenclature != "FIRR" %}
 
-              {{macros_display.list_nomenclatures('Maturité du peuplement', declaration.nomenclatures_peuplement_maturite, 'li')}}
+              {{macros_display.list_nomenclatures('Maturité', declaration.nomenclatures_peuplement_maturite, 'li')}}
 
               {%- endif %}
 
@@ -108,12 +108,12 @@
 
           <div class="form-group">
 
-            <h5>Peuplement - protection</h5>
+            <h5>Dispositif de protection</h5>
 
             <ul>
-              <li><b>Existence de protection</b> : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}.</li>
+              <li><b>Existence</b> : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}.</li>
 
-              {{macros_display.list_nomenclatures('Type de protection', declaration.nomenclatures_peuplement_protection_type, 'li')}}
+              {{macros_display.list_nomenclatures('Type', declaration.nomenclatures_peuplement_protection_type, 'li')}}
 
               {%- if declaration.autre_protection %}
               <li><b>Autre protection</b> : {{ declaration.autre_protection }}.
@@ -124,21 +124,21 @@
 
           <div class="form-group">
 
-            <h5>Peuplement - pâturage</h5>
+            <h5>Pâturage domestique</h5>
 
             <ul>
-              <li><b>Existence de pâturage</b> : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}.</li>
+              <li><b>Existence</b> : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}.</li>
 
               {%- if declaration['b_peuplement_paturage_presence'] %}
 
-              {{macros_display.list_nomenclatures('Type de pâturage', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
-              {{macros_display.list_nomenclatures('Fréquence du pâturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
+              {{macros_display.list_nomenclatures('Type', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
+              {{macros_display.list_nomenclatures('Statut', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
-              <li><b>Fréquence du pâturage</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | nopar | lower }}. </li>
+              <li><b>Fréquence</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | nopar | lower }}. </li>
 
               {% set elem = declaration.id_nomenclature_peuplement_paturage_frequence %}
                 {% if elem['cd_nomenclature'] == "PPAF_PER" %}
-              {{macros_display.list_nomenclatures('Saisonalité du pâturage', declaration.nomenclatures_peuplement_paturage_saison, 'li')}}
+              {{macros_display.list_nomenclatures('Saisonalité', declaration.nomenclatures_peuplement_paturage_saison, 'li')}}
                 {% endif %}
 
               {%- endif %}
@@ -149,12 +149,12 @@
 
           <div class="form-group">
 
-            <h5>Peuplement - autres</h5>
+            <h5>Informations complémentaires</h5>
 
             <ul>
               <li><b>Accessibilité du peuplement</b> : {{ declaration.id_nomenclature_peuplement_acces.label_fr | lower }}.</li>
 
-              {{macros_display.list_nomenclatures('Espèce(s) avérée(s)', declaration.nomenclatures_peuplement_espece, 'li')}}
+              {{macros_display.list_nomenclatures('Espèces présentes', declaration.nomenclatures_peuplement_espece, 'li')}}
 
             </ul>
 
