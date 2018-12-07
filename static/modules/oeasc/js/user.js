@@ -144,7 +144,7 @@
 
           show_error('email', '<p>Cette adresse email est déjà utilisé pour cette application.</p> \
             <p>Veuillez vous identifier à la \
-            <a href="/user/login?identifiant=' + user.email + '">\
+            <a href="/user/login?identifiant=' + user_from_mail + '">\
             page de connexion\
             </a> ou choisir une adresse mail différente.</p>');
           return false;
