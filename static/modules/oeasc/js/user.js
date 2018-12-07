@@ -87,7 +87,7 @@
 
     });
 
-    set_user(user);
+    if(user.nom_role) set_user(user);
 
     if(user.id_role) {
 
