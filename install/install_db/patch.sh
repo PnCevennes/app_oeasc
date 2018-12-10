@@ -10,8 +10,8 @@ INSERT INTO ref_nomenclatures.t_nomenclatures(
             label_fr, definition_fr, 
             source)
     VALUES (ref_nomenclatures.get_id_nomenclature_type('OEASC_DEGAT_TYPE'), 'LIEV', 'Lièv.', 
-        'Lièvre', 'Lièvre',
-        'Lièvre', 'Lièvre',
+        'Dégâts de lièvre', 'Dégâts de lièvre',
+        'Dégâts de lièvre', 'Dégâts de lièvre',
         'OEASC')
         ;
 

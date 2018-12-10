@@ -149,5 +149,5 @@ def cleanid(eval_ctx, value):
     s2 = s2.replace(".", "")
     s2 = s2.strip()
     return s2
-    
+
 

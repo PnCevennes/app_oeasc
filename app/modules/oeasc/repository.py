@@ -589,6 +589,23 @@ def nomenclature_oeasc():
 
         g._nomenclature = data
 
+        dict_sort_nomenclature = {
+            'OEASC_DEGAT_TYPE': [
+                'ABR',
+                'FRO',
+                'ÉCO',
+                'SANG',
+                'LIEV',
+                'ABS',
+                'P/C',
+            ]
+        }
+
+        for key, value in dict_sort_nomenclature.items():
+
+            print(key, value)
+            g._nomenclature[key]["values"].sort(key=lambda e: value.index(e['cd_nomenclature']))
+
     return g._nomenclature
 
 
