@@ -102,13 +102,11 @@
 
   <div>
 
-    <p>Le nom de la forêt et sa superificie sont issues {{ "de données provenant de l'ONF et relatives aux forêts publiques ayant un régime forestier" if foret["b_statut_public"] else "de données relatives aux forêts privées ayant un document de gestion"}}.<br>
+    <p>Le nom de la forêt et sa superficie sont issues {{ "des données transmises par l’ONF relatives aux forêts relevant du régime forestier" if foret["b_statut_public"] else "de données relatives aux forêts privées ayant un document de gestion" }}. Ces informations ne peuvent être modifiées. Si vous constatez une erreur, merci de l’indiquer dans le cadre dédié aux commentaires libres, en fin de formulaire, ou de contacter l’animateur de l’Observatoire.</p>
 
-    Veuillez vérifier l'exactitude des données et appuyer sur suivant.</p>
+    <br>
 
-{#     <p>Si vous voulez signaler une erreur, veuillez vous référer à la page de <a href="{{url_for('oeasc.contact')}}">contact</a>.</p>
- #}
-    <p>Vous pouvez signaler une erreur dans la partie commentaires en fin de formulaire.</p>
+    <p>Veuillez cliquer sur « Suivant ».</p>
 
   </div>
   {%- set disabled='disabled'%}
@@ -116,7 +114,7 @@
   {%- endif %}
 
 <div class="center">
-<!-- <div> -->
+
   <div class="form-group form-text">
 
   {{ macros_form.input_text("label_foret", "Nom de la forêt", foret, required='', disabled=disabled) }}

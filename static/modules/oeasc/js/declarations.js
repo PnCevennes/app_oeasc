@@ -14,6 +14,7 @@ $(document).ready(function() {
     },
     ],
 
+    // searching: false,
     scrollY:  "400px",
     scrollCollapse: true,
     // scroller:       true,
@@ -25,8 +26,12 @@ $(document).ready(function() {
     {
       extend: 'colvis',
       columns: ':not(.noVis)',
+      text: 'Choisir les informations à afficher'
     },
-    'csv'
+    {
+      extend: 'csv',
+      text: 'Exporter au format CSV'
+    }
     ]
     // rowGroup: {
     //   dataSrc: 'group'
@@ -123,7 +128,6 @@ $(document).ready(function() {
 // click sur les markers
 
 $(document).on("marker_click", function(e, id_declaration){
-
 
   var table_filtered = table.rows( { filter : 'applied'} ).data()
 
@@ -341,7 +345,8 @@ $('#table_declarations tbody tr').on('click', function() {
 
     setTimeout(function() {
 
-      set_columns(selection_reduite)
+      $("[data-type=T]").click();
+      // set_columns(selection_reduite)
       $("#map_show_declarations").height($("#tableau_declarations").height());
       setTimeout(function(){ M['map_show_declarations'].invalidateSize(); init_column_search()}, 100);
       // init_column_search();

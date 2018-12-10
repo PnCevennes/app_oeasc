@@ -315,6 +315,11 @@ $(document).ready(function() {
 
   var f_sort_selected = function($select, name) {
 
+    if ( ["OEASC_ONF_FRT", "OEASC_DGD"].includes(name) ) {
+
+      return ;
+
+    }
     var opts_list = $select.find('option');
 
     opts_list = opts_list.sort(function(a, b) {
@@ -347,7 +352,7 @@ $(document).ready(function() {
 
   var f_on_data_loaded = function(feature_collection, map, b_zoom) {
 
-    
+
 
     // dans le cas ou on a rien
     if ( ! feature_collection._layers) {
@@ -401,7 +406,7 @@ $(document).ready(function() {
     //bidouille bug incompréhensible
     if( selected &&  $select_layer.val()=="" ) {
       $select_layer.val(selected);
-      $select_layer.selectpicker();
+      $select_layer.selectpicker("refresh");
     }
 
     f_sort_selected($select_layer, name);

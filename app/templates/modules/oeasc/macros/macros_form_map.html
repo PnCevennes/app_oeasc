@@ -5,7 +5,7 @@
   {%- set dict_label = {
   "OEASC_ONF_FRT" : "forêts relevant du régime forestier",
   "OEASC_ONF_PRF" : "parcelles forestières",
-  "OEASC_ONF_UG" : "unités de gestion forestières",
+  "OEASC_ONF_UG" : "unités de gestion",
   "OEASC_DGD" : "forêts possédant un document de gestion",
   "OEASC_CADASTRE" : "parcelles cadastrales",
   "OEASC_SECTION" : "sections cadastrales",
@@ -56,7 +56,7 @@
 
       <div>
 
-        <p> {{ dict_label_container[areas_container[0]["type_code"]] }} </p>
+        <p> <i>{{ dict_label_container[areas_container[0]["type_code"]] }}</i> </p>
 
         <div class="scroll">
           <ul>

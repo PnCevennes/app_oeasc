@@ -17,6 +17,13 @@ body {
 }
 
 
+.content h4 {
+
+  font-size: 1.2em;
+  text-decoration: underline;
+
+}
+
 /* header titre */
 
 .flex-container {
@@ -203,20 +210,7 @@ nav .dropdown-menu {
 
 }
 
-.secteur {
 
-  border-radius: 5px;
-  border:  0px solid;
-  font-weight: bold;
-  color: white;
-  text-shadow: black 0.1em 0.1em 0.2em;
-  font-size: 16px;
-  /* text-shadow: -1px 0 black, 0 1px black, */
-  background-color: rgba(0, 0, 0, 0.2);
-  /* background-color: rgba(255, 255, 255, 0.5); */
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6);
-
-}
 
 .info, .input {
   display: none;
@@ -283,5 +277,11 @@ table
 #tableau_declarations table {
 
   min-height: 100px;
+
+}
+
+th, td {
+
+  text-align: left;
 
 }

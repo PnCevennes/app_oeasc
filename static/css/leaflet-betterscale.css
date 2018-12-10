@@ -49,8 +49,8 @@
 
 .leaflet-control-better-scale-label {
     position: absolute;
-    width: 10%;
-    text-align: center;
+    /* width: 10%; */
+    text-align: left;
     color: #fff;
     font: sans-serif;
     font-weight: bold;
