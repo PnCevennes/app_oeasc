@@ -328,7 +328,6 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant):
     declaration_dict["foret"] = foret.as_dict(True)
     declaration_dict["declarant"] = as_dict(declarant)
     declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
-
     get_dict_nomenclature_areas(declaration_dict)
 
     get_foret_type(declaration_dict["foret"])
@@ -603,7 +602,6 @@ def nomenclature_oeasc():
 
         for key, value in dict_sort_nomenclature.items():
 
-            print(key, value)
             g._nomenclature[key]["values"].sort(key=lambda e: value.index(e['cd_nomenclature']))
 
     return g._nomenclature

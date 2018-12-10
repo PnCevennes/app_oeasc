@@ -16,7 +16,7 @@
   </div>
 
   <nav class="nav nav-tabs">
-    {# <a class="nav-item nav-link active" href="#resutats" data-toggle="tab" data-type="TC">Tableau + carte</a> #}
+    <a class="nav-item nav-link active" href="#resutats" data-toggle="tab" data-type="TC">Tableau + carte</a>
     <a class="nav-item nav-link" href="#resultats" data-toggle="tab" data-type="T">Tableau</a>
     <a class="nav-item nav-link" href="#resultats" data-toggle="tab" data-type="C">Carte</a>
   </nav>
@@ -70,7 +70,6 @@
             {%- endif %}
 
             <tr>
-
               <td>{{ declaration['id_declaration'] }}</td>
 
               <td>{{ declaration['declarant']['nom_role'] }} {{ declaration['declarant']['prenom_role']}}</td>
@@ -79,7 +78,7 @@
 
               <td>{{utils.print_date(declaration['meta_create_date'])}}</td>
 
-              <td>{{declaration['foret']['nom_foret']}}</td>
+              <td>{{declaration['foret']['label_foret']}}</td>
 
               <td>
                 {{ macros_display.list_areas('OEASC_COMMUNE', '', declaration["foret"]["areas_foret"]) }}

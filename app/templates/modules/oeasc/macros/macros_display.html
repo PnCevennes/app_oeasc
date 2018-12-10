@@ -13,9 +13,9 @@
     {%- for area in areas_selected %}
 
       {%- if type_code == 'OEASC_COMMUNE' %}
-        <b>{{titre + " : " if loop.first and title}}</b>{{area.area_name}}{{ "," if not loop.last else "." }}
+        <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "." }}
       {% else %}
-        <b>{{titre + " : " if loop.first and title}}</b>{{area.area_name}}{{ "," if not loop.last else "." }}
+        <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "." }}
       {% endif %}
 
     {%- endfor %}

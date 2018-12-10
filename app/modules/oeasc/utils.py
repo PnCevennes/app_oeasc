@@ -178,6 +178,7 @@ def check_massif(declaration_dict):
     # declaration_dict['areas_localisation'].append({'id_area': area.id_area})
     declaration_dict['areas_localisation'].append(dict_massif['areas_localisation'][0])
 
+    return area.id_area
     # get_dict_nomenclature_areas(declaration_dict)
 
 

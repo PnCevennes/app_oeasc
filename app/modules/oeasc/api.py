@@ -3,6 +3,8 @@ from flask import (
     Blueprint, render_template, request, current_app
 )
 
+import copy
+
 from .repository import (
     nomenclature_oeasc,
     get_declarations,
@@ -142,8 +144,8 @@ def random_declaration():
     '''
 
     declaration_dict = declaration_dict_random_sample()
-
-    return declaration_dict
+    get_dict_nomenclature_areas(declaration_dict)
+    return declaration_dict['degats']
 
 
 @bp.route('random_populate', defaults={'nb': 1}, methods=['GET'])
@@ -154,19 +156,19 @@ def random_populate(nb):
     '''
         Crée et ajoute en base nb déclarations
     '''
-    print(nb)
 
     for i in range(nb):
 
         declaration_dict = declaration_dict_random_sample()
-        print(i, declaration_dict)
 
         if not declaration_dict:
 
             continue
 
-        nomenclature = nomenclature_oeasc()
-
+        declaration_dict_2 = copy.deepcopy(declaration_dict)
+        get_dict_nomenclature_areas(declaration_dict_2)
+        id_area = check_massif(declaration_dict_2)
+        declaration_dict['areas_localisation'].append({'id_area': id_area})
         # check_foret(declaration_dict, nomenclature)
         # check_proprietaire(declaration_dict, nomenclature)
         declaration_dict = f_create_or_update_declaration(declaration_dict)

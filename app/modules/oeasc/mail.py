@@ -21,8 +21,6 @@ def display_mail_test(destinataire):
 
     declaration = declaration_dict_random_sample()
 
-    print(declaration)
-
     declaration = f_create_or_update_declaration(declaration)
 
     user = get_user(declaration['id_declarant'])
@@ -48,8 +46,6 @@ def send_mail_validation_declaration(declaration):
     user = get_user(session['current_user']['id_role'])
 
     email_user = user['email']
-
-    print(user, declaration['id_declaration'])
 
     with mail.connect() as conn:
 

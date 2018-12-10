@@ -201,7 +201,8 @@ $('#table_declarations tbody tr').on('click', function() {
 
       if(l.id_declaration == id_declaration) {
 
-        M.markers.zoomToShowLayer(l, function(){l.openPopup()});
+        // M.markers.zoomToShowLayer(l, function(){l.openPopup()});
+        l.openPopup();
 
       }
 
@@ -298,7 +299,7 @@ $('#table_declarations tbody tr').on('click', function() {
 
   }
 
-  var selection_reduite = [1, 3, 4, 8, 9, 10, 11];
+  var selection_reduite = [1, 3, 4, 8, 11];
 
   $("[data-type=T]").click(function () {
 
@@ -345,8 +346,8 @@ $('#table_declarations tbody tr').on('click', function() {
 
     setTimeout(function() {
 
-      $("[data-type=T]").click();
-      // set_columns(selection_reduite)
+      // $("[data-type=T]").click();
+      set_columns(selection_reduite)
       $("#map_show_declarations").height($("#tableau_declarations").height());
       setTimeout(function(){ M['map_show_declarations'].invalidateSize(); init_column_search()}, 100);
       // init_column_search();
@@ -361,7 +362,6 @@ $('#table_declarations tbody tr').on('click', function() {
 
     $(".data-declaration").each(function(){
 
-      // var declaration = M.get_from_flask_json($(this).attr("data-declaration"));
       var declaration = JSON.parse($(this).attr("data-declaration"));
       declarations.push(declaration);
 

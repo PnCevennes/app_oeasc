@@ -169,6 +169,4 @@ def areas_post(b_simple, data_type, areas):
 
         out = [d.as_dict() for d in data]
 
-        print("\n\n\nbb", out)
-
     return out

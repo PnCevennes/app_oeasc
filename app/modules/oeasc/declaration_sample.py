@@ -471,8 +471,6 @@ def declaration_dict_random_sample():
     '''
     foret = foret_dict_random_sample()
 
-    print("foret", foret)
-
     if not foret:
 
         return None
@@ -480,10 +478,6 @@ def declaration_dict_random_sample():
     areas_localisation = get_random_areas_localisation(foret)
 
     declarant = get_random_declarant()
-
-    print("areas_localisation", areas_localisation)
-
-    print("declarant", declarant)
 
     if not declarant:
 
@@ -504,7 +498,7 @@ def declaration_dict_random_sample():
         nomenclatures_peuplement_paturage_statut = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")]
         id_nomenclature_peuplement_paturage_frequence = get_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_FREQUENCE", "id_nomenclature")
 
-        if id_nomenclature_peuplement_paturage_frequence['cd_nomenclature'] == 'PPAF_PER':
+        if get_nomenclature_from_id(id_nomenclature_peuplement_paturage_frequence)['cd_nomenclature'] == 'PPAF_PER':
 
             nomenclatures_peuplement_paturage_saison == [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_STATUT", "id_nomenclature")]
 

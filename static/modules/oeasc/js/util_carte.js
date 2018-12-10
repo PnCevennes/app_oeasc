@@ -630,11 +630,11 @@ $(document).ready(function() {
     $("#" + map.id).parent().find("#chargement").appendTo("#" + map_id);
 
 
-    var base_maps=init_tiles();
+    M.base_maps = init_tiles();
 
-    base_maps[M.cur_tile_name].addTo(map);
+    M.base_maps[M.cur_tile_name].addTo(map);
 
-    L.control.layers(base_maps).addTo(map);
+    M.layerControl = L.control.layers(M.base_maps).addTo(map);
 
     map.on('baselayerchange', function(e) {
 
@@ -754,7 +754,31 @@ $(document).ready(function() {
     pane = (type == "foret")? 1 : 2;
     color = M.color[type];
 
-    var areas = declaration.areas_localisation;
+    var areas = declaration.areas_localisation.filter(a => a.type_code != "OEASC_SECTEUR");
+
+    var i,j,  degat_essence, degat;
+    var deg_color="yellow";
+    for(i=0; i<declaration.degats.length; i++) {
+      degat=declaration.degats[i];
+
+      for (j=0; j<degat.degat_essences.length; j++) {
+        degat_essence=degat.degat_essences[j];
+
+        if (degat_essence.id_nomenclature_degat_gravite) {
+
+          if (degat_essence.id_nomenclature_degat_gravite.cd_nomenclature == "DG_MOY" && deg_color != "red")  
+            deg_color="orange";
+
+          if (degat_essence.id_nomenclature_degat_gravite.cd_nomenclature == "DG_IMPT") 
+            deg_color="red";
+          
+
+        }
+
+      }
+
+    }
+
 
     if(areas.length == 0) return ;
 
@@ -801,19 +825,30 @@ $(document).ready(function() {
 
         // s_popup += '</div>';
 
-        var marker = L.marker(response, { pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
+        // var marker = L.marker(response, { pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
+        if( ! M.layers_degats_gravite) {
 
+          M.layers_degats_gravite = L.layerGroup();
+          map.addLayer(M.layers_degats_gravite);
+          M.layerControl.addOverlay(M.layers_degats_gravite, "Gravité")
+        }
+
+
+        var marker = L.circle(response, { color: deg_color, radius: 100, pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
         marker.id_declaration = declaration.id_declaration;
 
-        if(b_cluster) {
+        M.layers_degats_gravite.addLayer(marker);
 
-          M.markers.addLayer(marker);
+        M.markers = M.layers_degats_gravite;
+        // if(b_cluster) {
 
-        } else {
+        //   M.markers.addLayer(marker);
 
-          map.addLayer(marker);
+        // } else {
 
-        }
+        //   map.addLayer(marker);
+
+        // }
 
         marker.on("click", function() {
 
