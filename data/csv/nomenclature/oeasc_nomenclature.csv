@@ -2,6 +2,7 @@
 'OEASC_DEGAT_TYPE';'FRO';'Fro.';'Frottis';'Blessure infligée par les cervidés mâles frottant leurs bois sur les tiges de jeunes arbres : l’écorce est arrachée et la tige est dénudéen voire cassée'
 'OEASC_DEGAT_TYPE';'ÉCO';'Éco.';'Écorçage';'Prélèvement par les cervidés de grands lambeaux d’écorce avec les dents'
 'OEASC_DEGAT_TYPE';'SANG';'Sang.';'Dégâts de sanglier';'dégâts de sanglier'
+'OEASC_DEGAT_TYPE';'LIEV';'Liev.';'Dégâts de lièvre';'dégâts de lièvre'
 'OEASC_DEGAT_TYPE';'ABS';'Abs.';'Absence inexpliquée de régénération des essences objectif';'Absence inexpliquée de régénération des essences objectif'
 'OEASC_DEGAT_TYPE';'P/C';'P. & Clo.';'Dégâts sur piste ou clôtures';'Dégâts sur piste ou clôtures'
 'OEASC_DEGAT_GRAVITE';'DG_FBL';'Fai.';'Faibles';'Les dégâts ne mettent pas significativement en danger la valeur économique du peuplement ou la croissance d’une régénération naturelle viable'
