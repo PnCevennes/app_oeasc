@@ -41,7 +41,7 @@
               <th>Date</th>
               <th>Nom forêt</th>
               <th>Commune(s)</th>
-              <th>Proprietaire</th>
+              {# <th>Proprietaire</th> #}
               <th>Parcelles</th>
               <th>Ess. objectif</th>
               <th>Type peuplement</th>
@@ -84,7 +84,7 @@
                 {{ macros_display.list_areas('OEASC_COMMUNE', '', declaration["foret"]["areas_foret"]) }}
               </td>
 
-              <td>{{declaration['foret']['proprietaire']['nom_proprietaire']}}</td>
+              {# <td>{{declaration['foret']['proprietaire']['nom_proprietaire']}}</td> #}
 
               <td>
                 {{ macros_display.list_areas('OEASC_CADASTRE', '', declaration["areas_localisation"]) }}
