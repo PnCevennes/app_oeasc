@@ -1,5 +1,5 @@
 # patch.sh
-. install/install_db/psqla.sh
+. install/install_db/pgsqla.sh
 
 echo "
 -- UPDATE utilisateurs.bib_organismes
