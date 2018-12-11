@@ -352,8 +352,6 @@ $(document).ready(function() {
 
   var f_on_data_loaded = function(feature_collection, map, b_zoom) {
 
-
-
     // dans le cas ou on a rien
     if ( ! feature_collection._layers) {
       console.log("yak")
@@ -771,7 +769,6 @@ $(document).ready(function() {
 
           if (degat_essence.id_nomenclature_degat_gravite.cd_nomenclature == "DG_IMPT") 
             deg_color="red";
-          
 
         }
 

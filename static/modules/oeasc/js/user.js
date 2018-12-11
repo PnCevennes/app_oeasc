@@ -5,17 +5,17 @@
     $('#organisme').hide();
 
     // trier par ordre alpha et mettre autre à la fin
-    var opt = $("#id_organisme option").sort(function(a,b) {
-      if(a.innerHTML=="Autre (préciser)") {
-        return 1;
-      }
-      if(b.innerHTML=="Autre (préciser)") {
-        return -1;
-      }
-      return (a<b)?-1:1;
-    });
+    // var opt = $("#id_organisme option").sort(function(a,b) {
+    //   if(a.innerHTML=="Autre (préciser)") {
+    //     return 1;
+    //   }
+    //   if(b.innerHTML=="Autre (préciser)") {
+    //     return -1;
+    //   }
+    //   return (a<b)?-1:1;
+    // });
 
-    $("#id_organisme").html(opt);
+    // $("#id_organisme").html(opt);
     // org_opt.remove(aut_opt);
     // org_opt.append(aut_opt);
 

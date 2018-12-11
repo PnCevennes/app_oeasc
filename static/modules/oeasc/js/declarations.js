@@ -2,7 +2,7 @@ $(document).ready(function() {
 
   "use strict";
 
-
+  var color_selected = 'rgb(230, 230, 230)';
   // option du tableau
 
   var table = $("#table_declarations").DataTable({
@@ -135,7 +135,7 @@ $(document).on("marker_click", function(e, id_declaration){
 
     if( parseInt(e[0]) == id_declaration) {
 
-      if($('#table_declarations tbody tr').eq(i).css("background-color") == "rgb(255, 165, 0)") {
+      if($('#table_declarations tbody tr').eq(i).css("background-color") == color_selected) {
 
         $('#table_declarations tbody tr').eq(i).css("background-color", "" );
 
@@ -169,7 +169,7 @@ $('#table_declarations tbody tr').on('click', function() {
 
   $('#table_declarations tbody tr').css( "background-color", "" );
 
-  if($this.css("background-color") == "rgb(255, 165, 0)" ) {
+  if($this.css("background-color") == color_selected ) {
 
     $this.css( "background-color", "" );
 
@@ -189,7 +189,7 @@ $('#table_declarations tbody tr').on('click', function() {
 
   } else {
 
-    $this.css( "background-color", "orange" );
+    $this.css( "background-color", color_selected );
 
     var index = $this.index();
 

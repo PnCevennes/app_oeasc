@@ -120,7 +120,7 @@ footer h4 {
 
 .content a {
 
-  color: orange;
+  color: darkorange;
 
 }
 
@@ -236,6 +236,18 @@ form h4 {
     border: 1px solid transparent;
     border-radius: .25rem;
     text-align: center;
+}
+
+.impt-link {
+
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    padding: .75rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    text-align: center;
+
 }
 
 /* h3 {

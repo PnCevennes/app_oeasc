@@ -462,7 +462,15 @@ def get_liste_organismes_oeasc():
 
     result = DB.engine.execute(sql_text)
 
-    v = [{'id_organism': row[0], 'nom_organisme': row[1]} for row in result]
+    v = []
+    for row in result:
+        if row[1] != "Autre (préciser)":
+            v.append({'id_organism': row[0], 'nom_organisme': row[1]})
+        else:
+            autre = {'id_organism': row[0], 'nom_organisme': row[1]}
+    v.append(autre)
+
+    print(v, autre)
 
     return v
 
