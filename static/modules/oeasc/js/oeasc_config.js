@@ -38,7 +38,7 @@ $(document).ready(function() {
     opacity: 0.5,
     fillOpacity: 0.1,
     color: color.black,
-    // fillColor : color.oeasc,
+    fillColor : color.oeasc,
   };
 
 style.secteur = {
