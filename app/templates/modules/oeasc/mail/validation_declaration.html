@@ -2,9 +2,9 @@
 
 <p>Bonjour,</p>
 
-<p>Vous avez effectué une déclaration de dégâts de grand gibier en forêt sur le site Internet de l'Observatoire de l'équilibre agro‑sylvo‑cynégétique. Nous vous remercions pour votre contribution.</p>
+<p>Vous avez effectué une déclaration de dégâts de grand gibier en forêt sur le site Internet de l'Observatoire de l'équilibre agro‑sylvo‑cynégétique. <b>Nous vous remercions pour votre contribution</b>.</p>
 <p>Grâce aux données fournies, <b>vous participez à l'appréciation et au suivi de l'équilibre agro‑sylvo‑cynégétique, ainsi qu'à la définition de mesures de gestion pertinentes</b>.</p>
-<p>En tant que propriétaire ou gestionnaire forestier, <b>vous vous inscrivez ainsi pleinement dans la démarche de gestion durable de votre territoire.</b></p>
+<p>En tant que propriétaire ou gestionnaire forestier, vous vous inscrivez ainsi pleinement dans la démarche de gestion durable de votre territoire.</p>
 
 <p>Si vous le souhaitez, vous pouvez :</p>
   <ul>
@@ -12,13 +12,16 @@
       <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.declarations') }}">visualiser (et éventuellement modifier) les alertes que vous avez déclarées</a>, 
     </li>
     <li>
-      <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.modifier_declaration') }}">signaler des dégâts sur un autre peuplement</a>, 
+      <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.modifier_declaration') }}">signaler des dégâts sur un autre peuplement</a>, ou
     </li>
     <li>
-      ou <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.resultats_degats_forestiers') }}">consulter les résultats des suivis réalisés dans le cadre de l'Observatoire</a>.
+      <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.resultats_degats_forestiers') }}">consulter les résultats</a> des suivis réalisés dans le cadre de l'Observatoire.
     </li>
   </ul>
-  <p>L'alerte que vous avez signalée a une <b>durée de validité de 3 ans</b>. A l'issue de ce délai, vous serez recontacté afin de vous permettre de signaler l'évolution ou non de la situation.</p>
+  
+  <p>Au-delà des informations disponibles sur le site Internet de l'Observatoire, vous recevrez par e-mail, une à deux fois par an, un bilan des résultats issus du système d'alerte ou, d'une manière plus large, de l'Observatoire.</p>
+  
+  <p>L'alerte que vous avez signalée a une durée de validité de 3 ans. A l'issue de ce délai, vous serez recontacté afin de vous permettre de signaler l'évolution ou non de la situation.</p>
 
   <p>Si le peuplement que vous avez signalé est retenu pour faire l'objet d'un diagnostic sylvicole complet, vous serez contacté directement par l'animateur de l'Observatoire.</p>
 
@@ -29,7 +32,7 @@
 
   {% else %}
 
-  <p>Une nouvelle déclaration à été effectuée.</p>
+  <p>Une nouvelle déclaration a été effectuée.</p>
 
   <p>Vous pouvez voir les détails de la déclaration en cliquant <a href="{{config.URL_APPLICATION}}{{url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">ici</a>.</p>
 

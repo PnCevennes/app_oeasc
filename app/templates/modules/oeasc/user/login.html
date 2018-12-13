@@ -13,31 +13,31 @@
         <div>
             {%- if token %}
 
-            <p class="alert alert-success" id="validation_compte" style="display: none;"> Votre compte à bien été validé. Veuillez vous connecter avec votre identifiant et votre mot de passe.</p>
+            <p class="alert alert-success" id="validation_compte" style="display: none;"> Votre compte a bien été validé. Veuillez vous connecter avec votre identifiant et votre mot de passe.</p>
 
             {%- endif %}
         </div>
 
-        <div id="pending" class="alert alert-info" style="display: none">Requête en cours. Veuillez patienter.</div>
+        <div id="pending" class="alert alert-info" style="display: none">Requête en cours... Veuillez patienter.</div>
 
         <form class="container main-zone ng-scope " id="form_login">
 
             {% if "modifier_ou_creer_declaration" in redirect_url 
             or "informations" in redirect_url %}
 
-            <p class='alert alert-info'> Vous devez vous identifier afin de déclarer des dégâts en forêt.</p>
+            <p class='alert alert-info'>Vous devez vous identifier afin de déclarer des dégâts en forêt.</p>
 
             {% endif %}
 
             {% if type == "add_droit" %}
 
-            <p class="alert alert-info"> Connecter vous  afin de créer des droits pour l'application OEASC sur votre compte déjà  existant.</p>
+            <p class="alert alert-info"> Connectez-vous afin de créer des droits pour l'application OEASC sur votre compte déjà existant.</p>
 
             {% endif %}
 
             {% if not token and type != "add_droit" %}
             <hr>
-            <p >Si vous ne possédez pas encore de compte, vous pouvez
+            <p >Si vous ne possédez pas encore de compte, vous pouvez  
                 {% set href=url_for('user.user')%}
                 <button type=button class='btn btn-primary' onclick="location.href='{{href}}'">créer un compte</button>
             </p>
