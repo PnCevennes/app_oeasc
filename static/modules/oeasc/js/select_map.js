@@ -251,13 +251,11 @@ $(document).ready(function() {
         // gérer le cas ONF PRF sans UG
         var id_form = $('#id_form').attr('data-id-form');
         if ( name == 'OEASC_ONF_UG' && id_form == "form_areas_localisation") {
-          // on passe au suivant
+          $("#" + name).parent().hide();
           $('#form_areas_localisation select').prop('required', false)
-          $('#form_areas_localisation input').click()
+          $('#form_areas_localisation #info_no_UG').show()
           return;
-      }
-
-
+        }
       }
 
       M.deferred_setBounds(features_collection.getBounds(), map);
@@ -339,18 +337,20 @@ $(document).ready(function() {
       $('#' + id_select_map + " #chargement").hide();
       console.log("Map : " + String(nb_layers) + " elements chargés pour " + name + " selected : " + $select.val());
 
-      // cas UG
-      var id_form = $('#id_form').attr('data-id-form');
-      if ( name == 'OEASC_ONF_UG' && id_form == "form_areas_localisation") {
-        var areas_container = JSON.parse($("#" + id_select_map).attr("data-areas-container"));
-        // cas nb_UG == nb_PRF
-        if(areas_container.length == nb_layers) {
-          // sélection de toutes les UG
-          $(".bs-select-all").click()
-          // on passe au suivant
-          $('#form_areas_localisation input').click()
-        }
-      }
+      // cas UG unique
+      // rien pour l'instant
+
+      // var id_form = $('#id_form').attr('data-id-form');
+      // if ( name == 'OEASC_ONF_UG' && id_form == "form_areas_localisation") {
+      //   var areas_container = JSON.parse($("#" + id_select_map).attr("data-areas-container"));
+      //   // cas nb_UG == nb_PRF
+      //   if(areas_container.length == nb_layers) {
+      //     // sélection de toutes les UG
+      //     $(".bs-select-all").click()
+      //     // on passe au suivant
+      //     $('#form_areas_localisation input').click()
+      //   }
+      // }
     }
   }
 
