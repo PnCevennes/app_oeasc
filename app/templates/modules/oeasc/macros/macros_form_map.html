@@ -78,7 +78,7 @@
 
       {% endif %}
 
-      <div class="localisation-select form-group">
+      <div class="localisation-select form-group select-required">
 
         {% if b_multiple %}
 
@@ -91,7 +91,7 @@
         {% endif %}
 
         <div><label for="{{ type_code }}">Liste des {{ dict_label[type_code] }}<span class="rouge">*</span></label></div>
-        <select data-dropup-auto="true" name="{{ type_code }}" id="{{ type_code }}" title="Choisir un element dans la liste" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
+        <select data-dropup-auto="true" name="{{ type_code }}" id="{{ type_code }}" title="{{'Choisir un ou plusieurs éléments dans la liste' if multiple else 'Choisir un élément dans la liste'}}" {{ multiple }} required class="selectpicker" data-width="fit" data-live-search="true">
         </select>
       </div>
 

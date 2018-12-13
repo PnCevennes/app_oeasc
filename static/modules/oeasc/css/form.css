@@ -197,6 +197,12 @@ div.progression {
   left: 100px;
 }
 
+.custom-tooltiptext.large{
+  left: 100px;
+  width: 1000px;
+
+}
+
 .custom-tooltip .custom-tooltiptext div {
 
   padding: 10px;

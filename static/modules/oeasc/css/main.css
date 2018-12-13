@@ -297,3 +297,15 @@ th, td {
   text-align: left;
 
 }
+
+.table-small {
+
+  font-size: 0.8em;
+
+}
+
+.table-small a {
+
+  color: #0067b8;
+
+}
