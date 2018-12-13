@@ -64,6 +64,13 @@
       style: M.style.zc
     }).addTo(map_init);
 
+    var color_secteur = {
+      'Causses et Gorges': 'red',
+      'Aigoual': 'blue',
+      'Mont Lozère': 'green',
+      'Vallées cévenoles': 'purple'
+      }
+
     var l_secteurs_OEASC = new L.GeoJSON.AJAX(
       '/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR',
       {
@@ -72,20 +79,16 @@
         onEachFeature: function(feature, layer) {
 
           var center = layer.getBounds().getCenter();
-          console.log(feature, layer, center);
+          console.log(feature.properties.area_code);
           layer.bindTooltip(feature.properties.label, {
             pane: 'PANE_4',
             permanent: true,
             direction: 'center',
+            color: color_secteur[feature.properties.area_code],
             opacity: 1,
             fillOpacity: 1,
-            className: 'secteur',
+            className: 'secteur ' + feature.properties.area_code.replace(/ /g, "_"),
           });
-
-          // var label = L.DomUtil.create('div','secteur');
-          // console.log(label);
-          // label._div.innerHTML='<h3>' + feature.properties.label + '</h3>';
-          // label.addTo(map);
         },
       }
       ).addTo(map_init);

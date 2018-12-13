@@ -27,7 +27,9 @@
             <a class="nav-link dropdown-toggle" href="{{ url_for('oeasc.signalement_degats_forestiers')}}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Signaler des dégâts en forêt</a>
 
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <a class="dropdown-item" href="{{ url_for('oeasc.signalement_degats_forestiers') }}">Le système d'alerte</a>
               <a class="dropdown-item" href="{{ url_for('oeasc.degats_gibier') }}">Les dégâts de grand gibier</a>
+              <hr>
               <a class="dropdown-item" href="{{ url_for('oeasc.informations_declaration') }}">Je déclare une nouvelle alerte</a>
               <a class="dropdown-item" href="{{ url_for('oeasc.declarations') }}">Je consulte mes alertes et celles de ma structure</a>
             </div>

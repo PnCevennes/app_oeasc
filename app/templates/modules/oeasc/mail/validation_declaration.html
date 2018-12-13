@@ -2,25 +2,37 @@
 
 <p>Bonjour,</p>
 
-<p>Vous avez effectué une déclaration de dégâts de grand gibier en forêt sur le site Internet de l'Observatoire de l'équilibre agro‑sylvo‑cynégétique. <b>Nous vous remercions pour votre contribution</b>. Grâce aux données fournies, vous participez à l'appréciation et au suivi de l'équilibre agro‑sylvo‑cynégétique, ainsi qu'à la définition de mesures de gestion pertinentes. En tant que propriétaire ou gestionnaire forestier, <b>vous vous inscrivez ainsi pleinement dans la démarche de gestion durable de votre territoire.</b></p>
+<p>Vous avez effectué une déclaration de dégâts de grand gibier en forêt sur le site Internet de l'Observatoire de l'équilibre agro‑sylvo‑cynégétique. Nous vous remercions pour votre contribution.</p>
+<p>Grâce aux données fournies, <b>vous participez à l'appréciation et au suivi de l'équilibre agro‑sylvo‑cynégétique, ainsi qu'à la définition de mesures de gestion pertinentes</b>.</p>
+<p>En tant que propriétaire ou gestionnaire forestier, <b>vous vous inscrivez ainsi pleinement dans la démarche de gestion durable de votre territoire.</b></p>
 
-<p>Si vous le souhaitez, vous pouvez <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.declarations') }}">visualiser (et éventuellement modifier) les alertes que vous avez déclarées</a>, <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.modifier_declaration') }}">signaler des dégâts sur un autre peuplement</a>, ou <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.resultats_degats_forestiers') }}">consulter les résultats des suivis réalisés dans le cadre de l'Observatoire</a>.</p>
+<p>Si vous le souhaitez, vous pouvez :</p>
+  <ul>
+    <li>
+      <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.declarations') }}">visualiser (et éventuellement modifier) les alertes que vous avez déclarées</a>, 
+    </li>
+    <li>
+      <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.modifier_declaration') }}">signaler des dégâts sur un autre peuplement</a>, 
+    </li>
+    <li>
+      ou <a href="{{config.URL_APPLICATION}}{{ url_for('oeasc.resultats_degats_forestiers') }}">consulter les résultats des suivis réalisés dans le cadre de l'Observatoire</a>.
+    </li>
+  </ul>
+  <p>L'alerte que vous avez signalée a une <b>durée de validité de 3 ans</b>. A l'issue de ce délai, vous serez recontacté afin de vous permettre de signaler l'évolution ou non de la situation.</p>
 
-<p>L'alerte que vous avez signalée a une <b>durée de validité de 3 ans</b>. A l'issue de ce délai, vous serez recontacté afin de vous permettre de signaler l'évolution ou non de la situation.</p>
+  <p>Si le peuplement que vous avez signalé est retenu pour faire l'objet d'un diagnostic sylvicole complet, vous serez contacté directement par l'animateur de l'Observatoire.</p>
 
-<p>Si le peuplement que vous avez signalé est retenu pour faire l'objet d'un diagnostic sylvicole complet, vous serez contacté directement par l'animateur de l'Observatoire.</p>
+  <p>Vous remerciant à nouveau pour votre participation,</p>
+  <p>Cordialement,</p>
 
-<p>Vous remerciant à nouveau pour votre participation,</p>
-<p>Cordialement,</p>
+  <p>Les partenaires de l'Observatoire de l'équilibre agro‑sylvo‑cynégétique</p>
 
-<p>Les partenaires de l'Observatoire de l'équilibre agro‑sylvo‑cynégétique</p>
+  {% else %}
 
-{% else %}
+  <p>Une nouvelle déclaration à été effectuée.</p>
 
-<p>Une nouvelle déclaration à été effectuée.</p>
+  <p>Vous pouvez voir les détails de la déclaration en cliquant <a href="{{config.URL_APPLICATION}}{{url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">ici</a>.</p>
 
-<p>Vous pouvez voir les détails de la déclaration en cliquant <a href="{{config.URL_APPLICATION}}{{url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">ici</a>.</p>
+  {% endif %}
 
-{% endif %}
-
-{% include "modules/oeasc/mail/footer.html" %}
+  {% include "modules/oeasc/mail/footer.html" %}

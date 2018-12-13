@@ -12,6 +12,7 @@
 
     <h2>Signalez un dégât en forêt</h2>
 
+    <div><label for="aide_contact"><i class="small">Besoin d'aide</i></label></div>
     <div id="form_display">
 
     </div>
@@ -29,6 +30,12 @@
         <li><a href="{{ url_for('oeasc.modifier_declaration')}}">Je déclare des dégâts sur ma forêt (ou la forêt dont je suis le gestionnaire).</a></li>
         <li><a href="{{ url_for('oeasc.declarations')}}">Je consulte les alertes.</a></li>
       </ul>
+
+    </div>
+
+    <div id="form_sending" style="display:none;">
+
+      <p class="alert alert-info">Votre déclaration est en cours d'enregistrement. Merci de patienter.</p>
 
     </div>
 
@@ -113,6 +120,7 @@
 
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_form.js') }}"></script>
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_data.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/select_map.js') }}"></script>
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_localisation.js') }}"></script>
 
 <script src="{{ url_for('static', filename='modules/oeasc/js/oeasc_declaration.js') }}"></script>

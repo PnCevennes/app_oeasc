@@ -15,14 +15,16 @@
 
     <hr>
 
-    <li>{% set href=url_for('oeasc.informations_declaration')%}
-      <button class='btn btn-primary' onclick="location.href='{{href}}'">Je déclare une nouvelle alerte</button>
+    <li class="alert alert-primary">
+      <a href="{{url_for('oeasc.informations_declaration')}}">Je déclare une nouvelle alerte</a>
     </li>
+
+
 
     <hr>
 
-    <li>{% set href=url_for('oeasc.declarations')%}
-      <button class='btn btn-warning' onclick="location.href='{{href}}'">Je consulte les alertes que j'ai déclarées</button>
+    <li class="alert alert-warning">
+      <a href="{{url_for('oeasc.declarations')}}">Je consulte les alertes que j'ai déclarées</a>
     </li>
     {% endif %}
     <!-- <li>{{ m.link_bold("Je consulte mes alertes",'oeasc.declarations') }}</li> -->
@@ -36,8 +38,9 @@
     <hr>
  #}
  <hr>
- <li>{% set href=url_for('oeasc.modifier_declaration')%}
-      <button class='btn btn-primary' onclick="location.href='{{href}}'">Commencer la déclaration de dégâts</button>
+ <li>
+      <li class="alert alert-primary">
+      <a href="{{url_for('oeasc.modifier_declaration')}}">Commencer la déclaration de dégâts</a>
     </li>
     {% endif %}
 

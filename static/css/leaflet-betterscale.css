@@ -15,6 +15,7 @@
     width: 25%;
 }
 
+
 .leaflet-control-better-scale-lower-first-piece {
     top: 50%;
     left: 25%;
@@ -49,8 +50,8 @@
 
 .leaflet-control-better-scale-label {
     position: absolute;
-    width: 10%;
-    text-align: center;
+    /* width: 10%; */
+    text-align: left;
     color: #fff;
     font: sans-serif;
     font-weight: bold;

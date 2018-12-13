@@ -335,7 +335,7 @@ def as_dict(self, recursif=False, columns=()):
         if uselist is True:
 
             # out[rel] = [as_dict(x, recursif=recursif) for x in getattr(self, rel)]
-            out[rel] = [as_dict(x) for x in getattr(self, rel)]
+            out[rel] = [as_dict(x, recursif=recursif) for x in getattr(self, rel)]
 
         else:
 

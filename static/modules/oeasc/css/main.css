@@ -17,6 +17,13 @@ body {
 }
 
 
+.content h4 {
+
+  font-size: 1.2em;
+  text-decoration: underline;
+
+}
+
 /* header titre */
 
 .flex-container {
@@ -89,7 +96,7 @@ header div {
   bottom: 0;
   width: 98%;
   /* Set the fixed height of the footer here */
-  height: 300px;
+  /* height: 300px; */
   /* line-height: 60px; Vertically center the text there */
   background-color: #f5f5f5;
 }
@@ -113,7 +120,7 @@ footer h4 {
 
 .content a {
 
-  color: orange;
+  color: darkorange;
 
 }
 
@@ -203,20 +210,7 @@ nav .dropdown-menu {
 
 }
 
-.secteur {
 
-  border-radius: 5px;
-  border:  0px solid;
-  font-weight: bold;
-  color: white;
-  text-shadow: black 0.1em 0.1em 0.2em;
-  font-size: 16px;
-  /* text-shadow: -1px 0 black, 0 1px black, */
-  background-color: rgba(0, 0, 0, 0.2);
-  /* background-color: rgba(255, 255, 255, 0.5); */
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6);
-
-}
 
 .info, .input {
   display: none;
@@ -242,6 +236,18 @@ form h4 {
     border: 1px solid transparent;
     border-radius: .25rem;
     text-align: center;
+}
+
+.impt-link {
+
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+    padding: .75rem 1.25rem;
+    border: 1px solid transparent;
+    border-radius: .25rem;
+    text-align: center;
+
 }
 
 /* h3 {
@@ -283,5 +289,11 @@ table
 #tableau_declarations table {
 
   min-height: 100px;
+
+}
+
+th, td {
+
+  text-align: left;
 
 }

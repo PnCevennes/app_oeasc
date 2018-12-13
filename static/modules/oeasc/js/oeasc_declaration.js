@@ -21,7 +21,6 @@ $(document).ready(function() {
 
     var $this = $(this);
 
-    console.log("a");
     setTimeout(function() {
 
       if (! $this.is(':visible') ) {
@@ -461,6 +460,10 @@ $(document).ready(function() {
 
     });
 
+    // $('.filter-option-inner-inner').css("color", "red");
+    // $('.filter-option-inner-inner').css("background-color", "rgba(255, 0, 0, 0.3)");
+
+
   };
 
 
@@ -518,7 +521,9 @@ $(document).ready(function() {
     else {
 
       var declaration = M.get_declaration_as_dict();
-
+      $("#form_sending").show();
+      $("#form_display").hide();
+      $("#form_container").hide();
       $.ajax({
 
         type: 'POST',
@@ -542,6 +547,7 @@ $(document).ready(function() {
         console.log(response);
 
         $("#form_send").show();
+        $("#form_sending").hide();
         // $("#form_send").html(JSON.stringify(response));
         $("#form_display").hide();
         $("#form_container").hide();

@@ -328,7 +328,6 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant):
     declaration_dict["foret"] = foret.as_dict(True)
     declaration_dict["declarant"] = as_dict(declarant)
     declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
-
     get_dict_nomenclature_areas(declaration_dict)
 
     get_foret_type(declaration_dict["foret"])
@@ -463,7 +462,15 @@ def get_liste_organismes_oeasc():
 
     result = DB.engine.execute(sql_text)
 
-    v = [{'id_organism': row[0], 'nom_organisme': row[1]} for row in result]
+    v = []
+    for row in result:
+        if row[1] != "Autre (préciser)":
+            v.append({'id_organism': row[0], 'nom_organisme': row[1]})
+        else:
+            autre = {'id_organism': row[0], 'nom_organisme': row[1]}
+    v.append(autre)
+
+    print(v, autre)
 
     return v
 
@@ -588,6 +595,22 @@ def nomenclature_oeasc():
             data[type_code]["values"] = values
 
         g._nomenclature = data
+
+        dict_sort_nomenclature = {
+            'OEASC_DEGAT_TYPE': [
+                'ABR',
+                'FRO',
+                'ÉCO',
+                'SANG',
+                'LIEV',
+                'ABS',
+                'P/C',
+            ]
+        }
+
+        for key, value in dict_sort_nomenclature.items():
+
+            g._nomenclature[key]["values"].sort(key=lambda e: value.index(e['cd_nomenclature']))
 
     return g._nomenclature
 

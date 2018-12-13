@@ -38,7 +38,7 @@ $(document).ready(function() {
     opacity: 0.5,
     fillOpacity: 0.1,
     color: color.black,
-    // fillColor : color.oeasc,
+    fillColor : color.oeasc,
   };
 
 style.secteur = {
@@ -106,7 +106,7 @@ style.pane.tooltips = 5;
 
   d_ls.OEASC_ONF_UG = {
     name: "OEASC_ONF_UG",
-    label: "Unité de gestion forestièreS",
+    label: "Unité de gestion",
     keys: [ "area_code", "area_name" ],
     color: color.OEASC_ONF_UG,
     pane: 3,

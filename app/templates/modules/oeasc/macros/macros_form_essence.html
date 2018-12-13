@@ -1,9 +1,9 @@
 {# macros_form_essence.html #}
 
-{%- macro select_essence(name, nomenclature, titre="", object=None, multi="", required="required", data_max=3, listes_essences=listes_essences, id_nomenclature_degat_type=-1, afficher_type_essence="") %}
+{%- macro select_essence(name, nomenclature, titre="", object=None, multi="", required="required", data_max=3, listes_essences=listes_essences, id_nomenclature_degat_type=-1, afficher_type_essence="", search="true") %}
   <div>
 
-    <div id="{{ name | upper }}">
+    <div id="{{ name | upper }}" class="{{'select-required' if required else ''}}">
 
     {%- set ns = namespace() %}
 
@@ -20,7 +20,8 @@
     {%- endif %}
 
     <div class={{"select-essence" if afficher_type_essence!="" else ""}}>
-      <select data-dropup-auto="true" name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="true" title="Pas d'élément choisi" show-tick {{ns.select_options}} {{required}}  data-width="fit">
+      <select data-dropup-auto="true" name="{{ name }}" id="{{ name }}" class="selectpicker" data-live-search="{{'true' if search else 'false'}}" title="{{'Choisir une ou plusieurs essences' if multi else 'Choisir une essence'}}" show-tick {{ns.select_options}} {{required}}  data-width="fit"
+      >
 
     {%- if multi == "multi" %}
 

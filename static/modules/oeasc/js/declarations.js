@@ -2,7 +2,7 @@ $(document).ready(function() {
 
   "use strict";
 
-
+  var color_selected = 'rgb(230, 230, 230)';
   // option du tableau
 
   var table = $("#table_declarations").DataTable({
@@ -14,6 +14,7 @@ $(document).ready(function() {
     },
     ],
 
+    // searching: false,
     scrollY:  "400px",
     scrollCollapse: true,
     // scroller:       true,
@@ -25,8 +26,12 @@ $(document).ready(function() {
     {
       extend: 'colvis',
       columns: ':not(.noVis)',
+      text: 'Choisir les informations à afficher'
     },
-    'csv'
+    {
+      extend: 'csv',
+      text: 'Exporter au format CSV'
+    }
     ]
     // rowGroup: {
     //   dataSrc: 'group'
@@ -124,14 +129,13 @@ $(document).ready(function() {
 
 $(document).on("marker_click", function(e, id_declaration){
 
-
   var table_filtered = table.rows( { filter : 'applied'} ).data()
 
   table_filtered.each(function(e,i){
 
     if( parseInt(e[0]) == id_declaration) {
 
-      if($('#table_declarations tbody tr').eq(i).css("background-color") == "rgb(255, 165, 0)") {
+      if($('#table_declarations tbody tr').eq(i).css("background-color") == color_selected) {
 
         $('#table_declarations tbody tr').eq(i).css("background-color", "" );
 
@@ -165,7 +169,7 @@ $('#table_declarations tbody tr').on('click', function() {
 
   $('#table_declarations tbody tr').css( "background-color", "" );
 
-  if($this.css("background-color") == "rgb(255, 165, 0)" ) {
+  if($this.css("background-color") == color_selected ) {
 
     $this.css( "background-color", "" );
 
@@ -185,7 +189,7 @@ $('#table_declarations tbody tr').on('click', function() {
 
   } else {
 
-    $this.css( "background-color", "orange" );
+    $this.css( "background-color", color_selected );
 
     var index = $this.index();
 
@@ -197,7 +201,8 @@ $('#table_declarations tbody tr').on('click', function() {
 
       if(l.id_declaration == id_declaration) {
 
-        M.markers.zoomToShowLayer(l, function(){l.openPopup()});
+        // M.markers.zoomToShowLayer(l, function(){l.openPopup()});
+        l.openPopup();
 
       }
 
@@ -294,7 +299,7 @@ $('#table_declarations tbody tr').on('click', function() {
 
   }
 
-  var selection_reduite = [1, 3, 4, 8, 9, 10, 11];
+  var selection_reduite = [1, 3, 4, 8, 11];
 
   $("[data-type=T]").click(function () {
 
@@ -341,6 +346,7 @@ $('#table_declarations tbody tr').on('click', function() {
 
     setTimeout(function() {
 
+      // $("[data-type=T]").click();
       set_columns(selection_reduite)
       $("#map_show_declarations").height($("#tableau_declarations").height());
       setTimeout(function(){ M['map_show_declarations'].invalidateSize(); init_column_search()}, 100);
@@ -356,7 +362,6 @@ $('#table_declarations tbody tr').on('click', function() {
 
     $(".data-declaration").each(function(){
 
-      // var declaration = M.get_from_flask_json($(this).attr("data-declaration"));
       var declaration = JSON.parse($(this).attr("data-declaration"));
       declarations.push(declaration);
 

@@ -1,5 +1,8 @@
 {%- block declarations %}
 
+{%- import "modules/oeasc/macros/macros_display.html" as macros_display %}
+
+
 {%- macro tooltip_mnemonique(elem) %}<span data-toggle="tooltip" title="{{elem.label_fr}}">{{elem.mnemonique}}</span>{%- endmacro %}
 
 <div id="declarations">
@@ -38,12 +41,12 @@
               <th>Date</th>
               <th>Nom forêt</th>
               <th>Commune(s)</th>
-              <th>Proprietaire</th>
-              <th>UG ou parcelles</th>
-              <th>Essence Objectif Principale et secondaires</th>
-              <th>Type de peuplement</th>
+              {# <th>Proprietaire</th> #}
+              <th>Parcelles</th>
+              <th>Ess. objectif</th>
+              <th>Type peuplement</th>
               <th>Origine</th>
-              <th>Type_dégats</th>
+              <th>Type dégâts</th>
               <th>Voir</th>
               <th>Modifier</th>
 
@@ -67,7 +70,6 @@
             {%- endif %}
 
             <tr>
-
               <td>{{ declaration['id_declaration'] }}</td>
 
               <td>{{ declaration['declarant']['nom_role'] }} {{ declaration['declarant']['prenom_role']}}</td>
@@ -76,25 +78,23 @@
 
               <td>{{utils.print_date(declaration['meta_create_date'])}}</td>
 
-              <td>{{declaration['foret']['nom_foret']}}</td>
+              <td>{{declaration['foret']['label_foret']}}</td>
 
               <td>
-                {% set communes = utils.get_areas_from_type_code(declaration["foret"]["areas_foret"], "OEASC_COMMUNE") %}
-                {%- for commune in communes %}
-
-                {{utils.print_commune(commune.area_name)}}{{ "," if not loop.last else "" }}
-
-                {%- endfor %}
+                {{ macros_display.list_areas('OEASC_COMMUNE', '', declaration["foret"]["areas_foret"]) }}
               </td>
 
-              <td>{{declaration['foret']['proprietaire']['nom_proprietaire']}}</td>
+              {# <td>{{declaration['foret']['proprietaire']['nom_proprietaire']}}</td> #}
 
               <td>
-                {%- for area in declaration['areas_localisation'] %}
+                {{ macros_display.list_areas('OEASC_CADASTRE', '', declaration["areas_localisation"]) }}
+                {{ macros_display.list_areas('OEASC_ONF_PRF', '', declaration["areas_localisation"]) }}
+                {{ macros_display.list_areas('OEASC_ONF_UG', '', declaration["areas_localisation"]) }}
+                {# {%- for area in declaration['areas_localisation'] %}
                 {{area.area_name}}{{ "," if not loop.last else "" }}
-                {%- endfor %}
+                {%- endfor %} #}
               </td>
-              {# <td>{{ "Public" if declaration['foret']['b_statut_public'] else "Privé"}}</td> 
+              {# <td>{{ "Public" if declaration['foret']['b_statut_public'] else "Privé"}}</td>
 
               {%- if declaration.foret.b_document %}
 
@@ -166,7 +166,7 @@
 
           </tbody>
 
-          <tfoot>
+{#           <tfoot>
 
             <tr>
 
@@ -187,7 +187,7 @@
 
             </tr>
 
-          </tfoot>
+          </tfoot> #}
 
 
         </table>

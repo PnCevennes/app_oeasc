@@ -4,6 +4,21 @@
 
     $('#organisme').hide();
 
+    // trier par ordre alpha et mettre autre à la fin
+    // var opt = $("#id_organisme option").sort(function(a,b) {
+    //   if(a.innerHTML=="Autre (préciser)") {
+    //     return 1;
+    //   }
+    //   if(b.innerHTML=="Autre (préciser)") {
+    //     return -1;
+    //   }
+    //   return (a<b)?-1:1;
+    // });
+
+    // $("#id_organisme").html(opt);
+    // org_opt.remove(aut_opt);
+    // org_opt.append(aut_opt);
+
     var get_json = function(id) {
 
       var d = $("#" + id).attr('data-' + id)
@@ -87,7 +102,7 @@
 
     });
 
-    set_user(user);
+    if(user.nom_role) set_user(user);
 
     if(user.id_role) {
 
@@ -144,7 +159,7 @@
 
           show_error('email', '<p>Cette adresse email est déjà utilisé pour cette application.</p> \
             <p>Veuillez vous identifier à la \
-            <a href="' + "{{url_for('user.login')}}" + '?identifiant=' + user.email + '">\
+            <a href="/user/login?identifiant=' + user_from_mail.email + '">\
             page de connexion\
             </a> ou choisir une adresse mail différente.</p>');
           return false;

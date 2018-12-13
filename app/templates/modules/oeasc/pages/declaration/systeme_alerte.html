@@ -21,7 +21,7 @@
 
   <p>Le système d’alerte de l’Observatoire vous permet de signaler des dégâts de grand gibier (cerf, chevreuil, sanglier, mouflon, chamois) constatés sur votre forêt ou celle dont vous êtes gestionnaire. En renseignant un formulaire en ligne, <b>vous participez donc à la transmission d’informations essentielles</b> aux décideurs pour la définition de mesures de gestion pertinentes et adaptées à la réalité de terrain.</p>
 
-  <p>Que vous soyez propriétaire ou gestionnaire de vastes superficies forestières ou de quelques petites parcelles occupées par de la forêt, si vous y constatez des dégâts de grand gibier, nous vous invitons donc à prendre le temps de <a href="{{url_for('user.user')}}"><b>créer un compte « utilisateur »</b></a> et à <b>renseigner le formulaire d’alerte en ligne.</b></p>
+  <p>Que vous soyez propriétaire ou gestionnaire de vastes superficies forestières ou de quelques petites parcelles occupées par de la forêt, si vous y constatez des dégâts de grand gibier, nous vous invitons donc à prendre le temps de <a href="{{url_for('user.user')}}"><b>créer un compte « utilisateur »</b></a> et à <a href="{{url_for('oeasc.informations_declaration')}}">renseigner le formulaire d’alerte en ligne</a>.</p>
 
   <hr>
 
@@ -44,7 +44,7 @@
         <div id="q1" class="collapse" data-parent="#accordion">
             <div class="card-body">
                 <p>Vous pouvez signaler des dégâts d’abroutissement, de frottis et d’écorçage, ou signaler une absence de régénération qui vous semble anormale et pourrait être liée à la présence de cervidés.
-                    Vous pouvez également signaler des dégâts sur les pistes ou les clôtures de votre forêt. Les différents types de dégâts sont décrits et présentés <a href="{{url_for('static', filename='documents/extrait_CEMAGREF.pdf')}}">ici</a>.	</p>
+                    Vous pouvez également signaler des dégâts sur les pistes ou les clôtures de votre forêt. Les différents types de dégâts sont décrits et présentés <a href="{{ url_for('oeasc.degats_gibier') }}">ici</a>.	</p>
                 </div>
             </div>
         </div>
