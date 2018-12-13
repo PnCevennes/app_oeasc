@@ -77,98 +77,6 @@ $(document).ready(function() {
 
   };
 
-///
-// var f_tooltip = function(layer, map, fp) {
-
-//   var s_tooltip  = fp.label;
-
-//   layer.bindTooltip(s_tooltip, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips}).addTo(map);
-
-// };
-
-
-  // var f_select = function(name, d_ls, layer, map) {
-
-  //   var fp = layer.feature.properties;
-  //   var ls = d_ls[name];
-
-  //   map.fitBounds(layer.getBounds());
-
-  //   f_add_feature_collection_to_map(map, name, fp);
-
-  // };
-
-
-  // ajouter l'option au select
-  // var f_form = function(ls, layer, fp, map) {
-
-  //   var $select_layer = $("#" + map.map_name);
-
-  //   var s_option = '<option value="' + fp.id_area + '"> ' + fp.label + " </option>";
-  //   $select_layer.append(s_option);
-
-  // };
-
-
-  // var f_layer = function(name, d_ls, map) {
-  //   /*  initialisation de chaque layer
-
-  //   */
-  //   return function(feature, layer) {
-
-  //     var ls = d_ls[name];
-
-  //     layer.setStyle(M.style.default);
-
-  //     layer.setStyle({
-
-  //       color: ls.color,
-  //       fillColor: ls.color
-  //     });
-
-  //     var fp = feature.properties;
-
-  //     fp.name = name;
-  //     f_tooltip(layer, map, fp);
-  //     f_form(ls, layer, fp, map);
-
-  //     layer.on("mouseover", function (e) {
-
-  //       layer.setStyle(M.style.highlight);
-
-  //     });
-
-  //     layer.on("mouseout", function (e) {
-
-  //       layer.setStyle(M.style.default);
-
-  //     });
-
-  //     layer.on("click", function (e) {
-
-  //       if(ls.next) {
-
-  //         f_select(ls.next, d_ls, layer, map);
-
-  //       }
-
-  //       if(map.map_name == 'OEASC_DGD' || map.map_name == 'OEASC_ONF_FRT') {
-
-  //         M.reset_foret();
-
-  //       }
-
-  //       layer_on_click(layer, map);
-
-  //       $('#' + map.map_name).selectpicker();
-  //       $('#' + map.map_name).selectpicker("render");
-
-  //     });
-
-  //   };
-
-  // };
-
 
   var f_change = function(map) {
     return function(e) {
@@ -290,37 +198,6 @@ $(document).ready(function() {
   };
 
 
-  // var remove_all  = function(name, map) {
-
-  //   var $div = $('#' + name);
-  //   var $select_layer = $('#' + map.map_name);
-  //   var $legend = $('#legend-' + name);
-  //   var feature_collection;
-
-  //   if(M.d_ls[name]) {
-
-  //     feature_collection = M.d_ls[name].featuresCollection;
-
-  //   }
-
-  //   $select_layer.html('<option value=""></option>');
-
-  //   $legend.hide();
-  //   $div.hide();
-
-  //   if(feature_collection) {
-
-  //     feature_collection.eachLayer( function(layer) {
-
-  //       feature_collection.removeLayer(layer);
-
-  //     });
-
-  //   }
-
-  // };
-
-
   var f_sort_selected = function(name) {
     /* tri pour les selections multiple
       par ordre alphabetique
@@ -351,74 +228,6 @@ $(document).ready(function() {
   }
 
 
-  // var f_on_data_loaded = function(feature_collection, map, b_zoom) {
-
-  //   // dans le cas ou on a rien
-  //   if ( ! feature_collection._layers) {
-
-  //     return 0;
-
-  //   }
-  //   var nb_layers = feature_collection._layers.length;
-  //   var key_0 = Object.keys(feature_collection._layers)[0];
-  //   var name = feature_collection._layers[key_0].feature.properties.name;
-
-  //   var $select_layer = $("#" + map.map_name);
-
-  //   if($select_layer.val()) {
-
-  //     $select_layer.val("");
-
-  //   }
-
-  //   $('#' + id_select_map + " #chargement").hide();
-
-  //   var ls = M.d_ls[name];
-  //   if(ls.featuresCollection && b_zoom) {
-
-  //     deferred_setBounds(ls.featuresCollection.getBounds(), map);
-
-  //   }
-
-  //   // selection et affichage
-  //   var form_id = $select_layer.parents("form").attr("id");
-  //   var areas = M.get_areas_cor(form_id, name);
-
-  //   for(var i=0; i < areas.length; i++) {
-
-  //     var l = get_layer(map, 'id_area', areas[i].id_area);
-
-  //     if(l) {
-
-  //       layer_on_click(l, map);
-
-  //     }
-
-  //   }
-
-  //   var selected = $select_layer.val();
-
-  //   $select_layer.selectpicker();
-
-  //   $select_layer.change(f_change(map));
-
-  //   //bidouille bug incompréhensible
-  //   if( selected &&  $select_layer.val()=="" ) {
-  //     $select_layer.val(selected);
-  //     $select_layer.selectpicker("refresh");
-  //   }
-
-  //   f_sort_selected($select_layer, name);
-
-  //   M[form_id].b_loaded=true;
-
-  //   console.log("Map : " +String(Object.keys(feature_collection._layers).length) + " elements chargés pour " + name + " selected : " + $select_layer.val());
-
-  //   return nb_layers;
-
-  // };
-
-
   var process_select_map_data = function(map, name) {
     return function(response) {
     /* fonction pour exploiter les données reçues
@@ -436,6 +245,21 @@ $(document).ready(function() {
         });
       features_collection.addTo(map);
       var nb_layers = Object.keys(features_collection._layers).length;
+
+      if(nb_layers == 0) {
+        $('#' + id_select_map + " #chargement").hide();
+        // gérer le cas ONF PRF sans UG
+        var id_form = $('#id_form').attr('data-id-form');
+        if ( name == 'OEASC_ONF_UG' && id_form == "form_areas_localisation") {
+          // on passe au suivant
+          $('#form_areas_localisation select').prop('required', false)
+          $('#form_areas_localisation input').click()
+          return;
+      }
+
+
+      }
+
       M.deferred_setBounds(features_collection.getBounds(), map);
 
       // HTML select
@@ -514,6 +338,19 @@ $(document).ready(function() {
 
       $('#' + id_select_map + " #chargement").hide();
       console.log("Map : " + String(nb_layers) + " elements chargés pour " + name + " selected : " + $select.val());
+
+      // cas UG
+      var id_form = $('#id_form').attr('data-id-form');
+      if ( name == 'OEASC_ONF_UG' && id_form == "form_areas_localisation") {
+        var areas_container = JSON.parse($("#" + id_select_map).attr("data-areas-container"));
+        // cas nb_UG == nb_PRF
+        if(areas_container.length == nb_layers) {
+          // sélection de toutes les UG
+          $(".bs-select-all").click()
+          // on passe au suivant
+          $('#form_areas_localisation input').click()
+        }
+      }
     }
   }
 
@@ -526,6 +363,15 @@ $(document).ready(function() {
     name: nom de la donnée voulue ex "OEASC_CADASTRE"
     - response: reponse de la requete ajax
     */
+      $('#' + id_select_map + " #chargement").hide();
+
+      // TODO
+      // gérer le cas ONF PRF sans UG
+      if ( name == 'OEASC_ONF_UG' && id_form == "form_areas_localisation") {
+        // on passe au suivant
+        $('#form_areas_localisation select').attr('required', false)
+        $('#form_areas_localisation input').click()
+      }
       console.log("fail", response);
     }
   }
@@ -567,89 +413,31 @@ $(document).ready(function() {
   }
 
 
-  // var f_add_feature_collection_to_map = function (map, name, b_zoom, areas_container=null) {
-  //   // TODO remove
-  //   var d_ls = M.d_ls;
-
-  //   $("#select_map_" + map.map_name + " #chargement").show();
-  //   $("#legend-" + name).show();
-  //   $('#' + name).show();
-
-  //   var ls = d_ls[name];
-
-  //   var url_base = "/api/ref_geo/areas_simples_from_type_code/";
-  //   var url= "l/";
-  //   url+= name;
-
-  //   if(areas_container) {
-
-  //     var i;
-  //     var v=[];
-  //     for(i=0;i<areas_container.length; i++) {
-
-  //       v.push(areas_container[i].id_area)
-  //     }
-
-  //     url_base = "/api/ref_geo/areas_simples_from_type_code_container/";
-  //     url += "/" + v.join("-");
-  //   }
-
-  //   url = url_base + url
-  //   // requete ajax des aires
-
-  //   var featuresCollection = new L.GeoJSON.AJAX(
-  //     url, {
-
-  //       pane : 'PANE_' + ls.pane,
-  //       onEachFeature: f_layer(name, d_ls, map),
-
-  //     });
-
-  //   ls.featuresCollection=featuresCollection;
-
-  //   ls.featuresCollection.addTo(map);
-
-  //   ls.featuresCollection.on('data:loaded', function() {
-
-  //     f_on_data_loaded(this, map, b_zoom);
-
-  //   });
-
-  // };
-
-
-  // recupere tous les layers selectionnne (en orange sur la carte)
 
   var get_layer_selected = function(map){
-
-    M.l=null;
+  /* recupere tous les layers selectionnne (en orange sur la carte)
+  */
 
     var v_l_searched = [];
 
     map.eachLayer(function(l) {
-
       if(l.feature) {
-
         if(l.selected) {
-
           v_l_searched.push(l);
-
         }
-
       }
-
     });
 
     return v_l_searched;
-
   };
 
   var f_option_hover = function(map) {
-    // pour afficher les tooltip quand un élément est survolé dans la liste de sélection
-    //
-    // map : map leaflet
     return function(e) {
-      // e : event ici mouseout ou mouseover
+    /* pour afficher les tooltip quand un élément est survolé dans la liste de sélection
+
+     map : map leaflet
+     - e : event ici mouseout ou mouseover
+     */
 
       // close all tooltips, pour éviter les tooltips qui traînent
       map.eachLayer(function(layer) {
