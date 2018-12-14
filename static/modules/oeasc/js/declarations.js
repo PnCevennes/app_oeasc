@@ -2,7 +2,7 @@ $(document).ready(function() {
 
   "use strict";
 
-  var color_selected = 'rgb(230, 230, 230)';
+  var color_selected = 'rgba(255, 165, 0, 0.2)';
   // option du tableau
 
   var table = $("#table_declarations").DataTable({
@@ -147,7 +147,7 @@ $(document).on("marker_click", function(e, id_declaration){
 
         console.log($('#table_declarations tbody tr').eq(i).offset().top, $('.dataTables_scrollBody').offset().top);
         console.log($('#table_declarations tbody tr').eq(i).offset().top - $('.dataTables_scrollBody').offset().top);
-        $('#table_declarations tbody tr').eq(i).css("background-color", "Orange" );
+        $('#table_declarations tbody tr').eq(i).css("background-color", color_selected );
 
       }
 

@@ -243,7 +243,7 @@ def get_dict_nomenclature_areas(dict_in):
     '''
         récupère les nomenclatures et les aires dans un dictionnaire pour les element d'un dictionnaire
         qui commencent par 'id_nomenclature' ou 'nomenclatures'
-        la fonction est appliquées récursivement aux dictionnaire et aux listes
+        la fonction est appliquée récursivement aux dictionnaire et aux listes
     '''
 
     if not isinstance(dict_in, dict):

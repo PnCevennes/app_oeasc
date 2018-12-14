@@ -4,7 +4,7 @@ $(document).ready(function() {
 
   var initialiser_show_declarations = function(map_name, declarations) {
 
-    var map = init_map(map_name);
+    var map = M.init_map(map_name);
 
     declarations.forEach(function(e) {
 
@@ -29,7 +29,7 @@ $(document).ready(function() {
 
   var initialiser_show_localisation = function(map_name, declaration) {
 
-    var map = init_map(map_name);
+    var map = M.init_map(map_name);
 
     var name = 'foret';
     var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Foret" + '</div>';
