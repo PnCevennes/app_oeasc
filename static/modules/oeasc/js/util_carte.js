@@ -301,7 +301,7 @@ var load_areas = function(areas, type, map, b_zoom) {
 
       Object.keys(response).forEach(function(key) {
         var id_declaration = key;
-      var s_popup = '<div><a href="/oeasc/declaration/' + id_declaration + '"  target="_blank">Alerte ' + declaration.id_declaration + ' </a></div>';
+      var s_popup = '<div><a href="/oeasc/declaration/' + id_declaration + '"  target="_blank">Alerte ' + id_declaration + ' </a></div>';
         var centroid = response[key];
         var marker = L.circle(centroid, { color: d_deg_color[id_declaration], radius: 100, pane: 'PANE_3'}).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
         marker.id_declaration = id_declaration;
