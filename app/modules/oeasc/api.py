@@ -162,12 +162,15 @@ def random_populate(nb):
         declaration_dict = declaration_dict_random_sample()
 
         if not declaration_dict:
-
             continue
 
         declaration_dict_2 = copy.deepcopy(declaration_dict)
         get_dict_nomenclature_areas(declaration_dict_2)
+
         id_area = check_massif(declaration_dict_2)
+        if not id_area:
+            continue
+
         declaration_dict['areas_localisation'].append({'id_area': id_area})
         # check_foret(declaration_dict, nomenclature)
         # check_proprietaire(declaration_dict, nomenclature)

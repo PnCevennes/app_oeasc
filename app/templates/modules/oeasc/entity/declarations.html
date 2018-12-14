@@ -2,9 +2,6 @@
 
 {%- import "modules/oeasc/macros/macros_display.html" as macros_display %}
 
-
-{%- macro tooltip_mnemonique(elem) %}<span data-toggle="tooltip" title="{{elem.label_fr}}">{{elem.mnemonique}}</span>{%- endmacro %}
-
 <div id="declarations">
 
   <div id="data_declarations">
@@ -29,7 +26,7 @@
 
         <h2>Liste de déclarations</h2>
 
-        <table id="table_declarations" class="table-striped">
+        <table id="table_declarations" class="table-striped table-small">
 
           <thead>
 
@@ -46,6 +43,7 @@
               <th>Ess. objectif</th>
               <th>Type peuplement</th>
               <th>Origine</th>
+              <th>Gravité</th>
               <th>Type dégâts</th>
               <th>Voir</th>
               <th>Modifier</th>
@@ -59,15 +57,12 @@
             {%- for declaration in declarations %}
 
             {%- if session.current_user %}
-
-
             {%- set cond_modifier_effacer = (session.current_user.id_droit_max >= 4) or (session.current_user.id_role == declaration.id_declarant) %}
-
             {%- else %}
-
             {%- set cond_modifier_effacer = false %}
-
             {%- endif %}
+
+
 
             <tr>
               <td>{{ declaration['id_declaration'] }}</td>
@@ -106,32 +101,16 @@
 
               {%- endif %} #}
               <td>
-                <b>{{ tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale) }}</b>{%- for elem in declaration.nomenclatures_peuplement_essence_secondaire %}, {{tooltip_mnemonique(elem)}}{%- endfor %}.
+                <b>{{ macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale) }}</b>{%- for elem in declaration.nomenclatures_peuplement_essence_secondaire %}, {{macros_display.tooltip_mnemonique(elem)}}{%- endfor %}
               </td>
 
-              <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_type)}}</td>
+              <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_type)}}</td>
 
-              <td>{{tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine)}}</td>
+              <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine)}}</td>
 
-              <td>
-                {%- for degat in declaration["degats"] %}
-                {{ tooltip_mnemonique(degat.id_nomenclature_degat_type) }}{{ "," if not loop.last else "" }}
+              <td>{{macros_display.tooltip_mnemonique(declaration.gravite)}}</td>
 
-                {%- if degat["degat_essences"] and false%}
-
-                : {%- for degat_essence in degat["degat_essences"] %}
-
-                {{ tooltip_mnemonique(degat_essence.id_nomenclature_degat_essence) }}
-                {{ "," if not loop.last else "" }}
-
-                {%- endfor %}
-
-                <br>
-
-                {%- endif %}
-
-                {%- endfor %}
-              </td>
+              <td>{{macros_display.tooltip_degats_mnemonique(declaration["degats"])}}</td>
 
               <td>
                 <a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">
@@ -165,30 +144,6 @@
             {%- endfor %}
 
           </tbody>
-
-{#           <tfoot>
-
-            <tr>
-
-              <th>ID</th>
-              <th>Déclarant</th>
-              <th>Organisme</th>
-              <th>Date</th>
-              <th>Nom forêt</th>
-              <th>Commune(s)</th>
-              <th>Proprietaire</th>
-              <th>UG ou parcelles</th>
-              <th>Essence Objectif Principale et secondaires</th>
-              <th>Type de peuplement</th>
-              <th>Origine</th>
-              <th>Type_dégats</th>
-              <th>Voir</th>
-              <th>Modifier</th>
-
-            </tr>
-
-          </tfoot> #}
-
 
         </table>
 

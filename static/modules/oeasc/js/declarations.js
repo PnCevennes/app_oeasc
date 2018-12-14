@@ -2,12 +2,16 @@ $(document).ready(function() {
 
   "use strict";
 
-  var color_selected = 'rgba(255, 165, 0, 0.2)';
+  var color_selected = 'rgba(255, 165, 0)';
+  var color_not_selected = 'rgb(222, 226, 230);';
+
   // option du tableau
 
   var table = $("#table_declarations").DataTable({
-    columnDefs: [
-    {
+    rowCallback: function(row, data, dataIndex) {
+      if($(data[10]).html() == "Impt.") { $(row).addClass("DG_IMPT"); $(row).css('background-color', "rgba(255, 0, 0, 0.2)")}
+    },
+    columnDefs: [{
       "targets": [ 0 ],
       "visible": false,
       "searchable": false,
@@ -125,218 +129,155 @@ $(document).ready(function() {
   });
 
 
-// click sur les markers
-
-$(document).on("marker_click", function(e, id_declaration){
-
+  $(document).on("marker_click", function(e, id_declaration){
+  /* sélection sur carte: click sur les markers
+  */
   var table_filtered = table.rows( { filter : 'applied'} ).data()
 
   table_filtered.each(function(e,i){
 
     if( parseInt(e[0]) == id_declaration) {
-
-      if($('#table_declarations tbody tr').eq(i).css("background-color") == color_selected) {
-
-        $('#table_declarations tbody tr').eq(i).css("background-color", "" );
-
+      if($('#table_declarations tbody tr').eq(i).hasClass("tr-selected")) {
+        $('#table_declarations tbody tr').eq(i).removeClass("tr-selected");
       } else {
-
         $('.dataTables_scrollBody').animate({
           scrollTop: $('#table_declarations tbody tr').eq(i).offset().top - $('#table_declarations tbody tr').eq(0).offset().top
         }, 800);
-
-        console.log($('#table_declarations tbody tr').eq(i).offset().top, $('.dataTables_scrollBody').offset().top);
-        console.log($('#table_declarations tbody tr').eq(i).offset().top - $('.dataTables_scrollBody').offset().top);
-        $('#table_declarations tbody tr').eq(i).css("background-color", color_selected );
-
+        $('#table_declarations tbody tr').eq(i).addClass("tr-selected");
       }
 
     } else {
-
-      $('#table_declarations tbody tr').eq(i).css("background-color", "" );
-
+      $('#table_declarations tbody tr').eq(i).removeClass("tr-selected");
     }
-
   })
-
 });
 
 
-$('#table_declarations tbody tr').on('click', function() {
+  $('#table_declarations tbody tr').on('click', function() {
+    /* sélection sru tableau: click sur les tr
+    */
+    var $this = $(this);
 
-  var $this = $(this);
+    $('#table_declarations tbody tr').removeClass( "tr-selected" );
 
-
-  $('#table_declarations tbody tr').css( "background-color", "" );
-
-  if($this.css("background-color") == color_selected ) {
-
-    $this.css( "background-color", "" );
-
-    M.markers.eachLayer(function(l){
-
-      if(l.id_declaration == id_declaration) {
-
-        M.markers.zoomToShowLayer(l, function() {
-
+    if($this.hasClass("tr-selected") ) {
+      $this.removeClass( "tr-selected" );
+      M.markers.eachLayer(function(l){
+        if(l.id_declaration == id_declaration) {
           l.closePopup();
+        }
+      });
 
-        });
+    } else {
+      $this.addClass("tr-selected");
+      var index = $this.index();
+      var table_filtered = table.rows( { filter : 'applied'} ).data()
+      var id_declaration = parseInt(table_filtered[index][0]);
+      M.markers.eachLayer(function(l){
+        if(l.id_declaration == id_declaration) {
+          l.openPopup();
+        }
+      });
+    }
+  });
 
-      }
-
-    });
-
-  } else {
-
-    $this.css( "background-color", color_selected );
-
-    var index = $this.index();
-
-    var table_filtered = table.rows( { filter : 'applied'} ).data()
-
-    var id_declaration = parseInt(table_filtered[index][0]);
-
-    M.markers.eachLayer(function(l){
-
-      if(l.id_declaration == id_declaration) {
-
-        // M.markers.zoomToShowLayer(l, function(){l.openPopup()});
-        l.openPopup();
-
-      }
-
-    });
-
-  }
-
-});
-
-
-  // synchronisation de la carte avec les filtres du tableau
 
   table.on('search.dt', function() {
+    /* synchronisation de la carte avec les filtres du tableau
+    */
 
     var table_filtered = table.rows( { filter : 'applied'} ).data()
-
     var v_filtered = [];
 
     table_filtered.each(function(e){
-
       var id_declaration = parseInt(e[0])
-
       v_filtered.push(id_declaration);
-
     });
 
     if(!M.markers_save) {
-
       M.markers_save = [];
-
     }
 
     if( M.markers) {
-
       // on place tous les markers affichés dans un tableau de sauvegarde
       M.markers.getLayers().forEach(function(e) {
-
         M.markers_save.push(e);
         M.markers.removeLayer(e);
-
       });
 
       // on place dans le cluster les marker correspondant au filtrage du tableau
       M.markers_save.forEach(function(e) {
-
         if(v_filtered.indexOf(e.id_declaration) != -1) {
-
           M.markers.addLayer(e);
-
         }
-
       });
-
     }
-
   });
 
   var set_columns = function(columns_selected) {
-
+    /* Choix des colonnes du tableau
+    */
     table.listen_visibility = false;
 
     if($('#column_search')){
-
       $('#column_search').remove();
-
     }
 
     for(var i=0; i<table.columns()[0].length; i++) {
-
       table.column(i).visible(false);
       table.column(i).settings()[0].aoColumns[i].bSearchable = false;
-
     }
 
     for (var i=0; i<columns_selected.length; i++) {
-
       var ind = columns_selected[i];
       table.column(ind).visible(true);
       table.column(ind).settings()[0].aoColumns[i].bSearchable = true;
-
     }
 
     table.listen_visibility = true;
-
     init_column_search();
-
   };
-
 
   var selection_tout = []
   for(var i = 1; i < table.columns()[0].length; i++) {
-
     selection_tout.push(i);
-
   }
 
   var selection_reduite = [1, 3, 4, 8, 11];
 
   $("[data-type=T]").click(function () {
-
+  /* Onglet tableau
+  */
     $("#show_declarations").hide();
     $("#show_declarations").attr("class", "");
     $("#tableau_declarations").show();
     $("#tableau_declarations").attr("class", "col-md-12");
-
     set_columns(selection_tout);
-
-
   });
 
   $("[data-type=C]").click(function () {
-
+  /* Onglet carte
+  */
     $("#tableau_declarations").hide();
     $("#tableau_declarations").attr("class", "");
     $("#show_declarations").show();
     $("#show_declarations").attr("class", "col-md-12");
-
-    setTimeout(function(){ M['map_show_declarations'].invalidateSize()}, 100);
-
+    setTimeout(function() {
+      M['map_show_declarations'].invalidateSize();
+    }, 100);
   });
 
 
   $("[data-type=TC]").click(function () {
-
+  /* Onglet tableau + carte
+  */
     $("#show_declarations").show();
     $("#show_declarations").attr("class", "col-md-6");;
     $("#tableau_declarations").show();
     $("#tableau_declarations").attr("class", "col-md-6");;
-
     setTimeout(function(){
-
       M['map_show_declarations'].invalidateSize();
       set_columns(selection_reduite);
-
     }, 100);
 
 
@@ -366,6 +307,8 @@ $('#table_declarations tbody tr').on('click', function() {
       declarations.push(declaration);
 
     });
+
+    //init
 
     M.initialiser_show_declarations('show_declarations', declarations);
 

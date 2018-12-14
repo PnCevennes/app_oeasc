@@ -409,6 +409,12 @@ form .dropdown a{
   padding: .1rem, .1rem;
 }
 
+.bootstrap-select>.dropdown-toggle.bs-placeholder {
+
+  color: #212529;
+
+}
+
 form .select-required .bootstrap-select>.dropdown-toggle.bs-placeholder {
 
   color: red;

@@ -309,3 +309,45 @@ th, td {
   color: #0067b8;
 
 }
+
+table.dataTable td{
+ /* border-top:  1px solid lightgray; */
+  border-bottom:  1px solid lightgray;
+}
+
+table .tr-selected td {
+
+  border-top:  2px solid orange;
+  border-bottom:  2px solid orange;
+
+}
+
+table .tr-selected td:first-child{
+
+  border-left:  2px solid orange;
+
+}
+
+table .tr-selected td:last-child{
+
+  border-right:  2px solid orange;
+
+}
+
+.DG_IMPT {
+
+  background-color: rgba(255, 0, 0, 0.5);
+
+}
+
+.DG_MOY {
+
+  background-color: rgba(255, 125, 0, 0.5);
+
+}
+
+.DG_FBL {
+
+  background-color: rgba(255, 255, 0, 0.5);
+
+}

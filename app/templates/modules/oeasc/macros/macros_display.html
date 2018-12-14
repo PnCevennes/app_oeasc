@@ -13,9 +13,9 @@
     {%- for area in areas_selected %}
 
       {%- if type_code == 'OEASC_COMMUNE' %}
-        <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "." }}
+        <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "" }}
       {% else %}
-        <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "." }}
+        <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "" }}
       {% endif %}
 
     {%- endfor %}
@@ -37,7 +37,7 @@
 
     {%- for elem in nomenclatures %}
 
-        <b>{{titre + " : " if loop.first}}</b>{{elem.label_fr | nopar | lower}}{{ "," if not loop.last else "." }}
+        <b>{{titre + " : " if loop.first}}</b>{{elem.label_fr | nopar | lower}}{{ "," if not loop.last else "" }}
     {%- endfor %}
 
   </{{balise}}>
@@ -45,3 +45,14 @@
   {% endif %}
 
 {% endmacro%}
+
+{%- macro tooltip_mnemonique(elem) %}
+<span data-toggle="tooltip" title="{{elem.label_fr}}">{{elem.mnemonique}}</span>
+{%- endmacro %}
+
+
+{%- macro tooltip_degats_mnemonique(degats) %}
+  {%- for degat in degats %}
+    {{ tooltip_mnemonique(degat.id_nomenclature_degat_type) }}{{ "," if not loop.last else "" }}
+  {%- endfor %}
+{%- endmacro %}

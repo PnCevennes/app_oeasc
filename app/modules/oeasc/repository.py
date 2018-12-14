@@ -30,17 +30,9 @@ from .models import (
     TProprietaire
 )
 
+from app.utils.checktime import checktime, cur_time
 config = current_app.config
 DB = config['DB']
-# def get_organisme_name_from_id_organisme(id_organisme):
-
-#     sql_text = text("SELECT b.nom_organisme \
-#         FROM utilisateurs.bib_organismes as b \
-#         WHERE b.id_organisme = {};".format(id_organisme))
-
-#     result = DB.engine.execute(sql_text).first()[0]
-
-#     return result
 
 
 def test_db():
@@ -64,48 +56,6 @@ def get_id_organismes_from_id(liste_nom):
     out = [res[0] for res in result]
 
     return out
-
-
-# def get_organisme_name_from_id_declarant(id_declarant):
-
-#     sql_text = text("SELECT b.nom_organisme \
-#         FROM utilisateurs.bib_organismes as b, utilisateurs.t_roles as r \
-#         WHERE b.id_organisme = r.id_organisme AND r.id_role = {};".format(id_declarant))
-
-#     result = DB.engine.execute(sql_text).first()[0]
-
-#     return result
-
-
-# def get_description_droit(id_droit):
-
-#     switcher = {
-#         1: "Déclarant",
-#         2: "Déclarant",
-#         3: "Responsable",
-#         4: "Animateur",
-#         5: "Animateur",
-#         6: "Admin"
-#     }
-
-#     return switcher.get(id_droit, 'id_droit {} invalide'.format(id_droit))
-
-
-# def get_fonction_droit(function):
-#     '''
-#         retourne le niveau de droit en fonction de la fonction renseignée
-#     '''
-
-#     dict_function = {
-
-#         "Déclarant": 1,
-#         "Responsable": 3,
-#         "Animateur": 4,
-#         "Admin": 6,
-
-#     }
-
-#     return dict_function.get(function, None)
 
 
 def get_nomenclature_from_id(id_nomenclature, key=""):
@@ -182,6 +132,7 @@ def get_areas_from_ids(id_areas):
         for d in data:
 
             d_dict = d.as_dict()
+            d_dict['type_code'] = get_type_code(d_dict['id_type'])
             g._areas[str(d_dict['id_area'])] = d_dict
 
 
@@ -191,12 +142,12 @@ def get_area_from_id(id_area):
     '''
 
     if not getattr(g, '_areas', None):
-
+        print('youpl')
         g._areas = {}
 
     if not g._areas.get(str(id_area), None):
 
-        print("get single area from db")
+        print("get single area from db : " + str(id_area))
 
         data = DB.session.query(VA).filter(id_area == VA.id_area).first()
 
@@ -229,10 +180,9 @@ def pre_get_dict_nomenclature_areas(declarations):
         foret = declaration.get('foret', None)
 
         if not foret:
-
             continue
 
-        for area in declaration.get('areas_foret', []):
+        for area in foret.get('areas_foret', []):
 
             v_id_areas.append(area['id_area'])
 
@@ -306,7 +256,7 @@ def get_foret_type(foret_dict):
     return foret_type
 
 
-def dfpu_as_dict(declaration, foret, proprietaire, declarant):
+def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
 
     if not declaration:
 
@@ -328,17 +278,25 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant):
     declaration_dict["foret"] = foret.as_dict(True)
     declaration_dict["declarant"] = as_dict(declarant)
     declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
-    get_dict_nomenclature_areas(declaration_dict)
 
-    get_foret_type(declaration_dict["foret"])
+    if b_resolve:
+        get_dict_nomenclature_areas(declaration_dict)
+        get_foret_type(declaration_dict["foret"])
 
     return declaration_dict
 
 
-def dfpu_as_dict_from_id_declaration(id_declaration):
+def resolve_declaration(declaration_dict):
+
+    get_dict_nomenclature_areas(declaration_dict)
+    get_foret_type(declaration_dict["foret"])
+    resume_gravite(declaration_dict)
+
+
+def dfpu_as_dict_from_id_declaration(id_declaration, b_resolve=True):
 
     declaration, foret, proprietaire, declarant = get_dfpu(id_declaration)
-    declaration_dict = dfpu_as_dict(declaration, foret, proprietaire, declarant)
+    declaration_dict = dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve)
 
     return declaration_dict
 
@@ -470,8 +428,6 @@ def get_liste_organismes_oeasc():
             autre = {'id_organism': row[0], 'nom_organisme': row[1]}
     v.append(autre)
 
-    print(v, autre)
-
     return v
 
 
@@ -537,6 +493,7 @@ def nomenclature_oeasc():
     # on regarde si la nomenclature existe dans la variable globale g
     if not getattr(g, '_nomenclature', None):
 
+        print("get_nomenclature from db")
         # TODO auto tout de l'oeasc from db ?
         list_data = [
 
@@ -625,6 +582,7 @@ def get_declarations(b_synthese, id_declarant=None):
     '''
 
     # toutes les declaration dans le cas d'une synthese
+    print("0")
 
     if b_synthese:
 
@@ -655,6 +613,7 @@ def get_declarations(b_synthese, id_declarant=None):
         if user["id_droit_max"] >= 5 or b_synthese:
 
             data = DB.session.query(TDeclaration.id_declaration).all()
+            # data = DB.session.query(TDeclaration.id_declaration).limit(10).all()
 
         # les declarant de la meme structure (sauf les particuliers) >=)2
         elif user["id_droit_max"] >= 2 and user['id_organisme'] not in liste_id_organismes_solo:
@@ -677,12 +636,40 @@ def get_declarations(b_synthese, id_declarant=None):
 
     declarations = []
 
+    print("a")
     for id_declaration in id_declarations:
 
-        declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
+        declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration, False)
         declarations.append(declaration_dict)
+    print("b")
+
+    pre_get_dict_nomenclature_areas(declarations)
+
+    print("ba")
+
+    for declaration_dict in declarations:
+        resolve_declaration(declaration_dict)
+    print("c")
 
     return declarations
+
+
+def resume_gravite(declaration_dict):
+
+    gravite = None
+    for degat in declaration_dict['degats']:
+        for degat_essence in degat['degat_essences']:
+            if not degat_essence['id_nomenclature_degat_gravite']:
+                continue
+            if not degat_essence['id_nomenclature_degat_gravite']['cd_nomenclature']:
+                continue
+            gravite_ = degat_essence['id_nomenclature_degat_gravite']
+            if not gravite:
+                gravite = gravite_
+            if gravite_['cd_nomenclature'] == "DG_IMPT" or (gravite['cd_nomenclature'] == "DG_FLB" and gravite_['cd_nomenclature'] == "DG_MOY"):
+                gravite = gravite_
+
+    declaration_dict['gravite'] = gravite
 
 
 def get_db(type, key, val):

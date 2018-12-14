@@ -6,11 +6,7 @@ $(document).ready(function() {
 
     var map = M.init_map(map_name);
 
-    declarations.forEach(function(e) {
-
-      M.load_declaration_centroid(e , false, map);
-
-    });
+    M.load_declarations_centroid(declarations, map);
 
     var s_legend = '<div id="legend-gravite_faible"><i style="color: yellow;">●</i> Gravité : faible </div>';
     $('#' + map_name).find(".legend").append(s_legend);
@@ -53,7 +49,7 @@ $(document).ready(function() {
 
     M.load_areas(areas_localisation, "localisation", map, false);
 
-    M.load_declaration_centroid(declaration, false, map);
+    M.load_declarations_centroid([declaration], map);
 
   };
 

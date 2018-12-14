@@ -105,29 +105,31 @@ def get_areas_simples_post(data_type):
 @json_resp
 def get_areas_centroid_post(data_type):
 
-    data_in = request.get_json()
+    d_areas = request.get_json()
 
-    areas = data_in['areas']
+    d_out = {}
 
-    v = [area['id_area'] for area in areas]
+    for key, value in d_areas.items():
 
-    t = tuple(v)
+        v = value
 
-    if len(v) == 1:
+        t = tuple(v)
 
-        t = str(t).replace(",", "")
+        if len(v) == 1:
 
-    sql_text = text("SELECT ST_X(c),ST_Y(c) \
-        FROM (SELECT ST_CENTROID(ST_UNION(geom_4326)) as c \
-        FROM ref_geo.l_areas \
-        WHERE id_area in {} )a".format(t))
+            t = str(t).replace(",", "")
 
-    result = DB.engine.execute(sql_text).first()
+        sql_text = text("SELECT ST_X(c),ST_Y(c) \
+            FROM (SELECT ST_CENTROID(ST_UNION(geom_4326)) as c \
+            FROM ref_geo.l_areas \
+            WHERE id_area in {} )a".format(t))
 
-    v = [result[0], result[1]]
-    v = [result[1], result[0]]
+        result = DB.engine.execute(sql_text).first()
 
-    return v
+        v = [result[1], result[0]]
+        d_out[key]=v
+
+    return d_out
 
 
 @bp.route('areas_from_type_code/<string:data_type>/<string:type_code>', methods=['GET', 'POST'])

@@ -3,13 +3,13 @@ par exemple :
   - select_map-select_map,
   - carte de présentation de la zône étudiée
   - carte de visualisation des résultats, etc..
-*/
+  */
 
-$(document).ready(function() {
+  $(document).ready(function() {
 
-  "use strict";
+    "use strict";
 
-  var setBounds = function(bounds, map) {
+    var setBounds = function(bounds, map) {
     // redéfini les limites de la carte
     if(bounds.isValid()) {
       map.fitBounds(bounds);
@@ -193,59 +193,49 @@ $(document).ready(function() {
 
     return map;
 
-};
+  };
 
 ////////////////////////////////////////////////////////////
-  var load_areas = function(areas, type, map, b_zoom) {
+var load_areas = function(areas, type, map, b_zoom) {
+    /*
+      charge les aires dont l'id est contenu dans area
+      */
+      if(areas == []) return ;
 
-    if(areas == []) return ;
+      $("#" + map.map_name + " #chargement").show();
 
+      var pane = (type=="foret")? 1 : 2;
+      var color = M.color[type];
 
-    $("#" + map.map_name + " #chargement").show();
+      $("#map_" + map.map_name + ' #legend-' + name).show()
 
-    var pane, color;
+      $.ajax({
 
-    pane = (type=="foret")? 1 : 2;
-    color = M.color[type];
+        type: "POST",
+        url: "/api/ref_geo/areas_post/l",
+        contentType:"application/json; charset=utf-8",
+        dataType:"json",
+        data: JSON.stringify({areas: areas}),
+        success: function (response) {
+          console.log("map.map_name", map.map_name);
 
-    $("#map_" + map.map_name + ' #legend-' + name).show()
+          var featuresCollection = L.geoJson(response, {
+            pane : 'PANE_' + pane
+          }).addTo(map);
 
-    $.ajax({
-
-      type: "POST",
-      url: "/api/ref_geo/areas_post/l",
-      contentType:"application/json; charset=utf-8",
-      dataType:"json",
-      data: JSON.stringify({areas: areas}),
-      success: function (response) {
-
-        console.log("map.map_name", map.map_name);
-
-        var featuresCollection = L.geoJson(response, {
-          pane : 'PANE_' + pane
-        }).addTo(map);
-
-        featuresCollection.addTo(map);
-
-        featuresCollection.eachLayer(function(layer) {
-
-          layer.setStyle(M.style.default);
-
-          layer.setStyle({
-
-            color: color,
-            fillColor: color
-
+          featuresCollection.eachLayer(function(layer) {
+            var fp = layer.feature.properties;
+            var type_code = M.get_type_code(fp.id_type);
+            layer.setStyle(M.style.default);
+            layer.setStyle({
+              color: color,
+              fillColor: color
+            });
+            $("#map_" + map.map_name + ' #legend-' + type_code).show();
+            $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', M.color.foret);
           });
 
-          var fp = layer.feature.properties;
-          var type_code = M.get_type_code(fp.id_type);
-          $("#map_" + map.map_name + ' #legend-' + type_code).show();
-          $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', M.color.foret);
-
-        });
-
-        $("#" + map.map_name + " #chargement").hide();
+          $("#" + map.map_name + " #chargement").hide();
 
         // if(type == "foret" && b_zoom) {
           if(b_zoom) {
@@ -258,51 +248,41 @@ $(document).ready(function() {
 
       });
 
-  };
+    };
 
-  var load_declaration_centroid = function(declaration, b_cluster, map) {
+    var load_declarations_centroid = function(declarations, map) {
+    /* charge les centroids des déclarations
+    */
+    var d_areas = {};
+    var d_deg_color = {};
 
-    var type = 'localisation';
-    var pane, color;
-    pane = (type == "foret")? 1 : 2;
-    color = M.color[type];
+    var k;
 
-    var areas = declaration.areas_localisation.filter(a => a.type_code != "OEASC_SECTEUR");
-
-    var i,j,  degat_essence, degat;
-    var deg_color="yellow";
-    for(i=0; i<declaration.degats.length; i++) {
-      degat=declaration.degats[i];
-
-      for (j=0; j<degat.degat_essences.length; j++) {
-        degat_essence=degat.degat_essences[j];
-
-        if (degat_essence.id_nomenclature_degat_gravite) {
-
-          if (degat_essence.id_nomenclature_degat_gravite.cd_nomenclature == "DG_MOY" && deg_color != "red")  
-            deg_color="orange";
-
-          if (degat_essence.id_nomenclature_degat_gravite.cd_nomenclature == "DG_IMPT") 
-            deg_color="red";
-
+    for(k=0; k < declarations.length; k++) {
+      var declaration = declarations[k];
+      var areas = declaration.areas_localisation.filter(a => a.type_code != "OEASC_SECTEUR").map(a => a.id_area);
+      var i,j,  degat_essence, degat;
+      var deg_color="yellow";
+      for(i=0; i<declaration.degats.length; i++) {
+        degat=declaration.degats[i];
+        for (j=0; j<degat.degat_essences.length; j++) {
+          degat_essence=degat.degat_essences[j];
+          if (degat_essence.id_nomenclature_degat_gravite) {
+            if (degat_essence.id_nomenclature_degat_gravite.cd_nomenclature == "DG_MOY" && deg_color != "red")  
+              deg_color="orange";
+            if (degat_essence.id_nomenclature_degat_gravite.cd_nomenclature == "DG_IMPT") 
+              deg_color="red";
+          }
         }
-
       }
 
+      d_areas[String(declaration.id_declaration)] = areas
+      d_deg_color[String(declaration.id_declaration)] = deg_color
     }
 
-
-    if(areas.length == 0) return ;
+    if(d_areas == {}) return ;
 
     $("#" + map.map_name + " #chargement").show();
-
-    if(!M.markers && b_cluster) {
-
-      M.markers = L.markerClusterGroup();
-      map.addLayer(M.markers);
-
-    }
-
 
     $.ajax({
 
@@ -310,77 +290,39 @@ $(document).ready(function() {
       url: "/api/ref_geo/areas_centroid_post/l",
       contentType:"application/json; charset=utf-8",
       dataType:"json",
-      data: JSON.stringify({areas: areas}),
-      success: function (response) {
+      data: JSON.stringify(d_areas),
 
-        var s_popup = '<div><a href="/oeasc/declaration/' + declaration.id_declaration + '"  target="_blank">Alerte ' + declaration.id_declaration + ' </a></div>';
-
-        // s_popup  += '<div><i>Nom forêt</i> : ' + declaration.foret.nom_foret + '</div>';
-        // s_popup  += '<div><i>Essence Principale</i> : ' + M.get_db('nomenclature', 'id_nomenclature', declaration.id_nomenclature_peuplement_essence_principale).label_fr + "</div>";
-
-        // s_popup += '<div><i>Dégats</i> : ';
-
-        // for(var i=0; i<declaration.degats.length; i++) {
-
-        //   var degat = M.get_db('nomenclature', 'id_nomenclature', declaration.degats[i].id_nomenclature_degat_type).label_fr;
-        //   s_popup += degat;
-
-        //   if(i==declaration.degats.length - 1)
-
-        //     s_popup += '.';
-
-        //   else
-
-        //     s_popup += ',';
-
-        // }
-
-        // s_popup += '</div>';
-
-        // var marker = L.marker(response, { pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
-        if( ! M.layers_degats_gravite) {
-
-          M.layers_degats_gravite = L.layerGroup();
-          map.addLayer(M.layers_degats_gravite);
-          M.layerControl.addOverlay(M.layers_degats_gravite, "Gravité")
-        }
-
-
-        var marker = L.circle(response, { color: deg_color, radius: 100, pane: 'PANE_' + pane }).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
-        marker.id_declaration = declaration.id_declaration;
-
-        M.layers_degats_gravite.addLayer(marker);
-
-        M.markers = M.layers_degats_gravite;
-        // if(b_cluster) {
-
-        //   M.markers.addLayer(marker);
-
-        // } else {
-
-        //   map.addLayer(marker);
-
-        // }
-
-        marker.on("click", function() {
-
-          $(document).trigger("marker_click", [this.id_declaration]);
-
-        });
-
-        $("#" + map.map_name + " #chargement").hide();
-
+    }).done(function (response) {
+      var s_popup = '<div><a href="/oeasc/declaration/' + declaration.id_declaration + '"  target="_blank">Alerte ' + declaration.id_declaration + ' </a></div>';
+      if( ! M.layers_degats_gravite) {
+        M.layers_degats_gravite = L.layerGroup();
+        map.addLayer(M.layers_degats_gravite);
+        M.layerControl.addOverlay(M.layers_degats_gravite, "Gravité")
       }
 
-    });
+      Object.keys(response).forEach(function(key) {
+        var id_declaration = key;
+        var centroid = response[key];
+        var marker = L.circle(centroid, { color: d_deg_color[id_declaration], radius: 100, pane: 'PANE_3'}).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
+        marker.id_declaration = id_declaration;
+        M.layers_degats_gravite.addLayer(marker);
+        M.markers = M.layers_degats_gravite;
+        marker.on("click", function() {
+          $(document).trigger("marker_click", [this.id_declaration]);
+        });
+      });
+      $("#" + map.map_name + " #chargement").hide();
 
+    }).fail(function(response) {
+      $("#" + map.map_name + " #chargement").hide();
+    });
   };
   // on place les fonctions et objets dans M pour les exporter
 
   M.carte_base_oeasc = carte_base_oeasc;
   M.get_layer = get_layer;
   M.load_areas = load_areas;
-  M.load_declaration_centroid = load_declaration_centroid;
+  M.load_declarations_centroid = load_declarations_centroid;
   M.remove_map = remove_map;
   M.init_map = init_map;
   M.deferred_setBounds = deferred_setBounds;
