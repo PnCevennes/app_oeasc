@@ -102,21 +102,27 @@ def modifier_declaration(id_declaration):
         :type  id_declaration: integer ou None
     '''
 
-    declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
-
-    if((not declaration_dict.get('id_declaration', None)) and (id_declaration != -1)):
-
-        return "la declaration id_declaration : " + str(id_declaration) + " n'existe pas"
+    if id_declaration != -1:
+        declaration_dict = get_declaration(id_declaration)
+    else:
+        declaration_dict = declaration
 
     nomenclature = nomenclature_oeasc()
 
-    listes_essences = get_listes_essences(declaration_dict)
+    listes_essences = []
+    if declaration_dict:
+        listes_essences = get_listes_essences(declaration_dict)
 
     id_form = request.args.get("id_form", "form_foret_statut")
 
-    # check_foret(declaration_dict)
-
-    return render_template('modules/oeasc/pages/declaration/modifier_ou_creer_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
+    return render_template(
+        'modules/oeasc/pages/declaration/modifier_ou_creer_declaration.html',
+        declaration=declaration_dict,
+        nomenclature=nomenclature,
+        listes_essences=listes_essences,
+        id_form=id_form,
+        id_declaration=id_declaration
+    )
 
 
 @bp.route('/declaration/<int:id_declaration>')

@@ -10,6 +10,17 @@
 
   <div class="col-md-12">
 
+  {% if not declaration %}
+  <div class="alert alert-danger">
+      <p>Vous ne pouvez pas modifier la déclaration n° {{id_declaration}}</p>
+      <p>Les causes peuvent être:</p>
+      <ul>
+        <li>La déclaration n° {{id_declaration}} n'existe pas</li>
+        <li>Vous n'avez pas les droits suffisants pour modifier cette déclaration</li>
+      </ul>
+    </div>
+  {% else %}
+
     <h2>Signalez un dégât en forêt</h2>
 
     <div><label for="aide_contact"><i class="small">Besoin d'aide</i></label></div>
@@ -100,6 +111,7 @@
 
 </div>
 
+ {% endif %}
 {%- endblock %}
 
 {%- block js_local %}

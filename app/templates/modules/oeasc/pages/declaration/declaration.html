@@ -11,18 +11,18 @@
 
     <h2>Déclaration</h2>
 
-      {%- if declaration %}
-      {%- include "modules/oeasc/entity/declaration.html" %}
-      {%- else %}
-      <div class="alert alert-danger">
-        <p>Vous n'avez pas accès à la déclaration n° {{id_declaration}}</p>
-        <p>Les causes peuvent être:</p>
-        <ul>
-          <li>La déclaration n° {{id_déclaration}} n'existe pas</li>
-          <li>Vous n'avez pas les droits suffisants pour voir cette déclaration</li>
-        </ul>
-      </div>
-      {%- endif %}
+    {%- if declaration %}
+    {%- include "modules/oeasc/entity/declaration.html" %}
+    {%- else %}
+    <div class="alert alert-danger">
+      <p>Vous n'avez pas accès à la déclaration n° {{id_declaration}}</p>
+      <p>Les causes peuvent être:</p>
+      <ul>
+        <li>La déclaration n° {{id_declaration}} n'existe pas</li>
+        <li>Vous n'avez pas les droits suffisants pour voir cette déclaration</li>
+      </ul>
+    </div>
+    {%- endif %}
 
   </div>
 
@@ -41,18 +41,15 @@
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_localisation.js') }}"></script>
 
 <script>
-
   $(document).ready(function() {
 
-    var declaration = JSON.parse($('#declaration').attr('data-declaration'));
-
-    $('[href="#localisation"]').click(function (e) {
-
-      setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
-
-    });
+    if (typeof $('#declaration').attr('data-declaration') !== 'undefined') {
+      var declaration = JSON.parse($('#declaration').attr('data-declaration'));
+      $('[href="#localisation"]').click(function (e) {
+        setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
+      });
+    }
 
   });
-
 </script>
 {%- endblock %}

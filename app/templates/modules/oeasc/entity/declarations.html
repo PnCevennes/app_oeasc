@@ -43,10 +43,9 @@
               <th>Ess. objectif</th>
               <th>Type peuplement</th>
               <th>Origine</th>
-              <th>Gravité</th>
+              {# <th>Gravité</th> #}
               <th>Type dégâts</th>
-              <th>Voir</th>
-              <th>Modifier</th>
+              <th>Voir / Modifier</th>
 
             </tr>
 
@@ -67,33 +66,26 @@
             <tr>
               <td>{{ declaration['id_declaration'] }}</td>
 
-              <td>{{ declaration['declarant']['nom_role'] }} {{ declaration['declarant']['prenom_role']}}</td>
+              <td>{{ declaration['declarant'] }}</td>
 
-              <td>{{ declaration['declarant']['organisme']}}</td>
+              <td>{{ declaration['organisme']}}</td>
 
-              <td>{{utils.print_date(declaration['meta_create_date'])}}</td>
+              <td>{{utils.print_date(declaration['date'])}}</td>
 
-              <td>{{declaration['foret']['label_foret']}}</td>
+              <td>{{declaration['label_foret']}}</td>
 
-              <td>
-                {{ macros_display.list_areas('OEASC_COMMUNE', '', declaration["foret"]["areas_foret"]) }}
-              </td>
-
-              {# <td>{{declaration['foret']['proprietaire']['nom_proprietaire']}}</td> #}
+              <td>{{ macros_display.list_areas('OEASC_COMMUNE', '', declaration["areas_foret"]) }}</td>
 
               <td>
                 {{ macros_display.list_areas('OEASC_CADASTRE', '', declaration["areas_localisation"]) }}
                 {{ macros_display.list_areas('OEASC_ONF_PRF', '', declaration["areas_localisation"]) }}
                 {{ macros_display.list_areas('OEASC_ONF_UG', '', declaration["areas_localisation"]) }}
-                {# {%- for area in declaration['areas_localisation'] %}
-                {{area.area_name}}{{ "," if not loop.last else "" }}
-                {%- endfor %} #}
               </td>
-              {# <td>{{ "Public" if declaration['foret']['b_statut_public'] else "Privé"}}</td>
+              {# <td>{{ "Public" if declaration['b_statut_public'] else "Privé"}}</td>
 
-              {%- if declaration.foret.b_document %}
+              {%- if declaration.b_document %}
 
-              <td>{{ "Régime ONF" if declaration.foret.b_statut_public else "DGD" }}</td>
+              <td>{{ "Régime ONF" if declaration.b_statut_public else "DGD" }}</td>
 
               {%- else %}
 
@@ -101,28 +93,29 @@
 
               {%- endif %} #}
               <td>
-                <b>{{ macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale) }}</b>{%- for elem in declaration.nomenclatures_peuplement_essence_secondaire %}, {{macros_display.tooltip_mnemonique(elem)}}{%- endfor %}
+                <b>{{ macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale) }}</b>
+                {{macros_display.tooltip_mnemonique(declaration.nomenclatures_peuplement_essence_secondaire)}}
               </td>
 
               <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_type)}}</td>
 
               <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine)}}</td>
 
-              <td>{{macros_display.tooltip_mnemonique(declaration.gravite)}}</td>
+              {# <td>{{macros_display.tooltip_mnemonique(declaration.gravite)}}</td> #}
 
-              <td>{{macros_display.tooltip_degats_mnemonique(declaration["degats"])}}</td>
+              <td>{{macros_display.tooltip_mnemonique(declaration.nomenclatures_degat_type)}}</td>
 
               <td>
                 <a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">
-                  <button type="button" title="Voir la déclaration" class="button-voir-declaration btn btn-info"><span class="fas fa-eye"></span></button>
+                  <span class="fas fa-eye"></span>
                 </a>
-              </td>
+              
 
               {%- if cond_modifier_effacer %}
 
-              <td>
+              
                 <a href="{{ url_for('oeasc.modifier_declaration', id_declaration=declaration['id_declaration'])}}">
-                  <button type="button" title="Modifier la déclaration" class="button-modifier-declaration btn btn-primary"><span class="fas fa-pen"></span></button>
+                  <span class="fas fa-pen"></span>
                 </a>
               </td>
 

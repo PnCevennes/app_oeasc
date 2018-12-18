@@ -185,13 +185,9 @@ class TForet(DB.Model):
     id_foret = DB.Column(DB.Integer, primary_key=True)
 
     id_proprietaire = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_proprietaires.id_proprietaire'))
-    # proprietaire = DB.relationship(TProprietaire, cascade="save-update, merge, delete, delete-orphan", single_parent=True)
-    # proprietaire = DB.relationship(TProprietaire)
 
     b_statut_public = DB.Column(DB.Boolean)
     b_document = DB.Column(DB.Boolean)
-    # b_regime_forestier = DB.Column(DB.Boolean)
-    # b_document_de_gestion = DB.Column(DB.Boolean)
 
     nom_foret = DB.Column(DB.String(250))
     code_foret = DB.Column(DB.String(250))
@@ -240,15 +236,10 @@ class TDeclaration(DB.Model):
     id_declaration = DB.Column(DB.Integer, primary_key=True)
 
     id_declarant = DB.Column(DB.Integer, DB.ForeignKey(User.id_role))
-    # declarant = DB.relationship(User)
 
     id_nomenclature_proprietaire_declarant = DB.Column(DB.Integer)
 
     id_foret = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_forets.id_foret'))
-    # foret = DB.relationship(TForet, cascade="save-update, merge, delete, delete-orphan", single_parent=True)
-    # foret = DB.relationship(TForet)
-
-    # id_nomenclature_foret_type = DB.Column(DB.Integer)
 
     id_nomenclature_peuplement_origine = DB.Column(DB.Integer)
     id_nomenclature_peuplement_type = DB.Column(DB.Integer)

@@ -47,12 +47,11 @@
 {% endmacro%}
 
 {%- macro tooltip_mnemonique(elem) %}
-<span data-toggle="tooltip" title="{{elem.label_fr}}">{{elem.mnemonique}}</span>
-{%- endmacro %}
-
-
-{%- macro tooltip_degats_mnemonique(degats) %}
-  {%- for degat in degats %}
-    {{ tooltip_mnemonique(degat.id_nomenclature_degat_type) }}{{ "," if not loop.last else "" }}
-  {%- endfor %}
+{% if elem.id_nomenclature %}
+ <span data-toggle="tooltip" title="{{elem.label_fr}}">{{elem.mnemonique}}</span>
+{% elif elem %}
+ {% for item in elem %}
+ <span data-toggle="tooltip" title="{{item.label_fr}}">{{item.mnemonique}}</span>{{ "," if not loop.last else "" }}
+ {% endfor %}
+{% endif %}
 {%- endmacro %}

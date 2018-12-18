@@ -48,7 +48,7 @@ $(document).ready(function() {
 
     // légende selection orange
     name="LOCALISATION_SELECTION";
-    var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Selection" + '</div>';
+    var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Sélection" + '</div>';
     $('#' + id_select_map).find(".legend").append(s_legend);
 
     // ajout du change sur click selectpicker ..?

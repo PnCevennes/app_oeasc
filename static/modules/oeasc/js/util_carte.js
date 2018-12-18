@@ -131,8 +131,13 @@ par exemple :
       map.getPane('PANE_' + i).style.zIndex = 1000 + i;
     }
 
+     L.control.betterscale({imperial: false, metric: true}).addTo(map);
     // ajout de l'échelle
-    L.control.betterscale({imperial: false, metric: true}).addTo(map);
+     setTimeout(function() {
+       var b=map.getBounds()
+       b._northEast.lat+=0.001;
+       map.fitBounds(b);
+     }, 1);
 
     // ajout de la légende
     var legend = L.control({position: 'bottomright'});
@@ -152,6 +157,7 @@ par exemple :
       l_perimetre_OEASC.on("data:loaded", function(){ map.fitBounds(this.getBounds());});
     }
     M.l_perimetre_OEASC = l_perimetre_OEASC;
+
 
     return map;
 
@@ -250,72 +256,36 @@ var load_areas = function(areas, type, map, b_zoom) {
 
     };
 
+
     var load_declarations_centroid = function(declarations, map) {
     /* charge les centroids des déclarations
     */
     var d_areas = {};
     var d_deg_color = {};
 
-    var k;
-
-    for(k=0; k < declarations.length; k++) {
-      var declaration = declarations[k];
-      var areas = declaration.areas_localisation.filter(a => a.type_code != "OEASC_SECTEUR").map(a => a.id_area);
-      var i,j,  degat_essence, degat;
-      var deg_color="yellow";
-      for(i=0; i<declaration.degats.length; i++) {
-        degat=declaration.degats[i];
-        for (j=0; j<degat.degat_essences.length; j++) {
-          degat_essence=degat.degat_essences[j];
-          if (degat_essence.id_nomenclature_degat_gravite) {
-            if (degat_essence.id_nomenclature_degat_gravite.cd_nomenclature == "DG_MOY" && deg_color != "red")  
-              deg_color="orange";
-            if (degat_essence.id_nomenclature_degat_gravite.cd_nomenclature == "DG_IMPT") 
-              deg_color="red";
-          }
-        }
-      }
-
-      d_areas[String(declaration.id_declaration)] = areas
-      d_deg_color[String(declaration.id_declaration)] = deg_color
+    if( ! M.markers) {
+      M.markers = L.layerGroup();
+      map.addLayer(M.markers);
+      M.layerControl.addOverlay(M.markers, "Déclarations")
     }
+    var k;
+    for(k=0; k < declarations.length; k++) {
 
-    if(d_areas == {}) return ;
-
-    $("#" + map.map_name + " #chargement").show();
-
-    $.ajax({
-
-      type: "POST",
-      url: "/api/ref_geo/areas_centroid_post/l",
-      contentType:"application/json; charset=utf-8",
-      dataType:"json",
-      data: JSON.stringify(d_areas),
-
-    }).done(function (response) {
-      if( ! M.markers) {
-        M.markers = L.layerGroup();
-        map.addLayer(M.markers);
-        M.layerControl.addOverlay(M.markers, "Gravité")
-      }
-
-      Object.keys(response).forEach(function(key) {
-        var id_declaration = key;
+      var declaration = declarations[k];
+      var id_declaration = declaration.id_declaration;
       var s_popup = '<div><a href="/oeasc/declaration/' + id_declaration + '"  target="_blank">Alerte ' + id_declaration + ' </a></div>';
-        var centroid = response[key];
-        var marker = L.circle(centroid, { color: d_deg_color[id_declaration], radius: 100, pane: 'PANE_3'}).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
-        marker.id_declaration = id_declaration;
-        M.markers.addLayer(marker);
-        M.markers = M.markers;
-        marker.on("click", function() {
-          $(document).trigger("marker_click", [this.id_declaration]);
-        });
+      var centroid = declaration.centroid;
+      var marker = L.circle(centroid, { color: "black", radius: 100, pane: 'PANE_3'}).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
+      marker.id_declaration = id_declaration;
+      M.markers.addLayer(marker);
+      marker.on("click", function() {
+        $(document).trigger("marker_click", [this.id_declaration]);
       });
-      $("#" + map.map_name + " #chargement").hide();
-
-    }).fail(function(response) {
-      $("#" + map.map_name + " #chargement").hide();
-    });
+    }
+    setTimeout(function() {
+    console.log("aaaa")
+    M['map_show_declarations'].invalidateSize()
+    }, 2000)
   };
   // on place les fonctions et objets dans M pour les exporter
 

@@ -237,6 +237,7 @@ $(document).ready(function() {
 
     table.listen_visibility = true;
     init_column_search();
+    console.log("yakkk");
   };
 
   var selection_tout = []
@@ -286,15 +287,15 @@ $(document).ready(function() {
 
     // init
 
-    setTimeout(function() {
+    // setTimeout(function() {
 
-      $("[data-type=T]").click();
+      // $("[data-type=T]").click();
       // set_columns(selection_reduite)
       // $("#map_show_declarations").height($("#tableau_declarations").height());
       // setTimeout(function(){ M['map_show_declarations'].invalidateSize(); init_column_search()}, 100);
       // init_column_search();
 
-    }, 400);
+    // }, 400);
 
 
 

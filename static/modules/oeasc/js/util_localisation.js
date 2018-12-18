@@ -8,17 +8,20 @@ $(document).ready(function() {
 
     M.load_declarations_centroid(declarations, map);
 
-    var s_legend = '<div id="legend-gravite_faible"><i style="color: yellow;">●</i> Gravité : faible </div>';
+    var s_legend = '<div id="legend-gravite_faible"><i style="color: black;">●</i> Déclarations </div>';
     $('#' + map_name).find(".legend").append(s_legend);
 
-    var s_legend = '<div id="legend-gravite_modérée"><i style="color: orange;">●</i> Gravité : modérée</div>';
-    $('#' + map_name).find(".legend").append(s_legend);
+    // var s_legend = '<div id="legend-gravite_faible"><i style="color: yellow;">●</i> Gravité : faible </div>';
+    // $('#' + map_name).find(".legend").append(s_legend);
 
-    var s_legend = '<div id="legend-gravite_importante"><i style="color: red;">●</i> "Gravité : importante</div>';
-    $('#' + map_name).find(".legend").append(s_legend);
+    // var s_legend = '<div id="legend-gravite_modérée"><i style="color: orange;">●</i> Gravité : modérée</div>';
+    // $('#' + map_name).find(".legend").append(s_legend);
+
+    // var s_legend = '<div id="legend-gravite_importante"><i style="color: red;">●</i> "Gravité : importante</div>';
+    // $('#' + map_name).find(".legend").append(s_legend);
 
 
-    console.log(M.layers_degats_gravite);
+    console.log(M.markers);
 
   };
 

@@ -11,7 +11,6 @@ from app.utils.utilssqlalchemy import as_dict
 
 from sqlalchemy import text
 
-
 from pypnusershub.db.models import (
     User, AppUser
 )
@@ -29,6 +28,8 @@ from .models import (
     TForet,
     TProprietaire
 )
+
+from app.utils.utilssqlalchemy import GenericQuery
 
 config = current_app.config
 DB = config['DB']
@@ -141,7 +142,6 @@ def get_area_from_id(id_area):
     '''
 
     if not getattr(g, '_areas', None):
-        print('youpl')
         g._areas = {}
 
     if not g._areas.get(str(id_area), None):
@@ -174,16 +174,18 @@ def pre_get_dict_nomenclature_areas(declarations):
 
         for area in declaration.get('areas_localisation', []):
 
-            v_id_areas.append(area['id_area'])
+            v_id_areas.append(area)
 
         foret = declaration.get('foret', None)
+
+        for area in declaration.get('areas_foret', []):
+            v_id_areas.append(area)
 
         if not foret:
             continue
 
         for area in foret.get('areas_foret', []):
-
-            v_id_areas.append(area['id_area'])
+            v_id_areas.append(area)
 
     get_areas_from_ids(v_id_areas)
 
@@ -194,23 +196,37 @@ def get_dict_nomenclature_areas(dict_in):
         qui commencent par 'id_nomenclature' ou 'nomenclatures'
         la fonction est appliquée récursivement aux dictionnaire et aux listes
     '''
-
     if not isinstance(dict_in, dict):
 
         return dict_in
 
     for key in dict_in:
-
         if key.startswith("id_nomenclature_"):
             dict_in[key] = get_nomenclature_from_id(dict_in.get(key, None))
             continue
 
-        if key.startswith("areas"):
-            dict_in[key] = [get_area_from_id(elem['id_area']) for elem in dict_in[key]]
+        if key.startswith("areas") and dict_in[key]:
+            dict_res = []
+            for elem in dict_in[key]:
+                if isinstance(elem, int):
+                    dict_res.append(get_area_from_id(elem))
+                elif elem.get('id_area'):
+                    dict_res.append(get_area_from_id(elem['id_area']))
+
+            if dict_res:
+                dict_in[key] = dict_res
+            # dict_in[key] = [get_area_from_id(elem['id_area']) for elem in dict_in[key]]
             continue
 
-        if key.startswith("nomenclatures_"):
-            dict_in[key] = [get_nomenclature_from_id(elem['id_nomenclature']) for elem in dict_in[key]]
+        if key.startswith("nomenclatures_") and dict_in[key]:
+            dict_res = []
+            for elem in dict_in[key]:
+                if isinstance(elem, int):
+                    dict_res.append(get_nomenclature_from_id(elem))
+                elif elem.get('id_nomenclature'):
+                    dict_res.append(get_nomenclature_from_id(elem['id_nomenclature']))
+            if dict_res:
+                dict_in[key] = dict_res
             continue
 
         if isinstance(dict_in[key], dict):
@@ -225,6 +241,10 @@ def get_dict_nomenclature_areas(dict_in):
 
 
 def get_foret_type(foret_dict):
+
+    if not foret_dict:
+
+        return
 
     if not foret_dict['proprietaire']['id_nomenclature_proprietaire_type']:
 
@@ -280,7 +300,7 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
 
     if b_resolve:
         get_dict_nomenclature_areas(declaration_dict)
-        get_foret_type(declaration_dict["foret"])
+        get_foret_type(declaration_dict.get("foret"))
 
     return declaration_dict
 
@@ -288,9 +308,10 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
 def resolve_declaration(declaration_dict):
 
     get_dict_nomenclature_areas(declaration_dict)
-    get_foret_type(declaration_dict["foret"])
+    get_foret_type(declaration_dict.get("foret"))
     resume_gravite(declaration_dict)
 
+    return declaration_dict
 
 def dfpu_as_dict_from_id_declaration(id_declaration, b_resolve=True):
 
@@ -606,7 +627,6 @@ def get_declarations(b_synthese, id_declarant=None):
     '''
 
     # toutes les declaration dans le cas d'une synthese
-    print("0")
 
     if b_synthese:
 
@@ -636,6 +656,9 @@ def get_declarations(b_synthese, id_declarant=None):
         # administrateur et animateur >=5
         if user["id_droit_max"] >= 5 or b_synthese:
 
+            data_gen = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, None, 1e6).return_query()
+            if data_gen.get('items'):
+                data_gen = data_gen.get('items')
             data = DB.session.query(TDeclaration.id_declaration).all()
             # data = DB.session.query(TDeclaration.id_declaration).limit(10).all()
 
@@ -656,32 +679,21 @@ def get_declarations(b_synthese, id_declarant=None):
 
             return None
 
-        id_declarations = [d[0] for d in data]
+    declarations_gen = data_gen
 
-    declarations = []
+    pre_get_dict_nomenclature_areas(declarations_gen)
 
-    print("a")
-    for id_declaration in id_declarations:
+    declarations_gen = [resolve_declaration(d) for d in declarations_gen]
 
-        declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration, False)
-        declarations.append(declaration_dict)
-    print("b")
-
-    pre_get_dict_nomenclature_areas(declarations)
-
-    print("ba")
-
-    for declaration_dict in declarations:
-        resolve_declaration(declaration_dict)
-    print("c")
-
-    return declarations
+    return declarations_gen
 
 
 def resume_gravite(declaration_dict):
 
     gravite = None
-    for degat in declaration_dict['degats']:
+    if not declaration_dict.get('degats'):
+        return
+    for degat in declaration_dict.get('degats'):
         for degat_essence in degat['degat_essences']:
             if not degat_essence['id_nomenclature_degat_gravite']:
                 continue
