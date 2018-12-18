@@ -326,17 +326,17 @@ th, td {
 
 }
 
-table.dataTable tbody td{
-
-  border-bottom:  1px solid lightgray;
-  padding: 5px;
-
-}
-
 table .tr-selected td {
 
   border-top:  2px solid orange;
   border-bottom:  2px solid orange;
+
+}
+
+table.dataTable tbody td{
+
+  border-bottom:  1px solid lightgray;
+  padding: 5px;
 
 }
 

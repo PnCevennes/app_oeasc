@@ -590,7 +590,7 @@ def get_declaration(id_declaration):
 
     if user["id_droit_max"] >= 2 \
         and user['id_organisme'] not in get_id_organismes(["Pas d'organisme"]) \
-            and user['organisme'] == declaration['declarant']['organisme']:
+            and user['id_organisme'] == declaration['declarant']['id_organisme']:
         return declaration
 
     return None
