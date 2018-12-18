@@ -8,8 +8,18 @@
 
         <div class="col-md-6">
 
-          <div class="form-group">
 
+          {% if declaration.declarant %}
+          <div class="form-group">
+            <h5>Déclarant</h5>
+            <ul>
+              <li><b>Nom, prénom</b> : {{declaration.declarant.nom_role | upper}} {{declaration.declarant.prenom_role}}</li>
+              <li><b>Organisme</b> : {{declaration.declarant.organisme}}</li>
+            </ul>
+          </div>
+          {% endif %}
+
+          <div class="form-group">
             <h5>Forêt</h5>
             <ul>
 

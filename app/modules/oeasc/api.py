@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*
 from flask import (
-    Blueprint, render_template, request, current_app
+    Blueprint, render_template, request, current_app, session
 )
 
 import copy
@@ -8,6 +8,7 @@ import copy
 from .repository import (
     nomenclature_oeasc,
     get_declarations,
+    get_declaration,
     get_db,
     f_create_or_update_declaration,
     get_dict_nomenclature_areas,
@@ -73,17 +74,18 @@ def declarations(id_declarant):
 
 
 @bp.route('declaration/<int:id_declaration>', methods=['GET'])
+@check_auth_redirect_login(1)
 @json_resp
 def declaration(id_declaration):
     '''
         Retourne la declaration d'id id_declaration
     '''
 
-    declaration = DB.session.query(TDeclaration).filter(TDeclaration.id_declaration == id_declaration).first()
+    declaration = get_declaration(id_declaration, session.current_user)
 
     if not declaration:
 
-        return "La déclaration d'identifiant : " + str(id_declaration) + " n'existe pas."
+        return None
 
     return declaration.as_dict(True)
 
@@ -109,7 +111,6 @@ def get_form_declaration():
     check_foret(declaration_dict)
     
     check_proprietaire(declaration_dict)
-
     check_massif(declaration_dict)
 
 

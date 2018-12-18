@@ -207,10 +207,11 @@ $(document).ready(function() {
 
       // on place dans le cluster les marker correspondant au filtrage du tableau
       M.markers_save.forEach(function(e) {
-        if(v_filtered.indexOf(e.id_declaration) != -1) {
+        if(v_filtered.includes(parseInt(e.id_declaration))) {
           M.markers.addLayer(e);
         }
       });
+
     }
   });
 
@@ -287,10 +288,10 @@ $(document).ready(function() {
 
     setTimeout(function() {
 
-      // $("[data-type=T]").click();
-      set_columns(selection_reduite)
-      $("#map_show_declarations").height($("#tableau_declarations").height());
-      setTimeout(function(){ M['map_show_declarations'].invalidateSize(); init_column_search()}, 100);
+      $("[data-type=T]").click();
+      // set_columns(selection_reduite)
+      // $("#map_show_declarations").height($("#tableau_declarations").height());
+      // setTimeout(function(){ M['map_show_declarations'].invalidateSize(); init_column_search()}, 100);
       // init_column_search();
 
     }, 400);

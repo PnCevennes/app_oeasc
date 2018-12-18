@@ -10,7 +10,8 @@ html {
 body {
 
   margin: 0; /* pour éviter les marges */
-  text-align:  justify;
+  /* text-align:  justify; */
+  text-align:  left;
   word-wrap: break-word;
   /* margin-bottom: 300px; /* footer */ */
 
@@ -19,8 +20,8 @@ body {
 
 .content h4 {
 
-  font-size: 1.2em;
-  text-decoration: underline;
+  /* font-size: 1.2em; */
+  /* text-decoration: underline; */
 
 }
 
@@ -74,10 +75,7 @@ header div {
 }
 
 .img-pnc{
-  background-color: rgba(255,255,255,0.3);
-  opacity: 0.7;
   opacity: 1;
-
 }
 
 .right-header {
@@ -141,12 +139,17 @@ a:hover {
 
 #sidebar_sticky {
 
+
   position: sticky;
   text-align: left;
+  background-color: lightyellow;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid bisque;
 
 }
 
-#sidebar_sticky > ul {
+#sidebar_sticky ul {
 
   list-style-type: none;
 
@@ -163,6 +166,7 @@ a:hover {
 figure{
 
   text-align: center;
+  background-color: lightgoldenrodyellow;
 
 }
 
@@ -195,6 +199,12 @@ figure{
 
 }
 
+nav .dropdown-item:hover {
+
+background-color : lightsteelblue;
+
+}
+
 nav .dropdown:hover > .dropdown-menu {
 
   display: block;
@@ -219,38 +229,43 @@ nav .dropdown-menu {
 
 h2 {
 
-    color: #856404;
-    background-color: #fff3cd;
-    border-color: #ffeeba;
-    padding: .75rem 1.25rem;
-    border: 1px solid transparent;
-    border-radius: .25rem;
-    text-align: center;
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  padding: .75rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  font-weight: bold;
 }
 
 form h4 {
 
-    color: #856404;
-    background-color: #fff3cd;
-    border-color: #ffeeba;
-    padding: .75rem 1.25rem;
-    border: 1px solid transparent;
-    border-radius: .25rem;
-    text-align: center;
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  padding: .75rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  /* text-align: center; */
 }
 
 .impt-link {
 
-    color: #856404;
-    background-color: #fff3cd;
-    border-color: #ffeeba;
-    padding: .75rem 1.25rem;
-    border: 1px solid transparent;
-    border-radius: .25rem;
-    text-align: center;
+  color: #856404;
+  background-color: #fff3cd;
+  border-color: #ffeeba;
+  padding: .75rem 1.25rem;
+  border: 1px solid transparent;
+  border-radius: .25rem;
+  text-align: center;
 
 }
 
+h3 {
+
+  font-weight: bold;
+
+}
 /* h3 {
     color: #004085;
     background-color: #cce5ff;
@@ -260,7 +275,7 @@ form h4 {
     border-radius: .25rem;
     text-align: center;
 }
- */
+*/
 
 .mark, mark {
   padding: 0;
@@ -311,9 +326,11 @@ th, td {
 
 }
 
-table.dataTable td{
- /* border-top:  1px solid lightgray; */
+table.dataTable tbody td{
+
   border-bottom:  1px solid lightgray;
+  padding: 5px;
+
 }
 
 table .tr-selected td {
@@ -351,4 +368,33 @@ table .tr-selected td:last-child{
 
   background-color: rgba(255, 255, 0, 0.5);
 
+}
+
+.figure.text {
+
+  max-width:  500px;
+}
+
+.main-pages {
+
+}
+
+.medium-pages {
+
+  margin-left: 10px;
+
+}
+
+.inter-pages {
+
+  margin-left: 20px;
+
+}
+
+#table_declarations td {
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
 }

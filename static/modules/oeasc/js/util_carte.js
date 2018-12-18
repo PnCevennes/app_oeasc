@@ -293,10 +293,10 @@ var load_areas = function(areas, type, map, b_zoom) {
       data: JSON.stringify(d_areas),
 
     }).done(function (response) {
-      if( ! M.layers_degats_gravite) {
-        M.layers_degats_gravite = L.layerGroup();
-        map.addLayer(M.layers_degats_gravite);
-        M.layerControl.addOverlay(M.layers_degats_gravite, "Gravité")
+      if( ! M.markers) {
+        M.markers = L.layerGroup();
+        map.addLayer(M.markers);
+        M.layerControl.addOverlay(M.markers, "Gravité")
       }
 
       Object.keys(response).forEach(function(key) {
@@ -305,8 +305,8 @@ var load_areas = function(areas, type, map, b_zoom) {
         var centroid = response[key];
         var marker = L.circle(centroid, { color: d_deg_color[id_declaration], radius: 100, pane: 'PANE_3'}).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
         marker.id_declaration = id_declaration;
-        M.layers_degats_gravite.addLayer(marker);
-        M.markers = M.layers_degats_gravite;
+        M.markers.addLayer(marker);
+        M.markers = M.markers;
         marker.on("click", function() {
           $(document).trigger("marker_click", [this.id_declaration]);
         });

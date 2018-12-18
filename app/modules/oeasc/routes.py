@@ -7,6 +7,7 @@ from .repository import (
     nomenclature_oeasc,
     dfpu_as_dict_from_id_declaration,
     get_declarations,
+    get_declaration,
     test_db,
 )
 
@@ -119,21 +120,21 @@ def modifier_declaration(id_declaration):
 
 
 @bp.route('/declaration/<int:id_declaration>')
+@check_auth_redirect_login(1)
 def declaration(id_declaration):
     '''
         page affichant une declaration
 
         TODO
     '''
-    declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
+    declaration_dict = get_declaration(id_declaration)
 
-    if((not declaration_dict.get('id_declaration', None)) and (id_declaration != -1)):
-
-        return "la declaration id_declaration : " + str(id_declaration) + " n'existe pas"
-
-    nomenclature = nomenclature_oeasc()
-
-    return render_template('modules/oeasc/pages/declaration/declaration.html', declaration=declaration_dict, nomenclature=nomenclature)
+    return render_template(
+        'modules/oeasc/pages/declaration/declaration.html',
+        declaration=declaration_dict,
+        id_declaration = id_declaration,
+        nomenclature=nomenclature_oeasc()
+    )
 
 
 @bp.route('/declarations')

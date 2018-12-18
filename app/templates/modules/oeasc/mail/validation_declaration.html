@@ -34,6 +34,10 @@
 
   <p>Une nouvelle déclaration a été effectuée.</p>
 
+  <ul>
+    <li><b>Utilisateur</b> : {{ user.nom_role | upper}} {{ user.prenom_role}}</li>
+    <li><b>Organisme</b> : {{user.organisme}}</li>
+  </ul>
   <p>Vous pouvez voir les détails de la déclaration en cliquant <a href="{{config.URL_APPLICATION}}{{url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">ici</a>.</p>
 
   {% endif %}

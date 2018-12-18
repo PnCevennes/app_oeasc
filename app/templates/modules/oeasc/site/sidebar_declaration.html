@@ -3,14 +3,14 @@
 
 <div id="sidebar_sticky">
 
-  <ul>
+  <ul class="main-pages">
 
     <li>{{ m.link_bold("Le système d'alerte",'oeasc.signalement_degats_forestiers') }}</li>
-
-    <hr>
+  </ul>
+  <hr>
+  <ul class="medium-pages">
 
     <li>{{ m.link_bold("Les dégâts de grand gibier",'oeasc.degats_gibier') }}</li>
-
     {% if request.endpoint != 'oeasc.informations_declaration' %}
 
     <hr>
@@ -20,30 +20,22 @@
     </li>
 
 
-
     <hr>
 
     <li class="alert alert-warning">
       <a href="{{url_for('oeasc.declarations')}}">Je consulte les alertes que j'ai déclarées</a>
     </li>
-    {% endif %}
-    <!-- <li>{{ m.link_bold("Je consulte mes alertes",'oeasc.declarations') }}</li> -->
+  </ul>
+  {% endif %}
+  <!-- <li>{{ m.link_bold("Je consulte mes alertes",'oeasc.declarations') }}</li> -->
 
-    {% if request.endpoint == 'oeasc.informations_declaration' %}
-{# 
-    <hr>
-
-    <li><a class="scroll-anime" href="#avant_de_commencer"><i>Avant de commencer</i></a></li>
-    <li><a class="scroll-anime" href="#contacts"><i>Contacts</i></a></li>
-    <hr>
- #}
- <hr>
- <li>
-      <li class="alert alert-primary">
+  {% if request.endpoint == 'oeasc.informations_declaration' %}
+  <ul class="inter-pages">
+   <hr>
+    <li class="alert alert-primary">
       <a href="{{url_for('oeasc.modifier_declaration')}}">Commencer la déclaration de dégâts</a>
     </li>
-    {% endif %}
-
   </ul>
+  {% endif %}
 
 </div>

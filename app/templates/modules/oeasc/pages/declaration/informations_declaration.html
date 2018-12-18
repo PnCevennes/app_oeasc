@@ -49,22 +49,23 @@
   </div>
 
   <hr>
-</div>
 
-<div>
   <div class="alert alert-warning">
 
     <h3>Si vous avez besoin d’aide </h3>
     <hr>
-    <p>Tout au long du formulaire, des info-bulles vous fourniront des précisions et indications précieuses pour vous aider à répondre aux questions posées. Si des difficultés ou incompréhensions subsistent, vous pouvez contacter l’une des personnes référentes suivantes :</p>
+    <p>Tout au long du formulaire, des info-bulles vous fourniront des précisions et indications précieuses pour vous aider à répondre aux questions posées. Si des difficultés ou incompréhensions subsistent, vous pouvez contacter l’une des personnes référentes présente dans le tableau ci dessous</p>
+  </div>
 
-    <hr>
+</div>
+<div>
+
 
       {%- include "modules/oeasc/pages/declaration/aide_contact.html" %}
 
-  </div>
 </div>
 
+ <hr>
 {% set href=url_for('oeasc.modifier_declaration')%}
 <button class='btn btn-primary' onclick="location.href='{{href}}'">Commencer la déclaration de dégâts</button>
 

@@ -30,7 +30,6 @@ from .models import (
     TProprietaire
 )
 
-from app.utils.checktime import checktime, cur_time
 config = current_app.config
 DB = config['DB']
 
@@ -43,7 +42,7 @@ def test_db():
     return result
 
 
-def get_id_organismes_from_id(liste_nom):
+def get_id_organismes(liste_nom):
 
     liste_nom_ = [nom.replace("'", "''") for nom in liste_nom]
 
@@ -572,6 +571,31 @@ def nomenclature_oeasc():
     return g._nomenclature
 
 
+def get_declaration(id_declaration):
+    '''
+        verifie les droit de l'utilisateur et renvoie la declaration
+    '''
+    user = session.get('current_user')
+
+    if not user:
+        return None
+
+    declaration = dfpu_as_dict_from_id_declaration(id_declaration)
+
+    if user['id_role'] == declaration['id_declarant']:
+        return declaration
+
+    if user['id_droit_max'] >= 5:
+        return declaration
+
+    if user["id_droit_max"] >= 2 \
+        and user['id_organisme'] not in get_id_organismes(["Pas d'organisme"]) \
+            and user['organisme'] == declaration['declarant']['organisme']:
+        return declaration
+
+    return None
+
+
 def get_declarations(b_synthese, id_declarant=None):
     '''
         retourne une liste de declaration sous forme de tableau de dictionnaire
@@ -607,7 +631,7 @@ def get_declarations(b_synthese, id_declarant=None):
         user['id_droit_max'] = user_app['id_droit_max']
         user['id_application'] = user_app['id_application']
 
-        liste_id_organismes_solo = get_id_organismes_from_id(['Autre (préciser)', "Pas d'organisme"])
+        liste_id_organismes_solo = get_id_organismes(['Autre (préciser)', "Pas d'organisme"])
 
         # administrateur et animateur >=5
         if user["id_droit_max"] >= 5 or b_synthese:

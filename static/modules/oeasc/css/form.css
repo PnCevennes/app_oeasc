@@ -164,7 +164,7 @@ div.progression {
 
   position: relative;
   display: inline-block;
-  color: darkgray;
+  color: lightsteelblue;
 
 }
 
@@ -217,7 +217,7 @@ div.progression {
 
 .custom-tooltip .custom-tooltiptext h5{
 
-  background-color:lightgray;
+  background-color : lightsteelblue;
   padding: 10px;
   border-radius: 10px 10px 0 0;
 

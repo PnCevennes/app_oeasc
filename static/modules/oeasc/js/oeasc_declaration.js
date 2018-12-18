@@ -25,6 +25,8 @@ $(document).ready(function() {
 
       if (! $this.is(':visible') ) {
 
+        $('#id_nomenclature_peuplement_essence_principale').prop("disabled", true)
+        $('#form_peuplement_description [id^="NOMENCLATURES_PEUPLEMENT_ESSENCE"] select').prop("disabled", true)
         recharger_form();
 
       }
@@ -150,6 +152,8 @@ $(document).ready(function() {
 
     $('#id_nomenclature_peuplement_essence_principale').change(function() {
 
+      $('#id_nomenclature_peuplement_essence_principale').prop("disabled", true)
+      $('#form_peuplement_description [id^="NOMENCLATURES_PEUPLEMENT_ESSENCE"] select').prop("disabled", true)
       recharger_form();
 
     });

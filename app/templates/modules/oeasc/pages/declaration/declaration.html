@@ -11,9 +11,21 @@
 
     <h2>Déclaration</h2>
 
+      {%- if declaration %}
       {%- include "modules/oeasc/entity/declaration.html" %}
+      {%- else %}
+      <div class="alert alert-danger">
+        <p>Vous n'avez pas accès à la déclaration n° {{id_declaration}}</p>
+        <p>Les causes peuvent être:</p>
+        <ul>
+          <li>La déclaration n° {{id_déclaration}} n'existe pas</li>
+          <li>Vous n'avez pas les droits suffisants pour voir cette déclaration</li>
+        </ul>
+      </div>
+      {%- endif %}
 
   </div>
+
 
 </div>
 
