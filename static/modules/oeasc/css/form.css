@@ -417,7 +417,7 @@ form .dropdown a{
 
 form .select-required .bootstrap-select>.dropdown-toggle.bs-placeholder {
 
-  color: red;
-  background-color: rgba(255, 0, 0, 0.5);
+    color: blue;
+    background-color: rgba(25, 120, 255, 0.5);
 
 }

@@ -7,16 +7,24 @@ $(document).ready(function() {
 
   // option du tableau
 
+   var table_indices = {};
+   $("thead th").each( (i,e) => table_indices[$(e).html()]=i );
+   console.log(table_indices);
   var table = $("#table_declarations").DataTable({
     rowCallback: function(row, data, dataIndex) {
       if($(data[10]).html() == "Impt.") { $(row).addClass("DG_IMPT"); $(row).css('background-color', "rgba(255, 0, 0, 0.2)")}
     },
     columnDefs: [{
-      "targets": [ 0 ],
+      "targets": [ table_indices['ID'] ],
       "visible": false,
       "searchable": false,
-    },
-    ],
+    }, {
+      "targets": [ table_indices['Commune(s)'] ],
+      "width": "100px",
+    }, {
+      "targets": [ table_indices['Nom forêt'] ],
+      "width": "100px",
+    }],
 
     // searching: false,
     scrollY:  "400px",
@@ -245,7 +253,7 @@ $(document).ready(function() {
     selection_tout.push(i);
   }
 
-  var selection_reduite = [1, 3, 4, 8, 11];
+  var selection_reduite = [1, 2, 3, 4, 11];
 
   $("[data-type=T]").click(function () {
   /* Onglet tableau
@@ -257,17 +265,17 @@ $(document).ready(function() {
     set_columns(selection_tout);
   });
 
-  $("[data-type=C]").click(function () {
-  /* Onglet carte
-  */
-    $("#tableau_declarations").hide();
-    $("#tableau_declarations").attr("class", "");
-    $("#show_declarations").show();
-    $("#show_declarations").attr("class", "col-md-12");
-    setTimeout(function() {
-      M['map_show_declarations'].invalidateSize();
-    }, 100);
-  });
+  // $("[data-type=C]").click(function () {
+  // /* Onglet carte
+  // */
+  //   $("#tableau_declarations").hide();
+  //   $("#tableau_declarations").attr("class", "");
+  //   $("#show_declarations").show();
+  //   $("#show_declarations").attr("class", "col-md-12");
+  //   setTimeout(function() {
+  //     M['map_show_declarations'].invalidateSize();
+  //   }, 100);
+  // });
 
 
   $("[data-type=TC]").click(function () {
@@ -304,35 +312,27 @@ $(document).ready(function() {
     var declarations = [];
 
     $(".data-declaration").each(function(){
-
       var declaration = JSON.parse($(this).attr("data-declaration"));
       declarations.push(declaration);
-
     });
 
     //init
 
     M.initialiser_show_declarations('show_declarations', declarations);
 
-    $(".button-supprimer-declaration").click(function() {
+    $("[data-type=T]").click();
 
+    $(".button-supprimer-declaration").click(function() {
       var $this = $(this);
       var id_declaration = $this.attr('data-id-declaration');
-
       $.ajax({
-
         type: 'POST',
         url: "/api/oeasc/delete_declaration/" + id_declaration,
-
       }).done(function(response) {
-
         console.log("done : " + this.url);
         $this.parents("tr").remove();
-
       }).fail(function(response) {
-
         console.log("fail : " + this.url, response);
-
       });
 
     });

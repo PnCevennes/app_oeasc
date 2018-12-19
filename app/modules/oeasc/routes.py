@@ -105,7 +105,7 @@ def modifier_declaration(id_declaration):
     if id_declaration != -1:
         declaration_dict = get_declaration(id_declaration)
     else:
-        declaration_dict = declaration
+        declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
 
     nomenclature = nomenclature_oeasc()
 

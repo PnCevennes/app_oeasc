@@ -58,6 +58,8 @@ def get_listes_essences(declaration):
             degats.id_nomenclature_degat_type: pour un type de degat :
                 les essence selectionnées en global (selected) moins les essences concernant ce type de degat
     '''
+
+    print(declaration)
     nomenclature = nomenclature_oeasc()
 
     listes_essences = {}

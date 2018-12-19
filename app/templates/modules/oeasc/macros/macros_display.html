@@ -46,6 +46,26 @@
 
 {% endmacro%}
 
+
+{%- macro tooltip_areas(type_code, areas) %}
+  {%- set areas_selected = utils.get_areas_from_type_code(areas, type_code) %}
+  {%- set ns = namespace(str_areas = "") %}
+
+  {%- set ns.str_areas = "" %}
+  {% for area in areas_selected %}
+    {%- if type_code == 'OEASC_COMMUNE' %}
+      {%- set ns.str_areas = ns.str_areas + area.area_name %}
+    {%- else %}
+    {%- set ns.str_areas = ns.str_areas + area.label %}
+    {%- endif %}
+    {%- if not loop.last %}
+      {%- set ns.str_areas = ns.str_areas + ", " %}
+    {%- endif %}
+  {% endfor %}
+  <span data-toggle="tooltip" title="{{ns.str_areas}}">{{ns.str_areas }}</span>
+{%- endmacro %}
+
+
 {%- macro tooltip_mnemonique(elem) %}
 {% if elem.id_nomenclature %}
  <span data-toggle="tooltip" title="{{elem.label_fr}}">{{elem.mnemonique}}</span>

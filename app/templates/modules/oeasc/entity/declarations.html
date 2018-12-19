@@ -4,6 +4,8 @@
 
 <div id="declarations">
 
+        <h2>Liste de déclarations</h2>
+
   <div id="data_declarations">
 
     {%- for declaration in declarations %}
@@ -13,18 +15,18 @@
   </div>
 
   <nav class="nav nav-tabs">
-    <a class="nav-item nav-link active" href="#resutats" data-toggle="tab" data-type="TC">Tableau + carte</a>
     <a class="nav-item nav-link" href="#resultats" data-toggle="tab" data-type="T">Tableau</a>
-    <a class="nav-item nav-link" href="#resultats" data-toggle="tab" data-type="C">Carte</a>
+    <a class="nav-item nav-link" href="#resutats" data-toggle="tab" data-type="TC">Carte</a>
+    <!-- <a class="nav-item nav-link" href="#resultats" data-toggle="tab" data-type="C">Carte</a> -->
   </nav>
 
   <div class="tab-pane active" id="resultats">
 
     <div class="row">
 
+
       <div id='tableau_declarations' class="col-md-6">
 
-        <h2>Liste de déclarations</h2>
 
         <table id="table_declarations" class="table-striped table-small">
 
@@ -45,7 +47,7 @@
               <th>Origine</th>
               {# <th>Gravité</th> #}
               <th>Type dégâts</th>
-              <th>Voir / Modifier</th>
+              <th>Actions</th>
 
             </tr>
 
@@ -72,14 +74,18 @@
 
               <td>{{utils.print_date(declaration['date'])}}</td>
 
-              <td>{{declaration['label_foret']}}</td>
+              {# <td>{{declaration['label_foret']}}</td> #}
+              <td><span data-toggle="tooltip" title="{{declaration['label_foret']}}">{{declaration['label_foret']}}</span></td>
 
-              <td>{{ macros_display.list_areas('OEASC_COMMUNE', '', declaration["areas_foret"]) }}</td>
+              {# <td>{{ macros_display.list_areas('OEASC_COMMUNE', '', declaration["areas_foret"]) }}</td> #}
+              <td>{{ macros_display.tooltip_areas('OEASC_COMMUNE', declaration["areas_foret"]) }}</td>
 
               <td>
-                {{ macros_display.list_areas('OEASC_CADASTRE', '', declaration["areas_localisation"]) }}
+                {# {{ macros_display.list_areas('OEASC_CADASTRE', '', declaration["areas_localisation"]) }}
                 {{ macros_display.list_areas('OEASC_ONF_PRF', '', declaration["areas_localisation"]) }}
-                {{ macros_display.list_areas('OEASC_ONF_UG', '', declaration["areas_localisation"]) }}
+                {{ macros_display.list_areas('OEASC_ONF_UG', '', declaration["areas_localisation"]) }} #}
+                {{ macros_display.tooltip_areas('OEASC_CADASTRE', declaration["areas_localisation"]) }}
+                {{ macros_display.tooltip_areas('OEASC_ONF_PRF', declaration["areas_localisation"]) }}
               </td>
               {# <td>{{ "Public" if declaration['b_statut_public'] else "Privé"}}</td>
 
@@ -106,7 +112,7 @@
               <td>{{macros_display.tooltip_mnemonique(declaration.nomenclatures_degat_type)}}</td>
 
               <td>
-                <a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}">
+                <a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}" title="Voir les détails de la déclaration" data-toggle="tooltip">
                   <span class="fas fa-eye"></span>
                 </a>
               
@@ -114,7 +120,7 @@
               {%- if cond_modifier_effacer %}
 
               
-                <a href="{{ url_for('oeasc.modifier_declaration', id_declaration=declaration['id_declaration'])}}">
+                <a href="{{ url_for('oeasc.modifier_declaration', id_declaration=declaration['id_declaration'])}}" title="Modifier la déclaration" data-toggle="tooltip">
                   <span class="fas fa-pen"></span>
                 </a>
               </td>

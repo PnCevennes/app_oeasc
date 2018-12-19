@@ -1,11 +1,6 @@
 # patch.sh
 . install/install_db/pgsqla.sh
 
-echo "
- UPDATE utilisateurs.bib_organismes
- SET nom_organisme='Autre (préciser)' WHERE nom_organisme LIKE '- A%'
-;
+dir_script=install/install_db
 
-
-
-" | $psqla
+$psqla -f $dir_script/oeasc/oeasc_views.sql

@@ -109,10 +109,8 @@ def get_form_declaration():
     get_dict_nomenclature_areas(declaration_dict)
 
     check_foret(declaration_dict)
-    
     check_proprietaire(declaration_dict)
     check_massif(declaration_dict)
-
 
     listes_essences = get_listes_essences(declaration_dict)
 

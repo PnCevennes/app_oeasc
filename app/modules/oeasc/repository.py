@@ -109,17 +109,16 @@ def get_nomenclature(key_in, value_in, type_code, key_out=""):
 
 def get_areas_from_ids(id_areas):
     '''
-        search areas attributes in db if not yet in g._areas
+        search areas attributes in db if not yet in session._areas
     '''
-    if not getattr(g, '_areas', None):
-
-        g._areas = {}
+    if not getattr(session, '_areas', None):
+        session._areas = {}
 
     id_areas_to_query = []
 
     for id in id_areas:
 
-        if not g._areas.get(str(id), None):
+        if not session._areas.get(str(id), None):
 
             id_areas_to_query.append(id)
 
@@ -133,18 +132,18 @@ def get_areas_from_ids(id_areas):
 
             d_dict = d.as_dict()
             d_dict['type_code'] = get_type_code(d_dict['id_type'])
-            g._areas[str(d_dict['id_area'])] = d_dict
+            session._areas[str(d_dict['id_area'])] = d_dict
 
 
 def get_area_from_id(id_area):
     '''
-        search areas attributes in db if not yet in g._areas
+        search areas attributes in db if not yet in session._areas
     '''
 
-    if not getattr(g, '_areas', None):
-        g._areas = {}
+    if not getattr(session, '_areas', None):
+        session._areas = {}
 
-    if not g._areas.get(str(id_area), None):
+    if not session._areas.get(str(id_area), None):
 
         print("get single area from db : " + str(id_area))
 
@@ -158,9 +157,9 @@ def get_area_from_id(id_area):
 
         out['type_code'] = get_type_code(out['id_type'])
 
-        g._areas[str(id_area)] = out
+        session._areas[str(id_area)] = out
 
-    return g._areas[str(id_area)]
+    return session._areas[str(id_area)]
 
 
 def pre_get_dict_nomenclature_areas(declarations):
@@ -338,13 +337,6 @@ def get_foret(id_foret):
     return foret, proprietaire
 
 
-def get_declarant(id_declarant):
-
-    declarant = DB.session.query(User).filter(id_declarant == User.id_role).first()
-
-    return declarant
-
-
 def get_dfpu(id_declaration):
 
     declaration = foret = proprietaire = declarant = None
@@ -357,7 +349,7 @@ def get_dfpu(id_declaration):
 
         if id_declarant:
 
-            declarant = get_declarant(id_declarant)
+            declarant = get_user(id_declarant)
         id_foret = declaration.id_foret
 
         if id_foret:
@@ -511,7 +503,7 @@ def nomenclature_oeasc():
     '''
 
     # on regarde si la nomenclature existe dans la variable globale g
-    if not getattr(g, '_nomenclature', None):
+    if not getattr(session, '_nomenclature', None):
 
         print("get_nomenclature from db")
         # TODO auto tout de l'oeasc from db ?
@@ -571,7 +563,7 @@ def nomenclature_oeasc():
 
             data[type_code]["values"] = values
 
-        g._nomenclature = data
+        session._nomenclature = data
 
         dict_sort_nomenclature = {
             'OEASC_DEGAT_TYPE': [
@@ -587,9 +579,9 @@ def nomenclature_oeasc():
 
         for key, value in dict_sort_nomenclature.items():
 
-            g._nomenclature[key]["values"].sort(key=lambda e: value.index(e['cd_nomenclature']))
+            session._nomenclature[key]["values"].sort(key=lambda e: value.index(e['cd_nomenclature']))
 
-    return g._nomenclature
+    return session._nomenclature
 
 
 def get_declaration(id_declaration):
@@ -627,65 +619,38 @@ def get_declarations(b_synthese, id_declarant=None):
     '''
 
     # toutes les declaration dans le cas d'une synthese
+    data = None
 
-    if b_synthese:
+    if id_declarant:
 
-        id_declarations = DB.session.query(TDeclaration.id_declaration).all()
-
-    else:
-
-        if not id_declarant:
-
-            return None
-
-        data = DB.session.query(User).filter(id_declarant == User.id_role).first()
-        data_app = DB.session.query(AppUser).filter(id_declarant == AppUser.id_role).first()
-
-        if not data:
-
-            return None
-
-        user = as_dict(data)
-        user_app = as_dict(data_app)
-
-        user['id_droit_max'] = user_app['id_droit_max']
-        user['id_application'] = user_app['id_application']
-
+        user = get_user(id_declarant)
         liste_id_organismes_solo = get_id_organismes(['Autre (préciser)', "Pas d'organisme"])
 
         # administrateur et animateur >=5
-        if user["id_droit_max"] >= 5 or b_synthese:
-
-            data_gen = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, None, 1e6).return_query()
-            if data_gen.get('items'):
-                data_gen = data_gen.get('items')
-            data = DB.session.query(TDeclaration.id_declaration).all()
-            # data = DB.session.query(TDeclaration.id_declaration).limit(10).all()
+        if user["id_droit_max"] >= 5:
+            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, None, 1e6).return_query()
 
         # les declarant de la meme structure (sauf les particuliers) >=)2
         elif user["id_droit_max"] >= 2 and user['id_organisme'] not in liste_id_organismes_solo:
+            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', {"organisme": user['organisme']}, None, 1e6).return_query()
 
-            sql_text = text("SELECT oeasc.get_declarations_structure_declarant({})".format(user["id_role"]))
-
-            data = DB.engine.execute(sql_text)
-
-        #
         elif user["id_droit_max"] >= 1:
+            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', {"id_declarant": id_declarant}, None, 1e6).return_query()
 
-            data = DB.session.query(TDeclaration.id_declaration).filter(TDeclaration.id_declarant == id_declarant).all()
+    elif b_synthese:
+        data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, None, 1e6).return_query()
 
-        #
-        else:
+    if not data:
+        return []
 
-            return None
+    if not data.get('items'):
+        return []
 
-    declarations_gen = data_gen
+    declarations = data.get('items')
+    pre_get_dict_nomenclature_areas(declarations)
+    declarations = [resolve_declaration(d) for d in declarations]
 
-    pre_get_dict_nomenclature_areas(declarations_gen)
-
-    declarations_gen = [resolve_declaration(d) for d in declarations_gen]
-
-    return declarations_gen
+    return declarations
 
 
 def resume_gravite(declaration_dict):

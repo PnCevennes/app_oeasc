@@ -25,8 +25,6 @@ def display_mail_test(destinataire):
 
     user = get_user(declaration['id_declarant'])
 
-    email_user = user['email']
-
     return render_template('modules/oeasc/mail/validation_declaration.html', destinataire=destinataire, declaration=declaration, user=user)
 
 
