@@ -84,7 +84,7 @@
               <td class="input">
                 <select class="selectpicker" title="Choisir fonction" id="desc_role" required data-width="fit">
                   <option value="Propriétaire forestier privé">Propriétaire forestier privé</option>
-                  <option value="Salarié ou agent">Salarié ou agent</option>
+                  <option value="Salarié ou agent">Salarié, agent, fonctionnaire</option>
                   <option value="Expert forestier indépendant">Expert forestier indépendant</option>
                   <option value="Autre">Autre</option>
                   {# {%- for elem in nomenclature['OEASC_DECLARANT_FONCTION']['values'] %}
@@ -124,11 +124,11 @@
 
       {% if modify and user['id_role']%}
 
-      <button id="modifier_infos" class="btn btn-primary"><span class="fas fa-pen"> Modifier les informations</span></button>
+      <button id="modifier_infos" class="btn btn-primary"><span class="fas fa-pen"></span><b>Modifier les informations</b></button>
 
       <hr>
       {% set href=url_for('user.change_password')%}
-      <button class="btn btn-warning" onclick="location.href='{{href}}'"></span>Modifier le mot de passe</button>
+      <button class="btn btn-warning" onclick="location.href='{{href}}'"></span><b>Modifier le mot de passe</b></button>
 
       {% endif %}
 

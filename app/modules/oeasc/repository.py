@@ -21,7 +21,7 @@ from app.ref_geo.repository import (
     get_type_code,
 )
 
-from flask import g, session, current_app
+from flask import session, current_app
 
 from .models import (
     TDeclaration,
@@ -290,11 +290,11 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
 
     if not declarant:
 
-        declarant = User()
+        declarant = as_dict(User())
 
     declaration_dict = declaration.as_dict(True)
     declaration_dict["foret"] = foret.as_dict(True)
-    declaration_dict["declarant"] = as_dict(declarant)
+    declaration_dict["declarant"] = declarant
     declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
 
     if b_resolve:
@@ -316,7 +316,6 @@ def dfpu_as_dict_from_id_declaration(id_declaration, b_resolve=True):
 
     declaration, foret, proprietaire, declarant = get_dfpu(id_declaration)
     declaration_dict = dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve)
-
     return declaration_dict
 
 
@@ -593,7 +592,10 @@ def get_declaration(id_declaration):
     if not user:
         return None
 
+    print("aa")
     declaration = dfpu_as_dict_from_id_declaration(id_declaration)
+
+    print(declaration)
 
     if user['id_role'] == declaration['id_declarant']:
         return declaration
