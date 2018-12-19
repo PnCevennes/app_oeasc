@@ -592,10 +592,7 @@ def get_declaration(id_declaration):
     if not user:
         return None
 
-    print("aa")
     declaration = dfpu_as_dict_from_id_declaration(id_declaration)
-
-    print(declaration)
 
     if user['id_role'] == declaration['id_declarant']:
         return declaration
@@ -623,9 +620,11 @@ def get_declarations(b_synthese, id_declarant=None):
     # toutes les declaration dans le cas d'une synthese
     data = None
 
+
     if id_declarant:
 
         user = get_user(id_declarant)
+        print(user)
         liste_id_organismes_solo = get_id_organismes(['Autre (préciser)', "Pas d'organisme"])
 
         # administrateur et animateur >=5
@@ -634,10 +633,10 @@ def get_declarations(b_synthese, id_declarant=None):
 
         # les declarant de la meme structure (sauf les particuliers) >=)2
         elif user["id_droit_max"] >= 2 and user['id_organisme'] not in liste_id_organismes_solo:
-            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', {"organisme": user['organisme']}, None, 1e6).return_query()
+            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, {"organisme": user['organisme']}, 1e6).return_query()
 
         elif user["id_droit_max"] >= 1:
-            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', {"id_declarant": id_declarant}, None, 1e6).return_query()
+            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, {"id_declarant": id_declarant}, 1e6).return_query()
 
     elif b_synthese:
         data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, None, 1e6).return_query()

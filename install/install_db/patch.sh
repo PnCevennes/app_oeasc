@@ -14,4 +14,3 @@ echo "GRANT USAGE ON SCHEMA oeasc TO $user_pg_save;
     GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA utilisateurs TO $user_pg_save;
     " | $psqla
 
-echo | $psqla
