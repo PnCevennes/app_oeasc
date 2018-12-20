@@ -10,8 +10,8 @@ html {
 body {
 
   margin: 0; /* pour éviter les marges */
-  /* text-align:  justify; */
-  text-align:  left;
+  text-align:  justify;
+  /* text-align:  left; */
   word-wrap: break-word;
   /* margin-bottom: 300px; /* footer */ */
 
@@ -24,7 +24,6 @@ body {
   /* text-decoration: underline; */
 
 }
-
 /* header titre */
 
 .flex-container {
@@ -252,7 +251,6 @@ form h4 {
   padding: .75rem 1.25rem;
   border: 1px solid transparent;
   border-radius: .25rem;
-  /* text-align: center; */
 }
 
 .impt-link {
@@ -272,16 +270,7 @@ h3 {
   font-weight: bold;
 
 }
-/* h3 {
-    color: #004085;
-    background-color: #cce5ff;
-    border-color: #b8daff;
-    padding: .5rem 1rem;
-    border: 1px solid transparent;
-    border-radius: .25rem;
-    text-align: center;
-}
-*/
+
 
 .mark, mark {
   padding: 0;
