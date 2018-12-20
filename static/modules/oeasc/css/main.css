@@ -166,20 +166,26 @@ a:hover {
 figure{
 
   text-align: center;
-  background-color: lightgoldenrodyellow;
+  background-color: lightgrey;
+  /* margin-top: 10px; */
+  padding:  5px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 
 }
 
 .figure img{
 
   border: 1px solid lightgray;
+  margin-bottom: 10px;
+  max-width: 700px;
 }
 
 .figure figcaption{
 
+  font-size: 0.8em;
   text-align: center;
   width: 100%;
-  font-style: italic;
+  /* font-style: italic; */
 
 }
 
@@ -398,4 +404,27 @@ table .tr-selected td:last-child{
   overflow: hidden;
   text-overflow: ellipsis;
   max-width: 100px;
+}
+
+.spaced figure {
+
+margin-top: 20px;
+
+}
+
+.flotte {
+
+  float: right;
+  margin-left: 10px;
+  width: 50%;
+  padding: 5px;
+  background-color: lightgray;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+.flotte.left {
+
+  float: left;
+  margin-right: 10px;
+
 }

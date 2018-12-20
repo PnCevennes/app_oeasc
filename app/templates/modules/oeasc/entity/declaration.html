@@ -106,12 +106,9 @@
             <ul>
               <li><b>Origine</b> : {{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}.</li>
               <li><b>Type</b> : {{ declaration.id_nomenclature_peuplement_type.label_fr | lower }}.</li>
-
-              {%- if  declaration.id_nomenclature_peuplement_type.cd_nomenclature != "FIRR" %}
-
+              {# {%- if  declaration.id_nomenclature_peuplement_type.cd_nomenclature != "FIRR" %} #}
               {{macros_display.list_nomenclatures('Maturité', declaration.nomenclatures_peuplement_maturite, 'li')}}
-
-              {%- endif %}
+              {# {%- endif %} #}
 
             </ul>
 

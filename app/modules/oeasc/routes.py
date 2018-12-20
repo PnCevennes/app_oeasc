@@ -138,7 +138,7 @@ def declaration(id_declaration):
     return render_template(
         'modules/oeasc/pages/declaration/declaration.html',
         declaration=declaration_dict,
-        id_declaration = id_declaration,
+        id_declaration=id_declaration,
         nomenclature=nomenclature_oeasc()
     )
 

@@ -21,7 +21,7 @@ from app.ref_geo.repository import (
     get_type_code,
 )
 
-from flask import g, session, current_app
+from flask import session, current_app
 
 from .models import (
     TDeclaration,
@@ -290,11 +290,11 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
 
     if not declarant:
 
-        declarant = User()
+        declarant = as_dict(User())
 
     declaration_dict = declaration.as_dict(True)
     declaration_dict["foret"] = foret.as_dict(True)
-    declaration_dict["declarant"] = as_dict(declarant)
+    declaration_dict["declarant"] = declarant
     declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
 
     if b_resolve:
@@ -316,7 +316,6 @@ def dfpu_as_dict_from_id_declaration(id_declaration, b_resolve=True):
 
     declaration, foret, proprietaire, declarant = get_dfpu(id_declaration)
     declaration_dict = dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve)
-
     return declaration_dict
 
 
@@ -621,9 +620,11 @@ def get_declarations(b_synthese, id_declarant=None):
     # toutes les declaration dans le cas d'une synthese
     data = None
 
+
     if id_declarant:
 
         user = get_user(id_declarant)
+        print(user)
         liste_id_organismes_solo = get_id_organismes(['Autre (préciser)', "Pas d'organisme"])
 
         # administrateur et animateur >=5
@@ -632,10 +633,10 @@ def get_declarations(b_synthese, id_declarant=None):
 
         # les declarant de la meme structure (sauf les particuliers) >=)2
         elif user["id_droit_max"] >= 2 and user['id_organisme'] not in liste_id_organismes_solo:
-            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', {"organisme": user['organisme']}, None, 1e6).return_query()
+            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, {"organisme": user['organisme']}, 1e6).return_query()
 
         elif user["id_droit_max"] >= 1:
-            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', {"id_declarant": id_declarant}, None, 1e6).return_query()
+            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, {"id_declarant": id_declarant}, 1e6).return_query()
 
     elif b_synthese:
         data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, None, 1e6).return_query()

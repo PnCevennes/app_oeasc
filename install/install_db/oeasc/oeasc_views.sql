@@ -2,6 +2,7 @@ DROP VIEW IF EXISTS oeasc.v_declarations;
 CREATE OR REPLACE VIEW oeasc.v_declarations AS
     SELECT 
         d.id_declaration,
+        d.id_declarant,
         CONCAT(UPPER(r.nom_role), ' ', r.prenom_role) as declarant,
         r.organisme,
         f.label_foret,
