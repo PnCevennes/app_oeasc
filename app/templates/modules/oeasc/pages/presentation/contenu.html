@@ -35,17 +35,32 @@
 
   <h3 id="donnees_milieu_agricole">Données sur les milieux agricoles</h3>
 
-  <img class="flotte right" src="{{ url_for('static', filename='img/pages/degats_agricole_b_algoet.jpg') }}" alt="Dégât agricole" title="Dégâts agricoles">
+  <div class="flotte rigth">
+    <div class="img-container">
+      <img src="{{ url_for('static', filename='img/pages/degats_agricole_b_algoet.jpg') }}" alt="Dégât agricole">
+      <div class="img-middle">
+        <div class="img-text">Photographie de dégats agricoles</div>
+      </div>
+    </div>
+  </div>
+
   <p>Il s’agit essentiellement de valoriser les données existantes, principalement celles liées à l’indemnisation des dégâts agricoles par les Fédérations départementales de chasseurs. D’autres données, telles que celles relatives aux demandes de financement au titre des contrats de prévention aux particuliers (dispositif propre au Parc national des Cévennes) ou aux plaintes et doléances reçues par les différents acteurs du territoire, pourront progressivement être intégrées. Le choix des données à retenir et leur méthode de collecte et d'intégration sont actuellement en cours de définition, en concertation ave les partenaires concernés.</p>
 
   <div style="clear:both"></div>
 
   <hr>
 
-
   <h3 id="donnees_cynegetiques">Données cynégétiques</h3>
 
-  <img class="flotte left" src="{{ url_for('static', filename='img/pages/sanglier_parc_national_des_cevennes.jpg') }}" alt="Sanglier" title="Sanglier">
+  <div class="flotte left">
+    <div class="img-container">
+      <img src="{{ url_for('static', filename='img/pages/sanglier_parc_national_des_cevennes.jpg') }}" alt="Sanglier">
+      <div class="img-middle">
+        <div class="img-text">Photographie de sanglier</div>
+      </div>
+    </div>
+  </div>
+
   <p>Les données relatives aux attributions maximales et minimales (nombre d’animaux pouvant être chassés chaque année inscrit dans les plans de chasse) et aux nombre d’animaux prélevés sont collectées depuis de nombreuses années par l’établissement public du Parc national des Cévennes (pour les cervidés, dans le cœur du Parc national) et les Fédérations départementales des chasseurs (pour le sanglier et en dehors du cœur du Parc national). Elles seront donc été intégrées à l’Observatoire.</p>
 
   <div style="clear:both"></div>
@@ -88,8 +103,14 @@
 
   <p>Le système d’alerte de l’Observatoire permet aux propriétaires et aux gestionnaires forestiers de faire remonter des informations standardisées sur des peuplements touchés par des dégâts de grand gibier. Un formulaire d’alerte simple, accessible et rapide à renseigner peut être complété en ligne (cliquez <a href="{{url_for('oeasc.signalement_degats_forestiers')}}">ici</a>).</p>
 
-
-  <img class="flotte right" src="{{ url_for('static', filename='img/pages/ecorcage_b_algoet.jpg') }}" alt="Écorçage">
+  <div class="flotte right">
+    <div class="img-container">
+      <img src="{{ url_for('static', filename='img/pages/ecorcage_b_algoet.jpg') }}" alt="Écorçage">
+      <div class="img-middle">
+        <div class="img-text">Photographie d'écorçage</div>
+      </div>
+    </div>
+  </div>
 
   <p>Ce système d’alerte permet à la fois :</p>
   <ul>
@@ -108,7 +129,15 @@
 
   <hr>
 
-  <img class="flotte right" src="{{ url_for('static', filename='img/pages/diag_sylvicole_b_algoet.jpg') }}" alt="Diagnostic sylvicole" title="Diagnostic sylvicole">
+  <div class="flotte left">
+    <div class="img-container">
+      <img src="{{ url_for('static', filename='img/pages/diag_sylvicole_b_algoet.jpg') }}" alt="Diagnostic sylvicole">
+      <div class="img-middle">
+        <div class="img-text">Diagnostic sylvicole</div>
+      </div>
+    </div>
+  </div>
+
 
   <p>Parmi les peuplements forestiers signalés par le système d’alerte, plusieurs seront sélectionnés chaque année (selon des critères prédéfinis, par un groupe de travail réunissant les partenaires concernés) afin d’être l’objet d’un diagnostic sylvicole. Ce dernier vise à évaluer, à l’échelle d’un peuplement, l’impact des dégâts de cervidés son avenir et sa valeur sylvicole, au regard des objectifs de production du propriétaire.</p>
 
@@ -124,20 +153,23 @@
 
   <h3 id="recensement_peuplement_degradable">Recensement des peuplements dégradables</h3>
 
+<div class="flotte right">
+    <div class="img-container">
+      <img src="{{ url_for('static', filename='img/pages/peuplement_degradable.jpg') }}" alt="Peuplement dégradable">
+      <div class="img-middle">
+        <div class="img-text">Peuplement dégradable</div>
+      </div>
+    </div>
+  </div>
+
   <p>Outre la taille des populations d’ongulés sauvages et les dégâts qu’ils provoquent, l’équilibre agro‑sylvo‑cynégétique est lié à certaines caractéristiques des peuplements forestiers, et notamment à la superficie occupée par les peuplements dits « dégradables » (sensibles aux dégâts). En effet, à titre d’exemple, une plantation d’un hectare de sapins située au cœur d’un vaste massif de peuplements matures subira inévitablement des dégâts importants, quelque soit le niveau de population de cervidés, et sans que cela traduise pour autant une situation de déséquilibre.</p>
 
   <p>La période de vulnérabilité des peuplements forestiers dépend du type de dégâts (abroutissement, frottis, écorçage) et des essences, mais les peuplements sont généralement considérés comme dégradables au cours de leurs premiers stades de développement. Il s’agira donc de créer, d’alimenter et de mettre régulièrement à jour une cartographie dynamique des peuplements sensibles, et notamment de ceux dont le processus de régénération (naturelle ou par plantation) est initié ou programmé. Ces informations pourront notamment être utilisées afin d’adapter la pression de chasse (en l’accentuant localement pendant plusieurs années, par exemple, sur une zone sensible). Les données fourniront également des indications sur le degré de vulnérabilité des peuplements en régénération (<i>via</i> le ratio superficie forestière dégradable / superficie forestière totale, par exemple).</p>
 
   <p>À ce stade, la méthodologie de mise en œuvre de ce volet de l’Observatoire reste à définir, en concertation avec les partenaires concernés.</p>
 
-  <div class="flex-container">
-    <figure class="figure">
-     <img class="" src="{{ url_for('static', filename='img/pages/carte_peuplements dégradables.jpg') }}" alt="Écorçage">
-     <figcaption><b>Carte des peuplements dégradables</b></figcaption>
-   </figure>
- </div>
 
- <div style="clear:both"></div>
+  <div style="clear:both"></div>
 
 </div>
 
