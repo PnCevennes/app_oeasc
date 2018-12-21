@@ -18,6 +18,7 @@
   "dependencies": {
     "bootstrap": "^4.1.1",
     "bootstrap-select": "^1.13.1",
+    "chart.js": "^2.7.3",
     "chosen-js": "^1.8.7",
     "datatables.mark.js": "^2.0.1",
     "datatables.net": "^1.10.19",

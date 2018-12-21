@@ -207,7 +207,7 @@ $(document).ready(function() {
 
   var initialiser_form_degats = function() {
 
-    // bidouille pour avoir des formulaires imbriqués pour les dégats essences
+    // bidouille pour avoir des formulaires imbriqués pour les dégâts essences
 
     $(".form-degat-essence").each(function(i,e) {
 
@@ -531,7 +531,7 @@ $(document).ready(function() {
       $.ajax({
 
         type: 'POST',
-        url: "/api/oeasc/create_or_update_declaration",
+        url: "/api/declaration/create_or_update_declaration",
         data: JSON.stringify({
           "declaration": declaration,
           "id_form": get_id_form()
@@ -571,7 +571,7 @@ $(document).ready(function() {
   };
 
 
-  //  on recharge le formulaire des dégats
+  //  on recharge le formulaire des dégâts
 
   var recharger_form = function(declaration=null, id_form=null) {
 
@@ -599,7 +599,7 @@ $(document).ready(function() {
     $.ajax({
 
       type: 'POST',
-      url: "/api/oeasc/get_form_declaration",
+      url: "/api/declaration/get_form_declaration",
       data: JSON.stringify({
 
         "declaration": declaration,

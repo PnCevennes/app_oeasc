@@ -6,29 +6,20 @@ $(document).ready(function() {
   var color_not_selected = 'rgb(222, 226, 230);';
 
   // option du tableau
-
-   var table_indices = {};
-   $("thead th").each( (i,e) => table_indices[$(e).html()]=i );
-   console.log(table_indices);
+  var table_indices = {};
+  $("thead th").each( (i,e) => table_indices[$(e).html()]=i );
   var table = $("#table_declarations").DataTable({
-    rowCallback: function(row, data, dataIndex) {
-      if($(data[10]).html() == "Impt.") { $(row).addClass("DG_IMPT"); $(row).css('background-color', "rgba(255, 0, 0, 0.2)")}
-    },
     columnDefs: [{
       "targets": [ table_indices['ID'] ],
-      "visible": false,
-      "searchable": false,
+      "width": "30px",
     }, {
-      "targets": [ table_indices['Commune(s)'] ],
-      "width": "100px",
-    }, {
-      "targets": [ table_indices['Nom forêt'] ],
+      "targets": [ table_indices['Commune(s)'], table_indices['Nom forêt'] ],
       "width": "100px",
     }],
 
     // searching: false,
     scrollY:  "400px",
-    scrollCollapse: true,
+    // scrollCollapse: true,
     // scroller:       true,
     paging: false,
     mark: true,
@@ -51,7 +42,6 @@ $(document).ready(function() {
 
   });
 
-  M.listen_visibility = false;
 
   M.table = table;
 
@@ -79,61 +69,41 @@ $(document).ready(function() {
     var ind_visible_columns = [];
 
     for(var i = 0; i < table.columns().visible().length; i++ ) {
-
       if(table.columns().visible()[i]) {
-
         var col = table.column(i)
         visible_columns.push(col);
         ind_visible_columns.push(i);
-
       }
-
     }
 
 
     for(var i=0; i < cols_search.length; i++) {
-
       var col_search = cols_search[i];
       $(col_search).width(10);
-
       var w = $($("#tableau_declarations td")[i]).width();
       $(col_search).width(w-20);
-
     }
 
     visible_columns.forEach(function(e) {
-
       var title = $(e.header()).html();
       var input = $("[placeholder='" + title + "'");
-
       $(input).on( 'keyup change', function () {
-
         if ( e.search() !== this.value ) {
-
           e
           .search( this.value )
           .draw();
-
         }
-
       });
-
-
     });
-
     table.listen_visibility=true;
-
   };
 
 
   table.on('column-visibility', function() {
-
     if(table.listen_visibility) {
-
+      console.log("aa")
       init_column_search();
-
     }
-
   });
 
 
@@ -232,10 +202,13 @@ $(document).ready(function() {
       $('#column_search').remove();
     }
 
+
     for(var i=0; i<table.columns()[0].length; i++) {
+      // table.column(i).settings()[0].aoColumns[i].bVisible=false;
       table.column(i).visible(false);
       table.column(i).settings()[0].aoColumns[i].bSearchable = false;
     }
+
 
     for (var i=0; i<columns_selected.length; i++) {
       var ind = columns_selected[i];
@@ -243,9 +216,15 @@ $(document).ready(function() {
       table.column(ind).settings()[0].aoColumns[i].bSearchable = true;
     }
 
+
     table.listen_visibility = true;
     init_column_search();
-    console.log("yakkk");
+    if($('#table_declarations_filter input').val()==''){
+      table.search('wouplaboum').draw();
+      table.search('').draw();
+    }
+
+    // $('#table_declarations_filter').val('');
   };
 
   var selection_tout = []
@@ -253,88 +232,65 @@ $(document).ready(function() {
     selection_tout.push(i);
   }
 
+
   var selection_reduite = [1, 2, 3, 4, 11];
 
   $("[data-type=T]").click(function () {
-  /* Onglet tableau
-  */
+    /* Onglet tableau
+    */
     $("#show_declarations").hide();
     $("#show_declarations").attr("class", "");
     $("#tableau_declarations").show();
     $("#tableau_declarations").attr("class", "col-md-12");
     set_columns(selection_tout);
+
   });
 
-  // $("[data-type=C]").click(function () {
-  // /* Onglet carte
-  // */
-  //   $("#tableau_declarations").hide();
-  //   $("#tableau_declarations").attr("class", "");
-  //   $("#show_declarations").show();
-  //   $("#show_declarations").attr("class", "col-md-12");
-  //   setTimeout(function() {
-  //     M['map_show_declarations'].invalidateSize();
-  //   }, 100);
-  // });
 
 
   $("[data-type=TC]").click(function () {
-  /* Onglet tableau + carte
-  */
+    /* Onglet tableau + carte
+    */
     $("#show_declarations").show();
     $("#show_declarations").attr("class", "col-md-6");;
     $("#tableau_declarations").show();
     $("#tableau_declarations").attr("class", "col-md-6");;
     setTimeout(function(){
-      M['map_show_declarations'].invalidateSize();
       set_columns(selection_reduite);
-    }, 100);
-
+      $('#map_show_declarations').height($('#tableau_declarations').height());
+      M['map_show_declarations'].invalidateSize();
+    }, 50);
 
   });
 
-    // init
-
-    // setTimeout(function() {
-
-      // $("[data-type=T]").click();
-      // set_columns(selection_reduite)
-      // $("#map_show_declarations").height($("#tableau_declarations").height());
-      // setTimeout(function(){ M['map_show_declarations'].invalidateSize(); init_column_search()}, 100);
-      // init_column_search();
-
-    // }, 400);
-
-
-
-
-
-    var declarations = [];
-
-    $(".data-declaration").each(function(){
-      var declaration = JSON.parse($(this).attr("data-declaration"));
-      declarations.push(declaration);
-    });
-
-    //init
-
-    M.initialiser_show_declarations('show_declarations', declarations);
-
+  // init
+  setTimeout(function() {
     $("[data-type=T]").click();
+  }, 500);
 
-    $(".button-supprimer-declaration").click(function() {
-      var $this = $(this);
-      var id_declaration = $this.attr('data-id-declaration');
-      $.ajax({
-        type: 'POST',
-        url: "/api/oeasc/delete_declaration/" + id_declaration,
-      }).done(function(response) {
-        console.log("done : " + this.url);
-        $this.parents("tr").remove();
-      }).fail(function(response) {
-        console.log("fail : " + this.url, response);
-      });
+  var declarations = [];
 
+  $(".data-declaration").each(function(){
+    var declaration = JSON.parse($(this).attr("data-declaration"));
+    declarations.push(declaration);
+  });
+
+  //init
+  M.initialiser_show_declarations('show_declarations', declarations);
+
+  $(".button-supprimer-declaration").click(function() {
+    var $this = $(this);
+    var id_declaration = $this.attr('data-id-declaration');
+    $.ajax({
+      type: 'POST',
+      url: "/api/declaration/delete_declaration/" + id_declaration,
+    }).done(function(response) {
+      console.log("done : " + this.url);
+      $this.parents("tr").remove();
+    }).fail(function(response) {
+      console.log("fail : " + this.url, response);
     });
 
   });
+
+});

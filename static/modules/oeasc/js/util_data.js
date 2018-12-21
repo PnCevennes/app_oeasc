@@ -285,7 +285,7 @@ var reset_proprietaire = function() {
   };
 
 
-  // récupérer les données du formulaire de dégats en dictionnaires
+  // récupérer les données du formulaire de dégâts en dictionnaires
 
   var get_degats_as_dict = function() {
 

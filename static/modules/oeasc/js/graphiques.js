@@ -14,7 +14,6 @@ var init_bar_chart = function(response, name, names_origin) {
 
   var height = data.length * 25 + margin.top + margin.bottom
 
-
   var d_max = d3.max(data, d => d.value)
 
   var x = d3.scaleLinear()
@@ -68,67 +67,46 @@ var init_bar_chart = function(response, name, names_origin) {
 
   svg.style('background-color', 'lightgray')
 
-// rect
-    // svg.append("g")
-    // .attr("fill", "steelblue")
-    // .selectAll("rect")
-    // .data(data)
-    // .enter().append("rect")
-    // .attr("x", x(0))
-    // .attr("y", d => y(d.name))
+  // rect
+  // svg.append("g")
+  // .attr("fill", "steelblue")
+  // .selectAll("rect")
+  // .data(data)
+  // .enter().append("rect")
+  // .attr("x", x(0))
+  // .attr("y", d => y(d.name))
 
-    // .attr("width", 0).
-    // transition().duration(1000).delay(function(d,i){return (100*i);})
-    // .attr("width", d => x(d.value) - x(0))
-    // .attr("height", y.bandwidth());
-
-
-    var color = ['red', 'orange', 'yellow'];
-
-    for ( var ind in names_origin) {
-
-      var name = names_origin[ind];
-
-      svg.append("g")
-      .selectAll("rect")
-      .data(data)
-      .enter().append("rect")
-      .attr('class', "bars")
-      .attr("fill", color[ind])
-      .attr("width", 0)
-      .attr("height", y.bandwidth())
-      .attr("y", function(d) { return y(d.name) } )
-      .attr("x", x(0))
-      .transition()
-      .duration(1000)
-      .attr("x", function(d) { var dec = 0; for(var j=0; j<ind; j++) {dec += d.values_origin[names_origin[j]]}; return x(dec);})
-      .attr("width", d => x(d.values_origin[name]) - x(0) )
-
-      svg.append("g")
-      .attr("fill", "black")
-      .attr("text-anchor", "end")
-      .style("font", "12px sans-serif")
-      .selectAll("text")
-      .data(data)
-      .enter().append("text")
-      .attr('class', "bars-text")
-      .attr("x", x(0))
-      .attr("y", d => y(d.name) + y.bandwidth() / 2)
-      .attr("dy", "0.35em")
-      .style("opacity", 0)
-      .transition()
-      .duration(1000)
-      .style("opacity", 1)
-      .attr("x", function(d) { var dec = 0; for(var j=0; j<ind; j++) {dec += d.values_origin[names_origin[j]]}; return x(dec + d.values_origin[name]) - 4})
-      .text(d => format(d.values_origin[names_origin[ind]]));
+  // .attr("width", 0).
+  // transition().duration(1000).delay(function(d,i){return (100*i);})
+  // .attr("width", d => x(d.value) - x(0))
+  // .attr("height", y.bandwidth());
 
 
-    }
+  var color = ['red', 'orange', 'yellow'];
+
+  for (var ind in names_origin) {
+
+    var name = names_origin[ind];
+
+    svg.append("g")
+    .selectAll("rect")
+    .data(data)
+    .enter().append("rect")
+    .attr('class', "bars")
+    .attr("fill", color[ind])
+    .attr("width", 0)
+    .attr("height", y.bandwidth())
+    .attr("y", function(d) { return y(d.name) } )
+    .attr("x", x(0))
+    .transition()
+    .duration(1000)
+    .attr("x", function(d) { var dec = 0; for(var j=0; j<ind; j++) {dec += d.values_origin[names_origin[j]]}; return x(dec);})
+    .attr("width", d => x(d.values_origin[name]) - x(0) )
 
     svg.append("g")
     .attr("fill", "black")
-    .attr("text-anchor", "start")
-    .style("font", "15px bold sans-serif")
+    .attr("text-anchor", "end")
+    .style("font", "12px sans-serif")
     .selectAll("text")
     .data(data)
     .enter().append("text")
@@ -140,45 +118,65 @@ var init_bar_chart = function(response, name, names_origin) {
     .transition()
     .duration(1000)
     .style("opacity", 1)
-    .attr("x", d => x(d.value) + 4)
-    .text(d => format(d.value));
+    .attr("x", function(d) { var dec = 0; for(var j=0; j<ind; j++) {dec += d.values_origin[names_origin[j]]}; return x(dec + d.values_origin[name]) - 4})
+    .text(d => format(d.values_origin[names_origin[ind]]));
+
+  }
+
+  svg.append("g")
+  .attr("fill", "black")
+  .attr("text-anchor", "start")
+  .style("font", "15px bold sans-serif")
+  .selectAll("text")
+  .data(data)
+  .enter().append("text")
+  .attr('class', "bars-text")
+  .attr("x", x(0))
+  .attr("y", d => y(d.name) + y.bandwidth() / 2)
+  .attr("dy", "0.35em")
+  .style("opacity", 0)
+  .transition()
+  .duration(1000)
+  .style("opacity", 1)
+  .attr("x", d => x(d.value) + 4)
+  .text(d => format(d.value));
 
 
 
-    svg.append("g")
-    .selectAll("rect")
-    .data(names_origin)
-    .enter().append('rect')
-    .attr("fill", function(d, i) {return color[i]})
-    .attr('x', width - margin.right + 20)
-    .attr('y', d => y_legend(d))
-    .attr("height", y.bandwidth())
-    .attr("width", 20)
+  svg.append("g")
+  .selectAll("rect")
+  .data(names_origin)
+  .enter().append('rect')
+  .attr("fill", function(d, i) {return color[i]})
+  .attr('x', width - margin.right + 20)
+  .attr('y', d => y_legend(d))
+  .attr("height", y.bandwidth())
+  .attr("width", 20)
 
-    svg.append("g")
-    .attr("fill", "black")
-    .attr("text-anchor", "begin")
-    .style("font", "12px sans-serif")
-    .selectAll("text")
-    .data(names_origin)
-    .enter().append('text')
-    .attr("fill", 'black')
-    .attr('x', width - margin.right + 50)
-    .attr('y', d => y_legend(d)  + y.bandwidth() / 2)
-    .attr("dy", "0.35em")
-    .text(d => d)
-    .on("click", function() {
-      name = $(this).html(); data.sort((a, b) => a.values_origin[name] - b.values_origin[name]); for(var d in data) console.log(data[d]);
+  svg.append("g")
+  .attr("fill", "black")
+  .attr("text-anchor", "begin")
+  .style("font", "12px sans-serif")
+  .selectAll("text")
+  .data(names_origin)
+  .enter().append('text')
+  .attr("fill", 'black')
+  .attr('x', width - margin.right + 50)
+  .attr('y', d => y_legend(d)  + y.bandwidth() / 2)
+  .attr("dy", "0.35em")
+  .text(d => d)
+  .on("click", function() {
+    name = $(this).html(); data.sort((a, b) => a.values_origin[name] - b.values_origin[name]); for(var d in data) console.log(data[d]);
 
-      var y = d3.scaleBand()
-      .domain(data.map(d => d.name))
-      .range([margin.top, height - margin.bottom])
-      .padding(0.1)
+    var y = d3.scaleBand()
+    .domain(data.map(d => d.name))
+    .range([margin.top, height - margin.bottom])
+    .padding(0.1)
 
-      d3.selectAll('.bars').transition().duration(1000)
-      .attr("y", d => y(d.name))
-      d3.selectAll('.bars-text').transition().duration(1000)
-      .attr("y", d => y(d.name)  + y.bandwidth() / 2)
+    d3.selectAll('.bars').transition().duration(1000)
+    .attr("y", d => y(d.name))
+    d3.selectAll('.bars-text').transition().duration(1000)
+    .attr("y", d => y(d.name)  + y.bandwidth() / 2)
       // .attr("y", d => 0)
       ;
 
@@ -287,7 +285,7 @@ svg
 
 }
 
-$.ajax('/api/test/get_declarations')
+$.ajax('/api/declaration/declarations')
 .done(function(response){
 
   console.log(response);
@@ -326,23 +324,16 @@ $.ajax('/api/test/get_declarations')
 
       }
 
-        // if (! dict_data['names_origin'].includes(origine_peuplement_name)) {
+      if (! dict_data[name]['values_origin'][origine_peuplement_name]) {
 
-        //   dict_data['names_origin'].push(origine_peuplement_name);
+        dict_data[name]['values_origin'][origine_peuplement_name] = 0
 
-        // }
+      }
 
+      dict_data[name]['value'] += 1;
+      dict_data[name]['values_origin'][origine_peuplement_name] += 1
 
-        if (! dict_data[name]['values_origin'][origine_peuplement_name]) {
-
-          dict_data[name]['values_origin'][origine_peuplement_name] = 0
-
-        }
-
-        dict_data[name]['value'] += 1;
-        dict_data[name]['values_origin'][origine_peuplement_name] += 1
-
-      })
+    })
 
   });
 

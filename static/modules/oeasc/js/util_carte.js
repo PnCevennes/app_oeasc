@@ -273,7 +273,7 @@ var load_areas = function(areas, type, map, b_zoom) {
 
       var declaration = declarations[k];
       var id_declaration = declaration.id_declaration;
-      var s_popup = '<div><a href="/oeasc/declaration/' + id_declaration + '"  target="_blank">Alerte ' + id_declaration + ' </a></div>';
+      var s_popup = '<div><a href="/declaration/declaration/' + id_declaration + '"  target="_blank">Alerte ' + id_declaration + ' </a></div>';
       var centroid = declaration.centroid;
       var marker = L.circle(centroid, { color: "black", radius: 100, pane: 'PANE_3'}).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
       marker.id_declaration = id_declaration;
@@ -282,10 +282,6 @@ var load_areas = function(areas, type, map, b_zoom) {
         $(document).trigger("marker_click", [this.id_declaration]);
       });
     }
-    setTimeout(function() {
-    console.log("aaaa")
-    M['map_show_declarations'].invalidateSize()
-    }, 2000)
   };
   // on place les fonctions et objets dans M pour les exporter
 

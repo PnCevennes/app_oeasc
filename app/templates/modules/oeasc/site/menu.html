@@ -24,34 +24,34 @@
 
           <li class="nav-item dropdown">
 
-            <a class="nav-link dropdown-toggle" href="{{ url_for('oeasc.signalement_degats_forestiers')}}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Signaler des dégâts en forêt</a>
+            <a class="nav-link dropdown-toggle" href="{{ url_for('declaration.signalement_degats_forestiers')}}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Signaler des dégâts en forêt</a>
 
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <a class="dropdown-item" href="{{ url_for('oeasc.signalement_degats_forestiers') }}">Le système d'alerte</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.degats_gibier') }}">Les dégâts de grand gibier</a>
+              <a class="dropdown-item" href="{{ url_for('declaration.signalement_degats_forestiers') }}">Le système d'alerte</a>
+              <a class="dropdown-item" href="{{ url_for('declaration.degats_gibier') }}">Les dégâts de grand gibier</a>
               <hr>
-              <a class="dropdown-item" href="{{ url_for('oeasc.informations_declaration') }}">Je déclare une nouvelle alerte</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.declarations') }}">Je consulte mes alertes et celles de ma structure</a>
+              <a class="dropdown-item" href="{{ url_for('declaration.informations_declaration') }}">Je déclare une nouvelle alerte</a>
+              <a class="dropdown-item" href="{{ url_for('declaration.declarations') }}">Je consulte mes alertes et celles de ma structure</a>
             </div>
           </li>
 
           <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="{{ url_for('oeasc.resultats') }}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Suivi de l'équilibre agro‑sylvo‑cynégétique</a>
+            <a class="nav-link dropdown-toggle" href="{{ url_for('resultat.resultats') }}" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Suivi de l'équilibre agro‑sylvo‑cynégétique</a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item disabled" href="#" >Par secteur d'étude</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_mont_aigoual') }}">Mont Aigoual</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_vallees_cevenoles') }}">Vallées Cévenoles</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_causses_gorges') }}">Causses et Gorges</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_mont_lozere') }}">Mont Lozère</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.mont_aigoual') }}">Mont Aigoual</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.vallees_cevenoles') }}">Vallées Cévenoles</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.causses_gorges') }}">Causses et Gorges</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.mont_lozere') }}">Mont Lozère</a>
 
               <hr>
               <a class="dropdown-item disabled" href="#" >Par volet thématique</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_degats_forestiers') }}">Degats forestiers</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_diagnostics_sylvicoles') }}">Diagnostics sylvicoles</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_ice') }}">ICE</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_donnees_cynegetiques') }}">Données cynégétiques</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_degats_agricoles') }}">Dégâts agricoles</a>
-              <a class="dropdown-item" href="{{ url_for('oeasc.resultats_peuplements_degradables') }}">Peuplements dégradables</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.degats_forestiers') }}">Degats forestiers</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.diagnostics_sylvicoles') }}">Diagnostics sylvicoles</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.ice') }}">ICE</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.donnees_cynegetiques') }}">Données cynégétiques</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.degats_agricoles') }}">Dégâts agricoles</a>
+              <a class="dropdown-item" href="{{ url_for('resultat.peuplements_degradables') }}">Peuplements dégradables</a>
             </div>
           </li>
 

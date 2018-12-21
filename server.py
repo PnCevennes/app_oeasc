@@ -1,4 +1,4 @@
-from flask import Flask, redirect, session, request, url_for
+from flask import Flask, redirect, session, request
 
 import json
 
@@ -40,9 +40,7 @@ app = Flask(__name__, template_folder="app/templates", static_folder='static')
 
 app.secret_key = 'dtgperçtuiperotivemrtikotiçà80979837589UJ5?OI3J?LORJ?C3LKJVL3V5V35'
 
-
 app.config.from_pyfile('config/config.py', silent=True)
-
 
 mail.init_app(app)
 DB.init_app(app)
@@ -58,7 +56,7 @@ def accueil():
 
 with app.app_context():
 
-    from app.modules.oeasc.mail_user import function_dict
+    from app.modules.oeasc.user.mail import function_dict
     app.config['after_USERSHUB_request'] = function_dict
 
     from app.modules.oeasc.utils import utils_dict
@@ -82,17 +80,30 @@ with app.app_context():
     from app.modules.oeasc import routes as oeasc_routes
     app.register_blueprint(oeasc_routes.bp, url_prefix='/oeasc')
 
-    from app.modules.oeasc import routes_user as oeasc_routes_user
-    app.register_blueprint(oeasc_routes_user.bp, url_prefix='/user')
+    from app.modules.oeasc.declaration import routes as declaration_routes
+    app.register_blueprint(declaration_routes.bp, url_prefix='/declaration')
+
+    from app.modules.oeasc.user import routes as routes_user
+    app.register_blueprint(routes_user.bp, url_prefix='/user')
+
+    from app.modules.oeasc.resultat import routes as routes_resultat
+    app.register_blueprint(routes_resultat.bp, url_prefix='/resultat')
 
     from app.modules.oeasc import api as oeasc_api
     app.register_blueprint(oeasc_api.bp, url_prefix='/api/oeasc')
 
-    from app.modules.oeasc import api_test as api_test
-    app.register_blueprint(api_test.bp, url_prefix='/api/test')
+    from app.modules.oeasc.declaration import api as declaration_api
+    app.register_blueprint(declaration_api.bp, url_prefix='/api/declaration')
 
-    from app.modules.oeasc import route_test as route_test
-    app.register_blueprint(route_test.bp, url_prefix='/test')
+    from app.modules.oeasc.resultat import api as resultats_api
+    app.register_blueprint(resultats_api.bp, url_prefix='/api/resultat')
+
+
+    # from app.modules.oeasc import api_test as api_test
+    # app.register_blueprint(api_test.bp, url_prefix='/api/test')
+
+    # from app.modules.oeasc import route_test as route_test
+    # app.register_blueprint(route_test.bp, url_prefix='/test')
 
     from pypnusershub import routes
     app.register_blueprint(routes.routes, url_prefix='/pypn/auth')
@@ -103,13 +114,8 @@ with app.app_context():
     from pypnnomenclature.routes import routes
     app.register_blueprint(routes, url_prefix='/api/nomenclatures')
 
-
-
 if __name__ == '__main__':
     app.run(debug=config.DEBUG, port=config.PORT)
-
-
-
 
 _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 

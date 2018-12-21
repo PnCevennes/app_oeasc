@@ -1,27 +1,17 @@
 {%- extends "modules/oeasc/site/layout.html" %}
 
+{%- block css %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='modules/oeasc/css/graph.css') }}">
+{%- endblock %}
 
 {%- block title %}test d3{%- endblock %}
 
 
 {%- block content %}
 
-<style>
-
-div.tooltip {
-  position: absolute;
-  text-align: center;
-  padding: 10px;
-  font: 12px sans-serif;
-  background: lightsteelblue;
-  border: 0px;
-  border-radius: 8px;
-  pointer-events: none;
-}
-
-</style>
-
-<svg class="chart"></svg>
+<div id="degats" class="graph" title="Répartition des différent types de dégâts">
+{# <svg class="chart"></svg> #}
 
 {%- endblock %}
 
@@ -31,6 +21,10 @@ div.tooltip {
 {{ super() }}
 
 <script src="http://d3js.org/d3.v4.min.js"></script>
-<script src="{{ url_for('static', filename='modules/oeasc/js/graphiques.js') }}"></script>
-
+<script src="{{ url_for('static', filename='modules/oeasc/js/resultat/graphiques.js') }}"></script>
+<script>
+$(document).ready(function() {
+  G.set_graphs();
+});
+</script>
 {%- endblock %}

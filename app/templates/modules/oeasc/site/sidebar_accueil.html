@@ -1,15 +1,15 @@
-{%- import "modules/oeasc/macros/macros.html" as m %}
+s{%- import "modules/oeasc/macros/macros.html" as m %}
 
 
 <div id="sidebar_sticky">
 
   <ul class="main-pages">
 
-    <li class="alert alert-primary">{% set href=url_for('oeasc.informations_declaration')%}
+    <li class="alert alert-primary">{% set href=url_for('declaration.informations_declaration')%}
       {# <button class='btn btn-primary' onclick="location.href='{{href}}'">
       Signaler un dégât en forêt
       </button> #}
-      <a href="{{url_for('oeasc.informations_declaration')}}"><b>Signaler un dégât en forêt</b></a>
+      <a href="{{url_for('declaration.informations_declaration')}}"><b>Signaler un dégât en forêt</b></a>
     </li>
 
     <hr>
@@ -18,11 +18,11 @@
 
     <hr>
 
-    <li>{{ m.link_bold("Système d'alerte",'oeasc.signalement_degats_forestiers') }}</li>
+    <li>{{ m.link_bold("Système d'alerte",'declaration.signalement_degats_forestiers') }}</li>
 
     <hr>
 
-    <li>{{ m.link_bold("Suivi de l'équilibre agro‑sylvo‑cynégétique",'oeasc.resultats') }}</li>
+    <li>{{ m.link_bold("Suivi de l'équilibre agro‑sylvo‑cynégétique",'resultat.resultats') }}</li>
 
 
   </ul>

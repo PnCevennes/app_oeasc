@@ -5,35 +5,35 @@
 
   <ul>
 
-    <li>{{ m.link_bold("Le système d'alerte",'oeasc.signalement_degats_forestiers') }}
+    <li>{{ m.link_bold("Le système d'alerte",'declaration.signalement_degats_forestiers') }}
   <hr>
   <ul>
 
-    <li>{{ m.link_bold("Les dégâts de grand gibier",'oeasc.degats_gibier') }}</li>
-    {% if request.endpoint != 'oeasc.informations_declaration' %}
+    <li>{{ m.link_bold("Les dégâts de grand gibier",'declaration.degats_gibier') }}</li>
+    {% if request.endpoint != 'declaration.informations_declaration' %}
 
     <hr>
 
     <li class="alert alert-primary">
-      <a href="{{url_for('oeasc.informations_declaration')}}">Je déclare une nouvelle alerte</a>
+      <a href="{{url_for('declaration.informations_declaration')}}">Je déclare une nouvelle alerte</a>
     </li>
 
 
     <hr>
 
     <li class="alert alert-warning">
-      <a href="{{url_for('oeasc.declarations')}}">Je consulte mes alertes</a>
+      <a href="{{url_for('declaration.declarations')}}">Je consulte mes alertes</a>
     </li>
   </ul>
   </li>
   {% endif %}
-  <!-- <li>{{ m.link_bold("Je consulte mes alertes",'oeasc.declarations') }}</li> -->
+  <!-- <li>{{ m.link_bold("Je consulte mes alertes",'declaration.declarations') }}</li> -->
 
-  {% if request.endpoint == 'oeasc.informations_declaration' %}
+  {% if request.endpoint == 'declaration.informations_declaration' %}
   <ul>
    <hr>
     <li class="alert alert-primary">
-      <a href="{{url_for('oeasc.modifier_declaration')}}">Commencer la déclaration de dégâts</a>
+      <a href="{{url_for('declaration.modifier_declaration')}}">Commencer la déclaration de dégâts</a>
     </li>
   </ul>
   {% endif %}

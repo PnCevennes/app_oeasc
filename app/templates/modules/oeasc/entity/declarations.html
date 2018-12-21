@@ -112,7 +112,7 @@
               <td>{{macros_display.tooltip_mnemonique(declaration.nomenclatures_degat_type)}}</td>
 
               <td>
-                <a href="{{ url_for('oeasc.declaration', id_declaration=declaration['id_declaration'])}}" title="Voir les détails de la déclaration" data-toggle="tooltip">
+                <a href="{{ url_for('declaration.declaration', id_declaration=declaration['id_declaration'])}}" title="Voir les détails de la déclaration" data-toggle="tooltip">
                   <span class="fas fa-eye"></span>
                 </a>
               
@@ -120,7 +120,7 @@
               {%- if cond_modifier_effacer %}
 
               
-                <a href="{{ url_for('oeasc.modifier_declaration', id_declaration=declaration['id_declaration'])}}" title="Modifier la déclaration" data-toggle="tooltip">
+                <a href="{{ url_for('declaration.modifier_declaration', id_declaration=declaration['id_declaration'])}}" title="Modifier la déclaration" data-toggle="tooltip">
                   <span class="fas fa-pen"></span>
                 </a>
               </td>
