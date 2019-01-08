@@ -84,12 +84,14 @@
   margin:1px 1px;
 }
 
-.fil-ariane a {
 
-  font-size: 0.8em;
+
+#fil_local a {
   background-color: #ff9933;
-  /* color: black; */
+}
 
+#fil_global a {
+  background-color: #ffdc55;
 }
 
 .fil-ariane a:hover {
@@ -130,7 +132,7 @@ div.progression {
 
 }
 
-.fil-ariane a[disabled=disabled] {
+.fil-ariane a[disabled=disabled], #fil_local a[disabled=disabled], #fil_global a[disabled=disabled] {
 
   color: grey;
   background-color: rgba(0,0,0,0);
@@ -147,7 +149,7 @@ div.progression {
 }
 
 #fil_global {
-  font-size: 1em;
+  font-size: 0.8rem;
   background-color : #ffffcc;
 
 }
@@ -156,7 +158,8 @@ div.progression {
 
   justify-content: space-around;
   background-color : #ffcc99;
-
+  font-style:  italic;
+  font-size: 0.7rem;
   box-shadow: 0px 4px 4px 0px rgba(0,0,0,0.2);
 }
 

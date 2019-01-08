@@ -265,7 +265,7 @@ var reset_proprietaire = function() {
     // - - paturage
 
     declaration.b_peuplement_paturage_presence = get_choice("b_peuplement_paturage_presence");
-    declaration.nomenclatures_peuplement_paturage_type = get_cor("nomenclatures_peuplement_paturage_type", "id_nomenclature", "check");
+    declaration.id_nomenclature_peuplement_paturage_type = parseInt($("[name=id_nomenclature_peuplement_paturage_type]:checked").val());
     declaration.nomenclatures_peuplement_paturage_statut = get_cor("nomenclatures_peuplement_paturage_statut", "id_nomenclature", "check");
     declaration.id_nomenclature_peuplement_paturage_frequence = parseInt($("[name=id_nomenclature_peuplement_paturage_frequence]:checked").val());
     declaration.nomenclatures_peuplement_paturage_saison = get_cor("nomenclatures_peuplement_paturage_saison", "id_nomenclature", "check");

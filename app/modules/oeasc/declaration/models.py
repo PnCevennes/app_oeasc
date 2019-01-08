@@ -244,6 +244,7 @@ class TDeclaration(DB.Model):
     id_nomenclature_peuplement_origine = DB.Column(DB.Integer)
     id_nomenclature_peuplement_type = DB.Column(DB.Integer)
     id_nomenclature_peuplement_paturage_frequence = DB.Column(DB.Integer)
+    id_nomenclature_peuplement_paturage_type = DB.Column(DB.Integer)
     id_nomenclature_peuplement_acces = DB.Column(DB.Integer)
     id_nomenclature_peuplement_essence_principale = DB.Column(DB.Integer)
 
@@ -256,7 +257,6 @@ class TDeclaration(DB.Model):
     nomenclatures_peuplement_essence_complementaire = DB.relationship(CorNomenclatureDeclarationEssenceComplementaire, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_maturite = DB.relationship(CorNomenclatureDeclarationMaturite, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_protection_type = DB.relationship(CorNomenclatureDeclarationProtectionType, cascade="save-update, merge, delete, delete-orphan")
-    nomenclatures_peuplement_paturage_type = DB.relationship(CorNomenclatureDeclarationPaturageType, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_paturage_statut = DB.relationship(CorNomenclatureDeclarationPaturageStatut, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_paturage_saison = DB.relationship(CorNomenclatureDeclarationPaturageSaison, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_espece = DB.relationship(CorNomenclatureDeclarationEspece, cascade="save-update, merge, delete, delete-orphan")

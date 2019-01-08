@@ -94,7 +94,8 @@
 
           {%- if declaration['b_peuplement_paturage_presence'] %}
 
-          {{macros_display.list_nomenclatures('Type de paturage', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
+          <li><b>Type</b> : {{ declaration.id_nomenclature_peuplement_paturage_type.label_fr | nopar | lower }}. </li>
+
           {{macros_display.list_nomenclatures('Fréquence du paturage', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
           <li><b>Fréquence du paturage</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | nopar | lower }}. </li>

@@ -6,29 +6,28 @@
   <ul>
 
     <li>{{ m.link_bold("Présentation de l'Observatoire",'oeasc.presentation') }}
-    <hr>
-<ul>
-    <li>{{ m.link_bold("Justification",'oeasc.pourquoi') }}</li>
-    <li>{{ m.link_bold("Objectifs",'oeasc.objectifs') }}</li>
-    <li>{{ m.link_bold("Périmètre et zonage",'oeasc.perimetre_etude') }}</li>
-    <li>{{ m.link_bold("Contenu",'oeasc.contenu') }}</li>
-</ul></li>
+      <ul>
+        <li>{{ m.link_bold("Justification",'oeasc.pourquoi') }}</li>
+        <li>{{ m.link_bold("Objectifs",'oeasc.objectifs') }}</li>
+        <li>{{ m.link_bold("Périmètre et zonage",'oeasc.perimetre_etude') }}</li>
+        <li>{{ m.link_bold("Contenu",'oeasc.contenu') }}
+      {% if request.endpoint == 'oeasc.contenu' %}
 
-{% if request.endpoint == 'oeasc.contenu' %}
+      <ul>
 
-<hr>
-<li><ul><li><ul>
+        <li><a class="scroll-anime" href="#donnees_milieu_agricole"><i>Données sur les milieux agricoles</i></a></li>
+        <li><a class="scroll-anime" href="#donnees_cynegetiques"><i>Données cynégétiques</i></a></li>
+        <li><a class="scroll-anime" href="#ICE"><i>ICE</i></a></li>
+        <li><a class="scroll-anime" href="#systeme_alerte"><i>Système d’alerte</i></a></li>
+        <li><a class="scroll-anime" href="#diagnostic_sylvicole"><i>Diagnostics sylvicoles</i></a></li>
+        <li><a class="scroll-anime" href="#recensement_peuplement_degradable"><i>Recensement des peuplements dégradables</i></a></li>
 
-<li><a class="scroll-anime" href="#donnees_milieu_agricole"><i>Données sur les milieux agricoles</i></a></li>
-<li><a class="scroll-anime" href="#donnees_cynegetiques"><i>Données cynégétiques</i></a></li>
-<li><a class="scroll-anime" href="#ICE"><i>ICE</i></a></li>
-<li><a class="scroll-anime" href="#systeme_alerte"><i>Système d’alerte</i></a></li>
-<li><a class="scroll-anime" href="#diagnostic_sylvicole"><i>Diagnostics sylvicoles</i></a></li>
-<li><a class="scroll-anime" href="#recensement_peuplement_degradable"><i>Recensement des peuplements dégradables</i></a></li>
+      </ul>
 
-</ul></li></ul></li></ul>
-
-{% endif %}  
+      {% endif %}  
+        </li>
+      </ul></li></ul>
 
 
-</div>
+
+    </div>

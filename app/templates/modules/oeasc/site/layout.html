@@ -16,47 +16,30 @@
 <body>
 
   <div class="container-fluid">
-
     {%- block header %}
-
-
     {% include "modules/oeasc/site/menu.html" %}
-
     {% include "modules/oeasc/site/titre.html" %}
-
-
     {%- endblock %}
 
     <div>
-
       {%- for message in get_flashed_messages() %}
-
       <div class="flash">
-
         {{ message }}
-
       </div>
-
       {%- endfor %}
-
     </div>
 
     <div class="content">
-
       {%- block content %}
-
       {%- endblock %}
-
     </div>
 
     {% include "modules/oeasc/site/footer.html" %}
-
   </div>
 
-  {%- block js %}
 
-  {# {% include "modules/oeasc/site/js.html" %} #}
-{# js.html #}
+
+  {%- block js %}
 
       {%- block js_dist %}
 
@@ -85,12 +68,12 @@
         "node_modules/datatables.net-buttons/js/buttons.print.js",
 
         "node_modules/leaflet/dist/leaflet.js",
-        "node_modules/leaflet.markercluster/dist/leaflet.markercluster.js",
-        "node_modules/leaflet.pattern/dist/leaflet.pattern.js",
-        "node_modules/leaflet-ajax/dist/leaflet.ajax.min.js",
         "js/utils/leaflet-betterscale.js"
 
         ]%}
+        <!-- "node_modules/leaflet.markercluster/dist/leaflet.markercluster.js", -->
+        <!-- "node_modules/leaflet.pattern/dist/leaflet.pattern.js", -->
+        <!-- "node_modules/leaflet-ajax/dist/leaflet.ajax.min.js", -->
 
         {%- for js in liste_js %}
 
@@ -122,6 +105,7 @@
             $('li.dropdown').on("focusout", function(e) { console.log("aa"); e.preventDefault(); })
 
             // animate scroll to anchor + color
+            var class_select="select-title"
             $('.scroll-anime').click(function(e){
               console.log("a");
 
@@ -132,7 +116,7 @@
               $('.scroll-anime').each(function() {
 
                 var href = $(this).attr('href');
-                $(href).removeClass("alert alert-success")
+                $(href).removeClass(class_select)
 
                 // $(href).animate({backgroundColor: '#FFFFFF'}, 500);
                 // $(this).animate({backgroundColor: '#FFFFFF'}, 500);
@@ -147,12 +131,11 @@
 
               $("html, body").animate({ scrollTop: $(href).offset().top - $('#menu').height() - 50}, 1000);
                 // $(href).animate({backgroundColor: color}, 1000);
-                $(href).addClass("alert alert-success")
+                $(href).addClass(class_select)
                 $(this).css('font-weight', 'bold');
                 $('[href="' + href + '"]').css('font-weight', 'bold');
 
             });
-
           });
 
       </script>

@@ -16,7 +16,7 @@ email_admin_oeasc="'"${ADMIN_APPLICATION_MAIL}"'"
 # creation des tables d'utilisateurs temporaires
 $psqla -f $dir_script/user/temp_user.sql >> $log_file
 
-id_pnc=$(echo "SELECT id_organisme FROM utilisateurs.bib_organismes WHERE nom_organisme = 'Établissement public du Parc national des Cévennes'" | psql -t -d $db_name -h $db_host -U $user_pg | awk '{print $1}')
+id_pnc=$(echo "SELECT id_organisme FROM utilisateurs.bib_organismes WHERE nom_organisme = 'Parc national des Cévennes'" | psql -t -d $db_name -h $db_host -U $user_pg | awk '{print $1}')
 id_jubil=$(echo "SELECT id_organisme FROM utilisateurs.bib_organismes WHERE nom_organisme = 'Jubil Interim'" | psql -t -d $db_name -h $db_host -U $user_pg | awk '{print $1}')
 id_onf=$(echo "SELECT id_organisme FROM utilisateurs.bib_organismes WHERE nom_organisme = 'ONF 48'" | psql -t -d $db_name -h $db_host -U $user_pg | awk '{print $1}')
 id_particulier=$(echo "SELECT id_organisme FROM utilisateurs.bib_organismes WHERE nom_organisme = 'Particulier'" | psql -t -d $db_name -h $db_host -U $user_pg | awk '{print $1}')

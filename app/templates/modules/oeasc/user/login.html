@@ -8,72 +8,75 @@
 
     <div class="col-md-12 text">
 
-        <h2>Connexion</h2>
-
         <div>
-            {%- if token %}
 
-            <p class="alert alert-success" id="validation_compte" style="display: none;"> Votre compte a bien été validé. Veuillez vous connecter avec votre identifiant et votre mot de passe.</p>
+            <h2>Connexion</h2>
 
-            {%- endif %}
-        </div>
+            <div>
+                {%- if token %}
 
-        <div id="pending" class="alert alert-info" style="display: none">Requête en cours... Veuillez patienter.</div>
+                <p class="alert alert-success" id="validation_compte" style="display: none;"> Votre compte a bien été validé. Veuillez vous connecter avec votre identifiant et votre mot de passe.</p>
 
-        <form class="container main-zone ng-scope " id="form_login">
-
-            {% if "modifier_ou_creer_declaration" in redirect_url 
-            or "informations" in redirect_url %}
-
-            <p class='alert alert-info'>Vous devez vous identifier afin de déclarer des dégâts en forêt.</p>
-
-            {% endif %}
-
-            {% if type == "add_droit" %}
-
-            <p class="alert alert-info"> Connectez-vous afin de créer des droits pour l'application OEASC sur votre compte déjà existant.</p>
-
-            {% endif %}
-
-            {% if not token and type != "add_droit" %}
-            <hr>
-            <p >Si vous ne possédez pas encore de compte, vous pouvez  
-                {% set href=url_for('user.user')%}
-                <button type=button class='btn btn-primary' onclick="location.href='{{href}}'">créer un compte</button>
-            </p>
-            {% endif %}
-
-            <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
-                Paramètres de connexion invalides
+                {%- endif %}
             </div>
 
-            <table class="table">
-                <tr>
-                    <th>Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'e-mail utilisé pour l'inscription." class="fas fa-question-circle"></span> :
-                    </th>
-                    <td>
-                        <input type="text" class="form-control" id="identifiant" value={{identifiant}}>
-                    </td>
-                </tr>
-                <tr>
-                    <th>
-                        Mot de passe :
-                        <br>
-                        <span style='font-size: 0.8em' ><a title="Vous pouvez faire une demande de changement de mot de passe en cliquant sur ce lien." href="{{url_for('user.change_password')}}">Mot de passe oublié ?</a></span>
+            <div id="pending" class="alert alert-info" style="display: none">Requête en cours... Veuillez patienter.</div>
 
-                    </th>
-                    <td>
-                        <input type="password" class="form-control" id="password">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <button class="btn btn-success">Se connecter</button>
-                    </td>
-                </tr>
-            </table>
-        </form>
+            <form class="container main-zone ng-scope " id="form_login">
 
+                {% if "modifier_ou_creer_declaration" in redirect_url 
+                or "informations" in redirect_url %}
+
+                <p class='alert alert-info'>Vous devez vous identifier afin de déclarer des dégâts en forêt.</p>
+
+                {% endif %}
+
+                {% if type == "add_droit" %}
+
+                <p class="alert alert-info"> Connectez-vous afin de créer des droits pour l'application OEASC sur votre compte déjà existant.</p>
+
+                {% endif %}
+
+                {% if not token and type != "add_droit" %}
+                <hr>
+                <p >Si vous ne possédez pas encore de compte, vous pouvez  
+                    {% set href=url_for('user.user')%}
+                    <button type=button class='btn btn-primary' onclick="location.href='{{href}}'">créer un compte</button>
+                </p>
+                {% endif %}
+
+                <div class="alert alert-danger" role="alert" id="login-error" style="display: none;">
+                    Paramètres de connexion invalides
+                </div>
+
+                <table class="table">
+                    <tr>
+                        <th>Identifiant <span data-toggle="tooltip" title="L'identifiant correspond à l'e-mail utilisé pour l'inscription." class="fas fa-question-circle"></span> :
+                        </th>
+                        <td>
+                            <input type="text" class="form-control" id="identifiant" value={{identifiant}}>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>
+                            Mot de passe :
+                            <br>
+                            <span style='font-size: 0.8em' ><a title="Vous pouvez faire une demande de changement de mot de passe en cliquant sur ce lien." href="{{url_for('user.change_password')}}">Mot de passe oublié ?</a></span>
+
+                        </th>
+                        <td>
+                            <input type="password" class="form-control" id="password">
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <button class="btn btn-success">Se connecter</button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+
+        </div>
     </div>
 
 </div>

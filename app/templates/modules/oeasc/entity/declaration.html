@@ -139,7 +139,8 @@
 
               {%- if declaration['b_peuplement_paturage_presence'] %}
 
-              {{macros_display.list_nomenclatures('Type', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
+              <li><b>Type</b> : {{ declaration.id_nomenclature_peuplement_paturage_type.label_fr | nopar | lower }}. </li>
+
               {{macros_display.list_nomenclatures('Statut', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
               <li><b>Fréquence</b> : {{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | nopar | lower }}. </li>

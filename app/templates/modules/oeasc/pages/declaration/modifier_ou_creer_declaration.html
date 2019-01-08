@@ -10,108 +10,115 @@
 
   <div class="col-md-12">
 
-  {% if not declaration %}
-  <div class="alert alert-danger">
-      <p>Vous ne pouvez pas modifier la déclaration n° {{id_declaration}}</p>
-      <p>Les causes peuvent être:</p>
-      <ul>
-        <li>La déclaration n° {{id_declaration}} n'existe pas</li>
-        <li>Vous n'avez pas les droits suffisants pour modifier cette déclaration</li>
-      </ul>
-    </div>
-  {% else %}
+    <div>
+      {% if not declaration %}
+      <div class="alert alert-danger">
+        <p>Vous ne pouvez pas modifier la déclaration n° {{id_declaration}}</p>
+        <p>Les causes peuvent être:</p>
+        <ul>
+          <li>La déclaration n° {{id_declaration}} n'existe pas</li>
+          <li>Vous n'avez pas les droits suffisants pour modifier cette déclaration</li>
+        </ul>
+      </div>
+      {% else %}
 
-    <h2>Signalez un dégât en forêt</h2>
+      <h2>Signalez un dégât en forêt</h2>
 
-    <div><label for="aide_contact"><i class="small">Besoin d'aide</i></label></div>
-    <div id="form_display">
+      <div><label for="aide_contact"><i class="small">Besoin d'aide</i></label></div>
+      <div id="form_display">
 
-    </div>
+      </div>
+      <!-- <p>aaaa</p> -->
 
-    <div id="form_container">
-      {%- include "modules/oeasc/form/form_declaration.html" %}
-    </div>
+      <div id="form_container">
+        {%- include "modules/oeasc/form/form_declaration.html" %}
+      </div>
+      <div class="float-right">
+        <div class='small red'><i>Pour revenir à une étape précédente, cliquez sur le lien correspondant dans le menu situé au dessus du formulaire (fil d'ariane).</i></div>
+      </div>
+        
+      </div>
 
-    <div id="form_send" style="display:none;">
+      <div id="form_send" style="display:none;">
 
-      <p class="alert alert-success">Votre déclaration a bien été enregistrée.</p>
-      <p class="alert alert-info">Un e-mail de confirmation vous a été envoyé.</p>
+        <p class="alert alert-success">Votre déclaration a bien été enregistrée.</p>
+        <p class="alert alert-info">Un e-mail de confirmation vous a été envoyé.</p>
 
-      <ul>
-        <li><a href="{{ url_for('declaration.modifier_declaration')}}">Je déclare des dégâts sur ma forêt (ou la forêt dont je suis le gestionnaire).</a></li>
-        <li><a href="{{ url_for('declaration.declarations')}}">Je consulte les alertes.</a></li>
-      </ul>
+        <ul>
+          <li><a href="{{ url_for('declaration.modifier_declaration')}}">Je déclare des dégâts sur ma forêt (ou la forêt dont je suis le gestionnaire).</a></li>
+          <li><a href="{{ url_for('declaration.declarations')}}">Je consulte les alertes.</a></li>
+        </ul>
 
-    </div>
+      </div>
 
-    <div id="form_sending" style="display:none;">
+      <div id="form_sending" style="display:none;">
 
-      <p class="alert alert-info">Votre déclaration est en cours d'enregistrement... Merci de patienter.</p>
+        <p class="alert alert-info">Votre déclaration est en cours d'enregistrement... Merci de patienter.</p>
 
-    </div>
+      </div>
 
 
-    <div id="infos"></div>
+      <div id="infos"></div>
 
-    {# <button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_attention" data-target="#modal_attention">
-      Attention
-    </button>
+      {# <button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_attention" data-target="#modal_attention">
+        Attention
+      </button>
 
-    <div class="modal fade" id="modal_attention" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header btn-danger">
-            <h5 class="modal-title " id="exampleModalLongTitle">Attention!!</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-              <span aria-hidden="true">&times;</span>
-            </button>
+      <div class="modal fade" id="modal_attention" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header btn-danger">
+              <h5 class="modal-title " id="exampleModalLongTitle">Attention!!</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+              <p>Vous êtes sur le point de quitter la page</p>
+              <p>En êtes-vous sûr?</p>
+              <p>Les informations renseignées seront perdues.</p>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary">Rester sur la page</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Quitter la page</button>
+            </div>
           </div>
-          <div class="modal-body">
+        </div>
+      </div> #}
 
-            <p>Vous êtes sur le point de quitter la page</p>
-            <p>En êtes-vous sûr?</p>
-            <p>Les informations renseignées seront perdues.</p>
+      <button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_merci" data-target="#modal_merci" style="display:none">
+        Merci
+      </button>
 
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary">Rester sur la page</button>
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Quitter la page</button>
+      <div class="modal fade" id="modal_merci" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title " id="exampleModalLongTitle">Information</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btn-close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+
+              <p>Votre déclaration a bien été enregistrée.</p>
+              <p>Un e-mail de confirmation vous a été envoyé.</p>
+
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id="btn_ok">Ok</button>
+            </div>
           </div>
         </div>
       </div>
-    </div> #}
-
-    <button type="button" class="btn btn-primary" data-toggle="modal" id="btn_modal_merci" data-target="#modal_merci" style="display:none">
-      Merci
-    </button>
-
-    <div class="modal fade" id="modal_merci" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title " id="exampleModalLongTitle">Information</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="btn-close">
-              <span aria-hidden="true">&times;</span>
-            </button>
-          </div>
-          <div class="modal-body">
-
-            <p>Votre déclaration a bien été enregistrée.</p>
-            <p>Un e-mail de confirmation vous a été envoyé.</p>
-
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-primary" id="btn_ok">Ok</button>
-          </div>
-        </div>
-      </div>
     </div>
-
   </div>
 
 </div>
 
- {% endif %}
+{% endif %}
 {%- endblock %}
 
 {%- block js_local %}
