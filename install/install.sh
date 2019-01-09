@@ -84,10 +84,16 @@ then
 fi
 
 if [[ -z  $(which nvm) ]]; then
-    wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash
-    export NVM_DIR="$HOME/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-    nvm install 8.1.1
+
+    curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
+
+    sudo apt install nodejs
+
+    # wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash
+    # export NVM_DIR="$HOME/.nvm"
+    # [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+    # nvm install 8.1.1
+    # npm install
 fi
 
 echo "Instalation des paquets npm"
