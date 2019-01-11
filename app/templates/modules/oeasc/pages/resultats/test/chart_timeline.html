@@ -1,0 +1,167 @@
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
+
+{%- block css %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='modules/oeasc/css/graph.css') }}">
+{%- endblock %}
+
+{%- block title %}test chart{%- endblock %}
+
+
+{%- block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="text">
+
+      <div id="pdf_target">
+        <h2>Synthèse des résultats</h2>
+        <div class="flex-container">
+          <div class="chart">
+            <canvas class="chart timeline" id="myChart"></canvas>
+          </div>
+        </div>
+
+        <div id="map_test" class="leaflet-map" style="height: 400px;"></div>
+      </div>
+      <button id='pdf_btn' onclick="R.toPDF_map('pdf_target')">PDF</button>
+
+    </div>
+  </div>
+</div>
+{%- endblock %}
+
+
+{%- block js_local %}
+
+{{ super() }}
+
+<script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.bundle.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/resultat/graphiques.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/resultat/restitution.js') }}"></script>
+
+<script>
+  $(document).ready(function() {
+    var map = M.init_map("test");
+  });
+</script>
+
+<!-- <script>
+  $(document).ready(function() {
+    "use strict";
+    var init_timeline = function(id) {
+      $.ajax('/api/resultat/timeline').done(function(response) {
+        var ctx = document.getElementById(id).getContext('2d');
+        var backgroundColor = [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)'
+        ];
+        var borderColor = [
+        'rgba(255,99,132,1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+        ];
+
+        var timeFormat= 'YYYY-MM-DD';
+
+        var data_test = {
+          datasets:[
+          {
+            label:'youk',
+            data:[
+            {x: "2015-01-01", y: 2},
+            {x: "2015-03-01", y: 4},
+            ]
+          }]
+        };
+
+        var dchart = {
+          type: 'bar',
+          data: response.data,
+          // data: data_test,
+          options: {
+            locale: 'fr',
+            title: {
+              display: true,
+              text: "Titre",
+            },
+            responsive:true,
+            maintainAspectRatio:false,
+            scales: {
+              xAxes: [{
+                type: 'time',
+                scaleLabel: {
+                  display: true,
+                  labelString: 'Date',
+                }
+              }],
+              yAxes: [{
+                scaleLabel: {
+                  display: true,
+                  labelString: 'value',
+                },
+                ticks:{
+                  suggestedMin: 0,
+                },
+              }]
+            },
+          }
+        }
+
+        console.log(dchart);
+
+        var myChart = new Chart(ctx, dchart);
+      });
+    };
+
+    $('.chart').each(function(e){
+      var $this=$(this);
+      var id = $this.attr("id");
+      if($this.hasClass("timeline")) {
+        init_timeline(id);
+      };
+    });
+
+    var map = M.init_map("test");
+
+    $("#pdf_btn").click(function(){
+
+      // leaflet to png
+
+      $(".leaflet-top.leaflet-right, .leaflet-top.leaflet-left").hide();
+
+      var map_node = document.getElementById('map_test')
+
+
+      domtoimage.toPng(map_node).then(function (dataUrl) {
+        var img = new Image();
+        img.src = dataUrl;
+        $(map_node).after(img);
+        $(map_node).hide();
+
+        var e = document.getElementById('pdf_target')
+        html2pdf(e).then(function() {
+          $(map_node).show();
+          $(".leaflet-top.leaflet-right, .leaflet-top.leaflet-left").show();
+          $(img).remove();
+        });
+
+      })
+      .catch(function (error) {
+        console.error('oops, something went wrong!', error);
+      });
+
+    });
+
+
+  });
+
+</script> -->
+
+{%- endblock %}

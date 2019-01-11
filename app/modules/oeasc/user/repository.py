@@ -82,6 +82,25 @@ def get_user(id_declarant=None):
     return user
 
 
+def get_user_form_email(email):
+    '''
+        Retourne l'utilisateur ayant pour id_role id_declarant
+    '''
+
+    data = DB.session.query(User).filter(User.email == email).first()
+    if not data:
+        return "None"
+
+    user = as_dict(data)
+
+    user['app_users'] = []
+    for d in data.app_users:
+        u = as_dict(d)
+        user['app_users'].append({'id_droit': u['id_droit_max'], 'id_application': u['id_application']})
+
+    return user
+
+
 def get_id_organismes(liste_nom):
 
     liste_nom_ = [nom.replace("'", "''") for nom in liste_nom]

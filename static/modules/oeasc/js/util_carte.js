@@ -113,7 +113,11 @@ par exemple :
     // b_zoom_perimetre: zoomer sur le perimetre de l'OEASC à la fin de l'initialisation
 
     var map_id = 'map_' + name;
-    var map = L.map(map_id, {zoomSnap: 0.1}).setView([44.33, 3.55], 10);
+    var L_PREFER_CANVAS = true;
+    var map = L.map(map_id, {
+      zoomSnap: 0.1,
+      // preferCanvas:true,
+    }).setView([44.33, 3.55], 10);
     map.id = map_id;
 
     // ajout du cadre "chargement"

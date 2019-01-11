@@ -68,6 +68,7 @@
 'OEASC_PEUPLEMENT_PATURAGE_STATUT';'PPAS_CONV';'Conv.';'Conventionné (location ou autorisation par le propriétaire)';'Conventionné (location ou autorisation par le propriétaire)'
 'OEASC_PEUPLEMENT_PATURAGE_STATUT';'PPAS_CHP';'Chep. prop.';'Par le cheptel du propriétaire';'Par le cheptel du propriétaire'
 'OEASC_PEUPLEMENT_PATURAGE_STATUT';'PPAS_DNA';'Div.';'Divagation (pâturage non autorisé par le propriétaire)';'Divagation (pâturage non autorisé par le propriétaire)'
+'OEASC_PEUPLEMENT_PATURAGE_STATUT';'PPAS_NSP';'Nsp.';'Ne sais pas';'Ne sais pas'
 'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE';'PPAF_CONT';'Cont.';'Continue (toute l''année)';'Continue (toute l''année)'
 'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE';'PPAF_PER';'Pér.';'Périodique (une partie de l''année)';'Périodique (une partie de l''année)'
 'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE';'PPAF_ACC';'Ponc.';'Ponctuelle / accidentelle';'Ponctuelle / accidentelle'

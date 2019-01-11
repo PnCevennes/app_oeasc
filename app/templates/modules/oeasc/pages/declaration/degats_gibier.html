@@ -23,61 +23,71 @@
 
   <p>En forêt, plusieurs types de dégâts peuvent être rencontrés :</p>
 
-    <div class="flotte right">
-      <div class="img-container">
-        <img src="{{ url_for('static', filename='img/tooltips/abroutissement_cervide.jpg') }}" alt="Abroutissement de cervidé" width="100%">
-        <div class="img-middle">
-          <div class="img-text">Abroutissement d'un semis de sapin</div>
+  <!-- <div class="flotte right"> -->
+    <p><b>L’abroutissement</b> : il est lié à la consommation des bourgeons, feuilles ou pousses dans un but alimentaire. Ils peuvent être provoqués par les mammifères ruminants sauvages (cerf, chevreuil, mouflon), mais également par les ruminants domestiques (vache, mouton, chèvre). La forme de la blessure provoquée permet de reconnaître la différence entre les abroutissements de ruminant et de rongeurs (mulots, campagnols, lièvres, lapins), mais pas de définir l’espèce de ruminant incriminée.</p>
+    <div class="flex-container">
+      <figure>
+        <div class="img-container">
+          <img src="{{ url_for('static', filename='img/tooltips/abroutissement_cervide.jpg') }}" alt="Abroutissement de cervidé" width="100%">
+          <div class="img-middle">
+            <div class="img-text">Abroutissement d'un semis de sapin</div>
+          </div>
         </div>
-      </div>
+      </figure>
     </div>
-      <p><b>L’abroutissement</b> : il est lié à la consommation des bourgeons, feuilles ou pousses dans un but alimentaire. Ils peuvent être provoqués par les mammifères ruminants sauvages (cerf, chevreuil, mouflon), mais également par les ruminants domestiques (vache, mouton, chèvre). La forme de la blessure provoquée permet de reconnaître la différence entre les abroutissements de ruminant et de rongeurs (mulots, campagnols, lièvres, lapins), mais pas de définir l’espèce de ruminant incriminée.</p>
-    <div style="clear:both"></div>
 
-    <div class="flotte left">
-      <div class="img-container">
-        <img src="{{ url_for('static', filename='img/tooltips/frottis.jpg') }}" alt="Frottis sur jeune épicéa" width="100%">
-        <div class="img-middle">
-          <div class="img-text">Frottis sur jeune épicéa</div>
+    {# <div style="clear:both"></div> #}
+
+
+    <p><b>Le frottis</b> : il est lié au comportement des cerfs ou chevreuils mâles qui frottent leurs bois sur les jeunes arbres, provoquant un arrachement de l’écorce, voire la casse de la tige. Les frottis peuvent avoir lieu au printemps, lorsque les mâles cherchent à se débarrasser du velours qui recouvre leurs bois,  ou à l’automne, en période de rut.</p>
+    <div class="flex-container">
+      <figure>
+        <div class="img-container">
+          <img src="{{ url_for('static', filename='img/tooltips/frottis.jpg') }}" alt="Frottis sur jeune épicéa" width="100%">
+          <div class="img-middle">
+            <div class="img-text">Frottis sur jeune épicéa</div>
+          </div>
         </div>
-      </div>
+      </figure>
     </div>
-      <p><b>Le frottis</b> : il est lié au comportement des cerfs ou chevreuils mâles qui frottent leurs bois sur les jeunes arbres, provoquant un arrachement de l’écorce, voire la casse de la tige. Les frottis peuvent avoir lieu au printemps, lorsque les mâles cherchent à se débarrasser du velours qui recouvre leurs bois,  ou à l’automne, en période de rut.</p>
-    <div style="clear:both"></div>
 
-          <div class="flotte right">
-      <div class="img-container">
-        <img src="{{ url_for('static', filename='img/tooltips/ecorcage.jpg') }}" alt="Écorçage" width="100%">
-        <div class="img-middle">
-          <div class="img-text">Écorçage récent sur un épicéa</div>
+    {# <div style="clear:both"></div> #}
+
+    <p><b>L’écorçage</b> : provoqué uniquement par l’espèce Cerf, il consiste en un prélèvement de l’écorce d’un arbre, dans un but de consommation.</p>
+    <div class="flex-container">
+      <figure>
+        <div class="img-container">
+          <img src="{{ url_for('static', filename='img/tooltips/ecorcage.jpg') }}" alt="Écorçage" width="100%">
+          <div class="img-middle">
+            <div class="img-text">Écorçage récent sur un épicéa</div>
+          </div>
         </div>
-      </div>
+      </figure>
     </div>
-      <p><b>L’écorçage</b> : provoqué uniquement par l’espèce Cerf, il consiste en un prélèvement de l’écorce d’un arbre, dans un but de consommation.</p>
 
-      <p><b>Les dégâts de sanglier</b> : ils sont essentiellement liés au déterrage des jeunes plants forestiers ou des semis, dans un but de consommation racinaire. Les jeunes plants de pépinières semblent particulièrement sensibles à ce type de dégâts. D’autres types de dégâts, liés au piétinement, au fouissement ou au gîte des sangliers peuvent également être constatés, localement.</p>
+    <p><b>Les dégâts de sanglier</b> : ils sont essentiellement liés au déterrage des jeunes plants forestiers ou des semis, dans un but de consommation racinaire. Les jeunes plants de pépinières semblent particulièrement sensibles à ce type de dégâts. D’autres types de dégâts, liés au piétinement, au fouissement ou au gîte des sangliers peuvent également être constatés, localement.</p>
 
-  <p>Parfois, une pression importante des cervidés sur la végétation et la consommation systématique des jeunes semis peuvent constituer un obstacle important au processus de régénération forestière, notamment pour les essences très appétantes, comme le sapin. Une absence inexpliquée de régénération, potentiellement liée à une trop forte densité de cervidés, peut alors être constatée dans des zones présentant des conditions locales (lumière au sol, présence de semenciers) et stationnelles (sol, altitude, exposition, etc.) <i>a priori</i> favorables.</p>
+    <p>Parfois, une pression importante des cervidés sur la végétation et la consommation systématique des jeunes semis peuvent constituer un obstacle important au processus de régénération forestière, notamment pour les essences très appétantes, comme le sapin. Une absence inexpliquée de régénération, potentiellement liée à une trop forte densité de cervidés, peut alors être constatée dans des zones présentant des conditions locales (lumière au sol, présence de semenciers) et stationnelles (sol, altitude, exposition, etc.) <i>a priori</i> favorables.</p>
 
     <div style="clear:both"></div>
-  <hr>
+    <hr>
 
-  <p>Pour en savoir plus, consultez la documentation technique suivante (source : ONCFS) :</p>
+    <p>Pour en savoir plus, consultez la documentation technique suivante (source : ONCFS) :</p>
 
-  <ul>
-    <li><b><a href="http://www.oncfs.gouv.fr/IMG/file/mammiferes/ongules/ongules_sauvages/Degats%20agricole_reconnaissance.pdf" target="#blank">Dégâts sur les cultures agricoles</a></b></li>
-    <li><b><a href="http://www.oncfs.gouv.fr/IMG/file/mammiferes/ongules/ongules_sauvages/fiche80_degats_forestiers_grand_gibier.pdf" target="#blank">Dégâts forestiers</a></b></li>
-    <li><b><a href="http://www.oncfs.gouv.fr/IMG/file/mammiferes/ongules/ongules_sauvages/d%C3%A9g%C3%A2ts%20et%20protections.pdf" target="#blank">Dégâts et méthodes de protection en forêt</a></b></li>
-  </ul>
+    <ul>
+      <li><b><a href="http://www.oncfs.gouv.fr/IMG/file/mammiferes/ongules/ongules_sauvages/Degats%20agricole_reconnaissance.pdf" target="#blank">Dégâts sur les cultures agricoles</a></b></li>
+      <li><b><a href="http://www.oncfs.gouv.fr/IMG/file/mammiferes/ongules/ongules_sauvages/fiche80_degats_forestiers_grand_gibier.pdf" target="#blank">Dégâts forestiers</a></b></li>
+      <li><b><a href="http://www.oncfs.gouv.fr/IMG/file/mammiferes/ongules/ongules_sauvages/d%C3%A9g%C3%A2ts%20et%20protections.pdf" target="#blank">Dégâts et méthodes de protection en forêt</a></b></li>
+    </ul>
 
 
-  <p>Pour consulter plus de photographies de dégâts de grand gibier, vous pouvez consulter :</p>
-  <ul>
-    <li><a href="{{ url_for('static', filename='documents/extrait_CEMAGREF.pdf') }}" target="#blank"> l’annexe 1 du guide pratique d'évaluation des dégâts en milieu forestier</a> (Cemagref, 2009)</li>
-    {# <li><a disabled href="#" target="#blank">le catalogue de photos constitué dans le cadre de l'Observatoire</a></li> #}
-    <li>le catalogue de photos constitué dans le cadre de l'Observatoire (à venir)</li>
-  </ul>
-</div>
+    <p>Pour consulter plus de photographies de dégâts de grand gibier, vous pouvez consulter :</p>
+    <ul>
+      <li><a href="{{ url_for('static', filename='documents/extrait_CEMAGREF.pdf') }}" target="#blank"> l’annexe 1 du guide pratique d'évaluation des dégâts en milieu forestier</a> (Cemagref, 2009)</li>
+      {# <li><a disabled href="#" target="#blank">le catalogue de photos constitué dans le cadre de l'Observatoire</a></li> #}
+      <li>le catalogue de photos constitué dans le cadre de l'Observatoire (à venir)</li>
+    </ul>
+  </div>
 
-{%- endblock %}
+  {%- endblock %}
 

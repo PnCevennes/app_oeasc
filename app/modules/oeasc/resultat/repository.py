@@ -49,7 +49,7 @@ def nb_declarations():
     return out
 
 
-def req_degats(name, var_name="", id=""):
+def req_degats(name, var_name="", id="", multi=False):
     r = '''
 SELECT
     n.mnemonique as label,
@@ -63,10 +63,16 @@ SELECT
             ON d.id_nomenclature_degat_type = id_nomenclature
         '''.format(name)
 
-    if var_name:
+    if var_name and not multi:
         r += '''
         JOIN oeasc.t_declarations dec ON d.id_declaration=dec.id_declaration
-        WHERE {} = {}
+        WHERE id_nomenclature_{} = {}
+        '''.format(var_name, id)
+
+    if var_name and multi:
+        r += '''
+        JOIN oeasc.cor_nomenclature_declarations_{} cor ON d.id_declaration=cor.id_declaration
+        WHERE cor.id_nomenclature = {}
         '''.format(var_name, id)
 
     r += '''
@@ -82,36 +88,85 @@ SELECT
     return data_to_dict(data)
 
 
-def req_test(type=""):
+def req_degats_type(type=""):
     '''
         test pour les graphique
         ici requete pour un barchart sur les dégâts
     '''
-    data = req_degats("total")
-
     nb = nb_declarations()
     title = ["Répartition des types de dégâts pour " + str(nb) + " déclarations"]
-    var_name = ""
-    if type == "OEASC_PEUPLEMENT_ORIGINE":
-        var_name = "id_nomenclature_peuplement_origine"
-        title.append('Distribution par origine du peuplement')
-    if type == "OEASC_PEUPLEMENT_TYPE":
-        var_name = "id_nomenclature_peuplement_type"
-        title.append("Distribution par type de peuplement")
-    if type == "OEASC_PEUPLEMENT_PATURAGE_STATUT":
-        var_name = "id_nomenclature_peuplement_paturage_statut"
-        title.append("Distribution par statut de paturage")
 
+    data = req_degats("total")
+
+    var_name = ""
+    multi = False
+
+    d = {
+        "OEASC_PEUPLEMENT_ORIGINE": 'Distribution par origine du peuplement',
+        "OEASC_PEUPLEMENT_TYPE": "Distribution par type de peuplement",
+        "OEASC_PEUPLEMENT_MATURITE": "Distribution par maturité du peuplement",
+        "OEASC_PEUPLEMENT_PATURAGE_STATUT": "Distribution par statut de paturage",
+        "OEASC_PEUPLEMENT_PATURAGE_TYPE": "Distribution par type de paturage",
+        "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE": "Distribution par fréquence de paturage",
+        "OEASC_PEUPLEMENT_PROTECTION_TYPE": "Distribution par type de protection",
+        "OEASC_PEUPLEMENT_ESSENCE_PRINCIPALE": "Distribution par essence principale",
+    }
+
+    if type in ['OEASC_PEUPLEMENT_PATURAGE_TYPE', 'OEASC_PEUPLEMENT_MATURITE', 'OEASC_PEUPLEMENT_PROTECTION_TYPE']:
+        multi = True
+
+    title.append(d.get(type, ""))
 
     if type:
+        var_name = type.lower()[6:]
+        if multi:
+            var_name = var_name[11:]
+        if type == 'OEASC_PEUPLEMENT_ESSENCE_PRINCIPALE':
+            type = 'OEASC_PEUPLEMENT_ESSENCE'
         for elem in nomenclature_oeasc()[type]['values']:
-            print(elem)
-            data2 = req_degats('"' + elem['mnemonique'] + '"', var_name, elem['id_nomenclature'])
+            data2 = req_degats('"' + elem['mnemonique'] + '"', var_name, elem['id_nomenclature'], multi)
             data[elem['mnemonique']] = data2[elem['mnemonique']]
+
+        data.pop('total', None)
 
     out = {
         'data': data_to_chart_data(data),
         'title': title
+    }
+
+    return out
+
+
+def req_timeline():
+
+    r = '''
+SELECT
+    CONCAT(to_char(meta_create_date,'YYYY-MM'), '-01') as date,
+    COUNT(*) as nb
+    FROM oeasc.t_declarations
+    GROUP BY 1
+    ORDER BY 1
+    '''
+
+    data = DB.engine.execute(text(r))
+
+    data_array = [
+        {
+            'x': d.date,
+            'y': d.nb,
+        }
+        for d in data]
+
+
+    out = {
+        'data': {
+            'datasets': [
+                {
+                    'label': 'nbs déclarations',
+                    'data': data_array
+                }
+            ]
+        }
     }
 
     return out

@@ -114,21 +114,6 @@ class CorNomenclatureDeclarationPaturageType(DB.Model):
 
 
 @serializable
-class CorNomenclatureDeclarationPaturageStatut(DB.Model):
-
-    __tablename__ = 'cor_nomenclature_declarations_paturage_statut'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
-
-    id_nomenclature = DB.Column(DB.Integer, primary_key=True)
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
-
-    def __init__(self, id_nomenclature=None):
-
-        super(CorNomenclatureDeclarationPaturageStatut, self).__init__()
-        self.id_nomenclature = id_nomenclature
-
-
-@serializable
 class CorNomenclatureDeclarationPaturageSaison(DB.Model):
 
     __tablename__ = 'cor_nomenclature_declarations_paturage_saison'
@@ -244,7 +229,7 @@ class TDeclaration(DB.Model):
     id_nomenclature_peuplement_origine = DB.Column(DB.Integer)
     id_nomenclature_peuplement_type = DB.Column(DB.Integer)
     id_nomenclature_peuplement_paturage_frequence = DB.Column(DB.Integer)
-    id_nomenclature_peuplement_paturage_type = DB.Column(DB.Integer)
+    id_nomenclature_peuplement_paturage_statut = DB.Column(DB.Integer)
     id_nomenclature_peuplement_acces = DB.Column(DB.Integer)
     id_nomenclature_peuplement_essence_principale = DB.Column(DB.Integer)
 
@@ -257,7 +242,7 @@ class TDeclaration(DB.Model):
     nomenclatures_peuplement_essence_complementaire = DB.relationship(CorNomenclatureDeclarationEssenceComplementaire, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_maturite = DB.relationship(CorNomenclatureDeclarationMaturite, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_protection_type = DB.relationship(CorNomenclatureDeclarationProtectionType, cascade="save-update, merge, delete, delete-orphan")
-    nomenclatures_peuplement_paturage_statut = DB.relationship(CorNomenclatureDeclarationPaturageStatut, cascade="save-update, merge, delete, delete-orphan")
+    nomenclatures_peuplement_paturage_type = DB.relationship(CorNomenclatureDeclarationPaturageType, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_paturage_saison = DB.relationship(CorNomenclatureDeclarationPaturageSaison, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_espece = DB.relationship(CorNomenclatureDeclarationEspece, cascade="save-update, merge, delete, delete-orphan")
 

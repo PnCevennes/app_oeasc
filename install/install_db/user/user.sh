@@ -1,4 +1,9 @@
 
+
+cp $dir_data/csv/user/*.csv /tmp/.
+echo oeasc_populate_organismes >> $log_file
+$psqla -f $dir_script/oeasc/oeasc_populate_organismes.sql >> $log_file
+
 echo init user >> $log_file
 
 md5_admin_oeasc=$(echo -n $ADMIN_APPLICATION_PASSWORD | md5sum | awk '{print "'\''" $1 "'\''"}')

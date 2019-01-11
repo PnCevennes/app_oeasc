@@ -9,60 +9,63 @@
 
   <div class="col-md-12">
 
-    <h2>Utilisateurs</h2>
+    <div>
+      
+      <h2>Utilisateurs</h2>
 
-    <div id="info"></div>
+      <div id="info"></div>
 
-    <table class="dataTable table table-striped table-small">
-<thead>
-  
-      <tr>
-        <th>id</th>
-        <th>Organisme</th>
-        <th>Nom, Prénom</th>
-        <th>E-mail</th>
-        <th>Rôle</th>
-        <th>Droits</th>
-      </tr>
-</thead>
+      <table class="dataTable table table-striped table-small">
+        <thead>
+          
+          <tr>
+            <th>id</th>
+            <th>Organisme</th>
+            <th>Nom, Prénom</th>
+            <th>E-mail</th>
+            <th>Rôle</th>
+            <th>Droits</th>
+          </tr>
+        </thead>
 
-<tbody>
-  
-      {% for user in users %}
+        <tbody>
+          
+          {% for user in users %}
 
-      <tr id="role_"{{user.id_role}}>
-        <td>{{user.id_role}}</td>
-        <td>{{user.organisme}}</td>
-        <td>{{user.nom_role | upper}} {{user.prenom_role}}</td>
-        <td>{{user.email}}</td>
-        <td>{{user.desc_role}}</td>
-        <td>
+          <tr id="role_"{{user.id_role}}>
+            <td>{{user.id_role}}</td>
+            <td>{{user.organisme}}</td>
+            <td>{{user.nom_role | upper}} {{user.prenom_role}}</td>
+            <td>{{user.email}}</td>
+            <td>{{user.desc_role}}</td>
+            <td>
 
-          {% if current_user.id_droit_max > user.id_droit_max %}
+              {% if current_user.id_droit_max > user.id_droit_max %}
 
-          <select class="change_droit" name="droit_user_{{user.id_role}}" id="droit_user_{{user.id_role}}" data-id_role="{{user.id_role}}">
-            {% for ind in range(1, current_user.id_droit_max + 1) %}
+              <select class="change_droit" name="droit_user_{{user.id_role}}" id="droit_user_{{user.id_role}}" data-id_role="{{user.id_role}}">
+                {% for ind in range(1, current_user.id_droit_max + 1) %}
 
-            <option value="{{ind}}" {{"selected" if ind == user.id_droit_max }}>{{ind}}</option>
-            {% endfor %}
-          </select>
+                <option value="{{ind}}" {{"selected" if ind == user.id_droit_max }}>{{ind}}</option>
+                {% endfor %}
+              </select>
 
-          {% else %}
+              {% else %}
 
-          {{user.id_droit_max}}
+              {{user.id_droit_max}}
 
-          {% endif %}
+              {% endif %}
 
-        </td>
-      </tr>
+            </td>
+          </tr>
 
-      {% endfor %}
-</tbody>
+          {% endfor %}
+        </tbody>
 
-    </table>
+      </table>
+
+    </div>
 
   </div>
-
 </div>
 
 {%- endblock %}
@@ -82,8 +85,8 @@
 
     var table = $(".dataTable").DataTable({
       "columnDefs": [
-        { "type": "html-num", "targets": 0, "visible": false }
-    ],
+      { "type": "html-num", "targets": 0, "visible": false }
+      ],
       "order": [[ 1, "asc" ], [2, "asc"]],
       "language": { "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/French.json"},
     });

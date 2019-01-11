@@ -86,6 +86,9 @@ with app.app_context():
     from app.modules.oeasc.user import routes as routes_user
     app.register_blueprint(routes_user.bp, url_prefix='/user')
 
+    from app.modules.oeasc.user import api as api_user
+    app.register_blueprint(api_user.bp, url_prefix='/api/user')
+
     from app.modules.oeasc.resultat import routes as routes_resultat
     app.register_blueprint(routes_resultat.bp, url_prefix='/resultat')
 

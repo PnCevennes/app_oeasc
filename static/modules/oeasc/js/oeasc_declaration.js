@@ -119,6 +119,14 @@ $(document).ready(function() {
 
     });
 
+    $('button#dgd_not_in_list').click(function() {
+
+        $("[name=b_document][value='F']").prop("checked", true);
+        M.reset_foret();
+        recharger_form();
+
+    });
+
     $('#reinit_container').click(function() {
 
       var type_code = $('#reinit_container').parents('.select_map').attr('data-type-code')

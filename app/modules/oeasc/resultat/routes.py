@@ -16,15 +16,38 @@ def test_d3():
 
 
 # tests
-@bp.route('/test/chart')
-def test_chart():
+@bp.route('/test/chart/bar')
+def test_chart_bar():
     '''
         page du suvi de l'équilibre ASC
 
         TODO
     '''
 
-    return render_template('modules/oeasc/test/chart.html')
+    return render_template('modules/oeasc/pages/resultats/test/chart_bar.html')
+
+# tests
+@bp.route('/test/chart/pie')
+def test_chart_pie():
+    '''
+        page du suvi de l'équilibre ASC
+
+        TODO
+    '''
+
+    return render_template('modules/oeasc/pages/resultats/test/chart_pie.html')
+
+
+# tests
+@bp.route('/test/chart/timeline')
+def test_chart_timeline():
+    '''
+        page du suvi de l'équilibre ASC
+
+        TODO
+    '''
+
+    return render_template('modules/oeasc/pages/resultats/test/chart_timeline.html')
 
 
 @bp.route('/suivi_equilibre_ASC')

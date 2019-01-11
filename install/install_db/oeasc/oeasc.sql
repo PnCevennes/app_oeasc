@@ -105,7 +105,7 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
     id_nomenclature_peuplement_origine INTEGER,
     id_nomenclature_peuplement_type INTEGER,
     id_nomenclature_peuplement_paturage_frequence INTEGER,
-    id_nomenclature_peuplement_paturage_type INTEGER,
+    id_nomenclature_peuplement_paturage_statut INTEGER,
     id_nomenclature_peuplement_acces INTEGER,
     id_nomenclature_peuplement_essence_principale INTEGER,
 
@@ -168,12 +168,6 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
         ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT check_t_declarations_id_nomenclature_peuplement_paturage_frequence CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
         id_nomenclature_peuplement_paturage_frequence, 'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE')) NOT VALID,
-
-    CONSTRAINT fk_t_declarations_id_nomenclature_peuplement_paturage_type FOREIGN KEY (id_nomenclature_peuplement_paturage_type)
-        REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE NO ACTION,
-    CONSTRAINT check_t_declarations_id_nomenclature_peuplement_paturage_type CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
-        id_nomenclature_peuplement_paturage_type, 'OEASC_PEUPLEMENT_PATURAGE_TYPE')) NOT VALID,
 
     CONSTRAINT fk_t_declarations_id_nomenclature_peuplement_acces FOREIGN KEY (id_nomenclature_peuplement_acces)
         REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
@@ -399,26 +393,26 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_protection_type
 );
 
 
--- DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_paturage_type CASCADE;
+DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_paturage_type CASCADE;
 
--- CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_type
--- (
---     id_declaration integer NOT NULL,
---     id_nomenclature integer NOT NULL,
+CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_type
+(
+    id_declaration integer NOT NULL,
+    id_nomenclature integer NOT NULL,
 
---     CONSTRAINT pk_cor_nomenclature_declarations_paturage_type PRIMARY KEY (id_declaration, id_nomenclature),
+    CONSTRAINT pk_cor_nomenclature_declarations_paturage_type PRIMARY KEY (id_declaration, id_nomenclature),
 
---     CONSTRAINT fk_cor_nomenclature_declarations_paturage_type_id_declaration FOREIGN KEY (id_declaration)
---         REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
---         ON UPDATE NO ACTION ON DELETE CASCADE,
+    CONSTRAINT fk_cor_nomenclature_declarations_paturage_type_id_declaration FOREIGN KEY (id_declaration)
+        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
 
---     CONSTRAINT fk_cor_nomenclature_declarations_paturage_type_id_nomenclature FOREIGN KEY (id_nomenclature)
---         REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
---         ON UPDATE NO ACTION ON DELETE NO ACTION,
+    CONSTRAINT fk_cor_nomenclature_declarations_paturage_type_id_nomenclature FOREIGN KEY (id_nomenclature)
+        REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
 
---     CONSTRAINT check_cor_nomenclature_declarations_paturage_type_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
---         id_nomenclature, 'OEASC_PEUPLEMENT_PATURAGE_TYPE')) NOT VALID
--- );
+    CONSTRAINT check_cor_nomenclature_declarations_paturage_type_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
+        id_nomenclature, 'OEASC_PEUPLEMENT_PATURAGE_TYPE')) NOT VALID
+);
 
 
 DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_paturage_saison CASCADE;
@@ -442,27 +436,6 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_saison
         id_nomenclature, 'OEASC_PEUPLEMENT_PATURAGE_SAISON')) NOT VALID
 );
 
-
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_paturage_statut CASCADE;
-
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_statut
-(
-    id_declaration integer NOT NULL,
-    id_nomenclature integer NOT NULL,
-
-    CONSTRAINT pk_cor_nomenclature_declarations_paturage_statut PRIMARY KEY (id_declaration, id_nomenclature),
-
-    CONSTRAINT fk_cor_nomenclature_declarations_paturage_statut_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE CASCADE,
-
-    CONSTRAINT fk_cor_nomenclature_declarations_paturage_statut_id_nomenclature FOREIGN KEY (id_nomenclature)
-        REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE NO ACTION,
-
-    CONSTRAINT check_cor_nomenclature_declarations_paturage_statut_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
-        id_nomenclature, 'OEASC_PEUPLEMENT_PATURAGE_STATUT')) NOT VALID
-);
 
 
 DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_espece CASCADE;

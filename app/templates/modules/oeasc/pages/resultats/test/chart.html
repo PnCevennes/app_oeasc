@@ -1,0 +1,139 @@
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
+
+{%- block css %}
+{{super()}}
+<link rel="stylesheet" href="{{ url_for('static', filename='modules/oeasc/css/graph.css') }}">
+{%- endblock %}
+
+{%- block title %}test chart{%- endblock %}
+
+
+{%- block content %}
+<div class="row">
+
+  {% set types = [
+    "",
+    "OEASC_PEUPLEMENT_ORIGINE",
+    "OEASC_PEUPLEMENT_TYPE",
+    "OEASC_PEUPLEMENT_MATURITE",
+    "OEASC_PEUPLEMENT_PATURAGE_STATUT",
+    "OEASC_PEUPLEMENT_PATURAGE_TYPE",
+    "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE",
+    "OEASC_PEUPLEMENT_PROTECTION_TYPE",
+    "OEASC_PEUPLEMENT_ESSENCE_PRINCIPALE",
+    ] %}
+
+    <div class="col-md-6">
+      <div>
+        {% for type in types %}
+        <div class="flex-container">
+          <div class="chart">
+            <canvas class="chart bar" id="myChart_{{loop.index}}" type="{{type}}"></canvas>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div>
+        {% for type in types %}
+        <div class="flex-container">
+          <div class="chart">
+            <canvas class="chart bar stacked" id="myChart_{{loop.index}}_" type="{{type}}"></canvas>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+  {%- endblock %}
+
+
+  {%- block js_local %}
+
+  {{ super() }}
+
+  <script src="{{ url_for('static', filename='node_modules/chart.js/dist/Chart.bundle.js') }}"></script>
+  <script>
+    $(document).ready(function() {
+      "use strict";
+      var init_bar_chart = function(id, type, stacked) {
+      $.ajax('/api/resultat/test?type=' + type).done(function(response) {
+        var data = response.data;
+        var ctx = document.getElementById(id).getContext('2d');
+        var backgroundColor = [
+        'rgba(255, 99, 132, 0.2)',
+        'rgba(54, 162, 235, 0.2)',
+        'rgba(255, 206, 86, 0.2)',
+        'rgba(75, 192, 192, 0.2)',
+        'rgba(153, 102, 255, 0.2)',
+        'rgba(255, 159, 64, 0.2)'
+        ];
+        var borderColor = [
+        'rgba(255,99,132,1)',
+        'rgba(54, 162, 235, 1)',
+        'rgba(255, 206, 86, 1)',
+        'rgba(75, 192, 192, 1)',
+        'rgba(153, 102, 255, 1)',
+        'rgba(255, 159, 64, 1)'
+        ];
+
+        response.data.datasets.forEach((e,i) => {
+          e.backgroundColor=backgroundColor[i];
+          e.borderColor=borderColor[i];
+          e.borderWidth=1;
+        })
+
+        var dchart = {
+          type: 'bar',
+          data: response.data,
+          options: {
+            title: {
+              display: true,
+              text: response.title,
+            },
+            responsive:true,
+            maintainAspectRatio:false,
+            scales: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero:true
+                },
+                stacked:stacked,
+              }],
+              xAxes: [{
+                stacked: stacked,
+              }],
+            }
+          }
+        }
+
+        if(stacked) {
+        dchart.options.tooltips = {
+          mode: 'index',
+          intersect: false
+        }
+      }
+
+      var myChart = new Chart(ctx, dchart);
+  });
+};
+
+$('.chart').each(function(e){
+  var $this=$(this);
+  var type = $this.attr("type") || "";
+  var id = $this.attr("id");
+  if($this.hasClass("bar")) {
+    var stacked = $this.hasClass("stacked");
+    console.log(stacked, type);
+  };
+  init_bar_chart(id, type, stacked);
+});
+
+});
+
+</script>
+
+{%- endblock %}

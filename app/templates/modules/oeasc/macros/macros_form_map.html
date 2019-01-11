@@ -53,30 +53,25 @@
     <div class="col-md-4">
 
       {%- if areas_container %}
-
       <div>
-
         <p> <i>{{ dict_label_container[areas_container[0]["type_code"]] }}</i> </p>
-
         <div class="scroll">
           <ul>
             {%- for area in areas_container %}
-
             <li>{{area['label']}} {{ "(" + area['area_code'] + ")" if area['type_code'] == 'OEASC_SECTION' else ''}}</li>
-
             {% endfor %}
           </ul>
         </div>
-
         {% if type_code in ['OEASC_SECTION', 'OEASC_ONF_UG'] %}
-
         <button type=button id="reinit_container" class="btn btn-danger">Revenir au choix des {{ dict_label_container[areas_container[0]["type_code"]] | lower }}</button>
-
         {% endif %}
-
       </div>
-
+      {% elif type_code == 'OEASC_DGD' %}
+      <div><button type=button id="dgd_not_in_list" class="btn btn-danger">La forêt recherchée n'est pas dans la liste</button> <label for="dgd_not_in_list"></label></div>
+      <hr>
       {% endif %}
+
+
 
       <div class="localisation-select form-group select-required">
 

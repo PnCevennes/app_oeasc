@@ -30,8 +30,6 @@ $(document).ready(function() {
 
     return e[0].type_code
 
-
-
   }
 
   M.get_db = get_db;

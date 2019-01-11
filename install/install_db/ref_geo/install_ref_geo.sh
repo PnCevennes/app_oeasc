@@ -311,7 +311,7 @@ select=1
 
 # clear_geometry $name
 process_geom
-simplify_geom OEASC_CADASTRE 5
+simplify_geom OEASC_CADASTRE 1
 
 
 # OEASC SECTION

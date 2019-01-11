@@ -62,7 +62,7 @@
 
       user.nom_role = "CLEMENT";
       user.prenom_role = "Joel";
-      user.email = "joelclems@gmail.com";
+      user.email = "joel.clement@cevennes-parcnational.fr";
       user.organisme = "Mairie";
       user.id_organisme = $("#id_organisme option")[1].value;
       user.desc_role = "Salarié ou agent";
@@ -149,7 +149,8 @@
       if(! user.id_role) {
 
         // gestion identifiant (ici email) non unique et droits
-        var user_from_mail = M.get_db('user', 'email',$('#email').val());
+        // var user_from_mail = M.get_db('user', 'email',$('#email').val());
+        var user_from_mail = $.ajax({type: "GET", url: "/api/user/get_user_from_email/" + $('#email').val(), async: false}).responseJSON;;
 
         // si on a déjà un utilisateur avec ce mail
         if( user_from_mail != "None") {
