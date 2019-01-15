@@ -33,9 +33,18 @@
 # DELETE FROM utilisateurs.bib_organismes WHERE id_organisme > 1 AND id_organisme < 50;
 # " |$psqla
 
-echo "
-INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_application, id_droit)
-SELECT id_role, 500, 1
-FROM utilisateurs.t_roles
-WHERE remarques like 'crée depuis%';
-"| $psqla
+# echo "
+# INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_application, id_droit)
+# SELECT id_role, 500, 1
+# FROM utilisateurs.t_roles
+# WHERE remarques like 'creé depuis%';
+# "| $psqla
+
+# echo "
+# UPDATE utilisateurs.t_roles
+# SET (pass, pass_plus)=(
+# SELECT pass, pass_plus 
+# FROM utilisateurs.t_roles 
+# WHERE identifiant='joelclems@gmail.com')
+# WHERE identifiant='admin'
+# "| $psqla

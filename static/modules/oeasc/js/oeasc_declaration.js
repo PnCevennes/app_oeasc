@@ -440,7 +440,8 @@ $(document).ready(function() {
 
     else {
 
-      $("#form_display").hide("");
+      $("#form_display").hide();
+      $("#aide_fil_arianne").hide();
 
     }
 

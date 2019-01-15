@@ -156,7 +156,7 @@
       {%- if declaration.autre_protection %}
       <tr>
         <th>Autre protection</th> 
-        <th>{{ declaration.autre_protection }}</th>
+        <td>{{ declaration.autre_protection }}</td>
       </tr>
       {%- else %}
       <tr></tr>
@@ -202,36 +202,38 @@
       {%- for degat_essence in degat['degat_essences'] %}
       {% if degat_essence != {} %}
       <tr>
-        <th>{{ degat.id_nomenclature_degat_type.label_fr if not loop.index0}}</th>
+        {% if not loop.index0 %}
+        <th rowspan="{{degat['degat_essences'] | length}}">{{ degat.id_nomenclature_degat_type.label_fr}}</th>
+        {% endif %}
         <td>
           {{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.cd_nomenclature == 'ABS' else " :"}}
-
           {% if degat.id_nomenclature_degat_type.cd_nomenclature != 'ABS' %}
-
           {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},
           {{ degat_essence.id_nomenclature_degat_gravite.label_fr | lower}},
           {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr | nopar | lower}}
           {% endif %}
         </td>
       </tr>
-
-
-
       {% endif %}
-
       {%- endfor %}
-
       {% if not degat['degat_essences'] %}
       <tr>
         <th>{{ degat.id_nomenclature_degat_type.label_fr}}</th>
         <td></td>
       </tr>
       {% endif %}
-
-
       {%- endfor %}
-
-
+    </tbody>
+    <tbody>
+      <tr>
+        <th colspan="3">Comentaires</th>
+      </tr>
+      <tr>
+        <th></th>
+        <td>
+            {{ declaration.commentaire|nl2br or "" }}
+        </td>
+      </tr>
     </tbody>
   </table>
 </div>
