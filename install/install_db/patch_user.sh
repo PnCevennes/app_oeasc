@@ -21,7 +21,7 @@ VALUES
 
 ('herve.caroff@cevennes-parcnational.fr', 'CAROFF', 'Hervé', 'Salarié, agent, fonctionnaire', '0dc1487211223881830b5e8ce0cecaf9', '$2b$12$LumYA7GthXtIWd1rqQht9uh12w.CkJW25di4gGniG.3VPGBY2ufIa', 'herve.caroff@cevennes-parcnational.fr', 594, 'Parc national des Cévennes', 'creé depuis le site OEASC'),
 
-('jpl.48@orange.fr', 'LAFONT', 'Jean-Pierre', 'Propriétaire forestier privé', '106cb2c606810308cf1936208764d979', '$2b$12$kS4R4sOv18qiLP9kkrJPEeLHZdfuuWYTNqkDYkUpZA6QWtYYgrj7m', 'jpl.48@orange.fr', 601, 'Syndic. forestiers privés 48, 'creé depuis le site OEASC'),
+('jpl.48@orange.fr', 'LAFONT', 'Jean-Pierre', 'Propriétaire forestier privé', '106cb2c606810308cf1936208764d979', '$2b$12$kS4R4sOv18qiLP9kkrJPEeLHZdfuuWYTNqkDYkUpZA6QWtYYgrj7m', 'jpl.48@orange.fr', 601, 'Syndic. forestiers privés 48', 'creé depuis le site OEASC'),
 
 ('jean-pierre.hamard@irstea.fr', 'HAMARD', 'Jean-Pierre', 'Autre', '7e338292c913d8c2a16458178abae8dd', '$2b$12$t/1ifQcUILLeVr3Biz6p3.ZP8q/dva6R7UCebxOu7uiHWzB5vpD7S', 'jean-pierre.hamard@irstea.fr', 602, 'Irstea - EFNO', 'creé depuis le site OEASC'),
 
