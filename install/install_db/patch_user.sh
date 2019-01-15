@@ -1,6 +1,6 @@
 . install/install_db/psqla.sh
 
-echo 'INSERT INTO utilisateurs.t_role(identidiant, nom_role, prenom_role, desc_role, pass, passplus, email, id_organism, organisme, remarques)
+echo 'INSERT INTO utilisateurs.t_role(identidiant, nom_role, prenom_role, desc_role, pass, passplus, email, id_organisme, organisme, remarques)
 VALUES
 ('richard.scherrer@cevennes-parcnational.fr', 'scherrer', 'richard', 'Salarié ou agent', 'bcfd77fd0f1fadaa210ab968dbc1a16a', '$2b$12$m4bx/hfsS/CMhEN3oyl8QODkCGmRCO2g6vkz2/CHd0j4EfkpK5SsG', 'richard.scherrer@cevennes-parcnational.fr', 581, 'Parc national des Cévennes', 'creé depuis le site OEASC'),
 ('baptiste.algoet@cevennes-parcnational.fr', 'Algoët', 'Baptiste', 'Salarié ou agent, '8eaef7b88801281643b000f4dc16f74e', '$2b$12$.qaI8n0Xpw9jSt/v2DlkEOZloLHXZGIH2N2qdVdWY/caSCBxMNqDC', 'baptiste.algoet@cevennes-parcnational.fr', 581, 'Parc national des Cévennes', 'creé depuis le site OEASC'),
@@ -14,6 +14,8 @@ VALUES
 ('jpl.48@orange.fr', 'LAFONT', 'Jean-Pierre', 'Propriétaire forestier privé', '106cb2c606810308cf1936208764d979', '$2b$12$kS4R4sOv18qiLP9kkrJPEeLHZdfuuWYTNqkDYkUpZA6QWtYYgrj7m', 'jpl.48@orange.fr', 588, Syndic. forestiers privés 48, 'creé depuis le site OEASC'),
 ('jean-pierre.hamard@irstea.fr', 'HAMARD', 'Jean-Pierre', 'Autre', '7e338292c913d8c2a16458178abae8dd', '$2b$12$t/1ifQcUILLeVr3Biz6p3.ZP8q/dva6R7UCebxOu7uiHWzB5vpD7S', 'jean-pierre.hamard@irstea.fr', 590, 'Irstea - EFNO', 'creé depuis le site OEASC'),
 ('isa.corre83@gmail.com', 'CORRE', 'Isabelle', 'Propriétaire forestier privé', '54a9fc48a5b664772e2ca06d1e0772d9', '$2b$12$igzWHSJtrYT0bFA7y02wOOOdBgsOtTkYiYW9MuyCcflv6JpytKjnS', 'isa.corre83@gmail.com', 587, 'Syndic. forestiers privés 30', 'creé depuis le site OEASC');' | $psqla
+
+echo 'DELETE FROM utilisateurs.bib_organismes WHERE id_organisme > 1 AND id organisme < 50'
 
 echo 'INSERT INTO utilisateur.cor_role_droit_application(id_role, id_application, id_droit)
 SELECT id_role, 500, 1
