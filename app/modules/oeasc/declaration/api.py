@@ -86,6 +86,8 @@ def get_form_declaration():
 
     listes_essences = get_listes_essences(declaration_dict)
 
+    print("aa", declaration_dict.get('meta_create_date'))
+
     return render_template('modules/oeasc/form/form_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 
 
@@ -116,7 +118,7 @@ def random_declaration():
 
     declaration_dict = declaration_dict_random_sample()
     get_dict_nomenclature_areas(declaration_dict)
-    return declaration_dict['degats']
+    return declaration_dict
 
 
 @bp.route('random_populate', defaults={'nb': 1}, methods=['GET'])

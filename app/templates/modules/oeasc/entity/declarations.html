@@ -15,7 +15,7 @@
   </div>
 
   <nav class="nav nav-tabs">
-    <a class="nav-item nav-link" href="#resultats" data-toggle="tab" data-type="T">Tableau</a>
+    <a class="nav-item nav-link active" href="#resultats" data-toggle="tab" data-type="T">Tableau</a>
     <a class="nav-item nav-link" href="#resutats" data-toggle="tab" data-type="TC">Carte</a>
     <!-- <a class="nav-item nav-link" href="#resultats" data-toggle="tab" data-type="C">Carte</a> -->
   </nav>
@@ -115,11 +115,9 @@
                 <a href="{{ url_for('declaration.declaration', id_declaration=declaration['id_declaration'])}}" title="Voir les détails de la déclaration" data-toggle="tooltip">
                   <span class="fas fa-eye"></span>
                 </a>
-              
 
               {%- if cond_modifier_effacer %}
 
-              
                 <a href="{{ url_for('declaration.modifier_declaration', id_declaration=declaration['id_declaration'])}}" title="Modifier la déclaration" data-toggle="tooltip">
                   <span class="fas fa-pen"></span>
                 </a>

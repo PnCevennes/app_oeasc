@@ -296,6 +296,7 @@ def degats_dict_random_sample(v_essences):
     '''
 
     v_degat_type = get_v_nomenclature_random_sample('OEASC_DEGAT_TYPE', 'id_nomenclature')
+
     degats = [{"id_nomenclature_degat_type": id_nomenclature} for id_nomenclature in v_degat_type]
 
     for d in degats:
@@ -305,12 +306,13 @@ def degats_dict_random_sample(v_essences):
 
         if cd_nomenclature in ['ABS']:
             degat = {
-                "id_nomenclature_degat_essence": get_nomenclature_random_sample("OEASC_PEUPLEMENT_ESSENCE", "id_nomenclature"),
+
+                "id_nomenclature_degat_essence": get_nomenclature_sample("OEASC_PEUPLEMENT_ESSENCE", v_essences[random.randint(0, len(v_essences) - 1)], "id_nomenclature"),
             }
 
         else:
             degat = {
-                "id_nomenclature_degat_essence": get_nomenclature_random_sample("OEASC_PEUPLEMENT_ESSENCE", "id_nomenclature"),
+                "id_nomenclature_degat_essence": get_nomenclature_sample("OEASC_PEUPLEMENT_ESSENCE", v_essences[random.randint(0, len(v_essences) - 1)], "id_nomenclature"),
                 "id_nomenclature_degat_etendue": get_nomenclature_random_sample("OEASC_DEGAT_ETENDUE", "id_nomenclature"),
                 "id_nomenclature_degat_gravite": get_nomenclature_random_sample("OEASC_DEGAT_GRAVITE", "id_nomenclature"),
                 "id_nomenclature_degat_anteriorite": get_nomenclature_random_sample("OEASC_DEGAT_ANTERIORITE", "id_nomenclature")
@@ -401,7 +403,7 @@ def declaration_dict_random_sample():
     if not declarant:
         return None
 
-    v_essences = v_rand_nomenclature('OEASC_PEUPLEMENT_ESSENCE')
+    v_essences = v_rand_nomenclature('OEASC_PEUPLEMENT_ESSENCE', random.randint(1, 7))
 
     id_nomenclature_peuplement_paturage_statut = None
     nomenclatures_peuplement_paturage_saison = []
@@ -442,7 +444,7 @@ def declaration_dict_random_sample():
         "id_nomenclature_proprietaire_declarant": get_nomenclature_random_sample("OEASC_PROPRIETAIRE_DECLARANT", "id_nomenclature"),
         "foret": foret,
         "id_foret": foret.get('id_foret', None),
-        "degats": degats_dict_random_sample(v_essences),
+        "degats": degats_dict_random_sample(v_essences[:4]),
         'areas_localisation': areas_localisation,
         'b_peuplement_paturage_presence': b_peuplement_paturage_presence,
         'b_peuplement_protection_existence': b_peuplement_protection_existence,

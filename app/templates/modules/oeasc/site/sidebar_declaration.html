@@ -4,15 +4,25 @@
 <div class="sidebar_sticky">
   <ul>
     <li>{{ m.link_bold("Le système d'alerte",'declaration.signalement_degats_forestiers') }}
-    </li>
+      <ul>
         <li>{{ m.link_bold("Les dégâts de grand gibier",'declaration.degats_gibier') }}</li>
-      <!-- <ul> -->
-      <!-- </ul> -->
+        <li ><a href="{{url_for('declaration.declarations')}}">Je consulte mes alertes</a></li>
+      </ul>
+    </li>
+
     {% if request.endpoint != 'declaration.informations_declaration' %}
+    <hr>
     <li class="signaler-degat li-btn"><a href="{{url_for('declaration.informations_declaration')}}">Je déclare une nouvelle alerte</a></li>
-    <li class="li-btn"><a href="{{url_for('declaration.declarations')}}">Je consulte mes alertes</a></li>
     {% else %}
+    <hr>
     <li class="signaler-degat li-btn"><a href="{{url_for('declaration.modifier_declaration')}}">Commencer la déclaration de dégâts</a></li>
     {% endif %}
+
+    {% if request.endpoint == 'declaration.declaration' %}
+    <hr>
+    <li class="li-btn" ><a href="#" onclick="R.toPDF_map('declaration_display')">Exporter au format PDF</a></li>
+    {% endif %}
+
   </ul>
+
 </div>

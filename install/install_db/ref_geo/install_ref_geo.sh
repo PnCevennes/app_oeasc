@@ -194,7 +194,7 @@ select=1
 
 # clear_geometry $name
 process_geom
-simplify_topology_geom OEASC_ONF_FRT 50
+simplify_geom OEASC_ONF_FRT 20
 
 
 #ONF PRF
@@ -282,7 +282,7 @@ select=1
 
 # clear_geometry $name
 process_geom
-simplify_topology_geom OEASC_DGD 10
+simplify_geom OEASC_DGD 10
 
 
 # OEASC_CADASTRE  cadastre_pec                        windows-1250    "insee_com,'-',section,'-',num_parc"                    "insee_com,'-',section,'-',num_parc"

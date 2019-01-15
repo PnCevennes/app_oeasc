@@ -33,11 +33,13 @@
 
   {%- if nomenclatures %}
 
-  <{{balise}}>
+  {% if balise %}
+    <{{balise}}>
+  {% endif %}
 
     {%- for elem in nomenclatures %}
 
-        <b>{{titre + " : " if loop.first}}</b>{{elem.label_fr | nopar | lower}}{{ "," if not loop.last else "" }}
+        <b>{{titre + " : " if loop.first and title}}</b>{{elem.label_fr | nopar | lower}}{{ "," if not loop.last else "" }}
     {%- endfor %}
 
   </{{balise}}>

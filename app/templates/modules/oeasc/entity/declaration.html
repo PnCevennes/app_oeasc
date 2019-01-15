@@ -8,6 +8,12 @@
 
         <div class="col-md-6">
 
+          <div class="form-group">
+            <ul>
+              {# <li><b>Date</b> : {{utils.print_date(declaration['meta_create_date'])}}</li> #}
+            </ul>
+          </div>
+
 
           {% if declaration.declarant %}
           <div class="form-group">
@@ -41,7 +47,7 @@
 
                 {%- endif %}
               </li>
-              <li><b>Type de forêt</b> : {{ utils.get_foret_type(declaration['foret']) | lower}}.</li>
+              <li><b>Type de forêt</b> : {{ utils.get_foret_type(declaration['foret']) | lower}}</li>
               {{ macros_display.list_areas('OEASC_COMMUNE', 'Commune(s)', declaration["foret"]["areas_foret"], 'li') }}
               {{ macros_display.list_areas('OEASC_SECTION', 'Section(s) cadastrale(s)', declaration["foret"]["areas_foret"], 'li') }}
 
@@ -89,7 +95,7 @@
 
             <ul>
 
-              <li><b>Principale</b> : {{ declaration.id_nomenclature_peuplement_essence_principale.label_fr | lower }}.</li>
+              <li><b>Principale</b> : {{ declaration.id_nomenclature_peuplement_essence_principale.label_fr | lower }}</li>
 
               {{macros_display.list_nomenclatures('Secondaire(s)', declaration.nomenclatures_peuplement_essence_secondaire, 'li')}}
 
@@ -104,8 +110,8 @@
             <h5>Description du peuplement</h5>
 
             <ul>
-              <li><b>Origine</b> : {{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}.</li>
-              <li><b>Type</b> : {{ declaration.id_nomenclature_peuplement_type.label_fr | lower }}.</li>
+              <li><b>Origine</b> : {{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}</li>
+              <li><b>Type</b> : {{ declaration.id_nomenclature_peuplement_type.label_fr | lower }}</li>
               {# {%- if  declaration.id_nomenclature_peuplement_type.cd_nomenclature != "FIRR" %} #}
               {{macros_display.list_nomenclatures('Maturité', declaration.nomenclatures_peuplement_maturite, 'li')}}
               {# {%- endif %} #}
@@ -119,7 +125,7 @@
             <h5>Dispositif de protection</h5>
 
             <ul>
-              <li><b>Existence</b> : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}.</li>
+              <li><b>Existence</b> : {%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}</li>
 
               {{macros_display.list_nomenclatures('Type', declaration.nomenclatures_peuplement_protection_type, 'li')}}
 
@@ -135,12 +141,12 @@
             <h5>Pâturage domestique</h5>
 
             <ul>
-              <li><b>Existence</b> : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}.</li>
+              <li><b>Existence</b> : {%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}</li>
 
               {%- if declaration['b_peuplement_paturage_presence'] %}
 
               {{macros_display.list_nomenclatures('Type', declaration.nomenclatures_peuplement_paturage_type, 'li')}}
-              <li><b>Statut</b> : {{ declaration.id_nomenclature_peuplement_paturage_statut.label_fr | nopar | lower }}.</li>
+              <li><b>Statut</b> : {{ declaration.id_nomenclature_peuplement_paturage_statut.label_fr | nopar | lower }}</li>
 
               {{macros_display.list_nomenclatures('Statut', declaration.nomenclatures_peuplement_paturage_statut, 'li')}}
 
@@ -162,7 +168,7 @@
             <h5>Informations complémentaires</h5>
 
             <ul>
-              <li><b>Accessibilité du peuplement</b> : {{ declaration.id_nomenclature_peuplement_acces.label_fr | lower }}.</li>
+              <li><b>Accessibilité du peuplement</b> : {{ declaration.id_nomenclature_peuplement_acces.label_fr | lower }}</li>
 
               {{macros_display.list_nomenclatures('Espèces présentes', declaration.nomenclatures_peuplement_espece, 'li')}}
 

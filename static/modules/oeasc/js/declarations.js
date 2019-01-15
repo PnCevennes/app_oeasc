@@ -19,6 +19,7 @@ $(document).ready(function() {
 
     // searching: false,
     scrollY:  "400px",
+    scrollX: true,
     // scrollCollapse: true,
     // scroller:       true,
     paging: false,

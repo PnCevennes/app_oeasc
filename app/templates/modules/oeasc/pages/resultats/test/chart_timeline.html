@@ -11,21 +11,23 @@
 {%- block content %}
 <div class="row">
   <div class="col-md-12">
-    <div class="text">
+    <div class="pdf">
 
-      <div id="pdf_target">
-        <h2>Synthèse des résultats</h2>
-        <div class="flex-container">
-          <div class="chart">
-            <canvas class="chart timeline" id="myChart"></canvas>
+
+        <div id="pdf_target">
+          <h2>Synthèse des résultats</h2>
+          <div class="flex-container">
+            <div class="chart">
+              <canvas class="chart timeline" id="myChart"></canvas>
+            </div>
           </div>
+
+          <div id="map_test" class="leaflet-map" style="height: 400px;"></div>
+          <div id="map_test_2" class="leaflet-map" style="height: 400px;"></div>
         </div>
 
-        <div id="map_test" class="leaflet-map" style="height: 400px;"></div>
-      </div>
-      <button id='pdf_btn' onclick="R.toPDF_map('pdf_target')">PDF</button>
-
     </div>
+        <button id='pdf_btn' onclick="R.toPDF_map('pdf_target')">PDF</button>
   </div>
 </div>
 {%- endblock %}
@@ -42,6 +44,7 @@
 <script>
   $(document).ready(function() {
     var map = M.init_map("test");
+    var map = M.init_map("test_2");
   });
 </script>
 

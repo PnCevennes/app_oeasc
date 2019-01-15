@@ -7,33 +7,41 @@ $(document).ready(function() {
   var leaflet_hide_selector = ".leaflet-top.leaflet-right, .leaflet-top.leaflet-left";
   var leaflet_map_selector=".leaflet-map"
 
+
+
   var maptoPNG = function(id_element) {
+    return new Promise((resolve, reject) => {
 
-    var map_node = document.getElementById(id_element);
+      if(!id_element) { resolve(); return};
 
-    $(leaflet_hide_selector) && $(leaflet_hide_selector).hide();
+      var map_node = document.getElementById(id_element);
 
+      $(leaflet_hide_selector) && $(leaflet_hide_selector).hide();
 
-    domtoimage.toPng(map_node).then(function (dataUrl) {
-      var img = new Image();
-      img.src = dataUrl;
-      img.id = "img_" + id_element;
-      $(map_node).after(img);
-      $(map_node).hide();
-      console.log("map2png")
+      domtoimage.toPng(map_node).then(function (dataUrl) {
+        var img = new Image();
+        img.src = dataUrl;
+        img.id = "img_" + id_element;
+        $(map_node).after(img);
+        $(map_node).hide();
+        resolve();
+      });
+
     });
-
-
   };
 
   var toPDF = function(id_element) {
+    return new Promise((resolve, reject) => {
+      var e = document.getElementById(id_element);
+      $(e).addClass("pdf");
 
-    var e = document.getElementById(id_element);
-    html2pdf(e);
+      var opt = [];
+      html2pdf(e, opt).then(() => {
+        $(e).removeClass("pdf");
+        resolve();
+      });
 
-    console.log("html")
-
-    return this;
+    });
   };
 
   var toPDF_map = function(id_element) {
@@ -41,32 +49,26 @@ $(document).ready(function() {
     // transforme les cartes leaftlet en PNG
     console.log($("#"+id_element).find(leaflet_map_selector))
 
-    var v1 = new Promise(function(resolve, reject) {
-      $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
-        maptoPNG(e.id);
-      });
-      resolve();
+    var f_array = [];
+
+    $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
+      f_array.push(maptoPNG(e.id));
     });
 
-    var v2 = new Promise(function(resolve, reject) {
-
-      var e = document.getElementById(id_element)
-      html2pdf(e)
-      .then(function() {
-        return;
+    Promise.all(f_array).then(() => {
+      toPDF(id_element)
+      .then(() => {
         $(leaflet_map_selector).show();
         $(leaflet_hide_selector).show();
         $(leaflet_map_selector).each(function(i, e){
 
-          var after=$(e).after()
-          if (after.is('img')) {
-            after.remove();
+          var next=$(e).next()
+          if (next.is('img')) {
+            next.remove();
           }
         });
       });
     });
-
-    v1.then(v2);
 
   }
 

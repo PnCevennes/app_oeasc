@@ -133,7 +133,6 @@ def get_listes_essences(declaration):
                 les essence selectionnées en global (selected) moins les essences concernant ce type de degat
     '''
 
-    print(declaration)
     nomenclature = nomenclature_oeasc()
 
     listes_essences = {}

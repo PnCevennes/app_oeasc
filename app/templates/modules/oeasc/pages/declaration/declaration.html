@@ -1,18 +1,23 @@
-{%- extends "modules/oeasc/site/layout.html" %}
+{%- extends "modules/oeasc/site/layout_sidebar.html" %}
 
 
 {%- block title %}Signalement de dégâts forestiers{%- endblock %}
 
-{%- block content %}
 
-<div class="row">
+{%- block sidebar %}
 
-  <div class="col-md-12">
+{% include "modules/oeasc/site/sidebar_declaration.html" %}
 
+{%- endblock %}
+
+{%- block contentright %}
+
+<div id="declaration_display">
+  
     <h2>Déclaration</h2>
 
     {%- if declaration %}
-    {%- include "modules/oeasc/entity/declaration.html" %}
+    {%- include "modules/oeasc/entity/declaration_table.html" %}
     {%- else %}
     <div class="alert alert-danger">
       <p>Vous n'avez pas accès à la déclaration n° {{id_declaration}}</p>
@@ -24,7 +29,6 @@
     </div>
     {%- endif %}
 
-  </div>
 
 </div>
 
