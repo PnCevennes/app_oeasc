@@ -5,7 +5,7 @@ INSERT INTO utilisateurs.t_role(identidiant, nom_role, prenom_role, desc_role, p
 VALUES
 ('richard.scherrer@cevennes-parcnational.fr', 'scherrer', 'richard', 'Salarié, agent, fonctionnaire', 'bcfd77fd0f1fadaa210ab968dbc1a16a', '$2b$12$m4bx/hfsS/CMhEN3oyl8QODkCGmRCO2g6vkz2/CHd0j4EfkpK5SsG', 'richard.scherrer@cevennes-parcnational.fr', 594, 'Parc national des Cévennes', 'creé depuis le site OEASC'),
 
-('baptiste.algoet@cevennes-parcnational.fr', 'Algoët', 'Baptiste', 'Salarié, agent, fonctionnaire, '8eaef7b88801281643b000f4dc16f74e', '$2b$12$.qaI8n0Xpw9jSt/v2DlkEOZloLHXZGIH2N2qdVdWY/caSCBxMNqDC', 'baptiste.algoet@cevennes-parcnational.fr', 594, 'Parc national des Cévennes', 'creé depuis le site OEASC'),
+('baptiste.algoet@cevennes-parcnational.fr', 'Algoët', 'Baptiste', 'Salarié, agent, fonctionnaire', '8eaef7b88801281643b000f4dc16f74e', '$2b$12$.qaI8n0Xpw9jSt/v2DlkEOZloLHXZGIH2N2qdVdWY/caSCBxMNqDC', 'baptiste.algoet@cevennes-parcnational.fr', 594, 'Parc national des Cévennes', 'creé depuis le site OEASC'),
 
 'loic.molines@crpf.fr', 'Molines', 'Loïc', 'Salarié, agent, fonctionnaire', '08f481b53c98605d63cd91c4720c2742', '$2b$12$8yNtNDfSuVTWOg3SF2mbJuHwqMrkkDkVnuO53bFiNVXm5x8BCO41C', 'loic.molines@crpf.fr', 592, 'CRPF Occitanie', 'creé depuis le site OEASC'),
 
