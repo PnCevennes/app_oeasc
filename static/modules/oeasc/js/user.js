@@ -248,7 +248,6 @@
         $('.info').show();
         $("#modifier_infos").show();
         $("#info_update").show();
-        console.log("a")
         set_user(response);
 
       }

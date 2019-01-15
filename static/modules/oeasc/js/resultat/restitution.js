@@ -47,7 +47,6 @@ $(document).ready(function() {
   var toPDF_map = function(id_element) {
 
     // transforme les cartes leaftlet en PNG
-    console.log($("#"+id_element).find(leaflet_map_selector))
 
     var f_array = [];
 

@@ -281,7 +281,6 @@ $(document).ready(function() {
         layer.bindTooltip(fp.label, {opacity: 1, pane: 'PANE_5'}).addTo(map);
 
         //select option
-        console.log(fp.id_area, fp.area_name, fp.type_code, fp.label);
         $select.append('<option value="' + fp.id_area + '"> ' + fp.label + ' </option>');
 
         //mouse events
@@ -312,7 +311,6 @@ $(document).ready(function() {
       }
 
       for(var i=0; i < areas.length; i++) {
-        console.log(areas[i].id_area, areas[i].area_name, areas[i].type_code, areas[i].label, areas[i].id_type);
         var l = M.get_layer(map, 'id_area', areas[i].id_area);
         if(l) {
         layer_on_click(l, map);

@@ -102,7 +102,6 @@ $(document).ready(function() {
 
   table.on('column-visibility', function() {
     if(table.listen_visibility) {
-      console.log("aa")
       init_column_search();
     }
   });

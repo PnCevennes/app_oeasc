@@ -127,7 +127,6 @@ $('.chart').each(function(e){
   var id = $this.attr("id");
   if($this.hasClass("bar")) {
     var stacked = $this.hasClass("stacked");
-    console.log(stacked, type);
   };
   init_bar_chart(id, type, stacked);
 });

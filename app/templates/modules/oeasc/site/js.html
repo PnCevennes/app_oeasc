@@ -60,8 +60,8 @@
                 window.location = $(this).attr('href');
               }
             });
-            $('li.dropdown').on("blur", function(e) { console.log("a"); e.preventDefault(); })
-            $('li.dropdown').on("focusout", function(e) { console.log("aa"); e.preventDefault(); })
+            $('li.dropdown').on("blur", function(e) { e.preventDefault(); })
+            $('li.dropdown').on("focusout", function(e) { e.preventDefault(); })
 
             // animate scroll to anchor + color
             $('.scroll-anime').click(function(e){
@@ -85,7 +85,6 @@
               e.preventDefault();
               var href = $(this).attr('href')
               var y = $(href).offset().top - $('#menu').height();
-              console.log(y, $(href).offset().top, $(href));
 
               $("html, body").animate({ scrollTop: $(href).offset().top - $('#menu').height() - 50}, 1000);
                 // $(href).animate({backgroundColor: color}, 1000);
@@ -113,7 +112,6 @@
 
             var current_user = '{{ current_user|tojson if current_user }}';
             if(current_user) current_user = JSON.parse(current_user);
-            console.log(current_user)
 
             var cl = function(...args) {
               console.log(...args)

@@ -76,7 +76,6 @@
         onEachFeature: function(feature, layer) {
 
           var center = layer.getBounds().getCenter();
-          console.log(feature.properties.area_code);
           layer.bindTooltip(feature.properties.label, {
             pane: 'PANE_4',
             permanent: true,

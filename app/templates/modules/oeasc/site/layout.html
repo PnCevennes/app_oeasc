@@ -105,8 +105,8 @@
                 window.location = $(this).attr('href');
               }
             });
-            $('li.dropdown').on("blur", function(e) { console.log("a"); e.preventDefault(); })
-            $('li.dropdown').on("focusout", function(e) { console.log("aa"); e.preventDefault(); })
+            $('li.dropdown').on("blur", function(e) { e.preventDefault(); })
+            $('li.dropdown').on("focusout", function(e) { e.preventDefault(); })
 
             // animate scroll to anchor + color
             var class_select="select-title"

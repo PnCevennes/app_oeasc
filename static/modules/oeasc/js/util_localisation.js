@@ -21,7 +21,6 @@ $(document).ready(function() {
     // $('#' + map_name).find(".legend").append(s_legend);
 
 
-    console.log(M.markers);
 
   };
 
