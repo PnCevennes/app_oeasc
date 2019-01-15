@@ -36,6 +36,6 @@
 echo "
 INSERT INTO utilisateurs.cor_role_droit_application(id_role, id_application, id_droit)
 SELECT id_role, 500, 1
-FROM utilisateurs.t_role
+FROM utilisateurs.t_roles
 WHERE remarques like 'crée depuis%';
 "| $psqla
