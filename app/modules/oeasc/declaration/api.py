@@ -86,8 +86,6 @@ def get_form_declaration():
 
     listes_essences = get_listes_essences(declaration_dict)
 
-    print("aa", declaration_dict.get('meta_create_date'))
-
     return render_template('modules/oeasc/form/form_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
 
 

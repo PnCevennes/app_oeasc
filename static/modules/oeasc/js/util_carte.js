@@ -135,13 +135,13 @@ par exemple :
       map.getPane('PANE_' + i).style.zIndex = 1000 + i;
     }
 
-     L.control.betterscale({imperial: false, metric: true}).addTo(map);
+    L.control.betterscale({imperial: false, metric: true}).addTo(map);
     // ajout de l'échelle
-     setTimeout(function() {
-       var b=map.getBounds()
-       b._northEast.lat+=0.001;
-       map.fitBounds(b);
-     }, 1);
+    setTimeout(function() {
+     var b=map.getBounds()
+     b._northEast.lat+=0.001;
+     map.fitBounds(b);
+   }, 1);
 
     // ajout de la légende
     var legend = L.control({position: 'bottomright'});
@@ -279,12 +279,14 @@ var load_areas = function(areas, type, map, b_zoom) {
       var id_declaration = declaration.id_declaration;
       var s_popup = '<div><a href="/declaration/declaration/' + id_declaration + '"  target="_blank">Alerte ' + id_declaration + ' </a></div>';
       var centroid = declaration.centroid;
-      var marker = L.circle(centroid, { color: "black", radius: 100, pane: 'PANE_3'}).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
-      marker.id_declaration = id_declaration;
-      M.markers.addLayer(marker);
-      marker.on("click", function() {
-        $(document).trigger("marker_click", [this.id_declaration]);
-      });
+      if(centroid[0]) {
+        var marker = L.circle(centroid, { color: "black", radius: 100, pane: 'PANE_3'}).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
+        marker.id_declaration = id_declaration;
+        M.markers.addLayer(marker);
+        marker.on("click", function() {
+          $(document).trigger("marker_click", [this.id_declaration]);
+        });
+      }
     }
   };
   // on place les fonctions et objets dans M pour les exporter

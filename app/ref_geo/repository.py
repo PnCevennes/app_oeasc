@@ -115,7 +115,6 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
             data = []
 
             for r in result:
-                print(r)
                 area_code = r[0]
 
                 data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(area_code + "-%"))).order_by(table.label).all() + data

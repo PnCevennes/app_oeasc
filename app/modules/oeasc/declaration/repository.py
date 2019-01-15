@@ -229,7 +229,6 @@ def get_declarations(b_synthese, id_declarant=None):
     if id_declarant > 0:
 
         user = get_user(id_declarant)
-        print(user)
         liste_id_organismes_solo = get_id_organismes(['Autre (préciser)', "Pas d'organisme"])
 
         # administrateur et animateur >=5
@@ -253,9 +252,11 @@ def get_declarations(b_synthese, id_declarant=None):
         return []
 
     declarations = data.get('items')
+    print("zlik")
     pre_get_dict_nomenclature_areas(declarations)
+    print("zlak")
     declarations = [resolve_declaration(d) for d in declarations]
-
+    print("zlouk")
     return declarations
 
 

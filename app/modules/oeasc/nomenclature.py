@@ -186,13 +186,12 @@ def pre_get_dict_nomenclature_areas(declarations):
     for declaration in declarations:
 
         for area in declaration.get('areas_localisation', []):
-
             v_id_areas.append(area)
-
-        foret = declaration.get('foret', None)
 
         for area in declaration.get('areas_foret', []):
             v_id_areas.append(area)
+
+        foret = declaration.get('foret', None)
 
         if not foret:
             continue

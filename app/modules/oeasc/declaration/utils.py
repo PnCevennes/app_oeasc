@@ -14,6 +14,8 @@ DB = config['DB']
 def get_areas_from_type_code(areas, type_code):
 
     out = []
+    if not areas:
+        return out
     for area in areas:
         if area['type_code'] == type_code:
             out.append(area)
