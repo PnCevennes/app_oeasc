@@ -1,7 +1,7 @@
 . install/install_db/psqla.sh
 
 echo "
-INSERT INTO utilisateurs.t_roles(identidiant, nom_role, prenom_role, desc_role, pass, passplus, email, id_organisme, organisme, remarques)
+INSERT INTO utilisateurs.t_roles(identifiant, nom_role, prenom_role, desc_role, pass, passplus, email, id_organisme, organisme, remarques)
 VALUES
 
 ('richard.scherrer@cevennes-parcnational.fr', 'scherrer', 'richard', 'Salarié, agent, fonctionnaire', 'bcfd77fd0f1fadaa210ab968dbc1a16a', '$2b$12$m4bx/hfsS/CMhEN3oyl8QODkCGmRCO2g6vkz2/CHd0j4EfkpK5SsG', 'richard.scherrer@cevennes-parcnational.fr', 594, 'Parc national des Cévennes', 'creé depuis le site OEASC'),
