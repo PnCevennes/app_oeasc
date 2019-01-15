@@ -20,8 +20,6 @@ $(document).ready(function() {
     // var s_legend = '<div id="legend-gravite_importante"><i style="color: red;">●</i> "Gravité : importante</div>';
     // $('#' + map_name).find(".legend").append(s_legend);
 
-
-
   };
 
 

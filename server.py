@@ -1,4 +1,4 @@
-from flask import Flask, redirect, session, request
+from flask import Flask, redirect, session, request, url_for
 
 import json
 
@@ -53,6 +53,9 @@ app.config['MAIL'] = mail
 def accueil():
     return redirect("/oeasc", code=302)
 
+@app.route('/google4b0945b8a2f6425f.html')
+def google():
+    return redirect(url_for('static', filename='google4b0945b8a2f6425f.html'))
 
 with app.app_context():
 
