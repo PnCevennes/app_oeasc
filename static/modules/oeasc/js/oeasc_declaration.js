@@ -339,7 +339,6 @@ $(document).ready(function() {
 
       var $this = $(this);
       var id_form_cur = $this.attr("data-id-form");
-      console.log("aaa", id_form_cur)
       var id_form = get_id_form();
 
       var $form = $("#" + id_form_cur);
@@ -699,7 +698,6 @@ $(document).ready(function() {
 
       var degat = degats[i];
 
-      console.log(degat.id_nomenclature_degat_type)
 
       if (degat.id_nomenclature_degat_type == id_nomenclature_degat_type) {
 

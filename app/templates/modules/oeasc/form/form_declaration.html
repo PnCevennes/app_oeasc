@@ -21,19 +21,19 @@
 
     <div class="form-group">
 
-<div class="alert alert-3">
+      <div class="alert alert-3">
 
-      <p>Utilisez le cadre de libre expression ci-dessous pour :</p>
+        <p>Utilisez le cadre de libre expression ci-dessous pour :</p>
 
-      <ul>
-        <li>préciser certaines de vos réponses ;</li>
-        <li>décrire plus précisément un cas particulier non prévu par le formulaire ;</li>
-        <li>fournir   des   indications   complémentaires   sur   le   peuplement   ou   les   dégâts constatés (description, pourcentage de tiges touchées, historique de gestion, précisions sur la localisation du peuplement, etc.) ;</li>
-        <li>signaler  un  changement  de  situation  par  rapport  aux données renseignées automatiquement  (changement  récent  de  propriétaire,  document  de  gestion durable récemment élaboré, etc.) ;</li>
-        <li>partager un avis personnel sur le formulaire, le système d’alerte ou l’Observatoire de l’équilibre agro‑sylvo‑cynégétique en général.</li>
-      </ul>
+        <ul>
+          <li>préciser certaines de vos réponses ;</li>
+          <li>décrire plus précisément un cas particulier non prévu par le formulaire ;</li>
+          <li>fournir   des   indications   complémentaires   sur   le   peuplement   ou   les   dégâts constatés (description, pourcentage de tiges touchées, historique de gestion, précisions sur la localisation du peuplement, etc.) ;</li>
+          <li>signaler  un  changement  de  situation  par  rapport  aux données renseignées automatiquement  (changement  récent  de  propriétaire,  document  de  gestion durable récemment élaboré, etc.) ;</li>
+          <li>partager un avis personnel sur le formulaire, le système d’alerte ou l’Observatoire de l’équilibre agro‑sylvo‑cynégétique en général.</li>
+        </ul>
 
-</div>
+      </div>
 
       <textarea name="commentaire" id="commentaire" class="form-control" rows="5" maxlength="1000">{{ declaration.commentaire or ""}}</textarea>
 
@@ -51,20 +51,18 @@
 <form id="form_declaration" data-id-declaration="{{declaration['id_declaration']}}" data-id-declarant={{ declaration['id_declarant'] if declaration['id_declarant'] else session.current_user.id_role}}>
 
   <h4>Validation</h4>
-  
-{{ declaration['id_declarant'] if declaration['id_declarant'] else session.current_user.id_role}}
 
-<div class="text-large">
-  <div class="alert alert-3">
-    <h5>Charte de déontologie : une question de confiance...</h5>
+  <div class="text-large">
+    <div class="alert alert-3">
+      <h5>Charte de déontologie : une question de confiance...</h5>
 
-    <p>L’Observatoire de l’équilibre agro‑sylvo‑cynégétique est un outil collectif et participatif. L’un de ses fondements est la confiance entre les partenaires. Cette confiance, vous en bénéficiez lorsque vous renseignez un formulaire d’alerte. Les informations que vous fournissez dans ce formulaire engagent donc votre responsabilité morale. En le validant, vous certifiez que les informations qu’il contient sont exactes.</p>
-    <p>Des vérifications ponctuelles sont susceptibles d’être effectuées sur le terrain par les structures partenaires de l’Observatoire. Si des écarts importants étaient constatés entre les informations fournies et la réalité, vous êtes susceptibles d'être contactés afin d'en analyser l'origine. Par la suite, il pourra être envisagé d'annuler ou modifier la déclaration de dégâts. Si des déclarations volontairement fausses ou exagérées sont constatées, cela pourra aller jusqu'à la suppression du compte « utilisateur » qui en est à l'origine.</p>
-    <p>Nous comptons donc sur vous et votre honnêteté pour honorer la confiance que nous vous accordons.</p>
+      <p>L’Observatoire de l’équilibre agro‑sylvo‑cynégétique est un outil collectif et participatif. L’un de ses fondements est la confiance entre les partenaires. Cette confiance, vous en bénéficiez lorsque vous renseignez un formulaire d’alerte. Les informations que vous fournissez dans ce formulaire engagent donc votre responsabilité morale. En le validant, vous certifiez que les informations qu’il contient sont exactes.</p>
+      <p>Des vérifications ponctuelles sont susceptibles d’être effectuées sur le terrain par les structures partenaires de l’Observatoire. Si des écarts importants étaient constatés entre les informations fournies et la réalité, vous êtes susceptibles d'être contactés afin d'en analyser l'origine. Par la suite, il pourra être envisagé d'annuler ou modifier la déclaration de dégâts. Si des déclarations volontairement fausses ou exagérées sont constatées, cela pourra aller jusqu'à la suppression du compte « utilisateur » qui en est à l'origine.</p>
+      <p>Nous comptons donc sur vous et votre honnêteté pour honorer la confiance que nous vous accordons.</p>
+    </div>
+
+    <p class="alert alert-orange">Merci de vérifier ci-dessous le contenu de votre déclaration de dégâts avant de cliquer sur "envoyer le formulaire" (validation définitive).</p>
   </div>
-
-  <p class="alert alert-orange">Merci de vérifier ci-dessous le contenu de votre déclaration de dégâts avant de cliquer sur "envoyer le formulaire" (validation définitive).</p>
-</div>
 
   {%- include "modules/oeasc/entity/declaration_table.html" %}
 

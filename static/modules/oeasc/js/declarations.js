@@ -306,7 +306,8 @@ $(document).ready(function() {
     }
 
     $('#declarations_tabs').append(
-      '<a class="nav-item nav-link" href="#declaration_' + id_declaration + '" data-toggle="tab" data-type="TC">Déclaration ' + id_declaration + '</a>')
+      '<a class="nav-item nav-link" href="#declaration_' + id_declaration + '" data-toggle="tab" data-type="TC">\
+      <button class="close closeTab" type="button" >×</button>Déclaration ' + id_declaration + '</a>');
     $('#declarations').append('<div class="tab-pane active" id="declaration_' + id_declaration + '">Chargement en cours</div>')
     $.ajax('/api/declaration/declaration_html/' + id_declaration)
       .done((response) => {$('#declaration_'+id_declaration).html(response)})

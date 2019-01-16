@@ -126,7 +126,6 @@
             // animate scroll to anchor + color
             var class_select="select-title"
             $('.scroll-anime').click(function(e){
-              console.log("a");
 
               var color = '#FF851B'
 
@@ -144,7 +143,6 @@
                     e.preventDefault();
                     var href = $(this).attr('href')
                     var y = $(href).offset().top - $('#menu').height();
-                    console.log(y, $(href).offset().top, $(href));
 
                   $("html, body").animate({ scrollTop: $(href).offset().top - $('#menu').height() - 50}, 1000);
                 // $(href).animate({backgroundColor: color}, 1000);

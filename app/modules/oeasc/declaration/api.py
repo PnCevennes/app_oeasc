@@ -56,31 +56,32 @@ def declaration(id_declaration):
         Retourne la declaration d'id id_declaration
     '''
 
-    declaration = get_declaration(id_declaration, session.current_user)
+    declaration = get_declaration(id_declaration)
 
     if not declaration:
         return None
 
-    return declaration.as_dict(True)
+    return declaration
 
 
 @bp.route('declaration_html/<int:id_declaration>', methods=['GET', 'POST'])
 @check_auth_redirect_login(1)
+@json_resp
 def declaration_html(id_declaration):
     '''
         Retourne la declaration en html d'id id_declaration
     '''
 
-    declaration = get_declaration(id_declaration, session.current_user)
+    print(session)
+
+    declaration = get_declaration(id_declaration)
 
     if not declaration:
         return None
 
-    declaration_dict = declaration.as_dict(True)
-
     return render_template(
-        'modules/oeasc/entity/declaration.html',
-        declaration=declaration_dict,
+        'modules/oeasc/entity/declaration_table.html',
+        declaration=declaration,
         id_declaration=id_declaration,
         nomenclature=nomenclature_oeasc()
     )
