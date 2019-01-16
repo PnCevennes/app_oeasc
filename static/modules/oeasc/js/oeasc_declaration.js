@@ -468,7 +468,6 @@ $(document).ready(function() {
     else {
 
       $("#form_display").hide();
-      $("#aide_fil_arianne").hide();
 
     }
 
@@ -590,6 +589,8 @@ $(document).ready(function() {
 
         $("#form_send").show();
         $("#form_sending").hide();
+        $("#aide_fil_arianne").hide();
+
         // $("#form_send").html(JSON.stringify(response));
         $("#form_display").hide();
         $("#form_container").hide();
