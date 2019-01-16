@@ -691,7 +691,9 @@ table .tr-selected td:last-child{
 }
 
 .a-venir{
-
   color: gray;
+}
 
+table#table_declarations:{
+  margin-left: 0px;
 }
