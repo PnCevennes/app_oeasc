@@ -438,6 +438,7 @@ table
 #tableau_declarations table {
 
   min-height: 100px;
+  margin-left: 0px;
 
 }
 
@@ -694,6 +695,4 @@ table .tr-selected td:last-child{
   color: gray;
 }
 
-table#table_declarations:{
-  margin-left: 0px;
-}
+
