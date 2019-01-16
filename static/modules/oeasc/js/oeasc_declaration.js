@@ -565,6 +565,8 @@ $(document).ready(function() {
       $("#form_sending").show();
       $("#form_display").hide();
       $("#form_container").hide();
+      $("#aide_fil_arianne").hide();
+      
       $.ajax({
 
         type: 'POST',
