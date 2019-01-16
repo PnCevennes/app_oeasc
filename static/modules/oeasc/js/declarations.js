@@ -228,12 +228,14 @@ $(document).ready(function() {
   };
 
   var selection_tout = []
-  for(var i = 1; i < table.columns()[0].length; i++) {
-    selection_tout.push(i);
+  for(var i = 0; i < table.columns()[0].length; i++) {
+    if(i!=1) {
+      selection_tout.push(i);
+    }
   }
 
 
-  var selection_reduite = [1, 2, 3, 4, 11];
+  var selection_reduite = [0, 3, 4, 5, 12];
 
   $("[data-type=T]").click(function () {
     /* Onglet tableau
@@ -292,5 +294,26 @@ $(document).ready(function() {
     });
 
   });
+
+  var set_tab_declaration = function(id_declaration) {
+
+    var selector='#declarations_tabs a[href$=declaration_' + id_declaration + ']'
+    var tab_link = $(selector);
+
+    if(tab_link.length) {
+      tab_link.click();
+      return 1;
+    }
+
+    $('#declarations_tabs').append(
+      '<a class="nav-item nav-link" href="#declaration_' + id_declaration + '" data-toggle="tab" data-type="TC">Déclaration ' + id_declaration + '</a>')
+    $('#declarations').append('<div class="tab-pane active" id="declaration_' + id_declaration + '">Chargement en cours</div>')
+    $.ajax('/api/declaration/declaration_html/' + id_declaration)
+      .done((response) => {$('#declaration_'+id_declaration).html(response)})
+      .fail((response) => {$('#declaration_'+id_declaration).html("<div>Fail</div>" + response)})
+    $(selector).click();
+  };
+
+  M.set_tab_declaration = set_tab_declaration;
 
 });

@@ -64,6 +64,29 @@ def declaration(id_declaration):
     return declaration.as_dict(True)
 
 
+@bp.route('declaration_html/<int:id_declaration>', methods=['GET', 'POST'])
+@check_auth_redirect_login(1)
+def declaration_html(id_declaration):
+    '''
+        Retourne la declaration en html d'id id_declaration
+    '''
+
+    declaration = get_declaration(id_declaration, session.current_user)
+
+    if not declaration:
+        return None
+
+    declaration_dict = declaration.as_dict(True)
+
+    return render_template(
+        'modules/oeasc/entity/declaration.html',
+        declaration=declaration_dict,
+        id_declaration=id_declaration,
+        nomenclature=nomenclature_oeasc()
+    )
+
+
+
 @bp.route('get_form_declaration', methods=['POST'])
 @check_auth_redirect_login(1)
 @json_resp
