@@ -121,9 +121,9 @@ $(document).ready(function() {
 
     $('button#dgd_not_in_list').click(function() {
 
-        $("[name=b_document][value='F']").prop("checked", true);
-        M.reset_foret();
-        recharger_form();
+      $("[name=b_document][value='F']").prop("checked", true);
+      M.reset_foret();
+      recharger_form();
 
     });
 
@@ -287,6 +287,50 @@ $(document).ready(function() {
 
 
 
+  var checkformvalidity = function(id_form){
+
+    var is_valid;
+    if(id_form == "form_areas_localisation") {
+      var declaration = M.get_declaration_as_dict();
+      is_valid = (declaration["areas_localisation"].length > 0);
+    }
+    else if(id_form == "form_areas_foret") {
+      var declaration = M.get_declaration_as_dict();
+      is_valid = (declaration["foret"]["areas_foret"].length > 0);
+    }
+    else {
+      is_valid = $('#' + id_form)[0].checkValidity();
+    }
+
+    return is_valid;
+  }
+
+  var d_form={
+    "form_foret_statut": [
+    "form_foret_statut",
+    "form_areas_foret",
+    "form_information_foret",
+    "form_proprietaire"
+    ],
+    "form_areas_localisation": [
+    "form_areas_localisation",
+    "form_peuplement_description",
+    "form_peuplement_protection",
+    "form_peuplement_paturage",
+    "form_peuplement_espece",
+    ],
+    "form_degats": [
+    "form_degats"
+    ],
+    "form_commentaire": [
+    "form_commentaire",
+    ],
+    "form_declaration": [
+    "form_declaration",
+    ],
+
+  }
+
   var f_init_fil_ariane = function(selector) {
 
     var disabled = false;
@@ -295,56 +339,40 @@ $(document).ready(function() {
 
       var $this = $(this);
       var id_form_cur = $this.attr("data-id-form");
+      console.log("aaa", id_form_cur)
       var id_form = get_id_form();
 
       var $form = $("#" + id_form_cur);
 
       var fil = $this.parent().attr('id')
 
-      disabled = (!$form[0].checkValidity()) || disabled;
-
-      var declaration = M.get_declaration_as_dict();
-
-      if(id_form_cur == "form_areas_localisation") {
-
-        disabled = (declaration["areas_localisation"].length == 0);
-
+      if( fil == "fil_local") {
+        disabled = !checkformvalidity(id_form_cur) || disabled;
       }
 
-      if(id_form_cur == "form_areas_foret") {
-
-        disabled = (declaration["foret"]["areas_foret"].length == 0);
-
+      if( fil == "fil_global") {
+          d_form[id_form_cur].forEach((e) => {
+          disabled = !checkformvalidity(e) || disabled;});       //liste des concernés
       }
 
       if(disabled) {
-
         $this.attr("disabled", disabled);
-
       }
 
       var current =false;
 
       if( fil == "fil_local") {
-
         current = ( id_form_cur == id_form );
-
       }
 
       if( fil == "fil_global") {
-
         $this.parent().next().children().each(function(index, elem) {
-
           current = current || ( $(elem).attr("data-id-form") == id_form_cur );
-
         });
-
       }
 
       if(current || !disabled) {
-
        $this.attr("disabled", false);
-
      }
 
      $this.attr("current", current);
@@ -445,10 +473,10 @@ $(document).ready(function() {
 
     }
 
-    f_init_fil_ariane("#fil_global a");
     f_init_fil_ariane("#fil_local a");
+    f_init_fil_ariane("#fil_global a");
 
-    var progression = M.liste_forms.indexOf(id_form)/M.liste_forms.length
+    var progression = M.liste_forms.indexOf(id_form) / M.liste_forms.length;
 
     var s_progress = parseFloat(Math.round(progression * 100 / 5) * 5) + "%";
 

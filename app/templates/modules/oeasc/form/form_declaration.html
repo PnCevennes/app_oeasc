@@ -48,9 +48,11 @@
 </form>
 
 
-<form id="form_declaration" data-id-declaration="{{declaration['id_declaration']}}" data-id-declarant={{session.current_user.id_role}}>
+<form id="form_declaration" data-id-declaration="{{declaration['id_declaration']}}" data-id-declarant={{ declaration['id_declarant'] if declaration['id_declarant'] else session.current_user.id_role}}>
 
   <h4>Validation</h4>
+  
+{{ declaration['id_declarant'] if declaration['id_declarant'] else session.current_user.id_role}}
 
 <div class="text-large">
   <div class="alert alert-3">

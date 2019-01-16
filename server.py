@@ -10,6 +10,7 @@ import re
 from jinja2 import evalcontextfilter, Markup, escape
 
 
+
 class ReverseProxied(object):
 
     def __init__(self, app, script_name=None, scheme=None, server=None):

@@ -71,7 +71,7 @@ def get_form_declaration():
     '''
         Retourne le formulaire correspondant à la déclaration envoyée en post dans data['declaration']
     '''
-
+    print(session.get('_nomenclature')!= None, session.get('_areas'), session)
     data = request.get_json()
     nomenclature = nomenclature_oeasc()
     declaration_dict = data['declaration']
