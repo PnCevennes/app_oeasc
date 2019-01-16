@@ -235,7 +235,7 @@ $(document).ready(function() {
   }
 
 
-  var selection_reduite = [0, 3, 4, 5, 12];
+  var selection_reduite = [0, 3, 4, 5, 11];
 
   $("[data-type=T]").click(function () {
     /* Onglet tableau
