@@ -85,7 +85,8 @@ def declaration(id_declaration):
         'modules/oeasc/pages/declaration/declaration.html',
         declaration=declaration_dict,
         id_declaration=id_declaration,
-        nomenclature=nomenclature_oeasc()
+        nomenclature=nomenclature_oeasc(),
+        btn_action=1
     )
 
 

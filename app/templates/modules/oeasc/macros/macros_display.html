@@ -6,23 +6,40 @@
 
   {%- if areas_selected %}
 
-  {%- if balise %}
-  <{{ balise }}>
-  {% endif %}
-
+  {%- if not balise %}
     {%- for area in areas_selected %}
-
       {%- if type_code == 'OEASC_COMMUNE' %}
         <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "" }}
       {% else %}
         <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "" }}
       {% endif %}
-
     {%- endfor %}
 
-  {%- if balise %}
+  {%- elif balise == "li"%}
+
+  <{{ balise }}>
+    {%- for area in areas_selected %}
+      {%- if type_code == 'OEASC_COMMUNE' %}
+        <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "" }}
+      {% else %}
+        <b>{{titre + " : " if loop.first and titre}}</b>{{area.area_name}}{{ "," if not loop.last else "" }}
+      {% endif %}
+    {%- endfor %}
   </{{ balise }}>
+
+  {%- elif balise == "tr"%}
+
+  <{{balise}}>
+    <th>{{titre}}</th>
+    <td>
+    {%- for area in areas_selected %}
+        {{area.area_name}}{{ "," if not loop.last else "" }}
+    {%- endfor %}
+    </td>
+  </{{balise}}>
+
   {% endif %}
+
 
   {% endif %}
 
@@ -33,17 +50,31 @@
 
   {%- if nomenclatures %}
 
-  {% if balise %}
-    <{{balise}}>
-  {% endif %}
-
+  {%- if not balise %}
     {%- for elem in nomenclatures %}
-
-        <b>{{titre + " : " if loop.first and title}}</b>{{elem.label_fr | nopar | lower}}{{ "," if not loop.last else "" }}
+        <b>{{titre + " : " if loop.first and titre}}</b>{{elem.label_fr | nopar | lower}}{{ "," if not loop.last else "" }}
     {%- endfor %}
 
+{%- elif balise == 'li' %}
+
+    <{{balise}}>
+    {%- for elem in nomenclatures %}
+        <b>{{titre + " : " if loop.first and titre}}</b>{{elem.label_fr | nopar | lower}}{{ "," if not loop.last else "" }}
+    {%- endfor %}
   </{{balise}}>
 
+{%- elif balise == 'tr' %}
+
+    <{{balise}}>
+    <th>{{titre}}</th>
+    <td>
+    {%- for elem in nomenclatures %}
+        {{elem.label_fr | nopar | lower}}{{ "," if not loop.last else "" }}
+    {%- endfor %}
+    </td>
+  </{{balise}}>
+
+  {% endif %}
   {% endif %}
 
 {% endmacro%}

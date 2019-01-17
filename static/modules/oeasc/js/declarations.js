@@ -114,7 +114,7 @@ $(document).ready(function() {
 
   table_filtered.each(function(e,i){
 
-    if( parseInt(e[0]) == id_declaration) {
+    if( parseInt(e[table_indices['ID']]) == id_declaration) {
       if($('#table_declarations tbody tr').eq(i).hasClass("tr-selected")) {
         $('#table_declarations tbody tr').eq(i).removeClass("tr-selected");
       } else {
@@ -168,7 +168,7 @@ $(document).ready(function() {
     var v_filtered = [];
 
     table_filtered.each(function(e){
-      var id_declaration = parseInt(e[0])
+      var id_declaration = parseInt(e[table_indices['ID']])
       v_filtered.push(id_declaration);
     });
 
@@ -176,7 +176,7 @@ $(document).ready(function() {
       M.markers_save = [];
     }
 
-    if( M.markers) {
+    if( M.markers && M.markers._layers) {
       // on place tous les markers affichés dans un tableau de sauvegarde
       M.markers.getLayers().forEach(function(e) {
         M.markers_save.push(e);
@@ -202,20 +202,17 @@ $(document).ready(function() {
       $('#column_search').remove();
     }
 
-
     for(var i=0; i<table.columns()[0].length; i++) {
       // table.column(i).settings()[0].aoColumns[i].bVisible=false;
       table.column(i).visible(false);
       table.column(i).settings()[0].aoColumns[i].bSearchable = false;
     }
 
-
     for (var i=0; i<columns_selected.length; i++) {
       var ind = columns_selected[i];
       table.column(ind).visible(true);
       table.column(ind).settings()[0].aoColumns[i].bSearchable = true;
     }
-
 
     table.listen_visibility = true;
     init_column_search();
@@ -224,6 +221,9 @@ $(document).ready(function() {
       table.search('').draw();
     }
 
+    $("#tableau_declarations table").width("100%");
+    $("#tableau_declarations table").resize()
+    $("#tableau_declarations table thead input").width("100%")
     // $('#table_declarations_filter').val('');
   };
 
@@ -297,6 +297,9 @@ $(document).ready(function() {
 
 
   var set_tab_declaration = function(id_declaration) {
+    /*
+    ouvre au besoin une nouvelle tab du tableau pour voir les details d une declaration
+    */
     return new Promise((resolve, reject) => {
       var selector='#declarations_tabs a[href$=declaration_' + id_declaration + '_container]'
       var tab_link = $(selector);
@@ -328,7 +331,7 @@ $(document).ready(function() {
       });
 
       $('#declarations').append('<div class="tab-pane active" id="declaration_' + id_declaration + '_container">Chargement en cours</div>')
-      $.ajax('/api/declaration/declaration_html/' + id_declaration)
+      $.ajax('/api/declaration/declaration_html/' + id_declaration + '?btn_action=1')
       .done((response) => {
         $('#declaration_' + id_declaration +"_container").html(response);
         $('[data-toggle="tooltip"]').tooltip();
@@ -341,6 +344,9 @@ $(document).ready(function() {
   };
 
   var declaration2pdf = function(id_declaration) {
+    /*
+    pour faire le pdf d 'une déclaration'
+    */
     var selector='#declarations_tabs a[href$=declaration_' + id_declaration + '_container]'
     set_tab_declaration(id_declaration).then(function(new_tab) {
       M.toPDF_map("declaration_" + id_declaration).then(function(){

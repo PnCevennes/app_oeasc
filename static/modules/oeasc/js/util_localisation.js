@@ -35,7 +35,6 @@ $(document).ready(function() {
     var s_legend = '<div id="legend-' + name + '"><i style="background: ' + M.color[name] + '; border: 1px solid black;"></i> ' + "Parcelle" + '</div>';
     $('#' + map_name).find(".legend").append(s_legend);
 
-
     // charger les foret
 
     var areas_foret = declaration.foret.areas_foret;

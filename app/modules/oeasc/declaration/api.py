@@ -74,6 +74,8 @@ def declaration_html(id_declaration):
 
     print(session)
 
+    btn_action = request.args.get("btn_action", "")
+
     declaration = get_declaration(id_declaration)
 
     if not declaration:
@@ -83,7 +85,8 @@ def declaration_html(id_declaration):
         'modules/oeasc/entity/declaration_table.html',
         declaration=declaration,
         id_declaration=id_declaration,
-        nomenclature=nomenclature_oeasc()
+        nomenclature=nomenclature_oeasc(),
+        btn_action=btn_action
     )
 
 
