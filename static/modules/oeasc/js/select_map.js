@@ -193,7 +193,9 @@ $(document).ready(function() {
       $("#form_areas_localisation").attr("data-areas", "[]");
     }
 
-    // $select.selectpicker('render');
+
+
+    // $select.selectpicker();
     $select.selectpicker("refresh")
     f_sort_selected(name);
   };
@@ -309,6 +311,8 @@ $(document).ready(function() {
       if($select.val()) {
         $select.val("");
       }
+
+      $select.selectpicker();
 
       for(var i=0; i < areas.length; i++) {
         var l = M.get_layer(map, 'id_area', areas[i].id_area);
