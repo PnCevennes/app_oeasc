@@ -454,7 +454,7 @@ th, td {
 
 }
 
-.table-small a,  .table-small i {
+.btn-action, a.btn-action {
 
   color: #0067b8;
 
@@ -696,14 +696,19 @@ table .tr-selected td:last-child{
   border-color: #a99d8a;
 }
 
-.a-venir{
+.a-venir {
   color: gray;
 }
 
-.tab-pane{
+.tab-pane {
   display: none;
 }
 
-.tab-pane.active{
+.tab-pane.active {
   display: block;
+}
+
+.nav-link > .close {
+  margin-left: 5px;
+  font-size: 1rem;
 }

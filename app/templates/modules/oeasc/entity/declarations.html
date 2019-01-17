@@ -4,7 +4,7 @@
 
 <div id="declarations">
 
-        <h2>Liste de déclarations</h2>
+  <h2>Liste de déclarations</h2>
 
   <div id="data_declarations">
 
@@ -24,50 +24,49 @@
     <div class="row">
 
       <div id='tableau_declarations' class="col-md-6">
-         <table id="table_declarations" class="table-striped table-small">
-          <thead>
-            <tr>
-              <th>Actions</th>
-              <th>ID</th>
-              <th>Déclarant</th>
-              <th>Organisme</th>
-              <th>Date</th>
-              <th>Nom forêt</th>
-              <th>Commune(s)</th>
-              <th>Parcelles</th>
-              <th>Ess. objectif</th>
-              <th>Type peuplement</th>
-              <th>Origine</th>
-              <th>Type dégâts</th>
-            </tr>
-          </thead>
+       <table id="table_declarations" class="table-striped table-small">
+        <thead>
+          <tr>
+            <th>Actions</th>
+            <th>ID</th>
+            <th>Déclarant</th>
+            <th>Organisme</th>
+            <th>Date</th>
+            <th>Nom forêt</th>
+            <th>Commune(s)</th>
+            <th>Parcelles</th>
+            <th>Ess. objectif</th>
+            <th>Type peuplement</th>
+            <th>Origine</th>
+            <th>Type dégâts</th>
+          </tr>
+        </thead>
 
-          <tbody>
+        <tbody>
 
-            {%- for declaration in declarations %}
+          {%- for declaration in declarations %}
 
-            {%- if session.current_user %}
-            {%- set cond_modifier_effacer = (session.current_user.id_droit_max >= 4) or (session.current_user.id_role == declaration.id_declarant) %}
-            {%- else %}
-            {%- set cond_modifier_effacer = false %}
-            {%- endif %}
+          {%- if session.current_user %}
+          {%- set cond_modifier_effacer = (session.current_user.id_droit_max >= 4) or (session.current_user.id_role == declaration.id_declarant) %}
+          {%- else %}
+          {%- set cond_modifier_effacer = false %}
+          {%- endif %}
 
-            <tr>
-              <td>
-                {# <i onclick="M.set_tab_declaration({{ declaration['id_declaration'] }});" title="Voir les détails de la déclaration" data-toggle="tooltip">
-                  <span class="fas fa-eye"></span>
-                </i> #}
-                <a href="{{ url_for('declaration.declaration', id_declaration=declaration['id_declaration'])}}" title="Voir les détails de la déclaration" data-toggle="tooltip">
-                  <span class="fas fa-eye"></span>
-                </a>
-              {%- if cond_modifier_effacer %}
-                <a href="{{ url_for('declaration.modifier_declaration', id_declaration=declaration['id_declaration'])}}" title="Modifier la déclaration" data-toggle="tooltip">
+          <tr>
+            <td>
+              <i class="btn-action" onclick="M.set_tab_declaration({{ declaration['id_declaration'] }});" title="Voir les détails de la déclaration" data-toggle="tooltip">
+                <span class="fas fa-eye"></span>
+              </i>
+
+                {%- if cond_modifier_effacer %}
+                <a class="btn-action" target="_blank" href="{{ url_for('declaration.modifier_declaration', id_declaration=declaration['id_declaration'])}}" title="Modifier la déclaration" data-toggle="tooltip">
                   <span class="fas fa-pen"></span>
                 </a>
-              </td>
-              {%- else %}
-              <td></td>
               {%- endif %}
+              <i class="btn-action" onclick="M.declaration2pdf({{ declaration['id_declaration'] }});" title="Exporter la déclaration au format PDF" data-toggle="tooltip">
+                <span class="fas fa-file-alt "></span>
+              </i>
+              </td>
               <td>{{ declaration['id_declaration'] }}</td>
               <td>{{ declaration['declarant'] }}</td>
               <td>{{ declaration['organisme']}}</td>

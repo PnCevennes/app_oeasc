@@ -1,9 +1,5 @@
 $(document).ready(function() {
 
-  R = {};
-
-  "use strict";
-
   var leaflet_hide_selector = ".leaflet-top.leaflet-right, .leaflet-top.leaflet-left";
   var leaflet_map_selector=".leaflet-map"
 
@@ -45,33 +41,35 @@ $(document).ready(function() {
   };
 
   var toPDF_map = function(id_element) {
-
     // transforme les cartes leaftlet en PNG
+    return new Promise((resolve, reject) => {
 
-    var f_array = [];
+      var f_array = [1];
 
-    $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
-      f_array.push(maptoPNG(e.id));
-    });
+      $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
+        f_array.push(maptoPNG(e.id));
+      });
 
-    Promise.all(f_array).then(() => {
-      toPDF(id_element)
-      .then(() => {
-        $(leaflet_map_selector).show();
-        $(leaflet_hide_selector).show();
-        $(leaflet_map_selector).each(function(i, e){
+      Promise.all(f_array).then(() => {
+        toPDF(id_element)
+        .then(() => {
+          $(leaflet_map_selector).show();
+          $(leaflet_hide_selector).show();
+          $(leaflet_map_selector).each(function(i, e){
 
-          var next=$(e).next()
-          if (next.is('img')) {
-            next.remove();
-          }
+            var next=$(e).next()
+            if (next.is('img')) {
+              next.remove();
+            }
+          });
+          resolve();
         });
       });
     });
 
   }
 
-  R.toPDF_map = toPDF_map;
-  R.toPDF = toPDF;
+  M.toPDF_map = toPDF_map;
+  M.toPDF = toPDF;
 
 });

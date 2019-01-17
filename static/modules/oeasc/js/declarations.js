@@ -235,7 +235,7 @@ $(document).ready(function() {
   }
 
 
-  var selection_reduite = [0, 3, 4, 5, 11];
+  var selection_reduite = [0, 2, 3, 4, 5, 11];
 
   $("[data-type=T]").click(function () {
     /* Onglet tableau
@@ -295,26 +295,62 @@ $(document).ready(function() {
 
   });
 
+
   var set_tab_declaration = function(id_declaration) {
+    return new Promise((resolve, reject) => {
+      var selector='#declarations_tabs a[href$=declaration_' + id_declaration + '_container]'
+      var tab_link = $(selector);
 
-    var selector='#declarations_tabs a[href$=declaration_' + id_declaration + ']'
-    var tab_link = $(selector);
+      var new_tab=false
 
-    if(tab_link.length) {
-      tab_link.click();
-      return 1;
-    }
+      if(tab_link.length) {
+        tab_link.click();
+        resolve(new_tab);
+        return;
+      }
 
-    $('#declarations_tabs').append(
-      '<a class="nav-item nav-link" href="#declaration_' + id_declaration + '" data-toggle="tab" data-type="TC">\
-      <button class="close closeTab" type="button" >×</button>Déclaration ' + id_declaration + '</a>');
-    $('#declarations').append('<div class="tab-pane active" id="declaration_' + id_declaration + '">Chargement en cours</div>')
-    $.ajax('/api/declaration/declaration_html/' + id_declaration)
-      .done((response) => {$('#declaration_'+id_declaration).html(response)})
-      .fail((response) => {$('#declaration_'+id_declaration).html("<div>Fail</div>" + response)})
-    $(selector).click();
+      $('#declarations_tabs').append(
+        '<a class="nav-item nav-link" href="#declaration_' + id_declaration + '_container" data-toggle="tab" data-type="TC">\
+        Déclaration ' + id_declaration + '<button class="close closeTab" type="button" >×</button></a>');
+
+      $(selector + ' button').click(function(e) {
+        e.preventDefault();
+
+        if($(this).parent().hasClass("active")) {
+          var prev = $(this).parent().prev()
+          prev.tab("show");
+          console.log("aa", prev);
+
+        }
+        var id=$(selector).attr("href");
+        $(id).remove();
+        setTimeout(()=>$(selector).remove(), 10);
+      });
+
+      $('#declarations').append('<div class="tab-pane active" id="declaration_' + id_declaration + '_container">Chargement en cours</div>')
+      $.ajax('/api/declaration/declaration_html/' + id_declaration)
+      .done((response) => {
+        $('#declaration_' + id_declaration +"_container").html(response);
+        $('[data-toggle="tooltip"]').tooltip();
+        new_tab=true;
+        resolve(new_tab)})
+      .fail((response) => {$('#declaration_'+id_declaration).html("<div>Fail</div>" + response)});
+
+      $(selector).tab("show");
+    });
   };
 
+  var declaration2pdf = function(id_declaration) {
+    var selector='#declarations_tabs a[href$=declaration_' + id_declaration + '_container]'
+    set_tab_declaration(id_declaration).then(function(new_tab) {
+      M.toPDF_map("declaration_" + id_declaration).then(function(){
+        new_tab && $(selector + ' button').click();
+      });
+    });
+
+  }
+
   M.set_tab_declaration = set_tab_declaration;
+  M.declaration2pdf = declaration2pdf;
 
 });

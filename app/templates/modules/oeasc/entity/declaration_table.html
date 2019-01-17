@@ -1,7 +1,25 @@
 
 {%- import "modules/oeasc/macros/macros_display.html" as macros_display %}
 
-<div id ="declaration" data-declaration='{{ declaration | tojson if declaration else ""  }}'>
+{%- if session.current_user %}
+{%- set cond_modifier_effacer = (session.current_user.id_droit_max >= 4) or (session.current_user.id_role == declaration.id_declarant) %}
+{%- else %}
+{%- set cond_modifier_effacer = false %}
+{%- endif %}
+
+<div>
+  {%- if cond_modifier_effacer %}
+  <a class="btn-action" href="{{ url_for('declaration.modifier_declaration', id_declaration=declaration['id_declaration'])}}" title="Modifier la déclaration" target="_blank" data-toggle="tooltip">
+    <span class="fas fa-pen"></span>
+  </a>
+  {%- endif %}
+  <i class="btn-action" onclick="M.declaration2pdf({{ declaration['id_declaration'] }});" title="Exporter la déclaration au format PDF" data-toggle="tooltip">
+    <span class="fas fa-file-alt "></span>
+  </i>
+
+</div>
+
+<div id ="declaration_{{declaration.id_declaration if declaration.id_declaration}}" data-declaration='{{ declaration | tojson if declaration else ""  }}'>
 
   {%- set foret = declaration["foret"]%}
 
@@ -231,7 +249,7 @@
       <tr>
         <th></th>
         <td>
-            {{ declaration.commentaire|nl2br or "" }}
+          {{ declaration.commentaire|nl2br or "" }}
         </td>
       </tr>
     </tbody>
