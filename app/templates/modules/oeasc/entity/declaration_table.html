@@ -26,6 +26,8 @@
 
   {%- set foret = declaration["foret"]%}
 
+<div>
+
   <table class="table table-declaration">
     <col class="t1">
     <col class="t2">
@@ -227,4 +229,15 @@
     {% endif %}
 
   </table>
+</div>
+
+<div id="show_declarations" class="page-break">
+        <div id="map_show_localisation_{{declaration.id_declaration}}" class="map leaflet-map"></div>
+        <div id="infos_map" class="infos_map"></div>
+        <div id="chargement">
+          <div>Chargement en cours <span class="fa fa-spinner"></span></div>
+        </div>
+      </div>
+</div>
+
 </div>

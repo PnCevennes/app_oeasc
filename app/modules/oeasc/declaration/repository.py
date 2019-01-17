@@ -252,11 +252,8 @@ def get_declarations(b_synthese, id_declarant=None):
         return []
 
     declarations = data.get('items')
-    print("zlik")
     pre_get_dict_nomenclature_areas(declarations)
-    print("zlak")
     declarations = [resolve_declaration(d) for d in declarations]
-    print("zlouk")
     return declarations
 
 

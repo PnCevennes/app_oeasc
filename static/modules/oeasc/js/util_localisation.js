@@ -37,14 +37,14 @@ $(document).ready(function() {
 
     // charger les foret
 
-    var areas_foret = declaration.foret.areas_foret;
+    var areas_foret = declaration.foret.areas_foret.filter((a) => {return ["OEASC_DGD", "OEASC_ONF_FRT"].includes(a.type_code) }) || areas_foret;
 
     M.load_areas(areas_foret, "foret", map, true);
 
 
     // charger les aires
 
-    var areas_localisation = declaration.areas_localisation;
+    var areas_localisation = declaration.areas_localisation.filter((a) => {return ["OEASC_CADASTRE", "OEASC_ONF_PRF"].includes(a.type_code) });
 
     M.load_areas(areas_localisation, "localisation", map, false);
 

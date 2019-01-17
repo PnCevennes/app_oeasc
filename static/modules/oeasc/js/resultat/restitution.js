@@ -31,12 +31,11 @@ $(document).ready(function() {
       var e = document.getElementById(id_element);
       $(e).addClass("pdf");
 
-      var opt = [];
+      var opt = {pagebreak: { mode: 'avoid-all'}};
       html2pdf(e, opt).then(() => {
         $(e).removeClass("pdf");
         resolve();
       });
-
     });
   };
 
@@ -46,7 +45,12 @@ $(document).ready(function() {
 
       var f_array = [1];
 
+      var e = document.getElementById(id_element);
+      $(e).addClass("pdf");
+
+
       $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
+        M[e.id].invalidateSize();
         f_array.push(maptoPNG(e.id));
       });
 
@@ -57,6 +61,7 @@ $(document).ready(function() {
           $(leaflet_hide_selector).show();
           $(leaflet_map_selector).each(function(i, e){
 
+            M[e.id].invalidateSize();
             var next=$(e).next()
             if (next.is('img')) {
               next.remove();
