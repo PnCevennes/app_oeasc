@@ -26,7 +26,9 @@ $(document).ready(function() {
       if (! $this.is(':visible') ) {
 
         $('#id_nomenclature_peuplement_essence_principale').prop("disabled", true)
+        $('#id_nomenclature_peuplement_essence_principale').selectpicker("refresh")
         $('#form_peuplement_description [id^="NOMENCLATURES_PEUPLEMENT_ESSENCE"] select').prop("disabled", true)
+        $('#form_peuplement_description [id^="NOMENCLATURES_PEUPLEMENT_ESSENCE"] select').selectpicker("refresh")
         recharger_form();
 
       }
@@ -161,7 +163,10 @@ $(document).ready(function() {
     $('#id_nomenclature_peuplement_essence_principale').change(function() {
 
       $('#id_nomenclature_peuplement_essence_principale').prop("disabled", true)
+      $('#id_nomenclature_peuplement_essence_principale').selectpicker("refresh")
       $('#form_peuplement_description [id^="NOMENCLATURES_PEUPLEMENT_ESSENCE"] select').prop("disabled", true)
+      $('#form_peuplement_description [id^="NOMENCLATURES_PEUPLEMENT_ESSENCE"] select').selectpicker("refresh")
+      
       recharger_form();
 
     });
@@ -350,7 +355,7 @@ $(document).ready(function() {
       }
 
       if( fil == "fil_global") {
-          d_form[id_form_cur].forEach((e) => {
+        d_form[id_form_cur].forEach((e) => {
           disabled = !checkformvalidity(e) || disabled;});       //liste des concernés
       }
 
