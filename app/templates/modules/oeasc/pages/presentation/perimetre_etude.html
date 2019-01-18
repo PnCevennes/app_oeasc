@@ -18,19 +18,16 @@
 
   <p>Le périmètre de l’Observatoire de l’équilibre agro‑sylvo‑cynégétique est constitué des communes (d’après leurs limites avant les fusions de communes les plus récentes<sup><small>1</small></sup>) en partie incluses dans le cœur du Parc national des Cévennes ou frontalières avec celui-ci.</p>
   <small><i><sup>1</sup> Fusions ayant abouti à la création des nouvelles communes de Massegros-Causses-Gorges, Gorges-du-Tarn-Causses, Mont-Lozère-et-Goulet</i></small>
-  
+
   <hr>
 
   <p>Le périmètre a été découpé en quatre secteurs d’étude, correspondant aux quatre grandes entités biogéographiques du territoire : le Mont Lozère au nord, les Vallées cévenoles à l’est, les Causses et les gorges à l’ouest, et le Mont Aigoual au sud. Le découpage en secteurs d’étude a également tenu compte des habitudes de chasse et des territoires utilisés pour la définition des plans de chasse.</p>
 
   <hr>
-  
 </div>
+
 <div>
-
-
   <div id="map_acceuil" class="map"></div>
-
 </div>
 
 <div class=text>
@@ -61,36 +58,30 @@
       style: M.style.zc
     }).addTo(map_init);
 
-    var color_secteur = {
-      'Causses et Gorges': 'red',
-      'Aigoual': 'blue',
-      'Mont Lozère': 'green',
-      'Vallées cévenoles': 'purple'
-      }
+    M.add_secteurs(map_init);
 
-    var l_secteurs_OEASC = new L.GeoJSON.AJAX(
-      '/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR',
-      {
-        style: M.style.secteur,
-        pane: 'PANE_1',
-        onEachFeature: function(feature, layer) {
-
-          var center = layer.getBounds().getCenter();
-          layer.bindTooltip(feature.properties.label, {
-            pane: 'PANE_4',
-            permanent: true,
-            direction: 'center',
-            color: color_secteur[feature.properties.area_code],
-            opacity: 1,
-            fillOpacity: 1,
-            className: 'secteur ' + feature.properties.area_code.replace(/ /g, "_"),
-          });
-        },
-      }
-      ).addTo(map_init);
+    // var l_secteurs_OEASC = new L.GeoJSON.AJAX(
+    //   '/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR',
+    //   {
+    //     style: M.style.secteur,
+    //     pane: 'PANE_1',
+    //     onEachFeature: function(feature, layer) {
+    //       var center = layer.getBounds().getCenter();
+    //       layer.bindTooltip(feature.properties.label, {
+    //         pane: 'PANE_4',
+    //         permanent: true,
+    //         direction: 'center',
+    //         color: color_secteur[feature.properties.area_code],
+    //         opacity: 1,
+    //         fillOpacity: 1,
+    //         className: 'secteur ' + feature.properties.area_code.replace(/ /g, "_"),
+    //       });
+    //     },
+    //   }
+    //   ).addTo(map_init);
 
 
-    $(".legend").append('<div id="#legend-zc"><i style="background: lightgrey; border: 1px solid black;"></i> ' +"<b>Secteurs d'étude</b>" + '</div>');
+    // $(".legend").append('<div id="#legend-zc"><i style="background: lightgrey; border: 1px solid black;"></i> ' +"<b>Secteurs d'étude</b>" + '</div>');
 
     $(".legend").append('<div id="#legend-aa"><i style="background: ' + M.color.zc + '; border: 1px solid darkgrey;"></i> ' +"Zone cœur du Parc national" + '</div>');
 

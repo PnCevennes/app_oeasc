@@ -3,6 +3,7 @@ from flask import session, current_app
 from .models import TDeclaration, TForet, TProprietaire
 from app.modules.oeasc.user.repository import get_user, get_id_organismes
 from app.utils.utilssqlalchemy import GenericQuery
+from sqlalchemy import text
 
 config = current_app.config
 DB = config['DB']
@@ -199,6 +200,20 @@ def get_declaration(id_declaration):
         return None
 
     declaration = dfpu_as_dict_from_id_declaration(id_declaration)
+
+    # centroid?
+    r = '''
+SELECT (SELECT ARRAY[st_y(a.center), st_x(a.center)] AS "array"
+           FROM ( SELECT st_centroid(st_union(l.geom_4326)) AS center
+                   FROM oeasc.cor_areas_declarations c
+                     JOIN ref_geo.l_areas l ON c.id_area = l.id_area AND l.id_type <> ref_geo.get_id_type('OEASC_SECTEUR'::character varying)
+                  WHERE c.id_declaration = d.id_declaration) a) AS centroid
+   FROM oeasc.t_declarations d
+   WHERE d.id_declaration={};'''.format(declaration['id_declaration'])
+
+    data = DB.engine.execute(text(r))
+
+    declaration['centroid'] = data.first()[0]
 
     if user['id_role'] == declaration['id_declarant']:
         return declaration

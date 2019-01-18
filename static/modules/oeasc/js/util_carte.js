@@ -227,8 +227,6 @@ var load_areas = function(areas, type, map, b_zoom) {
         dataType:"json",
         data: JSON.stringify({areas: areas}),
         success: function (response) {
-          console.log("map.map_name", map.map_name);
-
           var featuresCollection = L.geoJson(response, {
             pane : 'PANE_' + pane
           }).addTo(map);
@@ -242,7 +240,7 @@ var load_areas = function(areas, type, map, b_zoom) {
               fillColor: color
             });
             $("#map_" + map.map_name + ' #legend-' + type_code).show();
-            $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', M.color.foret);
+            $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', color);
           });
 
           $("#" + map.map_name + " #chargement").hide();
@@ -261,13 +259,13 @@ var load_areas = function(areas, type, map, b_zoom) {
     };
 
 
-    var load_declarations_centroid = function(declarations, map) {
+    var load_declarations_centroid = function(declarations, map, type="marker", b_global = false) {
     /* charge les centroids des déclarations
     */
     var d_areas = {};
     var d_deg_color = {};
 
-    if( ! M.markers) {
+    if( ! M.markers && b_global) {
       M.markers = L.layerGroup();
       map.addLayer(M.markers);
       M.layerControl.addOverlay(M.markers, "Déclarations")
@@ -279,19 +277,71 @@ var load_areas = function(areas, type, map, b_zoom) {
       var id_declaration = declaration.id_declaration;
       var s_popup = '<div><a href="/declaration/declaration/' + id_declaration + '"  target="_blank">Alerte ' + id_declaration + ' </a></div>';
       var centroid = declaration.centroid;
-      var marker = L.circle(centroid, { color: "black", radius: 100, pane: 'PANE_3'}).bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips})
+      var marker;
+      if(type == "circle") {
+        marker = L.circle(centroid);
+      } else {
+        marker = L.marker(centroid);
+      }
+      L.setOptions(marker, { color: "black", radius: 100, pane: 'PANE_5'});
+      // marker.bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips});
+      marker.bindPopup(s_popup, {opacity: 1, pane: 'PANE_6'});
       marker.id_declaration = id_declaration;
-      M.markers.addLayer(marker);
+      if(b_global) {
+        M.markers.addLayer(marker);
+      } else {
+        map.addLayer(marker);
+      }
       marker.on("click", function() {
         $(document).trigger("marker_click", [this.id_declaration]);
       });
     }
   };
+
+  // ajout des secteurs
+  var add_secteurs = function(map, b_zoom=false) {
+    var color_secteur = {
+      'Causses et Gorges': 'red',
+      'Aigoual': 'blue',
+      'Mont Lozère': 'green',
+      'Vallées cévenoles': 'purple'
+    }
+    var l_secteurs_OEASC = new L.GeoJSON.AJAX(
+      '/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR', {
+        style: M.style.secteur,
+        pane: 'PANE_1',
+        onEachFeature: function(feature, layer) {
+          var center = layer.getBounds().getCenter();
+          layer.bindTooltip(feature.properties.label, {
+            pane: 'PANE_4',
+            permanent: true,
+            direction: 'center',
+            color: color_secteur[feature.properties.area_code],
+            opacity: 1,
+            fillOpacity: 1,
+            className: 'secteur ' + feature.properties.area_code.replace(/ /g, "_"),
+          });
+        },
+      }
+      ).addTo(map);
+
+    l_secteurs_OEASC.on('data:loaded', function() {
+      if(b_zoom) {
+        deferred_setBounds(l_secteurs_OEASC.getBounds(), map);
+      }
+    });
+
+    $(".legend").append('<div id="#legend-zc"><i style="background: lightgrey; border: 1px solid black;"></i> ' +"<b>Secteurs d'étude</b>" + '</div>');
+
+  }
+
+
   // on place les fonctions et objets dans M pour les exporter
 
   M.carte_base_oeasc = carte_base_oeasc;
   M.get_layer = get_layer;
   M.load_areas = load_areas;
+  M.add_secteurs = add_secteurs;
   M.load_declarations_centroid = load_declarations_centroid;
   M.remove_map = remove_map;
   M.init_map = init_map;

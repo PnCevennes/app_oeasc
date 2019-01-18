@@ -72,8 +72,6 @@ def declaration_html(id_declaration):
         Retourne la declaration en html d'id id_declaration
     '''
 
-    print(session)
-
     btn_action = request.args.get("btn_action", "")
 
     declaration = get_declaration(id_declaration)
@@ -90,7 +88,6 @@ def declaration_html(id_declaration):
     )
 
 
-
 @bp.route('get_form_declaration', methods=['POST'])
 @check_auth_redirect_login(1)
 @json_resp
@@ -98,7 +95,6 @@ def get_form_declaration():
     '''
         Retourne le formulaire correspondant à la déclaration envoyée en post dans data['declaration']
     '''
-    print(session.get('_nomenclature')!= None, session.get('_areas'), session)
     data = request.get_json()
     nomenclature = nomenclature_oeasc()
     declaration_dict = data['declaration']

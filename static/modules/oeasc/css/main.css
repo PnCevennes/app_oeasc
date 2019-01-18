@@ -40,6 +40,11 @@ body {
 }
 /* header titre */
 
+.center {
+  margin-left: auto;
+  margin-right:  auto;
+}
+
 .flex-container {
 
   display: flex;
@@ -660,6 +665,19 @@ table .tr-selected td:last-child{
   /* height: 11.7in; */
   padding:  0.5in;
   overflow: hidden;
+}
+
+.declaration-maps .map {
+  height: 300px;
+  /* width: 700px; */
+
+}
+
+.declaration-maps .map-container {
+  margin:  10px;
+  padding: 10px;
+  border:  1px solid black;
+  /* display:  inline-block; */
 }
 
 .t1 {

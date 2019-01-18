@@ -33,7 +33,7 @@ $(document).ready(function() {
 
       }
 
-    },200);
+    }, 100);
 
   };
 
@@ -259,12 +259,23 @@ $(document).ready(function() {
       var $this = $(this);
       var id_nomenclature_degat_type = $this.attr("data-degat-type");
       var id_nomenclature_degat_essence = $this.attr("data-degat-essence");
+      var declaration = M.get_declaration_as_dict();
+      var degats = declaration.degats;
 
-      if(id_nomenclature_degat_essence == "")
+      if(!id_nomenclature_degat_essence || id_nomenclature_degat_essence == "None")
       {
 
         var $form_container =$this.parents(".form-degat-essence");
         $form_container.remove();
+        for(var i=0; i< degats.length; i++) {
+          var degat = degats[i];
+          if (degat.id_nomenclature_degat_type == id_nomenclature_degat_type) {
+            if ( !(degat.degat_essences && degat.degat_essences.length > 1)) {
+              degats.splice(i, 1);
+              return $('input[value=' + id_nomenclature_degat_type + ']').prop("checked", false).change();
+            }
+          }
+        }
         return recharger_form();
 
       }
@@ -623,46 +634,35 @@ $(document).ready(function() {
     // on renseigne le formulaire id_form si on change de formulaire, sinon il reste au formulaire courant
 
     if( declaration == null) {
-
       declaration = M.get_declaration_as_dict();
-
     }
 
     if( id_form == null) {
-
       id_form = get_id_form();
-
     }
 
     var foret = M.get_foret_as_dict();
-
     var data={"declaration": declaration, "id_form": id_form};
 
-    console.log("beforeSend", data);
-
     $.ajax({
-
       type: 'POST',
       url: "/api/declaration/get_form_declaration",
       data: JSON.stringify({
-
         "declaration": declaration,
         "id_form": id_form,
       }),
       contentType: "application/json",
-
     }).done(function(response) {
 
       console.log("done : " + this.url);
-
       $("#form_container").html(response);
-
       initialiser_form(id_form);
-
       M.declaration_save = M.get_declaration_as_dict();
+      $('.tooltip').hide();
+
+      $('[data-toggle="tooltip"]').tooltip();
 
     });
-
   };
 
 
@@ -695,32 +695,24 @@ $(document).ready(function() {
   var f_supprimer_degat_essence = function() {
 
     var $this = $(this);
-    var id_nomenclature_degat_type = $this.attr("data-degat-type");
-    var id_nomenclature_degat_essence = JSON.parse($this.attr("data-degat-essence")).id_nomenclature;
     var declaration = M.get_declaration_as_dict();
     var degats = declaration.degats;
+    var id_nomenclature_degat_type = $this.attr("data-degat-type");
+    var id_nomenclature_degat_essence = JSON.parse($this.attr("data-degat-essence")).id_nomenclature;
 
     for(var i=0; i< degats.length; i++) {
-
       var degat = degats[i];
-
-
       if (degat.id_nomenclature_degat_type == id_nomenclature_degat_type) {
-
         for(var j=0; j<degat.degat_essences.length; j++) {
-
           var degat_essence = degat.degat_essences[j];
-
           if (degat_essence.id_nomenclature_degat_essence == id_nomenclature_degat_essence) {
-
             degat.degat_essences.splice(j, 1);
-
+            if( degat.degat_essences.length == 0) {
+              degats.splice(i, 1)
+            }
           }
-
         }
-
       }
-
     }
 
     recharger_form(declaration);

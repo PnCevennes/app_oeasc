@@ -13,21 +13,21 @@
 {%- block contentright %}
 
 <div id="declaration_display">
-  
-    <h2>Déclaration</h2>
 
-    {%- if declaration %}
-    {%- include "modules/oeasc/entity/declaration_table.html" %}
-    {%- else %}
-    <div class="alert alert-danger">
-      <p>Vous n'avez pas accès à la déclaration n° {{id_declaration}}</p>
-      <p>Les causes peuvent être:</p>
-      <ul>
-        <li>La déclaration n° {{id_declaration}} n'existe pas</li>
-        <li>Vous n'avez pas les droits suffisants pour voir cette déclaration</li>
-      </ul>
-    </div>
-    {%- endif %}
+
+  {%- if declaration %}
+  {% set map_display="youplaboom!"%}
+  {%- include "modules/oeasc/entity/declaration_table.html" %}
+  {%- else %}
+  <div class="alert alert-danger">
+    <p>Vous n'avez pas accès à la déclaration n° {{id_declaration}}</p>
+    <p>Les causes peuvent être:</p>
+    <ul>
+      <li>La déclaration n° {{id_declaration}} n'existe pas</li>
+      <li>Vous n'avez pas les droits suffisants pour voir cette déclaration</li>
+    </ul>
+  </div>
+  {%- endif %}
 
 
 </div>
@@ -42,15 +42,41 @@
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_form.js') }}"></script>
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_data.js') }}"></script>
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_localisation.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/resultat/restitution.js') }}"></script>
 
 <script>
   $(document).ready(function() {
 
-    if (typeof $('#declaration').attr('data-declaration') !== 'undefined') {
-      var declaration = JSON.parse($('#declaration').attr('data-declaration'));
-      $('[href="#localisation"]').click(function (e) {
-        setTimeout(function() { M.initialiser_show_localisation("show_localisation", declaration); }, 100);
-      });
+    var id_declaration = {{declaration.id_declaration}};
+    var declaration = JSON.parse($('#declaration_' + id_declaration).attr("data-declaration"));
+
+    if(! M["map_show_localisation_" + id_declaration] && declaration) {
+
+      var d_config = {
+        'global': {
+          'base_map': 'Mapbox',
+          'type': ['foret', 'localisation', 'secteurs'],
+          'zoom': 'secteurs',
+        },
+        'medium': {
+          'base_map': 'Cartes (IGN)',
+          'type': ['foret', 'localisation'],
+          'zoom': "foret",
+        },
+        'local': {
+          'base_map': 'Cartes (IGN)',
+          'type': ['localisation'],
+          'zoom': "localisation",
+        },
+      };
+      setTimeout(function() {
+        $("#declaration_" + id_declaration + " .localisation-map").each((i, e) => {
+          var type_map = $(e).attr("type-map");
+          var id = e.id;
+          var map_name = id.substr(4);
+          M.initialiser_show_localisation(map_name, declaration, d_config[type_map]);
+        });
+      }, 10);
     }
 
   });

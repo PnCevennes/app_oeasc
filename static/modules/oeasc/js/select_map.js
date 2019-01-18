@@ -5,7 +5,7 @@ $(document).ready(function() {
   // fonctions pour gérer les carte ( + select) de selection de foret, communes, section, UG ou parcelles
 
   var initialiser_form_localisation = function(id_form) {
-  /* initialisation du formulaire
+    /* initialisation du formulaire
 
     id_form : pour repérer la partie du formulaire concernée
     */
@@ -26,8 +26,7 @@ $(document).ready(function() {
   }
 
   var initialiser_select_map = function(map_name) {
-  /* initialisation du select_map
-
+    /* initialisation du select_map
     map name:
     */
 
@@ -72,7 +71,7 @@ $(document).ready(function() {
       if (areas_container[0].type_code=="OEASC_ONF_PRF") {
         type = 'localisation';
       }
-      M.load_areas(areas_container, type, map, false);
+      // M.load_areas(areas_container, type, map, false);
     }
 
   };
@@ -80,16 +79,16 @@ $(document).ready(function() {
 
   var f_change = function(map) {
     return function(e) {
-  /* fonction pour gérer les changement de selection de select_map
+    /* fonction pour gérer les changement de selection de select_map
     et pour gérer les interactions carte-select côté select
-  */
-      var $this = $(this);
-      var values = $(this).val();
-      if(values == "") {
-        values=[];
-      } else if( !(values instanceof Array) ) {
-        values = [values];
-      }
+    */
+    var $this = $(this);
+    var values = $(this).val();
+    if(values == "") {
+      values=[];
+    } else if( !(values instanceof Array) ) {
+      values = [values];
+    }
 
       // effacer les decochés encore selectionné sur carte
       get_layer_selected(map).forEach(function(_layer){
@@ -128,7 +127,7 @@ $(document).ready(function() {
 
     layer: element de carte cliqué à sélectionner ou dé-sélectionner
     map: objet carte leaflet
-  */
+    */
 
     if(!layer) return false;
 
@@ -205,34 +204,34 @@ $(document).ready(function() {
     /* tri pour les selections multiple
       par ordre alphabetique
       et éléments sélectionnés en haut de liste
-    */
+      */
 
-    if ( ["OEASC_ONF_FRT", "OEASC_DGD"].includes(name) ) {
-      return ;
+      if ( ["OEASC_ONF_FRT", "OEASC_DGD"].includes(name) ) {
+        return ;
+      }
+
+      var $select = $('#' + name);
+      var opts_list = $select.find('option');
+
+      opts_list = opts_list.sort(function(a, b) {
+        if (a.selected == b.selected) {
+          if ( ["OEASC_ONF_PRF", "OEASC_ONF_UG"].includes(name) ) {
+            return parseInt(a.innerHTML) > parseInt(b.innerHTML)? 1 : -1;
+          } else {
+            return a.innerHTML > b.innerHTML? 1 : -1;
+          }
+        } else {
+          return a.selected ? -1 : 1;
+        }
+      });
+
+      $select.html('').append(opts_list);
+      $select.selectpicker("refresh")
     }
 
-    var $select = $('#' + name);
-    var opts_list = $select.find('option');
 
-    opts_list = opts_list.sort(function(a, b) {
-      if (a.selected == b.selected) {
-        if ( ["OEASC_ONF_PRF", "OEASC_ONF_UG"].includes(name) ) {
-          return parseInt(a.innerHTML) > parseInt(b.innerHTML)? 1 : -1;
-        } else {
-          return a.innerHTML > b.innerHTML? 1 : -1;
-        }
-      } else {
-        return a.selected ? -1 : 1;
-      }
-    });
-
-    $select.html('').append(opts_list);
-    $select.selectpicker("refresh")
-  }
-
-
-  var process_select_map_data = function(map, name) {
-    return function(response) {
+    var process_select_map_data = function(map, name) {
+      return function(response) {
     /* fonction pour exploiter les données reçues
 
     response: reponse de la requete ajax
@@ -244,8 +243,8 @@ $(document).ready(function() {
       // add layers to map
       var id_select_map = "select_map_" + map.map_name;
       var features_collection = L.geoJson(response, {
-          pane: 'PANE_3'
-        });
+        pane: 'PANE_3'
+      });
       features_collection.addTo(map);
       var nb_layers = Object.keys(features_collection._layers).length;
 
@@ -317,7 +316,7 @@ $(document).ready(function() {
       for(var i=0; i < areas.length; i++) {
         var l = M.get_layer(map, 'id_area', areas[i].id_area);
         if(l) {
-        layer_on_click(l, map);
+          layer_on_click(l, map);
         }
       }
 
@@ -368,7 +367,7 @@ $(document).ready(function() {
     name: nom de la donnée voulue ex "OEASC_CADASTRE"
     - response: reponse de la requete ajax
     */
-      $('#' + id_select_map + " #chargement").hide();
+    $('#' + id_select_map + " #chargement").hide();
 
       // TODO
       // gérer le cas ONF PRF sans UG
@@ -387,9 +386,9 @@ $(document).ready(function() {
       map: objet carte leaflet
       name: nom de la carte et de l'object a charger (ex OEASC_CADASTRE)
       areas_container: tableau des aires (dict) des contenants
-    */
+      */
 
-    var id_select_map = "select_map_" + map.map_name;
+      var id_select_map = "select_map_" + map.map_name;
 
     $("#legend-" + name).show(); // legend de "name"
     $('#' + name).show(); // select
@@ -423,21 +422,21 @@ $(document).ready(function() {
   /* recupere tous les layers selectionnne (en orange sur la carte)
   */
 
-    var v_l_searched = [];
+  var v_l_searched = [];
 
-    map.eachLayer(function(l) {
-      if(l.feature) {
-        if(l.selected) {
-          v_l_searched.push(l);
-        }
+  map.eachLayer(function(l) {
+    if(l.feature) {
+      if(l.selected) {
+        v_l_searched.push(l);
       }
-    });
+    }
+  });
 
-    return v_l_searched;
-  };
+  return v_l_searched;
+};
 
-  var f_option_hover = function(map) {
-    return function(e) {
+var f_option_hover = function(map) {
+  return function(e) {
     /* pour afficher les tooltip quand un élément est survolé dans la liste de sélection
 
      map : map leaflet

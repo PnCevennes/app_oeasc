@@ -95,7 +95,6 @@ def login():
 
     redirect_url = request.args.get('redirect', "")
     token = request.args.get('token', "")
-    print("token", token)
     identifiant = request.args.get('identifiant', "")
     type = request.args.get('type', "")
 

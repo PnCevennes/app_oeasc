@@ -336,9 +336,12 @@ $(document).ready(function() {
         $('#declaration_' + id_declaration +"_container").html(response);
         $('[data-toggle="tooltip"]').tooltip();
         var declaration = JSON.parse($('#declaration_' + id_declaration).attr("data-declaration"));
-        if(! M["map_show_localisation_" + id_declaration] && declaration) {
-          setTimeout(function() { M.initialiser_show_localisation("show_localisation_" + id_declaration, declaration); }, 10);
-        }
+        /*
+        TODO + centroid
+        */
+        // if(! M["map_show_localisation_" + id_declaration] && declaration) {
+        //   setTimeout(function() { M.initialiser_show_localisation("show_localisation_" + id_declaration, declaration); }, 10);
+        // }
 
         new_tab=true;
         resolve(new_tab)})
