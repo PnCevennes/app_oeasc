@@ -128,3 +128,35 @@
   background-color: rgba(255, 200, 0, 0.3);
 
 }
+
+.pdf .map-titre, .pdf .map-sous-titre
+{
+ left: 10px;
+}
+
+.map-titre, .map-sous-titre {
+  position: absolute;
+  display: block;
+  left: 50px;
+  z-index: 1011;
+  text-shadow: 0 0 0.1em #000000, 0 0 0.3em #000000;
+  text-align: center;
+}
+
+.map-titre > div, .map-sous-titre > div {
+  background-color: rgba(0,0,0,0.2);
+  color: white;
+  border-radius: 5px;
+  font-weight: bold;
+  padding: 5px;
+}
+
+.map-titre {
+  top: 10px;
+  font-size: 1.5rem;
+}
+
+.map-sous-titre {
+  top: 60px;
+  font-size: 1.2rem;
+}

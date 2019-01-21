@@ -3,27 +3,42 @@ $(document).ready(function() {
   var leaflet_hide_selector = ".leaflet-top.leaflet-right, .leaflet-top.leaflet-left";
   var leaflet_map_selector=".leaflet-map"
 
-
+  var cpt_maps = 0;
+  var nb_maps= 0;
 
   var maptoPNG = function(id_element) {
+    /*
+    transforme les elements leaflet map en PNG
+    ici cache les element definis par leaflet_hide_selector (zoom, controls, etc..)
+    puis chache la carte pour pouvoir ensuite en faire un pdf
+    */
     return new Promise((resolve, reject) => {
 
       if(!id_element) { resolve(); return};
 
       var map_node = document.getElementById(id_element);
-
       $(leaflet_hide_selector) && $(leaflet_hide_selector).hide();
 
-      domtoimage.toPng(map_node, {height:$(map_node).height(), witdh:$(map_node).width()}).then(function (dataUrl) {
-        var img = new Image();
-        img.src = dataUrl;
-        img.id = "img_" + id_element;
-        $(map_node).after(img);
-        $(img).addClass("img-pdf");
-        $(map_node).hide();
-        resolve();
-      });
+      M.wait_for_map_loaded(M[id_element]).then(()=>{
+        console.log(id_element, "loaded")
+        domtoimage.toPng(map_node,
+        {
+          height: Math.floor($(map_node).height()),
+          witdh: Math.floor($(map_node).width())
+        }).then(function (dataUrl) {
+          cpt_maps += 1;
+          $("#pdf_infos") && $("#pdf_details").html("Création des cartes : " + cpt_maps + " sur " + nb_maps);
 
+          console.log(id_element, "PNG done")
+          var img = new Image();
+          img.src = dataUrl;
+          img.id = "img_" + id_element;
+          $(map_node).after(img);
+          $(img).addClass("img-pdf");
+          $(map_node).hide();
+          resolve();
+        });
+      });
     });
   };
 
@@ -44,36 +59,48 @@ $(document).ready(function() {
     // transforme les cartes leaftlet en PNG
     return new Promise((resolve, reject) => {
 
+      $("#pdf_infos") && $("#pdf_infos").show()
+
+      console.log("start pdf map")
       var f_array = [1];
 
       var e = document.getElementById(id_element);
       $(e).addClass("pdf");
 
+      nb_maps = $("#"+id_element).find(leaflet_map_selector).length;
+      $("#pdf_infos") && $("#pdf_details").html("Création des cartes : " + cpt_maps + " sur " + nb_maps);
+
       $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
         M[e.id].invalidateSize();
       });
+
       setTimeout(function() {
         $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
           f_array.push(maptoPNG(e.id));
         });
-        return ;
-      Promise.all(f_array).then(() => {
-        toPDF(id_element)
-        .then(() => {
-          $(leaflet_map_selector).show();
-          $(leaflet_hide_selector).show();
-          $(leaflet_map_selector).each(function(i, e){
+        Promise.all(f_array).then(() => {
+          $("#pdf_infos") && $("#pdf_details").html("Création du fichier PDF")
 
-            M[e.id].invalidateSize();
-            var next=$(e).next()
-            if (next.is('img')) {
-              next.remove();
-            }
+          toPDF(id_element)
+          .then(() => {
+            $("#pdf_infos") && $("#pdf_details").html("Terminé. Vous pouvez télécharger le pdf")
+
+            $(leaflet_map_selector).show();
+            $(leaflet_hide_selector).show();
+            $(leaflet_map_selector).each(function(i, e){
+
+              M[e.id].invalidateSize();
+              var next=$(e).next()
+              if (next.is('img')) {
+                next.remove();
+              }
+            });
+            resolve();
+            $("#pdf_infos") && $("#pdf_infos").hide()
+            cpt_map = 0;
           });
-          resolve();
         });
-      });
-      }, 500);
+      }, 10);
     });
 
   }

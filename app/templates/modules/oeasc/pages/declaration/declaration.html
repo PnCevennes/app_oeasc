@@ -16,7 +16,7 @@
 
 
   {%- if declaration %}
-  {% set map_display="youplaboom!"%}
+  {% set map_display="ok"%}
   {%- include "modules/oeasc/entity/declaration_table.html" %}
   {%- else %}
   <div class="alert alert-danger">
@@ -43,42 +43,15 @@
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_data.js') }}"></script>
 <script src="{{ url_for('static', filename='modules/oeasc/js/util_localisation.js') }}"></script>
 <script src="{{ url_for('static', filename='modules/oeasc/js/resultat/restitution.js') }}"></script>
-
+<script src="{{ url_for('static', filename='modules/oeasc/js/declaration.js') }}"></script>
 <script>
   $(document).ready(function() {
 
-    var id_declaration = {{declaration.id_declaration}};
-    var declaration = JSON.parse($('#declaration_' + id_declaration).attr("data-declaration"));
+    "use strict";
 
-    if(! M["map_show_localisation_" + id_declaration] && declaration) {
-
-      var d_config = {
-        'global': {
-          'base_map': 'Mapbox',
-          'type': ['foret', 'localisation', 'secteurs'],
-          'zoom': 'secteurs',
-        },
-        'medium': {
-          'base_map': 'Cartes (IGN)',
-          'type': ['foret', 'localisation'],
-          'zoom': "foret",
-        },
-        'local': {
-          'base_map': 'Cartes (IGN)',
-          'type': ['localisation'],
-          'zoom': "localisation",
-        },
-      };
-      setTimeout(function() {
-        $("#declaration_" + id_declaration + " .localisation-map").each((i, e) => {
-          var type_map = $(e).attr("type-map");
-          var id = e.id;
-          var map_name = id.substr(4);
-          M.initialiser_show_localisation(map_name, declaration, d_config[type_map]);
-        });
-      }, 10);
-    }
+    M.init_maps_declaration({{declaration.id_declaration}})
 
   });
 </script>
+
 {%- endblock %}

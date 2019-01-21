@@ -140,7 +140,7 @@ $(document).ready(function() {
 
     if($this.hasClass("tr-selected") ) {
       $this.removeClass( "tr-selected" );
-      M.markers.eachLayer(function(l){
+      M["map_show_declarations"] && M["map_show_declarations"].markers.eachLayer(function(l){
         if(l.id_declaration == id_declaration) {
           l.closePopup();
         }
@@ -150,8 +150,8 @@ $(document).ready(function() {
       $this.addClass("tr-selected");
       var index = $this.index();
       var table_filtered = table.rows( { filter : 'applied'} ).data()
-      var id_declaration = parseInt(table_filtered[index][0]);
-      M.markers.eachLayer(function(l){
+      var id_declaration = parseInt(table_filtered[index][table_indices['ID']]);
+      M["map_show_declarations"] && M["map_show_declarations"].markers.eachLayer(function(l){
         if(l.id_declaration == id_declaration) {
           l.openPopup();
         }
@@ -172,21 +172,21 @@ $(document).ready(function() {
       v_filtered.push(id_declaration);
     });
 
-    if(!M.markers_save) {
-      M.markers_save = [];
+    if(M["map_show_declarations"] && !M["map_show_declarations"].markers_save) {
+      M["map_show_declarations"].markers_save = [];
     }
 
-    if( M.markers && M.markers._layers) {
+    if( M["map_show_declarations"] && M["map_show_declarations"].markers && M["map_show_declarations"].markers._layers) {
       // on place tous les markers affichés dans un tableau de sauvegarde
-      M.markers.getLayers().forEach(function(e) {
-        M.markers_save.push(e);
-        M.markers.removeLayer(e);
+      M["map_show_declarations"].markers.getLayers().forEach(function(e) {
+        M["map_show_declarations"].markers_save.push(e);
+        M["map_show_declarations"].markers.removeLayer(e);
       });
 
       // on place dans le cluster les marker correspondant au filtrage du tableau
-      M.markers_save.forEach(function(e) {
+      M["map_show_declarations"] && M["map_show_declarations"].markers_save.forEach(function(e) {
         if(v_filtered.includes(parseInt(e.id_declaration))) {
-          M.markers.addLayer(e);
+          M["map_show_declarations"].markers.addLayer(e);
         }
       });
 
@@ -331,21 +331,16 @@ $(document).ready(function() {
       });
 
       $('#declarations').append('<div class="tab-pane active" id="declaration_' + id_declaration + '_container">Chargement en cours</div>')
-      $.ajax('/api/declaration/declaration_html/' + id_declaration + '?btn_action=1')
+      $.ajax('/api/declaration/declaration_html/' + id_declaration + '?btn_action=1&map_display=1')
       .done((response) => {
         $('#declaration_' + id_declaration +"_container").html(response);
         $('[data-toggle="tooltip"]').tooltip();
         var declaration = JSON.parse($('#declaration_' + id_declaration).attr("data-declaration"));
-        /*
-        TODO + centroid
-        */
-        // if(! M["map_show_localisation_" + id_declaration] && declaration) {
-        //   setTimeout(function() { M.initialiser_show_localisation("show_localisation_" + id_declaration, declaration); }, 10);
-        // }
-
+        M.init_maps_declaration(id_declaration);
         new_tab=true;
-        resolve(new_tab)})
-      .fail((response) => {$('#declaration_'+id_declaration).html("<div>Fail</div>" + response)});
+        setTimeout(()=>{resolve(new_tab);}, 10);
+      })
+      .fail((response) => {$('#declaration_'+id_declaration).html("<div>Fail</div>" + response);});
 
       $(selector).tab("show");
     });

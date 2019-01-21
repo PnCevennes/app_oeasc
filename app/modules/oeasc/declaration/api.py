@@ -73,6 +73,9 @@ def declaration_html(id_declaration):
     '''
 
     btn_action = request.args.get("btn_action", "")
+    map_display = request.args.get("map_display", "")
+
+    print("md", map_display, request)
 
     declaration = get_declaration(id_declaration)
 
@@ -84,7 +87,8 @@ def declaration_html(id_declaration):
         declaration=declaration,
         id_declaration=id_declaration,
         nomenclature=nomenclature_oeasc(),
-        btn_action=btn_action
+        btn_action=btn_action,
+        map_display=map_display
     )
 
 

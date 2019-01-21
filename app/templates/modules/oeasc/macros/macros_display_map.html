@@ -1,0 +1,13 @@
+{%- macro map_localisation(id_declaration, type_map, titre='') %}
+<div class="map-container">
+  <div
+  id="map_show_localisation_{{id_declaration}}_{{type_map}}"
+  class="map leaflet-map localisation-map"
+  type-map="{{ type_map }}"
+  titre="{{titre}}"
+  ></div>
+    <div id="chargement">
+      <div>Chargement en cours <span class="fa fa-spinner"></span></div>
+    </div>
+</div>
+{%- endmacro %}

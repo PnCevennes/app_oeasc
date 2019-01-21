@@ -30,7 +30,13 @@ $(document).ready(function() {
     var list_foret = ["OEASC_DGD", "OEASC_ONF_FRT"];
     var base_map = (config && config.base_map) || 'Mapbox';
 
-    map.addLayer(M.base_maps[base_map]);
+    var titre = $('#' + map.id).attr("titre");
+    if(titre) {
+      M.add_titre(titre, map);
+    }
+
+    map.removeLayer(map.base_maps[map.cur_tile_name]);
+    map.addLayer(map.base_maps[base_map]);
     // initialisation des legendes pour tout les type présents dans M.list.data
     M.list.data.forEach(function(name) {
       var color;
@@ -51,25 +57,29 @@ $(document).ready(function() {
     });
 
     // charger les secteurs
-    if (config && config.type.includes("secteurs")) {
+    if (config && config.type && config.type.includes("secteurs")) {
       M.add_secteurs(map, config && config.zoom && config.zoom=="secteurs");
     }
 
     // charger les foret
-    if (config && config.type.includes("foret")) {
+    if (config && config.type && config.type.includes("foret")) {
       var zoom = config && config.zoom && config.zoom=="foret";
       var areas_foret = declaration.foret.areas_foret.filter((a) => {return ["OEASC_DGD", "OEASC_ONF_FRT"].includes(a.type_code) }) || areas_foret;
       M.load_areas(areas_foret, "foret", map, zoom);
     }
 
-    // charger les aires
-    if (config && config.type.includes("localisation")) {
+    // charger les aires (parcelles)
+    if (config && config.type && config.type.includes("localisation")) {
       var zoom = config && config.zoom && config.zoom=="localisation";
       var areas_localisation = declaration.areas_localisation.filter((a) => {return ["OEASC_CADASTRE", "OEASC_ONF_PRF"].includes(a.type_code) });
-      M.load_areas(areas_localisation, "localisation", map, zoom);
+      var b_tooltip = config.tooltip && config.tooltip.includes('localisation');
+      M.load_areas(areas_localisation, "localisation", map, zoom, b_tooltip);
     }
+
     // centroid ??
-    declaration.centroid && M.load_declarations_centroid([declaration], map);
+    if (config && config.centroid) {
+      declaration.centroid && M.load_declarations_centroid([declaration], map);
+    }
 
   };
 

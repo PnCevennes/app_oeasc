@@ -23,7 +23,7 @@
 </div>
 {% endif %}
 
-<div id ="declaration_{{declaration.id_declaration if declaration.id_declaration}}" class="pdf" data-declaration='{{ declaration | tojson if declaration else ""  }}'>
+<div id ="declaration_{{declaration.id_declaration if declaration.id_declaration}}" class="pdf-like" data-declaration='{{ declaration | tojson if declaration else ""  }}'>
 
   <h2>Déclaration</h2>
 
@@ -235,10 +235,11 @@
   </div>
 
   {% if map_display %}
+
   <div id="show_declarations" class="page-break declaration-maps">
-      {{ macros_display_map.map_localisation(id_declaration, "global") }}
-      {{ macros_display_map.map_localisation(id_declaration, "medium") }}
-      {{ macros_display_map.map_localisation(id_declaration, "local") }}
+      {{ macros_display_map.map_localisation(id_declaration, "global", "Localisation : globale") }}
+      {{ macros_display_map.map_localisation(id_declaration, "medium", "Localisation : forêt") }}
+      {{ macros_display_map.map_localisation(id_declaration, "local", "Localisation : parcelle(s)") }}
   </div>
 
   {% endif %}

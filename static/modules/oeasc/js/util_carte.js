@@ -50,21 +50,18 @@ par exemple :
     return l_searched;
   };
 
-  var init_tiles = function() {
+  var init_tiles = function(map) {
     // initialise les fonds de carte
-
-    if(M['tiles']){
-      return;
-    }
 
     // openstreetmap
     var tile_opacity = 0.7;
     var mapbox = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
       maxZoom: 18,
       opacity: tile_opacity,
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-      '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-      'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      // attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
+      // '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+      // 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+      attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
       id: 'mapbox.streets'
     })
 
@@ -99,12 +96,42 @@ par exemple :
       "Vue aérienne (IGN)": ign_ortho
     };
 
-    if(! M.cur_tile_name ){
-      M.cur_tile_name = "Mapbox";
+    if(! map.cur_tile_name ){
+      map.cur_tile_name = "Mapbox";
     }
 
     return base_maps;
   }
+
+  var wait_for_map_loaded = function(map) {
+    return new Promise((resolve) => {
+      Promise.all(map.promises).then(()=>{
+        console.log("wait 2s", map.id);
+        setTimeout(()=>{
+          console.log("done", map.id);
+          resolve();
+        }, 2000);
+        return true;
+      });
+    });
+  };
+
+  var remove_promise_on_tile = function(map) {
+    var p_tile = map.promises.find((e)=>{return e.type == "tile"})
+    p_tile && map.promises.splice(map.promises.indexOf(p_tile), 1);
+  }
+
+  var add_promise_on_tile = function(map) {
+    map.base_maps[map.cur_tile_name].on('tileload', (e) => {
+      var p = new Promise((resolve)=>{
+        map.base_maps[map.cur_tile_name].on('load', function(e) {
+          resolve();
+        });
+      });
+      p.type="tile";
+      map.promises.push(p);
+    });
+  };
 
   var carte_base_oeasc = function(name, b_zoom_perimetre=true) {
     // carte de base commune à toutes les cartes
@@ -118,16 +145,31 @@ par exemple :
       zoomSnap: 0.1,
       // preferCanvas:true,
     }).setView([44.33, 3.55], 10);
+    map.promises=[1];
     map.id = map_id;
 
     // ajout du cadre "chargement"
     $("#" + map.id).parent().find("#chargement").appendTo("#" + map_id).hide();
 
     // initialisation des fonds de carte (on garde en mémoire le dernier choisi)
-    M.base_maps = init_tiles();
-    M.base_maps[M.cur_tile_name].addTo(map);
-    M.layerControl = L.control.layers(M.base_maps).addTo(map);
-    map.on('baselayerchange', function(e) { M.cur_tile_name=e.name; });
+    map.base_maps = init_tiles(map);
+    map.on('baselayerchange', function(e) {
+      map.cur_tile_name=e.name;
+      remove_promise_on_tile(map);
+      add_promise_on_tile(map)
+    });
+
+    map.base_maps[map.cur_tile_name].addTo(map);
+    add_promise_on_tile(map)
+
+
+
+    map.layerControl = L.control.layers(map.base_maps).addTo(map);
+
+    map.on('resize', function(e) {
+      add_promise_on_tile(map)
+    });
+
 
     // creation de pane
     for(var i=0; i < 10; i++) {
@@ -160,7 +202,7 @@ par exemple :
     if(b_zoom_perimetre) {
       l_perimetre_OEASC.on("data:loaded", function(){ map.fitBounds(this.getBounds());});
     }
-    M.l_perimetre_OEASC = l_perimetre_OEASC;
+    map.l_perimetre_OEASC = l_perimetre_OEASC;
 
 
     return map;
@@ -199,14 +241,24 @@ par exemple :
     M["map_" + map_name] = map;
 
     // style perimetre oeasc
-    M.l_perimetre_OEASC.setStyle(M.style.oeasc);
+    map.l_perimetre_OEASC.setStyle(M.style.oeasc);
 
     return map;
 
   };
 
+
+  var add_titre = function(titre, map) {
+    $('#' + map.id).append("<div class='map-titre'><div>" + titre + "</div></div>")
+  };
+
+  var add_sous_titre = function(sous_titre, map) {
+    $('#' + map.id).append("<div class='map-sous-titre'><div>" + sous_titre + "</div></div>")
+
+  };
+
 ////////////////////////////////////////////////////////////
-var load_areas = function(areas, type, map, b_zoom) {
+var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
     /*
       charge les aires dont l'id est contenu dans area
       */
@@ -217,45 +269,62 @@ var load_areas = function(areas, type, map, b_zoom) {
       var pane = (type=="foret")? 1 : 2;
       var color = M.color[type];
 
+
       $("#map_" + map.map_name + ' #legend-' + name).show()
+      map.promises.push(new Promise((resolve) => {
+        $.ajax({
 
-      $.ajax({
+          type: "POST",
+          url: "/api/ref_geo/areas_post/l",
+          contentType:"application/json; charset=utf-8",
+          dataType:"json",
+          data: JSON.stringify({areas: areas}),
+          success: function (response) {
 
-        type: "POST",
-        url: "/api/ref_geo/areas_post/l",
-        contentType:"application/json; charset=utf-8",
-        dataType:"json",
-        data: JSON.stringify({areas: areas}),
-        success: function (response) {
-          var featuresCollection = L.geoJson(response, {
-            pane : 'PANE_' + pane
-          }).addTo(map);
+            var featuresCollection = L.geoJson(response, {
+              pane : 'PANE_' + pane
+            }).addTo(map);
 
-          featuresCollection.eachLayer(function(layer) {
-            var fp = layer.feature.properties;
-            var type_code = M.get_type_code(fp.id_type);
-            layer.setStyle(M.style.default);
-            layer.setStyle({
-              color: color,
-              fillColor: color
+            var v_sous_titre=[];
+            var weight = b_zoom ? 3 : 2;
+            featuresCollection.eachLayer(function(layer) {
+              var fp = layer.feature.properties;
+              var type_code = M.get_type_code(fp.id_type);
+              layer.setStyle(M.style.default);
+              layer.setStyle({
+                color: color,
+                fillColor: color,
+                weight: weight,
+              });
+              b_tooltip && layer.bindTooltip(fp.label, {
+                pane: 'PANE_4',
+                permanent: true,
+                direction: 'auto',
+                color: 'white',
+                opacity: 1,
+                fillOpacity: 1,
+                className: '',
+              });
+              // legende
+              $("#map_" + map.map_name + ' #legend-' + type_code).show();
+              $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', color);
+
+              if(b_zoom) v_sous_titre.push(fp.label);
             });
-            $("#map_" + map.map_name + ' #legend-' + type_code).show();
-            $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', color);
-          });
 
+
+
+          // chargement
           $("#" + map.map_name + " #chargement").hide();
 
-        // if(type == "foret" && b_zoom) {
           if(b_zoom) {
-
+            v_sous_titre && add_sous_titre(v_sous_titre.join(', '), map);
             deferred_setBounds(featuresCollection.getBounds(), map);
-
           }
-
+          resolve();
         }
-
-      });
-
+      })
+      }));
     };
 
 
@@ -265,10 +334,10 @@ var load_areas = function(areas, type, map, b_zoom) {
     var d_areas = {};
     var d_deg_color = {};
 
-    if( ! M.markers && b_global) {
-      M.markers = L.layerGroup();
-      map.addLayer(M.markers);
-      M.layerControl.addOverlay(M.markers, "Déclarations")
+    if( ! map.markers && b_global) {
+      map.markers = L.layerGroup();
+      map.addLayer(map.markers);
+      map.layerControl.addOverlay(map.markers, "Déclarations")
     }
     var k;
     for(k=0; k < declarations.length; k++) {
@@ -284,11 +353,10 @@ var load_areas = function(areas, type, map, b_zoom) {
         marker = L.marker(centroid);
       }
       L.setOptions(marker, { color: "black", radius: 100, pane: 'PANE_5'});
-      // marker.bindPopup(s_popup, {opacity: 1, pane: 'PANE_' + M.style.pane.tooltips});
       marker.bindPopup(s_popup, {opacity: 1, pane: 'PANE_6'});
       marker.id_declaration = id_declaration;
       if(b_global) {
-        M.markers.addLayer(marker);
+        map.markers.addLayer(marker);
       } else {
         map.addLayer(marker);
       }
@@ -315,6 +383,7 @@ var load_areas = function(areas, type, map, b_zoom) {
           layer.bindTooltip(feature.properties.label, {
             pane: 'PANE_4',
             permanent: true,
+            // direction: 'center',
             direction: 'center',
             color: color_secteur[feature.properties.area_code],
             opacity: 1,
@@ -346,5 +415,8 @@ var load_areas = function(areas, type, map, b_zoom) {
   M.remove_map = remove_map;
   M.init_map = init_map;
   M.deferred_setBounds = deferred_setBounds;
+  M.add_titre = add_titre;
+  M.add_sous_titre = add_sous_titre;
+  M.wait_for_map_loaded = wait_for_map_loaded;
 
 });

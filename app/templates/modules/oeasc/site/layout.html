@@ -163,19 +163,13 @@
 
             "use strict";
 
-
             var config = '{{ utils.get_some_config(config)|tojson if config }}';
             if(config) config = JSON.parse(config);
 
-            var current_user = '{{ current_user|tojson if current_user }}';
+            var current_user = '{{ session.current_user|tojson if session.current_user }}';
             if(current_user) current_user = JSON.parse(current_user);
-            console.log(current_user)
 
-            var cl = function(...args) {
-              console.log(...args)
-            }
 
-            M.cl = cl;
             M.current_user = current_user;
             M.config=config;
 
