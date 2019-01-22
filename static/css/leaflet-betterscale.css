@@ -55,7 +55,7 @@
     color: #fff;
     font: sans-serif;
     font-weight: bold;
-    font-size: 15px;
+    font-size: 16px;
     height: 5px;
     top: -1px;
     text-shadow: 1px 0 0 #000, 0 -1px 0 #000, 0 1px 0 #000, -1px 0 0 #000;
@@ -72,7 +72,7 @@
 .leaflet-control-better-scale-coeff{
     top: -100%;
     color: #fff;
-    font-size: 15px;
+    font-size: 16px;
     text-align: center;
 
     font-weight: bold;

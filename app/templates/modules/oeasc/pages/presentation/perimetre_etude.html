@@ -46,7 +46,10 @@
 
     "use strict";
 
-    var map_init = M.carte_base_oeasc("acceuil");
+    var map_init = M.carte_base_oeasc("acceuil",{
+      type:["perimetre"],
+      zoom:["perimetre"]
+    });
 
     var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/AA_PNC', {
       pane: 'PANE_0',

@@ -11,7 +11,7 @@
         var d_config = {
           'global': {
             'base_map': 'Mapbox',
-            'type': ['foret', 'localisation', 'secteurs'],
+            'type': ['foret', 'secteurs'],
             'zoom': 'secteurs',
             'centroid': true,
           },

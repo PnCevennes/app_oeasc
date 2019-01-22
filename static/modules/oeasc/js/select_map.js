@@ -31,7 +31,11 @@ $(document).ready(function() {
     */
 
     // initialisation carte
-    var map = M.init_map(map_name);
+    var map = M.init_map(map_name, {
+      type: ["perimetre"],
+      zoom: "perimetre",
+    });
+
     var id_select_map = 'select_map_' + map_name;
 
     // initialisation des legendes pour tout les type présents dans M.list.data

@@ -9,16 +9,25 @@ par exemple :
 
     "use strict";
 
-    var setBounds = function(bounds, map) {
+    var setBounds = function(bounds, map, d=1e3) {
     // redéfini les limites de la carte
     if(bounds.isValid()) {
+      var dlat = (bounds._northEast.lat - bounds._southWest.lat) / d;
+      var dlon = (bounds._northEast.lon - bounds._southWest.lon) / d;
+      bounds._northEast.lat += dlat;
+      bounds._northEast.lon += dlon;
+      bounds._southWest.lat -= dlat;
+      bounds._southWest.lon -= dlon;
       map.fitBounds(bounds);
     }
   };
 
-  var deferred_setBounds = function(bounds, map) {
+  var deferred_setBounds = function(bounds, map, d=1e3) {
     // redéfini les limites de la carte (avec un délai pour éviter certains bugs: carte pas encore prête)
-    setTimeout( setBounds, 500, bounds, map);
+    return new Promise((resolve) => {
+      setTimeout( setBounds, 500, bounds, map, d);
+      resolve();
+    });
   };
 
 
@@ -106,11 +115,10 @@ par exemple :
   var wait_for_map_loaded = function(map) {
     return new Promise((resolve) => {
       Promise.all(map.promises).then(()=>{
-        console.log("wait 2s", map.id);
         setTimeout(()=>{
           console.log("done", map.id);
           resolve();
-        }, 2000);
+        }, 100);
         return true;
       });
     });
@@ -133,7 +141,7 @@ par exemple :
     });
   };
 
-  var carte_base_oeasc = function(name, b_zoom_perimetre=true) {
+  var carte_base_oeasc = function(name, config=null) {
     // carte de base commune à toutes les cartes
     //
     // name: nom de la carte
@@ -186,24 +194,29 @@ par exemple :
    }, 1);
 
     // ajout de la légende
+    var div_perimetre = "";
+    if(config && config.type && config.type.includes("perimetre")) {
+      div_perimetre ='<div id="legend-oeasc"><i style="background: lightgrey;border: 2px solid black;"></i> ' + "Périmètre de l'Observatoire" + '</div>';
+
+      // ajout du périmètre OEASC
+      var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/OEASC_PERIMETRE', {
+        style: M.style.oeasc,
+        pane: 'PANE_1'
+      }).addTo(map);
+      if(config && config.zoom && config.zoom.includes("perimetre")) {
+        l_perimetre_OEASC.on("data:loaded", function(){ map.fitBounds(this.getBounds());});
+      }
+      l_perimetre_OEASC.setStyle(M.style.oeasc);
+
+    }
+
     var legend = L.control({position: 'bottomright'});
     legend.onAdd = function (map) {
       var div=L.DomUtil.create('div','legend');
-      div.innerHTML +='<div id="legend-oeasc"><i style="background: lightgrey;border: 2px solid black;"></i> ' + "Périmètre de l'Observatoire" + '</div>';
+      div.innerHTML += div_perimetre;
       return div;
     };
     legend.addTo(map);
-
-    // ajout du périmètre OEASC
-    var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/OEASC_PERIMETRE', {
-      style: M.style.oeasc,
-      pane: 'PANE_1'
-    }).addTo(map);
-    if(b_zoom_perimetre) {
-      l_perimetre_OEASC.on("data:loaded", function(){ map.fitBounds(this.getBounds());});
-    }
-    map.l_perimetre_OEASC = l_perimetre_OEASC;
-
 
     return map;
 
@@ -225,7 +238,7 @@ par exemple :
     delete M["map_" + map_name];
   }
 
-  var init_map = function(map_name) {
+  var init_map = function(map_name, config=null) {
     /*  initialise une carte reférencée par map name
 
     map_name: nom de la carte
@@ -236,12 +249,11 @@ par exemple :
 
     // creation de la carte
     var map=M["map_" + map_name]
-    map = M.carte_base_oeasc(map_name, false);
+    map = M.carte_base_oeasc(map_name, config);
     map.map_name = map_name;
     M["map_" + map_name] = map;
 
     // style perimetre oeasc
-    map.l_perimetre_OEASC.setStyle(M.style.oeasc);
 
     return map;
 
@@ -257,6 +269,51 @@ par exemple :
 
   };
 
+
+// return array of [r,g,b,a] from any valid color. if failed returns undefined
+var colorValues  = function(color)
+{
+  if (color === '')
+    return;
+  if (color.toLowerCase() === 'transparent')
+    return [0, 0, 0, 0];
+  if (color[0] === '#')
+  {
+    if (color.length < 7)
+    {
+            // convert #RGB and #RGBA to #RRGGBB and #RRGGBBAA
+            color = '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3] + (color.length > 4 ? color[4] + color[4] : '');
+          }
+          return [parseInt(color.substr(1, 2), 16),
+          parseInt(color.substr(3, 2), 16),
+          parseInt(color.substr(5, 2), 16),
+          color.length > 7 ? parseInt(color.substr(7, 2), 16)/255 : 1];
+        }
+        if (color.indexOf('rgb') === -1)
+        {
+        // convert named colors
+        var temp_elem = document.body.appendChild(document.createElement('fictum')); // intentionally use unknown tag to lower chances of css rule override with !important
+        var flag = 'rgb(1, 2, 3)'; // this flag tested on chrome 59, ff 53, ie9, ie10, ie11, edge 14
+        temp_elem.style.color = flag;
+        if (temp_elem.style.color !== flag)
+            return; // color set failed - some monstrous css rule is probably taking over the color of our object
+          temp_elem.style.color = color;
+          if (temp_elem.style.color === flag || temp_elem.style.color === '')
+            return; // color parse failed
+          color = getComputedStyle(temp_elem).color;
+          document.body.removeChild(temp_elem);
+        }
+        if (color.indexOf('rgb') === 0)
+        {
+          if (color.indexOf('rgba') === -1)
+            color += ',1'; // convert 'rgb(R,G,B)' to 'rgb(R,G,B)A' which looks awful but will pass the regxep below
+          return color.match(/[\.\d]+/g).map(function (a)
+          {
+            return +a
+          });
+        }
+      }
+
 ////////////////////////////////////////////////////////////
 var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
     /*
@@ -266,7 +323,7 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
 
       $("#" + map.map_name + " #chargement").show();
 
-      var pane = (type=="foret")? 1 : 2;
+      var pane = (type=="foret")? 2 : 3;
       var color = M.color[type];
 
 
@@ -299,15 +356,19 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
               b_tooltip && layer.bindTooltip(fp.label, {
                 pane: 'PANE_4',
                 permanent: true,
-                direction: 'auto',
+                direction: 'center',
                 color: 'white',
                 opacity: 1,
                 fillOpacity: 1,
-                className: '',
+                className: 'tooltip-' + type,
               });
               // legende
+              var cv = colorValues(color).map((a)=>{return "" + a})
+              cv[3] = '0.5';
               $("#map_" + map.map_name + ' #legend-' + type_code).show();
-              $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', color);
+              $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', 'rgba(' + cv.join(",") + ')');
+              $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('border-color', color);
+              $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('border-width', weight);
 
               if(b_zoom) v_sous_titre.push(fp.label);
             });
@@ -319,9 +380,21 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
 
           if(b_zoom) {
             v_sous_titre && add_sous_titre(v_sous_titre.join(', '), map);
-            deferred_setBounds(featuresCollection.getBounds(), map);
+            deferred_setBounds(featuresCollection.getBounds(), map, 5)
+            .then(() => {
+              setTimeout(()=>{
+                var z = map.getZoom();
+                console.log(map.id, type, z);
+                if(z > 15) {
+                  map.setZoom(15);
+                };
+                resolve();
+              }, 500)
+            });
           }
-          resolve();
+          else {
+            resolve();
+          }
         }
       })
       }));
@@ -380,14 +453,22 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
         pane: 'PANE_1',
         onEachFeature: function(feature, layer) {
           var center = layer.getBounds().getCenter();
+          layer.setStyle({
+            fillColor: color_secteur[feature.properties.area_code],
+            color: 'grey',
+            weight : 2,
+            fillOpacity :0.1,
+            opacity :1,
+          });
           layer.bindTooltip(feature.properties.label, {
             pane: 'PANE_4',
             permanent: true,
             // direction: 'center',
             direction: 'center',
             color: color_secteur[feature.properties.area_code],
-            opacity: 1,
+            opacity: 0.8,
             fillOpacity: 1,
+            weight: 3,
             className: 'secteur ' + feature.properties.area_code.replace(/ /g, "_"),
           });
         },
@@ -400,7 +481,7 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       }
     });
 
-    $(".legend").append('<div id="#legend-zc"><i style="background: lightgrey; border: 1px solid black;"></i> ' +"<b>Secteurs d'étude</b>" + '</div>');
+    $(".legend").append('<div id="#legend-zc"><i style="background-color: rgb(184, 206, 145); border: 2px solid grey;"></i> ' +"<b>Secteurs d'étude</b>" + '</div>');
 
   }
 

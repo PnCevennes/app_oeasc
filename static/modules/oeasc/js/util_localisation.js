@@ -25,7 +25,7 @@ $(document).ready(function() {
 
   var initialiser_show_localisation = function(map_name, declaration, config) {
 
-    var map = M.init_map(map_name);
+    var map = M.init_map(map_name, config);
     var list_localisation = ["OEASC_CADASTRE", "OEASC_ONF_PRF"];
     var list_foret = ["OEASC_DGD", "OEASC_ONF_FRT"];
     var base_map = (config && config.base_map) || 'Mapbox';
@@ -47,7 +47,7 @@ $(document).ready(function() {
       } else {
         return;
       };
-      var s_legend = '<div id="legend-' + name + '"><i style="background: ' + color + '; border: 1px solid black;"></i> ' + M.d_ls[name].label + '</div>';
+      var s_legend = '<div id="legend-' + name + '"><i style="background: ' + color + '; border: solid;"></i> ' + M.d_ls[name].label + '</div>';
       $('#map_' + map_name).find(".legend").append(s_legend);
     });
 

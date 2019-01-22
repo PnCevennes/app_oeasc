@@ -92,40 +92,40 @@
 
 .secteur {
 
-  border-radius: 5px;
+  /* border-radius: 5px; */
   border:  0px solid;
   font-weight: bold;
   color: white;
-  text-shadow: black 0.1em 0.1em 0.2em;
+  text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000;
   font-size: 16px;
+  background-color: rgba(0, 0, 0, 0.001);
   /* text-shadow: -1px 0 black, 0 1px black, */
-  background-color: rgba(0, 0, 0, 0.2);
   /* background-color: rgba(255, 255, 255, 0.5); */
-  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.6);
+  box-shadow: 0 8px 16px 0 rgba(0,0,0,0.01);
 
 }
 
 .Aigoual {
 
-  background-color: rgba(200, 0, 0, 0.3);
+  /* background-color: rgba(200, 0, 0, 0.3); */
 
 }
 
 .Causses_et_Gorges {
 
-  background-color: rgba(10, 200, 10, 0.3);
+  /* background-color: rgba(10, 200, 10, 0.3); */
 
 }
 
 .Mont_Lozère {
 
-  background-color: rgba(0, 0, 200, 0.3);
+  /* background-color: rgba(0, 0, 200, 0.3); */
 
 }
 
 .Vallées_cévenoles {
 
-  background-color: rgba(255, 200, 0, 0.3);
+  /* background-color: rgba(255, 200, 0, 0.3); */
 
 }
 
@@ -159,4 +159,12 @@
 .map-sous-titre {
   top: 60px;
   font-size: 1.2rem;
+}
+
+.tooltip-localisation {
+  font-weight:  bold;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.5);
+  opacity: 0.8;
+  border-radius: 10px;
+  background-color: #ebece5;
 }
