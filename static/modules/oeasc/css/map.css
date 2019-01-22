@@ -161,10 +161,14 @@
   font-size: 1.2rem;
 }
 
-.tooltip-localisation {
+.tooltip {
   font-weight:  bold;
-  box-shadow: 0 4px 8px 0 rgba(0,0,0,0.5);
-  opacity: 0.8;
-  border-radius: 10px;
-  background-color: #ebece5;
+  box-shadow: 0 4px 8px 0 rgba(0,0,0,0);
+  color: white;
+  text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000;
+  /* opacity: 0.8; */
+  /* border-radius: 10px; */
+  /* background-color: #ebece5; */
+  background-color: rgba(0,0,0,0);
+  border-color: rgba(0,0,0,0);
 }

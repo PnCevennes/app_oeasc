@@ -27,7 +27,7 @@ $(document).ready(function() {
 
     var map = M.init_map(map_name, config);
     var list_localisation = ["OEASC_CADASTRE", "OEASC_ONF_PRF"];
-    var list_foret = ["OEASC_DGD", "OEASC_ONF_FRT"];
+    var list_foret = ["OEASC_DGD", "OEASC_ONF_FRT", 'OEASC_SECTION'];
     var base_map = (config && config.base_map) || 'Mapbox';
 
     var titre = $('#' + map.id).attr("titre");
@@ -63,9 +63,14 @@ $(document).ready(function() {
 
     // charger les foret
     if (config && config.type && config.type.includes("foret")) {
+      b_tooltip = false;
       var zoom = config && config.zoom && config.zoom=="foret";
-      var areas_foret = declaration.foret.areas_foret.filter((a) => {return ["OEASC_DGD", "OEASC_ONF_FRT"].includes(a.type_code) }) || areas_foret;
-      M.load_areas(areas_foret, "foret", map, zoom);
+      var areas_foret = declaration.foret.areas_foret.filter((a) => {return ["OEASC_DGD", "OEASC_ONF_FRT"].includes(a.type_code) });
+      if(!areas_foret.length) {
+        areas_foret = declaration.foret.areas_foret.filter((a) => {return ["OEASC_SECTION"].includes(a.type_code)});
+        b_tooltip=zoom && areas_foret.length > 1;
+      }
+      M.load_areas(areas_foret, "foret", map, zoom, b_tooltip);
     }
 
     // charger les aires (parcelles)

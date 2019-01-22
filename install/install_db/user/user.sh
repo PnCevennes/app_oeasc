@@ -7,7 +7,7 @@ $psqla -f $dir_script/oeasc/oeasc_populate_organismes.sql >> $log_file
 echo init user >> $log_file
 
 md5_admin_oeasc=$(echo -n $ADMIN_APPLICATION_PASSWORD | md5sum | awk '{print "'\''" $1 "'\''"}')
-sha1_admin_oeasc=$(echo -n $ADMIN_OEASC_PASSWORD | htpasswd -bnBC 10 "" 1234 | tr -d ':\n')
+sha1_admin_oeasc=$(htpasswd -bnBC 10 "" $ADMIN_APPLICATION_PASSWORD | tr -d ':\n')
 sha1_admin_oeasc="'"${sha1_admin_oeasc}"'"
 # export FLASK_APP=server.py
 # . venv/bin/activate

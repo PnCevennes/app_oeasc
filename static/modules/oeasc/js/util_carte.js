@@ -326,8 +326,6 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       var pane = (type=="foret")? 2 : 3;
       var color = M.color[type];
 
-
-      $("#map_" + map.map_name + ' #legend-' + name).show()
       map.promises.push(new Promise((resolve) => {
         $.ajax({
 
@@ -344,6 +342,7 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
 
             var v_sous_titre=[];
             var weight = b_zoom ? 3 : 2;
+
             featuresCollection.eachLayer(function(layer) {
               var fp = layer.feature.properties;
               var type_code = M.get_type_code(fp.id_type);
@@ -360,20 +359,20 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
                 color: 'white',
                 opacity: 1,
                 fillOpacity: 1,
-                className: 'tooltip-' + type,
+                className: ' tooltip tooltip-' + type,
               });
+
               // legende
               var cv = colorValues(color).map((a)=>{return "" + a})
               cv[3] = '0.5';
+
               $("#map_" + map.map_name + ' #legend-' + type_code).show();
               $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('background-color', 'rgba(' + cv.join(",") + ')');
               $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('border-color', color);
               $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('border-width', weight);
 
-              if(b_zoom) v_sous_titre.push(fp.label);
+              if(b_zoom && !b_tooltip) v_sous_titre.push(fp.label);
             });
-
-
 
           // chargement
           $("#" + map.map_name + " #chargement").hide();
@@ -384,7 +383,6 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
             .then(() => {
               setTimeout(()=>{
                 var z = map.getZoom();
-                console.log(map.id, type, z);
                 if(z > 15) {
                   map.setZoom(15);
                 };

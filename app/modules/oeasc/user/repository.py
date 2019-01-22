@@ -31,6 +31,33 @@ def get_liste_organismes_oeasc():
     return v
 
 
+def get_user_from_data(data):
+
+    user_dict = as_dict(data)
+    for d in data.app_users:
+        u = as_dict(d)
+        if u['id_application'] == config['ID_APP']:
+            user_dict['id_droit_max'] = u['id_droit_max']
+
+    if not user_dict.get('id_droit_max', None):
+        return None
+
+    # nb declaration
+    data_nd = DB.engine.execute(
+        text(
+            "SELECT COUNT(*) FROM oeasc.t_declarations WHERE id_declarant=" + str(user_dict['id_role'])
+        )
+    ).first()
+
+    if data_nd:
+        print(data_nd, user_dict)
+        user_dict['nb_declarations'] = data_nd[0]
+
+    print('user_dict')
+
+    return user_dict
+
+
 def get_users():
     '''
         Retourne la liste des utilisateurs OEASC
@@ -40,20 +67,13 @@ def get_users():
     current_user = session['current_user']
 
     data = DB.session.query(User)
-    v = [as_dict(d) for d in data]
-
-    data_app = DB.session.query(AppUser).filter(AppUser.id_application == config['ID_APP'])
-    v_app = [as_dict(d) for d in data_app]
+    v = [get_user_from_data(d) for d in data if get_user_from_data(d)]
 
     v_out = []
 
     for user in v:
-        for user_app in v_app:
-            if user['id_role'] == user_app['id_role']:
-                user['id_droit_max'] = user_app['id_droit_max']
-                user['id_application'] = user_app['id_application']
-                if(current_user['id_droit_max'] >= 5 or (current_user['id_organisme'] == user['id_organisme'])):
-                    v_out.append(user)
+        if(current_user['id_droit_max'] >= 5 or (current_user['id_organisme'] == user['id_organisme'])):
+            v_out.append(user)
 
     return v_out
 
@@ -67,19 +87,12 @@ def get_user(id_declarant=None):
         return as_dict(User())
 
     data = DB.session.query(User).filter(User.id_role == id_declarant).first()
-    data_app = DB.session.query(AppUser).filter(id_declarant == AppUser.id_role).first()
 
-    if not data or not data_app:
+    if not data:
 
         return None
 
-    user = as_dict(data)
-    user_app = as_dict(data_app)
-
-    user['id_droit_max'] = user_app['id_droit_max']
-    user['id_application'] = user_app['id_application']
-
-    return user
+    return get_user_from_data(data)
 
 
 def get_user_form_email(email):
@@ -91,14 +104,7 @@ def get_user_form_email(email):
     if not data:
         return "None"
 
-    user = as_dict(data)
-
-    user['app_users'] = []
-    for d in data.app_users:
-        u = as_dict(d)
-        user['app_users'].append({'id_droit': u['id_droit_max'], 'id_application': u['id_application']})
-
-    return user
+    return get_user_from_data(data)
 
 
 def get_id_organismes(liste_nom):

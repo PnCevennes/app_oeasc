@@ -17,7 +17,7 @@
 
       <table class="dataTable table table-striped table-small">
         <thead>
-          
+
           <tr>
             <th>id</th>
             <th>Organisme</th>
@@ -25,11 +25,12 @@
             <th>E-mail</th>
             <th>Rôle</th>
             <th>Droits</th>
+            <th>Nb. déclarations</th>
           </tr>
         </thead>
 
         <tbody>
-          
+
           {% for user in users %}
 
           <tr id="role_"{{user.id_role}}>
@@ -56,6 +57,7 @@
               {% endif %}
 
             </td>
+            <td>{{user.nb_declarations}}</td>
           </tr>
 
           {% endfor %}

@@ -169,7 +169,6 @@
             var current_user = '{{ session.current_user|tojson if session.current_user }}';
             if(current_user) current_user = JSON.parse(current_user);
 
-
             M.current_user = current_user;
             M.config=config;
 

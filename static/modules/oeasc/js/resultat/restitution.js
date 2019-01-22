@@ -20,24 +20,26 @@ $(document).ready(function() {
       $(leaflet_hide_selector) && $(leaflet_hide_selector).hide();
 
       M.wait_for_map_loaded(M[id_element]).then(()=>{
-        console.log(id_element, "loaded")
-        domtoimage.toPng(map_node,
-        {
-          height: Math.floor($(map_node).height()),
-          witdh: Math.floor($(map_node).width())
-        }).then(function (dataUrl) {
-          cpt_maps += 1;
-          $("#pdf_infos") && $("#pdf_details").html("Création des cartes : " + cpt_maps + " sur " + nb_maps);
+        setTimeout(()=>{
+          console.log(id_element, "loaded")
+          domtoimage.toPng(map_node,
+          {
+            height: Math.floor($(map_node).height()),
+            witdh: Math.floor($(map_node).width())
+          }).then(function (dataUrl) {
+            cpt_maps += 1;
+            $("#pdf_infos") && $("#pdf_details").html("Création des cartes : " + cpt_maps + " sur " + nb_maps);
 
-          console.log(id_element, "PNG done")
-          var img = new Image();
-          img.src = dataUrl;
-          img.id = "img_" + id_element;
-          $(map_node).after(img);
-          $(img).addClass("img-pdf");
-          $(map_node).hide();
-          resolve();
-        });
+            console.log(id_element, "PNG done")
+            var img = new Image();
+            img.src = dataUrl;
+            img.id = "img_" + id_element;
+            $(map_node).after(img);
+            $(img).addClass("img-pdf");
+            $(map_node).hide();
+            resolve();
+          });
+        }, 1000)
       });
     });
   };
@@ -68,39 +70,38 @@ $(document).ready(function() {
       $(e).addClass("pdf");
 
       nb_maps = $("#"+id_element).find(leaflet_map_selector).length;
+      cpt_maps = 0;
       $("#pdf_infos") && $("#pdf_details").html("Création des cartes : " + cpt_maps + " sur " + nb_maps);
 
       $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
         M[e.id].invalidateSize();
       });
 
-      setTimeout(function() {
-        $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
-          f_array.push(maptoPNG(e.id));
-        });
-        Promise.all(f_array).then(() => {
-          $("#pdf_infos") && $("#pdf_details").html("Création du fichier PDF")
+      $("#"+id_element).find(leaflet_map_selector).each(function(i, e){
+        f_array.push(maptoPNG(e.id));
+      });
+      Promise.all(f_array).then(() => {
+        $("#pdf_infos") && $("#pdf_details").html("Création du fichier PDF")
 
-          toPDF(id_element)
-          .then(() => {
-            $("#pdf_infos") && $("#pdf_details").html("Terminé. Vous pouvez télécharger le pdf")
+        toPDF(id_element)
+        .then(() => {
+          $("#pdf_infos") && $("#pdf_details").html("Terminé. Vous pouvez télécharger le pdf")
 
-            $(leaflet_map_selector).show();
-            $(leaflet_hide_selector).show();
-            $(leaflet_map_selector).each(function(i, e){
+          $(leaflet_map_selector).show();
+          $(leaflet_hide_selector).show();
+          $(leaflet_map_selector).each(function(i, e){
 
-              M[e.id].invalidateSize();
-              var next=$(e).next()
-              if (next.is('img')) {
-                next.remove();
-              }
-            });
-            resolve();
-            $("#pdf_infos") && $("#pdf_infos").hide()
-            cpt_map = 0;
+            M[e.id].invalidateSize();
+            var next=$(e).next()
+            if (next.is('img')) {
+              next.remove();
+            }
           });
+          resolve();
+          $("#pdf_infos") && $("#pdf_infos").hide()
+          cpt_map = 0;
         });
-      }, 10);
+      });
     });
 
   }

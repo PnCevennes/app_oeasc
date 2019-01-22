@@ -133,12 +133,10 @@
           <th>Origine</th>
           <td>{{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}</td>
         </tr>
-
         <tr>
           <th>Type</th>
           <td>{{ declaration.id_nomenclature_peuplement_type.label_fr | lower }}</td>
         </tr>
-
         {{macros_display.list_nomenclatures('Maturité', declaration.nomenclatures_peuplement_maturite, 'tr')}}
       </tbody>
 

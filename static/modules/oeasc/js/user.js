@@ -4,21 +4,6 @@
 
     $('#organisme').hide();
 
-    // trier par ordre alpha et mettre autre à la fin
-    // var opt = $("#id_organisme option").sort(function(a,b) {
-    //   if(a.innerHTML=="Autre (préciser)") {
-    //     return 1;
-    //   }
-    //   if(b.innerHTML=="Autre (préciser)") {
-    //     return -1;
-    //   }
-    //   return (a<b)?-1:1;
-    // });
-
-    // $("#id_organisme").html(opt);
-    // org_opt.remove(aut_opt);
-    // org_opt.append(aut_opt);
-
     var get_json = function(id) {
 
       var d = $("#" + id).attr('data-' + id)
@@ -33,7 +18,10 @@
     }
 
     var user = M.current_user;
+    var user = JSON.parse($("#user").attr('data-user'));
     var id_app = M.config.ID_APP;
+
+    console.log(user, id_app)
 
     if( ! user ) {
 
@@ -156,7 +144,7 @@
         if( user_from_mail != "None") {
 
         // et qu'il a déjà les droits pour cette application
-        if(user_from_mail.app_users.some(a => a.id_application == id_app)) {
+        if(user_from_mail.id_droit_max) {
 
           show_error('email', '<p>Cette adresse email est déjà utilisé pour cette application.</p> \
             <p>Veuillez vous identifier à la \
