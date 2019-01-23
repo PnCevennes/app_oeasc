@@ -10,13 +10,64 @@
 {%- endblock %}
 
 {%- block contentright %}
-
 <div class="text">
+
+ <div id="data_declarations">
+
+    {%- for declaration in declarations %}
+    <div class="data-declaration" data-declaration='{{ declaration | tojson if declaration else "" }}' style="display:none;"></div>
+    {%- endfor %}
+
+  </div>
 
   <h2>Suivi des dégâts forestiers</h2>
 
-  <p>Page en construction.</p>
+  <h3>Carte de répartition des dégâts</h3>
+  <div class="map-container">
+    <div id="map_show_declarations" type="gravité" class="map leaftlet-map"></div>
+    <div id="chargement">
+      <div>Chargement en cours <span class="fa fa-spinner"></span></div>
+    </div>
+  </div>
 
 </div>
 
+</div>
+{%- endblock %}
+
+{%- block js_local %}
+
+{{super()}}
+
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_form.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_data.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/util_localisation.js') }}"></script>
+<script src="{{ url_for('static', filename='modules/oeasc/js/declaration.js') }}"></script>
+<!-- <script src="{{ url_for('static', filename='modules/oeasc/js/declarations.js') }}"></script> -->
+
+
+<script>
+
+  $(document).ready(function() {
+
+    "use strict";
+
+    var declarations = [];
+
+    $(".data-declaration").each(function(){
+      var declaration = JSON.parse($(this).attr("data-declaration"));
+      declarations.push(declaration);
+    });
+
+  //init
+  M.initialiser_show_declarations('show_declarations', declarations, {
+    'type': ["secteurs"],
+    'centroid': {
+      'type': 'circle',
+      'global': true,
+    },
+  });
+
+});
+</script>
 {%- endblock %}

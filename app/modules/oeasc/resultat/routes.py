@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template
 
+from ..declaration.repository import get_declarations
 bp = Blueprint('resultat', __name__)
 
 
@@ -25,6 +26,7 @@ def test_chart_bar():
     '''
 
     return render_template('modules/oeasc/pages/resultats/test/chart_bar.html')
+
 
 # tests
 @bp.route('/test/chart/pie')
@@ -67,8 +69,9 @@ def degats_forestiers():
         resultats pour les degats_forestiers
         TODO
     '''
+    declarations = get_declarations(True)
 
-    return render_template('modules/oeasc/pages/resultats/degats_forestiers.html')
+    return render_template('modules/oeasc/pages/resultats/degats_forestiers.html', declarations=declarations)
 
 
 @bp.route('/diagnostics_sylvicoles')

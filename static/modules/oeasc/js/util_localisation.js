@@ -2,11 +2,11 @@ $(document).ready(function() {
 
   "use strict";
 
-  var initialiser_show_declarations = function(map_name, declarations) {
+  var initialiser_show_declarations = function(map_name, declarations, config) {
 
-    var map = M.init_map(map_name);
+    var map = M.init_map(map_name, config);
 
-    M.load_declarations_centroid(declarations, map, "Circle", true);
+    M.load_declarations_centroid(declarations, map, config);
 
     var s_legend = '<div id="legend-gravite_faible"><i style="color: black;">●</i> Déclarations </div>';
     $('#' + map_name).find(".legend").append(s_legend);
@@ -37,6 +37,7 @@ $(document).ready(function() {
 
     map.removeLayer(map.base_maps[map.cur_tile_name]);
     map.addLayer(map.base_maps[base_map]);
+
     // initialisation des legendes pour tout les type présents dans M.list.data
     M.list.data.forEach(function(name) {
       var color;
@@ -47,7 +48,16 @@ $(document).ready(function() {
       } else {
         return;
       };
-      var s_legend = '<div id="legend-' + name + '"><i style="background: ' + color + '; border: solid;"></i> ' + M.d_ls[name].label + '</div>';
+      var s_text_legend = M.d_ls[name].label;
+      if(['OEASC_ONF_FRT', 'OEASC_DGD'].includes(name)) {
+        s_text_legend = "Forêt concernée par l'alerte"
+      };
+      if(['OEASC_CADASTRE', 'OEASC_ONF_PRF', 'OEASC_ONF_UG'].includes(name)) {
+        s_text_legend = "Parcelle concernée par l'alerte"
+      }
+
+
+      var s_legend = '<div id="legend-' + name + '"><i style="background: ' + color + '; border: solid;"></i> ' + s_text_legend + '</div>';
       $('#map_' + map_name).find(".legend").append(s_legend);
     });
 
@@ -56,11 +66,6 @@ $(document).ready(function() {
       $('#map_' + map_name).find("#legend-" + e).hide();
     });
 
-    // charger les secteurs
-    if (config && config.type && config.type.includes("secteurs")) {
-      M.add_secteurs(map, config && config.zoom && config.zoom=="secteurs");
-    }
-
     // charger les foret
     if (config && config.type && config.type.includes("foret")) {
       b_tooltip = false;
@@ -68,7 +73,7 @@ $(document).ready(function() {
       var areas_foret = declaration.foret.areas_foret.filter((a) => {return ["OEASC_DGD", "OEASC_ONF_FRT"].includes(a.type_code) });
       if(!areas_foret.length) {
         areas_foret = declaration.foret.areas_foret.filter((a) => {return ["OEASC_SECTION"].includes(a.type_code)});
-        b_tooltip=zoom && areas_foret.length > 1;
+        b_tooltip=zoom;
       }
       M.load_areas(areas_foret, "foret", map, zoom, b_tooltip);
     }
@@ -83,7 +88,7 @@ $(document).ready(function() {
 
     // centroid ??
     if (config && config.centroid) {
-      declaration.centroid && M.load_declarations_centroid([declaration], map);
+      declaration.centroid && M.load_declarations_centroid([declaration], map, config);
     }
 
   };

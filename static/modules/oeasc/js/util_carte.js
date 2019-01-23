@@ -116,6 +116,9 @@ par exemple :
     return new Promise((resolve) => {
       Promise.all(map.promises).then(()=>{
         setTimeout(()=>{
+          map.promises = map.promises.filter((p) => {
+            return !p.resolved;
+          });
           console.log("done", map.id);
           resolve();
         }, 100);
@@ -131,14 +134,16 @@ par exemple :
 
   var add_promise_on_tile = function(map) {
     map.base_maps[map.cur_tile_name].on('tileload', (e) => {
-      var p = new Promise((resolve)=>{
-        map.base_maps[map.cur_tile_name].on('load', function(e) {
-          resolve();
+      // map.on('loading', (e) => {
+        var p = new Promise((resolve)=>{
+          map.base_maps[map.cur_tile_name].on('load', function(e) {
+          // map.on('load', function(e) {
+            resolve(2);
+          });
         });
+        p.type="tile";
+        map.promises.push(p);
       });
-      p.type="tile";
-      map.promises.push(p);
-    });
   };
 
   var carte_base_oeasc = function(name, config=null) {
@@ -194,11 +199,19 @@ par exemple :
    }, 1);
 
     // ajout de la légende
-    var div_perimetre = "";
-    if(config && config.type && config.type.includes("perimetre")) {
-      div_perimetre ='<div id="legend-oeasc"><i style="background: lightgrey;border: 2px solid black;"></i> ' + "Périmètre de l'Observatoire" + '</div>';
+    var legend = L.control({position: 'bottomright'});
+    legend.onAdd = function (map) {
+      var div=L.DomUtil.create('div','legend');
+      div.innerHTML += "";
+      return div;
+    };
+    legend.addTo(map);
 
-      // ajout du périmètre OEASC
+
+    // ajout du périmètre OEASC
+    if(config && config.type && config.type.includes("perimetre")) {
+      var div_perimetre ='<div id="legend-oeasc"><i style="background: lightgrey;border: 2px solid black;"></i> ' + "Périmètre de l'Observatoire" + '</div>';
+
       var l_perimetre_OEASC = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/OEASC_PERIMETRE', {
         style: M.style.oeasc,
         pane: 'PANE_1'
@@ -207,16 +220,31 @@ par exemple :
         l_perimetre_OEASC.on("data:loaded", function(){ map.fitBounds(this.getBounds());});
       }
       l_perimetre_OEASC.setStyle(M.style.oeasc);
+      $("#" + map.id + " .legend").append(div_perimetre);
 
     }
 
-    var legend = L.control({position: 'bottomright'});
-    legend.onAdd = function (map) {
-      var div=L.DomUtil.create('div','legend');
-      div.innerHTML += div_perimetre;
-      return div;
-    };
-    legend.addTo(map);
+
+    // secteurs
+    if (config && config.type && config.type.includes("secteurs")) {
+      M.add_secteurs(map, config && config.zoom && config.zoom=="secteurs");
+    }
+
+    if (config && config.type && config.type.includes("zc")) {
+      var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/ZC_PNC', {
+        pane: 'PANE_0',
+        style: M.style.zc
+      }).addTo(map);
+      $("#" + map.id + " .legend").append('<div id="#legend-aa"><i style="background: ' + M.color.zc + '; border: 1px solid darkgrey;"></i> ' +"Zone cœur du Parc national" + '</div>');
+    }
+    if (config && config.type && config.type.includes("aa")) {
+      var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/AA_PNC', {
+        pane: 'PANE_0',
+        style: M.style.aa,
+      }).addTo(map);
+      $("#" + map.id + " .legend").append('<div id="#legend-zc"><i style="background: ' + M.color.aa + '; border: 1px solid darkgrey;"></i> ' +"Aire d'adhésion du Parc national" + '</div>');
+    }
+
 
     return map;
 
@@ -261,7 +289,7 @@ par exemple :
 
 
   var add_titre = function(titre, map) {
-    $('#' + map.id).append("<div class='map-titre'><div>" + titre + "</div></div>")
+    $('#' + map.id).parent().prepend("<div class='map-titre'><div>" + titre + "</div></div>")
   };
 
   var add_sous_titre = function(sous_titre, map) {
@@ -326,9 +354,9 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       var pane = (type=="foret")? 2 : 3;
       var color = M.color[type];
 
-      map.promises.push(new Promise((resolve) => {
-        $.ajax({
+      var p = new Promise((resolve) => {
 
+        $.ajax({
           type: "POST",
           url: "/api/ref_geo/areas_post/l",
           contentType:"application/json; charset=utf-8",
@@ -352,7 +380,11 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
                 fillColor: color,
                 weight: weight,
               });
-              b_tooltip && layer.bindTooltip(fp.label, {
+              var s_tooltip = fp.label;
+              if(type_code == 'OEASC_CADASTRE') {
+                s_tooltip = s_tooltip.split('-')[2]
+              }
+              b_tooltip && layer.bindTooltip(s_tooltip, {
                 pane: 'PANE_4',
                 permanent: true,
                 direction: 'center',
@@ -378,7 +410,7 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
           $("#" + map.map_name + " #chargement").hide();
 
           if(b_zoom) {
-            v_sous_titre && add_sous_titre(v_sous_titre.join(', '), map);
+            v_sous_titre.length && add_sous_titre(v_sous_titre.join(', '), map);
             deferred_setBounds(featuresCollection.getBounds(), map, 5)
             .then(() => {
               setTimeout(()=>{
@@ -386,26 +418,32 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
                 if(z > 15) {
                   map.setZoom(15);
                 };
-                resolve();
+                resolve(2);
+
               }, 500)
             });
           }
           else {
-            resolve();
+            resolve(2);
           }
         }
       })
-      }));
+      });
+      p.type=type;
+      map.promises.push(p);
     };
 
 
-    var load_declarations_centroid = function(declarations, map, type="marker", b_global = false) {
+    var load_declarations_centroid = function(declarations, map, config) {
     /* charge les centroids des déclarations
     */
+
+    if(!config.centroid) return;
+
     var d_areas = {};
     var d_deg_color = {};
 
-    if( ! map.markers && b_global) {
+    if( ! map.markers && config.centroid.global) {
       map.markers = L.layerGroup();
       map.addLayer(map.markers);
       map.layerControl.addOverlay(map.markers, "Déclarations")
@@ -418,7 +456,8 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       var s_popup = '<div><a href="/declaration/declaration/' + id_declaration + '"  target="_blank">Alerte ' + id_declaration + ' </a></div>';
       var centroid = declaration.centroid;
       var marker;
-      if(type == "circle") {
+      console.log("aa")
+      if(config.centroid.type == "circle") {
         marker = L.circle(centroid);
       } else {
         marker = L.marker(centroid);
@@ -426,10 +465,11 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       L.setOptions(marker, { color: "black", radius: 100, pane: 'PANE_5'});
       marker.bindPopup(s_popup, {opacity: 1, pane: 'PANE_6'});
       marker.id_declaration = id_declaration;
-      if(b_global) {
+      if(config.centroid.global) {
         map.markers.addLayer(marker);
       } else {
         map.addLayer(marker);
+        $("#" + map.id + " .legend").append('<div id="#legend-loc"><i style="color:#257eca;font-size:1rem; text-align:center" class="fas fa-map-marker-alt"></i> ' + "Localisation de l'alerte" + '</div>');
       }
       marker.on("click", function() {
         $(document).trigger("marker_click", [this.id_declaration]);
@@ -439,28 +479,29 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
 
   // ajout des secteurs
   var add_secteurs = function(map, b_zoom=false) {
-    var color_secteur = {
-      'Causses et Gorges': 'red',
-      'Aigoual': 'blue',
-      'Mont Lozère': 'green',
-      'Vallées cévenoles': 'purple'
-    }
-    var l_secteurs_OEASC = new L.GeoJSON.AJAX(
-      '/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR', {
-        style: M.style.secteur,
-        pane: 'PANE_1',
-        onEachFeature: function(feature, layer) {
-          var center = layer.getBounds().getCenter();
-          layer.setStyle({
-            fillColor: color_secteur[feature.properties.area_code],
-            color: 'grey',
-            weight : 2,
-            fillOpacity :0.1,
-            opacity :1,
-          });
-          layer.bindTooltip(feature.properties.label, {
-            pane: 'PANE_4',
-            permanent: true,
+    var p = new Promise((resolve) => {
+      var color_secteur = {
+        'Causses et Gorges': 'red',
+        'Aigoual': 'blue',
+        'Mont Lozère': 'green',
+        'Vallées cévenoles': 'purple'
+      }
+      var l_secteurs_OEASC = new L.GeoJSON.AJAX(
+        '/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR', {
+          style: M.style.secteur,
+          pane: 'PANE_1',
+          onEachFeature: function(feature, layer) {
+            var center = layer.getBounds().getCenter();
+            layer.setStyle({
+              fillColor: color_secteur[feature.properties.area_code],
+              color: 'grey',
+              weight : 2,
+              fillOpacity :0.1,
+              opacity :1,
+            });
+            layer.bindTooltip(feature.properties.label, {
+              pane: 'PANE_4',
+              permanent: true,
             // direction: 'center',
             direction: 'center',
             color: color_secteur[feature.properties.area_code],
@@ -469,18 +510,21 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
             weight: 3,
             className: 'secteur ' + feature.properties.area_code.replace(/ /g, "_"),
           });
-        },
-      }
-      ).addTo(map);
+          },
+        }
+        ).addTo(map);
 
-    l_secteurs_OEASC.on('data:loaded', function() {
-      if(b_zoom) {
-        deferred_setBounds(l_secteurs_OEASC.getBounds(), map);
-      }
+      l_secteurs_OEASC.on('data:loaded', function() {
+        if(b_zoom) {
+          deferred_setBounds(l_secteurs_OEASC.getBounds(), map);
+        }
+        resolve(2);
+      });
+      $("#" + map.id + " .legend").append('<div id="#legend-zc"><i style="background-color: rgb(184, 206, 145); border: 2px solid grey;"></i> ' +
+        "Secteurs d'étude de l'Observatoire" + '</div>');
     });
-
-    $(".legend").append('<div id="#legend-zc"><i style="background-color: rgb(184, 206, 145); border: 2px solid grey;"></i> ' +"<b>Secteurs d'étude</b>" + '</div>');
-
+    p.type = "secteurs";
+    map.promises.push(p);
   }
 
 

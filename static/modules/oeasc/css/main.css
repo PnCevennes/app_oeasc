@@ -673,15 +673,15 @@ table .tr-selected td:last-child{
 }
 
 .declaration-maps .map {
-  height: 330px;
+  height: 322px;
   /* width: 700px; */
 
 }
 
 .declaration-maps .map-container {
-  margin:  10px;
+  margin-top: 5px;
   /* padding: 10px; */
-  /* border:  1px solid black; */
+  border:  1px solid lightgray;
   /* display:  inline-block; */
 }
 

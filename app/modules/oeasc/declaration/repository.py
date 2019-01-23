@@ -241,7 +241,7 @@ def get_declarations(b_synthese, id_declarant=None):
     # toutes les declaration dans le cas d'une synthese
     data = None
 
-    if id_declarant > 0:
+    if id_declarant and id_declarant > 0:
 
         user = get_user(id_declarant)
         liste_id_organismes_solo = get_id_organismes(['Autre (préciser)', "Pas d'organisme"])

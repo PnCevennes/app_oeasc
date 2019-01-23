@@ -21,7 +21,6 @@ $(document).ready(function() {
 
       M.wait_for_map_loaded(M[id_element]).then(()=>{
         setTimeout(()=>{
-          console.log(id_element, "loaded")
           domtoimage.toPng(map_node,
           {
             height: Math.floor($(map_node).height()),
@@ -30,7 +29,6 @@ $(document).ready(function() {
             cpt_maps += 1;
             $("#pdf_infos") && $("#pdf_details").html("Création des cartes : " + cpt_maps + " sur " + nb_maps);
 
-            console.log(id_element, "PNG done")
             var img = new Image();
             img.src = dataUrl;
             img.id = "img_" + id_element;
@@ -39,7 +37,7 @@ $(document).ready(function() {
             $(map_node).hide();
             resolve();
           });
-        }, 1000)
+        }, 1000);
       });
     });
   };
@@ -49,7 +47,16 @@ $(document).ready(function() {
       var e = document.getElementById(id_element);
       $(e).addClass("pdf");
 
-      var opt = {pagebreak: { mode: 'avoid-all'}};
+      var opt = {
+        pagebreak: {
+          mode: 'avoid-all',
+        },
+        html2canvas: {dpi: 72, letterRendering: true},
+      };
+      var filename = $('#' + id_element).attr('filename');
+      if(filename) {
+        opt['filename'] = filename;
+      }
       html2pdf(e, opt).then(() => {
         $(e).removeClass("pdf");
         resolve();
@@ -63,7 +70,6 @@ $(document).ready(function() {
 
       $("#pdf_infos") && $("#pdf_infos").show()
 
-      console.log("start pdf map")
       var f_array = [1];
 
       var e = document.getElementById(id_element);
@@ -81,26 +87,29 @@ $(document).ready(function() {
         f_array.push(maptoPNG(e.id));
       });
       Promise.all(f_array).then(() => {
-        $("#pdf_infos") && $("#pdf_details").html("Création du fichier PDF")
+        setTimeout(() => {
 
-        toPDF(id_element)
-        .then(() => {
-          $("#pdf_infos") && $("#pdf_details").html("Terminé. Vous pouvez télécharger le pdf")
+          $("#pdf_infos") && $("#pdf_details").html("Création du fichier PDF")
 
-          $(leaflet_map_selector).show();
-          $(leaflet_hide_selector).show();
-          $(leaflet_map_selector).each(function(i, e){
+          toPDF(id_element)
+          .then(() => {
+            $("#pdf_infos") && $("#pdf_details").html("Terminé. Vous pouvez télécharger le pdf")
 
-            M[e.id].invalidateSize();
-            var next=$(e).next()
-            if (next.is('img')) {
-              next.remove();
-            }
+            $(leaflet_map_selector).show();
+            $(leaflet_hide_selector).show();
+            $(leaflet_map_selector).each(function(i, e){
+
+              M[e.id].invalidateSize();
+              var next=$(e).next()
+              if (next.is('img')) {
+                next.remove();
+              }
+            });
+            resolve();
+            $("#pdf_infos") && $("#pdf_infos").hide()
+            cpt_map = 0;
           });
-          resolve();
-          $("#pdf_infos") && $("#pdf_infos").hide()
-          cpt_map = 0;
-        });
+        }, 100)
       });
     });
 

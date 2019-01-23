@@ -13,14 +13,20 @@
             'base_map': 'Mapbox',
             'type': ['foret', 'secteurs'],
             'zoom': 'secteurs',
-            'centroid': true,
+            'centroid': {
+              'type': 'marker',
+              'global': false,
+            },
           },
           'medium': {
             // 'base_map': 'Mapbox',
             'base_map': 'Cartes (IGN)',
             'type': ['foret', 'localisation'],
             'zoom': "foret",
-            'centroid': true,
+            'centroid': {
+              'type': 'marker',
+              'global': false,
+            },
           },
           'local': {
             'base_map': 'Cartes (IGN)',

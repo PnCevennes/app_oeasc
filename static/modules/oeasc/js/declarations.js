@@ -2,6 +2,8 @@ $(document).ready(function() {
 
   "use strict";
 
+  var tab_config = "";
+
   var color_selected = 'rgba(255, 165, 0)';
   var color_not_selected = 'rgb(222, 226, 230);';
 
@@ -12,6 +14,9 @@ $(document).ready(function() {
     columnDefs: [{
       "targets": [ table_indices['ID'] ],
       "width": "30px",
+    }, {
+      "targets": [ table_indices['Parcelles'] ],
+      "width": "100px",
     }, {
       "targets": [ table_indices['Commune(s)'], table_indices['Nom forêt'] ],
       "width": "100px",
@@ -214,16 +219,18 @@ $(document).ready(function() {
       table.column(ind).settings()[0].aoColumns[i].bSearchable = true;
     }
 
-    table.listen_visibility = true;
     init_column_search();
-    if($('#table_declarations_filter input').val()==''){
-      table.search('wouplaboum').draw();
-      table.search('').draw();
-    }
+    table.listen_visibility = true;
+    // if($('#table_declarations_filter input').val()==''){
+    //   table.search('wouplaboum').draw();
+    //   table.search('').draw();
+    // }
+
 
     $("#tableau_declarations table").width("100%");
     $("#tableau_declarations table").resize()
     $("#tableau_declarations table thead input").width("100%")
+
     // $('#table_declarations_filter').val('');
   };
 
@@ -240,11 +247,15 @@ $(document).ready(function() {
   $("[data-type=T]").click(function () {
     /* Onglet tableau
     */
-    $("#show_declarations").hide();
-    $("#show_declarations").attr("class", "");
-    $("#tableau_declarations").show();
-    $("#tableau_declarations").attr("class", "col-md-12");
-    set_columns(selection_tout);
+    if(tab_config!="T") {
+
+      tab_config="T"
+      $("#show_declarations").hide();
+      $("#show_declarations").attr("class", "");
+      $("#tableau_declarations").show();
+      $("#tableau_declarations").attr("class", "col-md-12");
+      set_columns(selection_tout);
+    }
 
   });
 
@@ -253,16 +264,19 @@ $(document).ready(function() {
   $("[data-type=TC]").click(function () {
     /* Onglet tableau + carte
     */
-    $("#show_declarations").show();
-    $("#show_declarations").attr("class", "col-md-6");;
-    $("#tableau_declarations").show();
-    $("#tableau_declarations").attr("class", "col-md-6");;
-    setTimeout(function(){
-      set_columns(selection_reduite);
-      $('#map_show_declarations').height($('#tableau_declarations').height());
-      M['map_show_declarations'].invalidateSize();
-    }, 50);
+    if(tab_config != "TC") {
 
+      tab_config="TC"
+      $("#show_declarations").show();
+      $("#show_declarations").attr("class", "col-md-6");;
+      $("#tableau_declarations").show();
+      $("#tableau_declarations").attr("class", "col-md-6");;
+      setTimeout(function(){
+        set_columns(selection_reduite);
+        $('#map_show_declarations').height($('#tableau_declarations').height());
+        M['map_show_declarations'].invalidateSize();
+      }, 50);
+    }
   });
 
   // init
@@ -278,25 +292,31 @@ $(document).ready(function() {
   });
 
   //init
-  M.initialiser_show_declarations('show_declarations', declarations);
-
-  $(".button-supprimer-declaration").click(function() {
-    var $this = $(this);
-    var id_declaration = $this.attr('data-id-declaration');
-    $.ajax({
-      type: 'POST',
-      url: "/api/declaration/delete_declaration/" + id_declaration,
-    }).done(function(response) {
-      console.log("done : " + this.url);
-      $this.parents("tr").remove();
-    }).fail(function(response) {
-      console.log("fail : " + this.url, response);
-    });
-
+  M.initialiser_show_declarations('show_declarations', declarations, {
+    'type': ["secteurs"],
+    'centroid': {
+      'type': 'circle',
+      'global': true,
+    },
   });
 
+$(".button-supprimer-declaration").click(function() {
+  var $this = $(this);
+  var id_declaration = $this.attr('data-id-declaration');
+  $.ajax({
+    type: 'POST',
+    url: "/api/declaration/delete_declaration/" + id_declaration,
+  }).done(function(response) {
+    console.log("done : " + this.url);
+    $this.parents("tr").remove();
+  }).fail(function(response) {
+    console.log("fail : " + this.url, response);
+  });
 
-  var set_tab_declaration = function(id_declaration) {
+});
+
+
+var set_tab_declaration = function(id_declaration) {
     /*
     ouvre au besoin une nouvelle tab du tableau pour voir les details d une declaration
     */
@@ -322,7 +342,6 @@ $(document).ready(function() {
         if($(this).parent().hasClass("active")) {
           var prev = $(this).parent().prev()
           prev.tab("show");
-          console.log("aa", prev);
 
         }
         var id=$(selector).attr("href");
