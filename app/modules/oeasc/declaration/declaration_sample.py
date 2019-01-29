@@ -295,7 +295,7 @@ def degats_dict_random_sample(v_essences):
         Renvoie des degats aléatoires
     '''
 
-    v_degat_type = get_v_nomenclature_random_sample('OEASC_DEGAT_TYPE', 'id_nomenclature')
+    v_degat_type = get_v_nomenclature_random_sample('OEASC_DEGAT_TYPE', 'id_nomenclature')[:2]
 
     degats = [{"id_nomenclature_degat_type": id_nomenclature} for id_nomenclature in v_degat_type]
 

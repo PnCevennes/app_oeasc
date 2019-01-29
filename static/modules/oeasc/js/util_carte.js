@@ -164,6 +164,13 @@ par exemple :
     // ajout du cadre "chargement"
     $("#" + map.id).parent().find("#chargement").appendTo("#" + map_id).hide();
 
+
+    // titre
+    var titre = $('#' + map.id).attr("titre");
+    if(titre) {
+      M.add_titre(titre, map);
+    }
+
     // initialisation des fonds de carte (on garde en mémoire le dernier choisi)
     map.base_maps = init_tiles(map);
     map.on('baselayerchange', function(e) {
@@ -171,6 +178,8 @@ par exemple :
       remove_promise_on_tile(map);
       add_promise_on_tile(map)
     });
+
+    map.cur_tile_name = (config && config.base_map) || 'Mapbox';
 
     map.base_maps[map.cur_tile_name].addTo(map);
     add_promise_on_tile(map)
@@ -193,10 +202,10 @@ par exemple :
     L.control.betterscale({imperial: false, metric: true}).addTo(map);
     // ajout de l'échelle
     setTimeout(function() {
-     var b=map.getBounds()
-     b._northEast.lat+=0.001;
-     map.fitBounds(b);
-   }, 1);
+      var b=map.getBounds()
+      b._northEast.lat+=0.001;
+      map.fitBounds(b);
+    }, 1);
 
     // ajout de la légende
     var legend = L.control({position: 'bottomright'});
@@ -415,9 +424,15 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
             .then(() => {
               setTimeout(()=>{
                 var z = map.getZoom();
-                if(z > 15) {
-                  map.setZoom(15);
+                var zoom_max_localisation = 15;
+                var zoom_max_foret = 13;
+                if(z > zoom_max_localisation && type=="localisation") {
+                  map.setZoom(zoom_max_localisation);
                 };
+                if(z > zoom_max_foret && type=="foret") {
+                  map.setZoom(zoom_max_foret);
+                };
+
                 resolve(2);
 
               }, 500)
@@ -432,6 +447,67 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       p.type=type;
       map.promises.push(p);
     };
+
+
+    var d_degat_type_icon = {
+      'ABR': 'fa fa-seedling',
+      'ÉCO': 'fas fa-tree',
+      'SANG': 'fas fa-square',
+      'FRO': 'fas fa-angle-double-down',
+      'P/C': 'fas fa-exclamation-triangle',
+      'ABS': 'fas fa-ban',
+    };
+
+    var d_degat_gravite_color = {
+      "DG_FBL": 'yellow',
+      "DG_MOY": 'orange',
+      "DG_IMPT": 'red',
+    };
+
+    var s_tooltip_degats = function(degats) {
+      var s_tooltip = "";
+      degats.forEach((degat) => {
+        var color = 'white';
+        var cd_deg = degat.id_nomenclature_degat_type.cd_nomenclature
+        var icon = d_degat_type_icon[cd_deg];
+        var _id_gravite = 0;
+        degat.degat_essences.forEach((degat_essence) => {
+          if (! degat_essence || ! degat_essence.id_nomenclature_degat_gravite) return; 
+          var gravite = degat_essence.id_nomenclature_degat_gravite;
+          color = 'yellow';
+          if(gravite.id_nomenclature > _id_gravite) {
+            _id_gravite = gravite.id_nomenclature;
+            color = d_degat_gravite_color[gravite.cd_nomenclature];
+          }
+        });
+        s_tooltip += '<i style="font-size:1em;color:' + color + '" class="' + icon +'"></i>';
+      });
+      return s_tooltip;
+    }
+
+
+    var s_legend_degats = function(declarations) {
+      var s_legend = '<div style="background-color:lightgray; font-weight:bold">Types de dégats</div>';
+      var v_degat=[];
+      declarations.forEach((declaration) => {
+
+        declaration.degats.forEach((degat) => {
+          var cd_deg = degat.id_nomenclature_degat_type.cd_nomenclature
+          var label_deg = degat.id_nomenclature_degat_type.label_fr
+          if (! v_degat.includes(cd_deg)){
+            v_degat.push(cd_deg);
+            var icon = d_degat_type_icon[cd_deg];
+            s_legend += '<div id="#legend-' + cd_deg + '"><i style="text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000; font-size:1.2rem; text-align:center;color:white; " class="' + icon + '"></i> ' + label_deg + '</div>';
+          }
+        });
+      });
+      s_legend += '<div style="background-color:lightgray; font-weight:bold">Gravité des dégats</div>';
+      s_legend += '<div><i style="text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000; font-size:1.2rem; text-align:center;color:yellow; " class="fas fa-square"></i> Faibles </div>';
+      s_legend += '<div><i style="text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000; font-size:1.2rem; text-align:center;color:orange; " class="fas fa-square"></i> Moyens </div>';
+      s_legend += '<div><i style="text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000; font-size:1.2rem; text-align:center;color:red; " class="fas fa-square"></i> Imortants </div>';
+
+      return s_legend;
+    }
 
 
     var load_declarations_centroid = function(declarations, map, config) {
@@ -456,25 +532,57 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       var s_popup = '<div><a href="/declaration/declaration/' + id_declaration + '"  target="_blank">Alerte ' + id_declaration + ' </a></div>';
       var centroid = declaration.centroid;
       var marker;
-      console.log("aa")
-      if(config.centroid.type == "circle") {
+      if(config.centroid.type == "degat") {
         marker = L.circle(centroid);
+        var s_tooltip = s_tooltip_degats(declaration.degats);
+        // s_legend = '<div id="#legend-loc"><i style="color:black;font-size:0.5rem; text-align:center; transform:translateY(5px)" class="fas fa-circle"></i> ' + "Localisation des alertes" + '</div>';
+        var t = L.tooltip
+        marker.bindTooltip(s_tooltip, {
+          pane: 'PANE_5',
+          permanent: true,
+          direction: 'center',
+          color: 'white',
+          opacity: 1,
+          fillOpacity: 1,
+          className: ' tooltip tooltip-' + config.centroid.type,}
+          );
+      } else if(config.centroid.type == "circle") {
+        marker = L.circle(centroid);
+        s_legend = '<div id="#legend-loc"><i style="color:black;font-size:0.5rem; text-align:center; transform:translateY(5px)" class="fas fa-circle"></i> ' + "Localisation des alertes" + '</div>';
       } else {
         marker = L.marker(centroid);
+        s_legend = '<div id="#legend-loc"><i style="color:#257eca;font-size:1rem; text-align:center" class="fas fa-map-marker-alt"></i> ' + "Localisation de l'alerte" + '</div>';
       }
       L.setOptions(marker, { color: "black", radius: 100, pane: 'PANE_5'});
-      marker.bindPopup(s_popup, {opacity: 1, pane: 'PANE_6'});
+      marker.bindPopup(s_popup, {
+        opacity: 1,
+        pane: 'PANE_6',
+      });
       marker.id_declaration = id_declaration;
       if(config.centroid.global) {
         map.markers.addLayer(marker);
       } else {
         map.addLayer(marker);
-        $("#" + map.id + " .legend").append('<div id="#legend-loc"><i style="color:#257eca;font-size:1rem; text-align:center" class="fas fa-map-marker-alt"></i> ' + "Localisation de l'alerte" + '</div>');
       }
       marker.on("click", function() {
         $(document).trigger("marker_click", [this.id_declaration]);
       });
     }
+
+    // legend
+    var s_legend;
+    if(config.centroid.type == "degat") {
+      s_legend += '<div id="#legend-loc"><i style="color:black;font-size:0.5rem; text-align:center; transform:translateY(5px)" class="fas fa-circle"></i> ' + "Localisation des alertes" + '</div>';
+      s_legend = s_legend_degats(declarations)
+    } else if(config.centroid.type == "circle") {
+      s_legend = '<div id="#legend-loc"><i style="color:black;font-size:0.5rem; text-align:center; transform:translateY(5px)" class="fas fa-circle"></i> ' + "Localisation des alertes" + '</div>';
+    } else {
+      s_legend = '<div id="#legend-loc"><i style="color:#257eca;font-size:1rem; text-align:center" class="fas fa-map-marker-alt"></i> ' + "Localisation de l'alerte" + '</div>';
+    }
+
+
+
+    s_legend && $("#" + map.id + " .legend").append(s_legend);
   };
 
   // ajout des secteurs
@@ -502,14 +610,13 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
             layer.bindTooltip(feature.properties.label, {
               pane: 'PANE_4',
               permanent: true,
-            // direction: 'center',
-            direction: 'center',
-            color: color_secteur[feature.properties.area_code],
-            opacity: 0.8,
-            fillOpacity: 1,
-            weight: 3,
-            className: 'secteur ' + feature.properties.area_code.replace(/ /g, "_"),
-          });
+              direction: 'center',
+              color: color_secteur[feature.properties.area_code],
+              opacity: 0.8,
+              fillOpacity: 1,
+              weight: 3,
+              className: 'secteur ' + feature.properties.area_code.replace(/ /g, "_"),
+            });
           },
         }
         ).addTo(map);

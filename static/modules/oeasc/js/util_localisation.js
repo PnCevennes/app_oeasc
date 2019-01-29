@@ -28,15 +28,6 @@ $(document).ready(function() {
     var map = M.init_map(map_name, config);
     var list_localisation = ["OEASC_CADASTRE", "OEASC_ONF_PRF"];
     var list_foret = ["OEASC_DGD", "OEASC_ONF_FRT", 'OEASC_SECTION'];
-    var base_map = (config && config.base_map) || 'Mapbox';
-
-    var titre = $('#' + map.id).attr("titre");
-    if(titre) {
-      M.add_titre(titre, map);
-    }
-
-    map.removeLayer(map.base_maps[map.cur_tile_name]);
-    map.addLayer(map.base_maps[base_map]);
 
     // initialisation des legendes pour tout les type présents dans M.list.data
     M.list.data.forEach(function(name) {

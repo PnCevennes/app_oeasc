@@ -1,6 +1,6 @@
 from app.modules.oeasc.nomenclature import get_nomenclature_from_id, get_dict_nomenclature_areas, pre_get_dict_nomenclature_areas
 from flask import session, current_app
-from .models import TDeclaration, TForet, TProprietaire
+from .models import TDeclaration, TForet, TProprietaire, TDegat
 from app.modules.oeasc.user.repository import get_user, get_id_organismes
 from app.utils.utilssqlalchemy import GenericQuery
 from sqlalchemy import text
@@ -267,6 +267,18 @@ def get_declarations(b_synthese, id_declarant=None):
         return []
 
     declarations = data.get('items')
+
+    data_degats = DB.session.query(TDegat).order_by('id_nomenclature_degat_type').all()
+
+    for deg in data_degats:
+        declarations_filtered = list(filter(lambda x: x.get('id_declaration') == deg.id_declaration, declarations))
+        if len(declarations_filtered) != 1:
+            continue
+        declaration = declarations_filtered[0]
+        if not declaration.get('degats'):
+            declaration['degats'] = []
+        declaration['degats'].append(deg.as_dict(True))
+
     pre_get_dict_nomenclature_areas(declarations)
     declarations = [resolve_declaration(d) for d in declarations]
     return declarations

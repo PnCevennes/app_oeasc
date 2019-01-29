@@ -54,6 +54,10 @@
 
 .legend div {
 
+  max-width: 250px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   border-style: solid;
   border-width: 1px 1px 0px 1px;
   border-color: lightgray;
@@ -166,15 +170,28 @@
   font-size: 1.2rem;
 }
 
-.tooltip {
+.map .tooltip {
   font-weight:  bold;
   font-size: 1em;
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0);
   color: white;
   text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000;
   /* opacity: 0.8; */
-  /* border-radius: 10px; */
-  /* background-color: #ebece5; */
   background-color: rgba(0,0,0,0);
   border-color: rgba(0,0,0,0);
 }
+
+.map .tooltip-degat {
+  margin-top: -15px;
+  font-size: 1.5em;
+}
+
+.map .tooltip-degat i {
+  margin-right: 2px;
+}
+
+/* .tooltip:hover {
+  padding: 10px;
+  background-color: black;
+}
+ */
