@@ -421,19 +421,23 @@ def get_declarations_csv(type):
             for degat in declaration.get('degats', []):
                 if degat.get('degat_essences'):
                     for degat_essence in degat["degat_essences"]:
-                        d += [
+                        deg = [
                             id_nomenclature_to_str(degat["id_nomenclature_degat_type"]),
                             id_nomenclature_to_str(degat_essence['id_nomenclature_degat_essence']),
                             id_nomenclature_to_str(degat_essence.get('id_nomenclature_degat_gravite', '')),
                             id_nomenclature_to_str(degat_essence.get('id_nomenclature_degat_etendue', '')),
                             id_nomenclature_to_str(degat_essence.get('id_nomenclature_degat_anteriorite', '')),
                         ]
+                        data.append(d + deg)
+
                 else:
-                    d += [
+                    deg = [
                         id_nomenclature_to_str(degat["id_nomenclature_degat_type"]),
                         "", "", "", ""
                     ]
 
-        data.append(d)
+                    data.append(d + deg)
+        else:
+            data.append(d)
 
     return columns, data
