@@ -15,12 +15,14 @@
   </div>
 
   {% if session.current_user.id_droit_max > 5 %}
-  <div>
-    <a href="/api/declaration/declarations_csv">Export CSV 1 déclaration par ligne</a>
-  </div>
-  <div>
-    <a href="/api/declaration/declarations_csv/degat">Export CSV 1 dégât par ligne</a>
-  </div>
+  <ul>
+    <li>
+      <a href="/api/declaration/declarations_csv">Export CSV une déclaration par ligne</a>
+    </li>
+    <li>
+      <a href="/api/declaration/declarations_csv/degat">Export CSV un dégât par ligne</a>
+    </li>
+  </ul>
   {% endif %}
 
   <nav id="declarations_tabs" class="nav nav-tabs">
