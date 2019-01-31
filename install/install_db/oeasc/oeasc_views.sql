@@ -1,6 +1,6 @@
 DROP VIEW IF EXISTS oeasc.v_declarations;
 CREATE OR REPLACE VIEW oeasc.v_declarations AS
-    SELECT 
+    SELECT
         d.id_declaration,
         d.id_declarant,
         CONCAT(UPPER(r.nom_role), ' ', r.prenom_role) as declarant,
@@ -15,12 +15,41 @@ CREATE OR REPLACE VIEW oeasc.v_declarations AS
         (SELECT ARRAY_AGG(id_area)
             FROM oeasc.cor_areas_declarations c
             WHERE c.id_declaration = d.id_declaration) as areas_localisation,
+
         d.id_nomenclature_peuplement_type,
         d.id_nomenclature_peuplement_origine,
+        (SELECT ARRAY_AGG(id_nomenclature)
+            FROM oeasc.cor_nomenclature_declarations_maturite c
+            WHERE c.id_declaration = d.id_declaration) as nomenclatures_peuplement_maturite,
+
         d.id_nomenclature_peuplement_essence_principale,
         (SELECT ARRAY_AGG(id_nomenclature)
             FROM oeasc.cor_nomenclature_declarations_essence_secondaire c
             WHERE c.id_declaration = d.id_declaration) as nomenclatures_peuplement_essence_secondaire,
+        (SELECT ARRAY_AGG(id_nomenclature)
+            FROM oeasc.cor_nomenclature_declarations_essence_complementaire c
+            WHERE c.id_declaration = d.id_declaration) as nomenclatures_peuplement_essence_complementaire,
+
+        d.id_nomenclature_peuplement_paturage_statut,
+        d.id_nomenclature_peuplement_paturage_frequence,
+        (SELECT ARRAY_AGG(id_nomenclature)
+            FROM oeasc.cor_nomenclature_declarations_paturage_type c
+            WHERE c.id_declaration = d.id_declaration) as nomenclatures_peuplement_paturage_type,
+        (SELECT ARRAY_AGG(id_nomenclature)
+            FROM oeasc.cor_nomenclature_declarations_paturage_saison c
+            WHERE c.id_declaration = d.id_declaration) as nomenclatures_peuplement_paturage_saison,
+
+        (SELECT ARRAY_AGG(id_nomenclature)
+            FROM oeasc.cor_nomenclature_declarations_protection_type c
+            WHERE c.id_declaration = d.id_declaration) as nomenclatures_peuplement_protection_type,
+        d.autre_protection,
+
+        (SELECT ARRAY_AGG(id_nomenclature)
+            FROM oeasc.cor_nomenclature_declarations_espece c
+            WHERE c.id_declaration = d.id_declaration) as nomenclatures_peuplement_espece,
+        id_nomenclature_peuplement_acces,
+
+
         (SELECT ARRAY_AGG(id_nomenclature_degat_type)
             FROM oeasc.t_degats deg
             WHERE deg.id_declaration = d.id_declaration) as nomenclatures_degat_type,

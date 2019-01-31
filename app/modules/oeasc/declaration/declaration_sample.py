@@ -14,6 +14,13 @@ from datetime import datetime
 config = current_app.config
 DB = config['DB']
 
+'''
+module pour générer des déclaration "aléatoires"
+
+la fonction declaration_dict_random_sample() renvoie un dictionnaire représentant une déclaration aléatoire
+
+'''
+
 
 def rand_nomenclature(mnemonique):
     '''
@@ -394,17 +401,26 @@ def declaration_dict_random_sample():
     '''
         Renvoie une déclaration aléatoire
     '''
+
+    # Foret
     foret = foret_dict_random_sample()
     if not foret:
         return None
 
+    # Localisation des dégâts
     areas_localisation = get_random_areas_localisation(foret)
     declarant = get_random_declarant()
     if not declarant:
         return None
 
+    # Essences
+    # v_essence[0] essence objectif principale
+    # v_essence[1:3] essences objectifs secondaires
+    # v_essence[4:7] essences complémentaires
+
     v_essences = v_rand_nomenclature('OEASC_PEUPLEMENT_ESSENCE', random.randint(1, 7))
 
+    # Paturage
     id_nomenclature_peuplement_paturage_statut = None
     nomenclatures_peuplement_paturage_saison = []
     id_nomenclature_peuplement_paturage_frequence = None
@@ -417,17 +433,18 @@ def declaration_dict_random_sample():
         nomenclatures_peuplement_paturage_type = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_TYPE", "id_nomenclature")]
 
         if get_nomenclature_from_id(id_nomenclature_peuplement_paturage_frequence)['cd_nomenclature'] == 'PPAF_PER':
-            nomenclatures_peuplement_paturage_saison == [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_SAISON", "id_nomenclature")]
-
+            nomenclatures_peuplement_paturage_saison = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_PATURAGE_SAISON", "id_nomenclature")]
             if len(nomenclatures_peuplement_paturage_saison) == 4:
                 nomenclatures_peuplement_paturage_saison.pop()
 
+    # Protection
     nomenclatures_peuplement_protection_type = []
     b_peuplement_protection_existence = random.randint(0, 1) == 1
 
     if b_peuplement_protection_existence:
         nomenclatures_peuplement_protection_type = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_PROTECTION_TYPE", "id_nomenclature")]
 
+    # Especes avérées
     nomenclatures_peuplement_espece = [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_ESPECE", "id_nomenclature")]
 
     for elem in nomenclatures_peuplement_espece:
@@ -436,8 +453,10 @@ def declaration_dict_random_sample():
             nomenclatures_peuplement_espece = [elem]
             break
 
+    # Date
     s_date = get_random_date()
 
+    # Déclaration sous forme de dictionnaire
     declaration = {
         "id_declarant": declarant['id_role'],
         "declarant": declarant,
@@ -457,6 +476,7 @@ def declaration_dict_random_sample():
         'nomenclatures_peuplement_maturite': [{'id_nomenclature': id} for id in get_v_nomenclature_random_sample("OEASC_PEUPLEMENT_MATURITE", "id_nomenclature")],
         'id_nomenclature_peuplement_paturage_frequence': id_nomenclature_peuplement_paturage_frequence,
         'nomenclatures_peuplement_paturage_type': nomenclatures_peuplement_paturage_type,
+        'nomenclatures_peuplement_paturage_saison': nomenclatures_peuplement_paturage_saison,
         'id_nomenclature_peuplement_paturage_statut': id_nomenclature_peuplement_paturage_statut,
         'nomenclatures_peuplement_protection_type': nomenclatures_peuplement_protection_type,
         'nomenclatures_peuplement_espece': nomenclatures_peuplement_espece,

@@ -50,10 +50,7 @@ def get_user_from_data(data):
     ).first()
 
     if data_nd:
-        print(data_nd, user_dict)
         user_dict['nb_declarations'] = data_nd[0]
-
-    print('user_dict')
 
     return user_dict
 

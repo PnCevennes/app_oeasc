@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, current_app, session
+from flask import Blueprint, render_template, request, current_app
 import copy
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
 
@@ -7,6 +7,7 @@ from .repository import (
     get_declaration,
     f_create_or_update_declaration,
     get_dict_nomenclature_areas,
+    get_declarations_csv
 )
 
 from .declaration_sample import declaration_dict_random_sample
@@ -16,6 +17,10 @@ from .utils import (
     check_foret,
     check_proprietaire,
     check_massif,
+)
+
+from ..utils import (
+    arrays_to_csv
 )
 
 from .models import (
@@ -74,8 +79,6 @@ def declaration_html(id_declaration):
 
     btn_action = request.args.get("btn_action", "")
     map_display = request.args.get("map_display", "")
-
-    print("md", map_display, request)
 
     declaration = get_declaration(id_declaration)
 
@@ -195,3 +198,20 @@ def create_or_update_declaration():
     send_mail_validation_declaration(d)
 
     return d
+
+
+@bp.route('declarations_csv/<type>', methods=['GET'])
+@bp.route('declarations_csv/', defaults={'type': ''}, methods=['GET'])
+@check_auth_redirect_login(5)
+def declarations_csv(type):
+    '''
+        renvoie la liste de déclarations au format csv
+        type:
+            - degat : une ligne par degat
+    '''
+
+    (columns, data) = get_declarations_csv(type)
+
+    print(len(data), len(columns))
+
+    return arrays_to_csv('declaration_oeasc.csv', data, columns, ';')
