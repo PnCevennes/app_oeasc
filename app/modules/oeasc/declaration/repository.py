@@ -381,7 +381,7 @@ def get_declarations_csv(type):
         d = [
             declaration['id_declaration'],
             declaration['declarant'],
-            declaration['organisme'].strip(),
+            declaration['organisme'].strip() if declaration['organisme'] else "",
             declaration['date'],
 
             # Foret
