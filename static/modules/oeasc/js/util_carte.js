@@ -472,7 +472,7 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
         var icon = d_degat_type_icon[cd_deg];
         var _id_gravite = 0;
         degat.degat_essences.forEach((degat_essence) => {
-          if (! degat_essence || ! degat_essence.id_nomenclature_degat_gravite) return; 
+          if (! degat_essence || ! degat_essence.id_nomenclature_degat_gravite) return;
           var gravite = degat_essence.id_nomenclature_degat_gravite;
           color = 'yellow';
           if(gravite.id_nomenclature > _id_gravite) {
@@ -485,6 +485,31 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       return s_tooltip;
     }
 
+
+    var s_popup_declaration = function(declaration) {
+      var s_popup = "";
+      s_popup += '<table class="table-sm table-popup">'
+      s_popup += '<tr><th colspan="4"><a href="/declaration/declaration/' + declaration.id_declaration + '"  target="_blank">Alerte ' + declaration.id_declaration + ' </a></th></tr>'
+      if(declaration.date) {
+        s_popup += '<tr><th>Date</th><td colspan="3">' + declaration.date.split(" ")[0] + '</td></tr>'
+      }
+      s_popup += '<tr><th>Nom Foret</th><td colspan="3">' + declaration.label_foret + '</td></tr>'
+      declaration.degats.forEach((degat) => {
+        s_popup += '<tr><th colspan="4">' + degat.id_nomenclature_degat_type.label_fr + '</th>';
+        degat.degat_essences.forEach((degat_essence) => {
+          s_popup += '<tr><td>' + degat_essence.id_nomenclature_degat_essence.label_fr + '</td>';
+          if(degat_essence.id_nomenclature_degat_gravite) {
+            s_popup += '<td>' + (degat_essence.id_nomenclature_degat_gravite.mnemonique) + '</td>';
+            s_popup += '<td>' + (degat_essence.id_nomenclature_degat_etendue.mnemonique) + '</td>';
+            s_popup += '<td>' + (degat_essence.id_nomenclature_degat_anteriorite.mnemonique) + '</td>';
+          }
+          s_popup +='</tr>'
+        });
+        s_popup += '</tr>';
+      });
+      s_popup += '</table>'
+      return s_popup;
+    }
 
     var s_legend_degats = function(declarations) {
       var s_legend = '<div style="background-color:lightgray; font-weight:bold">Types de dégats</div>';
@@ -529,23 +554,22 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
 
       var declaration = declarations[k];
       var id_declaration = declaration.id_declaration;
-      var s_popup = '<div><a href="/declaration/declaration/' + id_declaration + '"  target="_blank">Alerte ' + id_declaration + ' </a></div>';
+      var s_popup = s_popup_declaration(declaration);
       var centroid = declaration.centroid;
       var marker;
       if(config.centroid.type == "degat") {
         marker = L.circle(centroid);
-        var s_tooltip = s_tooltip_degats(declaration.degats);
-        // s_legend = '<div id="#legend-loc"><i style="color:black;font-size:0.5rem; text-align:center; transform:translateY(5px)" class="fas fa-circle"></i> ' + "Localisation des alertes" + '</div>';
-        var t = L.tooltip
-        marker.bindTooltip(s_tooltip, {
+        marker.bindTooltip(s_tooltip_degats(declaration.degats), {
           pane: 'PANE_5',
           permanent: true,
           direction: 'center',
           color: 'white',
           opacity: 1,
           fillOpacity: 1,
-          className: ' tooltip tooltip-' + config.centroid.type,}
-          );
+          interactive: true,
+          className: ' tooltip tooltip-' + config.centroid.type,
+        });
+
       } else if(config.centroid.type == "circle") {
         marker = L.circle(centroid);
         s_legend = '<div id="#legend-loc"><i style="color:black;font-size:0.5rem; text-align:center; transform:translateY(5px)" class="fas fa-circle"></i> ' + "Localisation des alertes" + '</div>';
