@@ -214,4 +214,4 @@ def declarations_csv(type):
 
     print(len(data), len(columns))
 
-    return arrays_to_csv('declaration_oeasc.csv', data, columns, ';')
+    return arrays_to_csv('declaration_oeasc', data, columns, ';')

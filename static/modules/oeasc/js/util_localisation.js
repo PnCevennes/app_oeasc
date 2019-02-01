@@ -3,33 +3,27 @@ $(document).ready(function() {
   "use strict";
 
   var initialiser_show_declarations = function(map_name, declarations, config) {
-
+    /*
+    Carte pour le tableau de déclaration
+    */
     var map = M.init_map(map_name, config);
 
     M.load_declarations_centroid(declarations, map, config);
-
-    var s_legend = '<div id="legend-gravite_faible"><i style="color: black;">●</i> Déclarations </div>';
-    $('#' + map_name).find(".legend").append(s_legend);
-
-    // var s_legend = '<div id="legend-gravite_faible"><i style="color: yellow;">●</i> Gravité : faible </div>';
-    // $('#' + map_name).find(".legend").append(s_legend);
-
-    // var s_legend = '<div id="legend-gravite_modérée"><i style="color: orange;">●</i> Gravité : modérée</div>';
-    // $('#' + map_name).find(".legend").append(s_legend);
-
-    // var s_legend = '<div id="legend-gravite_importante"><i style="color: red;">●</i> "Gravité : importante</div>';
-    // $('#' + map_name).find(".legend").append(s_legend);
 
   };
 
 
   var initialiser_show_localisation = function(map_name, declaration, config) {
+    /*
+    Carte pour la synthèse des déclarations
+    */
 
     var map = M.init_map(map_name, config);
-    var list_localisation = ["OEASC_CADASTRE", "OEASC_ONF_PRF"];
-    var list_foret = ["OEASC_DGD", "OEASC_ONF_FRT", 'OEASC_SECTION'];
+
 
     // initialisation des legendes pour tout les type présents dans M.list.data
+    var list_localisation = ["OEASC_CADASTRE", "OEASC_ONF_PRF"];
+    var list_foret = ["OEASC_DGD", "OEASC_ONF_FRT", 'OEASC_SECTION'];
     M.list.data.forEach(function(name) {
       var color;
       if(list_foret.includes(name)) {
@@ -46,8 +40,6 @@ $(document).ready(function() {
       if(['OEASC_CADASTRE', 'OEASC_ONF_PRF', 'OEASC_ONF_UG'].includes(name)) {
         s_text_legend = "Parcelle concernée par l'alerte"
       }
-
-
       var s_legend = '<div id="legend-' + name + '"><i style="background: ' + color + '; border: solid;"></i> ' + s_text_legend + '</div>';
       $('#map_' + map_name).find(".legend").append(s_legend);
     });
@@ -77,13 +69,14 @@ $(document).ready(function() {
       M.load_areas(areas_localisation, "localisation", map, zoom, b_tooltip);
     }
 
-    // centroid ??
+    // centroid
     if (config && config.centroid) {
       declaration.centroid && M.load_declarations_centroid([declaration], map, config);
     }
 
   };
 
+  //Export des fonctions
   M.initialiser_show_localisation = initialiser_show_localisation;
   M.initialiser_show_declarations = initialiser_show_declarations;
 

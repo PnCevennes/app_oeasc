@@ -22,6 +22,7 @@ def get_liste_organismes_oeasc():
 
     v = []
     for row in result:
+        print(row)
         if row[1] != "Autre (préciser)":
             v.append({'id_organism': row[0], 'nom_organisme': row[1]})
         else:

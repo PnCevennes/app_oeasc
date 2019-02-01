@@ -174,7 +174,7 @@ if [ "$DB_TYPE" == "all" ] || [ "$DB_TYPE" == "user" ]
 then
 
     echo ajout de l''application oeasc et utilisateurs de base
-    # . ${dir_script}/user/user.sh
+    . ${dir_script}/user/user.sh
 
 fi
 
