@@ -77,7 +77,7 @@ par exemple :
     //ign cartes
     var key = 'choisirgeoportail';
     var s_layer = 'GEOGRAPHICALGRIDSYSTEMS.MAPS';
-    var ign = L.tileLayer("http://wxs.ign.fr/" + key
+    var ign = L.tileLayer("https://wxs.ign.fr/" + key
       + "/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&"
       + "LAYER=" + s_layer + "&STYLE=normal&TILEMATRIXSET=PM&"
       + "TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg", {
@@ -89,7 +89,7 @@ par exemple :
 
     // ign ortho
     var s_layer = 'ORTHOIMAGERY.ORTHOPHOTOS';
-    var ign_ortho = L.tileLayer("http://wxs.ign.fr/" + key
+    var ign_ortho = L.tileLayer("https://wxs.ign.fr/" + key
       + "/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&"
       + "LAYER=" + s_layer + "&STYLE=normal&TILEMATRIXSET=PM&"
       + "TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg", {
