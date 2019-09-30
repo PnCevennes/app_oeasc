@@ -1,0 +1,42 @@
+{%- extends "modules/oeasc/site/layout.html" %}
+
+
+
+
+{% block header %}
+{% endblock header %}
+
+{%- block css %}
+
+{% include "modules/oeasc/site/css.html" %}
+<style type="text/css">
+  .container-fluid {padding:0; margin:0}
+</style>
+
+{%- endblock %}
+
+{%- block content %}
+<div style="height: 100%;">
+    <div id="map_accueil" class="map"></div>
+</div>
+{% endblock content %}
+
+{% block footer %}
+{% endblock footer %}
+
+{%- block js_local %}
+
+{{ super() }}
+
+<script>
+  $(document).ready(function() {
+    "use strict";
+
+    var map_init = M.carte_base_oeasc("accueil", {
+      type: ["secteurs", "zc", "aa"],
+      zoom: ["secteurs"]
+    });
+  });
+</script>
+
+{%- endblock js_local %}

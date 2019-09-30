@@ -26,5 +26,5 @@ static/documents
 procedure_install_server.sh
 
 var/log/*.log
-
+.vscode/*
 *.save

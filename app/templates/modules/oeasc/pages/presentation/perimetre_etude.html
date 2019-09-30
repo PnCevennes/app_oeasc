@@ -27,7 +27,7 @@
 </div>
 
 <div>
-  <div id="map_acceuil" class="map"></div>
+  <div id="map_accueil" class="map"></div>
 </div>
 
 <div class=text>
@@ -46,49 +46,10 @@
 
     "use strict";
 
-    var map_init = M.carte_base_oeasc("acceuil",{
+    var map_init = M.carte_base_oeasc("accueil",{
       type:["secteurs", 'zc', 'aa'],
       zoom:["secteurs"]
     });
-
-    // var l_Aire_Adhesion = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/AA_PNC', {
-    //   pane: 'PANE_0',
-    //   style: M.style.aa,
-    // }).addTo(map_init);
-
-    // var l_zone_coeur = new L.GeoJSON.AJAX('/api/ref_geo/areas_simples_from_type_code/l/ZC_PNC', {
-    //   pane: 'PANE_0',
-    //   style: M.style.zc
-    // }).addTo(map_init);
-
-    // $(".legend").append('<div id="#legend-aa"><i style="background: ' + M.color.zc + '; border: 1px solid darkgrey;"></i> ' +"Zone cœur du Parc national" + '</div>');
-
-    // $(".legend").append('<div id="#legend-zc"><i style="background: ' + M.color.aa + '; border: 1px solid darkgrey;"></i> ' +"Aire d'adhésion du Parc national" + '</div>');
-    // M.add_secteurs(map_init);
-
-    // var l_secteurs_OEASC = new L.GeoJSON.AJAX(
-    //   '/api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR',
-    //   {
-    //     style: M.style.secteur,
-    //     pane: 'PANE_1',
-    //     onEachFeature: function(feature, layer) {
-    //       var center = layer.getBounds().getCenter();
-    //       layer.bindTooltip(feature.properties.label, {
-    //         pane: 'PANE_4',
-    //         permanent: true,
-    //         direction: 'center',
-    //         color: color_secteur[feature.properties.area_code],
-    //         opacity: 1,
-    //         fillOpacity: 1,
-    //         className: 'secteur ' + feature.properties.area_code.replace(/ /g, "_"),
-    //       });
-    //     },
-    //   }
-    //   ).addTo(map_init);
-
-
-    // $(".legend").append('<div id="#legend-zc"><i style="background: lightgrey; border: 1px solid black;"></i> ' +"<b>Secteurs d'étude</b>" + '</div>');
-
 
   });
 

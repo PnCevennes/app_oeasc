@@ -42,6 +42,12 @@ def perimetre_etude():
     '''
     return render_template('modules/oeasc/pages/presentation/perimetre_etude.html')
 
+@bp.route('/perimetre_etude_carte')
+def perimetre_etude_carte():
+    '''
+        pourquoi du projet OEASC
+    '''
+    return render_template('modules/oeasc/pages/presentation/perimetre_etude_carte.html')
 
 @bp.route('/objectifs')
 def objectifs():

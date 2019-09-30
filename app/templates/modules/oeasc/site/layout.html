@@ -7,9 +7,7 @@
   <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.png')}}" />
 
   {%- block css %}
-
   {% include "modules/oeasc/site/css.html" %}
-
   {%- endblock %}
 
 
@@ -48,8 +46,9 @@
       {%- block content %}
       {%- endblock %}
     </div>
-
+  {% block footer %}
     {% include "modules/oeasc/site/footer.html" %}
+  {% endblock footer %}
   </div>
 
 
