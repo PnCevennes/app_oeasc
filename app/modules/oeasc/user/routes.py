@@ -93,12 +93,14 @@ def login():
         page de connection
     '''
 
+    browser = request.user_agent.browser
+
     redirect_url = request.args.get('redirect', "")
     token = request.args.get('token', "")
     identifiant = request.args.get('identifiant', "")
     type = request.args.get('type', "")
 
-    return render_template('modules/oeasc/user/login.html', config=config, redirect_url=redirect_url, token=token, identifiant=identifiant, type=type)
+    return render_template('modules/oeasc/user/login.html', config=config, redirect_url=redirect_url, token=token, identifiant=identifiant, type=type, browser=browser)
 
 
 @bp.route('/change_password/', defaults={'token': ""}, methods=['GET'])

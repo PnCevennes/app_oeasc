@@ -8,7 +8,13 @@
     {%- set ns = namespace() %}
 
     {%- if titre != "" %}
-      <label class="label-question" for="{{ name }}">{{ titre }} <i>{{" - 3 essences max." if multi}}</i><span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+      <label class="label-question" for="{{ name }}">{{ titre }} 
+        <i>
+            {%- if multi == "multi" %}
+          - <span class="red">(3 essences max.)</span>
+              {%- endif %}
+
+          </i><span class="big-red">{{ "*" if required!="" else "" }}</span></label>
     {%- endif %}
 
     {%- set ns.select_options="" %}

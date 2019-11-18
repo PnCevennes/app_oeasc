@@ -42,8 +42,12 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
 
     <tbody>
       <tr><th colspan=3> Informations</th></tr>
-      {% if declaration.meta_create_date %}
+      <tr>
+          <th>Id</th>
+          <td>{{declaration['id_declaration']}}</td>  
+      </tr>
 
+      {% if declaration.meta_create_date %}
       <tr>
         <th>Date</th>
         <td>{{utils.print_date(declaration['meta_create_date'])}}</td>

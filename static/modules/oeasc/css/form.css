@@ -6,10 +6,14 @@
 
 }
 
-.rouge {
+.big-red {
 
   color: red;
   font-size: 1.5em;
+}
+
+.red {
+  color: red;
 }
 
 /* form degats */

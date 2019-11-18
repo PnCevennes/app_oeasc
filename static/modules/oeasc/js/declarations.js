@@ -14,13 +14,24 @@ $(document).ready(function() {
     columnDefs: [{
       "targets": [ table_indices['ID'] ],
       "width": "30px",
-    }, {
+    },
+    {
       "targets": [ table_indices['Parcelles'] ],
       "width": "100px",
-    }, {
+    },
+    {
       "targets": [ table_indices['Commune(s)'], table_indices['Nom forêt'] ],
       "width": "100px",
-    }],
+    },
+    {
+      "targets": [ table_indices['Act.'] ],
+      "width": "10px",
+    },  
+    {
+      "targets": [ table_indices['Organisme'] ],
+      "width": "30px",
+    },
+  ],
 
     // searching: false,
     scrollY:  "400px",
@@ -236,13 +247,13 @@ $(document).ready(function() {
 
   var selection_tout = []
   for(var i = 0; i < table.columns()[0].length; i++) {
-    if(i!=1) {
+    if(i!=table_indices['Commune(s)']) {
       selection_tout.push(i);
     }
   }
 
 
-  var selection_reduite = [0, 2, 3, 4, 5, 11];
+  var selection_reduite = [0, 1, 2, 3, 4, 5, 11];
 
   $("[data-type=T]").click(function () {
     /* Onglet tableau

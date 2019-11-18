@@ -10,6 +10,17 @@
 
         <div>
 
+            {%- if (browser in ['msie', 'safari', 'opera']) %}
+            <div class="alert alert-danger" >
+
+                Pour une meilleure expérience sur le site de l'Observatoire de l'Équilibre Agro-Sylvo-Cinégétique, veuillez utiliser le navigateur internet 
+                    <a href='https://www.mozilla.org/fr/firefox/new/'>Firefox</a>
+                    ou
+                    <a href="">Chrome</a>.
+
+            </div>
+            {%- endif %}
+
             <h2>Connexion</h2>
 
             <div>

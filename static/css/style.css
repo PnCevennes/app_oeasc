@@ -20,7 +20,6 @@ word-break: normal;
 }
 
 .datatable select {
-  width: 100%;
   padding: 3px;
   box-sizing: border-box;
 }
@@ -137,4 +136,3 @@ div.dropdown-menu  {
 
   z-index: 2000;
 }
-

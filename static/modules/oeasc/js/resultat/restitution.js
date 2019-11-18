@@ -68,6 +68,7 @@ $(document).ready(function() {
     // transforme les cartes leaftlet en PNG
     return new Promise((resolve, reject) => {
 
+      console.log("#pdf_infos", $("#pdf_infos"), id_element)
       $("#pdf_infos") && $("#pdf_infos").show()
 
       var f_array = [1];

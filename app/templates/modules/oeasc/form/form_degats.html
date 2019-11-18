@@ -17,7 +17,7 @@
 
     <div id="NOMENCLATURE_DEGAT_TYPE" class="checkbox-group-required form-group" style="display: block;">
 
-      <label for="nomenclatures_degat_type"><b>Types de dégâts</b><span class="rouge">{{ "*" if required!="" else "" }}</span></label>
+      <label for="nomenclatures_degat_type"><b>Types de dégâts</b><span class="big-red">{{ "*" if required!="" else "" }}</span></label>
 
       {%- for elem in nomenclature.OEASC_DEGAT_TYPE['values'] %}
 
@@ -56,7 +56,7 @@
 
         <div class="degat-essence custom-control"  class="dg">
 
-          <div><label for="id_nomenclature_degat_essence"><i class="dg">Essence - (3 essences maximum)</i></label></div>
+          <div><label for="id_nomenclature_degat_essence"><i class="dg">Essence - <span class="red">(3 essences max.)</span></i></label></div>
           {%- if cd_nomenclature_degat_type != "ABS" %}
           <div><label for="id_nomenclature_degat_etendue"><i class="dg">Étendue des dégâts</i></label></div>
           <div><label for="id_nomenclature_degat_gravite"><i class="dg">Gravité des dégâts</i></label></div>
@@ -209,7 +209,7 @@
 
   </div>
 
-  <div><p><i><span class="rouge">*</span> Obligatoire.</i></p></div>
+  <div><p><i><span class="big-red">*</span> Obligatoire.</i></p></div>
 
   <div class="align-right">
     <input {{ ns.input_disabled }} id="input_degat_essence" type=submit value="{{'Veuillez valider les dégâts avant de passer à la suite' if ns.input_disabled else 'Suivant'}}" class="btn btn-success" data-toggle="tooltip" title="{{'Veuillez valider les dégâts avant de passer à la suite' if ns.input_disabled else 'Vous pouvez valider les dégâts et passer à la suite du formulaire'}}">
