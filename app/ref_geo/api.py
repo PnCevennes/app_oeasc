@@ -1,6 +1,7 @@
 from flask import (
     Blueprint,
-    request
+    request,
+    current_app
 )
 
 from .models import (
@@ -28,6 +29,9 @@ from .repository import (
 )
 
 bp = Blueprint('ref_geo', __name__)
+
+config = current_app.config
+DB = config['DB']
 
 
 @bp.route('type_codes_oeasc')

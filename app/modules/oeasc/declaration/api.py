@@ -27,8 +27,6 @@ from .models import (
     TDeclaration,
 )
 
-# from app.utils.env import DB
-
 from app.utils.utilssqlalchemy import json_resp
 
 from .mail import send_mail_validation_declaration
