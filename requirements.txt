@@ -23,7 +23,7 @@ six==1.11.0
 sqlacodegen==2.0.0
 SQLAlchemy==1.2.8
 toml==0.9.4
-Werkzeug==0.14.1
+Werkzeug==0.15.3
 WTForms==2.2.1
 #https://github.com/PnX-SI/UsersHub-authentification-module/develop.zip
 https://github.com/PnX-SI/Nomenclature-api-module/archive/master.zip
