@@ -234,6 +234,8 @@ var reset_proprietaire = function() {
 
     // - peuplement
 
+    declaration.peuplement_surface = parseInt($("#peuplement_surface").val());
+
     // - - essences
 
     declaration.id_nomenclature_peuplement_essence_principale = parseInt($("[name=id_nomenclature_peuplement_essence_principale] option:selected").val());
@@ -251,6 +253,7 @@ var reset_proprietaire = function() {
 
     declaration.b_peuplement_protection_existence = get_choice("b_peuplement_protection_existence");
     declaration.nomenclatures_peuplement_protection_type = get_cor("nomenclatures_peuplement_protection_type", "id_nomenclature", "check");;
+
 
     if($('#autre_protection').length) {
 
@@ -279,6 +282,10 @@ var reset_proprietaire = function() {
     // - commentaires
 
     declaration.commentaire = $('#commentaire').val().trim();
+
+    // - autorisation
+    declaration.b_autorisation = $("[name=b_autorisation]").prop('checked');
+
 
     return declaration;
 

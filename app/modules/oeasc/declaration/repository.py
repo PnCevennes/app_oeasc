@@ -307,25 +307,25 @@ def resume_gravite(declaration_dict):
     declaration_dict['gravite'] = gravite
 
 
-def nomenclatures_to_str(nomenclatures):
+def nomenclatures_to_str(nomenclatures, field_name="mnemonique"):
 
     if not nomenclatures:
         return ""
 
-    return " ,".join(e["label_fr"] for e in nomenclatures)
+    return " ,".join(e[field_name] for e in nomenclatures)
 
 
-def id_nomenclature_to_str(id_nomenclature):
+def id_nomenclature_to_str(id_nomenclature, field_name="mnemonique"):
 
     if not id_nomenclature:
         return ""
 
-    return id_nomenclature["label_fr"]
+    return id_nomenclature[field_name]
 
 
-def get_declarations_csv(type):
+def get_declarations_csv(type_csv):
     '''
-        type:
+        type_csv:
             "degat" -> renvoie une ligne par degat déclaré
     '''
 
@@ -339,12 +339,13 @@ def get_declarations_csv(type):
         'Nom_forêt',
         'Statut_foret',
         'Documentée',
+        'Secteur',
         'Communes',
         'Parcelles',
 
-        'Essence principale',
-        'Essence(s) secondaire(s)',
-        'Essence(s) complémentaire(s)',
+        'Ess. 1',
+        'Ess. 2',
+        'Ess. 3',
 
         'Type de peuplement',
         'Origine du peuplement',
@@ -363,7 +364,7 @@ def get_declarations_csv(type):
 
     ]
 
-    if type == "degat":
+    if type_csv == "degat":
 
         columns += [
             "Type de dégât",
@@ -388,6 +389,7 @@ def get_declarations_csv(type):
             declaration['label_foret'],
             "Public" if declaration['b_statut_public'] else "Privée",
             "Oui" if declaration['b_document'] else "Non",
+            ", ".join([a['label'] for a in get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_SECTEUR')]),
             ", ".join([a['area_name'] for a in get_areas_from_type_code(declaration['areas_foret'], 'OEASC_COMMUNE')]),
             ", ".join([a['label']for a in
                       get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_ONF_PRF') +
@@ -417,7 +419,7 @@ def get_declarations_csv(type):
             id_nomenclature_to_str(declaration["id_nomenclature_peuplement_acces"]),
         ]
 
-        if type == "degat":
+        if type_csv == "degat":
             for degat in declaration.get('degats', []):
                 if degat.get('degat_essences'):
                     for degat_essence in degat["degat_essences"]:

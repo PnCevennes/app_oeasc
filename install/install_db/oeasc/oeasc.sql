@@ -107,9 +107,12 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
     id_nomenclature_peuplement_paturage_statut INTEGER,
     id_nomenclature_peuplement_acces INTEGER,
     id_nomenclature_peuplement_essence_principale INTEGER,
+    peuplement_surface DOUBLE PRECISION,
+
 
     b_peuplement_protection_existence BOOLEAN,
     b_peuplement_paturage_presence BOOLEAN,
+    b_autorisation BOOLEAN,
 
     autre_protection text,
 

@@ -30,7 +30,7 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
 
 
 
-<h2>Déclaration</h2>
+<h2>Déclaration n° {{declaration['id_declaration']}}</h2>
 
 {%- set foret = declaration["foret"]%}
 
@@ -42,11 +42,14 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
 
     <tbody>
       <tr><th colspan=3> Informations</th></tr>
-      <tr>
+      <!-- <tr>
           <th>Id</th>
           <td>{{declaration['id_declaration']}}</td>  
-      </tr>
-
+      </tr> -->
+      <tr>
+        <th>Partage d'information</th>
+        <td>{%- if declaration.b_autorisation %} Autorisé {%- else %} Non autorisé {%- endif %}</td>  
+    </tr>
       {% if declaration.meta_create_date %}
       <tr>
         <th>Date</th>
@@ -138,6 +141,11 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
       <tr>
         <th colspan="3">Peuplement - <i>description</i></th>
       </tr>
+      <tr>
+        <th>Superficie (ha)</th>
+        <td>{{ declaration.peuplement_surface or 'Non renseignée' }}</td>
+      </tr>
+
       <tr>
         <th>Origine</th>
         <td>{{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}</td>

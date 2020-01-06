@@ -1,4 +1,5 @@
 {%- include "modules/oeasc/form/fil_ariane.html"%}
+{%- import "modules/oeasc/macros/macros_form.html" as macros_form %}
 
 <div id="id_form" data-id-form="{{ id_form }}" style="display: none;"></div>
 
@@ -48,8 +49,8 @@
 </form>
 
 
-<form id="form_declaration" data-id-declaration="{{declaration['id_declaration']}}" data-id-declarant={{ declaration['id_declarant'] if declaration['id_declarant'] else session.current_user.id_role}}>
 
+<form id="form_declaration" data-id-declaration="{{declaration['id_declaration']}}" data-id-declarant={{ declaration['id_declarant'] if declaration['id_declarant'] else session.current_user.id_role}}>
   <h4>Validation</h4>
 
   <div class="text-large">
@@ -61,6 +62,14 @@
       <p>Nous comptons donc sur vous et votre honnêteté pour honorer la confiance que nous vous accordons.</p>
     </div>
 
+    
+    <div class="custom-control form-group" style="display: block;">
+      <label for="b_autorisation">
+      <input id="b_autorisation" name="b_autorisation" value="{{ declaration.b_autorisation }}" {{"checked" if declaration.b_autorisation}} type="checkbox" />
+      
+      J’autorise que les informations fournies dans ce formulaire soient transmises aux responsables cynégétiques locaux, pour pouvoir adapter la pression de chasse.
+            </label>
+          </div>
     <p class="alert alert-orange">Merci de vérifier ci-dessous le contenu de votre déclaration de dégâts avant de cliquer sur "envoyer le formulaire" (validation définitive).</p>
   </div>
 

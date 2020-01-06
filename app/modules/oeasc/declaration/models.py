@@ -235,6 +235,7 @@ class TDeclaration(DB.Model):
 
     b_peuplement_protection_existence = DB.Column(DB.Boolean)
     b_peuplement_paturage_presence = DB.Column(DB.Boolean)
+    b_autorisation = DB.Column(DB.Boolean)
 
     areas_localisation = DB.relationship(CorAreasDeclaration, cascade="save-update, merge, delete, delete-orphan")
 
@@ -245,6 +246,9 @@ class TDeclaration(DB.Model):
     nomenclatures_peuplement_paturage_type = DB.relationship(CorNomenclatureDeclarationPaturageType, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_paturage_saison = DB.relationship(CorNomenclatureDeclarationPaturageSaison, cascade="save-update, merge, delete, delete-orphan")
     nomenclatures_peuplement_espece = DB.relationship(CorNomenclatureDeclarationEspece, cascade="save-update, merge, delete, delete-orphan")
+
+    peuplement_surface = DB.Column(DB.Float)
+
 
     degats = DB.relationship(TDegat, cascade="save-update, merge, delete, delete-orphan")
 
