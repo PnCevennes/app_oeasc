@@ -512,7 +512,7 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
     }
 
     var s_legend_degats = function(declarations) {
-      var s_legend = '<div style="background-color:lightgray; font-weight:bold">Types de dégats</div>';
+      var s_legend = '<div style="background-color:lightgray; font-weight:bold">Types de dégâts</div>';
       var v_degat=[];
       declarations.forEach((declaration) => {
 
@@ -526,7 +526,7 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
           }
         });
       });
-      s_legend += '<div style="background-color:lightgray; font-weight:bold">Gravité des dégats</div>';
+      s_legend += '<div style="background-color:lightgray; font-weight:bold">Gravité des dégâts</div>';
       s_legend += '<div><i style="text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000; font-size:1.2rem; text-align:center;color:yellow; " class="fas fa-square"></i> Faibles </div>';
       s_legend += '<div><i style="text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000; font-size:1.2rem; text-align:center;color:orange; " class="fas fa-square"></i> Moyens </div>';
       s_legend += '<div><i style="text-shadow: 0 0 0.3em #000000, 0 0 0.5em #000000; font-size:1.2rem; text-align:center;color:red; " class="fas fa-square"></i> Imortants </div>';

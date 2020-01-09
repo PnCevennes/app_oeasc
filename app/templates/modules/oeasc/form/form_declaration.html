@@ -64,11 +64,24 @@
 
     
     <div class="custom-control form-group" style="display: block;">
-      <label for="b_autorisation">
+      
+      {{ macros_form.choix(
+        'Oui',
+        'Non',
+        'b_autorisation',
+        'J’autorise que les informations fournies dans ce formulaire soient transmises aux responsables cynégétiques locaux, pour pouvoir adapter la pression de chasse.',
+        object=declaration
+        ) 
+      }}
+      <div>
+        <div><p><i><span class="big-red">*</span> Obligatoire.</i></p></div>
+      </div>
+
+      <!-- <label for="b_autorisation">
       <input id="b_autorisation" name="b_autorisation" value="{{ declaration.b_autorisation }}" {{"checked" if declaration.b_autorisation}} type="checkbox" />
       
       J’autorise que les informations fournies dans ce formulaire soient transmises aux responsables cynégétiques locaux, pour pouvoir adapter la pression de chasse.
-            </label>
+            </label> -->
           </div>
     <p class="alert alert-orange">Merci de vérifier ci-dessous le contenu de votre déclaration de dégâts avant de cliquer sur "envoyer le formulaire" (validation définitive).</p>
   </div>

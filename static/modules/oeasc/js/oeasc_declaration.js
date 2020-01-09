@@ -517,7 +517,9 @@ $(document).ready(function() {
 
     // $('.filter-option-inner-inner').css("color", "red");
     // $('.filter-option-inner-inner').css("background-color", "rgba(255, 0, 0, 0.3)");
-
+    $('[name=b_autorisation]').change(function() {
+      recharger_form();
+    });
 
   };
 

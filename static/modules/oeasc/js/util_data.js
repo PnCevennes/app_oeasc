@@ -284,7 +284,8 @@ var reset_proprietaire = function() {
     declaration.commentaire = $('#commentaire').val().trim();
 
     // - autorisation
-    declaration.b_autorisation = $("[name=b_autorisation]").prop('checked');
+    // declaration.b_autorisation = $("[name=b_autorisation]").prop('checked');
+    declaration.b_autorisation = get_choice("b_autorisation");
 
 
     return declaration;
