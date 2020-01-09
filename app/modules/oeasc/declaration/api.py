@@ -1,6 +1,17 @@
-from flask import Blueprint, render_template, request, current_app
+'''
+'''
+
 import copy
+from app.utils.utilssqlalchemy import json_resp
+
+from flask import Blueprint, render_template, request, current_app
+from flask.helpers import send_from_directory
+
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
+from app.utils.env import ROOT_DIR
+
+from utils_flask_sqla_geo.generic import GenericQueryGeo, GenericTableGeo
+
 
 from .repository import (
     get_declarations,
@@ -27,11 +38,15 @@ from .models import (
     TDeclaration,
 )
 
-from app.utils.utilssqlalchemy import json_resp
 
 from .mail import send_mail_validation_declaration
 
 from ..user.utils import check_auth_redirect_login
+
+
+
+
+
 bp = Blueprint('declaration_api', __name__)
 
 config = current_app.config
@@ -210,6 +225,36 @@ def declarations_csv(type):
 
     (columns, data) = get_declarations_csv(type)
 
-    print(len(data), len(columns))
-
     return arrays_to_csv('declaration_oeasc', data, columns, ';')
+
+
+@bp.route('declarations_shape/<type_out>', methods=['GET'])
+@bp.route('declarations_shape/', defaults={'type_out': ''}, methods=['GET'])
+@check_auth_redirect_login(5)
+def declarations_shape(type_out):
+    '''
+        renvoie la liste de déclarations au format shape
+        type:
+            - degat : une ligne par degat
+    '''
+
+
+    export_view = GenericTableGeo(
+        'vl_declarations', "oeasc", DB.engine, geometry_field='geom', srid=4326
+    )
+
+    data = DB.session.query(export_view.tableDef).all()
+
+    data = [d for d in data if d.geom is not None]
+
+    file_name = 'oeasc_declarations'
+    dir_path = str(ROOT_DIR / "static/shapefiles")
+
+    export_view.as_shape(
+        export_view.db_cols,
+        data=data,
+        dir_path=dir_path,
+        file_name=file_name
+    )
+
+    return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)

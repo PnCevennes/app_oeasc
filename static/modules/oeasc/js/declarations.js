@@ -48,10 +48,10 @@ $(document).ready(function() {
       columns: ':not(.noVis)',
       text: 'Choisir les informations à afficher'
     },
-    {
-      extend: 'csv',
-      text: 'Exporter au format CSV'
-    }
+    // {
+    //   extend: 'csv',
+    //   text: 'Exporter au format CSV'
+    // }
     ]
     // rowGroup: {
     //   dataSrc: 'group'

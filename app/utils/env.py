@@ -10,7 +10,7 @@ from config import config
 DB = SQLAlchemy()
 mail = Mail()
 
-ROOT_DIR = Path(__file__).absolute().parent.parent.parent.parent
+ROOT_DIR = Path(__file__).absolute().parent.parent.parent
 
 URL_REDIRECT = "{}/{}".format(config.URL_APPLICATION, "oeasc/login")
 # URL_REDIRECT = "login/"

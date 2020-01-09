@@ -183,3 +183,40 @@ AS $body$
     ORDER BY 1
   );
 $body$;
+
+
+CREATE OR REPLACE FUNCTION ref_geo.get_area_name(myidarea integer DEFAULT NULL::integer)
+  RETURNS character varying AS
+$BODY$
+--Function which return the label from the id_nomenclature
+DECLARE
+	theareaname character varying;
+  BEGIN
+  SELECT INTO theareaname mnemonique
+  FROM ref_geo.l_areas n
+  WHERE id_area = myidarea;
+return theareaname;
+  END;
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;
+ALTER FUNCTION ref_geo.get_area_name(integer)
+  OWNER TO dbadmin;
+
+
+  CREATE OR REPLACE FUNCTION ref_geo.get_area_names(myidareas integer[])
+  RETURNS character varying AS
+$BODY$
+--Function which return the label from the id_nomenclature
+DECLARE
+	theareanames character varying;
+  BEGIN
+  SELECT INTO theareanames STRING_AGG(areaname, ', ')
+  FROM (SELECT ref_geo.get_area_name(UNNEST(myidareas)) AS areaname)a;
+return theareanames;
+  END;
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;
+ALTER FUNCTION ref_geo.get_area_names(integer[])
+  OWNER TO dbadmin;
