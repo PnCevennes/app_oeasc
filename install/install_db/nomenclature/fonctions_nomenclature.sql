@@ -62,3 +62,23 @@ $BODY$
   COST 100;
 ALTER FUNCTION ref_nomenclatures.get_nomenclature_mnemoniques(integer[])
   OWNER TO dbadmin;
+
+
+  --
+CREATE OR REPLACE FUNCTION ref_nomenclatures.get_nomenclature_labels(myidsnomenclature integer[])
+  RETURNS character varying AS
+$BODY$
+--Function which return the label from the id_nomenclature
+DECLARE
+	thelabels character varying;
+  BEGIN
+  SELECT INTO thelabels STRING_AGG(label, ', ')
+  FROM (SELECT ref_nomenclatures.get_nomenclature_label(UNNEST(myidsnomenclature)) AS label)a;
+return thelabels;
+  END;
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;
+ALTER FUNCTION ref_nomenclatures.get_nomenclature_labels(integer[])
+  OWNER TO dbadmin;
+

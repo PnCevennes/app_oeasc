@@ -1,6 +1,5 @@
 {%- extends "modules/oeasc/site/layout.html" %}
 
-
 {%- block title %} utilisateurs {%- endblock %}
 
 {%- block content %}
@@ -26,6 +25,7 @@
             <th>Rôle</th>
             <th>Droits</th>
             <th>Nb. déclarations</th>
+            <th>Date inscription (A. M. J.)</th>
           </tr>
         </thead>
 
@@ -57,7 +57,8 @@
               {% endif %}
 
             </td>
-            <td>{{user.nb_declarations}}</td>
+            <td>{{ user.nb_declarations }}</td>
+            <td>{{ utils.print_date(user.date_insert) }}</td>
           </tr>
 
           {% endfor %}

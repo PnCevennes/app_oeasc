@@ -30,7 +30,7 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
 
 
 
-<h2>Déclaration {{ 'n° '+ declaration['id_declaration'] if declaration['id_declaration']}}</h2>
+  <h2>Déclaration {{ 'n° '+ utils.to_string(declaration['id_declaration']) if declaration['id_declaration']}}</h2>
 
 {%- set foret = declaration["foret"]%}
 
@@ -235,7 +235,7 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
     {% if declaration.commentaire %}
     <tbody>
       <tr>
-        <th colspan="3">Comentaires</th>
+        <th colspan="3">Commentaires</th>
       </tr>
       <tr>
         <th></th>
@@ -243,9 +243,10 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
           {{ declaration.commentaire|nl2br or "" }}
         </td>
       </tr>
+      
     </tbody>
     {% endif %}
-
+    
   </table>
 </div>
 

@@ -13,6 +13,12 @@ CREATE OR REPLACE VIEW oeasc.v_declarations AS
             FROM oeasc.cor_areas_forets c
             JOIN ref_geo.l_areas l
 		ON c.id_area = l.id_area
+	    WHERE c.id_foret = d.id_foret)
+            AS areas_foret,
+        (SELECT ARRAY_AGG(c.id_area)
+            FROM oeasc.cor_areas_forets c
+            JOIN ref_geo.l_areas l
+		ON c.id_area = l.id_area
 	    WHERE c.id_foret = d.id_foret
             AND l.id_type in (
                     ref_geo.get_id_type('OEASC_COMMUNE')))
@@ -82,7 +88,7 @@ CREATE OR REPLACE VIEW oeasc.v_declarations AS
         JOIN utilisateurs.t_roles AS r ON r.id_role = d.id_declarant
         JOIN oeasc.t_forets AS f ON d.id_foret = f.id_foret;
 
-SELECT * FROM oeasc.v_declarations
+SELECT * FROM oeasc.v_declarations;
 
 
 
@@ -146,4 +152,20 @@ CREATE OR REPLACE VIEW oeasc.vl_declarations AS
     JOIN oeasc.v_declarations AS v
         ON d.id_declaration = v.id_declaration;
 
-SELECT * FROM oeasc.vl_declarations
+
+DROP VIEW IF EXISTS oeasc.v_declarations CASCADE;
+CREATE OR REPLACE VIEW oeasc.v_declarations AS
+
+    WITH f AS (
+	    SELECT 
+            id_foret,
+            label_foret as "Nom forêt",
+            CASE WHEN b_statut_public THEN 'Public' ELSE 'Privé' END AS "Statut forêt"
+            FROM oeasc.t_forets
+    )
+    SELECT 
+        f.*
+        FROM oeasc.t_declarations d
+        JOIN f 
+            ON f.id_foret = d.id_foret
+;

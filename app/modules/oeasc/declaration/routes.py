@@ -79,7 +79,12 @@ def declaration(id_declaration):
 
         TODO
     '''
+
+    print('a')
+
     declaration_dict = get_declaration(id_declaration)
+
+    print('aaa', declaration_dict)
 
     return render_template(
         'modules/oeasc/pages/declaration/declaration.html',

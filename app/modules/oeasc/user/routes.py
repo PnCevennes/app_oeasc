@@ -10,7 +10,6 @@ from .repository import (
 )
 from pypnusershub.db.models import User
 
-
 config = current_app.config
 
 bp = Blueprint('user', __name__)

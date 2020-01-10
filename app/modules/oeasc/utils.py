@@ -58,6 +58,8 @@ def get_some_config(config_text):
 
     return {k: v for k, v in config_text.items() if k in keys}
 
+def to_string(x):
+    return str(x)
 
 utils_dict = {
     "copy_list": copy_list,
@@ -66,4 +68,5 @@ utils_dict = {
     'get_areas_from_type_code': get_areas_from_type_code,
     'get_foret_type': get_foret_type,
     'get_some_config': get_some_config,
+    'to_string': to_string
 }

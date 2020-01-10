@@ -10,8 +10,8 @@ from flask.helpers import send_from_directory
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
 from app.utils.env import ROOT_DIR
 
-from utils_flask_sqla_geo.generic import GenericQueryGeo, GenericTableGeo
-
+from utils_flask_sqla.generic import GenericTable
+from utils_flask_sqla_geo.generic import GenericTableGeo
 
 from .repository import (
     get_declarations,
@@ -223,7 +223,16 @@ def declarations_csv(type):
             - degat : une ligne par degat
     '''
 
-    (columns, data) = get_declarations_csv(type)
+#    (columns, data) = get_declarations_csv(type)
+    export_view = GenericTable(
+        'vl_declarations',
+        "oeasc",
+        DB.engine
+    )
+
+    q = DB.session.query(export_view.view)
+
+    data = q.all()
 
     return arrays_to_csv('declaration_oeasc', data, columns, ';')
 
@@ -238,9 +247,12 @@ def declarations_shape(type_out):
             - degat : une ligne par degat
     '''
 
-
     export_view = GenericTableGeo(
-        'vl_declarations', "oeasc", DB.engine, geometry_field='geom', srid=4326
+        'vl_declarations',
+        "oeasc",
+        DB.engine,
+        geometry_field='geom',
+        srid=4326
     )
 
     data = DB.session.query(export_view.tableDef).all()

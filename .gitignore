@@ -21,10 +21,12 @@ static/data/*.json
 
 static/node_modules
 static/documents
-# static/package-lock.json
+static/shapefiles/*
+!static/shapefiles/.gitkeep
 
 procedure_install_server.sh
 
 var/log/*.log
 .vscode/*
 *.save
+

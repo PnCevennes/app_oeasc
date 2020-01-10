@@ -10,24 +10,25 @@
 
 {%- endblock %}
 
+
 {%- block contentright %}
 
 <div>
-      <div id="pdf_infos" style="display:none">
-        <div id="pdf_infos_text">
-          <p>PDF en cours de génération.</p>
-          <p>Veuillez patientez <span class="fa fa-spinner spin"></span></p>
-          <p>Détails : <span id="pdf_details">...</span></p>
-        </div>
-
-      </div>
+  <div id="pdf_infos" style="display:none">
+    <div id="pdf_infos_text">
+      <p>PDF en cours de génération.</p>
+      <p>Veuillez patientez <span class="fa fa-spinner spin"></span></p>
+      <p>Détails : <span id="pdf_details">...</span></p>
     </div>
+    
+  </div>
+</div>
 
 <div id="declaration_display">
-
-
+  
+  
   {%- if declaration %}
-  {% set map_display="ok"%}
+  {% set map_display="ok" %}
   {%- include "modules/oeasc/entity/declaration_table.html" %}
   {%- else %}
   <div class="alert alert-danger">
