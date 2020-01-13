@@ -46,13 +46,15 @@
             <th>Déclarant</th>
             <th>Organisme</th>
             <th>Date</th>
-            <th>Nom forêt</th>
-            <th>Commune(s)</th>
-            <th>Parcelles</th>
-            <th>Ess. objectif</th>
-            <th>Type peuplement</th>
-            <th>Origine</th>
-            <th>Type dégâts</th>
+            {#
+              <th>Nom forêt</th>
+              <th>Commune(s)</th>
+              <th>Parcelles</th>
+              <th>Ess. objectif</th>
+              <th>Type peuplement</th>
+              <th>Origine</th>
+              <th>Type dégâts</th>
+              #}
           </tr>
         </thead>
 
@@ -67,11 +69,11 @@
           {%- endif %}
 
           <tr>
+
             <td>
               <i class="btn-action" onclick="M.set_tab_declaration({{ declaration['id_declaration'] }});" title="Voir les détails de la déclaration" data-toggle="tooltip">
                 <span class="fas fa-eye"></span>
               </i>
-
               {%- if cond_modifier_effacer %}
               <a class="btn-action" target="_blank" href="{{ url_for('declaration.modifier_declaration', id_declaration=declaration['id_declaration'])}}" title="Modifier la déclaration" data-toggle="tooltip">
                 <span class="fas fa-pen"></span>
@@ -79,35 +81,37 @@
               {%- endif %}
             </td>
             <td>{{ declaration['id_declaration'] }}</td>
-            <td>{{ declaration['declarant'] }}</td>
-            <td>{{ declaration['organisme']}}</td>
-            <td>{{utils.print_date(declaration['date'])}}</td>
-            <td><span data-toggle="tooltip" title="{{declaration['label_foret']}}">{{declaration['label_foret']}}</span></td>
-            <td>{{ macros_display.tooltip_areas('OEASC_COMMUNE', declaration["areas_foret"]) }}</td>
-            <td>
-              {{ macros_display.tooltip_areas('OEASC_CADASTRE', declaration["areas_localisation"]) }}
-              {{ macros_display.tooltip_areas('OEASC_ONF_PRF', declaration["areas_localisation"]) }}
-            </td>
-            <td>
-              <b>{{ macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale) }}</b>
-              {{macros_display.tooltip_mnemonique(declaration.nomenclatures_peuplement_essence_secondaire)}}
-            </td>
-            <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_type)}}</td>
-            <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine)}}</td>
-            <td>{{macros_display.tooltip_mnemonique(declaration.nomenclatures_degat_type)}}</td>
-          </tr>
-          {%- endfor %}
-        </tbody>
-      </table>
-    </div>
-
-    <div id="show_declarations"  class="col-md-6">
-      <div id="map_show_declarations" class="map leaftlet-map"></div>
-      <div id="chargement">
-        <div>Chargement en cours <span class="fa fa-spinner"></span></div>
+            <td>{{ declaration['Déclarant'] }}</td>
+            <td>{{ declaration['Organisme']}}</td>
+            <td data-sort='<%= my_date.strftime("%d%m%Y") %>'>{{utils.print_date(declaration['Date (A M J)'])}}</td>
+            {#
+              <td><span data-toggle="tooltip" title="{{declaration['label_foret']}}">{{declaration['label_foret']}}</span></td>
+              <td>{{ macros_display.tooltip_areas('OEASC_COMMUNE', declaration["areas_foret"]) }}</td>
+              <td>
+                {{ macros_display.tooltip_areas('OEASC_CADASTRE', declaration["areas_localisation"]) }}
+                {{ macros_display.tooltip_areas('OEASC_ONF_PRF', declaration["areas_localisation"]) }}
+              </td>
+              <td>
+                <b>{{ macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale) }}</b>
+                {{macros_display.tooltip_mnemonique(declaration.nomenclatures_peuplement_essence_secondaire)}}
+              </td>
+              <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_type)}}</td>
+              <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine)}}</td>
+              <td>{{macros_display.tooltip_mnemonique(declaration.nomenclatures_degat_type)}}</td>
+              #}
+            </tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+      
+      <div id="show_declarations"  class="col-md-6">
+        <div id="map_show_declarations" class="map leaftlet-map"></div>
+        <div id="chargement">
+          <div>Chargement en cours <span class="fa fa-spinner"></span></div>
+        </div>
       </div>
     </div>
-  </div>
 
 </div>
 </div>

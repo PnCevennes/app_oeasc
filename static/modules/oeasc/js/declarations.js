@@ -7,6 +7,8 @@ $(document).ready(function() {
   var color_selected = 'rgba(255, 165, 0)';
   var color_not_selected = 'rgb(222, 226, 230);';
 
+  var no_search_columns = ['Act.'];
+
   // option du tableau
   var table_indices = {};
   $("thead th").each( (i,e) => table_indices[$(e).html()]=i );
@@ -76,7 +78,11 @@ $(document).ready(function() {
 
     $('.dataTables_scrollHead thead th').each( function () {
       var title = $(this).text();
-      $('#column_search').append( '<th><input type="text" placeholder="'+title+'" /></th>' );
+      if(!no_search_columns.includes(title)) {
+        $('#column_search').append( '<th><input type="text" placeholder="'+title+'" /></th>' );
+      } else {
+        $('#column_search').append('<th></th>')
+      }
     } );
 
 

@@ -97,7 +97,7 @@ def declaration(id_declaration):
 
 @bp.route('/declarations')
 @check_auth_redirect_login(1)
-def declarations():
+def route_declarations():
     '''
         page affichant la liste de declaration d'un utilisateur et de sa strucutre
         (sauf le cas ou structure = 'Particulier')
@@ -114,7 +114,14 @@ def declarations():
 
     declarations = get_declarations(False, id_declarant)
 
-    return render_template('modules/oeasc/pages/declaration/declarations.html', declarations=declarations, nomenclature=nomenclature)
+
+    print(declarations[0])
+
+    return render_template(
+        'modules/oeasc/pages/declaration/declarations.html',
+        declarations=declarations,
+        nomenclature=nomenclature
+    )
 
 
 @bp.route('/degats_grand_gibier')

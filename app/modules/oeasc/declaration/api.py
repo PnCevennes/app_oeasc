@@ -69,7 +69,7 @@ def declarations(id_declarant):
 @bp.route('declaration/<int:id_declaration>', methods=['GET'])
 @check_auth_redirect_login(1)
 @json_resp
-def declaration(id_declaration):
+def route_declaration(id_declaration):
     '''
         Retourne la declaration d'id id_declaration
     '''
