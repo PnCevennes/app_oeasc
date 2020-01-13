@@ -59,7 +59,7 @@ CREATE OR REPLACE VIEW oeasc.v_declarations AS
 	declarant AS ( SELECT
 		r.id_role AS "id_declarant",
 		CONCAT(UPPER(r.nom_role), ' ', r.prenom_role) AS "declarant",
-		r.organisme AS "Organisme"
+		r.organisme
 		FROM utilisateurs.t_roles r
 	),
 	
@@ -148,10 +148,11 @@ CREATE OR REPLACE VIEW oeasc.v_declarations AS
 	
     SELECT
 	d.id_declaration,
-	TO_CHAR(d.meta_create_date, 'YYYY-MM-DD') AS "Date (A M J)",
+	TO_CHAR(d.meta_create_date, 'DD-MM-YYYY') AS "Date",
 
 	u.id_declarant,
 	u.declarant AS "Déclarant",
+	u.organisme AS "Organisme",
 
 	f.id_foret, 
         f.label_foret AS "Nom forêt",
@@ -191,8 +192,7 @@ CREATE OR REPLACE VIEW oeasc.v_declarations AS
 	deg.degat_type_mnemo,
 	deg.degat_type_label,
 
-	ce.x,
-	ce.y
+	ARRAY[ce.y, ce.x] as centroid
 
         
         FROM oeasc.t_declarations d

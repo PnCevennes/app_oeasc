@@ -83,7 +83,7 @@
             <td>{{ declaration['id_declaration'] }}</td>
             <td>{{ declaration['Déclarant'] }}</td>
             <td>{{ declaration['Organisme']}}</td>
-            <td data-sort='<%= my_date.strftime("%d%m%Y") %>'>{{utils.print_date(declaration['Date (A M J)'])}}</td>
+            <td data-sort='<%= my_date.strftime("%d%m%Y") %>'>{{utils.print_date(declaration['Date'])}}</td>
             {#
               <td><span data-toggle="tooltip" title="{{declaration['label_foret']}}">{{declaration['label_foret']}}</span></td>
               <td>{{ macros_display.tooltip_areas('OEASC_COMMUNE', declaration["areas_foret"]) }}</td>
