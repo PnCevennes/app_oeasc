@@ -72,11 +72,11 @@ CREATE OR REPLACE VIEW oeasc.v_declarations AS
 		ref_nomenclatures.get_nomenclature_mnemonique(id_nomenclature_peuplement_paturage_statut) AS peuplement_paturage_statut_mnemo,
 		ref_nomenclatures.get_nomenclature_mnemonique(id_nomenclature_peuplement_paturage_frequence) AS peuplement_paturage_frequence_mnemo,
 
-		ref_nomenclatures.get_nomenclature_mnemonique(id_nomenclature_peuplement_type) AS peuplement_type_label,
-		ref_nomenclatures.get_nomenclature_mnemonique(id_nomenclature_peuplement_origine) AS peuplement_origine_label,
-		ref_nomenclatures.get_nomenclature_mnemonique(id_nomenclature_peuplement_essence_principale) AS peuplement_ess_1_label,
-		ref_nomenclatures.get_nomenclature_mnemonique(id_nomenclature_peuplement_paturage_statut) AS peuplement_paturage_statut_label,
-		ref_nomenclatures.get_nomenclature_mnemonique(id_nomenclature_peuplement_paturage_frequence) AS peuplement_paturage_frequence_label
+		ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_type) AS peuplement_type_label,
+		ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_origine) AS peuplement_origine_label,
+		ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_essence_principale) AS peuplement_ess_1_label,
+		ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_paturage_statut) AS peuplement_paturage_statut_label,
+		ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_paturage_frequence) AS peuplement_paturage_frequence_label
 		
 		FROM oeasc.t_declarations d
 	),
@@ -159,7 +159,7 @@ CREATE OR REPLACE VIEW oeasc.v_declarations AS
         f.statut AS "Statut forêt",
         f.document AS "Documentée",
         
-        c.noms AS "Commnune(s)",
+        c.noms AS "Commune(s)",
 	s.noms AS "Secteur",
 	pa.noms AS "Parcelle(s)",
 

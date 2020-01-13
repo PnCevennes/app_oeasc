@@ -46,14 +46,14 @@
             <th>Déclarant</th>
             <th>Organisme</th>
             <th>Date</th>
+            <th>Nom forêt</th>
+            <th>Commune(s)</th>
+            <th>Parcelles</th>
+            <th>Ess. objectif</th>
             {#
-              <th>Nom forêt</th>
-              <th>Commune(s)</th>
-              <th>Parcelles</th>
-              <th>Ess. objectif</th>
-              <th>Type peuplement</th>
-              <th>Origine</th>
-              <th>Type dégâts</th>
+            <th>Type peuplement</th>
+            <th>Origine</th>
+            <th>Type dégâts</th>
               #}
           </tr>
         </thead>
@@ -84,17 +84,20 @@
             <td>{{ declaration['Déclarant'] }}</td>
             <td>{{ declaration['Organisme']}}</td>
             <td data-sort='<%= my_date.strftime("%d%m%Y") %>'>{{utils.print_date(declaration['Date'])}}</td>
+            <td><span data-toggle="tooltip" title="{{declaration['Nom forêt']}}">{{declaration['Nom forêt']}}</span></td>
+            <td><span data-toggle="tooltip" title="{{declaration['Commune(s)']}}">{{declaration['Commune(s)']}}</span></td>
+            <td><span data-toggle="tooltip" title="{{declaration['Parcelle(s)']}}">{{declaration['Parcelle(s)']}}</span></td>
+
+            <td>
+              <span 
+                data-toggle="tooltip"
+                title="{{ declaration['peuplement_ess_1_label'] + " " + declaration['peuplement_ess_2_label'] 
+                if declaration['peuplement_ess_2_label'] else declaration['peuplement_ess_1_label'] }}">
+                <b>{{declaration['peuplement_ess_1_mnemo']}}</b> {{declaration['peuplement_ess_2_mnemo'] if declaration['peuplement_ess_2_mnemo']}}
+              </span> 
+             
+            </td>
             {#
-              <td><span data-toggle="tooltip" title="{{declaration['label_foret']}}">{{declaration['label_foret']}}</span></td>
-              <td>{{ macros_display.tooltip_areas('OEASC_COMMUNE', declaration["areas_foret"]) }}</td>
-              <td>
-                {{ macros_display.tooltip_areas('OEASC_CADASTRE', declaration["areas_localisation"]) }}
-                {{ macros_display.tooltip_areas('OEASC_ONF_PRF', declaration["areas_localisation"]) }}
-              </td>
-              <td>
-                <b>{{ macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_essence_principale) }}</b>
-                {{macros_display.tooltip_mnemonique(declaration.nomenclatures_peuplement_essence_secondaire)}}
-              </td>
               <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_type)}}</td>
               <td>{{macros_display.tooltip_mnemonique(declaration.id_nomenclature_peuplement_origine)}}</td>
               <td>{{macros_display.tooltip_mnemonique(declaration.nomenclatures_degat_type)}}</td>

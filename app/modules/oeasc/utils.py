@@ -20,7 +20,7 @@ def print_date(s_date):
     """
         pour affichage dans tableau
     """
-    return parser.parse(s_date).strftime("%Y-%m-%d")
+    return parser.parse(s_date).strftime("%d-%m-%Y")
 
 
 def arrays_to_csv(filename, data, columns, separator):
