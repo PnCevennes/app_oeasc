@@ -1,6 +1,10 @@
+"""
+    fonction acces DB pour la partie user
+"""
+
 from flask import current_app, session
 from sqlalchemy import text
-from pypnusershub.db.models import User, AppUser
+from pypnusershub.db.models import User
 from app.utils.utilssqlalchemy import as_dict
 
 
@@ -22,7 +26,6 @@ def get_liste_organismes_oeasc():
 
     v = []
     for row in result:
-        print(row)
         if row[1] != "Autre (préciser)":
             v.append({'id_organism': row[0], 'nom_organisme': row[1]})
         else:
@@ -33,7 +36,10 @@ def get_liste_organismes_oeasc():
 
 
 def get_user_from_data(data):
-
+    '''
+        Faire une vue propre
+        qui serve aussi dans user
+    '''
     user_dict = as_dict(data)
     for d in data.app_users:
         u = as_dict(d)
@@ -46,7 +52,8 @@ def get_user_from_data(data):
     # nb declaration
     data_nd = DB.engine.execute(
         text(
-            "SELECT COUNT(*) FROM oeasc.t_declarations WHERE id_declarant=" + str(user_dict['id_role'])
+            "SELECT COUNT(*) FROM oeasc.t_declarations WHERE id_declarant="
+            + str(user_dict['id_role'])
         )
     ).first()
 
@@ -70,7 +77,8 @@ def get_users():
     v_out = []
 
     for user in v:
-        if(current_user['id_droit_max'] >= 5 or (current_user['id_organisme'] == user['id_organisme'])):
+        if current_user['id_droit_max'] >= 5 or \
+           current_user['id_organisme'] == user['id_organisme']:
             v_out.append(user)
 
     return v_out
@@ -106,7 +114,9 @@ def get_user_form_email(email):
 
 
 def get_id_organismes(liste_nom):
-
+    """
+        retourne une liste d'id à partir d'une liste de noms
+    """
     liste_nom_ = [nom.replace("'", "''") for nom in liste_nom]
 
     sql_text = "SELECT id_organisme \

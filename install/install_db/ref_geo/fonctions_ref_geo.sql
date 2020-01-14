@@ -192,7 +192,7 @@ $BODY$
 DECLARE
 	theareaname character varying;
   BEGIN
-  SELECT INTO theareaname mnemonique
+  SELECT INTO theareaname area_name
   FROM ref_geo.l_areas n
   WHERE id_area = myidarea;
 return theareaname;
@@ -211,7 +211,7 @@ $BODY$
 DECLARE
 	theareanames character varying;
   BEGIN
-  SELECT INTO theareanames STRING_AGG(areaname, ', ')
+  SELECT INTO theareanames STRING_AGG(DISTINCT areaname, ', ')
   FROM (SELECT ref_geo.get_area_name(UNNEST(myidareas)) AS areaname)a;
 return theareanames;
   END;

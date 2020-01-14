@@ -19,40 +19,35 @@
 
     <div>
 <!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-  Exporter les données
-</button>
+      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+        Exporter les données
+      </button>
 
-<!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="modalExport" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="modalExport">Exporter les données</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <a class="btn btn-success" href="/api/declaration/declarations_csv">Export CSV <i>une ligne par déclaration</i></a>
-        <hr>
-        <a class="btn btn-success" href="/api/declaration/declarations_csv?type_out=degat">Export CSV <i>une ligne par dégât</i></a>
-        <hr><hr>
-        <a class="btn btn-success" href="/api/declaration/declarations_spape">Export SHAPE <i>une ligne par déclaration</i></a>
-        <hr>
-        <a class="btn btn-success" href="/api/declaration/declarations_shape?type_out=degat">Export SHAPE <i>une ligne par dégât</i></a>
+      <!-- Modal -->
+      <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="modalExport" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="modalExport">Exporter les données</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <a class="btn btn-success" href="/api/declaration/declarations_csv">Export CSV <i>une ligne par déclaration</i></a>
+              <hr>
+              <a class="btn btn-success" href="/api/declaration/declarations_csv?type_out=degat">Export CSV <i>une ligne par dégât</i></a>
+              <hr><hr>
+              <a class="btn btn-success" href="/api/declaration/declarations_shape">Export SHAPE <i>une ligne par déclaration</i></a>
+              <hr>
+              <a class="btn btn-success" href="/api/declaration/declarations_shape?type_out=degat">Export SHAPE <i>une ligne par dégât</i></a>
+              </div>
+            </div>
+          </div>
         </div>
+
       </div>
     </div>
-  </div>
-<!--   <hv>
-      <a class="btn btn-dark" href="/api/declaration/declarations_csv/degat">Export CSV un dégât par ligne</a>
-    <hv>
-      <a class="btn btn-dark" href="/api/declaration/declarations_shape/degat">Export Shape</a> 
-    -->
-
-    </div>
-  </div>
   {% endif %}
 
   <nav id="declarations_tabs" class="nav nav-tabs">
@@ -75,7 +70,7 @@
             <th>Date</th>
             <th>Nom forêt</th>
             <th>Commune(s)</th>
-            <th>Parcelles</th>
+            <th>Parcelle(s)</th>
             <th>Ess. objectif</th>
             <th>Type peuplement</th>
             <th>Origine</th>
@@ -106,12 +101,12 @@
               {%- endif %}
             </td>
             <td>{{ declaration['id_declaration'] }}</td>
-            <td>{{ declaration['Déclarant'] }}</td>
-            <td>{{ declaration['Organisme']}}</td>
-            <td data-sort='<%= my_date.strftime("%d%m%Y") %>'>{{utils.print_date(declaration['Date'])}}</td>
-            <td><span data-toggle="tooltip" title="{{declaration['Nom forêt']}}">{{declaration['Nom forêt']}}</span></td>
-            <td><span data-toggle="tooltip" title="{{declaration['Commune(s)']}}">{{declaration['Commune(s)']}}</span></td>
-            <td><span data-toggle="tooltip" title="{{declaration['Parcelle(s)']}}">{{declaration['Parcelle(s)']}}</span></td>
+            <td>{{ declaration['declarant'] }}</td>
+            <td>{{ declaration['organisme']}}</td>
+            <td data-sort='<%= my_date.strftime("%d%m%Y") %>'>{{utils.print_date(declaration['declaration_date'])}}</td>
+            <td><span data-toggle="tooltip" title="{{declaration['label_foret']}}">{{declaration['label_foret']}}</span></td>
+            <td><span data-toggle="tooltip" title="{{declaration['communes']}}">{{declaration['communes']}}</span></td>
+            <td><span data-toggle="tooltip" title="{{declaration['parcelles']}}">{{declaration['parcelles']}}</span></td>
 
             <td>
               <span 

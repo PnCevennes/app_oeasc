@@ -22,8 +22,9 @@ $(document).ready(function() {
 
 
     // initialisation des legendes pour tout les type présents dans M.list.data
-    var list_localisation = ["OEASC_CADASTRE", "OEASC_ONF_PRF"];
+    var list_localisation = ["OEASC_CADASTRE", "OEASC_ONF_PRF", "OEASC_ONF_UG"];
     var list_foret = ["OEASC_DGD", "OEASC_ONF_FRT", 'OEASC_SECTION'];
+    console.log(M.list.data)
     M.list.data.forEach(function(name) {
       var color;
       if(list_foret.includes(name)) {
@@ -38,9 +39,10 @@ $(document).ready(function() {
         s_text_legend = "Forêt concernée par l'alerte"
       };
       if(['OEASC_CADASTRE', 'OEASC_ONF_PRF', 'OEASC_ONF_UG'].includes(name)) {
-        s_text_legend = "Parcelle concernée par l'alerte"
+        s_text_legend = "Parcelle(s) concernée(s) par l'alerte"
       }
       var s_legend = '<div id="legend-' + name + '"><i style="background: ' + color + '; border: solid;"></i> ' + s_text_legend + '</div>';
+      console.log(s_legend)
       $('#map_' + map_name).find(".legend").append(s_legend);
     });
 
@@ -53,20 +55,21 @@ $(document).ready(function() {
     if (config && config.type && config.type.includes("foret")) {
       b_tooltip = false;
       var zoom = config && config.zoom && config.zoom=="foret";
-      var areas_foret = declaration.foret.areas_foret.filter((a) => {return ["OEASC_DGD", "OEASC_ONF_FRT"].includes(a.type_code) });
-      if(!areas_foret.length) {
-        areas_foret = declaration.foret.areas_foret.filter((a) => {return ["OEASC_SECTION"].includes(a.type_code)});
-        b_tooltip=zoom;
-      }
-      M.load_areas(areas_foret, "foret", map, zoom, b_tooltip);
+      // var areas_foret = declaration.areas_foret.filter((a) => {return ["OEASC_DGD", "OEASC_ONF_FRT"].includes(a.type_code) });
+      // if(!areas_foret.length) {
+      // areas_foret = declaration.areas_foret.filter((a) => {return ["OEASC_SECTION"].includes(a.type_code)});
+      // b_tooltip=zoom;
+      // }
+      M.load_areas(declaration.areas_foret, "foret", map, zoom, b_tooltip);
     }
 
     // charger les aires (parcelles)
     if (config && config.type && config.type.includes("localisation")) {
       var zoom = config && config.zoom && config.zoom=="localisation";
-      var areas_localisation = declaration.areas_localisation.filter((a) => {return ["OEASC_CADASTRE", "OEASC_ONF_PRF"].includes(a.type_code) });
+      // var areas_localisation = declaration.areas_localisation.filter((a) => {return ["OEASC_CADASTRE", "OEASC_ONF_PRF"].includes(a.type_code) });
       var b_tooltip = config.tooltip && config.tooltip.includes('localisation');
-      M.load_areas(areas_localisation, "localisation", map, zoom, b_tooltip);
+      console.log(config)
+      M.load_areas(declaration.areas_localisation, "localisation", map, zoom, b_tooltip);
     }
 
     // centroid

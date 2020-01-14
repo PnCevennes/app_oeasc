@@ -1,8 +1,13 @@
+"""
+ Routes pour les pages declaration
+"""
 from flask import (
     Blueprint, render_template, request, session
 )
 
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
+from app.modules.oeasc.user.utils import check_auth_redirect_login
+
 
 from .repository import (
     dfpu_as_dict_from_id_declaration,
@@ -10,11 +15,7 @@ from .repository import (
     get_declaration,
 )
 
-from app.modules.oeasc.user.utils import check_auth_redirect_login
-
-from .utils import (
-    get_listes_essences,
-)
+from .utils import get_listes_essences
 
 bp = Blueprint('declaration', __name__)
 
@@ -80,11 +81,7 @@ def declaration(id_declaration):
         TODO
     '''
 
-    print('a')
-
     declaration_dict = get_declaration(id_declaration)
-
-    print('aaa', declaration_dict)
 
     return render_template(
         'modules/oeasc/pages/declaration/declaration.html',
@@ -113,9 +110,6 @@ def route_declarations():
     nomenclature = nomenclature_oeasc()
 
     declarations = get_declarations(False, id_declarant)
-
-
-    print(declarations[0])
 
     return render_template(
         'modules/oeasc/pages/declaration/declarations.html',

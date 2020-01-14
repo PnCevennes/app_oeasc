@@ -1,3 +1,6 @@
+'''
+    Routes pour les résultats
+'''
 from flask import Blueprint, render_template
 
 from ..declaration.repository import get_declarations
@@ -69,9 +72,12 @@ def degats_forestiers():
         resultats pour les degats_forestiers
         TODO
     '''
-    declarations = get_declarations(True)
+    declarations = get_declarations()
 
-    return render_template('modules/oeasc/pages/resultats/degats_forestiers.html', declarations=declarations)
+    return render_template(
+        'modules/oeasc/pages/resultats/degats_forestiers.html',
+        declarations=declarations
+    )
 
 
 @bp.route('/diagnostics_sylvicoles')

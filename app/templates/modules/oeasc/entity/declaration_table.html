@@ -8,7 +8,6 @@
 {%- set cond_modifier_effacer = false %}
 {%- endif %}
 
-
 {% if btn_action %}
 <div>
   {%- if cond_modifier_effacer %}
@@ -26,7 +25,7 @@
 <div id ="declaration_{{declaration.id_declaration if declaration.id_declaration}}"
 class="pdf-like" 
 data-declaration='{{ declaration | tojson if declaration else ""  }}'
-filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['label_foret'] | replace(' ', '-') if declaration['foret']['label_foret']}}_{{utils.print_date(declaration['meta_create_date']) | replace(' ', '') if declaration['meta_create_date']}}.pdf">
+filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_foret'] | replace(' ', '-') if declaration['label_foret']}}_{{utils.print_date(declaration['meta_create_date']) | replace(' ', '') if declaration['meta_create_date']}}.pdf">
 
 
 
@@ -50,33 +49,30 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
         <th>Partage d'information</th>
         <td>{%- if declaration.b_autorisation %} Autorisé {%- else %} Non autorisé {%- endif %}</td>  
     </tr>
-      {% if declaration.meta_create_date %}
       <tr>
         <th>Date</th>
-        <td>{{utils.print_date(declaration['meta_create_date'])}}</td>
+        <td>{{utils.print_date(declaration['declaration_date'])}}</td>
       </tr>
-      {% endif %}
       <tr>
         <th>Accessibilité</th>
-        <td>{{ declaration.id_nomenclature_peuplement_acces.label_fr | lower }}</td>
+        <td>{{ declaration.peuplement_acces_label | lower }}</td>
       </tr>
       <tr>
         <th>Espèces présentes</th>
-        <td>{{macros_display.list_nomenclatures('', declaration.nomenclatures_peuplement_espece, '')}}</td>
+        <td>{{ declaration.espece_label }}</td>
       </tr>
     </tbody>
-
 
     {% if declaration.declarant %}
     <tbody>
       <tr><th colspan=3> Déclarant</th></tr>
       <tr>
         <th>NOM prénom</th>
-        <td>{{declaration.declarant.nom_role | upper}} {{declaration.declarant.prenom_role}}</td>
+        <td>{{ declaration.declarant }}</td>
       </tr>
       <tr>
         <th>Organisme</th>
-        <td>{{declaration.declarant.organisme}}</td>
+        <td>{{ declaration.organisme }}</td>
       </tr>
     </tbody>
     {% endif %}
@@ -87,41 +83,48 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
       </tr>
       <tr>
         <th>Nom</th>
-        <td>{{foret.label_foret if foret.label_foret!="" else "nom inconnu"}}</td>
+        <td>{{ declaration.label_foret if declaration.label_foret!="" else "nom inconnu" }}</td>
       </tr>
       <tr>
         <th>Statut</th>
-        <td>{%- if foret.b_statut_public %} public {%- else %} privé {%- endif %}</td>
+        <td>{{ declaration.statut_public }}</td>
       </tr>
       <tr>
         <th>Documentée</th>
-        <td>{%- if foret.b_document %}
-          {%- if foret.b_statut_public %}
+        <td>
+          {%- if declaration.b_document %}
+          {%- if declaration.b_statut_public %}
           oui <i>(régime forestier)</i>
           {%- else %}
           oui <i>(document de gestion durable)</i>
           {%- endif %}
           {%- else %}
           non
-        {%- endif %}</td>
+        {%- endif %}
+      </td>
       </tr>
-
       <tr>
         <th>Type</th>
-        <td>{{ utils.get_foret_type(declaration['foret']) | lower}}</td>
+        <td>{{ utils.get_foret_type(declaration['id_foret']) | lower}}</td>
       </tr>
-      {{ macros_display.list_areas('OEASC_COMMUNE','Commune(s)', declaration["foret"]["areas_foret"], 'tr') }}
-      {{ macros_display.list_areas('OEASC_SECTION','Section(s)', declaration["foret"]["areas_foret"], 'tr') }}
+      <tr>
+        <th>Commune(s)</th>
+        <td>{{ declaration['communes'] }}</td>
+      </tr>
     </tbody>
 
     <tbody>
       <tr>
         <th colspan="3">Peuplement - <i>localisation</i></th>
       </tr>
-      {{ macros_display.list_areas('OEASC_SECTEUR', 'Massif', declaration["areas_localisation"], 'tr') }}
-      {{ macros_display.list_areas('OEASC_CADASTRE', 'Parcelle(s)', declaration["areas_localisation"], 'tr') }}
-      {{ macros_display.list_areas('OEASC_ONF_PRF', 'Parcelle(s)', declaration["areas_localisation"], 'tr') }}
-      {{ macros_display.list_areas('OEASC_ONF_UG', 'Unité(s) de gestion', declaration["areas_localisation"], 'tr') }}
+      <tr>
+        <th>Secteur</th>
+        <td>{{ declaration['secteur'] }}</td>
+      </tr>
+      <tr>
+        <th>Parcelle(s)</th>
+        <td>{{ declaration['parcelles'] }}</td>
+      </tr>
     </tbody>
 
     <tbody>
@@ -130,11 +133,16 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
       </tr>
       <tr>
         <th>Principale</th>
-        <td>{{ declaration.id_nomenclature_peuplement_essence_principale.label_fr | lower |nopar }}</td>
+        <td>{{ declaration.peuplement_ess_1_label | lower |nopar }}</td>
       </tr>
-
-      {{macros_display.list_nomenclatures('Secondaires', declaration.nomenclatures_peuplement_essence_secondaire, 'tr')}}
-      {{macros_display.list_nomenclatures('Complémentaire(s)', declaration.nomenclatures_peuplement_essence_complementaire, 'tr')}}
+      <tr>
+        <th>Secondaire(s)</th>
+        <td>{{ declaration.peuplement_ess_2_label | lower |nopar }}</td>
+      </tr>
+      <tr>
+        <th>Complémentaire(s)</th>
+        <td>{{ declaration.peuplement_ess_3_label | lower |nopar }}</td>
+      </tr>
     </tbody>
 
     <tbody>
@@ -145,16 +153,18 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
         <th>Superficie (ha)</th>
         <td>{{ declaration.peuplement_surface or 'Non renseignée' }}</td>
       </tr>
-
       <tr>
         <th>Origine</th>
-        <td>{{ declaration.id_nomenclature_peuplement_origine.label_fr | lower }}</td>
+        <td>{{ declaration.peuplement_origine_label | lower }}</td>
       </tr>
       <tr>
         <th>Type</th>
-        <td>{{ declaration.id_nomenclature_peuplement_type.label_fr | lower }}</td>
+        <td>{{ declaration.peuplement_type_label | lower }}</td>
       </tr>
-      {{macros_display.list_nomenclatures('Maturité', declaration.nomenclatures_peuplement_maturite, 'tr')}}
+      <tr>
+        <th>Maturité</th>
+        <td>{{ declaration.peuplement_maturite_label | lower }}</td>
+      </tr>
     </tbody>
 
     <tbody>
@@ -165,15 +175,15 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
         <th> Existence</th>
         <td>{%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}</td>
       </tr>
-
       {%- if declaration.b_peuplement_protection_existence %}
-      {{macros_display.list_nomenclatures('Type', declaration.nomenclatures_peuplement_protection_type, 'tr')}}
-      {%- if declaration.autre_protection %}
+      <tr>
+        <th>Type</th>
+        <td>{{ declaration.peuplement_protection_type_label | lower }}</td>
+      </tr>
       <tr>
         <th>Autre protection</th>
         <td>{{ declaration.autre_protection }}</td>
       </tr>
-      {% endif %}
       {%- endif %}
     </tbody>
 
@@ -186,14 +196,17 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
         <td>{%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}</td>
       </tr>
       {%- if declaration.b_peuplement_paturage_presence %}
-      {{macros_display.list_nomenclatures('Type', declaration.nomenclatures_peuplement_paturage_type, 'tr')}}
+      <tr>
+        <th>Type</th>
+        <td>{{ declaration.peuplement_paturage_type_label | lower }}</td>
+      </tr>
       <tr>
         <th>Statut</th>
-        <td>{{ declaration.id_nomenclature_peuplement_paturage_statut.label_fr | lower | nopar}}</td>
+        <td>{{ declaration.peuplement_paturage_statut_label | lower | nopar}}</td>
       </tr>
       <tr>
         <th>Fréquence</th>
-        <td>{{ declaration.id_nomenclature_peuplement_paturage_frequence.label_fr | lower | nopar}}</td>
+        <td>{{ declaration.peuplement_paturage_frequence_label | lower | nopar}}</td>
       </tr>
       <tr></tr>
       {%- endif %}
@@ -210,14 +223,14 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
       {% if degat_essence != {} %}
       <tr>
         {% if not loop.index0 %}
-        <th rowspan="{{degat['degat_essences'] | length}}">{{ degat.id_nomenclature_degat_type.label_fr}}</th>
+        <th rowspan="{{degat['degat_essences'] | length}}">{{ degat.degat_type_label}}</th>
         {% endif %}
         <td>
-          {{ degat_essence.id_nomenclature_degat_essence.label_fr}}{{"." if degat.id_nomenclature_degat_type.cd_nomenclature == 'ABS' else " :"}}
-          {% if degat.id_nomenclature_degat_type.cd_nomenclature != 'ABS' %}
-          {{ degat_essence.id_nomenclature_degat_etendue.label_fr | lower }},
-          {{ degat_essence.id_nomenclature_degat_gravite.label_fr | lower}},
-          {{ degat_essence.id_nomenclature_degat_anteriorite.label_fr | nopar | lower}}
+          {{ degat_essence.degat_essence_label}}{{"." if degat.degat_type_mnemo == 'Abs.' else " :"}}
+          {% if degat.degat_type_mnemo != 'Abs.' %}
+          {{ degat_essence.degat_etendue_label | lower }},
+          {{ degat_essence.degat_gravite_label | lower}},
+          {{ degat_essence.degat_anteriorite_label | nopar | lower}}
           {% endif %}
         </td>
       </tr>
@@ -225,7 +238,7 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
       {%- endfor %}
       {% if not degat['degat_essences'] %}
       <tr>
-        <th>{{ degat.id_nomenclature_degat_type.label_fr}}</th>
+        <th>{{ degat.degat_type_label}}</th>
         <td></td>
       </tr>
       {% endif %}
@@ -245,13 +258,12 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['foret']['
       </tr>
       
     </tbody>
-    {% endif %}
-    
+    {% endif %}    
   </table>
+
 </div>
 
 {% if map_display %}
-
 
 <div id="show_declarations" class="page-break declaration-maps">
   {{ macros_display_map.map_localisation(id_declaration, "global", "Localisation de l'alerte dans le périmètre de l'Observatoire") }}

@@ -20,31 +20,6 @@ def print_date(s_date):
     return parser.parse(s_date).strftime("%d-%m-%Y")
 
 
-# def arrays_to_csv(filename, data, columns, separator):
-
-#     outdata = [separator.join(columns)]
-
-#     headers = Headers()
-#     headers.add('Content-Type', 'text/plain')
-#     headers.add(
-#         'Content-Disposition',
-#         'attachment',
-#         filename='export_%s.csv' % filename
-#     )
-
-
-#     for l in data:
-#         outdata.append(
-#             separator.join(
-#                 '"%s"' % (str(e) if e else '') for e in l
-#             )
-#         )
-
-#     out = '\r\n'.join(outdata)
-
-#     return Response(out, headers=headers)
-
-
 def get_some_config(config_text):
     """
         pour avoir des elements de config dans jinja

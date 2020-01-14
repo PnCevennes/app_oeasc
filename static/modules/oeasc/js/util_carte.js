@@ -356,7 +356,7 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
     /*
       charge les aires dont l'id est contenu dans area
       */
-      if(areas == []) return ;
+      if(!(areas && areas.length)) return ;
 
       $("#" + map.map_name + " #chargement").show();
 
@@ -412,6 +412,7 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
               $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('border-color', color);
               $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('border-width', weight);
 
+              console.log("aaaa", fp.label, ("#map_" + map.map_name + ' #legend-' + type_code), $("#map_" + map.map_name + ' #legend-' + type_code));
               if(b_zoom && !b_tooltip) v_sous_titre.push(fp.label);
             });
 
@@ -450,35 +451,40 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
 
 
     var d_degat_type_icon = {
-      'ABR': 'fa fa-seedling',
-      'ÉCO': 'fas fa-tree',
-      'SANG': 'fas fa-square',
-      'FRO': 'fas fa-angle-double-down',
-      'P/C': 'fas fa-exclamation-triangle',
-      'ABS': 'fas fa-ban',
+      'Abr.': 'fa fa-seedling',
+      'Éco.': 'fas fa-tree',
+      'Sang.': 'fas fa-square',
+      'Fro.': 'fas fa-angle-double-down',
+      'P. & Clo.': 'fas fa-exclamation-triangle',
+      'Abs.': 'fas fa-ban',
     };
 
     var d_degat_gravite_color = {
-      "DG_FBL": 'yellow',
-      "DG_MOY": 'orange',
-      "DG_IMPT": 'red',
+      "Fai.": 'yellow',
+      "Mod.": 'orange',
+      "Impt.": 'red',
     };
 
     var s_tooltip_degats = function(degats) {
       var s_tooltip = "";
       degats.forEach((degat) => {
         var color = 'white';
-        var cd_deg = degat.id_nomenclature_degat_type.cd_nomenclature
+        var color_save = '';
+        var cd_deg = degat.degat_type_mnemo;
         var icon = d_degat_type_icon[cd_deg];
         var _id_gravite = 0;
+
         degat.degat_essences.forEach((degat_essence) => {
-          if (! degat_essence || ! degat_essence.id_nomenclature_degat_gravite) return;
-          var gravite = degat_essence.id_nomenclature_degat_gravite;
-          color = 'yellow';
-          if(gravite.id_nomenclature > _id_gravite) {
-            _id_gravite = gravite.id_nomenclature;
-            color = d_degat_gravite_color[gravite.cd_nomenclature];
+          if (! degat_essence || ! degat_essence.degat_gravite_mnemo) return;
+          color = d_degat_gravite_color[degat_essence.degat_gravite_mnemo];
+          if (color == 'yellow' && ['red, orange'].includes(color_save)) {
+            color = color_save;
           }
+          if (color == 'orange' && color_save == 'red') {
+            color = color_save;
+          }
+ 
+          color_save = color;
         });
         s_tooltip += '<i style="font-size:1em;color:' + color + '" class="' + icon +'"></i>';
       });
@@ -493,15 +499,15 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       if(declaration.date) {
         s_popup += '<tr><th>Date</th><td colspan="3">' + declaration.date.split(" ")[0] + '</td></tr>'
       }
-      s_popup += '<tr><th>Nom Foret</th><td colspan="3">' + declaration.label_foret + '</td></tr>'
+      s_popup += '<tr><th>Nom Foret</th><td colspan="3">' + declaration["label_foret"] + '</td></tr>'
       declaration.degats.forEach((degat) => {
-        s_popup += '<tr><th colspan="4">' + degat.id_nomenclature_degat_type.label_fr + '</th>';
+        s_popup += '<tr><th colspan="4">' + degat.degat_type_label + '</th>';
         degat.degat_essences.forEach((degat_essence) => {
-          s_popup += '<tr><td>' + degat_essence.id_nomenclature_degat_essence.label_fr + '</td>';
-          if(degat_essence.id_nomenclature_degat_gravite) {
-            s_popup += '<td>' + (degat_essence.id_nomenclature_degat_gravite.mnemonique) + '</td>';
-            s_popup += '<td>' + (degat_essence.id_nomenclature_degat_etendue.mnemonique) + '</td>';
-            s_popup += '<td>' + (degat_essence.id_nomenclature_degat_anteriorite.mnemonique) + '</td>';
+          s_popup += '<tr><td>' + degat_essence.degat_essence_label + '</td>';
+          if(degat_essence.degat_gravite) {
+            s_popup += '<td>' + (degat_essence.degat_gravite_mnemo) + '</td>';
+            s_popup += '<td>' + (degat_essence.degat_etendue_mnemo) + '</td>';
+            s_popup += '<td>' + (degat_essence.degat_anteriorite_mnemo) + '</td>';
           }
           s_popup +='</tr>'
         });
@@ -517,8 +523,8 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       declarations.forEach((declaration) => {
 
         declaration.degats.forEach((degat) => {
-          var cd_deg = degat.id_nomenclature_degat_type.cd_nomenclature
-          var label_deg = degat.id_nomenclature_degat_type.label_fr
+          var cd_deg = degat.degat_type_mnemo
+          var label_deg = degat.degat_type_label
           if (! v_degat.includes(cd_deg)){
             v_degat.push(cd_deg);
             var icon = d_degat_type_icon[cd_deg];

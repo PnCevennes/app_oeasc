@@ -156,7 +156,7 @@ def areas_post(b_simple, data_type, areas):
 
     out = []
 
-    t_areas = tuple([area['id_area'] for area in areas])
+    t_areas = areas
 
     data = DB.session.query(table).filter(table.id_area.in_(t_areas)).all()
 

@@ -64,6 +64,14 @@ $(document).ready(function() {
 
   M.table = table;
 
+  var selection_tout = []
+  for(var i = 0; i < table.columns()[0].length; i++) {
+    if(i!=table_indices['Commune(s)']) {
+      selection_tout.push(i);
+    }
+  }
+  var selection_reduite = [0, 1, 2, 3, 4, 5, 11];
+
   var init_column_search = function() {
 
     table.listen_visibility = false;
@@ -251,15 +259,6 @@ $(document).ready(function() {
     // $('#table_declarations_filter').val('');
   };
 
-  var selection_tout = []
-  for(var i = 0; i < table.columns()[0].length; i++) {
-    if(i!=table_indices['Commune(s)']) {
-      selection_tout.push(i);
-    }
-  }
-
-
-  var selection_reduite = [0, 1, 2, 3, 4, 5, 11];
 
   $("[data-type=T]").click(function () {
     /* Onglet tableau
@@ -299,7 +298,7 @@ $(document).ready(function() {
   // init
   setTimeout(function() {
     $("[data-type=T]").click();
-  }, 500);
+  }, 100);
 
   var declarations = [];
 

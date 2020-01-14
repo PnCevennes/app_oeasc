@@ -230,10 +230,8 @@ def declarations_csv():
 
     type_out = request.args.get('type_out')  # 'degat', ''
 
-    user = get_user(session['current_user']['id_role'])
-
     data = get_declarations(
-        user=user,
+        user=get_user(session['current_user']['id_role']),
         type_export="csv",
         type_out=type_out
     )
@@ -251,7 +249,7 @@ def declarations_csv():
     return (file_name, data, columns, separator)
 
 
-@bp.route('declarations_shape', methods=['GET'])
+@bp.route('declarations_shape/', methods=['GET'])
 @check_auth_redirect_login(1)
 def declarations_shape():
     '''
@@ -261,22 +259,27 @@ def declarations_shape():
     '''
     type_out = request.args.get('type_out')  # 'degat', ''
 
+    file_name = 'export_declarations_shape'
+    dir_path = str(ROOT_DIR / "static/shapefiles")
+
+    view_name = (
+        "v_export_declaration_degats_shape" if type_out == "degat"
+        else "v_export_declarations_shape"
+    )
+
     export_view = GenericTableGeo(
-        'vl_declarations',
+        view_name,
         "oeasc",
         DB.engine,
         geometry_field='geom',
         srid=4326
     )
 
-    data = DB.session.query(export_view.tableDef).all()
-
-    data = [
-        d for d in data if d.geom is not None
-    ]
-
-    file_name = 'oeasc_declarations'
-    dir_path = str(ROOT_DIR / "static/shapefiles")
+    data = get_declarations(
+        user=get_user(session['current_user']['id_role']),
+        type_export="shape",
+        type_out=type_out
+    )
 
     export_view.as_shape(
         export_view.db_cols,
