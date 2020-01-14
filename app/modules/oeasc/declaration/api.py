@@ -4,7 +4,7 @@
 import copy
 from app.utils.utilssqlalchemy import json_resp
 
-from flask import Blueprint, render_template, request, current_app
+from flask import Blueprint, render_template, request, current_app, session
 from flask.helpers import send_from_directory
 
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
@@ -14,11 +14,12 @@ from utils_flask_sqla.generic import GenericTable
 from utils_flask_sqla_geo.generic import GenericTableGeo
 
 from .repository import (
+    get_user,
     get_declarations,
     get_declaration,
     f_create_or_update_declaration,
     get_dict_nomenclature_areas,
-    get_declarations_csv
+    # get_declarations_csv
 )
 
 from .declaration_sample import declaration_dict_random_sample
@@ -213,39 +214,44 @@ def create_or_update_declaration():
     return d
 
 
-@bp.route('declarations_csv/<type>', methods=['GET'])
-@bp.route('declarations_csv/', defaults={'type': ''}, methods=['GET'])
-@check_auth_redirect_login(5)
-def declarations_csv(type):
+@bp.route('declarations_csv/', methods=['GET'])
+@check_auth_redirect_login(1)
+def declarations_csv():
     '''
         renvoie la liste de déclarations au format csv
-        type:
-            - degat : une ligne par degat
     '''
 
-#    (columns, data) = get_declarations_csv(type)
-    export_view = GenericTable(
-        'vl_declarations',
-        "oeasc",
-        DB.engine
+    type_out = request.args.get('type_out')  # 'degat', ''
+
+    user = get_user(session['current_user']['id_role'])
+
+    data = get_declarations(
+        user=user,
+        type_export="csv",
+        type_out=type_out
     )
 
-    q = DB.session.query(export_view.view)
+    columns = list(data[0].keys())
+    
+    data = [d.values() for d in data]
 
-    data = q.all()
+    # enlever 'None'
+    for d in data:
+        for e in d:
+            e = e if e is not None else ''
 
     return arrays_to_csv('declaration_oeasc', data, columns, ';')
 
 
-@bp.route('declarations_shape/<type_out>', methods=['GET'])
-@bp.route('declarations_shape/', defaults={'type_out': ''}, methods=['GET'])
-@check_auth_redirect_login(5)
-def declarations_shape(type_out):
+@bp.route('declarations_shape', methods=['GET'])
+@check_auth_redirect_login(1)
+def declarations_shape():
     '''
         renvoie la liste de déclarations au format shape
         type:
             - degat : une ligne par degat
     '''
+    type_out = request.args.get('type_out')  # 'degat', ''
 
     export_view = GenericTableGeo(
         'vl_declarations',

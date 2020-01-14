@@ -35,10 +35,11 @@ def arrays_to_csv(filename, data, columns, separator):
         filename='export_%s.csv' % filename
     )
 
+
     for l in data:
         outdata.append(
             separator.join(
-                '"%s"' % (str(e)) for e in l
+                '"%s"' % (str(e) if e else '') for e in l
             )
         )
 

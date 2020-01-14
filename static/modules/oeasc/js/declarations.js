@@ -366,6 +366,7 @@ var set_tab_declaration = function(id_declaration) {
         setTimeout(()=>$(selector).remove(), 10);
       });
 
+
       $('#declarations').append('<div class="tab-pane active" id="declaration_' + id_declaration + '_container">Chargement en cours</div>')
       $.ajax('/api/declaration/declaration_html/' + id_declaration + '?btn_action=1&map_display=1')
       .done((response) => {

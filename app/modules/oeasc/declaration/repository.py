@@ -230,58 +230,65 @@ SELECT (SELECT ARRAY[st_y(a.center), st_x(a.center)] AS "array"
     return None
 
 
-def get_declarations(b_synthese, id_declarant=None):
+def get_declarations(user=None, type_export=None, type_out=None):
     '''
         retourne une liste de declaration sous forme de tableau de dictionnaire
-
-        b_synthese :s
-            True : grand public -> toutes les données
-            False : vue des déclarations -> on filtre les données
+        type_export : shape csv (dict par defaut)
+        type_out : 1 ligne par declaration ou une ligne par degat
+        user : dictionnaire contenant les informations sur l'utilisateur, nottament ses droits
     '''
 
-    # toutes les declaration dans le cas d'une synthese
-    data = None
+    liste_id_organismes_solo = get_id_organismes(['Autre (préciser)', "Pas d'organisme"])
 
-    if id_declarant and id_declarant > 0:
 
-        user = get_user(id_declarant)
-        liste_id_organismes_solo = get_id_organismes(['Autre (préciser)', "Pas d'organisme"])
+    # choix de la vue selon les paramètres
+    view_name = ""
+    if type_export == "csv":
+        view_name = "v_export_declaration_degats_csv" if type_out == "degat" else "v_export_declarations_csv"
+    elif type_export == "shape":
+        view_name = "v_export_declaration_degats_shape" if type_out == "degat" else "v_export_declarations_shape"
+    else:
+        view_name = "v_declaration_degats" if type_out == "degat" else "v_declarations"
+
+    # choix des filtrers selon les droits de l'utilisateur
+    filters = None
+    if user:
 
         # administrateur et animateur >=5
         if user["id_droit_max"] >= 5:
-            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, None, 1e6).return_query()
+            pass
 
         # les declarant de la meme structure (sauf les particuliers) >=)2
         elif user["id_droit_max"] >= 2 and user['id_organisme'] not in liste_id_organismes_solo:
-            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, {"organisme": user['organisme']}, 1e6).return_query()
+            filters = {"organisme": user['organisme']}
 
+        # les personnes de droit 1 (leurs alertes seulement)
         elif user["id_droit_max"] >= 1:
-            data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, {"id_declarant": id_declarant}, 1e6).return_query()
+            filters = {"id_declarant": user['id_declarant']}
 
-    elif b_synthese:
-        data = GenericQuery(DB.session, 'v_declarations', 'oeasc', None, None, 1e6).return_query()
+    # requête
+    data = GenericQuery(DB.session, view_name, 'oeasc', None, filters, 1e6).return_query()
 
-    if not data:
-        return []
-
-    if not data.get('items'):
+    if not (data and data.get('items')):
         return []
 
     declarations = data.get('items')
 
-    data_degats = DB.session.query(TDegat).order_by('id_nomenclature_degat_type').all()
+    # TODO !!! gérer dégâts (depuis vue???)
+    # data_degats = DB.session.query(TDegat).order_by('id_nomenclature_degat_type').all()
 
-    for deg in data_degats:
-        declarations_filtered = list(filter(lambda x: x.get('id_declaration') == deg.id_declaration, declarations))
-        if len(declarations_filtered) != 1:
-            continue
-        declaration = declarations_filtered[0]
-        if not declaration.get('degats'):
-            declaration['degats'] = []
-        declaration['degats'].append(deg.as_dict(True))
+    # for deg in data_degats:
+    #     declarations_filtered = list(filter(lambda x: x.get('id_declaration') == deg.id_declaration, declarations))
+    #     if len(declarations_filtered) != 1:
+    #         continue
+    #     declaration = declarations_filtered[0]
+    #     if not declaration.get('degats'):
+    #         declaration['degats'] = []
+    #     declaration['degats'].append(deg.as_dict(True))
 
-    pre_get_dict_nomenclature_areas(declarations)
-    declarations = [resolve_declaration(d) for d in declarations]
+    # pre_get_dict_nomenclature_areas(declarations)
+    # declarations = [resolve_declaration(d) for d in declarations]
+
     return declarations
 
 
@@ -323,123 +330,123 @@ def id_nomenclature_to_str(id_nomenclature, field_name="mnemonique"):
     return id_nomenclature[field_name]
 
 
-def get_declarations_csv(type_csv):
-    '''
-        type_csv:
-            "degat" -> renvoie une ligne par degat déclaré
-    '''
+# def get_declarations_csv(type_csv):
+#     '''
+#         type_csv:
+#             "degat" -> renvoie une ligne par degat déclaré
+#     '''
 
-    declarations = get_declarations(True)
+#     declarations = get_declarations(True)
 
-    columns = [
-        'id',
-        'Nom_déclarant',
-        'Organisme',
-        'Date',
-        'Nom_forêt',
-        'Statut_foret',
-        'Documentée',
-        'Secteur',
-        'Communes',
-        'Parcelles',
+#     columns = [
+#         'id',
+#         'Nom_déclarant',
+#         'Organisme',
+#         'Date',
+#         'Nom_forêt',
+#         'Statut_foret',
+#         'Documentée',
+#         'Secteur',
+#         'Communes',
+#         'Parcelles',
 
-        'Ess. 1',
-        'Ess. 2',
-        'Ess. 3',
+#         'Ess. 1',
+#         'Ess. 2',
+#         'Ess. 3',
 
-        'Type de peuplement',
-        'Origine du peuplement',
-        'Maturite du peuplement',
+#         'Type de peuplement',
+#         'Origine du peuplement',
+#         'Maturite du peuplement',
 
-        'Type de paturage',
-        'Statut du paturage',
-        'Frequence du paturage',
-        'Saisonalité du paturage',
+#         'Type de paturage',
+#         'Statut du paturage',
+#         'Frequence du paturage',
+#         'Saisonalité du paturage',
 
-        'Type de protection',
-        'Autre protection',
+#         'Type de protection',
+#         'Autre protection',
 
-        'Especes',
-        'Accès'
+#         'Especes',
+#         'Accès'
 
-    ]
+#     ]
 
-    if type_csv == "degat":
+#     if type_csv == "degat":
 
-        columns += [
-            "Type de dégât",
-            "Essence",
-            "Gravité",
-            "Étendue",
-            "Antériorité",
-        ]
+#         columns += [
+#             "Type de dégât",
+#             "Essence",
+#             "Gravité",
+#             "Étendue",
+#             "Antériorité",
+#         ]
 
-    data = []
+#     data = []
 
-    for declaration in declarations:
+#     for declaration in declarations:
 
-        print(declaration["id_nomenclature_peuplement_paturage_statut"])
-        d = [
-            declaration['id_declaration'],
-            declaration['declarant'],
-            declaration['organisme'].strip() if declaration['organisme'] else "",
-            declaration['date'],
+#         print(declaration["id_nomenclature_peuplement_paturage_statut"])
+#         d = [
+#             declaration['id_declaration'],
+#             declaration['declarant'],
+#             declaration['organisme'].strip() if declaration['organisme'] else "",
+#             declaration['date'],
 
-            # Foret
-            declaration['label_foret'],
-            "Public" if declaration['b_statut_public'] else "Privée",
-            "Oui" if declaration['b_document'] else "Non",
-            ", ".join([a['label'] for a in get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_SECTEUR')]),
-            ", ".join([a['area_name'] for a in get_areas_from_type_code(declaration['areas_foret'], 'OEASC_COMMUNE')]),
-            ", ".join([a['label']for a in
-                      get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_ONF_PRF') +
-                      get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_CADASTRE')]),
-            # Essence(s)
-            id_nomenclature_to_str(declaration["id_nomenclature_peuplement_essence_principale"]),
-            nomenclatures_to_str(declaration["nomenclatures_peuplement_essence_secondaire"]),
-            nomenclatures_to_str(declaration["nomenclatures_peuplement_essence_complementaire"]),
+#             # Foret
+#             declaration['label_foret'],
+#             "Public" if declaration['b_statut_public'] else "Privée",
+#             "Oui" if declaration['b_document'] else "Non",
+#             ", ".join([a['label'] for a in get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_SECTEUR')]),
+#             ", ".join([a['area_name'] for a in get_areas_from_type_code(declaration['areas_foret'], 'OEASC_COMMUNE')]),
+#             ", ".join([a['label']for a in
+#                       get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_ONF_PRF') +
+#                       get_areas_from_type_code(declaration['areas_localisation'], 'OEASC_CADASTRE')]),
+#             # Essence(s)
+#             id_nomenclature_to_str(declaration["id_nomenclature_peuplement_essence_principale"]),
+#             nomenclatures_to_str(declaration["nomenclatures_peuplement_essence_secondaire"]),
+#             nomenclatures_to_str(declaration["nomenclatures_peuplement_essence_complementaire"]),
 
-            # Détails
-            id_nomenclature_to_str(declaration["id_nomenclature_peuplement_type"]),
-            id_nomenclature_to_str(declaration["id_nomenclature_peuplement_origine"]),
-            nomenclatures_to_str(declaration["nomenclatures_peuplement_maturite"]),
+#             # Détails
+#             id_nomenclature_to_str(declaration["id_nomenclature_peuplement_type"]),
+#             id_nomenclature_to_str(declaration["id_nomenclature_peuplement_origine"]),
+#             nomenclatures_to_str(declaration["nomenclatures_peuplement_maturite"]),
 
-            # Paturage
-            nomenclatures_to_str(declaration["nomenclatures_peuplement_paturage_type"]),
-            id_nomenclature_to_str(declaration["id_nomenclature_peuplement_paturage_statut"]),
-            id_nomenclature_to_str(declaration["id_nomenclature_peuplement_paturage_frequence"]),
-            nomenclatures_to_str(declaration["nomenclatures_peuplement_paturage_saison"]),
+#             # Paturage
+#             nomenclatures_to_str(declaration["nomenclatures_peuplement_paturage_type"]),
+#             id_nomenclature_to_str(declaration["id_nomenclature_peuplement_paturage_statut"]),
+#             id_nomenclature_to_str(declaration["id_nomenclature_peuplement_paturage_frequence"]),
+#             nomenclatures_to_str(declaration["nomenclatures_peuplement_paturage_saison"]),
 
-            # Protection
-            nomenclatures_to_str(declaration["nomenclatures_peuplement_protection_type"]),
-            declaration.get('autre_protection', ""),
+#             # Protection
+#             nomenclatures_to_str(declaration["nomenclatures_peuplement_protection_type"]),
+#             declaration.get('autre_protection', ""),
 
-            # Autres
-            nomenclatures_to_str(declaration["nomenclatures_peuplement_espece"]),
-            id_nomenclature_to_str(declaration["id_nomenclature_peuplement_acces"]),
-        ]
+#             # Autres
+#             nomenclatures_to_str(declaration["nomenclatures_peuplement_espece"]),
+#             id_nomenclature_to_str(declaration["id_nomenclature_peuplement_acces"]),
+#         ]
 
-        if type_csv == "degat":
-            for degat in declaration.get('degats', []):
-                if degat.get('degat_essences'):
-                    for degat_essence in degat["degat_essences"]:
-                        deg = [
-                            id_nomenclature_to_str(degat["id_nomenclature_degat_type"]),
-                            id_nomenclature_to_str(degat_essence['id_nomenclature_degat_essence']),
-                            id_nomenclature_to_str(degat_essence.get('id_nomenclature_degat_gravite', '')),
-                            id_nomenclature_to_str(degat_essence.get('id_nomenclature_degat_etendue', '')),
-                            id_nomenclature_to_str(degat_essence.get('id_nomenclature_degat_anteriorite', '')),
-                        ]
-                        data.append(d + deg)
+#         if type_csv == "degat":
+#             for degat in declaration.get('degats', []):
+#                 if degat.get('degat_essences'):
+#                     for degat_essence in degat["degat_essences"]:
+#                         deg = [
+#                             id_nomenclature_to_str(degat["id_nomenclature_degat_type"]),
+#                             id_nomenclature_to_str(degat_essence['id_nomenclature_degat_essence']),
+#                             id_nomenclature_to_str(degat_essence.get('id_nomenclature_degat_gravite', '')),
+#                             id_nomenclature_to_str(degat_essence.get('id_nomenclature_degat_etendue', '')),
+#                             id_nomenclature_to_str(degat_essence.get('id_nomenclature_degat_anteriorite', '')),
+#                         ]
+#                         data.append(d + deg)
 
-                else:
-                    deg = [
-                        id_nomenclature_to_str(degat["id_nomenclature_degat_type"]),
-                        "", "", "", ""
-                    ]
+#                 else:
+#                     deg = [
+#                         id_nomenclature_to_str(degat["id_nomenclature_degat_type"]),
+#                         "", "", "", ""
+#                     ]
 
-                    data.append(d + deg)
-        else:
-            data.append(d)
+#                     data.append(d + deg)
+#         else:
+#             data.append(d)
 
-    return columns, data
+#     return columns, data
