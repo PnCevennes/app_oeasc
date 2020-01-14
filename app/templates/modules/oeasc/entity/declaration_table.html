@@ -3,7 +3,7 @@
 {%- import "modules/oeasc/macros/macros_display_map.html" as macros_display_map %}
 
 {%- if session.current_user %}
-{%- set cond_modifier_effacer = (session.current_user.id_droit_max >= 4) or (session.current_user.id_role == declaration.id_declarant) %}
+{%- set cond_modifier_effacer = (session.current_user.id_droit_max >= 4) or (session.current_user.id_role == declaration_table.id_declarant) %}
 {%- else %}
 {%- set cond_modifier_effacer = false %}
 {%- endif %}
@@ -11,27 +11,27 @@
 {% if btn_action %}
 <div>
   {%- if cond_modifier_effacer %}
-  <a class="btn-action" href="{{ url_for('declaration.modifier_declaration', id_declaration=declaration['id_declaration'])}}" title="Modifier la déclaration" target="_blank" data-toggle="tooltip">
+  <a class="btn-action" href="{{ url_for('declaration.modifier_declaration', id_declaration=declaration_table['id_declaration'])}}" title="Modifier la déclaration" target="_blank" data-toggle="tooltip">
     <span class="fas fa-pen"></span>
   </a>
   {%- endif %}
-  <i class="btn-action" onclick="M.toPDF_map('declaration_' + {{ declaration['id_declaration'] }});" title="Exporter la déclaration au format PDF" data-toggle="tooltip">
+  <i class="btn-action" onclick="M.toPDF_map('declaration_' + {{ declaration_table['id_declaration'] }});" title="Exporter la déclaration au format PDF" data-toggle="tooltip">
     <span class="fas fa-file-alt "></span>
   </i>
 
 </div>
 {% endif %}
 
-<div id ="declaration_{{declaration.id_declaration if declaration.id_declaration}}"
+<div id ="declaration_{{declaration_table.id_declaration if declaration_table.id_declaration}}"
 class="pdf-like" 
-data-declaration='{{ declaration | tojson if declaration else ""  }}'
-filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_foret'] | replace(' ', '-') if declaration['label_foret']}}_{{utils.print_date(declaration['meta_create_date']) | replace(' ', '') if declaration['meta_create_date']}}.pdf">
+data-declaration='{{ declaration_table | tojson if declaration_table else ""  }}'
+filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_table['label_foret'] | replace(' ', '-') if declaration_table['label_foret']}}_{{utils.print_date(declaration_table['meta_create_date']) | replace(' ', '') if declaration_table['meta_create_date']}}.pdf">
 
 
 
-  <h2>Déclaration {{ 'n° '+ utils.to_string(declaration['id_declaration']) if declaration['id_declaration']}}</h2>
+  <h2>Déclaration {{ 'n° '+ utils.to_string(declaration_table['id_declaration']) if declaration_table['id_declaration']}}</h2>
 
-{%- set foret = declaration["foret"]%}
+{%- set foret = declaration_table["foret"]%}
 
 <div>
 
@@ -43,36 +43,36 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       <tr><th colspan=3> Informations</th></tr>
       <!-- <tr>
           <th>Id</th>
-          <td>{{declaration['id_declaration']}}</td>  
+          <td>{{declaration_table['id_declaration']}}</td>  
       </tr> -->
       <tr>
         <th>Partage d'information</th>
-        <td>{%- if declaration.b_autorisation %} Autorisé {%- else %} Non autorisé {%- endif %}</td>  
+        <td>{%- if declaration_table.b_autorisation %} Autorisé {%- else %} Non autorisé {%- endif %}</td>  
     </tr>
       <tr>
         <th>Date</th>
-        <td>{{utils.print_date(declaration['declaration_date'])}}</td>
+        <td>{{utils.print_date(declaration_table['declaration_date'])}}</td>
       </tr>
       <tr>
         <th>Accessibilité</th>
-        <td>{{ declaration.peuplement_acces_label | lower }}</td>
+        <td>{{ declaration_table.peuplement_acces_label | lower }}</td>
       </tr>
       <tr>
         <th>Espèces présentes</th>
-        <td>{{ declaration.espece_label }}</td>
+        <td>{{ declaration_table.espece_label }}</td>
       </tr>
     </tbody>
 
-    {% if declaration.declarant %}
+    {% if declaration_table.declarant %}
     <tbody>
       <tr><th colspan=3> Déclarant</th></tr>
       <tr>
         <th>NOM prénom</th>
-        <td>{{ declaration.declarant }}</td>
+        <td>{{ declaration_table.declarant }}</td>
       </tr>
       <tr>
         <th>Organisme</th>
-        <td>{{ declaration.organisme }}</td>
+        <td>{{ declaration_table.organisme }}</td>
       </tr>
     </tbody>
     {% endif %}
@@ -83,17 +83,17 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       </tr>
       <tr>
         <th>Nom</th>
-        <td>{{ declaration.label_foret if declaration.label_foret!="" else "nom inconnu" }}</td>
+        <td>{{ declaration_table.label_foret if declaration_table.label_foret!="" else "nom inconnu" }}</td>
       </tr>
       <tr>
         <th>Statut</th>
-        <td>{{ declaration.statut_public }}</td>
+        <td>{{ declaration_table.statut_public }}</td>
       </tr>
       <tr>
         <th>Documentée</th>
         <td>
-          {%- if declaration.b_document %}
-          {%- if declaration.b_statut_public %}
+          {%- if declaration_table.b_document %}
+          {%- if declaration_table.b_statut_public %}
           oui <i>(régime forestier)</i>
           {%- else %}
           oui <i>(document de gestion durable)</i>
@@ -105,11 +105,11 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       </tr>
       <tr>
         <th>Type</th>
-        <td>{{ utils.get_foret_type(declaration['id_foret']) | lower}}</td>
+        <td>{{ utils.get_foret_type(declaration_table['id_foret']) | lower}}</td>
       </tr>
       <tr>
         <th>Commune(s)</th>
-        <td>{{ declaration['communes'] }}</td>
+        <td>{{ declaration_table['communes'] }}</td>
       </tr>
     </tbody>
 
@@ -119,11 +119,11 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       </tr>
       <tr>
         <th>Secteur</th>
-        <td>{{ declaration['secteur'] }}</td>
+        <td>{{ declaration_table['secteur'] }}</td>
       </tr>
       <tr>
         <th>Parcelle(s)</th>
-        <td>{{ declaration['parcelles'] }}</td>
+        <td>{{ declaration_table['parcelles'] }}</td>
       </tr>
     </tbody>
 
@@ -133,15 +133,15 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       </tr>
       <tr>
         <th>Principale</th>
-        <td>{{ declaration.peuplement_ess_1_label | lower |nopar }}</td>
+        <td>{{ declaration_table.peuplement_ess_1_label | lower |nopar }}</td>
       </tr>
       <tr>
         <th>Secondaire(s)</th>
-        <td>{{ declaration.peuplement_ess_2_label | lower |nopar }}</td>
+        <td>{{ declaration_table.peuplement_ess_2_label | lower |nopar }}</td>
       </tr>
       <tr>
         <th>Complémentaire(s)</th>
-        <td>{{ declaration.peuplement_ess_3_label | lower |nopar }}</td>
+        <td>{{ declaration_table.peuplement_ess_3_label | lower |nopar }}</td>
       </tr>
     </tbody>
 
@@ -151,19 +151,19 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       </tr>
       <tr>
         <th>Superficie (ha)</th>
-        <td>{{ declaration.peuplement_surface or 'Non renseignée' }}</td>
+        <td>{{ declaration_table.peuplement_surface or 'Non renseignée' }}</td>
       </tr>
       <tr>
         <th>Origine</th>
-        <td>{{ declaration.peuplement_origine_label | lower }}</td>
+        <td>{{ declaration_table.peuplement_origine_label | lower }}</td>
       </tr>
       <tr>
         <th>Type</th>
-        <td>{{ declaration.peuplement_type_label | lower }}</td>
+        <td>{{ declaration_table.peuplement_type_label | lower }}</td>
       </tr>
       <tr>
         <th>Maturité</th>
-        <td>{{ declaration.peuplement_maturite_label | lower }}</td>
+        <td>{{ declaration_table.peuplement_maturite_label | lower }}</td>
       </tr>
     </tbody>
 
@@ -173,16 +173,16 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       </tr>
       <tr>
         <th> Existence</th>
-        <td>{%- if declaration.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}</td>
+        <td>{%- if declaration_table.b_peuplement_protection_existence %} oui {%- else %} non {%- endif %}</td>
       </tr>
-      {%- if declaration.b_peuplement_protection_existence %}
+      {%- if declaration_table.b_peuplement_protection_existence %}
       <tr>
         <th>Type</th>
-        <td>{{ declaration.peuplement_protection_type_label | lower }}</td>
+        <td>{{ declaration_table.peuplement_protection_type_label | lower }}</td>
       </tr>
       <tr>
         <th>Autre protection</th>
-        <td>{{ declaration.autre_protection }}</td>
+        <td>{{ declaration_table.autre_protection }}</td>
       </tr>
       {%- endif %}
     </tbody>
@@ -193,20 +193,20 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       </tr>
       <tr>
         <th> Présence</th>
-        <td>{%- if declaration.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}</td>
+        <td>{%- if declaration_table.b_peuplement_paturage_presence %} oui {%- else %} non {%- endif %}</td>
       </tr>
-      {%- if declaration.b_peuplement_paturage_presence %}
+      {%- if declaration_table.b_peuplement_paturage_presence %}
       <tr>
         <th>Type</th>
-        <td>{{ declaration.peuplement_paturage_type_label | lower }}</td>
+        <td>{{ declaration_table.peuplement_paturage_type_label | lower }}</td>
       </tr>
       <tr>
         <th>Statut</th>
-        <td>{{ declaration.peuplement_paturage_statut_label | lower | nopar}}</td>
+        <td>{{ declaration_table.peuplement_paturage_statut_label | lower | nopar}}</td>
       </tr>
       <tr>
         <th>Fréquence</th>
-        <td>{{ declaration.peuplement_paturage_frequence_label | lower | nopar}}</td>
+        <td>{{ declaration_table.peuplement_paturage_frequence_label | lower | nopar}}</td>
       </tr>
       <tr></tr>
       {%- endif %}
@@ -217,7 +217,7 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       <tr>
         <th colspan="3">Dégâts</th>
       </tr>
-      {%- for degat in declaration.degats %}
+      {%- for degat in declaration_table.degats %}
 
       {%- for degat_essence in degat['degat_essences'] %}
       {% if degat_essence != {} %}
@@ -245,7 +245,7 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       {%- endfor %}
     </tbody>
 
-    {% if declaration.commentaire %}
+    {% if declaration_table.commentaire %}
     <tbody>
       <tr>
         <th colspan="3">Commentaires</th>
@@ -253,7 +253,7 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
       <tr>
         <th></th>
         <td>
-          {{ declaration.commentaire|nl2br or "" }}
+          {{ declaration_table.commentaire|nl2br or "" }}
         </td>
       </tr>
       
@@ -265,7 +265,7 @@ filename="declaration_{{declaration['id_declaration']}}_{{declaration['label_for
 
 {% if map_display %}
 
-<div id="show_declarations" class="page-break declaration-maps">
+<div id="show_declarations" class="page-break declaration_table-maps">
   {{ macros_display_map.map_localisation(id_declaration, "global", "Localisation de l'alerte dans le périmètre de l'Observatoire") }}
   {{ macros_display_map.map_localisation(id_declaration, "medium", "Localisation des parcelles") }}
   {{ macros_display_map.map_localisation(id_declaration, "local", "Carte des parcelles") }}

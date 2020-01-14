@@ -21,6 +21,7 @@ from .repository import (
     get_declaration,
     f_create_or_update_declaration,
     get_dict_nomenclature_areas,
+    get_declaration_table
 )
 
 from .declaration_sample import declaration_dict_random_sample
@@ -90,7 +91,7 @@ def declaration_html(id_declaration):
 
     return render_template(
         'modules/oeasc/entity/declaration_table.html',
-        declaration=declaration,
+        declaration_table=declaration,
         id_declaration=id_declaration,
         nomenclature=nomenclature_oeasc(),
         btn_action=btn_action,
@@ -120,9 +121,13 @@ def get_form_declaration():
 
     listes_essences = get_listes_essences(declaration_dict)
 
+    declaration_table = get_declaration_table(declaration_dict)
+
+
     return render_template(
         'modules/oeasc/form/form_declaration.html',
         declaration=declaration_dict,
+        declaration_table=declaration_table,
         nomenclature=nomenclature,
         listes_essences=listes_essences,
         id_form=id_form

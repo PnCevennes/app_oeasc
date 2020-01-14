@@ -1,6 +1,7 @@
 """
     Fonctions de traitement de données pour les déclarations
 """
+
 from flask import session, current_app
 from utils_flask_sqla_geo.generic import GenericQueryGeo
 from utils_flask_sqla.generic import GenericQuery
@@ -81,8 +82,7 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
 
     if b_resolve:
         get_dict_nomenclature_areas(declaration_dict)
-        get_foret_type(declaration_dict.get("foret"))
-
+        get_foret_type(declaration_dict.get("id_foret"))
     return declaration_dict
 
 
@@ -441,3 +441,130 @@ def id_nomenclature_to_str(id_nomenclature, field_name="mnemonique"):
         return ""
 
     return id_nomenclature[field_name]
+
+def get_declaration_table(declaration_dict):
+    print(declaration_dict)
+    if declaration_dict['id_declaration']:
+        return get_declaration(declaration_dict['id_declaration'])
+    
+    else: # pff
+
+        d = {}
+        d['declaration_date'] = declaration_dict.get('meta_create_date') or ''
+        d['b_autorisation'] = declaration_dict.get('b_autorisation')
+        d['peuplement_acces_label'] = (
+            (declaration_dict.get('id_nomenclature_peuplement_acces') or {})
+            .get('label_fr', '')
+        )
+        d['espece_label'] = (
+            ' ,'.join([n['label_fr'] for n in declaration_dict.get('nomenclatures_peuplement_espece', [])])
+        )
+
+        d['label_foret'] = declaration_dict['foret']['label_foret']
+        d['statut_public'] = "Public" if declaration_dict['foret'].get('b_statut_public') else "Privé"
+        d['b_document'] = declaration_dict['foret'].get('b_document')
+        d['b_statut_public'] = declaration_dict['foret'].get('b_statut_public')
+        d['id_foret'] = declaration_dict['foret'].get('id_foret')
+        d['communes'] = ' ,'.join(
+            [
+                l['area_name']
+                for l in declaration_dict['foret']['areas_foret']
+                if l['type_code'] == 'OEASC_COMMUNE'
+            ]
+        )
+        d['secteur'] = ' ,'.join(
+            [
+                l['area_name']
+                for l in declaration_dict['areas_localisation']
+                if l['type_code'] == 'OEASC_SECTEUR'
+            ]
+        )
+        d['parcelles'] = ' ,'.join(
+            [
+                l['area_name']
+                for l in declaration_dict['areas_localisation']
+                if l['type_code'] in  ['OEASC_ONF_UG', 'OEASC_CADASTRE']
+            ]
+        )
+        d['peuplement_ess_1_label'] = (
+            (declaration_dict.get('id_nomenclature_peuplement_essence_principale') or {})
+            .get('label_fr', '')
+        )
+        d['peuplement_ess_2_label'] = (
+            ' ,'.join([n['label_fr'] for n in declaration_dict.get(
+                'nomenclatures_peuplement_essence_secondaire', [])])
+        )
+        d['peuplement_ess_3_label'] = (
+            ' ,'.join([n['label_fr'] for n in declaration_dict.get(
+                'nomenclatures_peuplement_essence_complementaire', [])])
+        )
+        d['peuplement_surface'] = declaration_dict['peuplement_surface']
+        d['peuplement_origine_label'] = (
+            (declaration_dict.get('id_nomenclature_peuplement_origine') or {})
+            .get('label_fr', '')
+        )
+        d['peuplement_type_label'] = (
+            (declaration_dict.get('id_nomenclature_peuplement_type') or {})
+            .get('label_fr', '')
+        )
+        d['peuplement_maturite_label'] = (
+            ' ,'.join([n['label_fr'] for n in declaration_dict.get(
+                'nomenclatures_peuplement_maturite', [])])
+        )
+
+        d['b_peuplement_protection_existence'] = declaration_dict.get('b_peuplement_protection_existence')
+        d['peuplement_protection_type_label'] = (
+            ' ,'.join([n['label_fr'] for n in declaration_dict.get(
+                'nomenclatures_peuplement_protection_type', [])])
+        )
+        d['autre_protection'] = declaration_dict['autre_protection']
+
+        d['b_peuplement_paturage_presence'] = declaration_dict.get('b_peuplement_paturage_presence')
+        d['peuplement_paturage_type_label'] = (
+            ' ,'.join([n['label_fr'] for n in declaration_dict.get(
+                'nomenclatures_peuplement_paturage_type', [])])
+        )
+        d['peuplement_paturage_statut_label'] = (
+            (declaration_dict.get('id_nomenclature_peuplement_paturage_statut') or {})
+            .get('label_fr', '')
+        )
+        d['peuplement_paturage_frequence_label'] = (
+            (declaration_dict.get('id_nomenclature_peuplement_paturage_frequence') or {})
+            .get('label_fr', '')
+        )
+        d['peuplement_paturage_saison_label'] = (
+            ' ,'.join([n['label_fr'] for n in declaration_dict.get(
+                'nomenclatures_peuplement_paturage_saison', [])])
+        )
+        d['commentaire'] = declaration_dict['commentaire']
+
+        d['degats'] = [
+            {
+                'degat_type_label': d['id_nomenclature_degat_type']['label_fr'],
+                'degat_type_mnemo': d['id_nomenclature_degat_type']['mnemonique'],
+                'degat_essences': [
+                    {
+                        'degat_essence_label': (
+                            de.get('id_nomenclature_degat_essence', {})
+                            .get('label_fr')
+                        ),
+                        'degat_gravite_label': (
+                            (de.get('id_nomenclature_degat_gravite') or {})
+                            .get('label_fr')
+                        ),
+                        'degat_anteriorite_label': (
+                            (de.get('id_nomenclature_degat_anteriorite') or {})
+                            .get('label_fr')
+                        ),
+                        'degat_etendue_label': (
+                            (de.get('id_nomenclature_degat_etendue') or {})
+                            .get('label_fr')
+                        ),
+                    }
+                    for de in d.get('degat_essences', [])
+                ]
+            }
+            for d in declaration_dict.get('degats', [])
+        ]
+
+    return d

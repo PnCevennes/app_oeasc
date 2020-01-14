@@ -17,6 +17,8 @@ def print_date(s_date):
     """
         pour affichage dans tableau
     """
+    if not s_date:
+        return ''
     return parser.parse(s_date).strftime("%d-%m-%Y")
 
 

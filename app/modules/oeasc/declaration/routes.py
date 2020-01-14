@@ -13,7 +13,9 @@ from .repository import (
     dfpu_as_dict_from_id_declaration,
     get_declarations,
     get_declaration,
+    get_declaration_table
 )
+from .models import TDeclaration
 
 from .utils import get_listes_essences
 
@@ -50,9 +52,12 @@ def modifier_declaration(id_declaration):
     '''
 
     if id_declaration != -1:
-        declaration_dict = get_declaration(id_declaration)
+        declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
     else:
         declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
+
+
+    declaration_table = get_declaration_table(declaration_dict)
 
     nomenclature = nomenclature_oeasc()
 
@@ -65,6 +70,7 @@ def modifier_declaration(id_declaration):
     return render_template(
         'modules/oeasc/pages/declaration/modifier_ou_creer_declaration.html',
         declaration=declaration_dict,
+        declaration_table=declaration_table,
         nomenclature=nomenclature,
         listes_essences=listes_essences,
         id_form=id_form,
@@ -85,6 +91,7 @@ def declaration(id_declaration):
 
     return render_template(
         'modules/oeasc/pages/declaration/declaration.html',
+        declaration_table=declaration_dict,
         declaration=declaration_dict,
         id_declaration=id_declaration,
         nomenclature=nomenclature_oeasc(),

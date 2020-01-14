@@ -412,7 +412,6 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
               $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('border-color', color);
               $("#map_" + map.map_name + ' #legend-' + type_code + ' > i').css('border-width', weight);
 
-              console.log("aaaa", fp.label, ("#map_" + map.map_name + ' #legend-' + type_code), $("#map_" + map.map_name + ' #legend-' + type_code));
               if(b_zoom && !b_tooltip) v_sous_titre.push(fp.label);
             });
 

@@ -1,7 +1,7 @@
 {%- extends "modules/oeasc/site/layout_sidebar.html" %}
 
-
 {%- block title %}Signalement de dégâts forestiers{%- endblock %}
+
 
 
 {%- block sidebar %}
@@ -27,8 +27,9 @@
 <div id="declaration_display">
   
   
-  {%- if declaration %}
+  {%- if declaration_table %}
   {% set map_display="ok" %}
+
   {%- include "modules/oeasc/entity/declaration_table.html" %}
   {%- else %}
   <div class="alert alert-danger">
@@ -61,7 +62,7 @@
 
     "use strict";
 
-    M.init_maps_declaration({{declaration.id_declaration}})
+    M.init_maps_declaration({{declaration_table.id_declaration}})
 
   });
 </script>
