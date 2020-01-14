@@ -1,8 +1,12 @@
-# -*- coding: utf-8 -*
+'''
+    api fonctionalite utilisée dans l'OEASC
+'''
 from flask import Blueprint, current_app
+
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
-from .repository import get_db
 from app.utils.utilssqlalchemy import json_resp
+
+from .repository import get_db
 
 config = current_app.config
 DB = config['DB']
@@ -26,11 +30,12 @@ def get_nomenclature_oeasc():
     return nomenclature_oeasc()
 
 
-@bp.route('get_db/<type>/<key>/<val>', methods=['GET'])
+@bp.route('get_db/<type_data>/<key>/<val>', methods=['GET'])
 @json_resp
-def api_get_db(type, key, val):
+def api_get_db(type_data, key, val):
     '''
-
+        pour recuperer des infos (par exemple email d'un utilisateurs)
+        TODO remove
     '''
-    out = get_db(type, key, val)
+    out = get_db(type_data, key, val)
     return out

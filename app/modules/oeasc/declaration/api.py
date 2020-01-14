@@ -1,17 +1,19 @@
 '''
+    liste des api pour les declarations
 '''
 
 import copy
-from app.utils.utilssqlalchemy import json_resp
 
 from flask import Blueprint, render_template, request, current_app, session
 from flask.helpers import send_from_directory
 
+from utils_flask_sqla.response import csv_resp
+from utils_flask_sqla_geo.generic import GenericTableGeo
+
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
+from app.utils.utilssqlalchemy import json_resp
 from app.utils.env import ROOT_DIR
 
-from utils_flask_sqla.generic import GenericTable
-from utils_flask_sqla_geo.generic import GenericTableGeo
 
 from .repository import (
     get_user,
@@ -19,7 +21,6 @@ from .repository import (
     get_declaration,
     f_create_or_update_declaration,
     get_dict_nomenclature_areas,
-    # get_declarations_csv
 )
 
 from .declaration_sample import declaration_dict_random_sample
@@ -31,22 +32,10 @@ from .utils import (
     check_massif,
 )
 
-from ..utils import (
-    arrays_to_csv
-)
-
-from .models import (
-    TDeclaration,
-)
-
-
-from .mail import send_mail_validation_declaration
-
 from ..user.utils import check_auth_redirect_login
 
-
-
-
+from .mail import send_mail_validation_declaration
+from .models import TDeclaration
 
 bp = Blueprint('declaration_api', __name__)
 
@@ -114,7 +103,8 @@ def declaration_html(id_declaration):
 @json_resp
 def get_form_declaration():
     '''
-        Retourne le formulaire correspondant à la déclaration envoyée en post dans data['declaration']
+        Retourne le formulaire correspondant
+        à la déclaration envoyée en post dans data['declaration']
     '''
     data = request.get_json()
     nomenclature = nomenclature_oeasc()
@@ -130,7 +120,13 @@ def get_form_declaration():
 
     listes_essences = get_listes_essences(declaration_dict)
 
-    return render_template('modules/oeasc/form/form_declaration.html', declaration=declaration_dict, nomenclature=nomenclature, listes_essences=listes_essences, id_form=id_form)
+    return render_template(
+        'modules/oeasc/form/form_declaration.html',
+        declaration=declaration_dict,
+        nomenclature=nomenclature,
+        listes_essences=listes_essences,
+        id_form=id_form
+    )
 
 
 @bp.route('delete_declaration/<int:id_declaration>', methods=['POST'])
@@ -141,9 +137,11 @@ def delete_declaration(id_declaration):
         Supprime une déclaration (id_déclaration)
     '''
 
-    DB.session.query(
-        TDeclaration).filter(
-        TDeclaration.id_declaration == id_declaration).delete()
+    (
+        DB.session.query(TDeclaration)
+        .filter(TDeclaration.id_declaration == id_declaration)
+        .delete()
+    )
 
     DB.session.commit()
 
@@ -191,7 +189,12 @@ def random_populate(nb):
         # check_proprietaire(declaration_dict, nomenclature)
         declaration_dict = f_create_or_update_declaration(declaration_dict)
 
-        print("i", i, nb, declaration_dict["id_declaration"], declaration_dict["foret"]["nom_foret"], "public", declaration_dict["foret"]["b_statut_public"], "documenté", declaration_dict["foret"]["b_document"])
+        print(
+            "i", i, nb, declaration_dict["id_declaration"],
+            declaration_dict["foret"]["nom_foret"], "public",
+            declaration_dict["foret"]["b_statut_public"],
+            "documenté", declaration_dict["foret"]["b_document"]
+        )
 
     return "ok"
 
@@ -216,10 +219,14 @@ def create_or_update_declaration():
 
 @bp.route('declarations_csv/', methods=['GET'])
 @check_auth_redirect_login(1)
+@csv_resp
 def declarations_csv():
     '''
         renvoie la liste de déclarations au format csv
     '''
+
+    file_name = 'export_declarations_oeasc'
+    separator = ';'
 
     type_out = request.args.get('type_out')  # 'degat', ''
 
@@ -232,15 +239,16 @@ def declarations_csv():
     )
 
     columns = list(data[0].keys())
-    
-    data = [d.values() for d in data]
 
-    # enlever 'None'
-    for d in data:
-        for e in d:
-            e = e if e is not None else ''
+    # data = [
+    #     [
+    #         str(e) if e else ''
+    #         for e in d.values()
+    #     ]
+    #     for d in data
+    # ]
 
-    return arrays_to_csv('declaration_oeasc', data, columns, ';')
+    return (file_name, data, columns, separator)
 
 
 @bp.route('declarations_shape', methods=['GET'])
@@ -263,7 +271,9 @@ def declarations_shape():
 
     data = DB.session.query(export_view.tableDef).all()
 
-    data = [d for d in data if d.geom is not None]
+    data = [
+        d for d in data if d.geom is not None
+    ]
 
     file_name = 'oeasc_declarations'
     dir_path = str(ROOT_DIR / "static/shapefiles")
