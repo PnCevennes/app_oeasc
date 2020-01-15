@@ -18,7 +18,7 @@ def check_auth_redirect_login(level):
         @wraps(f)
         def __check_auth_redirect_login(*args, **kwargs):
             redirect_url = '{0}/user/login?redirect="{1}"'.format(
-                config['URL_APPLICATION'],
+                config['URL_APPLICATION'], 
                 request.url
                 )
             print(redirect_url)
