@@ -253,6 +253,7 @@ class TDeclaration(DB.Model):
     degats = DB.relationship(TDegat, cascade="save-update, merge, delete, delete-orphan")
 
     autre_protection = DB.Column(DB.Text)
+    precision_localisation = DB.Column(DB.Text)
     commentaire = DB.Column(DB.Text)
 
     meta_create_date = DB.Column(DB.DateTime)

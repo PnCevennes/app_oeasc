@@ -1,4 +1,5 @@
 ALTER TABLE oeasc.t_declarations ADD COLUMN b_autorisation BOOLEAN;
+ALTER TABLE oeasc.t_declarations ADD COLUMN precision_localisation TEXT;
 ALTER TABLE oeasc.t_declarations ADD COLUMN peuplement_surface DOUBLE PRECISION;
 
 UPDATE ref_nomenclatures.t_nomenclatures 

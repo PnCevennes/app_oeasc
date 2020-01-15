@@ -115,6 +115,8 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
     b_autorisation BOOLEAN,
 
     autre_protection text,
+    precision_localisation text,
+
 
     commentaire text,
 

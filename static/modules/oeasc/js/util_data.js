@@ -235,6 +235,12 @@ var reset_proprietaire = function() {
     // - peuplement
 
     declaration.peuplement_surface = parseInt($("#peuplement_surface").val());
+    
+    if($('#precision_localisation').length) {
+      declaration.precision_localisation = $('#precision_localisation').val().trim();
+    } else {
+      declaration.precision_localisation = '';
+    }
 
     // - - essences
 
@@ -256,13 +262,9 @@ var reset_proprietaire = function() {
 
 
     if($('#autre_protection').length) {
-
       declaration.autre_protection = $('#autre_protection').val().trim();
-
     } else {
-
       declaration.autre_protection = '';
-
     }
 
     // - - paturage

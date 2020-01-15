@@ -125,6 +125,10 @@ filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_tabl
         <th>Parcelle(s)</th>
         <td>{{ declaration_table['parcelles'] }}</td>
       </tr>
+      <tr>
+        <th>Précisions sur la localisation</th>
+        <td>{{ declaration_table.precision_localisation or ''}}</td>
+      </tr>
     </tbody>
 
     <tbody>

@@ -517,6 +517,7 @@ def get_declaration_table(declaration_dict):
                 'nomenclatures_peuplement_protection_type', [])])
         )
         d['autre_protection'] = declaration_dict['autre_protection']
+        d['precision_localisation'] = declaration_dict['precision_localisation']
 
         d['b_peuplement_paturage_presence'] = declaration_dict.get('b_peuplement_paturage_presence')
         d['peuplement_paturage_type_label'] = (
