@@ -21,9 +21,6 @@ def check_auth_redirect_login(level):
                 config['URL_APPLICATION'],
                 request.path
                 )
-            print()
-            print(request.url)
-            print(request.path)
             return fnauth.check_auth(level, False, redirect_url)(f)(*args, **kwargs)
         return __check_auth_redirect_login
     return _check_auth_redirect_login

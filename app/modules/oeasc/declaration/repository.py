@@ -443,7 +443,6 @@ def id_nomenclature_to_str(id_nomenclature, field_name="mnemonique"):
     return id_nomenclature[field_name]
 
 def get_declaration_table(declaration_dict):
-    print(declaration_dict)
     if declaration_dict['id_declaration']:
         return get_declaration(declaration_dict['id_declaration'])
     
