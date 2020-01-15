@@ -113,6 +113,8 @@ def login():
     identifiant = request.args.get('identifiant', "")
     type_login = request.args.get('type', "")
 
+    print(config['URL_APPLICATION'])
+
     return render_template(
         'modules/oeasc/user/login.html',
         config=config,

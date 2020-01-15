@@ -18,10 +18,10 @@ def check_auth_redirect_login(level):
         @wraps(f)
         def __check_auth_redirect_login(*args, **kwargs):
             redirect_url = '{0}/user/login?redirect="{1}"'.format(
-                config['URL_APPLICATION'], 
+                config['URL_APPLICATION'],
                 request.url
                 )
-            print(redirect_url)
+            print('pypn', redirect_url, config['URL_APPLICATION'])
             return fnauth.check_auth(level, False, redirect_url)(f)(*args, **kwargs)
         return __check_auth_redirect_login
     return _check_auth_redirect_login
