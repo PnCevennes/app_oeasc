@@ -1,14 +1,18 @@
+"""
+    routes pour les utilisateurs
+"""
 from flask import (
     Blueprint, render_template, request, session, url_for, redirect, current_app
 )
-from .utils import check_auth_redirect_login
+from pypnusershub.db.models import User
+
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
 from .repository import (
     get_liste_organismes_oeasc,
     get_users,
     get_user,
 )
-from pypnusershub.db.models import User
+from .utils import check_auth_redirect_login
 
 config = current_app.config
 
@@ -17,7 +21,7 @@ bp = Blueprint('user', __name__)
 
 @bp.route('/users')
 @check_auth_redirect_login(4)
-def users():
+def route_users():
     '''
         liste des utilisateurs
         possibilité de modifier les droits des utilisateurs
@@ -26,7 +30,12 @@ def users():
 
     users = get_users()
 
-    return render_template('modules/oeasc/user/users.html', users=users, current_user=current_user, config=config)
+    return render_template(
+        'modules/oeasc/user/users.html',
+        users=users,
+        current_user=current_user,
+        config=config
+    )
 
 
 @bp.route('/espace_personnel')
@@ -36,15 +45,16 @@ def espace_personnel():
         accès à l'espace personnel
         redirection vers la route user en s'assurant d'être connecté
     '''
-    return redirect(url_for('user.user'))
+    return redirect(url_for('user.route_user'))
 
 
 @bp.route('/', defaults={'id_user': 0})
 @bp.route('/<int:id_user>')
 # @check_auth_redirect_login(1)
-def user(id_user):
+def route_user(id_user):
     '''
-
+        Route pour les informations de l'utilisateur
+        ou pour le login ( si id_user vide ou 0)
     '''
 
     user = None
@@ -69,7 +79,11 @@ def user(id_user):
 
         user = get_user(id_user)
 
-        cond_org = current_user['id_droit_max'] >= 3 and current_user['id_organisme'] == user['id_organisme']
+        cond_org = (
+            current_user['id_droit_max'] >= 3 and
+            current_user['id_organisme'] == user['id_organisme']
+        )
+
         if not current_user['id_droit_max'] >= 4 and not cond_org:
 
             user = None
@@ -97,9 +111,17 @@ def login():
     redirect_url = request.args.get('redirect', "")
     token = request.args.get('token', "")
     identifiant = request.args.get('identifiant', "")
-    type = request.args.get('type', "")
+    type_login = request.args.get('type', "")
 
-    return render_template('modules/oeasc/user/login.html', config=config, redirect_url=redirect_url, token=token, identifiant=identifiant, type=type, browser=browser)
+    return render_template(
+        'modules/oeasc/user/login.html',
+        config=config,
+        redirect_url=redirect_url,
+        token=token,
+        identifiant=identifiant,
+        type=type_login,
+        browser=browser
+    )
 
 
 @bp.route('/change_password/', defaults={'token': ""}, methods=['GET'])

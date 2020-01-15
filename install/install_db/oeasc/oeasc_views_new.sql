@@ -398,8 +398,18 @@ CREATE OR REPLACE VIEW oeasc.v_export_declaration_degats_shape AS
             ON vg.id_declaration = ved.id
         ;
 
+GRANT SELECT ON oeasc.v_declarations TO PUBLIC;
+GRANT SELECT ON oeasc.v_degats TO PUBLIC;
+GRANT SELECT ON oeasc.v_declaration_geoms TO PUBLIC;
+GRANT SELECT ON oeasc.v_export_declarations_csv TO PUBLIC;
+GRANT SELECT ON oeasc.v_export_declaration_degats_csv TO PUBLIC;
+GRANT SELECT ON oeasc.v_export_declarations_shape TO PUBLIC;
+GRANT SELECT ON oeasc.v_export_declaration_degats_shape TO PUBLIC;
+
+
+
 SELECT * FROM oeasc.v_declarations;
---SELECT * FROM oeasc.v_declaration_degats;
+--SELECT * FROM oeasc.v_export_declarations_csv;
 --SELECT * FROM oeasc.v_export_declarations_csv;
 --SELECT * FROM oeasc.v_export_declaration_degats_csv;
 --SELECT * FROM oeasc.v_declaration_geoms;

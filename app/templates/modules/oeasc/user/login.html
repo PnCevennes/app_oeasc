@@ -47,7 +47,7 @@
                 {% if not token and type != "add_droit" %}
                 <hr>
                 <p >Si vous ne possédez pas encore de compte, vous pouvez  
-                    {% set href=url_for('user.user')%}
+                    {% set href=url_for('user.route_user')%}
                     <button type=button class='btn btn-primary' onclick="location.href='{{href}}'">créer un compte</button>
                 </p>
                 {% endif %}
