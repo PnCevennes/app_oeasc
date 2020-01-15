@@ -13,12 +13,9 @@
             
             {%- if (browser in ['msie', 'safari', 'opera']) %}
             {%- endif %}
-{% include "modules/oeasc/user/message_ie.html" %}
 
-    <p>{{ redirect_url }}</p>
-    <p>{{ config['URL_APPLICATION'] }}</p>
+            {% include "modules/oeasc/user/message_ie.html" %}
     
-
             <h2>Connexion</h2>
 
             <div>
