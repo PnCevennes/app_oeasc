@@ -1,9 +1,13 @@
+'''
+    modeles alerte OEASC
+'''
 from flask import current_app
+
+from pypnusershub.db.models import User
+
 from app.utils.utilssqlalchemy import (
     serializable
 )
-
-from pypnusershub.db.models import User
 
 config = current_app.config
 DB = config['DB']
@@ -11,10 +15,17 @@ DB = config['DB']
 
 @serializable
 class CorAreasDeclaration(DB.Model):
+    '''
+        areas localisation
+    '''
     __tablename__ = 'cor_areas_declarations'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        primary_key=True
+    )
     id_area = DB.Column(DB.Integer, primary_key=True)
 
     def __init__(self, id_area=None):
@@ -25,6 +36,9 @@ class CorAreasDeclaration(DB.Model):
 
 @serializable
 class CorAreasForet(DB.Model):
+    '''
+        areas foret
+    '''
 
     __tablename__ = 'cor_areas_forets'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
@@ -40,12 +54,19 @@ class CorAreasForet(DB.Model):
 
 @serializable
 class CorNomenclatureDeclarationEssenceSecondaire(DB.Model):
+    '''
+        nomenclatures essences secondaires
+    '''
 
     __tablename__ = 'cor_nomenclature_declarations_essence_secondaire'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        primary_key=True
+    )
 
     def __init__(self, id_nomenclature=None):
 
@@ -55,12 +76,19 @@ class CorNomenclatureDeclarationEssenceSecondaire(DB.Model):
 
 @serializable
 class CorNomenclatureDeclarationEssenceComplementaire(DB.Model):
+    '''
+        nomenclatures essences complementaires
+    '''
 
     __tablename__ = 'cor_nomenclature_declarations_essence_complementaire'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        primary_key=True
+    )
 
     def __init__(self, id_nomenclature=None):
 
@@ -70,12 +98,19 @@ class CorNomenclatureDeclarationEssenceComplementaire(DB.Model):
 
 @serializable
 class CorNomenclatureDeclarationMaturite(DB.Model):
+    '''
+        nomenclatures peuplement maturite
+    '''
 
     __tablename__ = 'cor_nomenclature_declarations_maturite'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        primary_key=True
+    )
 
     def __init__(self, id_nomenclature=None):
 
@@ -85,12 +120,19 @@ class CorNomenclatureDeclarationMaturite(DB.Model):
 
 @serializable
 class CorNomenclatureDeclarationProtectionType(DB.Model):
+    '''
+        nomenclatures protection type
+    '''
 
     __tablename__ = 'cor_nomenclature_declarations_protection_type'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        primary_key=True
+    )
 
     def __init__(self, id_nomenclature=None):
 
@@ -100,12 +142,19 @@ class CorNomenclatureDeclarationProtectionType(DB.Model):
 
 @serializable
 class CorNomenclatureDeclarationPaturageType(DB.Model):
+    '''
+        nomenclatures paturage type
+    '''
 
     __tablename__ = 'cor_nomenclature_declarations_paturage_type'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        primary_key=True
+    )
 
     def __init__(self, id_nomenclature=None):
 
@@ -115,12 +164,19 @@ class CorNomenclatureDeclarationPaturageType(DB.Model):
 
 @serializable
 class CorNomenclatureDeclarationPaturageSaison(DB.Model):
+    '''
+        nomenclatures paturage saison
+    '''
 
     __tablename__ = 'cor_nomenclature_declarations_paturage_saison'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        primary_key=True
+    )
 
     def __init__(self, id_nomenclature=None):
 
@@ -130,12 +186,19 @@ class CorNomenclatureDeclarationPaturageSaison(DB.Model):
 
 @serializable
 class CorNomenclatureDeclarationEspece(DB.Model):
+    '''
+        nomenclatures especes
+    '''
 
     __tablename__ = 'cor_nomenclature_declarations_espece'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'), primary_key=True)
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        primary_key=True
+    )
 
     def __init__(self, id_nomenclature=None):
 
@@ -145,6 +208,9 @@ class CorNomenclatureDeclarationEspece(DB.Model):
 
 @serializable
 class TProprietaire(DB.Model):
+    '''
+        modeles proprietaires
+    '''
     __tablename__ = 't_proprietaires'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
@@ -164,6 +230,9 @@ class TProprietaire(DB.Model):
 
 @serializable
 class TForet(DB.Model):
+    '''
+        modele foret
+    '''
     __tablename__ = 't_forets'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
@@ -181,11 +250,17 @@ class TForet(DB.Model):
     surface_calculee = DB.Column(DB.Float)
     surface_renseignee = DB.Column(DB.Float)
 
-    areas_foret = DB.relationship(CorAreasForet, cascade="save-update, merge, delete, delete-orphan")
+    areas_foret = DB.relationship(
+        CorAreasForet,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
 
 
 @serializable
 class TDegatEssence(DB.Model):
+    '''
+        modele degat essence
+    '''
     __tablename__ = 't_degat_essences'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
@@ -201,6 +276,9 @@ class TDegatEssence(DB.Model):
 
 @serializable
 class TDegat(DB.Model):
+    '''
+        modele degat
+    '''
     __tablename__ = 't_degats'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
@@ -210,11 +288,17 @@ class TDegat(DB.Model):
 
     id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'))
 
-    degat_essences = DB.relationship(TDegatEssence, cascade="save-update, merge, delete, delete-orphan")
+    degat_essences = DB.relationship(
+        TDegatEssence,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
 
 
 @serializable
 class TDeclaration(DB.Model):
+    '''
+        modele declaration
+    '''
     __tablename__ = 't_declarations'
     __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
 
@@ -237,18 +321,41 @@ class TDeclaration(DB.Model):
     b_peuplement_paturage_presence = DB.Column(DB.Boolean)
     b_autorisation = DB.Column(DB.Boolean)
 
-    areas_localisation = DB.relationship(CorAreasDeclaration, cascade="save-update, merge, delete, delete-orphan")
+    areas_localisation = DB.relationship(
+        CorAreasDeclaration,
+        cascade="save-update, merge, delete, delete-orphan"
+        )
 
-    nomenclatures_peuplement_essence_secondaire = DB.relationship(CorNomenclatureDeclarationEssenceSecondaire, cascade="save-update, merge, delete, delete-orphan")
-    nomenclatures_peuplement_essence_complementaire = DB.relationship(CorNomenclatureDeclarationEssenceComplementaire, cascade="save-update, merge, delete, delete-orphan")
-    nomenclatures_peuplement_maturite = DB.relationship(CorNomenclatureDeclarationMaturite, cascade="save-update, merge, delete, delete-orphan")
-    nomenclatures_peuplement_protection_type = DB.relationship(CorNomenclatureDeclarationProtectionType, cascade="save-update, merge, delete, delete-orphan")
-    nomenclatures_peuplement_paturage_type = DB.relationship(CorNomenclatureDeclarationPaturageType, cascade="save-update, merge, delete, delete-orphan")
-    nomenclatures_peuplement_paturage_saison = DB.relationship(CorNomenclatureDeclarationPaturageSaison, cascade="save-update, merge, delete, delete-orphan")
-    nomenclatures_peuplement_espece = DB.relationship(CorNomenclatureDeclarationEspece, cascade="save-update, merge, delete, delete-orphan")
+    nomenclatures_peuplement_essence_secondaire = DB.relationship(
+        CorNomenclatureDeclarationEssenceSecondaire,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
+    nomenclatures_peuplement_essence_complementaire = DB.relationship(
+        CorNomenclatureDeclarationEssenceComplementaire,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
+    nomenclatures_peuplement_maturite = DB.relationship(
+        CorNomenclatureDeclarationMaturite,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
+    nomenclatures_peuplement_protection_type = DB.relationship(
+        CorNomenclatureDeclarationProtectionType,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
+    nomenclatures_peuplement_paturage_type = DB.relationship(
+        CorNomenclatureDeclarationPaturageType,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
+    nomenclatures_peuplement_paturage_saison = DB.relationship(
+        CorNomenclatureDeclarationPaturageSaison,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
+    nomenclatures_peuplement_espece = DB.relationship(
+        CorNomenclatureDeclarationEspece,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
 
     peuplement_surface = DB.Column(DB.Float)
-
 
     degats = DB.relationship(TDegat, cascade="save-update, merge, delete, delete-orphan")
 

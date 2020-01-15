@@ -236,11 +236,7 @@ var reset_proprietaire = function() {
 
     declaration.peuplement_surface = parseInt($("#peuplement_surface").val());
     
-    if($('#precision_localisation').length) {
-      declaration.precision_localisation = $('#precision_localisation').val().trim();
-    } else {
-      declaration.precision_localisation = '';
-    }
+    declaration.precision_localisation = $('#precision_localisation').val().trim();
 
     // - - essences
 

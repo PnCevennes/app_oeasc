@@ -442,11 +442,15 @@ def id_nomenclature_to_str(id_nomenclature, field_name="mnemonique"):
 
     return id_nomenclature[field_name]
 
+
 def get_declaration_table(declaration_dict):
+    '''
+        get_declaration_table
+    '''
     if declaration_dict['id_declaration']:
         return get_declaration(declaration_dict['id_declaration'])
-    
-    else: # pff
+
+    else:
 
         d = {}
         d['declaration_date'] = declaration_dict.get('meta_create_date') or ''
@@ -456,11 +460,17 @@ def get_declaration_table(declaration_dict):
             .get('label_fr', '')
         )
         d['espece_label'] = (
-            ' ,'.join([n['label_fr'] for n in declaration_dict.get('nomenclatures_peuplement_espece', [])])
+            ' ,'.join(
+                [
+                    n['label_fr']
+                    for n in declaration_dict.get('nomenclatures_peuplement_espece', [])
+                ]
+            )
         )
 
         d['label_foret'] = declaration_dict['foret']['label_foret']
-        d['statut_public'] = "Public" if declaration_dict['foret'].get('b_statut_public') else "Privé"
+        d['statut_public'] = "Public" if declaration_dict['foret'].get('b_statut_public') \
+            else "Privé"
         d['b_document'] = declaration_dict['foret'].get('b_document')
         d['b_statut_public'] = declaration_dict['foret'].get('b_statut_public')
         d['id_foret'] = declaration_dict['foret'].get('id_foret')
@@ -482,7 +492,7 @@ def get_declaration_table(declaration_dict):
             [
                 l['area_name']
                 for l in declaration_dict['areas_localisation']
-                if l['type_code'] in  ['OEASC_ONF_UG', 'OEASC_CADASTRE']
+                if l['type_code'] in ['OEASC_ONF_UG', 'OEASC_CADASTRE']
             ]
         )
         d['peuplement_ess_1_label'] = (
@@ -511,12 +521,15 @@ def get_declaration_table(declaration_dict):
                 'nomenclatures_peuplement_maturite', [])])
         )
 
-        d['b_peuplement_protection_existence'] = declaration_dict.get('b_peuplement_protection_existence')
+        d['b_peuplement_protection_existence'] = (
+            declaration_dict.get('b_peuplement_protection_existence')
+        )
         d['peuplement_protection_type_label'] = (
             ' ,'.join([n['label_fr'] for n in declaration_dict.get(
                 'nomenclatures_peuplement_protection_type', [])])
         )
         d['autre_protection'] = declaration_dict['autre_protection']
+
         d['precision_localisation'] = declaration_dict['precision_localisation']
 
         d['b_peuplement_paturage_presence'] = declaration_dict.get('b_peuplement_paturage_presence')
