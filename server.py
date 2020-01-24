@@ -1,20 +1,19 @@
-from flask import Flask, redirect, session, request, url_for
+'''
+    fichier server app oeasc
+'''
 
 import json
+import re
+from flask import Flask, redirect, session, request, url_for
+from jinja2 import evalcontextfilter, Markup, escape
 
 from app.utils.env import DB, mail
 from config import config
 
-import re
-
-from jinja2 import evalcontextfilter, Markup, escape
-
-
-
 class ReverseProxied(object):
 
-    def __init__(self, app, script_name=None, scheme=None, server=None):
-        self.app = app
+    def __init__(self, app_in, script_name=None, scheme=None, server=None):
+        self.app = app_in
         self.script_name = script_name
         self.scheme = scheme
         self.server = server
@@ -39,7 +38,7 @@ app = Flask(__name__, template_folder="app/templates", static_folder='static')
 
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
 
-app.secret_key = 'dtgperçtuiperotivemrtikotiçà80979837589UJ5?OI3J?LORJ?C3LKJVL3V5V35'
+app.secret_key = 'dfsdbegerbnergfbergqbqerg'
 
 app.config.from_pyfile('config/config.py', silent=True)
 
@@ -53,6 +52,7 @@ app.config['MAIL'] = mail
 @app.route('/')
 def accueil():
     return redirect("/oeasc", code=302)
+
 
 @app.route('/google4b0945b8a2f6425f.html')
 def google():
@@ -131,7 +131,7 @@ _paragraph_re = re.compile(r'(?:\r\n|\r|\n){2,}')
 @evalcontextfilter
 def nl2br(eval_ctx, value):
     result = u'\n\n'.join(u'<p>%s</p>' % p.replace('\n', '<br>\n') \
-        for p in _paragraph_re.split(escape(value)))
+    for p in _paragraph_re.split(escape(value)))
     if eval_ctx.autoescape:
         result = Markup(result)
     return result
@@ -162,5 +162,3 @@ def cleanid(eval_ctx, value):
     s2 = s2.replace(".", "")
     s2 = s2.strip()
     return s2
-
-

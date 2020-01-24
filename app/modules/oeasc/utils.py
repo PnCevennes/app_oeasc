@@ -29,7 +29,7 @@ def get_some_config(config_text):
     keys = [
         "ID_APP",
         "MODE_TEST",
-        "URL_USERHUB",
+        "URL_USERSHUB",
         "URL_APPLICATION",
     ]
 

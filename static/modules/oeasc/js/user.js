@@ -140,8 +140,10 @@
         // var user_from_mail = M.get_db('user', 'email',$('#email').val());
         var user_from_mail = $.ajax({type: "GET", url: "/api/user/get_user_from_email/" + $('#email').val(), async: false}).responseJSON;;
 
+        console.log(user_from_mail);
+
         // si on a déjà un utilisateur avec ce mail
-        if( user_from_mail != "None") {
+        if( !(user_from_mail == "None" || !user_from_mail)) {
 
         // et qu'il a déjà les droits pour cette application
         if(user_from_mail.id_droit_max) {

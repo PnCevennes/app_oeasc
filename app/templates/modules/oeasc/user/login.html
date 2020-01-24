@@ -67,7 +67,14 @@
                         <th>
                             Mot de passe :
                             <br>
-                            <span style='font-size: 0.8em' ><a title="Vous pouvez faire une demande de changement de mot de passe en cliquant sur ce lien." href="{{url_for('user.change_password')}}">Mot de passe oublié ?</a></span>
+                            <span style='font-size: 0.8em' >
+                                <a 
+                                title="Vous pouvez faire une demande de changement de mot de passe en cliquant sur ce lien."
+                                tabindex="-1"
+                                href="{{url_for('user.change_password')}}">
+                                Mot de passe oublié ?
+                                </a>
+                            </span>
 
                         </th>
                         <td>

@@ -7,7 +7,7 @@ SQLALCHEMY_TRACK_MODIFICATIONS = False
 # Applications
 
 URL_APPLICATION = "localhost:5000"
-URL_USERHUB="localhost:5001"
+URL_USERSHUB="localhost:5001"
 
 MODE_TEST=0
 

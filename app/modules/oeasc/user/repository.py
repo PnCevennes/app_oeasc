@@ -17,20 +17,23 @@ def get_liste_organismes_oeasc():
         Retourne la liste des organisme concernés par l'OEASC
     '''
 
-    sql_text = text("SELECT b.id_organisme, b.nom_organisme \
-  FROM utilisateurs.cor_organism_tag as c, utilisateurs.bib_organismes as b, utilisateurs.t_tags as t \
-  WHERE c.id_tag = t.id_tag AND b.id_organisme = c.id_organism AND t.tag_code = 'ORG_OEASC' \
-  ORDER BY b.nom_organisme;")
+    sql_text = text("SELECT o.id_organisme, o.nom_organisme \
+        FROM utilisateurs.bib_organismes o \
+        JOIN oeasc.cor_organismes c \
+            ON c.id_organisme = o.id_organisme \
+            ORDER BY o.nom_organisme;")
 
     result = DB.engine.execute(sql_text)
 
     v = []
+    autre = None
     for row in result:
         if row[1] != "Autre (préciser)":
             v.append({'id_organism': row[0], 'nom_organisme': row[1]})
         else:
             autre = {'id_organism': row[0], 'nom_organisme': row[1]}
-    v.append(autre)
+    if autre:
+        v.append(autre)
 
     return v
 

@@ -8,6 +8,15 @@ DROP SCHEMA IF EXISTS oeasc CASCADE;
 
 CREATE SCHEMA IF NOT EXISTS oeasc;
 
+DROP TABLE IF EXISTS oeasc.cor_organismes;
+
+CREATE TABLE oeasc.cor_organismes (
+	id_organisme INT,
+	CONSTRAINT pk_cor_organismes_id_organisme PRIMARY KEY (id_organisme),
+	CONSTRAINT fk_cor_organismes_id_organisme FOREIGN KEY (id_organisme)
+		REFERENCES utilisateurs.bib_organismes (id_organisme) MATCH SIMPLE
+		ON UPDATE CASCADE ON DELETE CASCADE
+)
 
 DROP TABLE IF EXISTS oeasc.t_proprietaires;
 

@@ -1,25 +1,38 @@
+'''
+    api user
+'''
 from flask import (
-    Blueprint, render_template, request, session, url_for, redirect, current_app
+    Blueprint, request, redirect, current_app
 )
-from .utils import check_auth_redirect_login
-from app.modules.oeasc.nomenclature import nomenclature_oeasc
+from app.utils.utilssqlalchemy import json_resp
 from .repository import (
-    get_liste_organismes_oeasc,
-    get_users,
-    get_user,
     get_user_form_email
 )
-from pypnusershub.db.models import User
-
-from app.utils.utilssqlalchemy import json_resp
 
 
 config = current_app.config
 
 bp = Blueprint('user_api', __name__)
 
+
+@bp.route('/logout', methods=['GET', 'POST'])
+def logout():
+    '''
+        logout redefinition
+    '''
+    params = request.args
+    if 'redirect' in params:
+        resp = redirect(params['redirect'], code=302)
+    else:
+        resp = redirect("/", code=302)
+    resp.delete_cookie('token')
+    return resp
+
+
 @bp.route('/get_user_from_email/<email>', methods=['GET'])
 @json_resp
 def api_get_user_from_mail(email):
-
+    '''
+        get user form email
+    '''
     return get_user_form_email(email)
