@@ -19,11 +19,11 @@ class CorAreasDeclaration(DB.Model):
         areas localisation
     '''
     __tablename__ = 'cor_areas_declarations'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_declaration = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration'),
         primary_key=True
     )
     id_area = DB.Column(DB.Integer, primary_key=True)
@@ -41,10 +41,14 @@ class CorAreasForet(DB.Model):
     '''
 
     __tablename__ = 'cor_areas_forets'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_forets', 'extend_existing': True}
 
     id_area = DB.Column(DB.Integer, primary_key=True)
-    id_foret = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_forets.id_foret'), primary_key=True)
+    id_foret = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc_forets.t_forets.id_foret'),
+        primary_key=True
+    )
 
     def __init__(self, id_area=None):
 
@@ -59,12 +63,12 @@ class CorNomenclatureDeclarationEssenceSecondaire(DB.Model):
     '''
 
     __tablename__ = 'cor_nomenclature_declarations_essence_secondaire'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_delcarations', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
     id_declaration = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration'),
         primary_key=True
     )
 
@@ -81,12 +85,12 @@ class CorNomenclatureDeclarationEssenceComplementaire(DB.Model):
     '''
 
     __tablename__ = 'cor_nomenclature_declarations_essence_complementaire'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
     id_declaration = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration'),
         primary_key=True
     )
 
@@ -103,12 +107,12 @@ class CorNomenclatureDeclarationMaturite(DB.Model):
     '''
 
     __tablename__ = 'cor_nomenclature_declarations_maturite'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
     id_declaration = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration'),
         primary_key=True
     )
 
@@ -125,12 +129,12 @@ class CorNomenclatureDeclarationProtectionType(DB.Model):
     '''
 
     __tablename__ = 'cor_nomenclature_declarations_protection_type'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
     id_declaration = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration'),
         primary_key=True
     )
 
@@ -147,12 +151,12 @@ class CorNomenclatureDeclarationPaturageType(DB.Model):
     '''
 
     __tablename__ = 'cor_nomenclature_declarations_paturage_type'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
     id_declaration = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration'),
         primary_key=True
     )
 
@@ -169,12 +173,12 @@ class CorNomenclatureDeclarationPaturageSaison(DB.Model):
     '''
 
     __tablename__ = 'cor_nomenclature_declarations_paturage_saison'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
     id_declaration = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration'),
         primary_key=True
     )
 
@@ -191,12 +195,12 @@ class CorNomenclatureDeclarationEspece(DB.Model):
     '''
 
     __tablename__ = 'cor_nomenclature_declarations_espece'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
     id_declaration = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc.t_declarations.id_declaration'),
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration'),
         primary_key=True
     )
 
@@ -212,7 +216,7 @@ class TProprietaire(DB.Model):
         modeles proprietaires
     '''
     __tablename__ = 't_proprietaires'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_forets', 'extend_existing': True}
 
     id_proprietaire = DB.Column(DB.Integer, primary_key=True)
 
@@ -234,11 +238,14 @@ class TForet(DB.Model):
         modele foret
     '''
     __tablename__ = 't_forets'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_forets', 'extend_existing': True}
 
     id_foret = DB.Column(DB.Integer, primary_key=True)
 
-    id_proprietaire = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_proprietaires.id_proprietaire'))
+    id_proprietaire = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc_forets.t_proprietaires.id_proprietaire')
+    )
 
     b_statut_public = DB.Column(DB.Boolean)
     b_document = DB.Column(DB.Boolean)
@@ -262,7 +269,7 @@ class TDegatEssence(DB.Model):
         modele degat essence
     '''
     __tablename__ = 't_degat_essences'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_degat_essence = DB.Column(DB.Integer, primary_key=True)
 
@@ -271,7 +278,7 @@ class TDegatEssence(DB.Model):
     id_nomenclature_degat_gravite = DB.Column(DB.Integer)
     id_nomenclature_degat_anteriorite = DB.Column(DB.Integer)
 
-    id_degat = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_degats.id_degat'))
+    id_degat = DB.Column(DB.Integer, DB.ForeignKey('oeasc_declarations.t_degats.id_degat'))
 
 
 @serializable
@@ -280,13 +287,16 @@ class TDegat(DB.Model):
         modele degat
     '''
     __tablename__ = 't_degats'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_degat = DB.Column(DB.Integer, primary_key=True)
 
     id_nomenclature_degat_type = DB.Column(DB.Integer)
 
-    id_declaration = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_declarations.id_declaration'))
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration')
+    )
 
     degat_essences = DB.relationship(
         TDegatEssence,
@@ -300,7 +310,7 @@ class TDeclaration(DB.Model):
         modele declaration
     '''
     __tablename__ = 't_declarations'
-    __table_args__ = {'schema': 'oeasc', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_declaration = DB.Column(DB.Integer, primary_key=True)
 
@@ -308,7 +318,7 @@ class TDeclaration(DB.Model):
 
     id_nomenclature_proprietaire_declarant = DB.Column(DB.Integer)
 
-    id_foret = DB.Column(DB.Integer, DB.ForeignKey('oeasc.t_forets.id_foret'))
+    id_foret = DB.Column(DB.Integer, DB.ForeignKey('oeasc_forets.t_forets.id_foret'))
 
     id_nomenclature_peuplement_origine = DB.Column(DB.Integer)
     id_nomenclature_peuplement_type = DB.Column(DB.Integer)

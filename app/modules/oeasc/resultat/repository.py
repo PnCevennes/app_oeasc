@@ -1,6 +1,5 @@
 from sqlalchemy import text
 from flask import current_app
-from app.utils.utilssqlalchemy import as_dict
 from ..nomenclature import nomenclature_oeasc
 
 config = current_app.config
@@ -41,7 +40,7 @@ def nb_declarations():
         renvoie le nombre de déclarations
     '''
     r = '''
-        SELECT COUNT(*) FROM oeasc.t_declarations
+        SELECT COUNT(*) FROM oeasc_declarations.t_declarations
     '''
 
     data = DB.engine.execute(text(r)).first()
@@ -49,7 +48,7 @@ def nb_declarations():
     return out
 
 
-def req_degats(name, var_name="", id="", multi=False):
+def req_degats(name, var_name="", id_nomenclature_degat_type="", multi=False):
     r = '''
 SELECT
     n.mnemonique as label,
@@ -58,20 +57,20 @@ SELECT
     FROM (SELECT
         id_nomenclature_degat_type as id,
         COUNT(*) as nb
-        FROM oeasc.t_degats d
+        FROM oeasc_declarations.t_degats d
         JOIN ref_nomenclatures.t_nomenclatures
             ON d.id_nomenclature_degat_type = id_nomenclature
         '''.format(name)
 
     if var_name and not multi:
         r += '''
-        JOIN oeasc.t_declarations dec ON d.id_declaration=dec.id_declaration
+        JOIN oeasc_declarations.t_declarations dec ON d.id_declaration=dec.id_declaration
         WHERE id_nomenclature_{} = {}
-        '''.format(var_name, id)
+        '''.format(var_name, id_nomenclature_degat_type)
 
     if var_name and multi:
         r += '''
-        JOIN oeasc.cor_nomenclature_declarations_{} cor ON d.id_declaration=cor.id_declaration
+        JOIN oeasc_declarations.cor_nomenclature_declarations_{} cor ON d.id_declaration=cor.id_declaration
         WHERE cor.id_nomenclature = {}
         '''.format(var_name, id)
 
@@ -88,7 +87,7 @@ SELECT
     return data_to_dict(data)
 
 
-def req_degats_type(type=""):
+def req_degats_type(type_degat=""):
     '''
         test pour les graphique
         ici requete pour un barchart sur les dégâts
@@ -112,19 +111,28 @@ def req_degats_type(type=""):
         "OEASC_PEUPLEMENT_ESSENCE_PRINCIPALE": "Distribution par essence principale",
     }
 
-    if type in ['OEASC_PEUPLEMENT_PATURAGE_TYPE', 'OEASC_PEUPLEMENT_MATURITE', 'OEASC_PEUPLEMENT_PROTECTION_TYPE']:
+    if type_degat in [
+            'OEASC_PEUPLEMENT_PATURAGE_TYPE',
+            'OEASC_PEUPLEMENT_MATURITE',
+            'OEASC_PEUPLEMENT_PROTECTION_TYPE'
+    ]:
         multi = True
 
-    title.append(d.get(type, ""))
+    title.append(d.get(type_degat, ""))
 
-    if type:
-        var_name = type.lower()[6:]
+    if type_degat:
+        var_name = type_degat.lower()[6:]
         if multi:
             var_name = var_name[11:]
-        if type == 'OEASC_PEUPLEMENT_ESSENCE_PRINCIPALE':
-            type = 'OEASC_PEUPLEMENT_ESSENCE'
-        for elem in nomenclature_oeasc()[type]['values']:
-            data2 = req_degats('"' + elem['mnemonique'] + '"', var_name, elem['id_nomenclature'], multi)
+        if type_degat == 'OEASC_PEUPLEMENT_ESSENCE_PRINCIPALE':
+            type_degat = 'OEASC_PEUPLEMENT_ESSENCE'
+        for elem in nomenclature_oeasc()[type_degat]['values']:
+            data2 = req_degats(
+                '"' + elem['mnemonique'] + '"',
+                var_name,
+                elem['id_nomenclature'],
+                multi
+            )
             data[elem['mnemonique']] = data2[elem['mnemonique']]
 
         data.pop('total', None)
@@ -143,7 +151,7 @@ def req_timeline():
 SELECT
     CONCAT(to_char(meta_create_date,'YYYY-MM'), '-01') as date,
     COUNT(*) as nb
-    FROM oeasc.t_declarations
+    FROM oeasc_declarations.t_declarations
     GROUP BY 1
     ORDER BY 1
     '''
@@ -156,7 +164,6 @@ SELECT
             'y': d.nb,
         }
         for d in data]
-
 
     out = {
         'data': {

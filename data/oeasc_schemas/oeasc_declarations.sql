@@ -1,94 +1,13 @@
--- oeasc
+-- Schema oeasc_declarations
 
--- oeasc schema
+-- oeasc_declarations.t_declarations : table des déclarations
+-- oeasc_declarations.t_degats : table des dégats par type de degat
+-- oeasc_declarations.t_degat_essences : table des degats par essence pour chaque type de degat
+-- oeasc_declarations.t_liste_nomenclature_types : liste de type de nomenclature pour les correlation declaration - nomenclature
 
+CREATE SCHEMA IF NOT EXISTS oeasc_declarations;
 
-
-DROP SCHEMA IF EXISTS oeasc CASCADE;
-
-CREATE SCHEMA IF NOT EXISTS oeasc;
-
-DROP TABLE IF EXISTS oeasc.cor_organismes;
-
-CREATE TABLE oeasc.cor_organismes (
-	id_organisme INT,
-	CONSTRAINT pk_cor_organismes_id_organisme PRIMARY KEY (id_organisme),
-	CONSTRAINT fk_cor_organismes_id_organisme FOREIGN KEY (id_organisme)
-		REFERENCES utilisateurs.bib_organismes (id_organisme) MATCH SIMPLE
-		ON UPDATE CASCADE ON DELETE CASCADE
-)
-
-DROP TABLE IF EXISTS oeasc.t_proprietaires;
-
-CREATE TABLE IF NOT EXISTS oeasc.t_proprietaires
-(
-
-    id_proprietaire serial NOT NULL,
-
-    nom_proprietaire CHARACTER VARYING(250),
-    telephone CHARACTER VARYING(20),
-    email CHARACTER VARYING(250),
-    adresse CHARACTER VARYING(250),
-    s_code_postal CHARACTER VARYING(10),
-    s_commune_proprietaire CHARACTER VARYING(100),
-
-    id_nomenclature_proprietaire_type INTEGER,
-
-    id_declarant INTEGER,
-
-    -- contraintes cle primaire
-
-    CONSTRAINT pk_t_proprietaires_id_proprietaire PRIMARY KEY (id_proprietaire),
-
-    -- contraintes nomenclature
-
-    CONSTRAINT fk_t_proprietaires_id_nomenclature_proprietaire_type FOREIGN KEY (id_nomenclature_proprietaire_type)
-        REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE NO ACTION,
-    CONSTRAINT check_t_proprietaire_id_nomenclature_proprietaire_type CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
-        id_nomenclature_proprietaire_type, 'OEASC_PROPRIETAIRE_TYPE')) NOT VALID,
-
-    CONSTRAINT fk_t_forets_id_declarant FOREIGN KEY (id_declarant)
-        REFERENCES utilisateurs.t_roles (id_role) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE NO ACTION
-
-);
-
-
-DROP TABLE IF EXISTS oeasc.t_forets;
-
-CREATE TABLE IF NOT EXISTS oeasc.t_forets
-(
-    id_foret serial NOT NULL,
-
-    id_proprietaire INTEGER,
-
-    b_statut_public BOOLEAN,
-
-    b_document BOOLEAN,
-
-    nom_foret CHARACTER VARYING(256),
-    code_foret CHARACTER VARYING(256),
-    label_foret CHARACTER VARYING(256),
-
-    surface_renseignee DOUBLE PRECISION,
-    surface_calculee DOUBLE PRECISION,
-
-    -- contraintes cle primaire
-
-    CONSTRAINT pk_t_forets_id_foret PRIMARY KEY (id_foret),
-
-    -- contraintes clés étrangères
-
-    CONSTRAINT fk_t_forets_id_proprietaire FOREIGN KEY (id_proprietaire)
-        REFERENCES oeasc.t_proprietaires (id_proprietaire) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE NO ACTION
-);
-
-
-DROP TABLE IF EXISTS oeasc.t_declarations;
-
-CREATE TABLE IF NOT EXISTS oeasc.t_declarations
+CREATE TABLE IF NOT EXISTS oeasc_declarations.t_declarations
 (
     id_declaration serial NOT NULL,
 
@@ -145,7 +64,7 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
     --contrainte cle etrangere foret
 
     CONSTRAINT fk_t_declarations_id_foret FOREIGN KEY (id_foret)
-        REFERENCES oeasc.t_forets (id_foret) MATCH SIMPLE
+        REFERENCES oeasc_forets.t_forets (id_foret) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
 
     -- contraintes localisation
@@ -196,18 +115,19 @@ CREATE TABLE IF NOT EXISTS oeasc.t_declarations
 
 );
 
+
 -- gestion des dates pour les declarations
 
 CREATE TRIGGER tri_meta_dates_change_t_declarations
    BEFORE INSERT OR UPDATE
-   ON oeasc.t_declarations
+   ON oeasc_declarations.t_declarations
    FOR EACH ROW
    EXECUTE PROCEDURE public.fct_trg_meta_dates_change();
 
 
-DROP TABLE IF EXISTS oeasc.t_degats;
+-- degats par type de degat
 
-CREATE TABLE IF NOT EXISTS oeasc.t_degats
+CREATE TABLE IF NOT EXISTS oeasc_declarations.t_degats
 (
     id_degat serial NOT NULL,
 
@@ -218,7 +138,7 @@ CREATE TABLE IF NOT EXISTS oeasc.t_degats
     CONSTRAINT pk_t_degats_id_degat PRIMARY KEY (id_degat),
 
     CONSTRAINT fk_t_degats_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        REFERENCES oeasc_declaration.t_declarations (id_declaration) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
 
     CONSTRAINT fk_t_degats_id_nomenclature_degat_type FOREIGN KEY (id_nomenclature_degat_type)
@@ -226,13 +146,12 @@ CREATE TABLE IF NOT EXISTS oeasc.t_degats
         ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT check_t_degats_id_nomenclature_degat_type CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
         id_nomenclature_degat_type, 'OEASC_DEGAT_TYPE')) NOT VALID
-
 );
 
 
-DROP TABLE IF EXISTS oeasc.t_degat_essences;
+-- degats par essence pour chaque type de degat
 
-CREATE TABLE IF NOT EXISTS oeasc.t_degat_essences
+CREATE TABLE IF NOT EXISTS oeasc_declarations.t_degat_essences
 (
     id_degat_essence serial NOT NULL,
 
@@ -246,7 +165,7 @@ CREATE TABLE IF NOT EXISTS oeasc.t_degat_essences
     CONSTRAINT pk_t_degat_essences_id_degat_essence PRIMARY KEY (id_degat_essence),
 
     CONSTRAINT fk_t_degat_id_degat FOREIGN KEY (id_degat)
-        REFERENCES oeasc.t_degats (id_degat) MATCH SIMPLE
+        REFERENCES oeasc_declarations.t_degats (id_degat) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
 
     CONSTRAINT fk_t_degat_essences_id_nomenclature_degat_essence FOREIGN KEY (id_nomenclature_degat_essence)
@@ -276,51 +195,12 @@ CREATE TABLE IF NOT EXISTS oeasc.t_degat_essences
 );
 
 
--- oeasc.cor_areas_declarations
-
-DROP TABLE IF EXISTS oeasc.cor_areas_declarations;
-
-CREATE TABLE IF NOT EXISTS oeasc.cor_areas_declarations
-(
-    id_declaration integer NOT NULL,
-    id_area integer NOT NULL,
-
-    CONSTRAINT pk_cor_areas_declaration PRIMARY KEY (id_declaration, id_area),
-
-    CONSTRAINT fk_cor_areas_declaration_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE CASCADE,
-
-    CONSTRAINT fk_cor_areas_foret_id_area FOREIGN KEY (id_area)
-        REFERENCES ref_geo.l_areas (id_area) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE NO ACTION
-);
-
--- oeasc.cor_areas_forets
-
-DROP TABLE IF EXISTS oeasc.cor_areas_forets;
-
-CREATE TABLE IF NOT EXISTS oeasc.cor_areas_forets
-(
-    id_foret integer NOT NULL,
-    id_area integer NOT NULL,
-
-    CONSTRAINT pk_cor_areas_foret PRIMARY KEY (id_foret, id_area),
-
-    CONSTRAINT fk_cor_areas_foret_id_foret FOREIGN KEY (id_foret)
-        REFERENCES oeasc.t_forets (id_foret) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE CASCADE,
-
-    CONSTRAINT fk_cor_areas_foret_id_area FOREIGN KEY (id_area)
-        REFERENCES ref_geo.l_areas (id_area) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE NO ACTION
-);
 
 -- correlations nomenclature declaration
 
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_essence_secondaire CASCADE;
+DROP TABLE IF EXISTS oeasc_declarations.cor_nomenclature_declarations_essence_secondaire CASCADE;
 
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_essence_secondaire
+CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_essence_secondaire
 (
     id_declaration integer NOT NULL,
     id_nomenclature integer NOT NULL,
@@ -328,7 +208,7 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_essence_secondair
     CONSTRAINT pk_cor_nomenclature_declarations_essence_secondaire PRIMARY KEY (id_declaration, id_nomenclature),
 
     CONSTRAINT fk_cor_nomenclature_declarations_essence_secondaire_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
 
     CONSTRAINT fk_cor_nomenclature_declarations_essence_secondaire_id_nomenclature FOREIGN KEY (id_nomenclature)
@@ -340,9 +220,9 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_essence_secondair
 );
 
 
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_essence_complementaire CASCADE;
+DROP TABLE IF EXISTS oeasc_declarations.cor_nomenclature_declarations_essence_complementaire CASCADE;
 
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_essence_complementaire
+CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_essence_complementaire
 (
     id_declaration integer NOT NULL,
     id_nomenclature integer NOT NULL,
@@ -350,7 +230,7 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_essence_complemen
     CONSTRAINT pk_cor_nomenclature_declarations_essence_complementaire PRIMARY KEY (id_declaration, id_nomenclature),
 
     CONSTRAINT fk_cor_nomenclature_declarations_essence_complementaire_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
 
     CONSTRAINT fk_cor_nomenclature_declarations_essence_complementaire_id_nomenclature FOREIGN KEY (id_nomenclature)
@@ -362,9 +242,9 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_essence_complemen
 );
 
 
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_maturite CASCADE;
+DROP TABLE IF EXISTS oeasc_declarations.cor_nomenclature_declarations_maturite CASCADE;
 
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_maturite
+CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_maturite
 (
     id_declaration integer NOT NULL,
     id_nomenclature integer NOT NULL,
@@ -372,7 +252,7 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_maturite
     CONSTRAINT pk_cor_nomenclature_declarations_maturite PRIMARY KEY (id_declaration, id_nomenclature),
 
     CONSTRAINT fk_cor_nomenclature_declarations_maturite_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
 
     CONSTRAINT fk_cor_nomenclature_declarations_maturite_id_nomenclature FOREIGN KEY (id_nomenclature)
@@ -384,9 +264,9 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_maturite
 );
 
 
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_protection_type CASCADE;
+DROP TABLE IF EXISTS oeasc_declarations.cor_nomenclature_declarations_protection_type CASCADE;
 
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_protection_type
+CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_protection_type
 (
     id_declaration integer NOT NULL,
     id_nomenclature integer NOT NULL,
@@ -394,7 +274,7 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_protection_type
     CONSTRAINT pk_cor_nomenclature_declarations_protection_type PRIMARY KEY (id_declaration, id_nomenclature),
 
     CONSTRAINT fk_cor_nomenclature_declarations_protection_type_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
 
     CONSTRAINT fk_cor_nomenclature_declarations_protection_type_id_nomenclature FOREIGN KEY (id_nomenclature)
@@ -406,9 +286,9 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_protection_type
 );
 
 
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_paturage_type CASCADE;
+DROP TABLE IF EXISTS oeasc_declarations.cor_nomenclature_declarations_paturage_type CASCADE;
 
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_type
+CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_paturage_type
 (
     id_declaration integer NOT NULL,
     id_nomenclature integer NOT NULL,
@@ -416,7 +296,7 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_type
     CONSTRAINT pk_cor_nomenclature_declarations_paturage_type PRIMARY KEY (id_declaration, id_nomenclature),
 
     CONSTRAINT fk_cor_nomenclature_declarations_paturage_type_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
 
     CONSTRAINT fk_cor_nomenclature_declarations_paturage_type_id_nomenclature FOREIGN KEY (id_nomenclature)
@@ -428,9 +308,9 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_type
 );
 
 
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_paturage_saison CASCADE;
+DROP TABLE IF EXISTS oeasc_declarations.cor_nomenclature_declarations_paturage_saison CASCADE;
 
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_saison
+CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_paturage_saison
 (
     id_declaration integer NOT NULL,
     id_nomenclature integer NOT NULL,
@@ -438,7 +318,7 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_saison
     CONSTRAINT pk_cor_nomenclature_declarations_paturage_saison PRIMARY KEY (id_declaration, id_nomenclature),
 
     CONSTRAINT fk_cor_nomenclature_declarations_paturage_saison_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
 
     CONSTRAINT fk_cor_nomenclature_declarations_paturage_saison_id_nomenclature FOREIGN KEY (id_nomenclature)
@@ -451,9 +331,9 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_paturage_saison
 
 
 
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_declarations_espece CASCADE;
+DROP TABLE IF EXISTS oeasc_declarations.cor_nomenclature_declarations_espece CASCADE;
 
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_espece
+CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_espece
 (
     id_declaration integer NOT NULL,
     id_nomenclature integer NOT NULL,
@@ -461,7 +341,7 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_espece
     CONSTRAINT pk_cor_nomenclature_declarations_espece PRIMARY KEY (id_declaration, id_nomenclature),
 
     CONSTRAINT fk_cor_nomenclature_declarations_espece_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc.t_declarations (id_declaration) MATCH SIMPLE
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
         ON UPDATE NO ACTION ON DELETE CASCADE,
 
     CONSTRAINT fk_cor_nomenclature_declarations_espece_id_nomenclature FOREIGN KEY (id_nomenclature)
@@ -471,99 +351,3 @@ CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_declarations_espece
     CONSTRAINT check_cor_nomenclature_declarations_espece_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
         id_nomenclature, 'OEASC_PEUPLEMENT_ESPECE')) NOT VALID
 );
-
-
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_forets_commune CASCADE;
-
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_forets_commune
-(
-    id_foret integer NOT NULL,
-    id_nomenclature integer NOT NULL,
-
-    CONSTRAINT pk_cor_nomenclature_forets_commune PRIMARY KEY (id_foret, id_nomenclature),
-
-    CONSTRAINT fk_cor_nomenclature_forets_commune_id_foret FOREIGN KEY (id_foret)
-        REFERENCES oeasc.t_forets (id_foret) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE CASCADE,
-
-    CONSTRAINT fk_cor_nomenclature_forets_commune_id_nomenclature FOREIGN KEY (id_nomenclature)
-        REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE NO ACTION,
-
-    CONSTRAINT check_cor_nomenclature_forets_commune_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
-        id_nomenclature, 'OEASC_COMMUNE')) NOT VALID
-);
-
-
-DROP TABLE IF EXISTS oeasc.cor_nomenclature_forets_departement CASCADE;
-
-CREATE TABLE IF NOT EXISTS oeasc.cor_nomenclature_forets_departement
-(
-    id_foret integer NOT NULL,
-    id_nomenclature integer NOT NULL,
-
-    CONSTRAINT pk_cor_nomenclature_forets_departement PRIMARY KEY (id_foret, id_nomenclature),
-
-    CONSTRAINT fk_cor_nomenclature_forets_departement_id_foret FOREIGN KEY (id_foret)
-        REFERENCES oeasc.t_forets (id_foret) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE CASCADE,
-
-    CONSTRAINT fk_cor_nomenclature_forets_departement_id_nomenclature FOREIGN KEY (id_nomenclature)
-        REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE NO ACTION,
-
-    CONSTRAINT check_cor_nomenclature_forets_departement_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
-        id_nomenclature, 'OEASC_DEPARTEMENT')) NOT VALID
-);
-
-
--- Function: oeasc_get_id_proprietaire_from_name(character varying)
-
-DROP FUNCTION IF EXISTS oeasc.get_id_proprietaire_from_name(character varying);
-
-CREATE OR REPLACE FUNCTION oeasc.get_id_proprietaire_from_name(
-    myname CHARACTER VARYING)
-
-    RETURNS INTEGER AS
-    $BODY$
-    --
-    -- Returns id_proprietaire from the name
-    --
-        DECLARE theidproprietaire INTEGER;
-        BEGIN
-            EXECUTE format( ' SELECT  n.id_proprietaire
-                FROM oeasc.t_proprietaires n
-                WHERE nom_proprietaire = ''%s'' ', REPLACE(myname,'''','''''') ) INTO theidproprietaire;
-            return theidproprietaire;
-        END;
-    $BODY$
-    LANGUAGE plpgsql IMMUTABLE
-    COST 100;
-
-
-
-DROP FUNCTION IF EXISTS oeasc.get_declarations_structure_declarant(integer);
-
-CREATE OR REPLACE FUNCTION oeasc.get_declarations_structure_declarant(
-    IN myid_declarant integer)
-  RETURNS TABLE(id_declaration integer) AS
-    $BODY$
-        BEGIN
-            RETURN QUERY
-                SELECT d.id_declaration 
-            FROM oeasc.t_declarations as d, 
-                (SELECT id_role 
-                    FROM utilisateurs.t_roles r, 
-                        (SELECT id_organisme 
-                            FROM utilisateurs.t_roles 
-                            WHERE id_role = myid_declarant
-                        )a
-                    WHERE r.id_organisme = a.id_organisme
-                )b
-            WHERE d.id_declarant = b.id_role;
-          END;
-    $BODY$
-  LANGUAGE plpgsql IMMUTABLE
-  COST 100
-  ROWS 1000;
-

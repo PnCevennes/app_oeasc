@@ -19,8 +19,8 @@ def get_liste_organismes_oeasc():
 
     sql_text = text("SELECT o.id_organisme, o.nom_organisme \
         FROM utilisateurs.bib_organismes o \
-        JOIN oeasc.cor_organismes c \
-            ON c.id_organisme = o.id_organisme \
+        JOIN oeasc_commons.t_liste_organismes t \
+            ON t.id_organisme = o.id_organisme \
             ORDER BY o.nom_organisme;")
 
     result = DB.engine.execute(sql_text)
@@ -55,7 +55,7 @@ def get_user_from_data(data):
     # nb declaration
     data_nd = DB.engine.execute(
         text(
-            "SELECT COUNT(*) FROM oeasc.t_declarations WHERE id_declarant="
+            "SELECT COUNT(*) FROM oeasc_declarations.t_declarations WHERE id_declarant="
             + str(user_dict['id_role'])
         )
     ).first()

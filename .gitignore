@@ -17,6 +17,8 @@ install/scripts_db/SQL/ref_geo_process.sql
 
 install/script_db/config.csv
 
+install/install_db/minimal_db/*.sql
+
 static/data/*.json
 
 static/node_modules
