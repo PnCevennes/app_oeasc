@@ -32,12 +32,6 @@ body {
 
 }
 
-.content h4 {
-
-  /* font-size: 1.2em; */
-  /* text-decoration: underline; */
-
-}
 /* header titre */
 
 .center {
@@ -205,21 +199,21 @@ a:hover {
 }
 
 .sidebar_sticky > ul > li > ul > li > ul > li{
-  background-color: #fff3cd;
+  /* background-color: #fff3cd; */
 }
 
 
 
 .sidebar_sticky > ul > li > ul > li {
-  background-color: #ffa64d;
+  /* background-color: #ffa64d; */
 }
 
 .sidebar_sticky > ul > li {
-  background-color: #f29100;
+  /* background-color: #f29100; */
 }
 
 .sidebar_sticky > ul > li.signaler-degat {
-  background-color: #2e842e;
+  background-color: #26ad26;
 }
 
 
@@ -227,7 +221,7 @@ a:hover {
 .sidebar_sticky > ul > li > ul > li > ul > li > a,.sidebar_sticky > ul > li > ul > li > ul > li > a:hover, .sidebar_sticky > ul > li > ul > li > ul > li > span {
   margin: 0px 5px 0px 30px;
   font-size: 0.9rem;
-  color: darkorange;
+  /* color: darkorange; */
 }
 
 .sidebar_sticky > ul > li > ul > li > a, .sidebar_sticky > ul > li > ul > li > span {
@@ -366,11 +360,11 @@ nav div.dropdown-menu a:not(.disabled):hover {
 h2 {
     font-weight: bold;
     margin-bottom: 20px;
-    background-color: #ffd391;
-    padding: 10px 10px;
+    /* background-color: #ffd391; */
+    /* padding: 10px 10px; */
     color: #38342a;
     text-align: left;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+    /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
 
 }
 /*   color: #856404;
@@ -385,12 +379,12 @@ form h4 {
 
   /* color: #856404; */
     color: #1a252f;
-    background-color: #ffd391;
+    /* background-color: #ffd391; */
 
   /* background-color: #fff3cd; */
   font-weight: bold;
 
-  border-color: #ffeeba;
+  /* border-color: #ffeeba; */
   padding: .75rem 1.25rem;
   border: 1px solid transparent;
   border-radius: .25rem;
@@ -708,15 +702,15 @@ table .tr-selected td:last-child{
 
 
 .table-declaration  th[colspan] {
-  background-color: #ffd391;
+  background-color: #e6e6e6;
   font-size: 0.9rem;
 
 }
 
 .table-declaration  th:not([colspan]) {
-  background-color: #e6ded8;
+  /* background-color: #e6ded8; */
   padding-left: 20px;
-  border-color: #a99d8a;
+  /* border-color: #a99d8a; */
 }
 
 .a-venir {

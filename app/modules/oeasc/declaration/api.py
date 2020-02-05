@@ -214,10 +214,11 @@ def create_or_update_declaration():
         update une declaration existante
     '''
 
+    b_create = data['declaration'].get('id_declaration')
     data = request.get_json()
     declaration_dict = data["declaration"]
     d = f_create_or_update_declaration(declaration_dict)
-    send_mail_validation_declaration(d)
+    send_mail_validation_declaration(d, b_create)
 
     return d
 
@@ -274,7 +275,7 @@ def declarations_shape():
 
     export_view = GenericTableGeo(
         view_name,
-        "oeasc",
+        "oeasc_declarations",
         DB.engine,
         geometry_field='geom',
         srid=4326

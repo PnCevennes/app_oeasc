@@ -19,7 +19,7 @@ def print_date(s_date):
     """
     if not s_date:
         return ''
-    return parser.parse(s_date).strftime("%d-%m-%Y")
+    return parser.parse(s_date).strftime("%d/%m/%Y")
 
 
 def get_some_config(config_text):

@@ -244,7 +244,7 @@ def get_random_area_dgd_cadastre(area_code_dgd):
         get_random_area_dgd_cadastre
     '''
     res = DB.engine.execute(text("SELECT area_code_cadastre \
-        FROM ref_geo.cor_dgd_cadastre \
+        FROM oeasc_forets.cor_dgd_cadastre \
         WHERE area_code_dgd = '{}' \
         ORDER BY RANDOM() \
         LIMIT 1;".format(area_code_dgd))).first()[0]

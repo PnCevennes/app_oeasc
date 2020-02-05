@@ -1,5 +1,8 @@
+'''
+    Fonctions pour récupérer les géometries
+'''
 from sqlalchemy import and_, text
-
+from flask import current_app
 from geojson import FeatureCollection
 
 from .models import (
@@ -9,20 +12,31 @@ from .models import (
     VLAreasSimples as VLAS,
 )
 
-from flask import current_app
 
 config = current_app.config
 DB = config['DB']
 
 
 def get_id_type(type_code):
+    """
+    TODO
+    """
 
-    return DB.session.execute("SELECT ref_geo.get_id_type(:type_code);", {'type_code': type_code}).first()[0]
+    return DB.session.execute(
+        "SELECT ref_geo.get_id_type(:type_code);",
+        {'type_code': type_code}
+    ).first()[0]
 
 
 def get_type_code(id_type):
+    """
+    TODO
+    """
 
-    return DB.session.execute("SELECT type_code FROM ref_geo.bib_areas_types WHERE  id_type = :id_type;", {'id_type': id_type}).first()[0]
+    return DB.session.execute(
+        "SELECT type_code FROM ref_geo.bib_areas_types WHERE  id_type = :id_type;",
+        {'id_type': id_type}
+    ).first()[0]
 
 
 def set_table(b_simple, data_type):
@@ -68,7 +82,17 @@ def areas_from_type_code(b_simple, data_type, type_code):
 
     id_type = get_id_type(type_code)
 
-    data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable)).order_by(table.label).all()
+    data = (
+        DB.session.query(table)
+        .filter(
+            and_(
+                table.id_type == id_type,
+                table.enable
+            )
+        )
+        .order_by(table.label)
+        .all()
+    )
 
     if data_type == 'l':
         return FeatureCollection([d.get_geofeature() for d in data])
@@ -82,7 +106,8 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
         et étant contenue dans la geometrie identifiée par son id_area : id_area_container
         la recherche de ses élément se fait par rapport aux area_code:
             - soit en comparant les area_code des contenus et du contenant (cas général)
-            - soit en se servant d'une table de correlation precalculée pour le cas des forêts avec DGD
+            - soit en se servant d'une table de correlation
+            precalculée pour le cas des forêts avec DGD
 
         data type : t -> renvoie seulement les attributs
                     l -> renvoie aussi la geometrie
@@ -106,7 +131,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
         id_type_dgd = get_id_type('OEASC_DGD')
 
         # cas des section de communes
-        if(container.id_type == id_type_commune):
+        if container.id_type == id_type_commune:
 
             sql_text = text("SELECT ref_geo.get_old_communes('{}')".format(container.area_code))
 
@@ -117,25 +142,57 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
             for r in result:
                 area_code = r[0]
 
-                data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(area_code + "-%"))).order_by(table.label).all() + data
+                data = (
+                    DB.session.query(table)
+                    .filter(
+                        and_(
+                            table.id_type == id_type,
+                            table.enable,
+                            table.area_code.like(area_code + "-%")
+                        )
+                    )
+                    .order_by(table.label)
+                    .all()
+                    + data
+                )
 
         # cas des dgd
-        elif(container.id_type == id_type_dgd):
+        elif container.id_type == id_type_dgd:
 
-            res = DB.engine.execute(text("SELECT area_code_cadastre FROM ref_geo.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(container.area_code)))
+            res = DB.engine.execute(
+                text(
+                    "SELECT area_code_cadastre \
+                        FROM oeasc_forets.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;"
+                    .format(container.area_code)
+                    )
+                )
 
             v = [r[0] for r in res]
 
-            data = DB.session.query(table).filter(table.area_code.in_(v)).order_by(table.label).all()
+            data = (
+                DB.session.query(table)
+                .filter(table.area_code.in_(v))
+                .order_by(table.label).all()
+            )
 
         # autres cas ONF
         else:
 
-            data = DB.session.query(table).filter(and_(table.id_type == id_type, table.enable, table.area_code.like(container.area_code + "-%"))).order_by(table.label).all()
+            data = (
+                DB.session.query(table)
+                .filter(
+                    and_(
+                        table.id_type == id_type,
+                        table.enable,
+                        table.area_code.like(container.area_code + "-%")
+                    )
+                )
+                .order_by(table.label)
+                .all()
+            )
 
         # output
         if data_type == 'l':
-
             out = out + [d.get_geofeature() for d in data]
 
         else:
@@ -151,7 +208,9 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
 
 def areas_post(b_simple, data_type, areas):
-
+    '''
+        TODO
+    '''
     table = set_table(b_simple, data_type)
 
     out = []

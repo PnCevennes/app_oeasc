@@ -103,7 +103,8 @@
             <td>{{ declaration['id_declaration'] }}</td>
             <td>{{ declaration['declarant'] }}</td>
             <td>{{ declaration['organisme']}}</td>
-            <td data-sort='<%= my_date.strftime("%d%m%Y") %>'>{{utils.print_date(declaration['declaration_date'])}}</td>
+            <td>{{declaration['declaration_date']}}</td>
+            <!-- <td data-sort='<%= my_date.strftime("%d%m%Y") %>'>{{declaration['declaration_date']}}</td> -->
             <td><span data-toggle="tooltip" title="{{declaration['label_foret']}}">{{declaration['label_foret']}}</span></td>
             <td><span data-toggle="tooltip" title="{{declaration['communes']}}">{{declaration['communes']}}</span></td>
             <td><span data-toggle="tooltip" title="{{declaration['parcelles']}}">{{declaration['parcelles']}}</span></td>

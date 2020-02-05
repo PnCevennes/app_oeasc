@@ -576,7 +576,7 @@ echo "DROP TABLE IF EXISTS ref_geo.cor_old_communes;" | $psqla #>> $log_file
 
 function clear_cor_dgd_cadastre() {
 
-echo "DROP TABLE IF EXISTS ref_geo.cor_dgd_cadastre;" | $psqla #>> $log_file
+echo "DROP TABLE IF EXISTS oeasc_forets.cor_dgd_cadastre;" | $psqla #>> $log_file
 
 }
 
@@ -637,15 +637,15 @@ then
 echo process_cor_dgd_cadastre
 cat << EOF | $psqla >> $log_file
 
-DROP TABLE IF EXISTS ref_geo.cor_dgd_cadastre;
+DROP TABLE IF EXISTS oeasc_forets.cor_dgd_cadastre;
 
-CREATE TABLE ref_geo.cor_dgd_cadastre
+CREATE TABLE oeasc_forets.cor_dgd_cadastre
 (
     area_code_dgd CHARACTER VARYING,
     area_code_cadastre CHARACTER VARYING
 );
 
-INSERT INTO ref_geo.cor_dgd_cadastre
+INSERT INTO oeasc_forets.cor_dgd_cadastre
     SELECT a.area_code, l.area_code
         FROM ref_geo.l_areas as l, (SELECT area_code, ref_geo.intersect_rel_area(id_area, 'OEASC_CADASTRE', 0.1) as id_area_cadastre
             FROM ref_geo.l_areas

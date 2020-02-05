@@ -46,9 +46,9 @@ CREATE OR REPLACE FUNCTION ref_geo.intersect(
     COST 100;
 
 
-DROP FUNCTION IF EXISTS ref_geo.intersect_rel_area(INTEGER, CHARACTER VARYING, DOUBLE PRECISION) CASCADE;
+DROP FUNCTION IF EXISTS ref_geo.intersect_id_area_type_tol(INTEGER, CHARACTER VARYING, DOUBLE PRECISION) CASCADE;
 
-CREATE OR REPLACE FUNCTION ref_geo.intersect_rel_area(
+CREATE OR REPLACE FUNCTION ref_geo.intersect_id_area_type_tol(
     myidarea INTEGER,
     mytypecode CHARACTER VARYING,
     seuil DOUBLE PRECISION)

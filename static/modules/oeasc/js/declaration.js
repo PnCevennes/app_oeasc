@@ -6,6 +6,8 @@
 
       var declaration = JSON.parse($('#declaration_' + id_declaration).attr("data-declaration"));
 
+      console.log(declaration)
+
       if(! M["map_show_localisation_" + id_declaration] && declaration) {
 
         var d_config = {

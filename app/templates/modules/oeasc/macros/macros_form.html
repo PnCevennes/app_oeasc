@@ -157,7 +157,17 @@
 
   <div id="{{ name | upper }}">
     <label for="{{ name }}">{{ titre }}<span class="big-red">{{ "*" if required!="" }}</span></label><br>
-    <input class="form-control" type="number" onchange="(function(el){el.value=parseFloat(el.value).toFixed(0);})(this)" name="{{ name }}" id="{{name}}" value="{{ object[name] or '' }}" {{ required }} {{ disabled }}  {{hidden}}>
+    <input 
+      class="form-control"
+      type="number"
+      onchange="(function(el){el.value=parseFloat(el.value).toFixed(0);})(this)" name="{{ name }}"
+      id="{{name}}"
+      value="{{ object[name] or '' }}"
+      {{ required }}
+      {{ disabled }}
+      {{hidden}}
+      min="0"
+    >
   </div>
 
 </div>

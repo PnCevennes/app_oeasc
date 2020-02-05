@@ -46,41 +46,85 @@ CREATE OR REPLACE FUNCTION ref_geo.intersect(
     COST 100;
 
 
-DROP FUNCTION IF EXISTS ref_geo.intersect_rel_area(INTEGER, CHARACTER VARYING, DOUBLE PRECISION) CASCADE;
+-- retourne les id de ref_geo.l_areas de type mytypecode 
+-- qui intersectent avec la geometry mygeom 
+-- avec une tolerance sur l'aire d'intersection relative (valeur conseillée 0.05)
+DROP FUNCTION IF EXISTS ref_geo.intersect_geom_type_tol(geometry, character varying, double precision);
 
-CREATE OR REPLACE FUNCTION ref_geo.intersect_rel_area(
-    myidarea INTEGER,
-    mytypecode CHARACTER VARYING,
-    seuil DOUBLE PRECISION)
-
-    RETURNS TABLE (id_area INT) AS
-    --
-    -- Returns the id_area(s) of the areas of type code intersecting with area id_area
-    --
-    $$
+CREATE OR REPLACE FUNCTION ref_geo.intersect_geom_type_tol(
+    IN mygeom geometry,
+    IN mytypecode character varying,
+    IN tolerance double precision)
+  RETURNS TABLE(id_area integer) AS
+$BODY$
         BEGIN
             RETURN QUERY
 
-                WITH test AS (SELECT l.geom as geom
-                    FROM ref_geo.l_areas as l
-                    WHERE L.id_area=myidarea)
+	WITH 
 
-                SELECT(c.id_area)
-                    FROM (
-                        SELECT a.id_area
-                            FROM (
-                                SELECT l.id_area, l.geom
-                                    FROM ref_geo.l_areas as l, test
-                                    WHERE l.id_type = ref_geo.get_id_type(mytypecode) AND
-                                    ST_INTERSECTS(l.geom, test.geom)
-                                )a, test
-                            WHERE ST_AREA(ST_INTERSECTION(ST_MAKEVALID(a.geom), test.geom))*(1.0/ST_AREA(a.geom) + 1.0/ST_AREA(test.geom))/2 > seuil
-                    )c;
+	test AS (SELECT
+		mygeom as geom, ST_AREA(mygeom) AS area
+	),
+
+	preselected AS ( SELECT
+		l.id_area, l.geom
+		FROM ref_geo.l_areas AS l
+		JOIN test t ON TRUE
+		WHERE l.id_type = ref_geo.get_id_type(mytypecode)
+			AND ST_INTERSECTS(l.geom, t.geom)
+	)
+
+	SELECT (p.id_area)
+		FROM preselected AS p
+		JOIN test AS t ON TRUE
+		WHERE ST_AREA(ST_INTERSECTION(p.geom, t.geom))*(1.0/ST_AREA(t.geom) + 1.0/t.area)/2 > tolerance
+	;
           END;
-    $$
+    $BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100
+  ROWS 1000;
 
-    LANGUAGE plpgsql IMMUTABLE
-    COST 100;
+-- Function: ref_geo.intersect_id_area_type_tol(integer, character varying, double precision)
+-- retourne les id de ref_geo.l_areas de type mytypecode 
+-- qui intersecten
+
+	DROP FUNCTION IF EXISTS ref_geo.intersect_id_area_type_tol(integer, character varying, double precision);
+
+CREATE OR REPLACE FUNCTION ref_geo.intersect_id_area_type_tol(
+    IN myidarea integer,
+    IN mytypecode character varying,
+    IN tolerance double precision)
+  RETURNS TABLE(id_area integer) AS
+$BODY$
+        BEGIN
+            RETURN QUERY
+
+	WITH 
+  test AS (
+    SELECT l.geom, ST_AREA(l.geom) AS area
+      FROM ref_geo.l_areas l
+      WHERE l.id_area = myidarea
+  ),
+
+  preselected AS ( SELECT l.id_area, l.geom
+		FROM ref_geo.l_areas AS l
+		JOIN test t ON TRUE
+		WHERE l.id_type = ref_geo.get_id_type(mytypecode)
+			AND ST_INTERSECTS(l.geom, t.geom)
+	)
+
+	SELECT (p.id_area)
+		FROM preselected AS p
+		JOIN test AS t
+		ON TRUE
+		WHERE ST_AREA(ST_INTERSECTION(p.geom, t.geom))*(1.0/ST_AREA(p.geom) + 1.0/t.area)/2 > tolerance
+	;
+          END;
+    $BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100
+  ROWS 1000;
 
 
 DROP FUNCTION IF EXISTS ref_geo.clean_ug_name(text) CASCADE;

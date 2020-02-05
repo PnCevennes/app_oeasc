@@ -72,7 +72,7 @@ SELECT  l.id_area, f.id_foret
 
 INSERT INTO oeasc_forets.cor_areas_forets(
      id_area, id_foret)
-SELECT ref_geo.intersect_rel_area(l.id_area, 'OEASC_COMMUNE', 0.05), c.id_foret
+SELECT ref_geo.intersect_id_area_type_tol(l.id_area, 'OEASC_COMMUNE', 0.05), c.id_foret
     FROM oeasc_forets.cor_areas_forets as c, ref_geo.l_areas as l
     WHERE (l.id_type = ref_geo.get_id_type('OEASC_ONF_FRT') OR l.id_type = ref_geo.get_id_type('OEASC_DGD')) AND l.id_area = c.id_area
     ORDER BY c.id_foret;

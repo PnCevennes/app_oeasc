@@ -60,6 +60,10 @@ par exemple :
   };
 
   var init_tiles = function(map) {
+
+    // ajout CRPF TODO à déplacer
+    map.attributionControl.addAttribution("&copy; <a href='https://occitanie.cnpf.fr/'>CRPF Occitanie</a>")
+
     // initialise les fonds de carte
 
     // openstreetmap
@@ -67,9 +71,6 @@ par exemple :
     var mapbox = L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
       maxZoom: 18,
       opacity: tile_opacity,
-      // attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, ' +
-      // '<a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
-      // 'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
       attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
       id: 'mapbox.streets'
     })
@@ -356,6 +357,9 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
     /*
       charge les aires dont l'id est contenu dans area
       */
+
+      console.log('areas',areas, type)
+
       if(!(areas && areas.length)) return ;
 
       $("#" + map.map_name + " #chargement").show();

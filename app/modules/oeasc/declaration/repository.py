@@ -309,7 +309,7 @@ def get_declarations(user=None, type_export=None, type_out=None, id_declaration=
     gq = GenericQueryGeo(
         DB,
         view_name,
-        'oeasc',
+        'oeasc_declarations',
         geometry_field=geometry_field,
         filters=filters,
         limit=1e6
@@ -352,7 +352,7 @@ def add_degats(declarations):
     data_degats = GenericQuery(
         DB,
         'v_degats',
-        'oeasc',
+        'oeasc_declarations',
         limit=1e6
     ).return_query()['items']
 

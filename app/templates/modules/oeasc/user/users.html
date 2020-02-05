@@ -25,7 +25,7 @@
             <th>Rôle</th>
             <th>Droits</th>
             <th>Nb. déclarations</th>
-            <th>Date inscription (A. M. J.)</th>
+            <th>Date inscription</th>
           </tr>
         </thead>
 
@@ -84,11 +84,46 @@
 
     "use strict";
 
+    jQuery.extend(jQuery.fn.dataTableExt.oSort, {
+      "date-euro-pre": function(a) {
+        var x;
+  
+        if ($.trim(a) !== "") {
+          var frDatea = $.trim(a).split(" ");
+          var frTimea =
+            undefined != frDatea[1] ? frDatea[1].split(":") : [0, 0, 0];
+          var frDatea2 = frDatea[0].split("/");
+          x =
+            (frDatea2[2] +
+              frDatea2[1] +
+              frDatea2[0] +
+              frTimea[0] +
+              frTimea[1] +
+              (undefined != frTimea[2] ? frTimea[2] : 0)) *
+            1;
+        } else {
+          x = Infinity;
+        }
+  
+        return x;
+      },
+  
+      "date-euro-asc": function(a, b) {
+        return a - b;
+      },
+  
+      "date-euro-desc": function(a, b) {
+        return b - a;
+      }
+    });
+
     var id_application = "{{config.ID_APP}}"
 
     var table = $(".dataTable").DataTable({
       "columnDefs": [
-      { "type": "html-num", "targets": 0, "visible": false }
+      { "type": "html-num", "targets": 0, "visible": false },
+      { "type": "date-euro", "targets": 7 }
+
       ],
       "order": [[ 1, "asc" ], [2, "asc"]],
       "language": { "url": "//cdn.datatables.net/plug-ins/9dcbecd42ad/i18n/French.json"},

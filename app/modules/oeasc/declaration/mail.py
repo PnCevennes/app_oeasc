@@ -34,10 +34,10 @@ def send_mail_test():
 
     declaration = f_create_or_update_declaration(declaration)
 
-    return send_mail_validation_declaration(declaration)
+    return send_mail_validation_declaration(declaration, True)
 
 
-def send_mail_validation_declaration(declaration):
+def send_mail_validation_declaration(declaration, b_create):
     '''
         Evoie un e-mail quand une declaration est validée
     '''
@@ -46,14 +46,21 @@ def send_mail_validation_declaration(declaration):
     email_user = user['email']
 
     with mail.connect() as conn:
+        
+        # on envoie le message à l'utilisateur seulement si c'est une creation
+        if b_create:
+            msg = Message(
+                '[OEASC] Votre déclaration a bien été prise en compte',
+                sender=config['ANIMATEUR_APPLICATION_MAIL'],
+                recipients=[email_user])
+            msg.html = render_template(
+                'modules/oeasc/mail/validation_declaration.html',
+                destinataire='user',
+                declaration=declaration, 
+                user=user
+            )
 
-        msg = Message(
-            '[OEASC] Votre déclaration a bien été prise en compte',
-            sender=config['ANIMATEUR_APPLICATION_MAIL'],
-            recipients=[email_user])
-        msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='user', declaration=declaration, user=user)
-
-        conn.send(msg)
+            conn.send(msg)
 
         msg = Message(
             '[OEASC] [ANIMATEUR] Nouvelle déclaration',

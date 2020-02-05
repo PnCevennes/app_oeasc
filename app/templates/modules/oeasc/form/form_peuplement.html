@@ -3,7 +3,7 @@
 {%- import "modules/oeasc/macros/macros_form_map.html" as macros_map %}
 
 <form id="form_areas_localisation" data-areas='{{ declaration["areas_localisation"]|tojson if declaration["areas_localisation"] is defined else [] }}'>
-
+  
   {# cas ONF #}
   {%- if foret['b_statut_public'] == true and foret['b_document'] == true %}
 
@@ -34,7 +34,8 @@
   {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_DGD') %}
 
   {% if areas_container %}
-
+  {{ areas_container }}
+  {{ foret }}
   {{ macros_map.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
 
   {% endif %}
@@ -44,7 +45,6 @@
 
   {% set areas_selected = utils.get_areas_from_type_code(declaration["areas_localisation"], "OEASC_CADASTRE") %}
   {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_SECTION') %}
-
   {% if areas_container %}
 
   {{ macros_map.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
@@ -80,7 +80,6 @@
   <div class="center">
     <div class="form-group form-text">
       {{ macros_form.input_double("peuplement_surface", "Superficie du peuplement (ha)", declaration, required='') }}
-      {{ macros_form.input_text("precision_localisation", "Précisions sur la localisation", declaration, required='') }}
     </div>
   </div>
 
@@ -200,9 +199,6 @@
     <div class="align-right">
       <input type=submit value=Suivant class="btn btn-success">
     </div>
-
-
-
   </form>
 
 

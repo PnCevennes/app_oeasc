@@ -1,3 +1,5 @@
+
+
 -- vue pour tableau et base pour les reste
 DROP VIEW IF EXISTS oeasc_declarations.v_declarations CASCADE;
 CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
@@ -15,56 +17,14 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         FROM oeasc_forets.t_forets f
     ),
     
-    communes AS ( SELECT 
-        f.id_foret,
-        ref_geo.get_area_names(ARRAY_AGG(l.id_area)) AS noms
         
-        FROM oeasc_forets.t_forets f
-        JOIN oeasc_forets.cor_areas_forets c
-            ON c.id_foret = f.id_foret
-        JOIN ref_geo.l_areas l
-            ON l.id_type = ref_geo.get_id_type('OEASC_COMMUNE')
-                AND l.id_area = c.id_area
-        GROUP BY f.id_foret
-    ),
-    
-    parcelles AS ( SELECT 
-        d.id_declaration,
-        ref_geo.get_area_names(ARRAY_AGG(l.id_area)) AS noms
-        
-        FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_declarations.cor_areas_declarations c
-            ON c.id_declaration = d.id_declaration
-        LEFT JOIN ref_geo.l_areas l
-            ON l.id_type IN (
-                ref_geo.get_id_type('OEASC_ONF_UG'),
-                ref_geo.get_id_type('OEASC_ONF_PRF'),
-                ref_geo.get_id_type('OEASC_CADASTRE')
-                )
-                AND l.id_area = c.id_area
-        GROUP BY d.id_declaration
-    ),
-
-    secteurs AS ( SELECT 
-        d.id_declaration,
-        ref_geo.get_area_names(ARRAY_AGG(l.id_area)) AS noms,
-        ARRAY_AGG(l.id_area) AS ids
-        
-        FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_declarations.cor_areas_declarations c
-            ON c.id_declaration = d.id_declaration
-        JOIN ref_geo.l_areas l
-            ON l.id_type = ref_geo.get_id_type('OEASC_SECTEUR')
-                AND l.id_area = c.id_area
-                
-        GROUP BY d.id_declaration
-    ),
-    
     declarant AS ( SELECT
         r.id_role AS "id_declarant",
         CONCAT(UPPER(r.nom_role), ' ', r.prenom_role) AS "declarant",
-        r.organisme
+        o.nom_organisme as organisme
         FROM utilisateurs.t_roles r
+        JOIN utilisateurs.bib_organismes o
+		ON o.id_organisme = r.id_organisme
     ),
     
     peuplement AS ( SELECT
@@ -141,53 +101,19 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         ARRAY[ST_Y(center), ST_X(center)] AS centroid        
         FROM ( SELECT 
             id_declaration,
-            ST_CENTROID(ST_UNION(l.geom_4326)) AS center
-            FROM oeasc_declarations.cor_areas_declarations c
-            JOIN ref_geo.l_areas l
-                ON l.id_area = c.id_area
-                    AND l.id_type IN (
-                        ref_geo.get_id_type('OEASC_CADASTRE'),
-                        ref_geo.get_id_type('OEASC_ONF_UG'),
-                        ref_geo.get_id_type('OEASC_ONF_PRF'))
-
-            GROUP BY id_declaration                
+            ST_CENTROID(ST_TRANSFORM(geom, 4326)) AS center
+            FROM oeasc_declarations.t_declarations
         )a
-    ),
-
-    areas_localisation AS ( SELECT
-        d.id_declaration,
-        ARRAY_AGG(DISTINCT c.id_area) AS areas,
-        ref_geo.get_area_names(ARRAY_AGG(DISTINCT c.id_area)) AS names
-        
-        FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_declarations.cor_areas_declarations c
-            ON d.id_declaration = c.id_declaration
-        JOIN ref_geo.l_areas l
-            ON l.id_area = c.id_area
-        WHERE 
-            l.id_type IN (ref_geo.get_id_type('OEASC_ONF_UG'), ref_geo.get_id_type('OEASC_CADASTRE'))
-        GROUP BY d.id_declaration
-    ),
-
-    areas_foret AS ( SELECT
-        d.id_declaration,
-        ARRAY_AGG(DISTINCT c.id_area) AS areas,
-        ref_geo.get_area_names(ARRAY_AGG(DISTINCT c.id_area)) AS names
-        
-        FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_forets.cor_areas_forets c
-            ON d.id_declaration = c.id_foret
-        JOIN ref_geo.l_areas l
-            ON l.id_area = c.id_area
-        WHERE 
-            l.id_type IN (ref_geo.get_id_type('OEASC_ONF_FRT'), ref_geo.get_id_type('OEASC_DGD'))
-        GROUP BY d.id_declaration
     )
 
     SELECT
     d.id_declaration,
-    TO_CHAR(d.meta_create_date, 'DD-MM-YYYY') AS declaration_date,
+    TO_CHAR(d.meta_create_date, 'DD/MM/YYYY') AS declaration_date,
     d.commentaire,
+
+    d.b_peuplement_protection_existence,
+    d.b_peuplement_paturage_presence,
+    d.b_autorisation,
 
     u.id_declarant,
     u.declarant,
@@ -200,12 +126,15 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     f.b_statut_public,
     f.b_document,
 
-    c.noms AS communes,
-    s.noms AS secteur,
-    pa.noms AS parcelles,
+    oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_COMMUNE') AS communes,
+    oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_SECTEUR') AS secteurs,
+    CASE WHEN f.b_statut_public AND f.b_document THEN 
+	oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_ONF_UG')
+    ELSE 
+	oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_CADASTRE')
+    END AS parcelles,
 
     p.peuplement_surface,
-
     p.peuplement_type_mnemo,
     p.peuplement_origine_mnemo,    
     pn.peuplement_maturite_mnemo,
@@ -236,37 +165,43 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
 
     deg.degat_types_mnemo,
     deg.degat_types_label,
+	
+    centroid.centroid,
+    geom,
 
-    ce.centroid,
-    af.areas AS areas_foret,
-    ad.areas AS areas_localisation,
-    af.names AS names_foret,
-    ad.names AS names_localisation
+    CASE 
+	WHEN f.b_statut_public AND f.b_document THEN oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_ONF_FRT')
+	WHEN NOT f.b_statut_public AND f.b_document THEN oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_DGD')
+	ELSE oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_SECTION')
+    END AS areas_foret,
 
+    CASE 
+	WHEN f.b_statut_public AND f.b_document THEN oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_ONF_FRT')
+	WHEN NOT f.b_statut_public AND f.b_document THEN oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_DGD')
+	ELSE oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_SECTION')
+    END AS areas_foret_names,
+
+
+    CASE 
+	WHEN f.b_statut_public AND f.b_document THEN oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_ONF_UG')
+    ELSE
+	oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_CADASTRE')
+    END AS areas_localisation
+    
     FROM oeasc_declarations.t_declarations d
     JOIN declarant u
         ON u.id_declarant = d.id_declarant
         JOIN foret f
         ON f.id_foret = d.id_foret
-    LEFT JOIN communes c
-        ON c.id_foret = f.id_foret
-    JOIN parcelles pa
-        ON pa.id_declaration = d.id_declaration
-    JOIN secteurs s
-        ON s.id_declaration = d.id_declaration
     JOIN peuplement p
         ON p.id_declaration = d.id_declaration
     JOIN peuplement_nomenclatures pn
         ON pn.id_declaration = d.id_declaration
     JOIN degat_type deg
         ON deg.id_declaration = d.id_declaration
-    JOIN centroid ce
-        ON ce.id_declaration = d.id_declaration
-    JOIN areas_localisation ad
-        ON ad.id_declaration = d.id_declaration
-    JOIN areas_foret af
-        ON af.id_declaration = d.id_declaration;
-
+    JOIN centroid
+        ON centroid.id_declaration = d.id_declaration
+;
 
 DROP VIEW IF EXISTS oeasc_declarations.v_degats CASCADE;
 CREATE OR REPLACE VIEW oeasc_declarations.v_degats AS
@@ -305,20 +240,6 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declaration_degats AS
             ON vdeg.id_declaration_degat = vd.id_declaration;
 
 
-DROP VIEW IF EXISTS oeasc_declarations.v_declaration_geoms CASCADE;
-CREATE OR REPLACE VIEW oeasc_declarations.v_declaration_geoms AS
-
-    SELECT 
-        c.id_declaration,
-        ST_UNION(geom_4326) AS geom
-        
-    FROM oeasc_declarations.cor_areas_declarations c    
-    JOIN ref_geo.l_areas l
-        ON l.id_area = c.id_area
-            AND l.id_type IN (ref_geo.get_id_type('OEASC_CADASTRE'), ref_geo.get_id_type('OEASC_ONF_UG'))
-    GROUP BY id_declaration
-    ;
-
 
 -- vues pour les CSV 1 ligne / declaration
 DROP VIEW IF EXISTS oeasc_declarations.v_export_declarations_csv CASCADE;
@@ -333,7 +254,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_csv AS
         vd.statut_public AS "Statut forêt",
         vd.document AS "Documentée",
         vd.communes AS "Commune(s)",
-        vd.secteur AS "Secteur",
+        vd.secteurs AS "Secteur",
         vd.parcelles AS "Parcelle(s)",
         vd.peuplement_type_mnemo AS "Peu. type",
         vd.peuplement_origine_mnemo AS "Peu. ori.",    
@@ -377,11 +298,11 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_shape AS
 
     SELECT 
         ved.*,
-        vg.geom
+        v.geom
             
         FROM oeasc_declarations.v_export_declarations_csv ved
-        JOIN oeasc_declarations.v_declaration_geoms vg
-            ON vg.id_declaration = ved.id
+        JOIN oeasc_declarations.v_declarations v
+            ON v.id_declaration = ved.id
         ;
 
 
@@ -391,28 +312,25 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declaration_degats_shape AS
 
     SELECT 
         ved.*,
-        vg.geom
+        v.geom
             
         FROM oeasc_declarations.v_export_declaration_degats_csv ved
-        JOIN oeasc_declarations.v_declaration_geoms vg
-            ON vg.id_declaration = ved.id
+        JOIN oeasc_declarations.v_declarations v
+            ON v.id_declaration = ved.id
         ;
 
 GRANT SELECT ON oeasc_declarations.v_declarations TO PUBLIC;
 GRANT SELECT ON oeasc_declarations.v_degats TO PUBLIC;
-GRANT SELECT ON oeasc_declarations.v_declaration_geoms TO PUBLIC;
 GRANT SELECT ON oeasc_declarations.v_export_declarations_csv TO PUBLIC;
 GRANT SELECT ON oeasc_declarations.v_export_declaration_degats_csv TO PUBLIC;
 GRANT SELECT ON oeasc_declarations.v_export_declarations_shape TO PUBLIC;
 GRANT SELECT ON oeasc_declarations.v_export_declaration_degats_shape TO PUBLIC;
 
 
-
-SELECT * FROM oeasc_declarations.v_declarations;
---SELECT * FROM oeasc_declarations.v_export_declarations_csv;
---SELECT * FROM oeasc_declarations.v_export_declarations_csv;
---SELECT * FROM oeasc_declarations.v_export_declaration_degats_csv;
---SELECT * FROM oeasc_declarations.v_declaration_geoms;
---SELECT * FROM oeasc_declarations.v_export_declarations_shape;
---SELECT * FROM oeasc_declarations.v_export_declaration_degats_shape;
+ SELECT * FROM oeasc_declarations.v_declarations;
+-- SELECT * FROM oeasc_declarations.v_export_declarations_csv;
+-- SELECT * FROM oeasc_declarations.v_export_declarations_csv;
+-- SELECT * FROM oeasc_declarations.v_export_declaration_degats_csv;
+-- SELECT * FROM oeasc_declarations.v_export_declarations_shape;
+-- SELECT * FROM oeasc_declarations.v_export_declaration_degats_shape;
 

@@ -44,6 +44,7 @@ def get_user_from_data(data):
         qui serve aussi dans user
     '''
     user_dict = as_dict(data)
+    print(user_dict)
     for d in data.app_users:
         u = as_dict(d)
         if u['id_application'] == config['ID_APP']:
@@ -59,6 +60,17 @@ def get_user_from_data(data):
             + str(user_dict['id_role'])
         )
     ).first()
+
+    organisme = DB.engine.execute(
+        text(
+            "SELECT nom_organisme FROM utilisateurs.bib_organismes WHERE id_organisme="
+            + str(user_dict['id_organisme'])
+        )
+    ).first()
+
+
+    if organisme:
+        user_dict['organisme'] = organisme[0]
 
     if data_nd:
         user_dict['nb_declarations'] = data_nd[0]

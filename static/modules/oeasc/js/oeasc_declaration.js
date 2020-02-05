@@ -336,7 +336,8 @@ $(document).ready(function() {
     "form_peuplement_espece",
     ],
     "form_degats": [
-    "form_degats"
+    "form_degats",
+    "form_degats_localisation"
     ],
     "form_commentaire": [
     "form_commentaire",

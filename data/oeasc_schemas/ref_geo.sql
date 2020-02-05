@@ -65,3 +65,7 @@ CREATE OR REPLACE VIEW ref_geo.vl_areas_simples AS
     SELECT li.id_area, li.id_type, l.geom_4326, li.area_code, li.label, li.area_name, li.surface_calculee, li.surface_renseignee, li.source, li.enable
         FROM ref_geo.l_areas_simples l, ref_geo.li_areas li
         WHERE  l.id_area=li.id_area;
+
+CREATE INDEX index_l_areas_type ON ref_geo.l_areas (id_type);
+CREATE INDEX index_l_areas_area ON ref_geo.l_areas (id_area);
+CREATE INDEX index_l_areas_code ON ref_geo.l_areas (area_code);

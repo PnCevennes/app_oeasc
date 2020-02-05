@@ -51,7 +51,7 @@ filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_tabl
     </tr>
       <tr>
         <th>Date</th>
-        <td>{{utils.print_date(declaration_table['declaration_date'])}}</td>
+        <td>{{declaration_table['declaration_date']}}</td>
       </tr>
       <tr>
         <th>Accessibilité</th>
@@ -119,7 +119,7 @@ filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_tabl
       </tr>
       <tr>
         <th>Secteur</th>
-        <td>{{ declaration_table['secteur'] }}</td>
+        <td>{{ declaration_table['secteurs'] }}</td>
       </tr>
       <tr>
         <th>Parcelle(s)</th>
@@ -271,7 +271,10 @@ filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_tabl
 
 <div id="show_declarations" class="page-break declaration_table-maps">
   {{ macros_display_map.map_localisation(id_declaration, "global", "Localisation de l'alerte dans le périmètre de l'Observatoire") }}
+  {# {% if declaration_table.b_document %} #}
   {{ macros_display_map.map_localisation(id_declaration, "medium", "Localisation des parcelles") }}
+  {# {% endif %} #}
+  
   {{ macros_display_map.map_localisation(id_declaration, "local", "Carte des parcelles") }}
 </div>
 

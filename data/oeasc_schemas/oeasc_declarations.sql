@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS oeasc_declarations.t_declarations
     autre_protection text,
     precision_localisation text,
 
-
+    geom geometry(MultiPolygon, 2154),
+    
     commentaire text,
 
     meta_create_date timestamp without time zone,
@@ -65,7 +66,7 @@ CREATE TABLE IF NOT EXISTS oeasc_declarations.t_declarations
 
     CONSTRAINT fk_t_declarations_id_foret FOREIGN KEY (id_foret)
         REFERENCES oeasc_forets.t_forets (id_foret) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE CASCADE,
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
 
     -- contraintes localisation
 
@@ -117,6 +118,7 @@ CREATE TABLE IF NOT EXISTS oeasc_declarations.t_declarations
 
 
 -- gestion des dates pour les declarations
+DROP TRIGGER IF EXISTS trg_cor_areas_declarations ON oeasc_declarations.t_declarations;
 
 CREATE TRIGGER tri_meta_dates_change_t_declarations
    BEFORE INSERT OR UPDATE
@@ -138,7 +140,7 @@ CREATE TABLE IF NOT EXISTS oeasc_declarations.t_degats
     CONSTRAINT pk_t_degats_id_degat PRIMARY KEY (id_degat),
 
     CONSTRAINT fk_t_degats_id_declaration FOREIGN KEY (id_declaration)
-        REFERENCES oeasc_declaration.t_declarations (id_declaration) MATCH SIMPLE
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
 
     CONSTRAINT fk_t_degats_id_nomenclature_degat_type FOREIGN KEY (id_nomenclature_degat_type)
@@ -351,3 +353,105 @@ CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_espe
     CONSTRAINT check_cor_nomenclature_declarations_espece_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
         id_nomenclature, 'OEASC_PEUPLEMENT_ESPECE')) NOT VALID
 );
+
+
+-- cor_areas_declarations
+
+CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_areas_declarations
+(
+    id_declaration integer NOT NULL,
+    id_area integer NOT NULL,
+
+    CONSTRAINT pk_cor_areas_declarations PRIMARY KEY (id_declaration, id_area),
+
+    CONSTRAINT fk_cor_areas_declarations_id_declaration FOREIGN KEY (id_declaration)
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE CASCADE,
+
+    CONSTRAINT fk_cor_areas_declarations_id_area FOREIGN KEY (id_area)
+        REFERENCES ref_geo.l_areas (id_area) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE NO ACTION
+);
+
+-- trigger cor_areas_declarations
+CREATE OR REPLACE FUNCTION oeasc_declarations.fct_trg_cor_areas_declarations()
+  RETURNS trigger AS
+$BODY$
+BEGIN
+
+	DELETE FROM oeasc_declarations.cor_areas_declarations WHERE id_declaration = NEW.id_declaration;
+	INSERT INTO oeasc_declarations.cor_areas_declarations
+
+        WITH selected_types AS (SELECT UNNEST(ARRAY [          
+            'OEASC_SECTEUR',
+            'OEASC_COMMUNE',
+            'OEASC_SECTION',
+            'OEASC_ONF_FRT',
+            'OEASC_ONF_PRF',
+            'OEASC_ONF_UG',
+            'OEASC_CADASTRE',
+            'OEASC_DGD'
+        ]) AS id_type)
+        
+        SELECT 
+            NEW.id_declaration,
+            ref_geo.intersect_geom_type_tol(NEW.geom, selected_types.id_type, 0.05) as id_area
+            FROM selected_types
+;
+  RETURN NEW;
+END;
+$BODY$
+  LANGUAGE plpgsql VOLATILE
+  COST 100;
+
+
+CREATE TRIGGER trg_cor_areas_declarations
+  AFTER INSERT OR UPDATE OF geom
+  ON oeasc_declarations.t_declarations
+  FOR EACH ROW
+  EXECUTE PROCEDURE oeasc_declarations.fct_trg_cor_areas_declarations();
+
+
+CREATE OR REPLACE FUNCTION oeasc_declarations.get_area_names(myiddeclaration integer, myareatype character varying)
+  RETURNS character varying AS
+$BODY$
+--Function which return the label from the id_nomenclature
+DECLARE
+	theareanames character varying;
+  BEGIN
+  SELECT INTO theareanames STRING_AGG(DISTINCT l.area_name, ', ')
+  FROM oeasc_declarations.cor_areas_declarations c
+  LEFT JOIN ref_geo.l_areas l
+    ON c.id_area = l.id_area
+        AND l.id_type = ref_geo.get_id_type(myareatype)
+    WHERE id_declaration = myiddeclaration
+    ;
+
+return theareanames;
+  END;
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;
+
+
+CREATE OR REPLACE FUNCTION oeasc_declarations.get_id_areas(myiddeclaration integer, myareatype character varying)
+  RETURNS integer[] AS
+$BODY$
+--Function which return the label from the id_nomenclature
+DECLARE
+	theidareas character varying;
+  BEGIN
+  SELECT INTO theidareas ARRAY_AGG(DISTINCT l.id_area)
+  FROM oeasc_declarations.cor_areas_declarations c
+  LEFT JOIN ref_geo.l_areas l
+    ON c.id_area = l.id_area
+        AND l.id_type = ref_geo.get_id_type(myareatype)
+    WHERE id_declaration = myiddeclaration
+    AND l.id_area IS NOT NULL
+    ;
+
+return theidareas;
+  END;
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;

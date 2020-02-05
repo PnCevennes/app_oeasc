@@ -1,6 +1,6 @@
-﻿DROP TABLE IF EXISTS ref_geo.cor_dgd_cadastre;
+﻿DROP TABLE IF EXISTS oeasc_forets.cor_dgd_cadastre;
 
-CREATE TABLE ref_geo.cor_dgd_cadastre
+CREATE TABLE oeasc_forets.cor_dgd_cadastre
 (
     id_area_dgd integer NOT NULL,
     id_area_cadastre integer NOT NULL,
@@ -21,6 +21,6 @@ CREATE TABLE ref_geo.cor_dgd_cadastre
 
 );
 
-SELECT id_area, ref_geo.intersect_rel_area(id_area, 'OEASC_CADASTRE', 0.05)
+SELECT id_area, ref_geo.intersect_id_area_type_tol(id_area, 'OEASC_CADASTRE', 0.05)
 	FROM ref_geo.l_areas
 	WHERE id_type=ref_geo.get_id_type('OEASC_DGD');

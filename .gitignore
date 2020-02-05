@@ -17,7 +17,9 @@ install/scripts_db/SQL/ref_geo_process.sql
 
 install/script_db/config.csv
 
-install/install_db/minimal_db/*.sql
+# install/minimal_db/nomenclatures.sql
+# install/minimal_db/utilisateurs.sql
+# install/minimal_db/ref_geo.sql
 
 static/data/*.json
 
