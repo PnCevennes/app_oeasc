@@ -19,9 +19,9 @@
 
     var user = M.current_user;
     var user = JSON.parse($("#user").attr('data-user'));
-    var id_app = M.config.ID_APP;
+    var id_application = M.config.ID_APP;
 
-    console.log(user, id_app)
+    console.log(user, id_application)
 
     if( ! user ) {
 
@@ -212,7 +212,10 @@
       "organisme": $('#organisme').val().substr(0,32),
       "desc_role": $('#desc_role').val(),
 
+      "id_application": id_application
+
     };
+
 
     $("#login-error").hide();
 
