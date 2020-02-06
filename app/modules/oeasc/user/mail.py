@@ -66,7 +66,17 @@ def create_temp_user(data):
 def valid_temp_user(data):
 
     role = data
+    organisme = DB.engine.execute(
+        text(
+            "SELECT nom_organisme FROM utilisateurs.bib_organismes WHERE id_organisme="
+            + str(role['id_organisme'])
+        )
+    ).first()
 
+    if organisme:
+        role['organisme'] = organisme[0]
+
+    
     if not role:
 
         return {"msg": "Pas de role pour valid_temp_user"}
