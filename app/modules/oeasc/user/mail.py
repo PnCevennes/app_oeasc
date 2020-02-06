@@ -2,6 +2,8 @@ from flask import (
     Blueprint, render_template, current_app, url_for
 )
 from flask_mail import Message
+
+from sqlalchemy import text
 from pypnusershub.db.models import Application, User
 from pypnusershub.db.models_register import TempUser
 
