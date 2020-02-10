@@ -109,7 +109,7 @@ filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_tabl
       </tr>
       <tr>
         <th>Commune(s)</th>
-        <td>{{ declaration_table['communes'] }}</td>
+        <td>{{ declaration_table.communes }}</td>
       </tr>
     </tbody>
 
@@ -117,18 +117,19 @@ filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_tabl
       <tr>
         <th colspan="3">Peuplement - <i>localisation</i></th>
       </tr>
+      {%- if declaration_table.secteurs %}
+
       <tr>
         <th>Secteur</th>
-        <td>{{ declaration_table['secteurs'] }}</td>
+        <td>{{ declaration_table.secteurs }}</td>
       </tr>
+      {%- endif %}
+
       <tr>
         <th>Parcelle(s)</th>
-        <td>{{ declaration_table['parcelles'] }}</td>
+        <td>{{ declaration_table.parcelles }}</td>
       </tr>
-      <tr>
-        <th>Précisions sur la localisation</th>
-        <td>{{ declaration_table.precision_localisation}}</td>
-      </tr>
+      
     </tbody>
 
     <tbody>
@@ -247,6 +248,13 @@ filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_tabl
       </tr>
       {% endif %}
       {%- endfor %}
+      {% if declaration_table.precision_localisation%}
+      <tr>
+        <th>Précisions sur la localisation</th>
+        <td>{{ declaration_table.precision_localisation }}</td>
+      </tr>
+      {% endif %}    
+
     </tbody>
 
     {% if declaration_table.commentaire %}

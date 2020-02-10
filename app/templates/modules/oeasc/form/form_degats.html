@@ -218,5 +218,11 @@
 </form>
 
 <form id="form_degats_localisation">
-  {{ macros_form.input_text("precision_localisation", "Précisions sur la localisation des dégâts", declaration, required='') }}
+  <h4>Précisions sur la localisation des dégâts</h4>
+
+  {{ macros_form.input_text("precision_localisation", "", declaration, required='') }}
+  
+  <div class="align-right">
+    <input type=submit value=Suivant class="btn btn-success">  
+  </div>
 </form>

@@ -34,8 +34,6 @@
   {% set areas_container = utils.get_areas_from_type_code(foret['areas_foret'],'OEASC_DGD') %}
 
   {% if areas_container %}
-  {{ areas_container }}
-  {{ foret }}
   {{ macros_map.select_map("OEASC_CADASTRE", areas_selected, areas_container) }}
 
   {% endif %}

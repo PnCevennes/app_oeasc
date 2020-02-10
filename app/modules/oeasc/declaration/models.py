@@ -63,7 +63,7 @@ class CorNomenclatureDeclarationEssenceSecondaire(DB.Model):
     '''
 
     __tablename__ = 'cor_nomenclature_declarations_essence_secondaire'
-    __table_args__ = {'schema': 'oeasc_delcarations', 'extend_existing': True}
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
 
     id_nomenclature = DB.Column(DB.Integer, primary_key=True)
     id_declaration = DB.Column(

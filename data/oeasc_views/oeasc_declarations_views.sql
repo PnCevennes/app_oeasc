@@ -96,13 +96,29 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         GROUP BY deg.id_declaration
     ),
 
+    geom AS ( SELECT 	
+        c.id_declaration,
+        ST_MULTI(ST_UNION(l.geom)) AS geom
+
+        FROM import_oeasc.cor_areas_declarations c
+        JOIN ref_geo.l_areas l
+            ON l.id_area = c.id_area
+            AND id_type IN (
+                ref_geo.get_id_type('OEASC_ONF_UG'),
+                ref_geo.get_id_type('OEASC_CADASTRE')
+            )
+        GROUP BY c.id_declaration
+    ),
+
+
+
     centroid AS ( SELECT
         id_declaration,
         ARRAY[ST_Y(center), ST_X(center)] AS centroid        
         FROM ( SELECT 
             id_declaration,
             ST_CENTROID(ST_TRANSFORM(geom, 4326)) AS center
-            FROM oeasc_declarations.t_declarations
+            FROM geom
         )a
     )
 
@@ -167,7 +183,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     deg.degat_types_label,
 	
     centroid.centroid,
-    geom,
+    geom.geom,
 
     CASE 
 	WHEN f.b_statut_public AND f.b_document THEN oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_ONF_FRT')
@@ -199,6 +215,8 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         ON pn.id_declaration = d.id_declaration
     JOIN degat_type deg
         ON deg.id_declaration = d.id_declaration
+    JOIN geom
+        ON geom.id_declaration = d.id_declaration
     JOIN centroid
         ON centroid.id_declaration = d.id_declaration
 ;

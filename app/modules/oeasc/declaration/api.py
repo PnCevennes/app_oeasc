@@ -214,8 +214,8 @@ def create_or_update_declaration():
         update une declaration existante
     '''
 
-    b_create = data['declaration'].get('id_declaration')
     data = request.get_json()
+    b_create = data['declaration'].get('id_declaration')
     declaration_dict = data["declaration"]
     d = f_create_or_update_declaration(declaration_dict)
     send_mail_validation_declaration(d, b_create)

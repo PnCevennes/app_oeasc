@@ -227,6 +227,10 @@ def f_create_or_update_declaration(declaration_dict):
 
         id_declaration = declaration.id_declaration
 
+    # geom
+    
+
+
     declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
 
     d = dfpu_as_dict(declaration, foret, proprietaire, None)

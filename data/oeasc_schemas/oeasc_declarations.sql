@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS oeasc_declarations.t_declarations
     autre_protection text,
     precision_localisation text,
 
-    geom geometry(MultiPolygon, 2154),
+    -- geom geometry(MultiPolygon, 2154),
     
     commentaire text,
 
@@ -374,42 +374,42 @@ CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_areas_declarations
 );
 
 -- trigger cor_areas_declarations
-CREATE OR REPLACE FUNCTION oeasc_declarations.fct_trg_cor_areas_declarations()
-  RETURNS trigger AS
-$BODY$
-BEGIN
+-- CREATE OR REPLACE FUNCTION oeasc_declarations.fct_trg_cor_areas_declarations()
+--   RETURNS trigger AS
+-- $BODY$
+-- BEGIN
 
-	DELETE FROM oeasc_declarations.cor_areas_declarations WHERE id_declaration = NEW.id_declaration;
-	INSERT INTO oeasc_declarations.cor_areas_declarations
+-- 	DELETE FROM oeasc_declarations.cor_areas_declarations WHERE id_declaration = NEW.id_declaration;
+-- 	INSERT INTO oeasc_declarations.cor_areas_declarations
 
-        WITH selected_types AS (SELECT UNNEST(ARRAY [          
-            'OEASC_SECTEUR',
-            'OEASC_COMMUNE',
-            'OEASC_SECTION',
-            'OEASC_ONF_FRT',
-            'OEASC_ONF_PRF',
-            'OEASC_ONF_UG',
-            'OEASC_CADASTRE',
-            'OEASC_DGD'
-        ]) AS id_type)
+--         WITH selected_types AS (SELECT UNNEST(ARRAY [          
+--             'OEASC_SECTEUR',
+--             'OEASC_COMMUNE',
+--             'OEASC_SECTION',
+--             'OEASC_ONF_FRT',
+--             'OEASC_ONF_PRF',
+--             'OEASC_ONF_UG',
+--             'OEASC_CADASTRE',
+--             'OEASC_DGD'
+--         ]) AS id_type)
         
-        SELECT 
-            NEW.id_declaration,
-            ref_geo.intersect_geom_type_tol(NEW.geom, selected_types.id_type, 0.05) as id_area
-            FROM selected_types
-;
-  RETURN NEW;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
+--         SELECT 
+--             NEW.id_declaration,
+--             ref_geo.intersect_geom_type_tol(NEW.geom, selected_types.id_type, 0.05) as id_area
+--             FROM selected_types
+-- ;
+--   RETURN NEW;
+-- END;
+-- $BODY$
+--   LANGUAGE plpgsql VOLATILE
+--   COST 100;
 
 
-CREATE TRIGGER trg_cor_areas_declarations
-  AFTER INSERT OR UPDATE OF geom
-  ON oeasc_declarations.t_declarations
-  FOR EACH ROW
-  EXECUTE PROCEDURE oeasc_declarations.fct_trg_cor_areas_declarations();
+-- CREATE TRIGGER trg_cor_areas_declarations
+--   AFTER INSERT OR UPDATE OF geom
+--   ON oeasc_declarations.t_declarations
+--   FOR EACH ROW
+--   EXECUTE PROCEDURE oeasc_declarations.fct_trg_cor_areas_declarations();
 
 
 CREATE OR REPLACE FUNCTION oeasc_declarations.get_area_names(myiddeclaration integer, myareatype character varying)
