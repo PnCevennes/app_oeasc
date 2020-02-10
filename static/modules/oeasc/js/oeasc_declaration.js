@@ -296,7 +296,6 @@ $(document).ready(function() {
 
     });
 
-    // $("#form_degats select").selectpicker("refresh");
     $("#form_degats select").selectpicker();
 
   };

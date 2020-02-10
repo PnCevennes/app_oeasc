@@ -99,11 +99,10 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     geom AS ( SELECT 	
         c.id_declaration,
         ST_MULTI(ST_UNION(l.geom)) AS geom
-
-        FROM import_oeasc.cor_areas_declarations c
+        FROM oeasc_declarations.cor_areas_declarations c
         JOIN ref_geo.l_areas l
             ON l.id_area = c.id_area
-            AND id_type IN (
+            AND l.id_type IN (
                 ref_geo.get_id_type('OEASC_ONF_UG'),
                 ref_geo.get_id_type('OEASC_CADASTRE')
             )
@@ -345,10 +344,12 @@ GRANT SELECT ON oeasc_declarations.v_export_declarations_shape TO PUBLIC;
 GRANT SELECT ON oeasc_declarations.v_export_declaration_degats_shape TO PUBLIC;
 
 
- SELECT * FROM oeasc_declarations.v_declarations;
+-- SELECT * FROM oeasc_declarations.v_declarations WHERE id_declaration>=80;
 -- SELECT * FROM oeasc_declarations.v_export_declarations_csv;
 -- SELECT * FROM oeasc_declarations.v_export_declarations_csv;
 -- SELECT * FROM oeasc_declarations.v_export_declaration_degats_csv;
 -- SELECT * FROM oeasc_declarations.v_export_declarations_shape;
 -- SELECT * FROM oeasc_declarations.v_export_declaration_degats_shape;
+
+
 
