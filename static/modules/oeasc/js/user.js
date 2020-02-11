@@ -210,6 +210,9 @@
       "id_unite": -1,
       "id_organisme": $('#id_organisme').val(),
       "organisme": $('#organisme').val().substr(0,32),
+      "champs_addi": {
+        "organisme":$('#organisme').val().substr(0,32)
+      },
       "desc_role": $('#desc_role').val(),
 
       "id_application": id_application
