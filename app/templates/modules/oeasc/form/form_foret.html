@@ -67,9 +67,6 @@
 
   {% set areas_selected = utils.get_areas_from_type_code(foret["areas_foret"], "OEASC_COMMUNE")%}
 
-  {{areas_selected}}
-  {{foret["areas_foret"]}}
-
   {% if not areas_selected %}
 
     {{ macros_map.select_map("OEASC_COMMUNE", areas_selected) }}
