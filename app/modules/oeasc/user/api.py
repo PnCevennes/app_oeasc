@@ -6,8 +6,11 @@ from flask import (
 )
 from app.utils.utilssqlalchemy import json_resp
 from .repository import (
-    get_user_form_email
+    get_user_form_email,
+    get_users
 )
+from ..user.utils import check_auth_redirect_login
+from utils_flask_sqla.response import csv_resp
 
 
 config = current_app.config
@@ -36,3 +39,23 @@ def api_get_user_from_mail(email):
         get user form email
     '''
     return get_user_form_email(email)
+
+
+@bp.route('/export', methods=['GET'])
+@check_auth_redirect_login(1)
+@csv_resp
+def api_export_user():
+    '''
+        export
+    '''
+
+    file_name = 'export_user_oeasc'
+    separator = ';'
+
+    data = get_users()
+
+    print(data)
+
+    columns = list(data[0].keys())
+
+    return (file_name, data, columns, separator)
