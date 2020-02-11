@@ -56,13 +56,12 @@ def check_proprietaire(declaration_dict):
     '''
         Dans le cas ou le propretaire est le declarant
     '''
-
+    
     if declaration_dict['foret'].get('b_document', None) != False or declaration_dict['foret'].get('b_statut_public', None) != False:
         return -1
 
     # si le proprietaire est déjà renseigné
     if declaration_dict['foret']['id_proprietaire']:
-
         return -1
 
     proprietaire_dict = declaration_dict['foret']['proprietaire']
@@ -77,49 +76,56 @@ def check_proprietaire(declaration_dict):
         and proprietaire_dict["id_nomenclature_proprietaire_type"]
 
     if cond:
-
         return -1
 
     if not declaration_dict['id_nomenclature_proprietaire_declarant']:
-
         return -1
 
     cd_nomenclature = declaration_dict['id_nomenclature_proprietaire_declarant']['cd_nomenclature']
 
     # si le declarant n'est pas le proprietaire
     if cd_nomenclature != 'P_D_O_NP':
-
         declaration_dict['foret']['proprietaire'] = TProprietaire().as_dict()
         return -1
 
     # sinon  on recherche le proprietaire correspondant a l'id declarant
     id_declarant_proprietaire = declaration_dict['foret']['proprietaire']['id_declarant']
 
+
+
     if id_declarant_proprietaire:
 
         proprietaire = DB.session.query(TProprietaire).filter(id_declarant_proprietaire == TProprietaire.id_declarant).first()
         if proprietaire:
             declaration_dict['foret']['proprietaire'] = proprietaire.as_dict(True)
-
             return 1
 
         # on retourne juste les infos contenues dans user
         else:
-
+            print('aa')
             user = DB.session.query(User).filter(User.id_role == id_declarant_proprietaire).first()
+            print('user', user, as_dict(user))
 
             if not user:
-
+                print('bb')
                 return -1
 
             user_dict = as_dict(user)
 
+            print('bb')
+
             proprietaire_dict = TProprietaire().as_dict()
-            proprietaire_dict["nom_proprietaire"] = user_dict["nom_role"] + " " + user_dict["prenom_role"]
+            print('bbz')
+            proprietaire_dict["nom_proprietaire"] = user_dict["nom_role"] + " " + (user_dict["prenom_role"] or '')
+            print('bbaaa')
             proprietaire_dict["email"] = user_dict["email"]
             proprietaire_dict["id_declarant"] = user_dict["id_role"]
+            print('bba')
             proprietaire_dict["id_nomenclature_proprietaire_type"] = get_nomenclature('cd_nomenclature', 'PT_PRI', 'OEASC_PROPRIETAIRE_TYPE')
+            print('bbb')
             declaration_dict['foret']['proprietaire'] = proprietaire_dict
+            print('cc')
+
             return 1
 
     return -1

@@ -79,42 +79,42 @@ CREATE TABLE IF NOT EXISTS oeasc_forets.cor_areas_forets
 
 
 -- trigger cor_areas_forets
-CREATE OR REPLACE FUNCTION oeasc_forets.fct_trg_cor_areas_forets()
-  RETURNS trigger AS
-$BODY$
-BEGIN
+-- CREATE OR REPLACE FUNCTION oeasc_forets.fct_trg_cor_areas_forets()
+--   RETURNS trigger AS
+-- $BODY$
+-- BEGIN
 
-	DELETE FROM oeasc_forets.cor_areas_forets WHERE id_foret = NEW.id_foret;
-	INSERT INTO oeasc_forets.cor_areas_forets
+-- 	DELETE FROM oeasc_forets.cor_areas_forets WHERE id_foret = NEW.id_foret;
+-- 	INSERT INTO oeasc_forets.cor_areas_forets
 
-        WITH selected_types AS (SELECT UNNEST(ARRAY [
-            'OEASC_SECTEUR',
-            'OEASC_COMMUNE',
-            'OEASC_SECTION',
-            'OEASC_ONF_FRT',
-            'OEASC_DGD'
-        ]) AS id_type)
+--         WITH selected_types AS (SELECT UNNEST(ARRAY [
+--             'OEASC_SECTEUR',
+--             'OEASC_COMMUNE',
+--             'OEASC_SECTION',
+--             'OEASC_ONF_FRT',
+--             'OEASC_DGD'
+--         ]) AS id_type)
 
-        SELECT 
-            NEW.id_foret,
-            ref_geo.intersect_id_area_type_tol(l.id_area, selected_types.id_type, 0.05) as id_area
-            FROM selected_types
-            JOIN ref_geo.l_areas l ON l.area_code = NEW.code_foret
+--         SELECT 
+--             NEW.id_foret,
+--             ref_geo.intersect_id_area_type_tol(l.id_area, selected_types.id_type, 0.05) as id_area
+--             FROM selected_types
+--             JOIN ref_geo.l_areas l ON l.area_code = NEW.code_foret
 
-;
-  RETURN NEW;
-END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE
-  COST 100;
+-- ;
+--   RETURN NEW;
+-- END;
+-- $BODY$
+--   LANGUAGE plpgsql VOLATILE
+--   COST 100;
 
-DROP TRIGGER IF EXISTS trg_cor_areas_forets ON oeasc_forets.t_forets;
+-- DROP TRIGGER IF EXISTS trg_cor_areas_forets ON oeasc_forets.t_forets;
 
-CREATE TRIGGER trg_cor_areas_forets
-  AFTER INSERT OR UPDATE
-  ON oeasc_forets.t_forets
-  FOR EACH ROW
-  EXECUTE PROCEDURE oeasc_forets.fct_trg_cor_areas_forets();
+-- CREATE TRIGGER trg_cor_areas_forets
+--   AFTER INSERT OR UPDATE
+--   ON oeasc_forets.t_forets
+--   FOR EACH ROW
+--   EXECUTE PROCEDURE oeasc_forets.fct_trg_cor_areas_forets();
 
 
 

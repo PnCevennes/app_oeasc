@@ -18,13 +18,6 @@
 {%- block contentright %}
 <div class="">
 
-
-  <div id="data_declarations">
-    {%- for declaration in declarations %}
-    <div class="data-declaration" data-declaration='{{ declaration | tojson if declaration else "" }}' style="display:none;"></div>
-    {%- endfor %}
-  </div>
-
   <h2>Suivi des dégâts forestiers</h2>
 
   <p>Page en construction.</p>
@@ -69,10 +62,8 @@
 
   var declarations = [];
 
-  $(".data-declaration").each(function(){
-  var declaration = JSON.parse($(this).attr("data-declaration"));
-declarations.push(declaration);
-});
+  
+
 
   //init
   M.initialiser_show_declarations('show_declarations', declarations, {

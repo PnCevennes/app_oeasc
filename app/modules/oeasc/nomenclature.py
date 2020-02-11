@@ -14,12 +14,11 @@ def nomenclature_oeasc():
     '''
 
     # on regarde si la nomenclature existe dans la variable globale g
-    if not getattr(session, '_nomenclature', None):
+    if not config.get('_nomenclature'):
+    # if not getattr(config, '_nomenclature', None):
 
         print("get_nomenclature from db")
-        # TODO auto tout de l'oeasc from db ?
         list_data = [
-
             'OEASC_PEUPLEMENT_ESSENCE',
             'OEASC_PEUPLEMENT_MATURITE',
             'OEASC_PEUPLEMENT_PROTECTION_TYPE',
@@ -65,7 +64,7 @@ def nomenclature_oeasc():
                 values.append(d_new)
             data[type_code]["values"] = values
 
-        session._nomenclature = data
+        config['_nomenclature'] = data
 
         dict_sort_nomenclature = {
             'OEASC_DEGAT_TYPE': [
@@ -80,9 +79,9 @@ def nomenclature_oeasc():
         }
 
         for key, value in dict_sort_nomenclature.items():
-            session._nomenclature[key]["values"].sort(key=lambda e: value.index(e['cd_nomenclature']))
+            config['_nomenclature'][key]["values"].sort(key=lambda e: value.index(e['cd_nomenclature']))
 
-    return session._nomenclature
+    return config['_nomenclature']
 
 
 def get_nomenclature_from_id(id_nomenclature, key=""):
@@ -125,14 +124,14 @@ def get_areas_from_ids(id_areas):
     '''
         search areas attributes in db if not yet in session._areas
     '''
-    if not getattr(session, '_areas', None):
-        session._areas = {}
+    if not config.get('_areas'):
+        config['_areas'] = {}
 
     id_areas_to_query = []
 
     for id in id_areas:
 
-        if not session._areas.get(str(id), None):
+        if not config['_areas'].get(str(id), None):
 
             id_areas_to_query.append(id)
 
@@ -146,7 +145,7 @@ def get_areas_from_ids(id_areas):
 
             d_dict = d.as_dict()
             d_dict['type_code'] = get_type_code(d_dict['id_type'])
-            session._areas[str(d_dict['id_area'])] = d_dict
+            config['_areas'][str(d_dict['id_area'])] = d_dict
 
 
 def get_area_from_id(id_area):
@@ -154,10 +153,10 @@ def get_area_from_id(id_area):
         search areas attributes in db if not yet in session._areas
     '''
 
-    if not getattr(session, '_areas', None):
-        session._areas = {}
+    if not config.get('_areas'):
+        config['_areas'] = {}
 
-    if not session._areas.get(str(id_area), None):
+    if not config['_areas'].get(str(id_area), None):
 
         print("get single area from db : " + str(id_area))
 
@@ -171,9 +170,9 @@ def get_area_from_id(id_area):
 
         out['type_code'] = get_type_code(out['id_type'])
 
-        session._areas[str(id_area)] = out
+        config['_areas'][str(id_area)] = out
 
-    return session._areas[str(id_area)]
+    return config['_areas'][str(id_area)]
 
 
 def pre_get_dict_nomenclature_areas(declarations):

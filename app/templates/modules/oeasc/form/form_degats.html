@@ -220,7 +220,7 @@
 <form id="form_degats_localisation">
   <h4>Précisions sur la localisation des dégâts</h4>
 
-  {{ macros_form.input_text("precision_localisation", "", declaration, required='') }}
+  <textarea name="precision_localisation" id="precision_localisation" class="form-control" rows="5" maxlength="1000">{{ declaration.precision_localisation or ""}}</textarea>
   
   <div class="align-right">
     <input type=submit value=Suivant class="btn btn-success">  

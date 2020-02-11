@@ -94,7 +94,8 @@ $(document).ready(function() {
       //   extend: 'csv',
       //   text: 'Exporter au format CSV'
       // }
-    ]
+    ],
+    "order": [[ table_indices["ID"], "desc" ]]
     // rowGroup: {
     //   dataSrc: 'group'
     // },

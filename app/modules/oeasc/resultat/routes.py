@@ -72,11 +72,9 @@ def degats_forestiers():
         resultats pour les degats_forestiers
         TODO
     '''
-    declarations = get_declarations()
 
     return render_template(
-        'modules/oeasc/pages/resultats/degats_forestiers.html',
-        declarations=declarations
+        'modules/oeasc/pages/resultats/degats_forestiers.html'
     )
 
 
