@@ -102,7 +102,8 @@ def get_users():
             user_dict = user.as_dict()
             if user_dict['organisme_bis']:
                 user_dict['organisme'] = user_dict['organisme_bis']
-            v_out.append(user.as_dict())
+                print(user_dict['organisme'], user_dict['organisme_bis'])
+            v_out.append(user_dict)
 
     return v_out
 
