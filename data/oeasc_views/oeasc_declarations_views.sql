@@ -44,8 +44,15 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_essence_principale) AS peuplement_ess_1_label,
         ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_paturage_statut) AS peuplement_paturage_statut_label,
         ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_paturage_frequence) AS peuplement_paturage_frequence_label,
-        ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_acces) AS peuplement_acces_label
+        ref_nomenclatures.get_nomenclature_label(id_nomenclature_peuplement_acces) AS peuplement_acces_label,
         
+        ref_nomenclatures.get_nomenclature_code(id_nomenclature_peuplement_type) AS peuplement_type_code,
+        ref_nomenclatures.get_nomenclature_code(id_nomenclature_peuplement_origine) AS peuplement_origine_code,
+        ref_nomenclatures.get_nomenclature_code(id_nomenclature_peuplement_essence_principale) AS peuplement_ess_1_code,
+        ref_nomenclatures.get_nomenclature_code(id_nomenclature_peuplement_paturage_statut) AS peuplement_paturage_statut_code,
+        ref_nomenclatures.get_nomenclature_code(id_nomenclature_peuplement_paturage_frequence) AS peuplement_paturage_frequence_code,
+        ref_nomenclatures.get_nomenclature_code(id_nomenclature_peuplement_acces) AS peuplement_acces_code
+
         FROM oeasc_declarations.t_declarations d
     ),
     
@@ -66,8 +73,16 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_paturage_type.id_nomenclature)) AS peuplement_paturage_type_label,
         ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_paturage_saison.id_nomenclature)) AS peuplement_paturage_saison_label,
         ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_protection_type.id_nomenclature)) AS peuplement_protection_type_label,
-        ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_espece.id_nomenclature)) AS espece_label
+        ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_espece.id_nomenclature)) AS espece_label,
         
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_maturite.id_nomenclature)) AS peuplement_maturite_code,
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_ess_2.id_nomenclature)) AS peuplement_ess_2_code,
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_ess_3.id_nomenclature)) AS peuplement_ess_3_code,
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_paturage_type.id_nomenclature)) AS peuplement_paturage_type_code,
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_paturage_saison.id_nomenclature)) AS peuplement_paturage_saison_code,
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_protection_type.id_nomenclature)) AS peuplement_protection_type_code,
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_espece.id_nomenclature)) AS espece_code
+
         FROM oeasc_declarations.t_declarations d
         LEFT JOIN oeasc_declarations.cor_nomenclature_declarations_essence_secondaire c_ess_2
             ON d.id_declaration = c_ess_2.id_declaration
@@ -90,7 +105,8 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     degat_type AS ( SELECT
         deg.id_declaration,
         ref_nomenclatures.get_nomenclature_mnemoniques(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_types_mnemo,
-        ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_types_label
+        ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_types_label,
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_types_code
 
         FROM oeasc_declarations.t_degats deg
         GROUP BY deg.id_declaration
@@ -150,6 +166,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     END AS parcelles,
 
     p.peuplement_surface,
+
     p.peuplement_type_mnemo,
     p.peuplement_origine_mnemo,    
     pn.peuplement_maturite_mnemo,
@@ -163,6 +180,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     pn.peuplement_protection_type_mnemo,
     pn.espece_mnemo,
     p.peuplement_acces_mnemo,
+    deg.degat_types_mnemo,
 
     p.peuplement_type_label,
     p.peuplement_origine_label,    
@@ -177,9 +195,22 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     pn.peuplement_protection_type_label,
     pn.espece_label,
     peuplement_acces_label,
-
-    deg.degat_types_mnemo,
     deg.degat_types_label,
+
+    p.peuplement_type_code,
+    p.peuplement_origine_code,    
+    pn.peuplement_maturite_code,
+    p.peuplement_ess_1_code,
+    pn.peuplement_ess_2_code,
+    pn.peuplement_ess_3_code,
+    p.peuplement_paturage_statut_code,
+    p.peuplement_paturage_frequence_code,
+    pn.peuplement_paturage_type_code,
+    pn.peuplement_paturage_saison_code,
+    pn.peuplement_protection_type_code,
+    pn.espece_code,
+    peuplement_acces_code,
+    deg.degat_types_code,
 	
     centroid.centroid,
     geom.geom,
@@ -236,8 +267,14 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_degats AS
         ref_nomenclatures.get_nomenclature_label(de.id_nomenclature_degat_essence) AS degat_essence_label,
         ref_nomenclatures.get_nomenclature_label(de.id_nomenclature_degat_gravite) AS degat_gravite_label,
         ref_nomenclatures.get_nomenclature_label(de.id_nomenclature_degat_etendue) AS degat_etendue_label,
-        ref_nomenclatures.get_nomenclature_label(de.id_nomenclature_degat_anteriorite) AS degat_anteriorite_label
+        ref_nomenclatures.get_nomenclature_label(de.id_nomenclature_degat_anteriorite) AS degat_anteriorite_label,
         
+        ref_nomenclatures.get_nomenclature_code(d.id_nomenclature_degat_type) AS degat_type_code,
+        ref_nomenclatures.get_nomenclature_code(de.id_nomenclature_degat_essence) AS degat_essence_code,
+        ref_nomenclatures.get_nomenclature_code(de.id_nomenclature_degat_gravite) AS degat_gravite_code,
+        ref_nomenclatures.get_nomenclature_code(de.id_nomenclature_degat_etendue) AS degat_etendue_code,
+        ref_nomenclatures.get_nomenclature_code(de.id_nomenclature_degat_anteriorite) AS degat_anteriorite_code
+
     FROM oeasc_declarations.t_degats d
     LEFT JOIN oeasc_declarations.t_degat_essences de
         ON de.id_degat = d.id_degat
@@ -270,7 +307,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_csv AS
         vd.label_foret AS "Nom forêt",
         vd.statut_public AS "Statut forêt",
         vd.document AS "Documentée",
-        vd.communes AS "Commune(s)",
+        --vd.communes AS "Commune(s)",
         vd.secteurs AS "Secteur",
         vd.parcelles AS "Parcelle(s)",
         vd.peuplement_type_mnemo AS "Peu. type",
@@ -284,7 +321,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_csv AS
         vd.peuplement_paturage_type_mnemo AS "Pât. type",
         vd.peuplement_paturage_saison_mnemo AS "Pât. sais.",
         vd.peuplement_protection_type_mnemo AS "Pro. type",
-        vd.espece_mnemo AS "Espèce(s)",
+        --vd.espece_mnemo AS "Espèce(s)",
         vd.degat_types_mnemo AS "Dég. types"
         
         FROM oeasc_declarations.v_declarations vd
@@ -296,7 +333,24 @@ DROP VIEW IF EXISTS oeasc_declarations.v_export_declaration_degats_csv CASCADE;
 CREATE OR REPLACE VIEW oeasc_declarations.v_export_declaration_degats_csv AS
 
     SELECT 
-        ved.*,
+        ved."id",
+        ved."Date",
+        ved."Déclarant",
+        ved."Organisme",
+        ved."Nom forêt",
+        ved."Statut forêt",
+        ved."Documentée",
+        ved."Secteur",
+        ved."Peu. type",
+        ved."Peu. ori.",    
+        ved."Peu. mat.",
+        ved."Ess. 1",
+        ved."Ess. 2",
+        ved."Pât. stat.",
+        ved."Pât. freq.",
+        ved."Pât. type",
+        ved."Pât. sais.",
+        ved."Pro. type",
         vdeg.degat_type_mnemo AS "Dég. type",
         vdeg.degat_essence_mnemo AS "Dég. ess.",
         vdeg.degat_gravite_mnemo AS "Dég. grâ.",

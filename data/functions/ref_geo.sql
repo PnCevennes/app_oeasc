@@ -264,3 +264,42 @@ $BODY$
   COST 100;
 ALTER FUNCTION ref_geo.get_area_names(integer[])
   OWNER TO dbadmin;
+
+
+
+CREATE OR REPLACE FUNCTION ref_geo.get_area_code(myidarea integer DEFAULT NULL::integer)
+  RETURNS character varying AS
+$BODY$
+--Function which return the label from the id_nomenclature
+DECLARE
+	theareacode character varying;
+  BEGIN
+  SELECT INTO theareacode area_code
+  FROM ref_geo.l_areas n
+  WHERE id_area = myidarea;
+return theareacode;
+  END;
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;
+ALTER FUNCTION ref_geo.get_area_code(integer)
+  OWNER TO dbadmin;
+
+
+  CREATE OR REPLACE FUNCTION ref_geo.get_area_codes(myidareas integer[])
+  RETURNS character varying AS
+$BODY$
+--Function which return the label from the id_nomenclature
+DECLARE
+	theareacodes character varying;
+  BEGIN
+  SELECT INTO theareacodes STRING_AGG(DISTINCT areacode, ', ')
+  FROM (SELECT ref_geo.get_area_code(UNNEST(myidareas)) AS areacode)a;
+return theareacodes;
+  END;
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;
+ALTER FUNCTION ref_geo.get_area_codes(integer[])
+  OWNER TO dbadmin;
+

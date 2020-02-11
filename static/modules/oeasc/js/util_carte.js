@@ -454,18 +454,18 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
 
 
     var d_degat_type_icon = {
-      'Abr.': 'fa fa-seedling',
-      'Éco.': 'fas fa-tree',
-      'Sang.': 'fas fa-square',
-      'Fro.': 'fas fa-angle-double-down',
-      'P. & Clo.': 'fas fa-exclamation-triangle',
-      'Abs.': 'fas fa-ban',
+      'ABR': 'fa fa-seedling',
+      'ÉCO': 'fas fa-tree',
+      'SANG': 'fas fa-square',
+      'FRO': 'fas fa-angle-double-down',
+      'P/C': 'fas fa-exclamation-triangle',
+      'ABS': 'fas fa-ban',
     };
 
     var d_degat_gravite_color = {
-      "Fai.": 'yellow',
-      "Mod.": 'orange',
-      "Impt.": 'red',
+      "DG_FBL": 'yellow',
+      "DG_MOY": 'orange',
+      "DG_IMPT": 'red',
     };
 
     var s_tooltip_degats = function(degats) {
@@ -473,13 +473,15 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       degats.forEach((degat) => {
         var color = 'white';
         var color_save = '';
-        var cd_deg = degat.degat_type_mnemo;
+        console.log(degat)
+        var cd_deg = degat.degat_type_code;
         var icon = d_degat_type_icon[cd_deg];
         var _id_gravite = 0;
 
         degat.degat_essences.forEach((degat_essence) => {
-          if (! degat_essence || ! degat_essence.degat_gravite_mnemo) return;
-          color = d_degat_gravite_color[degat_essence.degat_gravite_mnemo];
+
+          if (! degat_essence || ! degat_essence.degat_gravite_code) return;
+          color = d_degat_gravite_color[degat_essence.degat_gravite_code];
           if (color == 'yellow' && ['red, orange'].includes(color_save)) {
             color = color_save;
           }
@@ -508,9 +510,11 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
         degat.degat_essences.forEach((degat_essence) => {
           s_popup += '<tr><td>' + degat_essence.degat_essence_label + '</td>';
           if(degat_essence.degat_gravite) {
-            s_popup += '<td>' + (degat_essence.degat_gravite_mnemo) + '</td>';
-            s_popup += '<td>' + (degat_essence.degat_etendue_mnemo) + '</td>';
-            s_popup += '<td>' + (degat_essence.degat_anteriorite_mnemo) + '</td>';
+
+            s_popup += '<td>' + (degat_essence.degat_gravite_code) + '</td>';
+            s_popup += '<td>' + (degat_essence.degat_etendue_code) +
+             '</td>';
+            s_popup += '<td>' + (degat_essence.degat_anteriorite_code) + '</td>';
           }
           s_popup +='</tr>'
         });
@@ -526,7 +530,8 @@ var load_areas = function(areas, type, map, b_zoom, b_tooltip=false) {
       declarations.forEach((declaration) => {
 
         declaration.degats.forEach((degat) => {
-          var cd_deg = degat.degat_type_mnemo
+
+          var cd_deg = degat.degat_type_code
           var label_deg = degat.degat_type_label
           if (! v_degat.includes(cd_deg)){
             v_degat.push(cd_deg);

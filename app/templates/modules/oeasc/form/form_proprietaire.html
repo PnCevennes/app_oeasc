@@ -73,7 +73,7 @@
       <br>
 
       <div class="form-group" {{"hidden" if disabled and not proprietaire['email']}}>
-        {{ macros_form.input_email("email", "E-mail", proprietaire, required=required, disabled=disabled) }}
+        {{ macros_form.input_email("email", "E-mail", proprietaire, required=False, disabled=disabled) }}
       </div>
 
       <br>

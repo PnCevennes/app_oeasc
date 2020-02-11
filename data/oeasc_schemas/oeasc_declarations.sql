@@ -411,6 +411,29 @@ $BODY$
   COST 100;
 
 
+CREATE OR REPLACE FUNCTION oeasc_declarations.get_area_codes(myiddeclaration integer, myareatype character varying)
+  RETURNS character varying AS
+$BODY$
+--Function which return the label from the id_nomenclature
+DECLARE
+	theareacodes character varying;
+  BEGIN
+  SELECT INTO theareacodes STRING_AGG(DISTINCT l.area_code, ', ')
+  FROM oeasc_declarations.cor_areas_declarations c
+  LEFT JOIN ref_geo.l_areas l
+    ON c.id_area = l.id_area
+        AND l.id_type = ref_geo.get_id_type(myareatype)
+    WHERE id_declaration = myiddeclaration
+    ;
+
+return theareacodes;
+  END;
+$BODY$
+  LANGUAGE plpgsql IMMUTABLE
+  COST 100;
+
+
+
 CREATE OR REPLACE FUNCTION oeasc_declarations.get_id_areas(myiddeclaration integer, myareatype character varying)
   RETURNS integer[] AS
 $BODY$

@@ -384,6 +384,7 @@ def add_degats(declarations):
             d_cur = {
                 'degat_type_mnemo': deg['degat_type_mnemo'],
                 'degat_type_label': deg['degat_type_label'],
+                'degat_type_code': deg['degat_type_code'],
             }
             # if deg.get('degat_essence_mnemo'):
             d_cur['degat_essences'] = []
@@ -399,6 +400,10 @@ def add_degats(declarations):
                 'degat_anteriorite_label': deg['degat_anteriorite_label'],
                 'degat_gravite_label': deg['degat_gravite_label'],
                 'degat_etendue_label': deg['degat_etendue_label'],
+                'degat_essence_code': deg['degat_essence_code'],
+                'degat_anteriorite_code': deg['degat_anteriorite_code'],
+                'degat_gravite_code': deg['degat_gravite_code'],
+                'degat_etendue_code': deg['degat_etendue_code'],
             })
 
     for d in declarations:
