@@ -98,11 +98,8 @@ def get_users():
     for user in v:
         if current_user['id_droit_max'] >= 5 or \
             current_user.id_organisme == user.id_organisme \
-                and current_user.organisme_bis == current_user.organisme_bis:
+                and current_user.organisme == current_user.organisme:
             user_dict = user.as_dict()
-            if user_dict['organisme_bis']:
-                user_dict['organisme'] = user_dict['organisme_bis']
-                print(user_dict['organisme'], user_dict['organisme_bis'])
             v_out.append(user_dict)
 
     return v_out
@@ -122,9 +119,6 @@ def get_user(id_declarant=None):
         return None
 
     user_dict = data.as_dict()
-
-    if user_dict['organisme_bis']:
-        user_dict['organisme'] = user_dict['organisme_bis']
 
     return user_dict
 
