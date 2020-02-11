@@ -108,6 +108,7 @@ def get_form_declaration():
         à la déclaration envoyée en post dans data['declaration']
     '''
     data = request.get_json()
+
     nomenclature = nomenclature_oeasc()
     declaration_dict = data['declaration']
     id_form = data['id_form']
@@ -116,13 +117,14 @@ def get_form_declaration():
     get_dict_nomenclature_areas(declaration_dict)
 
     check_foret(declaration_dict)
+
     check_proprietaire(declaration_dict)
+
     check_massif(declaration_dict)
 
     listes_essences = get_listes_essences(declaration_dict)
 
     declaration_table = get_declaration_table(declaration_dict)
-
 
     return render_template(
         'modules/oeasc/form/form_declaration.html',

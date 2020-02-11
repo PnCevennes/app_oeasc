@@ -584,7 +584,6 @@ $(document).ready(function() {
       $("#aide_fil_arianne").hide();
       
       $.ajax({
-
         type: 'POST',
         url: "/api/declaration/create_or_update_declaration",
         data: JSON.stringify({
@@ -645,6 +644,7 @@ $(document).ready(function() {
 
     var foret = M.get_foret_as_dict();
     var data={"declaration": declaration, "id_form": id_form};
+    console.log(data.declaration.foret.proprietaire);
 
     $.ajax({
       type: 'POST',
