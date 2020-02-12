@@ -145,7 +145,6 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     d.b_peuplement_protection_existence,
     d.b_peuplement_paturage_presence,
     d.b_autorisation,
-
     u.id_declarant,
     u.declarant,
     u.organisme,
@@ -192,7 +191,10 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     p.peuplement_paturage_frequence_label,
     pn.peuplement_paturage_type_label,
     pn.peuplement_paturage_saison_label,
-    pn.peuplement_protection_type_label,
+    CASE 
+	WHEN d.autre_protection IS NOT NULL THEN REPLACE(pn.peuplement_protection_type_label, 'Autre (préciser)', d.autre_protection)
+	ELSE pn.peuplement_protection_type_label
+	END AS peuplement_protection_type_label,
     pn.espece_label,
     peuplement_acces_label,
     deg.degat_types_label,
@@ -405,5 +407,4 @@ GRANT SELECT ON oeasc_declarations.v_export_declaration_degats_shape TO PUBLIC;
 -- SELECT * FROM oeasc_declarations.v_export_declarations_shape;
 -- SELECT * FROM oeasc_declarations.v_export_declaration_degats_shape;
 
-
-
+SELECT peuplement_protection_type_label FROM oeasc_declarations.v_declarations WHERE id_declaration = 71
