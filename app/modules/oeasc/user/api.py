@@ -54,8 +54,6 @@ def api_export_user():
 
     data = get_users()
 
-    print(data)
-
     columns = list(data[0].keys())
 
     return (file_name, data, columns, separator)
