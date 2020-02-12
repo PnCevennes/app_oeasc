@@ -107,10 +107,6 @@ filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_tabl
         <th>Type</th>
         <td>{{ utils.get_foret_type(declaration_table['id_foret']) | lower}}</td>
       </tr>
-      <tr>
-        <th>Commune(s)</th>
-        <td>{{ declaration_table.communes }}</td>
-      </tr>
     </tbody>
 
     <tbody>
@@ -124,6 +120,10 @@ filename="declaration_{{declaration_table['id_declaration']}}_{{declaration_tabl
         <td>{{ declaration_table.secteurs }}</td>
       </tr>
       {%- endif %}
+      <tr>
+        <th>Commune(s)</th>
+        <td>{{ declaration_table.communes }}</td>
+      </tr>
 
       <tr>
         <th>Parcelle(s)</th>

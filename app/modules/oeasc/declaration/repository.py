@@ -235,9 +235,9 @@ def f_create_or_update_declaration(declaration_dict):
     a = DB.engine.execute(
         'SELECT oeasc_declarations.fct_cor_areas_declarations({});'
         .format(declaration.id_declaration)
-    )
+    ).first()
 
-    print(a)
+    print(a, declaration.id_declaration)
 
     d = dfpu_as_dict(declaration, foret, proprietaire, None)
 
@@ -341,9 +341,6 @@ def get_declarations(user=None, type_export=None, type_out=None, id_declaration=
                 d[e] = ''
 
     if view_key != 'default':
-        return declarations
-
-    if type_out == 'degats':
         return declarations
 
     # TODO a partir de la vue avec degats ??

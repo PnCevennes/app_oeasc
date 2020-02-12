@@ -15,7 +15,6 @@ from .repository import (
     get_declaration,
     get_declaration_table
 )
-from .models import TDeclaration
 
 from .utils import get_listes_essences
 
@@ -55,7 +54,6 @@ def modifier_declaration(id_declaration):
         declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
     else:
         declaration_dict = dfpu_as_dict_from_id_declaration(id_declaration)
-
 
     declaration_table = get_declaration_table(declaration_dict)
 

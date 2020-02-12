@@ -62,7 +62,12 @@
 
   var declarations = [];
 
-  
+
+  // TODO get from request (frontend revision)
+  $(".data-declaration").each(function(){
+    var declaration = JSON.parse($(this).attr("data-declaration"));
+  declarations.push(declaration);
+  });
 
 
   //init

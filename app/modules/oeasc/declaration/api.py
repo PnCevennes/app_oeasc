@@ -3,6 +3,7 @@
 '''
 
 import copy
+from datetime import date
 
 from flask import Blueprint, render_template, request, current_app, session
 from flask.helpers import send_from_directory
@@ -225,6 +226,17 @@ def create_or_update_declaration():
     return d
 
 
+def get_file_name(type_out):
+    file_name = 'export_'
+    if type_out == 'degat':
+        file_name += 'degats_'
+    else:
+        file_name += 'alertes_'
+
+    file_name += date.today().strftime("%d/%m/%Y")
+    return file_name
+
+
 @bp.route('declarations_csv/', methods=['GET'])
 @check_auth_redirect_login(1)
 @csv_resp
@@ -233,10 +245,11 @@ def declarations_csv():
         renvoie la liste de déclarations au format csv
     '''
 
-    file_name = 'export_declarations_oeasc'
     separator = ';'
 
     type_out = request.args.get('type_out')  # 'degat', ''
+
+    file_name = get_file_name(type_out)    
 
     data = get_declarations(
         user=get_user(session['current_user']['id_role']),
@@ -245,14 +258,6 @@ def declarations_csv():
     )
 
     columns = list(data[0].keys())
-
-    # data = [
-    #     [
-    #         str(e) if e else ''
-    #         for e in d.values()
-    #     ]
-    #     for d in data
-    # ]
 
     return (file_name, data, columns, separator)
 
@@ -275,6 +280,8 @@ def declarations_shape():
         else "v_export_declarations_shape"
     )
 
+    file_name = get_file_name(type_out)    
+
     export_view = GenericTableGeo(
         view_name,
         "oeasc_declarations",
@@ -295,5 +302,7 @@ def declarations_shape():
         dir_path=dir_path,
         file_name=file_name
     )
+
+    # rename from here ?
 
     return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
