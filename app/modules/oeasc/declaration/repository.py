@@ -179,6 +179,62 @@ def create_or_modify(model, key, val, dict_in):
     return elem
 
 
+def patch_areas_declarations(id_declaration):
+    '''
+        Ajoute les aire des secteurs, communes forets, sections
+    '''
+
+    txt = (
+        '''
+    DELETE FROM oeasc_declarations.cor_areas_declarations c
+	USING ref_geo.l_areas l
+	WHERE l.id_area=c.id_area AND l.id_type in (
+	ref_geo.get_id_type('OEASC_SECTEUR'),
+	ref_geo.get_id_type('OEASC_COMMUNE'),
+	ref_geo.get_id_type('OEASC_SECTION'),
+	ref_geo.get_id_type('OEASC_ONF_FRT'),
+	ref_geo.get_id_type('OEASC_DGD')
+	)
+	AND c.id_declaration = {0}
+   ;
+
+    INSERT INTO oeasc_declarations.cor_areas_declarations
+
+    WITH geom AS ( SELECT 	
+        c.id_declaration,
+        ST_MULTI(ST_UNION(l.geom)) AS geom
+        FROM oeasc_declarations.cor_areas_declarations c
+        JOIN ref_geo.l_areas l
+            ON l.id_area = c.id_area
+            AND l.id_type IN (
+                ref_geo.get_id_type('OEASC_ONF_UG'),
+                ref_geo.get_id_type('OEASC_CADASTRE')
+            )
+        GROUP BY c.id_declaration
+    ),
+    selected_types AS (SELECT UNNEST(ARRAY [          
+             'OEASC_SECTEUR',
+             'OEASC_COMMUNE',
+             'OEASC_SECTION',
+             'OEASC_ONF_FRT',
+             'OEASC_DGD'
+         ]) AS id_type)
+        
+         SELECT 
+             {0},
+             ref_geo.intersect_geom_type_tol(geom.geom, selected_types.id_type, 0.05) as id_area
+             FROM selected_types
+             JOIN geom ON geom.id_declaration = {0}
+        RETURNING *;
+
+'''
+        .format(id_declaration)
+    )
+
+    a = DB.engine.execute(txt)
+
+    return a
+
 def f_create_or_update_declaration(declaration_dict):
     """
         creation ou modification de declaration
@@ -232,12 +288,10 @@ def f_create_or_update_declaration(declaration_dict):
     declaration = create_or_modify(TDeclaration, 'id_declaration', id_declaration, declaration_dict)
 
     # patch cor areas
-    a = DB.engine.execute(
-        'SELECT oeasc_declarations.fct_cor_areas_declarations({});'
-        .format(declaration.id_declaration)
-    ).first()
+    DB.session.commit()
 
-    print(a, declaration.id_declaration)
+    a = patch_areas_declarations(declaration.id_declaration)
+    [print(b) for b in a]
 
     d = dfpu_as_dict(declaration, foret, proprietaire, None)
 

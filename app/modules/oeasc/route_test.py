@@ -54,3 +54,12 @@ def test_d3():
     '''
 
     return render_template('modules/oeasc/test/d3.html')
+
+
+@bp.route('/test_webpack')
+def test_webpack():
+    '''
+        test graphes
+    '''
+
+    return render_template('modules/oeasc/test_webpack.html')
