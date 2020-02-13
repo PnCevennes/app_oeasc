@@ -14,9 +14,12 @@
             {%- if (browser in ['msie', 'safari', 'opera']) %}
             {%- endif %}
 
+            <h2>Connexion</h2>
+
+            <hr>
+
             {% include "modules/oeasc/user/message_ie.html" %}
     
-            <h2>Connexion</h2>
 
             <div>
                 {%- if token %}
@@ -33,19 +36,23 @@
                 {% if "modifier_ou_creer_declaration" in redirect_url 
                 or "informations" in redirect_url %}
 
-                <p class='alert alert-info'>Vous devez vous identifier afin de déclarer des dégâts en forêt.</p>
+                <p>
+                    <b>
+                    Vous devez vous identifier afin de déclarer des dégâts en forêt.
+                </b>
+            </p>
 
                 {% endif %}
 
                 {% if type == "add_droit" %}
 
-                <p class="alert alert-info"> Connectez-vous afin de créer des droits pour l'application OEASC sur votre compte déjà existant.</p>
+                <p> Connectez-vous afin de créer des droits pour l'application OEASC sur votre compte déjà existant.</p>
 
                 {% endif %}
 
                 {% if not token and type != "add_droit" %}
-                <hr>
-                <p >Si vous ne possédez pas encore de compte, vous pouvez  
+                <!-- <hr> -->
+                <p >Si vous n'êtes pas encore inscrits, vous pouvez  
                     {% set href=url_for('user.route_user')%}
                     <button type=button class='btn btn-primary' onclick="location.href='{{href}}'">créer un compte</button>
                 </p>

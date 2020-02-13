@@ -132,23 +132,17 @@ footer a {
   margin: 50px;
 }
 
-.content a {
-
-  /* color: darkorange; */
-
+/* .content a {
+  color: darkorange;
 }
 
 .content a:hover {
-
-  /* color: darkorange; */
-
+  color: darkorange;
 }
 
 a:hover {
-
-  /* color: darkorange; */
-
-}
+  color: darkorange;
+} */
 
 /* sidebars */
 
@@ -177,7 +171,7 @@ a:hover {
 }
 
 
-.sidebar_sticky a, .sidebar_sticky span {
+.sidebar_sticky a:not(.btn), .sidebar_sticky span {
 
   display: inline-block;
   padding: 5px 0px 5px 0px;
@@ -185,7 +179,7 @@ a:hover {
 
 }
 
-.sidebar_sticky a:hover {
+.sidebar_sticky a:not(.btn):hover {
 
   color: black;
 
@@ -212,62 +206,28 @@ a:hover {
   /* background-color: #f29100; */
 }
 
-.sidebar_sticky > ul > li.signaler-degat {
-  background-color: #26ad26;
-}
 
 
 
-.sidebar_sticky > ul > li > ul > li > ul > li > a,.sidebar_sticky > ul > li > ul > li > ul > li > a:hover, .sidebar_sticky > ul > li > ul > li > ul > li > span {
+.sidebar_sticky > ul > li > ul > li > ul > li > a:not(.btn),.sidebar_sticky > ul > li > ul > li > ul > li > a:hover, .sidebar_sticky > ul > li > ul > li > ul > li > span {
   margin: 0px 5px 0px 30px;
   font-size: 0.9rem;
   /* color: darkorange; */
 }
 
-.sidebar_sticky > ul > li > ul > li > a, .sidebar_sticky > ul > li > ul > li > span {
+.sidebar_sticky > ul > li > ul > li > a:not(.btn), .sidebar_sticky > ul > li > ul > li > span {
   margin: 0px 5px 0px 20px;
   font-size: 1rem;
   /* color: white; */
 }
 
-.sidebar_sticky > ul > li > a, .sidebar_sticky > ul > li > span {
+.sidebar_sticky > ul > li > a:not(.btn), .sidebar_sticky > ul > li > span {
   margin: 0px 5px 0px 10px;
   /* font-weight: bold; */
   font-size: 1.1rem;
   /* color: white; */
 }
 
-li.li-btn {
-  margin-top: 20px;
-  border-radius: 20px;
-  text-align:  center;
-  color: white;
-  /* padding: 5px 0px 5px 0px; */
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-  /* display: inline-block; */
-}
-
-
-a.li-btn {
-  margin-top: 20px;
-  background-color: #26ad26;
-  border-radius: 20px;
-  text-align:  center;
-  color: white;
-  padding: 10px;
-  margin: 10px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-
-}
-
-li.li-btn > a {
-  color: white;
-  margin:  0px;
-}
-
-li.li-btn > a:hover {
-  color: white;
-}
 
 @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
 
@@ -283,7 +243,7 @@ figure{
   background-color: #dfe0db;
   /* margin-top: 10px; */
   padding:  5px;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
 
 }
 
@@ -554,7 +514,7 @@ table .tr-selected td:last-child{
   padding: 5px;
   background-color: #dfe0db;
 
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  /* box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19); */
 }
 
 .flotte.left {

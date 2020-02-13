@@ -6,21 +6,21 @@
     <li>{{ m.link_bold("Le système d'alerte",'declaration.signalement_degats_forestiers') }}
       <ul>
         <li>{{ m.link_bold("Les dégâts de grand gibier",'declaration.degats_gibier') }}</li>
-        <li ><a href="{{url_for('declaration.route_declarations')}}">Je consulte mes alertes</a></li>
+        <li ><a href="{{url_for('declaration.route_declarations')}}">Alertes déclarées</a></li>
       </ul>
     </li>
 
     {% if request.endpoint != 'declaration.informations_declaration' %}
     <hr>
-    <li class="signaler-degat li-btn"><a href="{{url_for('declaration.informations_declaration')}}">Je déclare une nouvelle alerte</a></li>
+    <li><a class="btn btn-success" href="{{url_for('declaration.informations_declaration')}}">Je signale des dégâts en forêt</a></li>
     {% else %}
     <hr>
-    <li class="signaler-degat li-btn"><a href="{{url_for('declaration.modifier_declaration')}}">Commencer la déclaration de dégâts</a></li>
+    <li><a class="btn btn-success" href="{{url_for('declaration.modifier_declaration')}}">Commencer la déclaration</a></li>
     {% endif %}
 
     {% if request.endpoint == 'declaration.declaration' %}
     <hr>
-    <li class="signaler-degat li-btn" ><a href="#" onclick="M.toPDF_map('declaration_' + {{ declaration['id_declaration'] }})">Exporter au format PDF</a></li>
+    <li><a  class="btn btn-success"href="#" onclick="M.toPDF_map('declaration_' + {{ declaration['id_declaration'] }})">Exporter au format PDF</></li>
     {% endif %}
 
   </ul>
