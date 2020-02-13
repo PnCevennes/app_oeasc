@@ -233,7 +233,7 @@ def get_file_name(type_out):
     else:
         file_name += 'alertes_'
 
-    file_name += date.today().strftime("%d/%m/%Y")
+    file_name += date.today().strftime("%d-%m-%Y")
     return file_name
 
 

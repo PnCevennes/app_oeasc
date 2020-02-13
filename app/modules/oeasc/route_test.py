@@ -5,7 +5,7 @@ from flask import (
 from pypnusershub import routes as fnauth
 
 
-from .declaration_sample import test
+# from .declaration_sample import test
 
 from app.utils.utilssqlalchemy import json_resp
 
@@ -56,10 +56,10 @@ def test_d3():
     return render_template('modules/oeasc/test/d3.html')
 
 
-@bp.route('/test_webpack')
+@bp.route('/test_webpack/')
 def test_webpack():
     '''
         test graphes
     '''
 
-    return render_template('modules/oeasc/test_webpack.html')
+    return render_template('modules/oeasc/test/test_webpack.html')

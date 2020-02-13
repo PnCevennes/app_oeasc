@@ -109,8 +109,8 @@ with app.app_context():
     # from app.modules.oeasc import api_test as api_test
     # app.register_blueprint(api_test.bp, url_prefix='/api/test')
 
-    # from app.modules.oeasc import route_test as route_test
-    # app.register_blueprint(route_test.bp, url_prefix='/test')
+    from app.modules.oeasc import route_test as route_test
+    app.register_blueprint(route_test.bp, url_prefix='/test')
 
     from pypnusershub import routes
     app.register_blueprint(routes.routes, url_prefix='/pypn/auth')

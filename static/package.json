@@ -47,5 +47,9 @@
     "popper.js": "^1.14.3",
     "require": "^2.4.20",
     "requirejs": "^2.3.5"
+  },
+  "devDependencies": {
+    "webpack": "^4.41.6",
+    "webpack-cli": "^3.3.11"
   }
 }
