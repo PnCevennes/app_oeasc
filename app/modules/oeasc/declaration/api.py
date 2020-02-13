@@ -3,6 +3,8 @@
 '''
 
 import copy
+import os
+import zipfile
 from datetime import date
 
 from flask import Blueprint, render_template, request, current_app, session
@@ -227,6 +229,9 @@ def create_or_update_declaration():
 
 
 def get_file_name(type_out):
+    ''''
+    filename
+    '''
     file_name = 'export_'
     if type_out == 'degat':
         file_name += 'degats_'
@@ -249,7 +254,7 @@ def declarations_csv():
 
     type_out = request.args.get('type_out')  # 'degat', ''
 
-    file_name = get_file_name(type_out)    
+    file_name = get_file_name(type_out)
 
     data = get_declarations(
         user=get_user(session['current_user']['id_role']),
@@ -280,7 +285,7 @@ def declarations_shape():
         else "v_export_declarations_shape"
     )
 
-    file_name = get_file_name(type_out)    
+    file_name = get_file_name(type_out)
 
     export_view = GenericTableGeo(
         view_name,
@@ -304,5 +309,20 @@ def declarations_shape():
     )
 
     # rename from here ?
+    zip_file_name = dir_path + '/' + file_name + ".zip"
+    z = zipfile.ZipFile(zip_file_name)
+    file_names = []
+    for i, f in enumerate(z.filelist):
+        f.filename = f.filename.replace('POLYGON_', '')
+        file_names.append(f.filename)
+        print(f)
+        z.extract(f, dir_path)
+
+    os.remove(zip_file_name)
+    z = zipfile.ZipFile(zip_file_name, 'w')
+    for sfile_name in file_names:
+        z.write(dir_path + '/' + sfile_name, sfile_name)
+
+    z.close()
 
     return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
