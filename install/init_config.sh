@@ -71,6 +71,6 @@ cat config/config.py
 # front
 cp static/src/js/config.js.sample static/src/js/config.js
 
-sed -i -e s/'URL_APPLICATION.*'/"URL_APPLICATION: 'http:\/\/"$URL_APPLICATION"',"/ static/src/js/config.js
+sed -i -e s/'URL_APPLICATION.*'/"URL_APPLICATION: '"$URL_APPLICATION"',"/ static/src/js/config.js
 
 cat static/src/js/config.js
