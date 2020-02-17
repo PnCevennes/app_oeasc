@@ -1,15 +1,17 @@
+import { apiRequest } from '../data/api.js';
 import { htmlToElement } from '../util/util.js';
 import { makeChartOptions } from './chart-options.js';
-import { Chart } from './import-chart.js'
+import { Chart } from './chart-commons.js'
 
 var defaultOptions = {
   'data-name': '',
   height: '300px',
   scheme: 'brewer.YlGn4',
-  split: null,
+  stacked: false,
   title: null,
   type: 'bar',
   util: null,
+  view: '',
   width: '600px',
 };
 
@@ -38,20 +40,26 @@ var domManipulation = (elementId, options) => {
   element.replaceWith(elementNew);
 };
 
+var getData = (options) => {
+  const [schema, view] = options.view.split('.');
 
-var makeGraph = (elementId, data) => {
+  return apiRequest(`api/resultat/get_view/${schema}/${view}`)
+};
+
+var makeGraph = (elementId) => {
   // Dom manip
   const options = getOptions(elementId);
   domManipulation(elementId, options);
 
-  const dataChart = data[options['data-name']] || data;
+  getData(options).then((data) => {
+    const chartOptions = makeChartOptions(options, data);
 
-  const chartOptions = makeChartOptions(options, dataChart);
+    return new Chart(elementId, chartOptions);
+  });
 
-  return new Chart(elementId, chartOptions);
 };
 
-var makeGraphs = data => {
+var makeGraphs = () => {
 
 /** Pour faire des graph sur tous les elements de type chart-graph */
   var elements = document.getElementsByClassName('chart-graph');
@@ -60,7 +68,7 @@ var makeGraphs = data => {
     ids.push(item.id);
   }
   for (const id of ids) {
-    makeGraph(id, data);
+    makeGraph(id);
   }
 };
 

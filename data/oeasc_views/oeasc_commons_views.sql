@@ -1,4 +1,4 @@
-DROP VIEW IF EXISTS oeasc_commons.v_users;
+DROP VIEW IF EXISTS oeasc_commons.v_users CASCADE;
 CREATE VIEW oeasc_commons.v_users AS
 SELECT 
 	r.id_role,
@@ -12,6 +12,10 @@ SELECT
 	WHEN r.champs_addi ->> 'organisme' != '' THEN r.champs_addi ->> 'organisme'
 	ELSE o.nom_organisme 
 	END AS organisme,
+    CASE
+	WHEN o.nom_organisme LIKE '%Autre%' THEN 'Autre'
+	ELSE o.nom_organisme 
+	END AS organisme_group,
 	(SELECT COUNT(*)
 		FROM oeasc_declarations.t_declarations d 
 		WHERE d.id_declarant = r.id_role

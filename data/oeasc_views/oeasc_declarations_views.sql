@@ -12,16 +12,16 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         b_document,
         b_statut_public,
         CASE WHEN b_statut_public THEN 'Public' ELSE 'Privé' END AS statut_public,
-        CASE WHEN b_document THEN 'Oui' ELSE 'non' END AS document
-        
+        CASE WHEN b_document THEN 'Oui' ELSE 'Non' END AS document,
+        CASE 
+            WHEN b_statut_public AND b_document THEN 'Public (avec DGD)' 
+            WHEN b_statut_public AND NOT b_document THEN 'Public (sans DGD)'
+            WHEN NOT b_statut_public AND b_document THEN 'Privé (avec DGD)' 
+            WHEN NOT b_statut_public AND NOT b_document THEN 'Privé (sans DGD)'
+            ELSE ''
+        END AS type_foret
+
         FROM oeasc_forets.t_forets f
-    ),
-    
-    declarant AS ( SELECT
-        vu.id_role AS id_declarant,
-        vu.nom_complet AS declarant,
-        vu.organisme
-        FROM oeasc_commons.v_users vu
     ),
     
     peuplement AS ( SELECT
@@ -128,9 +128,10 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     d.b_peuplement_protection_existence,
     d.b_peuplement_paturage_presence,
     d.b_autorisation,
-    u.id_declarant,
-    u.declarant,
-    u.organisme,
+    vu.id_role AS id_declarant,
+    vu.nom_complet AS declarant,
+    vu.organisme,
+    vu.organisme_group,
 
     f.id_foret,
     f.label_foret,
@@ -138,9 +139,10 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     f.document,
     f.b_statut_public,
     f.b_document,
+    f.type_foret,
 
     oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_COMMUNE') AS communes,
-    oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_SECTEUR') AS secteurs,
+    oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_SECTEUR') AS secteur,
     CASE WHEN f.b_statut_public AND f.b_document THEN 
 	oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_ONF_UG')
     ELSE 
@@ -220,9 +222,9 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     END AS areas_localisation
     
     FROM oeasc_declarations.t_declarations d
-    JOIN declarant u
-        ON u.id_declarant = d.id_declarant
-        JOIN foret f
+    JOIN oeasc_commons.v_users vu
+        ON vu.id_role = d.id_declarant
+    JOIN foret f
         ON f.id_foret = d.id_foret
     JOIN peuplement p
         ON p.id_declaration = d.id_declaration
@@ -291,7 +293,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_csv AS
         vd.statut_public AS "Statut forêt",
         vd.document AS "Documentée",
         --vd.communes AS "Commune(s)",
-        vd.secteurs AS "Secteur",
+        vd.secteur AS "Secteur",
         vd.parcelles AS "Parcelle(s)",
         vd.peuplement_type_mnemo AS "Peu. type",
         vd.peuplement_origine_mnemo AS "Peu. ori.",    

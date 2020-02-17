@@ -3,6 +3,7 @@ from flask import (
 )
 
 from pypnusershub import routes as fnauth
+from app.modules.oeasc.user.utils import check_auth_redirect_login
 
 
 # from .declaration_sample import test
@@ -57,6 +58,7 @@ def test_d3():
 
 
 @bp.route('/test_webpack/')
+@check_auth_redirect_login(1)
 def test_webpack():
     '''
         test graphes

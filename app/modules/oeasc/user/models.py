@@ -28,6 +28,7 @@ class VUsers(DB.Model):
     nom_role = DB.Column(DB.String(250))
     prenom_role = DB.Column(DB.String(250))
     organisme = DB.Column(DB.String(250))
+    organisme = DB.Column(DB.String(250))
     create_date = DB.Column(DB.String(250))
     nb_declarations = DB.Column(DB.Integer)
     id_droit_max = DB.Column(DB.Integer)

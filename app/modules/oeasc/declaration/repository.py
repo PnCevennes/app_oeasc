@@ -187,7 +187,7 @@ def patch_areas_declarations(id_declaration):
     txt = (
         '''
     UPDATE oeasc_declarations.t_declarations SET geom=g.geom, geom_4326=ST_TRANSFORM(g.geom, 4326)
-    FROM (SELECT 	
+    FROM (SELECT
         c.id_declaration,
         ST_MULTI(ST_UNION(l.geom)) AS geom
         FROM oeasc_declarations.cor_areas_declarations c

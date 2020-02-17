@@ -1,7 +1,7 @@
 /* eslint-disable no-ternary */
 /* eslint-disable no-magic-numbers */
 import { removeDoublons } from '../util/util.js';
-import { Chart } from './import-chart.js'
+import { Chart } from './chart-commons.js'
 
 
 var makeDataTime = (dataChart, options) => {
