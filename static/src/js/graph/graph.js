@@ -40,16 +40,29 @@ var domManipulation = (elementId, options) => {
   element.replaceWith(elementNew);
 };
 
+var getDataCache = (options, data) => {
+  const [schema, view] = options.view.split('.');
+
+  return data[schema] && data[schema][view]
+}
+
 var getData = (options) => {
   const [schema, view] = options.view.split('.');
 
   return apiRequest(`api/resultat/get_view/${schema}/${view}`)
 };
 
-var makeGraph = (elementId) => {
+var makeGraph = (elementId, data = null) => {
   // Dom manip
   const options = getOptions(elementId);
   domManipulation(elementId, options);
+
+  const dataGraph = getDataCache(options, data);
+  if (dataGraph) {
+    const chartOptions = makeChartOptions(options, dataGraph);
+
+    return new Chart(elementId, chartOptions);
+  }
 
   getData(options).then((data) => {
     const chartOptions = makeChartOptions(options, data);
@@ -59,7 +72,7 @@ var makeGraph = (elementId) => {
 
 };
 
-var makeGraphs = () => {
+var makeGraphs = (data={}) => {
 
 /** Pour faire des graph sur tous les elements de type chart-graph */
   var elements = document.getElementsByClassName('chart-graph');
@@ -68,7 +81,7 @@ var makeGraphs = () => {
     ids.push(item.id);
   }
   for (const id of ids) {
-    makeGraph(id);
+    makeGraph(id, data);
   }
 };
 

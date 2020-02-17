@@ -29,19 +29,23 @@ def get_view(schema, view):
 @bp.route('get_views', methods=['GET'])
 @check_auth_redirect_login(1)
 @json_resp
-def get_views(schema, view):
+def get_views():
     '''
         retourne les vue specifiées en param json : ['schema.view1', 'schema.view2', ect...]
         TODO args pour filtres etc...
     '''
 
-    params = request.json
+    views = request.args.getlist('view')
+    print(views)
+
+
 
     data = {}
 
-    for param in params:
+    for p in views:
 
-        v =  param.split('.')
+        print(p)
+        v = p.split('.')
         schema = v[0]
         view = v[1]
         data_view = GenericQuery(DB, view, schema).as_dict()['items']
