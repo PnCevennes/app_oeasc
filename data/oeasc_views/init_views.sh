@@ -30,3 +30,5 @@ done
 echo "process data oeasc done" &>> $log_file
 
 cat $log_file | grep 'ERROR'
+
+return 0
