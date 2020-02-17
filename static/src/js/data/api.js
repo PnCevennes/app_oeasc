@@ -8,9 +8,9 @@ var fail = (msg) => {
   console.log(`apiRequest fail : ${msg}`);
 };
 
-var apiRequest = (urlRelative) => {
+var apiRequest = (urlRelative, data=null) => {
   return new Promise((resolve, reject=fail) => {
-    fetch(url(urlRelative)).then(
+    fetch(url(urlRelative), data).then(
       response => {
         var contentType = response.headers.get("content-type");
         if (contentType && contentType.indexOf("application/json") !== -1) {

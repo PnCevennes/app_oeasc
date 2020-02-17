@@ -15,6 +15,7 @@ config_file=$1
 # echo "Creation de config/config.py"
 cp config/config.py.sample config/config.py
 
+
 DB_URI="postgresql:\/\/$user_pg:$user_pg_pass@$db_host:$db_port\/$db_name"
 
 # echo $DB_URI
@@ -65,3 +66,11 @@ do
 done
 
 cat config/config.py
+
+
+# front
+cp static/src/js/config.js.sample static/src/js/config.js
+
+sed -i -e s/'URL_APPLICATION.*'/"URL_APPLICATION: 'http:\/\/"$URL_APPLICATION"',"/ static/src/js/config.js
+
+cat static/src/js/config.js
