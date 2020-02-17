@@ -18,13 +18,6 @@
       { 'title': 'type de dégât', 'field_name': 'degat_types_mnemo' },
     ] -%}
 
-
-    {% set  graph_definitions = [
-      { 'title': 'type de dégât', 'field_name': 'degat_types_mnemo' },
-      { 'title': 'type de pâturage', 'field_name': 'peuplement_paturage_type_mnemo' },
-      { 'title': 'maturité du peuplement', 'field_name': 'peuplement_maturite_mnemo' },
-    ] -%}
-
     {% for gd in graph_definitions %}
 
     <h2>{{ gd.title | upper }}</h2>
