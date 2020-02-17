@@ -50,14 +50,14 @@ DB = config['DB']
 @bp.route('declarations/', defaults={'id_declarant': -1}, methods=['GET'])
 @bp.route('declarations/<int:id_declarant>', methods=['GET'])
 @json_resp
-def declarations(id_declarant):
+def declarations():
     '''
         Retourne les declarations accessible pour le declarant de id_role id_declarant
     '''
 
-    b_synthese = (id_declarant == -1)
+    # b_synthese = (id_declarant == -1)
 
-    return get_declarations(b_synthese, id_declarant)
+    return get_declarations()
 
 
 @bp.route('declaration/<int:id_declaration>', methods=['GET'])
@@ -312,7 +312,7 @@ def declarations_shape():
     zip_file_name = dir_path + '/' + file_name + ".zip"
     z = zipfile.ZipFile(zip_file_name)
     file_names = []
-    for i, f in enumerate(z.filelist):
+    for _, f in enumerate(z.filelist):
         f.filename = f.filename.replace('POLYGON_', '')
         file_names.append(f.filename)
         print(f)

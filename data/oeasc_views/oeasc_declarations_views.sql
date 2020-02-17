@@ -17,14 +17,11 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         FROM oeasc_forets.t_forets f
     ),
     
-        
     declarant AS ( SELECT
-        r.id_role AS "id_declarant",
-        CONCAT(UPPER(r.nom_role), ' ', r.prenom_role) AS "declarant",
-        o.nom_organisme as organisme
-        FROM utilisateurs.t_roles r
-        JOIN utilisateurs.bib_organismes o
-		ON o.id_organisme = r.id_organisme
+        vu.id_role AS id_declarant,
+        vu.nom_complet AS declarant,
+        vu.organisme
+        FROM oeasc_commons.v_users vu
     ),
     
     peuplement AS ( SELECT
@@ -112,34 +109,20 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         GROUP BY deg.id_declaration
     ),
 
-    geom AS ( SELECT 	
-        c.id_declaration,
-        ST_MULTI(ST_UNION(l.geom)) AS geom
-        FROM oeasc_declarations.cor_areas_declarations c
-        JOIN ref_geo.l_areas l
-            ON l.id_area = c.id_area
-            AND l.id_type IN (
-                ref_geo.get_id_type('OEASC_ONF_UG'),
-                ref_geo.get_id_type('OEASC_CADASTRE')
-            )
-        GROUP BY c.id_declaration
-    ),
-
-
-
     centroid AS ( SELECT
         id_declaration,
         ARRAY[ST_Y(center), ST_X(center)] AS centroid        
         FROM ( SELECT 
             id_declaration,
-            ST_CENTROID(ST_TRANSFORM(geom, 4326)) AS center
-            FROM geom
+            ST_CENTROID(ST_TRANSFORM(d.geom, 4326)) AS center
+            FROM oeasc_declarations.t_declarations d
         )a
     )
 
     SELECT
     d.id_declaration,
     TO_CHAR(d.meta_create_date, 'DD/MM/YYYY') AS declaration_date,
+    meta_create_date,
     d.commentaire,
 
     d.b_peuplement_protection_existence,
@@ -215,7 +198,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     deg.degat_types_code,
 	
     centroid.centroid,
-    geom.geom,
+    d.geom,
 
     CASE 
 	WHEN f.b_statut_public AND f.b_document THEN oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_ONF_FRT')
@@ -247,8 +230,6 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         ON pn.id_declaration = d.id_declaration
     JOIN degat_type deg
         ON deg.id_declaration = d.id_declaration
-    JOIN geom
-        ON geom.id_declaration = d.id_declaration
     JOIN centroid
         ON centroid.id_declaration = d.id_declaration
 ;

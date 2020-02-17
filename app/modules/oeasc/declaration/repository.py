@@ -186,6 +186,22 @@ def patch_areas_declarations(id_declaration):
 
     txt = (
         '''
+    UPDATE oeasc_declarations.t_declarations SET geom=g.geom, geom_4326=ST_TRANSFORM(g.geom, 4326)
+    FROM (SELECT 	
+        c.id_declaration,
+        ST_MULTI(ST_UNION(l.geom)) AS geom
+        FROM oeasc_declarations.cor_areas_declarations c
+        JOIN ref_geo.l_areas l
+            ON l.id_area = c.id_area
+            AND l.id_type IN (
+                ref_geo.get_id_type('OEASC_ONF_UG'),
+                ref_geo.get_id_type('OEASC_CADASTRE')
+            )
+        GROUP BY c.id_declaration
+    )g;
+
+
+
     DELETE FROM oeasc_declarations.cor_areas_declarations c
 	USING ref_geo.l_areas l
 	WHERE l.id_area=c.id_area AND l.id_type in (
@@ -200,18 +216,7 @@ def patch_areas_declarations(id_declaration):
 
     INSERT INTO oeasc_declarations.cor_areas_declarations
 
-    WITH geom AS ( SELECT 	
-        c.id_declaration,
-        ST_MULTI(ST_UNION(l.geom)) AS geom
-        FROM oeasc_declarations.cor_areas_declarations c
-        JOIN ref_geo.l_areas l
-            ON l.id_area = c.id_area
-            AND l.id_type IN (
-                ref_geo.get_id_type('OEASC_ONF_UG'),
-                ref_geo.get_id_type('OEASC_CADASTRE')
-            )
-        GROUP BY c.id_declaration
-    ),
+    WITH 
     selected_types AS (SELECT UNNEST(ARRAY [          
              'OEASC_SECTEUR',
              'OEASC_COMMUNE',
@@ -222,9 +227,9 @@ def patch_areas_declarations(id_declaration):
         
          SELECT 
              {0},
-             ref_geo.intersect_geom_type_tol(geom.geom, selected_types.id_type, 0.05) as id_area
+             ref_geo.intersect_geom_type_tol(d.geom, selected_types.id_type, 0.05) as id_area
              FROM selected_types
-             JOIN geom ON geom.id_declaration = {0}
+             JOIN oeasc_declarations.t_declarations d ON d.id_declaration = {0}
         RETURNING *;
 
 '''

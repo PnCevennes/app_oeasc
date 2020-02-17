@@ -1,24 +1,26 @@
-from flask import Blueprint, request
-from app.utils.utilssqlalchemy import json_resp
-from .repository import req_degats_type, req_timeline
+'''
+    api pour les resultats
+'''
 
+from flask import Blueprint, current_app
+from utils_flask_sqla.response import json_resp
+from utils_flask_sqla.generic import GenericQuery
+from ..user.utils import check_auth_redirect_login
+
+config = current_app.config
+DB = config['DB']
 bp = Blueprint('resultat_api', __name__)
 
 
-@bp.route('distribution_degats', methods=['GET'])
+@bp.route('get_view/<string:schema>/<string:view>', methods=['GET'])
+@check_auth_redirect_login(1)
 @json_resp
-def distribution_degats():
+def get_view(schema, view):
     '''
-    '''
-    type = request.args.get("type", "")
-
-    return req_degats_type(type)
-
-
-@bp.route('timeline', methods=['GET'])
-@json_resp
-def timeline():
-    '''
+        retourne la vue schema.view
+        TODO args pour filtres etc...
     '''
 
-    return req_timeline()
+    data = GenericQuery(DB, view, schema).as_dict()
+
+    return data['items']

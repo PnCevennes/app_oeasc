@@ -1,0 +1,10 @@
+npm i --save-dev webpack@latest webpack-dev-server@latest
+npm i --save-dev babel-loader babel-core
+npm i --save-dev babel-preset-env
+npm i --save-dev @babel/core @babel/preset-env
+npm i --save-dev sass-loader node-sass css-loader style-loader autoprefixer postcss-loader
+npm i --save-dev mini-css-extract-plugin
+npm i --save-dev webpack-dev-server
+npm i --save-dev css-hot-loader
+npm i --save-dev optimize-css-assets-webpack-plugin mini-css-extract-plugin
+npm i --save-dev terser-webpack-plugin

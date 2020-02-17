@@ -28,6 +28,9 @@ static/documents
 static/shapefiles/*
 !static/shapefiles/.gitkeep
 
+static/dist/*
+!static/dist/.gitkeep
+
 procedure_install_server.sh
 
 var/log/*.log
