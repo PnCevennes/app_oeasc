@@ -47,7 +47,7 @@ replace_num() {
 }
 
 sed -i -e s/'^URL_APPLICATION.*'/"URL_APPLICATION = \"http:\/\/"$URL_APPLICATION\"/ config/config.py
-sed -i -e s/'^URL_USERSHUB.*'/"URL_USERSHUB = \""$URL_USERSHUB\"/ config/config.py
+sed -i -e s/'^URL_USERSHUB.*'/"URL_USERSHUB = \""$URL_USERSHUB"\""/ config/config.py
 sed -i -e s/'^SQLALCHEMY_DATABASE_URI.*'/"SQLALCHEMY_DATABASE_URI = \""$DB_URI\"/ config/config.py #> config/config.py
 
 for var in "MAIL_ANIMATEUR" "DEFAULT_MAIL_SENDER" \
