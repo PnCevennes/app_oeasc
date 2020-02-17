@@ -1,21 +1,37 @@
-import { makeData } from './chart-commons.js';
+import { makeData } from "./chart-commons.js";
 
 var makeBarChartOptions = (options, data) => {
-    console.log(makeData(options, data))
+  console.log(makeData(options, data));
   const chartOptions = {
     data: makeData(options, data),
     options: {
       legend: {
         display: false,
-        position: 'left'
+        position: "left"
       },
       plugins: {
         datalabels: {
-          color: 'black',
+          color: "black",
           font: {
-            weight: 'bold'
+            weight: "bold"
           }
         }
+      },
+      scales: {
+        xAxes: [
+          {
+            ticks: {
+              //   display: false //this will remove only the label
+            }
+          }
+        ],
+        yAxes: [
+          {
+            ticks: {
+              beginAtZero: true
+            }
+          }
+        ]
       },
       title: {
         display: true,
