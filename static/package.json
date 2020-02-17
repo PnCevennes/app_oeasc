@@ -37,7 +37,7 @@
     "exports": "0.0.1",
     "glyphicons": "^0.2.0",
     "html2pdf.js": "^0.9.1",
-    "jquery": "^3.3.1",
+    "jquery": "^3.4.0",
     "jquery-color": "^1.0.0",
     "jquery.scrollto": "^2.1.2",
     "jszip": "^3.1.5",
