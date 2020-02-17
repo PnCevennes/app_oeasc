@@ -49,8 +49,6 @@ SELECT
     $BODY$
   LANGUAGE plpgsql VOLATILE
   COST 100;
-ALTER FUNCTION oeasc_declarations.create_result_view(text)
-  OWNER TO dbadmin;
 
 
 SELECT oeasc_declarations.create_result_view(field_name) FROM 
