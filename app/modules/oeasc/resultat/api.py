@@ -29,7 +29,7 @@ def get_view(schema, view):
 @bp.route('get_views', methods=['GET'])
 @check_auth_redirect_login(1)
 @json_resp
-def get_view(schema, view):
+def get_views(schema, view):
     '''
         retourne les vue specifiées en param json : ['schema.view1', 'schema.view2', ect...]
         TODO args pour filtres etc...
