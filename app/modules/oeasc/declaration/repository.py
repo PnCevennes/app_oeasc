@@ -186,21 +186,21 @@ def patch_areas_declarations(id_declaration):
 
     txt = (
         '''
-    UPDATE oeasc_declarations.t_declarations SET geom=g.geom, geom_4326=ST_TRANSFORM(g.geom, 4326)
-    FROM (SELECT
-        c.id_declaration,
-        ST_MULTI(ST_UNION(l.geom)) AS geom
-        FROM oeasc_declarations.cor_areas_declarations c
-        JOIN ref_geo.l_areas l
-            ON l.id_area = c.id_area
-            AND l.id_type IN (
-                ref_geo.get_id_type('OEASC_ONF_UG'),
-                ref_geo.get_id_type('OEASC_CADASTRE')
-            )
-        GROUP BY c.id_declaration
-    )g;
+    -- set geom geom_4326 centroid
 
+    UPDATE oeasc_declarations.t_declarations e SET geom=d.geom, geom_4326=d.geom_4326, centroid=d.centroid
+FROM (SELECT id_declaration, geom, geom_4326, ARRAY[ST_Y(centroid), ST_X(centroid)] AS centroid
+FROM (SELECT id_declaration, geom, geom_4326, ST_CENTROID(geom_4326) AS centroid
+FROM (SELECT id_declaration, geom, ST_TRANSFORM(geom, 4326) AS geom_4326
+FROM (SELECT id_declaration, ST_MULTI(ST_UNION(l.geom)) AS geom
+FROM oeasc_declarations.cor_areas_declarations c
+JOIN ref_geo.l_areas l ON c.id_area = l.id_area AND l.id_type IN (ref_geo.get_id_type('OEASC_ONF_UG'), ref_geo.get_id_type('OEASC_CADASTRE'))
+WHERE {0} = id_declaration
+GROUP BY id_declaration)a)b)c)d
+WHERE {0} = e.id_declaration
+RETURNING e.id_declaration, e.centroid;
 
+    -- set cor for areas in SECTEUR, COMMUNE, SECTION, ONF_FRT, DGD
 
     DELETE FROM oeasc_declarations.cor_areas_declarations c
 	USING ref_geo.l_areas l
@@ -232,13 +232,10 @@ def patch_areas_declarations(id_declaration):
              JOIN oeasc_declarations.t_declarations d ON d.id_declaration = {0}
         RETURNING *;
 
-'''
-        .format(id_declaration)
-    )
+'''.format(id_declaration))
 
-    a = DB.engine.execute(txt)
+    DB.engine.execution_options(autocommit=True).execute(txt)
 
-    return a
 
 def f_create_or_update_declaration(declaration_dict):
     """
@@ -295,8 +292,7 @@ def f_create_or_update_declaration(declaration_dict):
     # patch cor areas
     DB.session.commit()
 
-    a = patch_areas_declarations(declaration.id_declaration)
-    [print(b) for b in a]
+    patch_areas_declarations(declaration.id_declaration)
 
     d = dfpu_as_dict(declaration, foret, proprietaire, None)
 

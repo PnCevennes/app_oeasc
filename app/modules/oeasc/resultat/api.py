@@ -36,9 +36,6 @@ def get_views():
     '''
 
     views = request.args.getlist('view')
-    print(views)
-
-
 
     data = {}
 
