@@ -107,16 +107,6 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
 
         FROM oeasc_declarations.t_degats deg
         GROUP BY deg.id_declaration
-    ),
-
-    centroid AS ( SELECT
-        id_declaration,
-        ARRAY[ST_Y(center), ST_X(center)] AS centroid        
-        FROM ( SELECT 
-            id_declaration,
-            ST_CENTROID(ST_TRANSFORM(d.geom, 4326)) AS center
-            FROM oeasc_declarations.t_declarations d
-        )a
     )
 
     SELECT
@@ -199,8 +189,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     peuplement_acces_code,
     deg.degat_types_code,
 	
-    centroid.centroid,
-    d.geom,
+    d.centroid,
 
     CASE 
 	WHEN f.b_statut_public AND f.b_document THEN oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_ONF_FRT')
@@ -232,9 +221,18 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         ON pn.id_declaration = d.id_declaration
     JOIN degat_type deg
         ON deg.id_declaration = d.id_declaration
-    JOIN centroid
-        ON centroid.id_declaration = d.id_declaration
 ;
+
+DROP VIEW IF EXISTS oeasc_declarations.vl_declarations CASCADE;
+CREATE OR REPLACE VIEW oeasc_declarations.vl_declarations AS
+SELECT 
+    v.*,
+    d.geom, 
+    d.geom_4326
+
+    FROM oeasc_declarations.v_declarations v
+    JOIN oeasc_declarations.t_declarations d ON d.id_declaration = v.id_declaration;
+
 
 DROP VIEW IF EXISTS oeasc_declarations.v_degats CASCADE;
 CREATE OR REPLACE VIEW oeasc_declarations.v_degats AS
@@ -354,11 +352,11 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_shape AS
 
     SELECT 
         ved.*,
-        v.geom
+        vl.geom
             
         FROM oeasc_declarations.v_export_declarations_csv ved
-        JOIN oeasc_declarations.v_declarations v
-            ON v.id_declaration = ved.id
+        JOIN oeasc_declarations.vl_declarations vl
+            ON vl.id_declaration = ved.id
         ;
 
 
@@ -368,11 +366,11 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declaration_degats_shape AS
 
     SELECT 
         ved.*,
-        v.geom
+        vl.geom
             
         FROM oeasc_declarations.v_export_declaration_degats_csv ved
-        JOIN oeasc_declarations.v_declarations v
-            ON v.id_declaration = ved.id
+        JOIN oeasc_declarations.vl_declarations vl
+            ON vl.id_declaration = ved.id
         ;
 
 GRANT SELECT ON oeasc_declarations.v_declarations TO PUBLIC;
@@ -389,5 +387,4 @@ GRANT SELECT ON oeasc_declarations.v_export_declaration_degats_shape TO PUBLIC;
 -- SELECT * FROM oeasc_declarations.v_export_declaration_degats_csv;
 -- SELECT * FROM oeasc_declarations.v_export_declarations_shape;
 -- SELECT * FROM oeasc_declarations.v_export_declaration_degats_shape;
-
-SELECT peuplement_protection_type_label FROM oeasc_declarations.v_declarations WHERE id_declaration = 71
+--SELECT peuplement_protection_type_label FROM oeasc_declarations.v_declarations WHERE id_declaration = 71
