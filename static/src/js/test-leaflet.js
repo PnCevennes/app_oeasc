@@ -50,6 +50,10 @@ var displays = [
   {
     fieldName: 'organisme',
     label: 'Alerte selon l\'organisme'
+  },
+  {
+    fieldName: 'peuplement_acces_label',
+    label: 'Alerte selon l\'acces au peuplement'
   }
 ];
 
