@@ -57,7 +57,7 @@ def test_d3():
     return render_template('modules/oeasc/test/d3.html')
 
 
-@bp.route('/test_page/<string:page>')
+@bp.route('/page/<string:page>')
 @check_auth_redirect_login(1)
 def test_page(page):
     '''

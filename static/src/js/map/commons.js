@@ -52,6 +52,7 @@ var makeMap = (mapId, mapConfig) => {
   initTiles(map, mapConfig);
   initLegend(map, mapConfig);
   initLayers(map, mapConfig);
+  var scale = L.control.scale({imperial: false}).addTo(map); 
 
   if (mapConfig.declarations) {
     loadDeclarations(map, mapConfig)

@@ -3,7 +3,7 @@
   width: 75%;
 }
 
-.legend {
+.legend-container {
   line-height: 18px;
   color: #555;
   background-color: white;
@@ -13,7 +13,7 @@
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.6);
 }
 
-.legend div {
+.legend > div {
   max-width: 250px;
   overflow: hidden;
   white-space: nowrap;
@@ -24,7 +24,7 @@
   padding: 5px;
 }
 
-.legend div:last-child {
+.legend > div:last-child {
   border-width: 1px;
 }
 

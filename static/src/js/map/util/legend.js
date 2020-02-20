@@ -5,11 +5,14 @@ const layerLegend = (layerConfig) => {
 const initLegend = (map, mapConfig) => {
   const legend = L.control({ position: 'bottomright' });
   legend.onAdd = () => {
-    var div = L.DomUtil.create('div', 'legend');
+    var div = L.DomUtil.create('div', 'legend-container');
+    var divLegend = L.DomUtil.create('div', 'legend');
 
     for (const layerConfig of Object.values(mapConfig.layers)) {
-      div.innerHTML += layerLegend(layerConfig);
+      divLegend.innerHTML += layerLegend(layerConfig);
     }
+
+    div.appendChild(divLegend)
 
     return div;
   };
