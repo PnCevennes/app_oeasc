@@ -47,16 +47,13 @@ config = current_app.config
 DB = config['DB']
 
 
-@bp.route('declarations/', defaults={'id_declarant': -1}, methods=['GET'])
-@bp.route('declarations/<int:id_declarant>', methods=['GET'])
+@bp.route('declarations/', methods=['GET'])
 @json_resp
 def declarations():
     '''
         Retourne les declarations accessible pour le declarant de id_role id_declarant
     '''
-
-    # b_synthese = (id_declarant == -1)
-
+    
     return get_declarations()
 
 

@@ -15,7 +15,7 @@ cat $settings
 for file in $(echo \
     "oeasc_commons_views.sql" \
     "oeasc_declarations_views.sql" \
-    "oeasc_declarations_resultats_views.sql" \
+    "oeasc_resultats_views.sql" \
     )
 do
 

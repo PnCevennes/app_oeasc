@@ -1,0 +1,155 @@
+<html>
+  <head>
+    <link rel="stylesheet" href={{ url_for('static', filename='dist/test-chart.css') }}>
+  </head>
+  <body>
+
+    <h1>Test Graphes</h1>
+
+    <h2>Essences</h2>
+
+    <div class="flex-container">  
+      <div 
+      id="nb_essence_bar"
+      class='chart-graph'
+      type='bar'
+      view="oeasc_resultats.v_nb_essence"
+      title="Répartition des essences dans les peuplements"
+      stacked=true
+      label-position="bottom"
+      >
+      </div>
+    </div>
+
+
+    {% set  graph_definitions = [
+      { 'title': 'types de degat / essence', 'field_name': 'degat_type_mnemo_degat_essence_mnemo' },
+      { 'title': 'gravite de degat / essence', 'field_name': 'degat_gravite_mnemo_degat_essence_mnemo' },
+      { 'title': 'gravite de degat / type de peuplement', 'field_name': 'degat_gravite_mnemo_peuplement_type_mnemo' },
+      ] 
+      %}
+
+    
+    {% for gd in graph_definitions %}
+
+    <h2>{{ gd.title | upper }}</h2>
+
+    <div class="flex-container">  
+      <div 
+      id="{{ "nb_degat_" + gd.field_name + "_bar" }}"
+      class='chart-graph'
+      type='bar'
+      view="{{ 'oeasc_resultats.v_nb_' + gd.field_name }}"
+      title="{{ 'Nombre de dégâts par ' + gd.title }}"
+      label-position="bottom"
+      >
+      </div>
+      <div 
+      id="{{ "nb_degat_" + gd.field_name + "_bar2" }}"
+      class='chart-graph'
+      stacked=true
+      type='bar'
+      view="{{ 'oeasc_resultats.v_nb_' + gd.field_name }}"
+      title="{{ 'Nombre de dégâts par ' + gd.title }}"
+      label-position="bottom"
+      >
+      </div>
+    </div>
+    {% endfor %}
+
+    <h2>Dégâts</h2>
+
+    {% set  graph_definitions = [
+      { 'title': 'types de degat', 'field_name': 'degat_type_mnemo' },
+      { 'title': 'essence', 'field_name': 'degat_essence_mnemo' },
+      { 'title': 'gravite', 'field_name': 'degat_gravite_mnemo' },
+      { 'title': 'etendue', 'field_name': 'degat_etendue_mnemo' },
+      { 'title': 'anteriorite', 'field_name': 'degat_anteriorite_mnemo' },
+      ] 
+      %}
+
+    
+    {% for gd in graph_definitions %}
+
+    <h2>{{ gd.title | upper }}</h2>
+
+    <div class="flex-container">  
+      <div 
+      id="{{ "nb_degat_" + gd.field_name + "_bar" }}"
+      class='chart-graph'
+      type='bar'
+      view="{{ 'oeasc_resultats.v_nb_' + gd.field_name }}"
+      title="{{ 'Nombre de dégâts par ' + gd.title }}"
+      stacked=true
+      label-position="bottom"
+      >
+      </div>
+      <div 
+      id="{{ "nb_degat_" + gd.field_name + "_pie" }}"
+      class='chart-graph'
+      type='pie'
+      view="{{ 'oeasc_resultats.v_nb_' + gd.field_name }}"
+      title="{{ 'Nombre de dégâts par ' + gd.title }}"
+      stacked=true
+      label-position="bottom"
+      >
+      </div>
+    </div>
+
+    {% endfor %}
+
+
+    
+{#
+  {% set  graph_definitions = [
+    { 'title': 'secteur', 'field_name': 'secteur' },
+    { 'title': 'type de forêt', 'field_name': 'type_foret' },
+    { 'title': 'organisme', 'field_name': 'organisme_group' },
+    { 'title': 'essence objectif principale', 'field_name': 'peuplement_ess_1_mnemo' },
+    { 'title': 'essence objectif secondaire', 'field_name': 'peuplement_ess_2_mnemo' },
+    { 'title': 'type de peuplement', 'field_name': 'peuplement_type_mnemo' },
+    { 'title': 'maturité du peuplement', 'field_name': 'peuplement_maturite_mnemo' },
+    { 'title': 'type de pâturage', 'field_name': 'peuplement_paturage_type_mnemo' },
+    { 'title': 'type de dégât', 'field_name': 'degat_types_mnemo' },
+    ] 
+    %}
+    
+    {% for gd in graph_definitions %}
+    
+    <h2>{{ gd.title | upper }}</h2>
+    
+    <div class="flex-container">  
+      <div 
+      id="{{ "nb_declaration_" + gd.field_name + "_bar" }}"
+      class='chart-graph'
+      type='bar'
+      view="{{ 'oeasc_resultats.v_nb_declaration_' + gd.field_name }}"
+      title="{{ 'Nombre de déclarations par ' + gd.title }}"
+      >
+    </div>
+    <div 
+    id="{{ "nb_declaration_" + gd.field_name + "_pie" }}"
+    class='chart-graph'
+    type='pie'
+    view="{{ 'oeasc_resultats.v_nb_declaration_' + gd.field_name }}"
+    title="{{ 'Nombre de déclarations par ' + gd.title }}"
+    >
+  </div>
+  <div 
+  id={{ "nb_declaration_" + gd.field_name + "_time" }}
+  class='chart-graph'
+  type='bar'
+  util='time'
+  stacked='true'
+  view="{{ 'oeasc_resultats.v_timeline_declaration_' + gd.field_name }}"
+  title="{{ 'Nombre de déclarations au cours des mois et par ' + gd.title }}"
+  >
+</div>
+</div>
+{% endfor %}
+#}
+
+
+<script src={{ url_for('static', filename='dist/test-chart.js') }} ></script>
+</body>
+</html>

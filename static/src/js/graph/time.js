@@ -78,7 +78,7 @@ var makeTimeChartOptions = (options, data) => {
     options: {
       legend: {
         display: 'split' in data[0],
-        position: 'left'
+        position: options['label-position']
       },
       plugins: {
         datalabels: {

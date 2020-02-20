@@ -1,4 +1,5 @@
-import { makeData } from "./chart-commons.js";
+/* eslint-disable max-lines-per-function */
+import { makeData } from './chart-commons.js';
 
 var makeBarChartOptions = (options, data) => {
   console.log(makeData(options, data));
@@ -6,27 +7,36 @@ var makeBarChartOptions = (options, data) => {
     data: makeData(options, data),
     options: {
       legend: {
-        display: false,
-        position: "left"
+        display: data[0].split,
+        position: options['label-position']
       },
       plugins: {
         datalabels: {
-          color: "black",
+          color: 'black',
           font: {
-            weight: "bold"
+            weight: 'bold'
+          },
+          formatter: (value) => {
+            if (value) {
+              return value;
+            }
+
+            return null;
           }
         }
       },
       scales: {
         xAxes: [
           {
+            stacked: options.stacked,
             ticks: {
-              //   display: false //this will remove only the label
+              //   Display: false //this will remove only the label
             }
           }
         ],
         yAxes: [
           {
+            stacked: options.stacked,
             ticks: {
               beginAtZero: true
             }

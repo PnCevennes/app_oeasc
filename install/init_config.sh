@@ -55,8 +55,7 @@ for var in "MAIL_ANIMATEUR" "DEFAULT_MAIL_SENDER" \
 "MAIL_ANIMATEUR" "MAIL_USE_SSL" "ADMIN_APPLICATION_PASSWORD" \
 "ADMIN_APPLICATION_MAIL" "ADMIN_APPLICATION_LOGIN" "SECRET_KEY" \
 "ANIMATEUR_APPLICATION_MAIL"
-do
-    echo $var
+do    
     replace_str $var
 done
 
@@ -69,8 +68,21 @@ cat config/config.py
 
 
 # front
+if [ ! -f "static/src/js/config.js" ];
+then 
 cp static/src/js/config.js.sample static/src/js/config.js
+exit 1
+fi
+
+if [ ! -f "static/src/js/config-map.js" ];
+then 
+cp static/src/js/config-map.js.sample static/src/js/config-map.js
+exit 1
+fi
 
 sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/src/js/config.js
-
+echo $INIT_VIEW
+# sed -i -e s!'INIT_VIEW.*'!"INIT_VIEW: "$INIT_VIEW! static/src/js/config.js
 cat static/src/js/config.js
+
+echo INIT_TILE $INIT_TILE

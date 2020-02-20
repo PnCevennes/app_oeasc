@@ -1,0 +1,26 @@
+<html>
+  <head>
+    
+    <link rel="stylesheet" href={{ url_for('static', filename='dist/test-leaflet.css') }}>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css">
+  </head>
+  <body>
+
+    <h1>Leaflet 
+    </h1>
+
+    <div>
+      <h2>Parametres</h2>
+
+      <label for="param1">Paramètre</label>
+
+    <select name="param1" id="param1">
+      <option></option>
+    </select>
+    </div>
+
+    <div id="map" class="map"></div>
+    
+<script src={{ url_for('static', filename='dist/test-leaflet.js') }} ></script>
+</body>
+</html>

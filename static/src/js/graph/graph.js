@@ -6,6 +6,7 @@ import { Chart } from './chart-commons.js'
 var defaultOptions = {
   'data-name': '',
   height: '300px',
+  'label-position': 'left',
   scheme: 'brewer.YlGn4',
   stacked: false,
   title: null,
@@ -66,7 +67,7 @@ var makeGraph = (elementId, data = null) => {
 
   getData(options).then((data) => {
     const chartOptions = makeChartOptions(options, data);
-
+    
     return new Chart(elementId, chartOptions);
   });
 

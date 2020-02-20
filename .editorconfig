@@ -22,3 +22,4 @@ indent_style = tab
 # Indentation override for all JS under lib directory
 [*.js, *ts, *scss, *.css, *.html]
 indent_size = 2
+quote = single

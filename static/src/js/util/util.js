@@ -3,18 +3,26 @@ import moment from 'moment';
 
 /** Functions utiles */
 
-var copy = obj => JSON.parse(JSON.stringify(obj));
+const copy = obj => JSON.parse(JSON.stringify(obj));
 
-var htmlToElement = html => {
-  var template = document.createElement('template');
+const htmlToElement = html => {
+  const template = document.createElement('template');
   template.innerHTML = html.trim();
 
   return template.content.firstChild;
 };
 
-var removeDoublons = array => [...new Set(array)];
+const removeElementByClass = (className, element) => {
+  const baseElement = element || document;
+  let elements = baseElement.getElementsByClassName(className);
+  while(elements.length > 0){
+    elements[0].parentNode.removeChild(elements[0]);
+  }
+}
 
-var addDays = (sDate, days) => {
+const removeDoublons = array => [...new Set(array)];
+
+const addDays = (sDate, days) => {
   const m = moment(sDate);
   m.add(days, 'days');
   const sDatenew = m.format('YYYY-MM-DD');
@@ -22,4 +30,4 @@ var addDays = (sDate, days) => {
   return sDatenew;
 };
 
-export { addDays, copy, htmlToElement, removeDoublons };
+export { addDays, copy, htmlToElement, removeDoublons, removeElementByClass };

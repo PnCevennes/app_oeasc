@@ -1,6 +1,7 @@
 import { makeGraphs } from './graph/graph.js';
 import { apiRequest } from './data/api.js';
-import '../css/test.css';
+import '../css/test-chart.css';
+
 
 document.addEventListener('DOMContentLoaded', () => {
   var fieldNames = [
@@ -14,11 +15,12 @@ document.addEventListener('DOMContentLoaded', () => {
     'degat_types_mnemo'
   ];
 
+
   fieldNames = ['secteur'];
 
   var views = [
-    ...fieldNames.map(n => `oeasc_declarations.v_nb_declaration_${n}`),
-    ...fieldNames.map(n => `oeasc_declarations.v_timeline_declaration_${n}`)
+    ...fieldNames.map(n => `oeasc_resultats.v_nb_declaration_${n}`),
+    ...fieldNames.map(n => `oeasc_resultats.v_timeline_declaration_${n}`)
   ];
 
   console.log(views);

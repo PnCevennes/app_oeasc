@@ -57,11 +57,11 @@ def test_d3():
     return render_template('modules/oeasc/test/d3.html')
 
 
-@bp.route('/test_webpack/')
+@bp.route('/test_page/<string:page>')
 @check_auth_redirect_login(1)
-def test_webpack():
+def test_page(page):
     '''
         test graphes
     '''
 
-    return render_template('modules/oeasc/test/test_webpack.html')
+    return render_template('modules/oeasc/test/{}.html'.format(page))
