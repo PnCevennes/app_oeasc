@@ -68,15 +68,15 @@ cat config/config.py
 
 
 # front
-if [ ! -f "static/src/js/config.js" ];
+if [ ! -f "static/src/js/config/config.js" ];
 then 
-cp static/src/js/config.js.sample static/src/js/config.js
+cp static/src/js/config/config.js.sample static/src/js/config/config.js
 exit 1
 fi
 
-if [ ! -f "static/src/js/config-map.js" ];
+if [ ! -f "static/src/js/config/config-map.js" ];
 then 
-cp static/src/js/config-map.js.sample static/src/js/config-map.js
+cp static/src/js/config/config-map.js.sample static/src/js/config/config-map.js
 exit 1
 fi
 
