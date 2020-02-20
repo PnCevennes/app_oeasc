@@ -71,17 +71,13 @@ cat config/config.py
 if [ ! -f "static/src/js/config/config.js" ];
 then 
 cp static/src/js/config/config.js.sample static/src/js/config/config.js
-exit 1
 fi
 
 if [ ! -f "static/src/js/config/config-map.js" ];
 then 
 cp static/src/js/config/config-map.js.sample static/src/js/config/config-map.js
-exit 1
 fi
 
 sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/src/js/config/config.js
 # sed -i -e s!'INIT_VIEW.*'!"INIT_VIEW: "$INIT_VIEW! static/src/js/config.js
 cat static/src/js/config/config.js
-
-exit 0
