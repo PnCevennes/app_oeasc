@@ -30,7 +30,7 @@ static/shapefiles/*
 
 static/dist/*
 !static/dist/.gitkeep
-static/src/js/config.js
+static/src/js/config/config*.js
 
 procedure_install_server.sh
 

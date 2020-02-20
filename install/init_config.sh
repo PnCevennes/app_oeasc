@@ -80,9 +80,9 @@ cp static/src/js/config/config-map.js.sample static/src/js/config/config-map.js
 exit 1
 fi
 
-sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/src/js/config.js
+sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/src/js/config/config.js
 echo $INIT_VIEW
 # sed -i -e s!'INIT_VIEW.*'!"INIT_VIEW: "$INIT_VIEW! static/src/js/config.js
-cat static/src/js/config.js
+cat static/src/js/config/config.js
 
 echo INIT_TILE $INIT_TILE
