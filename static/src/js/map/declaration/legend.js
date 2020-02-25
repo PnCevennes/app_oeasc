@@ -1,6 +1,7 @@
 import { removeElementByClass } from '../../util/util.js';
+import { defaultIcon, defaultColor } from './marker.js'
 
-const declarationMarkerLegend = (type, color, legend) => {
+const declarationMarkerLegend = (type, legend, color, icon) => {
   let sIcon = '';
   switch (type) {
     case 'marker':
@@ -12,43 +13,67 @@ const declarationMarkerLegend = (type, color, legend) => {
     case 'circleMarker':
       sIcon = `<i style="color:${color}; transform:translateY(2px)" class="far fa-lg fa-circle"></i>`;
       break;
+    case 'icon':
+      sIcon = `<i style="color:${color}; transform:translateY(2px)"; class="${icon} fa-lg shadow"></i>`;
     default:
   }
 
   return `<div class="legend-declaration">${sIcon}${legend}</div>`;
-}
-/*
- *   If (mapConfig.declarations) {
- *     switch(mapConfig.declarations.type) {
- *       case 'marker':
- *         div.innerHTML += declarationMarkerLegend()
- *         break;
- *       case 'point':
- *         div.innerHTML += declarationPointLegend()
- *         break;
- *       case 'circleMarker':
- *         div.innerHTML += declarationCircleMarkerLegend()
- *         break;
- *       default:
- *     }
- *   }
- */
+};
 
-const initDeclarationsLegend = (map, mapConfig) => {
+const sLegendForType = (mapConfig, type) => {
+
+  if (!(mapConfig.declarations[type] && mapConfig.declarations[type].fieldName)) {
+    return '';
+  }
+
+  const fieldNameColor = mapConfig.declarations.color.fieldName;
+  const curListColor = mapConfig.declarations.color.curList;
+
+  const fieldNameIcon = mapConfig.declarations.icon.fieldName;
+  const curListIcon = mapConfig.declarations.icon.curList;
+
+
+  if (fieldNameColor === fieldNameIcon && type === 'icon') {
+    return '';
+  }
+
+  const { label, curList } = mapConfig.declarations[type];
+
+  let sLegend = `<div class="legend-declaration"><b>${label}</b></div>`;
+
+  for (const key of Object.keys(curList)) {
+    const markerLabel =
+      key !== ''
+        ? key
+        : 'Aucun';
+
+    const color = type === 'color' && curList[key] || defaultColor;
+    let icon = type === 'icon' && curList[key] || defaultIcon;
+
+    if (fieldNameColor === fieldNameIcon) {
+      icon = 'icon' && curListIcon[key] || defaultIcon
+    }
+
+    sLegend += declarationMarkerLegend(
+      mapConfig.declarations.type,
+      markerLabel,
+      color,
+      icon
+    );
+  }
+
+  return sLegend;
+}
+
+const initDeclarationsLegend = map => {
   const [legend] = document.
     getElementById(map.id).
     getElementsByClassName('legend');
   removeElementByClass('legend-declaration', legend);
 
-  if (!mapConfig.declarations.display) {
-    return;
-  }
-  const { fieldName } = mapConfig.declarations.display;
-  const colors = mapConfig.declarations.colors[fieldName];
-  legend.innerHTML += `<div class="legend-declaration"><b>${mapConfig.declarations.display.label}</b></div>`
-  for (const key of Object.keys(colors)) {
-    legend.innerHTML += declarationMarkerLegend(mapConfig.declarations.type, colors[key], key);
-  }
+  legend.innerHTML += sLegendForType(map.config, 'color');
+  legend.innerHTML += sLegendForType(map.config, 'icon');
 };
 
 export { initDeclarationsLegend };

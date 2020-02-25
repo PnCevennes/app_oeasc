@@ -84,7 +84,8 @@ export const configMap = {
           color: 'grey',
           fillColor: '#dfdfdf'
         },
-        pane: 'PANE_4'
+        pane: 'PANE_4',
+        select: 'secteur'
       }
     }
   }

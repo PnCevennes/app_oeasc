@@ -3,6 +3,17 @@
   width: 75%;
 }
 
+.flex-container {
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+}
+
+.flex-container > div{
+margin: 5px;
+}
+
+
 .legend-container {
   line-height: 18px;
   color: #555;

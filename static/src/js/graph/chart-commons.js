@@ -30,7 +30,6 @@ var generateBarLegendLabels = chart => {
 var makeData = (options, data) => {
   var datasets = {};
   var labels = removeDoublons(data.map(e => e.label));
-  console.log('make_data', data[0].split)
   if (!data[0].split) {
     datasets = [
       {
@@ -55,7 +54,6 @@ var makeData = (options, data) => {
 
     //   return cpt1 ? cpt1 : cpt2;
     // });
-    console.log(datasetLabels)
     let i = -1;
     datasets = datasetLabels.map(l => {
       i += 1;

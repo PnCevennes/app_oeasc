@@ -53,7 +53,7 @@ def declarations():
     '''
         Retourne les declarations accessible pour le declarant de id_role id_declarant
     '''
-    
+
     return get_declarations()
 
 

@@ -23,12 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
     ...fieldNames.map(n => `oeasc_resultats.v_timeline_declaration_${n}`)
   ];
 
-  console.log(views);
 
   var url = `api/resultat/get_views?view=${views.join('&view=')}`;
-  console.log(url);
   apiRequest(`${url}`).then(data => {
-    console.log(data);
     makeGraphs(data);
   });
 });

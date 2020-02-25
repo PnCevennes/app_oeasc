@@ -1,26 +1,51 @@
-import { removeDoublons } from "../../util/util.js";
-import * as chroma from "chroma-js";
+import { removeDoublons } from '../../util/util.js';
+import { findLayer } from '../layer/util.js';
 
-const initDeclarationsMakerColors = (mapConfig, declarations) => {
-  const colors = chroma.brewer.Dark2;
+const defaultIcon = 'fas fa-circle';
+const defaultColor = 'grey';
 
-  if (!mapConfig.declarations.display) {
+const getDeclarationValues = (declaration, fieldName) => {
+  let sValues = '';
+  if (fieldName in declaration) {
+    sValues = declaration[fieldName];
+  }
+
+  // if (fieldName.includes('->')) {
+  //   let value = '';
+  //   for (const paramName of fieldName.split('->')) {
+  //     console.log(paramName, declaration[paramName])
+  //   }
+  // }
+
+  return sValues.split(', ');
+}
+
+const initDeclarationsMarkerType = (mapConfig, declarations, type) => {
+
+  if (!(mapConfig.declarations[type] && mapConfig.declarations[type].fieldName)) {
     return;
   }
 
-  const { fieldName } = mapConfig.declarations.display;
+  const { fieldName } = mapConfig.declarations[type];
+  const preValues = declarations.filter(d => d.selected).map(d => getDeclarationValues(d, fieldName));
 
-  const values = removeDoublons(declarations.map(d => d[fieldName]));
+  let values = [];
+  for (const pv of preValues) {
+    values = values.concat(pv);
+  }
+  values = removeDoublons(values);
+
+  // comptage du nombre de declaration pour chaque valeur de fieldName
   const countValues = {};
   for (const value of values) {
-    countValues[value] = declarations.filter(
-      d => d[fieldName] === value
-    ).length;
+    countValues[value] = declarations.filter(d => getDeclarationValues(d, fieldName).includes(value)).length;
   }
 
+  // tri par ordre nb de declaration par *fieldName && ordre apha.
   values.sort((a, b) => {
     const test1 = countValues[b] - countValues[a];
 
+    // si test1 == 0 on fait par ordre alpha.
     if (test1) {
       return test1;
     }
@@ -28,84 +53,142 @@ const initDeclarationsMakerColors = (mapConfig, declarations) => {
     return 2 * (a - b) - 1;
   });
 
-  mapConfig.declarations.colors = {};
-  // mapConfig.declarations.colors = mapConfig.declarations.colors || {};
-  mapConfig.declarations.colors[fieldName] = {};
+  mapConfig.declarations[type].curList = {};
   for (const [i, value] of values.entries()) {
-    mapConfig.declarations.colors[fieldName][value] = colors[i];
-  }
-};
-
-const makeDeclarationMarkerColor = (mapConfig, declaration) => {
-  const defaultColor = "grey";
-
-  if (!mapConfig.declarations.display) {
-    return defaultColor;
+    mapConfig.declarations[type].curList[value] = mapConfig.declarations[type].list[i];
   }
 
-  const { fieldName } = mapConfig.declarations.display;
-  const value = declaration[fieldName];
+}
 
-  const color = mapConfig.declarations.colors[fieldName][value] || defaultColor;
+const valuesOfType = (mapConfig, declaration, type) => {
 
-  return color;
+  const default_ = type === 'color' && defaultColor || defaultIcon;
+
+  if (!(mapConfig.declarations[type] && mapConfig.declarations[type].fieldName)) {
+    return [default_]
+  }
+
+  const { fieldName } = mapConfig.declarations[type];
+  const values = getDeclarationValues(declaration, fieldName).map(value => {
+  const typeList = mapConfig.declarations[type] && mapConfig.declarations[type].curList || {};
+
+  return typeList[value] || default_;
+  });
+
+  return values;
+}
+
+const stooltipDeclaration = declarationMarkerConfig => {
+  let sTooltip = '';
+  for (const config of declarationMarkerConfig) {
+    sTooltip += `<i style="opacity:${config.opacity}; color:${config.color}" class="${config.faIcon} fa-lg shadow"></i>`;
+  }
+
+return sTooltip;
 };
-
-const makeDeclarationMarkerRadius = (mapConfig, declaration) => 10;
 
 const makeDeclarationMarkerConfig = (mapConfig, declaration) => {
-  const color = makeDeclarationMarkerColor(mapConfig, declaration);
-  const radius = makeDeclarationMarkerRadius(mapConfig, declaration);
 
-  const declarationMarkerConfig = {
-    pane: "PANE_20",
-    color,
-    radius
-  };
+  const declarationMarkerConfig = []
+
+  const colors = valuesOfType(mapConfig, declaration, 'color');
+  const faIcons = valuesOfType(mapConfig, declaration, 'icon');
+
+  for (const color of colors) {
+    for (const faIcon of faIcons) {
+      const config = {
+        pane: 'PANE_20',
+        color,
+        faIcon,
+        opacity: declaration.selected
+          ? 0.9
+          : 0,
+        fillOpacity: declaration.selected
+          ? 0.5
+          : 0,
+        type: mapConfig.declarations.type
+      }
+      declarationMarkerConfig.push(config)
+    }
+  }
 
   return declarationMarkerConfig;
 };
 
-const findDeclarationMarker = (map, mapConfig, idDeclaration) => {
+const setDeclarationMarker = (mapConfig, declarationMarkerConfig, elem) => {
 
-  return Object.values(map._layers).find(l => l.id_declaration === idDeclaration);
-};
+    let sTooltip = ' ';
+    if (mapConfig.declarations.color.fieldName || mapConfig.declarations.icon.fieldName) {
+      sTooltip = stooltipDeclaration(declarationMarkerConfig);
+    }
+    elem.setTooltipContent(sTooltip);
+    declarationMarkerConfig.color = 'grey';
+    elem.setStyle({
+      opacity: declarationMarkerConfig[0].opacity,
+      fillOpacity: declarationMarkerConfig[0].fillOpacity,
+    });
+}
 
-const makeDeclarationMarker = (map, mapConfig, declaration) => {
+const makeDeclarationMarker = (map, declaration) => {
   const declarationMarkerConfig = makeDeclarationMarkerConfig(
-    mapConfig,
+    map.config,
     declaration
   );
-  let elem = findDeclarationMarker(map, mapConfig, declaration.id_declaration);
-  // eslint-disable-next-line no-negated-condition
+  let elem = findLayer(
+    map,
+    'declaration',
+    'id_declaration',
+    declaration.id_declaration
+  );
+
   if (!elem) {
-    switch (mapConfig.declarations.type) {
-      case "marker":
-        elem = L.marker(declaration.centroid, {
-          ...declarationMarkerConfig
-        });
-        break;
+    switch (declarationMarkerConfig[0].type) {
+      // case 'marker':
+      //   elem = L.marker(declaration.centroid, {
+      //     ...declarationMarkerConfig
+      //   });
+      //   break;
 
-      case "point":
+      // case 'point':
+      //   elem = L.circle(declaration.centroid, {
+      //     ...declarationMarkerConfig
+      //   });
+      //   break;
+
+      // case 'circleMarker':
+      //   elem = L.circleMarker(declaration.centroid, {
+      //     ...declarationMarkerConfig
+      //   });
+      //   break;
+
+      case 'icon':
         elem = L.circle(declaration.centroid, {
-          ...declarationMarkerConfig
+          pane: declarationMarkerConfig[0].pane,
+          color: 'black'
+        }).bindTooltip('', {
+          pane: 'PANE_30',
+          permanent: true,
+          direction: 'top',
+          color: 'white',
+          opacity: 1,
+          fillOpacity: 1,
+          interactive: true,
+          className: 'tooltip'
         });
-        break;
-
-      case "circleMarker":
-        elem = L.circleMarker(declaration.centroid, {
-          ...declarationMarkerConfig
-        });
-        break;
-
       default:
         break;
     }
-    elem.id_declaration = declaration.id_declaration;
-  } else {
-    elem.setStyle(declarationMarkerConfig);
+    elem.feature = {
+      properties: {
+        id_declaration: declaration.id_declaration,
+        type: 'declaration'
+      }
+    };
+    elem.addTo(map);
   }
+  setDeclarationMarker(map.config, declarationMarkerConfig, elem);
+
   return elem;
 };
 
-export { makeDeclarationMarker, initDeclarationsMakerColors };
+export { makeDeclarationMarker, initDeclarationsMarkerType, defaultColor, defaultIcon };

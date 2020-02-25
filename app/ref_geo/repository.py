@@ -95,9 +95,18 @@ def areas_from_type_code(b_simple, data_type, type_code):
     )
 
     if data_type == 'l':
-        return FeatureCollection([d.get_geofeature() for d in data])
+        out = FeatureCollection([d.get_geofeature() for d in data])
     else:
-        return [d.as_dict() for d in data]
+        out = [d.as_dict() for d in data]
+
+    if data_type == 'l':
+        for o in out['features']:
+            o['properties']['type'] = type_code
+    else:
+        for o in out:
+            o['type'] = type_code
+
+    return out
 
 
 def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_container):

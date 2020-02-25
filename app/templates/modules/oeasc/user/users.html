@@ -46,7 +46,7 @@
               {% if current_user.id_droit_max > user.id_droit_max %}
 
               <select class="change_droit" name="droit_user_{{user.id_role}}" id="droit_user_{{user.id_role}}" data-id_role="{{user.id_role}}">
-                {% for ind in range(1, current_user.id_droit_max + 1) %}
+                {% for ind in range(0, current_user.id_droit_max + 1) %}
 
                 <option value="{{ind}}" {{"selected" if ind == user.id_droit_max }}>{{ind}}</option>
                 {% endfor %}

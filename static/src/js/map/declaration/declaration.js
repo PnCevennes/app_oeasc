@@ -1,8 +1,9 @@
 import { apiRequest } from '../../data/api.js';
 import { sTooltipDegats } from './tooltip.js';
-import { makeDeclarationMarker, initDeclarationsMakerColors } from './marker.js'
+import { makeDeclarationMarker, initDeclarationsMarkerType } from './marker.js'
 import { initDeclarationsLegend } from './legend.js'
-import { chroma } from 'chroma-js'
+import { applyFilters } from '../layer/util.js';
+
 
 const makeSPopupDeclaration = (declaration) => {
   var sPopup = '';
@@ -28,12 +29,23 @@ const makeSPopupDeclaration = (declaration) => {
   return sPopup;
 };
 
-const processDeclarations = (map, mapConfig, declarations) => {
+const processDeclarations = (map) => {
+
+  const { declarations } = map;
   console.log(declarations[0])
-  initDeclarationsMakerColors(mapConfig, declarations);
-  initDeclarationsLegend(map, mapConfig, declarations);
+
+  // filter
   for (const declaration of declarations) {
-    const elem = makeDeclarationMarker(map, mapConfig, declaration);
+    declaration.selected = applyFilters(map.config.declarations.filters, declaration);
+  }
+
+  initDeclarationsMarkerType(map.config, declarations, 'color');
+  initDeclarationsMarkerType(map.config, declarations, 'icon');
+  initDeclarationsLegend(map, declarations);
+
+  for (const declaration of declarations) {
+    // filter
+    const elem = makeDeclarationMarker(map, declaration);
 
     if (!elem) {
       continue;
@@ -44,30 +56,14 @@ const processDeclarations = (map, mapConfig, declarations) => {
     //   });
     // }
 
-    // if (mapConfig.declarations.display === 'gravite') {
-    //   elem.bindTooltip(sTooltipDegats(declaration.degats), {
-    //     pane: 'PANE_30',
-    //     permanent: true,
-    //     direction: 'top',
-    //     color: 'white',
-    //     opacity: 1,
-    //     fillOpacity: 1,
-    //     interactive: true,
-    //     className: 'tooltip',
-    //   });
-    // }
-
-    elem.addTo(map);
   }
 }
 
-const loadDeclarations = (map, mapConfig) => {
+const loadDeclarations = (map) => {
   apiRequest('api/declaration/declarations/').then(declarations => {
     map.declarations = declarations;
-    processDeclarations(map, mapConfig, declarations);
+    processDeclarations(map);
   });
 };
 
-const loadDeclaration = (map, mapConfig, declarationId) => {};
-
-export { loadDeclarations, loadDeclaration, processDeclarations };
+export { loadDeclarations, processDeclarations };

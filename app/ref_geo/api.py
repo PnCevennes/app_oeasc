@@ -1,25 +1,23 @@
+'''
+    api pour la table ref_geo
+'''
+
+from geojson import FeatureCollection
+from sqlalchemy import text
+
 from flask import (
     Blueprint,
     request,
     current_app
 )
 
+from app.utils.utilssqlalchemy import json_resp
+
 from .models import (
     TAreas as TA,
     LAreas as LA,
     BibAreasType,
 )
-
-
-from sqlalchemy import text
-
-# from geoalchemy2 import functions
-
-from app.utils.env import DB
-
-from app.utils.utilssqlalchemy import json_resp
-
-from geojson import FeatureCollection
 
 from .repository import (
     get_id_type,
@@ -31,6 +29,7 @@ from .repository import (
 bp = Blueprint('ref_geo', __name__)
 
 config = current_app.config
+
 DB = config['DB']
 
 
@@ -48,14 +47,19 @@ def get_type_code_oeasc():
 @bp.route('get_id_type/<string:type_code>')
 @json_resp
 def get_id_type_api(type_code):
-
+    '''
+        TODO in join request
+    '''
     return get_id_type(type_code)
 
 
 @bp.route('area/<string:data_type>/<int:id_area>')
 @json_resp
 def get_area(data_type, id_area):
-
+    '''
+        get area from id
+        TODO with get params
+    '''
     if data_type == 'l':
         table = LA
     else:
@@ -72,7 +76,9 @@ def get_area(data_type, id_area):
 @bp.route('areas_post/<string:data_type>', methods=['POST'])
 @json_resp
 def get_areas_post(data_type):
-
+    '''
+        TODO make it get
+    '''
     data_in = request.get_json()
 
     areas = data_in['areas']
@@ -85,7 +91,9 @@ def get_areas_post(data_type):
 @bp.route('areas_test_post/<string:data_type>', methods=['GET'])
 @json_resp
 def get_areas_test_post(data_type):
-
+    '''
+        TODO make it get
+    '''
     areas = [{'id_area': 277431}]
     b_simple = False
 
@@ -95,7 +103,9 @@ def get_areas_test_post(data_type):
 @bp.route('areas_simples_post/<string:data_type>', methods=['POST'])
 @json_resp
 def get_areas_simples_post(data_type):
-
+    '''
+        TODO make it get
+    '''
     data_in = request.get_json()
 
     areas = data_in['areas']
@@ -108,7 +118,9 @@ def get_areas_simples_post(data_type):
 @bp.route('areas_centroid_post/<string:data_type>', methods=['POST'])
 @json_resp
 def get_areas_centroid_post(data_type):
-
+    '''
+        TODO make it GET
+    '''
     d_areas = request.get_json()
 
     d_out = {}
@@ -131,7 +143,7 @@ def get_areas_centroid_post(data_type):
         result = DB.engine.execute(sql_text).first()
 
         v = [result[1], result[0]]
-        d_out[key]=v
+        d_out[key] = v
 
     return d_out
 
@@ -149,7 +161,10 @@ def get_areas_from_type_code(data_type, type_code):
     return areas_from_type_code(False, data_type, type_code)
 
 
-@bp.route('areas_simples_from_type_code/<string:data_type>/<string:type_code>', methods=['GET', 'POST'])
+@bp.route(
+    'areas_simples_from_type_code/<string:data_type>/<string:type_code>',
+    methods=['GET', 'POST']
+)
 @json_resp
 def get_areas_simples_from_type_code(data_type, type_code):
     '''
@@ -161,14 +176,15 @@ def get_areas_simples_from_type_code(data_type, type_code):
 
     data = areas_from_type_code(True, data_type, type_code)
 
-    # if not data:
-
-    #     data = areas_from_type_code(False, data_type, type_code)
-
     return data
 
 
-@bp.route('areas_from_type_code_container/<string:data_type>/<string:type_code>/<string:ids_area_container>', methods=['GET', 'POST'])
+@bp.route(
+    'areas_from_type_code_container/\
+        <string:data_type>/<string:type_code>/\
+        <string:ids_area_container>',
+    methods=['GET', 'POST']
+)
 @json_resp
 def get_areas_from_type_code_container(data_type, type_code, ids_area_container):
     '''
@@ -176,7 +192,8 @@ def get_areas_from_type_code_container(data_type, type_code, ids_area_container)
         et étant contenue dans la geometrie identifiée par son id_area : id_area_container
         la recherche de ses élément se fait par rapport aux area_code:
             - soit en comparant les area_code des contenus et du contenant (cas général)
-            - soit en se servant d'une table de correlation precalculée pour le cas des forêts avec DGD
+            - soit en se servant d'une table de correlation precalculée
+                pour le cas des forêts avec DGD
         data type : t -> renvoie seulement les attributs
                     l -> renvoie aussi la geometrie
 
@@ -187,7 +204,12 @@ def get_areas_from_type_code_container(data_type, type_code, ids_area_container)
     return areas_from_type_code_container(b_simple, data_type, type_code, ids_area_container)
 
 
-@bp.route('areas_simples_from_type_code_container/<string:data_type>/<string:type_code>/<string:ids_area_container>', methods=['GET', 'POST'])
+@bp.route(
+    'areas_simples_from_type_code_container/\
+        <string:data_type>/<string:type_code>/\
+        <string:ids_area_container>',
+    methods=['GET', 'POST']
+)
 @json_resp
 def get_areas_simples_from_type_code_container(data_type, type_code, ids_area_container):
     '''
@@ -195,7 +217,8 @@ def get_areas_simples_from_type_code_container(data_type, type_code, ids_area_co
         et étant contenue dans la geometrie identifiée par son id_area : id_area_container
         la recherche de ses élément se fait par rapport aux area_code:
             - soit en comparant les area_code des contenus et du contenant (cas général)
-            - soit en se servant d'une table de correlation precalculée pour le cas des forêts avec DGD
+            - soit en se servant d'une table de correlation precalculée
+                pour le cas des forêts avec DGD
         data type : t -> renvoie seulement les attributs
                     l -> renvoie aussi la geometrie
 

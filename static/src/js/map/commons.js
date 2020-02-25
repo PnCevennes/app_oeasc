@@ -12,8 +12,8 @@ import 'leaflet.awesome-markers'
  
 
 import { initTiles } from './util/tile.js';
-import { initLayers } from './util/layer.js';
-import { initLegend } from './util/legend.js';
+import { initLayers } from './layer/layer.js';
+import { initLegend } from './layer/legend.js';
 import { config } from '../config/config.js';
 import { loadDeclarations, processDeclarations } from './declaration/declaration.js';
 
@@ -48,14 +48,15 @@ var makeMap = (mapId, mapConfig) => {
   makeConfigDefault(mapConfig);
   map = L.map(mapId).setView(mapConfig.INIT_VIEW, mapConfig.INIT_ZOOM);
   map.id = mapId;
-  makePanes(map, mapConfig);
-  initTiles(map, mapConfig);
-  initLegend(map, mapConfig);
-  initLayers(map, mapConfig);
-  var scale = L.control.scale({imperial: false}).addTo(map); 
+  map.config = mapConfig;
+  makePanes(map);
+  initTiles(map);
+  initLegend(map);
+  initLayers(map);
+  var scale = L.control.scale({imperial: false}).addTo(map);
 
   if (mapConfig.declarations) {
-    loadDeclarations(map, mapConfig)
+    loadDeclarations(map)
   }
 
   return map;

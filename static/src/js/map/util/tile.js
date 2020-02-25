@@ -12,10 +12,10 @@ const makeTileConfig = mapConfig => {
   return tilesConfig
 };
 
-var initTiles = (map, mapConfig) => {
+var initTiles = (map) => {
   map.attributionControl.addAttribution('&copy; <a href=\'https://occitanie.cnpf.fr/\'>CRPF Occitanie</a>');
 
-  const tileConfig = makeTileConfig(mapConfig);
+  const tileConfig = makeTileConfig(map.config);
 
   map.tiles = {};
 
@@ -33,7 +33,7 @@ var initTiles = (map, mapConfig) => {
 
   // Set default tile
 
-  const tileKey = Object.keys(mapConfig.tileList).find(key => mapConfig.tileList[key].default) || mapConfig.tileList[0];
+  const tileKey = Object.keys(map.config.tileList).find(key => map.config.tileList[key].default) || map.config.tileList[0];
   map.tiles[tileConfig[tileKey].label].addTo(map);
 
   map.layerControl = L.control.layers(map.tiles).addTo(map);

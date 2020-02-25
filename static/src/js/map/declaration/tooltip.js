@@ -41,4 +41,11 @@ const dDegatTypeIcon = {
     return sTooltip;
   };
 
-  export { sTooltipDegats }
+  const stooltipDeclaration = (declarationMarkerConfig) => {
+    let sTooltip = '';
+    const { color, icon } = declarationMarkerConfig;
+    sTooltip += `<i style="color:${color}" class="${icon} fa-2x shadow"></i>`
+    return sTooltip;
+  }
+
+  export { sTooltipDegats, stooltipDeclaration }

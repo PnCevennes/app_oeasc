@@ -2,7 +2,6 @@
 import { makeData } from './chart-commons.js';
 
 var makeBarChartOptions = (options, data) => {
-  console.log(makeData(options, data));
   const chartOptions = {
     data: makeData(options, data),
     options: {
