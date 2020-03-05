@@ -20,11 +20,7 @@ def get_nomenclature_oeasc():
     '''
         Retourne un dictionnaire contenant toutes les nomenclatures concernant l'oeasc
 
-        Exemple:
 
-        nomenclature = nomenclature_oeasc()
-        for elem in nomenclature["OEASC_PEUPLEMENT_ESSENCE"]["values"]:
-            print(elem.label_fr)
     '''
 
     return nomenclature_oeasc()

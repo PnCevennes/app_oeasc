@@ -121,6 +121,7 @@ var displays = {
   simple,
   multi
 }
+console.log('aa')
 const map = makeMap('map', mapConfig);
 
 const initSelectOfType = (id, type) => {

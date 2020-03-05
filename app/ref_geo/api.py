@@ -181,8 +181,9 @@ def get_areas_simples_from_type_code(data_type, type_code):
 
 @bp.route(
     'areas_from_type_code_container/\
-        <string:data_type>/<string:type_code>/\
-        <string:ids_area_container>',
+<string:data_type>/\
+<string:type_code>/\
+<string:ids_area_container>',
     methods=['GET', 'POST']
 )
 @json_resp
@@ -200,14 +201,15 @@ def get_areas_from_type_code_container(data_type, type_code, ids_area_container)
     '''
 
     b_simple = False
-
+    print('aaaaa')
     return areas_from_type_code_container(b_simple, data_type, type_code, ids_area_container)
 
 
 @bp.route(
     'areas_simples_from_type_code_container/\
-        <string:data_type>/<string:type_code>/\
-        <string:ids_area_container>',
+<string:data_type>/\
+<string:type_code>/\
+<ids_area_container>',
     methods=['GET', 'POST']
 )
 @json_resp
@@ -224,6 +226,6 @@ def get_areas_simples_from_type_code_container(data_type, type_code, ids_area_co
 
     '''
 
+    print(data_type, type_code, ids_area_container)
     b_simple = True
-
     return areas_from_type_code_container(b_simple, data_type, type_code, ids_area_container)

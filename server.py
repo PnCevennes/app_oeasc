@@ -10,6 +10,10 @@ from jinja2 import evalcontextfilter, Markup, escape
 from app.utils.env import DB, mail
 from config import config
 
+from flask_cors import CORS
+
+
+
 class ReverseProxied(object):
 
     def __init__(self, app_in, script_name=None, scheme=None, server=None):
@@ -36,6 +40,9 @@ class ReverseProxied(object):
 
 app = Flask(__name__, template_folder="app/templates", static_folder='static')
 
+cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
+
+
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 app.secret_key = 'dfsdbegerbnergfbergqbqerg'
@@ -58,6 +65,7 @@ def accueil():
 def google():
     return redirect(url_for('static', filename='google4b0945b8a2f6425f.html'))
 
+
 with app.app_context():
 
     from app.modules.oeasc.user.mail import function_dict
@@ -73,8 +81,9 @@ with app.app_context():
             session["current_user"] = None
 
         if request.endpoint == 'auth.login' and response.status_code == 200:
-            current_user = json.loads(response.get_data().decode('utf-8'))
-            session["current_user"] = current_user["user"]
+            if response.get_data().decode('utf-8'):
+                current_user = json.loads(response.get_data().decode('utf-8'))
+                session["current_user"] = current_user["user"]
 
         return response
 
@@ -105,6 +114,8 @@ with app.app_context():
     from app.modules.oeasc.resultat import api as resultats_api
     app.register_blueprint(resultats_api.bp, url_prefix='/api/resultat')
 
+    from app.modules.oeasc.commons import api as commons_api
+    app.register_blueprint(commons_api.bp, url_prefix='/api/commons')
 
     # from app.modules.oeasc import api_test as api_test
     # app.register_blueprint(api_test.bp, url_prefix='/api/test')

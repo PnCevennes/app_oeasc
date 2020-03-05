@@ -1,3 +1,4 @@
+# import markdown
 from flask import (
     Blueprint, render_template
 )
@@ -5,14 +6,13 @@ from flask import (
 from pypnusershub import routes as fnauth
 from app.modules.oeasc.user.utils import check_auth_redirect_login
 
-
 # from .declaration_sample import test
 
 from app.utils.utilssqlalchemy import json_resp
-
+# from .commons.repository import get_text
 
 bp = Blueprint('test', __name__)
-
+# md = markdown.Markdown()
 
 @bp.route('/carte/', defaults={'id_areas': "", 'type_code': 'OEASC_COMMUNE'})
 @bp.route('/carte/<string:type_code>', defaults={'id_areas': ""})
@@ -41,27 +41,74 @@ def carte(type_code, id_areas):
     return render_template('modules/oeasc/test/carte.html', data=data)
 
 
-@bp.route('/test_connexion', methods=['GET', 'POST'])
-@fnauth.check_auth(1)
-@json_resp
-def test_connexion():
-    return {"msg": "ok"}
+# @bp.route('/test_connexion', methods=['GET', 'POST'])
+# @fnauth.check_auth(1)
+# @bp.route('/md/<string:code>')
+# @check_auth_redirect_login(1)
+# def test_md(code):
+#     '''
+#         test md
+#     '''
+
+#     text = get_text(code)
+
+#     if not text: 
+#         return None
 
 
-@bp.route('/d3/')
-def test_d3():
-    '''
-        test graphes
-    '''
+#     md.reset()
+#     md_html = md.convert(text['md'])
 
-    return render_template('modules/oeasc/test/d3.html')
+#     return render_template('modules/oeasc/test/md.html', md_html=md_html)
+#     '''
+# @bp.route('/md/<string:code>')
+# @check_auth_redir
+#     md.reset()
+#     md_html = md.convert(text['md'])
+
+#     return render_template('modules/oeasc/test/md.html', md_html=md_html)
+# @bp.route('/md/<string:code>')
+# @check_auth_redirect_login(1)
+# def test_md(code):
+#     '''
+#         test md
+#     '''
+
+#     text = get_text(code)
+
+#     if not text: 
+#         return None
 
 
-@bp.route('/page/<string:page>')
-@check_auth_redirect_login(1)
-def test_page(page):
-    '''
-        test graphes
-    '''
+#     md.reset()
+#     md_html = md.convert(text['md'])
 
-    return render_template('modules/oeasc/test/{}.html'.format(page))
+#     return render_template('modules/oeasc/test/md.html', md_html=md_html)
+
+#     text = get_text(code)
+
+#     if not text: 
+#         return None
+
+
+#     md.reset()
+#     md_html = md.convert(text['md'])
+
+#     return render_template('modules/oeasc/test/md.html', md_html=md_html)
+# @bp.route('/md/<string:code>')
+# @check_auth_redirect_login(1)
+# def test_md(code):
+#     '''
+#         test md
+#     '''
+
+#     text = get_text(code)
+
+#     if not text: 
+#         return None
+
+
+#     md.reset()
+#     md_html = md.convert(text['md'])
+
+#     return render_template('modules/oeasc/test/md.html', md_html=md_html)

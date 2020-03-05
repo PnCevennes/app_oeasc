@@ -132,6 +132,8 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
     out = []
 
+    print('aaa')
+
     for id_area_container in v:
 
         container = DB.session.query(table).filter(table.id_area == id_area_container).first()
@@ -186,7 +188,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
         # autres cas ONF
         else:
-
+            print('aaaa')
             data = (
                 DB.session.query(table)
                 .filter(

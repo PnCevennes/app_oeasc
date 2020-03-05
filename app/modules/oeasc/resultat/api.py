@@ -41,7 +41,6 @@ def get_views():
 
     for p in views:
 
-        print(p)
         v = p.split('.')
         schema = v[0]
         view = v[1]

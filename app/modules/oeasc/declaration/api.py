@@ -196,13 +196,6 @@ def random_populate(nb):
         # check_proprietaire(declaration_dict, nomenclature)
         declaration_dict = f_create_or_update_declaration(declaration_dict)
 
-        print(
-            "i", i, nb, declaration_dict["id_declaration"],
-            declaration_dict["foret"]["nom_foret"], "public",
-            declaration_dict["foret"]["b_statut_public"],
-            "documenté", declaration_dict["foret"]["b_document"]
-        )
-
     return "ok"
 
 
@@ -312,7 +305,6 @@ def declarations_shape():
     for _, f in enumerate(z.filelist):
         f.filename = f.filename.replace('POLYGON_', '')
         file_names.append(f.filename)
-        print(f)
         z.extract(f, dir_path)
 
     os.remove(zip_file_name)

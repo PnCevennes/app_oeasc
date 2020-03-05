@@ -38,50 +38,6 @@ def get_liste_organismes_oeasc():
     return v
 
 
-# def get_user_from_data(data):
-#     '''
-#         Faire une vue propre
-#         qui serve aussi dans user
-#     '''
-#     user_dict = as_dict(data)
-#     print(user_dict)
-#     for d in data.app_users:
-#         u = as_dict(d)
-#         if u['id_application'] == config['ID_APP']:
-#             user_dict['id_droit_max'] = u['id_droit_max']
-
-#     if not user_dict.get('id_droit_max', None):
-#         return None
-
-#     # nb declaration
-#     data_nd = DB.engine.execute(
-#         text(
-#             "SELECT COUNT(*) FROM oeasc_declarations.t_declarations WHERE id_declarant="
-#             + str(user_dict['id_role'])
-#         )
-#     ).first()
-
-#     organisme = DB.engine.execute(
-#         text(
-#             "SELECT nom_organisme FROM utilisateurs.bib_organismes WHERE id_organisme="
-#             + str(user_dict['id_organisme'])
-#         )
-#     ).first()
-
-
-#     if organisme:
-#         user_dict['organisme'] = organisme[0]
-
-
-#     if organisme == 'Autre (préciser)':
-
-
-#     if data_nd:
-#         user_dict['nb_declarations'] = data_nd[0]
-
-#     return user_dict
-
-
 def get_users():
     '''
         Retourne la liste des utilisateurs OEASC
@@ -91,7 +47,6 @@ def get_users():
     v_out = []
     current_user = get_user(session.get('current_user', {}).get('id_role'))
 
-    print(current_user)
 
     v = DB.session.query(VUsers).all()
 

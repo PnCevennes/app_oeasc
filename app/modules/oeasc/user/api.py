@@ -18,6 +18,14 @@ config = current_app.config
 bp = Blueprint('user_api', __name__)
 
 
+@bp.route('/logout_external', methods=['GET', 'POST'])
+@json_resp
+def logout_external():
+    '''
+        logout redefinition
+    '''
+    return {'msg': 'logout ok'}
+
 @bp.route('/logout', methods=['GET', 'POST'])
 def logout():
     '''
