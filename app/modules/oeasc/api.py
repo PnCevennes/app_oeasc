@@ -14,7 +14,7 @@ DB = config['DB']
 bp = Blueprint('oeasc_api', __name__)
 
 
-@bp.route('get_nomenclature_oeasc', methods=['GET'])
+@bp.route('nomenclatures', methods=['GET'])
 @json_resp
 def get_nomenclature_oeasc():
     '''
@@ -24,6 +24,20 @@ def get_nomenclature_oeasc():
     '''
 
     return nomenclature_oeasc()
+
+
+@bp.route('nomenclatures/<string:nomenclature_type>', methods=['GET'])
+@json_resp
+def get_nomenclature(nomenclature_type):
+    '''
+        Retourne un dictionnaire contenant les nomenclatures pour un type choisi
+
+
+    '''
+
+    return nomenclature_oeasc().get(nomenclature_type)
+
+
 
 
 @bp.route('get_db/<type_data>/<key>/<val>', methods=['GET'])
