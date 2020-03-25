@@ -68,16 +68,24 @@ cat config/config.py
 
 
 # front
-if [ ! -f "static/src/js/config/config.js" ];
-then 
-cp static/src/js/config/config.js.sample static/src/js/config/config.js
-fi
 
-if [ ! -f "static/src/js/config/config-map.js" ];
-then 
-cp static/src/js/config/config-map.js.sample static/src/js/config/config-map.js
-fi
+# if [ ! -f "static/src/js/config/config.js" ];
+# then 
+# cp static/src/js/config/config.js.sample static/src/js/config/config.js
+# fi
 
-sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/src/js/config/config.js
-# sed -i -e s!'INIT_VIEW.*'!"INIT_VIEW: "$INIT_VIEW! static/src/js/config.js
-cat static/src/js/config/config.js
+# if [ ! -f "static/src/js/config/config-map.js" ];
+# then 
+# cp static/src/js/config/config-map.js.sample static/src/js/config/config-map.js
+# fi
+
+# sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/src/js/config/config.js
+
+
+if [ ! -f "static/frontend/src/config/config.js" ];
+then 
+cp static/frontend/src/config/config.js.sample static/frontend/src/config/config.js
+fi
+sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/frontend/src/config/config.js
+
+cat static/frontend/src/config/config.js
