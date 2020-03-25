@@ -4,7 +4,7 @@
 
 import json
 import re
-from flask import Flask, redirect, session, request, url_for
+from flask import Flask, redirect, session, request, url_for, send_from_directory
 from jinja2 import evalcontextfilter, Markup, escape
 
 from app.utils.env import DB, mail
@@ -64,6 +64,11 @@ def accueil():
 @app.route('/google4b0945b8a2f6425f.html')
 def google():
     return redirect(url_for('static', filename='google4b0945b8a2f6425f.html'))
+
+
+@app.route('/frontend/dist/<filename>')
+def front_vue(filename):
+    return send_from_directory('frontend/dist', filename)
 
 
 with app.app_context():

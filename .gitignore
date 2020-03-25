@@ -38,3 +38,21 @@ var/log/*.log
 .vscode/*
 *.save
 
+
+# frontend
+
+static/frontend/.DS_Store
+static/frontend/node_modules
+static/frontend/dist
+
+# local env files
+static/frontend/.env.local
+static/frontend/.env.*.local
+
+# Log files
+static/frontend/npm-debug.log*
+static/frontend/yarn-debug.log*
+static/frontend/yarn-error.log*
+
+# Editor directories and files
+static/frontend/.vscode

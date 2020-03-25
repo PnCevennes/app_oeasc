@@ -35,7 +35,7 @@ def get_nomenclature(nomenclature_type):
 
     '''
 
-    return nomenclature_oeasc().get(nomenclature_type)
+    return nomenclature_oeasc().get(nomenclature_type).get('values')
 
 
 

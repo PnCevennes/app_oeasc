@@ -5,9 +5,11 @@
 import markdown
 
 from flask import Blueprint, current_app, request
-from utils_flask_sqla.response import json_resp
+from utils_flask_sqla.response import json_resp_accept_empty_list, json_resp
 from ..user.utils import check_auth_redirect_login
 from .repository import get_content
+
+from sqlalchemy import text
 
 config = current_app.config
 DB = config['DB']
@@ -79,3 +81,28 @@ def api_delete_content(code):
     DB.session.delete(content)
 
     return content
+
+
+@bp.route('communes/<string:test>', methods=['GET'])
+@bp.route('communes/', defaults={'test': None}, methods=['GET'])
+@json_resp_accept_empty_list
+def api_communes(test):
+    '''
+        delete content
+    '''
+
+    if not test:
+        return []
+
+    tests = test.strip().split(' ')
+
+    cond_text = " AND ".join([ " ( nom ILIKE '%{0}%' OR cp ILIKE '%{0}%' ) ".format(s_test) for s_test in tests ])
+
+    sql_text = "SELECT CONCAT(nom, ' ', cp) as nom_cp FROM oeasc_commons.t_communes WHERE {} LIMIT 10".format(cond_text)
+
+    print(sql_text)
+
+    result = DB.engine.execute(text(sql_text))
+    out = [ {'nom_cp': res[0]} for res in result]
+    return out
+
