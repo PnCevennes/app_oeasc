@@ -1,0 +1,179 @@
+<template>
+  <div>
+    <div v-if="!items">{{ info.msg }}</div>
+    <div v-else>
+      <div>
+        <!-- select -->
+        <div v-if="config.display === 'autocomplete'">
+          <v-autocomplete
+            v-model="baseModel[config.name]"
+            :items="items"
+            :label="config.label"
+            :required="config.required ? true : false"
+            :multiple="config.multiple ? true : false"
+            :item-value="config.valueFieldName"
+            :item-text="config.textFieldName"
+            :rules="config.rules"
+            chips
+            small-chips
+            deletable-chips
+            :search-input.sync="search"
+            :placeholder="config.placeholder"
+            :filter="config.dataReloadOnSearch && customFilter"
+            @change="config.change && config.change($event)"
+            :return-object="config.returnObject ? true : false"
+          ></v-autocomplete>
+        </div>
+
+        <div v-else-if="config.display === 'select'">
+          <v-select
+            v-model="baseModel[config.name]"
+            :items="items"
+            :label="config.label"
+            :required="config.required ? true : false"
+            :multiple="config.multiple ? true : false"
+            :item-value="config.valueFieldName"
+            :item-text="config.textFieldName"
+            :rules="config.rules"
+            :return-object="config.returnObject ? true : false"
+          ></v-select>
+        </div>
+
+        <!-- checkbox ou radio -->
+        <div v-else>
+          <!-- checkbox -->
+          <div v-if="config.multiple">
+            <v-container fluid>
+              <h5>{{ config.label }}</h5>
+              <v-checkbox
+                v-model="baseModel[config.name]"
+                v-for="(item, index) in items"
+                :hide-details="index < items.length - 1 ? true : false"
+                :key="item[config.valueFieldName]"
+                :value="
+                  (config.returnObject && item) || item[config.valueFieldName]
+                "
+                :label="item[config.textFieldName]"
+                :dense="true"
+                :rules="config.rules"
+              ></v-checkbox>
+            </v-container>
+          </div>
+
+          <!-- radio -->
+          <div v-else>
+            <v-container fluid>
+              <h5>{{ config.label }}</h5>
+              <v-radio-group
+                v-model="baseModel[config.name]"
+                :rules="config.rules"
+              >
+                <v-radio
+                  v-for="item in items"
+                  :key="item[config.valueFieldName]"
+                  :value="
+                    (config.returnObject && item) || item[config.valueFieldName]
+                  "
+                  :label="item[config.textFieldName]"
+                >
+                </v-radio>
+              </v-radio-group>
+            </v-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+export default {
+  name: "lisForm",
+  data: () => ({
+    items: null,
+    info: {
+      status: "loading",
+      msg: "Chargement des données"
+    },
+    defaultConfig: {
+      valueFieldName: "value",
+      textFieldname: "text"
+    },
+    search: ""
+  }),
+  watch: {
+    search() {
+      if (this.config.dataReloadOnSearch) this.getData();
+    }
+  },
+  methods: {
+    customFilter(item, queryText) {
+      const text = item[this.config.textFieldname].toLowerCase();
+      const searchText = queryText.toLowerCase();
+
+      let cond = true;
+      for (const test of searchText.trim().split(" ")) {
+        cond = cond && text.includes(test);
+      }
+      return cond;
+    },
+    processItems: function() {
+        this.items = this.config.processItems 
+        ? this.config.processItems({data: this.data, config: this.config, baseModel:  this.baseModel})
+        : this.data;
+    },
+    getData: function() {
+      if (this.data) { this.processItems() } else {
+        if (this.config.url) {
+          const urlParam = this.config.dataReloadOnSearch
+            ? this.search || ""
+            : this.baseModel;
+
+          const url =
+            typeof this.config.url === "function"
+              ? this.config.url(urlParam)
+              : this.config.url;
+
+          this.$store
+            .dispatch("cacheOrRequest", {
+              url
+            })
+            .then(
+              apiData => {
+                this.data = apiData;
+                this.processItems();
+              },
+              error => {
+                this.info = {
+                  status: "error",
+                  msg: error
+                };
+              }
+            );
+        }
+      }
+    },
+    autocompleteChange: function(e) {
+      console.log("change", e);
+    }
+  },
+  props: ["config", "baseModel", "debug"],
+  mounted: function() {
+    // default values for config
+    for (const key in this.defaultConfig) {
+      if (!(key in this.config)) {
+        this.config[key] = this.defaultConfig[key];
+      }
+    }
+
+    this.getData();
+  }
+};
+</script>
+
+<style lang="scss" scoped>
+.md-checkbox,
+.md-radio {
+  display: flex;
+}
+</style>

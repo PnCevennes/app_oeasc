@@ -1,0 +1,57 @@
+{
+  "name": "oeasc-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "chroma": "0.0.1",
+    "chroma-js": "^2.1.0",
+    "core-js": "^3.6.4",
+    "leaflet": "^1.6.0",
+    "moment": "^2.24.0",
+    "node-sass": "^4.13.1",
+    "sass": "^1.26.2",
+    "sass-loader": "^8.0.2",
+    "vue": "^2.6.11",
+    "vue-cookie": "^1.1.4",
+    "vue-cookies": "^1.7.0",
+    "vue-i18n": "^8.15.5",
+    "vue-material": "^1.0.0-beta-11",
+    "vue-router": "^3.1.6",
+    "vue-session": "^1.0.0",
+    "vuelidate": "^0.7.5",
+    "vuetify": "^2.2.16",
+    "vuex": "^3.1.2"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.2.0",
+    "@vue/cli-plugin-eslint": "~4.2.0",
+    "@vue/cli-service": "~4.2.0",
+    "babel-eslint": "^10.0.3",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^6.1.2",
+    "vue-template-compiler": "^2.6.11"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}

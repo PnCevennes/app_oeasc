@@ -1,0 +1,4 @@
+const formsValidation = {
+};
+
+export { formsValidation };

@@ -1,0 +1,171 @@
+import { styles } from './config-style.js'
+
+
+const configMap = {
+  INIT_VIEW: [44.323546, 3.593954],
+  INIT_ZOOM: 8,
+  IGN_KEY: 'choisirgeoportail',
+  INIT_TILE: 'IGN (Cartes)',
+  styles,
+  baseTilesConfig: {
+    open_topo_map: {
+      url: 'https://b.tile.opentopomap.org/{z}/{x}/{y}.png',
+      attribution: '&copy; <a href="https://opentopomap.org/">OpenTopoMap</a>',
+      id: 'open_topo_map',
+      label: 'OpenTopoMap'
+    },
+    mapbox: {
+      url:
+        'https://api.tiles.mapbox.com/v4/mapbox.streets/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw',
+      attribution:
+        '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a>',
+      id: 'mapbox',
+      label: 'Mapbox'
+    },
+    ign_carte: {
+      url: `https://wxs.ign.fr/IGN_KEY/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg`,
+      attribution: '&copy; <a href="http://www.ign.fr/">IGN</a>',
+      id: 'ign_carte',
+      label: 'IGN (Cartes)'
+    },
+    ign_ortho: {
+      url: `https://wxs.ign.fr/IGN_KEY/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg`,
+      attribution: '&copy; <a href="http://www.ign.fr/">IGN</a>',
+      id: 'ign_ortho',
+      label: 'IGN (Ortho.)'
+    }
+  },
+  tileList: {
+    'open_topo_map': {},
+    'mapbox': {
+      default: true
+    },
+    'ign_carte': {},
+    'ign_ortho': {}
+  },
+  layers: {
+    zc: {
+      legend: 'Zone cœur du Parc national',
+      url: 'api/ref_geo/areas_simples_from_type_code/l/ZC_PNC',
+      type: 'ZC_PNC',
+      style: styles.zc,
+      pane: 'PANE_FOND_2'
+    },
+    aa: {
+      legend: "Aire d'adhésion du Parc national",
+      url: 'api/ref_geo/areas_simples_from_type_code/l/AA_PNC',
+      type: 'AA_PNC',
+      style: styles.aa,
+      pane: 'PANE_FOND_1'
+    },
+    po: {
+      legend: "Périmètre de l'Observatoire",
+      url: 'api/ref_geo/areas_simples_from_type_code/l/OEASC_PERIMETRE',
+      type: 'OEASC_PERIMETRE',
+      style: styles.po,
+      pane: 'PANE_FOND_3'
+    },
+    secteurs: {
+      legend: "Secteurs d'étude de l'Observatoire",
+      url: 'api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR',
+      type: 'OEASC_SECTEUR',
+      style: styles.secteur,
+      pane: 'PANE_FOND_4'
+    },
+    foret_onf: {
+      legend: "Forêt relevant du régime forestier",
+      url: 'api/ref_geo/areas_simples_from_type_code/l/OEASC_ONF_FRT',
+      type: 'OEASC_ONF_FRT',
+      style: styles.normal,
+      pane: 'PANE_LAYER_1'
+    },
+    parcelle_onf: {
+      legend: "Parcelle forestière",
+      url: (id_area_container) => `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_PRF/${id_area_container}`,
+      type: 'OEASC_ONF_PRF',
+      style: styles.normal,
+      pane: 'PANE_LAYER_1'
+    },
+    ug_onf: {
+      legend: "Unité de gestion",
+      url: (id_area_container) => `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_UG/${id_area_container}`,
+      type: 'OEASC_ONF_UG',
+      style: styles.normal,
+      pane: 'PANE_LAYER_1'
+    }
+  }
+};
+
+const select_map_base = {
+    zoom: true,
+    tooltip: {
+      label: 'label',
+    },
+    hover: {
+      style: styles.hover
+    },
+    select: {
+      style: styles.selected
+    },
+    dataFieldNames: {
+      value: "id_area",
+      text: "label"
+    },
+}
+
+const preConfigMap = {
+  perimetre: {
+    layerList: {
+      zc: {},
+      aa: {},
+      secteurs: {
+        zoom: true,
+        tooltip: {
+          permanent: true,
+          className: 'tooltip-label',
+          label: 'label'
+        }
+      }
+    }
+  },
+  select_map_onf_frt: {
+    layerList: {
+      po: {},
+      foret_onf: { ...select_map_base }
+    }
+  },
+  select_map_onf_prf: {
+    layerList: {
+      po: {},
+      parcelle_onf: { ...select_map_base }
+    }
+  }
+};
+
+const configBaseSelect = {
+  pane: 'PANE_LAYER_1',
+  style: styles.normal,
+  select: {
+    style: styles.select
+  },
+  zoom: true,
+    tooltip: {
+      label: 'label',
+      direction: 'top',
+      offset: [0,-20],
+      className: 'anim-tooltip',
+    },
+    hover: {
+      style: styles.hover
+    },
+    click: {
+      dispatch: {
+        name: 'select-map-click',
+        detail: ['id_area']
+      }
+    }
+}
+
+configMap.configBaseSelect = configBaseSelect;
+
+export { configMap, preConfigMap };
