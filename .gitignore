@@ -56,4 +56,6 @@ static/frontend/yarn-error.log*
 
 # Editor directories and files
 static/frontend/.vscode
+
+static/frontend/vue.config.js
     
