@@ -1,4 +1,4 @@
-DROP TABLE oeasc_commons.t_contents
+DROP TABLE oeasc_commons.t_contents;
 CREATE TABLE oeasc_commons.t_contents (
 	id_content SERIAL,
     code CHARACTER VARYING,
