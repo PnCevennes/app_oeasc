@@ -60,8 +60,8 @@ export default {
   mixins: [validationMixin],
   data: () => ({
     form: {
-      login: 'admin_oeasc',
-      password: 'admin_oeasc_2019',
+      login: null,
+      password: null,
       id_application: config.ID_APPLICATION
     },
     sending: false,
