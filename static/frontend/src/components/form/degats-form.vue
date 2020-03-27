@@ -5,8 +5,8 @@
         <v-checkbox
           v-model="degatTypes"
           :hide-details="index < items.length - 1 ? true : false"
-          :value="item"
-          :label="item[config.textFieldName]"
+          :value="item.id_nomenclature"
+          :label="item.label_fr"
           :dense="true"
           :rules="[rule]"
           :disabled="freeze"
@@ -17,8 +17,8 @@
           v-if="
             baseModel.degats.find(
               d =>
-                d.id_nomenclature_degat_type.id_nomenclature ===
-                  item.id_nomenclature && item.cd_nomenclature !== 'P/C'
+                d.id_nomenclature_degat_type === item.id_nomenclature &&
+                item.cd_nomenclature !== 'P/C'
             )
           "
           style="margin-left:50px;"
@@ -41,30 +41,47 @@
           <div
             class="flex-container flex-row flex-5"
             v-for="degat_essence of baseModel.degats.find(
-              d =>
-                d.id_nomenclature_degat_type.id_nomenclature ===
-                item.id_nomenclature
+              d => d.id_nomenclature_degat_type === item.id_nomenclature
             ).degat_essences || []"
-            :key="degat_essence.id_nomenclature_degat_essence.id_nomenclature"
+            :key="degat_essence.id_nomenclature_degat_essence"
           >
             <div>
-              {{ degat_essence.id_nomenclature_degat_essence.label_fr }}
+              {{
+                $store.getters.nomenclature(
+                  degat_essence.id_nomenclature_degat_essence
+                ).label_fr
+              }}
             </div>
-            <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'">{{
-                degat_essence.id_nomenclature_degat_gravite.label_fr
-              }}</span>
-            </div>
-            <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'">{{
-                degat_essence.id_nomenclature_degat_etendue.label_fr
-              }}</span>
-            </div>
-            <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'">{{
-                degat_essence.id_nomenclature_degat_anteriorite.label_fr
-              }}</span>
-            </div>
+
+            <template v-if="item.cd_nomenclature !== 'ABS'">
+              <div>
+                {{
+                  $store.getters.nomenclature(
+                    degat_essence.id_nomenclature_degat_gravite
+                  ).label_fr
+                }}
+              </div>
+              <div>
+                {{
+                  $store.getters.nomenclature(
+                    degat_essence.id_nomenclature_degat_etendue
+                  ).label_fr
+                }}
+              </div>
+              <div>
+                {{
+                  $store.getters.nomenclature(
+                    degat_essence.id_nomenclature_degat_anteriorite
+                  ).label_fr
+                }}
+              </div>
+            </template>
+            <template v-else>
+              <div></div>
+              <div></div>
+              <div></div>
+            </template>
+
             <div>
               <v-btn
                 small
@@ -74,7 +91,7 @@
                 @click="
                   removeDegatEssence(
                     item.id_nomenclature,
-                    degat_essence.id_nomenclature_degat_essence.id_nomenclature
+                    degat_essence.id_nomenclature_degat_essence
                   )
                 "
                 ><v-icon>mdi-close</v-icon></v-btn
@@ -86,12 +103,10 @@
             v-if="
               baseModel.degats.find(
                 d =>
-                  d.id_nomenclature_degat_type.id_nomenclature ===
-                    item.id_nomenclature &&
+                  d.id_nomenclature_degat_type === item.id_nomenclature &&
                   item.cd_nomenclature !== 'P/C' &&
                   (d.degat_essences.length === 0 ||
-                    showDegatEssenceForm ===
-                      d.id_nomenclature_degat_type.id_nomenclature)
+                    showDegatEssenceForm === d.id_nomenclature_degat_type)
               )
             "
           >
@@ -164,14 +179,13 @@
                 baseModel.degats.find(
                   d =>
                     !freeze &&
-                    d.id_nomenclature_degat_type.id_nomenclature ===
-                      item.id_nomenclature &&
+                    d.id_nomenclature_degat_type === item.id_nomenclature &&
                     item.cd_nomenclature !== 'P/C' &&
                     d.degat_essences.length > 0 &&
                     d.degat_essences.length < 3 &&
-                    d.degat_essences.length < essenceSelected('degats').length &&
-                    showDegatEssenceForm !==
-                      d.id_nomenclature_degat_type.id_nomenclature
+                    d.degat_essences.length <
+                      essenceSelected('degats').length &&
+                    showDegatEssenceForm !== d.id_nomenclature_degat_type
                 )
               "
               small
@@ -221,16 +235,16 @@ export default {
     updateDegats: function() {
       for (const degatType of this.degatTypes) {
         const degat = this.baseModel.degats.find(
-          d =>
-            degatType.id_nomenclature ===
-            d.id_nomenclature_degat_type.id_nomenclature
+          d => degatType === d.id_nomenclature_degat_type
         );
         if (!degat) {
           this.baseModel.degats.push({
             id_nomenclature_degat_type: degatType,
             degat_essences: []
           });
-          if (degatType.cd_nomenclature != "P/C") {
+          if (
+            this.$store.getters.nomenclature(degatType).cd_nomenclature != "P/C"
+          ) {
             this.freeze = true;
           }
         }
@@ -238,11 +252,7 @@ export default {
 
       for (const [index, degat] of this.baseModel.degats.entries()) {
         if (
-          !this.degatTypes.find(
-            d =>
-              d.id_nomenclature ===
-              degat.id_nomenclature_degat_type.id_nomenclature
-          )
+          !this.degatTypes.find(d => d === degat.id_nomenclature_degat_type)
         ) {
           this.baseModel.degats.splice(index, 1);
         }
@@ -258,50 +268,34 @@ export default {
           label: "Choisir une essence",
           declaration: this.baseModel,
           essenceType: degatType,
-          rules:[formFunctions.rules.requiredListSimple],
+          rules: [formFunctions.rules.requiredListSimple]
         },
         gravite: {
           name: "gravite",
           type: "nomenclature",
           required: true,
           nomenclatureType: "OEASC_DEGAT_GRAVITE",
-          rules:[formFunctions.rules.requiredListSimple],
+          rules: [formFunctions.rules.requiredListSimple]
         },
         etendue: {
           name: "etendue",
           type: "nomenclature",
           required: true,
           nomenclatureType: "OEASC_DEGAT_ETENDUE",
-          rules:[formFunctions.rules.requiredListSimple]
+          rules: [formFunctions.rules.requiredListSimple]
         },
         anteriorite: {
           name: "anteriorite",
           type: "nomenclature",
           required: true,
           nomenclatureType: "OEASC_DEGAT_ANTERIORITE",
-          rules:[formFunctions.rules.requiredListSimple]
-
+          rules: [formFunctions.rules.requiredListSimple]
         }
       };
     },
 
     getData: function() {
-      this.$store
-        .dispatch("cacheOrRequest", {
-          url: "api/oeasc/nomenclatures/OEASC_DEGAT_TYPE"
-        })
-        .then(
-          apiData => {
-            let data = apiData;
-            this.items = data;
-          },
-          error => {
-            this.info = {
-              status: "error",
-              msg: error
-            };
-          }
-        );
+      this.items = this.$store.getters.nomenclaturesOfType("OEASC_DEGAT_TYPE");
     },
 
     displayDegatEssence(id_nomenclature_degat_type) {
@@ -311,16 +305,14 @@ export default {
 
     addDegatEssence(id_nomenclature_degat_type) {
       const degat = this.baseModel.degats.find(
-        d =>
-          d.id_nomenclature_degat_type.id_nomenclature ===
-          id_nomenclature_degat_type
+        d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
       );
       degat.degat_essences = degat.degat_essences || [];
       const degat_essence = {
-        id_nomenclature_degat_essence: copy(this.degatEssence.essence),
-        id_nomenclature_degat_gravite: copy(this.degatEssence.gravite),
-        id_nomenclature_degat_etendue: copy(this.degatEssence.etendue),
-        id_nomenclature_degat_anteriorite: copy(this.degatEssence.anteriorite)
+        id_nomenclature_degat_essence: this.degatEssence.essence,
+        id_nomenclature_degat_gravite: this.degatEssence.gravite,
+        id_nomenclature_degat_etendue: this.degatEssence.etendue,
+        id_nomenclature_degat_anteriorite: this.degatEssence.anteriorite
       };
       degat.degat_essences.push(degat_essence);
       this.baseModel.degats = copy(this.baseModel.degats);
@@ -331,9 +323,7 @@ export default {
 
     cancelDegatEssence: function(id_nomenclature_degat_type) {
       const degat = this.baseModel.degats.find(
-        d =>
-          d.id_nomenclature_degat_type.id_nomenclature ===
-          id_nomenclature_degat_type
+        d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
       );
       if (degat.degat_essences.length === 0) {
         const index = this.baseModel.degats.indexOf(degat);
@@ -352,14 +342,10 @@ export default {
       id_nomenclature_degat_essence
     ) {
       const degat = this.baseModel.degats.find(
-        d =>
-          d.id_nomenclature_degat_type.id_nomenclature ===
-          id_nomenclature_degat_type
+        d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
       );
       const degat_essence = degat.degat_essences.find(
-        de =>
-          de.id_nomenclature_degat_essence.id_nomenclature ===
-          id_nomenclature_degat_essence
+        de => de.id_nomenclature_degat_essence === id_nomenclature_degat_essence
       );
       const index = degat.degat_essences.indexOf(degat_essence);
       degat.degat_essences.splice(index, 1);

@@ -40,24 +40,24 @@ const processAreas = function(areas) {
 };
 
 const processItems = {
-  essence: ({ config, data, baseModel }) => {
-    return data.filter(item => {
+  essence: ({ config, dataItems, baseModel }) => {
+    return dataItems.filter(item => {
       const modelArray = Array.isArray(baseModel[config.name])
         ? baseModel[config.name]
         : [baseModel[config.name]];
 
-      const selected = config.essencesSelected[config.essenceType];
+      const selected = config.essencesSelected[config.essenceType] || [];
 
       const condData =
         config.essenceType === "all" ||
         !!config.essencesSelected["degats"].find(
-          i => i && i.id_nomenclature === item.id_nomenclature
+          i => i === item.id_nomenclature
         );
       const condAlreadySelected = !!selected.find(
-        i => i && i.id_nomenclature === item.id_nomenclature
+        i => i === item.id_nomenclature
       );
       const condCurrentFormSelected = !!modelArray.find(
-        i => i && i.id_nomenclature === item.id_nomenclature
+        i => i === item.id_nomenclature
       );
 
       return (condData && !condAlreadySelected) || condCurrentFormSelected;
@@ -106,11 +106,6 @@ const rules = {
 
     if (config.type == 'number') {
       config.rules.push(rules.number)
-    }
-
-
-    if (config.type == 'degats') {
-      console.log('degat freeze ?')      
     }
 
   }

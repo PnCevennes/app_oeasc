@@ -45,14 +45,7 @@
 import { apiRequest } from "@/core/js/data/api.js";
 import { config } from "@/config/config.js";
 import { MapService } from "@/modules/map";
-// import Vue from 'vue';
-
 import "./content.css";
-// import { baseMap } from "../../components/map";
-
-// let contentHTML = "";
-// let contentMD = "";
-// let bEditContent = false;
 
 export default {
   name: "oeasc-content",
@@ -89,12 +82,13 @@ export default {
     getCode: function() {
       return this.code || this.$route.params.code || config.defaultContent;
     },
+
     initContent: function() {
-      console.log('init content', this.code, this.getCode())
       apiRequest("GET", `api/commons/content/${this.getCode()}`).then(
         (data) => this.setContent(data)
       );
     },
+
     updateContent: function() {
 
       let data = {

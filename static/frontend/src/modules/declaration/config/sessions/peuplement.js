@@ -47,7 +47,6 @@ const sessionsPeuplement = {
         ]
       },
       protection: {
-        direction: 'row',
         forms: [
           "nomenclatures_peuplement_protection_type",
           "autre_protection"

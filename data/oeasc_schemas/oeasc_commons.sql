@@ -14,7 +14,7 @@ CREATE TABLE oeasc_commons.t_liste_organismes (
 )
 
 CREATE TABLE oeasc_commons.t_contents (
-	id_content INT,
+	id_content SERIAL,
     code CHARACTER VARYING(),
     md text,
     meta_create_date timestamp without time zone,

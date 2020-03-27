@@ -176,7 +176,8 @@ export default {
           !["change", "processItems", "url"].includes(key)
         ) {
           configResolved[key] = this.config[key]({
-            baseModel: this.baseModel
+            baseModel: this.baseModel,
+            $store: this.$store
           });
         } else {
           configResolved[key] = this.config[key];

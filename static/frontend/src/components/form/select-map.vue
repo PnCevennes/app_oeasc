@@ -15,7 +15,6 @@
     </div>
     <base-map v-if="mapConfig" :config="mapConfig" :mapId="config.name">
       <template v-slot:aside>
-        {{config.rules.length}}
         <div style="width:400px">
           <v-autocomplete
             :ref="`select_map_${config.name}`"

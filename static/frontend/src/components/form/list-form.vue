@@ -99,7 +99,8 @@ export default {
       valueFieldName: "value",
       textFieldName: "text"
     },
-    search: ""
+    search: "",
+    dataItems: null
   }),
   watch: {
     search() {
@@ -123,14 +124,14 @@ export default {
     processItems: function() {
       this.items = this.config.processItems
         ? this.config.processItems({
-            data: this.data,
+            dataItems: this.dataItems,
             config: this.config,
             baseModel: this.baseModel
           })
-        : this.data;
+        : this.dataItems;
     },
     getData: function() {
-      if (this.data && !this.config.dataReloadOnSearch) {
+      if (this.dataItems && !this.config.dataReloadOnSearch) {
         this.processItems();
       } else {
         if (this.config.url) {
@@ -152,7 +153,7 @@ export default {
             })
             .then(
               apiData => {
-                this.data = apiData;
+                this.dataItems = apiData;
                 this.processItems();
               },
               error => {
@@ -169,8 +170,9 @@ export default {
       console.log("change", e);
     }
   },
-  props: ["config", "baseModel", "debug"],
+  props: ["config", "baseModel", "dataItemsIn"],
   mounted: function() {
+    this.dataItems = this.dataItemsIn;
     // default values for config
     for (const key in this.defaultConfig) {
       if (!(key in this.config)) {

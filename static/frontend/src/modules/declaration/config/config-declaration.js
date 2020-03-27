@@ -33,8 +33,11 @@ export default class ConfigDeclaration {
       const sessionList = copy(sessions);
       config.sessions = {};
       for (const sessionKey of sessionList) {
-        const configSession = config.sessions[sessionKey] = { ...this._sessions[sessionKey], name: sessionKey } ;
-        this.initConfig(configSession)
+        const configSession = (config.sessions[sessionKey] = {
+          ...this._sessions[sessionKey],
+          name: sessionKey
+        });
+        this.initConfig(configSession);
       }
     }
 
@@ -42,7 +45,7 @@ export default class ConfigDeclaration {
       const formList = copy(forms);
       config.forms = {};
       for (const formKey of formList) {
-        config.forms[formKey] = { ...this._forms[formKey], name: formKey};
+        config.forms[formKey] = { ...this._forms[formKey], name: formKey };
       }
     }
   }
@@ -52,9 +55,35 @@ export default class ConfigDeclaration {
   }
 
   initValidForms() {
-      const validForm = {};
-      for (const key of Object.keys(this._sessions)) {
-          validForm[key] = null; 
+    const validForm = {};
+    for (const key of Object.keys(this._sessions)) {
+      validForm[key] = null;
+    }
+  }
+
+  sessionList() {
+    const sessionList = [];
+    for (const configSessionGroups of Object.values(this._config.groups)) {
+      for (const keySession of Object.keys(configSessionGroups.sessions)) {
+        sessionList.push(keySession);
       }
+    }
+
+    return sessionList;
+  }
+
+  nextSession(keySession) {
+    const sessionList = this.sessionList();
+    const index = sessionList.indexOf(keySession);
+
+    if (index === -1) {
+      return;
+    }
+
+    if (index === sessionList.length - 1) {
+      return;
+    }
+
+    return sessionList[index + 1];
   }
 }

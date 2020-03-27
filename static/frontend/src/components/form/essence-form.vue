@@ -3,7 +3,7 @@
     v-if="configList"
     :config="configList"
     :baseModel="baseModel"
-    :data="data"
+    :dataItemsIn="dataItems"
     :ref="`listForm_${config.name}`"
   ></list-form>
 </template>
@@ -45,7 +45,7 @@ export default {
     this.config.processItems = formFunctions.processItems.essence;
     this.config.valueFieldName = "id_nomenclature";
     this.config.textFieldName = "label_fr";
-    this.config.returnObject = true;
+    this.dataItems = this.$store.getters.nomenclaturesOfType('OEASC_PEUPLEMENT_ESSENCE');
     this.config.essencesSelected = formFunctions.getEssencesSelected(
       this.config.declaration || this.baseModel
     );

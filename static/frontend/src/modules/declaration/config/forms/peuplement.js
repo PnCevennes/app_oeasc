@@ -38,11 +38,12 @@ const formsPeuplement = {
         areasContainer
       )}`,
     containerLegend: "Parcelles forestières",
-    containerDescription: "la ou les parcelles forestières sur lesquelles est située le peuplement concerné",
+    containerDescription:
+      "la ou les parcelles forestières sur lesquelles est située le peuplement concerné",
     containerUrl: ({ baseModel }) =>
-    `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_PRF/${formFunctions.processAreas(
-      baseModel.areas_foret_onf
-    )}`,
+      `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_PRF/${formFunctions.processAreas(
+        baseModel.areas_foret_onf
+      )}`,
     containerMultiple: true
   },
 
@@ -50,14 +51,14 @@ const formsPeuplement = {
     required: true,
     label: "Essence principale",
     type: "essence",
-    essenceType: 'all'
+    essenceType: "all"
   },
 
   nomenclatures_peuplement_essence_secondaire: {
     multiple: true,
     label: "Essence(s) secondaire(s)",
     type: "essence",
-    essenceType: 'all',
+    essenceType: "all",
     maxLength: 3
   },
 
@@ -65,7 +66,7 @@ const formsPeuplement = {
     multiple: true,
     label: "Essence(s) complémentaire(s)",
     type: "essence",
-    essenceType: 'all',
+    essenceType: "all",
     maxLength: 3
   },
 
@@ -98,11 +99,11 @@ const formsPeuplement = {
     nomenclatureType: "OEASC_PEUPLEMENT_MATURITE",
     multiple: true,
     required: true,
-    condition: ({ baseModel }) => {
-      return (
-        baseModel.id_nomenclature_peuplement_type &&
-        baseModel.id_nomenclature_peuplement_type.cd_nomenclature !== "FIRR"
+    condition: ({ baseModel, $store }) => {
+      const nomenclature = $store.getters.nomenclature(
+        baseModel.id_nomenclature_peuplement_type
       );
+      return nomenclature && nomenclature.cd_nomenclature !== "FIRR";
     }
   },
 
@@ -134,11 +135,14 @@ const formsPeuplement = {
     type: "text",
     required: true,
     label: "Autre protection (préciser)",
-    condition: ({ baseModel }) =>
+    condition: ({ baseModel, $store }) =>
       baseModel.b_peuplement_protection_existence &&
-      baseModel.nomenclatures_peuplement_protection_type
-        .map(n => n.cd_nomenclature)
-        .includes("PPRT_AUT")
+      baseModel.nomenclatures_peuplement_protection_type.find(
+        id_nomenclature => {
+          const nomenclature = $store.getters.nomenclature(id_nomenclature);
+          return nomenclature && nomenclature.cd_nomenclature == "PPRT_AUT";
+        }
+      )
   },
 
   nomenclatures_peuplement_paturage_type: {
@@ -173,11 +177,16 @@ const formsPeuplement = {
     nomenclatureType: "OEASC_PEUPLEMENT_PATURAGE_SAISON",
     multiple: true,
     required: true,
-    condition: ({ baseModel }) =>
-      baseModel.b_peuplement_paturage_presence &&
-      baseModel.id_nomenclature_peuplement_paturage_frequence &&
-      baseModel.id_nomenclature_peuplement_paturage_frequence.cd_nomenclature ==
-        "PPAF_PER"
+    condition: ({ baseModel, $store }) => {
+      const nomenclature = $store.getters.nomenclature(
+        baseModel.id_nomenclature_peuplement_paturage_frequence
+      );
+      return (
+        baseModel.b_peuplement_paturage_presence &&
+        nomenclature &&
+        nomenclature.cd_nomenclature == "PPAF_PER"
+      );
+    }
   },
   id_nomenclature_peuplement_acces: {
     label: "Accessibilité du peuplement",

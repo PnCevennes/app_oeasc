@@ -3,7 +3,7 @@
     v-if="configList"
     :config="configList"
     :baseModel="baseModel"
-    :data="data"
+    :dataItemsIn="dataItems"
   ></list-form>
 </template>
 
@@ -13,16 +13,16 @@ import listForm from "./list-form";
 export default {
   name: "nomenclatureForm",
   components: { listForm },
-  props: ["config", "baseModel", "data"],
+  props: ["config", "baseModel"],
   data: () => ({
-    configList: null
+    configList: null,
+    dataItems:null
   }),
   created: function() {
-    const { nomenclatureType } = this.config;
-    this.config.url = `api/oeasc/nomenclatures/${nomenclatureType}`;
+    this.config.url = `api/oeasc/nomenclatures/${this.config.nomenclatureType}`;
     this.config.valueFieldName = "id_nomenclature";
     this.config.textFieldName = "label_fr";
-    this.config.returnObject = true;
+    this.dataItems = this.$store.getters.nomenclaturesOfType(this.config.nomenclatureType);
     this.configList = this.config;
   }
 };
