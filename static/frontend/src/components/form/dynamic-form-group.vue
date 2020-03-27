@@ -29,6 +29,9 @@
       }"
     >
       <dynamic-form-group
+        v-for="[keyFormGroup, configFormGroup] in Object.entries(config.groups)"
+        :key="keyFormGroup"
+
         :baseModel="baseModel"
         :config="configFormGroup"
       ></dynamic-form-group>

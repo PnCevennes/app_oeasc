@@ -58,4 +58,6 @@ static/frontend/yarn-error.log*
 static/frontend/.vscode
 
 static/frontend/vue.config.js
+static/frontend/src/config/config.js
+
     

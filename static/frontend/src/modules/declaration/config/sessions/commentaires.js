@@ -3,7 +3,7 @@ const sessionsCommentaires = {
     title: "Commentaires",
     groups: {
       commentaires: {
-        forms: ["commentaires"]
+        forms: ["content_commentaires","commentaires"]
       }
     }
   },

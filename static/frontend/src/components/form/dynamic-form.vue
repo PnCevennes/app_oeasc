@@ -2,12 +2,12 @@
   <div v-show="!configForm.hidden">
     <!-- test config -->
 
-    <i>
+    <!-- <i>
       {{ configForm.name }}
     </i>
     <b>
       {{ baseModel[configForm.name] }}
-    </b>
+    </b> -->
 
     <template v-if="!configForm.valid">
       <label>{{ configForm.label }}</label>
@@ -106,6 +106,11 @@
       <degats-form :config="configForm" :baseModel="baseModel"></degats-form>
     </template>
 
+    <!-- content -->
+    <template v-else-if="configForm.type === 'content'">
+      {{config}}
+      <oeasc-content :code="config.code"></oeasc-content>
+    </template>
   </div>
 </template>
 
@@ -115,17 +120,23 @@ import listForm from "./list-form";
 import selectMap from "./select-map.vue";
 import essenceForm from "./essence-form.vue";
 import degatsForm from "./degats-form.vue";
+import oeascContent from "@/modules/content/content";
+
+
 import { formFunctions } from "@/components/form/functions.js";
 
 export default {
   name: "dynamicForm",
+
   components: {
     nomenclatureForm,
     selectMap,
     essenceForm,
     listForm,
-    degatsForm
+    degatsForm,
+    oeascContent
   },
+
   data: () => ({
     configTypes: [
       "input",
@@ -138,11 +149,14 @@ export default {
       "select_map",
       "essence",
       "list_form",
-      "degats"
+      "degats",
+      "content"
     ],
     configForm: null
   }),
+
   props: ["config", "baseModel"],
+
   watch: {
     baseModel: {
       handler() {
@@ -151,6 +165,7 @@ export default {
       deep: true
     }
   },
+
   methods: {
     getConfigForm: function() {
       const configResolved = { condition: true, valid: true };
@@ -171,19 +186,15 @@ export default {
       configResolved.rules = (this.config.rules || []).map(r => r);
 
       configResolved.valid = this.configTypes.includes(this.config.type);
-
+      // console.log(this.config.name, this.config.valid)
       formFunctions.rules.processRules(configResolved);
 
       return configResolved;
     }
   },
+
   created: function() {
-    this.configForm = this.getConfigForm()
+    this.configForm = this.getConfigForm();
   }
-  // computed: {
-  //   configForm: function() {
-  //     return this.getConfigForm();
-  //   }
-  // }
 };
 </script>

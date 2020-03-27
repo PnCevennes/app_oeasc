@@ -6,6 +6,9 @@ const formsDegat = {
         textFieldName: "label_fr",
         multiple: true,
         require: true,
+    },
+    degats_precision_localisation: {
+        type: 'text_area'
     }
 };
 

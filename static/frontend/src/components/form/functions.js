@@ -11,6 +11,17 @@ const getEssencesSelected = baseModel => {
     );
   }
 
+  essencesSelected["degats"] = [
+    ...baseModel.nomenclatures_peuplement_essence_secondaire,
+  ];
+  if (baseModel.id_nomenclature_peuplement_essence_principale) {
+    essencesSelected["degats"].push(
+      baseModel.id_nomenclature_peuplement_essence_principale
+    );
+  }
+
+
+
   for (const degat of baseModel.degats || []) {
     const cd = degat.id_nomenclature_degat_type.cd_nomenclature;
     if (cd !== "P/C") {
@@ -39,7 +50,7 @@ const processItems = {
 
       const condData =
         config.essenceType === "all" ||
-        !!config.essencesSelected["all"].find(
+        !!config.essencesSelected["degats"].find(
           i => i && i.id_nomenclature === item.id_nomenclature
         );
       const condAlreadySelected = !!selected.find(
@@ -61,6 +72,7 @@ const rules = {
   requiredListSimple: v => !!v || "Veuillez choisir un élément dans la liste.",
   requiredListMultiple: v =>
     v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
+    number: v => !v || Number(v) !== undefined || "Veuillez entrer un nombre", 
   telephone: v =>
     !v ||
     /^0[1-9][0-9]{8}/.test(v) ||
@@ -91,6 +103,16 @@ const rules = {
         config.rules.push(rules[key](config[key]));
       }
     }
+
+    if (config.type == 'number') {
+      config.rules.push(rules.number)
+    }
+
+
+    if (config.type == 'degats') {
+      console.log('degat freeze ?')      
+    }
+
   }
 };
 

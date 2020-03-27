@@ -169,7 +169,7 @@
                     item.cd_nomenclature !== 'P/C' &&
                     d.degat_essences.length > 0 &&
                     d.degat_essences.length < 3 &&
-                    d.degat_essences.length < essenceSelected('all').length &&
+                    d.degat_essences.length < essenceSelected('degats').length &&
                     showDegatEssenceForm !==
                       d.id_nomenclature_degat_type.id_nomenclature
                 )
@@ -257,25 +257,30 @@ export default {
           type: "essence",
           label: "Choisir une essence",
           declaration: this.baseModel,
-          essenceType: degatType
+          essenceType: degatType,
+          rules:[formFunctions.rules.requiredListSimple],
         },
         gravite: {
           name: "gravite",
           type: "nomenclature",
           required: true,
-          nomenclatureType: "OEASC_DEGAT_GRAVITE"
+          nomenclatureType: "OEASC_DEGAT_GRAVITE",
+          rules:[formFunctions.rules.requiredListSimple],
         },
         etendue: {
           name: "etendue",
           type: "nomenclature",
           required: true,
-          nomenclatureType: "OEASC_DEGAT_ETENDUE"
+          nomenclatureType: "OEASC_DEGAT_ETENDUE",
+          rules:[formFunctions.rules.requiredListSimple]
         },
         anteriorite: {
           name: "anteriorite",
           type: "nomenclature",
           required: true,
-          nomenclatureType: "OEASC_DEGAT_ANTERIORITE"
+          nomenclatureType: "OEASC_DEGAT_ANTERIORITE",
+          rules:[formFunctions.rules.requiredListSimple]
+
         }
       };
     },

@@ -79,20 +79,20 @@ const configMap = {
       style: styles.normal,
       pane: 'PANE_LAYER_1'
     },
-    parcelle_onf: {
-      legend: "Parcelle forestière",
-      url: (id_area_container) => `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_PRF/${id_area_container}`,
-      type: 'OEASC_ONF_PRF',
-      style: styles.normal,
-      pane: 'PANE_LAYER_1'
-    },
-    ug_onf: {
-      legend: "Unité de gestion",
-      url: (id_area_container) => `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_UG/${id_area_container}`,
-      type: 'OEASC_ONF_UG',
-      style: styles.normal,
-      pane: 'PANE_LAYER_1'
-    }
+    //   parcelle_onf: {
+    //   legend: "Parcelle forestière",
+    //   url: (id_area_container) => `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_PRF/${id_area_container}`,
+    //   type: 'OEASC_ONF_PRF',
+    //   style: styles.normal,
+    //   pane: 'PANE_LAYER_1'
+    // },
+    // ug_onf: {
+    //   legend: "Unité de gestion",
+    //   url: (id_area_container) => `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_UG/${id_area_container}`,
+    //   type: 'OEASC_ONF_UG',
+    //   style: styles.normal,
+    //   pane: 'PANE_LAYER_1'
+    // }
   }
 };
 

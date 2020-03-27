@@ -3,7 +3,7 @@ const sessionsValidation = {
     title: "validation",
     groups: {
       validation: {
-        forms: ["validation"]
+        forms: ["content_validation", "validation"]
       }
     }
   },

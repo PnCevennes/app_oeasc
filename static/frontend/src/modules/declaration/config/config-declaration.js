@@ -17,9 +17,6 @@ export default class ConfigDeclaration {
     for (const [keyForm, form] of Object.entries(this._forms)) {
       model[keyForm] = form.multiple ? [] : null;
     }
-    model['b_document'] = true;
-    model['b_statut_public'] = true;
-    model['areas_foret_onf'] = 277507; 
     return model;
   }
 

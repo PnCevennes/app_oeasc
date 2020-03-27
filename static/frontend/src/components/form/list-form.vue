@@ -97,18 +97,21 @@ export default {
     },
     defaultConfig: {
       valueFieldName: "value",
-      textFieldname: "text"
+      textFieldName: "text"
     },
     search: ""
   }),
   watch: {
     search() {
-      if (this.config.dataReloadOnSearch) this.getData();
+      if (this.config.dataReloadOnSearch && this.search) {
+        console.log('search', this.search)
+        this.getData();
+      }
     }
   },
   methods: {
     customFilter(item, queryText) {
-      const text = item[this.config.textFieldname].toLowerCase();
+      const text = item[this.config.textFieldName].toLowerCase();
       const searchText = queryText.toLowerCase();
 
       let cond = true;
@@ -118,20 +121,29 @@ export default {
       return cond;
     },
     processItems: function() {
-        this.items = this.config.processItems 
-        ? this.config.processItems({data: this.data, config: this.config, baseModel:  this.baseModel})
+      this.items = this.config.processItems
+        ? this.config.processItems({
+            data: this.data,
+            config: this.config,
+            baseModel: this.baseModel
+          })
         : this.data;
     },
     getData: function() {
-      if (this.data) { this.processItems() } else {
+      if (this.data && !this.config.dataReloadOnSearch) {
+        this.processItems();
+      } else {
         if (this.config.url) {
-          const urlParam = this.config.dataReloadOnSearch
-            ? this.search || ""
-            : this.baseModel;
+          // const urlParam = this.config.dataReloadOnSearch
+          //   ? this.search || ""
+          //   : this.baseModel;
 
           const url =
             typeof this.config.url === "function"
-              ? this.config.url(urlParam)
+              ? this.config.url({
+                  search: this.search || '',
+                  baseModel: this.baseModel
+                })
               : this.config.url;
 
           this.$store

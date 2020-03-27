@@ -13,7 +13,7 @@ const sessionsDegat = {
       degats_precision_localisation: {
         forms: ["degats_precision_localisation"]
       }
-    }
+    },
   }
 };
 

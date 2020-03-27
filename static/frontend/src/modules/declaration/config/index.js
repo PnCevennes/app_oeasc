@@ -1,7 +1,7 @@
 import { formsForet} from './forms/foret'
 import { formsPeuplement} from './forms/peuplement'
 import { formsDegat } from './forms/degat'
-import { formsCommentaires } from './forms/commentaires'
+import { formsCommentaires } from './forms/commentaires.js'
 import { formsValidation } from './forms/validation'
 
 
