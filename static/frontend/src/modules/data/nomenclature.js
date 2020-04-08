@@ -8,6 +8,8 @@ const STORE = {
   getters: {
     nomenclature: state => id_nomenclature =>
       state._nomenclatures.find(n => n.id_nomenclature === id_nomenclature),
+    nomenclatureFromCdNomenclature: state => (type, cd_nomenclature) =>
+      state._nomenclatures.find(n => n.type == type && n.cd_nomenclature === cd_nomenclature),
     nomenclaturesOfType: state => type =>
       state._nomenclatures.filter(n => n.type === type)
   },
@@ -30,7 +32,7 @@ const STORE = {
               for (const nomenclature of nomenclatureType.values) {
                 nomenclature.type = nomenclatureType.mnemonique;
                 data.push(nomenclature);
-              } 
+              }
             }
             commit("nomenclatures", data);
             resolve(data);

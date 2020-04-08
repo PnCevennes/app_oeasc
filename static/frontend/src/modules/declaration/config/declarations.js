@@ -1,3 +1,20 @@
+import { apiRequest } from '@/core/js/data/api.js'
+
+const formToPost = function(baseModel) {
+  return baseModel;
+}
+
+const postDeclaration = function({baseModel}) {
+
+  // prepare les données
+  const postData = formToPost(baseModel)
+
+  // post data
+  return apiRequest('POST', 'api/degat_foret/declaration', {data: postData})
+
+}
+
+
 const config = {
   title: "Déclarer un dégât en forêt",
   groups: {
@@ -37,4 +54,4 @@ const config = {
   }
 };
 
-export { config };
+export { config, postDeclaration };

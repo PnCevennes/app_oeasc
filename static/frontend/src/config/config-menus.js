@@ -1,49 +1,62 @@
 export const configMenus = {
   listLeftMenu: [
     {
+      label: 'Accueil',
+      icon: 'home',
+      to: '/',
+    },
+    {
       label: "L'observatoire",
       icon: 'notes',
       subList: [
         {
           label: 'Présentation',
-          to: '/content/presentation'
+          to: '/observatoire/presentation'
         },
         {
           label: 'Justification',
-          to: '/content/justification'
+          to: '/observatoire/justification'
         },
 
         {
           label: 'Objectifs',
-          to: '/content/objectifs'
+          to: '/observatoire/objectifs'
         },
         {
           label: 'Périmètre et zonage',
-          to: '/content/perimetre'
+          to: '/observatoire/perimetre'
         },
         {
           label: 'Contenu',
-          to: '/content/contenu'
+          to: '/observatoire/contenu'
         }
       ]
     },
     {
       label: "Le système d'alerte",
+      icon: "report_problem",
       subList: [
         {
-          label: 'Les dégâts de gronad gibier',
-          to: '/content/degat_grand_gibier'
+          label: 'Présentation',
+          to: '/declaration/systeme_alerte'
         },
         {
-          label: 'Alertes déclarées'
+          label: 'Les dégâts de grand gibier',
+          to: '/declaration/degat_grand_gibier'
         },
         {
-          label: 'Je signales des dégâts en forêt'
+          label: 'Alertes déclarées',
+          to: '/declaration/liste'
+        },
+        {
+          label: 'Je signale des dégâts en forêt',
+          to: '/declaration/signaler_degat_explication',
         }
       ]
     },
     {
       label: 'Résultats',
+      icon: 'bar_chart',
       subList: [
         {
           label: "Dégâts forestiers (système d'alerte)"

@@ -75,7 +75,7 @@ const rules = {
     number: v => !v || Number(v) !== undefined || "Veuillez entrer un nombre", 
   telephone: v =>
     !v ||
-    /^0[1-9][0-9]{8}/.test(v) ||
+    /^0[1-9]([ -]?[0-9][0-9]){4}$/.test(v) ||
     "Le numéro de téléphone doit être valide (10 chiffres).",
   email: v => !v || /.+@.+\..+/.test(v) || "L'E-mail doit être valide.",
   maxLength: max => v =>

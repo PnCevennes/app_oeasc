@@ -33,7 +33,7 @@ const sessionsPeuplement = {
         forms: [
           "id_nomenclature_peuplement_origine",
           "id_nomenclature_peuplement_type",
-          "id_nomenclature_peuplement_maturite"
+          "nomenclatures_peuplement_maturite"
         ]
       }
     }

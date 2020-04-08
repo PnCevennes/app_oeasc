@@ -1,62 +1,73 @@
 <template>
-  <form novalidate class="md-layout" @submit.prevent="validateUser">
-    <md-card class="md-layout-item form-login md-size-100">
-      <md-card-header>
-        <div class="md-title">Connexion</div>
-      </md-card-header>
+  <div>
+    <div v-if="$store.getters.redirectOnLogin">
+      <p>
+        Vous n'avez pas les droits requis pour accéder à la page :
+        <b>
+          {{ $store.getters.redirectOnLogin }}
+        </b>
+      </p>
+      <p>Veuillez vous identifier avant de poursuivre votre navigation</p>
+    </div>
+    <form novalidate class="md-layout" @submit.prevent="validateUser">
+      <md-card class="md-layout-item form-login md-size-100">
+        <md-card-header>
+          <div class="md-title">Connexion</div>
+        </md-card-header>
 
-      <md-card-content>
-        <md-field :class="getValidationClass('login')">
-          <label for="login">Identifiant</label>
-          <md-input
-            name="login"
-            id="login"
-            autocomplete="given-name"
-            v-model="form.login"
-            :disabled="sending"
-          />
-          <span class="md-error" v-if="!$v.form.login.required"
-            >Veuillez renseigner un login</span
+        <md-card-content>
+          <md-field :class="getValidationClass('login')">
+            <label for="login">Identifiant</label>
+            <md-input
+              name="login"
+              id="login"
+              autocomplete="given-name"
+              v-model="form.login"
+              :disabled="sending"
+            />
+            <span class="md-error" v-if="!$v.form.login.required"
+              >Veuillez renseigner un login</span
+            >
+          </md-field>
+
+          <md-field :class="getValidationClass('password')">
+            <label for="password">password</label>
+            <md-input
+              name="password"
+              id="password"
+              type="password"
+              v-model="form.password"
+              :disabled="sending"
+            />
+            <span class="md-error" v-if="!$v.form.password.required"
+              >Veuillez renseigner un mot de passe</span
+            >
+          </md-field>
+        </md-card-content>
+
+        <md-progress-bar md-mode="indeterminate" v-if="sending" />
+
+        <md-card-actions>
+          <md-button type="submit" class="md-primary" :disabled="sending"
+            >Envoyer</md-button
           >
-        </md-field>
+        </md-card-actions>
+      </md-card>
 
-        <md-field :class="getValidationClass('password')">
-          <label for="password">password</label>
-          <md-input
-            name="password"
-            id="password"
-            type="password"            
-            v-model="form.password"
-            :disabled="sending"
-          />
-          <span class="md-error" v-if="!$v.form.password.required"
-            >Veuillez renseigner un mot de passe</span
-          >
-        </md-field>
-      </md-card-content>
-
-      <md-progress-bar md-mode="indeterminate" v-if="sending" />
-
-      <md-card-actions>
-        <md-button type="submit" class="md-primary" :disabled="sending"
-          >Envoyer</md-button
-        >
-      </md-card-actions>
-    </md-card>
-
-    <md-snackbar :md-active.sync="bMsg">{{ msg }}</md-snackbar>
-  </form>
+      <md-snackbar :md-active.sync="bMsg">{{ msg }}</md-snackbar>
+    </form>
+  </div>
 </template>
 
 <script>
-import { validationMixin } from 'vuelidate';
-import { required, minLength } from 'vuelidate/lib/validators';
+import { validationMixin } from "vuelidate";
+import { required, minLength } from "vuelidate/lib/validators";
 
-import { config } from '@/config/config.js';
-import { apiRequest } from '@/core/js/data/api.js';
+import { config } from "@/config/config.js";
+import { apiRequest } from "@/core/js/data/api.js";
 
 export default {
-  name: 'login',
+  name: "login",
   mixins: [validationMixin],
   data: () => ({
     form: {
@@ -85,7 +96,7 @@ export default {
 
       if (field) {
         return {
-          'md-invalid': field.$invalid && field.$dirty
+          "md-invalid": field.$invalid && field.$dirty
         };
       }
     },
@@ -98,23 +109,28 @@ export default {
       this.sending = true;
 
       // Instead of this timeout, here you can call your API
-      apiRequest('POST', 'pypn/auth/login', { data:this.form }).then(
+      apiRequest("POST", "pypn/auth/login", { data: this.form }).then(
         data => {
-          this.$session.set('user', data.user);
-          this.$store.commit('setUser', data.user);
+          const user = { ...data.user, expires: data.expires };
+          this.$session.set("user", user);
+          this.$store.commit("user", user);
           this.sending = false;
           this.msg = `Connexion réussie : ${data.user.nom_role} ${data.user.prenom_role}`;
           this.bMsg = true;
 
           setTimeout(() => {
-            this.$router.push('content/accueil');
+            const redirectOnLogin = this.$store.getters.redirectOnLogin;
+            this.$store.commit("redirectOnLogin", null);
+            this.$router.push(
+              redirectOnLogin || "content/accueil"
+            );
           }, 1000);
         },
         error => {
           this.sending = false;
           this.msg = `Erreur de connexion : ${error.msg}`;
           this.bMsg = true;
-          console.log('error', this.msg);
+          console.log("error", this.msg);
         }
       );
     },

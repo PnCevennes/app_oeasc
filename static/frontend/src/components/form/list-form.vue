@@ -6,6 +6,7 @@
         <!-- select -->
         <div v-if="config.display === 'autocomplete'">
           <v-autocomplete
+            ref="autocomplete"
             v-model="baseModel[config.name]"
             :items="items"
             :label="config.label"
@@ -22,6 +23,8 @@
             :filter="config.dataReloadOnSearch && customFilter"
             @change="config.change && config.change($event)"
             :return-object="config.returnObject ? true : false"
+            :disabled="config.disabled"
+            no-data-text="Pas de donnée disponible"
           ></v-autocomplete>
         </div>
 
@@ -36,6 +39,11 @@
             :item-text="config.textFieldName"
             :rules="config.rules"
             :return-object="config.returnObject ? true : false"
+            :disabled="config.disabled"
+            @change="
+              config.change &&
+                config.change({ baseModel, $store, config, event: $event })
+            "
           ></v-select>
         </div>
 
@@ -56,6 +64,11 @@
                 :label="item[config.textFieldName]"
                 :dense="true"
                 :rules="config.rules"
+                :disabled="config.disabled"
+                @change="
+                  config.change &&
+                    config.change({ baseModel, $store, config, event: $event })
+                "
               ></v-checkbox>
             </v-container>
           </div>
@@ -75,6 +88,16 @@
                     (config.returnObject && item) || item[config.valueFieldName]
                   "
                   :label="item[config.textFieldName]"
+                  :disabled="config.disabled"
+                  @change="
+                    config.change &&
+                      config.change({
+                        baseModel,
+                        $store,
+                        config,
+                        event: $event
+                      })
+                  "
                 >
                 </v-radio>
               </v-radio-group>
@@ -105,21 +128,40 @@ export default {
   watch: {
     search() {
       if (this.config.dataReloadOnSearch && this.search) {
-        console.log('search', this.search)
+        console.log("search", this.search);
         this.getData();
       }
+    },
+    baseModel: {
+      handler() {
+        if (this.config.dataReloadOnSearch && !this.search) {
+          console.log("aaaa", this.search);
+          this.search = this.baseModel[this.config.name];
+        }
+      },
+      deep: true
     }
   },
   methods: {
     customFilter(item, queryText) {
-      const text = item[this.config.textFieldName].toLowerCase();
-      const searchText = queryText.toLowerCase();
+      item + queryText;
+      return true;
+      // let text = item[this.config.textFieldName].toLowerCase();
+      // let searchText = queryText.toLowerCase();
 
-      let cond = true;
-      for (const test of searchText.trim().split(" ")) {
-        cond = cond && text.includes(test);
-      }
-      return cond;
+      // // remove accents
+      // const sTransI = "àâäéèêëîïöùûü";
+      // const sTransO = "aaaeeeeiiouuu";
+      // for (let index = 0; index < sTransI.length; index++) {
+      //   searchText = searchText.replace(sTransI[index], sTransO[index]);
+      //   text = text.replace(sTransI[index], sTransO[index]);
+      // }
+
+      // let cond = false;
+      // for (const test of searchText.trim().split(" ")) {
+      //   cond = cond || text.includes(test);
+      // }
+      // return cond;
     },
     processItems: function() {
       this.items = this.config.processItems
@@ -129,7 +171,20 @@ export default {
             baseModel: this.baseModel
           })
         : this.dataItems;
+      // patch search
+      this.clickChips();
     },
+
+    clickChips() {
+      console.log("clickChips");
+      setTimeout(() => {
+        const chips =
+          this.$refs.autocomplete &&
+          this.$refs.autocomplete.$el.getElementsByClassName("v-chip");
+        chips && chips.length && chips[0].click();
+      }, 10);
+    },
+
     getData: function() {
       if (this.dataItems && !this.config.dataReloadOnSearch) {
         this.processItems();
@@ -142,7 +197,7 @@ export default {
           const url =
             typeof this.config.url === "function"
               ? this.config.url({
-                  search: this.search || '',
+                  search: this.search || "",
                   baseModel: this.baseModel
                 })
               : this.config.url;
@@ -179,7 +234,9 @@ export default {
         this.config[key] = this.defaultConfig[key];
       }
     }
-
+    if (this.config.dataReloadOnSearch) {
+      this.search = this.baseModel[this.config.name];
+    }
     this.getData();
   }
 };

@@ -94,11 +94,28 @@ def api_communes(test):
     if not test:
         return []
 
+    s_trans_I = "àâäéèêëîïöùûü"
+    s_trans_O = "aaaeeeeiiouuu"
+
+    for index in range(len(s_trans_I)):
+        test = test.replace(s_trans_I[index], s_trans_O[index])
+
     tests = test.strip().split(' ')
 
-    cond_text = " AND ".join([ " ( nom ILIKE '%{0}%' OR cp ILIKE '%{0}%' ) ".format(s_test) for s_test in tests ])
+    cond_text = " AND ".join(
+        [
+            (
+                " ( TRANSLATE(nom, '{1}', '{2}') ILIKE '{3}{0}%' OR cp ILIKE '{3}{0}%' ) "
+            ).format(s_test, s_trans_I, s_trans_O, '' if s_test == tests[0] else '%')
+            for s_test in tests
+        ]
+    )
 
-    sql_text = "SELECT CONCAT(nom, ' ', cp) as nom_cp FROM oeasc_commons.t_communes WHERE {} LIMIT 10".format(cond_text)
+    sql_text = """
+    SELECT 
+        CONCAT(nom, ' ', cp) as nom_cp
+        FROM oeasc_commons.t_communes WHERE {0} ORDER BY population DESC, nom, cp LIMIT 20
+    """.format(cond_text, s_trans_I, s_trans_O)
 
     print(sql_text)
 

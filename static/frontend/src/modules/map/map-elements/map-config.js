@@ -9,6 +9,12 @@ const mapConfig = {
   // attribue les valeur de la configuration principale à la configuration courante this._config 
   makeConfigDefault: function() {
 
+    if(!this._config) {
+      return false
+    }
+    console.log(this._config, this._id)
+    // this._config = this._config || {}
+    
     // default values from mainMapConfig
     for (const key of Object.keys(mainMapConfig)) {
       this._config[key] = this._config[key] || mainMapConfig[key];
@@ -24,11 +30,12 @@ const mapConfig = {
         };
       }
     }
+
+    return true;
   },
 
   processConfig: function() {
-    this.makeConfigDefault();
-    return true;
+    return this.makeConfigDefault();
   }
 };
 

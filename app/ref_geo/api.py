@@ -201,7 +201,6 @@ def get_areas_from_type_code_container(data_type, type_code, ids_area_container)
     '''
 
     b_simple = False
-    print('aaaaa')
     return areas_from_type_code_container(b_simple, data_type, type_code, ids_area_container)
 
 

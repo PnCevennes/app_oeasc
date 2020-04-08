@@ -1,6 +1,7 @@
 .content {
     width: 800px;
     opacity: 1;
+    text-align: justify;
   }
   
   .editor,
@@ -15,6 +16,10 @@
     flex-direction: column;
   }
   
+  .content-container-form {
+    display: block
+  }
+
   .md-textarea {
     max-height: 500px;
     color: red;

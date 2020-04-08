@@ -14,10 +14,12 @@ const formsPeuplement = {
       text: "label"
     },
     condition: ({ baseModel }) =>
-      baseModel.areas_foret_dgd || baseModel.areas_foret_sessions.length,
+      (!(baseModel.b_statut_public == true && baseModel.b_document == true)) &&
+        (baseModel.areas_foret_dgd ||
+      baseModel.areas_foret_sections.length),
     url: ({ baseModel }) =>
       `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_CADASTRE/${formFunctions.processAreas(
-        baseModel.areas_foret_dgd || baseModel.areas_foret_sessions
+        baseModel.areas_foret_dgd || baseModel.areas_foret_sections
       )}`
   },
 
@@ -37,6 +39,7 @@ const formsPeuplement = {
       `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_UG/${formFunctions.processAreas(
         areasContainer
       )}`,
+    containerName: "areas_localisation_onf_prf",
     containerLegend: "Parcelles forestières",
     containerDescription:
       "la ou les parcelles forestières sur lesquelles est située le peuplement concerné",
@@ -92,7 +95,7 @@ const formsPeuplement = {
     required: true
   },
 
-  id_nomenclature_peuplement_maturite: {
+  nomenclatures_peuplement_maturite: {
     label: "Maturité du peuplement",
     type: "nomenclature",
     display: "radio",

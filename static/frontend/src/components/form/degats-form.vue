@@ -1,5 +1,6 @@
 <template>
   <div v-if="items">
+    {{ degatTypes }}
     <v-container fluid>
       <div v-for="(item, index) of items" :key="item.id_nomenclature">
         <v-checkbox
@@ -225,8 +226,18 @@ export default {
     rule: formFunctions.rules.requiredListMultiple,
     showDegatEssenceForm: null
   }),
+  watch: {
+    baseModel: function() {
+      this.degatTypes = this.getDegatTypes()
+    }
+  },
   props: ["baseModel", "config"],
   methods: {
+    getDegatTypes: function() {
+      return this.baseModel["degats"].map(
+      d => d.id_nomenclature_degat_type
+    );
+    },
     essenceSelected: function(cd_nomenclature) {
       const essenceSelected = formFunctions.getEssencesSelected(this.baseModel);
       return essenceSelected[cd_nomenclature];
@@ -364,10 +375,10 @@ export default {
   },
 
   created: function() {
-    this.degatType = this.baseModel["degats"].map(
-      d => d.id_nomenclature_degat_type
-    );
     this.getData();
+    this.degatTypes = this.getDegatTypes(); 
+    
+    console.log(this.degatTypes)
   }
 };
 </script>

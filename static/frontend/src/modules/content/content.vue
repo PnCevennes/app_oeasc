@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="content-containter">
+    <div :class="containerClass">
       <div class="buttons">
         <md-button
           v-if="!bEditContent && $store.getters.droit_max >= 5"
@@ -25,12 +25,15 @@
           <md-icon>check</md-icon>
         </md-button>
       </div>
-      <div v-if="!bEditContent" class="content" v-html="contentHTML"></div>
+
+      <!-- <div v-if="!bEditContent" class="content" v-html="contentHTML"></div> -->
+      <v-runtime-template v-if="!bEditContent" class="content" :template="contentHTML"></v-runtime-template>
+
       <div v-if="bEditContent" class="editor">
         <md-field>
           <label>Textarea</label>
           <md-textarea
-             v-model="contentMD"
+            v-model="contentMD"
             :rows="20"
             :md-autogrow="true"
           ></md-textarea>
@@ -45,25 +48,43 @@
 import { apiRequest } from "@/core/js/data/api.js";
 import { config } from "@/config/config.js";
 import { MapService } from "@/modules/map";
+import faqDeclaration from "./faq-declaration"
 import "./content.css";
+// import Vue from "vue";
+import VRuntimeTemplate from "v-runtime-template";
 
 export default {
   name: "oeasc-content",
-  props: ["code"],
+  props: ["code", "containerClassIn"],
   watch: {
     $route() {
       // react to route changes...
       this.initContent();
     }
   },
+  components: {
+    VRuntimeTemplate,
+    faqDeclaration // eslint-disable-line
+  },
   data: () => ({
+    // component: null,
     contentHTML: "",
     contentMD: "",
     bEditContent: false,
+    containerClass: {}
   }),
   methods: {
     setContent: function(data) {
-      this.contentHTML = data.html;
+      // const cs = Vue.component("contentView", {
+      //   render: function(h) {
+      //     const div = document.createElement("div");
+      //     div.innerHTML = data.html;
+      //     return Vue.compile(h(div.outerHTML));
+      //   }
+      // });
+      // this.component = cs;
+      // console.log(cs, data.html);
+      this.contentHTML = `<div>${data.html}</div>`;
       this.contentMD = data.md;
       this.bEditContent = false;
       setTimeout(() => {
@@ -84,26 +105,30 @@ export default {
     },
 
     initContent: function() {
-      apiRequest("GET", `api/commons/content/${this.getCode()}`).then(
-        (data) => this.setContent(data)
+      apiRequest("GET", `api/commons/content/${this.getCode()}`).then(data =>
+        this.setContent(data)
       );
     },
 
     updateContent: function() {
-
       let data = {
         md: this.contentMD,
         code: this.getCode()
       };
 
-      apiRequest("PATCH", `api/commons/content/${this.getCode()}`, { data }).then(
-        (data) => this.setContent(data)
-      );
+      apiRequest("PATCH", `api/commons/content/${this.getCode()}`, {
+        data
+      }).then(data => this.setContent(data));
     }
   },
 
   mounted: function() {
-    this.initContent()
+    if (this.containerClassIn) {
+      this.containerClass[this.containerClassIn] = true;
+    } else {
+      this.containerClass = { "content-containter": true };
+    }
+    this.initContent();
   }
 };
 </script>

@@ -158,9 +158,10 @@ const mapLayer = {
   },
 
   findLayer: function(fieldName, value) {
-    return Object.values(this._map._layers).find(layer =>
+    const layer = Object.values(this._map._layers).find(layer =>
       this.testLayer(layer.feature && layer.feature.properties, fieldName, value)
-    );
+      );
+    return layer;
   },
 
   findLayers: function(fieldName, value) {

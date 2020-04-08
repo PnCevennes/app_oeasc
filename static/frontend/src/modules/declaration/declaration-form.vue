@@ -2,6 +2,12 @@
   <div>
     <div v-if="initialized">
       <h1>{{ config.title }}</h1>
+      <fil-arianne
+        :config="config"
+        :keySession="keySession"
+        :validForms="validForms"
+      >
+      </fil-arianne>
       <div
         v-for="[keySessionGroup, sessionGroup] in Object.entries(config.groups)"
         :key="keySessionGroup"
@@ -15,8 +21,6 @@
           )"
           :key="keySession"
         >
-      <!-- {{ declarationNotNull }} -->
-
           <form-session
             v-if="showSession(keySession)"
             :baseModel="declaration"
@@ -35,6 +39,7 @@
 
 <script>
 import { configDeclaration } from "./config";
+import filArianne from "./fil-ariane";
 import formSession from "@/components/form/session.vue";
 import "@/components/form/form.css";
 
@@ -46,19 +51,25 @@ export default {
   watch: {
     $route() {
       this.keySession = this.getKeySesion();
+
+      if (this.idDeclaration != this.getIdDeclatation()) {
+        this.initDeclarationForm();
+      }
     }
   },
 
   data: () => ({
     config: configDeclaration.config(),
-    declaration: configDeclaration.initModel(),
+    declaration: null,
     validForms: {},
     keySession: null,
+    idDeclaration: null,
     initialized: false
   }),
 
   components: {
-    formSession
+    formSession,
+    filArianne
   },
 
   computed: {
@@ -80,8 +91,32 @@ export default {
   },
 
   methods: {
+    initDeclarationForm() {
+      console.log("initDeclarationForm");
+      this.keySession = this.getKeySesion();
+      this.idDeclaration = this.getIdDeclatation();
+      this.$store.commit("configDeclaration", configDeclaration);
+
+      const promises = [
+        this.$store.dispatch("nomenclatures"),
+        this.idDeclaration && this.$store.dispatch("declarationForm", this.idDeclaration)
+      ];
+
+      Promise.all(promises).then(() => {
+        let declaration = this.$store.getters.declarationForm;
+        declaration = { ...declaration, ...declaration.foret };
+        this.declaration = configDeclaration.initModel(declaration);
+        this.initialized = true;
+        this.declaration.id_declarant = this.declaration.id_declarant || this.$store.getters.user.id_role;
+      });
+    },
+
     getKeySesion: function() {
-      return this.$route.params.keySession || "all";
+      return this.$route.query.keySession || "foret_statut";
+    },
+
+    getIdDeclatation: function() {
+      return this.$route.params.idDeclaration || null;
     },
 
     showSession: function(keySession) {
@@ -97,11 +132,7 @@ export default {
   },
 
   created: function() {
-    this.keySession = this.getKeySesion();
-    this.$store.commit("configDeclaration", configDeclaration);
-    this.$store.dispatch("nomenclatures").then(() => {
-      this.initialized = true;
-    });
+    this.initDeclarationForm();
   }
 };
 </script>

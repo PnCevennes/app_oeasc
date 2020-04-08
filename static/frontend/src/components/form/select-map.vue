@@ -5,25 +5,23 @@
         Localisation :
         {{ legend }}
       </h4>
+      {{ config.containerName }} {{ baseModel[config.containerName] }}
       <div>
         Veuillez selectionner
-        {{
-          description
-        }}
+        {{ description }}
         sur la carte ci-dessous ou dans la liste ci-contre.
       </div>
     </div>
+
     <base-map v-if="mapConfig" :config="mapConfig" :mapId="config.name">
       <template v-slot:aside>
         <div style="width:400px">
           <v-autocomplete
             :ref="`select_map_${config.name}`"
-            v-model="model[config.name]"
+            v-model="baseModel[name]"
             v-if="dataSelect"
             :items="dataSelect"
-            :label="
-              `Liste des ${legend.toLowerCase()}`
-            "
+            :label="`Liste des ${legend.toLowerCase()}`"
             :multiple="
               (selectChange && config.containerMultiple) || config.multiple
                 ? true
@@ -44,8 +42,8 @@
               @click="validerContainer()"
               :disabled="
                 !(
-                  containerModel[config.name] &&
-                  containerModel[config.name].length
+                  baseModel[config.containerName] &&
+                  baseModel[config.containerName].length
                 )
               "
             >
@@ -71,23 +69,22 @@ export default {
   data: () => ({
     dataSelect: null,
     mapService: null,
-    model: null,
-    containerModel: {},
     mapConfig: null,
     selectContainer: null,
-    legend:null,
-    description:null
+    legend: null,
+    description: null,
+    name: null
   }),
   methods: selectMapMethods,
   props: ["config", "baseModel"],
   created: function() {
     // add event on map-data-loaded
 
-    this.containerModel[this.config.name] = this.config.containerMultiple
-      ? []
-      : null;
-    this.selectContainer = this.config.containerUrl;
-
+    this.selectContainer =
+      this.config.containerUrl &&
+      !(this.config.multiple
+        ? this.baseModel[this.config.name].length
+        : this.baseModel[this.config.name]);
     this.initMapConfig();
   },
   mounted: function() {

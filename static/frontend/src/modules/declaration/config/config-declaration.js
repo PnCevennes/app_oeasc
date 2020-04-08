@@ -12,11 +12,25 @@ export default class ConfigDeclaration {
     this.initConfig(this._config);
   }
 
-  initModel() {
-    const model = {};
+  initModel(model) {
+    // const model = {};
     for (const [keyForm, form] of Object.entries(this._forms)) {
-      model[keyForm] = form.multiple ? [] : null;
+      model[keyForm] =
+        model[keyForm] != undefined
+          ? model[keyForm]
+          : form.multiple
+          ? []
+          : null;
+      if (form.containerName) {
+        model[form.containerName] =
+          model[form.containerName] != undefined
+            ? model[form.containerName]
+            : form.containerMultiple
+            ? []
+            : null;
+      }
     }
+
     return model;
   }
 
@@ -85,5 +99,25 @@ export default class ConfigDeclaration {
     }
 
     return sessionList[index + 1];
+  }
+
+  sessions(keySessionGroup) {
+    return this._config.groups[keySessionGroup].sessions;
+  }
+
+  firstSession(keySessionGroup) {
+    return Object.keys(this._config.groups[keySessionGroup].sessions)[0];
+
+  }
+
+  group(keySession) {
+    for (const [keySessionGroup, configSessionGroups] of Object.entries(
+      this._config.groups
+    )) {
+      if (keySession in configSessionGroups.sessions) {
+        return keySessionGroup;
+      }
+    }
+    return;
   }
 }

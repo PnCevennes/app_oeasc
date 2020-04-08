@@ -2,12 +2,12 @@
   <div v-show="!configForm.hidden">
     <!-- test config -->
 
-    <!-- <i>
+    <i>
       {{ configForm.name }}
     </i>
     <b>
       {{ baseModel[configForm.name] }}
-    </b> -->
+    </b>
 
     <template v-if="!configForm.valid">
       <label>{{ configForm.label }}</label>
@@ -30,7 +30,7 @@
         :label="configForm.label"
         row
         :rules="configForm.rules"
-        @change="configForm.change && configForm.change(baseModel)($event)"
+        @change="configForm.change && configForm.change({baseModel, config, $store})"
       >
         <v-radio :label="configForm.labels[0]" :value="true"></v-radio>
         <v-radio :label="configForm.labels[1]" :value="false"></v-radio>
@@ -53,6 +53,7 @@
         :label="configForm.label"
         :counter="configForm.counter"
         :maxlength="configForm.maxlength"
+        :disabled="configForm.disabled"
         @change="configForm.change && configForm.change(baseModel)($event)"
       ></v-text-field>
     </template>
@@ -73,6 +74,7 @@
         :label="configForm.label"
         :counter="configForm.counter"
         :maxlength="configForm.maxlength"
+        :disabled="configForm.disabled"
         :placeholder="configForm.placeholder"
         type="number"
       />
@@ -108,8 +110,7 @@
 
     <!-- content -->
     <template v-else-if="configForm.type === 'content'">
-      {{config}}
-      <oeasc-content :code="config.code"></oeasc-content>
+      <oeasc-content :code="config.code" :containerClassIn="'content-container-form'"></oeasc-content>
     </template>
   </div>
 </template>
@@ -187,7 +188,6 @@ export default {
       configResolved.rules = (this.config.rules || []).map(r => r);
 
       configResolved.valid = this.configTypes.includes(this.config.type);
-      // console.log(this.config.name, this.config.valid)
       formFunctions.rules.processRules(configResolved);
 
       return configResolved;

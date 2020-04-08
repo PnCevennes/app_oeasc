@@ -6,8 +6,8 @@ const configBaseSelect = config.map.configBaseSelect;
 
 const selectMapMethods = {
   initMapConfig: function() {
-    const selectRef = this.$refs[`select_map_${this.config.name}`]
-    if(selectRef) {
+    const selectRef = this.$refs[`select_map_${this.config.name}`];
+    if (selectRef) {
       this.$refs[`select_map_${this.config.name}`].resetValidation();
     }
     const layerList = {
@@ -29,16 +29,20 @@ const selectMapMethods = {
         typeof this.config.containerUrl === "function"
           ? this.config.containerUrl(this.baseModel)
           : this.config.containerUrl;
-      this.model = this.containerModel;
+
+      this.name = this.config.containerName;
     } else {
       legend = this.config.legend;
       this.description = this.config.description;
       this.rules = this.config.rules;
       url =
         typeof this.config.url === "function"
-          ? this.config.url({baseModel: this.baseModel, areasContainer: this.containerModel[this.config.name]})
+          ? this.config.url({
+              baseModel: this.baseModel,
+              areasContainer: this.baseModel[this.config.containerName]
+            })
           : this.config.url;
-      this.model = this.baseModel;
+      this.name = this.config.name;
     }
 
     this.legend = legend;
@@ -57,8 +61,8 @@ const selectMapMethods = {
     };
 
     // swap legend
-    this.mapService && this.mapService.setLayerLegendText(this.config.name, this.legend);
-
+    this.mapService &&
+      this.mapService.setLayerLegendText(this.config.name, this.legend);
   },
 
   initSelect: function(event) {
@@ -76,7 +80,7 @@ const selectMapMethods = {
           return elem;
         });
     }
-    this.updateLayers();
+    this.updateLayers(false);
   },
 
   selectChange: function() {
@@ -87,21 +91,29 @@ const selectMapMethods = {
     const value = event.detail.id_area;
 
     if (!this.config.multiple) {
-      this.model[this.config.name] = value;
+      this.baseModel[this.name] = value;
     } else {
-      const index = this.model[this.config.name].indexOf(value);
+      const index = this.baseModel[this.name].indexOf(value);
       if (index > -1) {
-        this.model[this.config.name].splice(index, 1);
+        this.baseModel[this.name].splice(index, 1);
       } else {
-        this.model[this.config.name].push(value);
+        this.baseModel[this.name].push(value);
       }
     }
 
     this.updateLayers();
   },
 
-  updateLayers: function() {
-    // for()
+  updateLayers: function(bChange = true) {
+    // bChange pour ne pas executer la function change à l'initialisation du composant
+    bChange &&
+      this.config.change &&
+      this.config.change({
+        baseModel: this.baseModel,
+        config: this.config,
+        $store: this.$store
+      });
+
     const layerConfig = this.mapConfig.layerList[this.config.name];
 
     const styles = {
@@ -118,7 +130,7 @@ const selectMapMethods = {
     }
 
     // model => selected
-    let model = copy(this.model[this.config.name]) || [];
+    let model = copy(this.baseModel[this.name]) || [];
     if (!Array.isArray(model)) {
       model = [model];
     }

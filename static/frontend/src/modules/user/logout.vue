@@ -21,7 +21,7 @@ export default {
       () => {
         this.msg = "Déconnexion réussie, redirection vers la page d'accueil";
         this.$session.set('user', null)
-        this.$store.commit('setUser', null)
+        this.$store.commit('user', null)
         this.bMsg = true;
         setTimeout(() => {
           this.$router.push('content/accueil');

@@ -116,6 +116,9 @@ with app.app_context():
     from app.modules.oeasc.declaration import api as declaration_api
     app.register_blueprint(declaration_api.bp, url_prefix='/api/declaration')
 
+    from app.modules.oeasc.degat_foret import api as degat_foret_api
+    app.register_blueprint(degat_foret_api.bp, url_prefix='/api/degat_foret')
+
     from app.modules.oeasc.resultat import api as resultats_api
     app.register_blueprint(resultats_api.bp, url_prefix='/api/resultat')
 
