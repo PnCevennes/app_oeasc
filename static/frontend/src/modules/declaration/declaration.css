@@ -1,0 +1,37 @@
+.flex-container {
+  display: flex;
+}
+
+.flex-container {
+  display: flex;
+}
+
+
+.fil-arianne-container {
+  display: flex;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fil-arianne-container > div {
+  flex-grow: 1;
+  text-align: center;
+  margin: 1px;
+  background-color: lightgrey;
+}
+
+.fil-arianne-container > div.current-group,
+.fil-arianne-container > div.current-session {
+  font-weight: bold;
+}
+
+.fil-arianne-container > div.valid-session,
+.fil-arianne-container > div.valid-group {
+    background-color: lightgoldenrodyellow;
+  cursor: pointer;
+}
+
+.table {
+ text-align: left; 
+}
