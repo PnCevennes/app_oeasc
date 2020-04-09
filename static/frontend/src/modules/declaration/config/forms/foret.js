@@ -123,7 +123,6 @@ const formsForet = {
       [true, false].includes(baseModel.b_statut_public),
     change: changeForetDocument,
     required: true,
-    help: true
   },
 
   areas_foret_onf: {

@@ -119,7 +119,7 @@
                       </v-radio>
                     </div>
                     <help
-                      :code="`form-${config.name}`"
+                      :code="`list-${item[config.valueFieldName]}`"
                       v-if="config.helps"
                     ></help>
                   </div>
