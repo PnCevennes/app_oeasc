@@ -108,7 +108,8 @@ const formsForet = {
     type: "bool_radio",
     labels: ["Public", "Privée"],
     change: changeForetStatut,
-    required: true
+    required: true,
+    help: true,
   },
 
   b_document: {

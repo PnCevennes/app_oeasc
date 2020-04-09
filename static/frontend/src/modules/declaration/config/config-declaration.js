@@ -120,4 +120,16 @@ export default class ConfigDeclaration {
     }
     return;
   }
+
+  condValidSession(keySessionTest, validForms) {
+    let cond=true
+    for (const configSessionGroups of Object.values(this._config.groups)) {
+      for (const keySession of Object.keys(configSessionGroups.sessions)) {
+        if(keySessionTest == keySession) {
+          return cond;
+        }
+        cond = cond && validForms[keySession]
+      }
+    }
+  }
 }

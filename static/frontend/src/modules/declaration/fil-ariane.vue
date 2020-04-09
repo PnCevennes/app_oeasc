@@ -28,7 +28,7 @@
             sessionGroup.sessions
           )"
           :key="keySession"
-          @click="onSessionClick(keySession)"
+          @click="condValidSession(keySession) && onSessionClick(keySession)"
           :class="{
             'current-session': condCurrentSession(keySession),
             'valid-session': condValidSession(keySession)
@@ -69,7 +69,8 @@ export default {
     },
 
     condValidSession(keySession) {
-      return this.validForms[keySession];
+      return this.$store.getters.configDeclaration.condValidSession(keySession, this.validForms);
+      // return this.validForms[keySession];
     },
 
     condValidSessionGroup(keySessionGroup) {
