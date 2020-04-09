@@ -293,14 +293,16 @@ export default {
           type: "nomenclature",
           required: true,
           nomenclatureType: "OEASC_DEGAT_GRAVITE",
-          rules: [formFunctions.rules.requiredListSimple]
+          rules: [formFunctions.rules.requiredListSimple],
+          help: true,
         },
         etendue: {
           name: "etendue",
           type: "nomenclature",
           required: true,
           nomenclatureType: "OEASC_DEGAT_ETENDUE",
-          rules: [formFunctions.rules.requiredListSimple]
+          rules: [formFunctions.rules.requiredListSimple],
+          help: true,
         },
         anteriorite: {
           name: "anteriorite",
