@@ -98,7 +98,9 @@ const formsPeuplement = {
     nomenclatureType: "OEASC_PEUPLEMENT_TYPE",
     required: true,
     help: true,
-    helps: true
+    helps: {
+      except: ['NSP']
+    }
   },
 
   nomenclatures_peuplement_maturite: {

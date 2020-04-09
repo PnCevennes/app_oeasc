@@ -95,9 +95,7 @@
                 :rules="config.rules"
               >
                 <template v-for="item in items">
-                  <div
-                        :key="item[config.valueFieldName]"
-                  >
+                  <div :key="item[config.valueFieldName]">
                     <div class="degat">
                       <v-radio
                         :value="
@@ -120,7 +118,13 @@
                     </div>
                     <help
                       :code="`list-${item[config.valueFieldName]}`"
-                      v-if="config.helps"
+                      v-if="
+                        config.helps &&
+                          !(
+                            config.helps.except &&
+                            config.helps.except.includes(item.cd_nomenclature)
+                          )
+                      "
                     ></help>
                   </div>
                 </template>
