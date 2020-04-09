@@ -1,4 +1,4 @@
-const getEssencesSelected = baseModel => {
+const getEssencesSelected = ( { baseModel, $store } ) => {
   const essencesSelected = {};
 
   essencesSelected["all"] = [
@@ -23,7 +23,9 @@ const getEssencesSelected = baseModel => {
 
 
   for (const degat of baseModel.degats || []) {
-    const cd = degat.id_nomenclature_degat_type.cd_nomenclature;
+    const nomenclature = $store.getters.nomenclature(degat.id_nomenclature_degat_type);
+    const cd = nomenclature.cd_nomenclature;
+    console.log(cd)
     if (cd !== "P/C") {
       essencesSelected[cd] = [];
       for (const degat_essence of degat.degat_essences || []) {

@@ -22,21 +22,28 @@ export default {
   watch: {
     baseModel: {
       handler() {
-        this.configList.essencesSelected = formFunctions.getEssencesSelected(
-          this.config.declaration || this.baseModel
-        );
-        this.$refs[`listForm_${this.config.name}`].getData();
+        this.aa();
       },
       deep: true
     },
-    config  : {
+    config: {
       handler() {
-        this.configList.essencesSelected = formFunctions.getEssencesSelected(
-          this.config.declaration || this.baseModel
-        );
-        this.$refs[`listForm_${this.config.name}`].getData();
+        this.aa();
       },
       deep: true
+    }
+  },
+  methods: {
+    aa() {
+      this.bb();
+      console.log(this.configList.essencesSelected);
+      this.$refs[`listForm_${this.config.name}`].getData();
+    },
+    bb() {
+      this.config.essencesSelected = formFunctions.getEssencesSelected({
+        baseModel: this.config.declaration || this.baseModel,
+        $store: this.$store
+      });
     }
   },
   created: function() {
@@ -45,10 +52,13 @@ export default {
     this.config.processItems = formFunctions.processItems.essence;
     this.config.valueFieldName = "id_nomenclature";
     this.config.textFieldName = "label_fr";
-    this.dataItems = this.$store.getters.nomenclaturesOfType('OEASC_PEUPLEMENT_ESSENCE');
-    this.config.essencesSelected = formFunctions.getEssencesSelected(
-      this.config.declaration || this.baseModel
+    this.dataItems = this.$store.getters.nomenclaturesOfType(
+      "OEASC_PEUPLEMENT_ESSENCE"
     );
+
+  },
+  mounted() {
+    this.bb();
     this.configList = this.config;
   }
 };

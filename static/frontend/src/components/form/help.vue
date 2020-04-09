@@ -36,6 +36,7 @@ export default {
 <style>
 .help {
   display: inline;
+  z-index: 10000;
 }
 .v-btn {
   margin: 0 20px 0 0px;

@@ -2,19 +2,17 @@
   <div v-if="items">
     <v-container fluid>
       <div v-for="(item, index) of items" :key="item.id_nomenclature">
-        <div 
-        class="degat"
-        >
-        <v-checkbox
-          v-model="degatTypes"
-          :hide-details="index < items.length - 1 ? true : false"
-          :value="item.id_nomenclature"
-          :label="item.label_fr"
-          :dense="true"
-          :rules="[rule]"
-          :disabled="freeze"
-          @change="updateDegats($event)"
-        ></v-checkbox>
+        <div class="degat">
+          <v-checkbox
+            v-model="degatTypes"
+            :hide-details="index < items.length - 1 ? true : false"
+            :value="item.id_nomenclature"
+            :label="item.label_fr"
+            :dense="true"
+            :rules="[rule]"
+            :disabled="freeze"
+            @change="updateDegats($event)"
+          ></v-checkbox>
         </div>
         <help
           :code="`item-${item[config.valueFieldName]}`"
@@ -246,7 +244,11 @@ export default {
       return this.baseModel["degats"].map(d => d.id_nomenclature_degat_type);
     },
     essenceSelected: function(cd_nomenclature) {
-      const essenceSelected = formFunctions.getEssencesSelected(this.baseModel);
+      const essenceSelected = formFunctions.getEssencesSelected({
+        baseModel: this.baseModel,
+        $store: this.$store
+      });
+      console.log(essenceSelected);
       return essenceSelected[cd_nomenclature];
     },
 
@@ -294,7 +296,7 @@ export default {
           required: true,
           nomenclatureType: "OEASC_DEGAT_GRAVITE",
           rules: [formFunctions.rules.requiredListSimple],
-          help: true,
+          help: true
         },
         etendue: {
           name: "etendue",
@@ -302,7 +304,7 @@ export default {
           required: true,
           nomenclatureType: "OEASC_DEGAT_ETENDUE",
           rules: [formFunctions.rules.requiredListSimple],
-          help: true,
+          help: true
         },
         anteriorite: {
           name: "anteriorite",
