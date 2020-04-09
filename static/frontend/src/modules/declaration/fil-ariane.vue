@@ -6,7 +6,7 @@
           config.groups
         )"
         :key="keySessionGroup"
-        @click="onSessionGroupClick(keySessionGroup)"
+        @click="condValidSessionGroup(keySessionGroup) && onSessionGroupClick(keySessionGroup)"
         :class="{
           'current-group': condCurrentGroup(keySessionGroup),
           'valid-group': condValidSessionGroup(keySessionGroup)

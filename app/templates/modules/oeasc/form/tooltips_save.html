@@ -1,0 +1,524 @@
+       Je ne retrouve pas la forêt concernée
+      
+
+        Il est possible que votre forêt ne figure pas sur la carte ci-contre et dans la liste ci-dessous, notamment dans le cas où votre document de gestion a été déposé ou agréé récemment, et qu'il n'a pas encore pu être intégré dans la base de données de l'Observatoire.
+        Dans ce cas, nous vous invitons à cliquer sur ce bouton, qui vous redirigera vers une carte qui vous permettra de localiser votre forêt à partir des communes et du cadastre. Votre alerte sera ainsi renseignée comme concernant une forêt non dotée d'un document de gestion durable. Cependant, **nous vous invitons à indiquer <u>dans le cadre de libre expression disponible en fin de formulaire</u> que votre forêt, bien que dotée d'un document de gestion durable, ne figurait pas dans la liste proposée, et à préciser si celui-ci a été déposé ou agréé récemment**.
+
+      
+    
+  
+
+       Aide pour la sélection sur carte
+      
+
+        Vous pouvez choisir le fond de carte *via* l'icône située en haut à droite de la carte. Trois choix vous sont proposés : 
+
+        
+          <li>**Mapbox** : choix par défaut (fond OpenStreetMap)</li>
+          <li>**Cartes (IGN)** : fond de carte IGN, jusqu'au 1:25000e (SCAN1000®, SCAN Régional®, SCAN100® et SCAN25®)</li>
+          <li>**Vue aérienne (IGN)** : photographies aériennes de l'IGN (BD ORTHO®)</li>
+        
+
+        Vous pouvez zoomer à l'aide de la molette de votre souris ou des icônes +/- situées en haut à gauche de la carte.
+
+        Pour sélectionner ou déselectionner un élément, cliquez sur la carte (les éléments sélectionnés apparaissent en orange) ou passez par la liste déroulante située à sa droite.
+
+        Dans le cas des forêts relevant du régime forestier ou dotées d'un document de gestion durable, vous ne pouvez sélectionner qu'une seule forêt.
+
+        Dans les autres cas (sélection des communes, sections cadastrales, parcelles forestières ou cadastrales, unités de gestion), vous avez la possibilité de sélectionner un ou plusieurs éléments.
+
+      
+    
+  
+
+    
+       Contact
+
+      {%- include "modules/oeasc/pages/declaration/aide_contact.html" %}
+
+    
+  
+
+  {# localisation #}
+
+  {# localisation - foret #}
+
+  {# foret #}
+
+  {# foret - localisation - ONF FRT #}
+
+  <div class="custom-tooltip" data-name="OEASC_ONF_FRT">
+    <div class="custom-tooltiptext left">
+       Forêt relevant du régime forestier
+
+      
+        
+          <li>**FD** =  forêt domaniale</li>
+          <li>**FC** =  forêt communale</li>
+          <li>**FS** =  forêt sectionale</li>
+        
+      
+
+    
+  
+
+  {# foret - localisation - ONF UG #}
+
+       Unités de gestion des forêts relevant du régime forestier
+
+      
+        Numéro de l'UG défini par l'ONF dans l'aménagement forestier, généralement composé du numéro de parcelle et d'une lettre.
+        Pour les parcelles qui ne présentent qu'une seule UG, il peut être nécessaire de sélectionner à nouveau les parcelles concernées.
+        Dans certains cas particuliers (plusieurs entités géométriques présentant le même numéro d'UG), un indice (numérique) peut avoir été ajouté, afin de distinguer les différentes parties de l'UG.
+      
+
+    
+
+  
+
+  {# foret - localisation - DGD  #}
+
+       Forêts possédant un document de gestion durable
+
+      
+        Chaque forêt est identifiée par son nom (enregistré dans la base de données du CRPF, quand celui-ci est disponible), le type de document de gestion et son numéro (référence enregistrée dans la base de données du CRPF).
+      
+
+    
+  
+
+  {# foret - localisation - CADASTRE  #}
+
+       Choix d'une parcelle cadastrale
+
+      
+        **N° Insee commune** - **N° section** - **N° parcelle**
+      
+
+    
+
+  
+
+
+  {# foret - statut #}
+
+
+## Statut de la forêt <v-icon>help</v-icon> 
+
+* « **Public** » = forêt **domaniale**, **communale**, **sectionale** ou  appartenant  à **tout  autre  établissement  public** (même  au  titre  de  son domaine privé).
+* « **Privé** » = forêt appartenant à une **personne physique** ou à une personne **morale   de   droit   privé** (groupement   forestier   ou   foncier, entreprise, SCI, association, etc.)
+
+        
+
+      
+
+    
+
+  
+
+  {# foret - nom #}
+
+  <div class="custom-tooltip" data-name="label_foret">
+    <div class="custom-tooltiptext">
+       Nom de la forêt
+
+      
+
+        Nom **officiel** ou **usuel** de la forêt concernée par l'alerte (si elle en possède un). Le cas échéant, utiliser le nom figurant sur le document de gestion durable (PSG, CBPS, aménagement forestier).
+
+      
+
+    
+  
+
+  {# foret - superficie #}
+
+  <div class="custom-tooltip" data-name="surface_renseignee">
+    <div class="custom-tooltiptext">
+       Superficie totale de la forêt (ha)
+
+      
+
+        Superficie totale (arrondie à l'hectare près) de l’ensemble de la forêt concernée par l’alerte
+
+      
+
+    
+  
+
+
+  {# peuplement #}
+
+  {# peuplement - paturage #}
+
+  <div class="custom-tooltip" data-name="b_peuplement_paturage_presence">
+    <div class="custom-tooltiptext">
+       Pâturage domestique
+
+      
+
+        **Pâturage domestique** = pâturage par des animaux domestiques (moutons, chèvres, vaches, chevaux, ânes), par opposition aux animaux sauvages (cerfs, chevreuils, mouflons, chamois, etc.)
+
+      
+
+    
+  
+
+  {# peuplement - accessibilité #}
+
+  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_acces">
+    <div class="custom-tooltiptext">
+       Accessibilité du peuplement
+
+      
+
+        
+          <li> **Aisée** = une piste carrossable par des véhicules standards mène à proximité du peuplement</li>
+          <li>**Uniquement en 4x4** = une piste praticable uniquement par des véhicules tout-terrain mène à proximité du peuplement</li>
+          <li>**Uniquement à pied** = aucune piste carrossable ne mène à proximité du peuplement</li>
+        
+
+      
+
+    
+  
+
+  {# peuplement - essence objectif principale #}
+
+
+  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_essence_principale">
+    <div class="custom-tooltiptext">
+       Essence objectif principale
+
+      
+
+        Essence constituant l’essentiel de l’intérêt économique (actuel ou à  venir) du peuplement
+
+      
+
+    
+  
+
+  {# peuplement - essence(s) objectif secondaire(s) #}
+
+  <div class="custom-tooltip" data-name="nomenclatures_peuplement_essence_secondaire">
+    <div class="custom-tooltiptext">
+       Essence(s) objectif secondaire(s)
+
+      
+
+        Autre(s) essence(s) contribuant significativement à l'intérêt économique du peuplement
+
+      
+
+    
+  
+
+  {# peuplement - essence(s) complementaires(s) #}
+
+  <div class="custom-tooltip" data-name="nomenclatures_peuplement_essence_complementaire">
+    <div class="custom-tooltiptext">
+       Essence(s) complémentaire(s)
+
+      
+
+        Essence(s) présente(s) de façon significative dans le peuplement, mais ne constituant pas (ou peu) un enjeu économique.
+
+      
+
+    
+  
+
+  {# peuplement - origine #}
+
+  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_origine">
+    <div class="custom-tooltiptext">
+       Origine du peuplement
+
+      
+        **Mixte** =  plantations d'enrichissement effectuées au sein de la régénération naturelle 
+          ou régénération naturelle spontanée en sous-étage d'un peuplement initial issu de plantation, par exemple
+      
+
+    
+
+  
+
+  {# peuplement - type all #}
+
+  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type">
+    <div class="custom-tooltiptext">
+       Type de peuplement
+
+      
+
+        
+          Décrire ici la **structure actuelle** du peuplement, et non son **mode de traitement**.
+        
+          
+          Ainsi, pour un peuplement régulier en cours d'irrégularisation notamment, <br>
+          cochez **"futaie régulière"**
+           
+          *(la question
+          suivante permet de préciser quelles sont les catégories de
+          hauteur/diamètre présentes, s'il existe déjà une certaine hétérogénéité
+          dans le peuplement).
+          *
+
+      
+
+    
+
+  
+
+  {# peuplement - type  spe#}
+
+  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type-FREG">
+    <div class="custom-tooltiptext">
+       Type de peuplement
+
+      
+
+        **Futaie régulière** = peuplement issu de graines ou de plants dont la majorité des arbres ont approximativement le même âge, et présentent des dimensions (hauteur, diamètre) similaires
+
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/futaie_reg.jpg') }}" alt="Futaie régulière" width="100%">
+            <figcaption>Futaie régulière (à différents stades de développement)</figcaption>
+          </figure>
+        
+      
+
+    
+
+  
+
+  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type-FIRR">
+    <div class="custom-tooltiptext">
+       Type de peuplement
+
+      
+
+        **Futaie irrégulière** = peuplement dont les arbres sont répartis dans toutes les classes d’âge et toutes les dimensions (mélange de régénération et de petits, moyens et gros arbres)
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/futaie_irr.jpg') }}" alt="Futaie irrégulière" width="100%">
+            <figcaption>Futaie irrégulière</figcaption>
+          </figure>
+        
+      
+
+    
+
+  
+
+  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type-TAIL">
+    <div class="custom-tooltiptext">
+       Type de peuplement
+
+      
+
+        **Taillis** = peuplement issu du développement des rejets de souche qui, après abattage de certains arbres (feuillus le plus souvent), forment des <q>bouquets</q> (ou cépées)
+
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/taillis.jpg') }}" alt="Taillis" width="100%">
+            <figcaption>Taillis (à différents stades de développement).</figcaption>
+          </figure>
+
+        
+
+      
+
+    
+
+  
+
+  <div class="custom-tooltip" data-name="id_nomenclature_peuplement_type-MEL">
+    <div class="custom-tooltiptext">
+       Type de peuplement
+
+      
+
+        **Mélange taillis-futaie** = peuplement composé à la fois d’arbres issus de graines ou de plants (futaie), et d’un taillis issu de rejets de souche
+
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/melange_futaie_taillis.jpg') }}" alt="Mélange futaie - taillis" width="100%">
+            <figcaption>Mélange taillis-futaie</figcaption>
+          </figure>
+
+        
+      
+    
+
+  
+
+  {# peuplement - maturité #}
+
+  <div class="custom-tooltip" data-name="nomenclatures_peuplement_maturite">
+    <div class="custom-tooltiptext">
+       Maturité du peuplement
+
+      
+
+        Stade(s) de développement <u>**majoritaire(s)**</u> du peuplement selon la hauteur et le diamètre des arbres (plusieurs réponses sont possibles si plusieurs stades de maturité sont présents de façon significative)
+
+      
+
+    
+
+  
+
+  {# peuplement - espèce(s)#}
+
+  {# degats #}
+
+  {# degat - type #}
+
+  <div class="custom-tooltip" data-name="nomenclatures_degat_type-ABR">
+    <div class="custom-tooltiptext">
+       Type de dégâts
+
+      
+
+        **Abroutissement** = prélèvement des bourgeons, des feuilles ou des pousses dans un but alimentaire
+
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/abroutissement_cervide.jpg') }}" alt="Abroutissement de cervidé" width="100%">
+            <figcaption>Abroutissement d'un semis de sapin</figcaption>
+          </figure>
+
+        
+
+      
+
+    
+
+  
+
+  <div class="custom-tooltip" data-name="nomenclatures_degat_type-FRO">
+    <div class="custom-tooltiptext">
+       Type de dégâts
+
+      
+
+        **Frottis** = blessure infligée par les cervidés mâles frottant leurs bois sur les tiges de jeunes arbres (écorce  arrachée, tige dénudée, voire cassée)
+
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/frottis.jpg') }}" alt="Frottis" width="100%">
+            <figcaption>Frottis sur jeune douglas</figcaption>
+          </figure>
+
+        
+
+      
+
+    
+
+  
+
+  <div class="custom-tooltip" data-name="nomenclatures_degat_type-ÉCO">
+    <div class="custom-tooltiptext">
+       Type de dégâts
+
+      
+
+        **Écorçage** = prélèvement de l’écorce d’un arbre dans un but alimentaire (cerf uniquement). Généralement, le bord de la blessure est net et aucun lambeau d’écorce ne persiste (contrairement au frottis).
+
+        <div class="flex-container">
+
+          <figure class="figure">
+            <img src="{{ url_for('static', filename='img/tooltips/ecorcage.jpg') }}" alt="Écorçage" width="100%">
+            <figcaption>Écorçage récent sur un épicéa</figcaption>
+          </figure>
+
+        
+      
+
+    
+
+  
+
+  <div class="custom-tooltip" data-name="nomenclatures_degat_type-SANG">
+    <div class="custom-tooltiptext">
+       Type de dégâts
+
+      
+
+        **Dégâts de sanglier** = déterrage ou endommagement de plants ou de semis dans un objectif de consommation de la racine (le plus souvent, mais d’autres types dégâts peuvent également être constatés : fouissement, piétinement, gîte, etc.)
+
+      
+
+    
+
+  
+
+  <div class="custom-tooltip" data-name="nomenclatures_degat_type-ABS">
+    <div class="custom-tooltiptext">
+       Type de dégâts
+
+      
+
+        **Absence de régénération inexpliquée** au regard des conditions locales (lumière au sol, notamment), potentiellement liée à la pression des cervidés sur les jeunes semis
+
+      
+
+    
+
+  
+
+  {# degat - essence #}
+
+  {# degat - gravite #}
+
+  <div class="custom-tooltip" data-name="id_nomenclature_degat_gravite">
+    <div class="custom-tooltiptext">
+       Gravité des dégâts
+
+      
+
+        La gravité des dégâts dépend de leur impact sur la valeur économique du peuplement ou l'apparition d'une régénération naturelle satisfaisante.
+        Si, selon vous :
+        
+          <li>la valeur du peuplement est **fortement compromise**, cochez « **Importants** » </li>
+          <li>l'impact des dégâts est **significatif**, mais reste **incertain** quant à la rentabilité des activités sylvicoles, cochez « **Modérés** »</li>
+          <li>les dégâts **ne remettent pas en cause significativement** la valeur du peuplement, cochez « **Faibles** »</li>
+        
+
+      
+
+    
+
+  
+
+  {# degat - étendue #}
+
+  <div class="custom-tooltip" data-name="id_nomenclature_degat_etendue">
+    <div class="custom-tooltiptext">
+       Étendue des dégâts
+
+      
+        Si les dégâts concernent :
+        
+          <li>moins de 50% de la superficie du peuplement, cochez  « **Localisés** » </li>
+          <li>plus de 50% de la superficie du peuplement, cochez  « **Généralisés** » </li>
+        
+
+      
+
+    
+
+  
+
+
+
+
