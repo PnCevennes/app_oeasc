@@ -5,7 +5,7 @@
         Localisation :
         {{ legend }}
       </h4>
-      {{ config.containerName }} {{ baseModel[config.containerName] }}
+      <!-- {{ config.containerName }} {{ baseModel[config.containerName] }} -->
       <div>
         Veuillez selectionner
         {{ description }}
@@ -49,7 +49,7 @@
             >
               Valider la selection
             </v-btn>
-            <v-btn v-else @click="reinitContainer()">
+            <v-btn color=error v-else @click="reinitContainer()">
               Retourner aux choix des {{ config.containerLegend }}
             </v-btn>
           </div>

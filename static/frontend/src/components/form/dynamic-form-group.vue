@@ -51,22 +51,17 @@ export default {
   props: ["config", "baseModel"],
   methods: {
     hasForms() {
-      console.log('test', this.config.name, this.config);
-
+      console.log('aa')
         let cond = false
         if(this.config.forms) {
-          console.log('forms')
-
           for (const form of Object.values(this.config.forms)) {
             cond = cond || !form.condition || form.condition({baseModel: this.baseModel})
           }
         }
         if (this.config.groups) {
-          console.log('groups')
           cond =  this.hasForms(this.config.groups)
         }
 
-      console.log('cond', cond);
       return cond;
     }
   }

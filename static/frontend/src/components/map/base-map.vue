@@ -4,7 +4,7 @@
     <div class="map" :id="mapId" :config="config"></div>
 
     <!-- aside   -->
-    <div>
+    <div class='aside-map'>
       <slot name="aside">aa</slot>
     </div>
   </div>
@@ -12,6 +12,8 @@
 
 <script>
 import { MapService } from "@/modules/map";
+import './base-map.css'
+
 
 export default {
   name: "baseMap",

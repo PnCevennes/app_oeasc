@@ -133,9 +133,15 @@ export default {
     },
     baseModel: {
       handler() {
-        if (this.config.dataReloadOnSearch && !this.search) {
-          this.search = this.baseModel[this.config.name];
-        }
+        console.log('bb')
+
+          if (this.config.dataReloadOnSearch && !this.search) {
+            this.search = this.baseModel[this.config.name];
+          }
+          if (this.config.dataReloadOnSearch && this.search && !this.baseModel[this.config.name]) {
+            this.search = '';
+          }
+
       },
       deep: true
     }
