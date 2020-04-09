@@ -1,9 +1,5 @@
 <template>
   <div>
-    <pre>
-        {{ declaration }}
-        </pre
-    >
     <div v-if="declaration">
       <h1>Déclaration {{ declaration.id_declaration }}</h1>
       <div>

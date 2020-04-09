@@ -7,12 +7,19 @@
     <div v-else>
       <v-data-table :headers="headers" :items="declarations">
         <template v-slot:item.actions="{ item }">
-          <v-icon small class="mr-2" @click="viewDeclaration(item)">
-            mdi-eye
-          </v-icon>
-          <v-icon small @click="editDeclaration(item)">
-            mdi-pencil
-          </v-icon>
+          <a :href="`#/declaration/voir_declaration/${item.id_declaration}`"
+            ><v-icon small class="mr-2">
+              mdi-eye
+            </v-icon>
+          </a>
+          <a
+            :href="
+              `#/declaration/declarer_en_ligne/${item.id_declaration}?keySession=all`
+            "
+            ><v-icon small class="mr-2">
+              mdi-pencil
+            </v-icon>
+          </a>
         </template>
       </v-data-table>
     </div>
@@ -81,12 +88,17 @@ export default {
   }),
   name: "declaration-list",
   methods: {
-      viewDeclaration(item) {
-          this.$router.push({'path': `/declaration/voir_declaration/${item.id_declaration}`})
-      },
-      editDeclaration(item) {
-          this.$router.push({'path': `/declaration/declarer_en_ligne/${item.id_declaration}`})
-      },
+    // viewDeclaration(item) {
+    //   this.$router.push({
+    //     path: `/declaration/voir_declaration/${item.id_declaration}`,
+    //     query: { keySession: "all" }
+    //   });
+    // },
+    // editDeclaration(item) {
+    //   this.$router.push({
+    //     path: `/declaration/declarer_en_ligne/${item.id_declaration}`
+    //   });
+    // },
     loadDeclarations() {
       this.$store.dispatch("declarations").then(declarations => {
         declarations.sort((a, b) => {

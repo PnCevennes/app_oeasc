@@ -219,7 +219,6 @@ export default {
   methods: {
     checkRigths() {
       const access = this.$route.meta.access;
-      console.log(access)
       const droitMax = this.$store.getters.droit_max;
       if (!access) {
         return;

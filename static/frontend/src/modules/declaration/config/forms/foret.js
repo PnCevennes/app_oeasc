@@ -1,7 +1,6 @@
 import { formFunctions } from "@/components/form/functions.js";
 
 const reinitAreasLocalition = d => {
-  console.log("reinitAreasLocalition");
   d.areas_localisation_cadastre = [];
   d.areas_localisation_onf_prf = [];
   d.areas_localisation_onf_ug = [];
@@ -13,14 +12,13 @@ const reinitForetProprietaire = d => {
   d.id_nomenclature_proprietaire_declarant = null;
   d.id_nomenclature_proprietaire_type = null;
   d.email = null;
-  d.adresse =null;
+  d.adresse = null;
   d.s_commune_proprietaire = null;
   d.telephone = null;
   d.nom_proprietaire = null;
-}
+};
 
 const reinitAreasForet = ({ config, baseModel }) => {
-  console.log("reinitAreasLocalition");
   if (config.name != "areas_foret_onf") {
     baseModel.areas_foret_onf = null;
   }
@@ -32,7 +30,7 @@ const reinitAreasForet = ({ config, baseModel }) => {
     baseModel.areas_foret_communes = [];
   }
   reinitAreasLocalition(baseModel);
-  reinitForetProprietaire(baseModel)
+  reinitForetProprietaire(baseModel);
 };
 
 const changeForetStatut = ({ config, baseModel }) => {
@@ -68,6 +66,9 @@ const changeAreaForet = ({ config, baseModel, $store }) => {
   const code_foret = layer.feature.properties.area_code;
   $store.dispatch("foretFromCode", code_foret).then(foret => {
     for (const key of Object.keys(foret)) {
+      if (key == "id_declarant") {
+        continue;
+      }
       baseModel[key] = foret[key];
     }
   });

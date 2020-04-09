@@ -1,7 +1,7 @@
 <template>
   <div>
     <div
-      v-if="config.forms"
+      v-if="config.forms && hasForms(config)"
       :class="{
         'form-group': true
       }"
@@ -31,7 +31,6 @@
       <dynamic-form-group
         v-for="[keyFormGroup, configFormGroup] in Object.entries(config.groups)"
         :key="keyFormGroup"
-
         :baseModel="baseModel"
         :config="configFormGroup"
       ></dynamic-form-group>
@@ -50,5 +49,26 @@ export default {
   },
   data: () => ({}),
   props: ["config", "baseModel"],
+  methods: {
+    hasForms() {
+      console.log('test', this.config.name, this.config);
+
+        let cond = false
+        if(this.config.forms) {
+          console.log('forms')
+
+          for (const form of Object.values(this.config.forms)) {
+            cond = cond || !form.condition || form.condition({baseModel: this.baseModel})
+          }
+        }
+        if (this.config.groups) {
+          console.log('groups')
+          cond =  this.hasForms(this.config.groups)
+        }
+
+      console.log('cond', cond);
+      return cond;
+    }
+  }
 };
 </script>

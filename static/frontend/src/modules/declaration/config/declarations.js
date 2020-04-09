@@ -9,6 +9,8 @@ const postDeclaration = function({baseModel}) {
   // prepare les données
   const postData = formToPost(baseModel)
 
+  console.log(baseModel.id_declarant)
+1
   // post data
   return apiRequest('POST', 'api/degat_foret/declaration', {data: postData})
 

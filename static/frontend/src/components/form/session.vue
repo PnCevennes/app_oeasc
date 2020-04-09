@@ -4,7 +4,11 @@
       <!-- {{ validForms[config.name] }} -->
       <h3>{{ config.title }}</h3>
 
-      <v-form v-model="validForms[config.name]" :ref="config.name">
+      <v-form
+        v-model="validForms[config.name]"
+        :ref="config.name"
+        v-if="!bModalSuccess"
+      >
         <dynamic-form-group
           v-for="[keyFormGroup, configFormGroup] in Object.entries(
             config.groups
@@ -14,8 +18,11 @@
           :baseModel="baseModel"
         >
         </dynamic-form-group>
-
-        <v-btn color="success" @click="action()">
+        <v-btn
+          color="success"
+          @click="action()"
+          v-if="this.config.action || this.keySession != 'all'"
+        >
           {{ (this.config.action && this.config.action.label) || "Suivant" }}
         </v-btn>
       </v-form>
@@ -39,6 +46,29 @@
             >
           </v-card>
         </v-dialog>
+        <v-dialog v-model="bModalSuccess" persistent max-width="600">
+          <v-card>
+            <v-card-title class="headline"
+              >Votre déclaration à bien été enregistrée</v-card-title
+            >
+            <v-card-text>
+              <p>Vous pouvez désormais</p>
+              <ul>
+                <li>
+                  <a href="#/declaration/declarer_en_ligne"
+                    >Déclarer de nouveaux dégâts en forêt</a
+                  >
+                </li>
+                <li>
+                  <a Voir href="#/declaration/liste"
+                    >Voir la liste des dégâts déclarés</a
+                  >
+                </li>
+                <li><a href="#/">Retourner à l'accueil</a></li>
+              </ul>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
       </v-row>
     </div>
   </div>
@@ -54,10 +84,11 @@ export default {
   },
   data: () => ({
     // affichage modal quand la requete post est lancée
-    bModalPost: false
+    bModalPost: false,
+    bModalSuccess: false
   }),
   watch: {},
-  props: ["config", "baseModel", "validForms"],
+  props: ["config", "baseModel", "validForms", "keySession"],
   methods: {
     action: function() {
       // si le formulaire n'est pas valide on ne fait rien
@@ -68,12 +99,15 @@ export default {
 
       // action definie dans la config (par exemple: envoyer un post du formulaire)
       if (this.config.action) {
-        // this.bModalPost = true;
+        this.bModalPost = true;
         this.config.action
           .process({ baseModel: this.baseModel })
           .then(response => {
             console.log("post ok", response);
-            this.bModalPost = false;
+            setTimeout(() => {
+              this.bModalPost = false;
+              this.bModalSuccess = true;
+            }, 1000);
           });
 
         // action par defaut aller à la section suivante
@@ -82,7 +116,8 @@ export default {
           this.config.name
         );
         if (nextSession) {
-          this.$router.push({query:{keySession: nextSession}});
+          console.log("id_declarant", this.baseModel.id_declarant);
+          this.$router.push({ query: { keySession: nextSession } });
         }
       }
     },

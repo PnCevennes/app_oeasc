@@ -1,6 +1,5 @@
 <template>
   <div v-if="items">
-    {{ degatTypes }}
     <v-container fluid>
       <div v-for="(item, index) of items" :key="item.id_nomenclature">
         <v-checkbox
@@ -376,9 +375,7 @@ export default {
 
   created: function() {
     this.getData();
-    this.degatTypes = this.getDegatTypes(); 
-    
-    console.log(this.degatTypes)
+    this.degatTypes = this.getDegatTypes();     
   }
 };
 </script>

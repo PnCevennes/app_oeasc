@@ -1,7 +1,8 @@
 <template>
-  <div>
+  <div class="form-declaration">
     <div v-if="initialized">
-      <h1>{{ config.title }}</h1>
+      <h1 v-if="!idDeclaration">{{ config.title }}</h1>
+      <h1 v-else>{{ `Éditer la déclaration ${idDeclaration}` }}</h1>
       <fil-arianne
         :config="config"
         :keySession="keySession"
@@ -16,16 +17,17 @@
           <h2>{{ sessionGroup.title }}</h2>
         </div>
         <div
-          v-for="[keySession, configSession] in Object.entries(
+          v-for="[keySessionCur, configSession] in Object.entries(
             sessionGroup.sessions
           )"
-          :key="keySession"
+          :key="keySessionCur"
         >
           <form-session
-            v-if="showSession(keySession)"
+            v-if="showSession(keySessionCur)"
             :baseModel="declaration"
             :config="configSession"
             :validForms="validForms"
+            :keySession="keySession"
           ></form-session>
         </div>
       </div>
@@ -42,6 +44,7 @@ import { configDeclaration } from "./config";
 import filArianne from "./fil-ariane";
 import formSession from "@/components/form/session.vue";
 import "@/components/form/form.css";
+import "./declaration.css";
 
 // import Declaration from "./declaration.js";
 
@@ -50,9 +53,9 @@ export default {
 
   watch: {
     $route() {
-      this.keySession = this.getKeySesion();
+      // this.keySession = this.getKeySesion();
 
-      if (this.idDeclaration != this.getIdDeclatation()) {
+      if (this.idDeclaration != this.declaration.id_declaration) {
         this.initDeclarationForm();
       }
     }
@@ -62,8 +65,8 @@ export default {
     config: configDeclaration.config(),
     declaration: null,
     validForms: {},
-    keySession: null,
-    idDeclaration: null,
+    // keySession: null,
+    // idDeclaration: null,
     initialized: false
   }),
 
@@ -73,6 +76,14 @@ export default {
   },
 
   computed: {
+    idDeclaration() {
+      return this.$route.params.idDeclaration || null;
+    },
+
+    keySession: function() {
+      return this.$route.query.keySession || "foret_statut";
+    },
+
     declarationNotNull: function() {
       const declarationNotNull = {};
 
@@ -93,31 +104,37 @@ export default {
   methods: {
     initDeclarationForm() {
       console.log("initDeclarationForm");
-      this.keySession = this.getKeySesion();
-      this.idDeclaration = this.getIdDeclatation();
+      // this.keySession = this.getKeySesion();
+      // this.idDeclaration = this.getIdDeclatation();
       this.$store.commit("configDeclaration", configDeclaration);
+
+      console.log(this.idDeclaration);
 
       const promises = [
         this.$store.dispatch("nomenclatures"),
-        this.idDeclaration && this.$store.dispatch("declarationForm", this.idDeclaration)
+        this.idDeclaration &&
+          this.$store.dispatch("declarationForm", this.idDeclaration)
       ];
 
       Promise.all(promises).then(() => {
-        let declaration = this.$store.getters.declarationForm;
+        let declaration = this.idDeclaration
+          ? this.$store.getters.declarationForm
+          : {};
         declaration = { ...declaration, ...declaration.foret };
         this.declaration = configDeclaration.initModel(declaration);
         this.initialized = true;
-        this.declaration.id_declarant = this.declaration.id_declarant || this.$store.getters.user.id_role;
+        this.declaration.id_declarant =
+          this.declaration.id_declarant || this.$store.getters.user.id_role;
       });
     },
 
-    getKeySesion: function() {
-      return this.$route.query.keySession || "foret_statut";
-    },
+    // getKeySesion: function() {
+    //   return this.$route.query.keySession || "foret_statut";
+    // },
 
-    getIdDeclatation: function() {
-      return this.$route.params.idDeclaration || null;
-    },
+    // getIdDeclatation: function() {
+    //   return this.$route.params.idDeclaration || null;
+    // },
 
     showSession: function(keySession) {
       return this.keySession === "all" || this.keySession == keySession;
@@ -130,7 +147,6 @@ export default {
       );
     }
   },
-
   created: function() {
     this.initDeclarationForm();
   }

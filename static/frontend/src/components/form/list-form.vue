@@ -128,14 +128,12 @@ export default {
   watch: {
     search() {
       if (this.config.dataReloadOnSearch && this.search) {
-        console.log("search", this.search);
         this.getData();
       }
     },
     baseModel: {
       handler() {
         if (this.config.dataReloadOnSearch && !this.search) {
-          console.log("aaaa", this.search);
           this.search = this.baseModel[this.config.name];
         }
       },
@@ -176,7 +174,6 @@ export default {
     },
 
     clickChips() {
-      console.log("clickChips");
       setTimeout(() => {
         const chips =
           this.$refs.autocomplete &&

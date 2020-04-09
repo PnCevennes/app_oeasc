@@ -12,7 +12,6 @@ const mapConfig = {
     if(!this._config) {
       return false
     }
-    console.log(this._config, this._id)
     // this._config = this._config || {}
     
     // default values from mainMapConfig

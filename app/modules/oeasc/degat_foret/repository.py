@@ -5,6 +5,8 @@
 from flask import current_app
 
 from ..declaration.models import TProprietaire, TForet, TDeclaration
+from ..declaration.repository import patch_areas_declarations
+
 
 from ..nomenclature import get_area_from_id, get_nomenclature_from_id
 from ..user.models import VUsers
@@ -171,6 +173,10 @@ def create_or_update_declaration(post_data):
         'id_declaration',
         post_data
     )
+
+    print('aaa')
+
+    patch_areas_declarations(declaration.id_declaration)
 
     return declaration.as_dict(True)
 

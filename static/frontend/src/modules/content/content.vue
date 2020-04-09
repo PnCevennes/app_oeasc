@@ -49,6 +49,7 @@ import { apiRequest } from "@/core/js/data/api.js";
 import { config } from "@/config/config.js";
 import { MapService } from "@/modules/map";
 import faqDeclaration from "./faq-declaration"
+import tableAide from "./table-aide"
 import "./content.css";
 // import Vue from "vue";
 import VRuntimeTemplate from "v-runtime-template";
@@ -64,7 +65,8 @@ export default {
   },
   components: {
     VRuntimeTemplate,
-    faqDeclaration // eslint-disable-line
+    faqDeclaration, // eslint-disable-line
+    tableAide // eslint-disable-line
   },
   data: () => ({
     // component: null,
