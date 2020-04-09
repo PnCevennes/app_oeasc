@@ -19,9 +19,9 @@
     <template v-else-if="!configForm.condition"> </template>
 
     <!-- input -->
-    <template v-else-if="configForm.type === 'input'">
+    <!-- <template v-else-if="configForm.type === 'input'">
       <input v-model="baseModel[configForm.name]" />
-    </template>
+    </template> -->
 
     <!-- Boolean radio -->
     <template v-else-if="configForm.type === 'bool_radio'">
@@ -32,6 +32,8 @@
         :rules="configForm.rules"
         @change="configForm.change && configForm.change({baseModel, config, $store})"
       >
+      <help :code="`form-${config.name}`" v-if="config.help"></help>
+
         <v-radio :label="configForm.labels[0]" :value="true"></v-radio>
         <v-radio :label="configForm.labels[1]" :value="false"></v-radio>
       </v-radio-group>
@@ -47,6 +49,7 @@
 
     <!-- text -->
     <template v-else-if="configForm.type === 'text'">
+      <help :code="`form-${config.name}`" v-if="config.help"></help>
       <v-text-field
         v-model="baseModel[configForm.name]"
         :rules="configForm.rules"
@@ -60,6 +63,7 @@
 
     <!-- text area -->
     <template v-else-if="configForm.type === 'text_area'">
+      <help :code="`form-${config.name}`" v-if="config.help"></help>
       <v-textarea
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
@@ -68,6 +72,7 @@
 
     <!-- number -->
     <template v-else-if="configForm.type === 'number'">
+      <help :code="`form-${config.name}`" v-if="config.help"></help>
       <v-text-field
         v-model="baseModel[configForm.name]"
         :rules="configForm.rules"
@@ -122,7 +127,7 @@ import selectMap from "./select-map.vue";
 import essenceForm from "./essence-form.vue";
 import degatsForm from "./degats-form.vue";
 import oeascContent from "@/modules/content/content";
-
+import help from './help'
 
 import { formFunctions } from "@/components/form/functions.js";
 
@@ -135,7 +140,8 @@ export default {
     essenceForm,
     listForm,
     degatsForm,
-    oeascContent
+    oeascContent,
+    help
   },
 
   data: () => ({
@@ -151,7 +157,7 @@ export default {
       "essence",
       "list_form",
       "degats",
-      "content"
+      "content",
     ],
     configForm: null
   }),

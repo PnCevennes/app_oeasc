@@ -6,7 +6,10 @@
         'form-group': true
       }"
     >
-      <h4>{{ config.title }}</h4>
+      <h4>
+        {{ config.title }}
+        <help :code="`group-form-${config.name}`" v-if="config.help"></help>
+      </h4>
       <div
         :class="{
           'flex-container': true,
@@ -40,26 +43,31 @@
 
 <script>
 import dynamicForm from "@/components/form/dynamic-form";
+import help from "./help";
 import "./form.css";
 
 export default {
   name: "dynamic-form-group",
   components: {
-    dynamicForm
+    dynamicForm,
+    help
   },
   data: () => ({}),
   props: ["config", "baseModel"],
   methods: {
     hasForms() {
-        let cond = false
-        if(this.config.forms) {
-          for (const form of Object.values(this.config.forms)) {
-            cond = cond || !form.condition || form.condition({baseModel: this.baseModel})
-          }
+      let cond = false;
+      if (this.config.forms) {
+        for (const form of Object.values(this.config.forms)) {
+          cond =
+            cond ||
+            !form.condition ||
+            form.condition({ baseModel: this.baseModel, $store: this.$store });
         }
-        if (this.config.groups) {
-          cond =  this.hasForms(this.config.groups)
-        }
+      }
+      if (this.config.groups) {
+        cond = this.hasForms(this.config.groups);
+      }
 
       return cond;
     }

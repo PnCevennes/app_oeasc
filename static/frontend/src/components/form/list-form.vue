@@ -5,6 +5,7 @@
       <div>
         <!-- select -->
         <div v-if="config.display === 'autocomplete'">
+          <help :code="`form-${config.name}`" v-if="config.help"></help>
           <v-autocomplete
             ref="autocomplete"
             v-model="baseModel[config.name]"
@@ -52,7 +53,12 @@
           <!-- checkbox -->
           <div v-if="config.multiple">
             <v-container fluid>
-              <h5>{{ config.label }}</h5>
+              <h5>
+                {{ config.label }}
+                <help :code="`form-${config.name}`" v-if="config.help"></help>
+                <i>(Plusieurs réponses possibles)</i>
+              </h5>
+
               <v-checkbox
                 v-model="baseModel[config.name]"
                 v-for="(item, index) in items"
@@ -70,36 +76,54 @@
                     config.change({ baseModel, $store, config, event: $event })
                 "
               ></v-checkbox>
+              <help
+                :code="`item-${item[config.valueFieldName]}`"
+                v-if="config.helps"
+              ></help>
             </v-container>
           </div>
 
           <!-- radio -->
           <div v-else>
             <v-container fluid>
-              <h5>{{ config.label }}</h5>
+              <h5>
+                {{ config.label }}
+                <help :code="`form-${config.name}`" v-if="config.help"></help>
+              </h5>
               <v-radio-group
                 v-model="baseModel[config.name]"
                 :rules="config.rules"
               >
-                <v-radio
-                  v-for="item in items"
-                  :key="item[config.valueFieldName]"
-                  :value="
-                    (config.returnObject && item) || item[config.valueFieldName]
-                  "
-                  :label="item[config.textFieldName]"
-                  :disabled="config.disabled"
-                  @change="
-                    config.change &&
-                      config.change({
-                        baseModel,
-                        $store,
-                        config,
-                        event: $event
-                      })
-                  "
-                >
-                </v-radio>
+                <template v-for="item in items">
+                  <div
+                        :key="item[config.valueFieldName]"
+                  >
+                    <div class="degat">
+                      <v-radio
+                        :value="
+                          (config.returnObject && item) ||
+                            item[config.valueFieldName]
+                        "
+                        :label="item[config.textFieldName]"
+                        :disabled="config.disabled"
+                        @change="
+                          config.change &&
+                            config.change({
+                              baseModel,
+                              $store,
+                              config,
+                              event: $event
+                            })
+                        "
+                      >
+                      </v-radio>
+                    </div>
+                    <help
+                      :code="`form-${config.name}`"
+                      v-if="config.helps"
+                    ></help>
+                  </div>
+                </template>
               </v-radio-group>
             </v-container>
           </div>
@@ -110,8 +134,10 @@
 </template>
 
 <script>
+import help from "./help";
 export default {
   name: "lisForm",
+  components: { help },
   data: () => ({
     items: null,
     info: {
@@ -133,14 +159,16 @@ export default {
     },
     baseModel: {
       handler() {
-
-          if (this.config.dataReloadOnSearch && !this.search) {
-            this.search = this.baseModel[this.config.name];
-          }
-          if (this.config.dataReloadOnSearch && this.search && !this.baseModel[this.config.name]) {
-            this.search = '';
-          }
-
+        if (this.config.dataReloadOnSearch && !this.search) {
+          this.search = this.baseModel[this.config.name];
+        }
+        if (
+          this.config.dataReloadOnSearch &&
+          this.search &&
+          !this.baseModel[this.config.name]
+        ) {
+          this.search = "";
+        }
       },
       deep: true
     }

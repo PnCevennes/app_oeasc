@@ -3,6 +3,7 @@
     <div v-if="initialized">
       <h1 v-if="!idDeclaration">{{ config.title }}</h1>
       <h1 v-else>{{ `Éditer la déclaration ${idDeclaration}` }}</h1>
+      <p>Besoin d'aide <help code="declaration_help"></help></p>
       <fil-arianne
         :config="config"
         :keySession="keySession"
@@ -43,6 +44,7 @@
 import { configDeclaration } from "./config";
 import filArianne from "./fil-ariane";
 import formSession from "@/components/form/session.vue";
+import help from "@/components/form/help";
 import "@/components/form/form.css";
 import "./declaration.css";
 
@@ -50,6 +52,12 @@ import "./declaration.css";
 
 export default {
   name: "declarationForm",
+
+  components: {
+    formSession,
+    filArianne,
+    help
+  },
 
   watch: {
     $route() {
@@ -69,11 +77,6 @@ export default {
     // idDeclaration: null,
     initialized: false
   }),
-
-  components: {
-    formSession,
-    filArianne
-  },
 
   computed: {
     idDeclaration() {

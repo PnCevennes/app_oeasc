@@ -4,8 +4,8 @@
     text-align: justify;
   }
   
-  .editor,
-  .buttons {
+  .content-containter .editor,
+  .content-containter .buttons {
     width: 1200px;
   }
   

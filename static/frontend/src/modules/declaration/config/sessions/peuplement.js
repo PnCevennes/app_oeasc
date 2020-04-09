@@ -20,7 +20,9 @@ const sessionsPeuplement = {
           "id_nomenclature_peuplement_essence_principale",
           "nomenclatures_peuplement_essence_secondaire",
           "nomenclatures_peuplement_essence_complementaire"
-        ]
+        ],
+        help: true
+
       },
       superficie: {
         title: "Superficie",

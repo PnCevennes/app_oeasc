@@ -44,9 +44,9 @@ const changeForetDocument = ({ config, baseModel, $store }) => {
       "OEASC_PROPRIETAIRE_TYPE",
       "PT_PRI"
     );
-    this.baseModel.id_nomenclature_proprietaire_type =
+    baseModel.id_nomenclature_proprietaire_type =
       nomenclature.id_nomenclature;
-    console.log(this.baseModel.id_nomenclature_proprietaire_type);
+    console.log(baseModel.id_nomenclature_proprietaire_type);
   }
 
   reinitAreasForet({ config, baseModel });
@@ -122,7 +122,8 @@ const formsForet = {
     condition: ({ baseModel }) =>
       [true, false].includes(baseModel.b_statut_public),
     change: changeForetDocument,
-    required: true
+    required: true,
+    help: true
   },
 
   areas_foret_onf: {
@@ -137,7 +138,8 @@ const formsForet = {
     },
     condition: ({ baseModel }) =>
       baseModel.b_statut_public === true && baseModel.b_document === true,
-    change: changeAreaForet
+    change: changeAreaForet,
+    help: true
   },
 
   areas_foret_dgd: {
@@ -152,7 +154,8 @@ const formsForet = {
     },
     condition: ({ baseModel }) =>
       baseModel.b_statut_public === false && baseModel.b_document === true,
-    change: changeAreaForet
+    change: changeAreaForet,
+    help: true
   },
 
   areas_foret_sections: {
@@ -176,13 +179,16 @@ const formsForet = {
     },
     condition: ({ baseModel }) =>
       baseModel.b_document === false && baseModel.b_statut_public !== null,
-    change: changeAreaForet
+    change: changeAreaForet,
+    help: true
+
   },
 
   label_foret: {
     type: "text",
     label: "Nom de la foret",
-    disabled: ({ baseModel }) => baseModel.b_document == true
+    disabled: ({ baseModel }) => baseModel.b_document == true,
+    help: true
   },
 
   surface_renseignee: {
@@ -190,7 +196,8 @@ const formsForet = {
     label: "Superficie totale de la forêt (ha)",
     required: true,
     min: 0,
-    disabled: ({ baseModel }) => baseModel.b_document == true
+    disabled: ({ baseModel }) => baseModel.b_document == true,
+    help: true
   },
 
   id_nomenclature_proprietaire_declarant: {

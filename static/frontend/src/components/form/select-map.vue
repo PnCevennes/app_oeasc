@@ -9,13 +9,14 @@
       <div>
         Veuillez selectionner
         {{ description }}
-        sur la carte ci-dessous ou dans la liste ci-contre.
+        sur la carte ci-dessous ou dans la liste ci-contre. <help code="selection_carte"></help>
       </div>
     </div>
 
     <base-map v-if="mapConfig" :config="mapConfig" :mapId="config.name">
       <template v-slot:aside>
         <div style="width:400px">
+          <help :code="`form-${config.name}`" v-if="config.help"></help>
           <v-autocomplete
             :ref="`select_map_${config.name}`"
             v-model="baseModel[name]"
@@ -62,10 +63,11 @@
 <script>
 import baseMap from "@/components/map/base-map";
 import { selectMapMethods } from "./select-map.js";
+import help from './help';
 
 export default {
   name: "selectMap",
-  components: { baseMap },
+  components: { baseMap, help },
   data: () => ({
     dataSelect: null,
     mapService: null,

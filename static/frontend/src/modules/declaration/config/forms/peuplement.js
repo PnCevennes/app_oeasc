@@ -20,7 +20,8 @@ const formsPeuplement = {
     url: ({ baseModel }) =>
       `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_CADASTRE/${formFunctions.processAreas(
         baseModel.areas_foret_dgd || baseModel.areas_foret_sections
-      )}`
+      )}`,
+      help: true
   },
 
   areas_localisation_onf_ug: {
@@ -47,14 +48,16 @@ const formsPeuplement = {
       `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_PRF/${formFunctions.processAreas(
         baseModel.areas_foret_onf
       )}`,
-    containerMultiple: true
+    containerMultiple: true,
+    help: true
+
   },
 
   id_nomenclature_peuplement_essence_principale: {
     required: true,
     label: "Essence principale",
     type: "essence",
-    essenceType: "all"
+    essenceType: "all",
   },
 
   nomenclatures_peuplement_essence_secondaire: {
@@ -62,7 +65,7 @@ const formsPeuplement = {
     label: "Essence(s) secondaire(s)",
     type: "essence",
     essenceType: "all",
-    maxLength: 3
+    maxLength: 3,
   },
 
   nomenclatures_peuplement_essence_complementaire: {
@@ -70,7 +73,7 @@ const formsPeuplement = {
     label: "Essence(s) complémentaire(s)",
     type: "essence",
     essenceType: "all",
-    maxLength: 3
+    maxLength: 3,
   },
 
   peuplement_surface: {
@@ -84,7 +87,8 @@ const formsPeuplement = {
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE",
-    required: true
+    required: true,
+    help: true
   },
 
   id_nomenclature_peuplement_type: {
@@ -92,7 +96,9 @@ const formsPeuplement = {
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_TYPE",
-    required: true
+    required: true,
+    help: true,
+    helps: true
   },
 
   nomenclatures_peuplement_maturite: {
@@ -107,7 +113,8 @@ const formsPeuplement = {
         baseModel.id_nomenclature_peuplement_type
       );
       return nomenclature && nomenclature.cd_nomenclature !== "FIRR";
-    }
+    },
+    help: true
   },
 
   b_peuplement_protection_existence: {
@@ -121,7 +128,8 @@ const formsPeuplement = {
     label: "Présence de pâturage domestique ?",
     type: "bool_radio",
     labels: ["Oui", "Non"],
-    required: true
+    required: true,
+    help: true
   },
 
   nomenclatures_peuplement_protection_type: {
@@ -196,7 +204,8 @@ const formsPeuplement = {
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ACCES",
-    required: true
+    required: true,
+    help: true
   },
   nomenclatures_peuplement_espece: {
     label:

@@ -2,6 +2,9 @@
   <div v-if="items">
     <v-container fluid>
       <div v-for="(item, index) of items" :key="item.id_nomenclature">
+        <div 
+        class="degat"
+        >
         <v-checkbox
           v-model="degatTypes"
           :hide-details="index < items.length - 1 ? true : false"
@@ -12,6 +15,11 @@
           :disabled="freeze"
           @change="updateDegats($event)"
         ></v-checkbox>
+        </div>
+        <help
+          :code="`item-${item[config.valueFieldName]}`"
+          v-if="item.cd_nomenclature !== 'P/C'"
+        ></help>
 
         <div
           v-if="
@@ -205,12 +213,14 @@ import { copy } from "@/core/js/util/util.js";
 import { formFunctions } from "@/components/form/functions.js";
 import essenceForm from "./essence-form.vue";
 import nomenclatureForm from "./nomenclature-form";
+import help from "./help";
 
 export default {
   name: "degatsForm",
   components: {
     essenceForm,
-    nomenclatureForm
+    nomenclatureForm,
+    help
   },
   data: () => ({
     freeze: false,
@@ -227,15 +237,13 @@ export default {
   }),
   watch: {
     baseModel: function() {
-      this.degatTypes = this.getDegatTypes()
+      this.degatTypes = this.getDegatTypes();
     }
   },
   props: ["baseModel", "config"],
   methods: {
     getDegatTypes: function() {
-      return this.baseModel["degats"].map(
-      d => d.id_nomenclature_degat_type
-    );
+      return this.baseModel["degats"].map(d => d.id_nomenclature_degat_type);
     },
     essenceSelected: function(cd_nomenclature) {
       const essenceSelected = formFunctions.getEssencesSelected(this.baseModel);
@@ -375,7 +383,7 @@ export default {
 
   created: function() {
     this.getData();
-    this.degatTypes = this.getDegatTypes();     
+    this.degatTypes = this.getDegatTypes();
   }
 };
 </script>
