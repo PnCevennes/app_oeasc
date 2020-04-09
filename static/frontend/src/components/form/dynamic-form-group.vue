@@ -51,7 +51,6 @@ export default {
   props: ["config", "baseModel"],
   methods: {
     hasForms() {
-      console.log('aa')
         let cond = false
         if(this.config.forms) {
           for (const form of Object.values(this.config.forms)) {

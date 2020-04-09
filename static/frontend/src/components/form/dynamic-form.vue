@@ -2,12 +2,12 @@
   <div v-show="!configForm.hidden">
     <!-- test config -->
 
-    <i>
+    <!-- <i>
       {{ configForm.name }}
     </i>
     <b>
       {{ baseModel[configForm.name] }}
-    </b>
+    </b> -->
 
     <template v-if="!configForm.valid">
       <label>{{ configForm.label }}</label>
