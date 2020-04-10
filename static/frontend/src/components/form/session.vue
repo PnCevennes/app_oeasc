@@ -18,13 +18,19 @@
           :baseModel="baseModel"
         >
         </dynamic-form-group>
+      <v-row>
+
         <v-btn
+          right
+          absolute
           color="success"
           @click="action()"
           v-if="this.config.action || this.keySession != 'all'"
         >
           {{ (this.config.action && this.config.action.label) || "Suivant" }}
         </v-btn>
+        
+      </v-row>
       </v-form>
     </div>
     <div>

@@ -1,7 +1,7 @@
 const sessionsForet = {
 
   foret_statut: {
-    title: "Statut de la forêt",
+    title: "Statut",
     groups: {
       statut: {
         forms: ["b_statut_public", "b_document"]
@@ -10,7 +10,7 @@ const sessionsForet = {
   },
 
   foret_localisation: {
-    title: "Localisation de la forêt",
+    title: "Localisation",
     groups: {
       localisation_foret: {
         forms: [
@@ -23,8 +23,11 @@ const sessionsForet = {
   },
 
   foret_informations: {
-    title: "Informations sur la forêt",
+    title: "Nom et superficie",
     groups: {
+      content: {
+        forms: ["content_foret_onf", "content_foret_dgd"],
+      },
       informations: {
         forms: ["label_foret", "surface_renseignee"]
       }
@@ -32,8 +35,11 @@ const sessionsForet = {
   },
 
   foret_proprietaire: {
-    title: "Coordonnées du propriétaire",
+    title: "Propriétaire",
     groups: {
+      content: {
+        forms: ["content_foret_onf", "content_foret_dgd"],
+      },
       proprietaire_declarant: {
         title: 'statut du propriétaire',
         forms: ["id_nomenclature_proprietaire_declarant"]

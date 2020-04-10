@@ -185,7 +185,7 @@ const formsForet = {
 
   label_foret: {
     type: "text",
-    label: "Nom de la foret",
+    label: "Nom de la forêt",
     disabled: ({ baseModel }) => baseModel.b_document == true,
     help: true
   },
@@ -197,6 +197,18 @@ const formsForet = {
     min: 0,
     disabled: ({ baseModel }) => baseModel.b_document == true,
     help: true
+  },
+
+  content_foret_onf: {
+    type: 'content',
+    code: 'declaration_foret_onf',
+    condition: ({ baseModel }) => baseModel.b_document == true && baseModel.b_statut_public == true,
+  },
+
+  content_foret_dgd: {
+    type: 'content',
+    code: 'declaration_foret_dgd',
+    condition: ({ baseModel }) => baseModel.b_document == true && baseModel.b_statut_public == false,
   },
 
   id_nomenclature_proprietaire_declarant: {
@@ -211,9 +223,9 @@ const formsForet = {
 
   nom_proprietaire: {
     type: "text",
-    required: true,
     label:
       "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire",
+    required: ({ baseModel }) => baseModel.b_document != true,
     disabled: ({ baseModel }) => baseModel.b_document == true
   },
 
