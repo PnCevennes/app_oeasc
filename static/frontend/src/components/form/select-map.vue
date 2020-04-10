@@ -9,13 +9,30 @@
       <div>
         Veuillez selectionner
         {{ description }}
-        sur la carte ci-dessous ou dans la liste ci-contre. <help code="selection_carte"></help>
+        sur la carte ci-dessous ou dans la liste ci-contre.
+        <help code="selection_carte"></help>
       </div>
     </div>
 
     <base-map v-if="mapConfig" :config="mapConfig" :mapId="config.name">
       <template v-slot:aside>
-        <div style="width:400px">
+        <div style="width:450px">
+          <div class="text-center">
+            <v-btn
+              left
+              :block="false"
+              color="error"
+              v-if="
+                baseModel.b_statut_public == false &&
+                  baseModel.b_document == true
+              "
+              @click="reinitContainer()"
+            >
+              Ma forêt n'apparait pas sur la liste
+            </v-btn>
+            <help code="foret_apparait_pas"></help>
+          </div>
+
           <help :code="`form-${config.name}`" v-if="config.help"></help>
           <v-autocomplete
             :ref="`select_map_${config.name}`"
@@ -50,7 +67,7 @@
             >
               Valider la selection
             </v-btn>
-            <v-btn color=error v-else @click="reinitContainer()">
+            <v-btn color="error" v-else @click="reinitContainer()">
               Retourner aux choix des {{ config.containerLegend }}
             </v-btn>
           </div>
@@ -63,7 +80,7 @@
 <script>
 import baseMap from "@/components/map/base-map";
 import { selectMapMethods } from "./select-map.js";
-import help from './help';
+import help from "./help";
 
 export default {
   name: "selectMap",
