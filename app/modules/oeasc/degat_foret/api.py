@@ -74,7 +74,10 @@ def api_get_declaration(id_declaration):
 
     # flat data
     out.update(foret.as_dict(True))
+
+    id_declarant = declaration.id_declarant
     out.update(proprietaire.as_dict(True))
+    out['id_declarant'] = id_declarant
 
     # nomenclature
     for key in out:

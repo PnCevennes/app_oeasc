@@ -73,8 +73,6 @@ export default {
     config: configDeclaration.config(),
     declaration: null,
     validForms: {},
-    // keySession: null,
-    // idDeclaration: null,
     initialized: false
   }),
 
@@ -108,10 +106,10 @@ export default {
     initDeclarationForm() {
       console.log("initDeclarationForm");
       // this.keySession = this.getKeySesion();
-      // this.idDeclaration = this.getIdDeclatation();
-      this.$store.commit("configDeclaration", configDeclaration);
+      // this.idDeclaration = this.getIdDeclatation();      this.$store.commit("configDeclaration", configDeclaration);
+      this.$store.commit("declarationForm", {});
 
-      console.log(this.idDeclaration);
+      this.$store.commit("configDeclaration", configDeclaration);
 
       const promises = [
         this.$store.dispatch("nomenclatures"),
@@ -123,21 +121,19 @@ export default {
         let declaration = this.idDeclaration
           ? this.$store.getters.declarationForm
           : {};
-        declaration = { ...declaration, ...declaration.foret };
+
+        declaration = { ...declaration.foret, ...declaration };
         this.declaration = configDeclaration.initModel(declaration);
         this.initialized = true;
         this.declaration.id_declarant =
           this.declaration.id_declarant || this.$store.getters.user.id_role;
+        console.log(
+          "declarant",
+          this.declaration.id_declarant,
+          declaration.id_declarant
+        );
       });
     },
-
-    // getKeySesion: function() {
-    //   return this.$route.query.keySession || "foret_statut";
-    // },
-
-    // getIdDeclatation: function() {
-    //   return this.$route.params.idDeclaration || null;
-    // },
 
     showSession: function(keySession) {
       return this.keySession === "all" || this.keySession == keySession;

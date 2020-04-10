@@ -117,7 +117,6 @@ def api_communes(test):
         FROM oeasc_commons.t_communes WHERE {0} ORDER BY population DESC, nom, cp LIMIT 20
     """.format(cond_text, s_trans_I, s_trans_O)
 
-    print(sql_text)
 
     result = DB.engine.execute(text(sql_text))
     out = [ {'nom_cp': res[0]} for res in result]

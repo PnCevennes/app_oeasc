@@ -88,23 +88,18 @@ export default {
   }),
   name: "declaration-list",
   methods: {
-    // viewDeclaration(item) {
-    //   this.$router.push({
-    //     path: `/declaration/voir_declaration/${item.id_declaration}`,
-    //     query: { keySession: "all" }
-    //   });
-    // },
-    // editDeclaration(item) {
-    //   this.$router.push({
-    //     path: `/declaration/declarer_en_ligne/${item.id_declaration}`
-    //   });
-    // },
     loadDeclarations() {
       this.$store.dispatch("declarations").then(declarations => {
         declarations.sort((a, b) => {
           return b.id_declaration - a.id_declaration;
         });
         this.declarations = declarations;
+        if (this.$store.getters.droit_max >= 5) {
+          this.headers.push({
+            text: 'Valide',
+            value: 'valide'
+          })
+        }
         this.loading = false;
       });
     }

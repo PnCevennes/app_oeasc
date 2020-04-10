@@ -248,7 +248,6 @@ export default {
         baseModel: this.baseModel,
         $store: this.$store
       });
-      console.log(essenceSelected);
       return essenceSelected[cd_nomenclature];
     },
 

@@ -78,8 +78,8 @@ const rules = {
   requiredListMultiple: v =>
     v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
   number: v => {
-    console.log('number test', v);
-    return v==null || v!='' || "Veuillez entrer un nombre";
+    console.log(Number(v))
+    return  v == "" || Number(v) || "Veuillez entrer un nombre";
   },
   telephone: v =>
     !v ||
@@ -108,15 +108,15 @@ const rules = {
       }
       config.rules.push(ruleRequired);
     }
+
+    if (config.type == "number") {
+      config.rules.push(rules.number);
+    }
+
     for (const key of ["maxLength", "maxLengthEssence", "min", "max"]) {
       if (key in config) {
         config.rules.push(rules[key](config[key]));
       }
-    }
-
-    if (config.type == "number") {
-      console.log("number", config.name);
-      config.rules.push(rules.number);
     }
   }
 };

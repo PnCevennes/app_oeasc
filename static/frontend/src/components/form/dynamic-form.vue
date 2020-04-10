@@ -50,7 +50,7 @@
     </template>
 
     <!-- text -->
-    <template v-else-if="configForm.type === 'text'">
+    <template v-else-if="['text', 'number'].includes(configForm.type)">
       <v-text-field
         v-model="baseModel[configForm.name]"
         :rules="configForm.rules"
@@ -85,7 +85,7 @@
     </template>
 
     <!-- number -->
-    <template v-else-if="configForm.type === 'number'">
+    <!-- <template v-else-if="configForm.type === 'number'">
       <v-text-field
         v-model="baseModel[configForm.name]"
         :rules="configForm.rules"
@@ -102,7 +102,7 @@
           v-if="config.help"
         ></help>
       </v-text-field>
-    </template>
+    </template> -->
 
     <!-- nomenclature -->
     <template v-else-if="configForm.type === 'nomenclature'">
