@@ -1,6 +1,15 @@
 <template>
   <div v-if="items">
     <v-container fluid>
+            <div class='select-list-label-container>'>
+                <span class='select-list-label'>
+                {{ config.label }}
+                </span>
+                <i>(Plusieurs réponses possibles)</i> 
+                <span v-if="config.required" class="required"> *</span>
+                <help :code="`form-${config.name}`" v-if="config.help"></help>
+              </div>
+
       <div v-for="(item, index) of items" :key="item.id_nomenclature">
         <div class="degat">
           <v-checkbox

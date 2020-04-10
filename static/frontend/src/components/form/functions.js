@@ -78,7 +78,6 @@ const rules = {
   requiredListMultiple: v =>
     v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
   number: v => {
-    console.log(Number(v))
     return  v == "" || Number(v) || "Veuillez entrer un nombre";
   },
   telephone: v =>

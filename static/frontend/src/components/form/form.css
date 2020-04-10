@@ -45,3 +45,11 @@
   margin-bottom: 40px;
 }
 
+.required  {
+  color: red;
+  margin-right: 5px;;
+}
+
+.select-list-label {
+  font-weight: bold;
+}

@@ -27,6 +27,12 @@
             :disabled="config.disabled"
             no-data-text="Pas de donnée disponible"
           >
+            <span slot="label"
+              >{{ config.label }}
+                <i v-if="config.multiple">(Plusieurs réponses possibles)</i> 
+              <span v-if="config.required" class="required">*</span>
+            </span>
+
             <help
               slot="prepend"
               :code="`form-${config.name}`"
@@ -59,11 +65,14 @@
           <!-- checkbox -->
           <div v-if="config.multiple">
             <v-container fluid>
-              <h5>
+              <div class='select-list-label-container>'>
+                <span class='select-list-label'>
                 {{ config.label }}
+                </span>
+                <i>(Plusieurs réponses possibles)</i> 
+                <span v-if="config.required" class="required"> *</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
-                <i>(Plusieurs réponses possibles)</i>
-              </h5>
+              </div>
 
               <v-checkbox
                 v-model="baseModel[config.name]"
@@ -92,10 +101,13 @@
           <!-- radio -->
           <div v-else>
             <v-container fluid>
-              <h5>
+              <div class='select-list-label-container>'>
+                <span class='select-list-label'>
                 {{ config.label }}
+                </span>
+                <span v-if="config.required" class="required"> *</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
-              </h5>
+              </div>
               <v-radio-group
                 v-model="baseModel[config.name]"
                 :rules="config.rules"

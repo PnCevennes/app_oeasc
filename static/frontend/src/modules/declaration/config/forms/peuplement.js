@@ -83,16 +83,16 @@ const formsPeuplement = {
   },
 
   id_nomenclature_peuplement_origine: {
-    label: "Origine des arbres / plants / semis touchés par les dégâts de grand gibier",
+    label: "Origine du peuplement",
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE",
     required: true,
     help: true
   },
-
+  
   id_nomenclature_peuplement_origine2: {
-    label: "Origine du peuplement",
+    label: "Origine des arbres / plants / semis",
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE2",

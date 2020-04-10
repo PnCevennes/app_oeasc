@@ -1,5 +1,6 @@
 const formsDegat = {
     degats: {
+        label: 'Choisir un ou plusieurs type de dégâts dans la liste',
         type: 'degats',
         required: true,
         valueFieldName: "id_nomenclature",

@@ -18,11 +18,6 @@
     <!-- test cond-->
     <template v-else-if="!configForm.condition"> </template>
 
-    <!-- input -->
-    <!-- <template v-else-if="configForm.type === 'input'">
-      <input v-model="baseModel[configForm.name]" />
-    </template> -->
-
     <!-- Boolean radio -->
     <template v-else-if="configForm.type === 'bool_radio'">
       <v-radio-group
@@ -34,6 +29,9 @@
           configForm.change && configForm.change({ baseModel, config, $store })
         "
       >
+      
+        <span v-if="config.required" class="required"> * </span>
+
         <help :code="`form-${config.name}`" v-if="config.help"></help>
 
         <v-radio :label="configForm.labels[0]" :value="true"></v-radio>
@@ -65,6 +63,10 @@
           :code="`form-${config.name}`"
           v-if="config.help"
         ></help>
+        <span slot="label"
+          >{{ config.label }}
+          <span v-if="config.required" class="required">*</span>
+        </span>
       </v-text-field>
     </template>
 
