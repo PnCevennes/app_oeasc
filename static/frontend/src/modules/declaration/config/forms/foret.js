@@ -178,8 +178,6 @@ const formsForet = {
     condition: ({ baseModel }) =>
       baseModel.b_document === false && baseModel.b_statut_public !== null,
     change: changeAreaForet,
-    help: true
-
   },
 
   label_foret: {

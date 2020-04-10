@@ -30,9 +30,11 @@
         :label="configForm.label"
         row
         :rules="configForm.rules"
-        @change="configForm.change && configForm.change({baseModel, config, $store})"
+        @change="
+          configForm.change && configForm.change({ baseModel, config, $store })
+        "
       >
-      <help :code="`form-${config.name}`" v-if="config.help"></help>
+        <help :code="`form-${config.name}`" v-if="config.help"></help>
 
         <v-radio :label="configForm.labels[0]" :value="true"></v-radio>
         <v-radio :label="configForm.labels[1]" :value="false"></v-radio>
@@ -49,7 +51,6 @@
 
     <!-- text -->
     <template v-else-if="configForm.type === 'text'">
-      <help :code="`form-${config.name}`" v-if="config.help"></help>
       <v-text-field
         v-model="baseModel[configForm.name]"
         :rules="configForm.rules"
@@ -58,21 +59,31 @@
         :maxlength="configForm.maxlength"
         :disabled="configForm.disabled"
         @change="configForm.change && configForm.change(baseModel)($event)"
-      ></v-text-field>
+      >
+        <help
+          slot="append"
+          :code="`form-${config.name}`"
+          v-if="config.help"
+        ></help>
+      </v-text-field>
     </template>
 
     <!-- text area -->
     <template v-else-if="configForm.type === 'text_area'">
-      <help :code="`form-${config.name}`" v-if="config.help"></help>
       <v-textarea
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
-      ></v-textarea>
+      >
+        <help
+          slot="append"
+          :code="`form-${config.name}`"
+          v-if="config.help"
+        ></help>
+      </v-textarea>
     </template>
 
     <!-- number -->
     <template v-else-if="configForm.type === 'number'">
-      <help :code="`form-${config.name}`" v-if="config.help"></help>
       <v-text-field
         v-model="baseModel[configForm.name]"
         :rules="configForm.rules"
@@ -82,7 +93,13 @@
         :disabled="configForm.disabled"
         :placeholder="configForm.placeholder"
         type="number"
-      />
+      >
+        <help
+          slot="append"
+          :code="`form-${config.name}`"
+          v-if="config.help"
+        ></help>
+      </v-text-field>
     </template>
 
     <!-- nomenclature -->
@@ -115,7 +132,10 @@
 
     <!-- content -->
     <template v-else-if="configForm.type === 'content'">
-      <oeasc-content :code="config.code" :containerClassIn="'content-container-form'"></oeasc-content>
+      <oeasc-content
+        :code="config.code"
+        :containerClassIn="'content-container-form'"
+      ></oeasc-content>
     </template>
   </div>
 </template>
@@ -127,7 +147,7 @@ import selectMap from "./select-map.vue";
 import essenceForm from "./essence-form.vue";
 import degatsForm from "./degats-form.vue";
 import oeascContent from "@/modules/content/content";
-import help from './help'
+import help from "./help";
 
 import { formFunctions } from "@/components/form/functions.js";
 
@@ -157,7 +177,7 @@ export default {
       "essence",
       "list_form",
       "degats",
-      "content",
+      "content"
     ],
     configForm: null
   }),

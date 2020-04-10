@@ -5,7 +5,6 @@
       <div>
         <!-- select -->
         <div v-if="config.display === 'autocomplete'">
-          <help :code="`form-${config.name}`" v-if="config.help"></help>
           <v-autocomplete
             ref="autocomplete"
             v-model="baseModel[config.name]"
@@ -26,7 +25,10 @@
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
             no-data-text="Pas de donnée disponible"
-          ></v-autocomplete>
+          >
+          <help slot="prepend" :code="`form-${config.name}`" v-if="config.help"></help>
+
+          </v-autocomplete>
         </div>
 
         <div v-else-if="config.display === 'select'">

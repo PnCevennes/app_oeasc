@@ -17,23 +17,25 @@
     <base-map v-if="mapConfig" :config="mapConfig" :mapId="config.name">
       <template v-slot:aside>
         <div style="width:450px">
-          <div class="text-center">
-            <v-btn
-              left
-              :block="false"
-              color="error"
+          <div class="btn-pre-select"
               v-if="
                 baseModel.b_statut_public == false &&
                   baseModel.b_document == true
               "
-              @click="reinitContainer()"
+          >
+            <v-btn
+              left
+              :block="false"
+              color="error"
+              @click="baseModel.b_statut_public=false; baseModel.b_document=false"
             >
               Ma forêt n'apparait pas sur la liste
             </v-btn>
             <help code="foret_apparait_pas"></help>
           </div>
 
-          <help :code="`form-${config.name}`" v-if="config.help"></help>
+          <!-- <help :code="`form-${config.name}`" v-if="config.help"></help> -->
+          
           <v-autocomplete
             :ref="`select_map_${config.name}`"
             v-model="baseModel[name]"
@@ -53,7 +55,9 @@
             clearable
             placeholder="Choisir un element dans la liste"
             @change="selectChange"
-          ></v-autocomplete>
+          >
+          <help slot="append" :code="`form-${config.name}`" v-if="config.help"></help>
+          </v-autocomplete>
           <div v-if="config.containerUrl">
             <v-btn
               v-if="selectContainer"
