@@ -122,7 +122,7 @@ export default {
     this.mapService = this.$store.getters.mapService(this.config.name);
     this.mapService.addLayerLegend({
       style: this.mapConfig.styles.select,
-      legend: "Selection"
+      legend: "Sélection"
     });
   }
 };

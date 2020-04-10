@@ -255,10 +255,11 @@ def get_declarations():
 def hide_proprietaire(proprietaire):
     for key in [
         'nom_proprietaire',
-        'telephone',
-        'email',
         'adresse',
         's_code_postal',
         's_commune_proprietaire'
     ]:
         proprietaire[key] = '***'
+
+    proprietaire['telephone'] = '09 99 99 99 99'
+    proprietaire['email'] = 'prive@prive.prive'
