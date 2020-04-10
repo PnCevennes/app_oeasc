@@ -6,7 +6,7 @@ const sessionsValidation = {
     groups: {
       content: {
         class: ['no-border'],
-        forms: ["content_validation"]
+        forms: ["content_validation", "content_resume"]
       },
       autorisation: {
         forms: ["b_autorisation"]

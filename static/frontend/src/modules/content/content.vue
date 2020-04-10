@@ -50,13 +50,14 @@ import { config } from "@/config/config.js";
 import { MapService } from "@/modules/map";
 import faqDeclaration from "./faq-declaration"
 import tableAide from "./table-aide"
+import declarationTable from "@/modules/declaration/declaration-table"
 import "./content.css";
 // import Vue from "vue";
 import VRuntimeTemplate from "v-runtime-template";
 
 export default {
   name: "oeasc-content",
-  props: ["code", "containerClassIn"],
+  props: ["code", "containerClassIn", "meta"],
   watch: {
     $route() {
       // react to route changes...
@@ -66,7 +67,8 @@ export default {
   components: {
     VRuntimeTemplate,
     faqDeclaration, // eslint-disable-line
-    tableAide // eslint-disable-line
+    tableAide, // eslint-disable-line
+    declarationTable // eslint-disable-line
   },
   data: () => ({
     // component: null,

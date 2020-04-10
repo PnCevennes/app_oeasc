@@ -91,7 +91,7 @@ const formsPeuplement = {
     help: true
   },
   
-  id_nomenclature_peuplement_origine2: {
+  nomenclatures_peuplement_origine2: {
     label: "Origine des arbres / plants / semis",
     type: "nomenclature",
     display: "radio",

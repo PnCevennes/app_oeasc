@@ -22,9 +22,14 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
             WHEN NOT b_statut_public AND b_document THEN 'Privé (avec DGD)' 
             WHEN NOT b_statut_public AND NOT b_document THEN 'Privé (sans DGD)'
             ELSE ''
-        END AS type_foret
+        END AS type_foret,
 
-        FROM oeasc_forets.t_forets f
+        ref_nomenclatures.get_nomenclature_label(p.id_nomenclature_proprietaire_type) AS foret_type_label
+
+
+        FROM oeasc_forets.t_forets f 
+        JOIN oeasc_forets.t_proprietaires p
+            ON p.id_proprietaire = f.id_proprietaire
     ),
     
     peuplement AS ( SELECT
@@ -59,7 +64,10 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     peuplement_nomenclatures AS ( SELECT
         d.id_declaration,
 
+
+
         ref_nomenclatures.get_nomenclature_mnemoniques(ARRAY_AGG(DISTINCT c_maturite.id_nomenclature)) AS peuplement_maturite_mnemo,
+        ref_nomenclatures.get_nomenclature_mnemoniques(ARRAY_AGG(DISTINCT c_origine.id_nomenclature)) AS peuplement_origine2_mnemo,
         ref_nomenclatures.get_nomenclature_mnemoniques(ARRAY_AGG(DISTINCT c_ess_2.id_nomenclature)) AS peuplement_ess_2_mnemo,
         ref_nomenclatures.get_nomenclature_mnemoniques(ARRAY_AGG(DISTINCT c_ess_3.id_nomenclature)) AS peuplement_ess_3_mnemo,
         ref_nomenclatures.get_nomenclature_mnemoniques(ARRAY_AGG(DISTINCT c_paturage_type.id_nomenclature)) AS peuplement_paturage_type_mnemo,
@@ -68,6 +76,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         ref_nomenclatures.get_nomenclature_mnemoniques(ARRAY_AGG(DISTINCT c_espece.id_nomenclature)) AS espece_mnemo,
 
         ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_maturite.id_nomenclature)) AS peuplement_maturite_label,
+        ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_origine.id_nomenclature)) AS peuplement_origine2_label,
         ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_ess_2.id_nomenclature)) AS peuplement_ess_2_label,
         ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_ess_3.id_nomenclature)) AS peuplement_ess_3_label,
         ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_paturage_type.id_nomenclature)) AS peuplement_paturage_type_label,
@@ -76,6 +85,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT c_espece.id_nomenclature)) AS espece_label,
         
         ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_maturite.id_nomenclature)) AS peuplement_maturite_code,
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_origine.id_nomenclature)) AS peuplement_origine2_code,
         ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_ess_2.id_nomenclature)) AS peuplement_ess_2_code,
         ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_ess_3.id_nomenclature)) AS peuplement_ess_3_code,
         ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT c_paturage_type.id_nomenclature)) AS peuplement_paturage_type_code,
@@ -98,6 +108,8 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
             ON d.id_declaration = c_protection_type.id_declaration
         LEFT JOIN oeasc_declarations.cor_nomenclature_declarations_espece AS c_espece
             ON d.id_declaration = c_espece.id_declaration
+        LEFT JOIN oeasc_declarations.cor_nomenclature_declarations_origine AS c_origine
+            ON d.id_declaration = c_origine.id_declaration
 
         GROUP BY d.id_declaration
     ),
@@ -133,6 +145,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     f.b_statut_public,
     f.b_document,
     f.type_foret,
+    f.foret_type_label, 
 
     oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_COMMUNE') AS communes,
     oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_SECTEUR') AS secteur,
@@ -146,6 +159,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
 
     p.peuplement_type_mnemo,
     p.peuplement_origine_mnemo,    
+    pn.peuplement_origine2_mnemo,    
     pn.peuplement_maturite_mnemo,
     p.peuplement_ess_1_mnemo,
     pn.peuplement_ess_2_mnemo,
@@ -161,6 +175,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
 
     p.peuplement_type_label,
     p.peuplement_origine_label,    
+    pn.peuplement_origine2_label,    
     pn.peuplement_maturite_label,
     p.peuplement_ess_1_label,
     pn.peuplement_ess_2_label,
@@ -179,6 +194,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
 
     p.peuplement_type_code,
     p.peuplement_origine_code,    
+    pn.peuplement_origine2_code,    
     pn.peuplement_maturite_code,
     p.peuplement_ess_1_code,
     pn.peuplement_ess_2_code,
@@ -305,6 +321,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_csv AS
         vd.parcelles AS "Parcelle(s)",
         vd.peuplement_type_mnemo AS "Peu. type",
         vd.peuplement_origine_mnemo AS "Peu. ori.",    
+        vd.peuplement_origine2_mnemo AS "Peu. ori. 2",    
         vd.peuplement_maturite_mnemo AS "Peu. mat.",
         vd.peuplement_ess_1_mnemo AS "Ess. 1",
         vd.peuplement_ess_2_mnemo AS "Ess. 2",

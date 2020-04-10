@@ -34,7 +34,7 @@ const sessionsPeuplement = {
         direction: "row",
         forms: [
           "id_nomenclature_peuplement_origine",
-          "id_nomenclature_peuplement_origine2",
+          "nomenclatures_peuplement_origine2",
           "id_nomenclature_peuplement_type",
           "nomenclatures_peuplement_maturite"
         ]

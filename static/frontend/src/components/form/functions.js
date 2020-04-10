@@ -78,7 +78,7 @@ const rules = {
   requiredListMultiple: v =>
     v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
   number: v => {
-    return  v == "" || Number(v) || "Veuillez entrer un nombre";
+    return  ""==v || Number(v) == 0 || !!Number(v) || "Veuillez entrer un nombre";
   },
   telephone: v =>
     !v ||

@@ -137,7 +137,8 @@
     <!-- content -->
     <template v-else-if="configForm.type === 'content'">
       <oeasc-content
-        :code="config.code"
+        :meta="configForm.meta"
+        :code="configForm.code"
         :containerClassIn="'content-container-form'"
       ></oeasc-content>
     </template>

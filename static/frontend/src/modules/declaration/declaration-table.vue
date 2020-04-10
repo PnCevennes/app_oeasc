@@ -1,13 +1,17 @@
 <template>
   <div>
-    <table class="table">
+    <table class="table-declaration">
       <tbody>
         <tr>
           <th colspan="3">Informations</th>
         </tr>
+        <tr v-if="this.$store.getters.droit_max >= 5">
+          <th>Validité</th>
+          <td>{{ declarationDisplay.valide }}</td>
+        </tr>
         <tr>
           <th>Partage d'information</th>
-          <td v-if="declaration.b_autorisation">
+          <td v-if="declarationDisplay.b_autorisation">
             Autorisé
           </td>
           <td v-else>
@@ -16,29 +20,29 @@
         </tr>
         <tr>
           <th>Date</th>
-          <td>{{ declaration.declaration_date }}</td>
+          <td>{{ declarationDisplay.declaration_date }}</td>
         </tr>
         <tr>
           <th>Accessibilité</th>
-          <td>{{ declaration.peuplement_acces_label }}</td>
+          <td>{{ declarationDisplay.peuplement_acces_label }}</td>
         </tr>
         <tr>
           <th>Espèces présentes</th>
-          <td>{{ declaration.espece_label }}</td>
+          <td>{{ declarationDisplay.espece_label }}</td>
         </tr>
       </tbody>
 
-      <tbody v-if="declaration.declarant">
+      <tbody v-if="declarationDisplay.declarant">
         <tr>
           <th colspan="3">Déclarant</th>
         </tr>
         <tr>
           <th>NOM prénom</th>
-          <td>{{ declaration.declarant }}</td>
+          <td>{{ declarationDisplay.declarant }}</td>
         </tr>
         <tr>
           <th>Organisme</th>
-          <td>{{ declaration.organisme }}</td>
+          <td>{{ declarationDisplay.organisme }}</td>
         </tr>
       </tbody>
 
@@ -48,22 +52,30 @@
         </tr>
         <tr>
           <th>Nom</th>
-          <td v-if="declaration.label_foret != ''">
-            {{ declaration.label_foret }}
+          <td v-if="declarationDisplay.label_foret != ''">
+            {{ declarationDisplay.label_foret }}
           </td>
           <td v-else>nom inconnu</td>
         </tr>
         <tr>
           <th>Statut</th>
-          <td>{{ declaration.statut_public }}</td>
+          <td>{{ declarationDisplay.statut_public }}</td>
         </tr>
         <tr>
           <th>Documentée</th>
-          <td v-if="declaration.b_document && declaration.b_statut_public">
+          <td
+            v-if="
+              declarationDisplay.b_document &&
+                declarationDisplay.b_statut_public
+            "
+          >
             oui <i>(régime forestier)</i>
           </td>
           <td
-            v-else-if="declaration.b_document && !declaration.b_statut_public"
+            v-else-if="
+              declarationDisplay.b_document &&
+                !declarationDisplay.b_statut_public
+            "
           >
             oui <i>(document de gestion durable)</i>
           </td>
@@ -73,7 +85,7 @@
         </tr>
         <tr>
           <th>Type</th>
-          <td>TODO!!</td>
+          <td>{{ foretType(declarationDisplay.foret_type_label) }}</td>
         </tr>
       </tbody>
 
@@ -83,16 +95,16 @@
         </tr>
         <tr>
           <th>Secteur</th>
-          <td>{{ declaration.secteur }}</td>
+          <td>{{ declarationDisplay.secteur }}</td>
         </tr>
         <tr>
           <th>Commune(s)</th>
-          <td>{{ declaration.communes }}</td>
+          <td>{{ declarationDisplay.communes }}</td>
         </tr>
 
         <tr>
           <th>Parcelle(s)</th>
-          <td>{{ declaration.parcelles }}</td>
+          <td>{{ declarationDisplay.parcelles }}</td>
         </tr>
       </tbody>
 
@@ -102,15 +114,15 @@
         </tr>
         <tr>
           <th>Principale</th>
-          <td>{{ declaration.peuplement_ess_1_label }}</td>
+          <td>{{ declarationDisplay.peuplement_ess_1_label }}</td>
         </tr>
-        <tr>
+        <tr v-if="declarationDisplay.peuplement_ess_2_label">
           <th>Secondaire(s)</th>
-          <td>{{ declaration.peuplement_ess_2_label }}</td>
+          <td>{{ declarationDisplay.peuplement_ess_2_label }}</td>
         </tr>
-        <tr>
+        <tr v-if="declarationDisplay.peuplement_ess_3_label">
           <th>Complémentaire(s)</th>
-          <td>{{ declaration.peuplement_ess_3_label }}</td>
+          <td>{{ declarationDisplay.peuplement_ess_3_label }}</td>
         </tr>
       </tbody>
 
@@ -120,19 +132,26 @@
         </tr>
         <tr>
           <th>Superficie (ha)</th>
-          <td>{{ declaration.peuplement_surface || "Non renseignée" }}</td>
+          <td>
+            {{ declarationDisplay.peuplement_surface || "Non renseignée" }}
+          </td>
         </tr>
         <tr>
           <th>Origine</th>
-          <td>{{ declaration.peuplement_origine_label }}</td>
+          <td>{{ declarationDisplay.peuplement_origine_label }}</td>
+        </tr>
+        <tr>
+          <th>Origine 2</th>
+          <td>{{ declarationDisplay.peuplement_origine2_label }}</td>
         </tr>
         <tr>
           <th>Type</th>
-          <td>{{ declaration.peuplement_type_label }}</td>
+          <td>{{ declarationDisplay.peuplement_type_label }}</td>
         </tr>
-        <tr>
+
+        <tr v-if="declarationDisplay.peuplement_maturite_label">
           <th>Maturité</th>
-          <td>{{ declaration.peuplement_maturite_label }}</td>
+          <td>{{ declarationDisplay.peuplement_maturite_label }}</td>
         </tr>
       </tbody>
 
@@ -142,16 +161,16 @@
         </tr>
         <tr>
           <th>Existence</th>
-          <td v-if="declaration.b_peuplement_protection_existence">
+          <td v-if="declarationDisplay.b_peuplement_protection_existence">
             oui
           </td>
           <td v-else>non</td>
         </tr>
-        <template v-if="declaration.b_peuplement_protection_existence">
+        <template v-if="declarationDisplay.b_peuplement_protection_existence">
           <tr>
             <th>Type</th>
             <td>
-              {{ declaration.peuplement_protection_type_label }}
+              {{ declarationDisplay.peuplement_protection_type_label }}
             </td>
           </tr>
         </template>
@@ -163,35 +182,30 @@
         </tr>
         <tr>
           <th>Présence</th>
-          <td v-if="declaration.b_peuplement_paturage_presence">
+          <td v-if="declarationDisplay.b_peuplement_paturage_presence">
             oui
           </td>
           <td v-else>non</td>
         </tr>
-        <template v-if="declaration.b_peuplement_paturage_presence">
+        <template v-if="declarationDisplay.b_peuplement_paturage_presence">
           <tr>
             <th>Type</th>
-            <td>{{ declaration_table.peuplement_paturage_type_label }}</td>
+            <td>{{ declarationDisplay.peuplement_paturage_type_label }}</td>
           </tr>
 
           <tr>
             <th>Statut</th>
-            <td>{{ declaration_table.peuplement_paturage_statut_label }}</td>
+            <td>{{ declarationDisplay.peuplement_paturage_statut_label }}</td>
           </tr>
 
           <tr>
             <th>Fréquence</th>
-            <td>{{ declaration_table.peuplement_paturage_frequence_label }}</td>
+            <td>{{ declarationDisplay.peuplement_paturage_frequence_label }}</td>
           </tr>
 
-          <tr>
-            <th>Fréquence</th>
-            <td>{{ declaration_table.peuplement_paturage_frequence_label }}</td>
-          </tr>
-
-          <tr>
+          <tr v-if="declarationDisplay.peuplement_paturage_saison_label">
             <th>Saison</th>
-            <td>{{ declaration_table.peuplement_paturage_saison_label }}</td>
+            <td>{{ declarationDisplay.peuplement_paturage_saison_label }}</td>
           </tr>
         </template>
       </tbody>
@@ -200,8 +214,8 @@
         <tr>
           <th colspan="3">Dégâts</th>
         </tr>
-        <template v-for="(degat, indexDegat) in declaration.degats">
-          <template v-if="degat.degat_essences">
+        <template v-for="(degat, indexDegat) in declarationDisplay.degats">
+          <template v-if="degat.degat_essences && degat.degat_essences.length">
             <tr
               v-for="(degatEssence, indexDegatEssence) in degat.degat_essences"
               :key="degatEssence.id_degat_essence"
@@ -211,6 +225,7 @@
                 :rowspan="degat.degat_essences.length"
               >
                 {{ degat.degat_type_label }}
+                {{ degat.degat_type_mnemo }}
               </th>
               <td>
                 {{ degatEssence.degat_essence_label }}
@@ -230,33 +245,54 @@
             </tr>
           </template>
         </template>
-        <tr>
+        <tr v-if="declarationDisplay.precision_localisation">
           <th>Précisions sur la localisation</th>
-          <td>{{ declaration.precision_localisation }}</td>
+          <td>{{ declarationDisplay.precision_localisation }}</td>
         </tr>
       </tbody>
 
-    <tbody>
-      <tr>
-        <th colspan="3">Commentaires</th>
-      </tr>
-      <tr>
-        <th></th>
-        <td>
-          {{ declaration.commentaire }}
-        </td>
-      </tr>
-      
-    </tbody>
-
-
+      <tbody v-if="declarationDisplay.commentaire">
+        <tr>
+          <th colspan="3">Commentaires</th>
+        </tr>
+        <tr>
+          <th></th>
+          <td>
+            {{ declarationDisplay.commentaire }}
+          </td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </template>
 
 <script>
+import { rawToDisplay } from "./declaration.js";
 export default {
   name: "declarationTable",
-  props: ["declaration"]
+  props: ["declaration", 'type'],
+  methods: {
+    foretType(s) {
+      const foretTypes = {
+        État: "Domaniale",
+        "Centre hospitalier": "Autre forêt publique",
+        "EP PNC": "Autre forêt publique",
+        Commune: "Communale",
+        "Groupement forestier": "Groupement forestier",
+        "Section / hameau": "Sectionale",
+        Privé: "Privée"
+      };
+      return foretTypes[s];
+    }
+  },
+  computed: {
+    declarationDisplay() {
+      if (this.type != "raw") {
+        return this.declaration;
+      }
+      console.log("raw");
+      return rawToDisplay(this);
+    }
+  }
 };
 </script>
