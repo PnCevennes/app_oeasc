@@ -123,6 +123,28 @@ class CorNomenclatureDeclarationMaturite(DB.Model):
 
 
 @serializable
+class CorNomenclatureDeclarationOrigine(DB.Model):
+    '''
+        nomenclatures peuplement origine
+    '''
+
+    __tablename__ = 'cor_nomenclature_declarations_origine'
+    __table_args__ = {'schema': 'oeasc_declarations', 'extend_existing': True}
+
+    id_nomenclature = DB.Column(DB.Integer, primary_key=True)
+    id_declaration = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc_declarations.t_declarations.id_declaration'),
+        primary_key=True
+    )
+
+    def __init__(self, id_nomenclature=None):
+
+        super(CorNomenclatureDeclarationOrigine, self).__init__()
+        self.id_nomenclature = id_nomenclature
+
+
+@serializable
 class CorNomenclatureDeclarationProtectionType(DB.Model):
     '''
         nomenclatures protection type
@@ -330,6 +352,7 @@ class TDeclaration(DB.Model):
     b_peuplement_protection_existence = DB.Column(DB.Boolean)
     b_peuplement_paturage_presence = DB.Column(DB.Boolean)
     b_autorisation = DB.Column(DB.Boolean)
+    b_valid = DB.Column(DB.Boolean)
 
     areas_localisation = DB.relationship(
         CorAreasDeclaration,

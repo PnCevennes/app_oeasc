@@ -11,8 +11,11 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         label_foret,
         b_document,
         b_statut_public,
+
         CASE WHEN b_statut_public THEN 'Public' ELSE 'Privé' END AS statut_public,
+
         CASE WHEN b_document THEN 'Oui' ELSE 'Non' END AS document,
+
         CASE 
             WHEN b_statut_public AND b_document THEN 'Public (avec DGD)' 
             WHEN b_statut_public AND NOT b_document THEN 'Public (sans DGD)'
@@ -202,6 +205,13 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
 	WHEN NOT f.b_statut_public AND f.b_document THEN oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_DGD')
 	ELSE oeasc_declarations.get_area_names(d.id_declaration, 'OEASC_SECTION')
     END AS areas_foret_names,
+
+    CASE
+        WHEN b_valid = TRUE THEN 'Validé' 
+        WHEN b_valid = FALSE THEN 'Non validé' 
+        ELSE 'En attente'
+    END AS valide,
+
 
 
     CASE 

@@ -9,6 +9,14 @@ const formsValidation = {
     type: "bool_radio",
     labels: ["Oui", "Non"],
     required: true,
+  },
+
+  b_valid: {
+    label:
+      "Valider cette déclaration (admin seulement)",
+    type: "bool_radio",
+    labels: ["Oui", "Non"],
+    condition: ({$store}) => $store.getters.droit_max >= 5,
   }
 };
 

@@ -8,8 +8,11 @@ const sessionsValidation = {
         class: ['no-border'],
         forms: ["content_validation"]
       },
-      validation: {
+      autorisation: {
         forms: ["b_autorisation"]
+      },
+      validation: {
+        forms: ["b_valid"]
       }
     },
     action: {

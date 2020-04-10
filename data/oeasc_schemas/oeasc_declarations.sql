@@ -41,6 +41,7 @@ CREATE TABLE IF NOT EXISTS oeasc_declarations.t_declarations
     b_peuplement_protection_existence BOOLEAN,
     b_peuplement_paturage_presence BOOLEAN,
     b_autorisation BOOLEAN,
+    b_valid BOOLEAN,
 
     autre_protection text,
     precision_localisation text,
@@ -263,6 +264,28 @@ CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_matu
 
     CONSTRAINT check_cor_nomenclature_declarations_maturite_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
         id_nomenclature, 'OEASC_PEUPLEMENT_MATURITE')) NOT VALID
+);
+
+
+DROP TABLE IF EXISTS oeasc_declarations.cor_nomenclature_declarations_origine CASCADE;
+
+CREATE TABLE IF NOT EXISTS oeasc_declarations.cor_nomenclature_declarations_origine
+(
+    id_declaration integer NOT NULL,
+    id_nomenclature integer NOT NULL,
+
+    CONSTRAINT pk_cor_nomenclature_declarations_origine PRIMARY KEY (id_declaration, id_nomenclature),
+
+    CONSTRAINT fk_cor_nomenclature_declarations_origine_id_declaration FOREIGN KEY (id_declaration)
+        REFERENCES oeasc_declarations.t_declarations (id_declaration) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE CASCADE,
+
+    CONSTRAINT fk_cor_nomenclature_declarations_origine_id_nomenclature FOREIGN KEY (id_nomenclature)
+        REFERENCES ref_nomenclatures.t_nomenclatures (id_nomenclature) MATCH SIMPLE
+        ON UPDATE NO ACTION ON DELETE NO ACTION,
+
+    CONSTRAINT check_cor_nomenclature_declarations_origine_mnemonique CHECK (ref_nomenclatures.check_nomenclature_type_by_mnemonique(
+        id_nomenclature, 'OEASC_PEUPLEMENT_ORIGINE2')) NOT VALID
 );
 
 
