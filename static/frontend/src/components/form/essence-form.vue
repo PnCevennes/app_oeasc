@@ -22,25 +22,24 @@ export default {
   watch: {
     baseModel: {
       handler() {
-        this.aa();
+        this.processChange();
       },
       deep: true
     },
     config: {
       handler() {
-        this.aa();
+        this.processChange();
       },
       deep: true
     }
   },
   methods: {
-    aa() {
-      this.bb();
-      console.log(this.configList.essencesSelected);
-      this.$refs[`listForm_${this.config.name}`].getData();
+    processChange() {
+      this.getEssenceSelected();
+      this.$refs[`listForm_${this.configList.name}`].getData();
     },
-    bb() {
-      this.config.essencesSelected = formFunctions.getEssencesSelected({
+    getEssenceSelected() {
+      this.configList.essencesSelected = formFunctions.getEssencesSelected({
         baseModel: this.config.declaration || this.baseModel,
         $store: this.$store
       });
@@ -58,8 +57,8 @@ export default {
 
   },
   mounted() {
-    this.bb();
     this.configList = this.config;
+    this.getEssenceSelected();
   }
 };
 </script>

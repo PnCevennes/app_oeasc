@@ -5,6 +5,10 @@
   padding: 10px;
 }
 
+.no-border {
+  border: 0px;
+}
+
 .flex-container {
   display: flex;
   flex-direction: column;
@@ -32,6 +36,12 @@
   display: inline-block;
 }
 
+.aside-select {
+  width:450px;
+  margin-top:20px;
+}
+
 .btn-pre-select {
   margin-bottom: 40px;
 }
+

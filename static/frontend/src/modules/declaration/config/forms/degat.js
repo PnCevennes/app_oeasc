@@ -8,7 +8,8 @@ const formsDegat = {
         require: true,
     },
     degats_precision_localisation: {
-        type: 'text_area'
+        type: 'text_area',
+        label: 'Indications pour la localisation des dégats'
     }
 };
 

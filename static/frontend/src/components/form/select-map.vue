@@ -16,7 +16,7 @@
 
     <base-map v-if="mapConfig" :config="mapConfig" :mapId="config.name">
       <template v-slot:aside>
-        <div style="width:450px">
+        <div class="aside-select">
           <div class="btn-pre-select"
               v-if="
                 baseModel.b_statut_public == false &&
@@ -24,7 +24,7 @@
               "
           >
             <v-btn
-              left
+              small
               :block="false"
               color="error"
               @click="baseModel.b_statut_public=false; baseModel.b_document=false"
@@ -71,7 +71,7 @@
             >
               Valider la selection
             </v-btn>
-            <v-btn color="error" v-else @click="reinitContainer()">
+            <v-btn small color="error" v-else @click="reinitContainer()">
               Retourner aux choix des {{ config.containerLegend }}
             </v-btn>
           </div>

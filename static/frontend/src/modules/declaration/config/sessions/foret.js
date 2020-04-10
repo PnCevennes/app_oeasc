@@ -41,7 +41,7 @@ const sessionsForet = {
         forms: ["content_foret_onf", "content_foret_dgd"],
       },
       proprietaire_declarant: {
-        title: 'statut du propriétaire',
+        title: 'Statut du propriétaire',
         forms: ["id_nomenclature_proprietaire_declarant"]
       },
       coordonnées: {

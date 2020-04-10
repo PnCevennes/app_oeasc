@@ -73,6 +73,8 @@
       <v-textarea
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
+        :placeholder="config.placeholder"
+        outlined
       >
         <help
           slot="append"

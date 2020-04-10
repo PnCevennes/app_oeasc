@@ -209,7 +209,7 @@ const formsForet = {
   },
 
   id_nomenclature_proprietaire_declarant: {
-    label: "Le déclarant est-il le propriétaire de la forêt?",
+    label: "Êtes vous propriétaire de la forêt concernée ?",
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PROPRIETAIRE_DECLARANT",
@@ -256,7 +256,7 @@ const formsForet = {
     label: "Commune",
     dataReloadOnSearch: true,
     placeholder:
-      "Entrez les premières lettres de la commune et/ou le code postal séparés d'un espace",
+      "Entrez les premières lettres de la commune et/ou le code postal",
     url: ({ search }) => `api/commons/communes/${search}`,
     valueFieldName: "nom_cp",
     textFieldName: "nom_cp",

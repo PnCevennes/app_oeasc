@@ -1,9 +1,13 @@
 const sessionsCommentaires = {
   commentaires: {
-    title: "Commentaires",
+    title: "",
     groups: {
+      content: {
+        class: ['no-border'],
+        forms: ["content_commentaires"]
+      },
       commentaires: {
-        forms: ["content_commentaires","commentaires"]
+        forms: ["commentaires"]
       }
     }
   },

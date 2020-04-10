@@ -1,6 +1,8 @@
 <template>
   <div class="help">
     <v-btn
+      tabIndex="-1" 
+      placeholder="NoTabIndex"
       class="btn"
       icon
       @click.stop="dialog = true"

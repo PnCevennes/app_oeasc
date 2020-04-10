@@ -1,6 +1,11 @@
-const getEssencesSelected = ( { baseModel, $store } ) => {
+const getEssencesSelected = ({ baseModel, $store }) => {
   const essencesSelected = {};
 
+  // console.log(
+  //   baseModel.id_nomenclature_peuplement_essence_principale,
+  //   baseModel.nomenclatures_peuplement_essence_secondaire,
+  //   baseModel.nomenclatures_peuplement_essence_complementaire
+  // );
   essencesSelected["all"] = [
     ...baseModel.nomenclatures_peuplement_essence_secondaire,
     ...baseModel.nomenclatures_peuplement_essence_complementaire
@@ -10,9 +15,8 @@ const getEssencesSelected = ( { baseModel, $store } ) => {
       baseModel.id_nomenclature_peuplement_essence_principale
     );
   }
-
   essencesSelected["degats"] = [
-    ...baseModel.nomenclatures_peuplement_essence_secondaire,
+    ...baseModel.nomenclatures_peuplement_essence_secondaire
   ];
   if (baseModel.id_nomenclature_peuplement_essence_principale) {
     essencesSelected["degats"].push(
@@ -20,12 +24,11 @@ const getEssencesSelected = ( { baseModel, $store } ) => {
     );
   }
 
-
-
   for (const degat of baseModel.degats || []) {
-    const nomenclature = $store.getters.nomenclature(degat.id_nomenclature_degat_type);
+    const nomenclature = $store.getters.nomenclature(
+      degat.id_nomenclature_degat_type
+    );
     const cd = nomenclature.cd_nomenclature;
-    console.log(cd)
     if (cd !== "P/C") {
       essencesSelected[cd] = [];
       for (const degat_essence of degat.degat_essences || []) {
@@ -33,7 +36,7 @@ const getEssencesSelected = ( { baseModel, $store } ) => {
       }
     }
   }
-
+  // console.log(essencesSelected["all"]);
   return essencesSelected;
 };
 
@@ -74,14 +77,19 @@ const rules = {
   requiredListSimple: v => !!v || "Veuillez choisir un élément dans la liste.",
   requiredListMultiple: v =>
     v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
-    number: v => !v || Number(v) !== undefined || "Veuillez entrer un nombre", 
+  number: v => {
+    console.log('number test', v);
+    return v==null || v!='' || "Veuillez entrer un nombre";
+  },
   telephone: v =>
     !v ||
     /^0[1-9]([ -]?[0-9][0-9]){4}$/.test(v) ||
     "Le numéro de téléphone doit être valide (10 chiffres).",
-  email: v => !v || /.+@.+\..+/.test(v) || "L'E-mail doit être valide.",
+  email: v => !v || /.+@.+\..+/.test(v) || "L'e-mail doit être valide.",
   maxLength: max => v =>
     v.length <= max || `Choisir un maximum de ${max} éléments.`,
+  maxLengthEssence: max => v =>
+    v.length <= max || `${max} essence${max > 1 ? "s" : ""} maximum.`,
   min: min => v =>
     v >= min || `La valeur doit être supérieure ou égale à ${min}.`,
   max: max => v =>
@@ -100,16 +108,16 @@ const rules = {
       }
       config.rules.push(ruleRequired);
     }
-    for (const key of ["maxLength", "min", "max"]) {
+    for (const key of ["maxLength", "maxLengthEssence", "min", "max"]) {
       if (key in config) {
         config.rules.push(rules[key](config[key]));
       }
     }
 
-    if (config.type == 'number') {
-      config.rules.push(rules.number)
+    if (config.type == "number") {
+      console.log("number", config.name);
+      config.rules.push(rules.number);
     }
-
   }
 };
 

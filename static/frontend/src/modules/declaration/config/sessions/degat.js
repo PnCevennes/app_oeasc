@@ -8,7 +8,7 @@ const sessionsDegat = {
     }
   },
   degats_precision_localisation: {
-    title: "Précision sur la localisation des dégâts",
+    title: "Précisions sur la localisation des dégâts",
     groups: {
       degats_precision_localisation: {
         forms: ["degats_precision_localisation"]

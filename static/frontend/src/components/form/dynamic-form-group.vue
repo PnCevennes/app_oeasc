@@ -1,9 +1,11 @@
 <template>
   <div>
+    <!-- {{config}} -->
     <div
       v-if="config.forms && hasForms(config)"
       :class="{
-        'form-group': true
+        'form-group': true,
+        'no-border': config.class && config.class.includes('no-border')
       }"
     >
       <h4>

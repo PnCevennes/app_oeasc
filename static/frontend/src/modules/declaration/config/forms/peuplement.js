@@ -65,7 +65,7 @@ const formsPeuplement = {
     label: "Essence(s) secondaire(s)",
     type: "essence",
     essenceType: "all",
-    maxLength: 3,
+    maxLengthEssence: 3,
   },
 
   nomenclatures_peuplement_essence_complementaire: {
@@ -73,7 +73,7 @@ const formsPeuplement = {
     label: "Essence(s) complémentaire(s)",
     type: "essence",
     essenceType: "all",
-    maxLength: 3,
+    maxLengthEssence: 3,
   },
 
   peuplement_surface: {
@@ -87,6 +87,16 @@ const formsPeuplement = {
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE",
+    required: true,
+    help: true
+  },
+
+  id_nomenclature_peuplement_origine2: {
+    label: "Origine du peuplement",
+    type: "nomenclature",
+    display: "radio",
+    nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE2",
+    multiple: true,
     required: true,
     help: true
   },

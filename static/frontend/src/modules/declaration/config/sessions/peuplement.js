@@ -1,6 +1,6 @@
 const sessionsPeuplement = {
   peuplement_localisation: {
-    title: "Localisation du peuplement",
+    title: "Localisation",
     groups: {
       localisation: {
         forms: [
@@ -12,7 +12,7 @@ const sessionsPeuplement = {
   },
   peuplement_description: {
     title:
-      "Description du peuplement: essence(s), origine, structure, maturité",
+      "Description",
     groups: {
       essences: {
         title: "Essence(s) caractérisant le peuplement",
@@ -34,6 +34,7 @@ const sessionsPeuplement = {
         direction: "row",
         forms: [
           "id_nomenclature_peuplement_origine",
+          "id_nomenclature_peuplement_origine2",
           "id_nomenclature_peuplement_type",
           "nomenclatures_peuplement_maturite"
         ]
@@ -41,7 +42,7 @@ const sessionsPeuplement = {
     }
   },
   peuplement_protection: {
-    title: "Protection du peupement",
+    title: "Protection",
     groups: {
       protection_question: {
         forms: [
@@ -58,7 +59,7 @@ const sessionsPeuplement = {
     }
   },
   peuplement_paturage: {
-    title: "Pâturage domenstique",
+    title: "Pâturage domestique",
     groups: {
       paturage_question: {
         forms: [
@@ -82,7 +83,7 @@ const sessionsPeuplement = {
     }
   },
   peuplement_autres: {
-    title: "Autres renseignements",
+    title: "Autres / divers",
     groups: {
       autres: {
         forms: [

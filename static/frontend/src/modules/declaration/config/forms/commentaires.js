@@ -4,7 +4,8 @@ const formsCommentaires = {
         code: 'declaration_commentaires'
     },
     commentaires: {
-        type: 'text_area'
+        type: 'text_area',
+        label: 'Commentaires'
     }
 };
 

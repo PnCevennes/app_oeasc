@@ -16,6 +16,7 @@
             :item-text="config.textFieldName"
             :rules="config.rules"
             chips
+            dense
             small-chips
             deletable-chips
             :search-input.sync="search"
@@ -26,8 +27,11 @@
             :disabled="config.disabled"
             no-data-text="Pas de donnée disponible"
           >
-          <help slot="prepend" :code="`form-${config.name}`" v-if="config.help"></help>
-
+            <help
+              slot="prepend"
+              :code="`form-${config.name}`"
+              v-if="config.help"
+            ></help>
           </v-autocomplete>
         </div>
 
