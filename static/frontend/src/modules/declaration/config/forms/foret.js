@@ -34,7 +34,6 @@ const reinitAreasForet = ({ config, baseModel }) => {
 };
 
 const changeForetStatut = ({ config, baseModel }) => {
-  baseModel.b_document = null;
   reinitAreasForet({ config, baseModel });
 };
 

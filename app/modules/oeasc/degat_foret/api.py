@@ -3,7 +3,7 @@
 '''
 
 from flask import Blueprint, request, current_app, session
-from ..nomenclature import get_area_from_id
+from ..nomenclature import get_area_from_id, get_nomenclature_from_id
 
 
 from utils_flask_sqla.response import json_resp, json_resp_accept_empty_list
@@ -16,7 +16,8 @@ from .repository import (
     get_id_areas,
     get_foret_from_code,
     get_proprietaire_from_id_declarant,
-    get_declarations
+    get_declarations,
+    hide_proprietaire
     )
 
 bp = Blueprint('degat_foret_api', __name__)
@@ -39,6 +40,11 @@ def api_get_foret_from_code(code_foret):
     (foret, proprietaire) = get_foret_from_code(code_foret)
     out = foret.as_dict(True)
     out.update(proprietaire.as_dict(True))
+    
+    nomenclature = get_nomenclature_from_id(proprietaire.id_nomenclature_proprietaire_type)
+    if nomenclature['cd_nomenclature'] == 'PT_PRI':
+        hide_proprietaire(out)
+
     return out
 
 
@@ -92,6 +98,7 @@ def api_get_declaration(id_declaration):
     out['areas_localisation_onf_ug'] = get_id_areas(areas_localisation, ['OEASC_ONF_UG'])
 
     # hide proprietaire
+    hide_proprietaire(out)
 
     return out
 

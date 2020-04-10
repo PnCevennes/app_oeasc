@@ -251,3 +251,14 @@ def get_declarations():
         out.append(d)
 
     return out
+
+def hide_proprietaire(proprietaire):
+    for key in [
+        'nom_proprietaire',
+        'telephone',
+        'email',
+        'adresse',
+        's_code_postal',
+        's_commune_proprietaire'
+    ]:
+        proprietaire[key] = '***'
