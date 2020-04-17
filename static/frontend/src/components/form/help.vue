@@ -38,7 +38,7 @@ export default {
 
 <style>
 .help {
-  display: inline;
+  display: inline-block;
   z-index: 10000;
 }
 .help:not(:last-child) .btn {

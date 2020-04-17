@@ -38,17 +38,24 @@
           "
           style="margin-left:50px;"
         >
+                    <div v-if="item.cd_nomenclature != 'ABS'">
+              Indiquez les essences touchées <i>(3 maximum)</i>, et pour chacune d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis validez.
+            </div>
+            <div v-else>
+              Indiquez les essences concernées <i>(3 maximum)</i>.
+            </div>
+
           <div class="flex-container flex-row flex-5">
-            <div><i>Essence (3 essences max.) </i></div>
+            <div><b><span v-if="item.cd_nomenclature != 'ABS'">Essence</span></b></div>
             <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'"><i>Gravité</i></span>
+              <span v-if="item.cd_nomenclature !== 'ABS'"><b>Gravité</b><help code="form-gravite"></help></span>
             </div>
             <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'"><i>Étendue</i></span>
+              <span v-if="item.cd_nomenclature !== 'ABS'"><b>Étendue</b><help code="form-etendue"></help></span>
             </div>
             <div>
               <span v-if="item.cd_nomenclature !== 'ABS'"
-                ><i>Antériorité</i></span
+                ><b>Antériorité</b></span
               >
             </div>
             <div></div>
@@ -125,13 +132,6 @@
               )
             "
           >
-            <div v-if="item.cd_nomenclature != 'ABS'">
-              Indiquez les essences touchées, et pour chacune d’elle, l’étendue,
-              la gravité et l’antériorité des dégâts, puis validez.
-            </div>
-            <div v-else>
-              Indiquez les essences concernées.
-            </div>
 
             <div class="flex-container flex-row flex-5">
               <div>
@@ -304,7 +304,6 @@ export default {
           required: true,
           nomenclatureType: "OEASC_DEGAT_GRAVITE",
           rules: [formFunctions.rules.requiredListSimple],
-          help: true
         },
         etendue: {
           name: "etendue",
@@ -312,7 +311,6 @@ export default {
           required: true,
           nomenclatureType: "OEASC_DEGAT_ETENDUE",
           rules: [formFunctions.rules.requiredListSimple],
-          help: true
         },
         anteriorite: {
           name: "anteriorite",

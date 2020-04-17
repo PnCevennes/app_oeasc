@@ -92,13 +92,12 @@ const formsPeuplement = {
   },
   
   nomenclatures_peuplement_origine2: {
-    label: "Origine des arbres / plants / semis",
+    label: "Origine des arbres / plants / semis touchés par les dégâts de grand gibier",
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE2",
     multiple: true,
     required: true,
-    help: true
   },
 
   id_nomenclature_peuplement_type: {
@@ -221,7 +220,7 @@ const formsPeuplement = {
   },
   nomenclatures_peuplement_espece: {
     label:
-      "Espèces de grand gibier dont la présence est avérée sur le peuplement (observations directes ou indices de présence)",
+      "Espèces de grand gibier dont la présence est avérée (observations directes ou indices de présence)",
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ESPECE",

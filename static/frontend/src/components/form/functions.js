@@ -10,7 +10,6 @@ const sortEssence = (a, b) => {
     return 1 - 2 * (aa - bb);
   }
   if (a.label_fr.includes("Autre")) {
-    console.log(a.label_fr);
     return 1;
   }
   if (b.label_fr.includes("Autre")) {
@@ -25,11 +24,6 @@ const sortEssence = (a, b) => {
 const getEssencesSelected = ({ baseModel, $store }) => {
   const essencesSelected = {};
 
-  // console.log(
-  //   baseModel.id_nomenclature_peuplement_essence_principale,
-  //   baseModel.nomenclatures_peuplement_essence_secondaire,
-  //   baseModel.nomenclatures_peuplement_essence_complementaire
-  // );
   essencesSelected["all"] = [
     ...baseModel.nomenclatures_peuplement_essence_secondaire,
     ...baseModel.nomenclatures_peuplement_essence_complementaire
@@ -60,7 +54,6 @@ const getEssencesSelected = ({ baseModel, $store }) => {
       }
     }
   }
-  // console.log(essencesSelected["all"]);
   return essencesSelected;
 };
 
@@ -91,9 +84,7 @@ const processItems = {
 
       return (condData && !condAlreadySelected) || condCurrentFormSelected;
     });
-    console.log(items.map(i => i.label_fr));
     items.sort(sortEssence);
-    console.log(items.map(i => i.label_fr));
 
     return items;
   }

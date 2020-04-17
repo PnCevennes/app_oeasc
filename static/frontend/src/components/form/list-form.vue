@@ -1,8 +1,5 @@
 <template>
   <div>
-    {{ config.textFieldName }}
-    {{ config.valueFieldName }}
-    {{ items && items.length }}
     <div v-if="!items">{{ info.msg }}</div>
     <div v-else-if="config.displayValue">
       <span>{{ valueDisplay }}</span>
@@ -140,7 +137,7 @@
                         "
                       >
                       </v-radio>
-                    </div>
+                     </div>
                     <help
                       :code="`list-${item[config.valueFieldName]}`"
                       v-if="

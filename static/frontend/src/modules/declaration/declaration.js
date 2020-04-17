@@ -16,7 +16,6 @@ const getDeclarationData = function({ declaration, $store }) {
 };
 
 const rawToDisplay = function({ declaration, $store }) {
-  console.log(declaration.meta_create_date)
   const d = copy(declaration);
 
   d.valide =
