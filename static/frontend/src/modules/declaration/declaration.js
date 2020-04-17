@@ -1,34 +1,6 @@
 // import moment from "moment";
 import { copy } from "@/core/js/util/util";
 
-// const $store.getters.nomenclatureString = function(n, key = "label_fr") {
-//   if (!n) {
-//     return "";
-//   }
-
-//   if (!Array.isArray(n)) {
-//     const nomenclature = $store.getters.nomenclature(n);
-//     return nomenclature[key].toLowerCase();
-//   } else {
-//     return n
-//       .map(id => $store.getters.nomenclature(id)[key].toLowerCase())
-//       .join(", ");
-//   }
-// };
-
-// const getArea = function(n, key = "label") {
-//   if (!n) {
-//     return "";
-//   }
-
-//   if (!Array.isArray(n)) {
-//     const area = $store.getters.area(n);
-//     return area[key].toLowerCase();
-//   } else {
-//     return n.map(id => $store.getters.area(id) && $store.getters.area(id)[key].toLowerCase()).join(", ");
-//   }
-// };
-
 const declarationAreas = function(d) {
   return d.b_statut_public == true && d.b_document ==true
     ? d.areas_localisation_onf_ug

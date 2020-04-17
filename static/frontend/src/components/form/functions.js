@@ -1,3 +1,27 @@
+const processEssenceSort = a => {
+  const b = a.label_fr.toLowerCase();
+  b.replace("é", "e");
+  b.replace("ê", "e");
+  return b;
+};
+
+const sortEssence = (a, b) => {
+  if (a.label_fr.includes("Autre") && b.label_fr.includes("Autre")) {
+    return 1 - 2 * (aa - bb);
+  }
+  if (a.label_fr.includes("Autre")) {
+    console.log(a.label_fr);
+    return 1;
+  }
+  if (b.label_fr.includes("Autre")) {
+    return -1;
+  }
+
+  const aa = processEssenceSort(a);
+  const bb = processEssenceSort(b);
+  return 1 - 2 * (aa - bb);
+};
+
 const getEssencesSelected = ({ baseModel, $store }) => {
   const essencesSelected = {};
 
@@ -46,7 +70,7 @@ const processAreas = function(areas) {
 
 const processItems = {
   essence: ({ config, dataItems, baseModel }) => {
-    return dataItems.filter(item => {
+    const items = dataItems.filter(item => {
       const modelArray = Array.isArray(baseModel[config.name])
         ? baseModel[config.name]
         : [baseModel[config.name]];
@@ -67,6 +91,11 @@ const processItems = {
 
       return (condData && !condAlreadySelected) || condCurrentFormSelected;
     });
+    console.log(items.map(i => i.label_fr));
+    items.sort(sortEssence);
+    console.log(items.map(i => i.label_fr));
+
+    return items;
   }
 };
 
@@ -128,7 +157,7 @@ const formFunctions = {
   change,
   rules,
   getEssencesSelected,
-  processAreas,
+  processAreas
 };
 
 export { formFunctions };
