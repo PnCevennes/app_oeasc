@@ -94,7 +94,7 @@ export default {
           return b.id_declaration - a.id_declaration;
         });
         this.declarations = declarations;
-        if (this.$store.getters.droit_max >= 5) {
+        if (this.$store.getters.droitMax >= 5) {
           this.headers.push({
             text: 'Valide',
             value: 'valide'

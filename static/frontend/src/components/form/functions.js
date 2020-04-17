@@ -78,7 +78,9 @@ const rules = {
   requiredListMultiple: v =>
     v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
   number: v => {
-    return  ""==v || Number(v) == 0 || !!Number(v) || "Veuillez entrer un nombre";
+    return (
+      "" == v || Number(v) == 0 || !!Number(v) || "Veuillez entrer un nombre"
+    );
   },
   telephone: v =>
     !v ||
@@ -96,6 +98,7 @@ const rules = {
 
   processRules: function(config) {
     config.rules = config.rules || [];
+
     if (config.required) {
       let ruleRequired = rules.required;
       if (["list-form", "nomenclature", "select_map"].includes(config.type)) {
@@ -125,7 +128,7 @@ const formFunctions = {
   change,
   rules,
   getEssencesSelected,
-  processAreas
+  processAreas,
 };
 
 export { formFunctions };

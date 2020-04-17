@@ -1,164 +1,117 @@
 <template>
   <div>
-    <div v-if="$store.getters.redirectOnLogin">
-      <p>
-        Vous n'avez pas les droits requis pour accéder à la page :
-        <b>
-          {{ $store.getters.redirectOnLogin }}
-        </b>
-      </p>
-      <p>Veuillez vous identifier avant de poursuivre votre navigation</p>
-    </div>
-    <form novalidate class="md-layout" @submit.prevent="validateUser">
-      <md-card class="md-layout-item form-login md-size-100">
-        <md-card-header>
-          <div class="md-title">Connexion</div>
-        </md-card-header>
+    <h1>Connexion</h1>
+    <generic-form :config="config" ref="form">
+      <div slot="prependForm">
+        <div v-if="redirect">
+          <p>
+            Vous n'avez pas les droits requis pour accéder à la page :
+            <b>
+              {{ redirect }}
+            </b>
+          </p>
+        </div>
 
-        <md-card-content>
-          <md-field :class="getValidationClass('login')">
-            <label for="login">Identifiant</label>
-            <md-input
-              name="login"
-              id="login"
-              autocomplete="given-name"
-              v-model="form.login"
-              :disabled="sending"
-            />
-            <span class="md-error" v-if="!$v.form.login.required"
-              >Veuillez renseigner un login</span
-            >
-          </md-field>
+        <div v-if="bValidToken">
+          <p>
+            Votre compte a bien été validé. Veuillez vous connecter avec votre
+            identifiant et votre mot de passe.
+          </p>
+        </div>
 
-          <md-field :class="getValidationClass('password')">
-            <label for="password">password</label>
-            <md-input
-              name="password"
-              id="password"
-              type="password"
-              v-model="form.password"
-              :disabled="sending"
-            />
-            <span class="md-error" v-if="!$v.form.password.required"
-              >Veuillez renseigner un mot de passe</span
-            >
-          </md-field>
-        </md-card-content>
+        <div v-else>
+          <p>Veuillez vous identifier avant de poursuivre votre navigation</p>
+        </div>
 
-        <md-progress-bar md-mode="indeterminate" v-if="sending" />
-
-        <md-card-actions>
-          <md-button type="submit" class="md-primary" :disabled="sending"
-            >Envoyer</md-button
-          >
-        </md-card-actions>
-      </md-card>
-
-      <md-snackbar :md-active.sync="bMsg">{{ msg }}</md-snackbar>
-    </form>
+        <p>
+          Si vous n'êtes pas inscrit, vous pouvez
+          <v-btn to="/user/creer_utilisateur" color="primary">
+            Créer un compte
+          </v-btn>
+        </p>
+      </div>
+      <div slot="appendForm">
+        
+        <a href="#/user/change_password">Mot de passe oublié ?</a>
+      </div>
+    </generic-form>
   </div>
 </template>
 
 <script>
-import { validationMixin } from "vuelidate";
-import { required, minLength } from "vuelidate/lib/validators";
-
+import genericForm from "@/components/form/generic-form";
 import { config } from "@/config/config.js";
 import { apiRequest } from "@/core/js/data/api.js";
 
 export default {
-  name: "login",
-  mixins: [validationMixin],
-  data: () => ({
-    form: {
-      login: null,
-      password: null,
-      id_application: config.ID_APPLICATION
+  name: "login2",
+  components: { genericForm },
+  computed: {
+    redirect() {
+      return this.$route.query.redirect;
     },
-    sending: false,
-    msg: null,
-    bMsg: false
-  }),
-  validations: {
-    form: {
-      login: {
-        required
-      },
-      password: {
-        required,
-        minLength: minLength(3)
-      }
+    token() {
+      return this.$route.query.token;
     }
   },
-  methods: {
-    getValidationClass(fieldName) {
-      const field = this.$v.form[fieldName];
-
-      if (field) {
-        return {
-          "md-invalid": field.$invalid && field.$dirty
-        };
+  data() {
+    return {
+      bValidToken: null,
+      config: {
+        request: {
+          url: "pypn/auth/login",
+          method: "POST",
+          label: "Se connecter",
+          preProcess: ({ baseModel }) => ({
+            ...baseModel,
+            id_application: config.ID_APPLICATION
+          }),
+          onSuccess: data => {
+            const user = { ...data.user, expires: data.expires };
+            this.$session.set("user", user);
+            this.$store.commit("user", user);
+            setTimeout(() => {
+              this.$router.push(this.redirect || "/");
+            }, 1000);
+          }
+        },
+        forms: {
+          login: {
+            type: "text",
+            required: true,
+            label: "Identifiant",
+            help: true
+          },
+          password: {
+            type: "password",
+            required: true,
+            label: "Mot de passe"
+          }
+        }
       }
-    },
-    clearForm() {
-      this.$v.$reset();
-      this.form.login = null;
-      this.form.password = null;
-    },
-    saveUser() {
-      this.sending = true;
-
-      // Instead of this timeout, here you can call your API
-      apiRequest("POST", "pypn/auth/login", { data: this.form }).then(
+    };
+  },
+  mounted() {
+    console.log(this.token);
+    if (this.token) {
+      apiRequest("POST", "pypn/register/post_usershub/valid_temp_user", {
+        data: {
+          id_application: config.ID_APPLICATION,
+          token: this.token
+        }
+      }).then(
         data => {
-          const user = { ...data.user, expires: data.expires };
-          this.$session.set("user", user);
-          this.$store.commit("user", user);
-          this.sending = false;
-          this.msg = `Connexion réussie : ${data.user.nom_role} ${data.user.prenom_role}`;
-          this.bMsg = true;
-
-          setTimeout(() => {
-            const redirectOnLogin = this.$store.getters.redirectOnLogin;
-            this.$store.commit("redirectOnLogin", null);
-            this.$router.push(
-              redirectOnLogin || "content/accueil"
-            );
-          }, 1000);
+          console.log("success valid user", data);
+          this.bValidToken = true;
+          this.$refs.form.baseModel.login = data.identifiant;
         },
         error => {
-          this.sending = false;
-          this.msg = `Erreur de connexion : ${error.msg}`;
-          this.bMsg = true;
-          console.log("error", this.msg);
+          console.log("fail valid user", error);
+          this.$refs.form.msgError = `Erreur dans la validation du compte : ${error.msg}`;
+          this.$refs.form.bError = true;
         }
       );
-    },
-    validateUser() {
-      this.$v.$touch();
-
-      if (!this.$v.$invalid) {
-        this.saveUser();
-      }
     }
   }
 };
 </script>
-
-<style lang="scss" scoped>
-.md-progress-bar {
-  position: absolute;
-  top: 0;
-  right: 0;
-  left: 0;
-}
-
-.form-login {
-  width: 100%;
-}
-
-.error {
-  background-color: white;
-  color: red;
-}
-</style>

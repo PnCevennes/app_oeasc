@@ -35,12 +35,17 @@ var apiRequest = (method, urlRelative, options = {}) => {
               resolve(json);
             },
             error => {
-              console.log('aaa', error);
               reject(error);
             }
           );
         } else {
-          reject(response);
+          if (response.json) {
+            response.json().then(response => {
+              reject(response);
+            });
+          } else {
+            reject(response);
+          }
         }
       },
       msg_fail => {

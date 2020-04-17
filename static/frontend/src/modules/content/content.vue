@@ -1,43 +1,40 @@
 <template>
   <div>
-    <div :class="containerClass">
-      <div class="buttons">
-        <md-button
-          v-if="!bEditContent && $store.getters.droit_max >= 5"
-          class="md-icon-button"
+    <div>
+      <div>
+        <v-btn
+          icon
+          v-if="!bEditContent && $store.getters.droitMax >= 5"
           @click="bEditContent = true"
         >
-          <md-icon>edit</md-icon>
-        </md-button>
-        <md-button
-          v-if="bEditContent"
-          class="md-icon-button"
-          @click="bEditContent = false"
-        >
-          <md-icon>cancel</md-icon>
-        </md-button>
+          <v-icon>edit</v-icon>
+        </v-btn>
+        <v-btn icon v-if="bEditContent" @click="bEditContent = false">
+          <v-icon>cancel</v-icon>
+        </v-btn>
 
-        <md-button
-          v-if="bEditContent"
-          class="md-icon-button"
-          @click="updateContent()"
-        >
-          <md-icon>check</md-icon>
-        </md-button>
+        <v-btn icon v-if="bEditContent" @click="updateContent()">
+          <v-icon>check</v-icon>
+        </v-btn>
       </div>
 
       <!-- <div v-if="!bEditContent" class="content" v-html="contentHTML"></div> -->
-      <v-runtime-template v-if="!bEditContent" class="content" :template="contentHTML"></v-runtime-template>
+      <v-runtime-template
+        v-if="!bEditContent"
+        class="content"
+        :template="contentHTML"
+      ></v-runtime-template>
 
-      <div v-if="bEditContent" class="editor">
-        <md-field>
-          <label>Textarea</label>
-          <md-textarea
-            v-model="contentMD"
-            :rows="20"
-            :md-autogrow="true"
-          ></md-textarea>
-        </md-field>
+      <div v-if="bEditContent" class="edit-content">
+        <v-textarea
+          :label="`Content ${getCode()}`"
+          v-model="contentMD"
+          :rows="20"
+          large
+          outlined
+          color="cyan"
+          class="edit-content"
+        ></v-textarea>
       </div>
     </div>
   </div>
@@ -48,9 +45,9 @@
 import { apiRequest } from "@/core/js/data/api.js";
 import { config } from "@/config/config.js";
 import { MapService } from "@/modules/map";
-import faqDeclaration from "./faq-declaration"
-import tableAide from "./table-aide"
-import declarationTable from "@/modules/declaration/declaration-table"
+import faqDeclaration from "./faq-declaration";
+import tableAide from "./table-aide";
+import declarationTable from "@/modules/declaration/declaration-table";
 import "./content.css";
 // import Vue from "vue";
 import VRuntimeTemplate from "v-runtime-template";
@@ -79,15 +76,6 @@ export default {
   }),
   methods: {
     setContent: function(data) {
-      // const cs = Vue.component("contentView", {
-      //   render: function(h) {
-      //     const div = document.createElement("div");
-      //     div.innerHTML = data.html;
-      //     return Vue.compile(h(div.outerHTML));
-      //   }
-      // });
-      // this.component = cs;
-      // console.log(cs, data.html);
       this.contentHTML = `<div>${data.html}</div>`;
       this.contentMD = data.md;
       this.bEditContent = false;
@@ -127,11 +115,6 @@ export default {
   },
 
   mounted: function() {
-    if (this.containerClassIn) {
-      this.containerClass[this.containerClassIn] = true;
-    } else {
-      this.containerClass = { "content-containter": true };
-    }
     this.initContent();
   }
 };

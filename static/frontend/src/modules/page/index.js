@@ -35,7 +35,7 @@ const pagesConfig = {
 
   signaler_degat_explication: {
     path: "/declaration/signaler_degat_explication",
-    access: 1
+    access: 1,
   }
 
 };

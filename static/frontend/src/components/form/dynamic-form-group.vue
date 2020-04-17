@@ -1,6 +1,5 @@
 <template>
   <div>
-    <!-- {{config}} -->
     <div
       v-if="config.forms && hasForms(config)"
       :class="{

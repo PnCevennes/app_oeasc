@@ -88,6 +88,33 @@ def get_areas_post(data_type):
     return areas_post(b_simple, data_type, areas)
 
 
+@bp.route('areas/<string:data_type>', methods=['GET'])
+@json_resp
+def get_areas(data_type):
+    '''
+        TODO make it get
+    '''
+    areas = request.args.getlist('id_area')
+
+    b_simple = False
+
+    return areas_post(b_simple, data_type, areas)
+
+
+@bp.route('areas_simple/<string:data_type>', methods=['GET'])
+@json_resp
+def get_areas_simple(data_type):
+    '''
+        TODO make it get
+    '''
+    areas = request.args.getlist('id_area')
+
+    b_simple = True
+
+    return areas_post(b_simple, data_type, areas)
+
+
+
 @bp.route('areas_test_post/<string:data_type>', methods=['GET'])
 @json_resp
 def get_areas_test_post(data_type):

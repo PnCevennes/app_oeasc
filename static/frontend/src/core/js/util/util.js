@@ -4,7 +4,18 @@ import moment from 'moment';
 /** Functions utiles */
 
 const copy = obj => {
-  return obj ? JSON.parse(JSON.stringify(obj)): null
+  if(Array.isArray(obj)) {
+    return obj.map(item => copy(item));
+  }
+  else if(typeof obj === 'object' && obj) {
+    const out = {};
+    for (const key in obj) {
+      out[key] = copy(obj[key])
+    }
+    return out;
+  } else {
+    return obj;
+  }
 };
 
 const arrayEqual = (array1, array2) => {
@@ -37,7 +48,6 @@ const addDays = (sDate, days) => {
 };
 
 const sortDate = (a, b) => {
-            
   const date_a = a.split("/");
   const date_b = b.split("/");
   return date_a[2] == date_b[2]

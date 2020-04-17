@@ -20,7 +20,7 @@ const formsValidation = {
     label: "Valider cette déclaration (admin seulement)",
     type: "bool_radio",
     labels: ["Oui", "Non"],
-    condition: ({ $store }) => $store.getters.droit_max >= 5
+    condition: ({ $store }) => $store.getters.droitMax >= 5
   }
 };
 

@@ -53,6 +53,7 @@ def create_temp_user(data):
     subject = 'demande de création de compte'
     msg_html = render_template(
         'modules/oeasc/mail/create_temp_user.html',
+        token=token,
         url_validation=url_validation,
         identifiant=role.identifiant,
         config=config
@@ -135,7 +136,10 @@ def create_cor_role_token(data):
 
     recipients = [role.email]
     subject = 'changement de mot de passe'
-    msg_html = render_template('modules/oeasc/mail/change_password.html', url_validation=url_validation)
+    msg_html = render_template('modules/oeasc/mail/change_password.html', 
+        url_validation=url_validation,
+        token=token
+    )
 
     return send_mail(
         recipients,

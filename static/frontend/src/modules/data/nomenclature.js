@@ -1,4 +1,6 @@
 import { apiRequest } from "@/core/js/data/api.js";
+import { dataString } from "./functions";
+
 
 const STORE = {
   state: {
@@ -11,7 +13,9 @@ const STORE = {
     nomenclatureFromCdNomenclature: state => (type, cd_nomenclature) =>
       state._nomenclatures.find(n => n.type == type && n.cd_nomenclature === cd_nomenclature),
     nomenclaturesOfType: state => type =>
-      state._nomenclatures.filter(n => n.type === type)
+      state._nomenclatures.filter(n => n.type === type),
+    nomenclatureString: (state) => (ids, key="label_fr") => dataString(STORE, state, 'nomenclature', ids, key),
+      
   },
 
   mutations: {

@@ -53,7 +53,7 @@
       user.email = "joel.clement@cevennes-parcnational.fr";
       user.organisme = "Mairie";
       user.id_organisme = $("#id_organisme option")[1].value;
-      user.desc_role = "Salarié ou agent";
+      user.desc_role = "Salarié, agent, fonctionnaire";
 
       $('#password').val("1234");
       $('#password_confirmation').val("1234");

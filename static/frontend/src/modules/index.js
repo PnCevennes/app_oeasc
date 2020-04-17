@@ -1,4 +1,4 @@
-import { ROUTE as content_routes } from "./content";
+import { ROUTE as content_routes, STORE as content_store  } from "./content";
 import { ROUTE as user_routes, STORE as user_store } from "./user";
 import {
   ROUTE as declaration_routes,
@@ -17,7 +17,7 @@ const MODULES_ROUTES = [
   ...page_routes
 ];
 
-const stores = [user_store, data_store, map_store, declaration_store];
+const stores = [user_store, data_store, map_store, declaration_store, content_store];
 
 const MODULES_STORE = {
   getters: {},

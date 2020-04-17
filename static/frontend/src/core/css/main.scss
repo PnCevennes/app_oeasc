@@ -1,5 +1,36 @@
-.flex-container {
-    display: flex;
-    justify-content: center;
-    flex-direction: column;
+.img-titre {
+  height: 172px;
+  width: 100%;
+  background-image: url("~@/assets/Bandeau_OEASC_172x1920_v4.jpg");
+  display: flex;
+  align-items: center;
+  padding-left: 300px;
+  // justify-content: center;
 }
+.oeasc-titre {
+  // text-align: center;
+  font-weight: bold;
+  border-radius: 5px;
+  text-shadow: 0 0 0.5em #000000;
+  padding: 10px;
+  margin: 0 100px;
+  color: white;
+  font-size: 2.5rem;
+}
+
+.main-container {
+  margin: 20px;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+//   .map {
+//     height: 400px;
+//   }
+
+// .flex-container {
+//     display: flex;
+//     justify-content: center;
+//     flex-direction: column;
+// }

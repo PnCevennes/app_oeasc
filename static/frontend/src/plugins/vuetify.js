@@ -6,7 +6,7 @@ import fr from 'vuetify/src/locale/fr.ts';
 Vue.use(Vuetify)
 
 const opts = {
-    lang: { locales: { fr }, current: fr }
+    lang: { locales: { fr }, current: 'fr' }
 }
 
 export default new Vuetify(opts)

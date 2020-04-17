@@ -1,11 +1,11 @@
 <template>
-  <div>
+  <div v-if='bInit'>
     <table class="table-declaration">
       <tbody>
         <tr>
           <th colspan="3">Informations</th>
         </tr>
-        <tr v-if="this.$store.getters.droit_max >= 5">
+        <tr v-if="this.$store.getters.droitMax >= 5">
           <th>Validité</th>
           <td>{{ declarationDisplay.valide }}</td>
         </tr>
@@ -93,11 +93,11 @@
         <tr>
           <th colspan="3">Peuplement - <i>localisation</i></th>
         </tr>
-        <tr>
+        <tr v-if="declarationDisplay.secteur">
           <th>Secteur</th>
           <td>{{ declarationDisplay.secteur }}</td>
         </tr>
-        <tr>
+        <tr v-if="declarationDisplay.communes">
           <th>Commune(s)</th>
           <td>{{ declarationDisplay.communes }}</td>
         </tr>
@@ -267,10 +267,13 @@
 </template>
 
 <script>
-import { rawToDisplay } from "./declaration.js";
+import { rawToDisplay, getDeclarationData } from "./declaration.js";
 export default {
   name: "declarationTable",
   props: ["declaration", 'type'],
+  data: () => ({
+    bInit: false
+  }),
   methods: {
     foretType(s) {
       const foretTypes = {
@@ -287,11 +290,19 @@ export default {
   },
   computed: {
     declarationDisplay() {
-      if (this.type != "raw") {
+      if (this.type === "raw") {
+        return rawToDisplay(this);
+        }
         return this.declaration;
-      }
-      console.log("raw");
-      return rawToDisplay(this);
+    }
+  },
+  mounted() {
+    if (this.type ==='raw') {
+      getDeclarationData(this).then(()=>{
+        this.bInit = true
+      })
+    } else {
+      this.bInit = true;
     }
   }
 };

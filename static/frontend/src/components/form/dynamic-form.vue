@@ -1,14 +1,7 @@
 <template>
-  <div v-show="!configForm.hidden">
+  <div v-show="!configForm.hidden" :ref="config.name">
+
     <!-- test config -->
-
-    <!-- <i>
-      {{ configForm.name }}
-    </i>
-    <b>
-      {{ baseModel[configForm.name] }}
-    </b> -->
-
     <template v-if="!configForm.valid">
       <label>{{ configForm.label }}</label>
       Problème avec la config
@@ -20,7 +13,12 @@
 
     <!-- Boolean radio -->
     <template v-else-if="configForm.type === 'bool_radio'">
-      <v-radio-group
+      <span v-if="configForm.displayValue">
+        <template v-if="baseModel[configForm.name] == true">{{configForm.labels[0]}}</template>
+        <template v-else-if="baseModel[configForm.name] == false">{{configForm.labels[1]}}</template>
+        <template v-else>Indéfini</template>
+      </span>
+      <v-radio-group v-else
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
         row
@@ -36,43 +34,66 @@
 
         <v-radio :label="configForm.labels[0]" :value="true"></v-radio>
         <v-radio :label="configForm.labels[1]" :value="false"></v-radio>
+        
       </v-radio-group>
+      
+      
     </template>
 
     <!-- Bolean switch -->
     <template v-else-if="configForm.type === 'bool_switch'">
-      <v-switch
+      <span v-if="configForm.displayValue">
+        <template v-if="baseModel[configForm.name] == true">Oui</template>
+        <template v-else-if="baseModel[configForm.name] == false">non</template>
+        <template v-else>Indéfini</template>
+      </span>
+      <v-switch v-else
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
       ></v-switch>
     </template>
 
     <!-- text -->
-    <template v-else-if="['text', 'number'].includes(configForm.type)">
-      <v-text-field
+    <template v-else-if="['text', 'number', 'password'].includes(configForm.type)">
+      <span v-if="configForm.displayValue">
+        {{baseModel[configForm.name]}}
+      </span>
+      <v-text-field v-else
+        :type="!show1 && config.type==='password' ? 'password' : 'text'"
+        :append-icon="config.type==='password' ? show1 ? 'mdi-eye': 'mdi-eye-off' : null"
         v-model="baseModel[configForm.name]"
         :rules="configForm.rules"
         :label="configForm.label"
+        :dense='config.dense'
         :counter="configForm.counter"
         :maxlength="configForm.maxlength"
         :disabled="configForm.disabled"
         @change="configForm.change && configForm.change(baseModel)($event)"
+        @click:append="if(config.type==='password') { show1 = !show1 }"
       >
+        <span slot="label"
+          >{{ config.label }}
+          <span v-if="config.required && config.label" class="required">*</span>
+        </span>
         <help
-          slot="append"
+        slot="append"
           :code="`form-${config.name}`"
           v-if="config.help"
         ></help>
-        <span slot="label"
-          >{{ config.label }}
-          <span v-if="config.required" class="required">*</span>
-        </span>
       </v-text-field>
     </template>
 
+
+
+
     <!-- text area -->
     <template v-else-if="configForm.type === 'text_area'">
+      <span v-if="configForm.displayValue">
+        {{baseModel[configForm.name]}}
+      </span>
+
       <v-textarea
+        v-else
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
         :placeholder="config.placeholder"
@@ -85,26 +106,6 @@
         ></help>
       </v-textarea>
     </template>
-
-    <!-- number -->
-    <!-- <template v-else-if="configForm.type === 'number'">
-      <v-text-field
-        v-model="baseModel[configForm.name]"
-        :rules="configForm.rules"
-        :label="configForm.label"
-        :counter="configForm.counter"
-        :maxlength="configForm.maxlength"
-        :disabled="configForm.disabled"
-        :placeholder="configForm.placeholder"
-        type="number"
-      >
-        <help
-          slot="append"
-          :code="`form-${config.name}`"
-          v-if="config.help"
-        ></help>
-      </v-text-field>
-    </template> -->
 
     <!-- nomenclature -->
     <template v-else-if="configForm.type === 'nomenclature'">
@@ -126,7 +127,7 @@
 
     <!-- list form -->
     <template v-else-if="configForm.type === 'list_form'">
-      <list-form :config="configForm" :baseModel="baseModel"></list-form>
+      <list-form :config="configForm" :baseModel="baseModel" :dataItemsIn="config.items"></list-form>
     </template>
 
     <!-- degats -->
@@ -170,6 +171,7 @@ export default {
   },
 
   data: () => ({
+    show1: false,
     configTypes: [
       "input",
       "bool_radio",
@@ -182,7 +184,8 @@ export default {
       "essence",
       "list_form",
       "degats",
-      "content"
+      "content",
+      "password"
     ],
     configForm: null
   }),
@@ -191,6 +194,12 @@ export default {
 
   watch: {
     baseModel: {
+      handler() {
+        this.configForm = this.getConfigForm();
+      },
+      deep: true
+    },
+    config: {
       handler() {
         this.configForm = this.getConfigForm();
       },

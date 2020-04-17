@@ -124,6 +124,7 @@ export default {
 
         declaration = { ...declaration.foret, ...declaration };
         this.declaration = configDeclaration.initModel(declaration);
+        configDeclaration.initValidForms({baseModel: this.declaration, $store: this.$store}, this.validForms);
         this.initialized = true;
         this.declaration.id_declarant =
           this.declaration.id_declarant || this.$store.getters.user.id_role;

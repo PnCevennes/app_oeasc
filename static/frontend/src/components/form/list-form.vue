@@ -1,6 +1,9 @@
 <template>
   <div>
     <div v-if="!items">{{ info.msg }}</div>
+    <div v-else-if="config.displayValue">
+      <span>{{ valueDisplay }}</span>
+    </div>
     <div v-else>
       <div>
         <!-- select -->
@@ -29,7 +32,7 @@
           >
             <span slot="label"
               >{{ config.label }}
-                <i v-if="config.multiple">(Plusieurs réponses possibles)</i> 
+              <i v-if="config.multiple">(Plusieurs réponses possibles)</i>
               <span v-if="config.required" class="required">*</span>
             </span>
 
@@ -43,6 +46,7 @@
 
         <div v-else-if="config.display === 'select'">
           <v-select
+            :dense="config.dense"
             v-model="baseModel[config.name]"
             :items="items"
             :label="config.label"
@@ -65,11 +69,11 @@
           <!-- checkbox -->
           <div v-if="config.multiple">
             <v-container fluid>
-              <div class='select-list-label-container>'>
-                <span class='select-list-label'>
-                {{ config.label }}
+              <div class="select-list-label-container>">
+                <span class="select-list-label">
+                  {{ config.label }}
                 </span>
-                <i>(Plusieurs réponses possibles)</i> 
+                <i>(Plusieurs réponses possibles)</i>
                 <span v-if="config.required" class="required"> *</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
               </div>
@@ -101,9 +105,9 @@
           <!-- radio -->
           <div v-else>
             <v-container fluid>
-              <div class='select-list-label-container>'>
-                <span class='select-list-label'>
-                {{ config.label }}
+              <div class="select-list-label-container>">
+                <span class="select-list-label">
+                  {{ config.label }}
                 </span>
                 <span v-if="config.required" class="required"> *</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
@@ -191,8 +195,13 @@ export default {
         ) {
           this.search = "";
         }
+
+        this.valueDisplay;
       },
       deep: true
+    },
+    config() {
+      this.setDefaultConfig();
     }
   },
   methods: {
@@ -236,6 +245,13 @@ export default {
         chips && chips.length && chips[0].click();
       }, 10);
     },
+    setDefaultConfig() {
+      for (const key in this.defaultConfig) {
+        if (!(key in this.config)) {
+          this.config[key] = this.defaultConfig[key];
+        }
+      }
+    },
 
     getData: function() {
       if (this.dataItems && !this.config.dataReloadOnSearch) {
@@ -277,13 +293,43 @@ export default {
       console.log("change", e);
     }
   },
+  computed: {
+    valueDisplay() {
+      console.log(
+        "valueDisplay",
+        this.config.name,
+        this.baseModel[this.config.name],
+        this.items,
+        this.config.textFieldName,
+        this.config.valueFieldName
+      );
+
+      let values = this.baseModel[this.config.name];
+      if (!(values || (this.config.multiple && !values.length))) {
+        return "";
+      }
+      values = this.config.multiple ? values : [values];
+      const textArray = this.items
+        .filter(item => {
+          return values.includes(item[this.config.valueFieldName]);
+        })
+        .map(item => item[this.config.textFieldName]);
+      return textArray.join(", ");
+    }
+  },
   props: ["config", "baseModel", "dataItemsIn"],
+  created() {
+    this.setDefaultConfig();
+  },
   mounted: function() {
-    this.dataItems = this.dataItemsIn;
-    // default values for config
-    for (const key in this.defaultConfig) {
-      if (!(key in this.config)) {
-        this.config[key] = this.defaultConfig[key];
+    if (this.dataItemsIn) {
+      if (Array.isArray(this.dataItemsIn)) {
+        this.dataItems = this.dataItemsIn.map(item => ({
+          text: item,
+          value: item
+        }));
+      } else {
+        this.dataItems = this.dataItemsIn;
       }
     }
     if (this.config.dataReloadOnSearch) {

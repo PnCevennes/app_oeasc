@@ -8,6 +8,9 @@ SELECT
 	r.nom_role, 
 	r.prenom_role,
 	r.desc_role,
+    r.id_organisme,
+    (r.champs_addi ->> 'accept_email')::boolean AS accept_email,
+    r.champs_addi ->> 'organisme' AS autre_organisme,
 	CASE
 	WHEN r.champs_addi ->> 'organisme' != '' THEN r.champs_addi ->> 'organisme'
 	ELSE o.nom_organisme 

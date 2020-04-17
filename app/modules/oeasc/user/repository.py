@@ -29,9 +29,9 @@ def get_liste_organismes_oeasc():
     autre = None
     for row in result:
         if row[1] != "Autre (préciser)":
-            v.append({'id_organism': row[0], 'nom_organisme': row[1]})
+            v.append({'id_organisme': row[0], 'nom_organisme': row[1]})
         else:
-            autre = {'id_organism': row[0], 'nom_organisme': row[1]}
+            autre = {'id_organisme': row[0], 'nom_organisme': row[1]}
     if autre:
         v.append(autre)
 
@@ -52,8 +52,8 @@ def get_users():
 
     for user in v:
         if current_user['id_droit_max'] >= 5 or \
-            current_user.id_organisme == user.id_organisme \
-                and current_user.organisme == current_user.organisme:
+            current_user['id_organisme'] == user.id_organisme \
+                and current_user['organisme'] == current_user['organisme']:
             user_dict = user.as_dict()
             v_out.append(user_dict)
 

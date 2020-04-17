@@ -87,9 +87,6 @@ def api_delete_content(code):
 @bp.route('communes/', defaults={'test': None}, methods=['GET'])
 @json_resp_accept_empty_list
 def api_communes(test):
-    '''
-        delete content
-    '''
 
     if not test:
         return []
@@ -121,4 +118,7 @@ def api_communes(test):
     result = DB.engine.execute(text(sql_text))
     out = [ {'nom_cp': res[0]} for res in result]
     return out
+
+
+
 

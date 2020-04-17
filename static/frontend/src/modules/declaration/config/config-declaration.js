@@ -1,4 +1,5 @@
 import { copy } from "@/core/js/util/util.js";
+import { formFunctions } from "@/components/form/functions.js";
 
 export default class ConfigDeclaration {
   _forms;
@@ -32,6 +33,60 @@ export default class ConfigDeclaration {
     }
 
     return model;
+  }
+
+  initValidForms({ $store, baseModel }, validForms) {
+    {
+      $store, baseModel;
+    }
+    validForms;
+    for (const configSessionGroups of Object.values(this._config.groups)) {
+      for (const session of Object.values(configSessionGroups.sessions)) {
+        let validSession = true;
+        for (const form of this.sessionFormList(session)) {
+          validSession =
+            validSession && this.isValidForm({ $store, baseModel }, form);
+        }
+        validForms[session.name] = validSession;
+      }
+    }
+  }
+
+  sessionFormList(session) {
+    return this.groupFormList(session);
+  }
+
+  groupFormList(config) {
+    if (config.groups) {
+      let list = [];
+      for (const group of Object.values(config.groups)) {
+        list = [...list, ...this.groupFormList(group)];
+      }
+      return list;
+    }
+    return Object.keys(config.forms);
+  }
+
+  isValidForm({ $store, baseModel }, keyForm) {
+    const form = copy(this._forms[keyForm]);
+
+    let condRules = true;
+
+    form.required =
+      typeof this._forms[keyForm].required === "function"
+        ? this._forms[keyForm].required({ $store, baseModel })
+        : this._forms[keyForm].required;
+
+    formFunctions.rules.processRules(form);
+
+    for (const rule of form.rules) {
+      condRules = condRules && rule(baseModel[keyForm]) == true;
+    }
+
+    let condCondition =
+      !this._forms[keyForm].condition || this._forms[keyForm].condition({ baseModel, $store });
+
+    return condRules || !condCondition;
   }
 
   initConfig(config) {
@@ -68,13 +123,6 @@ export default class ConfigDeclaration {
     return this._config;
   }
 
-  initValidForms() {
-    const validForm = {};
-    for (const key of Object.keys(this._sessions)) {
-      validForm[key] = null;
-    }
-  }
-
   sessionList() {
     const sessionList = [];
     for (const configSessionGroups of Object.values(this._config.groups)) {
@@ -107,7 +155,6 @@ export default class ConfigDeclaration {
 
   firstSession(keySessionGroup) {
     return Object.keys(this._config.groups[keySessionGroup].sessions)[0];
-
   }
 
   group(keySession) {
@@ -122,13 +169,13 @@ export default class ConfigDeclaration {
   }
 
   condValidSession(keySessionTest, validForms) {
-    let cond=true
+    let cond = true;
     for (const configSessionGroups of Object.values(this._config.groups)) {
       for (const keySession of Object.keys(configSessionGroups.sessions)) {
-        if(keySessionTest == keySession) {
+        if (keySessionTest == keySession) {
           return cond;
         }
-        cond = cond && validForms[keySession]
+        cond = cond && validForms[keySession];
       }
     }
   }

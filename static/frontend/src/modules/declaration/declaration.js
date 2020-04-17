@@ -1,17 +1,46 @@
 // import moment from "moment";
-import {copy} from '@/core/js/util/util'
+import { copy } from "@/core/js/util/util";
 
-const getNomenclature = function(n, $store, key = "label_fr") {
-  if (!n) {
-    return "";
-  }
+// const $store.getters.nomenclatureString = function(n, key = "label_fr") {
+//   if (!n) {
+//     return "";
+//   }
 
-  if (!Array.isArray(n)) {
-    const nomenclature = $store.getters.nomenclature(n);
-    return nomenclature[key].toLowerCase();
-  } else {
-    return n.map(id => $store.getters.nomenclature(id)[key].toLowerCase()).join(", ");
-  }
+//   if (!Array.isArray(n)) {
+//     const nomenclature = $store.getters.nomenclature(n);
+//     return nomenclature[key].toLowerCase();
+//   } else {
+//     return n
+//       .map(id => $store.getters.nomenclature(id)[key].toLowerCase())
+//       .join(", ");
+//   }
+// };
+
+// const getArea = function(n, key = "label") {
+//   if (!n) {
+//     return "";
+//   }
+
+//   if (!Array.isArray(n)) {
+//     const area = $store.getters.area(n);
+//     return area[key].toLowerCase();
+//   } else {
+//     return n.map(id => $store.getters.area(id) && $store.getters.area(id)[key].toLowerCase()).join(", ");
+//   }
+// };
+
+const declarationAreas = function(d) {
+  return d.b_statut_public == true && d.b_document ==true
+    ? d.areas_localisation_onf_ug
+    : d.areas_localisation_cadastre;
+};
+
+const getDeclarationData = function({ declaration, $store }) {
+  return new Promise((resolve) => {
+    $store.dispatch("areas", declarationAreas(declaration)).then(() => {
+      resolve();
+    });
+  });
 };
 
 const rawToDisplay = function({ declaration, $store }) {
@@ -26,12 +55,11 @@ const rawToDisplay = function({ declaration, $store }) {
 
   d.declaration_date = new Date(d.meta_create_date).toLocaleDateString();
 
-  d.peuplement_acces_label = getNomenclature(
-    d.id_nomenclature_peuplement_acces,
-    $store
+  d.peuplement_acces_label = $store.getters.nomenclatureString(
+    d.id_nomenclature_peuplement_acces
   );
 
-  d.espece_label = getNomenclature(d.nomenclatures_peuplement_espece, $store);
+  d.espece_label = $store.getters.nomenclatureString(d.nomenclatures_peuplement_espece);
 
   d.statut_public =
     d.b_statut_public == true
@@ -40,46 +68,37 @@ const rawToDisplay = function({ declaration, $store }) {
       ? "Privé"
       : "Indéfini";
 
-  d.foret_type_label = getNomenclature(
-    d.id_nomenclature_proprietaire_type,
-    $store
+  d.foret_type_label = $store.getters.nomenclatureString(
+    d.id_nomenclature_proprietaire_type
   );
 
-  d.peuplement_ess_1_label = getNomenclature(
-    d.id_nomenclature_peuplement_essence_principale,
-    $store
+  d.peuplement_ess_1_label = $store.getters.nomenclatureString(
+    d.id_nomenclature_peuplement_essence_principale
   );
 
-  d.peuplement_ess_2_label = getNomenclature(
-    d.nomenclatures_peuplement_essence_secondaire,
-    $store
+  d.peuplement_ess_2_label = $store.getters.nomenclatureString(
+    d.nomenclatures_peuplement_essence_secondaire
   );
-  d.peuplement_ess_3_label = getNomenclature(
-    d.nomenclatures_peuplement_essence_complementaire,
-    $store
+  d.peuplement_ess_3_label = $store.getters.nomenclatureString(
+    d.nomenclatures_peuplement_essence_complementaire
   );
 
-  d.peuplement_origine_label = getNomenclature(
-    d.id_nomenclature_peuplement_origine,
-    $store
+  d.peuplement_origine_label = $store.getters.nomenclatureString(
+    d.id_nomenclature_peuplement_origine
   );
-  d.peuplement_origine2_label = getNomenclature(
-    d.nomenclatures_peuplement_origine2,
-    $store
+  d.peuplement_origine2_label = $store.getters.nomenclatureString(
+    d.nomenclatures_peuplement_origine2
   );
 
-  d.peuplement_type_label = getNomenclature(
-    d.id_nomenclature_peuplement_type,
-    $store
+  d.peuplement_type_label = $store.getters.nomenclatureString(
+    d.id_nomenclature_peuplement_type
   );
-  d.peuplement_maturite_label = getNomenclature(
-    d.nomenclatures_peuplement_maturite,
-    $store
+  d.peuplement_maturite_label = $store.getters.nomenclatureString(
+    d.nomenclatures_peuplement_maturite
   );
 
-  d.peuplement_protection_type_label = getNomenclature(
-    d.nomenclatures_peuplement_protection_type,
-    $store
+  d.peuplement_protection_type_label = $store.getters.nomenclatureString(
+    d.nomenclatures_peuplement_protection_type
   );
   if (d.autre_protection) {
     d.peuplement_protection_type_label = d.peuplement_protection_type_label.replace(
@@ -88,61 +107,52 @@ const rawToDisplay = function({ declaration, $store }) {
     );
   }
 
-  d.peuplement_paturage_type_label = getNomenclature(
-    d.nomenclatures_peuplement_paturage_type,
-    $store
+  d.peuplement_paturage_type_label = $store.getters.nomenclatureString(
+    d.nomenclatures_peuplement_paturage_type
   );
 
-  d.peuplement_paturage_statut_label = getNomenclature(
-    d.id_nomenclature_peuplement_paturage_statut,
-    $store
+  d.peuplement_paturage_statut_label = $store.getters.nomenclatureString(
+    d.id_nomenclature_peuplement_paturage_statut
   );
 
-  d.peuplement_paturage_frequence_label = getNomenclature(
-    d.id_nomenclature_peuplement_paturage_frequence,
-    $store
+  d.peuplement_paturage_frequence_label = $store.getters.nomenclatureString(
+    d.id_nomenclature_peuplement_paturage_frequence
   );
 
-  d.peuplement_paturage_saison_label = getNomenclature(
-    d.nomenclatures_peuplement_paturage_saison,
-    $store
+  d.peuplement_paturage_saison_label = $store.getters.nomenclatureString(
+    d.nomenclatures_peuplement_paturage_saison
   );
 
   for (const degat of d.degats) {
-    degat.degat_type_label = getNomenclature(
-      degat.id_nomenclature_degat_type,
-      $store
+    degat.degat_type_label = $store.getters.nomenclatureString(
+      degat.id_nomenclature_degat_type
     );
-    degat.degat_type_mnemo = getNomenclature(
+    degat.degat_type_mnemo = $store.getters.nomenclatureString(
       degat.id_nomenclature_degat_type,
-      $store,
-      'mnemonique'
+      "mnemonique"
     );
 
     for (const degatEssence of degat.degat_essences) {
-      degatEssence.degat_essence_label = getNomenclature(
-        degatEssence.id_nomenclature_degat_essence,
-        $store
+      degatEssence.degat_essence_label = $store.getters.nomenclatureString(
+        degatEssence.id_nomenclature_degat_essence
       );
-      degatEssence.degat_gravite_label = getNomenclature(
-        degatEssence.id_nomenclature_degat_gravite,
-        $store
+      degatEssence.degat_gravite_label = $store.getters.nomenclatureString(
+        degatEssence.id_nomenclature_degat_gravite
       );
-      degatEssence.degat_anteriorite_label = getNomenclature(
-        degatEssence.id_nomenclature_degat_anteriorite,
-        $store
+      degatEssence.degat_anteriorite_label = $store.getters.nomenclatureString(
+        degatEssence.id_nomenclature_degat_anteriorite
       );
-      degatEssence.degat_etendue_label = getNomenclature(
-        degatEssence.id_nomenclature_degat_etendue,
-        $store
+      degatEssence.degat_etendue_label = $store.getters.nomenclatureString(
+        degatEssence.id_nomenclature_degat_etendue
       );
-
     }
   }
 
+  const areas_parcelles = declarationAreas(d);
 
+  d.parcelles = $store.getters.areaString(areas_parcelles);
 
   return d;
 };
 
-export { rawToDisplay };
+export { rawToDisplay, getDeclarationData };

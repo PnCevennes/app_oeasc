@@ -4,6 +4,9 @@
 
 from flask import current_app
 
+from sqlalchemy.dialects.postgresql import JSONB, UUID
+
+
 from app.utils.utilssqlalchemy import (
     serializable
 )
@@ -28,7 +31,9 @@ class VUsers(DB.Model):
     nom_role = DB.Column(DB.String(250))
     prenom_role = DB.Column(DB.String(250))
     organisme = DB.Column(DB.String(250))
-    organisme = DB.Column(DB.String(250))
+    autre_organisme = DB.Column(DB.String(250))
+    id_organisme = DB.Column(DB.Integer)
+    accept_email = DB.Column(JSONB) 
     create_date = DB.Column(DB.String(250))
     nb_declarations = DB.Column(DB.Integer)
     id_droit_max = DB.Column(DB.Integer)

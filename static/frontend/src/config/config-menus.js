@@ -81,18 +81,37 @@ export const configMenus = {
     {
       name: 'login',
       label: 'Connexion',
-      to: '/login'
+      to: '/login',
+      icon: 'mdi-login',
+      condition: ({$store}) => !$store.getters.isAuth
     },
     {
       name: 'logout',
       label: 'Déconnexion',
-      to: '/logout'
+      to: '/logout',
+      icon: 'mdi-logout',
+      condition: ({$store}) => $store.getters.isAuth
     },
     {
       name: 'user',
       label: 'Espace utilisateur',
-      to: '/user'
+      to: '/user/espace_utilisateur',
+      icon: 'mdi-account',
+      condition: ({$store}) => $store.getters.isAuth
+    },
+    {
+      name: 'user_create',
+      label: 'Inscription',
+      to: '/user/creer_utilisateur',
+      icon: 'mdi-account-plus',
+      condition: ({$store}) => !$store.getters.isAuth
+    },
+    {
+      name: 'user-manage',
+      label: 'Gestion des utilisateurs',
+      to: '/user/gerer_utilisateurs',
+      icon: 'mdi-account-group',
+      condition: ({$store}) => $store.getters.droitMax >= 4
     }
-
   ]
 };
