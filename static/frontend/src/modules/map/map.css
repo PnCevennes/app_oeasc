@@ -1,9 +1,3 @@
-.map-container {
-    display: flex;
-    flex-direction: row;
-}
-
 .map {
-    width: 987px;
-    height: 610px; 
+    width: 100%;
 }

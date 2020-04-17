@@ -1,5 +1,9 @@
-.content, .edit-content {
+.content, .edit-content, .map-content {
   width: 1000px;
+}
+
+.map-content {
+  height: 400px;
 }
 
 .content hr {
@@ -7,10 +11,19 @@
   margin-bottom: 20px;
 }
 
-.content h1 {
+.content h1, .content h2, .content h3 {
   margin-bottom: 5px;
   margin-top: 5px;
 }
+
+.content ul {
+  margin-bottom: 20px;
+}
+
+.content li {
+  margin-bottom: 5px;
+}
+
 
 /* .content {
   background-color: red;

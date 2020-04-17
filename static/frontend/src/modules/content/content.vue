@@ -44,10 +44,12 @@
 // load content
 import { apiRequest } from "@/core/js/data/api.js";
 import { config } from "@/config/config.js";
-import { MapService } from "@/modules/map";
+// import { MapService } from "@/modules/map";
 import faqDeclaration from "./faq-declaration";
 import tableAide from "./table-aide";
 import declarationTable from "@/modules/declaration/declaration-table";
+import baseMap from "@/components/map/base-map";
+
 import "./content.css";
 // import Vue from "vue";
 import VRuntimeTemplate from "v-runtime-template";
@@ -65,7 +67,8 @@ export default {
     VRuntimeTemplate,
     faqDeclaration, // eslint-disable-line
     tableAide, // eslint-disable-line
-    declarationTable // eslint-disable-line
+    declarationTable, // eslint-disable-line
+    baseMap, // eslint-disable-line
   },
   data: () => ({
     // component: null,
@@ -79,18 +82,18 @@ export default {
       this.contentHTML = `<div>${data.html}</div>`;
       this.contentMD = data.md;
       this.bEditContent = false;
-      setTimeout(() => {
-        document.body.style.zIndex = 1;
-        for (const elem of document.getElementsByClassName("map")) {
-          const preConfigName = elem.getAttribute("config");
-          const mapConfig = MapService.getPreConfigMap(preConfigName);
-          const mapContainerId = elem.getAttribute("id");
+      // setTimeout(() => {
+      //   document.body.style.zIndex = 1;
+      //   for (const elem of document.getElementsByClassName("map")) {
+      //     const preConfigName = elem.getAttribute("config");
+      //     const mapConfig = MapService.getPreConfigMap(preConfigName);
+      //     const mapContainerId = elem.getAttribute("id");
 
-          const mapService = new MapService(mapContainerId, mapConfig);
+      //     const mapService = new MapService(mapContainerId, mapConfig);
 
-          mapService.init();
-        }
-      }, 100);
+      //     mapService.init();
+      //   }
+      // }, 100);
     },
     getCode: function() {
       return this.code || this.$route.params.code || config.defaultContent;
