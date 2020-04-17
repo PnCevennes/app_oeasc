@@ -1,5 +1,8 @@
 <template>
   <div>
+    {{ config.textFieldName }}
+    {{ config.valueFieldName }}
+    {{ items && items.length }}
     <div v-if="!items">{{ info.msg }}</div>
     <div v-else-if="config.displayValue">
       <span>{{ valueDisplay }}</span>
@@ -32,7 +35,7 @@
           >
             <span slot="label"
               >{{ config.label }}
-              <i v-if="config.multiple">(Plusieurs réponses possibles)</i>
+              <i v-if="config.multiple">(plusieurs réponses possibles)</i>
               <span v-if="config.required" class="required">*</span>
             </span>
 
@@ -73,7 +76,7 @@
                 <span class="select-list-label">
                   {{ config.label }}
                 </span>
-                <i>(Plusieurs réponses possibles)</i>
+                <i>(plusieurs réponses possibles)</i>
                 <span v-if="config.required" class="required"> *</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
               </div>
@@ -295,15 +298,6 @@ export default {
   },
   computed: {
     valueDisplay() {
-      console.log(
-        "valueDisplay",
-        this.config.name,
-        this.baseModel[this.config.name],
-        this.items,
-        this.config.textFieldName,
-        this.config.valueFieldName
-      );
-
       let values = this.baseModel[this.config.name];
       if (!(values || (this.config.multiple && !values.length))) {
         return "";
@@ -322,8 +316,13 @@ export default {
     this.setDefaultConfig();
   },
   mounted: function() {
+
     if (this.dataItemsIn) {
-      if (Array.isArray(this.dataItemsIn)) {
+      if (
+        this.dataItemsIn &&
+        this.dataItemsIn.length &&
+        typeof this.dataItemsIn[0] != "object"
+      ) {
         this.dataItems = this.dataItemsIn.map(item => ({
           text: item,
           value: item

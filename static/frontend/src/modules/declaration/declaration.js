@@ -44,6 +44,7 @@ const getDeclarationData = function({ declaration, $store }) {
 };
 
 const rawToDisplay = function({ declaration, $store }) {
+  console.log(declaration.meta_create_date)
   const d = copy(declaration);
 
   d.valide =
@@ -53,7 +54,9 @@ const rawToDisplay = function({ declaration, $store }) {
       ? "Non validé"
       : "En attente";
 
-  d.declaration_date = new Date(d.meta_create_date).toLocaleDateString();
+  if(d.meta_create_date) {
+    d.declaration_date = new Date(d.meta_create_date).toLocaleDateString();
+  }
 
   d.peuplement_acces_label = $store.getters.nomenclatureString(
     d.id_nomenclature_peuplement_acces

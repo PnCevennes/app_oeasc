@@ -5,7 +5,7 @@
                 <span class='select-list-label'>
                 {{ config.label }}
                 </span>
-                <i>(Plusieurs réponses possibles)</i> 
+                <i>(plusieurs réponses possibles)</i> 
                 <span v-if="config.required" class="required"> *</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
               </div>

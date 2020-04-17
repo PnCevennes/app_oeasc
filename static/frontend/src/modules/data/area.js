@@ -24,6 +24,9 @@ const STORE = {
   actions: {
     areas: ({ commit }, id_areas) => {
       return new Promise((resolve, reject) => {
+        if(!id_areas) {
+          resolve();
+        }
         const areasIds = Array.isArray(id_areas) ? id_areas : [id_areas];
         const params = '?' + areasIds.map(id_area => `id_area=${id_area}`)
         apiRequest("GET", `api/ref_geo/areas_simple/l${params}`).then(

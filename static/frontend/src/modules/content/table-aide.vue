@@ -4,8 +4,8 @@
     <v-simple-table dense class="small-table"  id="contacts">
       <col width="30%">
       <col width="20%">
-      <col width="20%">
-      <col width="30%">
+      <col width="15%">
+      <col width="25%">
       <thead class="thead-light">
 
         <tr>

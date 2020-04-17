@@ -4,7 +4,7 @@
       <v-expansion-panels inset>
         <v-expansion-panel v-for="(item, index) in faq" :key="index">
           <v-expansion-panel-header>
-            <span v-html="item.question">{{ item.question }}</span>
+            <span style="line-height:23px" v-html="item.question">{{ item.question }}</span>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
             <div v-html="item.response"></div>
@@ -70,7 +70,7 @@ export default {
         response: "<b>Oui !</b> Soyez rassuré(e), toutes les informations fournies restent strictement confidentielles et ne seront pas utilisées à des fins commerciales ou publicitaires. Les données issues du système d’alerte seront traitées de façon globale, et non nominative."
       },
       {
-        question: "J’ai déjà déclaré des dégâts, à l’époque, par l’intermédiaire du syndicat de propriétaires forestiers, et rien n’a été fait : <b>quelle différence cette fois-ci ?</b>",
+        question: "<b>J’ai déjà déclaré des dégâts, à l’époque, par l’intermédiaire du syndicat de propriétaires forestiers, et rien n’a été fait : quelle différence cette fois-ci ?</b>",
         response: `
 <p>
 Vous avez déjà, par le passé, pris la peine de renseigner une déclaration de dégâts de gibier, et vous avez peut-être été déçu de voir que rien n’avait été fait ensuite, ou vous avez l’impression que cela n’a servi à rien ?
@@ -93,3 +93,4 @@ Enfin, certains peuplements feront l’objet d’un diagnostic approfondi qui é
   }),
 };
 </script>
+

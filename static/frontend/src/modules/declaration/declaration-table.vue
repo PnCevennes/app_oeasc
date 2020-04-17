@@ -18,7 +18,7 @@
             Non autorisé
           </td>
         </tr>
-        <tr>
+        <tr v-if="declarationDisplay.declaration_date">
           <th>Date</th>
           <td>{{ declarationDisplay.declaration_date }}</td>
         </tr>
