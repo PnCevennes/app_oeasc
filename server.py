@@ -67,7 +67,7 @@ def google():
 
 
 @app.route('/test_front/')
-def front_vue(filename):
+def front_vue():
     return send_from_directory('frontend/dist', 'index.html')
 
 

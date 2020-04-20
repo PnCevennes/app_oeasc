@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h1>Connexion</h1>
     <generic-form :config="config" ref="form">
       <div slot="prependForm">
         <div v-if="redirect">
@@ -58,6 +57,7 @@ export default {
     return {
       bValidToken: null,
       config: {
+        title: "Connexion",
         request: {
           url: "pypn/auth/login",
           method: "POST",
