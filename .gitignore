@@ -44,7 +44,7 @@ var/log/*.log
 static/frontend/.DS_Store
 static/frontend/node_modules
 static/frontend/dist
-static/frontend/src/public/documents
+static/frontend/public/documents
 
 # local env files
 static/frontend/.env.local
