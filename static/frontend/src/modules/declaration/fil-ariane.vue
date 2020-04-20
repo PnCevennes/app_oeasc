@@ -66,7 +66,6 @@ export default {
     },
 
     condValidSession(keySession) {
-      console.log('iii aaa')
       return this.$store.getters.configDeclaration.condValidSession(keySession, this.validForms);
       // return this.validForms[keySession];
     },
