@@ -28,7 +28,7 @@ const STORE = {
           resolve();
         }
         const areasIds = Array.isArray(id_areas) ? id_areas : [id_areas];
-        const params = '?' + areasIds.map(id_area => `id_area=${id_area}`)
+        const params = '?' + areasIds.map(id_area => `id_area=${id_area}`).join('&')
         apiRequest("GET", `api/ref_geo/areas_simple/l${params}`).then(
           apiData => {
               const data = apiData.features.map(d => {return {...d.properties, geom: d.geom}})

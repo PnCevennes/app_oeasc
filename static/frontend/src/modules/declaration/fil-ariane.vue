@@ -48,9 +48,6 @@ export default {
   data: () => ({}),
   methods: {
     onSessionGroupClick(keySessionGroup) {
-      console.log(
-        this.$store.getters.configDeclaration.sessions(keySessionGroup)
-      );
       const keySession = this.$store.getters.configDeclaration.firstSession(
         keySessionGroup
       );

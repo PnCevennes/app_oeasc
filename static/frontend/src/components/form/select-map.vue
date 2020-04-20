@@ -19,8 +19,8 @@
         <div class="aside-select">
           <div class="btn-pre-select"
               v-if="
-                baseModel.b_statut_public == false &&
-                  baseModel.b_document == true
+                baseModel.b_statut_public === false &&
+                  baseModel.b_document === true
               "
           >
             <v-btn

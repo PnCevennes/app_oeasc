@@ -73,4 +73,8 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+table.v-table tbody td {
+    font-size: 5px !important;
+}
+</style>

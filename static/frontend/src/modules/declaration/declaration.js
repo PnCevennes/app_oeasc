@@ -2,7 +2,7 @@
 import { copy } from "@/core/js/util/util";
 
 const declarationAreas = function(d) {
-  return d.b_statut_public == true && d.b_document ==true
+  return d.b_statut_public === true && d.b_document ==true
     ? d.areas_localisation_onf_ug
     : d.areas_localisation_cadastre;
 };
@@ -19,9 +19,9 @@ const rawToDisplay = function({ declaration, $store }) {
   const d = copy(declaration);
 
   d.valide =
-    declaration.b_valid == true
+    declaration.b_valid === true
       ? "Validé"
-      : declaration.b_valid == false
+      : declaration.b_valid === false
       ? "Non validé"
       : "En attente";
 
@@ -36,9 +36,9 @@ const rawToDisplay = function({ declaration, $store }) {
   d.espece_label = $store.getters.nomenclatureString(d.nomenclatures_peuplement_espece);
 
   d.statut_public =
-    d.b_statut_public == true
+    d.b_statut_public === true
       ? "Public"
-      : d.b_statut_public == false
+      : d.b_statut_public === false
       ? "Privé"
       : "Indéfini";
 

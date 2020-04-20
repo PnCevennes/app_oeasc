@@ -51,10 +51,13 @@ const STORE = {
     _configDeclaration: {},
     _declarationForm: {},
     _declarations: [],
-    _foret: {}
+    _foret: {},
+    _declarationTableHeight: null,
   },
 
   getters: {
+
+    declarationTableHeight: state => state._declarationTableHeight,
 
     configDeclaration: state => {
       return state._configDeclaration;
@@ -77,12 +80,17 @@ const STORE = {
 
   mutations: {
 
+    declarationTableHeight: (state, h) => {
+      state._declarationTableHeight = h;
+    },
+
     configDeclaration: (state, configDeclaration) => {
       state._configDeclaration = configDeclaration;
     },
 
     declarationForm: (state, declarationForm) => {
       state._declarationForm = declarationForm;
+      state._declarations = [];
     },
 
     declarations: (state, declarations) => {

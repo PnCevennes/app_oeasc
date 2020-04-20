@@ -122,7 +122,6 @@ export default {
           this.config.name
         );
         if (nextSession) {
-          console.log("id_declarant", this.baseModel.id_declarant);
           this.$router.push({ query: { keySession: nextSession } });
         }
       }
@@ -132,6 +131,6 @@ export default {
       this.$refs[this.config.name].validate();
       return this.validForms[this.config.name];
     }
-  }
+  },
 };
 </script>

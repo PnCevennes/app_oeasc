@@ -118,7 +118,6 @@ export default {
             baseModel: baseModel,
             $store: this.$store
           });
-          console.log('function', key, subConfig, configNew)
         } else {
           configNew[key] = config[key];
         }
@@ -144,6 +143,7 @@ export default {
           this.bSending = false;
           this.bSuccess = true;
           this.msgSuccess = "La requête à été effectuée avec succès";
+
           if (this.config.request.onSuccess) {
             this.config.request.onSuccess(data);
           }
@@ -175,7 +175,7 @@ export default {
   }),
   mounted() {
     if (this.config.preLoadData) {
-      this.config.preLoadData({ $store: this.$store }).then(() => {
+      this.config.preLoadData({ $store: this.$store, config: this.config }).then(() => {
         this.baseModel = this.config.value || {};
         this.bInit = true;
       });

@@ -64,7 +64,6 @@ export default {
               url: "pypn/register/post_usershub/change_application_right",
               method: "POST",
               preProcess: ({ baseModel }) => {
-                console.log("prepros");
                 return {
                   id_role: baseModel.id_role,
                   id_droit: baseModel.id_droit_max,
@@ -110,7 +109,6 @@ export default {
   mounted() {
     this.$store.dispatch("users").then(users => {
       this.users = users;
-      console.log("user ready");
       this.configTable = { ...this.configTable, items: users };
     });
   }

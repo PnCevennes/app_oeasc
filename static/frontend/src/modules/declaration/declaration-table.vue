@@ -1,6 +1,6 @@
 <template>
-  <div v-if='bInit'>
-    <table class="table-declaration">
+  <div v-if="bInit">
+    <table class="table-declaration" ref="dectable">
       <tbody>
         <tr>
           <th colspan="3">Informations</th>
@@ -200,7 +200,9 @@
 
           <tr>
             <th>Fréquence</th>
-            <td>{{ declarationDisplay.peuplement_paturage_frequence_label }}</td>
+            <td>
+              {{ declarationDisplay.peuplement_paturage_frequence_label }}
+            </td>
           </tr>
 
           <tr v-if="declarationDisplay.peuplement_paturage_saison_label">
@@ -270,7 +272,7 @@
 import { rawToDisplay, getDeclarationData } from "./declaration.js";
 export default {
   name: "declarationTable",
-  props: ["declaration", 'type'],
+  props: ["declaration", "type"],
   data: () => ({
     bInit: false
   }),
@@ -292,15 +294,19 @@ export default {
     declarationDisplay() {
       if (this.type === "raw") {
         return rawToDisplay(this);
-        }
-        return this.declaration;
+      }
+
+      return this.declaration;
     }
   },
   mounted() {
-    if (this.type ==='raw') {
-      getDeclarationData(this).then(()=>{
-        this.bInit = true
-      })
+    if (this.type === "raw") {
+      getDeclarationData(this).then(() => {
+        this.bInit = true;
+        setTimeout(() => {
+          this.$store.commit('declarationTableHeight', this.$el.clientHeight);
+        }, 10);
+      });
     } else {
       this.bInit = true;
     }

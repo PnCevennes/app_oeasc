@@ -80,7 +80,7 @@ export default class ConfigDeclaration {
     formFunctions.rules.processRules(form);
 
     for (const rule of form.rules) {
-      condRules = condRules && rule(baseModel[keyForm]) == true;
+      condRules = condRules && rule(baseModel[keyForm]) === true;
     }
 
     let condCondition =

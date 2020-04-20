@@ -1,91 +1,170 @@
 <template>
   <div>
-    <h1>Liste des déclarations</h1>
-    <div v-if="loading">
-      Chargement en cours
-    </div>
-    <div v-else>
-      <v-data-table :headers="headers" :items="declarations">
-        <template v-slot:item.actions="{ item }">
-          <a :href="`#/declaration/voir_declaration/${item.id_declaration}`"
-            ><v-icon small class="mr-2">
-              mdi-eye
-            </v-icon>
-          </a>
-          <a
-            :href="
-              `#/declaration/declarer_en_ligne/${item.id_declaration}?keySession=all`
-            "
-            ><v-icon small class="mr-2">
-              mdi-pencil
-            </v-icon>
-          </a>
-        </template>
-      </v-data-table>
+    <div>
+      <div>
+        <v-btn @click="bDialogExport = true" color="primary">
+          Exporter les données
+        </v-btn>
+        <v-spacer></v-spacer>
+
+        <v-dialog v-model="bDialogExport" max-width="500">
+          <v-card>
+            <v-card-title class="headline">Exporter les données</v-card-title>
+
+            <v-card-text>
+              <div v-for="(item, index) of exports" :key="index">
+                <v-btn :href="item.href" color="success" class="btn-spaced">
+                  {{ item.label }}
+                </v-btn>
+                <i>{{ item.subLabel }}</i>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-dialog>
+      </div>
+      <generic-table :config="configTable"></generic-table>
     </div>
   </div>
 </template>
 
 <script>
-import { sortDate } from "@/core/js/util/util.js";
+import { config } from "@/config/config.js";
+import genericTable from "@/components/table/generic-table";
+import "@/core/css/main.scss";
 
 export default {
-  data: () => ({
-    loading: true,
-    headers: [
-      {
-        text: "Actions",
-        value: "actions",
-        sortable: false
+  components: { genericTable },
+  data() {
+    return {
+      exports: [
+        {
+          href: `${config.URL_APPLICATION}/api/declaration/declarations_csv`,
+          label: "Export CSV",
+          subLabel: "une ligne par décaration"
+        },
+        {
+          href: `${config.URL_APPLICATION}/api/declaration/declarations_csv?type_out=degat`,
+          label: "Export CSV",
+          subLabel: "une ligne par dégât"
+        },
+        {
+          href: `${config.URL_APPLICATION}/api/declaration/declarations_shape`,
+          label: "Export SHAPE",
+          subLabel: "une ligne par décaration"
+        },
+        {
+          href: `${config.URL_APPLICATION}/api/declaration/declarations_shape?type_out=degat`,
+          label: "Export SHAPE",
+          subLabel: "une ligne par dégât"
+        }
+      ],
+      bDialogExport: false,
+      configTable: {
+        label: "id_declaration",
+        id: "id_declaration",
+        dense: true,
+        striped: true,
+        small: true, 
+        headers: {
+          actions: {
+            width: "90px",
+            text: "Actions",
+            list: [
+              {
+                title: "Voir la déclaration",
+                icon: "mdi-eye",
+                to: ({ item }) =>
+                  `/declaration/voir_declaration/${item.id_declaration}`
+              },
+              {
+                title: "Voir la déclaration",
+                icon: "mdi-pencil",
+                to: ({ item }) =>
+                  `/declaration/declarer_en_ligne/${item.id_declaration}?keySession=all`,
+                condition: ({ item, $store }) => {
+                  return (
+                    $store.getters.droitMax > item.id_droit_max ||
+                    $store.getters.user.id_role == item.id_declarant
+                  );
+                }
+              }
+            ],
+            sortable: false
+          },
+          id_declaration: {
+            text: "Id"
+          },
+          declarant: {
+            text: "Déclarant"
+          },
+          organisme: {
+            text: "Organisme"
+          },
+          secteur: {
+            text: "Secteur"
+          },
+          declaration_date: {
+            text: "Date",
+            type: "date"
+          },
+          label_foret: {
+            text: "Nom forêt"
+          },
+          peuplement_ess_1_mnemo: {
+            text: "Ess. objectif"
+          },
+          parcelles: {
+            text: "Parcelle(s)"
+          },
+          peuplement_type_mnemo: {
+            text: "Type peupl."
+          },
+          peuplement_origine_mnemo: {
+            text: "Ori. peupl."
+          },
+          degat_types_mnemo: {
+            text: "Type dégâts"
+          },
+          b_valid: {
+            display: val => (val === true ? "Oui" : val === false ? "Non" : "?"),
+            width: "100px",
+            text: "Validé",
+            condition: ({ $store }) => $store.getters.droitMax >= 5,
+            edit: {
+              preLoadData: ({ config, $store }) => {
+                const id_declaration = config.value.id_declaration;
+                return new Promise(resolve => {
+                  $store
+                    .dispatch("declarationForm", id_declaration)
+                    .then(declaration => {
+                      config.value = declaration;
+                      resolve();
+                    });
+                });
+              },
+              request: {
+                url: "api/degat_foret/declaration",
+                method: "POST",
+                onSuccess: data => {
+                  this.configTable.items.find(
+                    d => d.id_declaration == data.id_declaration
+                  ).b_valid = data.b_valid;
+                }
+              },
+              forms: {
+                b_valid: {
+                  label: "Valider cette déclaration (admin seulement)",
+                  type: "bool_radio",
+                  labels: ["Oui", "Non"]
+                }
+              }
+            }
+          }
+        }
       },
-      {
-        text: "Id",
-        value: "id_declaration"
-      },
-      {
-        text: "Déclarant",
-        value: "declarant"
-      },
-      {
-        text: "Organisme",
-        value: "organisme"
-      },
-      {
-        text: "Secteur",
-        value: "secteur"
-      },
-      {
-        text: "Date",
-        value: "declaration_date",
-        sort: sortDate
-      },
-      {
-        text: "Nom forêt",
-        value: "label_foret"
-      },
-      {
-        text: "Ess. objectif",
-        value: "peuplement_ess_1_mnemo"
-      },
-      {
-        text: "Parcelle(s)",
-        value: "parcelles"
-      },
-      {
-        text: "Type peupl.",
-        value: "peuplement_type_mnemo"
-      },
-      {
-        text: "Ori. peupl.",
-        value: "peuplement_origine_mnemo"
-      },
-      {
-        text: "Type dégâts",
-        value: "degat_types_mnemo"
-      }
-    ],
-    declarations: []
-  }),
+      declarations: []
+    };
+  },
   name: "declaration-list",
   methods: {
     loadDeclarations() {
@@ -94,13 +173,8 @@ export default {
           return b.id_declaration - a.id_declaration;
         });
         this.declarations = declarations;
-        if (this.$store.getters.droitMax >= 5) {
-          this.headers.push({
-            text: 'Valide',
-            value: 'valide'
-          })
-        }
-        this.loading = false;
+        this.configTable.items = declarations;
+        this.configTable = { ...this.configTable };
       });
     }
   },

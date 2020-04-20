@@ -14,7 +14,7 @@ const formsPeuplement = {
       text: "label"
     },
     condition: ({ baseModel }) =>
-      (!(baseModel.b_statut_public == true && baseModel.b_document == true)) &&
+      (!(baseModel.b_statut_public === true && baseModel.b_document === true)) &&
         (baseModel.areas_foret_dgd ||
       baseModel.areas_foret_sections.length),
     url: ({ baseModel }) =>

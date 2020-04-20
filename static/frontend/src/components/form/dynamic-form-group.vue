@@ -72,6 +72,6 @@ export default {
 
       return cond;
     }
-  }
+  },
 };
 </script>

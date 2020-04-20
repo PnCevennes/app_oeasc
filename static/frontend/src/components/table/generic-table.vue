@@ -15,7 +15,7 @@
       </v-card-title>
       {{ configTable.editValues }}
       <v-data-table
-        :class="{ striped: config.striped }"
+        :class="configTable.classes"
         :headers="configTable.headers"
         :items="configTable.items"
         multi-sort
@@ -34,25 +34,70 @@
           #[`item.${value}`]="props"
         >
           <div :key="index">
-            {{ props.item[value] }}
-            <v-btn
-              icon
-              v-if="props.header.edit && (!props.header.edit.condition || props.header.edit.condition({$store, baseModel: props.item}))"
-              @click="openEditDialog(value, props.item[configTable.id])"
+            <div v-if="value == 'actions'">
+              <template
+                v-for="(action, indexAction) in props.header.list || []"
+              >
+                <v-btn
+                  small
+                  v-if="
+                    !action.condition ||
+                      action.condition({ $store, item: props.item })
+                  "
+                  :key="indexAction"
+                  icon
+                  :to="action.to({ item: props.item, $store }) || action.to"
+                  :title="action.title"
+                >
+                  <v-icon small>
+                    {{ action.icon }}
+                  </v-icon>
+                </v-btn>
+              </template>
+            </div>
+
+            <div
+              v-if="
+                props.header.edit &&
+                  (!props.header.edit.condition ||
+                    props.header.edit.condition({
+                      $store,
+                      baseModel: props.item
+                    }))
+              "
             >
-              <v-icon>edit</v-icon>
-            </v-btn>
-            <v-dialog
-              persistent
-              v-model="bEditDialogs[value][props.item[configTable.id]]"
-            >
-              <v-card>
-                <genericForm
-                  v-if="bEditDialogs[value][props.item[configTable.id]]"
-                  :config="configForm(props.item, value)"
-                ></genericForm>
-              </v-card>
-            </v-dialog>
+              <v-btn
+                small
+                @click="openEditDialog(value, props.item[configTable.id])"
+              >
+                {{
+                  (props.header.display &&
+                    props.header.display(props.item[value])) ||
+                    props.item[value]
+                }}
+                <!-- <v-icon small>edit</v-icon> -->
+              </v-btn>
+              <v-dialog
+                persistent
+                max-width="800px"
+                v-model="bEditDialogs[value][props.item[configTable.id]]"
+              >
+                <v-card>
+                  <genericForm
+                    class="edit-dialog"
+                    v-if="bEditDialogs[value][props.item[configTable.id]]"
+                    :config="configForm(props.item, value)"
+                  ></genericForm>
+                </v-card>
+              </v-dialog>
+            </div>
+            <div v-else>
+              {{
+                (props.header.display &&
+                  props.header.display(props.item[value])) ||
+                  props.item[value]
+              }}
+            </div>
           </div>
         </template>
       </v-data-table>
@@ -93,7 +138,7 @@ export default {
         return {};
       }
       const configForm = copy(header.edit);
-      configForm.title = `Modifier ${configForm.text} pour ${
+      configForm.title = `Modifier ${header.text} pour ${
         item[this.configTable.label]
       }`;
       configForm.value = item;
@@ -104,7 +149,12 @@ export default {
         }
       };
       configForm.forms[value].label = `${header.text}`;
-      configForm.request.onSuccess = () => {
+
+      if (configForm.request.onSuccess) {
+        configForm.request.onSuccess2 = configForm.request.onSuccess;
+      }
+      configForm.request.onSuccess = data => {
+        configForm.request.onSuccess2 && configForm.request.onSuccess2(data);
         this.closeDialog();
       };
       return configForm;
@@ -138,9 +188,16 @@ export default {
         if (header.type == "date") {
           header.sort = sortDate;
         }
-        headers.push(header);
+        if (!header.condition || header.condition({ $store: this.$store })) {
+          headers.push(header);
+        }
       }
       config.headers = headers;
+      config.classes = {
+        "small-table": config.small,
+        striped: config.striped
+      };
+
       this.configTable = config;
     }
   },

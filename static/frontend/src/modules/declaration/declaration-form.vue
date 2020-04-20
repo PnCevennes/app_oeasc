@@ -104,7 +104,6 @@ export default {
 
   methods: {
     initDeclarationForm() {
-      console.log("initDeclarationForm");
       // this.keySession = this.getKeySesion();
       // this.idDeclaration = this.getIdDeclatation();      this.$store.commit("configDeclaration", configDeclaration);
       this.$store.commit("declarationForm", {});
@@ -128,11 +127,6 @@ export default {
         this.initialized = true;
         this.declaration.id_declarant =
           this.declaration.id_declarant || this.$store.getters.user.id_role;
-        console.log(
-          "declarant",
-          this.declaration.id_declarant,
-          declaration.id_declarant
-        );
       });
     },
 

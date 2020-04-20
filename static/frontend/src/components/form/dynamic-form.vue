@@ -14,8 +14,8 @@
     <!-- Boolean radio -->
     <template v-else-if="configForm.type === 'bool_radio'">
       <span v-if="configForm.displayValue">
-        <template v-if="baseModel[configForm.name] == true">{{configForm.labels[0]}}</template>
-        <template v-else-if="baseModel[configForm.name] == false">{{configForm.labels[1]}}</template>
+        <template v-if="baseModel[configForm.name] === true">{{configForm.labels[0]}}</template>
+        <template v-else-if="baseModel[configForm.name] === false">{{configForm.labels[1]}}</template>
         <template v-else>Indéfini</template>
       </span>
       <v-radio-group v-else
@@ -43,8 +43,8 @@
     <!-- Bolean switch -->
     <template v-else-if="configForm.type === 'bool_switch'">
       <span v-if="configForm.displayValue">
-        <template v-if="baseModel[configForm.name] == true">Oui</template>
-        <template v-else-if="baseModel[configForm.name] == false">non</template>
+        <template v-if="baseModel[configForm.name] === true">Oui</template>
+        <template v-else-if="baseModel[configForm.name] === false">non</template>
         <template v-else>Indéfini</template>
       </span>
       <v-switch v-else

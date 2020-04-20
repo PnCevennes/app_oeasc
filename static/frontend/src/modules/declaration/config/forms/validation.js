@@ -6,7 +6,10 @@ const formsValidation = {
   content_resume: {
     type: "content",
     code: "declaration_resume",
-    meta: ({ baseModel }) => ({ declaration: baseModel })
+    meta: ({ baseModel, $store }) => ({
+      declaration: baseModel,
+      height: `height: ${$store.getters.declarationTableHeight || 100}px`
+    })
   },
   b_autorisation: {
     label:

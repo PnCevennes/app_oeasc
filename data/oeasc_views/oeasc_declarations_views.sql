@@ -137,7 +137,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     vu.nom_complet AS declarant,
     vu.organisme,
     vu.organisme_group,
-
+    vu.id_droit_max,
     f.id_foret,
     f.label_foret,
     f.statut_public,
@@ -227,7 +227,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
         WHEN b_valid = FALSE THEN 'Non validé' 
         ELSE 'En attente'
     END AS valide,
-
+    b_valid,
 
 
     CASE 

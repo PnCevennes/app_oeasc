@@ -38,7 +38,7 @@ const changeForetStatut = ({ config, baseModel }) => {
 };
 
 const changeForetDocument = ({ config, baseModel, $store }) => {
-  if (baseModel.b_document == false) {
+  if (baseModel.b_document === false) {
     const nomenclature = $store.getters.nomenclatureFromCdNomenclature(
       "OEASC_PROPRIETAIRE_TYPE",
       "PT_PRI"
@@ -124,6 +124,12 @@ const formsForet = {
     required: true,
   },
 
+  content_statut_dgd: {
+    type: 'content',
+    code: 'declaration_foret_onf',
+    condition: ({ baseModel }) => baseModel.b_document === false,
+  },
+
   areas_foret_onf: {
     required: true,
     type: "select_map",
@@ -183,7 +189,7 @@ const formsForet = {
   label_foret: {
     type: "text",
     label: "Nom de la forêt",
-    disabled: ({ baseModel }) => baseModel.b_document == true,
+    disabled: ({ baseModel }) => baseModel.b_document === true,
     help: true
   },
 
@@ -192,20 +198,20 @@ const formsForet = {
     label: "Superficie totale de la forêt (ha)",
     required: true,
     min: 0,
-    disabled: ({ baseModel }) => baseModel.b_document == true,
+    disabled: ({ baseModel }) => baseModel.b_document === true,
     help: true
   },
 
   content_foret_onf: {
     type: 'content',
     code: 'declaration_foret_onf',
-    condition: ({ baseModel }) => baseModel.b_document == true && baseModel.b_statut_public == true,
+    condition: ({ baseModel }) => baseModel.b_document === true && baseModel.b_statut_public === true,
   },
 
   content_foret_dgd: {
     type: 'content',
     code: 'declaration_foret_dgd',
-    condition: ({ baseModel }) => baseModel.b_document == true && baseModel.b_statut_public == false,
+    condition: ({ baseModel }) => baseModel.b_document === true && baseModel.b_statut_public === false,
   },
 
   id_nomenclature_proprietaire_declarant: {
@@ -223,7 +229,7 @@ const formsForet = {
     label:
       "Nom (et prénom pour les personnes physiques) ou raison sociale du propriétaire",
     required: ({ baseModel }) => baseModel.b_document != true,
-    disabled: ({ baseModel }) => baseModel.b_document == true
+    disabled: ({ baseModel }) => baseModel.b_document === true
   },
 
   telephone: {
@@ -233,21 +239,21 @@ const formsForet = {
     // maxlength: "10",
     rules: [formFunctions.rules.telephone],
     required: ({ baseModel }) => baseModel.b_document != true,
-    disabled: ({ baseModel }) => baseModel.b_document == true
+    disabled: ({ baseModel }) => baseModel.b_document === true
   },
 
   email: {
     label: "E-mail",
     type: "text",
     rules: [formFunctions.rules.email],
-    disabled: ({ baseModel }) => baseModel.b_document == true
+    disabled: ({ baseModel }) => baseModel.b_document === true
   },
 
   adresse: {
     type: "text",
     label: "n°, rue, hameau, lieu-dit",
     required: ({ baseModel }) => baseModel.b_document != true,
-    disabled: ({ baseModel }) => baseModel.b_document == true
+    disabled: ({ baseModel }) => baseModel.b_document === true
   },
 
   s_commune_proprietaire: {
@@ -261,7 +267,7 @@ const formsForet = {
     valueFieldName: "nom_cp",
     textFieldName: "nom_cp",
     required: ({ baseModel }) => baseModel.b_document != true,
-    disabled: ({ baseModel }) => baseModel.b_document == true
+    disabled: ({ baseModel }) => baseModel.b_document === true
   }
 };
 
