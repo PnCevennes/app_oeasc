@@ -68,7 +68,8 @@ def google():
 
 @app.route('/test_front/')
 def front_vue():
-    return send_from_directory('frontend/dist', 'index.html')
+    print('aa')
+    return send_from_directory('static/frontend/dist', 'index.html')
 
 
 with app.app_context():
