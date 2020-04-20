@@ -2,7 +2,7 @@
   <div :class="classes">
     <figure>
       <img
-        :src="src"
+        :src="`${$store.getters.distPath}${src}`"
         :title="`${title || src} ${source || ''}`.trim()"
         :alt="`${title || src} ${source || ''}`.trim()"
         :width="width"
@@ -10,7 +10,6 @@
       />
       <figcaption>
           <div class="img-text">
-
         {{ title }}
         <i class="source" v-if="source"> - {{ source }}</i>
           </div>
@@ -21,6 +20,7 @@
 
 <script>
 import "./content.css";
+
 export default {
   name: "content-img",
   computed: {

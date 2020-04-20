@@ -60,17 +60,16 @@ app.config['MAIL'] = mail
 def accueil():
     return redirect("/oeasc", code=302)
 
+@app.route('/front/')
+def front():
+    print("aa")
+    return send_from_directory("static/frontend/dist", 'index.html')
+
+
 
 @app.route('/google4b0945b8a2f6425f.html')
 def google():
     return redirect(url_for('static', filename='google4b0945b8a2f6425f.html'))
-
-
-@app.route('/test_front/')
-def front_vue():
-    print('aa')
-    return send_from_directory('static/frontend/dist', 'index.html')
-
 
 with app.app_context():
 

@@ -99,4 +99,8 @@ fi
 echo "Instalation des paquets npm"
 npm install
 
+cd frontend/
+npm install
+npm run build
+
 cd $ROOT_DIR

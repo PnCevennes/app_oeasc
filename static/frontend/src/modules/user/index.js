@@ -1,4 +1,5 @@
 import login from "./login";
+import {config} from '@/config/config.js';
 import userPage from "./user-page";
 import createUser from "./create-user";
 import manageUser from "./manage-user";
@@ -91,6 +92,13 @@ const STORE = {
   },
 
   getters: {
+
+    prod: () => !window.webpackHotUpdate,
+    distPath: () => {
+      console.log(config.distPath,  STORE.getters.prod())
+      return STORE.getters.prod() ? config.distPath : '' 
+    },
+
     users: state => state.users,
 
     organismes: state => {
