@@ -29,13 +29,12 @@
 .btn-spaced {
   margin: 10px;
 }
-//   .map {
 
-//     height: 400px;
-//   }
+.oeasc-app-bar {
+  position: sticky;
+  top: 0px;
+}
 
-// .flex-container {
-//     display: flex;
-//     justify-content: center;
-//     flex-direction: column;
-// }
+.oeasc-app-bar.space {
+  height: 48px;
+}

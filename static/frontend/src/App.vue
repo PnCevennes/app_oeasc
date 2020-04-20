@@ -1,18 +1,26 @@
 <template>
   <v-app>
-    <div id="app">
+    <div id="app" ref="app">
       <div class="page-container">
+        <oeasc-app-bar
+          :config="configAppBar"
+          v-model="configDrawer.show"
+        ></oeasc-app-bar>
+        <div class="oeasc-app-bar space"></div>
         <!-- <v-card color="grey lighten-4" flat tile> -->
         <div class="img-titre">
           <h1 class="oeasc-titre">
             Observatoire de l'équilibre agro‑sylvo‑cynégétique
           </h1>
         </div>
-        <oeasc-app-bar :config="configAppBar"></oeasc-app-bar>
+        <!-- <div
+          class="oeasc-app-bar"
+        > -->
+        <!-- </div> -->
         <oeasc-drawer :config="configDrawer"></oeasc-drawer>
 
-        <div class="main-container">
-            <router-view></router-view>
+        <div class="main-container" id="scrolling-techniques" style="height=100px">
+          <router-view></router-view>
         </div>
       </div>
     </div>
@@ -28,20 +36,27 @@ import oeascDrawer from "@/components/app/drawer";
 export default {
   name: "App",
   components: { oeascAppBar, oeascDrawer },
+  computed: {},
   data() {
     return {
       drawer: false,
       menus: config.menus,
       userIcon: "person",
       configAppBar: {
-        menus: config.menus,
-        navIconClick: () => {
-          this.configDrawer.show = !this.configDrawer.show;
-        }
+        rightMenus: ["user"],
+        leftMenus: ["accueil", "observatoire", "systeme_alerte"]
       },
       configDrawer: {
-        menus: config.menus,
-        show: false
+        menus: [
+          "accueil",
+          "observatoire",
+          "systeme_alerte",
+          "user",
+          "documentation",
+          "contact",
+          "partenaires"
+        ],
+        show: this.drawer
       }
     };
   },
@@ -54,6 +69,7 @@ export default {
     checkRigths() {
       const access = this.$route.meta.access;
       const droitMax = this.$store.getters.droitMax;
+      console.log(access, droitMax);
       if (!access) {
         return;
       }
@@ -75,6 +91,6 @@ export default {
 
 <style lang="scss" scoped>
 table.v-table tbody td {
-    font-size: 5px !important;
+  font-size: 5px !important;
 }
 </style>

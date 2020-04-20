@@ -9,45 +9,58 @@ import { apiRequest } from "@/core/js/data/api.js";
 const ROUTE = [
   {
     path: "/login",
-    label: "login",
-    name: "login",
-    component: login
+    label: "Connexion",
+    icon: "mdi-login",
+    name: "user.login",
+    component: login,
+    condition: ({$store}) => !$store.getters.isAuth
   },
   {
     path: "/logout",
-    label: "logout",
-    name: "logout",
-    component: logout
+    label: "Déconnexion",
+    name: "user.logout",
+    icon: "mdi-logout",
+    component: logout,
+    condition: ({$store}) => $store.getters.isAuth
   },
   {
     path: "/user/espace_utilisateur",
-    label: "user",
-    meta: {
-      access: 1
-    },
-    name: "user",
-    component: userPage
+    access: 1,
+    name: "user.top",
+    component: userPage,
+    icon: ({$store}) => $store.getters.isAuth ? "mdi-account-check" : "mdi-account-cancel",
+    disabled: ({$store}) => !$store.getters.isAuth,
+  },
+  {
+    path: "/user/espace_utilisateur",
+    label: "Espace utilisateur",
+    access: 1,
+    icon: "mdi-account",
+    name: "user.espace_utilisateur",
+    component: userPage,
+    condition: ({$store}) => $store.getters.isAuth
   },
   {
     path: "/user/creer_utilisateur",
-    label: "user",
-    name: "create_user",
-    component: createUser
+    label: "Inscription",
+    icon: 'mdi-account-plus',
+    name: "user.creer_utilisateur",
+    component: createUser,
+    condition: ({$store}) => !$store.getters.isAuth
   },
   {
     path: "/user/gerer_utilisateurs",
-    label: "user",
-    name: "manage_user",
-    meta: {
-      access: 4 
-    },
-    component: manageUser
+    label: "Gestion des utilisateurs",
+    name: "user.gerer_utilisateurs",
+    icon: 'mdi-account-group',
+    access: 4,
+    component: manageUser,
+    condition: ({$store}) => $store.getters.droitMax >= 4
   },
-
   {
     path: "/user/change_password",
-    label: "user",
-    name: "user",
+    label: "Changement de mot de passe",
+    name: "user.change_password",
     component: changePassword
   }
 ];

@@ -1,6 +1,6 @@
 <template>
   <div v-if="configForm">
-    <div v-if="bRequestSuccess">
+    <div v-if="bRequestSuccess" class='red'>
       <slot name="success"></slot>
     </div>
     <div v-else>

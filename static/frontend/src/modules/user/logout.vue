@@ -1,7 +1,5 @@
 <template>
 <div>
-  
-    <md-snackbar :md-active.sync="bMsg">{{ msg }}</md-snackbar>
 </div>
 </template>
 
@@ -24,7 +22,7 @@ export default {
         this.$store.commit('user', null)
         this.bMsg = true;
         setTimeout(() => {
-          this.$router.push('content/accueil');
+          this.$router.push('observatoire/presentation');
         }, 1000);
       },
       error => {
