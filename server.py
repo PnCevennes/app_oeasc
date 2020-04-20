@@ -66,9 +66,9 @@ def google():
     return redirect(url_for('static', filename='google4b0945b8a2f6425f.html'))
 
 
-@app.route('/frontend/dist/<filename>')
+@app.route('/test_front/')
 def front_vue(filename):
-    return send_from_directory('frontend/dist', filename)
+    return send_from_directory('frontend/dist', 'index.html')
 
 
 with app.app_context():
