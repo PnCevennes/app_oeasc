@@ -33,3 +33,14 @@
 .oeasc-app-bar.space {
   height: 48px;
 }
+
+.pdf {
+  width:8.3in;
+  /* height: 11.7in; */
+  padding:  0.5in;
+  overflow: hidden;
+}
+
+.pdf .ignorepdf {
+  display: none;
+}

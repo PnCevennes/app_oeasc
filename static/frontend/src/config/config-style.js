@@ -46,7 +46,15 @@ const styles = {
     opacity: 1,
     fillOpacity: 0.4,
     transition: 'color 1s'
+  },
+  foret: {
+    color: 'purple',
+    fillColor: 'purple',
+    weight: 3,
+    opacity: 1,
+    fillOpacity: 0.5,
   }
+
 };
 
 export { styles };

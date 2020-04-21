@@ -5,7 +5,7 @@
       class="map"
       :id="mapId"
       :config="config"
-      :style="`height:${height || '600px'}`"
+      :style="`height:${height || '600px'}; z-index:0`"
     ></div>
 
     <!-- aside   -->

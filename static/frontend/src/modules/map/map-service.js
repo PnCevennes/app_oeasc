@@ -2,18 +2,19 @@
  * class pour gérer les cartes de l'application oeasc
  */
 
-import 'leaflet/dist/leaflet.css';
-import 'leaflet/dist/leaflet';
-import * as L from 'leaflet';
+import "leaflet/dist/leaflet.css";
+import "leaflet/dist/leaflet";
+import * as L from "leaflet";
 
-import './map.css'; // css
+import "./map.css"; // css
 
-import { mapConfig, staticMapConfig } from './map-elements/map-config.js';
-import { mapPane } from './map-elements/map-pane.js';
-import { mapTile } from './map-elements/map-tile.js';
-import { mapTooltip } from './map-elements/map-tooltip.js';
-import { mapLayer } from './map-elements/map-layer.js';
-import { mapLegend } from './map-elements/map-legend.js';
+import { mapConfig, staticMapConfig } from "./map-elements/map-config.js";
+import { mapPane } from "./map-elements/map-pane.js";
+import { mapTile } from "./map-elements/map-tile.js";
+import { mapTooltip } from "./map-elements/map-tooltip.js";
+import { mapLayer } from "./map-elements/map-layer.js";
+import { mapLegend } from "./map-elements/map-legend.js";
+import { mapExport } from "./map-elements/map-export.js";
 
 const mapModules = [
   mapConfig,
@@ -21,13 +22,11 @@ const mapModules = [
   mapTile,
   mapTooltip,
   mapLayer,
-  mapLegend
+  mapLegend,
+  mapExport,
 ];
 
-const staticMapModules = [
-    staticMapConfig
-]
-
+const staticMapModules = [staticMapConfig];
 
 class MapService {
   _id; // map id
@@ -38,7 +37,7 @@ class MapService {
     this._id = id;
     this._config = config;
   }
-  
+
   map = function() {
     return this._map;
   };
@@ -47,7 +46,7 @@ class MapService {
   init = function() {
     // process config
     if (!this.processConfig()) {
-      console.log('pb avec la config');
+      console.log("pb avec la config");
       return;
     }
 
@@ -62,7 +61,7 @@ class MapService {
 
     // init tiles
     this.initTiles();
-    
+
     // init layers
     this.initLayers();
 
@@ -70,18 +69,27 @@ class MapService {
     this.initLegends();
 
     // init succeed
+
+    // resize map in case oft                       bv  
+    for (const t of [100, 1000, 2000, 5000, 10000]) {
+      setTimeout(() => {
+        // console.log(this._id, t);
+        this._map.invalidateSize();
+      }, t);
+    }
+
     return true;
   };
 }
 
 // ajout des methodes à la classe mapConfig
 for (const methods of mapModules) {
-  Object.assign(MapService.prototype, methods)
+  Object.assign(MapService.prototype, methods);
 }
 
 // ajout des méthodes statiques
 for (const methods of staticMapModules) {
-  Object.assign(MapService, methods)
+  Object.assign(MapService, methods);
 }
 
 export { MapService };

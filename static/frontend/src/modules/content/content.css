@@ -64,7 +64,14 @@ div.img-content.float.right {
 
 .img-content figure {
   display: inline-block;
+
 }
+
+.img-content img {
+margin-left: auto;  
+margin-right: auto;  
+}
+
 
 .img-content .source {
   font-size: 0.9em;

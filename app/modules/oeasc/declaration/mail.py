@@ -63,7 +63,7 @@ def send_mail_validation_declaration(declaration, b_create):
                 new_front=config['MODE_NEW'],
                 b_create=b_create
             )
-            # conn.send(msg)
+            conn.send(msg)
 
         msg = Message(
             '[OEASC] [ANIMATEUR] Nouvelle déclaration' if b_create else '[OEASC] [ANIMATEUR] Modification de la déclaration ' + str(declaration['id_declaration']), 

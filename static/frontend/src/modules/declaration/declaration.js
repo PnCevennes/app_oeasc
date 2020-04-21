@@ -1,17 +1,27 @@
 // import moment from "moment";
 import { copy } from "@/core/js/util/util";
 
-const declarationAreas = function(d) {
-  return d.b_statut_public === true && d.b_document ==true
+const declarationLocalisationAreas = function(d) {
+  return d.b_statut_public === true && d.b_document == true
     ? d.areas_localisation_onf_ug
     : d.areas_localisation_cadastre;
 };
 
+const declarationForetAreas = function(d) {
+  return d.b_document == false
+    ? d.areas_foret_section
+    : d.b_statut_public
+    ? [d.areas_foret_onf]
+    : [d.areas_foret_dgd];
+};
+
 const getDeclarationData = function({ declaration, $store }) {
-  return new Promise((resolve) => {
-    $store.dispatch("areas", declarationAreas(declaration)).then(() => {
-      resolve();
-    });
+  return new Promise(resolve => {
+    $store
+      .dispatch("areas", declarationLocalisationAreas(declaration))
+      .then(() => {
+        resolve();
+      });
   });
 };
 
@@ -25,7 +35,7 @@ const rawToDisplay = function({ declaration, $store }) {
       ? "Non validé"
       : "En attente";
 
-  if(d.meta_create_date) {
+  if (d.meta_create_date) {
     d.declaration_date = new Date(d.meta_create_date).toLocaleDateString();
   }
 
@@ -33,7 +43,9 @@ const rawToDisplay = function({ declaration, $store }) {
     d.id_nomenclature_peuplement_acces
   );
 
-  d.espece_label = $store.getters.nomenclatureString(d.nomenclatures_peuplement_espece);
+  d.espece_label = $store.getters.nomenclatureString(
+    d.nomenclatures_peuplement_espece
+  );
 
   d.statut_public =
     d.b_statut_public === true
@@ -122,11 +134,16 @@ const rawToDisplay = function({ declaration, $store }) {
     }
   }
 
-  const areas_parcelles = declarationAreas(d);
+  const areas_parcelles = declarationLocalisationAreas(d);
 
   d.parcelles = $store.getters.areaString(areas_parcelles);
 
   return d;
 };
 
-export { rawToDisplay, getDeclarationData };
+export {
+  rawToDisplay,
+  getDeclarationData,
+  declarationForetAreas,
+  declarationLocalisationAreas
+};
