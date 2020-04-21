@@ -23,7 +23,6 @@
         class="content"
         :template="contentHTML"
       ></v-runtime-template>
-
       <div v-if="bEditContent" class="edit-content">
         <v-textarea
           :label="`Content ${getCode()}`"
@@ -54,6 +53,8 @@ import "./content.css";
 // import Vue from "vue";
 import VRuntimeTemplate from "v-runtime-template";
 
+console.log(config)
+
 export default {
   name: "oeasc-content",
   props: ["code", "containerClassIn", "meta"],
@@ -63,6 +64,11 @@ export default {
       this.initContent();
     }
   },
+  computed: {
+    dp() {
+      return this.$store.getters.distPath;
+    }
+  },
   components: {
     VRuntimeTemplate,
     faqDeclaration, // eslint-disable-line
@@ -70,13 +76,15 @@ export default {
     declarationTable, // eslint-disable-line
     baseMap, // eslint-disable-line
     contentImg, // eslint-disable-line
+
   },
   data: () => ({
     // component: null,
     contentHTML: "",
     contentMD: "",
     bEditContent: false,
-    containerClass: {}
+    containerClass: {},
+    mainConfig: config,
   }),
   methods: {
     setContent: function(data) {
