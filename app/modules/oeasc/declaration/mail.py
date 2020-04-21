@@ -41,6 +41,8 @@ def send_mail_validation_declaration(declaration, b_create):
     '''
         Evoie un e-mail quand une declaration est validée
     '''
+    print('aaaa', b_create)
+
     user = get_user(session['current_user']['id_role'])
 
     email_user = user['email']
@@ -58,15 +60,23 @@ def send_mail_validation_declaration(declaration, b_create):
                 destinataire='user',
                 declaration=declaration,
                 user=user,
-                new_front=config['MODE_NEW']
+                new_front=config['MODE_NEW'],
+                b_create=b_create
             )
-            conn.send(msg)
+            # conn.send(msg)
 
-        
         msg = Message(
-            '[OEASC] [ANIMATEUR] Nouvelle déclaration' if b_create else '[OEASC] [ANIMATEUR] Modification de la déclaration ' + declaration.id_declaration, 
+            '[OEASC] [ANIMATEUR] Nouvelle déclaration' if b_create else '[OEASC] [ANIMATEUR] Modification de la déclaration ' + str(declaration['id_declaration']), 
             sender=config['ANIMATEUR_APPLICATION_MAIL'],
             recipients=[config['ANIMATEUR_APPLICATION_MAIL'], config['ADMIN_APPLICATION_MAIL']])
-        msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='animateur', declaration=declaration, user=user, b_create = b_create)
+
+        msg.html = render_template(
+            'modules/oeasc/mail/validation_declaration.html',
+            destinataire='animateur',
+            declaration=declaration,
+            user=user,
+            b_create=b_create,
+            new_front=config['MODE_NEW'],
+            )
 
         conn.send(msg)

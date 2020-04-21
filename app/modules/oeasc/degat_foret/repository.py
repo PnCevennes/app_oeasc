@@ -165,7 +165,6 @@ def create_or_update_declaration(post_data):
 
     # declaration
 
-    print('before declaration', post_data['id_foret'])
     post_data['foret'] = foret.as_dict(True)
 
     declaration = create_or_modify(

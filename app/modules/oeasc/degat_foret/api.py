@@ -128,9 +128,9 @@ def api_patch_declaration():
     '''
     api_post_declaration
     '''
-
     post_data = request.get_json()
+    b_create = not (post_data.get('id_declaration'))
     d = create_or_update_declaration(post_data)
-    send_mail_validation_declaration(d, True)
+    send_mail_validation_declaration(d, b_create)
     
     return d

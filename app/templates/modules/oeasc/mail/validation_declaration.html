@@ -30,8 +30,9 @@
       {% if new_front %}
       <a href="{{config['URL_FRONTEND']}}/#/declaration/liste">
         {% else %}
-        <a href="{{config.URL_APPLICATION}}{{ url_for('resultat.degats_forestiers') }}">consulter les résultats</a> des suivis réalisés dans le cadre de l'Observatoire.
-      {% endif %}
+        <a href="{{config.URL_APPLICATION}}{{ url_for('resultat.degats_forestiers') }}">
+          {% endif %}
+          consulter les résultats</a> des suivis réalisés dans le cadre de l'Observatoire.
 
     </li>
   </ul>
@@ -60,12 +61,14 @@
     <li><b>Utilisateur</b> : {{ user.nom_role | upper}} {{ user.prenom_role}}</li>
     <li><b>Organisme</b> : {{user.organisme}}</li>
   </ul>
+  {{new_front}}
   <p>Vous pouvez voir les détails de la déclaration en cliquant 
     {% if new_front %}
-    <a href="{{config['URL_FRONTEND']}}/#/declaration/voir_declaration/{{declaration.id_declaration}}">
+      <a href="{{config['URL_FRONTEND']}}/#/declaration/voir_declaration/{{ declaration.id_declaration }}">
     {% else %}
-    <a href="{{config.URL_APPLICATION}}{{url_for('declaration.declaration', id_declaration=declaration['id_declaration'])}}">ici</a>
-    {% endif %}
+    <a href="{{config.URL_APPLICATION}}{{url_for('declaration.declaration', id_declaration=declaration.id_declaration)}}">
+      {% endif %}
+      ici</a>
 
     .</p>
 
