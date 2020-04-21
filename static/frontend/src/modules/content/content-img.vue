@@ -1,6 +1,6 @@
 <template>
   <div :class="classes">
-    {{$store.getters.distPath}}
+    __{{$store.getters.distPath}}__
     <figure>
       <img
         :src="`${$store.getters.distPath}${src}`"
