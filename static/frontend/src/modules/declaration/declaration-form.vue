@@ -24,6 +24,7 @@
           :key="keySessionCur"
         >
           <form-session
+          class="session"
             v-if="showSession(keySessionCur)"
             :baseModel="declaration"
             :config="configSession"

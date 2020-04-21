@@ -32,7 +32,7 @@
           >
             <span slot="label"
               >{{ config.label }}
-              <i v-if="config.multiple">(plusieurs réponses possibles)</i>
+              <i v-if="config.multiple"> (plusieurs réponses possibles)</i>
               <span v-if="config.required" class="required">*</span>
             </span>
 
@@ -73,9 +73,10 @@
                 <span class="select-list-label">
                   {{ config.label }}
                 </span>
-                <i>(plusieurs réponses possibles)</i>
                 <span v-if="config.required" class="required"> *</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
+                <br>                
+                <i>(plusieurs réponses possibles)</i>
               </div>
 
               <v-checkbox

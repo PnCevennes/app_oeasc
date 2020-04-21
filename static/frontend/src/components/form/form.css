@@ -48,9 +48,19 @@
 
 .required  {
   color: red;
-  margin-right: 5px;;
+  margin-right: 5px;
 }
 
 .select-list-label {
   font-weight: bold;
+}
+
+.form-container {
+  min-width: 800px;
+  position: relative;
+}
+
+.session {
+  width: 100%;
+  position: relative;
 }

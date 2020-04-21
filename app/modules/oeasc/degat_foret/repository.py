@@ -174,8 +174,6 @@ def create_or_update_declaration(post_data):
         post_data
     )
 
-    print('aaa')
-
     patch_areas_declarations(declaration.id_declaration)
 
     return declaration.as_dict(True)

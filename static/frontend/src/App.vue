@@ -3,6 +3,7 @@
     <div id="app" ref="app">
       <div class="page-container">
         <oeasc-app-bar
+        class="oeasc-app-bar"
           :config="configAppBar"
           v-model="configDrawer.show"
         ></oeasc-app-bar>
@@ -13,10 +14,6 @@
             Observatoire de l'équilibre agro‑sylvo‑cynégétique
           </h1>
         </div>
-        <!-- <div
-          class="oeasc-app-bar"
-        > -->
-        <!-- </div> -->
         <oeasc-drawer :config="configDrawer"></oeasc-drawer>
 
         <div class="main-container" id="scrolling-techniques" style="height=100px">

@@ -11,6 +11,12 @@ URL_USERSHUB="localhost:5001"
 
 MODE_TEST=0
 
+MODE_NEW = 0
+# URL_FRONTEND = 'http://localhost:8080'
+URL_FRONTEND = URL_APPLICATION + '/front'
+
+
+
 ID_APP = 1
 SECRET_KEY = 'super secret key'
 PASS_METHOD = 'hash'

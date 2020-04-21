@@ -2,12 +2,10 @@
   <div>
     <h1>Gestion des utilisateurs</h1>
     <div>
-      <v-btn color="primary" :href="pathExportUser">
+      <v-btn class='btn-spaced' color="primary" :href="pathExportUser">
         Export CSV
       </v-btn>
-    </div>
-    <div>
-      <v-btn color="primary" @click="mailingListClipboard()">
+      <v-btn class='btn-spaced' color="primary" @click="mailingListClipboard()">
         Mailing list <v-icon>mdi-clipboard-text-play-outline</v-icon>
       </v-btn>
       <v-snackbar color="success" v-model="bShowMailList" :timeout="3000"
@@ -25,6 +23,7 @@
 <script>
 import { config } from "@/config/config";
 import genericTable from "@/components/table/generic-table";
+
 
 export default {
   name: "manage-user",

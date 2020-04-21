@@ -88,7 +88,8 @@ const formsPeuplement = {
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE",
     required: true,
-    help: true
+    help: true,
+    condition: ({$store}) => $store.droitMax >=5 
   },
   
   nomenclatures_peuplement_origine2: {

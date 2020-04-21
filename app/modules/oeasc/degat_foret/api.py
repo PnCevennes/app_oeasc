@@ -20,6 +20,8 @@ from .repository import (
     hide_proprietaire
     )
 
+from ..declaration.mail import send_mail_validation_declaration
+
 bp = Blueprint('degat_foret_api', __name__)
 
 
@@ -40,7 +42,7 @@ def api_get_foret_from_code(code_foret):
     (foret, proprietaire) = get_foret_from_code(code_foret)
     out = foret.as_dict(True)
     out.update(proprietaire.as_dict(True))
-    
+
     nomenclature = get_nomenclature_from_id(proprietaire.id_nomenclature_proprietaire_type)
     if nomenclature['cd_nomenclature'] == 'PT_PRI':
         hide_proprietaire(out)
@@ -115,9 +117,9 @@ def api_post_declaration():
     '''
 
     post_data = request.get_json()
-
-    return create_or_update_declaration(post_data)
-
+    d = create_or_update_declaration(post_data)
+    send_mail_validation_declaration(d.as_dict(True), False)
+    return d.as_dict(True)
 
 @bp.route('declaration', methods=['POST'])
 @check_auth_redirect_login(1)
@@ -128,5 +130,7 @@ def api_patch_declaration():
     '''
 
     post_data = request.get_json()
-
-    return create_or_update_declaration(post_data)
+    d = create_or_update_declaration(post_data)
+    send_mail_validation_declaration(d, True)
+    
+    return d

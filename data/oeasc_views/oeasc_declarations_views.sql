@@ -229,7 +229,6 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     END AS valide,
     b_valid,
 
-
     CASE 
 	WHEN f.b_statut_public AND f.b_document THEN oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_ONF_UG')
     ELSE
@@ -310,6 +309,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_csv AS
 
     SELECT 
         vd.id_declaration AS "id",
+        vd.valide AS "Valide",
         vd.declaration_date AS "Date",
         vd.declarant AS "Déclarant",
         vd.organisme AS "Organisme",

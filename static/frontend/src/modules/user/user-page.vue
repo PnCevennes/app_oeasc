@@ -26,7 +26,9 @@ export default {
               ),
               this.$store.dispatch("organismes")
             ]).then(data => {
-              this.config.value = data[0];
+              console.log(data[0])
+              const value = data[0];
+              this.config.value = value;
               resolve();
             });
           });
@@ -48,9 +50,10 @@ export default {
             if (baseModel.autre_organisme) {
               baseModel.champs_addi.organisme = baseModel.autre_organisme;
             }
-            if (baseModel.accept_email) {
+            if ([true, false].includes(baseModel.accept_email)) {
               baseModel.champs_addi.accept_email = baseModel.accept_email;
             }
+
 
             return baseModel;
           }

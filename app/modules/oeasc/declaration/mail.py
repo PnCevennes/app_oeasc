@@ -56,16 +56,17 @@ def send_mail_validation_declaration(declaration, b_create):
             msg.html = render_template(
                 'modules/oeasc/mail/validation_declaration.html',
                 destinataire='user',
-                declaration=declaration, 
-                user=user
+                declaration=declaration,
+                user=user,
+                new_front=config['MODE_NEW']
             )
-
             conn.send(msg)
 
+        
         msg = Message(
-            '[OEASC] [ANIMATEUR] Nouvelle déclaration',
+            '[OEASC] [ANIMATEUR] Nouvelle déclaration' if b_create else '[OEASC] [ANIMATEUR] Modification de la déclaration ' + declaration.id_declaration, 
             sender=config['ANIMATEUR_APPLICATION_MAIL'],
             recipients=[config['ANIMATEUR_APPLICATION_MAIL'], config['ADMIN_APPLICATION_MAIL']])
-        msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='animateur', declaration=declaration, user=user)
+        msg.html = render_template('modules/oeasc/mail/validation_declaration.html', destinataire='animateur', declaration=declaration, user=user, b_create = b_create)
 
         conn.send(msg)

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="configForm">
+  <div v-if="configForm" class="form-container">
     <div v-if="bRequestSuccess" class='red'>
       <slot name="success"></slot>
     </div>
@@ -55,7 +55,7 @@
         <v-btn
           v-if="configForm.switchDisplay"
           color="primary"
-          @click="configconfig.displayValue = !config.displayValue"
+          @click="config.displayValue = !config.displayValue"
         >
           {{ configForm.displayValue ? "Modifier" : "Annuler" }}
         </v-btn>
