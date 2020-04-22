@@ -34,8 +34,6 @@
             <help code="foret_apparait_pas"></help>
           </div>
 
-          <!-- <help :code="`form-${config.name}`" v-if="config.help"></help> -->
-          
           <v-autocomplete
             :ref="`select_map_${config.name}`"
             v-model="baseModel[name]"
@@ -82,7 +80,7 @@
 </template>
 
 <script>
-import baseMap from "@/components/map/base-map";
+import baseMap from "@/modules/map/base-map";
 import { selectMapMethods } from "./select-map.js";
 import help from "./help";
 

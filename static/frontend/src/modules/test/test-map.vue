@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import baseMap from "@/components/map/base-map.vue";
+import baseMap from "@/modules/map/base-map.vue";
 import { config } from "@/config/config.js";
 
 export default {

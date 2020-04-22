@@ -21,6 +21,8 @@ from .repository import (
     )
 
 from ..declaration.mail import send_mail_validation_declaration
+from ..declaration.repository import get_user
+
 
 bp = Blueprint('degat_foret_api', __name__)
 
@@ -31,6 +33,7 @@ def api_get_proprietaire_from_id_declarant(id_declarant):
 
     (proprietaire) = get_proprietaire_from_id_declarant(id_declarant)
     out = proprietaire.as_dict(True)
+    
     return out
 
 
@@ -103,7 +106,10 @@ def api_get_declaration(id_declaration):
     out['areas_localisation_onf_ug'] = get_id_areas(areas_localisation, ['OEASC_ONF_UG'])
 
     # hide proprietaire
-    hide_proprietaire(out)
+    current_user = session.get('current_user', None)
+    if (current_user['id_droit_max'] < 4) and (current_user['id_role'] != out['id_role']):
+        print('hide')
+        hide_proprietaire(out)
 
     return out
 

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <!-- {{ validForms[config.name] }} -->
+      <!-- {{ validForms[config.name] }} {{config.name}} -->
       <h3>{{ config.title }}</h3>
 
       <v-form

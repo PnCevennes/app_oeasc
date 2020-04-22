@@ -128,6 +128,7 @@ export default {
         this.initialized = true;
         this.declaration.id_declarant =
           this.declaration.id_declarant || this.$store.getters.user.id_role;
+        console.log('id_declarant', declaration.id_declarant)
       });
     },
 

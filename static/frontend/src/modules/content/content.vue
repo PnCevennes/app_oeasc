@@ -46,14 +46,12 @@ import { config } from "@/config/config.js";
 import faqDeclaration from "./faq-declaration";
 import tableAide from "./table-aide";
 import declarationTable from "@/modules/declaration/declaration-table";
-import baseMap from "@/components/map/base-map";
+import baseMap from "@/modules/map/base-map";
 import contentImg from './content-img'
 
 import "./content.css";
 // import Vue from "vue";
 import VRuntimeTemplate from "v-runtime-template";
-
-console.log(config)
 
 export default {
   name: "oeasc-content",

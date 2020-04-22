@@ -1,0 +1,18 @@
+.map-container {
+    display: flex;
+    flex-direction: row;
+}
+
+.map-img .leaflet-top {
+    display: none
+}
+
+.map {
+    width: 100%;
+}
+
+.marker-icon {
+    /* background-color: red; */
+    /* border-radius: 16px; */
+    position: absolute; 
+  }

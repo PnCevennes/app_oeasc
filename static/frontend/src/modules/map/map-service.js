@@ -3,10 +3,28 @@
  */
 
 import "leaflet/dist/leaflet.css";
+import "./map.css";
 import "leaflet/dist/leaflet";
 import * as L from "leaflet";
+// const L = window.L
 
-import "./map.css"; // css
+import icon from "leaflet/dist/images/marker-icon.png";
+import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
+import iconShadow from "leaflet/dist/images/marker-shadow.png";
+
+let DefaultIcon = L.icon({
+  iconAnchor: [12, 41], 
+  iconSize: [25, 41], 
+  popupAnchor: [1, -34],
+  tooltipAnchor: [16, -28],
+  iconUrl: icon,
+  iconRetinaUrl: iconRetina,
+  shadowUrl: iconShadow
+});
+
+
+L.Marker.prototype.options.icon = DefaultIcon;
+// L.Marker.prototype.options.icon.shadowUrl = iconShadow;
 
 import { mapConfig, staticMapConfig } from "./map-elements/map-config.js";
 import { mapPane } from "./map-elements/map-pane.js";
@@ -15,6 +33,7 @@ import { mapTooltip } from "./map-elements/map-tooltip.js";
 import { mapLayer } from "./map-elements/map-layer.js";
 import { mapLegend } from "./map-elements/map-legend.js";
 import { mapExport } from "./map-elements/map-export.js";
+import { mapMarker } from "./map-elements/map-marker.js";
 
 const mapModules = [
   mapConfig,
@@ -24,6 +43,7 @@ const mapModules = [
   mapLayer,
   mapLegend,
   mapExport,
+  mapMarker
 ];
 
 const staticMapModules = [staticMapConfig];
@@ -68,9 +88,12 @@ class MapService {
     // init legends
     this.initLegends();
 
+    // init marker
+    this.initMarkers();
+
     // init succeed
 
-    // resize map in case oft                       bv  
+    // resize map in case oft                       bv
     for (const t of [100, 1000, 2000, 5000, 10000]) {
       setTimeout(() => {
         // console.log(this._id, t);

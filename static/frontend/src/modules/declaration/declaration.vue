@@ -3,7 +3,7 @@
     <div v-if="declaration">
       <h1>Déclaration {{ declaration.id_declaration }}</h1>
       <v-btn
-      class="ignorepdf"
+        class="ignorepdf"
         icon
         color="red"
         @click="exportPdf()"
@@ -14,13 +14,14 @@
         <declaration-table :declaration="declaration"></declaration-table>
       </div>
     </div>
+    <div class="html2pdf__page-break"></div>
     <template v-for="type in mapList">
       <div v-if="configMaps[type]" :key="type">
-        <div>{{ configMaps[type].title }}</div>
+        <div small>{{ configMaps[type].title }}</div>
         <base-map
           :mapId="`map_${type}`"
           :config="configMaps[type]"
-          height="330px"
+          height="315px"
         ></base-map>
       </div>
     </template>
@@ -29,7 +30,7 @@
 
 <script>
 import declarationTable from "./declaration-table";
-import baseMap from "@/components/map/base-map";
+import baseMap from "@/modules/map/base-map";
 import { exportPDF } from "@/modules/export";
 
 const styles = {
@@ -64,7 +65,7 @@ export default {
         `declaration_${this.declaration.id_declaration}.pdf`,
         this.$store
       ).then(() => {
-        console.log("done");
+        console.log("PDF done");
       });
     },
     initDeclaration() {
@@ -73,6 +74,7 @@ export default {
         this.declaration = declarations.find(
           d => this.idDeclaration == d.id_declaration
         );
+        console.log(this.declaration);
         // setTimeout(()=>  {this.exportPdf();}, 5000)
       });
     },
@@ -80,6 +82,19 @@ export default {
       if (!this.declaration) {
         return;
       }
+      const markers = {
+        localisation: {
+          legend: "Localisation de l'alerte",
+          options: {
+            pane: "PANE_MARKER_1"
+          },
+          markers: [
+            {
+              coords: this.declaration.centroid
+            }
+          ]
+        }
+      };
       const titles = {
         secteurs:
           "Localisation de l'alerte dans le périmètre de l'observatoire",
@@ -119,7 +134,7 @@ export default {
       if (type != "secteurs") {
         delete layerList.secteurs;
       }
-      return { layerList, title: titles[type] };
+      return { layerList, title: titles[type], markers };
     }
   },
   computed: {

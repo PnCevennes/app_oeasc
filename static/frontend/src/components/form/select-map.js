@@ -20,10 +20,13 @@ const selectMapMethods = {
     if (this.selectContainer) {
       legend = this.config.containerLegend;
       this.description = this.config.containerDescription;
+      const ruleContainer = v =>
+        !(!v || (Array.isArray(v) && v.length != 0)) ||
+        `Veuillez ${this.config.multiple ? 'ajouter un élément suplémentaire et / ou' : ''} et appuyer sur "VALIDER LA SELECTION" pour passer à la selection des ${this.config.legend.toLowerCase()}`;
       this.rules = this.config.required
         ? this.config.multiple
-          ? [formFunctions.rules.requiredListMultiple]
-          : [formFunctions.rules.requiredListSimple]
+          ? [formFunctions.rules.requiredListMultiple, ruleContainer]
+          : [formFunctions.rules.requiredListSimple, ruleContainer]
         : [];
       url =
         typeof this.config.containerUrl === "function"

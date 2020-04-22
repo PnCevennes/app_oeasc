@@ -45,7 +45,6 @@ const changeForetDocument = ({ config, baseModel, $store }) => {
     );
     baseModel.id_nomenclature_proprietaire_type =
       nomenclature.id_nomenclature;
-    console.log(baseModel.id_nomenclature_proprietaire_type);
   }
 
   reinitAreasForet({ config, baseModel });
@@ -87,6 +86,7 @@ const changeProprietaireDeclarant = ({ baseModel, $store }) => {
     }
     const user = $store.getters.user;
     baseModel.nom_proprietaire = `${user.nom_role} ${user.prenom_role}`;
+    baseModel.email = user.email || user.identifiant;
 
     $store
       .dispatch("proprietaireFromIdDeclarant", user.id_role)
@@ -95,6 +95,7 @@ const changeProprietaireDeclarant = ({ baseModel, $store }) => {
           return;
         }
         for (const key of Object.keys(apiData)) {
+          if(key != 'id_declarant')
           baseModel[key] = apiData[key];
         }
       });

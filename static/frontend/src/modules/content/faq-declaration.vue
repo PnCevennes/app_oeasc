@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-row justify="center">
-      <v-expansion-panels inset>
+      <v-expansion-panels>
         <v-expansion-panel v-for="(item, index) in faq" :key="index">
           <v-expansion-panel-header>
             <span style="line-height:23px" v-html="item.question">{{ item.question }}</span>
