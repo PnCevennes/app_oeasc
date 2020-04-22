@@ -1,6 +1,5 @@
 <template>
   <div style="width:100%">
-    aaa {{ bInit }}
     <div v-if="bInit">
       <base-map mapId="map" ref="map" :config="config[$route.params.mapName]">
       </base-map>
