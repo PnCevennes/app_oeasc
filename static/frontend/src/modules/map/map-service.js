@@ -115,4 +115,6 @@ for (const methods of staticMapModules) {
   Object.assign(MapService, methods);
 }
 
+console.log(MapService._markers)
+
 export { MapService };

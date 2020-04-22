@@ -8,6 +8,7 @@ const STORE = {
 
   getters: {
     area: state => id_area => {return state._areas.find(n => n.id_area === id_area)},
+    areas: state => id_areas => {return state._areas.find(n => id_areas.include(n.id_area))},
     areaString: (state) => (ids, key="label") => dataString(STORE, state, 'area', ids, key),
   },
 

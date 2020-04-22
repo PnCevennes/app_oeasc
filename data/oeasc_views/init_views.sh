@@ -13,11 +13,12 @@ echo 'init_view oeasc' > $log_file
 cat $settings
 
 for file in $(echo \
+    "../oeasc_schemas/oeasc_functions.sql" \
     "oeasc_commons_views.sql" \
     "oeasc_declarations_views.sql" \
-    "oeasc_resultats_views.sql" \
     )
 do
+    # "oeasc_resultats_views.sql" \
 
 EXEC_DIR=$(readlink -e "${0%/*}")
 

@@ -229,12 +229,18 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     END AS valide,
     b_valid,
 
+    (SELECT ARRAY_AGG(id_area) 
+    FROM oeasc_declarations.cor_areas_declarations cad
+    WHERE cad.id_declaration = d.id_declaration) 
+    as areas_localisation_raw,
+
     CASE 
 	WHEN f.b_statut_public AND f.b_document THEN oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_ONF_UG')
     ELSE
 	oeasc_declarations.get_id_areas(d.id_declaration, 'OEASC_CADASTRE')
     END AS areas_localisation
     
+
     FROM oeasc_declarations.t_declarations d
     JOIN oeasc_commons.v_users vu
         ON vu.id_role = d.id_declarant

@@ -10,6 +10,7 @@
         <div v-if="config.display === 'autocomplete'">
           <v-autocomplete
             ref="autocomplete"
+            clearable
             v-model="baseModel[config.name]"
             :items="items"
             :label="config.label"
@@ -314,19 +315,22 @@ export default {
     this.setDefaultConfig();
   },
   mounted: function() {
-
-    if (this.dataItemsIn) {
+    if(this.config.multiple && !this.baseModel[this.config.name]) {
+      this.baseModel[this.config.name] = [];
+    }
+    const dataItemsIn = this.dataItemsIn || this.config.items;
+    if (dataItemsIn) {
       if (
-        this.dataItemsIn &&
-        this.dataItemsIn.length &&
-        typeof this.dataItemsIn[0] != "object"
+        dataItemsIn &&
+        dataItemsIn.length &&
+        typeof dataItemsIn[0] != "object"
       ) {
-        this.dataItems = this.dataItemsIn.map(item => ({
+        this.dataItems = dataItemsIn.map(item => ({
           text: item,
           value: item
         }));
       } else {
-        this.dataItems = this.dataItemsIn;
+        this.dataItems = dataItemsIn;
       }
     }
     if (this.config.dataReloadOnSearch) {

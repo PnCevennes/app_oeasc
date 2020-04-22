@@ -2,7 +2,7 @@
  * Gestion des layers
  */
 
-import { apiRequest } from '@/core/js/data/api.js';
+import { apiRequest } from "@/core/js/data/api.js";
 
 const L = window.L;
 
@@ -17,7 +17,7 @@ const mapLayer = {
    *  */
 
   getUrl: function(layerConfig) {
-    return typeof layerConfig.url == 'function'
+    return typeof layerConfig.url == "function"
       ? layerConfig.url(layerConfig.urlParams)
       : layerConfig.url;
   },
@@ -30,7 +30,7 @@ const mapLayer = {
     const url = this.getUrl(layerConfig);
 
     // requete
-    apiRequest('GET', url).then(
+    apiRequest("GET", url).then(
       layerData => {
         this.processLayer(layerConfig, layerData);
       },
@@ -44,6 +44,8 @@ const mapLayer = {
    * process layer
    */
   processLayer: function(layerConfig, layerData) {
+    // select
+
     const layer = L.geoJSON(layerData, {
       style: layerConfig.style,
       pane: layerConfig.pane,
@@ -62,7 +64,7 @@ const mapLayer = {
     };
     document
       .getElementById(this._id)
-      .dispatchEvent(new CustomEvent('layer-data', { detail }));
+      .dispatchEvent(new CustomEvent("layer-data", { detail }));
   },
 
   /**
@@ -71,7 +73,7 @@ const mapLayer = {
   onEachFeature: function(layerConfig) {
     return function(feature, layer) {
       // set key
-      feature.properties.key = layerConfig.key; 
+      feature.properties.key = layerConfig.key;
 
       // set current style
       layer.curStyle = layerConfig.style;
@@ -97,7 +99,7 @@ const mapLayer = {
       // click
       if (layerConfig.click) {
         layer.on(
-          'click',
+          "click",
           function() {
             if (layerConfig.click.dispatch) {
               const name = layerConfig.click.dispatch.name;
@@ -121,6 +123,16 @@ const mapLayer = {
     this._map.fitBounds(layer.getBounds());
   },
 
+
+  reinitZoom() {
+    for(const [key, layerConfig] of Object.entries(this._config.layers)) {
+      if(layerConfig.zoom) {
+        const layers = this.findLayers('key', key);
+        this.zoomOnLayers(layers); 
+      }
+    }
+  },
+
   /**
    * zoom on layer
    */
@@ -131,11 +143,12 @@ const mapLayer = {
     const layersGroup = L.featureGroup(layers);
     const bounds = layersGroup.getBounds();
     this._map.fitBounds(bounds);
+    return true;
   },
 
   removeLayers: function(layers) {
     for (const layer of layers) {
-      this.removeLayer(layer)
+      this.removeLayer(layer);
     }
   },
 
@@ -154,20 +167,55 @@ const mapLayer = {
   },
 
   testLayer: function(properties, fieldName, value) {
-    return properties && (properties[fieldName] === value);
+    return (
+      properties &&
+      (Array.isArray(value)
+        ? value.includes(properties[fieldName])
+        : properties[fieldName] === value)
+    );
   },
 
   findLayer: function(fieldName, value) {
     const layer = Object.values(this._map._layers).find(layer =>
-      this.testLayer(layer.feature && layer.feature.properties, fieldName, value)
-      );
+      this.testLayer(
+        layer.feature && layer.feature.properties,
+        fieldName,
+        value
+      )
+    );
     return layer;
   },
 
   findLayers: function(fieldName, value) {
     return Object.values(this._map._layers).filter(layer =>
-      this.testLayer(layer.feature && layer.feature.properties, fieldName, value)
+      this.testLayer(
+        layer.feature && layer.feature.properties,
+        fieldName,
+        value
+      )
     );
+  },
+
+  configSelect(key) {
+    if (!(this._config && this._config.layers && this._config.layers[key])) {
+      return;
+    }
+
+    const layerConfig = this._config.layers[key];
+    if (!layerConfig.select) {
+      return;
+    }
+    const items = this.findLayers("key", key).map(
+      layer => layer.feature.properties
+    );
+
+    const configSelects = {
+      name: key,
+      label: layerConfig.legend,
+      items,
+      ...layerConfig.select
+    };
+    return configSelects;
   }
 };
 
