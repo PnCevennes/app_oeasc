@@ -53,6 +53,8 @@ class MapService {
   _config; // configuration
   _map = null; // map leaflet object
 
+  baseModel = {}
+
   constructor(id, config = null) {
     this._id = id;
     this._config = config;

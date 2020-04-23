@@ -123,12 +123,11 @@ const mapLayer = {
     this._map.fitBounds(layer.getBounds());
   },
 
-
   reinitZoom() {
-    for(const [key, layerConfig] of Object.entries(this._config.layers)) {
-      if(layerConfig.zoom) {
-        const layers = this.findLayers('key', key);
-        this.zoomOnLayers(layers); 
+    for (const [key, layerConfig] of Object.entries(this._config.layers)) {
+      if (layerConfig.zoom) {
+        const layers = this.findLayers("key", key);
+        this.zoomOnLayers(layers);
       }
     }
   },
@@ -202,18 +201,48 @@ const mapLayer = {
     }
 
     const layerConfig = this._config.layers[key];
-    if (!layerConfig.select) {
+    if (!(layerConfig.select  && layerConfig.select.build)) {
       return;
     }
     const items = this.findLayers("key", key).map(
       layer => layer.feature.properties
     );
 
+    const change = () => {
+      if (layerConfig.select.markerFilter) {
+          this.initMarkers();
+      }
+
+      layerConfig.select.change && layerConfig.select.change();
+      if (layerConfig.select.zoomOnChange) {
+        const value = this.baseModel[key];
+        const layers = this.findLayers(
+          layerConfig.select.valueFieldName,
+          value
+        );
+        if (Array.isArray(value) ? value.length : value) {
+          this.zoomOnLayers(layers);
+        } else {
+          this.reinitZoom();
+        }
+      }
+    };
+
+    if (layerConfig.select.markerFilter) {
+      console.log(this._markerFilters);
+      this._markerFilters.push({
+        type: "selectLayer",
+        markerFieldName: layerConfig.select.markerFilter.markerFieldName,
+        key
+      });
+    }
+
     const configSelects = {
       name: key,
       label: layerConfig.legend,
       items,
-      ...layerConfig.select
+      ...layerConfig.select,
+      change
     };
     return configSelects;
   }

@@ -14,8 +14,8 @@
         v-for="[key, configSelect] of Object.entries(configSelects)"
         :key="key"
       >
-        <div v-if="configSelect" class="map-select">
-          <list-form :baseModel="baseModel" :config="configSelect"></list-form>
+        <div v-if="configSelect && mapService && mapService.baseModel" class="map-select">
+          <list-form :baseModel="mapService.baseModel" :config="configSelect"></list-form>
         </div>
       </div>
       <div>
@@ -34,7 +34,6 @@ export default {
   components: { listForm },
   data: () => ({
     mapService: null,
-    baseModel: {},
     configSelects: {},
   }),
   props: ["config", "mapId", "preConfigName", "height"],
