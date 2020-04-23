@@ -37,7 +37,13 @@
 }
 .form-declaration {
   width: 100%;
-  margin: 50px;
+  /* margin: 50px; */
+}
+
+div.form-session-container.isSession{
+  min-height: 400px;
+  display:flex;
+  align-items: center;
 }
 
 .table-declaration tbody {

@@ -9,7 +9,7 @@
         ></oeasc-app-bar>
         <div class="oeasc-app-bar space"></div>
         <!-- <v-card color="grey lighten-4" flat tile> -->
-        <div class="img-titre">
+        <div class="img-titre" v-if="!this.$route.meta.hideTitle">
           <h1 class="oeasc-titre">
             Observatoire de l'équilibre agro‑sylvo‑cynégétique
           </h1>

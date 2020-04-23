@@ -47,9 +47,10 @@
             "
             :rules="rules"
             dense
-            small-chips
+            :chips="config.multiple ? true :false"
+            :small-chips="config.multiple ? true :false"
             hide-selected
-            deletable-chips
+            :deletable-chips="config.multiple ? true :false"
             clearable
             placeholder="Choisir un element dans la liste"
             @change="selectChange"

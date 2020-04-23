@@ -10,7 +10,8 @@ export default new Router({
       ...route,
       meta: {
         access: route.access || 0,
-        content: route.content
+        content: route.content,
+        hideTitle: route.hideTitle,
       }
     }))
   ]

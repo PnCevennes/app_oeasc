@@ -23,14 +23,18 @@
           )"
           :key="keySessionCur"
         >
+        <div
+          :class="{'form-session-container':true, 'isSession': keySession != 'all'}"
+            v-if="showSession(keySessionCur)"
+        >
           <form-session
           class="session"
-            v-if="showSession(keySessionCur)"
             :baseModel="declaration"
             :config="configSession"
             :validForms="validForms"
             :keySession="keySession"
           ></form-session>
+          </div> 
         </div>
       </div>
     </div>

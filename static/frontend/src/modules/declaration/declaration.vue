@@ -85,14 +85,13 @@ export default {
       const markers = {
         localisation: {
           legend: "Localisation de l'alerte",
+              pane: "PANE_MARKER_1",
+            style: {},
           markers: [
             {
               type: 'marker',
               coords: this.declaration.centroid,
-              options: {
-                pane: "PANE_MARKER_1"
-              },
-              style: {}
+              properties: this.declaration,
             }
           ]
         }

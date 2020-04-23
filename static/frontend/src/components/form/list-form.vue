@@ -19,10 +19,10 @@
             :item-value="config.valueFieldName"
             :item-text="config.textFieldName"
             :rules="config.rules"
-            chips
+            :chips="config.multiple ? true :false"
             dense
-            small-chips
-            deletable-chips
+            :small-chips="config.multiple ? true :false"
+            :deletable-chips="config.multiple ? true :false"
             :search-input.sync="search"
             :placeholder="config.placeholder"
             :filter="config.dataReloadOnSearch && customFilter"

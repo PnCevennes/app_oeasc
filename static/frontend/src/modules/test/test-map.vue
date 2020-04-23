@@ -31,8 +31,8 @@ export default {
                 valueFieldName: "id_area",
                 zoomOnChange: true,
                 markerFilter: {
-                  markerFieldName: 'areas_localisation_raw'
-                },
+                  markerFieldName: "areas_localisation_raw"
+                }
               }
             }
           }
@@ -45,13 +45,13 @@ export default {
       this.config.restitution.markers = {
         declarations: {
           legend: "Localisation des alertes",
+          type: "circle",
+          style: {},
+          pane: "PANE_MARKER_1" ,
           markers: this.declarations.map(d => ({
             coords: d.centroid,
-            properties: d,
+            properties: d
             // type: 'marker',
-            type: 'circle',
-            style: {},
-            options: {pane: 'PANE_MARKER_1'}
           }))
         }
       };
@@ -59,7 +59,7 @@ export default {
     updateMarkers() {
       this.initMarkers();
       this.$refs.map.mapService.initMarkers();
-    },
+    }
   },
   components: {
     baseMap

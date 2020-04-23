@@ -25,14 +25,18 @@ const mapLegend = {
   },
 
   markerLegend(markerConfig) {
+    const icons = {
+      'circle': 'circle-outline',
+      'marker': 'map-marker'
+    }
     const color = markerConfig.icon || "#4999D1";
-    const icon = markerConfig.icon || 'map-marker';
+    const icon = markerConfig.icon || icons[markerConfig.type];
     const legend = `
         <div>
         <i 
         class='mdi mdi-${icon}'
         style="
-            font-size: 2em;
+            font-size: 1.8em;
             color:${color}
           "
           ></i>

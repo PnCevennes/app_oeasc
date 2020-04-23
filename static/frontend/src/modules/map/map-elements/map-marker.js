@@ -39,6 +39,13 @@ const mapMarker = {
   },
   addMarkers(config) {
     for (const markerConfig of config.markers) {
+      markerConfig.style = config.style;
+      markerConfig.type = config.type;
+      markerConfig.icon = config.icon;
+
+      markerConfig.options = {};
+      markerConfig.options.pane = config.pane;
+
       this.addMarker(markerConfig);
     }
   },
@@ -102,6 +109,8 @@ const mapMarker = {
     marker.style.opacity = marker.selected ? 1 : 0.1;
     if(marker.type == 'marker') {
       marker.setOpacity(marker.style.opacity);
+    } else {
+      marker.setStyle(marker.style)
     }
   }
 };

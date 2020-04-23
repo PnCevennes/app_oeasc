@@ -9,6 +9,7 @@ const ROUTE = [
     label: "declarer_en_ligne",
     access: 1,
     name: "post_declaration",
+    hideTitle: true,
     component: declarationForm
   },
 
@@ -16,6 +17,7 @@ const ROUTE = [
     path: "/declaration/declarer_en_ligne/:idDeclaration",
     label: "declarer_en_ligne",
     access: 1,
+    hideTitle: true,
     name: "patch_declaration",
     component: declarationForm
   },
