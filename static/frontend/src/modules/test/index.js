@@ -7,6 +7,7 @@ const ROUTE = [
     label: 'test_map',
     name: 'test_map',
     access: 1,
+    hideTitle: true,
     component: testMap
   },
 ];

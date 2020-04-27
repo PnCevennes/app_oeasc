@@ -47,6 +47,7 @@
 
         <div v-else-if="config.display === 'select'">
           <v-select
+            clearable
             :dense="config.dense"
             v-model="baseModel[config.name]"
             :items="items"

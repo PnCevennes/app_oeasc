@@ -83,15 +83,19 @@ export default {
         return;
       }
       const markers = {
-        localisation: {
-          legend: "Localisation de l'alerte",
-              pane: "PANE_MARKER_1",
-            style: {},
-          markers: [
+        declarations: {
+          data: [this.declaration],
+          type: "circle",
+          coords: "centroid",
+          style: {
+            color: "blue",
+            icon: "circle-outline"
+          },
+          legends: [
             {
-              type: 'marker',
-              coords: this.declaration.centroid,
-              properties: this.declaration,
+              icon: "circle-outline",
+              text: "Localisation des alertes",
+              color: "blue"
             }
           ]
         }

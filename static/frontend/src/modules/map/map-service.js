@@ -2,6 +2,8 @@
  * class pour gérer les cartes de l'application oeasc
  */
 
+import {copy} from '@/core/js/util/util'
+
 import "leaflet/dist/leaflet.css";
 import "./map.css";
 import "leaflet/dist/leaflet";
@@ -13,15 +15,14 @@ import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
 import iconShadow from "leaflet/dist/images/marker-shadow.png";
 
 let DefaultIcon = L.icon({
-  iconAnchor: [12, 41], 
-  iconSize: [25, 41], 
+  iconAnchor: [12, 41],
+  iconSize: [25, 41],
   popupAnchor: [1, -34],
   tooltipAnchor: [16, -28],
   iconUrl: icon,
   iconRetinaUrl: iconRetina,
   shadowUrl: iconShadow
 });
-
 
 L.Marker.prototype.options.icon = DefaultIcon;
 // L.Marker.prototype.options.icon.shadowUrl = iconShadow;
@@ -53,7 +54,7 @@ class MapService {
   _config; // configuration
   _map = null; // map leaflet object
 
-  baseModel = {}
+  baseModel = {};
 
   constructor(id, config = null) {
     this._id = id;
@@ -63,6 +64,11 @@ class MapService {
   map = function() {
     return this._map;
   };
+
+  upConfig() {
+    console.log('upconfig', this._config && this._config.markers && this._config.markers.declarations && this._config.markers.declarations.legends)
+    this._config = copy(this._config);
+  }
 
   // initialisation de la carte
   init = function() {
@@ -78,6 +84,9 @@ class MapService {
     // set view
     this._map.setView(this._config.INIT_VIEW, this._config.INIT_ZOOM);
 
+    // scale
+    L.control.scale().addTo(this._map);
+
     // init panes
     this.initPanes();
 
@@ -88,7 +97,7 @@ class MapService {
     this.initLayers();
 
     // init legends
-    this.initLegends();
+    // this.initLegends();
 
     // init marker
     this.initMarkers();
@@ -117,6 +126,6 @@ for (const methods of staticMapModules) {
   Object.assign(MapService, methods);
 }
 
-console.log(MapService._markers)
+console.log(MapService._markers);
 
 export { MapService };

@@ -229,7 +229,6 @@ const mapLayer = {
     };
 
     if (layerConfig.select.markerFilter) {
-      console.log(this._markerFilters);
       this._markerFilters.push({
         type: "selectLayer",
         markerFieldName: layerConfig.select.markerFilter.markerFieldName,

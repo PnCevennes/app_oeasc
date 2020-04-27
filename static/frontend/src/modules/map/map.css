@@ -9,6 +9,7 @@
 
 .map {
   width: 100%;
+  position: relative;
 }
 
 .marker-icon {
@@ -18,4 +19,8 @@
 .map-select {
     width: 400px;
     margin: 10px;
+}
+
+.map-aside {
+  margin-left: 10px;
 }

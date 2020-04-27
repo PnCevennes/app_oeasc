@@ -24,24 +24,18 @@ const mapLegend = {
     // return `<div><i style="background-color: ${layerConfig.style.fillColor};background-opacity: ${layerConfig.style.fillOpacity};border: ${layerConfig.style.weight}px solid ${layerConfig.style.color};"></i>${layerConfig.legend}</div>`;
   },
 
-  markerLegend(markerConfig) {
-    const icons = {
-      'circle': 'circle-outline',
-      'marker': 'map-marker'
-    }
-    const color = markerConfig.icon || "#4999D1";
-    const icon = markerConfig.icon || icons[markerConfig.type];
+  markerLegend(markerLegend) {
     const legend = `
-        <div>
+        <div class='marker-legend'>
         <i 
-        class='mdi mdi-${icon}'
+        class='mdi mdi-${markerLegend.icon}'
         style="
             font-size: 1.8em;
-            color:${color}
+            color:${markerLegend.color}
           "
           ></i>
           <span class="legendText">
-          ${markerConfig.legend}
+          ${markerLegend.text}
           </span>
         </div>
         `;
@@ -65,15 +59,20 @@ const mapLegend = {
       var div = L.DomUtil.create("div", "legend-container");
       var divLegend = L.DomUtil.create("div", "legend");
 
+
+      // legendes des markers
+      for (const markerConfig of Object.values(this._config.markers || {})) {
+        for (const legendConfig of  markerConfig.legends || []) {
+        divLegend.innerHTML += this.markerLegend(legendConfig);
+      }
+
+
       // legendes des layers
       for (const layerConfig of Object.values(this._config.layers || {})) {
         divLegend.innerHTML += this.layerLegend(layerConfig);
       }
 
-      // legendes des markers
-      for (const markerConfig of Object.values(this._config.markers || {})) {
-        divLegend.innerHTML += this.markerLegend(markerConfig);
-      }
+    }
 
 
       div.appendChild(divLegend);
