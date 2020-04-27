@@ -37,7 +37,7 @@ const mapMarker = {
       properties: d,
       style: config.style || {},
       icon: config.icon,
-      coords: d[config.coords]
+      coords: d[config.coords],
     }));
 
     //filter
@@ -45,41 +45,61 @@ const mapMarker = {
       this.applyFilters(markerConfig);
     }
 
-    // color
-    const configType = config.color;
-
-    if (configType) {
-      config.legends = [];
-
-      configType.dataList = restitution.dataList(
-        config.markers.map(m => ({ ...m.properties, selected: m.selected })),
-        configType.options
-      );
-
-      for (const markerConfig of config.markers) {
-        markerConfig.style.color = restitution.color(
-          markerConfig.properties[configType.options.name],
-          configType.dataList,
+    // color ...icon
+    for (const type of ["color", "icon"]) {
+      const configType = config[type];
+      if (configType) {
+        configType.dataList = restitution.dataList(
+          config.markers.map(m => ({ ...m.properties, selected: m.selected })),
           configType.options
         );
-      }
 
-      config.legends.push(
-        {
-          title: configType.options.text
-        },
-        ...configType.dataList.map(d => {
-          return {
-            icon: "circle-outline",
-            text: `${d.text} (${d.count})`,
-            color: restitution.color(
-              d.text,
-              configType.dataList,
-              configType.options
-            )
-          };
-        })
-      );
+        for (const markerConfig of config.markers) {
+          markerConfig.style[type] = restitution.valueOfType(
+            type,
+            markerConfig.properties[configType.options.name],
+            configType.dataList,
+            configType.options
+          );
+        }
+
+        const cond_same =
+          config.color &&
+          config.icon &&
+          config.color.options.name == config.icon.options.name;
+
+        if (!(type == "icon" && cond_same)) {
+          config.legends.push(
+            {
+              title: configType.options.text
+            },
+            ...configType.dataList.map(d => {
+              const legend = {
+                text: `${d.text} (${d.count})`,
+                color: "grey",
+                icon: "square"
+              };
+              legend[type] = restitution.valueOfType(
+                type,
+                d.text,
+                configType.dataList,
+                configType.options
+              );
+              if (cond_same) {
+                legend['icon'] = restitution.valueOfType(
+                  'icon',
+                  d.text,
+                  configType.dataList,
+                  configType.options
+                );
+  
+              }
+
+              return legend;
+            })
+          );
+        }
+      }
     }
 
     // add marker
@@ -88,7 +108,15 @@ const mapMarker = {
     }
   },
 
-  markerLegend() {},
+  markerLabel(marker) {
+    if(! marker.selected) {
+      return '';
+    }
+    const color = marker.style.color || "blue";
+    const icon = marker.style.icon || "circle";
+    const label = `<i class='mdi mdi-${icon}' style='color:${color}'></i>`;
+    return label;
+  },
 
   initMarkers() {
     this.removeMarkers();
@@ -114,6 +142,25 @@ const mapMarker = {
       marker = L.circleMarker(markerConfig.coords, markerConfig.options).addTo(
         this._map
       );
+    } else if (markerConfig.type == "label") {
+      marker = L.circle(markerConfig.coords, {
+        ...markerConfig.options,
+        opacity: 0,
+        fillOpacity: 0,
+        color: "rgba(0,0,0,0)",
+        fillColor: "rgba(0,0,0,0)"
+      })
+        .bindTooltip(this.markerLabel(markerConfig), {
+          pane: "PANE_TOOLTIP",
+          permanent: true,
+          direction: "center",
+          color: "white",
+          opacity: 1,
+          fillOpacity: 1,
+          interactive: true,
+          className: "tooltip-label"
+        })
+        .addTo(this._map);
     }
 
     marker.selected = markerConfig.selected;
@@ -164,8 +211,10 @@ const mapMarker = {
     marker.style.fillOpacity = marker.selected ? 0.2 : 0;
     if (marker.type == "marker") {
       marker.setOpacity(marker.style.opacity);
-    } else {
+    } else if (marker.type == 'circle') {
       marker.setStyle(marker.style);
+    } else {
+      marker.setStyle({opacity: 0, fillOpacity: 0})
     }
   }
 };

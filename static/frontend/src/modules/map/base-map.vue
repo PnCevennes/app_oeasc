@@ -1,7 +1,6 @@
 <template>
   <div class="map-container" :style="`height:${computedHeight}`">
     <!-- map -->
-    {{ computedHeight }}
     <div
       class="map"
       :id="mapId"
@@ -56,34 +55,29 @@ export default {
       this.configSelects[key] = this.mapService.configSelect(key);
       this.configSelects = { ...this.configSelects };
     },
-    a() {
-      console.log("a", this.$el);
-    }
   },
   computed: {
     computedHeight() {
-      this.a();
       const computedHeight = !this.bInit
         ? "0px"
         : this.height
         ? this.height
         : "fillHeight" in this.$props && this.$el
-        ? `${document.documentElement.clientHeight - this.$el.offsetTop -20}px`
+        ? `${document.documentElement.clientHeight - this.$el.offsetTop -40}px`
         : "600px";
-      console.log(computedHeight, "fillHeight" in this.$props, this.$el);
+        console.log('computedHeight', computedHeight)
       return computedHeight;
     }
   },
   mounted: function() {
-    console.log("aa");
     if (!this.config) {
       this.config = MapService.getPreConfigMap(this.preConfigName);
     }
+    this.bInit = true;
 
     this.mapService = new MapService(this.mapId, this.config);
     this.$store.commit("setMapService", this.mapService);
     this.mapService.init();
-    this.bInit = true;
     document
       .getElementById(this.mapId)
       .addEventListener("layer-data", this.initSelect);

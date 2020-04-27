@@ -5,7 +5,11 @@
         <div slot="aside" class="map-aside">
           <list-form
             :baseModel="settings"
-            :config="configChoixColor"
+            :config="configChoix('color', 'Couleur')"
+          ></list-form>
+          <list-form
+            :baseModel="settings"
+            :config="configChoix('icon', 'Icone')"
           ></list-form>
         </div>
       </base-map>
@@ -61,24 +65,13 @@ const items = [
     ]
   }
 ];
+
 export default {
   name: "testMap",
   data() {
     return {
       settings: {},
       name: "",
-      configChoixColor: {
-        display: "select",
-        name: "color",
-        label: "Couleur",
-        type: "list_form",
-        returnObject: true,
-
-        items,
-        change: () => {
-          this.initMarkers();
-        }
-      },
       bInit: false,
       declarations: [],
       config: {
@@ -104,31 +97,56 @@ export default {
     };
   },
   methods: {
+    configChoix(name, label) {
+      return {
+        name,
+        label,
+        display: "select",
+        type: "list_form",
+        returnObject: true,
+        items,
+        change: () => {
+          this.initMarkers();
+        }
+      };
+    },
+
     initMarkers() {
       const colorSetting = this.settings["color"];
-      if (!colorSetting) {
+      const iconSetting = this.settings["icon"];
+      if (!(colorSetting || iconSetting)) {
         this.initMarkersLocalisation();
         if (this.$refs.map) {
-          this.$refs.map.mapService._config = { ...this.config };
           this.$refs.map.mapService.initMarkers();
         }
         return;
       }
-      // const name = colorSetting.value;
-      // const dataList = restitution.dataList(this.declarations, name, options);
 
       this.config.markers = {};
       this.config.markers.declarations = {
-        type: "circle",
+        legends: [],
+        type: "label",
         coords: "centroid",
         data: this.declarations,
-        color: {
+      };
+
+      if (colorSetting) {
+        this.config.markers.declarations.color = {
           options: {
             ...colorSetting,
             nMax: 7
           }
-        },
-      };
+        };
+      }
+
+      if (iconSetting) {
+        this.config.markers.declarations.icon = {
+          options: {
+            ...iconSetting,
+            nMax: 7
+          }
+        };
+      }
 
       this.$refs.map.mapService._config = this.config;
       this.$refs.map.mapService.initMarkers();
@@ -137,15 +155,17 @@ export default {
       this.config.markers = {
         declarations: {
           data: this.declarations,
-          type: "circle",
+          // type: "circle",
+          type: "label",
+          label: "aaaa",
           coords: "centroid",
           style: {
             color: "blue",
-            icon: "circle-outline"
+            icon: "circle"
           },
           legends: [
             {
-              icon: "circle-outline",
+              icon: "circle",
               text: "Localisation des alertes",
               color: "blue"
             }
@@ -165,6 +185,8 @@ export default {
       this.bInit = true;
       setTimeout(() => {
         // this.settings["color"] = items.find(i => i.text == "Organisme");
+        // this.settings["icon"] = items.find(i => i.text == "Organisme");
+        // this.settings["icon"] = items.find(i => i.text == "Type de forêt");
         // this.initMarkers();
       }, 1000);
     });

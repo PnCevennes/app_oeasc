@@ -55,7 +55,10 @@ const mapLayer = {
 
     // zoom
     if (layerConfig.zoom) {
-      this.zoomOnLayer(layer);
+      console.log('zoomLayer')
+      setTimeout(()=> {
+        this.zoomOnLayer(layer);
+      }, 100)
     }
 
     // dispatch layer-data
