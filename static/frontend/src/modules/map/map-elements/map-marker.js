@@ -37,7 +37,7 @@ const mapMarker = {
       properties: d,
       style: config.style || {},
       icon: config.icon,
-      coords: d[config.coords],
+      coords: d[config.coords]
     }));
 
     //filter
@@ -77,7 +77,7 @@ const mapMarker = {
               const legend = {
                 text: `${d.text} (${d.count})`,
                 color: "grey",
-                icon: "square"
+                icon: "circle"
               };
               legend[type] = restitution.valueOfType(
                 type,
@@ -86,13 +86,12 @@ const mapMarker = {
                 configType.options
               );
               if (cond_same) {
-                legend['icon'] = restitution.valueOfType(
-                  'icon',
+                legend["icon"] = restitution.valueOfType(
+                  "icon",
                   d.text,
                   configType.dataList,
                   configType.options
                 );
-  
               }
 
               return legend;
@@ -109,8 +108,8 @@ const mapMarker = {
   },
 
   markerLabel(marker) {
-    if(! marker.selected) {
-      return '';
+    if (!marker.selected) {
+      return "";
     }
     const color = marker.style.color || "blue";
     const icon = marker.style.icon || "circle";
@@ -211,10 +210,10 @@ const mapMarker = {
     marker.style.fillOpacity = marker.selected ? 0.2 : 0;
     if (marker.type == "marker") {
       marker.setOpacity(marker.style.opacity);
-    } else if (marker.type == 'circle') {
+    } else if (marker.type == "circle") {
       marker.setStyle(marker.style);
     } else {
-      marker.setStyle({opacity: 0, fillOpacity: 0})
+      marker.setStyle({ opacity: 0, fillOpacity: 0 });
     }
   }
 };

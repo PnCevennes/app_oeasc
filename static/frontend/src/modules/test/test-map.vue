@@ -21,7 +21,7 @@
 import baseMap from "@/modules/map/base-map.vue";
 import listForm from "@/components/form/list-form";
 
-const items = [
+const items1 = [
   {
     text: "Secteur",
     name: "secteur",
@@ -63,8 +63,20 @@ const items = [
       [true, "Oui"],
       [false, "Non"]
     ]
+  },
+  {
+    text: "Accès au peuplement",
+    name: "peuplement_acces_label",
+    split: ", "
+  },
+  {
+    text: "Essence principale",
+    name: "peuplement_ess_1_label",
+    split: ", "
   }
 ];
+
+const items = items1.sort((a, b) => a.text > b.text);
 
 export default {
   name: "testMap",
@@ -101,7 +113,7 @@ export default {
       return {
         name,
         label,
-        display: "select",
+        display: "autocomplete",
         type: "list_form",
         returnObject: true,
         items,
@@ -117,6 +129,7 @@ export default {
       if (!(colorSetting || iconSetting)) {
         this.initMarkersLocalisation();
         if (this.$refs.map) {
+          this.$refs.map.mapService._config = this.config;
           this.$refs.map.mapService.initMarkers();
         }
         return;
@@ -127,7 +140,7 @@ export default {
         legends: [],
         type: "label",
         coords: "centroid",
-        data: this.declarations,
+        data: this.declarations
       };
 
       if (colorSetting) {
@@ -152,12 +165,12 @@ export default {
       this.$refs.map.mapService.initMarkers();
     },
     initMarkersLocalisation() {
+      delete this.config.markers;
       this.config.markers = {
         declarations: {
           data: this.declarations,
           // type: "circle",
           type: "label",
-          label: "aaaa",
           coords: "centroid",
           style: {
             color: "blue",
@@ -180,6 +193,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch("declarations").then(declarations => {
+      console.log(declarations[0]);
       this.declarations = declarations;
       this.initMarkers();
       this.bInit = true;

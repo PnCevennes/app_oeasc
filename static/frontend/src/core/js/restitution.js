@@ -1,7 +1,17 @@
 import * as chroma from "chroma-js";
 
 const defaults = {
-  icon: ["circle", "square", "star", "cards-diamond", "cloud"],
+  icon: [
+    "circle",
+    "square",
+    "star",
+    "cards-diamond",
+    "cloud",
+    "pentagon",
+    "triangle",
+    "wifi-strength-4",
+
+  ],
   color: chroma.brewer.Dark2
 };
 

@@ -65,7 +65,6 @@ export default {
         : "fillHeight" in this.$props && this.$el
         ? `${document.documentElement.clientHeight - this.$el.offsetTop -40}px`
         : "600px";
-        console.log('computedHeight', computedHeight)
       return computedHeight;
     }
   },
