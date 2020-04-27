@@ -68,10 +68,10 @@ export default {
         : this.height
         ? this.height
         : "fillHeight" in this.$props && this.$el
-        ? `${document.documentElement.clientHeight - this.$el.offsetTop}px`
+        ? `${document.documentElement.clientHeight - this.$el.offsetTop -20}px`
         : "600px";
       console.log(computedHeight, "fillHeight" in this.$props, this.$el);
-      return computedHeight -20px;
+      return computedHeight;
     }
   },
   mounted: function() {
