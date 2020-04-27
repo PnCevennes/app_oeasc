@@ -1,7 +1,7 @@
 <template>
   <div style="width:100%">
     <div v-if="bInit">
-      <base-map mapId="map" ref="map" :config="config">
+      <base-map mapId="map" ref="map" :config="config" fillHeight>
         <div slot="aside" class="map-aside">
           <list-form
             :baseModel="settings"

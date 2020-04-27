@@ -47,11 +47,10 @@ const mapMarker = {
 
     // color
     const configType = config.color;
-    
-    if (configType) {
 
+    if (configType) {
       config.legends = [];
-      
+
       configType.dataList = restitution.dataList(
         config.markers.map(m => ({ ...m.properties, selected: m.selected })),
         configType.options
@@ -97,15 +96,6 @@ const mapMarker = {
       this._config.markers || {}
     )) {
       markerConfig.key = key;
-      console.log(
-        "init marker",
-        this._config &&
-          this._config.markers &&
-          this._config.markers.declarations &&
-          this._config.markers.declarations.legends,
-          this._config.markers.declarations.style,
-
-      );
       this.processMarkersConfig(markerConfig); //filter & color & legend
     }
     this.upConfig();

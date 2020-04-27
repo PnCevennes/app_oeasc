@@ -1,20 +1,20 @@
 <template>
-  <div class="map-container" :style="`height:${height || '600px'}`">
+  <div class="map-container" :style="`height:${computedHeight}`">
     <!-- map -->
+    {{ computedHeight }}
     <div
       class="map"
       :id="mapId"
       :config="config"
-      :style="`height:${height || '600px'}; z-index:0`"
+      :style="`height:${computedHeight}; z-index:0; background-color: red`"
     >
       <map-legend
-        :config="(mapService && mapService._config || {})"
+        :config="(mapService && mapService._config) || {}"
       ></map-legend>
     </div>
 
     <!-- aside   -->
     <div>
-
       <div
         v-for="[key, configSelect] of Object.entries(configSelects)"
         :key="key"
@@ -45,25 +45,45 @@ export default {
   name: "baseMap",
   components: { listForm, mapLegend },
   data: () => ({
+    bInit: false,
     mapService: null,
     configSelects: {}
   }),
-  props: ["config", "mapId", "preConfigName", "height"],
+  props: ["config", "mapId", "preConfigName", "height", "fillHeight"],
   methods: {
     initSelect($event) {
       const key = $event.detail.key;
       this.configSelects[key] = this.mapService.configSelect(key);
       this.configSelects = { ...this.configSelects };
+    },
+    a() {
+      console.log("a", this.$el);
+    }
+  },
+  computed: {
+    computedHeight() {
+      this.a();
+      const computedHeight = !this.bInit
+        ? "0px"
+        : this.height
+        ? this.height
+        : "fillHeight" in this.$props && this.$el
+        ? `${document.documentElement.clientHeight - this.$el.offsetTop}px`
+        : "600px";
+      console.log(computedHeight, "fillHeight" in this.$props, this.$el);
+      return computedHeight -20px;
     }
   },
   mounted: function() {
+    console.log("aa");
     if (!this.config) {
       this.config = MapService.getPreConfigMap(this.preConfigName);
     }
+
     this.mapService = new MapService(this.mapId, this.config);
     this.$store.commit("setMapService", this.mapService);
     this.mapService.init();
-
+    this.bInit = true;
     document
       .getElementById(this.mapId)
       .addEventListener("layer-data", this.initSelect);

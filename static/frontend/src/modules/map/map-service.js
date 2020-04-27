@@ -66,7 +66,6 @@ class MapService {
   };
 
   upConfig() {
-    console.log('upconfig', this._config && this._config.markers && this._config.markers.declarations && this._config.markers.declarations.legends)
     this._config = copy(this._config);
   }
 
