@@ -6,7 +6,7 @@
       class="map"
       :id="mapId"
       :config="config"
-      :style="`height:${computedHeight}; z-index:0; background-color: red`"
+      :style="`height:${computedHeight}; z-index:0;`"
     >
       <map-legend
         :config="(mapService && mapService._config) || {}"
