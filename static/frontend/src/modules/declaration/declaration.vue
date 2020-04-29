@@ -85,17 +85,17 @@ export default {
       const markers = {
         declarations: {
           data: [this.declaration],
-          type: "circle",
+          type: "marker",
           coords: "centroid",
           style: {
             color: "blue",
-            icon: "circle-outline"
+            icon: "map-marker"
           },
           legends: [
             {
-              icon: "circle-outline",
+              icon: "map-marker",
               text: "Localisation des alertes",
-              color: "blue"
+              color: "#3689CE"
             }
           ]
         }

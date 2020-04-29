@@ -3,44 +3,54 @@ import page from "./page";
 const pagesConfig = {
   accueil: {
     path: "/",
-    icon: "home"
+    icon: "home",
+    label: 'Accueil',
+    name: 'page.accueil',
   },
 
   presentation: {
     path: "/observatoire/presentation",
     name: "observatoire.presentation",
     label: "Présentation",
-    icon: "notes"
+    icon: "notes",
+    parent: 'page.accueil',
   },
 
   justification: {
     path: "/observatoire/justification",
     name: "observatoire.justification",
-    label: "Justification"
+    label: "Justification",
+    parent: "observatoire.presentation"
   },
 
   objectifs: {
     path: "/observatoire/objectifs",
     name: "observatoire.objectifs",
-    label: "Objectifs"
+    label: "Objectifs",
+    parent: "observatoire.presentation"
+
   },
 
   perimetre: {
     path: "/observatoire/perimetre",
     name: "observatoire.perimetre",
-    label: "Périmètre et zonage"
+    label: "Périmètre et zonage",
+    parent: "observatoire.presentation"
+
   },
 
   contenu: {
     path: "/observatoire/contenu",
     name: "observatoire.contenu",
-    label: "Contenu"
+    label: "Contenu",
+    parent: "observatoire.presentation"
   },
 
   degat_grand_gibier: {
     path: "/declaration/degat_grand_gibier",
     name: "declaration.degat_grand_gibier",
     label: "Les dégâts de grand gibier",
+    parent: 'declaration.systeme_alerte'
   },
 
   systeme_alerte_top: {
@@ -49,31 +59,37 @@ const pagesConfig = {
     label: "Signaler des dégâts en forêt",
     content: 'systeme_alerte',
     icon: "report_problem",
+    parent: 'page.accueil'
   },
 
   systeme_alerte: {
     path: "/declaration/systeme_alerte",
     name: "declaration.systeme_alerte",
     label: "Le systême d'alerte",
+    parent: 'page.accueil'
   },
 
   signaler_degat_explication: {
     path: "/declaration/signaler_degat_explication",
     name: "declaration.signaler_degat_explication",
     label: "Je signale des dégâts en forêt",
+    parent: 'declaration.systeme_alerte',
     access: 1
   },
 
   documentation: {
     label: "Documentation",
+    parent: 'page.accueil'
   },
 
   contact: {
     label: "Contact",
+    parent: 'page.accueil'
   },
 
   partenaires: {
     label: "Partenaires",
+    parent: 'page.accueil'
   },
 
 

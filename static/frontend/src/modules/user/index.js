@@ -13,6 +13,7 @@ const ROUTE = [
     label: "Connexion",
     icon: "mdi-login",
     name: "user.login",
+    parent: 'page.accueil',
     component: login,
     condition: ({$store}) => !$store.getters.isAuth
   },
@@ -29,6 +30,7 @@ const ROUTE = [
     access: 1,
     name: "user.top",
     component: userPage,
+    parent: 'page.accueil',
     icon: ({$store}) => $store.getters.isAuth ? "mdi-account-check" : "mdi-account-cancel",
     disabled: ({$store}) => !$store.getters.isAuth,
   },
@@ -38,6 +40,7 @@ const ROUTE = [
     access: 1,
     icon: "mdi-account",
     name: "user.espace_utilisateur",
+    parent: 'page.accueil',
     component: userPage,
     condition: ({$store}) => $store.getters.isAuth
   },
@@ -46,6 +49,7 @@ const ROUTE = [
     label: "Inscription",
     icon: 'mdi-account-plus',
     name: "user.creer_utilisateur",
+    parent: 'page.accueil',
     component: createUser,
     condition: ({$store}) => !$store.getters.isAuth
   },
@@ -54,6 +58,7 @@ const ROUTE = [
     label: "Gestion des utilisateurs",
     name: "user.gerer_utilisateurs",
     icon: 'mdi-account-group',
+    parent: 'page.accueil',
     access: 4,
     component: manageUser,
     condition: ({$store}) => $store.getters.droitMax >= 4
@@ -62,6 +67,7 @@ const ROUTE = [
     path: "/user/change_password",
     label: "Changement de mot de passe",
     name: "user.change_password",
+    parent: 'page.accueil',
     component: changePassword
   }
 ];

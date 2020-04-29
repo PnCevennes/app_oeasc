@@ -49,6 +49,8 @@ const menus = {
 const processRouteName = function(routeName, { $store, $router }) {
   const route = $router.options.routes.find(route => route.name == routeName);
 
+  console.log(route, routeName)
+
   const processRoute = {
     condition: true
   };

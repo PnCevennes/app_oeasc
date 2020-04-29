@@ -6,18 +6,20 @@ import { apiRequest } from "@/core/js/data/api.js";
 const ROUTE = [
   {
     path: "/declaration/declarer_en_ligne",
-    label: "declarer_en_ligne",
+    label: "Créér déclaration",
     access: 1,
     name: "post_declaration",
     hideTitle: true,
+    parent: 'declaration.systeme_alerte',
     component: declarationForm
   },
 
   {
     path: "/declaration/declarer_en_ligne/:idDeclaration",
-    label: "declarer_en_ligne",
+    label: "Modifier déclaration",
     access: 1,
     hideTitle: true,
+    parent: 'declaration.liste_declarations',
     name: "patch_declaration",
     component: declarationForm
   },
@@ -27,14 +29,16 @@ const ROUTE = [
     label: "Alerte déclarées",
     access: 1,
     name: "declaration.liste_declarations",
+    parent: 'declaration.systeme_alerte',
     component: declarationList
   },
 
   {
     path: "/declaration/voir_declaration/:idDeclaration",
-    label: "voir_declaration",
+    label: "Déclaration",
     access: 1,
     name: "voir_declaration",
+    parent: "declaration.liste_declarations",
     component: declaration
   }
 ];

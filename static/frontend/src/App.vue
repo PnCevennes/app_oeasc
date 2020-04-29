@@ -16,6 +16,8 @@
         </div>
         <oeasc-drawer :config="configDrawer"></oeasc-drawer>
 
+
+         <breadcrump></breadcrump>
         <div class="main-container" id="scrolling-techniques" style="height=100px">
           <router-view></router-view>
         </div>
@@ -29,10 +31,11 @@ import { config } from "@/config/config.js";
 import "@/core/css/main.scss";
 import oeascAppBar from "@/components/app/app-bar";
 import oeascDrawer from "@/components/app/drawer";
+import breadcrump from "@/components/app/breadcrump";
 
 export default {
   name: "App",
-  components: { oeascAppBar, oeascDrawer },
+  components: { oeascAppBar, oeascDrawer, breadcrump },
   computed: {},
   data() {
     return {

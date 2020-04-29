@@ -37,12 +37,14 @@ const mapMarker = {
       properties: d,
       style: config.style || {},
       icon: config.icon,
-      coords: d[config.coords]
+      coords: d[config.coords],
+      selected: true, 
     }));
 
     //filter
     for (const markerConfig of config.markers) {
       this.applyFilters(markerConfig);
+      console.log(markerConfig.selected);
     }
 
     // color ...icon
@@ -67,6 +69,10 @@ const mapMarker = {
           config.color &&
           config.icon &&
           config.color.options.name == config.icon.options.name;
+
+        if(type=='color') {
+          config.legends = [];
+        }
 
         if (!(type == "icon" && cond_same)) {
           config.legends.push(
@@ -118,6 +124,7 @@ const mapMarker = {
   },
 
   initMarkers() {
+    console.log('init marker')
     this.removeMarkers();
     for (const [key, markerConfig] of Object.entries(
       this._config.markers || {}
@@ -206,7 +213,8 @@ const mapMarker = {
   },
 
   setMarkerStyle(marker) {
-    marker.style.opacity = marker.selected ? 0.8 : 0.1;
+    console.log(marker.selected)
+    marker.style.opacity = marker.selected ? 1 : 0.1;
     marker.style.fillOpacity = marker.selected ? 0.2 : 0;
     if (marker.type == "marker") {
       marker.setOpacity(marker.style.opacity);
