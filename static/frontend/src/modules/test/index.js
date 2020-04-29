@@ -3,7 +3,7 @@ import testMap from './test-map';
 
 const ROUTE = [
   {
-    path: '/test/map',
+    path: '/test/map/restitution',
     label: 'Carte restitution',
     name: 'test.map',
     parent: 'test',
@@ -14,7 +14,7 @@ const ROUTE = [
 
   {
     path: '/test',
-    constent: 'test',
+    content: 'test',
     name: 'test',
     label: "Test",
     parent: "page.accueil",

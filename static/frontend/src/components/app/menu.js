@@ -70,7 +70,6 @@ const processRouteName = function(routeName, { $store, $router }) {
 const configMenu = function(menuName, { $store, $router }) {
   const menu = menus[menuName];
   const condition = !menu.condition || menu.condition({$store});
-  console.log(condition, menuName)
   return {
     ...menu,
     ...processRouteName(menu.name, { $store, $router }),
