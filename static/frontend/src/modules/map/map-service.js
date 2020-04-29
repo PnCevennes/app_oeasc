@@ -106,7 +106,6 @@ class MapService {
     // resize map in case oft                       bv
     for (const t of [100, 1000, 2000, 5000, 10000]) {
       setTimeout(() => {
-        // console.log(this._id, t);
         this._map.invalidateSize();
       }, t);
     }
@@ -124,7 +123,5 @@ for (const methods of mapModules) {
 for (const methods of staticMapModules) {
   Object.assign(MapService, methods);
 }
-
-console.log(MapService._markers);
 
 export { MapService };

@@ -1,6 +1,5 @@
 <template>
   <v-card>
-
     <v-app-bar dense fixed>
       <v-app-bar-nav-icon @click="drawnerClick()"></v-app-bar-nav-icon>
           <app-bar-menu :config="configMenus.leftMenus"></app-bar-menu>
@@ -21,13 +20,14 @@ export default {
   props: ["config", "value"],
   computed: {
     configMenus() {
+      console.log('app_bar', this.config.leftMenus)
       return {
         rightMenus: this.config.rightMenus.map(menuName =>
           configMenu(menuName, this)
-        ),
+        ).filter(m => m.condition),
         leftMenus: this.config.leftMenus.map(menuName =>
           configMenu(menuName, this)
-        )
+        ).filter(m => {console.log(m); return m.condition}),
       };
     }
   },

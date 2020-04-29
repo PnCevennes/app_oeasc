@@ -1,114 +1,86 @@
 import page from "./page";
 
-const pagesConfig = {
-  accueil: {
+const ROUTE = [
+  {
+    name: "page.accueil",
     path: "/",
     icon: "home",
-    label: 'Accueil',
-    name: 'page.accueil',
+    label: "Accueil",
+    type: "page",
+    content: 'accueil',
   },
 
-  presentation: {
-    path: "/observatoire/presentation",
+  {
     name: "observatoire.presentation",
+    path: "/observatoire/presentation",
     label: "Présentation",
     icon: "notes",
-    parent: 'page.accueil',
+    content: 'presentation',
+    parent: "page.accueil",
+    type: "page"
   },
 
-  justification: {
-    path: "/observatoire/justification",
+  {
     name: "observatoire.justification",
+    path: "/observatoire/justification",
     label: "Justification",
-    parent: "observatoire.presentation"
+    content: 'justification',
+    parent: "observatoire.presentation",
+    type: "page"
   },
 
-  objectifs: {
-    path: "/observatoire/objectifs",
+  {
     name: "observatoire.objectifs",
+    path: "/observatoire/objectifs",
     label: "Objectifs",
-    parent: "observatoire.presentation"
-
+    content: 'objectifs',
+    parent: "observatoire.presentation",
+    type: "page"
   },
 
-  perimetre: {
-    path: "/observatoire/perimetre",
+  {
     name: "observatoire.perimetre",
+    path: "/observatoire/perimetre",
+    content: 'perimetre',
     label: "Périmètre et zonage",
-    parent: "observatoire.presentation"
-
+    parent: "observatoire.presentation",
+    type: "page"
   },
 
-  contenu: {
-    path: "/observatoire/contenu",
+  {
     name: "observatoire.contenu",
+    path: "/observatoire/contenu",
     label: "Contenu",
-    parent: "observatoire.presentation"
+    content: 'contenu',
+    parent: "observatoire.presentation",
+    type: "page"
   },
 
-  degat_grand_gibier: {
-    path: "/declaration/degat_grand_gibier",
-    name: "declaration.degat_grand_gibier",
-    label: "Les dégâts de grand gibier",
-    parent: 'declaration.systeme_alerte'
-  },
-
-  systeme_alerte_top: {
-    path: "/declaration/systeme_alerte",
-    name: "declaration.systeme_alerte_top",
-    label: "Signaler des dégâts en forêt",
-    content: 'systeme_alerte',
-    icon: "report_problem",
-    parent: 'page.accueil'
-  },
-
-  systeme_alerte: {
-    path: "/declaration/systeme_alerte",
-    name: "declaration.systeme_alerte",
-    label: "Le systême d'alerte",
-    parent: 'page.accueil'
-  },
-
-  signaler_degat_explication: {
-    path: "/declaration/signaler_degat_explication",
-    name: "declaration.signaler_degat_explication",
-    label: "Je signale des dégâts en forêt",
-    parent: 'declaration.systeme_alerte',
-    access: 1
-  },
-
-  documentation: {
+  {
+    name: 'page.documentation',
+    path: '/page/documentation',
     label: "Documentation",
-    parent: 'page.accueil'
+    content: 'documentation',
+    parent: "page.accueil",
+    type: "page"
   },
 
-  contact: {
+  {
+    name: 'page.contact',
+    path: '/page/contact',
     label: "Contact",
-    parent: 'page.accueil'
+    content: 'contact',
+    parent: "page.accueil",
+    type: "page"
   },
 
-  partenaires: {
+  {
+    path: '/page/partenaires',
+    name: 'page.partenaires',
     label: "Partenaires",
-    parent: 'page.accueil'
-  },
+    parent: "page.accueil",
+    type: "page"
+  }
+];
 
-
-
-};
-
-const ROUTE = [];
-
-for (const [key, pageConfig] of Object.entries(pagesConfig)) {
-  const defaultConfig = {
-    name: `page.${key}`,
-    content: pageConfig.content || key,
-    path: `/page/${key}`,
-    component: page
-  };
-  ROUTE.push({
-    ...defaultConfig,
-    ...pageConfig
-  });
-}
-
-export { ROUTE };
+export { ROUTE, page };

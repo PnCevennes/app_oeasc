@@ -18,13 +18,12 @@ export default {
   methods: {
     breadcrumpList(name, list) {
       if (!name) {
-        console.log(list);
         return list;
       }
+
       const route = this.$router.options.routes.find(
         route => route.name == name
       );
-      console.log(name, route, this.$router.options.routes);
       list.unshift({
           text: route.label,
           to: route.path
@@ -35,9 +34,3 @@ export default {
   }
 };
 </script>
-
-<style lang="css">
-/* .breadcrump {
-  margin-left: 100px;
-} */
-</style>

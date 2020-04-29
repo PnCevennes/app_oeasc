@@ -3,7 +3,7 @@
     <div id="app" ref="app">
       <div class="page-container">
         <oeasc-app-bar
-        class="oeasc-app-bar"
+          class="oeasc-app-bar"
           :config="configAppBar"
           v-model="configDrawer.show"
         ></oeasc-app-bar>
@@ -16,9 +16,12 @@
         </div>
         <oeasc-drawer :config="configDrawer"></oeasc-drawer>
 
-
-         <breadcrump></breadcrump>
-        <div class="main-container" id="scrolling-techniques" style="height=100px">
+        <breadcrump></breadcrump>
+        <div
+          class="main-container"
+          id="scrolling-techniques"
+          style="height=100px"
+        >
           <router-view></router-view>
         </div>
       </div>
@@ -44,7 +47,7 @@ export default {
       userIcon: "person",
       configAppBar: {
         rightMenus: ["user"],
-        leftMenus: ["accueil", "observatoire", "systeme_alerte"]
+        leftMenus: ["accueil", "observatoire", "systeme_alerte", "test"]
       },
       configDrawer: {
         menus: [
@@ -74,7 +77,7 @@ export default {
       }
       // redirect to login
       if (access > droitMax) {
-        console.log('aaaa', this.$route.fullPath)
+        console.log("aaaa", this.$route.fullPath);
         this.$router.push({
           name: "user.login",
           query: { redirect: this.$route.fullPath }

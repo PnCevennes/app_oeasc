@@ -10,7 +10,7 @@ const ROUTE = [
     access: 1,
     name: "post_declaration",
     hideTitle: true,
-    parent: 'declaration.systeme_alerte',
+    parent: "declaration.systeme_alerte",
     component: declarationForm
   },
 
@@ -19,7 +19,7 @@ const ROUTE = [
     label: "Modifier déclaration",
     access: 1,
     hideTitle: true,
-    parent: 'declaration.liste_declarations',
+    parent: "declaration.liste_declarations",
     name: "patch_declaration",
     component: declarationForm
   },
@@ -29,7 +29,7 @@ const ROUTE = [
     label: "Alerte déclarées",
     access: 1,
     name: "declaration.liste_declarations",
-    parent: 'declaration.systeme_alerte',
+    parent: "declaration.systeme_alerte",
     component: declarationList
   },
 
@@ -40,6 +40,44 @@ const ROUTE = [
     name: "voir_declaration",
     parent: "declaration.liste_declarations",
     component: declaration
+  },
+
+  {
+    path: "/declaration/degat_grand_gibier",
+    name: "declaration.degat_grand_gibier",
+    content: "degat_grand_gibier",
+    label: "Les dégâts de grand gibier",
+    parent: "declaration.systeme_alerte",
+    type: "page"
+  },
+
+  {
+    path: "/declaration/systeme_alerte",
+    name: "declaration.systeme_alerte_top",
+    label: "Signaler des dégâts en forêt",
+    content: "systeme_alerte",
+    icon: "report_problem",
+    parent: "page.accueil",
+    type: "page"
+  },
+
+  {
+    path: "/declaration/systeme_alerte",
+    name: "declaration.systeme_alerte",
+    content: "systeme_alerte",
+    label: "Le systême d'alerte",
+    parent: "page.accueil",
+    type: "page"
+  },
+
+  {
+    path: "/declaration/signaler_degat_explication",
+    name: "declaration.signaler_degat_explication",
+    label: "Je signale des dégâts en forêt",
+    content: "signaler_degat_explication",
+    parent: "declaration.systeme_alerte",
+    access: 1,
+    type: "page"
   }
 ];
 

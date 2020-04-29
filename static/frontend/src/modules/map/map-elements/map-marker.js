@@ -44,7 +44,6 @@ const mapMarker = {
     //filter
     for (const markerConfig of config.markers) {
       this.applyFilters(markerConfig);
-      console.log(markerConfig.selected);
     }
 
     // color ...icon
@@ -124,7 +123,6 @@ const mapMarker = {
   },
 
   initMarkers() {
-    console.log('init marker')
     this.removeMarkers();
     for (const [key, markerConfig] of Object.entries(
       this._config.markers || {}
@@ -213,7 +211,6 @@ const mapMarker = {
   },
 
   setMarkerStyle(marker) {
-    console.log(marker.selected)
     marker.style.opacity = marker.selected ? 1 : 0.1;
     marker.style.fillOpacity = marker.selected ? 0.2 : 0;
     if (marker.type == "marker") {

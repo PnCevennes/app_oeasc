@@ -17,7 +17,7 @@ const menus = {
     labelDrawer: "Le système d'alerte",
     name: "declaration.systeme_alerte_top",
     names: [
-        "declaration.systeme_alerte",
+      "declaration.systeme_alerte",
       "declaration.degat_grand_gibier",
       "declaration.signaler_degat_explication",
       "declaration.liste_declarations"
@@ -34,22 +34,25 @@ const menus = {
       "user.gerer_utilisateurs"
     ]
   },
+  test: {
+    name: "test",
+    labelDrawer: "Test",
+    names: ["test.map"],
+    condition: ({ $store }) => $store.getters.droitMax >= 5
+  },
   documentation: {
-    name: "page.documentation",
+    name: "page.documentation"
   },
   contact: {
-    name: "page.contact",
-  },  
+    name: "page.contact"
+  },
   partenaires: {
-    name: "page.partenaires",
-  },  
-
+    name: "page.partenaires"
+  }
 };
 
 const processRouteName = function(routeName, { $store, $router }) {
   const route = $router.options.routes.find(route => route.name == routeName);
-
-  console.log(route, routeName)
 
   const processRoute = {
     condition: true
@@ -66,12 +69,15 @@ const processRouteName = function(routeName, { $store, $router }) {
 
 const configMenu = function(menuName, { $store, $router }) {
   const menu = menus[menuName];
+  const condition = !menu.condition || menu.condition({$store});
+  console.log(condition, menuName)
   return {
     ...menu,
     ...processRouteName(menu.name, { $store, $router }),
     menus: (menu.names || [])
-      .map(name => processRouteName(name, { $store, $router }))
-      .filter(menu => menu.condition)
+    .map(name => processRouteName(name, { $store, $router }))
+    .filter(menu => menu.condition),
+    condition,
   };
 };
 
