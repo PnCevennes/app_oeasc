@@ -4,13 +4,18 @@ const sessionsValidation = {
   validation: {
     title: "Validation",
     groups: {
-      content: {
-        class: ['no-border'],
-        forms: ["content_validation", "content_resume"]
+      content_validation: {
+        class: ["no-border"],
+        forms: ["content_validation"]
       },
       autorisation: {
         forms: ["b_autorisation"]
       },
+      content_resume: {
+        class: ["no-border"],
+        forms: ["content_resume"]
+      },
+
       validation: {
         forms: ["b_valid"]
       }
@@ -19,7 +24,7 @@ const sessionsValidation = {
       label: "valider",
       process: postDeclaration
     }
-  },
+  }
 };
 
 export { sessionsValidation };

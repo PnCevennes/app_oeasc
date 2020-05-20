@@ -6,6 +6,7 @@ import store from "@/store/store";
 import vuetify from "@/plugins/vuetify"; // path to vuetify export
 import VueSession from "vue-session";
 
+
 Vue.config.productionTip = false;
 Vue.config.devServer = { port: 8080, proxy: "http://localhost:5000" };
 

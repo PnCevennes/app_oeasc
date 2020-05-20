@@ -27,17 +27,19 @@ const restitution = {
     const indexElemAutres = dataList.findIndex(e => e.text == "Autres");
     const value = this.getValue(d, options);
     let index;
+    let arrayOut = [];
     for (const v of value) {
       index = dataList.findIndex(e => e.text == v);
+      let out =
+        index != -1
+          ? types[index]
+          : indexElemAutres != -1
+          ? types[indexElemAutres]
+          : null;
+      out = out || defaultValue[type];
+      arrayOut.push(out)
     }
-    let out =
-      index != -1
-        ? types[index]
-        : indexElemAutres != -1
-        ? types[indexElemAutres]
-        : null;
-    out = out || defaultValue[type];
-    return out;
+    return arrayOut;
   },
 
   color(d, dataList, options = {}) {
@@ -72,12 +74,14 @@ const restitution = {
   dataList(data, options) {
     let dataList = [];
     const name = options.name;
-    for (const d of data.filter(d1 => d1.selected)) {
+    for (const d of data
+      // .filter(d1 => d1.selected)
+      ) {
       const value = this.getValue(d[name], options);
       for (const v of value) {
         let elem = dataList.find(d => d.text == v);
         if (!elem) {
-          elem = { text: v, count: 0 };
+          elem = { text: v, count: 0, value: d[name] };
           dataList.push(elem);
         }
         elem.count += 1;

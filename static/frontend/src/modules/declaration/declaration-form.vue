@@ -1,8 +1,8 @@
 <template>
   <div class="form-declaration">
     <div v-if="initialized">
-      <h1 v-if="!idDeclaration">{{ config.title }}</h1>
-      <h1 v-else>{{ `Éditer la déclaration ${idDeclaration}` }}</h1>
+      <h2 v-if="!idDeclaration">{{ config.title }}</h2>
+      <h2 v-else>{{ `Éditer la déclaration ${idDeclaration}` }}</h2>
       <p>Besoin d'aide <help code="declaration_help"></help></p>
       <fil-arianne
         :config="config"

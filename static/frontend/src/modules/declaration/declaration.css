@@ -40,7 +40,7 @@
 }
 
 div.form-session-container.isSession {
-  min-height: 400px;
+  /* min-height: 400px; */
   display: flex;
   align-items: center;
 }

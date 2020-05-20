@@ -71,7 +71,7 @@
           <!-- checkbox -->
           <div v-if="config.multiple">
             <v-container fluid>
-              <div class="select-list-label-container>">
+              <div class="select-list-label-container" v-if="!!config.label">
                 <span class="select-list-label">
                   {{ config.label }}
                 </span>
@@ -80,7 +80,7 @@
                 <br>                
                 <i>(plusieurs réponses possibles)</i>
               </div>
-
+              
               <v-checkbox
                 v-model="baseModel[config.name]"
                 v-for="(item, index) in items"
@@ -99,6 +99,7 @@
                 "
               ></v-checkbox>
               <help
+                      class='help-radio-item'
                 :code="`item-${item[config.valueFieldName]}`"
                 v-if="config.helps"
               ></help>
@@ -108,7 +109,7 @@
           <!-- radio -->
           <div v-else>
             <v-container fluid>
-              <div class="select-list-label-container>">
+              <div class="select-list-label-container"  v-if="!!config.label">
                 <span class="select-list-label">
                   {{ config.label }}
                 </span>
@@ -120,7 +121,9 @@
                 :rules="config.rules"
               >
                 <template v-for="item in items">
-                  <div :key="item[config.valueFieldName]">
+                  <div :key="item[config.valueFieldName]"
+                style='position: relative'
+                  >
                     <div class="degat">
                       <v-radio
                         :value="
@@ -142,6 +145,7 @@
                       </v-radio>
                      </div>
                     <help
+                      class='help-radio-item'
                       :code="`list-${item[config.valueFieldName]}`"
                       v-if="
                         config.helps &&
@@ -188,6 +192,7 @@ export default {
     },
     baseModel: {
       handler() {
+        console.log('aaa')
         if (this.config.dataReloadOnSearch && !this.search) {
           this.search = this.baseModel[this.config.name];
         }
@@ -299,7 +304,7 @@ export default {
   computed: {
     valueDisplay() {
       let values = this.baseModel[this.config.name];
-      if (!(values || (this.config.multiple && !values.length))) {
+      if (!(values || (this.config.multiple && values && !values.length))) {
         return "";
       }
       values = this.config.multiple ? values : [values];

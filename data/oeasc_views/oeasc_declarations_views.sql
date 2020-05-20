@@ -332,6 +332,14 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_csv AS
         vd.peuplement_ess_1_mnemo AS "Ess. 1",
         vd.peuplement_ess_2_mnemo AS "Ess. 2",
         vd.peuplement_ess_3_mnemo AS "Ess. 3",
+        SPLIT_PART(peuplement_ess_2_mnemo, ', ', 1) AS "ESS II.1",
+        SPLIT_PART(peuplement_ess_2_mnemo, ', ', 2) AS "ESS II.2",
+        SPLIT_PART(peuplement_ess_2_mnemo, ', ', 3) AS "ESS II.3",
+
+        SPLIT_PART(peuplement_ess_3_mnemo, ', ', 1) AS "ESS III.1",
+        SPLIT_PART(peuplement_ess_3_mnemo, ', ', 2) AS "ESS III.2",
+        SPLIT_PART(peuplement_ess_3_mnemo, ', ', 3) AS "ESS III.3",
+
         vd.peuplement_paturage_statut_mnemo AS "Pât. stat.",
         vd.peuplement_paturage_frequence_mnemo AS "Pât. freq.",
         vd.peuplement_paturage_type_mnemo AS "Pât. type",

@@ -11,7 +11,9 @@
               </div>
 
       <div v-for="(item, index) of items" :key="item.id_nomenclature">
-        <div class="degat">
+        <div class="degat"
+        style='position: relative'
+        >
           <v-checkbox
             v-model="degatTypes"
             :hide-details="index < items.length - 1 ? true : false"
@@ -24,6 +26,7 @@
           ></v-checkbox>
         </div>
         <help
+        class="help-degat-item"
           :code="`item-${item[config.valueFieldName]}`"
           v-if="item.cd_nomenclature !== 'P/C'"
         ></help>
@@ -48,14 +51,20 @@
           <div class="flex-container flex-row flex-5">
             <div><b><span v-if="item.cd_nomenclature != 'ABS'">Essence</span></b></div>
             <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'"><b>Gravité</b><help code="form-gravite"></help></span>
+              <span v-if="item.cd_nomenclature !== 'ABS'"><b>Gravité</b>
+                <span class="required"> *</span>
+              <help code="form-gravite"></help></span>
             </div>
             <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'"><b>Étendue</b><help code="form-etendue"></help></span>
+              <span v-if="item.cd_nomenclature !== 'ABS'"><b>Étendue</b>
+                <span class="required"> *</span>
+              <help code="form-etendue"></help></span>
             </div>
             <div>
               <span v-if="item.cd_nomenclature !== 'ABS'"
-                ><b>Antériorité</b></span
+                ><b>Antériorité</b>
+                <span class="required"> *</span>
+                </span
               >
             </div>
             <div></div>

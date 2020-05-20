@@ -4,14 +4,17 @@
       <v-dialog v-model="dialog" max-width="1000">
         <v-card>
           <v-card-text>
-            <oeasc-content :code="code" :containerClassIn="'content-help'"></oeasc-content>
+            <oeasc-content
+              :code="code"
+              :containerClassIn="'content-help'"
+            ></oeasc-content>
           </v-card-text>
         </v-card>
       </v-dialog>
     </v-row>
 
     <v-btn
-      tabIndex="-1" 
+      tabIndex="-1"
       placeholder="NoTabIndex"
       class="btn"
       icon
@@ -19,20 +22,22 @@
       @click.stop="dialog = true"
       title="Cliquer pour obtenir de l'aide"
     >
-      <v-icon >help</v-icon>
+      <v-icon>help</v-icon>
     </v-btn>
   </div>
 </template>
 
 <script>
-import oeascContent from "@/modules/content/content";
+
 export default {
   name: "help",
   props: ["code"],
-  components: { oeascContent },
+  components: { 
+    oeascContent: () => import('@/modules/content/content.vue') 
+  },
   data: () => ({
     dialog: false
-  })
+  }),
 };
 </script>
 
@@ -44,4 +49,25 @@ export default {
 .help:not(:last-child) .btn {
   margin: 0 20px 0 0px;
 }
+.help-radio-item {
+  top: -2px;
+  /* left: 0px; */
+  padding-left:5px;
+  position: absolute;
+
+  /* float: right; */
+  color: red;
+}
+
+.help-degat-item {
+  top: -3px;
+  /* left: 0px; */
+  padding-left:5px;
+  position: relative;
+
+  /* float: right; */
+  color: red;
+}
+
+
 </style>

@@ -5,12 +5,13 @@
         :text="!menu.icon || !!menu.label"
         :key="indexMenu"
         v-if="!menu.menus.length"
-        :icon="menu.icon && !menu.label"
+        :icon="!!menu.icon"
         :to="menu.path"
       >
-        <v-icon v-if="!menu.label">{{ menu.icon }}</v-icon>
-        {{ menu.label }}
-        {{ menu.disabled }}
+        <v-icon v-if="!!menu.icon">{{ menu.icon }}</v-icon>
+        <template v-else>
+          {{ menu.label }}
+          </template>
       </v-btn>
       <v-menu
         offset-y
@@ -23,7 +24,7 @@
           <v-btn
             v-on="bMenu"
             :text="!menu.icon || !!menu.label"
-            :icon="menu.icon && !menu.label"
+            :icon="!menu.label && !!menu.icon"
             :to="menu.path"
             class="text-none"
           >

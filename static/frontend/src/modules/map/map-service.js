@@ -2,7 +2,7 @@
  * class pour gérer les cartes de l'application oeasc
  */
 
-import {copy} from '@/core/js/util/util'
+import { copy } from "@/core/js/util/util";
 
 import "leaflet/dist/leaflet.css";
 import "./map.css";
@@ -78,11 +78,17 @@ class MapService {
     }
 
     // map
-    this._map = L.map(this._id);
+    this._map = L.map(this._id, {
+      zoomSnap: 0.1,
+      zoomDelta: 0.5
+    });
 
     // set view
     this._map.setView(this._config.INIT_VIEW, this._config.INIT_ZOOM);
 
+    this._map.on("zoomend", () => {
+      console.log(this._map.getZoom());
+    });
     // scale
     L.control.scale().addTo(this._map);
 

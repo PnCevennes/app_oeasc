@@ -216,7 +216,7 @@ const formsForet = {
   },
 
   id_nomenclature_proprietaire_declarant: {
-    label: "Êtes vous propriétaire de la forêt concernée ?",
+    label: "Êtes-vous propriétaire de la forêt concernée ?",
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PROPRIETAIRE_DECLARANT",

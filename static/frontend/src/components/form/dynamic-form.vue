@@ -29,7 +29,6 @@
       >
       
         <span v-if="config.required" class="required"> * </span>
-
         <help :code="`form-${config.name}`" v-if="config.help"></help>
 
         <v-radio :label="configForm.labels[0]" :value="true"></v-radio>
@@ -75,6 +74,8 @@
           >{{ config.label }}
           <span v-if="config.required && config.label" class="required">*</span>
         </span>
+        {{`form-${config.name}`}}
+
         <help
         slot="append"
           :code="`form-${config.name}`"
@@ -82,9 +83,6 @@
         ></help>
       </v-text-field>
     </template>
-
-
-
 
     <!-- text area -->
     <template v-else-if="configForm.type === 'text_area'">
@@ -154,6 +152,8 @@ import essenceForm from "./essence-form.vue";
 import degatsForm from "./degats-form.vue";
 import oeascContent from "@/modules/content/content";
 import help from "./help";
+
+console.log('dy cont', oeascContent)
 
 import { formFunctions } from "@/components/form/functions.js";
 

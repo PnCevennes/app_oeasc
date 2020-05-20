@@ -23,12 +23,15 @@ export default {
       {
         question: "<b>Quels types de dégâts puis-je puis signaler ?</b>",
         response:
-          'Vous pouvez signaler des dégâts d’abroutissement, de frottis et d’écorçage, ou signaler une absence de régénération qui vous semble anormale et pourrait être liée à la présence de cervidés. Vous pouvez également signaler des dégâts sur les pistes ou les clôtures de votre forêt. Les différents types de dégâts sont décrits et présentés <a href="#/declaration/degat_grand_gibier">ici</a>).'
+          `Vous pouvez signaler des dégâts d’abroutissement, de frottis et d’écorçage, ou signaler une absence de régénération qui vous semble anormale et pourrait être liée à la présence de cervidés.
+          <br><br> Vous pouvez également signaler des dégâts de sanglier ou des dommages provoqués sur vos pistes, clôtures ou murets.
+          <br><br> Les différents types de dégâts sont décrits et présentés <a href="#/declaration/degat_grand_gibier">ici</a>.`
       },
 {
   question: "<b>Comment signaler des dégâts ?</b>",
         response:
-          'Rien de plus simple ! Connectez à votre compte « utilisateur » (si vous ne l’avez pas encore fait, vous pouvez le créer en cliquant <a href="#/user/create">ici</a>), et suivez les étapes du formulaire en ligne.'
+          `Rien de plus simple !
+          <br><br> Connectez à votre compte « utilisateur » (si vous ne l’avez pas encore fait, <a href="#/user/creer_utilisateur">vous pouvez vous inscrire ici</a>), et suivez les étapes du formulaire en ligne.`
       },
       {
         question: "<b>Combien de temps cela va-t-il me prendre ?</b>",
@@ -37,11 +40,15 @@ export default {
       },
       {
         question: "<b>Ma forêt est-elle incluse dans le périmètre de l'Observatoire ?</b>",
-        response: "Le périmètre de l'Observatoire est constitué de l'ensemble des communes en partie incluses ou frontalières au coeur du Parc national des Cévennes. Pour vérifier si votre forêt est située dans ce périmètre, nous vous invitons à consulter la carte présentée <a href='#/presentation/perimetre'>ici</a>."
+        response: `Le périmètre de l'Observatoire est constitué de l'ensemble des communes en partie incluses ou frontalières au coeur du Parc national des Cévennes. 
+                  <br><br> Pour vérifier si votre forêt est située dans ce périmètre, consultez <a href='#/presentation/perimetre'>la carte présentée ici</a>.`
       },
       {
         question: "<b>Ai-je besoin d'aller collecter des informations en forêt pour déclarer des dégâts ?</b>",
-        response: "Pas nécessairement, si vous connaissez suffisamment votre forêt et le peuplement touché par les dégâts. Le formulaire est constitué de questions simples. Il ne nécessite aucune collecte de données sur le terrain, et a été conçu afin de pouvoir être renseigné sur la base des connaissances élémentaires que vous avez de votre forêt. À partir des simples observations que vous aurez pu faire lorsque vous avez constaté les dégâts, vous devriez donc pouvoir remplir le formulaire directement depuis chez vous, devant votre ordinateur."
+        response:  `Pas nécessairement, si vous connaissez suffisamment votre forêt et le peuplement touché.
+        <br><br> Le formulaire contient des questions simples.
+        Il a été conçu afin de pouvoir être renseigné sur la base des connaissances élémentaires que vous avez de votre forêt.
+        <br><br> À partir des simples observations effectuées lorsque vous avez constaté les dégâts, vous devriez donc pouvoir remplir le formulaire directement depuis chez vous, devant votre ordinateur.`
       },
       {
         question: "<b>Quel est mon intérêt à déclarer des dégâts ?</b>",

@@ -7,7 +7,8 @@ const dataString = function(STORE, state, getterKey, n, dataKey) {
   return nArray
     .map(id => {
       const data = STORE.getters[getterKey](state)(id);
-      return ((data && data[dataKey]) || "").toLowerCase();
+      return ((data && data[dataKey]) || "");
+      // return ((data && data[dataKey]) || "").toLowerCase();
     })
     .join(", ");
 };

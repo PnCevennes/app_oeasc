@@ -17,7 +17,7 @@ const postDeclaration = function({baseModel}) {
 
 
 const config = {
-  title: "Déclarer un dégât en forêt",
+  title: "Signaler des dégâts de grand gibier en forêt",
   groups: {
     foret: {
       title: "Informations sur la forêt",

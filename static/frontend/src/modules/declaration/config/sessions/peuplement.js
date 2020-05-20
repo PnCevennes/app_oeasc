@@ -15,7 +15,7 @@ const sessionsPeuplement = {
       "Description",
     groups: {
       essences: {
-        title: "Essence(s) caractérisant le peuplement",
+        title: "Essence(s)",
         forms: [
           "id_nomenclature_peuplement_essence_principale",
           "nomenclatures_peuplement_essence_secondaire",
@@ -25,12 +25,12 @@ const sessionsPeuplement = {
 
       },
       superficie: {
-        title: "Superficie",
+        title: "Superficie du peuplement (ha)",
 
         forms: ["peuplement_surface"]
       },
       description: {
-        title: "Informations sur le peuplement",
+        title: "Origine et structure",
         direction: "row",
         forms: [
           "id_nomenclature_peuplement_origine",

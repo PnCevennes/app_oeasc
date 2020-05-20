@@ -22,14 +22,6 @@
           <th>Date</th>
           <td>{{ declarationDisplay.declaration_date }}</td>
         </tr>
-        <tr>
-          <th>Accessibilité</th>
-          <td>{{ declarationDisplay.peuplement_acces_label }}</td>
-        </tr>
-        <tr>
-          <th>Espèces présentes</th>
-          <td>{{ declarationDisplay.espece_label }}</td>
-        </tr>
       </tbody>
 
       <tbody v-if="declarationDisplay.declarant">
@@ -62,7 +54,7 @@
           <td>{{ declarationDisplay.statut_public }}</td>
         </tr>
         <tr>
-          <th>Documentée</th>
+          <th>Document de gestion durable</th>
           <td
             v-if="
               declarationDisplay.b_document &&
@@ -83,9 +75,13 @@
             non
           </td>
         </tr>
-        <tr>
+        <tr v-if='declarationDisplay.foret_type_label'>
           <th>Type</th>
           <td>{{ foretType(declarationDisplay.foret_type_label) }}</td>
+        </tr>
+        <tr>
+          <th>Espèces présentes</th>
+          <td>{{ declarationDisplay.espece_label }}</td>
         </tr>
       </tbody>
 
@@ -105,6 +101,10 @@
         <tr>
           <th>Parcelle(s)</th>
           <td>{{ declarationDisplay.parcelles }}</td>
+        </tr>
+        <tr>
+          <th>Accessibilité</th>
+          <td>{{ declarationDisplay.peuplement_acces_label }}</td>
         </tr>
       </tbody>
 
@@ -136,12 +136,12 @@
             {{ declarationDisplay.peuplement_surface || "Non renseignée" }}
           </td>
         </tr>
-        <tr>
-          <th>Origine</th>
+        <tr v-if="$store.getters.droitMax > 5">
+          <th>Origine (ancienne version)</th>
           <td>{{ declarationDisplay.peuplement_origine_label }}</td>
         </tr>
         <tr>
-          <th>Origine 2</th>
+          <th>Origine des individus touchés</th>
           <td>{{ declarationDisplay.peuplement_origine2_label }}</td>
         </tr>
         <tr>
@@ -304,7 +304,7 @@ export default {
       getDeclarationData(this).then(() => {
         this.bInit = true;
         setTimeout(() => {
-          this.$store.commit('declarationTableHeight', this.$el.clientHeight);
+          this.$store.commit("declarationTableHeight", this.$el.clientHeight);
         }, 10);
       });
     } else {

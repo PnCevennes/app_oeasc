@@ -55,9 +55,9 @@ const mapLayer = {
 
     // zoom
     if (layerConfig.zoom) {
-      setTimeout(()=> {
+      setTimeout(() => {
         this.zoomOnLayer(layer);
-      }, 100)
+      }, 100);
     }
 
     // dispatch layer-data
@@ -203,7 +203,7 @@ const mapLayer = {
     }
 
     const layerConfig = this._config.layers[key];
-    if (!(layerConfig.select  && layerConfig.select.build)) {
+    if (!(layerConfig.select && layerConfig.select.build)) {
       return;
     }
     const items = this.findLayers("key", key).map(
@@ -212,17 +212,22 @@ const mapLayer = {
 
     const change = () => {
       if (layerConfig.select.markerFilter) {
-          this.initMarkers();
+        this.initMarkers();
       }
 
       layerConfig.select.change && layerConfig.select.change();
       if (layerConfig.select.zoomOnChange) {
         const value = this.baseModel[key];
-        const layers = this.findLayers(
-          layerConfig.select.valueFieldName,
-          value
-        );
-        if (Array.isArray(value) ? value.length : value) {
+
+        if (
+          Array.isArray(value)
+            ? value.length
+            : value && value[layerConfig.select.valueFieldName]
+        ) {
+          const layers = this.findLayers(
+            layerConfig.select.valueFieldName,
+            value[layerConfig.select.valueFieldName]
+          );
           this.zoomOnLayers(layers);
         } else {
           this.reinitZoom();

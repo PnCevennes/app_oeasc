@@ -1,6 +1,6 @@
 const sessionsCommentaires = {
   commentaires: {
-    title: "",
+    title: "Précisions, remarques, observtions",
     groups: {
       content: {
         class: ['no-border'],

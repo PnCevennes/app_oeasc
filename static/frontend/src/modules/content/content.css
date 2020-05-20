@@ -1,6 +1,10 @@
 .content,
 .edit-content {
-  width: 1000px;
+  /* width: 1000px; */
+}
+
+.content {
+  text-align: justify;
 }
 
 .map-content {

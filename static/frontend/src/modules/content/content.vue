@@ -74,7 +74,6 @@ export default {
     declarationTable, // eslint-disable-line
     baseMap, // eslint-disable-line
     contentImg, // eslint-disable-line
-
   },
   data: () => ({
     // component: null,

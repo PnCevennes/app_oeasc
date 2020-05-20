@@ -52,14 +52,14 @@ export default {
         },
         display: "table",
         value: {
-          nom_role: "CLÉMENT",
-          prenom_role: "Joël",
-          email: "joelclems@gmail.com",
-          id_organisme: 602,
-          autre_organisme: "Maison",
-          desc_role: "Autre",
-          password_confirmation: "1234",
-          password: "1234"
+          // nom_role: "CLÉMENT",
+          // prenom_role: "Joël",
+          // email: "joelclems@gmail.com",
+          // id_organisme: 602,
+          // autre_organisme: "Maison",
+          // desc_role: "Autre",
+          // password_confirmation: "1234",
+          // password: "1234"
         },
         preLoadData: () => {
           return new Promise(resolve => {
@@ -139,12 +139,12 @@ export default {
               "Propriétaire forestier privé",
               "Salarié, agent, fonctionnaire",
               "Expert forestier indépendant",
-              "Autre"
             ]
           },
           accept_email: {
             type: 'bool_switch',
-            label: "Acceptez vous de recevoir des nouvelles de l'OEASC par email ?",
+            label: "Rester informé des principales évolutions du dispositif (envoi ponctuel d’e-mails)",
+            // label: "Acceptez vous de recevoir des nouvelles de l'OEASC par email ?",
             required: true, 
           },
           password: {

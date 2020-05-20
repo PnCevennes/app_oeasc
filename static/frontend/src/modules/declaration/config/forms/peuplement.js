@@ -77,7 +77,8 @@ const formsPeuplement = {
   },
 
   peuplement_surface: {
-    label: "Superficie du peuplement (ha)",
+    // label: "Superficie du peuplement (ha)",
+    label: "",
     type: "number",
     min: 0
   },

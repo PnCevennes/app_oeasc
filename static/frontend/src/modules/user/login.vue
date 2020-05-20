@@ -4,10 +4,7 @@
       <div slot="prependForm">
         <div v-if="redirect">
           <p>
-            Vous n'avez pas les droits requis pour accéder à la page :
-            <b>
-              {{ redirect }}
-            </b>
+            Vous n'avez pas les droits requis pour accéder cette page.
           </p>
         </div>
 
@@ -43,7 +40,7 @@ import { config } from "@/config/config.js";
 import { apiRequest } from "@/core/js/data/api.js";
 
 export default {
-  name: "login2",
+  name: "login",
   components: { genericForm },
   computed: {
     redirect() {
@@ -92,7 +89,6 @@ export default {
     };
   },
   mounted() {
-    console.log(this.token);
     if (this.token) {
       apiRequest("POST", "pypn/register/post_usershub/valid_temp_user", {
         data: {

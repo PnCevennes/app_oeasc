@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div v-if="contentCode">
+    <div v-if="contentCode" class='page'>
       <oeasc-content :code="contentCode"></oeasc-content>
     </div>
   </div>
@@ -9,6 +9,7 @@
 
 <script>
 import oeascContent from "@/modules/content/content";
+import './page.css';
 
 export default {
   name: "page",

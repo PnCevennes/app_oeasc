@@ -34,7 +34,7 @@
             'valid-session': condValidSession(keySession)
           }"
         >
-          {{ indexGroup + 1 }}.{{ indexSession + 1 }} {{ configSession.title }}
+          {{ indexGroup + 1 }}.{{ indexSession + 1 }} - {{ configSession.title }}
         </div>
       </template>
     </div>

@@ -26,7 +26,7 @@ const ROUTE = [
 
   {
     path: "/declaration/liste",
-    label: "Alerte déclarées",
+    label: "Alerte signalées",
     access: 1,
     name: "declaration.liste_declarations",
     parent: "declaration.systeme_alerte",
@@ -65,7 +65,7 @@ const ROUTE = [
     path: "/declaration/systeme_alerte",
     name: "declaration.systeme_alerte",
     content: "systeme_alerte",
-    label: "Le systême d'alerte",
+    label: "Le système d'alerte",
     parent: "page.accueil",
     type: "page"
   },

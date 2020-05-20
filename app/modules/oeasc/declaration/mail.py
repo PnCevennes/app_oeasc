@@ -65,6 +65,11 @@ def send_mail_validation_declaration(declaration, b_create):
             )
             conn.send(msg)
 
+        # test si utilisateur est l'animateur pas de mail
+        print(email_user, config['ANIMATEUR_APPLICATION_MAIL'], config['ADMIN_APPLICATION_MAIL'])
+        if email_user in [config['ANIMATEUR_APPLICATION_MAIL'], config['ADMIN_APPLICATION_MAIL']]:
+            return  
+
         msg = Message(
             '[OEASC] [ANIMATEUR] Nouvelle déclaration' if b_create else '[OEASC] [ANIMATEUR] Modification de la déclaration ' + str(declaration['id_declaration']), 
             sender=config['ANIMATEUR_APPLICATION_MAIL'],

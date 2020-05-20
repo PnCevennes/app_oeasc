@@ -78,6 +78,7 @@ const ROUTE = [
     path: '/page/partenaires',
     name: 'page.partenaires',
     label: "Partenaires",
+    content: 'partenaires',
     parent: "page.accueil",
     type: "page"
   }

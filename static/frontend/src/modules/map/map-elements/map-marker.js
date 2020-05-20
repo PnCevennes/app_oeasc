@@ -56,12 +56,15 @@ const mapMarker = {
         );
 
         for (const markerConfig of config.markers) {
-          markerConfig.style[type] = restitution.valueOfType(
+          const out = restitution.valueOfType(
             type,
             markerConfig.properties[configType.options.name],
             configType.dataList,
             configType.options
           );
+          const types = type + 's';
+          markerConfig.style[type] = out[0] 
+          markerConfig.style[types] = out 
         }
 
         const cond_same =
@@ -84,19 +87,20 @@ const mapMarker = {
                 color: "grey",
                 icon: "circle"
               };
+
               legend[type] = restitution.valueOfType(
                 type,
                 d.text,
                 configType.dataList,
                 configType.options
-              );
+              )[0];
               if (cond_same) {
                 legend["icon"] = restitution.valueOfType(
                   "icon",
                   d.text,
                   configType.dataList,
                   configType.options
-                );
+                )[0];
               }
 
               return legend;
@@ -118,7 +122,15 @@ const mapMarker = {
     }
     const color = marker.style.color || "blue";
     const icon = marker.style.icon || "circle";
-    const label = `<i class='mdi mdi-${icon}' style='color:${color}'></i>`;
+    const colors = marker.style.colors || [color ];
+    const icons = marker.style.icons || [icon];
+    let label = ''
+
+    for (const color of colors) {
+      for (const icon of icons) {
+        label += `<i class='mdi mdi-${icon}' style='color:${color}'></i>`;
+      }
+    }
     return label;
   },
 
