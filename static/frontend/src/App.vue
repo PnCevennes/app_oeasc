@@ -77,7 +77,6 @@ export default {
       }
       // redirect to login
       if (access > droitMax) {
-        console.log("aaaa", this.$route.fullPath);
         this.$router.push({
           name: "user.login",
           query: { redirect: this.$route.fullPath }

@@ -26,7 +26,7 @@
       </div>
     </div>
     <div class="legend">
-      <div v-if="Object.entries(config.layers || []).length">
+      <div v-if="Object.entries(config.layers || []).length && config.markers">
         <br>
       </div>
       <div

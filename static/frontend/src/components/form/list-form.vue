@@ -192,7 +192,6 @@ export default {
     },
     baseModel: {
       handler() {
-        console.log('aaa')
         if (this.config.dataReloadOnSearch && !this.search) {
           this.search = this.baseModel[this.config.name];
         }

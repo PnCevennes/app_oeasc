@@ -42,14 +42,14 @@ const mapLegend = {
     return legend;
   },
 
-  setLayerLegendText(key, text) {
-    const elements = document
-      .getElementById(this._id)
-      .getElementsByClassName(key);
-    if (elements.length) {
-      elements[0].getElementsByClassName("legendText")[0].innerHTML = text;
-    }
-  },
+  // setLayerLegendText(key, text) {
+  //   const elements = document
+  //     .getElementById(this._id)
+  //     .getElementsByClassName(key);
+  //   if (elements.length) {
+  //     elements[0].getElementsByClassName("legendText")[0].innerHTML = text;
+  //   }
+  // },
 
   // initialise les légendes
   initLegends: function() {
@@ -82,12 +82,12 @@ const mapLegend = {
     legend.addTo(this._map);
   },
 
-  addLayerLegend: function(layerConfig) {
-    const elemLegend = document
-      .getElementById(this._id)
-      .getElementsByClassName("legend")[0];
-    elemLegend.innerHTML += this.layerLegend(layerConfig);
-  }
+  // addLayerLegend: function(layerConfig) {
+  //   const elemLegend = document
+  //     .getElementById(this._id)
+  //     .getElementsByClassName("legend")[0];
+  //   elemLegend.innerHTML += this.layerLegend(layerConfig);
+  // }
 };
 
 export { mapLegend };

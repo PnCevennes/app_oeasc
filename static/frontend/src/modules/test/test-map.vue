@@ -287,9 +287,9 @@ export default {
         this.settings["filters"] = items.find(
           i => i.text == "b_peuplement_protection_existence"
         );
-        this.settings["color"] = items.find(i => i.text == "Dégât");
+        this.settings["color"] = items.find(i => i.text == "Commune");
         // this.settings["icon"] = items.find(i => i.text == "Organisme");
-        this.settings["icon"] = items.find(i => i.text == "Type de forêt");
+        this.settings["icon"] = items.find(i => i.text == "Organisme");
         this.settings = {...this.settings}
         this.initMarkers();
       }, 1000);

@@ -58,7 +58,7 @@ app.config['MAIL'] = mail
 
 @app.route('/')
 def accueil():
-    return redirect("/oeasc", code=302)
+    return redirect("/front", code=302)
 
 @app.route('/front/')
 def front():

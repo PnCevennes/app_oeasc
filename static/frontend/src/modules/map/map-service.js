@@ -86,9 +86,6 @@ class MapService {
     // set view
     this._map.setView(this._config.INIT_VIEW, this._config.INIT_ZOOM);
 
-    this._map.on("zoomend", () => {
-      console.log(this._map.getZoom());
-    });
     // scale
     L.control.scale().addTo(this._map);
 

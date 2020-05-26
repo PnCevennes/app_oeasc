@@ -22,7 +22,9 @@ const selectMapMethods = {
       this.description = this.config.containerDescription;
       const ruleContainer = v =>
         !(!v || (Array.isArray(v) && v.length != 0)) ||
-        `Veuillez ${this.config.multiple ? 'ajouter un élément suplémentaire et / ou' : ''} et appuyer sur "VALIDER LA SELECTION" pour passer à la selection des ${this.config.legend.toLowerCase()}`;
+        `Veuillez ${
+          this.config.multiple ? "ajouter un élément suplémentaire et / ou" : ""
+        } et appuyer sur "VALIDER LA SELECTION" pour passer à la selection des ${this.config.legend.toLowerCase()}`;
       this.rules = this.config.required
         ? this.config.multiple
           ? [formFunctions.rules.requiredListMultiple, ruleContainer]
@@ -64,8 +66,9 @@ const selectMapMethods = {
     };
 
     // swap legend
-    this.mapService &&
-      this.mapService.setLayerLegendText(this.config.name, this.legend);
+    if (this.mapService) {
+      this.mapService._config.layers[this.config.name].legend = this.legend;
+    }
   },
 
   initSelect: function(event) {

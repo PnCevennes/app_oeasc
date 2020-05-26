@@ -119,10 +119,11 @@ export default {
       .addEventListener("select-map-click", this.clickOnLayer);
 
     this.mapService = this.$store.getters.mapService(this.config.name);
-    this.mapService.addLayerLegend({
+    console.log(this.mapService._config)
+    this.mapService._config.layers['selection'] = {
       style: this.mapConfig.styles.select,
       legend: "Sélection"
-    });
+    }
   }
 };
 </script>
