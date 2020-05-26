@@ -40,6 +40,11 @@ const menus = {
     names: ["test.map"],
     condition: ({ $store }) => $store.getters.droitMax >= 5
   },
+  indices_nocturnes: {
+    name: 'in.index',
+    names: ['in.test'],
+    condition: ({ $store }) => $store.getters.droitMax >= 5
+  },
   documentation: {
     name: "page.documentation"
   },

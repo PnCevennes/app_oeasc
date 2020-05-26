@@ -4,28 +4,40 @@
       <v-card-title>
         {{ configTable.title }}
         <v-spacer></v-spacer>
-        <v-text-field
+        <!-- <v-text-field
           v-model="search"
           append-icon="mdi-magnify"
           placeholder="Rechercher..."
           single-line
           hide-details
-        ></v-text-field>
-        {{ search }}
+        ></v-text-field> -->
+        <!-- {{ search }} -->
       </v-card-title>
       {{ configTable.editValues }}
       <v-data-table
         :class="configTable.classes"
         :headers="configTable.headers"
-        :items="configTable.items"
+        :items="filteredItems"
         multi-sort
         :sort-by="configTable.sortBy"
         :sort-desc="configTable.sortDesc"
-        :search="search"
         :dense="configTable.dense"
         :loading="!configTable.items"
         loading-text="Chargement en cours... merci de patienter"
       >
+        <template v-slot:body.prepend>
+          <tr>
+            <td v-for="header in configTable.headers" :key="header.value">
+              <v-text-field
+                v-if="!header.noSearch"
+                dense
+                v-model="searchs[header.value]"
+                type="text"
+              ></v-text-field>
+            </td>
+          </tr>
+        </template>
+        <!-- :search="search" -->
         <!-- <template  v-for="(value, index) in configTable.editValues" v-slot:item.id_droit_max="props"> -->
         <template
           v-for="(value, index) of (configTable.headers || []).map(
@@ -117,7 +129,7 @@ export default {
   props: ["config"],
   data: () => ({
     configTable: {},
-    search: "",
+    searchs: {},
     bEditDialogs: null,
     saveValue: null
   }),
@@ -201,7 +213,37 @@ export default {
       this.configTable = config;
     }
   },
-  computed: {},
+  computed: {
+    filteredItems() {
+      if(!this.configTable.items) {
+        return [];
+      }
+      const filteredItems = [];
+      for (const item of this.configTable.items) {
+        var cond = true;
+        for (const header of this.configTable.headers) {
+          const search = this.searchs[header.value];
+          if (!search) {
+            continue;
+          }
+          console.log("search", search);
+
+          const val = header.display
+            ? header.display(item[header.value])
+            : item[header.value];
+          cond =
+            cond &&
+            String(val)
+              .toLowerCase()
+              .includes(search.toLowerCase());
+        }
+        if (cond) {
+          filteredItems.push(item);
+        }
+      }
+      return filteredItems;
+    }
+  },
   mounted() {
     this.initConfig();
   }

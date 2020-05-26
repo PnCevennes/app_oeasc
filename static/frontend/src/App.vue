@@ -47,7 +47,7 @@ export default {
       userIcon: "person",
       configAppBar: {
         rightMenus: ["user"],
-        leftMenus: ["accueil", "observatoire", "systeme_alerte", "test"]
+        leftMenus: ["accueil", "observatoire", "systeme_alerte", "indices_nocturnes", "test"]
       },
       configDrawer: {
         menus: [

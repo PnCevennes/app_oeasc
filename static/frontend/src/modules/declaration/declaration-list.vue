@@ -67,6 +67,7 @@ export default {
         small: true, 
         headers: {
           actions: {
+            noSearch: true,
             width: "90px",
             text: "Actions",
             list: [
