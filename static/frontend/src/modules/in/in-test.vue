@@ -3,14 +3,16 @@
     <h1>
       Indices Nocturnes
     </h1>
-
-    <div>
+    <div v-for="espece of especes" :key="espece">
+      <div
+        v-if="chartOptions[espece]"
+      >
       <highcharts
         style="height:600px; width:800px"
-        v-if="chartOptions"
-        :options="chartOptions"
+        :options="chartOptions[espece]"
         :highcharts="hcInstance"
       ></highcharts>
+      </div>
     </div>
   </div>
 </template>
@@ -18,12 +20,17 @@
 <script>
 import Highcharts from "highcharts";
 
+const round = function(x, dec) {
+  if (x == 0) return 0;
+  return Math.round(x * 10 ** dec) / 10 ** dec;
+};
+
 export default {
   name: "in-test",
   data: () => ({
-    chartOptions: null,
+    chartOptions: {},
     hcInstance: Highcharts,
-    espece: "Cerf",
+    especes: ["Cerf", "Chevreuil", "Lievre", "Renard"],
     dataIn: null
   }),
   methods: {
@@ -31,67 +38,76 @@ export default {
       if (!this.dataIn) {
         return;
       }
-      const series = [];
-      series;
 
-      const data_espece = this.dataIn.especes[this.espece];
-      console.log("data", data_espece.ugs);
-      for (const [ug, data_ug] of Object.entries(data_espece.ugs)) {
-        console.log(ug, data_ug);
+      for (const espece of this.especes) {
+        const series = [];
+        const data_espece = this.dataIn.especes[espece];
+        for (const [ug, data_ug] of Object.entries(data_espece.ugs)) {
+          const serie = [],
+            error = [];
 
-        const serie = [],
-          error = [];
-
-        for (const [annee, data_annee] of Object.entries(data_ug.annees)) {
-          serie.push([parseInt(annee), data_annee.moy]);
-          if (data_annee.sup) {
-            error.push([parseInt(annee), data_annee.inf, data_annee.sup]);
+          for (const [annee, data_annee] of Object.entries(data_ug.annees)) {
+            serie.push([parseInt(annee), data_annee.moy]);
+            if (data_annee.sup) {
+              error.push([parseInt(annee), data_annee.inf, data_annee.sup]);
+            }
           }
+          series.push({
+            id: ug,
+            name: ug,
+            data: serie,
+            tooltip: {
+              pointFormatter: function() {
+                var point = this;
+                var x = point.options.x;
+                var y = point.options.y;
+                var inf = data_ug.annees[String(x)].inf;
+                var sup = data_ug.annees[String(x)].sup;
+                console.log(data_ug);
+                var out = `<b>UG</b> : ${ug} <br>`;
+                out += `<b>IN</b> : ${round(y, 3)}<br>`;
+                if (inf) out += `<b>Inf</b>: ${round(inf, 3)}<br>`;
+                if (sup) out += `<b>Sup</b>: ${round(sup, 3)}<br>`;
+                // return point.series.name + ': ' + (point.y > 0 ? 'On' : 'off') + '<br>'
+                return out;
+              }
+            }
+          });
+          series.push({
+            type: "errorbar",
+            linkedTo: ug,
+            data: error,
+            enableMouseTracking: false
+          });
+          this.chartOptions[espece] = {
+            title: {
+              text: `Indices nocturnes par unité de gestion (${espece})`
+            },
+            xAxis: {
+              title: {
+                text: "Année"
+              }
+            },
+            yAxis: {
+              title: {
+                text: "IN (individu / km)"
+              }
+            },
+            series: series,
+            height: "600px",
+            width: "600px"
+          };
         }
-        console.log(serie);
-        console.log(error);
-        series.push({
-          id: ug,
-          name: ug,
-          data: serie,
-          tooltip: {
-            formatter: function() {
-              return `<b>${ug}</b>`
-            }
-          }
-        });
-        series.push({
-          type: "errorbar",
-          linkedTo: ug,
-          data: error
-        });
-        this.chartOptions = {
-          title: {
-            text: "Indices nocturnes par unité de gestion"
-          },
-          xAxis: {
-            title: {
-              text: "Année"
-            }
-          },
-          yAxis: {
-            title: {
-              text: "IN (individu / km)"
-            }
-          },
-          series: series,
-          height: "600px",
-          width: "600px"
-        };
       }
+      this.chartOptions = {...this.chartOptions}
     }
   },
 
   mounted() {
-    console.log("mounted");
     this.$store.dispatch("in_results").then(data => {
       this.dataIn = data;
       this.initGraph();
+      console.log(this.chartOptions);
     });
   }
 };
