@@ -48,36 +48,23 @@ export default {
             error.push([parseInt(annee), data_annee.inf, data_annee.sup]);
           }
         }
-        console.log(serie)
-        console.log(error)
+        console.log(serie);
+        console.log(error);
         series.push({
           id: ug,
           name: ug,
-          data:serie,
+          data: serie,
+          tooltip: {
+            formatter: function() {
+              return `<b>${ug}</b>`
+            }
           }
-          );
+        });
         series.push({
           type: "errorbar",
-              linkedTo: ug,data:error});
-        //   for (const ug of ugs) {
-        //     const data_ug = data.filter(d => d.ug == ug);
-
-        //     series.push({
-        //       id: ug,
-        //       name: ug,
-        //       data: data_ug.map(d => [d.annee, d.in])
-        //     });
-        //     series.push({
-        //       type: "errorbar",
-        //       linkedTo: ug,
-        //       data: data_ug.map(d => [
-        //         d.annee,
-        //         d.in - d.variance / 2,
-        //         d.in + d.variance / 2
-        //       ])
-        //     });
-        //   }
-        //   console.log(series);
+          linkedTo: ug,
+          data: error
+        });
         this.chartOptions = {
           title: {
             text: "Indices nocturnes par unité de gestion"
