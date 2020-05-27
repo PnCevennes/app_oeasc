@@ -4,14 +4,12 @@
       Indices Nocturnes
     </h1>
     <div v-for="espece of especes" :key="espece">
-      <div
-        v-if="chartOptions[espece]"
-      >
-      <highcharts
-        style="height:600px; width:800px"
-        :options="chartOptions[espece]"
-        :highcharts="hcInstance"
-      ></highcharts>
+      <div v-if="chartOptions[espece]">
+        <highcharts
+          style="height:600px; width:800px"
+          :options="chartOptions[espece]"
+          :highcharts="hcInstance"
+        ></highcharts>
       </div>
     </div>
   </div>
@@ -22,7 +20,7 @@ import Highcharts from "highcharts";
 
 const round = function(x, dec) {
   if (x == 0) return 0;
-  return Math.round(x * 10 ** dec) / 10 ** dec;
+  return Math.floor(x * 10 ** dec) / 10 ** dec;
 };
 
 export default {
@@ -63,11 +61,11 @@ export default {
                 var y = point.options.y;
                 var inf = data_ug.annees[String(x)].inf;
                 var sup = data_ug.annees[String(x)].sup;
-                console.log(data_ug);
-                var out = `<b>UG</b> : ${ug} <br>`;
-                out += `<b>IN</b> : ${round(y, 3)}<br>`;
-                if (inf) out += `<b>Inf</b>: ${round(inf, 3)}<br>`;
-                if (sup) out += `<b>Sup</b>: ${round(sup, 3)}<br>`;
+                var out = `<b>UG</b> : ${ug}<br>`;
+                var dec = 4;
+                out += `<b>IN</b> : ${round(y, dec)}<br>`;
+                if (sup) out += `<b>Sup</br>: ${round(sup, dec)}<br>`;
+                if (inf || inf == 0) out += `<b>Inf</>: ${round(inf, dec)}<br>`;
                 // return point.series.name + ': ' + (point.y > 0 ? 'On' : 'off') + '<br>'
                 return out;
               }
@@ -89,6 +87,9 @@ export default {
               }
             },
             yAxis: {
+              min: -0.01,
+              endOnTick: false,
+              startOnTick: false,
               title: {
                 text: "IN (individu / km)"
               }
@@ -99,7 +100,7 @@ export default {
           };
         }
       }
-      this.chartOptions = {...this.chartOptions}
+      this.chartOptions = { ...this.chartOptions };
     }
   },
 
@@ -107,7 +108,6 @@ export default {
     this.$store.dispatch("in_results").then(data => {
       this.dataIn = data;
       this.initGraph();
-      console.log(this.chartOptions);
     });
   }
 };
