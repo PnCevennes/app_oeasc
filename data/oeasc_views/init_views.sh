@@ -18,8 +18,7 @@ for file in $(echo \
     "oeasc_declarations_views.sql" \
     "../oeasc_schemas/oeasc_in.sql" \
     "../oeasc_schemas/oeasc_in_views.sql" \
-    "../oeasc_schemas/oeasc_import_data.sql" \
-
+    "../oeasc_schemas/oeasc_in_import_data.sql" \
     )
 do
     # "oeasc_resultats_views.sql" \
@@ -34,7 +33,7 @@ done
 
 echo "process data oeasc done" &>> $log_file
 
-# cat $log_file
+cat $log_file
 
 cat $log_file | grep 'ERROR'
 
