@@ -16,6 +16,10 @@ for file in $(echo \
     "../oeasc_schemas/oeasc_functions.sql" \
     "oeasc_commons_views.sql" \
     "oeasc_declarations_views.sql" \
+    "../oeasc_schemas/oeasc_in.sql" \
+    "../oeasc_schemas/oeasc_in_views.sql" \
+    "../oeasc_schemas/oeasc_import_data.sql" \
+
     )
 do
     # "oeasc_resultats_views.sql" \

@@ -31,7 +31,7 @@ import listForm from "@/components/form/list-form";
 import { restitution } from "@/core/js/restitution";
 
 const items = [
-    {
+  {
     text: "Dégât",
     name: "degat_types_label",
     split: ", "
@@ -138,11 +138,9 @@ export default {
       this.settings.filters = this.settings.filters || [];
       if (!this.settings.filters.find(item => item.name == name)) {
         const item = items.find(item => item.name == name);
-        console.log(item);
         this.settings.filters.push(item);
         this.filters = [...this.settings.filters];
       }
-      console.log("filters", this.settings.filters);
 
       this.filterSelectChange();
     },
@@ -227,11 +225,17 @@ export default {
         data: this.declarationsFiltered()
       };
 
+      const filters = {};
+      for (const filter of this.filters) {
+        filters[filter.name] = this.settings[filter.name];
+      }
+      console.log('filters', filters)
       if (colorSetting) {
         this.config.markers.declarations.color = {
           options: {
             ...colorSetting,
-            nMax: 7
+            nMax: 7,
+            filters
           }
         };
       }
@@ -240,7 +244,8 @@ export default {
         this.config.markers.declarations.icon = {
           options: {
             ...iconSetting,
-            nMax: 7
+            nMax: 7,
+            filters
           }
         };
       }
@@ -284,15 +289,15 @@ export default {
       this.initMarkers();
       this.bInit = true;
       setTimeout(() => {
-        this.settings["filters"] = items.find(
-          i => i.text == "b_peuplement_protection_existence"
-        );
-        this.settings["color"] = items.find(i => i.text == "Commune");
+        this.settings["color"] = items.find(i => i.text == "Dégât");
         // this.settings["icon"] = items.find(i => i.text == "Organisme");
-        this.settings["icon"] = items.find(i => i.text == "Organisme");
-        this.settings = {...this.settings}
+        this.settings["icon"] = items.find(i => i.text == "Dégât");
+        this.addFilter("degat_types_label");
+          this.settings.degat_types_label = ["Dégâts sur piste"];
+        this.settings = { ...this.settings };
+        console.log(this.settings, items);
         this.initMarkers();
-      }, 1000);
+      }, 100);
     });
   }
 };

@@ -153,8 +153,6 @@ import degatsForm from "./degats-form.vue";
 import oeascContent from "@/modules/content/content";
 import help from "./help";
 
-console.log('dy cont', oeascContent)
-
 import { formFunctions } from "@/components/form/functions.js";
 
 export default {

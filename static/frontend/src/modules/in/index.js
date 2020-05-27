@@ -8,13 +8,15 @@ const ROUTE = [
     path: "/in/index",
     label: "Indices Nocturnes",
     type: "page",
-    content: "in.index"
+    content: "in.index",
+    parent:"page.accueil"
   },
 
   {
     name: "in.test",
     path: "/in/test",
     label: "Indices Nocturnes (Test)",
+    parent: 'in.index',
     component: inTest
   }
 ];

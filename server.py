@@ -13,7 +13,6 @@ from config import config
 from flask_cors import CORS
 
 
-
 class ReverseProxied(object):
 
     def __init__(self, app_in, script_name=None, scheme=None, server=None):
@@ -95,8 +94,8 @@ with app.app_context():
     from app.ref_geo import api as ref_geo_api
     app.register_blueprint(ref_geo_api.bp, url_prefix='/api/ref_geo')
 
-    from app.modules.oeasc import routes as oeasc_routes
-    app.register_blueprint(oeasc_routes.bp, url_prefix='/oeasc')
+    # from app.modules.oeasc import routes as oeasc_routes
+    # app.register_blueprint(oeasc_routes.bp, url_prefix='/oeasc')
 
     from app.modules.oeasc.declaration import routes as declaration_routes
     app.register_blueprint(declaration_routes.bp, url_prefix='/declaration')
@@ -107,8 +106,8 @@ with app.app_context():
     from app.modules.oeasc.user import api as api_user
     app.register_blueprint(api_user.bp, url_prefix='/api/user')
 
-    from app.modules.oeasc.resultat import routes as routes_resultat
-    app.register_blueprint(routes_resultat.bp, url_prefix='/resultat')
+    # from app.modules.oeasc.resultat import routes as routes_resultat
+    # app.register_blueprint(routes_resultat.bp, url_prefix='/resultat')
 
     from app.modules.oeasc import api as oeasc_api
     app.register_blueprint(oeasc_api.bp, url_prefix='/api/oeasc')
@@ -131,8 +130,8 @@ with app.app_context():
     # from app.modules.oeasc import api_test as api_test
     # app.register_blueprint(api_test.bp, url_prefix='/api/test')
 
-    from app.modules.oeasc import route_test as route_test
-    app.register_blueprint(route_test.bp, url_prefix='/test')
+    # from app.modules.oeasc import route_test as route_test
+    # app.register_blueprint(route_test.bp, url_prefix='/test')
 
     from pypnusershub import routes
     app.register_blueprint(routes.routes, url_prefix='/pypn/auth')

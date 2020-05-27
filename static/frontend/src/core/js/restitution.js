@@ -20,7 +20,14 @@ const defaultValue = {
   icon: "circle-outline"
 };
 
+
 const restitution = {
+
+  condFilter(options, v) {
+    const name = options.name;
+    return options.filters && options.filters[name] && options.filters[name].length && !(options.filters[name].includes(v));
+  },
+
   valueOfType(type, d, dataList, options = {}) {
     const types = options[type] || defaults[type];
 
@@ -29,6 +36,9 @@ const restitution = {
     let index;
     let arrayOut = [];
     for (const v of value) {
+      if (this.condFilter(options, v)) {
+        continue;
+      }
       index = dataList.findIndex(e => e.text == v);
       let out =
         index != -1
@@ -71,14 +81,18 @@ const restitution = {
     return value;
   },
 
+
+
   dataList(data, options) {
     let dataList = [];
     const name = options.name;
     for (const d of data
-      // .filter(d1 => d1.selected)
       ) {
       const value = this.getValue(d[name], options);
       for (const v of value) {
+        if (this.condFilter(options, v)) {
+          continue;
+        }
         let elem = dataList.find(d => d.text == v);
         if (!elem) {
           elem = { text: v, count: 0, value: d[name] };
@@ -87,7 +101,6 @@ const restitution = {
         elem.count += 1;
       }
     }
-
     dataList = dataList.sort((a, b) => b.count - a.count);
 
     if (options.nMax) {

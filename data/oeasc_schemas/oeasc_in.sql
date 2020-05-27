@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_observations
     id_realisation INTEGER NOT NULL,
     espece CHARACTER VARYING,
     nb INTEGER,
+    groupes INTEGER,
 
     CONSTRAINT pk_t_observations_id_observation PRIMARY KEY (id_observation),
 

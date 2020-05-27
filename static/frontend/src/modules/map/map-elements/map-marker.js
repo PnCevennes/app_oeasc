@@ -38,13 +38,19 @@ const mapMarker = {
       style: config.style || {},
       icon: config.icon,
       coords: d[config.coords],
-      selected: true, 
+      selected: true
     }));
 
     //filter
     for (const markerConfig of config.markers) {
       this.applyFilters(markerConfig);
     }
+
+    const cond_same =
+    config.color &&
+    config.icon &&
+    config.color.options.name == config.icon.options.name;
+
 
     // color ...icon
     for (const type of ["color", "icon"]) {
@@ -55,6 +61,8 @@ const mapMarker = {
           configType.options
         );
 
+
+
         for (const markerConfig of config.markers) {
           const out = restitution.valueOfType(
             type,
@@ -62,17 +70,15 @@ const mapMarker = {
             configType.dataList,
             configType.options
           );
-          const types = type + 's';
-          markerConfig.style[type] = out[0] 
-          markerConfig.style[types] = out 
+          const types = type + "s";
+          markerConfig.style[type] = out[0];
+          markerConfig.style[types] = out;
+          markerConfig.cond_same = cond_same;
+
         }
 
-        const cond_same =
-          config.color &&
-          config.icon &&
-          config.color.options.name == config.icon.options.name;
 
-        if(type=='color') {
+        if (type == "color") {
           config.legends = [];
         }
 
@@ -122,13 +128,19 @@ const mapMarker = {
     }
     const color = marker.style.color || "blue";
     const icon = marker.style.icon || "circle";
-    const colors = marker.style.colors || [color ];
+    const colors = marker.style.colors || [color];
     const icons = marker.style.icons || [icon];
-    let label = ''
+    let label = "";
 
-    for (const color of colors) {
-      for (const icon of icons) {
-        label += `<i class='mdi mdi-${icon}' style='color:${color}'></i>`;
+    if (marker.cond_same) {
+      for (var i = 0; i < colors.length; i++) {
+        label += `<i class='mdi mdi-${icons[i]}' style='color:${colors[i]}'></i>`;
+      }
+    } else {
+      for (const color of colors) {
+        for (const icon of icons) {
+          label += `<i class='mdi mdi-${icon}' style='color:${color}'></i>`;
+        }
       }
     }
     return label;

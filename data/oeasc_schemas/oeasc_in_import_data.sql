@@ -3,6 +3,8 @@
 DROP TABLE IF exists oeasc_in.import_data;
 
 CREATE TABLE IF NOT EXISTS oeasc_in.import_data (
+    
+	espece character varying,
 	ug character varying,
 	annee integer,
 	date_realisation character varying,
@@ -39,7 +41,7 @@ WHERE nb >= 0;
 -- observations (cerf)
 INSERT INTO oeasc_in.t_observations (id_realisation, espece, nb)
 SELECT 
-	r.id_realisation, 'cerf', nb
+	r.id_realisation, espece, nb
 	---, *
 	FROM oeasc_in.import_data d
 	JOIN oeasc_in.t_realisations r ON r.date_realisation = to_date(d.date_realisation, '%dd%mm%yyyy')

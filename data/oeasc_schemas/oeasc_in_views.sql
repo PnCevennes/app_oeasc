@@ -7,8 +7,10 @@ SELECT
 	o.nb,
 	r.serie,
 	c.id_circuit,
+    c.nom_circuit,
 	c.ug,
 	c.km,
+    espece,
 	nb/km as nbkm,
 	to_char(r.date_realisation, 'YYYY') AS annee
 	
