@@ -52,7 +52,7 @@ def in_valid_obs():
         .format(data['valid'], data['id_observation'])
     )
 
-    # DB.session.commit()
+    DB.session.commit()
 
     # return  in data
     return 'a'
