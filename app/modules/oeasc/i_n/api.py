@@ -42,11 +42,6 @@ def in_valid_obs():
 
     setattr(obs, 'valid', data['valid'])
     DB.session.commit()
-<<<<<<< HEAD
-=======
-    time.sleep(0.1)
-
->>>>>>> develop
     # DB.engine.execution_options(autocommit=True).execute(
     #     "UPDATE oeasc_in.t_observations SET valid = {} WHERE id_observation = {}"
     #     .format(data['valid'], data['id_observation'])
