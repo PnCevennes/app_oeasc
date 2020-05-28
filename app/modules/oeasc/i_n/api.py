@@ -37,14 +37,13 @@ def in_valid_obs():
     obs = (
         DB.session.query(TObservations)
         .filter(TObservations.id_observation == data['id_observation'])
-        .one()
+        .update({'valid': data['valid']})
     )
 
-    setattr(obs, 'valid', data['valid'])
-    DB.session.flush()
+    # setattr(obs, 'valid', data['valid'])
+
     DB.session.commit()
-    DB.session.flush()
-    DB.session.commit()
+
 
     # DB.engine.execution_options(autocommit=True).execute(
     #     "UPDATE oeasc_in.t_observations SET valid = {} WHERE id_observation = {}"
