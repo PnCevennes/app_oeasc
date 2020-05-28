@@ -1,5 +1,5 @@
 ''' api pour les indices nocturnes '''
-
+import time
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
 
@@ -39,8 +39,9 @@ def in_valid_obs():
     )
 
     obs.valid = data['valid']
-    DB.session.autoflush == True
     DB.session.commit()
+
+    time.sleep(0.1)
  
     # return  in data
     return in_data()
