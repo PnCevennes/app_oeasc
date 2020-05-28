@@ -42,7 +42,7 @@ const menus = {
   },
   indices_nocturnes: {
     name: 'in.index',
-    names: ['in.test'],
+    names: ['in.tableau', 'in.graphiques'],
     condition: ({ $store }) => $store.getters.droitMax >= 5
   },
   documentation: {

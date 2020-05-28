@@ -1,31 +1,15 @@
 ''' api pour les indices nocturnes '''
 
-from flask import Blueprint, current_app
+from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
-from utils_flask_sqla.generic import GenericQuery
 
-from .repository import process_res
+from .repository import in_data
+from .models import TObservations
 
 bp = Blueprint('in_api', __name__)
 
 config = current_app.config
 DB = config['DB']
-
-
-@bp.route('results_2/', methods=['GET'])
-@json_resp
-def in_results_2():
-    '''
-        renvoie les résultats des in pour faire les graphs (IN, variance, ug, année)
-    '''
-
-    res = GenericQuery(
-        DB,
-        'v7',
-        'oeasc_in',
-        limit=1e6
-    ).as_dict()['items']
-    return res
 
 
 @bp.route('results/', methods=['GET'])
@@ -35,14 +19,28 @@ def in_results():
         renvoie les résultats des in pour faire les graphs (IN, variance, ug, année)
     '''
 
-    res = GenericQuery(
-        DB,
-        'v1',
-        'oeasc_in',
-        limit=1e6
-    ).as_dict()['items']
+    return in_data()
 
-    out = process_res(res)
 
-    return out
+@bp.route('valid_obs/', methods=['PATCH'])
+@json_resp
+def in_valid_obs():
+    '''
+        renvoie les résultats des in pour faire les graphs (IN, variance, ug, année)
+    '''
 
+    data = request.get_json()
+
+    # update observation
+    obs = (
+        DB.session.query(TObservations)
+        .filter(TObservations.id_observation == data['id_observation'])
+        .one()
+    )
+
+    obs.valid = data['valid']
+    DB.session.autoflush == True
+    DB.session.commit()
+ 
+    # return  in data
+    return in_data()

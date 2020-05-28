@@ -38,6 +38,7 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_observations
     espece CHARACTER VARYING,
     nb INTEGER,
     groupes INTEGER,
+    valid BOOLEAN DEFAULT TRUE,
 
     CONSTRAINT pk_t_observations_id_observation PRIMARY KEY (id_observation),
 

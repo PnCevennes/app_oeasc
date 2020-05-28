@@ -3,6 +3,11 @@
 '''
 
 import math
+from utils_flask_sqla.generic import GenericQuery
+from flask import current_app
+
+config = current_app.config
+DB = config['DB']
 
 
 student = [0, 0, 12.71, 4.30, 3.18, 2.78, 2.57]
@@ -61,13 +66,19 @@ def regroup_data(res):
 
     return out
 
-def process_res(res):
+def in_data():
+
+    res = GenericQuery(
+        DB,
+        'v1',
+        'oeasc_in',
+        limit=1e6
+    ).as_dict()['items']
 
     out = regroup_data(res)
     process_especes(out)
 
-    return out#['especes']['Cerf']#['ugs']['Méjean']['annees']['2013']
-
+    return out
 
 def process_especes(res):
 
@@ -108,6 +119,9 @@ def process_series(annee):
 
         process_circuits(serie)
 
+        if serie['moy'] is None:
+            continue
+
         somme_series += serie['moy']
         nb_series += 1
 
@@ -123,6 +137,9 @@ def process_series(annee):
 
     for key_serie in series:
         serie = series.get(key_serie)
+
+        if serie['moy'] is None:
+            continue
 
         serie['e_moy'] = annee['moy'] - serie['moy']
         serie['e_moy_2'] = serie['e_moy']**2
@@ -148,7 +165,12 @@ def process_circuits(serie):
 
     for key_circuit in circuits:
         circuit = circuits[key_circuit]
+        if not circuit['valid']:
+            continue
         somme_circuit += circuit['nb'] / circuit['km']
         nb_circuits += 1
 
-    serie['moy'] = somme_circuit / nb_circuits
+    if nb_circuits:
+        serie['moy'] = somme_circuit / nb_circuits
+    else:
+        serie['moy'] = None

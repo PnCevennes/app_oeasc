@@ -1,4 +1,5 @@
 import inTest from "./in-test";
+import inTable from "./in-table";
 import { apiRequest } from "@/core/js/data/api.js";
 
 
@@ -11,11 +12,17 @@ const ROUTE = [
     content: "in.index",
     parent:"page.accueil"
   },
-
   {
-    name: "in.test",
-    path: "/in/test",
-    label: "Indices Nocturnes (Test)",
+    name: "in.tableau",
+    path: "/in/tableau",
+    label: "Tabelau de données",
+    parent: 'in.index',
+    component: inTable
+  },
+  {
+    name: "in.graphiques",
+    path: "/in/graphiques",
+    label: "Graphiques",
     parent: 'in.index',
     component: inTest
   }
@@ -23,7 +30,7 @@ const ROUTE = [
 
 const STORE = {
   actions: {
-    in_results: () => apiRequest('GET', 'api/in/results')
+    in_results: () => apiRequest('GET', 'api/in/results/')
   },
   getters: {
 

@@ -4,13 +4,18 @@ DROP VIEW IF EXISTS oeasc_in.v1 CASCADE;
 -- etape 1
 CREATE VIEW oeasc_in.v1 AS
 SELECT 
+    o.id_observation,
 	o.nb,
+    o.groupes,
 	r.serie,
+	to_char(r.date_realisation, 'DD/MM/YYYY') AS date,
 	c.id_circuit,
     c.nom_circuit,
+    c.numero_circuit,
 	c.ug,
 	c.km,
     espece,
+    valid,
 	nb/km as nbkm,
 	to_char(r.date_realisation, 'YYYY') AS annee
 	
