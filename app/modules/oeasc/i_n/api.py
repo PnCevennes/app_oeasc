@@ -44,7 +44,7 @@ def in_valid_obs():
     print(data['valid'])
     DB.session.commit()
 
-    time.sleep(0.3)
- 
+    time.sleep(0.5)
+
     # return  in data
     return in_data()
