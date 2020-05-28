@@ -29,6 +29,8 @@ def in_valid_obs():
         renvoie les résultats des in pour faire les graphs (IN, variance, ug, année)
     '''
 
+    DB.session.autoflush = True
+
     data = request.get_json()
 
     # update observation
