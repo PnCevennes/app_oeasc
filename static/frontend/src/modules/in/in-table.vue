@@ -177,14 +177,10 @@ export default {
         data: { id_observation, valid }
       }).then(data => {
         // this.dataIn = data;
-        data;
-        setTimeout(() => {
           this.initInTable();
           this.freezeValid = false;
-          console.log("validChange Request ok", id_observation, valid);
-        });
+          console.log("validChange Request ok", id_observation, data[0]);
 
-        //on fait un petit snack pour le style
       });
     },
     initInTable() {
@@ -276,6 +272,7 @@ export default {
     },
     reload() {
       this.ready = false;
+      this.dataTable = false;
       this.$store.dispatch("in_results").then(data => {
         this.dataIn = data;
         this.configChoix.espece = {
