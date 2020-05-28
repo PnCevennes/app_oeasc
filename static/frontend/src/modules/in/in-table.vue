@@ -10,7 +10,7 @@
         :baseModel="settings"
       ></list-form>
     </div>
-
+    <v-btn @click="reload()">Recharger</v-btn>
     <div v-if="dataTable">
       <table class="table">
         <thead>
@@ -55,13 +55,15 @@
               </td>
               <td>
                 <input
-                  v-if='$store.getters.droitMax >= 5'
+                  v-if="$store.getters.droitMax >= 5"
                   type="checkbox"
                   v-model="circuit.valid"
-                  :disabled='freezeValid'
+                  :disabled="freezeValid"
                   @change="validChange(circuit.id_observation, circuit.valid)"
                 />
-                <template v-else>{{`${circuit.valid ? 'Oui' : 'Non'}`}}</template>
+                <template v-else>{{
+                  `${circuit.valid ? "Oui" : "Non"}`
+                }}</template>
               </td>
               <td>{{ circuit.date }}</td>
               <td>{{ circuit.numero_circuit }}</td>
@@ -140,8 +142,7 @@
           </template>
         </tbody>
       </table>
-      <pre>
-      </pre>
+      <pre></pre>
     </div>
   </div>
 </template>
@@ -160,25 +161,27 @@ export default {
     settings: { espece: "Cerf", ug: "Méjean", annee: "2019" },
     dataTable: null,
     dec: 4,
-    freezeValid: false,
+    freezeValid: false
   }),
   methods: {
     round(x, dec) {
       if (x == 0) return 0;
-      if (x == null) return '';
+      if (x == null) return "";
       const e = 10 ** dec;
       return Math.round(x * e) / e;
     },
     validChange(id_observation, valid) {
       this.freezeValid = true;
       console.log("validChange", id_observation, valid);
-      apiRequest("PATCH", 'api/in/valid_obs/',{ data: { id_observation, valid } }).then((data)=>{
+      apiRequest("PATCH", "api/in/valid_obs/", {
+        data: { id_observation, valid }
+      }).then(data => {
         // this.dataIn = data;
-        data
-        setTimeout(()=>{
+        data;
+        setTimeout(() => {
           this.initInTable();
           this.freezeValid = false;
-        console.log("validChange Request ok", id_observation, valid);
+          console.log("validChange Request ok", id_observation, valid);
         });
 
         //on fait un petit snack pour le style
@@ -223,29 +226,28 @@ export default {
         return;
       }
       if (!this.items("ug").includes(this.settings.ug)) {
-        console.log('no ug')
+        console.log("no ug");
         this.settings.ug = null;
       }
 
       if (!this.items("annee").includes(this.settings.annee)) {
-        console.log('no annee')
+        console.log("no annee");
         this.settings.annee = null;
       }
 
       this.configChoix.ug.items = this.items("ug");
       this.configChoix.annee.items = this.items("annee");
 
-      this.configChoix.ug_save = {...this.configChoix.ug}
-      this.configChoix.annee_save = {...this.configChoix.annee}
+      this.configChoix.ug_save = { ...this.configChoix.ug };
+      this.configChoix.annee_save = { ...this.configChoix.annee };
 
-      this.configChoix.ug = this.configChoix.annee =null
+      this.configChoix.ug = this.configChoix.annee = null;
 
       setTimeout(() => {
         this.configChoix.ug = this.configChoix.ug_save;
         this.configChoix.annee = this.configChoix.annee_save;
         this.initInTable();
       }, 10);
-
     },
 
     items(type) {
@@ -271,43 +273,48 @@ export default {
       const annees = ugs[this.settings.ug].annees;
 
       return Object.keys(annees);
+    },
+    reload() {
+      this.ready = false;
+      this.$store.dispatch("in_results").then(data => {
+        this.dataIn = data;
+        this.configChoix.espece = {
+          name: "espece",
+          label: "Espèce",
+          items: this.items("espece"),
+          change: this.settingsChange,
+          display: "select"
+        };
+        this.configChoix.ug = {
+          name: "ug",
+          label: "Ug",
+          items: this.items("ug"),
+          change: this.settingsChange,
+          display: "select"
+        };
+        this.configChoix.annee = {
+          name: "annee",
+          label: "Année",
+          items: this.items("annee"),
+          change: this.settingsChange,
+          display: "select"
+        };
+
+        this.ready = true;
+        this.initInTable();
+      });
     }
   },
 
   mounted() {
-    this.$store.dispatch("in_results").then(data => {
-      this.dataIn = data;
-      this.configChoix.espece = {
-        name: "espece",
-        label: "Espèce",
-        items: this.items("espece"),
-        change: this.settingsChange,
-        display: "select"
-      };
-      this.configChoix.ug = {
-        name: "ug",
-        label: "Ug",
-        items: this.items("ug"),
-        change: this.settingsChange,
-        display: "select"
-      };
-      this.configChoix.annee = {
-        name: "annee",
-        label: "Année",
-        items: this.items("annee"),
-        change: this.settingsChange,
-        display: "select"
-      };
-
-      this.ready = true;
-      this.initInTable();
-    });
+    this.reload();
   }
 };
 </script>
 
 <style lang="css">
-th, td {
+th,
+td {
   font-size: 0.9em;
   border: 1px solid;
   padding: 2px;
