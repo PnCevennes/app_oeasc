@@ -58,6 +58,7 @@
                   v-if='$store.getters.droitMax >= 5'
                   type="checkbox"
                   v-model="circuit.valid"
+                  :disabled='freezeValid'
                   @change="validChange(circuit.id_observation, circuit.valid)"
                 />
                 <template v-else>{{`${circuit.valid ? Oui : Non}`}}</template>
@@ -158,7 +159,8 @@ export default {
     ready: false,
     settings: { espece: "Cerf", ug: "Méjean", annee: "2019" },
     dataTable: null,
-    dec: 4
+    dec: 4,
+    freezeValid: false,
   }),
   methods: {
     round(x, dec) {
@@ -167,11 +169,13 @@ export default {
       return Math.round(x * e) / e;
     },
     validChange(id_observation, valid) {
+      this.freezeValid = true;
       console.log("validChange", id_observation, valid);
       apiRequest("PATCH", 'api/in/valid_obs/',{ data: { id_observation, valid } }).then((data)=>{
         this.dataIn = data;
         setTimeout(()=>{
           this.initInTable();
+          this.freezeValid = false;
         console.log("validChange Request ok", id_observation, valid);
         });
 
