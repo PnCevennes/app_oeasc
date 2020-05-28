@@ -40,7 +40,7 @@ def in_valid_obs():
         .one()
         # .update({'valid': data['valid']})
     )
-    setattr(obs, 'valid', data['valid'])
+    obs.from_dict(data)
 
     # time.sleep(0.01)
 
