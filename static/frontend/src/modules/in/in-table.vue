@@ -173,7 +173,8 @@ export default {
       this.freezeValid = true;
       console.log("validChange", id_observation, valid);
       apiRequest("PATCH", 'api/in/valid_obs/',{ data: { id_observation, valid } }).then((data)=>{
-        this.dataIn = data;
+        // this.dataIn = data;
+        data
         setTimeout(()=>{
           this.initInTable();
           this.freezeValid = false;

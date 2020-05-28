@@ -55,5 +55,5 @@ def in_valid_obs():
     # DB.session.commit()
 
     # return  in data
-
-    return in_data()
+    return 'a'
+    # return in_data()
