@@ -131,7 +131,7 @@ def process_series(annee):
 
     if not nb_series:
         return
-        
+
     annee['moy'] = somme_series / nb_series
 
     # écart à la moyenne
