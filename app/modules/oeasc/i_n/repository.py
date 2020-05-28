@@ -68,8 +68,6 @@ def regroup_data(res):
 
 def in_data():
 
-    DB.session.commit()
-
     res = GenericQuery(
         DB,
         'v1',
