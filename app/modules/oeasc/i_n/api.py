@@ -34,23 +34,23 @@ def in_valid_obs():
 
 
     # update observation
-    obs = (
-        DB.session.query(TObservations)
-        .filter(TObservations.id_observation == data['id_observation'])
-        .one()
+    # obs = (
+    #     DB.session.query(TObservations)
+    #     .filter(TObservations.id_observation == data['id_observation'])
+    #     .one()
         # .update({'valid': data['valid']})
-    )
-    obs.from_dict(data)
-
-    # time.sleep(0.01)
-
-    DB.session.commit()
-
-    # time.sleep(0.01)
-    # DB.engine.execution_options(autocommit=True).execute(
-    #     "UPDATE oeasc_in.t_observations SET valid = {} WHERE id_observation = {}"
-    #     .format(data['valid'], data['id_observation'])
     # )
+    # obs.from_dict(data)
+
+    # time.sleep(0.01)
+
+    # DB.session.commit()
+
+    # time.sleep(0.01)
+    DB.engine.execution_options(autocommit=True).execute(
+        "UPDATE oeasc_in.t_observations SET valid = {} WHERE id_observation = {}"
+        .format(data['valid'], data['id_observation'])
+    )
 
     # DB.session.commit()
 
