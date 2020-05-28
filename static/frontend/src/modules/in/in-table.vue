@@ -61,7 +61,7 @@
                   :disabled='freezeValid'
                   @change="validChange(circuit.id_observation, circuit.valid)"
                 />
-                <template v-else>{{`${circuit.valid ? Oui : Non}`}}</template>
+                <template v-else>{{`${circuit.valid ? 'Oui' : 'Non'}`}}</template>
               </td>
               <td>{{ circuit.date }}</td>
               <td>{{ circuit.numero_circuit }}</td>
