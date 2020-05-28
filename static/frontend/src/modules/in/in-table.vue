@@ -165,6 +165,7 @@ export default {
   methods: {
     round(x, dec) {
       if (x == 0) return 0;
+      if (x == null) return '';
       const e = 10 ** dec;
       return Math.round(x * e) / e;
     },

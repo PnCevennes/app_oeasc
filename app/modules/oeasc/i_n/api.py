@@ -29,9 +29,9 @@ def in_valid_obs():
         renvoie les résultats des in pour faire les graphs (IN, variance, ug, année)
     '''
 
-    DB.session.autoflush = True
-
     data = request.get_json()
+
+
 
     # update observation
     obs = (
@@ -41,10 +41,17 @@ def in_valid_obs():
     )
 
     obs.valid = data['valid']
-    print(data['valid'])
     DB.session.commit()
+    time.sleep(0.1)
 
-    time.sleep(0.5)
+    
+    DB.engine.execution_options(autocommit=True).execute(
+        "UPDATE oeasc_in.t_observations SET valid = {} WHERE id_observation = {}"
+        .format(data['valid'], data['id_observation'])
+    )
+
+    DB.session.commit()
+    time.sleep(0.1)
 
     # return  in data
     return in_data()

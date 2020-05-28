@@ -68,6 +68,8 @@ def regroup_data(res):
 
 def in_data():
 
+    DB.session.commit()
+
     res = GenericQuery(
         DB,
         'v1',
@@ -88,6 +90,7 @@ def process_especes(res):
         espece = especes.get(key_espece)
         process_ugs(espece)
 
+
 def process_ugs(espece):
 
     ugs = espece['ugs']
@@ -95,6 +98,7 @@ def process_ugs(espece):
     for key_ug in ugs:
         ug = ugs.get(key_ug)
         process_annees(ug)
+
 
 def process_annees(ug):
 
@@ -125,6 +129,9 @@ def process_series(annee):
         somme_series += serie['moy']
         nb_series += 1
 
+    if not nb_series:
+        return
+        
     annee['moy'] = somme_series / nb_series
 
     # écart à la moyenne
