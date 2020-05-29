@@ -45,13 +45,13 @@ def in_test_results():
         else:
             return 'error'
 
-    return test
+    return test[280]
 
 @bp.route('valid_obs/', methods=['PATCH'])
 @json_resp
 def in_valid_obs():
     '''
-        renvoie les résultats des in pour faire les graphs (IN, variance, ug, année)
+        valide ou invalide une observation
     '''
 
     data = request.get_json()
@@ -84,7 +84,7 @@ def in_valid_obs():
     #     .format(data['valid'], data['id_observation'])
     # )
 
-    DB.session.commit()
+    # DB.session.commit()
 
     # return  in data
     return [obs.valid]
