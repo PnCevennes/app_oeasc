@@ -24,9 +24,9 @@ def in_results():
 
     return in_data()
 
-@bp.route('test_results/', methods=['GET'])
+@bp.route('test_results/<int:id_observation>', methods=['GET'])
 @json_resp
-def in_test_results():
+def in_test_results(id_observation):
     '''
         renvoie les résultats 'brut' des in pour debug
     '''
@@ -45,7 +45,7 @@ def in_test_results():
         else:
             return 'error'
 
-    return test[280]
+    return test[id_observation]
 
 @bp.route('valid_obs/', methods=['PATCH'])
 @json_resp
