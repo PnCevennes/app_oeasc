@@ -2,15 +2,29 @@
   <div>
     <h1>Indices nocturnes (tableau)</h1>
 
-    <div v-if="ready"></div>
-    <div v-for="type of ['espece', 'ug', 'annee']" :key="type">
-      <list-form
-        v-if="ready && configChoix[type]"
-        :config="configChoix[type]"
-        :baseModel="settings"
-      ></list-form>
+    <div v-if="ready" class="settings">
+      <div class="flex-list">
+        <div>
+          <v-btn color="primary" @click="reload()"
+            >Recharger
+            <v-progress-circular
+              indeterminate
+              color="white"
+              :aria-disabled="loading"
+              v-if="loading"
+            ></v-progress-circular
+          ></v-btn>
+        </div>
+
+        <div v-for="type of ['espece', 'ug', 'annee']" :key="type">
+          <list-form
+            v-if="ready && configChoix[type]"
+            :config="configChoix[type]"
+            :baseModel="settings"
+          ></list-form>
+        </div>
+      </div>
     </div>
-    <v-btn @click="reload()">Recharger</v-btn>
     <div v-if="dataTable">
       <table class="table">
         <thead>
@@ -49,12 +63,13 @@
               :key="`${numeroSerie}-${id_circuit}`"
             >
               <td
+                :class="{ gris: indexSerie % 2 }"
                 v-if="indexCircuit == 0"
                 :rowSpan="Object.entries(serie.id_circuits).length"
               >
                 {{ numeroSerie }}
               </td>
-              <td>
+              <td :class="{ gris: indexCircuit % 2 }">
                 <input
                   v-if="$store.getters.droitMax >= 5"
                   type="checkbox"
@@ -66,15 +81,24 @@
                   `${circuit.valid ? "Oui" : "Non"}`
                 }}</template>
               </td>
-              <td>{{ circuit.id_observation }}</td>
-              <td>{{ circuit.date }}</td>
-              <td>{{ circuit.numero_circuit }}</td>
-              <td>{{ circuit.nom_circuit }}</td>
-              <td>{{ circuit.groupes }}</td>
-              <td>{{ circuit.km }}</td>
-              <td>{{ circuit.nb }}</td>
-              <td>{{ round(circuit.nb / circuit.km, dec) }}</td>
+              <td :class="{ gris: indexCircuit % 2 }">
+                {{ circuit.id_observation }}
+              </td>
+              <td :class="{ gris: indexCircuit % 2 }">{{ circuit.date }}</td>
+              <td :class="{ gris: indexCircuit % 2 }">
+                {{ circuit.numero_circuit }}
+              </td>
+              <td :class="{ gris: indexCircuit % 2 }">
+                {{ circuit.nom_circuit }}
+              </td>
+              <td :class="{ gris: indexCircuit % 2 }">{{ circuit.groupes }}</td>
+              <td :class="{ gris: indexCircuit % 2 }">{{ circuit.km }}</td>
+              <td :class="{ gris: indexCircuit % 2 }">{{ circuit.nb }}</td>
+              <td :class="{ gris: indexCircuit % 2 }">
+                {{ round(circuit.nb / circuit.km, dec) }}
+              </td>
               <td
+                :class="{ gris: indexSerie % 2 }"
                 v-if="indexCircuit == 0"
                 :rowSpan="Object.entries(serie.id_circuits).length"
               >
@@ -89,12 +113,14 @@
                 {{ round(dataTable.moy, dec) }}
               </td>
               <td
+                :class="{ gris: indexSerie % 2 }"
                 v-if="indexCircuit == 0"
                 :rowSpan="Object.entries(serie.id_circuits).length"
               >
                 {{ round(serie.e_moy, dec) }}
               </td>
               <td
+                :class="{ gris: indexSerie % 2 }"
                 v-if="indexCircuit == 0"
                 :rowSpan="Object.entries(serie.id_circuits).length"
               >
@@ -152,6 +178,7 @@
 <script>
 import listForm from "@/components/form/list-form";
 import { apiRequest } from "@/core/js/data/api.js";
+import "./table.css";
 
 export default {
   name: "in-table",
@@ -160,6 +187,7 @@ export default {
     dataIn: null,
     configChoix: {},
     ready: false,
+    loading: true,
     settings: { espece: "Cerf", ug: "Méjean", annee: "2019" },
     dataTable: null,
     dec: 4,
@@ -179,10 +207,9 @@ export default {
         data: { id_observation, valid }
       }).then(data => {
         // this.dataIn = data;
-          this.initInTable();
-          this.freezeValid = false;
-          console.log("validChange Request ok", id_observation, data);
-
+        this.initInTable();
+        this.freezeValid = false;
+        console.log("validChange Request ok", id_observation, data);
       });
     },
     initInTable() {
@@ -273,9 +300,10 @@ export default {
       return Object.keys(annees);
     },
     reload() {
-      this.ready = false;
-      this.dataTable = false;
+      this.loading = true;
       this.$store.dispatch("in_results").then(data => {
+        this.ready = false;
+        this.dataTable = false;
         this.dataIn = data;
         this.configChoix.espece = {
           name: "espece",
@@ -300,6 +328,8 @@ export default {
         };
 
         this.ready = true;
+        this.loading = false;
+
         this.initInTable();
       });
     }
