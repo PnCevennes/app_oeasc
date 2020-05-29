@@ -35,7 +35,8 @@ INSERT INTO oeasc_in.t_realisations (id_circuit, serie, date_realisation)
 SELECT id_circuit, serie, to_date(date_realisation, '%dd%mm%yyyy')
 FROM oeasc_in.import_data d
 JOIN oeasc_in.t_circuits c ON d.nom_circuit = c.nom_circuit
-WHERE nb >= 0;
+WHERE nb >= 0
+GROUP BY id_circuit, serie, date_realisation;
 
 
 -- observations (cerf)
