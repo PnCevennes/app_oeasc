@@ -5,15 +5,26 @@ div.settings {
 td {
     text-align: right;
     background-color: rgba(225,225,225);
-    
+    padding:  0 2px;
 }
 
+th {
+    text-align: right;
+
+}
 th:nth-child(even) {
     background-color: rgba(225,225,225);
 }
 
 td.gris {
     background-color: rgba(250,250,250);
+}
+
+
+tr.serie td {
+    /* background-color: red; */
+    padding-top: 5px;
+    border-top: 1px solid black;
 }
 
 .flex-list {

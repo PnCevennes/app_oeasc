@@ -1,8 +1,17 @@
 <template>
   <div>
-    <h1>Indices nocturnes (tableau)</h1>
 
     <div v-if="ready" class="settings">
+    <div>
+      <in-graph
+        :dataIn="dataIn"
+        :espece="settings.espece"
+        :ug="settings.ug"
+        width="100%"
+        height="400px"
+        @clickPoint="setAnnee"
+      ></in-graph>
+    </div>
       <div class="flex-list">
         <div>
           <v-btn color="primary" @click="reload()"
@@ -25,13 +34,14 @@
         </div>
       </div>
     </div>
+
     <div v-if="dataTable">
       <table class="table">
         <thead>
           <tr>
             <th>Série</th>
             <th>Validé</th>
-            <th>id_observation</th>
+            <!-- <th>id_observation</th> -->
             <th>Date</th>
             <th>N° Circuit</th>
             <th>Nom circuit</th>
@@ -41,10 +51,10 @@
             <th>Nb ind. / km</th>
             <th>Moy. circuits</th>
             <th>IN</th>
-            <th>d. moy.</th>
-            <th>(d. moy.) **2</th>
-            <th>S</th>
-            <th>S/(n*(n-1)</th>
+            <!-- <th>d. moy.</th> -->
+            <!-- <th>(d. moy.) **2</th> -->
+            <!-- <th>S</th> -->
+            <!-- <th>S/(n*(n-1)</th> -->
             <th>E</th>
             <th>inf</th>
             <th>sup</th>
@@ -57,10 +67,13 @@
             )"
           >
             <tr
-              v-for="([id_circuit, circuit], indexCircuit) of Object.entries(
+              :class="{ serie: indexCircuit == 0 }"
+              v-for="(circuit, indexCircuit) of Object.values(
                 serie.id_circuits
-              )"
-              :key="`${numeroSerie}-${id_circuit}`"
+              ).sort((a, b) => {
+                return a.numero_circuit - b.numero_circuit;
+              })"
+              :key="`${numeroSerie}-${circuit.id_circuit}`"
             >
               <td
                 :class="{ gris: indexSerie % 2 }"
@@ -81,9 +94,9 @@
                   `${circuit.valid ? "Oui" : "Non"}`
                 }}</template>
               </td>
-              <td :class="{ gris: indexCircuit % 2 }">
+              <!-- <td :class="{ gris: indexCircuit % 2 }">
                 {{ circuit.id_observation }}
-              </td>
+              </td> -->
               <td :class="{ gris: indexCircuit % 2 }">{{ circuit.date }}</td>
               <td :class="{ gris: indexCircuit % 2 }">
                 {{ circuit.numero_circuit }}
@@ -98,7 +111,7 @@
                 {{ round(circuit.nb / circuit.km, dec) }}
               </td>
               <td
-                :class="{ gris: indexSerie % 2 }"
+                :class="{ gris: indexSerie % 2, serie: true }"
                 v-if="indexCircuit == 0"
                 :rowSpan="Object.entries(serie.id_circuits).length"
               >
@@ -112,36 +125,36 @@
               >
                 {{ round(dataTable.moy, dec) }}
               </td>
-              <td
+              <!-- <td
                 :class="{ gris: indexSerie % 2 }"
                 v-if="indexCircuit == 0"
                 :rowSpan="Object.entries(serie.id_circuits).length"
               >
                 {{ round(serie.e_moy, dec) }}
-              </td>
-              <td
+              </td> -->
+              <!-- <td
                 :class="{ gris: indexSerie % 2 }"
                 v-if="indexCircuit == 0"
                 :rowSpan="Object.entries(serie.id_circuits).length"
               >
                 {{ round(serie.e_moy_2, dec) }}
-              </td>
-              <td
+              </td> -->
+              <!-- <td
                 v-if="indexSerie == 0 && indexCircuit == 0"
                 :rowSpan="
                   nbCircuits(settings.espece, settings.ug, settings.annee)
                 "
               >
                 {{ round(dataTable.s_e_moy_2, dec) }}
-              </td>
-              <td
+              </td> -->
+              <!-- <td
                 v-if="indexSerie == 0 && indexCircuit == 0"
                 :rowSpan="
                   nbCircuits(settings.espece, settings.ug, settings.annee)
                 "
               >
                 {{ round(dataTable.s_e_moy_2_n_nm1, dec) }}
-              </td>
+              </td> -->
               <td
                 v-if="indexSerie == 0 && indexCircuit == 0"
                 :rowSpan="
@@ -170,7 +183,6 @@
           </template>
         </tbody>
       </table>
-      <pre></pre>
     </div>
   </div>
 </template>
@@ -182,7 +194,7 @@ import "./table.css";
 
 export default {
   name: "in-table",
-  components: { listForm },
+  components: { listForm, "in-graph": () => import("./in-graph.vue") },
   data: () => ({
     dataIn: null,
     configChoix: {},
@@ -194,6 +206,17 @@ export default {
     freezeValid: false
   }),
   methods: {
+    setAnnee(annee) {
+      console.log(
+        "clickPoint received",
+        annee,
+        typeof annee,
+        this.settings.annee,
+        typeof this.settings.annee
+      );
+      this.settings.annee = String(annee);
+      this.settingsChange();
+    },
     round(x, dec) {
       if (x == 0) return 0;
       if (x == null) return "";
@@ -202,14 +225,12 @@ export default {
     },
     validChange(id_observation, valid) {
       this.freezeValid = true;
-      console.log("validChange", id_observation, valid);
       apiRequest("PATCH", "api/in/valid_obs/", {
         data: { id_observation, valid }
-      }).then(data => {
+      }).then(() => {
         // this.dataIn = data;
         this.initInTable();
         this.freezeValid = false;
-        console.log("validChange Request ok", id_observation, data);
       });
     },
     initInTable() {
@@ -229,7 +250,6 @@ export default {
       const annees = ugs[this.settings.ug].annees;
       const annee = annees[this.settings.annee];
       this.dataTable = annee;
-      console.log("initTable", annee);
       return annee;
     },
 
@@ -246,7 +266,7 @@ export default {
     },
 
     settingsChange() {
-      console.log("settingsChange", this.ready);
+      console.log("settingsChange");
       if (!this.ready) {
         return;
       }

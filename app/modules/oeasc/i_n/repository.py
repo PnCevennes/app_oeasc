@@ -3,6 +3,7 @@
 '''
 
 import math
+import numpy
 from utils_flask_sqla.generic import GenericQuery
 from flask import current_app
 
@@ -12,6 +13,12 @@ DB = config['DB']
 
 student = [0, 0, 12.71, 4.30, 3.18, 2.78, 2.57]
 
+
+def sort_data(res):
+    
+    keys = ['espece', 'ug', 'annee', 'serie', 'numero_circuit']
+    for key in keys:
+        res.sort(key=lambda x: x.get(key))
 
 def regroup_data(res):
 
@@ -37,33 +44,6 @@ def regroup_data(res):
 
             cur = item
 
-
-        # especes = out['especes']
-        # # on regroupe par espece
-        # espece = especes.get(r['espece']) 
-        # if not espece:
-        #     espece = especes[r['espece']] = { 'ugs': {}}
-        # ugs = espece['ugs']
-
-        # # puis on regroupe par ug
-        # ug = ugs.get(r['ug'])
-        # if not ug:
-        #     ug = ugs[r['ug']] = {'annees': {}}
-        # annees = ug['annees']
-
-        # # puis on regroupe par annee
-        # annee = ug.get(r['annee'])
-        # if not annee:
-        #     annee = ug[r['annee']] = {}
-
-
-        # # puis on regroupe par serie
-        # serie = annee.get(r['serie'])
-        # if not serie:
-        #     serie = annee[r['serie']] = {'circuits': {} }
-        # if r['nb'] >= 0:
-        #     serie['circuits'].append(r)
-
     return out
 
 def in_data():
@@ -75,6 +55,7 @@ def in_data():
         limit=1e6
     ).as_dict()['items']
 
+    sort_data(res)
     out = regroup_data(res)
     process_especes(out)
 
@@ -102,9 +83,25 @@ def process_annees(ug):
 
     annees = ug['annees']
 
+    # regression lineaire avec numpy
+    # https://fr.wikibooks.org/wiki/Python_pour_le_calcul_scientifique/Régression_et_optimisation
+    X = []
+    Y = []
+
     for key_annee in annees:
         annee = annees.get(key_annee)
         process_series(annee)
+        X.append([key_annee, 1])
+        Y.append([annee['moy']])
+
+    resultat = numpy.linalg.lstsq(X,Y)
+    err = (resultat[1][0] if len(resultat[1]) else 0) / len(Y)
+    a, b = resultat[0]
+    ug['reg_lin'] = {}
+    ug['reg_lin']['a'] =  a[0] 
+    ug['reg_lin']['b'] =  b[0] 
+    ug['reg_lin']['err'] =  err 
+    print(ug['reg_lin'])
 
 
 def process_series(annee):
