@@ -1,0 +1,27 @@
+div.settings {
+    margin-bottom: 10px;
+}
+
+td {
+    text-align: right;
+    background-color: rgba(225,225,225);
+    
+}
+
+th:nth-child(even) {
+    background-color: rgba(225,225,225);
+}
+
+td.gris {
+    background-color: rgba(250,250,250);
+}
+
+.flex-list {
+    display: flex;
+}
+
+.flex-list > div {
+  flex-grow: 1;
+  padding: 0 10px
+}
+
