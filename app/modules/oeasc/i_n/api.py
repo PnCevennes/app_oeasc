@@ -6,6 +6,9 @@ from utils_flask_sqla.response import json_resp
 from .repository import in_data
 from .models import TObservations
 
+from utils_flask_sqla.generic import GenericQuery
+
+
 bp = Blueprint('in_api', __name__)
 
 config = current_app.config
@@ -21,6 +24,28 @@ def in_results():
 
     return in_data()
 
+@bp.route('test_results/', methods=['GET'])
+@json_resp
+def in_test_results():
+    '''
+        renvoie les résultats 'brut' des in pour debug
+    '''
+
+    res =  GenericQuery(
+        DB,
+        'v1',
+        'oeasc_in',
+        limit=1e6
+    ).as_dict()['items']
+
+    test = {}
+    for r in res:
+        if not r['id_observation'] in test:
+            test[r['id_observation']] = r
+        else:
+            return 'error'
+
+    return test
 
 @bp.route('valid_obs/', methods=['PATCH'])
 @json_resp

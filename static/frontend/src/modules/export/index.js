@@ -5,7 +5,7 @@ const exportPDF = function(id, filename, $store) {
     const opt = {
       filename,
       jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-      html2canvas: { dpi: 72, letterRendering: false}
+      html2canvas: { dpi: 1000, letterRendering: false}
     };
 
     const element = document.getElementById(id);
@@ -17,6 +17,7 @@ const exportPDF = function(id, filename, $store) {
         .map(mapService => mapService.toImg());
 
       Promise.all(mapImgpromises).then(mapElems => {
+        
         console.log("mapDones", mapElems);
         console.log("imgMapDone");
         html2pdf()
@@ -32,7 +33,7 @@ const exportPDF = function(id, filename, $store) {
               console.log("mapElem", mapElems);
               map.style.display = "block";
               console.log(map.nextSibbling);
-              map.parentElement.removeChild(map.nextSibling);
+              // map.parentElement.removeChild(map.nextSibling);
               map.classList.remove("map-img");
             }
 

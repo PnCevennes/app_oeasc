@@ -18,6 +18,7 @@ const mapExport = {
       domtoimage[method](elem, {
         height: Math.floor(elem.clientHeight),
         witdh: Math.floor(elem.clientWidth)
+
       }).then(dataUrl => {
         var img = new Image();
         img.src = dataUrl;
@@ -25,7 +26,7 @@ const mapExport = {
 
         // hide elem
         elem.style.display = "none";
-        console.log('img done AAAAAAA', elem)
+        console.log('img done', elem)
         resolve(elem);
       });
     });

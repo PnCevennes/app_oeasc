@@ -388,6 +388,12 @@ class TDeclaration(DB.Model):
         cascade="save-update, merge, delete, delete-orphan"
     )
 
+    nomenclatures_peuplement_origine2 = DB.relationship(
+        CorNomenclatureDeclarationOrigine,
+        cascade="save-update, merge, delete, delete-orphan"
+    )
+
+
     peuplement_surface = DB.Column(DB.Float)
 
     degats = DB.relationship(TDegat, cascade="save-update, merge, delete, delete-orphan")

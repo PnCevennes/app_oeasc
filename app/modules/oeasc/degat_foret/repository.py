@@ -167,6 +167,7 @@ def create_or_update_declaration(post_data):
 
     post_data['foret'] = foret.as_dict(True)
 
+
     declaration = create_or_modify(
         TDeclaration,
         'id_declaration',

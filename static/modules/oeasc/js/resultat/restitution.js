@@ -51,7 +51,7 @@ $(document).ready(function() {
         pagebreak: {
           mode: 'avoid-all',
         },
-        html2canvas: {dpi: 72, letterRendering: true},
+        html2canvas: {dpi: 200, letterRendering: true},
       };
       var filename = $('#' + id_element).attr('filename');
       if(filename) {

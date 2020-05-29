@@ -310,10 +310,10 @@ export default {
 </script>
 
 <style lang="css">
-th,
+/* th,
 td {
   font-size: 0.9em;
   border: 1px solid;
   padding: 2px;
-}
+} */
 </style>
