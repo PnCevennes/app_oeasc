@@ -87,5 +87,5 @@ def in_valid_obs():
     # DB.session.commit()
 
     # return  in data
-    return [obs.valid]
+    return obs.as_dict()
     # return in_data()
