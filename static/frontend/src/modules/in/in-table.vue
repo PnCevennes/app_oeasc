@@ -181,7 +181,7 @@ export default {
         // this.dataIn = data;
           this.initInTable();
           this.freezeValid = false;
-          console.log("validChange Request ok", id_observation, data[0]);
+          console.log("validChange Request ok", id_observation, data);
 
       });
     },
