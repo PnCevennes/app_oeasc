@@ -31,7 +31,7 @@ def in_test_results(id_observation):
         renvoie les résultats 'brut' des in pour debug
     '''
 
-    res =  GenericQuery(
+    res = GenericQuery(
         DB,
         'v1',
         'oeasc_in',

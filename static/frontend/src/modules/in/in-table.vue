@@ -17,6 +17,7 @@
           <tr>
             <th>Série</th>
             <th>Validé</th>
+            <th>id_observation</th>
             <th>Date</th>
             <th>N° Circuit</th>
             <th>Nom circuit</th>
@@ -65,6 +66,7 @@
                   `${circuit.valid ? "Oui" : "Non"}`
                 }}</template>
               </td>
+              <td>{{ circuit.id_observation }}</td>
               <td>{{ circuit.date }}</td>
               <td>{{ circuit.numero_circuit }}</td>
               <td>{{ circuit.nom_circuit }}</td>
