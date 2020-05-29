@@ -17,6 +17,7 @@ const ROUTE = [
     path: "/in/tableau",
     label: "Tabelau de données",
     parent: 'in.index',
+    hideTitle: true,
     component: inTable
   },
   {
