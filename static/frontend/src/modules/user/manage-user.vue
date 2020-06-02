@@ -41,7 +41,7 @@ export default {
       dense: true,
       striped: true,
       headers: {
-        organisme: {
+        org_mnemo: {
           text: "Organisme"
         },
         nom_complet: {
@@ -51,7 +51,8 @@ export default {
           text: "E-mail"
         },
         desc_role: {
-          text: "Rôle"
+          text: "Rôle",
+          display: val => {return val.split(' ')[0].split(',')[0]}
         },
         id_droit_max: {
           text: "Droits",

@@ -36,3 +36,4 @@ class VUsers(DB.Model):
     create_date = DB.Column(DB.String(250))
     nb_declarations = DB.Column(DB.Integer)
     id_droit_max = DB.Column(DB.Integer)
+    org_mnemo =DB.Column(DB.String(250))
