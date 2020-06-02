@@ -91,9 +91,15 @@ def process_annees(ug):
     for key_annee in annees:
         annee = annees.get(key_annee)
         process_series(annee)
+        if not annee.get('moy'):
+            continue
+        
         X.append([key_annee, 1])
         Y.append([annee['moy']])
 
+    if not len(X):
+        return
+        
     resultat = numpy.linalg.lstsq(X,Y)
     err = (resultat[1][0] if len(resultat[1]) else 0) / len(Y)
     a, b = resultat[0]

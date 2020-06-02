@@ -1,6 +1,6 @@
 <template>
   <div v-if="configForm" class="form-container">
-    <div v-if="bRequestSuccess" class='red'>
+    <div v-if="bRequestSuccess" class="red">
       <slot name="success"></slot>
     </div>
     <div v-else>
@@ -9,7 +9,9 @@
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
         <div v-if="config.display == 'table'">
           <v-simple-table>
-            <template v-for="[key, form] in Object.entries(configForm.forms)">
+            <template
+              v-for="[key, form] in Object.entries(configForm.forms || {})"
+            >
               <tr
                 :key="key"
                 v-if="form.condition === undefined || form.condition"
@@ -37,12 +39,16 @@
           </v-simple-table>
         </div>
         <div v-else>
-          <dynamic-form-group :config="configForm" :baseModel="baseModel">
+          <dynamic-form-group
+            :config="{ ...configForm, displayValue: config.displayValue }"
+            :baseModel="baseModel"
+          >
           </dynamic-form-group>
         </div>
 
         <template v-if="!config.displayValue">
           <v-btn
+            v-if="configForm.request"
             absolute
             right
             color="success"
@@ -55,8 +61,12 @@
         <v-btn
           v-if="configForm.switchDisplay"
           color="primary"
-          @click="config.displayValue = !config.displayValue"
+          @click="
+            config.displayValue = !config.displayValue;
+            recompConfig = !recompConfig;
+          "
         >
+            <!-- config = { ...config }; -->
           {{ configForm.displayValue ? "Modifier" : "Annuler" }}
         </v-btn>
 
@@ -97,6 +107,7 @@ export default {
   props: ["config"],
   computed: {
     configForm() {
+      this.recompConfig;
       return this.initConfig(this.config, this.baseModel);
     }
   },
@@ -112,7 +123,7 @@ export default {
           configNew[key] = this.initConfig(subConfig, baseModel);
         } else if (
           typeof subConfig == "function" &&
-          ["required", "condition", "disabled", 'items'].includes(key)
+          ["required", "condition", "disabled", "items"].includes(key)
         ) {
           configNew[key] = subConfig({
             baseModel: baseModel,
@@ -171,14 +182,17 @@ export default {
     msgSuccess: null,
     bSuccess: false,
     bRequestSuccess: false,
-    bSending: false
+    bSending: false,
+    recompConfig: true,
   }),
   mounted() {
     if (this.config.preLoadData) {
-      this.config.preLoadData({ $store: this.$store, config: this.config }).then(() => {
-        this.baseModel = this.config.value || {};
-        this.bInit = true;
-      });
+      this.config
+        .preLoadData({ $store: this.$store, config: this.config })
+        .then(() => {
+          this.baseModel = this.config.value || {};
+          this.bInit = true;
+        });
     } else {
       this.bInit = true;
     }

@@ -1,31 +1,20 @@
 <template>
   <div>
-
     <div v-if="ready" class="settings">
-    <div>
-      <in-graph
-        :dataIn="dataIn"
-        :espece="settings.espece"
-        :ug="settings.ug"
-        width="100%"
-        height="400px"
-        @clickPoint="setAnnee"
-      ></in-graph>
-    </div>
       <div class="flex-list">
         <div>
           <v-btn color="primary" @click="reload()"
             >Recharger
             <v-progress-circular
+              v-if="loading"
               indeterminate
               color="white"
-              :aria-disabled="loading"
-              v-if="loading"
             ></v-progress-circular
           ></v-btn>
         </div>
 
         <div v-for="type of ['espece', 'ug', 'annee']" :key="type">
+          <!-- {{!!configChoix[type]}} -->
           <list-form
             v-if="ready && configChoix[type]"
             :config="configChoix[type]"
@@ -34,9 +23,19 @@
         </div>
       </div>
     </div>
-
+    <div>
+      <in-graph
+        v-if="settings.espece"
+        :dataIn="dataIn"
+        :espece="settings.espece"
+        :ug="settings.ug"
+        width="100%"
+        height="400px"
+        @clickPoint="setAnnee"
+      ></in-graph>
+    </div>
     <div v-if="dataTable">
-      <table class="table">
+      <v-simple-table class="in">
         <thead>
           <tr>
             <th>Série</th>
@@ -182,7 +181,7 @@
             </tr>
           </template>
         </tbody>
-      </table>
+      </v-simple-table>
     </div>
   </div>
 </template>
@@ -254,6 +253,8 @@ export default {
     },
 
     nbCircuits(espece, ug, annee) {
+      if (!(espece && ug && annee)) return 0;
+
       const especes = this.dataIn.especes;
       const ugs = especes[espece].ugs;
       const annees = ugs[ug].annees;

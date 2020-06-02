@@ -20,7 +20,12 @@
         <dynamic-form
           v-for="[keyForm, configForm] in Object.entries(config.forms)"
           :key="keyForm"
-          :config="{ ...{ name: keyForm }, ...configForm }"
+          :config="{
+            ...{ name: keyForm },
+            ...configForm,
+            displayValue: config.displayValue,
+            displayLabel: config.displayLabel
+          }"
           :baseModel="baseModel"
         ></dynamic-form>
       </div>
@@ -36,7 +41,8 @@
         v-for="[keyFormGroup, configFormGroup] in Object.entries(config.groups)"
         :key="keyFormGroup"
         :baseModel="baseModel"
-        :config="configFormGroup"
+        :config="{ ...configFormGroup, displayValue: config.displayValue,
+        displayLabel: config.displayValue }"
       ></dynamic-form-group>
     </div>
   </div>
@@ -72,6 +78,6 @@ export default {
 
       return cond;
     }
-  },
+  }
 };
 </script>

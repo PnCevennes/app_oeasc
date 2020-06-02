@@ -11,6 +11,7 @@
 
 <script>
 import Highcharts from "highcharts";
+import * as chroma from "chroma-js";
 
 const round = function(x, dec) {
   if (x == 0) return 0;
@@ -34,14 +35,39 @@ export default {
     ug() {
       this.initGraph();
     }
-
   },
   methods: {
+    color(ug, type) {
+      const colors = {
+        Méjean: "yellow",
+        "Mont Aigoual": "red",
+        "Mont Lozère": "blue",
+        "Vallées cévenoles": "green"
+      };
+
+      var color = colors[ug];
+
+      if (!color) {
+        return;
+      }
+
+      color = chroma(color);
+
+      if (type == "error") {
+        color = color.darken(1);
+      }
+
+      if (type == "reglin") {
+      color = color.darken(1);
+      }
+
+      return color.toString();
+    },
     initGraph() {
       if (!(this.dataIn && this.espece)) {
         return;
       }
-      console.log('initGraph')
+      console.log("initGraph");
       const espece = this.espece;
       const series = [];
       console.log(this.dataIn);
@@ -59,20 +85,30 @@ export default {
           if (data_annee.sup) {
             error.push([parseInt(annee), data_annee.inf, data_annee.sup]);
           }
-          regLin.push([parseInt(annee), parseInt(annee) * data_ug.reg_lin.a + data_ug.reg_lin.b]);
+          regLin.push([
+            parseInt(annee),
+            parseInt(annee) * data_ug.reg_lin.a + data_ug.reg_lin.b
+          ]);
         }
         var dec = 4;
 
         series.push({
-          name: `y = ${round(data_ug.reg_lin.a, dec)}a + ${round(data_ug.reg_lin.b, dec)} (err=${round(data_ug.reg_lin.err, dec)})`,
-          data: regLin
+          name: `y = ${round(data_ug.reg_lin.a, dec)}x + ${round(
+            data_ug.reg_lin.b,
+            dec
+          )} (err=${round(data_ug.reg_lin.err, dec)})`,
+          data: regLin,
+          linkedTo: ug,
+          enableMouseTracking: false,
+          color: this.color(ug, "reglin")
         });
-
 
         series.push({
           id: ug,
           name: ug,
           data: serie,
+          color: this.color(ug),
+
           tooltip: {
             pointFormatter: function() {
               var point = this;
@@ -80,10 +116,15 @@ export default {
               var y = point.options.y;
               var inf = data_ug.annees[String(x)].inf;
               var sup = data_ug.annees[String(x)].sup;
+              var { a, b, err } = data_ug.reg_lin;
               var out = `<b>UG</b> : ${ug}<br>`;
               out += `<b>IN</b> : ${round(y, dec)}<br>`;
               if (sup) out += `<b>Sup</br>: ${round(sup, dec)}<br>`;
               if (inf || inf == 0) out += `<b>Inf</>: ${round(inf, dec)}<br>`;
+              if (a && b && err) {
+                out += `y = ${round(inf, dec)}x + ${round(b, dec)}<br>`;
+                out += `err = ${round(err, dec)}<br>`;
+              }
               // return point.series.name + ': ' + (point.y > 0 ? 'On' : 'off') + '<br>'
               return out;
             }
@@ -102,10 +143,11 @@ export default {
           type: "errorbar",
           linkedTo: ug,
           data: error,
-          enableMouseTracking: false
+          enableMouseTracking: false,
+          color: this.color(ug, "error")
         });
 
-        console.log(regLin)
+        console.log(regLin);
 
         this.chartOptions = {
           title: {

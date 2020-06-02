@@ -51,16 +51,6 @@ export default {
           ];
         },
         display: "table",
-        value: {
-          // nom_role: "CLÉMENT",
-          // prenom_role: "Joël",
-          // email: "joelclems@gmail.com",
-          // id_organisme: 602,
-          // autre_organisme: "Maison",
-          // desc_role: "Autre",
-          // password_confirmation: "1234",
-          // password: "1234"
-        },
         preLoadData: () => {
           return new Promise(resolve => {
             this.$store.dispatch("organismes").then(() => {

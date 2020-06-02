@@ -1,13 +1,44 @@
 <template>
-  <div>
+  <span>
     <div v-if="!items">{{ info.msg }}</div>
-    <div v-else-if="config.displayValue">
+    <span v-else-if="config.displayValue">
       <span>{{ valueDisplay }}</span>
-    </div>
+    </span>
     <div v-else>
-      <div>
+      <div class="list-form">
         <!-- select -->
-        <div v-if="config.display === 'autocomplete'">
+        <div v-if="config.display === 'combobox'">
+          <v-combobox
+            ref="autocomplete"
+            clearable
+            v-model="baseModel[config.name]"
+            :items="items"
+            :label="config.label"
+            :required="config.required ? true : false"
+            :multiple="config.multiple ? true : false"
+            :item-value="config.valueFieldName"
+            :item-text="config.textFieldName"
+            :rules="config.rules"
+            :chips="config.multiple ? true : false"
+            dense
+            :small-chips="config.multiple ? true : false"
+            :deletable-chips="config.multiple ? true : false"
+            :search-input.sync="search"
+            :placeholder="config.placeholder"
+            :filter="config.dataReloadOnSearch && customFilter"
+            @change="config.change && config.change($event)"
+            :return-object="config.returnObject ? true : false"
+            :disabled="config.disabled"
+            no-data-text=""
+          >
+            <span slot="label"
+              >{{ config.label }}
+              <i v-if="config.multiple"> (plusieurs réponses possibles)</i>
+              <span v-if="config.required" class="required">*</span>
+            </span>
+          </v-combobox>
+        </div>
+        <div v-else-if="config.display === 'autocomplete'">
           <v-autocomplete
             ref="autocomplete"
             clearable
@@ -19,10 +50,10 @@
             :item-value="config.valueFieldName"
             :item-text="config.textFieldName"
             :rules="config.rules"
-            :chips="config.multiple ? true :false"
+            :chips="config.multiple ? true : false"
             dense
-            :small-chips="config.multiple ? true :false"
-            :deletable-chips="config.multiple ? true :false"
+            :small-chips="config.multiple ? true : false"
+            :deletable-chips="config.multiple ? true : false"
             :search-input.sync="search"
             :placeholder="config.placeholder"
             :filter="config.dataReloadOnSearch && customFilter"
@@ -63,7 +94,13 @@
               config.change &&
                 config.change({ baseModel, $store, config, event: $event })
             "
-          ></v-select>
+          >
+            <span slot="label"
+              >{{ config.label }}
+              <i v-if="config.multiple"> (plusieurs réponses possibles)</i>
+              <span v-if="config.required" class="required">*</span>
+            </span>
+          </v-select>
         </div>
 
         <!-- checkbox ou radio -->
@@ -77,10 +114,10 @@
                 </span>
                 <span v-if="config.required" class="required"> *</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
-                <br>                
+                <br />
                 <i>(plusieurs réponses possibles)</i>
               </div>
-              
+
               <v-checkbox
                 v-model="baseModel[config.name]"
                 v-for="(item, index) in items"
@@ -99,7 +136,7 @@
                 "
               ></v-checkbox>
               <help
-                      class='help-radio-item'
+                class="help-radio-item"
                 :code="`item-${item[config.valueFieldName]}`"
                 v-if="config.helps"
               ></help>
@@ -109,7 +146,7 @@
           <!-- radio -->
           <div v-else>
             <v-container fluid>
-              <div class="select-list-label-container"  v-if="!!config.label">
+              <div class="select-list-label-container" v-if="!!config.label">
                 <span class="select-list-label">
                   {{ config.label }}
                 </span>
@@ -121,8 +158,9 @@
                 :rules="config.rules"
               >
                 <template v-for="item in items">
-                  <div :key="item[config.valueFieldName]"
-                style='position: relative'
+                  <div
+                    :key="item[config.valueFieldName]"
+                    style="position: relative"
                   >
                     <div class="degat">
                       <v-radio
@@ -143,9 +181,9 @@
                         "
                       >
                       </v-radio>
-                     </div>
+                    </div>
                     <help
-                      class='help-radio-item'
+                      class="help-radio-item"
                       :code="`list-${item[config.valueFieldName]}`"
                       v-if="
                         config.helps &&
@@ -163,7 +201,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </span>
 </template>
 
 <script>
@@ -307,12 +345,17 @@ export default {
         return "";
       }
       values = this.config.multiple ? values : [values];
-      const textArray = this.items
-        .filter(item => {
-          return values.includes(item[this.config.valueFieldName]);
-        })
-        .map(item => item[this.config.textFieldName]);
-      return textArray.join(", ");
+
+      if (typeof values[0] == "string") {
+        return values.join(", ");
+      } else {
+        const textArray = this.items
+          .filter(item => {
+            return values.includes(item[this.config.valueFieldName]);
+          })
+          .map(item => item[this.config.textFieldName]);
+        return textArray.join(", ");
+      }
     }
   },
   props: ["config", "baseModel", "dataItemsIn"],
@@ -320,7 +363,7 @@ export default {
     this.setDefaultConfig();
   },
   mounted: function() {
-    if(this.config.multiple && !this.baseModel[this.config.name]) {
+    if (this.config.multiple && !this.baseModel[this.config.name]) {
       this.baseModel[this.config.name] = [];
     }
     const dataItemsIn = this.dataItemsIn || this.config.items;

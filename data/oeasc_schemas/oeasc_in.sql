@@ -20,7 +20,10 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_realisations
     id_realisation SERIAL NOT NULL,
     id_circuit INTEGER NOT NULL,
     serie INTEGER,
-
+    observers CHARACTER VARYING[],
+    vent CHARACTER VARYING,
+    temps CHARACTER VARYING,
+    temperature CHARACTER VARYING,
     date_realisation DATE,
     
 
