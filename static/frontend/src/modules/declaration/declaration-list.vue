@@ -102,9 +102,9 @@ export default {
           org_mnemo: {
             text: "Organisme"
           },
-          organisme: {
-            text: "Organisme"
-          },
+          // organisme: {
+          //   text: "Organisme"
+          // },
           secteur: {
             text: "Secteur"
           },
