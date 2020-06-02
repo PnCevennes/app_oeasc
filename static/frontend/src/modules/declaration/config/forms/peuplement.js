@@ -8,7 +8,7 @@ const formsPeuplement = {
     type: "select_map",
     legend: "Parcelles cadastrales",
     description:
-      "la ou les parcelles forestières cadastrales sur lesquelles est située le peuplement concerné par les dégâts",
+      "la ou les parcelles cadastrales sur lesquelles est situé le peuplement concerné par les dégâts",
     dataFieldNames: {
       value: "id_area",
       text: "label"
@@ -30,7 +30,7 @@ const formsPeuplement = {
     type: "select_map",
     legend: "Unités de gestion",
     description:
-      " la ou les unités de gestion forestières sur lesquelles est située le peuplement concerné par les dégâts",
+      " la ou les unités de gestion forestières sur lesquelles est situé le peuplement concerné par les dégâts",
     dataFieldNames: {
       value: "id_area",
       text: "label"
@@ -183,7 +183,6 @@ const formsPeuplement = {
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_PATURAGE_STATUT",
-    required: true,
     condition: ({ baseModel }) => baseModel.b_peuplement_paturage_presence
   },
   id_nomenclature_peuplement_paturage_frequence: {

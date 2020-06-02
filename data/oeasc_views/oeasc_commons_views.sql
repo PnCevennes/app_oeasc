@@ -19,6 +19,11 @@ SELECT
 	WHEN o.nom_organisme LIKE '%Autre%' THEN 'Autre'
 	ELSE o.nom_organisme 
 	END AS organisme_group,
+    CASE
+    WHEN r.champs_addi ->> 'organisme' != '' AND o.mnemo IS NULL THEN r.champs_addi ->> 'organisme'
+    WHEN o.mnemo IS NOT NULL THEN o.mnemo
+    ELSE o.nom_organisme 
+	END     AS org_mnemo,
 	(SELECT COUNT(*)
 		FROM oeasc_declarations.t_declarations d 
 		WHERE d.id_declarant = r.id_role
@@ -33,5 +38,3 @@ SELECT
 	JOIN utilisateurs.cor_roles cr ON id_role_utilisateur = r.id_role
 	JOIN utilisateurs.cor_role_app_profil crap ON crap.id_role = cr.id_role_groupe AND crap.id_application = a.id_application
 	JOIN utilisateurs.t_profils p ON crap.id_profil = p.id_profil;
-
-SELECT * FROM oeasc_commons.v_users

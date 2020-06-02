@@ -31,6 +31,7 @@
 import { config } from "@/config/config.js";
 import genericTable from "@/components/table/generic-table";
 import "@/core/css/main.scss";
+import { displayParcelles } from './declaration';
 
 export default {
   components: { genericTable },
@@ -98,6 +99,9 @@ export default {
           declarant: {
             text: "Déclarant"
           },
+          org_mnemo: {
+            text: "Organisme"
+          },
           organisme: {
             text: "Organisme"
           },
@@ -115,7 +119,8 @@ export default {
             text: "Ess. objectif"
           },
           parcelles: {
-            text: "Parcelle(s)"
+            text: "Parcelle(s)",
+            display: val => displayParcelles(val),
           },
           peuplement_type_mnemo: {
             text: "Type peupl."

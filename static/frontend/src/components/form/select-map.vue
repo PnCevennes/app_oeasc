@@ -7,9 +7,9 @@
       </h4>
       <!-- {{ config.containerName }} {{ baseModel[config.containerName] }} -->
       <div>
-        Veuillez selectionner
-        {{ description }}
-        sur la carte ci-dessous ou dans la liste ci-contre.
+        Sélectionnez
+        sur la carte ou dans la liste
+        {{ description }}.
         <help code="selection_carte"></help>
       </div>
     </div>
@@ -23,14 +23,14 @@
                   baseModel.b_document === true
               "
           >
-            <v-btn
+            <!-- <v-btn
               small
               :block="false"
               color="error"
               @click="baseModel.b_statut_public=false; baseModel.b_document=false"
             >
               Ma forêt n'apparait pas sur la liste
-            </v-btn>
+            </v-btn> -->
             <help code="foret_apparait_pas"></help>
           </div>
 

@@ -142,7 +142,32 @@ const rawToDisplay = function({ declaration, $store }) {
   return d;
 };
 
+const displayParcelles = function(parcelles) {
+  
+  const parcellesArray = parcelles.split(", ");
+  if ((parcellesArray[0].split("-").length != 3)) {
+    return parcelles;
+  }
+  console.log('yakoo', parcelles, parcellesArray)
+
+const groups = {};
+for (const parcelle of parcellesArray) {
+  const parcelleArray = parcelle.split("-");
+  const group_key = parcelleArray[0] + '-' + parcelleArray[1];
+  if (!Object.keys(groups).includes(group_key)) {
+    groups[group_key] = [];
+  }
+  groups[group_key].push(parcelleArray[2]);
+}
+return Object.keys(groups).map((group_key) => {
+  const group = groups[group_key];
+  console.log(group)
+  return group.length == 1 ? `${group_key}-${group[0]}` : `${group_key}-(${group.join(', ')})`;
+}).join(', ');
+}
+
 export {
+  displayParcelles,
   rawToDisplay,
   getDeclarationData,
   declarationForetAreas,

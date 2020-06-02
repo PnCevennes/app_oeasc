@@ -34,7 +34,8 @@
         </tr>
         <tr>
           <th>Organisme</th>
-          <td>{{ declarationDisplay.organisme }}</td>
+          <td>{{ declarationDisplay.org_mnemo }}</td>
+          <!-- <td>{{ declarationDisplay.organisme }}</td> -->
         </tr>
       </tbody>
 
@@ -75,7 +76,7 @@
             non
           </td>
         </tr>
-        <tr v-if='declarationDisplay.foret_type_label'>
+        <tr v-if="declarationDisplay.foret_type_label">
           <th>Type</th>
           <td>{{ foretType(declarationDisplay.foret_type_label) }}</td>
         </tr>
@@ -100,7 +101,7 @@
 
         <tr>
           <th>Parcelle(s)</th>
-          <td>{{ declarationDisplay.parcelles }}</td>
+          <td>{{ displayParcelles(declarationDisplay.parcelles) }}</td>
         </tr>
         <tr>
           <th>Accessibilité</th>
@@ -141,7 +142,7 @@
           <td>{{ declarationDisplay.peuplement_origine_label }}</td>
         </tr>
         <tr>
-          <th>Origine des individus touchés</th>
+          <th>Origine plants touchés</th>
           <td>{{ declarationDisplay.peuplement_origine2_label }}</td>
         </tr>
         <tr>
@@ -205,7 +206,7 @@
             </td>
           </tr>
 
-          <tr v-if="declarationDisplay.peuplement_paturage_saison_label">
+          <tr v-if="noPar(declarationDisplay.peuplement_paturage_saison_label)">
             <th>Saison</th>
             <td>{{ declarationDisplay.peuplement_paturage_saison_label }}</td>
           </tr>
@@ -227,7 +228,6 @@
                 :rowspan="degat.degat_essences.length"
               >
                 {{ degat.degat_type_label }}
-                {{ degat.degat_type_mnemo }}
               </th>
               <td>
                 {{ degatEssence.degat_essence_label }}
@@ -235,7 +235,7 @@
                   :
                   {{ degatEssence.degat_etendue_label }},
                   {{ degatEssence.degat_gravite_label }},
-                  {{ degatEssence.degat_anteriorite_label }}
+                  {{ noPar(degatEssence.degat_anteriorite_label) }}
                 </template>
               </td>
             </tr>
@@ -269,7 +269,7 @@
 </template>
 
 <script>
-import { rawToDisplay, getDeclarationData } from "./declaration.js";
+import { rawToDisplay, getDeclarationData, displayParcelles } from "./declaration.js";
 export default {
   name: "declarationTable",
   props: ["declaration", "type"],
@@ -277,6 +277,12 @@ export default {
     bInit: false
   }),
   methods: {
+    displayParcelles(parcelles) {
+      return displayParcelles(parcelles)
+    },
+    noPar(s) {
+      return s.split("(")[0].trim();
+    },
     foretType(s) {
       const foretTypes = {
         État: "Domaniale",

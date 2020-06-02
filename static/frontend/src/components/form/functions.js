@@ -99,7 +99,7 @@ const rules = {
     v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
   number: v => {
     return (
-      "" == v || Number(v) == 0 || !!Number(v) || "Veuillez entrer un nombre"
+      "" == v || Number(v) == 0 || !!Number(v) || `Veuillez entrer un nombre ${v && v.includes(',') ? "(utiliser un point à la place de la virgule pour les décimales)" : ''}`
     );
   },
   telephone: v =>

@@ -13,7 +13,7 @@ const formsValidation = {
   },
   b_autorisation: {
     label:
-      "J’autorise que les informations fournies dans ce formulaire soient transmises aux responsables cynégétiques locaux, pour pouvoir adapter la pression de chasse.",
+      "J’autorise la transmission des informations fournies aux responsables cynégétiques locaux, pour pouvoir adapter la pression de chasse.",
     type: "bool_radio",
     labels: ["Oui", "Non"],
     required: true

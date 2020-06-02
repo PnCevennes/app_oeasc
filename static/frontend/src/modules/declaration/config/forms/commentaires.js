@@ -3,7 +3,7 @@ const formsCommentaires = {
         type: 'content',
         code: 'declaration_commentaires'
     },
-    commentaires: {
+    commentaire: {
         type: 'text_area',
         label: 'Commentaires'
     }

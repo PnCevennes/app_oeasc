@@ -31,6 +31,7 @@
         </v-btn>
         
       </v-row>
+      <span style="color:red">*</span> <i>champs obligatoires.</i>
       </v-form>
     </div>
     <div>

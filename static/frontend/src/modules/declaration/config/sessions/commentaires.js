@@ -7,7 +7,7 @@ const sessionsCommentaires = {
         forms: ["content_commentaires"]
       },
       commentaires: {
-        forms: ["commentaires"]
+        forms: ["commentaire"]
       }
     }
   },
