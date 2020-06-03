@@ -259,7 +259,7 @@ const formsForet = {
 
   s_commune_proprietaire: {
     type: "list_form",
-    display: "autocomplete",
+    display: "combobox",
     label: "Commune",
     dataReloadOnSearch: true,
     placeholder:
