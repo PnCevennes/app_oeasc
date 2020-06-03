@@ -8,7 +8,7 @@ const formsPeuplement = {
     type: "select_map",
     legend: "Parcelles cadastrales",
     description:
-      "la ou les parcelles cadastrales sur lesquelles est situé le peuplement concerné par les dégâts",
+      "les parcelles cadastrales sur lesquelles est situé le peuplement concerné par les dégâts",
     dataFieldNames: {
       value: "id_area",
       text: "label"
@@ -30,7 +30,7 @@ const formsPeuplement = {
     type: "select_map",
     legend: "Unités de gestion",
     description:
-      " la ou les unités de gestion forestières sur lesquelles est situé le peuplement concerné par les dégâts",
+      "les unités de gestion forestières sur lesquelles est situé le peuplement concerné par les dégâts",
     dataFieldNames: {
       value: "id_area",
       text: "label"

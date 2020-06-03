@@ -20,17 +20,17 @@
           <div class="btn-pre-select"
               v-if="
                 baseModel.b_statut_public === false &&
-                  baseModel.b_document === true
+                  baseModel.b_document === true && name == 'areas_foret_dgd'
               "
           >
-            <!-- <v-btn
+            <v-btn
               small
               :block="false"
               color="error"
               @click="baseModel.b_statut_public=false; baseModel.b_document=false"
             >
               Ma forêt n'apparait pas sur la liste
-            </v-btn> -->
+            </v-btn>
             <help code="foret_apparait_pas"></help>
           </div>
 

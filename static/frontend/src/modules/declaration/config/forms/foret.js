@@ -116,7 +116,7 @@ const formsForet = {
     label: ({ baseModel }) =>
       baseModel.b_statut_public
         ? "La forêt relève-t-elle du régime forestier ?"
-        : "La forêt est-elle dotée d'un document de gestion durable (plan simple de gestion ou de bonnes pratiques sylvicoles) ?",
+        : "La forêt est-elle dotée d'un document de gestion durable (plan simple de gestion ou code de bonnes pratiques sylvicoles) ?",
     type: "bool_radio",
     labels: ["Oui", "Non"],
     condition: ({ baseModel }) =>
@@ -172,9 +172,9 @@ const formsForet = {
       `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_SECTION/${formFunctions.processAreas(
         areasContainer
       )}`,
-    description: "la ou les sections cadastrales concernées",
+    description: "les sections cadastrales concernées",
     containerLegend: "Communes",
-    containerDescription: "la ou les communes concernée",
+    containerDescription: "les communes concernée",
     containerUrl: "api/ref_geo/areas_simples_from_type_code/l/OEASC_COMMUNE",
     containerMultiple: true,
     containerName: "areas_foret_communes",

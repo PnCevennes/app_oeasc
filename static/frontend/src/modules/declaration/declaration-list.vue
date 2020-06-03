@@ -125,8 +125,8 @@ export default {
           peuplement_type_mnemo: {
             text: "Type peupl."
           },
-          peuplement_origine_mnemo: {
-            text: "Ori. peupl."
+          peuplement_origine2_mnemo: {
+            text: "Origine plants touchés"
           },
           degat_types_mnemo: {
             text: "Type dégâts"
