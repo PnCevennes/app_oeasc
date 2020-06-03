@@ -4,9 +4,7 @@
 
 from flask import current_app
 
-from app.utils.utilssqlalchemy import (
-    serializable
-)
+from utils_flask_sqla.serializers import serializable
 
 config = current_app.config
 DB = config['DB']
