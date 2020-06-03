@@ -4,7 +4,8 @@
 from flask import Blueprint, current_app
 
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
-from app.utils.utilssqlalchemy import json_resp
+from utils_flask_sqla.response import json_resp
+
 
 from .repository import get_db
 

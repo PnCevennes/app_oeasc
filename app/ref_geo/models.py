@@ -9,9 +9,8 @@
 from flask import current_app
 from geoalchemy2 import Geometry
 
-from app.utils.utilssqlalchemy import (
-    serializable, geoserializable
-)
+from utils_flask_sqla.serializers import serializable
+from utils_flask_sqla_geo.serializers import geoserializable
 
 config = current_app.config
 DB = config['DB']

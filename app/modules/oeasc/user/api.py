@@ -4,7 +4,8 @@
 from flask import (
     Blueprint, request, redirect, current_app
 )
-from app.utils.utilssqlalchemy import json_resp
+from utils_flask_sqla.response import json_resp
+
 from .repository import (
     get_user_form_email,
     get_users,

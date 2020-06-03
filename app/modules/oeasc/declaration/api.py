@@ -14,7 +14,8 @@ from utils_flask_sqla.response import csv_resp
 from utils_flask_sqla_geo.generic import GenericTableGeo
 
 from app.modules.oeasc.nomenclature import nomenclature_oeasc
-from app.utils.utilssqlalchemy import json_resp
+from utils_flask_sqla.response import json_resp
+
 from app.utils.env import ROOT_DIR
 
 

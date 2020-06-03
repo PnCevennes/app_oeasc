@@ -8,7 +8,9 @@ from app.modules.oeasc.user.utils import check_auth_redirect_login
 
 # from .declaration_sample import test
 
-from app.utils.utilssqlalchemy import json_resp
+from utils_flask_sqla.response import json_resp
+
+
 # from .commons.repository import get_text
 
 bp = Blueprint('test', __name__)

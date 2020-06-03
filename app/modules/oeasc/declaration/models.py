@@ -5,9 +5,11 @@ from flask import current_app
 
 from pypnusershub.db.models import User
 
-from app.utils.utilssqlalchemy import (
-    serializable
-)
+from utils_flask_sqla.serializers import serializable
+
+# from app.utils.utilssqlalchemy import (
+#     serializable
+# )
 
 config = current_app.config
 DB = config['DB']
