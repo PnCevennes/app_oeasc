@@ -1,6 +1,5 @@
 <template>
   <div :class="classes">
-    {{ to }}
     <a :href="to ? `${$store.getters.distPath}${to}` : null">
       <figure>
         <img

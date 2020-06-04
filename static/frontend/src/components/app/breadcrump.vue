@@ -1,7 +1,7 @@
 <template>
-  <div>
-    <span class="breadcrump">
-      <v-breadcrumbs :items="getBreadcrumpList"></v-breadcrumbs>
+  <div class="breadcrumbs">
+    <span>
+      <v-breadcrumbs :items="getBreadcrumpList" class="pa-0"></v-breadcrumbs>
     </span>
   </div>
 </template>
@@ -34,3 +34,10 @@ export default {
   }
 };
 </script>
+
+<style>
+.breadcrumbs {
+  padding: 12px;
+  padding-bottom: 0px !important;
+}
+</style>
