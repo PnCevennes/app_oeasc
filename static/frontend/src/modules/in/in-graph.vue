@@ -20,7 +20,7 @@ const round = function(x, dec) {
 
 export default {
   name: "in-graph",
-  props: ["dataIn", "espece", "ug", "width", "height"],
+  props: ["dataIn", "espece", "ug", "width", "height", "displayReg"],
   data: () => ({
     chartOptions: null,
     hcInstance: Highcharts
@@ -34,12 +34,15 @@ export default {
     },
     ug() {
       this.initGraph();
+    },
+    displayReg() {
+      this.initGraph();
     }
   },
   methods: {
     color(ug, type) {
       const colors = {
-        Méjean: "yellow",
+        Méjean: "#e8e805",
         "Mont Aigoual": "red",
         "Mont Lozère": "blue",
         "Vallées cévenoles": "green"
@@ -58,7 +61,7 @@ export default {
       }
 
       if (type == "reglin") {
-      color = color.darken(1);
+        color = color.darken(1);
       }
 
       return color.toString();
@@ -67,10 +70,8 @@ export default {
       if (!(this.dataIn && this.espece)) {
         return;
       }
-      console.log("initGraph");
       const espece = this.espece;
       const series = [];
-      console.log(this.dataIn);
       const data_espece = this.dataIn.especes[espece];
       for (const [ug, data_ug] of Object.entries(data_espece.ugs)) {
         if (this.ug && ug != this.ug) {
@@ -87,20 +88,26 @@ export default {
           }
           regLin.push([
             parseInt(annee),
-            parseInt(annee) * data_ug.reg_lin.a + data_ug.reg_lin.b
+            parseInt(annee) * data_ug.reg_lin.params[0] +
+              data_ug.reg_lin.params[1]
           ]);
         }
-        var dec = 4;
+        var dec = 2;
 
+        console.log("yarglou");
         series.push({
-          name: `y = ${round(data_ug.reg_lin.a, dec)}x + ${round(
-            data_ug.reg_lin.b,
+          name: `y = ${round(data_ug.reg_lin.params[0], dec)}x + ${round(
+            data_ug.reg_lin.params[1],
             dec
-          )} (err=${round(data_ug.reg_lin.err, dec)})`,
+          )} (R2=${round(data_ug.reg_lin.R2, dec)})`,
           data: regLin,
           linkedTo: ug,
           enableMouseTracking: false,
-          color: this.color(ug, "reglin")
+          color: "grey",
+          lineWidth: 1 * this.displayReg,
+          marker: {
+            enabled: false
+          }
         });
 
         series.push({
@@ -108,24 +115,12 @@ export default {
           name: ug,
           data: serie,
           color: this.color(ug),
-
           tooltip: {
             pointFormatter: function() {
               var point = this;
-              var x = point.options.x;
               var y = point.options.y;
-              var inf = data_ug.annees[String(x)].inf;
-              var sup = data_ug.annees[String(x)].sup;
-              var { a, b, err } = data_ug.reg_lin;
-              var out = `<b>UG</b> : ${ug}<br>`;
-              out += `<b>IN</b> : ${round(y, dec)}<br>`;
-              if (sup) out += `<b>Sup</br>: ${round(sup, dec)}<br>`;
-              if (inf || inf == 0) out += `<b>Inf</>: ${round(inf, dec)}<br>`;
-              if (a && b && err) {
-                out += `y = ${round(inf, dec)}x + ${round(b, dec)}<br>`;
-                out += `err = ${round(err, dec)}<br>`;
-              }
-              // return point.series.name + ': ' + (point.y > 0 ? 'On' : 'off') + '<br>'
+              var out = `Secteur : <b>${ug}</b><br>`;
+              out += `IN : <b>${round(y, 2)}</b><br>`;
               return out;
             }
           },
@@ -134,7 +129,6 @@ export default {
             events: {
               click: e => {
                 this.$emit("clickPoint", e.point.options.x);
-                console.log("clickPoint send", e.point.options.x);
               }
             }
           }
@@ -144,10 +138,9 @@ export default {
           linkedTo: ug,
           data: error,
           enableMouseTracking: false,
+          lineWidth: 1,
           color: this.color(ug, "error")
         });
-
-        console.log(regLin);
 
         this.chartOptions = {
           title: {
@@ -170,6 +163,7 @@ export default {
           height: "600px",
           width: "600px"
         };
+        console.log(this.chartOptions.series);
       }
     }
   },

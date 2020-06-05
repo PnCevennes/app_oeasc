@@ -41,8 +41,12 @@ const menus = {
     condition: ({ $store }) => $store.getters.droitMax >= 5
   },
   indices_nocturnes: {
-    name: 'in.index',
-    names: ['in.tableau', 'in.graphiques', 'in.saisie_new'],
+    name: "in.index",
+    names: [
+      "in.tableau",
+      // "in.graphiques",
+      "in.saisie_new"
+    ],
     condition: ({ $store }) => $store.getters.droitMax >= 5
   },
   documentation: {
@@ -74,14 +78,14 @@ const processRouteName = function(routeName, { $store, $router }) {
 
 const configMenu = function(menuName, { $store, $router }) {
   const menu = menus[menuName];
-  const condition = !menu.condition || menu.condition({$store});
+  const condition = !menu.condition || menu.condition({ $store });
   return {
     ...menu,
     ...processRouteName(menu.name, { $store, $router }),
     menus: (menu.names || [])
-    .map(name => processRouteName(name, { $store, $router }))
-    .filter(menu => menu.condition),
-    condition,
+      .map(name => processRouteName(name, { $store, $router }))
+      .filter(menu => menu.condition),
+    condition
   };
 };
 

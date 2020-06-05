@@ -1,7 +1,7 @@
 <template>
   <div>
     <h1>
-      Indices Nocturnes
+      Indices nocturnes
     </h1>
     <div v-for="espece of especes" :key="espece">
       <div v-if="chartOptions[espece]">
@@ -62,7 +62,7 @@ export default {
                 var inf = data_ug.annees[String(x)].inf;
                 var sup = data_ug.annees[String(x)].sup;
                 var out = `<b>UG</b> : ${ug}<br>`;
-                var dec = 4;
+                var dec = 2;
                 out += `<b>IN</b> : ${round(y, dec)}<br>`;
                 if (sup) out += `<b>Sup</br>: ${round(sup, dec)}<br>`;
                 if (inf || inf == 0) out += `<b>Inf</>: ${round(inf, dec)}<br>`;
@@ -91,7 +91,7 @@ export default {
               endOnTick: false,
               startOnTick: false,
               title: {
-                text: "IN (individu / km)"
+                text: "IN (individus / km)"
               }
             },
             series: series,

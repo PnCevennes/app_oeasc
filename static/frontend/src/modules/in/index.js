@@ -7,7 +7,7 @@ const ROUTE = [
   {
     name: "in.index",
     path: "/in/index",
-    label: "Indices Nocturnes",
+    label: "Indices nocturnes",
     type: "page",
     content: "in.index",
     parent: "page.accueil",

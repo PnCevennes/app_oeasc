@@ -24,6 +24,15 @@ def in_results():
 
     return in_data()
 
+@bp.route('test/results/', methods=['GET'])
+@json_resp
+def in_test_results():
+    '''
+        renvoie les résultats des in pour faire les graphs (IN, variance, ug, année)
+    '''
+
+    return in_data()['especes']['Cerf']['ugs']['Méjean']
+
 @bp.route('valid_obs/', methods=['PATCH'])
 @json_resp
 def in_valid_obs():

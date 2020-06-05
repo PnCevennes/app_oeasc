@@ -4,12 +4,12 @@
 
 import math
 import numpy
+from statsmodels.regression.linear_model import OLS
 from utils_flask_sqla.generic import GenericQuery
 from flask import current_app
 
 config = current_app.config
 DB = config['DB']
-
 
 student = [0, 0, 12.71, 4.30, 3.18, 2.78, 2.57]
 
@@ -66,6 +66,7 @@ def process_especes(res):
     especes = res['especes']
 
     for key_espece in especes:
+        print(key_espece)
         espece = especes.get(key_espece)
         process_ugs(espece)
 
@@ -75,6 +76,7 @@ def process_ugs(espece):
     ugs = espece['ugs']
 
     for key_ug in ugs:
+        print(  key_ug)
         ug = ugs.get(key_ug)
         process_annees(ug)
 
@@ -94,20 +96,38 @@ def process_annees(ug):
         if not annee.get('moy'):
             continue
         
-        X.append([key_annee, 1])
+        X.append([int(key_annee), 1])
         Y.append([annee['moy']])
 
     if not len(X):
         return
         
-    resultat = numpy.linalg.lstsq(X,Y)
-    err = (resultat[1][0] if len(resultat[1]) else 0) / len(Y)
-    a, b = resultat[0]
-    ug['reg_lin'] = {}
-    ug['reg_lin']['a'] =  a[0] 
-    ug['reg_lin']['b'] =  b[0] 
-    ug['reg_lin']['err'] =  err 
+    # moindres carres
+    # resultat = numpy.linalg.lstsq(X,Y)
+    # err = (resultat[1][0] if len(resultat[1]) else 0) / len(Y)
+    # a, b = resultat[0]
+    # ug['reg_lin'] = {}
+    # ug['reg_lin']['a'] =  a[0]
+    # ug['reg_lin']['b'] =  b[0]
+    # ug['reg_lin']['err'] =  err
+
+    # statistiques
+    model = OLS(Y, [ x for x in X])
+    results = model.fit()
+
+    pvalues = results.pvalues
+    if math.isnan(results.pvalues[0]) :
+        pvalues = [None, None]
+
+
+    ug['reg_lin'] = {
+        'R2': results.rsquared,
+        'params': [results.params[0], results.params[1]],
+        'pvalues': [pvalues[0] or None, pvalues[1] or None],
+    }
+
     print(ug['reg_lin'])
+
 
 
 def process_series(annee):

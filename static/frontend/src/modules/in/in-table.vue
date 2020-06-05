@@ -2,30 +2,26 @@
   <div>
     <div v-if="ready" class="settings">
       <div class="flex-list">
-        <div>
-          <v-btn color="primary" @click="reload()"
-            >Recharger
-            <v-progress-circular
-              v-if="loading"
-              indeterminate
-              color="white"
-            ></v-progress-circular
-          ></v-btn>
-        </div>
-
         <div v-for="type of ['espece', 'ug', 'annee']" :key="type">
-          <!-- {{!!configChoix[type]}} -->
           <list-form
             v-if="ready && configChoix[type]"
             :config="configChoix[type]"
             :baseModel="settings"
           ></list-form>
         </div>
+      <div>
+        <dynamic-form
+          v-if="ready"
+          :config="configSwitchReg"
+          :baseModel="settings"
+        ></dynamic-form>
+      </div>
       </div>
     </div>
     <div>
       <in-graph
         v-if="settings.espece"
+        :displayReg="settings.displayReg"
         :dataIn="dataIn"
         :espece="settings.espece"
         :ug="settings.ug"
@@ -34,13 +30,84 @@
         @clickPoint="setAnnee"
       ></in-graph>
     </div>
-    <div v-if="dataTable">
-      <v-simple-table class="in">
+    <div v-if="dataUg && this.settings.displayReg">
+      <h4>Régression linéaire <i> y = ax + b</i></h4>
+      <v-simple-table dense class="stats">
+        <thead>
+          <tr>
+            <th>a</th>
+            <th>b</th>
+            <th>p-val a</th>
+            <th>p-val b</th>
+            <th>R<sup>2</sup></th>
+          </tr>
+        </thead>
+        <tbody>
+          <td>
+            {{ round(dataUg.reg_lin.params[0], dec) }}
+          </td>
+          <td>
+            {{ round(dataUg.reg_lin.params[1], dec) }}
+          </td>
+          <td>
+            {{ round(dataUg.reg_lin.pvalues[0], dec) }}
+          </td>
+          <td>
+            {{ round(dataUg.reg_lin.pvalues[1], dec) }}
+          </td>
+          <td>
+            {{ round(dataUg.reg_lin.R2, dec) }}
+          </td>
+        </tbody>
+      </v-simple-table>
+    </div>
+
+    <div v-if="dataAnnee">
+      <h4>
+        Indices nocturnes {{ settings.espece }} {{ settings.ug }}
+        {{ settings.annee }}
+      </h4>
+
+      <v-simple-table dense class="stats">
+        <thead>
+          <tr>
+            <th>IN</th>
+            <th>E</th>
+            <th>inf</th>
+            <th>sup</th>
+          </tr>
+        </thead>
+        <tbody>
+          <td>
+            {{ round(dataAnnee.moy, dec) }}
+          </td>
+          <td>
+            {{ round(dataAnnee.E, dec) }}
+          </td>
+          <td>
+            {{ round(dataAnnee.inf, dec) }}
+          </td>
+          <td>
+            {{ round(dataAnnee.sup, dec) }}
+          </td>
+        </tbody>
+      </v-simple-table>
+
+      <div v-if="$store.getters.droitMax >= 5">
+        <v-btn color="primary" @click="reload()"
+          >Recharger
+          <v-progress-circular
+            v-if="loading"
+            indeterminate
+            color="white"
+          ></v-progress-circular
+        ></v-btn>
+      </div>
+      <v-simple-table dense class="in">
         <thead>
           <tr>
             <th>Série</th>
             <th>Validé</th>
-            <!-- <th>id_observation</th> -->
             <th>Date</th>
             <th>N° Circuit</th>
             <th>Nom circuit</th>
@@ -49,20 +116,12 @@
             <th>Nb ind.</th>
             <th>Nb ind. / km</th>
             <th>Moy. circuits</th>
-            <th>IN</th>
-            <!-- <th>d. moy.</th> -->
-            <!-- <th>(d. moy.) **2</th> -->
-            <!-- <th>S</th> -->
-            <!-- <th>S/(n*(n-1)</th> -->
-            <th>E</th>
-            <th>inf</th>
-            <th>sup</th>
           </tr>
         </thead>
         <tbody>
           <template
             v-for="([numeroSerie, serie], indexSerie) in Object.entries(
-              dataTable.series
+              dataAnnee.series
             )"
           >
             <tr
@@ -116,51 +175,13 @@
               >
                 {{ round(serie.moy, dec) }}
               </td>
-              <td
-                v-if="indexSerie == 0 && indexCircuit == 0"
-                :rowSpan="
-                  nbCircuits(settings.espece, settings.ug, settings.annee)
-                "
-              >
-                {{ round(dataTable.moy, dec) }}
-              </td>
-              <!-- <td
-                :class="{ gris: indexSerie % 2 }"
-                v-if="indexCircuit == 0"
-                :rowSpan="Object.entries(serie.id_circuits).length"
-              >
-                {{ round(serie.e_moy, dec) }}
-              </td> -->
-              <!-- <td
-                :class="{ gris: indexSerie % 2 }"
-                v-if="indexCircuit == 0"
-                :rowSpan="Object.entries(serie.id_circuits).length"
-              >
-                {{ round(serie.e_moy_2, dec) }}
-              </td> -->
               <!-- <td
                 v-if="indexSerie == 0 && indexCircuit == 0"
                 :rowSpan="
                   nbCircuits(settings.espece, settings.ug, settings.annee)
                 "
               >
-                {{ round(dataTable.s_e_moy_2, dec) }}
-              </td> -->
-              <!-- <td
-                v-if="indexSerie == 0 && indexCircuit == 0"
-                :rowSpan="
-                  nbCircuits(settings.espece, settings.ug, settings.annee)
-                "
-              >
-                {{ round(dataTable.s_e_moy_2_n_nm1, dec) }}
-              </td> -->
-              <td
-                v-if="indexSerie == 0 && indexCircuit == 0"
-                :rowSpan="
-                  nbCircuits(settings.espece, settings.ug, settings.annee)
-                "
-              >
-                {{ round(dataTable.E, dec) }}
+                {{ round(dataAnnee.moy, dec) }}
               </td>
               <td
                 v-if="indexSerie == 0 && indexCircuit == 0"
@@ -168,7 +189,7 @@
                   nbCircuits(settings.espece, settings.ug, settings.annee)
                 "
               >
-                {{ round(dataTable.inf, dec) }}
+                {{ round(dataAnnee.E, dec) }}
               </td>
               <td
                 v-if="indexSerie == 0 && indexCircuit == 0"
@@ -176,8 +197,16 @@
                   nbCircuits(settings.espece, settings.ug, settings.annee)
                 "
               >
-                {{ round(dataTable.sup, dec) }}
+                {{ round(dataAnnee.inf, dec) }}
               </td>
+              <td
+                v-if="indexSerie == 0 && indexCircuit == 0"
+                :rowSpan="
+                  nbCircuits(settings.espece, settings.ug, settings.annee)
+                "
+              >
+                {{ round(dataAnnee.sup, dec) }}
+              </td> -->
             </tr>
           </template>
         </tbody>
@@ -188,31 +217,35 @@
 
 <script>
 import listForm from "@/components/form/list-form";
+import dynamicForm from "@/components/form/dynamic-form";
 import { apiRequest } from "@/core/js/data/api.js";
 import "./table.css";
 
 export default {
   name: "in-table",
-  components: { listForm, "in-graph": () => import("./in-graph.vue") },
+  components: {
+    listForm,
+    "in-graph": () => import("./in-graph.vue"),
+    dynamicForm
+  },
   data: () => ({
     dataIn: null,
     configChoix: {},
     ready: false,
     loading: true,
-    settings: { espece: "Cerf", ug: "Méjean", annee: "2019" },
-    dataTable: null,
+    settings: { espece: "Cerf", ug: "Méjean", annee: "2019", displayReg: true },
+    dataAnnee: null,
+    dataUg: null,
     dec: 4,
-    freezeValid: false
+    freezeValid: false,
+    configSwitchReg: {
+      type: "bool_switch",
+      label: "Régression?",
+      name: "displayReg"
+    }
   }),
   methods: {
     setAnnee(annee) {
-      console.log(
-        "clickPoint received",
-        annee,
-        typeof annee,
-        this.settings.annee,
-        typeof this.settings.annee
-      );
       this.settings.annee = String(annee);
       this.settingsChange();
     },
@@ -233,7 +266,9 @@ export default {
       });
     },
     initInTable() {
-      this.dataTable = null;
+      this.dataAnnee = null;
+      this.dataUg = null;
+
       if (
         !(
           this.settings.annee &&
@@ -246,9 +281,10 @@ export default {
       }
       const especes = this.dataIn.especes;
       const ugs = especes[this.settings.espece].ugs;
+      this.dataUg = ugs[this.settings.ug];
       const annees = ugs[this.settings.ug].annees;
       const annee = annees[this.settings.annee];
-      this.dataTable = annee;
+      this.dataAnnee = annee;
       return annee;
     },
 
@@ -267,7 +303,6 @@ export default {
     },
 
     settingsChange() {
-      console.log("settingsChange");
       if (!this.ready) {
         return;
       }
@@ -324,7 +359,7 @@ export default {
       this.loading = true;
       this.$store.dispatch("in_results").then(data => {
         this.ready = false;
-        this.dataTable = false;
+        this.dataAnnee = false;
         this.dataIn = data;
         this.configChoix.espece = {
           name: "espece",
@@ -335,7 +370,7 @@ export default {
         };
         this.configChoix.ug = {
           name: "ug",
-          label: "Ug",
+          label: "Secteur",
           items: this.items("ug"),
           change: this.settingsChange,
           display: "select"

@@ -97,11 +97,11 @@ with app.app_context():
     # from app.modules.oeasc import routes as oeasc_routes
     # app.register_blueprint(oeasc_routes.bp, url_prefix='/oeasc')
 
-    from app.modules.oeasc.declaration import routes as declaration_routes
-    app.register_blueprint(declaration_routes.bp, url_prefix='/declaration')
+    # from app.modules.oeasc.declaration import routes as declaration_routes
+    # app.register_blueprint(declaration_routes.bp, url_prefix='/declaration')
 
-    from app.modules.oeasc.user import routes as routes_user
-    app.register_blueprint(routes_user.bp, url_prefix='/user')
+    # from app.modules.oeasc.user import routes as routes_user
+    # app.register_blueprint(routes_user.bp, url_prefix='/user')
 
     from app.modules.oeasc.user import api as api_user
     app.register_blueprint(api_user.bp, url_prefix='/api/user')
