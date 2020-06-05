@@ -9,29 +9,17 @@
 <p>Si vous le souhaitez, vous pouvez :</p>
   <ul>
     <li>
-      {% if new_front %}
       <a href="{{config['URL_FRONTEND']}}/#/declaration/voir_declaration/{{declaration.id_declaration}}">
-      {% else %}
-        <a href="{{config.URL_APPLICATION}}{{ url_for('declaration.route_declarations') }}">
-        {% endif %}
         visualiser et télécharger au format PDF les alertes que vous avez déclarées</a>, 
 
     </li>
     <li>
-      {% if new_front %}
       <a href="{{config['URL_FRONTEND']}}/#/declaration/declarer_en_ligne">
-        {% else %}
-        <a href="{{config.URL_APPLICATION}}{{ url_for('declaration.modifier_declaration') }}">
-        {% endif %}
         signaler des dégâts sur un autre peuplement</a>, ou
 
     </li>
     <li>
-      {% if new_front %}
       <a href="{{config['URL_FRONTEND']}}/#/declaration/liste">
-        {% else %}
-        <a href="{{config.URL_APPLICATION}}{{ url_for('resultat.degats_forestiers') }}">
-          {% endif %}
           consulter les résultats</a> des suivis réalisés dans le cadre de l'Observatoire.
 
     </li>
@@ -61,13 +49,8 @@
     <li><b>Utilisateur</b> : {{ user.nom_role | upper}} {{ user.prenom_role}}</li>
     <li><b>Organisme</b> : {{user.organisme}}</li>
   </ul>
-  {{new_front}}
   <p>Vous pouvez voir les détails de la déclaration en cliquant 
-    {% if new_front %}
       <a href="{{config['URL_FRONTEND']}}/#/declaration/voir_declaration/{{ declaration.id_declaration }}">
-    {% else %}
-    <a href="{{config.URL_APPLICATION}}{{url_for('declaration.declaration', id_declaration=declaration.id_declaration)}}">
-      {% endif %}
       ici</a>
 
     .</p>

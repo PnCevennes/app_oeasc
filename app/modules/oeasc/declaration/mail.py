@@ -60,7 +60,6 @@ def send_mail_validation_declaration(declaration, b_create):
                 destinataire='user',
                 declaration=declaration,
                 user=user,
-                new_front=config['MODE_NEW'],
                 b_create=b_create
             )
             conn.send(msg)
@@ -81,7 +80,6 @@ def send_mail_validation_declaration(declaration, b_create):
             declaration=declaration,
             user=user,
             b_create=b_create,
-            new_front=config['MODE_NEW'],
             )
 
         conn.send(msg)
