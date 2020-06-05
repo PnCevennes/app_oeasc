@@ -9,13 +9,6 @@
             :baseModel="settings"
           ></list-form>
         </div>
-      <div>
-        <dynamic-form
-          v-if="ready"
-          :config="configSwitchReg"
-          :baseModel="settings"
-        ></dynamic-form>
-      </div>
       </div>
     </div>
     <div>
@@ -30,36 +23,50 @@
         @clickPoint="setAnnee"
       ></in-graph>
     </div>
-    <div v-if="dataUg && this.settings.displayReg">
-      <h4>Régression linéaire <i> y = ax + b</i></h4>
-      <v-simple-table dense class="stats">
-        <thead>
-          <tr>
-            <th>a</th>
-            <th>b</th>
-            <th>p-val a</th>
-            <th>p-val b</th>
-            <th>R<sup>2</sup></th>
-          </tr>
-        </thead>
-        <tbody>
-          <td>
-            {{ round(dataUg.reg_lin.params[0], dec) }}
-          </td>
-          <td>
-            {{ round(dataUg.reg_lin.params[1], dec) }}
-          </td>
-          <td>
-            {{ round(dataUg.reg_lin.pvalues[0], dec) }}
-          </td>
-          <td>
-            {{ round(dataUg.reg_lin.pvalues[1], dec) }}
-          </td>
-          <td>
-            {{ round(dataUg.reg_lin.R2, dec) }}
-          </td>
-        </tbody>
-      </v-simple-table>
+    <div class="flex-list2">
+      <div>
+        <dynamic-form
+          v-if="ready"
+          :config="configSwitchReg"
+          :baseModel="settings"
+        ></dynamic-form>
+      </div>
+      <div>
+        <transition name="fade">
+          <div v-if="dataUg && this.settings.displayReg">
+            <v-simple-table dense class="stats">
+              <thead>
+                <tr>
+                  <th>y = ax + b</th>
+                  <th>a</th>
+                  <th>b</th>
+                  <th>R<sup>2</sup></th>
+                  <th>p-val a</th>
+                  <th>p-val b</th>
+                </tr>
+              </thead>
+              <tbody>
+                <td></td>
+                <td>
+                  {{ round(dataUg.reg_lin.params[0], dec) }}
+                </td>
+                <td>
+                  {{ round(dataUg.reg_lin.params[1], dec) }}
+                </td>
+                <td>
+                  {{ round(dataUg.reg_lin.R2, dec) }}
+                </td>
+                <td>
+                  {{ round(dataUg.reg_lin.pvalues[0], dec) }}
+                </td>
+                <td>
+                  {{ round(dataUg.reg_lin.pvalues[1], dec) }}
+                </td>
+              </tbody>
+            </v-simple-table>
+          </div>
+        </transition>
+      </div>
     </div>
 
     <div v-if="dataAnnee">
@@ -93,19 +100,24 @@
         </tbody>
       </v-simple-table>
 
-      <div v-if="$store.getters.droitMax >= 5">
-        <v-btn color="primary" @click="reload()"
-          >Recharger
-          <v-progress-circular
-            v-if="loading"
-            indeterminate
-            color="white"
-          ></v-progress-circular
-        ></v-btn>
-      </div>
       <v-simple-table dense class="in">
         <thead>
           <tr>
+            <th>
+              <v-btn
+                v-if="$store.getters.droitMax >= 5"
+                icon
+                color="primary"
+                @click="reload()"
+              >
+                <v-icon v-if="loading">
+                  mdi-reload fa-spin
+                </v-icon>
+                <v-icon v-else>
+                  mdi-reload
+                </v-icon>
+              </v-btn>
+            </th>
             <th>Série</th>
             <th>Validé</th>
             <th>Date</th>
@@ -133,6 +145,12 @@
               })"
               :key="`${numeroSerie}-${circuit.id_circuit}`"
             >
+              <td
+                :class="{ gris: indexSerie % 2 }"
+                v-if="indexCircuit == 0"
+                :rowSpan="Object.entries(serie.id_circuits).length"
+              >
+              </td>
               <td
                 :class="{ gris: indexSerie % 2 }"
                 v-if="indexCircuit == 0"
@@ -240,7 +258,7 @@ export default {
     freezeValid: false,
     configSwitchReg: {
       type: "bool_switch",
-      label: "Régression?",
+      label: "Régression linéaire",
       name: "displayReg"
     }
   }),
@@ -398,10 +416,11 @@ export default {
 </script>
 
 <style lang="css">
-/* th,
-td {
-  font-size: 0.9em;
-  border: 1px solid;
-  padding: 2px;
-} */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s;
+}
+.fade-enter, .fade-leave-to, .fade-leave-active  /* .fade-leave-active below version 2.1.8 */ {
+  opacity: 0;
+}
 </style>

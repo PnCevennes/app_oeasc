@@ -94,7 +94,6 @@ export default {
         }
         var dec = 2;
 
-        console.log("yarglou");
         series.push({
           name: `y = ${round(data_ug.reg_lin.params[0], dec)}x + ${round(
             data_ug.reg_lin.params[1],
@@ -163,7 +162,6 @@ export default {
           height: "600px",
           width: "600px"
         };
-        console.log(this.chartOptions.series);
       }
     }
   },
