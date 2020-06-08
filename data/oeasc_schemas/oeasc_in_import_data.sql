@@ -6,18 +6,18 @@ CREATE TABLE IF NOT EXISTS oeasc_in.import_data (
     
 	espece character varying,
 	ug character varying,
-	annee integer,
 	date_realisation character varying,
 	serie integer,
 	numero_circuit integer,
 	nom_circuit character varying,
 	nb integer,
-	km double precision
+	km double precision,
+    valid character varying
 );
 
 COPY oeasc_in.import_data
 --(ug, annee, date_realisation, numero_circuit, nom_circuit, nb, km) 
-FROM '/tmp/oeasc_in.csv' DELIMITER ';' CSV HEADER;
+FROM '/tmp/oeasc_in.csv' DELIMITER ',' CSV HEADER;
 
 
 -- circuits
@@ -32,7 +32,7 @@ SELECT
 
 -- realisations
 INSERT INTO oeasc_in.t_realisations (id_circuit, serie, date_realisation)
-SELECT id_circuit, serie, to_date(date_realisation, '%dd%mm%yyyy')
+SELECT id_circuit, serie, to_date(date_realisation, '%yy-%mm-%dd')
 FROM oeasc_in.import_data d
 JOIN oeasc_in.t_circuits c ON d.nom_circuit = c.nom_circuit
 WHERE nb >= 0
@@ -40,12 +40,15 @@ GROUP BY id_circuit, serie, date_realisation;
 
 
 -- observations (cerf)
-INSERT INTO oeasc_in.t_observations (id_realisation, espece, nb)
+INSERT INTO oeasc_in.t_observations (id_realisation, espece, nb, valid)
 SELECT 
-	r.id_realisation, espece, nb
+	r.id_realisation, espece, nb,
+    CASE WHEN valid = 'x' THEN FALSE
+    ELSE TRUE
+    END AS valid
 	---, *
 	FROM oeasc_in.import_data d
-	JOIN oeasc_in.t_realisations r ON r.date_realisation = to_date(d.date_realisation, '%dd%mm%yyyy')
+	JOIN oeasc_in.t_realisations r ON r.date_realisation = to_date(d.date_realisation, '%yy-%mm-%dd')
 	JOIN oeasc_in.t_circuits c ON c.id_circuit = r.id_circuit 
 	WHERE c.nom_circuit = d.nom_circuit AND r.serie = d.serie
 	ORDER BY r.id_realisation;
