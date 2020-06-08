@@ -4,7 +4,7 @@
       <h2>{{ item.titre }}</h2>
       <div class="flex">
         <div v-for="key_organisme of item.liste" :key="key_organisme">
-          <a :href="`organismes[key_organisme].url`">
+          <a :href="organismes[key_organisme].url">
             <!-- {{organismes[key_organisme].nom}} -->
             <img
               :src="`${$store.getters.distPath}img/logos/${key_organisme}.jpg`"
