@@ -3,7 +3,7 @@
     <div v-if="bInit">
       <base-map mapId="map" ref="map" :config="config" fillHeight>
         <div slot="aside" class="map-aside">
-          <br />
+          <br/>
           <h2>Représentation</h2>
           <list-form
             :baseModel="settings"
@@ -13,10 +13,10 @@
             :baseModel="settings"
             :config="configChoix('icon', 'Icone')"
           ></list-form>
+          <br/>
           <h2>Filtres</h2>
           <list-form :config="filterSelect" :baseModel="settings"></list-form>
-          <br />
-          <div v-for="(filter, index) of filters" :key="index">
+          <div class="filters" v-for="(filter, index) of filters" :key="index">
             <list-form :config="filter" :baseModel="settings"></list-form>
           </div>
         </div>
@@ -29,6 +29,7 @@
 import baseMap from "@/modules/map/base-map.vue";
 import listForm from "@/components/form/list-form";
 import { restitution } from "@/core/js/restitution";
+import './restitution.css'
 
 const items = [
   {

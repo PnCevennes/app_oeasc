@@ -134,7 +134,6 @@ export default {
           accept_email: {
             type: 'bool_switch',
             label: "Rester informé des principales évolutions du dispositif (envoi ponctuel d’e-mails)",
-            // label: "Acceptez vous de recevoir des nouvelles de l'OEASC par email ?",
             required: true, 
           },
           password: {

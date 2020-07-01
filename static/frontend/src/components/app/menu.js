@@ -37,7 +37,7 @@ const menus = {
   test: {
     name: "test",
     labelDrawer: "Test",
-    names: ["test.map"],
+    names: ["test.map", "test.restitution"],
     condition: ({ $store }) => $store.getters.droitMax >= 5
   },
   indices_nocturnes: {

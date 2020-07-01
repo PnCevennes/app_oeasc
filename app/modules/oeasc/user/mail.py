@@ -47,14 +47,11 @@ def create_temp_user(data):
 
         return {"msg": token + " : ce token n'est pas associé à un compte temporaire"}
 
-    url_validation = config['URL_APPLICATION'] + url_for('user.login', token=token)
-
     recipients = [role.email]
     subject = 'demande de création de compte'
     msg_html = render_template(
         'modules/oeasc/mail/create_temp_user.html',
         token=token,
-        url_validation=url_validation,
         identifiant=role.identifiant,
     )
 
