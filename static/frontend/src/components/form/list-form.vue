@@ -6,8 +6,27 @@
     </span>
     <div v-else>
       <div class="list-form">
+        <div v-if="config.display === 'button'">
+          <div class="select-list-label">
+            {{ config.label }}
+          </div>
+          <v-btn-toggle
+            v-model="baseModel[config.name]"
+            @change="config.change && config.change($event)"
+            dense
+          >
+            <v-btn
+              :value="item[config.valueFieldName]"
+              v-for="(item, index) of items"
+              :key="index"
+            >
+              {{ item[config.textFieldName] }}
+            </v-btn>
+          </v-btn-toggle>
+        </div>
+
         <!-- select -->
-        <div v-if="config.display === 'combobox'">
+        <div v-else-if="config.display === 'combobox'">
           <v-combobox
             ref="autocomplete"
             clearable

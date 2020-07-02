@@ -9,23 +9,25 @@ const defaults = {
     "cloud",
     "pentagon",
     "triangle",
-    "wifi-strength-4",
-
+    "wifi-strength-4"
   ],
   color: chroma.brewer.Dark2
 };
 
 const defaultValue = {
   color: "lightgrey",
-  icon: "circle-outline"
+  icon: "stop_circle"
 };
 
-
 const restitution = {
-
   condFilter(options, v) {
     const name = options.name;
-    return options.filters && options.filters[name] && options.filters[name].length && !(options.filters[name].includes(v));
+    return (
+      options.filters &&
+      options.filters[name] &&
+      options.filters[name].length &&
+      !options.filters[name].includes(v)
+    );
   },
 
   valueOfType(type, d, dataList, options = {}) {
@@ -39,15 +41,22 @@ const restitution = {
       if (this.condFilter(options, v)) {
         continue;
       }
-      index = dataList.findIndex(e => e.text == v);
-      let out =
-        index != -1
-          ? types[index]
-          : indexElemAutres != -1
-          ? types[indexElemAutres]
-          : null;
+      let out;
+      if (Array.isArray(types)) {
+        index = dataList.findIndex(e => e.text == v);
+        out =
+          index != -1
+            ? types[index]
+            : indexElemAutres != -1
+            ? types[indexElemAutres]
+            : null;
+      } else {
+        out = types[d];
+      }
+
       out = out || defaultValue[type];
-      arrayOut.push(out)
+
+      arrayOut.push(out);
     }
     return arrayOut;
   },
@@ -81,13 +90,10 @@ const restitution = {
     return value;
   },
 
-
-
   dataList(data, options) {
     let dataList = [];
     const name = options.name;
-    for (const d of data
-      ) {
+    for (const d of data) {
       const value = this.getValue(d[name], options);
       for (const v of value) {
         if (this.condFilter(options, v)) {
@@ -95,7 +101,7 @@ const restitution = {
         }
         let elem = dataList.find(d => d.text == v);
         if (!elem) {
-          elem = { text: v, count: 0, value: d[name] };
+          elem = { text: v, count: 0, value: d[name]};
           dataList.push(elem);
         }
         elem.count += 1;
@@ -105,6 +111,12 @@ const restitution = {
 
     if (options.nMax) {
       dataList = this.cutDataList(dataList, options.nMax);
+    }
+
+    //color icon
+    for (const data of dataList) {
+      data.icon = this.icon(data.text, dataList, options)[0];
+      data.color = this.color(data.text, dataList, options)[0];
     }
 
     return dataList;

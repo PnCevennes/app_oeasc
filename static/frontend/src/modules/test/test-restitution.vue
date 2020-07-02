@@ -1,13 +1,27 @@
 <template>
-  <div>
-    <h1>Test restitution</h1>
-    <div class="flex-container">
-      <div>
-        <h2>Résultats</h2>
-        <div></div>
+  <div class="page-restitution">
+    <div class="container">
+      <div class="result" v-if="results">
+
+        <div v-if="results.display == 'table'">
+          <table-restitution :results="results"></table-restitution>
+        </div>
+
+        <div v-if="results.display == 'map'">
+          <map-restitution :results="results"></map-restitution>
+        </div>
+
+        <div v-if="results.display == 'graph'">
+        </div>
       </div>
-      <div>
-        <restitution :dataIn="declarations" :config="configDeclaration"> </restitution>
+
+      <div class="restitution">
+        <restitution
+          :dataIn="declarations"
+          :config="configDeclaration"
+          @updateResults="results = $event"
+        >
+        </restitution>
       </div>
     </div>
   </div>
@@ -15,21 +29,26 @@
 
 <script>
 import restitution from "./restitution.vue";
+import tableRestitution from "./table-restitution";
+import mapRestitution from "./map-restitution";
 import "./restitution.css";
-import configDeclaration from './config-declarations.js'
+import configDeclaration from "./config-declarations.js";
 
 export default {
   name: "test-restitution",
   components: {
-    restitution
+    restitution,
+    tableRestitution,
+    mapRestitution,
   },
   data: () => ({
     declarations: null,
-    configDeclaration
+    configDeclaration,
+    results: null,
   }),
   mounted() {
     this.$store.dispatch("declarations").then(declarations => {
-        this.declarations = declarations;
+      this.declarations = declarations;
     });
   }
 };

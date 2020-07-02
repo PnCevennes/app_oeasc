@@ -1,33 +1,37 @@
 <template>
-  <div class="legend-container" v-if="config && config.layers">
+  <div class="legend-container" v-if="config">
     <div
       class="legend"
-      v-for="[key, markerConfig] of Object.entries(config.markers || [])"
-      :key="key"
+      v-for="(markerLegendGroup, index1) of config.markerLegendGroups || []"
+      :key="index1"
     >
-      <div v-for="(legend, index) of markerConfig.legends || []" :key="index">
-        <template v-if="legend.title">
-          <b>{{ legend.title }}</b>
-        </template>
-        <template v-else>
-          <i
-            :style="
-              `
+      <template v-if="markerLegendGroup.title">
+        <b>{{ markerLegendGroup.title }}</b>
+      </template>
+      <div
+        v-for="(legend, index) of markerLegendGroup.legends || []"
+        :key="index"
+      >
+        <i
+          :style="
+            `
             font-size: 1.8em;
             color:${legend.color};
           `
-            "
-            :class="`mdi mdi-${legend.icon}`"
-          ></i>
-          <span class="legendText">
-            {{ legend.text }}
-          </span>
-        </template>
+          "
+          :class="`mdi mdi-${legend.icon}`"
+        ></i>
+        <span class="legendText">
+          {{ legend.text }}
+          <span v-if="legend.count">
+            ({{ legend.count }})</span
+          >
+        </span>
       </div>
     </div>
     <div class="legend">
       <div v-if="Object.entries(config.layers || []).length && config.markers">
-        <br>
+        <br />
       </div>
       <div
         v-for="[key, layerConfig] of Object.entries(config.layers || [])"
@@ -63,7 +67,7 @@ export default {
   props: ["config"],
   watch: {
     config() {
-      // console.log('watch config legend', this.config && this.config.markers && this.config.markers.declarations && this.config.markers.declarations.legends)
+      console.log("watch legend config");
     }
   },
   methods: {

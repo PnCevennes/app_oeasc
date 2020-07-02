@@ -82,15 +82,18 @@ export default {
       if (!this.declaration) {
         return;
       }
-      const markers = {
-        declarations: {
-          data: [this.declaration],
-          type: "marker",
-          coords: "centroid",
-          style: {
-            color: "blue",
+      const markers = [
+        {
+          coords: this.declaration.centroid,
+        type: 'marker',
+        style: {
+          color: "blue",
             icon: "map-marker"
           },
+        },
+      ];
+      const markerLegendGroups = [
+        {
           legends: [
             {
               icon: "map-marker",
@@ -99,7 +102,7 @@ export default {
             }
           ]
         }
-      };
+      ];
       const titles = {
         secteurs:
           "Localisation de l'alerte dans le périmètre de l'observatoire",
@@ -139,7 +142,7 @@ export default {
       if (type != "secteurs") {
         delete layerList.secteurs;
       }
-      return { layerList, title: titles[type], markers };
+      return { layerList, title: titles[type], markers, markerLegendGroups };
     }
   },
   computed: {

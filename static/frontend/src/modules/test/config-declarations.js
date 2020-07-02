@@ -1,4 +1,5 @@
 export default {
+  coordsFieldName: "centroid",
   items: {
     degat_types_label: {
       text: "Dégât",
@@ -6,7 +7,13 @@ export default {
     },
     secteur: {
       text: "Secteur",
-      split: ", "
+      split: ", ",
+      color: {
+        "Causses et Gorges": "#e8e805",
+        "Mont Aigoual": "red",
+        "Mont Lozère": "blue",
+        "Vallées cévenoles": "green"
+      }
     },
     organisme: {
       text: "Organisme",

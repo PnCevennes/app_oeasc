@@ -1,4 +1,4 @@
-import { restitution } from "@/core/js/restitution";
+// import { restitution } from "@/core/js/restitution";
 
 const L = window.L;
 /**
@@ -22,7 +22,6 @@ config {
 
 const mapMarker = {
   _markers: [],
-  _markerFilters: [],
 
   removeMarkers() {
     for (let marker of this._markers) {
@@ -31,101 +30,93 @@ const mapMarker = {
     this._markers = [];
   },
 
-  processMarkersConfig(config) {
-    config.markers = config.data.map(d => ({
-      type: config.type,
-      properties: d,
-      style: config.style || {},
-      icon: config.icon,
-      coords: d[config.coords],
-      selected: true
-    }));
+  // processMarkersConfig(config) {
+    // config.markers = config.data.map(d => ({
+    //   type: config.type,
+    //   properties: d,
+    //   style: config.style || {},
+    //   icon: config.icon,
+    //   coords: d[config.coords],
+    //   selected: true
+    // }));
 
     //filter
-    for (const markerConfig of config.markers) {
-      this.applyFilters(markerConfig);
-    }
+    // for (const markerConfig of config.markers) {
+    //   this.applyFilters(markerConfig);
+    // }
 
-    const cond_same =
-    config.color &&
-    config.icon &&
-    config.color.options.name == config.icon.options.name;
+    // const cond_same =
+    //   config.color &&
+    //   config.icon &&
+    //   config.color.options.name == config.icon.options.name;
 
+    // color ...icon a mettre ailleur la carte ne fais que afficher elle ne calcule pas
+    // for (const type of ["color", "icon"]) {
+    //   const configType = config[type];
+    //   if (configType) {
+    //     configType.dataList = restitution.dataList(
+    //       config.markers.map(m => ({ ...m.properties, selected: m.selected })),
+    //       configType.options
+    //     );
 
-    // color ...icon
-    for (const type of ["color", "icon"]) {
-      const configType = config[type];
-      if (configType) {
-        configType.dataList = restitution.dataList(
-          config.markers.map(m => ({ ...m.properties, selected: m.selected })),
-          configType.options
-        );
+    //     for (const markerConfig of config.markers) {
+    //       const out = restitution.valueOfType(
+    //         type,
+    //         markerConfig.properties[configType.options.name],
+    //         configType.dataList,
+    //         configType.options
+    //       );
+    //       const types = type + "s";
+    //       markerConfig.style[type] = out[0];
+    //       markerConfig.style[types] = out;
+    //       markerConfig.cond_same = cond_same;
+    //     }
 
+    //     if (type == "color") {
+    //       config.legends = [];
+    //     }
 
+    //     if (!(type == "icon" && cond_same)) {
+    //       config.legends.push(
+    //         {
+    //           title: configType.options.text
+    //         },
+    //         ...configType.dataList.map(d => {
+    //           const legend = {
+    //             text: `${d.text} (${d.count})`,
+    //             color: "grey",
+    //             icon: "circle"
+    //           };
 
-        for (const markerConfig of config.markers) {
-          const out = restitution.valueOfType(
-            type,
-            markerConfig.properties[configType.options.name],
-            configType.dataList,
-            configType.options
-          );
-          const types = type + "s";
-          markerConfig.style[type] = out[0];
-          markerConfig.style[types] = out;
-          markerConfig.cond_same = cond_same;
+    //           legend[type] = restitution.valueOfType(
+    //             type,
+    //             d.text,
+    //             configType.dataList,
+    //             configType.options
+    //           )[0];
+    //           if (cond_same) {
+    //             legend["icon"] = restitution.valueOfType(
+    //               "icon",
+    //               d.text,
+    //               configType.dataList,
+    //               configType.options
+    //             )[0];
+    //           }
 
-        }
-
-
-        if (type == "color") {
-          config.legends = [];
-        }
-
-        if (!(type == "icon" && cond_same)) {
-          config.legends.push(
-            {
-              title: configType.options.text
-            },
-            ...configType.dataList.map(d => {
-              const legend = {
-                text: `${d.text} (${d.count})`,
-                color: "grey",
-                icon: "circle"
-              };
-
-              legend[type] = restitution.valueOfType(
-                type,
-                d.text,
-                configType.dataList,
-                configType.options
-              )[0];
-              if (cond_same) {
-                legend["icon"] = restitution.valueOfType(
-                  "icon",
-                  d.text,
-                  configType.dataList,
-                  configType.options
-                )[0];
-              }
-
-              return legend;
-            })
-          );
-        }
-      }
-    }
+    //           return legend;
+    //         })
+    //       );
+    //     }
+    //   }
+    // }
 
     // add marker
-    for (const markerConfig of config.markers) {
-      this.addMarker(markerConfig);
-    }
-  },
+    // for (const markerConfig of config.markers) {
+    //   this.addMarker(markerConfig);
+    // }
+  // },
 
   markerLabel(marker) {
-    if (!marker.selected) {
-      return "";
-    }
     const color = marker.style.color || "blue";
     const icon = marker.style.icon || "circle";
     const colors = marker.style.colors || [color];
@@ -144,16 +135,15 @@ const mapMarker = {
       }
     }
     return label;
-  },
+  },  
 
   initMarkers() {
     this.removeMarkers();
-    for (const [key, markerConfig] of Object.entries(
-      this._config.markers || {}
-    )) {
-      markerConfig.key = key;
-      this.processMarkersConfig(markerConfig); //filter & color & legend
-    }
+    for (const marker of 
+      this._config.markers || []) {
+          this.addMarker(marker);
+        }
+    
     this.upConfig();
   },
 
@@ -191,7 +181,6 @@ const mapMarker = {
         .addTo(this._map);
     }
 
-    marker.selected = markerConfig.selected;
     marker.type = markerConfig.type;
     marker.properties = markerConfig.properties;
     marker.style = markerConfig.style;
@@ -201,42 +190,42 @@ const mapMarker = {
     this.setMarkerStyle(marker);
   },
 
-  applyFilters(marker) {
-    let cond = true;
-    for (const filter of this._markerFilters) {
-      let condFilter = true;
-      if (filter.type == "selectLayer") {
-        condFilter = this.condFilterSelectLayer(filter, marker);
-      }
-      cond = cond && condFilter;
-    }
-    marker.selected = cond;
-  },
+  // applyFilters(marker) {
+  //   let cond = true;
+  //   for (const filter of this._markerFilters) {
+  //     let condFilter = true;
+  //     if (filter.type == "selectLayer") {
+  //       condFilter = this.condFilterSelectLayer(filter, marker);
+  //     }
+  //     cond = cond && condFilter;
+  //   }
+  //   marker.selected = cond;
+  // },
 
-  condFilterSelectLayer(filter, marker) {
-    let value = this.baseModel[filter.key];
-    if (!value || (Array.isArray(value) && !value.length)) {
-      return true;
-    }
-    if (!Array.isArray(value)) {
-      value = [value];
-    }
+  // condFilterSelectLayer(filter, marker) {
+  //   let value = this.baseModel[filter.key];
+  //   if (!value || (Array.isArray(value) && !value.length)) {
+  //     return true;
+  //   }
+  //   if (!Array.isArray(value)) {
+  //     value = [value];
+  //   }
 
-    let valueMarker = marker.properties[filter.markerFieldName];
+  //   let valueMarker = marker.properties[filter.markerFieldName];
 
-    if (!valueMarker || (Array.isArray(valueMarker) && !valueMarker.length)) {
-      return false;
-    }
-    if (!Array.isArray(valueMarker)) {
-      valueMarker = [valueMarker];
-    }
-    const cond = value.find(v => valueMarker.includes(v));
-    return cond;
-  },
+  //   if (!valueMarker || (Array.isArray(valueMarker) && !valueMarker.length)) {
+  //     return false;
+  //   }
+  //   if (!Array.isArray(valueMarker)) {
+  //     valueMarker = [valueMarker];
+  //   }
+  //   const cond = value.find(v => valueMarker.includes(v));
+  //   return cond;
+  // },
 
   setMarkerStyle(marker) {
-    marker.style.opacity = marker.selected ? 1 : 0.1;
-    marker.style.fillOpacity = marker.selected ? 0.2 : 0;
+    marker.style.opacity = 1;
+    marker.style.fillOpacity = 0.2;
     if (marker.type == "marker") {
       marker.setOpacity(marker.style.opacity);
     } else if (marker.type == "circle") {

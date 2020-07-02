@@ -2,7 +2,27 @@
     margin-left: 20px;
 }
 
-.flex-container {
+.page-restitution {
+    width: 100%;
+    margin: 10px;
+}
+
+.container {
     display: flex;
     flex-direction: row;
+}
+
+.result {
+    width: 70%;
+}
+
+.restitution.td:first-child {
+ width: 55%;
+}
+
+.restitution.td:not:first-child {
+    width: 15%;
+}
+.restitution {
+    width: 30%;
 }

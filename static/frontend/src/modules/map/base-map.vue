@@ -29,7 +29,9 @@
         </div>
       </div>
       <div>
-        <slot name="aside"> </slot>
+        <slot name="aside">
+          {{!!(mapService && mapService._config)}}
+        </slot>
       </div>
     </div>
   </div>

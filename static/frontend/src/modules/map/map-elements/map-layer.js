@@ -235,14 +235,6 @@ const mapLayer = {
       }
     };
 
-    if (layerConfig.select.markerFilter) {
-      this._markerFilters.push({
-        type: "selectLayer",
-        markerFieldName: layerConfig.select.markerFilter.markerFieldName,
-        key
-      });
-    }
-
     const configSelects = {
       name: key,
       label: layerConfig.legend,
