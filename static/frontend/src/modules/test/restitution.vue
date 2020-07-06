@@ -60,7 +60,7 @@ export default {
       },
       filters: [],
       settings: {
-        display: "map",
+        display: "graph",
         color: {
           text: "Secteur",
           split: ", ",

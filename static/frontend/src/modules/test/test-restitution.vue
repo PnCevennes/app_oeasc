@@ -12,6 +12,8 @@
         </div>
 
         <div v-if="results.display == 'graph'">
+          <graph-restitution :results="results"></graph-restitution>
+
         </div>
       </div>
 
@@ -31,6 +33,7 @@
 import restitution from "./restitution.vue";
 import tableRestitution from "./table-restitution";
 import mapRestitution from "./map-restitution";
+import graphRestitution from "./graph-restitution";
 import "./restitution.css";
 import configDeclaration from "./config-declarations.js";
 
@@ -40,6 +43,7 @@ export default {
     restitution,
     tableRestitution,
     mapRestitution,
+    graphRestitution,
   },
   data: () => ({
     declarations: null,

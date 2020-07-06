@@ -128,12 +128,11 @@ def create_cor_role_token(data):
 
     role = DB.session.query(User).filter(id_role == User.id_role).first()
 
-    url_validation = config['URL_APPLICATION'] + url_for('user.change_password', token=token)
-
+    # url_validation = config['URL_APPLICATION'] + url_for('user.change_password', token=token)
     recipients = [role.email]
+
     subject = 'changement de mot de passe'
     msg_html = render_template('modules/oeasc/mail/change_password.html', 
-        url_validation=url_validation,
         token=token,
     )
 

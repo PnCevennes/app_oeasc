@@ -115,11 +115,6 @@ export default {
     };
   },
   mounted() {
-    this.$refs.form.baseModel = {
-      email: "joelclems@gmail.com",
-      password_confirmation: "1234",
-      password: "1234"
-    };
   }
 };
 </script>

@@ -1,5 +1,5 @@
 <template>
-  <div v-if="results">
+  <div v-if="results" class='restitution-table'>
     <div v-for="[key, result] of Object.entries(results.choix)" :key="key">
       <h3>{{ result.text }}</h3>
 
