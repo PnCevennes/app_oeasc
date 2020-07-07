@@ -136,7 +136,7 @@
                 d =>
                   d.id_nomenclature_degat_type === item.id_nomenclature &&
                   item.cd_nomenclature !== 'P/C' &&
-                  (d.degat_essences.length === 0 ||
+                  ((d.degat_essences || []).length === 0 ||
                     showDegatEssenceForm === d.id_nomenclature_degat_type)
               )
             "
@@ -205,9 +205,9 @@
                     !freeze &&
                     d.id_nomenclature_degat_type === item.id_nomenclature &&
                     item.cd_nomenclature !== 'P/C' &&
-                    d.degat_essences.length > 0 &&
-                    d.degat_essences.length < 3 &&
-                    d.degat_essences.length <
+                    (d.degat_essences || []).length > 0 &&
+                    (d.degat_essences || []).length < 3 &&
+                    (d.degat_essences || []).length <
                       essenceSelected('degats').length &&
                     showDegatEssenceForm !== d.id_nomenclature_degat_type
                 )
