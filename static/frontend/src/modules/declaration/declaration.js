@@ -119,7 +119,7 @@ const rawToDisplay = function({ declaration, $store }) {
     );
     console.log('mnemo', degat.degat_type_mnemo)
 
-    for (const degatEssence of degat.degat_essences) {
+    for (const degatEssence of (degat.degat_essences || [])) {
       degatEssence.degat_essence_label = $store.getters.nomenclatureString(
         degatEssence.id_nomenclature_degat_essence
       );

@@ -36,28 +36,29 @@ export default {
         return;
       }
 
-      const categories = this.results.choix.color.dataList.map(
+      const categories = this.results.choix.choix1.dataList.map(
         data => data.text
       );
       const series = [
         {
-          name: this.results.choix.color.text,
+          name: this.results.choix.choix1.text,
           colorByPoint: true,
 
-          data: this.results.choix.color.dataList.map(data => ({
+          data: this.results.choix.choix1.dataList.map(data => ({
             name: data.text,
             y: data.count,
-            color: data.color,
+            color: data.color
           }))
         }
       ];
-      const data = this.results.choix.color.dataList.map(data => data.count);
+      const data = this.results.choix.choix1.dataList.map(data => data.count);
       console.log(categories, data);
-      const yTitle = this.results.choix.color.text;
+      const yTitle = this.results.choix.choix1.text;
 
       const chartOptions = {
         chart: {
-          type: "column"
+          // type: "pie",
+          type: this.results.typeGraph
         },
         title: "Test graphique",
         xAxis: {

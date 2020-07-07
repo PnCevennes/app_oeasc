@@ -1,16 +1,34 @@
 <template>
   <div v-if="dataIn">
-    <listForm :config="configDisplay" :baseModel="settings"></listForm>
+    <dynamic-form-group
+      :config="configFormGroup"
+      :baseModel="settings"
+    ></dynamic-form-group>
 
-    <h3>Choix</h3>
-    <listForm
-      :config="configChoix('color', 'Couleur')"
-      :baseModel="settings"
-    ></listForm>
-    <listForm
-      :config="configChoix('icon', 'Icône')"
-      :baseModel="settings"
-    ></listForm>
+    <!-- <listForm :config="configDisplay" :baseModel="settings"></listForm> -->
+    <!-- <div v-if="['map', 'table'].includes(settings.display)">
+      <listForm
+        :config="configChoix('color', 'Couleur')"
+        :baseModel="settings"
+      ></listForm>
+      <listForm
+        :config="configChoix('icon', 'Icône')"
+        :baseModel="settings"
+      ></listForm>
+    </div>
+    <div v-if="settings.display == 'graph'">
+      <listForm :config="configTypeGraph" :baseModel="settings"></listForm>
+      <dynamic
+      <listForm
+        :config="configChoix('choix1', 'Choix 1')"
+        :baseModel="settings"
+      ></listForm>
+      <listForm
+        :config="configChoix('choix2', 'Choix 2')"
+        :baseModel="settings"
+      ></listForm>
+    </div> -->
+
     <h3>Filtres</h3>
     <list-form :config="filterSelect" :baseModel="settings"></list-form>
     <div class="filters" v-for="(filter, index) of filters" :key="index">
@@ -27,27 +45,15 @@
 
 <script>
 import { restitution } from "@/core/js/restitution";
-import listForm from "@/components/form/list-form";
+import dynamicFormGroup from "@/components/form/dynamic-form-group";
+import configFormConfiguration from "./config-form-configuration.js";
 
 export default {
   name: "restitution",
   props: ["dataIn", "config"],
-  components: { listForm },
+  components: { dynamicFormGroup },
   data() {
     return {
-      configDisplay: {
-        name: "display",
-        display: "button",
-        label: "Affichage",
-        items: [
-          { value: "table", text: "Tableau" },
-          { value: "map", text: "Carte" },
-          { value: "graph", text: "Graphique" }
-        ],
-        change: () => {
-          this.processChoix();
-        }
-      },
       dataFiltered: [],
       filterSelect: {
         display: "autocomplete",
@@ -59,22 +65,8 @@ export default {
         items: this.items()
       },
       filters: [],
-      settings: {
-        display: "graph",
-        color: {
-          text: "Secteur",
-          split: ", ",
-          color: {
-            "Causses et Gorges": "#e8e805",
-            "Mont Aigoual": "red",
-            "Mont Lozère": "blue",
-            "Vallées cévenoles": "green"
-          },
-          name: "secteur"
-        },
-        icon: { text: "Organisme", name: "organisme", split: ", " }
-      },
-      listChoix: ["color", "icon"],
+      settings: {},
+      listChoix: ["color", "icon", "choix1", "choix2"],
       results: {}
     };
   },
@@ -83,7 +75,24 @@ export default {
       this.processChoix();
     }
   },
+  mounted() {
+    this.settings = {
+      display: "graph",
+      typeGraph: "pie"
+    };
+    this.settings.color = this.items().find(item => item.name == "secteur");
+    this.settings.icon = this.items().find(item => item.name == "organisme");
+    this.settings.choix1 = this.items().find(item => item.name == "secteur");
+    this.settings.choix2 = this.items().find(item => item.name == "organisme");
+    for (const key of Object.keys(configFormConfiguration)) {
+      configFormConfiguration[key].name = key;
+      configFormConfiguration[key].change = this.change;
+    }
+  },
   methods: {
+    change() {
+      this.processChoix()
+    },
     filterSelectChange() {
       this.filters = [];
       setTimeout(() => {
@@ -115,24 +124,10 @@ export default {
       return items;
     },
 
-    configChoix(name, label) {
-      return {
-        name,
-        label,
-        display: "autocomplete",
-        type: "list_form",
-        returnObject: true,
-        items: this.items(name),
-        change: () => {
-          this.processChoix();
-        }
-      };
-    },
-
     processChoix() {
       this.dataFiltered = this.getDataFiltered();
       this.results = {
-        display: this.settings.display,
+        ...this.settings,
         choix: {}
       };
       for (const name of this.listChoix) {
@@ -143,7 +138,7 @@ export default {
             nMax: 7 // TODO
           }),
           text: this.settings[name].text,
-          name: this.settings[name].name,
+          name: this.settings[name].name
         };
       }
       this.results.markers = this.markers();
@@ -182,27 +177,32 @@ export default {
     },
 
     markerLegendGroups() {
-      const icon_default = 'circle';
-      const color_default = 'rgb(150,150,150)';
+      const icon_default = "circle";
+      const color_default = "rgb(150,150,150)";
       const markerLegendGroups = [];
       const cond_same =
         this.results.choix.color &&
         this.results.choix.icon &&
         this.results.choix.icon.name == this.results.choix.color.name;
-      console.log(cond_same, this.results.choix.icon, this.results.choix.color.name)
+      console.log(
+        cond_same,
+        this.results.choix.icon,
+        this.results.choix.color.name
+      );
       for (const [name, res] of Object.entries(this.results.choix || {})) {
         const markerLegends = {
           title: res.text,
-          legends: res.dataList.map((data) =>({
+          legends: res.dataList.map(data => ({
             text: data.text,
             count: data.count,
-            icon: (cond_same || name == 'icon')  && data.icon || icon_default,
-            color: (cond_same || name == 'color')  && data.color || color_default,
+            icon: ((cond_same || name == "icon") && data.icon) || icon_default,
+            color:
+              ((cond_same || name == "color") && data.color) || color_default
           }))
         };
         markerLegendGroups.push(markerLegends);
 
-        if(cond_same) break;
+        if (cond_same) break;
       }
       return markerLegendGroups;
     },

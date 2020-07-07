@@ -7,10 +7,10 @@
     margin: 10px;
 }
 
-.container {
+.container-restitution {
     display: flex;
     flex-direction: row;
-}
+}.
 
 .result {
     width: 70%;

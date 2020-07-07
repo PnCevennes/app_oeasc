@@ -1,6 +1,6 @@
 <template>
   <div class="page-restitution">
-    <div class="container">
+    <div class="container-restitution">
       <div class="result" v-if="results">
 
         <div v-if="results.display == 'table'">
