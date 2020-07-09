@@ -66,8 +66,6 @@ class MapService {
   };
 
   upConfig() {
-    console.log("upconfig", (this._config.markerLegendGroups || []).map(a=>a.title)) 
-
     this._config = copy(this._config);
   }
 

@@ -6,6 +6,7 @@ import {
 } from "./declaration";
 import { STORE as data_store } from "./data";
 import { ROUTE as test_routes } from "./test";
+import { ROUTE as restitution_routes } from "./restitution";
 import { ROUTE as page_routes } from "./page";
 import { ROUTE as in_routes, STORE as in_store } from "./in";
 import { STORE as map_store } from "./map";
@@ -16,7 +17,8 @@ const MODULES_ROUTES = [
   ...declaration_routes,
   ...test_routes,
   ...page_routes,
-  ...in_routes
+  ...in_routes,
+  ...restitution_routes
 ];
 
 const stores = [

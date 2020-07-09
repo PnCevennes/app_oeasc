@@ -12,7 +12,9 @@
           </div>
           <v-btn-toggle
             v-model="baseModel[config.name]"
-            @change="config.change && config.change($event)"
+            @change="
+              config.change && config.change({ baseModel, config, $store })
+            "
             dense
           >
             <v-btn
@@ -45,7 +47,9 @@
             :search-input.sync="search"
             :placeholder="config.placeholder"
             :filter="config.dataReloadOnSearch && customFilter"
-            @change="config.change && config.change($event)"
+            @change="
+              config.change && config.change({ baseModel, config, $store })
+            "
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
             no-data-text=""
@@ -76,7 +80,9 @@
             :search-input.sync="search"
             :placeholder="config.placeholder"
             :filter="config.dataReloadOnSearch && customFilter"
-            @change="config.change && config.change($event)"
+            @change="
+              config.change && config.change({ baseModel, config, $store })
+            "
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
             no-data-text="Pas de donnée disponible"
@@ -110,8 +116,7 @@
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
             @change="
-              config.change &&
-                config.change({ baseModel, $store, config, event: $event })
+              config.change && config.change({ baseModel, config, $store })
             "
           >
             <span slot="label"
@@ -150,8 +155,7 @@
                 :rules="config.rules"
                 :disabled="config.disabled"
                 @change="
-                  config.change &&
-                    config.change({ baseModel, $store, config, event: $event })
+                  config.change && config.change({ baseModel, config, $store })
                 "
               ></v-checkbox>
               <help
@@ -191,12 +195,7 @@
                         :disabled="config.disabled"
                         @change="
                           config.change &&
-                            config.change({
-                              baseModel,
-                              $store,
-                              config,
-                              event: $event
-                            })
+                            config.change({ baseModel, config, $store })
                         "
                       >
                       </v-radio>

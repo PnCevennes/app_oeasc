@@ -1,24 +1,4 @@
-// import { restitution } from "@/core/js/restitution";
-
 const L = window.L;
-/**
-config {
-    markerList: {
-        <key>: {
-            legend: "legend",
-            markers: [
-                ...
-                {
-                    coords: [lat, lon],
-                    autre ?? type etc...
-                }
-                ...
-            ]
-        }
-    }
-}
-
- */
 
 const mapMarker = {
   _markers: [],
@@ -30,97 +10,12 @@ const mapMarker = {
     this._markers = [];
   },
 
-  // processMarkersConfig(config) {
-    // config.markers = config.data.map(d => ({
-    //   type: config.type,
-    //   properties: d,
-    //   style: config.style || {},
-    //   icon: config.icon,
-    //   coords: d[config.coords],
-    //   selected: true
-    // }));
-
-    //filter
-    // for (const markerConfig of config.markers) {
-    //   this.applyFilters(markerConfig);
-    // }
-
-    // const cond_same =
-    //   config.color &&
-    //   config.icon &&
-    //   config.color.options.name == config.icon.options.name;
-
-    // color ...icon a mettre ailleur la carte ne fais que afficher elle ne calcule pas
-    // for (const type of ["color", "icon"]) {
-    //   const configType = config[type];
-    //   if (configType) {
-    //     configType.dataList = restitution.dataList(
-    //       config.markers.map(m => ({ ...m.properties, selected: m.selected })),
-    //       configType.options
-    //     );
-
-    //     for (const markerConfig of config.markers) {
-    //       const out = restitution.valueOfType(
-    //         type,
-    //         markerConfig.properties[configType.options.name],
-    //         configType.dataList,
-    //         configType.options
-    //       );
-    //       const types = type + "s";
-    //       markerConfig.style[type] = out[0];
-    //       markerConfig.style[types] = out;
-    //       markerConfig.cond_same = cond_same;
-    //     }
-
-    //     if (type == "color") {
-    //       config.legends = [];
-    //     }
-
-    //     if (!(type == "icon" && cond_same)) {
-    //       config.legends.push(
-    //         {
-    //           title: configType.options.text
-    //         },
-    //         ...configType.dataList.map(d => {
-    //           const legend = {
-    //             text: `${d.text} (${d.count})`,
-    //             color: "grey",
-    //             icon: "circle"
-    //           };
-
-    //           legend[type] = restitution.valueOfType(
-    //             type,
-    //             d.text,
-    //             configType.dataList,
-    //             configType.options
-    //           )[0];
-    //           if (cond_same) {
-    //             legend["icon"] = restitution.valueOfType(
-    //               "icon",
-    //               d.text,
-    //               configType.dataList,
-    //               configType.options
-    //             )[0];
-    //           }
-
-    //           return legend;
-    //         })
-    //       );
-    //     }
-    //   }
-    // }
-
-    // add marker
-    // for (const markerConfig of config.markers) {
-    //   this.addMarker(markerConfig);
-    // }
-  // },
-
   markerLabel(marker) {
     const color = marker.style.color || "blue";
     const icon = marker.style.icon || "circle";
-    const colors = marker.style.colors || [color];
-    const icons = marker.style.icons || [icon];
+    const colors = Array.isArray(color) ? color : [color];
+    const icons = Array.isArray(icon) ? icon : [icon];
+
     let label = "";
 
     if (marker.cond_same) {
@@ -135,15 +30,14 @@ const mapMarker = {
       }
     }
     return label;
-  },  
+  },
 
   initMarkers() {
     this.removeMarkers();
-    for (const marker of 
-      this._config.markers || []) {
-          this.addMarker(marker);
-        }
-    
+    for (const marker of this._config.markers || []) {
+      this.addMarker(marker);
+    }
+
     this.upConfig();
   },
 

@@ -65,11 +65,6 @@ import * as chroma from "chroma-js";
 export default {
   name: "mapLegend",
   props: ["config"],
-  watch: {
-    config() {
-      console.log("watch legend config");
-    }
-  },
   methods: {
     getColor(color, opacity) {
       return chroma(color || "black").alpha(opacity);

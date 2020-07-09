@@ -9,6 +9,15 @@
   border: 0px;
 }
 
+.no-margin {
+  margin: 0px;
+}
+
+.no-padding {
+  padding: 0px;
+}
+
+
 .flex-container {
   display: flex;
   flex-direction: column;
@@ -71,5 +80,5 @@
 }
 
 .form-declaration {
-  margin: 10px 50px;
+  margin: 10px 100px;
 }

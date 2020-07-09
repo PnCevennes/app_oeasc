@@ -1,10 +1,8 @@
 <template>
   <div v-show="!configForm.hidden" :ref="config.name">
-
     <template v-if="configForm.displayValue && configForm.displayLabel">
       <b>{{ configForm.label }} : </b>
     </template>
-
 
     <!-- test config -->
     <template v-if="!configForm.valid">
@@ -16,12 +14,10 @@
     <!-- test cond-->
     <template v-else-if="!configForm.condition"> </template>
 
-
     <!-- list -->
     <template v-else-if="configForm.type === 'list'">
       <list :config="configForm" :baseModel="baseModel"></list>
     </template>
-
 
     <!-- Boolean radio -->
     <template v-else-if="configForm.type === 'bool_radio'">
@@ -65,6 +61,9 @@
         v-else
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
+        @change="
+          configForm.change && configForm.change({ baseModel, config, $store })
+        "
       ></v-switch>
     </template>
 
@@ -100,7 +99,9 @@
         :counter="configForm.counter"
         :maxlength="configForm.maxlength"
         :disabled="configForm.disabled"
-        @change="configForm.change && configForm.change(baseModel)($event)"
+        @change="
+          configForm.change && configForm.change({ baseModel, config, $store })
+        "
         @click:append="
           if (config.type === 'password') {
             show1 = !show1;
@@ -193,7 +194,7 @@ import essenceForm from "./essence-form.vue";
 import degatsForm from "./degats-form.vue";
 import oeascContent from "@/modules/content/content";
 import help from "./help";
-import list from './list';
+import list from "./list";
 
 import { formFunctions } from "@/components/form/functions.js";
 
@@ -228,7 +229,7 @@ export default {
       "degats",
       "content",
       "password",
-      "list",
+      "list"
     ],
     configForm: null
   }),

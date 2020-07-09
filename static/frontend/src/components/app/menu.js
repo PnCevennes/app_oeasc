@@ -34,12 +34,14 @@ const menus = {
       "user.gerer_utilisateurs"
     ]
   },
-  test: {
-    name: "test",
-    labelDrawer: "Test",
-    names: ["test.restitution"],
+
+  restitution: {
+    name: "restitution",
+    labelDrawer: "Restitution",
+    names: ["restitution.test"],
     condition: ({ $store }) => $store.getters.droitMax >= 5
   },
+
   indices_nocturnes: {
     name: "in.index",
     names: [

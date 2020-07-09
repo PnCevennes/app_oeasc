@@ -29,9 +29,7 @@
         </div>
       </div>
       <div>
-        <slot name="aside">
-          {{!!(mapService && mapService._config)}}
-        </slot>
+        <slot name="aside"> </slot>
       </div>
     </div>
   </div>
@@ -56,7 +54,7 @@ export default {
       const key = $event.detail.key;
       this.configSelects[key] = this.mapService.configSelect(key);
       this.configSelects = { ...this.configSelects };
-    },
+    }
   },
   computed: {
     computedHeight() {
@@ -65,7 +63,7 @@ export default {
         : this.height
         ? this.height
         : "fillHeight" in this.$props && this.$el
-        ? `${document.documentElement.clientHeight - this.$el.offsetTop -40}px`
+        ? `${document.documentElement.clientHeight - this.$el.offsetTop - 40}px`
         : "600px";
       return computedHeight;
     }

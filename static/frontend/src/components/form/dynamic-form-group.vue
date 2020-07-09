@@ -4,7 +4,9 @@
       v-if="config.forms && hasForms(config)"
       :class="{
         'form-group': true,
-        'no-border': config.class && config.class.includes('no-border')
+        'no-border': config.class && config.class.includes('no-border'),
+        'no-margin': config.class && config.class.includes('no-margin'),
+        'no-padding': config.class && config.class.includes('no-padding')
       }"
     >
       <h4>
