@@ -79,7 +79,7 @@ export default {
                   `/declaration/voir_declaration/${item.id_declaration}`
               },
               {
-                title: "Voir la déclaration",
+                title: "Éditer la déclaration",
                 icon: "mdi-pencil",
                 to: ({ item }) =>
                   `/declaration/declarer_en_ligne/${item.id_declaration}?keySession=all`,

@@ -14,7 +14,8 @@
             config.groups
           )"
           :key="keyFormGroup"
-          :config="configFormGroup"
+          :config="{
+          ...configFormGroup, class: 'border margin padding'}"
           :baseModel="baseModel"
         >
         </dynamic-form-group>

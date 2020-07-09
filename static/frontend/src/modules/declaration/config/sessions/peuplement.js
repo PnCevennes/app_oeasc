@@ -33,7 +33,7 @@ const sessionsPeuplement = {
         title: "Origine et structure",
         direction: "row",
         forms: [
-          "id_nomenclature_peuplement_origine",
+          // "id_nomenclature_peuplement_origine",
           "nomenclatures_peuplement_origine2",
           "id_nomenclature_peuplement_type",
           "nomenclatures_peuplement_maturite"

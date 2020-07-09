@@ -140,7 +140,28 @@ const rules = {
         config.rules.push(rules[key](config[key]));
       }
     }
+  },
+
+};
+
+const processConfig = function(forms, formGroup) {
+  console.log('processConfig')
+  for (const key of Object.keys(formGroup)) {
+    if (key == 'groups') {
+      const groups = {}
+      for (const keyGroup of Object.keys(formGroup.groups)) {
+        groups[keyGroup] = processConfig(forms, formGroup.groups[keyGroup]);
+      } 
+      formGroup.groups = groups;
+    }
+    if (key == 'forms') {
+      formGroup.forms = formGroup.forms.map(keyForm => forms.find(form => form.name == keyForm)); 
+      console.log('forms', formGroup.forms, forms)
+    }
   }
+  console.log('end processConfig')
+
+  return formGroup;
 };
 
 const formFunctions = {
@@ -148,7 +169,11 @@ const formFunctions = {
   change,
   rules,
   getEssencesSelected,
-  processAreas
+  processAreas,
+  processConfig
 };
+
+
+
 
 export { formFunctions };

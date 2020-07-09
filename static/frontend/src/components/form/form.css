@@ -1,36 +1,45 @@
 .form-group {
+  margin:  5px 0;
+  padding:  5px 0;
+}
+
+.form-group.border {
   border: 1px solid lightgrey;
   border-radius: 10px;
+}
+
+.form-group.margin {
   margin: 10px;
+}
+
+.form-group.padding {
   padding: 10px;
 }
 
-.no-border {
-  border: 0px;
+.dynamic-form {
+  width: 100%;
 }
 
-.no-margin {
-  margin: 0px;
-}
-
-.no-padding {
-  padding: 0px;
-}
-
-
-.flex-container {
+/* .flex-container {
+  background-color: blue; 
   display: flex;
   flex-direction: column;
-}
+} */
 
+/*
 .flex-row {
   flex-direction: row;
 }
 
 .flex-container > div {
   flex-grow: 1;
-  padding: 0 5px;
 }
+
+.flex-container.flex-row > div:not(:first-child) {
+  padding-left: 5px;
+  background-color: rgba(10,10,10, 0.1);
+} */
+
 
 .flex-5 > div {
   width: 20%;
@@ -75,9 +84,9 @@
   position: relative;
 }
 
-.list-form {
+/* .list-form {
   margin-top:13px;
-}
+} */
 
 .form-declaration {
   margin: 10px 100px;

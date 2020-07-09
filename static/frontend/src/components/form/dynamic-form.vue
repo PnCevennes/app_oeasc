@@ -1,5 +1,5 @@
 <template>
-  <div v-show="!configForm.hidden" :ref="config.name">
+  <div v-show="!configForm.hidden" :ref="config.name" class='dynamic-form'>
     <template v-if="configForm.displayValue && configForm.displayLabel">
       <b>{{ configForm.label }} : </b>
     </template>
@@ -92,10 +92,10 @@
               : 'mdi-eye-off'
             : null
         "
+        dense
         v-model="baseModel[configForm.name]"
         :rules="configForm.rules"
         :label="configForm.label"
-        :dense="config.dense"
         :counter="configForm.counter"
         :maxlength="configForm.maxlength"
         :disabled="configForm.disabled"
@@ -127,7 +127,6 @@
       <span v-if="configForm.displayValue">
         {{ baseModel[configForm.name] }}
       </span>
-
       <v-textarea
         v-else
         v-model="baseModel[configForm.name]"

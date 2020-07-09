@@ -51,6 +51,7 @@ const changeForetDocument = ({ config, baseModel, $store }) => {
 };
 
 const changeAreaForet = ({ config, baseModel, $store }) => {
+  console.log('aaa')
   reinitAreasForet({ config, baseModel });
 
   const id_area = baseModel[config.name];

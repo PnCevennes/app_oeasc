@@ -43,6 +43,7 @@ export default {
   },
   stacking: {
     type: "bool_switch",
-    label: "Stacking"
+    label: "Stacking",
+    condition: ({ baseModel }) => baseModel.display == "graph"
   }
 };

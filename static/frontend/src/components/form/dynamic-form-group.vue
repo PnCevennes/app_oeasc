@@ -4,15 +4,54 @@
       v-if="config.forms && hasForms(config)"
       :class="{
         'form-group': true,
-        'no-border': config.class && config.class.includes('no-border'),
-        'no-margin': config.class && config.class.includes('no-margin'),
-        'no-padding': config.class && config.class.includes('no-padding')
+        border: config.class && config.class.includes('border'),
+        margin: config.class && config.class.includes('margin'),
+        padding: config.class && config.class.includes('padding')
       }"
     >
       <h4>
         {{ config.title }}
         <help :code="`group-form-${config.name}`" v-if="config.help"></help>
       </h4>
+
+      <v-container>
+        <template v-if="config.direction === 'row'">
+          <v-row>
+            <v-col
+              v-for="[keyForm, configForm] in Object.entries(config.forms)"
+              :key="keyForm"
+            >
+              <dynamic-form
+                :config="{
+                  ...{ name: keyForm },
+                  ...configForm,
+                  displayValue: config.displayValue,
+                  displayLabel: config.displayLabel
+                }"
+                :baseModel="baseModel"
+              ></dynamic-form>
+            </v-col>
+          </v-row>
+        </template>
+        <template v-else>
+          <v-row
+            v-for="[keyForm, configForm] in Object.entries(config.forms)"
+            :key="keyForm"
+          >
+            <dynamic-form
+              :config="{
+                ...{ name: keyForm },
+                ...configForm,
+                displayValue: config.displayValue,
+                displayLabel: config.displayLabel
+              }"
+              :baseModel="baseModel"
+            ></dynamic-form>
+          </v-row>
+        </template>
+      </v-container>
+
+      <!-- 
       <div
         :class="{
           'flex-container': true,
@@ -30,22 +69,49 @@
           }"
           :baseModel="baseModel"
         ></dynamic-form>
-      </div>
+      </div> -->
     </div>
     <div
       v-else-if="config.groups"
-      :class="{
-        'flex-container': true,
-        'flex-row': config.direction === 'row'
-      }"
     >
-      <dynamic-form-group
-        v-for="[keyFormGroup, configFormGroup] in Object.entries(config.groups)"
-        :key="keyFormGroup"
-        :baseModel="baseModel"
-        :config="{ ...configFormGroup, displayValue: config.displayValue,
-        displayLabel: config.displayValue }"
-      ></dynamic-form-group>
+      <v-container>
+        <template v-if="config.direction === 'row'">
+          <v-row>
+            <v-col
+              v-for="[keyFormGroup, configFormGroup] in Object.entries(
+                config.groups
+              )"
+              :key="keyFormGroup"
+            >
+              <dynamic-form-group
+                :baseModel="baseModel"
+                :config="{
+                  ...configFormGroup,
+                  displayValue: config.displayValue,
+                  displayLabel: config.displayValue
+                }"
+              ></dynamic-form-group>
+            </v-col>
+          </v-row>
+        </template>
+        <template v-else>
+          <v-row
+            v-for="[keyFormGroup, configFormGroup] in Object.entries(
+              config.groups
+            )"
+            :key="keyFormGroup"
+          >
+            <dynamic-form-group
+              :baseModel="baseModel"
+              :config="{
+                ...configFormGroup,
+                displayValue: config.displayValue,
+                displayLabel: config.displayValue
+              }"
+            ></dynamic-form-group>
+          </v-row>
+        </template>
+      </v-container>
     </div>
   </div>
 </template>
