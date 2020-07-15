@@ -20,7 +20,6 @@ from app.modules.oeasc.nomenclature import (
     get_nomenclature_from_id,
     get_nomenclature
 )
-from app.utils.utilssqlalchemy import as_dict
 from .models import TForet, TProprietaire
 
 config = current_app.config

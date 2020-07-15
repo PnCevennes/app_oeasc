@@ -1,4 +1,3 @@
-from app.utils.utilssqlalchemy import as_dict
 from sqlalchemy import text
 from app.ref_geo.models import VAreas as TAreas
 from flask import current_app
@@ -18,23 +17,23 @@ def test_db():
     return result
 
 
-def get_db(type, key, val):
+# def get_db(type, key, val):
 
-    switch_model = {
+#     switch_model = {
 
-        "user": User,
-        "t_areas": TAreas,
-        "nomenclature": TNomenclatures,
-    }
+#         "user": User,
+#         "t_areas": TAreas,
+#         "nomenclature": TNomenclatures,
+#     }
 
-    table = switch_model.get(type, None)
+#     table = switch_model.get(type, None)
 
-    if table:
+#     if table:
 
-        data = DB.session.query(table).filter(getattr(table, key) == val).first()
+#         data = DB.session.query(table).filter(getattr(table, key) == val).first()
 
-        if data:
+#         if data:
 
-            return as_dict(data, True)
+#             return as_dict(data, True)
 
-    return "None"
+#     return "None"

@@ -2,10 +2,6 @@
   display: flex;
 }
 
-.flex-container {
-  display: flex;
-}
-
 .fil-arianne-container {
   display: flex;
   display: flex;
@@ -36,7 +32,7 @@
 }
 .form-declaration {
   width: 100%;
-  /* margin: 50px; */
+  margin-bottom: 50px;
 }
 
 div.form-session-container.isSession {

@@ -4,7 +4,6 @@ from flask import current_app
 from sqlalchemy import func
 from .models import TForet, TProprietaire
 from pypnusershub.db.models import User
-from app.utils.utilssqlalchemy import as_dict
 
 
 config = current_app.config

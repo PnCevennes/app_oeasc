@@ -6,7 +6,10 @@
           config.groups
         )"
         :key="keySessionGroup"
-        @click="condValidSessionGroup(keySessionGroup) && onSessionGroupClick(keySessionGroup)"
+        @click="
+          condValidSessionGroup(keySessionGroup) &&
+            onSessionGroupClick(keySessionGroup)
+        "
         :class="{
           'current-group': condCurrentGroup(keySessionGroup),
           'valid-group': condValidSessionGroup(keySessionGroup)
@@ -34,7 +37,8 @@
             'valid-session': condValidSession(keySession)
           }"
         >
-          {{ indexGroup + 1 }}.{{ indexSession + 1 }} - {{ configSession.title }}
+          {{ indexGroup + 1 }}.{{ indexSession + 1 }} -
+          {{ configSession.title }}
         </div>
       </template>
     </div>
@@ -44,8 +48,13 @@
 import "./declaration.css";
 export default {
   name: "fil-arianne",
-  props: ["config", "keySession", "validForms"],
+  props: ["config", "keySession", "validForms", "freeze"],
   data: () => ({}),
+  watch: {
+    freeze() {
+      console.log('watch freeze')
+    }
+  },
   methods: {
     onSessionGroupClick(keySessionGroup) {
       const keySession = this.$store.getters.configDeclaration.firstSession(
@@ -66,7 +75,7 @@ export default {
     },
 
     condValidSession(keySession) {
-      return this.$store.getters.configDeclaration.condValidSession(keySession, this.validForms);
+      return this.$store.getters.configDeclaration.condValidSession(keySession, this.validForms) && !this.freeze;
       // return this.validForms[keySession];
     },
 
@@ -74,7 +83,7 @@ export default {
       const keySession = this.$store.getters.configDeclaration.firstSession(
         keySessionGroup
       );
-      return this.condValidSession(keySession);
+      return this.condValidSession(keySession)  && !this.freeze;
     },
 
     condCurrentSession(keySession) {

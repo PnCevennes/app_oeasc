@@ -5,7 +5,7 @@
 from dateutil import parser
 from flask import current_app
 
-from .repository import get_db
+# from .repository import get_db
 from .declaration.repository import get_foret_type
 from .declaration.utils import get_areas_from_type_code
 
@@ -44,7 +44,7 @@ def to_string(x):
 
 
 utils_dict = {
-    "get_db": get_db,
+    # "get_db": get_db,
     'print_date': print_date,
     'get_areas_from_type_code': get_areas_from_type_code,
     'get_foret_type': get_foret_type,

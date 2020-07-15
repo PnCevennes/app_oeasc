@@ -26,11 +26,11 @@
           absolute
           color="success"
           @click="action()"
+          :disabled='freeze'
           v-if="this.config.action || this.keySession != 'all'"
         >
           {{ (this.config.action && this.config.action.label) || "Suivant" }}
         </v-btn>
-        
       </v-row>
       <span style="color:red">*</span> <i>champs obligatoires.</i>
       </v-form>
@@ -93,9 +93,18 @@ export default {
   data: () => ({
     // affichage modal quand la requete post est lancée
     bModalPost: false,
-    bModalSuccess: false
+    bModalSuccess: false,
+    freeze: null,
   }),
-  watch: {},
+  watch: {
+    baseModel: {
+      deep:true,
+      handler() {
+        console.log('freeze', this.baseModel.freeze);
+        this.freeze = this.baseModel.freeze;
+      }
+    }
+  },
   props: ["config", "baseModel", "validForms", "keySession"],
   methods: {
     action: function() {

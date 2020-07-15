@@ -7,7 +7,7 @@ from app.modules.oeasc.nomenclature import nomenclature_oeasc
 from utils_flask_sqla.response import json_resp
 
 
-from .repository import get_db
+# from .repository import get_db
 
 config = current_app.config
 DB = config['DB']
@@ -41,12 +41,12 @@ def get_nomenclature(nomenclature_type):
 
 
 
-@bp.route('get_db/<type_data>/<key>/<val>', methods=['GET'])
-@json_resp
-def api_get_db(type_data, key, val):
-    '''
-        pour recuperer des infos (par exemple email d'un utilisateurs)
-        TODO remove
-    '''
-    out = get_db(type_data, key, val)
-    return out
+# @bp.route('get_db/<type_data>/<key>/<val>', methods=['GET'])
+# @json_resp
+# def api_get_db(type_data, key, val):
+#     '''
+#         pour recuperer des infos (par exemple email d'un utilisateurs)
+#         TODO remove
+#     '''
+#     out = get_db(type_data, key, val)
+#     return out

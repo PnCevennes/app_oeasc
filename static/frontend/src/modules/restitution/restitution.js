@@ -169,14 +169,21 @@ const restitution = {
 
     for (const data1 of dataList1) {
       data1.data2 = [];
+      console.log(data1.text);
       for (const data2 of dataList2) {
         let countData2 = 0;
         for (const d of data) {
           const value1 = this.getValue(d[name1], options1);
           const value2 = this.getValue(d[name2], options2);
-          const cond1 = value1.includes(data1.text);
-          const cond2 = value2.includes(data2.text);
-          if (cond1 && cond2) {
+          const cond1 = data1.text != "Autres" && value1.includes(data1.text);
+          const cond2 = data2.text != "Autres" && value2.includes(data2.text);
+          const cond1_autre =
+            data1.text == "Autres" &&
+            data1.autres.some(textAutre => value1.includes(textAutre));
+          const cond2_autre =
+            data2.text == "Autres" &&
+            data2.autres.some(textAutre => value2.includes(textAutre));
+          if ((cond1 || cond1_autre) && (cond2 || cond2_autre)) {
             countData2++;
           }
         }
@@ -187,7 +194,7 @@ const restitution = {
   },
 
   cutDataList(dataList, nMax) {
-    const elemAutres = { text: "Autres", count: 0 };
+    const elemAutres = { text: "Autres", count: 0, autres: [] };
     const out = [];
     for (let i = 0; i < dataList.length; i++) {
       if (i < nMax) {
@@ -196,6 +203,7 @@ const restitution = {
         if (i == nMax) {
           out.push(elemAutres);
         }
+        elemAutres.autres.push(dataList[i].text);
         elemAutres.count += 1;
       }
     }

@@ -8,6 +8,7 @@
         :config="config"
         :keySession="keySession"
         :validForms="validForms"
+        :freeze="declaration.freeze"
       >
       </fil-arianne>
       <div
@@ -23,18 +24,21 @@
           )"
           :key="keySessionCur"
         >
-        <div
-          :class="{'form-session-container':true, 'isSession': keySession != 'all'}"
+          <div
+            :class="{
+              'form-session-container': true,
+              isSession: keySession != 'all'
+            }"
             v-if="showSession(keySessionCur)"
-        >
-          <form-session
-          class="session"
-            :baseModel="declaration"
-            :config="configSession"
-            :validForms="validForms"
-            :keySession="keySession"
-          ></form-session>
-          </div> 
+          >
+            <form-session
+              class="session"
+              :baseModel="declaration"
+              :config="configSession"
+              :validForms="validForms"
+              :keySession="keySession"
+            ></form-session>
+          </div>
         </div>
       </div>
     </div>
@@ -71,6 +75,13 @@ export default {
       if (this.idDeclaration != this.declaration.id_declaration) {
         this.initDeclarationForm();
       }
+    },
+    declaration: {
+      deep: true,
+      handler() {
+        console.log('dec watch freeze', this.declaration.freeze)
+        this.freeze = this.declaration.freeze;
+      }
     }
   },
 
@@ -78,7 +89,8 @@ export default {
     config: configDeclaration.config(),
     declaration: null,
     validForms: {},
-    initialized: false
+    initialized: false,
+    freeze: null,
   }),
 
   computed: {
@@ -128,11 +140,14 @@ export default {
 
         declaration = { ...declaration.foret, ...declaration };
         this.declaration = configDeclaration.initModel(declaration);
-        configDeclaration.initValidForms({baseModel: this.declaration, $store: this.$store}, this.validForms);
+        configDeclaration.initValidForms(
+          { baseModel: this.declaration, $store: this.$store },
+          this.validForms
+        );
         this.initialized = true;
         this.declaration.id_declarant =
           this.declaration.id_declarant || this.$store.getters.user.id_role;
-        console.log('id_declarant', declaration.id_declarant)
+        console.log("id_declarant", declaration.id_declarant);
       });
     },
 

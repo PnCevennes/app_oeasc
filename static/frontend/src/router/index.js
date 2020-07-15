@@ -20,7 +20,8 @@ export default new Router({
         meta: {
           access: route.access || 0,
           content: route.content,
-          hideTitle: route.hideTitle
+          hideTitle: route.hideTitle,
+          label: route.label,
         }
       };
     })

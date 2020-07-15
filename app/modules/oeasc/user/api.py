@@ -20,6 +20,13 @@ config = current_app.config
 bp = Blueprint('user_api', __name__)
 
 
+@bp.route('login_error', methods=['GET'])
+@json_resp
+def login_error():
+    
+    return 'login error', 403
+
+
 @bp.route('organismes', methods=['GET'])
 @json_resp
 def api_organimes():

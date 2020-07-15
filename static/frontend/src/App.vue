@@ -66,6 +66,10 @@ export default {
   watch: {
     $route() {
       this.checkRigths();
+      console.log(this.$route.meta);
+      // titre
+      const title = this.$route.meta.title || this.$route.meta.label;
+      document.title =  title ? `OEASC - ${title}` : 'OEASC';
     }
   },
   methods: {

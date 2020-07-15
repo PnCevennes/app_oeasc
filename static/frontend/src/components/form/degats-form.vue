@@ -1,32 +1,30 @@
 <template>
   <div v-if="items">
     <v-container fluid>
-            <div class='select-list-label-container>'>
-                <span class='select-list-label'>
-                {{ config.label }}
-                </span>
-                <i>(plusieurs réponses possibles)</i> 
-                <span v-if="config.required" class="required"> *</span>
-                <help :code="`form-${config.name}`" v-if="config.help"></help>
-              </div>
+      <div class="select-list-label-container>">
+        <span class="select-list-label">
+          {{ config.label }}
+        </span>
+        <i>(plusieurs réponses possibles)</i>
+        <span v-if="config.required" class="required"> *</span>
+        <help :code="`form-${config.name}`" v-if="config.help"></help>
+      </div>
 
       <div v-for="(item, index) of items" :key="item.id_nomenclature">
-        <div class="degat"
-        style='position: relative'
-        >
+        <div class="degat" style="position: relative">
           <v-checkbox
             v-model="degatTypes"
             :hide-details="index < items.length - 1 ? true : false"
             :value="item.id_nomenclature"
             :label="item.label_fr"
             :dense="true"
-            :rules="[rule]"
-            :disabled="freeze"
+            :rules="rules"
+            :disabled="baseModel.freeze"
             @change="updateDegats($event)"
           ></v-checkbox>
         </div>
         <help
-        class="help-degat-item"
+          class="help-degat-item"
           :code="`item-${item[config.valueFieldName]}`"
           v-if="item.cd_nomenclature !== 'P/C'"
         ></help>
@@ -41,31 +39,36 @@
           "
           style="margin-left:50px;"
         >
-                    <div v-if="item.cd_nomenclature != 'ABS'">
-              Indiquez les essences touchées <i>(3 maximum)</i>, et pour chacune d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis validez.
-            </div>
-            <div v-else>
-              Indiquez les essences concernées <i>(3 maximum)</i>.
-            </div>
+          <div v-if="item.cd_nomenclature != 'ABS'">
+            Indiquez les essences touchées <i>(3 maximum)</i>, et pour chacune
+            d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis
+            validez.
+          </div>
+          <div v-else>Indiquez les essences concernées <i>(3 maximum)</i>.</div>
 
           <div class="flex-container flex-row flex-5">
-            <div><b><span v-if="item.cd_nomenclature != 'ABS'">Essence</span></b></div>
             <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'"><b>Gravité</b>
-                <span class="required"> *</span>
-              <help code="form-gravite"></help></span>
+              <b><span v-if="item.cd_nomenclature != 'ABS'">Essence</span></b>
             </div>
             <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'"><b>Étendue</b>
+              <span v-if="item.cd_nomenclature !== 'ABS'"
+                ><b>Gravité</b>
                 <span class="required"> *</span>
-              <help code="form-etendue"></help></span>
+                <help code="form-gravite"></help
+              ></span>
+            </div>
+            <div>
+              <span v-if="item.cd_nomenclature !== 'ABS'"
+                ><b>Étendue</b>
+                <span class="required"> *</span>
+                <help code="form-etendue"></help
+              ></span>
             </div>
             <div>
               <span v-if="item.cd_nomenclature !== 'ABS'"
                 ><b>Antériorité</b>
                 <span class="required"> *</span>
-                </span
-              >
+              </span>
             </div>
             <div></div>
           </div>
@@ -118,7 +121,7 @@
                 small
                 icon
                 color="error"
-                :disabled="freeze"
+                :disabled="baseModel.freeze"
                 @click="
                   removeDegatEssence(
                     item.id_nomenclature,
@@ -141,7 +144,6 @@
               )
             "
           >
-
             <div class="flex-container flex-row flex-5">
               <div>
                 <essence-form
@@ -175,6 +177,8 @@
               </div>
 
               <div>
+                <div>
+
                 <v-btn
                   small
                   color="success"
@@ -194,6 +198,14 @@
                   @click="cancelDegatEssence(item.id_nomenclature)"
                   ><v-icon>mdi-close</v-icon></v-btn
                 >
+                </div>
+                <div v-if="!(!degatEssence.essence ||
+                      (item.cd_nomenclature !== 'ABS' &&
+                        (!degatEssence.gravite ||
+                          !degatEssence.etendue ||
+                          !degatEssence.anteriorite)))">
+                  <span style='color:red'>Veuillez valider avant de continuer</span>
+                  </div>
               </div>
             </div>
           </div>
@@ -202,7 +214,7 @@
               v-if="
                 baseModel.degats.find(
                   d =>
-                    !freeze &&
+                    !baseModel.freeze &&
                     d.id_nomenclature_degat_type === item.id_nomenclature &&
                     item.cd_nomenclature !== 'P/C' &&
                     (d.degat_essences || []).length > 0 &&
@@ -238,19 +250,22 @@ export default {
     nomenclatureForm,
     help
   },
-  data: () => ({
-    freeze: false,
-    items: null,
-    degatTypes: [],
-    degatEssence: {
-      essence: null,
-      gravite: null,
-      etendue: null,
-      anteriorite: null
-    },
-    rule: formFunctions.rules.requiredListMultiple,
-    showDegatEssenceForm: null
-  }),
+  data() {
+    return {
+      items: null,
+      degatTypes: [],
+      degatEssence: {
+        essence: null,
+        gravite: null,
+        etendue: null,
+        anteriorite: null
+      },
+      rules: [formFunctions.rules.requiredListMultiple,
+      ],
+      displayMsgErrorValider: false,
+      showDegatEssenceForm: null,
+    };
+  },
   watch: {
     baseModel: function() {
       this.degatTypes = this.getDegatTypes();
@@ -282,7 +297,7 @@ export default {
           if (
             this.$store.getters.nomenclature(degatType).cd_nomenclature != "P/C"
           ) {
-            this.freeze = true;
+            this.baseModel.freeze = true;
           }
         }
       }
@@ -312,14 +327,14 @@ export default {
           type: "nomenclature",
           required: true,
           nomenclatureType: "OEASC_DEGAT_GRAVITE",
-          rules: [formFunctions.rules.requiredListSimple],
+          rules: [formFunctions.rules.requiredListSimple]
         },
         etendue: {
           name: "etendue",
           type: "nomenclature",
           required: true,
           nomenclatureType: "OEASC_DEGAT_ETENDUE",
-          rules: [formFunctions.rules.requiredListSimple],
+          rules: [formFunctions.rules.requiredListSimple]
         },
         anteriorite: {
           name: "anteriorite",
@@ -336,7 +351,7 @@ export default {
     },
 
     displayDegatEssence(id_nomenclature_degat_type) {
-      this.freeze = true;
+      this.baseModel.freeze = true;
       this.showDegatEssenceForm = id_nomenclature_degat_type;
     },
 
@@ -354,7 +369,7 @@ export default {
       degat.degat_essences.push(degat_essence);
       this.baseModel.degats = copy(this.baseModel.degats);
       this.clearDegatEssenceForm();
-      this.freeze = false;
+      this.baseModel.freeze = false;
       this.showDegatEssenceForm = null;
     },
 
@@ -371,7 +386,7 @@ export default {
       this.degatTypes = this.baseModel.degats.map(
         d => d.id_nomenclature_degat_type
       );
-      this.freeze = false;
+      this.baseModel.freeze = false;
     },
 
     removeDegatEssence: function(
@@ -388,7 +403,7 @@ export default {
       degat.degat_essences.splice(index, 1);
 
       if (degat.degat_essences.length == 0) {
-        this.freeze = true;
+        this.baseModel.freeze = true;
       }
     },
 

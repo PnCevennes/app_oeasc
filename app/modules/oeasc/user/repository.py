@@ -5,7 +5,6 @@
 from flask import current_app, session
 from sqlalchemy import text
 from pypnusershub.db.models import User
-from app.utils.utilssqlalchemy import as_dict
 from .models import VUsers
 
 config = current_app.config
@@ -66,7 +65,8 @@ def get_user(id_declarant=None):
     '''
 
     if not id_declarant:
-        return as_dict(User())
+        # return as_dict(User())
+        return User().as_dict()
 
     data = DB.session.query(VUsers).filter(VUsers.id_role == id_declarant).first()
 
