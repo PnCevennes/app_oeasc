@@ -61,9 +61,13 @@ def accueil():
 
 @app.route('/front/')
 def front():
-    print("aa")
     return send_from_directory("static/frontend/dist", 'index.html')
 
+
+@app.route('/oeasc/', defaults={'text':''})
+@app.route('/oeasc/<path:text>')
+def redirect_front(text):
+    return redirect("/front", code=302)
 
 
 @app.route('/google4b0945b8a2f6425f.html')
