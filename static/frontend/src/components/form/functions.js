@@ -144,25 +144,37 @@ const rules = {
 
 };
 
-const processConfig = function(forms, formGroup) {
-  console.log('processConfig')
-  for (const key of Object.keys(formGroup)) {
-    if (key == 'groups') {
-      const groups = {}
-      for (const keyGroup of Object.keys(formGroup.groups)) {
-        groups[keyGroup] = processConfig(forms, formGroup.groups[keyGroup]);
-      } 
-      formGroup.groups = groups;
-    }
-    if (key == 'forms') {
-      formGroup.forms = formGroup.forms.map(keyForm => forms.find(form => form.name == keyForm)); 
-      console.log('forms', formGroup.forms, forms)
-    }
-  }
-  console.log('end processConfig')
 
-  return formGroup;
-};
+// /**
+//  * 
+//  * @param {forms, struct} :  
+//  *  forms : dictionnaire de définition des formulaires (la clé donne le parametre 'name' à la config finale)
+//  *  struct: 'donne la structure du formulaire 
+//  *  TODO : gérer les formulaires listes qui ont eux aussi 
+//  * 
+//  */
+// const processFormGroupConfig = function({forms, struct}) {
+//   console.log('processGroupConfig')
+//   const formsArray = Object.keys;
+//   for (const key of Object.keys(struct)) {
+//     // si on a un groupe (array) function récusive sur les groupes
+//     if (key == 'groups') {
+//       const groups = {}
+//       // groups est un array
+//       for (const group of struct.groups) {
+//         groups[keyGroup] = processFormGroupConfig(forms, formGroup.groups[keyGroup]);
+//       } 
+//       formGroup.groups = groups;
+//     }
+//     // si on a des formulaires
+//     // TODO formulaires liste comment le gérer
+//     // if (key == 'forms') {
+//     //   formGroup.forms = formGroup.forms.map(keyForm => forms.find(form => form.name == keyForm)); 
+//     // }
+//   }
+
+//   return formGroup;
+// };
 
 const formFunctions = {
   processItems,
@@ -170,10 +182,7 @@ const formFunctions = {
   rules,
   getEssencesSelected,
   processAreas,
-  processConfig
+  // processFormGroupConfig
 };
-
-
-
 
 export { formFunctions };

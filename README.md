@@ -1,20 +1,7 @@
 # Observatoire de l'Équilibre Agro-Sylvo-Cygénétique (OEASC)
 
-Description du projet.
+## Documentation du code
 
-Page d'accueil :
-```
-/oeasc
-```
+### Frontend *(Vue)*
 
-## Signalement degâts forestiers
-
-```
-/oeasc/signalement_degats_forestiers
-```
-
-## Visualisation de données Chasse
-
-### ICAN
-
-
+[Gestion des formulaires] (docs/formulaires)

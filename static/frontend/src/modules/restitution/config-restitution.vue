@@ -1,7 +1,7 @@
 <template>
-  <div v-if="dataIn && configFormGroupConfiguration">
+  <div v-if="dataIn && configConfigurationForm">
     <dynamic-form-group
-      :config="configFormGroupConfiguration"
+      :config="configConfigurationForm"
       :baseModel="settings"
     ></dynamic-form-group>
 
@@ -23,9 +23,8 @@
 import { restitution } from "./restitution.js";
 import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import dynamicForm from "@/components/form/dynamic-form";
-import configFormConfiguration from "./config-form-configuration.js";
-import configFormGroupConfiguration from "./config-form-group-configuration.js";
-import { formFunctions } from "@/components/form/functions.js";
+import configConfigurationForm from "./config/form-configuration.js";
+// import { formFunctions } from "@/components/form/functions.js";
 
 export default {
   name: "restitution",
@@ -48,7 +47,7 @@ export default {
       settings: {},
       listChoix: ["choix1", "choix2"],
       results: {},
-      configFormGroupConfiguration: null
+      configConfigurationForm: null
     };
   },
   watch: {
@@ -70,25 +69,18 @@ export default {
       item => item.name == "degat_types_label"
     );
 
-    const forms = Object.entries(configFormConfiguration).map(
-      ([key, config]) => ({
-        ...config,
-        name: key,
-        change: this.change,
-        items: config.items || (this.listChoix.includes(key) && this.items())
-      })
-    );
+    for (const keyForm of Object.keys(configConfigurationForm.forms)) {
+      configConfigurationForm.forms[keyForm] = {
+        ...configConfigurationForm[keyForm],
+        change: this.change
+      };
+    }
 
-    this.configFormGroupConfiguration = {
-      title: "Configuration",
-      forms: forms,
-      class: "no-border no-margin no-padding"
-    };
-    // console.log(formFunctions, configFormGroupConfiguration)
-    this.configFormGroupConfiguration = formFunctions.processConfig(
-      forms,
-      configFormGroupConfiguration
-    );
+    for (const keyForm of ["choix1", "choix2", "filter"]) {
+      configConfigurationForm.forms[keyForm].items = this.items();
+    }
+
+    this.configConfigurationForm = configConfigurationForm;
   },
   methods: {
     change() {

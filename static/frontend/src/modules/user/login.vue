@@ -4,7 +4,7 @@
       <div slot="prependForm">
         <div v-if="redirect">
           <p>
-            Vous n'avez pas les droits requis pour accéder cette page.
+            Vous n'avez pas les droits requis pour accéder à cette page.
           </p>
         </div>
 
@@ -27,7 +27,6 @@
         </p>
       </div>
       <div slot="appendForm">
-        
         <a href="#/user/change_password">Mot de passe oublié ?</a>
       </div>
     </generic-form>
@@ -38,6 +37,7 @@
 import genericForm from "@/components/form/generic-form";
 import { config } from "@/config/config.js";
 import { apiRequest } from "@/core/js/data/api.js";
+import configFormLogin from "./config/form-login";
 
 export default {
   name: "login",
@@ -53,39 +53,7 @@ export default {
   data() {
     return {
       bValidToken: null,
-      config: {
-        title: "Connexion",
-        request: {
-          url: "pypn/auth/login",
-          method: "POST",
-          label: "Se connecter",
-          preProcess: ({ baseModel }) => ({
-            ...baseModel,
-            id_application: config.ID_APPLICATION
-          }),
-          onSuccess: data => {
-            const user = { ...data.user, expires: data.expires };
-            this.$session.set("user", user);
-            this.$store.commit("user", user);
-            setTimeout(() => {
-              this.$router.push(this.redirect || "/");
-            }, 1000);
-          }
-        },
-        forms: {
-          login: {
-            type: "text",
-            required: true,
-            label: "Identifiant",
-            help: true
-          },
-          password: {
-            type: "password",
-            required: true,
-            label: "Mot de passe"
-          }
-        }
-      }
+      config: configFormLogin
     };
   },
   mounted() {

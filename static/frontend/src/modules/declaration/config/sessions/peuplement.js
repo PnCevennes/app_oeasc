@@ -21,7 +21,7 @@ const sessionsPeuplement = {
           "nomenclatures_peuplement_essence_secondaire",
           "nomenclatures_peuplement_essence_complementaire"
         ],
-        help: true
+        help: 'group-form-essences'
 
       },
       superficie: {

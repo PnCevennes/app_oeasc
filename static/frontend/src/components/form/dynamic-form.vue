@@ -235,6 +235,7 @@ export default {
 
   props: ["config", "baseModel"],
 
+  // bidouille à voir si on y arrive avec computed
   watch: {
     baseModel: {
       handler() {
@@ -257,8 +258,9 @@ export default {
       for (const key in this.config) {
         if (
           typeof this.config[key] === "function" &&
-          !["change", "processItems", "url"].includes(key)
+          !["change", "processItems", "url"].includes(key) //TODO à voir pour URL
         ) {
+          // on resout les fonctions
           configResolved[key] = this.config[key]({
             baseModel: this.baseModel,
             $store: this.$store
@@ -268,10 +270,13 @@ export default {
         }
       }
 
-      configResolved.rules = (this.config.rules || []).map(r => r);
+      configResolved.rules = (this.config.rules || []).map(r => r); // pourquoi???
 
-      configResolved.valid = this.configTypes.includes(this.config.type);
-      formFunctions.rules.processRules(configResolved);
+      //teste si type dans type autorisé
+      configResolved.valid = this.configTypes.includes(this.config.type); 
+
+      // ajout automatique de regle selon le type
+      formFunctions.rules.processRules(configResolved); 
 
       return configResolved;
     }

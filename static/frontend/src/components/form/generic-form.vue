@@ -1,5 +1,5 @@
 <template>
-  <div v-if="configForm" class="form-container">
+  <div v-if="config" class="form-container">
     <div v-if="bRequestSuccess" class="red">
       <slot name="success"></slot>
     </div>
@@ -7,73 +7,41 @@
       <slot name="prependForm"></slot>
 
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
-        <div v-if="config.display == 'table'">
-          <v-simple-table>
-            <template
-              v-for="[key, form] in Object.entries(configForm.forms || {})"
-            >
-              <tr
-                :key="key"
-                v-if="form.condition === undefined || form.condition"
-              >
-                <th>
-                  {{ form.label }}
-                  <span v-if="form.required" class="required">*</span>
-                </th>
-                <td>
-                  <dynamic-form
-                    :config="{
-                      ...form,
-                      ...{
-                        name: key,
-                        label: '',
-                        dense: true,
-                        displayValue: configForm.displayValue
-                      }
-                    }"
-                    :baseModel="baseModel"
-                  ></dynamic-form>
-                </td>
-              </tr>
-            </template>
-          </v-simple-table>
-        </div>
-        <div v-else>
+        <div>
           <dynamic-form-group
-            :config="{ ...configForm, displayValue: config.displayValue }"
+            :config="configDynamicGroupForm"
             :baseModel="baseModel"
           >
           </dynamic-form-group>
         </div>
 
-        <template v-if="!config.displayValue">
+        <template v-if="!displayValue">
           <v-btn
-            v-if="configForm.request"
+            v-if="config.request"
             absolute
             right
             color="success"
             @click="submit()"
             :disabled="bSending"
           >
-            {{ configForm.request.label || "Valider" }}
+            {{ config.request.label || "Valider" }}
           </v-btn>
         </template>
         <v-btn
-          v-if="configForm.switchDisplay"
+          v-if="config.switchDisplay"
           color="primary"
           @click="
-            config.displayValue = !config.displayValue;
+            displayValue = !displayValue;
             recompConfig = !recompConfig;
           "
         >
-            <!-- config = { ...config }; -->
-          {{ configForm.displayValue ? "Modifier" : "Annuler" }}
+          {{ displayValue ? "Modifier" : "Annuler" }}
         </v-btn>
 
         <v-btn
-          v-if="configForm.cancel"
+          v-if="config.cancel"
           color="primary"
-          @click="configForm.cancel.action({ baseModel })"
+          @click="config.cancel.action({ baseModel })"
         >
           Annuler
         </v-btn>
@@ -98,49 +66,33 @@
 
 <script>
 import { apiRequest } from "@/core/js/data/api.js";
-import dynamicForm from "@/components/form/dynamic-form";
+// import dynamicForm from "@/components/form/dynamic-form";
 import dynamicFormGroup from "@/components/form/dynamic-form-group";
+import { config as globalConfig } from "@/config/config.js";
 
 export default {
   name: "generic-form",
-  components: { dynamicForm, dynamicFormGroup },
+  components: {
+    // dynamicForm,
+    dynamicFormGroup
+  },
   props: ["config"],
   computed: {
-    configForm() {
-      this.recompConfig;
-      return this.initConfig(this.config, this.baseModel);
+    configDynamicGroupForm() {
+      return {
+        struct: this.config.struct,
+        forms: this.config.forms,
+        displayValue: this.displayValue
+      };
     }
   },
   methods: {
-    initConfig(config, baseModel) {
-      const configNew = {};
-      for (const [key, subConfig] of Object.entries(config)) {
-        if (
-          typeof subConfig === "object" &&
-          subConfig &&
-          !Array.isArray(subConfig)
-        ) {
-          configNew[key] = this.initConfig(subConfig, baseModel);
-        } else if (
-          typeof subConfig == "function" &&
-          ["required", "condition", "disabled", "items"].includes(key)
-        ) {
-          configNew[key] = subConfig({
-            baseModel: baseModel,
-            $store: this.$store
-          });
-        } else {
-          configNew[key] = config[key];
-        }
-      }
-      if (this.config.value) {
-        this.baseModel = this.config.value || this.baseModel;
-      }
-      return configNew;
-    },
     submit() {
       let postData = this.config.request.preProcess
-        ? this.config.request.preProcess({ baseModel: this.baseModel })
+        ? this.config.request.preProcess({
+            baseModel: this.baseModel,
+            globalConfig
+          })
         : this.baseModel;
       this.$refs.form.validate();
       if (!this.bValidForm) {
@@ -156,10 +108,16 @@ export default {
           this.msgSuccess = "La requête à été effectuée avec succès";
 
           if (this.config.request.onSuccess) {
-            this.config.request.onSuccess(data);
+            this.config.request.onSuccess({
+              data,
+              $session: this.$session,
+              $store: this.$store,
+              $router: this.$router,
+              redirect: this.redirect,
+            });
           }
           if (this.config.switchDisplay) {
-            this.config.displayValue = true;
+            this.displayValue = true;
           } else {
             this.bRequestSuccess = true;
           }
@@ -173,7 +131,6 @@ export default {
     }
   },
   data: () => ({
-    // configForm: {},
     bValidForm: null,
     bInit: false,
     baseModel: {},
@@ -184,6 +141,7 @@ export default {
     bRequestSuccess: false,
     bSending: false,
     recompConfig: true,
+    displayValue: false
   }),
   mounted() {
     if (this.config.preLoadData) {

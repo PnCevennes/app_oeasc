@@ -33,7 +33,7 @@ import tableRestitution from "./table-restitution";
 import mapRestitution from "./map-restitution";
 import graphRestitution from "./graph-restitution";
 import "./restitution.css";
-import configDeclaration  from "./config-declarations.js";
+import configDeclaration  from "./config/declarations.js";
 
 export default {
   name: "test-restitution",
