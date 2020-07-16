@@ -85,7 +85,10 @@ export default {
       class: "no-border no-margin no-padding"
     };
     // console.log(formFunctions, configFormGroupConfiguration)
-    this.configFormGroupConfiguration = formFunctions.processConfig(forms, configFormGroupConfiguration);
+    this.configFormGroupConfiguration = formFunctions.processConfig(
+      forms,
+      configFormGroupConfiguration
+    );
   },
   methods: {
     change() {
@@ -175,7 +178,10 @@ export default {
             "icon",
             data[this.settings.choix2.name],
             this.results.choix.choix2.dataList,
-            this.settings.choix2
+            {
+              ...this.settings.choix2,
+              filters: this.settings
+            }
           );
         const color =
           this.settings.choix1 &&
@@ -183,7 +189,10 @@ export default {
             "color",
             data[this.settings.choix1.name],
             this.results.choix.choix1.dataList,
-            this.settings.choix1
+            {
+              ...this.settings.choix1,
+              filters: this.settings
+            }
           );
         return {
           coords: data[this.config.coordsFieldName],
@@ -209,18 +218,25 @@ export default {
         if (!["choix1", "choix2"].includes(name) || !res) {
           continue;
         }
-        console.log(name, res)
         const markerLegends = {
           title: res.text,
-          legends: res.dataList.map(data => ({
-            text: data.text,
-            count: data.count,
-            icon:
-              ((cond_same || name == "choix2") && data.icon) || icon_default,
-            color:
-              ((cond_same || name == "choix1") && data.color) || color_default
-          }))
+          legends: res.dataList
+            .filter(
+              data =>
+                !this.settings[res.name] ||
+                !this.settings[res.name].length ||
+                this.settings[res.name].includes(data.text)
+            )
+            .map(data => ({
+              text: data.text,
+              count: data.count,
+              icon:
+                ((cond_same || name == "choix2") && data.icon) || icon_default,
+              color:
+                ((cond_same || name == "choix1") && data.color) || color_default
+            }))
         };
+
         markerLegendGroups.push(markerLegends);
 
         if (cond_same) break;

@@ -20,6 +20,7 @@ const defaultValue = {
 };
 
 const restitution = {
+  
   condFilter(options, v) {
     const name = options.name;
     return (
@@ -35,6 +36,7 @@ const restitution = {
 
     const indexElemAutres = dataList.findIndex(e => e.text == "Autres");
     const value = this.getValue(d, options);
+    
     let index;
     let arrayOut = [];
     for (const v of value) {
@@ -208,7 +210,9 @@ const restitution = {
       }
     }
     return out;
-  }
+  },
+
+  
 };
 
 export { restitution };
