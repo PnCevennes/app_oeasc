@@ -1,6 +1,6 @@
 import inTest from "./in-test";
 import inTable from "./in-table";
-import inForm from "./in-form";
+import inRealisationForm from "./in-realisation-form";
 import { apiRequest } from "@/core/js/data/api.js";
 
 const ROUTE = [
@@ -28,7 +28,7 @@ const ROUTE = [
     label: "Saisie",
     parent: "in.index",
     hideTitle: true,
-    component: inForm,
+    component: inRealisationForm,
     access: 5
   },
   {
@@ -37,7 +37,7 @@ const ROUTE = [
     label: "Saisie",
     parent: "in.index",
     hideTitle: true,
-    component: inForm,
+    component: inRealisationForm,
     access: 5
   },
   {
