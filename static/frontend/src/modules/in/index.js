@@ -13,7 +13,6 @@ const ROUTE = [
     parent: "page.accueil",
     access: 5
   },
-  
   {
     name: "in.tableau",
     path: "/in/tableau",
