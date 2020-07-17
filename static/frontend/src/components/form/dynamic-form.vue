@@ -271,7 +271,7 @@ export default {
         }
       }
 
-      configResolved.rules = (this.config.rules || []).map(r => r); // pourquoi???
+      // configResolved.rules = (this.configResolved.rules || []).map(r => r);
 
       //teste si type dans type autorisé
       configResolved.valid = this.configTypes.includes(this.config.type); 

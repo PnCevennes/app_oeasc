@@ -141,7 +141,7 @@ config: {
             ...baseModel,
             id_application: globalConfig.ID_APPLICATION
         }), // preprocess de la variable baseModel (pour ajouter ID_APPLICATION depuis la config globale??)
-        preLoadData: ({$store}) => {...} // doit renvoyer une Promise, charge des données nécessaires au formulaire...
+        preLoadData: ({$store, config}) => {...} // doit renvoyer une Promise, charge des données nécessaires au formulaire... peut charger des données initiales dans config.value
         onSuccess: ({ data, $session, $store, $router, redirect }) => {
             const user = { ...data.user, expires: data.expires };
             $session.set("user", user);

@@ -1,6 +1,6 @@
 <template>
   <div v-if="config" class="form-container">
-    <div v-if="bRequestSuccess" class="red">
+    <div v-if="bRequestSuccess">
       <slot name="success"></slot>
     </div>
     <div v-else>
@@ -15,7 +15,7 @@
           </dynamic-form-group>
         </div>
 
-        <template v-if="!displayValue">
+        <template v-if="!config.displayValue">
           <v-btn
             v-if="config.request"
             absolute
@@ -31,11 +31,11 @@
           v-if="config.switchDisplay"
           color="primary"
           @click="
-            displayValue = !displayValue;
+            config.displayValue = !config.displayValue;
             recompConfig = !recompConfig;
           "
         >
-          {{ displayValue ? "Modifier" : "Annuler" }}
+          {{ config.displayValue ? "Modifier" : "Annuler" }}
         </v-btn>
 
         <v-btn
@@ -81,8 +81,10 @@ export default {
     configDynamicGroupForm() {
       return {
         groups: this.config.groups,
+        forms: this.config.forms,
         formDefs: this.config.formDefs,
-        displayValue: this.displayValue
+        displayValue: this.config.displayValue,
+        displayLabel: this.config.displayLabel,
       };
     }
   },
@@ -91,7 +93,8 @@ export default {
       let postData = this.config.request.preProcess
         ? this.config.request.preProcess({
             baseModel: this.baseModel,
-            globalConfig
+            globalConfig,
+            config: this.config
           })
         : this.baseModel;
       this.$refs.form.validate();
@@ -117,7 +120,7 @@ export default {
             });
           }
           if (this.config.switchDisplay) {
-            this.displayValue = true;
+            this.config.displayValue = true;
           } else {
             this.bRequestSuccess = true;
           }
@@ -141,7 +144,6 @@ export default {
     bRequestSuccess: false,
     bSending: false,
     recompConfig: true,
-    displayValue: false
   }),
   mounted() {
     if (this.config.preLoadData) {

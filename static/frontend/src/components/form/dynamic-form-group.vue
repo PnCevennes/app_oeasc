@@ -1,39 +1,12 @@
 <template>
   <div>
-    <!-- les groupes -->
-    <div v-if="groupList && groupList.length">
-      <!-- <v-container> -->
-      <template v-if="config.direction === 'row'">
-        <v-row dense>
-          <v-col v-for="(configGroup, index) of groupList" :key="index">
-            <dynamic-form-group
-              :baseModel="baseModel"
-              :config="configGroup"
-            ></dynamic-form-group>
-          </v-col>
-        </v-row>
-      </template>
-      <template v-else>
-        <v-row dense v-for="(configGroup, index) of groupList" :key="index">
-          <v-col>
-            <dynamic-form-group
-              :baseModel="baseModel"
-              :config="configGroup"
-            ></dynamic-form-group>
-          </v-col>
-        </v-row>
-      </template>
-      <!-- </v-container> -->
-    </div>
-
     <!-- les forms -->
-    <div v-else-if="formList && formList.length">
+    <div v-if="formList && formList.length">
       <h4>
         {{ config.title }}
         <help :code="`${config.help}`" v-if="config.help"></help>
       </h4>
 
-      <!-- <v-container style="background-color:green; width:100%"> -->
       <template v-if="config.direction === 'row'">
         <v-row dense>
           <v-col v-for="(configForm, index) of formList" :key="index">
@@ -54,7 +27,30 @@
           </v-col>
         </v-row>
       </template>
-      <!-- </v-container> -->
+    </div>
+
+    <!-- les groupes -->
+    <div v-else-if="groupList && groupList.length">
+      <template v-if="config.direction === 'row'">
+        <v-row dense>
+          <v-col v-for="(configGroup, index) of groupList" :key="index">
+            <dynamic-form-group
+              :baseModel="baseModel"
+              :config="configGroup"
+            ></dynamic-form-group>
+          </v-col>
+        </v-row>
+      </template>
+      <template v-else>
+        <v-row dense v-for="(configGroup, index) of groupList" :key="index">
+          <v-col>
+            <dynamic-form-group
+              :baseModel="baseModel"
+              :config="configGroup"
+            ></dynamic-form-group>
+          </v-col>
+        </v-row>
+      </template>
     </div>
   </div>
 </template>
@@ -87,9 +83,7 @@ export default {
     // renvoie la liste des formulaires filtrée par condition
     computeFormList(config) {
       // si config.forms n'est pas défini, on prend tous les form de formDefs
-      console.log(config);
-      const forms = config.forms || Object.keys(config.formDefs || {});
-
+      const forms = config.forms || (!config.groups && Object.keys(config.formDefs || {})) || [];
       return forms
         .filter(keyForm => {
           const formDef = config.formDefs[keyForm];
