@@ -80,8 +80,8 @@ export default {
   computed: {
     configDynamicGroupForm() {
       return {
-        struct: this.config.struct,
-        forms: this.config.forms,
+        groups: this.config.groups,
+        formDefs: this.config.formDefs,
         displayValue: this.displayValue
       };
     }
@@ -113,7 +113,7 @@ export default {
               $session: this.$session,
               $store: this.$store,
               $router: this.$router,
-              redirect: this.redirect,
+              redirect: this.redirect
             });
           }
           if (this.config.switchDisplay) {

@@ -1,64 +1,60 @@
 <template>
   <div>
+    <!-- les groupes -->
+    <div v-if="groupList && groupList.length">
+      <!-- <v-container> -->
+      <template v-if="config.direction === 'row'">
+        <v-row dense>
+          <v-col v-for="(configGroup, index) of groupList" :key="index">
+            <dynamic-form-group
+              :baseModel="baseModel"
+              :config="configGroup"
+            ></dynamic-form-group>
+          </v-col>
+        </v-row>
+      </template>
+      <template v-else>
+        <v-row dense v-for="(configGroup, index) of groupList" :key="index">
+          <v-col>
+            <dynamic-form-group
+              :baseModel="baseModel"
+              :config="configGroup"
+            ></dynamic-form-group>
+          </v-col>
+        </v-row>
+      </template>
+      <!-- </v-container> -->
+    </div>
+
     <!-- les forms -->
-    <div
-      v-if="config.forms && hasForms"
-      :class="{
-        'form-group': true,
-        border: config.class && config.class.includes('border'),
-        margin: config.class && config.class.includes('margin'),
-        padding: config.class && config.class.includes('padding')
-      }"
-    >
+    <div v-else-if="formList && formList.length">
       <h4>
         {{ config.title }}
         <help :code="`${config.help}`" v-if="config.help"></help>
       </h4>
 
-      <v-container>
-        <template v-if="config.direction === 'row'">
-          <v-row>
-            <v-col v-for="(configForm, index) of formList" :key="index">
-              <dynamic-form
-                :config="configForm"
-                :baseModel="baseModel"
-              ></dynamic-form>
-            </v-col>
-          </v-row>
-        </template>
-        <template v-else>
-          <v-row v-for="(configForm, index) of formList" :key="index">
+      <!-- <v-container style="background-color:green; width:100%"> -->
+      <template v-if="config.direction === 'row'">
+        <v-row dense>
+          <v-col v-for="(configForm, index) of formList" :key="index">
             <dynamic-form
               :config="configForm"
               :baseModel="baseModel"
             ></dynamic-form>
-          </v-row>
-        </template>
-      </v-container>
-    </div>
-
-    <!-- les groupes -->
-    <div v-else-if="config.groups">
-      <v-container>
-        <template v-if="config.direction === 'row'">
-          <v-row>
-            <v-col v-for="(configGroup, index) of groupList" :key="index">
-              <dynamic-form-group
-                :baseModel="baseModel"
-                :config="configGroup"
-              ></dynamic-form-group>
-            </v-col>
-          </v-row>
-        </template>
-        <template v-else>
-          <v-row v-for="(configGroup, index) of groupList" :key="index">
-            <dynamic-form-group
+          </v-col>
+        </v-row>
+      </template>
+      <template v-else>
+        <v-row dense v-for="(configForm, index) of formList" :key="index">
+          <v-col>
+            <dynamic-form
+              :config="configForm"
               :baseModel="baseModel"
-              :config="configFormGroup"
-            ></dynamic-form-group>
-          </v-row>
-        </template>
-      </v-container>
+            ></dynamic-form>
+          </v-col>
+        </v-row>
+      </template>
+      <!-- </v-container> -->
     </div>
   </div>
 </template>
@@ -90,17 +86,25 @@ export default {
   methods: {
     // renvoie la liste des formulaires filtrée par condition
     computeFormList(config) {
-      return Object.keys(config.forms || {})
+      // si config.forms n'est pas défini, on prend tous les form de formDefs
+      console.log(config);
+      const forms = config.forms || Object.keys(config.formDefs || {});
+
+      return forms
         .filter(keyForm => {
-          const form = config.forms[keyForm];
+          const formDef = config.formDefs[keyForm];
           return (
-            !form.condition ||
-            form.condition({ baseModel: this.baseModel, $store: this.$store })
+            !formDef.condition ||
+            formDef.condition({
+              baseModel: this.baseModel,
+              $store: this.$store
+            })
           );
         })
         .map(keyForm => {
+          const formDef = config.formDefs[keyForm];
           return {
-            ...config.forms[keyForm],
+            ...formDef,
             name: keyForm,
             displayValue: this.config.displayValue,
             displayLabel: this.config.displayLabel
@@ -112,6 +116,7 @@ export default {
     computeGroupList(config) {
       return (config.groups || []).map(group => ({
         ...group,
+        formDefs: config.formDefs,
         displayLabel: this.config.displayLabel,
         displayValue: this.config.displayValue
       }));

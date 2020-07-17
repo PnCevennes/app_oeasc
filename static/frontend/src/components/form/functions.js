@@ -135,6 +135,10 @@ const rules = {
       config.rules.push(rules.number);
     }
 
+    if(config.type == 'email') {
+      config.rules.push(rules.email)
+    }
+
     for (const key of ["maxLength", "maxLengthEssence", "min", "max"]) {
       if (key in config) {
         config.rules.push(rules[key](config[key]));

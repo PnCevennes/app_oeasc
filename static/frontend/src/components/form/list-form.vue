@@ -104,7 +104,7 @@
         <div v-else-if="config.display === 'select'">
           <v-select
             clearable
-            :dense="config.dense"
+            dense
             v-model="baseModel[config.name]"
             :items="items"
             :label="config.label"
@@ -151,7 +151,7 @@
                   (config.returnObject && item) || item[config.valueFieldName]
                 "
                 :label="item[config.textFieldName]"
-                :dense="true"
+                dense
                 :rules="config.rules"
                 :disabled="config.disabled"
                 @change="

@@ -1,6 +1,6 @@
 .form-group {
-  margin:  5px 0;
-  padding:  5px 0;
+  /* margin:  5px 0; */
+  /* padding:  5px 0; */
 }
 
 .form-group.border {
@@ -16,9 +16,9 @@
   padding: 10px;
 }
 
-.dynamic-form {
+/* .dynamic-form {
   width: 100%;
-}
+} */
 
 /* .flex-container {
   background-color: blue; 
@@ -84,6 +84,14 @@
   position: relative;
 }
 
+
+.v-text-field__slot {
+  height: 32px;
+}
+
+.v-select__selections {
+  height: 32px;
+}
 /* .list-form {
   margin-top:13px;
 } */

@@ -17,7 +17,7 @@
             :hide-details="index < items.length - 1 ? true : false"
             :value="item.id_nomenclature"
             :label="item.label_fr"
-            :dense="true"
+            dense
             :rules="rules"
             :disabled="baseModel.freeze"
             @change="updateDegats($event)"

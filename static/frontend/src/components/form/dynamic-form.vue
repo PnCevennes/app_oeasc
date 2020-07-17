@@ -70,7 +70,7 @@
     <!-- text -->
     <template
       v-else-if="
-        ['text', 'number', 'password', 'date'].includes(configForm.type)
+        ['text', 'number', 'password', 'date', 'email'].includes(configForm.type)
       "
     >
       <span v-if="configForm.displayValue">
@@ -218,6 +218,7 @@ export default {
       "bool_radio",
       "bool_switch",
       "text",
+      "email",
       "date",
       "text_area",
       "nomenclature",
