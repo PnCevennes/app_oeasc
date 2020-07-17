@@ -99,6 +99,7 @@ export default {
           const formDef = config.formDefs[keyForm];
           return {
             ...formDef,
+            formDefs: config.formDefs,
             name: keyForm,
             displayValue: this.config.displayValue,
             displayLabel: this.config.displayLabel

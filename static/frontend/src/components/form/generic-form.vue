@@ -1,5 +1,6 @@
 <template>
   <div v-if="config" class="form-container">
+    <h2 v-if="title">{{title}}</h2>
     <div v-if="bRequestSuccess">
       <slot name="success"></slot>
     </div>
@@ -8,11 +9,7 @@
 
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
         <div>
-          <dynamic-form-group
-            :config="configDynamicGroupForm"
-            :baseModel="baseModel"
-          >
-          </dynamic-form-group>
+          <dynamic-form-group :config="configDynamicGroupForm" :baseModel="baseModel"></dynamic-form-group>
         </div>
 
         <template v-if="!config.displayValue">
@@ -23,44 +20,38 @@
             color="success"
             @click="submit()"
             :disabled="bSending"
-          >
-            {{ config.request.label || "Valider" }}
-          </v-btn>
+          >{{ config.request.label || "Valider" }}</v-btn>
         </template>
         <v-btn
-          v-if="config.switchDisplay"
+          v-if="switchDisplay"
           color="primary"
           @click="
             config.displayValue = !config.displayValue;
             recompConfig = !recompConfig;
           "
-        >
-          {{ config.displayValue ? "Modifier" : "Annuler" }}
-        </v-btn>
+        >{{ config.displayValue ? "Modifier" : "Annuler" }}</v-btn>
 
         <v-btn
           v-if="config.cancel"
           color="primary"
           @click="config.cancel.action({ baseModel })"
-        >
-          Annuler
-        </v-btn>
+        >Annuler</v-btn>
 
-        <v-progress-linear
-          indeterminate
-          color="green"
-          v-if="bSending"
-        ></v-progress-linear>
+        <v-progress-linear indeterminate color="green" v-if="bSending"></v-progress-linear>
 
         <slot name="appendForm"></slot>
       </v-form>
     </div>
-    <v-snackbar color="error" v-model="bError" :timeout="5000">{{
+    <v-snackbar color="error" v-model="bError" :timeout="5000">
+      {{
       msgError
-    }}</v-snackbar>
-    <v-snackbar color="success" v-model="bSuccess" :timeout="2000">{{
+      }}
+    </v-snackbar>
+    <v-snackbar color="success" v-model="bSuccess" :timeout="2000">
+      {{
       msgSuccess
-    }}</v-snackbar>
+      }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -84,11 +75,59 @@ export default {
         forms: this.config.forms,
         formDefs: this.config.formDefs,
         displayValue: this.config.displayValue,
-        displayLabel: this.config.displayLabel,
+        displayLabel: this.config.displayLabel
       };
+    },
+    method() {
+      return typeof this.config.request.method === "function"
+        ? this.config.request.method({ $this: this })
+        : this.config.request.method;
+    },
+    url() {
+      return typeof this.config.request.url === "function"
+        ? this.config.request.url({ $this: this })
+        : this.config.request.url;
+    },
+    switchDisplay() {
+      return typeof this.config.switchDisplay == "function"
+        ? this.config.switchDisplay({ $this: this })
+        : this.config.switchDisplay;
+    },
+    title() {
+      return typeof this.config.title == "function"
+        ? this.config.title({ $this: this })
+        : this.config.title;
     }
   },
+  watch: {
+    config() {
+      console.log("config");
+      this.initConfig();
+    }
+  },
+  mounted() {
+    this.initConfig();
+  },
   methods: {
+    initConfig() {
+      console.log("init config", this.config);
+      if (!this.config) return;
+      this.bInit = false;
+      if (this.config.preLoadData) {
+        this.config
+          .preLoadData({
+            $store: this.$store,
+            config: this.config,
+            $this: this
+          })
+          .then(() => {
+            this.baseModel = this.config.value || {};
+            this.bInit = true;
+          });
+      } else {
+        this.bInit = true;
+      }
+    },
     submit() {
       let postData = this.config.request.preProcess
         ? this.config.request.preProcess({
@@ -102,7 +141,8 @@ export default {
         return;
       }
       this.bSending = true;
-      apiRequest(this.config.request.method, this.config.request.url, {
+
+      apiRequest(this.method, this.url, {
         data: postData
       }).then(
         data => {
@@ -119,7 +159,7 @@ export default {
               redirect: this.redirect
             });
           }
-          if (this.config.switchDisplay) {
+          if (this.switchDisplay) {
             this.config.displayValue = true;
           } else {
             this.bRequestSuccess = true;
@@ -143,19 +183,7 @@ export default {
     bSuccess: false,
     bRequestSuccess: false,
     bSending: false,
-    recompConfig: true,
-  }),
-  mounted() {
-    if (this.config.preLoadData) {
-      this.config
-        .preLoadData({ $store: this.$store, config: this.config })
-        .then(() => {
-          this.baseModel = this.config.value || {};
-          this.bInit = true;
-        });
-    } else {
-      this.bInit = true;
-    }
-  }
+    recompConfig: true
+  })
 };
 </script>
