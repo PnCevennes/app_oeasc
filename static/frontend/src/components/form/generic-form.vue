@@ -67,7 +67,7 @@ export default {
     // dynamicForm,
     dynamicFormGroup
   },
-  props: ["config"],
+  props: ["config", "meta"],
   computed: {
     configDynamicGroupForm() {
       return {
@@ -80,22 +80,22 @@ export default {
     },
     method() {
       return typeof this.config.request.method === "function"
-        ? this.config.request.method({ $this: this })
+        ? this.config.request.method({ meta: this.meta })
         : this.config.request.method;
     },
     url() {
       return typeof this.config.request.url === "function"
-        ? this.config.request.url({ $this: this })
+        ? this.config.request.url({ meta: this.meta })
         : this.config.request.url;
     },
     switchDisplay() {
       return typeof this.config.switchDisplay == "function"
-        ? this.config.switchDisplay({ $this: this })
+        ? this.config.switchDisplay({ meta: this.meta })
         : this.config.switchDisplay;
     },
     title() {
       return typeof this.config.title == "function"
-        ? this.config.title({ $this: this })
+        ? this.config.title({ meta: this.meta })
         : this.config.title;
     }
   },
@@ -118,7 +118,7 @@ export default {
           .preLoadData({
             $store: this.$store,
             config: this.config,
-            $this: this
+            meta: this.meta,
           })
           .then(() => {
             this.baseModel = this.config.value || {};

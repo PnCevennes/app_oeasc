@@ -1,6 +1,6 @@
 <template>
   <div v-if="configRealisationForm">
-    <generic-form :config="configRealisationForm">
+    <generic-form :config="configRealisationForm" :meta="{idRealisation}">
     </generic-form>
   </div>
 </template>

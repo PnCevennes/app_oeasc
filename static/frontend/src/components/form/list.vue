@@ -2,6 +2,11 @@
   <div>
     <b v-if="!config.displayValue">{{ config.label }}</b>
     <v-row dense v-for="(lineModel, indexLine) of lines" :key="indexLine">
+      <v-col class="col-btn">
+        <v-btn icon color="red" @click="deleteItem(indexLine)">
+          <v-icon>mdi-close-circle</v-icon>
+        </v-btn>
+      </v-col>
       <v-col v-for="keyForm of config.forms" :key="keyForm">
         <dynamic-form
           :config="{
@@ -12,16 +17,13 @@
           :baseModel="lineModel"
         ></dynamic-form>
       </v-col>
-      <v-col>
-        <v-btn icon color="red" @click="deleteItem(indexLine)">
-          <v-icon>mdi-close-circle</v-icon>
-        </v-btn>
-      </v-col>
     </v-row>
     <v-row dense>
-      <v-btn color="green" icon>
-        <v-icon @click="addItem" :disabled="!bValidForm">mdi-plus-circle</v-icon>
-      </v-btn>
+      <v-col class="col-btn">
+        <v-btn color="green" icon>
+          <v-icon @click="addItem" :disabled="!bValidForm">mdi-plus-circle</v-icon>
+        </v-btn>
+      </v-col>
     </v-row>
   </div>
 </template>
@@ -46,7 +48,7 @@ export default {
       return ({ $store, config, baseModel }) => {
         this.refresh = !this.refresh;
         oldChange && oldChange({ $store, config, baseModel });
-      }
+      };
     }
   },
   watch: {
@@ -112,3 +114,9 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.col-btn {
+  max-width: 50px;
+}
+</style>

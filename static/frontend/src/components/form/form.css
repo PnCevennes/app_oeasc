@@ -85,6 +85,8 @@
 }
 
 
+/* Patch meme taille input text et select */
+
 .v-text-field__slot {
   height: 32px;
 }
@@ -92,9 +94,10 @@
 .v-select__selections {
   height: 32px;
 }
-/* .list-form {
-  margin-top:13px;
-} */
+
+.v-select__slot {
+  height: 32px;
+}
 
 .form-declaration {
   margin: 10px 100px;

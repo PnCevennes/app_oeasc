@@ -81,29 +81,31 @@ export default {
       forms: ["observations"]
     }
   ],
-  preLoadData: ({ $store, $this }) => {
+  preLoadData: ({ $store, meta, config }) => {
+
+    console.log(meta)
     return new Promise(resolve => {
-      if (!$this.idRealisation) {
+      if (!meta.idRealisation) {
         resolve();
       } else {
         $store
-          .dispatch("in_realisation", $this.idRealisation)
+          .dispatch("in_realisation", meta.idRealisation)
           .then(realisation => {
             console.log(realisation);
-            this.config.value = realisation;
+            config.value = realisation;
             resolve();
           });
       }
     });
   },
 
-  title: ({ $this }) =>
-    $this.idRealisation
-      ? `Modificiation de la réalisation de sortie Indice Nocturne ${$this.idRealisation}`
+  title: ({ meta }) =>
+    meta.idRealisation
+      ? `Modificiation de la réalisation de sortie Indice Nocturne ${meta.idRealisation}`
       : "Création d'une réalisation de sortie Indice Nocturne",
-  switchDisplay: ({ $this }) => $this.idRealisation,
+  switchDisplay: ({ meta }) => meta.idRealisation,
   request: {
-    url: ({ $this }) => `api/in/realisation/${$this.idRealisation || ""}`,
-    method: ({ $this }) => `${$this.idRealisation ? "PATCH" : "POST"}`
+    url: ({ meta }) => `api/in/realisation/${meta.idRealisation || ""}`,
+    method: ({ meta }) => `${meta.idRealisation ? "PATCH" : "POST"}`
   }
 };
