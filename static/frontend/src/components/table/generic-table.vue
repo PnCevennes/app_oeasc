@@ -143,6 +143,7 @@ export default {
   },
   methods: {
     configForm(item, value) {
+      console.log('configForm')
       const header = this.configTable.headers.find(
         header => header.value == value
       );
@@ -154,13 +155,14 @@ export default {
         item[this.configTable.label]
       }`;
       configForm.value = item;
+      console.log('value', configForm.value)
       configForm.cancel = {
         action: () => {
           this.cancel(value, item[this.configTable.id]);
           this.closeDialog();
         }
       };
-      configForm.forms[value].label = `${header.text}`;
+      configForm.formDefs[value].label = `${header.text}`;
 
       if (configForm.request.onSuccess) {
         configForm.request.onSuccess2 = configForm.request.onSuccess;

@@ -29,7 +29,7 @@
 </template>
 
 <script>
-import { formFunctions } from "@/components/form/functions";
+import { formFunctions } from "@/components/form/functions/form";
 export default {
   name: "list",
   props: ["config", "baseModel"],

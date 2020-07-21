@@ -1,5 +1,5 @@
 import { copy } from "@/core/js/util/util.js";
-import { formFunctions } from "@/components/form/functions.js";
+import { formFunctions } from "@/components/form/functions/form";
 
 export default class ConfigDeclaration {
   _forms;
@@ -52,10 +52,12 @@ export default class ConfigDeclaration {
     }
   }
 
+  // liste des formulaires d'une session
   sessionFormList(session) {
     return this.groupFormList(session);
   }
 
+  // liste des formulaires d'un groupe
   groupFormList(config) {
     if (config.groups) {
       let list = [];
@@ -64,7 +66,7 @@ export default class ConfigDeclaration {
       }
       return list;
     }
-    return Object.keys(config.forms);
+    return config.forms;
   }
 
   isValidForm({ $store, baseModel }, keyForm) {
@@ -153,7 +155,7 @@ export default class ConfigDeclaration {
     return this._config.groups[keySessionGroup].sessions;
   }
 
-  firstSession(keySessionGroup) {
+  firstSession(config, keySessionGroup) {
     return Object.keys(this._config.groups[keySessionGroup].sessions)[0];
   }
 

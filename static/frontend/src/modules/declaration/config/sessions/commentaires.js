@@ -1,16 +1,14 @@
-const sessionsCommentaires = {
+export default {
   commentaires: {
     title: "Précisions, remarques, observations",
-    groups: {
-      content: {
-        class: ['no-border'],
+    groups: [
+      {
+        class: ["no-border"],
         forms: ["content_commentaires"]
       },
-      commentaires: {
+      {
         forms: ["commentaire"]
       }
-    }
-  },
+    ]
+  }
 };
-
-export { sessionsCommentaires };

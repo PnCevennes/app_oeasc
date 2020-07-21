@@ -1,20 +1,18 @@
-const sessionsDegat = {
+export default {
   degats_caracterisation: {
     title: "Caratérisation des dégâts",
-    groups: {
-      degats: {
+    groups: [
+      {
         forms: ["degats"]
       }
-    }
+    ]
   },
   degats_precision_localisation: {
     title: "Précisions sur la localisation des dégâts",
-    groups: {
-      degats_precision_localisation: {
+    groups: [
+      {
         forms: ["precision_localisation"]
       }
-    },
+    ]
   }
 };
-
-export { sessionsDegat };

@@ -1,7 +1,7 @@
-// import { rules } from "@/components/form/functions.js";
-import { formFunctions } from "@/components/form/functions.js";
+// import { rules } from "@/components/form/functions/form";
+import { formFunctions } from "@/components/form/functions/form";
 
-const formsPeuplement = {
+export default {
   areas_localisation_cadastre: {
     required: true,
     multiple: true,
@@ -14,14 +14,15 @@ const formsPeuplement = {
       text: "label"
     },
     condition: ({ baseModel }) =>
-      (!(baseModel.b_statut_public === true && baseModel.b_document === true)) &&
-        (baseModel.areas_foret_dgd ||
-      baseModel.areas_foret_sections.length),
+      !(baseModel.b_statut_public === true && baseModel.b_document === true) &&
+      (baseModel.areas_foret_dgd ||
+        (baseModel.areas_foret_sections &&
+          baseModel.areas_foret_sections.length)),
     url: ({ baseModel }) =>
       `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_CADASTRE/${formFunctions.processAreas(
         baseModel.areas_foret_dgd || baseModel.areas_foret_sections
       )}`,
-      help: true
+    help: true
   },
 
   areas_localisation_onf_ug: {
@@ -50,14 +51,13 @@ const formsPeuplement = {
       )}`,
     containerMultiple: true,
     help: true
-
   },
 
   id_nomenclature_peuplement_essence_principale: {
     required: true,
     label: "Essence principale",
     type: "essence",
-    essenceType: "all",
+    essenceType: "all"
   },
 
   nomenclatures_peuplement_essence_secondaire: {
@@ -65,7 +65,7 @@ const formsPeuplement = {
     label: "Essence(s) secondaire(s)",
     type: "essence",
     essenceType: "all",
-    maxLengthEssence: 3,
+    maxLengthEssence: 3
   },
 
   nomenclatures_peuplement_essence_complementaire: {
@@ -73,7 +73,7 @@ const formsPeuplement = {
     label: "Essence(s) complémentaire(s)",
     type: "essence",
     essenceType: "all",
-    maxLengthEssence: 3,
+    maxLengthEssence: 3
   },
 
   peuplement_surface: {
@@ -90,16 +90,17 @@ const formsPeuplement = {
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE",
     required: true,
     help: true,
-    condition: ({$store}) => $store.droitMax >=5 
+    condition: ({ $store }) => $store.droitMax >= 5
   },
-  
+
   nomenclatures_peuplement_origine2: {
-    label: "Origine des arbres / plants / semis touchés par les dégâts de grand gibier",
+    label:
+      "Origine des arbres / plants / semis touchés par les dégâts de grand gibier",
     type: "nomenclature",
     display: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE2",
     multiple: true,
-    required: true,
+    required: true
   },
 
   id_nomenclature_peuplement_type: {
@@ -110,7 +111,7 @@ const formsPeuplement = {
     required: true,
     help: true,
     helps: {
-      except: ['NSP']
+      except: ["NSP"]
     }
   },
 
@@ -125,7 +126,11 @@ const formsPeuplement = {
       const nomenclature = $store.getters.nomenclature(
         baseModel.id_nomenclature_peuplement_type
       );
-      return nomenclature && nomenclature.cd_nomenclature !== "FIRR";
+      const cond = nomenclature && nomenclature.cd_nomenclature !== "FIRR";
+      // if (!cond){
+      //   baseModel.nomenclatures_peuplement_maturite = [];
+      // }
+      return cond;
     },
     help: true
   },
@@ -161,7 +166,7 @@ const formsPeuplement = {
     label: "Autre protection (préciser)",
     condition: ({ baseModel, $store }) =>
       baseModel.b_peuplement_protection_existence &&
-      baseModel.nomenclatures_peuplement_protection_type.find(
+      (baseModel.nomenclatures_peuplement_protection_type || []).find(
         id_nomenclature => {
           const nomenclature = $store.getters.nomenclature(id_nomenclature);
           return nomenclature && nomenclature.cd_nomenclature == "PPRT_AUT";
@@ -229,5 +234,3 @@ const formsPeuplement = {
     required: true
   }
 };
-
-export { formsPeuplement };

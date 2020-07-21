@@ -109,7 +109,7 @@ const rawToDisplay = function({ declaration, $store }) {
     d.nomenclatures_peuplement_paturage_saison
   );
 
-  for (const degat of d.degats) {
+  for (const degat of (d.degats||[])) {
     degat.degat_type_label = $store.getters.nomenclatureString(
       degat.id_nomenclature_degat_type
     );
@@ -117,7 +117,6 @@ const rawToDisplay = function({ declaration, $store }) {
       degat.id_nomenclature_degat_type,
       "mnemonique"
     );
-    console.log('mnemo', degat.degat_type_mnemo)
 
     for (const degatEssence of (degat.degat_essences || [])) {
       degatEssence.degat_essence_label = $store.getters.nomenclatureString(
@@ -148,7 +147,6 @@ const displayParcelles = function(parcelles) {
   if ((parcellesArray[0].split("-").length != 3)) {
     return parcelles;
   }
-  console.log('yakoo', parcelles, parcellesArray)
 
 const groups = {};
 for (const parcelle of parcellesArray) {
@@ -161,7 +159,6 @@ for (const parcelle of parcellesArray) {
 }
 return Object.keys(groups).map((group_key) => {
   const group = groups[group_key];
-  console.log(group)
   return group.length == 1 ? `${group_key}-${group[0]}` : `${group_key}-(${group.join(', ')})`;
 }).join(', ');
 }

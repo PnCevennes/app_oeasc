@@ -1,4 +1,4 @@
-const formsDegat = {
+export default {
     degats: {
         label: 'Indiquez les différents types de dégâts constatés',
         type: 'degats',
@@ -13,5 +13,3 @@ const formsDegat = {
         label: 'Indications pour la localisation des dégats'
     }
 };
-
-export { formsDegat };

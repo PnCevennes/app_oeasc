@@ -1,3 +1,5 @@
+import { copy } from "@/core/js/util/util.js";
+
 const processEssenceSort = a => {
   const b = a.label_fr.toLowerCase();
   b.replace("é", "e");
@@ -96,7 +98,7 @@ const rules = {
   required: v => !!v || "Ce champs est obligatoire.",
   requiredListSimple: v => !!v || "Veuillez choisir un élément dans la liste.",
   requiredListMultiple: v =>
-    v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
+    v && v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
   number: v => {
     return (
       "" == v || Number(v) == 0 || !!Number(v) || `Veuillez entrer un nombre ${v && v.includes(',') ? "(utiliser un point à la place de la virgule pour les décimales)" : ''}`
@@ -121,7 +123,7 @@ const rules = {
 
     if (config.required) {
       let ruleRequired = rules.required;
-      if (["list-form", "nomenclature", "select_map"].includes(config.type)) {
+      if (["list-form", "nomenclature", "select_map", 'essence'].includes(config.type)) {
         ruleRequired = config.multiple
           ? rules.requiredListMultiple
           : rules.requiredListSimple;
@@ -148,7 +150,29 @@ const rules = {
 
 };
 
+// TODO move to formfunction et à utiliser dans list.vue
+const isValidForm = function({ $store, baseModel, config }, keyForm) {
+  const formDef = copy(config.formDefss[keyForm]);
 
+  let condRules = true;
+
+  formDef.required =
+    typeof formDef.required === "function"
+      ? formDef.required({ $store, baseModel })
+      : formDef.required;
+
+  formFunctions.rules.processRules(formDef);
+
+  for (const rule of formDef.rules) {
+    condRules = condRules && rule(baseModel[keyForm]) === true;
+  }
+
+  let condCondition =
+    !formDef.condition ||
+    formDef.condition({ baseModel, $store });
+
+  return condRules || !condCondition;
+}
 // /**
 //  * 
 //  * @param {forms, struct} :  
@@ -186,6 +210,7 @@ const formFunctions = {
   rules,
   getEssencesSelected,
   processAreas,
+  isValidForm,
   // processFormGroupConfig
 };
 

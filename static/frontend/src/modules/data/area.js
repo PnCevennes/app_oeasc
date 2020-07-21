@@ -1,5 +1,5 @@
 import { apiRequest } from "@/core/js/data/api.js";
-import { dataString } from "./functions";
+import { dataString } from "./functions.js";
 
 const STORE = {
   state: {
@@ -27,6 +27,7 @@ const STORE = {
       return new Promise((resolve, reject) => {
         if(!id_areas) {
           resolve();
+          return 
         }
         const areasIds = Array.isArray(id_areas) ? id_areas : [id_areas];
         const params = '?' + areasIds.map(id_area => `id_area=${id_area}`).join('&')

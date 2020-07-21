@@ -1,5 +1,6 @@
 <template>
   <div>
+    select map{{baseModel}}
     <div>
       <h4>
         Localisation :

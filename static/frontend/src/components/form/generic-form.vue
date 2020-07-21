@@ -13,6 +13,7 @@
         </div>
 
         <template v-if="!config.displayValue">
+          <!-- pour les requetes -->
           <v-btn
             v-if="config.request"
             absolute
@@ -21,6 +22,15 @@
             @click="submit()"
             :disabled="bSending"
           >{{ config.request.label || "Valider" }}</v-btn>
+          <!-- pour les actions (par exemple aller au formulaire suivant) -->
+          <v-btn
+            v-if="config.action"
+            absolute
+            right
+            color="success"
+            @click="processAction()"
+            :disabled="bSending"
+          >{{ config.action.label || "Valider" }}</v-btn>
         </template>
         <v-btn
           v-if="switchDisplay"
@@ -57,14 +67,13 @@
 
 <script>
 import { apiRequest } from "@/core/js/data/api.js";
-// import dynamicForm from "@/components/form/dynamic-form";
 import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import { config as globalConfig } from "@/config/config.js";
+// import {copy} from '@/core/js/util/util'
 
 export default {
   name: "generic-form",
   components: {
-    // dynamicForm,
     dynamicFormGroup
   },
   props: ["config", "meta"],
@@ -101,7 +110,6 @@ export default {
   },
   watch: {
     config() {
-      console.log("config");
       this.initConfig();
     }
   },
@@ -109,8 +117,13 @@ export default {
     this.initConfig();
   },
   methods: {
+    processAction() {
+      if (!this.$refs.form.validate()) return;
+      this.config &&
+        this.config.action.process &&
+        this.config.action.process(this);
+    },
     initConfig() {
-      console.log("init config", this.config);
       if (!this.config) return;
       this.bInit = false;
       if (this.config.preLoadData) {
@@ -118,15 +131,26 @@ export default {
           .preLoadData({
             $store: this.$store,
             config: this.config,
-            meta: this.meta,
+            meta: this.meta
           })
           .then(() => {
-            this.baseModel = this.config.value || {};
+            this.initBaseModel();
             this.bInit = true;
           });
       } else {
+        this.initBaseModel();
         this.bInit = true;
       }
+    },
+    initBaseModel() {
+      let baseModel = {};
+      baseModel = this.baseModel||this.config.value||{};
+      for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
+        if (formDef.multiple && !baseModel[keyForm]) {
+          baseModel[keyForm] = [];
+        }
+      }
+      this.baseModel = baseModel;
     },
     submit() {
       let postData = this.config.request.preProcess
@@ -176,7 +200,7 @@ export default {
   data: () => ({
     bValidForm: null,
     bInit: false,
-    baseModel: {},
+    baseModel: null,
     msgError: null,
     bError: false,
     msgSuccess: null,

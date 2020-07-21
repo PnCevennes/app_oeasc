@@ -151,13 +151,13 @@ export default {
               request: {
                 url: "api/degat_foret/declaration",
                 method: "POST",
-                onSuccess: data => {
+                onSuccess: ({data}) => {
                   this.configTable.items.find(
                     d => d.id_declaration == data.id_declaration
                   ).b_valid = data.b_valid;
                 }
               },
-              forms: {
+              formDefs: {
                 b_valid: {
                   label: "Valider cette déclaration (admin seulement)",
                   type: "bool_radio",

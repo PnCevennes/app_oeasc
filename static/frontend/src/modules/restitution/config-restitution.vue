@@ -1,9 +1,7 @@
 <template>
-  <div v-if="dataIn && configConfigurationForm">
-    <dynamic-form-group
-      :config="configConfigurationForm"
-      :baseModel="settings"
-    ></dynamic-form-group>
+<div>
+  <div v-if="dataIn && configFormConfiguration">
+    <dynamic-form-group :config="configFormConfiguration" :baseModel="settings"></dynamic-form-group>
 
     <h3>Filtres</h3>
     <dynamic-form :config="filterSelect" :baseModel="settings"></dynamic-form>
@@ -17,14 +15,14 @@
       {{ (dataIn || []).length }}
     </p>
   </div>
+</div>
 </template>
 
 <script>
 import { restitution } from "./restitution.js";
 import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import dynamicForm from "@/components/form/dynamic-form";
-import configConfigurationForm from "./config/form-configuration.js";
-// import { formFunctions } from "@/components/form/functions.js";
+import configFormConfiguration from "./config/form-configuration.js";
 
 export default {
   name: "restitution",
@@ -47,7 +45,7 @@ export default {
       settings: {},
       listChoix: ["choix1", "choix2"],
       results: {},
-      configConfigurationForm: null
+      configFormConfiguration: null
     };
   },
   watch: {
@@ -56,33 +54,39 @@ export default {
     }
   },
   mounted() {
-    this.settings = {
-      // display: "table",
-      // display: "graph",
-      display: "map",
-      typeGraph: "column",
-      nMax1: 7,
-      nMax2: 7
-    };
-    this.settings.choix1 = this.items().find(item => item.name == "organisme");
-    this.settings.choix2 = this.items().find(
-      item => item.name == "degat_types_label"
-    );
-
-    for (const keyForm of Object.keys(configConfigurationForm.forms)) {
-      configConfigurationForm.forms[keyForm] = {
-        ...configConfigurationForm[keyForm],
-        change: this.change
-      };
-    }
-
-    for (const keyForm of ["choix1", "choix2", "filter"]) {
-      configConfigurationForm.forms[keyForm].items = this.items();
-    }
-
-    this.configConfigurationForm = configConfigurationForm;
+    this.initConfig();
   },
   methods: {
+    initConfig() {
+      this.settings = {
+        // display: "table",
+        // display: "graph",
+        display: "map",
+        typeGraph: "column",
+        nMax1: 7,
+        nMax2: 7
+      };
+      this.settings.choix1 = this.items().find(
+        item => item.name == "organisme"
+      );
+      this.settings.choix2 = this.items().find(
+        item => item.name == "degat_types_label"
+      );
+
+
+      for (const formDef of Object.values(configFormConfiguration.formDefs)) {
+        formDef.change = this.change; // ideal newChange
+      }
+
+      for (const keyForm of ["choix1", "choix2"]) {
+        console.log(keyForm, configFormConfiguration.formDefs[keyForm])
+        configFormConfiguration.formDefs[keyForm].items = this.items();
+      }
+
+      console.log(configFormConfiguration)
+
+      this.configFormConfiguration = configFormConfiguration;
+    },
     change() {
       this.processChoix();
     },

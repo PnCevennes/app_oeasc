@@ -1,4 +1,4 @@
-const formsValidation = {
+export default {
   content_validation: {
     type: "content",
     code: "declaration_validation"
@@ -26,5 +26,3 @@ const formsValidation = {
     condition: ({ $store }) => $store.getters.droitMax >= 5
   }
 };
-
-export { formsValidation };

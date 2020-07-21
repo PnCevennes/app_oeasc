@@ -1,16 +1,17 @@
 <template>
+<div>
   <list-form
     v-if="configList"
     :config="configList"
     :baseModel="baseModel"
-    :dataItemsIn="dataItems"
     :ref="`listForm_${config.name}`"
   ></list-form>
+</div>
 </template>
 
 <script>
 import listForm from "./list-form";
-import { formFunctions } from "@/components/form/functions";
+import { formFunctions } from "@/components/form/functions/form";
 
 export default {
   name: "EssenceForm",
@@ -51,7 +52,7 @@ export default {
     this.config.processItems = formFunctions.processItems.essence;
     this.config.valueFieldName = "id_nomenclature";
     this.config.textFieldName = "label_fr";
-    this.dataItems = this.$store.getters.nomenclaturesOfType(
+    this.config.items = this.$store.getters.nomenclaturesOfType(
       "OEASC_PEUPLEMENT_ESSENCE"
     );
 

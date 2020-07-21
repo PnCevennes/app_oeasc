@@ -1,4 +1,4 @@
-const formsCommentaires = {
+export default {
     content_commentaires: {
         type: 'content',
         code: 'declaration_commentaires'
@@ -8,5 +8,3 @@ const formsCommentaires = {
         label: 'Commentaires'
     }
 };
-
-export { formsCommentaires };

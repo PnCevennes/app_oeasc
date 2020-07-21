@@ -1,4 +1,4 @@
-import { formFunctions } from "@/components/form/functions.js";
+import { formFunctions } from "@/components/form/functions/form";
 
 const reinitAreasLocalition = d => {
   d.areas_localisation_cadastre = [];
@@ -103,7 +103,7 @@ const changeProprietaireDeclarant = ({ baseModel, $store }) => {
   }, 10);
 };
 
-const formsForet = {
+export default {
   b_statut_public: {
     label: "Statut de la forêt",
     type: "bool_radio",
@@ -272,5 +272,3 @@ const formsForet = {
     disabled: ({ baseModel }) => baseModel.b_document === true
   }
 };
-
-export { formsForet };

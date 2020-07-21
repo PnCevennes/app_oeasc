@@ -1,5 +1,6 @@
 <template>
   <div>
+
     <!-- les forms -->
     <div v-if="formList && formList.length">
       <h4>
@@ -84,6 +85,7 @@ export default {
     computeFormList(config) {
       // si config.forms n'est pas défini, on prend tous les form de formDefs
       const forms = config.forms || (!config.groups && Object.keys(config.formDefs || {})) || [];
+
       return forms
         .filter(keyForm => {
           const formDef = config.formDefs[keyForm];
@@ -102,7 +104,7 @@ export default {
             formDefs: config.formDefs,
             name: keyForm,
             displayValue: this.config.displayValue,
-            displayLabel: this.config.displayLabel
+            displayLabel: this.config.displayLabel,
           };
         });
     },
@@ -113,7 +115,7 @@ export default {
         ...group,
         formDefs: config.formDefs,
         displayLabel: this.config.displayLabel,
-        displayValue: this.config.displayValue
+        displayValue: this.config.displayValue,
       }));
     },
 
