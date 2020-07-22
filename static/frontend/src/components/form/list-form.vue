@@ -152,7 +152,7 @@
               <v-radio-group v-model="baseModel[config.name]" :rules="config.rules">
                 <template v-for="item in items">
                   <div :key="item[config.valueFieldName]" style="position: relative">
-                    <div class="degat">
+                    <div class="radio">
                       <v-radio
                         :value="
                           (config.returnObject && item) ||
@@ -365,5 +365,8 @@ export default {
 .md-checkbox,
 .md-radio {
   display: flex;
+}
+.radio {
+  display: inline-block;
 }
 </style>

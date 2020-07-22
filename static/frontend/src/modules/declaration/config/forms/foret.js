@@ -74,6 +74,7 @@ const changeAreaForet = ({ config, baseModel, $store }) => {
 };
 
 const changeProprietaireDeclarant = ({ baseModel, $store }) => {
+  console.log(baseModel)
   if (baseModel.nom_proprietaire) {
     console.log("deja");
     // return;
@@ -96,8 +97,10 @@ const changeProprietaireDeclarant = ({ baseModel, $store }) => {
           return;
         }
         for (const key of Object.keys(apiData)) {
-          if(key != 'id_declarant')
-          baseModel[key] = apiData[key];
+          console.log(key)
+          if(key != 'id_declarant') {
+            baseModel[key] = apiData[key];
+          }
         }
       });
   }, 10);
@@ -238,7 +241,6 @@ export default {
     label: "Téléphone",
     type: "text",
     counter: true,
-    // maxlength: "10",
     rules: [formFunctions.rules.telephone],
     required: ({ baseModel }) => baseModel.b_document != true,
     disabled: ({ baseModel }) => baseModel.b_document === true

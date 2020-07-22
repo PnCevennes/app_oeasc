@@ -27,9 +27,9 @@
     >
       <template v-if="condSessions(keySessionGroup)">
         <v-col
-          v-for="([keySession, configSession], indexSession) in Object.entries(
+          v-for="(keySession, indexSession) in 
             sessionGroup.sessions
-          )"
+          "
           :key="keySession"
           @click="condValidSession(keySession) && onSessionClick(keySession)"
           :class="{
@@ -38,7 +38,7 @@
           }"
         >
           {{ indexGroup + 1 }}.{{ indexSession + 1 }} -
-          {{ config.sessionGroup[keySession].title }}
+          {{ config.sessionDefs[keySession].title }}
         </v-col>
       </template>
     </v-row>
@@ -49,7 +49,7 @@ import { sessionFunctions } from '@/components/form/functions/session'
 // import "./declaration.css";
 export default {
   name: "fil-arianne",
-  props: ["config", "keySession", "validForms", "freeze"],
+  props: ["config", "keySession", "baseModel", "freeze"],
   data: () => ({}),
   watch: {
     freeze() {
@@ -76,8 +76,7 @@ export default {
     },
 
     condValidSession(keySession) {
-      return sessionFunctions.condValidSession({config: this.config, $store: this.$store, validForms: this.validForms}, keySession) && !this.freeze;
-      // return this.validForms[keySession];
+      return sessionFunctions.condValidSession({config: this.config, $store: this.$store, baseModel: this.baseModel}, keySession) && !this.freeze;
     },
 
     condValidSessionGroup(keySessionGroup) {

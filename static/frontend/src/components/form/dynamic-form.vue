@@ -1,6 +1,5 @@
 <template>
   <div v-show="!configForm.hidden" :ref="config.name" class='dynamic-form'>
-
     <template v-if="configForm.displayValue && configForm.displayLabel">
       <b>{{ configForm.label }} : </b>
     </template>
@@ -194,6 +193,7 @@ import degatsForm from "./degats-form.vue";
 import oeascContent from "@/modules/content/content";
 import help from "./help";
 import list from "./list";
+import {copy} from '@/core/js/util/util'
 
 import { formFunctions } from "@/components/form/functions/form";
 
@@ -240,12 +240,14 @@ export default {
   watch: {
     baseModel: {
       handler() {
+        console.log("watch baseModel")
         this.configForm = this.getConfigForm();
       },
       deep: true
     },
     config: {
       handler() {
+        console.log("watch config")
         this.configForm = this.getConfigForm();
       },
       deep: true
@@ -271,7 +273,7 @@ export default {
             $store: this.$store
           });
         } else {
-          configResolved[key] = this.config[key];
+          configResolved[key] = copy(this.config[key]);
         }
       }
 
@@ -281,6 +283,7 @@ export default {
       configResolved.valid = this.configTypes.includes(this.config.type); 
 
       // ajout automatique de regle selon le type
+      formFunctions
       formFunctions.rules.processRules(configResolved); 
 
       return configResolved;
@@ -293,3 +296,39 @@ export default {
 };
 </script>
 
+<style >
+.required  {
+  color: red;
+  margin-right: 5px;
+}
+
+.v-label {
+  max-width:800px;
+  text-align: justify;
+}
+
+.v-text-field__slot {
+  height: 32px;
+}
+
+.v-select__selections {
+  height: 32px;
+}
+
+.v-select__slot {
+  height: 32px;
+}
+
+.v-input--checkbox {
+  margin-top: 0px;
+}
+
+.select-list-label-container {
+  margin-bottom: 10px;
+}
+
+.v-radio {
+  margin-bottom: 5px;
+}
+
+</style>

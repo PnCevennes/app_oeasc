@@ -5,8 +5,9 @@ const sessionFunctions = {
   // renvoie un dictionnaire {key : form[key] valid)
   validForms({ $store, baseModel, config }) {
     const validForms = {};
+    console.log(config)
     for (const configSessionGroups of Object.values(config.sessionGroups)) {
-      for (const sessionKey of Object.values(configSessionGroups.sessions)) {
+      for (const sessionKey of configSessionGroups.sessions) {
         let validSession = true;
         const sessionDef = config.sessionDefs[sessionKey];
         for (const form of sessionFunctions.formList(sessionDef)) {
@@ -28,7 +29,7 @@ const sessionFunctions = {
     if (config.groups) {
       let list = [];
       for (const group of config.groups) {
-        list = [...list, ...sessionFunctions.groupFormList(group)];
+        list = [...list, ...sessionFunctions.formList(group)];
       }
       return list;
     }
@@ -90,7 +91,7 @@ const sessionFunctions = {
     for (const [keySessionGroup, configSessionGroups] of Object.entries(
       config.sessionGroups
     )) {
-      if (keySession in configSessionGroups.sessions) {
+      if (configSessionGroups.sessions.includes(keySession)) {
         return keySessionGroup;
       }
     }
@@ -101,17 +102,26 @@ const sessionFunctions = {
   groups(config) {
     const groups = [];
     for (const configSessionGroups of Object.values(config.sessionGroups)) {
+      const subGroups = []
       for (const keySession of configSessionGroups.sessions) {
         const sessionDef = config.sessionDefs[keySession];
-        if (sessionDef)
-        groups.push(sessionDef.groups);
+        if (sessionDef) {
+          console.log(sessionDef)
+          subGroups.push(sessionDef);
+        }
       }
+      groups.push({
+        groups: subGroups,
+        title: configSessionGroups.title,
+      })
     }
     return groups;
   },
 
   // renvoie si une session est valide
-  condValidSession({config, validForms}, keySessionTest) {
+  condValidSession({config, baseModel, $store}, keySessionTest) {
+    const validForms = sessionFunctions.validForms({$store, baseModel, config})
+    console.log(validForms)
     let cond = true;
     for (const configSessionGroups of Object.values(config.sessionGroups)) {
       for (const keySession of configSessionGroups.sessions) {

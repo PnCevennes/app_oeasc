@@ -99,4 +99,5 @@ export default {
 table.v-table tbody td {
   font-size: 5px !important;
 }
+
 </style>

@@ -1,7 +1,5 @@
 <template>
-  <div>
     <chained-form :config="configFormChainedDeclaration" :meta="{idDeclaration}"></chained-form>
-  </div>
 </template>
 
 <script>
@@ -22,3 +20,4 @@ export default {
   }
 };
 </script>
+<style></style>

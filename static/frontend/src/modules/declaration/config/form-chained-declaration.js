@@ -30,7 +30,6 @@ export default {
   help: "declaration_help",
   preLoadData: ({ $store, meta, config }) => {
     return new Promise(resolve => {
-      console.log("preloadData");
       const promises = [
         $store.dispatch("nomenclatures"),
         meta.idDeclaration &&

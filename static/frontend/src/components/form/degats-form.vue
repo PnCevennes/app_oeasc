@@ -11,7 +11,7 @@
       </div>
 
       <div v-for="(item, index) of items" :key="item.id_nomenclature">
-        <div class="degat" style="position: relative">
+        <div style="position: relative; display: inline-block">
           <v-checkbox
             v-model="degatTypes"
             :hide-details="index < items.length - 1 ? true : false"
@@ -421,3 +421,36 @@ export default {
   }
 };
 </script>
+
+<style
+scoped
+>
+.degat {
+  display: inline-block;
+}
+
+.flex-5 > div {
+  width: 20%;
+  margin: 1px;
+}
+
+.select-list-label-container {
+  margin-bottom: 10px;
+}
+
+.select-list-label {
+  font-weight: bold;
+}
+
+.flex-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.flex-row {
+  flex-direction: row;
+}
+
+
+
+</style>

@@ -211,3 +211,12 @@ export default {
   })
 };
 </script>
+
+
+<style>
+.form-container {
+  min-width: 800px;
+  position: relative;
+}
+
+</style>

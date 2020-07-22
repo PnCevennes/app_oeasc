@@ -104,10 +104,10 @@ const rules = {
       "" == v || Number(v) == 0 || !!Number(v) || `Veuillez entrer un nombre ${v && v.includes(',') ? "(utiliser un point à la place de la virgule pour les décimales)" : ''}`
     );
   },
-  telephone: v =>
-    !v ||
+  telephone: v => !v ||
     /^0[1-9]([ -]?[0-9][0-9]){4}$/.test(v) ||
-    "Le numéro de téléphone doit être valide (10 chiffres).",
+    "Le numéro de téléphone doit être valide (10 chiffres)."
+  ,
   email: v => !v || /.+@.+\..+/.test(v) || "L'e-mail doit être valide.",
   maxLength: max => v =>
     v.length <= max || `Choisir un maximum de ${max} éléments.`,
@@ -152,7 +152,7 @@ const rules = {
 
 // TODO move to formfunction et à utiliser dans list.vue
 const isValidForm = function({ $store, baseModel, config }, keyForm) {
-  const formDef = copy(config.formDefss[keyForm]);
+  const formDef = copy(config.formDefs[keyForm]);
 
   let condRules = true;
 

@@ -30,20 +30,35 @@ export default {
       nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE2",
       multiple: true,
       required: true
-    }
-  },
-  groups: [
-      {
-      forms: ["test_bool"]
-      },
-    {
-      direction: "row",
-      forms: ["test_select_multi", "test_multi", "test_radio"]
     },
-    {
-        forms: ['nomenclatures_peuplement_origine2']
-    }
-  ],
+    s_commune_proprietaire: {
+      type: "list_form",
+      display: "combobox",
+      label: "Commune",
+      dataReloadOnSearch: true,
+      placeholder:
+        "Entrez les premières lettres de la commune et/ou le code postal",
+      url: ({ search }) => `api/commons/communes/${search}`,
+      valueFieldName: "nom_cp",
+      textFieldName: "nom_cp",
+      required: ({ baseModel }) => baseModel.b_document != true,
+      disabled: ({ baseModel }) => baseModel.b_document === true
+    },
+  },
+  forms: ['s_commune_proprietaire'],
+  value: {s_commune_proprietaire: 'Azay-le-Rideau 37190'},
+  // groups: [
+  //     {
+  //     forms: ["test_bool"]
+  //     },
+  //   {
+  //     direction: "row",
+  //     forms: ["test_select_multi", "test_multi", "test_radio"]
+  //   },
+  //   {
+  //       forms: ['nomenclatures_peuplement_origine2']
+  //   }
+  // ],
   // value: {
   //   test_select_multi: [],
   //   test_multi: [], 

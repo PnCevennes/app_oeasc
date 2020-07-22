@@ -1,5 +1,6 @@
 <template>
   <div v-if="keySession != 'all'">
+    keySession {{keySession}}
     <div class="fil-arianne-container">
       <div
         v-for="([keySessionGroup, sessionGroup], indexGroup) in Object.entries(
@@ -18,9 +19,10 @@
         {{ indexGroup + 1 }}. {{ sessionGroup.title }}
       </div>
     </div>
+    aa
     <div
       v-for="([keySessionGroup, sessionGroup], indexGroup) in Object.entries(
-        config.groups
+        config.groupSessions
       )"
       :key="keySessionGroup"
       class="fil-arianne-container"

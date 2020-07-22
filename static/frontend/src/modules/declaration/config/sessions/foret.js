@@ -40,11 +40,18 @@ export default {
         groups: [
           {
             title: "Informations",
-            forms: ["nom_proprietaire", "telephone", "email"]
+            forms: [
+              "nom_proprietaire",
+              "telephone",
+              "email"
+            ]
           },
           {
             title: "Adresse",
-            forms: ["adresse", "s_commune_proprietaire"]
+            forms: [
+              "adresse",
+              "s_commune_proprietaire"
+            ]
           }
         ]
       }

@@ -1,12 +1,26 @@
 <template>
   <div>
+    <!-- titre -->
+      
+      <h2 v-if="depth==0">
+        {{ config.title }}
+        <help :code="`${config.help}`" v-if="config.help"></help>
+      </h2>
 
-    <!-- les forms -->
-    <div v-if="formList && formList.length">
-      <h4>
+      <h3 v-if="depth==1">
+        {{ config.title }}
+        <help :code="`${config.help}`" v-if="config.help"></help>
+      </h3>
+
+      <h4 v-if="depth >= 2">
         {{ config.title }}
         <help :code="`${config.help}`" v-if="config.help"></help>
       </h4>
+
+
+
+    <!-- les forms -->
+    <div v-if="formList && formList.length">
 
       <template v-if="config.direction === 'row'">
         <v-row dense>
@@ -37,6 +51,7 @@
           <v-col v-for="(configGroup, index) of groupList" :key="index">
             <dynamic-form-group
               :baseModel="baseModel"
+              :depthIn="depth+1"
               :config="configGroup"
             ></dynamic-form-group>
           </v-col>
@@ -47,6 +62,7 @@
           <v-col>
             <dynamic-form-group
               :baseModel="baseModel"
+              :depthIn="depth+1"
               :config="configGroup"
             ></dynamic-form-group>
           </v-col>
@@ -59,7 +75,6 @@
 <script>
 import dynamicForm from "@/components/form/dynamic-form";
 import help from "./help";
-import "./form.css";
 
 export default {
   name: "dynamic-form-group",
@@ -68,8 +83,11 @@ export default {
     help
   },
   data: () => ({}),
-  props: ["config", "baseModel"],
+  props: ["config", "baseModel", "depthIn"],
   computed: {
+    depth() {
+      return this.depthIn || 0;
+    },
     formList() {
       return this.computeFormList(this.config);
     },
@@ -84,7 +102,10 @@ export default {
     // renvoie la liste des formulaires filtrée par condition
     computeFormList(config) {
       // si config.forms n'est pas défini, on prend tous les form de formDefs
-      const forms = config.forms || (!config.groups && Object.keys(config.formDefs || {})) || [];
+      const forms =
+        config.forms ||
+        (!config.groups && Object.keys(config.formDefs || {})) ||
+        [];
 
       return forms
         .filter(keyForm => {
@@ -104,7 +125,7 @@ export default {
             formDefs: config.formDefs,
             name: keyForm,
             displayValue: this.config.displayValue,
-            displayLabel: this.config.displayLabel,
+            displayLabel: this.config.displayLabel
           };
         });
     },
@@ -115,7 +136,7 @@ export default {
         ...group,
         formDefs: config.formDefs,
         displayLabel: this.config.displayLabel,
-        displayValue: this.config.displayValue,
+        displayValue: this.config.displayValue
       }));
     },
 
@@ -131,3 +152,18 @@ export default {
   }
 };
 </script>
+
+<style scoped>
+.form-group.border {
+  border: 1px solid lightgrey;
+  border-radius: 10px;
+}
+
+.form-group.margin {
+  margin: 10px;
+}
+
+.form-group.padding {
+  padding: 10px;
+}
+</style>

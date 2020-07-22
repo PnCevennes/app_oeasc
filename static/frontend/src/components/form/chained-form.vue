@@ -1,46 +1,22 @@
 <template>
   <div class="chained-form">
-cf {{config.value}}
     <div>
       <h2>{{ title }}</h2>
+
       <div v-if="initialized">
         <p v-if="config.help">
           Besoin d'aide
           <help :code="config.help"></help>
         </p>
+
         <fil-arianne
           :config="config"
           :keySession="keySession"
-          :validForms="validForms"
+          :baseModel="config.value"
           :freeze="config.freeze"
         ></fil-arianne>
 
-        <div
-          v-for="[keySessionGroup, sessionGroup] in Object.entries(config.sessionGroups)"
-          :key="keySessionGroup"
-        >
-          <div v-if="showGroupSession(keySessionGroup)">
-            <h2>{{ sessionGroup.title }}</h2>
-          </div>
-          <div v-for="keySessionCur of sessionGroup.sessions" :key="keySessionCur">
-            <div
-              :class="{
-              'form-session-container': true,
-              isSession: keySession != 'all'
-            }"
-              v-if="showSession(keySessionCur)"
-            >
-              <generic-form :config="configSession(keySessionCur)"></generic-form>
-              <!-- <form-session
-              class="session"
-              :baseModel="declaration"
-              :config="configSession"
-              :validForms="validForms"
-              :keySession="keySession"
-              ></form-session>-->
-            </div>
-          </div>
-        </div>
+        <generic-form :config="configSession(keySession)"></generic-form>
       </div>
 
       <div v-else>
@@ -55,8 +31,6 @@ cf {{config.value}}
 import filArianne from "./fil-ariane";
 import help from "@/components/form/help";
 import genericForm from "@/components/form/generic-form";
-import "@/components/form/form.css";
-// import "./declaration.css";
 import { sessionFunctions } from "@/components/form/functions/session";
 
 export default {
@@ -88,7 +62,7 @@ export default {
     declaration: null,
     validForms: {},
     initialized: false,
-    freeze: null, 
+    freeze: null
   }),
 
   computed: {
@@ -125,7 +99,7 @@ export default {
         } else {
           sessionDef.action = {
             label: "Suivant",
-            process: ({ $router, config}) => {
+            process: ({ $router, config }) => {
               const nextSession = sessionFunctions.nextSession(
                 config,
                 config.keySession
@@ -136,19 +110,15 @@ export default {
             }
           };
         }
-
-        sessionDef.keySession = keySession;
-        sessionDef.formDefs = this.config.formDefs;
-        sessionDef.sessionGroups = this.config.sessionGroups;
-        sessionDef.value = this.config.value;
-        console.log('niit session', sessionDef.value)
-
-        return sessionDef;
-        // sinon passer au suivant ? redirect ou changer key
       }
+      sessionDef.keySession = keySession;
+      sessionDef.formDefs = this.config.formDefs;
+      sessionDef.sessionGroups = this.config.sessionGroups;
+      sessionDef.value = this.config.value;
+
+      return sessionDef;
     },
     initChainedForm() {
-        console.log('init cf')
       if (this.config.preLoadData) {
         this.config
           .preLoadData({
@@ -157,12 +127,9 @@ export default {
             config: this.config
           })
           .then(() => {
-        console.log('init cf preload', this.config.value)
-
             this.initialized = true;
           });
       } else {
-          console.log('init cf no preload')
         this.initialized = true;
       }
     },
@@ -180,13 +147,16 @@ export default {
   },
   created: function() {
     this.initChainedForm();
+    console.log(this.config);
   }
 };
 </script>
 
-<style scoped>
+<style>
+
 .chained-form {
   width: 100%;
-  margin-bottom: 50px;
+  margin: 50px;
 }
+
 </style>
