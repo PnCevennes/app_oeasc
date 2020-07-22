@@ -1,35 +1,30 @@
-const sessionsPeuplement = {
+export default {
   peuplement_localisation: {
     title: "Localisation",
-    groups: {
-      localisation: {
-        forms: [
-          "areas_localisation_cadastre",
-          "areas_localisation_onf_ug"
-        ]
+    groups: [
+      {
+        forms: ["areas_localisation_cadastre", "areas_localisation_onf_ug"]
       }
-    }
+    ]
   },
   peuplement_description: {
-    title:
-      "Description",
-    groups: {
-      essences: {
+    title: "Description",
+    groups: [
+      {
         title: "Essence(s)",
         forms: [
           "id_nomenclature_peuplement_essence_principale",
           "nomenclatures_peuplement_essence_secondaire",
           "nomenclatures_peuplement_essence_complementaire"
         ],
-        help: 'group-form-essences'
-
+        help: "group-form-essences"
       },
-      superficie: {
+      {
         title: "Superficie du peuplement (ha)",
 
         forms: ["peuplement_surface"]
       },
-      description: {
+      {
         title: "Origine et structure",
         direction: "row",
         forms: [
@@ -39,60 +34,50 @@ const sessionsPeuplement = {
           "nomenclatures_peuplement_maturite"
         ]
       }
-    }
+    ]
   },
   peuplement_protection: {
     title: "Protection",
-    groups: {
-      protection_question: {
-        forms: [
-          "b_peuplement_protection_existence",
-        ]
+    groups: [
+      {
+        forms: ["b_peuplement_protection_existence"]
       },
-      protection: {
-        forms: [
-          "nomenclatures_peuplement_protection_type",
-          "autre_protection"
-        ]
+      {
+        forms: ["nomenclatures_peuplement_protection_type", "autre_protection"]
       }
-
-    }
+    ]
   },
   peuplement_paturage: {
     title: "Pâturage domestique",
-    groups: {
-      paturage_question: {
-        forms: [
-          "b_peuplement_paturage_presence",
-        ]
+    groups: [
+      {
+        forms: ["b_peuplement_paturage_presence"]
       },
-      paturage_1: {
-        direction: 'row',
+      {
+        direction: "row",
         forms: [
           "nomenclatures_peuplement_paturage_type",
-          "id_nomenclature_peuplement_paturage_statut",
+          "id_nomenclature_peuplement_paturage_statut"
         ]
       },
-      paturage_2: {
-        direction: 'row',
+      {
+        direction: "row",
         forms: [
           "id_nomenclature_peuplement_paturage_frequence",
           "nomenclatures_peuplement_paturage_saison"
         ]
-      },
-    }
+      }
+    ]
   },
   peuplement_autres: {
     title: "Autres / divers",
-    groups: {
-      autres: {
+    groups: [
+      {
         forms: [
           "id_nomenclature_peuplement_acces",
           "nomenclatures_peuplement_espece"
         ]
       }
-    }
+    ]
   }
 };
-
-export { sessionsPeuplement };

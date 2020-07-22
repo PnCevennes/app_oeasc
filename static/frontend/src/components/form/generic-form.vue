@@ -1,6 +1,7 @@
 <template>
   <div v-if="config" class="form-container">
-    <div v-if="bRequestSuccess" class="red">
+    <h2 v-if="title">{{title}}</h2>
+    <div v-if="bRequestSuccess">
       <slot name="success"></slot>
     </div>
     <div v-else>
@@ -8,14 +9,11 @@
 
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
         <div>
-          <dynamic-form-group
-            :config="configDynamicGroupForm"
-            :baseModel="baseModel"
-          >
-          </dynamic-form-group>
+          <dynamic-form-group :config="configDynamicGroupForm" :baseModel="baseModel"></dynamic-form-group>
         </div>
 
-        <template v-if="!displayValue">
+        <template v-if="!config.displayValue">
+          <!-- pour les requetes -->
           <v-btn
             v-if="config.request"
             absolute
@@ -23,75 +21,143 @@
             color="success"
             @click="submit()"
             :disabled="bSending"
-          >
-            {{ config.request.label || "Valider" }}
-          </v-btn>
+          >{{ config.request.label || "Valider" }}</v-btn>
+          <!-- pour les actions (par exemple aller au formulaire suivant) -->
+          <v-btn
+            v-if="config.action"
+            absolute
+            right
+            color="success"
+            @click="processAction()"
+            :disabled="bSending"
+          >{{ config.action.label || "Valider" }}</v-btn>
         </template>
         <v-btn
-          v-if="config.switchDisplay"
+          v-if="switchDisplay"
           color="primary"
           @click="
-            displayValue = !displayValue;
+            config.displayValue = !config.displayValue;
             recompConfig = !recompConfig;
           "
-        >
-          {{ displayValue ? "Modifier" : "Annuler" }}
-        </v-btn>
+        >{{ config.displayValue ? "Modifier" : "Annuler" }}</v-btn>
 
         <v-btn
           v-if="config.cancel"
           color="primary"
           @click="config.cancel.action({ baseModel })"
-        >
-          Annuler
-        </v-btn>
+        >Annuler</v-btn>
 
-        <v-progress-linear
-          indeterminate
-          color="green"
-          v-if="bSending"
-        ></v-progress-linear>
+        <v-progress-linear indeterminate color="green" v-if="bSending"></v-progress-linear>
 
         <slot name="appendForm"></slot>
       </v-form>
     </div>
-    <v-snackbar color="error" v-model="bError" :timeout="5000">{{
+    <v-snackbar color="error" v-model="bError" :timeout="5000">
+      {{
       msgError
-    }}</v-snackbar>
-    <v-snackbar color="success" v-model="bSuccess" :timeout="2000">{{
+      }}
+    </v-snackbar>
+    <v-snackbar color="success" v-model="bSuccess" :timeout="2000">
+      {{
       msgSuccess
-    }}</v-snackbar>
+      }}
+    </v-snackbar>
   </div>
 </template>
 
 <script>
 import { apiRequest } from "@/core/js/data/api.js";
-// import dynamicForm from "@/components/form/dynamic-form";
 import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import { config as globalConfig } from "@/config/config.js";
+// import {copy} from '@/core/js/util/util'
 
 export default {
   name: "generic-form",
   components: {
-    // dynamicForm,
     dynamicFormGroup
   },
-  props: ["config"],
+  props: ["config", "meta"],
   computed: {
     configDynamicGroupForm() {
       return {
         groups: this.config.groups,
+        forms: this.config.forms,
         formDefs: this.config.formDefs,
-        displayValue: this.displayValue
+        displayValue: this.config.displayValue,
+        displayLabel: this.config.displayLabel
       };
+    },
+    method() {
+      return typeof this.config.request.method === "function"
+        ? this.config.request.method({ meta: this.meta })
+        : this.config.request.method;
+    },
+    url() {
+      return typeof this.config.request.url === "function"
+        ? this.config.request.url({ meta: this.meta })
+        : this.config.request.url;
+    },
+    switchDisplay() {
+      return typeof this.config.switchDisplay == "function"
+        ? this.config.switchDisplay({ meta: this.meta })
+        : this.config.switchDisplay;
+    },
+    title() {
+      return typeof this.config.title == "function"
+        ? this.config.title({ meta: this.meta })
+        : this.config.title;
     }
   },
+  watch: {
+    config() {
+      this.initConfig();
+    }
+  },
+  mounted() {
+    this.initConfig();
+  },
   methods: {
+    processAction() {
+      if (!this.$refs.form.validate()) return;
+      this.config &&
+        this.config.action.process &&
+        this.config.action.process(this);
+    },
+    initConfig() {
+      if (!this.config) return;
+      this.bInit = false;
+      if (this.config.preLoadData) {
+        this.config
+          .preLoadData({
+            $store: this.$store,
+            config: this.config,
+            meta: this.meta
+          })
+          .then(() => {
+            this.initBaseModel();
+            this.bInit = true;
+          });
+      } else {
+        this.initBaseModel();
+        this.bInit = true;
+      }
+    },
+    initBaseModel() {
+      let baseModel = {};
+      baseModel = this.baseModel||this.config.value||{};
+      for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
+        if (formDef.multiple && !baseModel[keyForm]) {
+          baseModel[keyForm] = [];
+        }
+      }
+      this.baseModel = baseModel;
+    },
     submit() {
       let postData = this.config.request.preProcess
         ? this.config.request.preProcess({
             baseModel: this.baseModel,
-            globalConfig
+            globalConfig,
+            config: this.config
           })
         : this.baseModel;
       this.$refs.form.validate();
@@ -99,7 +165,8 @@ export default {
         return;
       }
       this.bSending = true;
-      apiRequest(this.config.request.method, this.config.request.url, {
+
+      apiRequest(this.method, this.url, {
         data: postData
       }).then(
         data => {
@@ -116,8 +183,8 @@ export default {
               redirect: this.redirect
             });
           }
-          if (this.config.switchDisplay) {
-            this.displayValue = true;
+          if (this.switchDisplay) {
+            this.config.displayValue = true;
           } else {
             this.bRequestSuccess = true;
           }
@@ -133,27 +200,14 @@ export default {
   data: () => ({
     bValidForm: null,
     bInit: false,
-    baseModel: {},
+    baseModel: null,
     msgError: null,
     bError: false,
     msgSuccess: null,
     bSuccess: false,
     bRequestSuccess: false,
     bSending: false,
-    recompConfig: true,
-    displayValue: false
-  }),
-  mounted() {
-    if (this.config.preLoadData) {
-      this.config
-        .preLoadData({ $store: this.$store, config: this.config })
-        .then(() => {
-          this.baseModel = this.config.value || {};
-          this.bInit = true;
-        });
-    } else {
-      this.bInit = true;
-    }
-  }
+    recompConfig: true
+  })
 };
 </script>

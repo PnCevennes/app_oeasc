@@ -1,6 +1,6 @@
 import { copy } from "@/core/js/util/util.js";
 import { config } from "@/config/config.js";
-import { formFunctions } from "./functions";
+import { formFunctions } from "./functions/form.js";
 
 const configBaseSelect = config.map.configBaseSelect;
 

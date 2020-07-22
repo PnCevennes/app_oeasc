@@ -7,23 +7,13 @@
     <div v-else>
       <div class="list-form">
         <div v-if="config.display === 'button'">
-          <div class="select-list-label">
-            {{ config.label }}
-          </div>
-          <v-btn-toggle
-            v-model="baseModel[config.name]"
-            @change="
-              config.change && config.change({ baseModel, config, $store })
-            "
-            dense
-          >
+          <div class="select-list-label">{{ config.label }}</div>
+          <v-btn-toggle v-model="baseModel[config.name]" @change="change($event)" dense>
             <v-btn
               :value="item[config.valueFieldName]"
               v-for="(item, index) of items"
               :key="index"
-            >
-              {{ item[config.textFieldName] }}
-            </v-btn>
+            >{{ item[config.textFieldName] }}</v-btn>
           </v-btn-toggle>
         </div>
 
@@ -47,16 +37,14 @@
             :search-input.sync="search"
             :placeholder="config.placeholder"
             :filter="config.dataReloadOnSearch && customFilter"
-            @change="
-              config.change && config.change({ baseModel, config, $store })
-            "
+            @change="change($event)"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
-            no-data-text=""
+            no-data-text
           >
-            <span slot="label"
-              >{{ config.label }}
-              <i v-if="config.multiple"> (plusieurs réponses possibles)</i>
+            <span slot="label">
+              {{ config.label }}
+              <i v-if="config.multiple">(plusieurs réponses possibles)</i>
               <span v-if="config.required" class="required">*</span>
             </span>
           </v-combobox>
@@ -80,24 +68,18 @@
             :search-input.sync="search"
             :placeholder="config.placeholder"
             :filter="config.dataReloadOnSearch && customFilter"
-            @change="
-              config.change && config.change({ baseModel, config, $store })
-            "
+            @change="change($event)"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
             no-data-text="Pas de donnée disponible"
           >
-            <span slot="label"
-              >{{ config.label }}
-              <i v-if="config.multiple"> (plusieurs réponses possibles)</i>
+            <span slot="label">
+              {{ config.label }}
+              <i v-if="config.multiple">(plusieurs réponses possibles)</i>
               <span v-if="config.required" class="required">*</span>
             </span>
 
-            <help
-              slot="prepend"
-              :code="`form-${config.name}`"
-              v-if="config.help"
-            ></help>
+            <help slot="prepend" :code="`form-${config.name}`" v-if="config.help"></help>
           </v-autocomplete>
         </div>
 
@@ -115,13 +97,11 @@
             :rules="config.rules"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
-            @change="
-              config.change && config.change({ baseModel, config, $store })
-            "
+            @change="change($event)"
           >
-            <span slot="label"
-              >{{ config.label }}
-              <i v-if="config.multiple"> (plusieurs réponses possibles)</i>
+            <span slot="label">
+              {{ config.label }}
+              <i v-if="config.multiple">(plusieurs réponses possibles)</i>
               <span v-if="config.required" class="required">*</span>
             </span>
           </v-select>
@@ -133,20 +113,17 @@
           <div v-if="config.multiple">
             <v-container fluid>
               <div class="select-list-label-container" v-if="!!config.label">
-                <span class="select-list-label">
-                  {{ config.label }}
-                </span>
-                <span v-if="config.required" class="required"> *</span>
+                <span class="select-list-label">{{ config.label }}</span>
+                <span v-if="config.required" class="required">*</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
                 <br />
                 <i>(plusieurs réponses possibles)</i>
               </div>
-
               <v-checkbox
-                v-model="baseModel[config.name]"
                 v-for="(item, index) in items"
+                :key="index"
+                v-model="baseModel[config.name]"
                 :hide-details="index < items.length - 1 ? true : false"
-                :key="item[config.valueFieldName]"
                 :value="
                   (config.returnObject && item) || item[config.valueFieldName]
                 "
@@ -154,9 +131,7 @@
                 dense
                 :rules="config.rules"
                 :disabled="config.disabled"
-                @change="
-                  config.change && config.change({ baseModel, config, $store })
-                "
+                @change="change($event)"
               ></v-checkbox>
               <help
                 class="help-radio-item"
@@ -170,21 +145,13 @@
           <div v-else>
             <v-container fluid>
               <div class="select-list-label-container" v-if="!!config.label">
-                <span class="select-list-label">
-                  {{ config.label }}
-                </span>
-                <span v-if="config.required" class="required"> *</span>
+                <span class="select-list-label">{{ config.label }}</span>
+                <span v-if="config.required" class="required">*</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
               </div>
-              <v-radio-group
-                v-model="baseModel[config.name]"
-                :rules="config.rules"
-              >
+              <v-radio-group v-model="baseModel[config.name]" :rules="config.rules">
                 <template v-for="item in items">
-                  <div
-                    :key="item[config.valueFieldName]"
-                    style="position: relative"
-                  >
+                  <div :key="item[config.valueFieldName]" style="position: relative">
                     <div class="degat">
                       <v-radio
                         :value="
@@ -193,12 +160,8 @@
                         "
                         :label="item[config.textFieldName]"
                         :disabled="config.disabled"
-                        @change="
-                          config.change &&
-                            config.change({ baseModel, config, $store })
-                        "
-                      >
-                      </v-radio>
+                        @change="change($event)"
+                      ></v-radio>
                     </div>
                     <help
                       class="help-radio-item"
@@ -227,6 +190,7 @@ import help from "./help";
 export default {
   name: "lisForm",
   components: { help },
+  localMultiModel: [],
   data: () => ({
     items: null,
     info: {
@@ -268,25 +232,22 @@ export default {
     }
   },
   methods: {
+    change(event) {
+      event;
+      // if (this.config.multiple && !this.config.display) {
+      //   console.log('local model')
+      //   this.baseModel[this.config.name] = this.localModel;
+      // }
+      this.config.change &&
+        this.config.change({
+          baseModel: this.baseModel,
+          config: this.config,
+          $store: this.$store
+        });
+    },
     customFilter(item, queryText) {
       item + queryText;
       return true;
-      // let text = item[this.config.textFieldName].toLowerCase();
-      // let searchText = queryText.toLowerCase();
-
-      // // remove accents
-      // const sTransI = "àâäéèêëîïöùûü";
-      // const sTransO = "aaaeeeeiiouuu";
-      // for (let index = 0; index < sTransI.length; index++) {
-      //   searchText = searchText.replace(sTransI[index], sTransO[index]);
-      //   text = text.replace(sTransI[index], sTransO[index]);
-      // }
-
-      // let cond = false;
-      // for (const test of searchText.trim().split(" ")) {
-      //   cond = cond || text.includes(test);
-      // }
-      // return cond;
     },
     processItems: function() {
       this.items = this.config.processItems
@@ -376,27 +337,20 @@ export default {
       }
     }
   },
-  props: ["config", "baseModel", "dataItemsIn"],
+  props: ["config", "baseModel"],
   created() {
     this.setDefaultConfig();
   },
   mounted: function() {
-    if (this.config.multiple && !this.baseModel[this.config.name]) {
-      this.baseModel[this.config.name] = [];
-    }
-    const dataItemsIn = this.dataItemsIn || this.config.items;
-    if (dataItemsIn) {
-      if (
-        dataItemsIn &&
-        dataItemsIn.length &&
-        typeof dataItemsIn[0] != "object"
-      ) {
-        this.dataItems = dataItemsIn.map(item => ({
+
+    if (this.config.items) {
+      if (this.config.items.length && typeof this.config.items[0] != "object") {
+        this.dataItems = this.config.items.map(item => ({
           text: item,
           value: item
         }));
       } else {
-        this.dataItems = dataItemsIn;
+        this.dataItems = this.config.items;
       }
     }
     if (this.config.dataReloadOnSearch) {

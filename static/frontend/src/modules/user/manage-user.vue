@@ -71,7 +71,7 @@ export default {
                 };
               }
             },
-            forms: {
+            formDefs: {
               id_droit_max: {
                 type: "list_form",
                 display: "select",

@@ -238,7 +238,7 @@
 
 <script>
 import { copy } from "@/core/js/util/util.js";
-import { formFunctions } from "@/components/form/functions.js";
+import { formFunctions } from "@/components/form/functions/form";
 import essenceForm from "./essence-form.vue";
 import nomenclatureForm from "./nomenclature-form";
 import help from "./help";

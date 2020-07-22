@@ -57,7 +57,7 @@ app.config['MAIL'] = mail
 
 @app.route('/')
 def accueil():
-    return redirect("/front", code=302)
+    return redirect("/front/", code=302)
 
 @app.route('/front/')
 def front():
@@ -67,7 +67,7 @@ def front():
 @app.route('/oeasc/', defaults={'text':''})
 @app.route('/oeasc/<path:text>')
 def redirect_front(text):
-    return redirect("/front", code=302)
+    return redirect("/front/", code=302)
 
 
 @app.route('/google4b0945b8a2f6425f.html')
@@ -98,20 +98,8 @@ with app.app_context():
     from app.ref_geo import api as ref_geo_api
     app.register_blueprint(ref_geo_api.bp, url_prefix='/api/ref_geo')
 
-    # from app.modules.oeasc import routes as oeasc_routes
-    # app.register_blueprint(oeasc_routes.bp, url_prefix='/oeasc')
-
-    # from app.modules.oeasc.declaration import routes as declaration_routes
-    # app.register_blueprint(declaration_routes.bp, url_prefix='/declaration')
-
-    # from app.modules.oeasc.user import routes as routes_user
-    # app.register_blueprint(routes_user.bp, url_prefix='/user')
-
     from app.modules.oeasc.user import api as api_user
     app.register_blueprint(api_user.bp, url_prefix='/api/user')
-
-    # from app.modules.oeasc.resultat import routes as routes_resultat
-    # app.register_blueprint(routes_resultat.bp, url_prefix='/resultat')
 
     from app.modules.oeasc import api as oeasc_api
     app.register_blueprint(oeasc_api.bp, url_prefix='/api/oeasc')
@@ -130,12 +118,6 @@ with app.app_context():
 
     from app.modules.oeasc.i_n import api as in_api
     app.register_blueprint(in_api.bp, url_prefix='/api/in')
-
-    # from app.modules.oeasc import api_test as api_test
-    # app.register_blueprint(api_test.bp, url_prefix='/api/test')
-
-    # from app.modules.oeasc import route_test as route_test
-    # app.register_blueprint(route_test.bp, url_prefix='/test')
 
     from pypnusershub import routes
     app.register_blueprint(routes.routes, url_prefix='/pypn/auth')

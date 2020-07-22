@@ -1,5 +1,6 @@
 <template>
   <div v-show="!configForm.hidden" :ref="config.name" class='dynamic-form'>
+
     <template v-if="configForm.displayValue && configForm.displayLabel">
       <b>{{ configForm.label }} : </b>
     </template>
@@ -103,21 +104,21 @@
           configForm.change && configForm.change({ baseModel, config, $store })
         "
         @click:append="
-          if (config.type === 'password') {
+          if (configForm.type === 'password') {
             show1 = !show1;
           }
         "
       >
         <span slot="label"
-          >{{ config.label }}
-          <span v-if="config.required && config.label" class="required">*</span>
+          >{{ configForm.label }}
+          <span v-if="configForm.required && config.label" class="required">*</span>
         </span>
         {{ `form-${config.name}` }}
 
         <help
           slot="append"
-          :code="`form-${config.name}`"
-          v-if="config.help"
+          :code="`form-${configForm.name}`"
+          v-if="configForm.help"
         ></help>
       </v-text-field>
     </template>
@@ -131,13 +132,13 @@
         v-else
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
-        :placeholder="config.placeholder"
+        :placeholder="configForm.placeholder"
         outlined
       >
         <help
           slot="append"
-          :code="`form-${config.name}`"
-          v-if="config.help"
+          :code="`form-${configForm.name}`"
+          v-if="configForm.help"
         ></help>
       </v-textarea>
     </template>
@@ -165,7 +166,6 @@
       <list-form
         :config="configForm"
         :baseModel="baseModel"
-        :dataItemsIn="config.items"
       ></list-form>
     </template>
 
@@ -195,7 +195,7 @@ import oeascContent from "@/modules/content/content";
 import help from "./help";
 import list from "./list";
 
-import { formFunctions } from "@/components/form/functions.js";
+import { formFunctions } from "@/components/form/functions/form";
 
 export default {
   name: "dynamicForm",
@@ -256,6 +256,10 @@ export default {
     getConfigForm: function() {
       const configResolved = { condition: true, valid: true };
 
+      // if(this.config.multiple && !this.baseModel[this.config.name]) {
+      //   this.baseModel[this.config.name] = this.baseModel[this.config.name]||[];
+      // }
+
       for (const key in this.config) {
         if (
           typeof this.config[key] === "function" &&
@@ -271,7 +275,7 @@ export default {
         }
       }
 
-      configResolved.rules = (this.config.rules || []).map(r => r); // pourquoi???
+      // configResolved.rules = (this.configResolved.rules || []).map(r => r);
 
       //teste si type dans type autorisé
       configResolved.valid = this.configTypes.includes(this.config.type); 
@@ -288,3 +292,4 @@ export default {
   }
 };
 </script>
+

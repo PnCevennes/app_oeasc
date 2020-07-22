@@ -4,4 +4,4 @@
 
 ### Frontend *(Vue)*
 
-[Gestion des formulaires] (docs/formulaires)
+[Gestion des formulaires](docs/formulaires)

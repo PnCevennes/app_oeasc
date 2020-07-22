@@ -171,7 +171,6 @@ const restitution = {
 
     for (const data1 of dataList1) {
       data1.data2 = [];
-      console.log(data1.text);
       for (const data2 of dataList2) {
         let countData2 = 0;
         for (const d of data) {

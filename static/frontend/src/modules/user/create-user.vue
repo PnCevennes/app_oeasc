@@ -3,12 +3,8 @@
     <h1>Inscription</h1>
     <generic-form ref="form" :config="config">
       <div slot="success">
-        <p>
-          Votre demande d'inscription est bien prise en compte.
-        </p>
-        <p>
-          Un e-mail de vérification vous a été envoyé.
-        </p>
+        <p>Votre demande d'inscription est bien prise en compte.</p>
+        <p>Un e-mail de vérification vous a été envoyé.</p>
 
         <p>
           Il est possible que celui-ci ait été placé par votre boite mail dans
@@ -27,17 +23,26 @@
 </template>
 
 <script>
-// import { formFunctions } from "@/components/form/functions.js";
 import genericForm from "@/components/form/generic-form";
-import configFormUser from "./config/form-user.js";
+import configFormUser from "./config/form-create-user.js";
 
 export default {
   name: "createUser",
   components: { genericForm },
-  data() {
-    return {
-      config: configFormUser
-    };
-  }
+  data: () => ({
+    config: {
+      ...configFormUser,
+      value: {
+        nom_role: "CLEMENT",
+        prenom_role: "Joel",
+        email: "joelclems@gmail.com",
+        desc_role: "Salarié, agent, fonctionnaire",
+        password: "1234",
+        id_organisme: 593,
+        password_confirmation: "1234",
+        accept_email: true
+      }
+    }
+  })
 };
 </script>

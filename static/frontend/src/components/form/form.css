@@ -1,7 +1,4 @@
-.form-group {
-  /* margin:  5px 0; */
-  /* padding:  5px 0; */
-}
+
 
 .form-group.border {
   border: 1px solid lightgrey;
@@ -85,6 +82,20 @@
 }
 
 
+/* Patch meme taille input text et select */
+
+/* .v-text-field__slot {
+  height: 32px;
+}
+
+.v-select__selections {
+  height: 32px;
+}
+
+.v-select__slot {
+  height: 32px;
+} */
+
 .v-text-field__slot {
   height: 32px;
 }
@@ -92,9 +103,27 @@
 .v-select__selections {
   height: 32px;
 }
-/* .list-form {
-  margin-top:13px;
+
+.v-select__slot {
+  height: 32px;
+}
+
+.v-input--checkbox {
+  margin-top: 0px;
+}
+
+.select-list-label-container {
+  margin-bottom: 10px;
+}
+
+.v-radio {
+  margin-bottom: 5px;
+}
+/* .v-input--selection-controls:not(:nth-child(2)) {
+  margin-top: 100px;
 } */
+
+
 
 .form-declaration {
   margin: 10px 100px;
