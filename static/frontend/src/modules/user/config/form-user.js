@@ -1,17 +1,17 @@
 export default {
-  // watchBaseModel({ config, baseModel }) {
-  //   if (!(config && baseModel)) {
-  //     return;
-  //   }
-  //   config.forms.password_confirmation.rules = [
-  //     v => {
-  //       return (
-  //         v === baseModel.password ||
-  //         "Les mot de passe doivent être identiques"
-  //       );
-  //     }
-  //   ];
-  // },
+  watchBaseModel({ config, baseModel }) {
+    if (!(config && baseModel)) {
+      return;
+    }
+    config.forms.password_confirmation.rules = [
+      v => {
+        return (
+          v === baseModel.password ||
+          "Les mot de passe doivent être identiques"
+        );
+      }
+    ];
+  },
   preLoadData: ({ $store }) => {
     return new Promise(resolve => {
       // peut être pas utile....
