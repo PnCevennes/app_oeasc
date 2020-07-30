@@ -41,7 +41,7 @@ export default {
       //   id_organisme: 593,
       //   password_confirmation: "1234",
       //   accept_email: true
-      // }
+      // }  
     }
   })
 };
