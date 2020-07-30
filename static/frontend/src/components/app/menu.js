@@ -45,6 +45,8 @@ const menus = {
   indices_nocturnes: {
     name: "in.index",
     names: [
+      "in.index",
+      "in.resultats",
       "in.tableau",
       // "in.graphiques",
       "in.saisie_new"

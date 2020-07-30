@@ -14,6 +14,15 @@ const ROUTE = [
     access: 5
   },
   {
+    name: "in.resultats",
+    path: "/in/resultats",
+    label: "Résultats",
+    type: "page",
+    content: "in.resultats",
+    parent: "in.index",
+    access: 5
+  },
+  {
     name: "in.tableau",
     path: "/in/tableau",
     label: "Tableau de données",
@@ -55,6 +64,7 @@ const STORE = {
     in_results: () => apiRequest("GET", "api/in/results/"),
     in_realisation: ({ getters }, idRealisation) => {
       getters;
+
       return apiRequest("GET", `api/in/realisation/${idRealisation}`);
     }
   },

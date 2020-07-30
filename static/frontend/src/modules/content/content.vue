@@ -49,6 +49,8 @@ import declarationTable from "@/modules/declaration/declaration-table";
 import baseMap from "@/modules/map/base-map";
 import contentImg from './content-img'
 import listePartenaire from './liste-partenaire'
+import inGraph from '@/modules/in/in-graph.vue'
+import inTable from '@/modules/in/in-table.vue'
 
 import "./content.css";
 // import Vue from "vue";
@@ -76,6 +78,8 @@ export default {
     baseMap, // eslint-disable-line
     contentImg, // eslint-disable-line
     listePartenaire, // eslint-disable-line
+    inGraph, // eslint-disable-line
+    inTable, // eslint-disable-line
   },
   data: () => ({
     // component: null,

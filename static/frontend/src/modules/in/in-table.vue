@@ -1,234 +1,188 @@
 <template>
-  <div>
-    <div v-if="ready" class="settings">
-      <div class="flex-list">
-        <div v-for="type of ['espece', 'ug', 'annee']" :key="type">
+  <div class="in-table">
+    <div>
+      <v-row dense v-if="ready">
+        <v-col v-for="[type, config] of Object.entries(configChoix)" :key="type">
           <list-form
-            v-if="ready && configChoix[type]"
-            :config="configChoix[type]"
+            v-if="ready && config && config.items.length"
+            :config="config"
             :baseModel="settings"
           ></list-form>
-        </div>
-      </div>
-    </div>
-    <div>
-      <in-graph
-        v-if="settings.espece"
-        :displayReg="settings.displayReg"
-        :dataIn="dataIn"
-        :espece="settings.espece"
-        :ug="settings.ug"
-        width="100%"
-        height="400px"
-        @clickPoint="setAnnee"
-      ></in-graph>
-    </div>
-    <div class="flex-list2">
-      <div>
-        <dynamic-form
-          v-if="ready"
-          :config="configSwitchReg"
-          :baseModel="settings"
-        ></dynamic-form>
-      </div>
-      <div>
-        <transition name="fade">
-          <div v-if="dataUg && this.settings.displayReg">
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <in-graph
+            v-if="settings.espece"
+            :displayReg="settings.displayReg"
+            :dataIn="dataIn"
+            :espece="settings.espece"
+            :ug="settings.ug"
+            width="100%"
+            height="400px"
+            :commentaires="commentaires && commentaires[settings.espece] && commentaires[settings.espece][settings.ug]"
+          ></in-graph>
+        </v-col>
+      </v-row>
+      <v-row v-if="graphOnly==undefined">
+        <v-col cols="2" class="col-switch">
+          <dynamic-form v-if="ready" :config="configSwitchReg" :baseModel="settings"></dynamic-form>
+        </v-col>
+        <v-col>
+          <transition name="fade">
+            <div v-if="dataUg && this.settings.displayReg">
+              <v-simple-table dense class="stats">
+                <thead>
+                  <tr>
+                    <th>y = ax + b</th>
+                    <th>a</th>
+                    <th>b</th>
+                    <!-- <th>R<sup>2</sup></th> -->
+                    <th>p-val</th>
+                    <!-- <th>p-val b</th> -->
+                  </tr>
+                </thead>
+                <tbody>
+                  <td></td>
+                  <td>{{ round(dataUg.reg_lin.params[0], dec) }}</td>
+                  <td>{{ round(dataUg.reg_lin.params[1], dec) }}</td>
+                  <!-- <td>
+                  {{ round(dataUg.reg_lin.R2, dec) }}
+                  </td>-->
+                  <td>{{ round(dataUg.reg_lin.pvalues[0], dec) }}</td>
+                  <!-- <td>
+                  {{ round(dataUg.reg_lin.pvalues[1], dec) }}
+                  </td>-->
+                </tbody>
+              </v-simple-table>
+            </div>
+          </transition>
+        </v-col>
+      </v-row>
+
+      <div v-if="dataUg && graphOnly==undefined">
+        <h4>Indices nocturnes {{ settings.espece }} {{ settings.ug }}</h4>
+
+        <v-tabs
+          centered
+          dark
+          grow
+        >
+          <v-tab
+            v-for="annee of Object.keys(dataUg.annees)"
+            :key="annee"
+            :href="`#tab-${annee}`"
+          >{{annee}}</v-tab>
+
+          <v-tab-item
+            v-for="[annee, dataAnnee] of Object.entries(dataUg.annees)"
+            :key="annee"
+            :value="'tab-' + annee"
+          >
             <v-simple-table dense class="stats">
               <thead>
                 <tr>
-                  <th>y = ax + b</th>
-                  <th>a</th>
-                  <th>b</th>
-                  <th>R<sup>2</sup></th>
-                  <th>p-val a</th>
-                  <th>p-val b</th>
+                  <th>IN</th>
+                  <th>E</th>
+                  <th>inf</th>
+                  <th>sup</th>
                 </tr>
               </thead>
               <tbody>
-                <td></td>
-                <td>
-                  {{ round(dataUg.reg_lin.params[0], dec) }}
-                </td>
-                <td>
-                  {{ round(dataUg.reg_lin.params[1], dec) }}
-                </td>
-                <td>
-                  {{ round(dataUg.reg_lin.R2, dec) }}
-                </td>
-                <td>
-                  {{ round(dataUg.reg_lin.pvalues[0], dec) }}
-                </td>
-                <td>
-                  {{ round(dataUg.reg_lin.pvalues[1], dec) }}
-                </td>
+                <td>{{ round(dataAnnee.moy, dec) }}</td>
+                <td>{{ round(dataAnnee.E, dec) }}</td>
+                <td>{{ round(dataAnnee.inf, dec) }}</td>
+                <td>{{ round(dataAnnee.sup, dec) }}</td>
               </tbody>
             </v-simple-table>
-          </div>
-        </transition>
-      </div>
-    </div>
 
-    <div v-if="dataAnnee">
-      <h4>
-        Indices nocturnes {{ settings.espece }} {{ settings.ug }}
-        {{ settings.annee }}
-      </h4>
-
-      <v-simple-table dense class="stats">
-        <thead>
-          <tr>
-            <th>IN</th>
-            <th>E</th>
-            <th>inf</th>
-            <th>sup</th>
-          </tr>
-        </thead>
-        <tbody>
-          <td>
-            {{ round(dataAnnee.moy, dec) }}
-          </td>
-          <td>
-            {{ round(dataAnnee.E, dec) }}
-          </td>
-          <td>
-            {{ round(dataAnnee.inf, dec) }}
-          </td>
-          <td>
-            {{ round(dataAnnee.sup, dec) }}
-          </td>
-        </tbody>
-      </v-simple-table>
-
-      <v-simple-table dense class="in">
-        <thead>
-          <tr>
-            <th>
-              <v-btn
-                v-if="$store.getters.droitMax >= 5"
-                icon
-                color="primary"
-                @click="reload()"
-              >
-                <v-icon v-if="loading">
-                  mdi-reload fa-spin
-                </v-icon>
-                <v-icon v-else>
-                  mdi-reload
-                </v-icon>
-              </v-btn>
-            </th>
-            <th>Série</th>
-            <th>Validé</th>
-            <th>Date</th>
-            <th>N° Circuit</th>
-            <th>Nom circuit</th>
-            <th>Nb grp.</th>
-            <th>Km</th>
-            <th>Nb ind.</th>
-            <th>Nb ind. / km</th>
-            <th>Moy. circuits</th>
-          </tr>
-        </thead>
-        <tbody>
-          <template
-            v-for="([numeroSerie, serie], indexSerie) in Object.entries(
+            <v-simple-table dense class="in">
+              <thead>
+                <tr>
+                  <th>
+                    <v-btn
+                      v-if="$store.getters.droitMax >= 5"
+                      icon
+                      color="primary"
+                      @click="reload()"
+                    >
+                      <v-icon v-if="loading">mdi-reload fa-spin</v-icon>
+                      <v-icon v-else>mdi-reload</v-icon>
+                    </v-btn>
+                  </th>
+                  <th>Série</th>
+                  <th>Validé</th>
+                  <th>Date</th>
+                  <th>N° Circuit</th>
+                  <th>Nom circuit</th>
+                  <th>Nb grp.</th>
+                  <th>Km</th>
+                  <th>Nb ind.</th>
+                  <th>Nb ind. / km</th>
+                  <th>Moy. circuits</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template
+                  v-for="([numeroSerie, serie], indexSerie) in Object.entries(
               dataAnnee.series
             )"
-          >
-            <tr
-              :class="{ serie: indexCircuit == 0 }"
-              v-for="(circuit, indexCircuit) of Object.values(
+                >
+                  <tr
+                    :class="{ serie: indexCircuit == 0 }"
+                    v-for="(circuit, indexCircuit) of Object.values(
                 serie.id_circuits
               ).sort((a, b) => {
                 return a.numero_circuit - b.numero_circuit;
               })"
-              :key="`${numeroSerie}-${circuit.id_circuit}`"
-            >
-              <td
-                :class="{ gris: indexSerie % 2 }"
-                v-if="indexCircuit == 0"
-                :rowSpan="Object.entries(serie.id_circuits).length"
-              >
-              </td>
-              <td
-                :class="{ gris: indexSerie % 2 }"
-                v-if="indexCircuit == 0"
-                :rowSpan="Object.entries(serie.id_circuits).length"
-              >
-                {{ numeroSerie }}
-              </td>
-              <td :class="{ gris: indexCircuit % 2 }">
-                <input
-                  v-if="$store.getters.droitMax >= 5"
-                  type="checkbox"
-                  v-model="circuit.valid"
-                  :disabled="freezeValid"
-                  @change="validChange(circuit.id_observation, circuit.valid)"
-                />
-                <template v-else>{{
-                  `${circuit.valid ? "Oui" : "Non"}`
-                }}</template>
-              </td>
-              <!-- <td :class="{ gris: indexCircuit % 2 }">
-                {{ circuit.id_observation }}
-              </td> -->
-              <td :class="{ gris: indexCircuit % 2 }">{{ circuit.date }}</td>
-              <td :class="{ gris: indexCircuit % 2 }">
-                {{ circuit.numero_circuit }}
-              </td>
-              <td :class="{ gris: indexCircuit % 2 }">
-                {{ circuit.nom_circuit }}
-              </td>
-              <td :class="{ gris: indexCircuit % 2 }">{{ circuit.groupes }}</td>
-              <td :class="{ gris: indexCircuit % 2 }">{{ circuit.km }}</td>
-              <td :class="{ gris: indexCircuit % 2 }">{{ circuit.nb }}</td>
-              <td :class="{ gris: indexCircuit % 2 }">
-                {{ round(circuit.nb / circuit.km, dec) }}
-              </td>
-              <td
-                :class="{ gris: indexSerie % 2, serie: true }"
-                v-if="indexCircuit == 0"
-                :rowSpan="Object.entries(serie.id_circuits).length"
-              >
-                {{ round(serie.moy, dec) }}
-              </td>
-              <!-- <td
-                v-if="indexSerie == 0 && indexCircuit == 0"
-                :rowSpan="
-                  nbCircuits(settings.espece, settings.ug, settings.annee)
-                "
-              >
-                {{ round(dataAnnee.moy, dec) }}
-              </td>
-              <td
-                v-if="indexSerie == 0 && indexCircuit == 0"
-                :rowSpan="
-                  nbCircuits(settings.espece, settings.ug, settings.annee)
-                "
-              >
-                {{ round(dataAnnee.E, dec) }}
-              </td>
-              <td
-                v-if="indexSerie == 0 && indexCircuit == 0"
-                :rowSpan="
-                  nbCircuits(settings.espece, settings.ug, settings.annee)
-                "
-              >
-                {{ round(dataAnnee.inf, dec) }}
-              </td>
-              <td
-                v-if="indexSerie == 0 && indexCircuit == 0"
-                :rowSpan="
-                  nbCircuits(settings.espece, settings.ug, settings.annee)
-                "
-              >
-                {{ round(dataAnnee.sup, dec) }}
-              </td> -->
-            </tr>
-          </template>
-        </tbody>
-      </v-simple-table>
+                    :key="`${numeroSerie}-${circuit.id_circuit}`"
+                  >
+                    <td
+                      :class="{ gris: indexSerie % 2 }"
+                      v-if="indexCircuit == 0"
+                      :rowSpan="Object.entries(serie.id_circuits).length"
+                    ></td>
+                    <td
+                      :class="{ gris: indexSerie % 2 }"
+                      v-if="indexCircuit == 0"
+                      :rowSpan="Object.entries(serie.id_circuits).length"
+                    >{{ numeroSerie }}</td>
+                    <td :class="{ gris: indexCircuit % 2 }">
+                      <input
+                        v-if="$store.getters.droitMax >= 5"
+                        type="checkbox"
+                        v-model="circuit.valid"
+                        :disabled="freezeValid"
+                        @change="validChange(circuit.id_observation, circuit.valid)"
+                      />
+                      <template v-else>
+                        {{
+                        `${circuit.valid ? "Oui" : "Non"}`
+                        }}
+                      </template>
+                    </td>
+
+                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.date }}</td>
+                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.numero_circuit }}</td>
+                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.nom_circuit }}</td>
+                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.groupes }}</td>
+                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.km }}</td>
+                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.nb }}</td>
+                    <td
+                      :class="{ gris: indexCircuit % 2 }"
+                    >{{ round(circuit.nb / circuit.km, dec) }}</td>
+                    <td
+                      :class="{ gris: indexSerie % 2, serie: true }"
+                      v-if="indexCircuit == 0"
+                      :rowSpan="Object.entries(serie.id_circuits).length"
+                    >{{ round(serie.moy, dec) }}</td>
+                  </tr>
+                </template>
+              </tbody>
+            </v-simple-table>
+          </v-tab-item>
+        </v-tabs>
+      </div>
     </div>
   </div>
 </template>
@@ -241,17 +195,18 @@ import "./table.css";
 
 export default {
   name: "in-table",
+  props: ['graphOnly', 'commentaires'],
   components: {
     listForm,
     "in-graph": () => import("./in-graph.vue"),
-    dynamicForm
+    dynamicForm,
   },
   data: () => ({
     dataIn: null,
     configChoix: {},
     ready: false,
     loading: true,
-    settings: { espece: "Cerf", ug: "Méjean", annee: "2019", displayReg: true },
+    settings: { espece: "Cerf", ug: "Méjean", displayReg: true },
     dataAnnee: null,
     dataUg: null,
     dec: 4,
@@ -259,14 +214,10 @@ export default {
     configSwitchReg: {
       type: "bool_switch",
       label: "Régression linéaire",
-      name: "displayReg"
-    }
+      name: "displayReg",
+    },
   }),
   methods: {
-    setAnnee(annee) {
-      this.settings.annee = String(annee);
-      this.settingsChange();
-    },
     round(x, dec) {
       if (x == 0) return 0;
       if (x == null) return "";
@@ -276,7 +227,7 @@ export default {
     validChange(id_observation, valid) {
       this.freezeValid = true;
       apiRequest("PATCH", "api/in/valid_obs/", {
-        data: { id_observation, valid }
+        data: { id_observation, valid },
       }).then(() => {
         // this.dataIn = data;
         this.initInTable();
@@ -287,23 +238,12 @@ export default {
       this.dataAnnee = null;
       this.dataUg = null;
 
-      if (
-        !(
-          this.settings.annee &&
-          this.settings.ug &&
-          this.settings.espece &&
-          this.ready
-        )
-      ) {
+      if (!(this.settings.ug && this.settings.espece && this.ready)) {
         return null;
       }
       const especes = this.dataIn.especes;
       const ugs = especes[this.settings.espece].ugs;
       this.dataUg = ugs[this.settings.ug];
-      const annees = ugs[this.settings.ug].annees;
-      const annee = annees[this.settings.annee];
-      this.dataAnnee = annee;
-      return annee;
     },
 
     nbCircuits(espece, ug, annee) {
@@ -321,6 +261,7 @@ export default {
     },
 
     settingsChange() {
+      console.log("settings change");
       if (!this.ready) {
         return;
       }
@@ -329,24 +270,9 @@ export default {
         this.settings.ug = null;
       }
 
-      if (!this.items("annee").includes(this.settings.annee)) {
-        console.log("no annee");
-        this.settings.annee = null;
-      }
-
       this.configChoix.ug.items = this.items("ug");
-      this.configChoix.annee.items = this.items("annee");
 
-      this.configChoix.ug_save = { ...this.configChoix.ug };
-      this.configChoix.annee_save = { ...this.configChoix.annee };
-
-      this.configChoix.ug = this.configChoix.annee = null;
-
-      setTimeout(() => {
-        this.configChoix.ug = this.configChoix.ug_save;
-        this.configChoix.annee = this.configChoix.annee_save;
-        this.initInTable();
-      }, 10);
+      this.initInTable();
     },
 
     items(type) {
@@ -368,14 +294,10 @@ export default {
       if (!this.settings.ug) {
         return [];
       }
-
-      const annees = ugs[this.settings.ug].annees;
-
-      return Object.keys(annees);
     },
     reload() {
       this.loading = true;
-      this.$store.dispatch("in_results").then(data => {
+      this.$store.dispatch("in_results").then((data) => {
         this.ready = false;
         this.dataAnnee = false;
         this.dataIn = data;
@@ -384,21 +306,14 @@ export default {
           label: "Espèce",
           items: this.items("espece"),
           change: this.settingsChange,
-          display: "select"
+          display: "button",
         };
         this.configChoix.ug = {
           name: "ug",
           label: "Secteur",
           items: this.items("ug"),
           change: this.settingsChange,
-          display: "select"
-        };
-        this.configChoix.annee = {
-          name: "annee",
-          label: "Année",
-          items: this.items("annee"),
-          change: this.settingsChange,
-          display: "select"
+          display: "button",
         };
 
         this.ready = true;
@@ -406,16 +321,20 @@ export default {
 
         this.initInTable();
       });
-    }
+    },
   },
 
   mounted() {
     this.reload();
-  }
+  },
 };
 </script>
 
 <style lang="css">
+.in-table {
+  width: 100%;
+  margin: 0 100px;
+}
 .fade-enter-active,
 .fade-leave-active {
   transition: opacity 0.5s;
