@@ -5,7 +5,6 @@ const sessionFunctions = {
   // renvoie un dictionnaire {key : form[key] valid)
   validForms({ $store, baseModel, config }) {
     const validForms = {};
-    console.log(config)
     for (const configSessionGroups of Object.values(config.sessionGroups)) {
       for (const sessionKey of configSessionGroups.sessions) {
         let validSession = true;
@@ -106,7 +105,6 @@ const sessionFunctions = {
       for (const keySession of configSessionGroups.sessions) {
         const sessionDef = config.sessionDefs[keySession];
         if (sessionDef) {
-          console.log(sessionDef)
           subGroups.push(sessionDef);
         }
       }
@@ -121,7 +119,6 @@ const sessionFunctions = {
   // renvoie si une session est valide
   condValidSession({config, baseModel, $store}, keySessionTest) {
     const validForms = sessionFunctions.validForms({$store, baseModel, config})
-    console.log(validForms)
     let cond = true;
     for (const configSessionGroups of Object.values(config.sessionGroups)) {
       for (const keySession of configSessionGroups.sessions) {

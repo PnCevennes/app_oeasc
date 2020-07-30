@@ -83,7 +83,7 @@ export default {
       const keySession = sessionFunctions.firstSession(this.config, 
         keySessionGroup
       );
-      return this.condValidSession(this.config, keySession)  && !this.freeze;
+      return this.condValidSession(keySession)  && !this.freeze;
     },
 
     condCurrentSession(keySession) {
