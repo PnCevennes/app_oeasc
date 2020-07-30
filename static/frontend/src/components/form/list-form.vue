@@ -190,7 +190,6 @@ import help from "./help";
 export default {
   name: "lisForm",
   components: { help },
-  localMultiModel: [],
   data: () => ({
     items: null,
     info: {
@@ -242,7 +241,8 @@ export default {
         this.config.change({
           baseModel: this.baseModel,
           config: this.config,
-          $store: this.$store
+          $store: this.$store,
+          $event: event,
         });
     },
     customFilter(item, queryText) {

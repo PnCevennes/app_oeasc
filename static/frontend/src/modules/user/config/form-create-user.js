@@ -1,4 +1,4 @@
-import formDefsUser from './form-defs-user'
+import formDefsUser from "./form-defs-user";
 
 export default {
   preLoadData: ({ $store }) => {
@@ -9,24 +9,26 @@ export default {
       });
     });
   },
-  request: {
-    method: "POST",
-    url: "pypn/register/post_usershub/create_temp_user",
+  action: {
     label: "S'inscrire",
-    preProcess: ({ baseModel, globalConfig }) => {
-      baseModel.groupe = false;
-      baseModel.id_application = globalConfig.ID_APPLICATION;
-      baseModel.pn = true;
-      baseModel.identifiant = baseModel.email;
-      baseModel.remarques = "Créé depuis le site de l'OEASC";
-      baseModel.champs_addi = {};
-      if (baseModel.autre_organisme) {
-        baseModel.champs_addi.organisme = baseModel.autre_organisme;
+    request: {
+      method: "POST",
+      url: "pypn/register/post_usershub/create_temp_user",
+      preProcess: ({ baseModel, globalConfig }) => {
+        baseModel.groupe = false;
+        baseModel.id_application = globalConfig.ID_APPLICATION;
+        baseModel.pn = true;
+        baseModel.identifiant = baseModel.email;
+        baseModel.remarques = "Créé depuis le site de l'OEASC";
+        baseModel.champs_addi = {};
+        if (baseModel.autre_organisme) {
+          baseModel.champs_addi.organisme = baseModel.autre_organisme;
+        }
+        if (baseModel.accept_email) {
+          baseModel.champs_addi.accept_email = baseModel.accept_email;
+        }
+        return baseModel;
       }
-      if (baseModel.accept_email) {
-        baseModel.champs_addi.accept_email = baseModel.accept_email;
-      }
-      return baseModel;
     }
   },
   formDefs: formDefsUser,

@@ -1,4 +1,5 @@
 import { formFunctions } from "@/components/form/functions/form";
+// import { copy } from "@/core/js/util/util";
 
 const reinitAreasLocalition = d => {
   d.areas_localisation_cadastre = [];
@@ -43,15 +44,13 @@ const changeForetDocument = ({ config, baseModel, $store }) => {
       "OEASC_PROPRIETAIRE_TYPE",
       "PT_PRI"
     );
-    baseModel.id_nomenclature_proprietaire_type =
-      nomenclature.id_nomenclature;
+    baseModel.id_nomenclature_proprietaire_type = nomenclature.id_nomenclature;
   }
 
   reinitAreasForet({ config, baseModel });
 };
 
 const changeAreaForet = ({ config, baseModel, $store }) => {
-  console.log('aaa')
   reinitAreasForet({ config, baseModel });
 
   const id_area = baseModel[config.name];
@@ -74,15 +73,15 @@ const changeAreaForet = ({ config, baseModel, $store }) => {
 };
 
 const changeProprietaireDeclarant = ({ baseModel, $store }) => {
-  console.log(baseModel)
   if (baseModel.nom_proprietaire) {
-    console.log("deja");
-    // return;
+    console.log("deja", baseModel.nom_proprietaire);
+    return;
   }
   setTimeout(() => {
     const nomenclature = $store.getters.nomenclature(
       baseModel.id_nomenclature_proprietaire_declarant
     );
+    console.log(nomenclature && nomenclature.cd_nomenclature);
     if (!(nomenclature && nomenclature.cd_nomenclature === "P_D_O_NP")) {
       return;
     }
@@ -97,13 +96,17 @@ const changeProprietaireDeclarant = ({ baseModel, $store }) => {
           return;
         }
         for (const key of Object.keys(apiData)) {
-          console.log(key)
-          if(key != 'id_declarant') {
+          if (key != "id_declarant") {
             baseModel[key] = apiData[key];
           }
         }
+
+        // patch bm
+        const save = baseModel.id_nomenclature_proprietaire_declarant;
+        baseModel.id_nomenclature_proprietaire_declarant = null;
+        baseModel.id_nomenclature_proprietaire_declarant = save;
       });
-  }, 10);
+  }, 100);
 };
 
 export default {
@@ -113,7 +116,7 @@ export default {
     labels: ["Public", "Privée"],
     change: changeForetStatut,
     required: true,
-    help: true,
+    help: true
   },
 
   b_document: {
@@ -126,13 +129,13 @@ export default {
     condition: ({ baseModel }) =>
       [true, false].includes(baseModel.b_statut_public),
     change: changeForetDocument,
-    required: true,
+    required: true
   },
 
   content_statut_dgd: {
-    type: 'content',
-    code: 'declaration_foret_onf',
-    condition: ({ baseModel }) => baseModel.b_document === false,
+    type: "content",
+    code: "declaration_foret_onf",
+    condition: ({ baseModel }) => baseModel.b_document === false
   },
 
   areas_foret_onf: {
@@ -188,7 +191,7 @@ export default {
     },
     condition: ({ baseModel }) =>
       baseModel.b_document === false && baseModel.b_statut_public !== null,
-    change: changeAreaForet,
+    change: changeAreaForet
   },
 
   label_foret: {
@@ -208,15 +211,17 @@ export default {
   },
 
   content_foret_onf: {
-    type: 'content',
-    code: 'declaration_foret_onf',
-    condition: ({ baseModel }) => baseModel.b_document === true && baseModel.b_statut_public === true,
+    type: "content",
+    code: "declaration_foret_onf",
+    condition: ({ baseModel }) =>
+      baseModel.b_document === true && baseModel.b_statut_public === true
   },
 
   content_foret_dgd: {
-    type: 'content',
-    code: 'declaration_foret_dgd',
-    condition: ({ baseModel }) => baseModel.b_document === true && baseModel.b_statut_public === false,
+    type: "content",
+    code: "declaration_foret_dgd",
+    condition: ({ baseModel }) =>
+      baseModel.b_document === true && baseModel.b_statut_public === false
   },
 
   id_nomenclature_proprietaire_declarant: {

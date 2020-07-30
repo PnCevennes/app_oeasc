@@ -28,6 +28,12 @@ const sessionDefs = {
 
 export default {
   help: "declaration_help",
+  action: {
+    request: {
+      method: "POST",
+      url: "api/degat_foret/declaration"
+    }
+  },
   preLoadData: ({ $store, meta, config }) => {
     return new Promise(resolve => {
       const promises = [

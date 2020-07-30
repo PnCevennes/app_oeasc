@@ -13,7 +13,6 @@
           :config="config"
           :keySession="keySession"
           :baseModel="config.value"
-          :freeze="config.freeze"
         ></fil-arianne>
 
         <generic-form :config="configSession(keySession)"></generic-form>
@@ -40,22 +39,6 @@ export default {
     filArianne,
     help,
     genericForm
-  },
-
-  watch: {
-    // $route() {
-    //   // this.keySession = this.getKeySesion();
-    //   if (this.idDeclaration != this.declaration.id_declaration) {
-    //     this.initDeclarationForm();
-    //   }
-    // },
-    // declaration: {
-    //   deep: true,
-    //   handler() {
-    //     console.log("dec watch freeze", this.declaration.freeze);
-    //     this.freeze = this.declaration.freeze;
-    //   }
-    // }
   },
 
   data: () => ({
@@ -92,8 +75,9 @@ export default {
         sessionDef = this.config.sessionDefs[keySession];
 
         // si c'est la dernière session validation = requete
+        console.log(sessionFunctions.lastSession(this.config), keySession, this.config.action)
         if (sessionFunctions.lastSession(this.config) == keySession) {
-          sessionDef.request = this.config.request;
+          sessionDef.action = this.config.action;
 
           // sinon on passe au formulaire suivant
         } else {

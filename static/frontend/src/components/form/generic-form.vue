@@ -14,14 +14,14 @@
 
         <template v-if="!config.displayValue">
           <!-- pour les requetes -->
-          <v-btn
-            v-if="config.request"
+          <!-- <v-btn
+            v-if="config.action && config.action.request"
             absolute
             right
             color="success"
             @click="submit()"
             :disabled="bSending"
-          >{{ config.request.label || "Valider" }}</v-btn>
+          >{{ config.action.label || "Valider" }}</v-btn>-->
           <!-- pour les actions (par exemple aller au formulaire suivant) -->
           <v-btn
             v-if="config.action"
@@ -29,7 +29,7 @@
             right
             color="success"
             @click="processAction()"
-            :disabled="bSending"
+            :disabled="bSending||baseModel.freeze"
           >{{ config.action.label || "Valider" }}</v-btn>
         </template>
         <v-btn
@@ -74,7 +74,7 @@ import { config as globalConfig } from "@/config/config.js";
 export default {
   name: "generic-form",
   components: {
-    dynamicFormGroup
+    dynamicFormGroup,
   },
   props: ["config", "meta"],
   computed: {
@@ -84,18 +84,18 @@ export default {
         forms: this.config.forms,
         formDefs: this.config.formDefs,
         displayValue: this.config.displayValue,
-        displayLabel: this.config.displayLabel
+        displayLabel: this.config.displayLabel,
       };
     },
     method() {
-      return typeof this.config.request.method === "function"
-        ? this.config.request.method({ meta: this.meta })
-        : this.config.request.method;
+      return typeof this.config.action.request.method === "function"
+        ? this.config.action.request.method({ meta: this.meta })
+        : this.config.action.request.method;
     },
     url() {
-      return typeof this.config.request.url === "function"
-        ? this.config.request.url({ meta: this.meta })
-        : this.config.request.url;
+      return typeof this.config.action.request.url === "function"
+        ? this.config.action.request.url({ meta: this.meta })
+        : this.config.action.request.url;
     },
     switchDisplay() {
       return typeof this.config.switchDisplay == "function"
@@ -106,12 +106,12 @@ export default {
       return typeof this.config.title == "function"
         ? this.config.title({ meta: this.meta })
         : this.config.title;
-    }
+    },
   },
   watch: {
     config() {
       this.initConfig();
-    }
+    },
   },
   mounted() {
     this.initConfig();
@@ -119,9 +119,15 @@ export default {
   methods: {
     processAction() {
       if (!this.$refs.form.validate()) return;
-      this.config &&
+      if (this.config.action.request) {
+        this.submit();
+        return 
+      }
+      else {
+        this.config &&
         this.config.action.process &&
         this.config.action.process(this);
+      }
     },
     initConfig() {
       if (!this.config) return;
@@ -131,7 +137,7 @@ export default {
           .preLoadData({
             $store: this.$store,
             config: this.config,
-            meta: this.meta
+            meta: this.meta,
           })
           .then(() => {
             this.initBaseModel();
@@ -144,7 +150,7 @@ export default {
     },
     initBaseModel() {
       let baseModel = {};
-      baseModel = this.baseModel||this.config.value||{};
+      baseModel = this.baseModel || this.config.value || {};
       for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
         if (formDef.multiple && !baseModel[keyForm]) {
           baseModel[keyForm] = [];
@@ -153,11 +159,11 @@ export default {
       this.baseModel = baseModel;
     },
     submit() {
-      let postData = this.config.request.preProcess
-        ? this.config.request.preProcess({
+      let postData = this.config.action.request.preProcess
+        ? this.config.action.request.preProcess({
             baseModel: this.baseModel,
             globalConfig,
-            config: this.config
+            config: this.config,
           })
         : this.baseModel;
       this.$refs.form.validate();
@@ -167,20 +173,20 @@ export default {
       this.bSending = true;
 
       apiRequest(this.method, this.url, {
-        data: postData
+        data: postData,
       }).then(
-        data => {
+        (data) => {
           this.bSending = false;
           this.bSuccess = true;
           this.msgSuccess = "La requête à été effectuée avec succès";
 
-          if (this.config.request.onSuccess) {
-            this.config.request.onSuccess({
+          if (this.config.action.request.onSuccess) {
+            this.config.action.request.onSuccess({
               data,
               $session: this.$session,
               $store: this.$store,
               $router: this.$router,
-              redirect: this.redirect
+              redirect: this.redirect,
             });
           }
           if (this.switchDisplay) {
@@ -189,13 +195,13 @@ export default {
             this.bRequestSuccess = true;
           }
         },
-        error => {
+        (error) => {
           this.bSending = false;
           this.bError = true;
           this.msgError = `Erreur avec la requête : ${error.msg}`;
         }
       );
-    }
+    },
   },
   data: () => ({
     bValidForm: null,
@@ -207,8 +213,8 @@ export default {
     bSuccess: false,
     bRequestSuccess: false,
     bSending: false,
-    recompConfig: true
-  })
+    recompConfig: true,
+  }),
 };
 </script>
 
@@ -218,5 +224,4 @@ export default {
   min-width: 800px;
   position: relative;
 }
-
 </style>

@@ -82,8 +82,7 @@ export default {
     }
   ],
   preLoadData: ({ $store, meta, config }) => {
-
-    console.log(meta)
+    console.log(meta);
     return new Promise(resolve => {
       if (!meta.idRealisation) {
         resolve();
@@ -104,8 +103,10 @@ export default {
       ? `Modificiation de la réalisation de sortie Indice Nocturne ${meta.idRealisation}`
       : "Création d'une réalisation de sortie Indice Nocturne",
   switchDisplay: ({ meta }) => meta.idRealisation,
-  request: {
-    url: ({ meta }) => `api/in/realisation/${meta.idRealisation || ""}`,
-    method: ({ meta }) => `${meta.idRealisation ? "PATCH" : "POST"}`
+  action: {
+    request: {
+      url: ({ meta }) => `api/in/realisation/${meta.idRealisation || ""}`,
+      method: ({ meta }) => `${meta.idRealisation ? "PATCH" : "POST"}`
+    }
   }
 };

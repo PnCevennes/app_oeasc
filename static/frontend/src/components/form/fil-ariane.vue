@@ -14,11 +14,10 @@
           'current-group': condCurrentGroup(keySessionGroup),
           'valid-group': condValidSessionGroup(keySessionGroup)
         }"
-      >
-        {{ indexGroup + 1 }}. {{ sessionGroup.title }}
-      </v-col>
+      >{{ indexGroup + 1 }}. {{ sessionGroup.title }}</v-col>
     </v-row>
-    <v-row dense
+    <v-row
+      dense
       v-for="([keySessionGroup, sessionGroup], indexGroup) in Object.entries(
         config.sessionGroups
       )"
@@ -45,22 +44,30 @@
   </div>
 </template>
 <script>
-import { sessionFunctions } from '@/components/form/functions/session'
+import { sessionFunctions } from "@/components/form/functions/session";
 // import "./declaration.css";
 export default {
   name: "fil-arianne",
-  props: ["config", "keySession", "baseModel", "freeze"],
+  props: ["config", "keySession", "baseModel"],
   data: () => ({}),
   watch: {
+    baseModel: {
+      handler() {
+      console.log('watch freeze', this.baseModel.freeze)
+    }},
+    deep: true,
+  },
+  computed: {
     freeze() {
-      console.log('watch freeze')
-    }
+      return this.baseModel.freeze;
+    },
   },
   methods: {
     onSessionGroupClick(keySessionGroup) {
-      const keySession = sessionFunctions.firstSession(
-        keySessionGroup
-      );
+      console.log(keySessionGroup)
+
+      const keySession = sessionFunctions.firstSession(this.config, keySessionGroup);
+      console.log(keySession)
       this.onSessionClick(keySession);
     },
 
@@ -70,20 +77,29 @@ export default {
 
     condSessions(keySessionGroup) {
       return (
-        keySessionGroup ==
-        sessionFunctions.group(this.config, this.keySession)
+        keySessionGroup == sessionFunctions.group(this.config, this.keySession)
       );
     },
 
     condValidSession(keySession) {
-      return sessionFunctions.condValidSession({config: this.config, $store: this.$store, baseModel: this.baseModel}, keySession) && !this.freeze;
+      return (
+        sessionFunctions.condValidSession(
+          {
+            config: this.config,
+            $store: this.$store,
+            baseModel: this.baseModel,
+          },
+          keySession
+        ) && !this.baseModel.freeze
+      );
     },
 
     condValidSessionGroup(keySessionGroup) {
-      const keySession = sessionFunctions.firstSession(this.config, 
+      const keySession = sessionFunctions.firstSession(
+        this.config,
         keySessionGroup
       );
-      return this.condValidSession(keySession)  && !this.freeze;
+      return this.condValidSession(keySession) && !this.baseModel.freeze;
     },
 
     condCurrentSession(keySession) {
@@ -91,12 +107,13 @@ export default {
     },
 
     condCurrentGroup(keySessionGroup) {
-      const keySession = sessionFunctions.firstSession(this.config, 
+      const keySession = sessionFunctions.firstSession(
+        this.config,
         keySessionGroup
       );
       return this.condCurrentSession(keySession);
-    }
-  }
+    },
+  },
 };
 </script>
 
