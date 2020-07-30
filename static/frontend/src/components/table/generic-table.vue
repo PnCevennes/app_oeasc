@@ -164,11 +164,11 @@ export default {
       };
       configForm.formDefs[value].label = `${header.text}`;
 
-      if (configForm.request.onSuccess) {
-        configForm.request.onSuccess2 = configForm.request.onSuccess;
+      if (configForm.action.request.onSuccess) {
+        configForm.action.request.onSuccess2 = configForm.action.request.onSuccess;
       }
-      configForm.request.onSuccess = data => {
-        configForm.request.onSuccess2 && configForm.request.onSuccess2(data);
+      configForm.action.request.onSuccess = data => {
+        configForm.action.request.onSuccess2 && configForm.action.request.onSuccess2(data);
         this.closeDialog();
       };
       return configForm;

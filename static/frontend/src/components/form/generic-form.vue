@@ -10,19 +10,12 @@
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
         <div>
           <dynamic-form-group :config="configDynamicGroupForm" :baseModel="baseModel"></dynamic-form-group>
+          <div>
+           <span style="color:red">*</span> <i>champs obligatoires.</i>
+          </div>
         </div>
 
         <template v-if="!config.displayValue">
-          <!-- pour les requetes -->
-          <!-- <v-btn
-            v-if="config.action && config.action.request"
-            absolute
-            right
-            color="success"
-            @click="submit()"
-            :disabled="bSending"
-          >{{ config.action.label || "Valider" }}</v-btn>-->
-          <!-- pour les actions (par exemple aller au formulaire suivant) -->
           <v-btn
             v-if="config.action"
             absolute
@@ -158,7 +151,7 @@ export default {
             ? []
             : null;
       }
-      baseModel.changed = false;
+      baseModel.freeze = false;
       this.baseModel = baseModel;
     },
     submit() {

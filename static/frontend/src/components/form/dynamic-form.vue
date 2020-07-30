@@ -277,38 +277,6 @@ export default {
 };
 </script>
 
-<style >
-.required {
-  color: red;
-  margin-right: 5px;
-}
-
-.v-label {
-  max-width: 800px;
-  text-align: justify;
-}
-
-.v-text-field__slot {
-  height: 32px;
-}
-
-.v-select__selections {
-  height: 32px;
-}
-
-.v-select__slot {
-  height: 32px;
-}
-
-.v-input--checkbox {
-  margin-top: 0px;
-}
-
-.select-list-label-container {
-  margin-bottom: 10px;
-}
-
-.v-radio {
-  margin-bottom: 5px;
-}
+<style scoped>
+@import url('./form.css');
 </style>

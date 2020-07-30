@@ -1,6 +1,41 @@
+.required {
+  color: red;
+  margin-right: 5px;
+  margin-left: 5px;
+  font-size: 1.2rem;
+}
+
+.v-label {
+  max-width: 800px;
+  text-align: justify;
+}
+
+.v-input:not(.v-textarea) .v-text-field__slot {
+  height: 32px;
+}
+
+.v-select__selections {
+  height: 32px;
+}
+
+.v-select__slot {
+  height: 32px;
+}
+
+.v-input--checkbox {
+  margin-top: 0px;
+}
+
+.select-list-label-container {
+  margin-bottom: 10px;
+}
+
+.v-radio {
+  margin-bottom: 5px;
+}
 
 
-.form-group.border {
+/* .form-group.border {
   border: 1px solid lightgrey;
   border-radius: 10px;
 }
@@ -11,7 +46,7 @@
 
 .form-group.padding {
   padding: 10px;
-}
+} */
 
 /* .dynamic-form {
   width: 100%;
@@ -38,7 +73,7 @@
 } */
 
 
-.flex-5 > div {
+/* .flex-5 > div {
   width: 20%;
   margin: 1px;
 }
@@ -78,8 +113,9 @@
 
 .session {
   width: 100%;
-  position: relative;
+  position: relative; 
 }
+*/
 
 
 /* Patch meme taille input text et select */
@@ -96,7 +132,7 @@
   height: 32px;
 } */
 
-.v-text-field__slot {
+/* .v-text-field__slot {
   height: 32px;
 }
 
@@ -118,13 +154,13 @@
 
 .v-radio {
   margin-bottom: 5px;
-}
+} */
 /* .v-input--selection-controls:not(:nth-child(2)) {
   margin-top: 100px;
 } */
 
 
 
-.form-declaration {
+/* .form-declaration {
   margin: 10px 100px;
-}
+} */

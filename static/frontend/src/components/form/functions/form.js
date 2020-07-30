@@ -112,7 +112,7 @@ const rules = {
   maxLength: max => v =>
     v.length <= max || `Choisir un maximum de ${max} éléments.`,
   maxLengthEssence: max => v =>
-    v.length <= max || `${max} essence${max > 1 ? "s" : ""} maximum.`,
+    v && ( v.length <= max ) || `${max} essence${max > 1 ? "s" : ""} maximum.`,
   min: min => v =>
     v >= min || `La valeur doit être supérieure ou égale à ${min}.`,
   max: max => v =>

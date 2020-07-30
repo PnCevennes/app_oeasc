@@ -9,13 +9,14 @@
           <help :code="config.help"></help>
         </p>
 
-        <fil-arianne
-          :config="config"
-          :keySession="keySession"
-          :baseModel="config.value"
-        ></fil-arianne>
+        <fil-arianne :config="config" :keySession="keySession" :baseModel="config.value"></fil-arianne>
 
-        <generic-form :config="configSession(keySession)"></generic-form>
+        <generic-form :config="configSession(keySession)">
+          <div slot="success">
+            <slot name="success">
+            </slot>
+          </div>
+        </generic-form>
       </div>
 
       <div v-else>
@@ -38,14 +39,14 @@ export default {
   components: {
     filArianne,
     help,
-    genericForm
+    genericForm,
   },
 
   data: () => ({
     declaration: null,
     validForms: {},
     initialized: false,
-    freeze: null
+    freeze: null,
   }),
 
   computed: {
@@ -61,7 +62,7 @@ export default {
     // retourne la clé de session courrante
     keySession() {
       return this.$route.query.keySession || this.firstSession;
-    }
+    },
   },
 
   methods: {
@@ -70,7 +71,7 @@ export default {
       if (keySession == "all") {
         // on renvoie toutes les sessions
         sessionDef.groups = sessionFunctions.groups(this.config);
-        sessionDef.request = this.config.request;
+        sessionDef.action = this.config.action;
       } else {
         sessionDef = this.config.sessionDefs[keySession];
 
@@ -90,7 +91,7 @@ export default {
               if (nextSession) {
                 $router.push({ query: { keySession: nextSession } });
               }
-            }
+            },
           };
         }
       }
@@ -107,7 +108,7 @@ export default {
           .preLoadData({
             $store: this.$store,
             meta: this.meta,
-            config: this.config
+            config: this.config,
           })
           .then(() => {
             this.initialized = true;
@@ -117,28 +118,26 @@ export default {
       }
     },
 
-    showSession: function(keySession) {
+    showSession: function (keySession) {
       return this.keySession === "all" || this.keySession == keySession;
     },
 
-    showGroupSession: function(keySessionGroup) {
+    showGroupSession: function (keySessionGroup) {
       return (
         this.keySession === "all" ||
         this.keySession in this.config.sessionGroups[keySessionGroup].sessions
       );
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.initChainedForm();
-  }
+  },
 };
 </script>
 
 <style>
-
 .chained-form {
   width: 100%;
   margin: 50px;
 }
-
 </style>

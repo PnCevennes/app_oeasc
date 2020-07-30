@@ -101,6 +101,7 @@ const STORE = {
 
     prod: () => !window.webpackHotUpdate,
     distPath: () => {
+      console.log('disPath', config, STORE.getters.prod());
       console.log(config.distPath,  STORE.getters.prod())
       return STORE.getters.prod() ? config.distPath : '' 
     },

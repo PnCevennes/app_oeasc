@@ -32,16 +32,16 @@ export default {
   data: () => ({
     config: {
       ...configFormUser,
-      value: {
-        nom_role: "CLEMENT",
-        prenom_role: "Joel",
-        email: "joelclems@gmail.com",
-        desc_role: "Salarié, agent, fonctionnaire",
-        password: "1234",
-        id_organisme: 593,
-        password_confirmation: "1234",
-        accept_email: true
-      }
+      // value: {
+      //   nom_role: "CLEMENT",
+      //   prenom_role: "Joel",
+      //   email: "joelclems@gmail.com",
+      //   desc_role: "Salarié, agent, fonctionnaire",
+      //   password: "1234",
+      //   id_organisme: 593,
+      //   password_confirmation: "1234",
+      //   accept_email: true
+      // }
     }
   })
 };
