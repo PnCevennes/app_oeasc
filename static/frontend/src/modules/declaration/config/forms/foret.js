@@ -77,11 +77,11 @@ const changeProprietaireDeclarant = ({ baseModel, $store }) => {
     console.log("deja", baseModel.nom_proprietaire);
     return;
   }
+  // patch utiliser event???
   setTimeout(() => {
     const nomenclature = $store.getters.nomenclature(
       baseModel.id_nomenclature_proprietaire_declarant
     );
-    console.log(nomenclature && nomenclature.cd_nomenclature);
     if (!(nomenclature && nomenclature.cd_nomenclature === "P_D_O_NP")) {
       return;
     }
@@ -100,11 +100,6 @@ const changeProprietaireDeclarant = ({ baseModel, $store }) => {
             baseModel[key] = apiData[key];
           }
         }
-
-        // patch bm
-        const save = baseModel.id_nomenclature_proprietaire_declarant;
-        baseModel.id_nomenclature_proprietaire_declarant = null;
-        baseModel.id_nomenclature_proprietaire_declarant = save;
       });
   }, 100);
 };

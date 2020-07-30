@@ -75,7 +75,6 @@ export default {
         sessionDef = this.config.sessionDefs[keySession];
 
         // si c'est la dernière session validation = requete
-        console.log(sessionFunctions.lastSession(this.config), keySession, this.config.action)
         if (sessionFunctions.lastSession(this.config) == keySession) {
           sessionDef.action = this.config.action;
 
@@ -131,7 +130,6 @@ export default {
   },
   created: function() {
     this.initChainedForm();
-    console.log(this.config);
   }
 };
 </script>

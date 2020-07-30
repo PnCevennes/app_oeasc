@@ -121,12 +121,11 @@ export default {
       if (!this.$refs.form.validate()) return;
       if (this.config.action.request) {
         this.submit();
-        return 
-      }
-      else {
+        return;
+      } else {
         this.config &&
-        this.config.action.process &&
-        this.config.action.process(this);
+          this.config.action.process &&
+          this.config.action.process(this);
       }
     },
     initConfig() {
@@ -152,10 +151,14 @@ export default {
       let baseModel = {};
       baseModel = this.baseModel || this.config.value || {};
       for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
-        if (formDef.multiple && !baseModel[keyForm]) {
-          baseModel[keyForm] = [];
-        }
+        baseModel[keyForm] =
+          baseModel[keyForm] != undefined
+            ? baseModel[keyForm]
+            : formDef.multiple
+            ? []
+            : null;
       }
+      baseModel.changed = false;
       this.baseModel = baseModel;
     },
     submit() {

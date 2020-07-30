@@ -223,14 +223,12 @@ export default {
   watch: {
     baseModel: {
       handler() {
-        console.log("watch baseModel", this.baseModel.__ob__.dep.id);
         this.configForm = this.getConfigForm();
       },
       deep: true,
     },
     config: {
       handler() {
-        console.log("watch config");
         this.configForm = this.getConfigForm();
       },
       deep: true,
