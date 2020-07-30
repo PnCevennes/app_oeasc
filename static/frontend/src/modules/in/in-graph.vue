@@ -137,7 +137,7 @@ export default {
           linkedTo: ug,
           data: error,
           enableMouseTracking: false,
-          lineWidth: 1,
+          maxPointWidth: 40,
           color: this.color(ug, "error")
         });
 
