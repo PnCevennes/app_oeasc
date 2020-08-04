@@ -40,7 +40,7 @@ Les concept généraux, les composants et les input partagées par ces composant
 - Ce composant permet de gérer un formulaire au niveau des actions à faire en cas de validation (requêtes, ...) ou annulation
 
 ### [ChainedForm](./chainedForm.md)
-- Ce composant permet de
+- Ce composant permet de gérer les formulaires enchaînés.
 
 Des exemples de configurations de formulaires peuvent être trouvé à :
 - [creation d'utilisateur](../../static/frontend/src/modules/user/config/form-create-user.js)
