@@ -157,6 +157,7 @@ export default {
             },
             caption: {
               text: this.commentaires,
+              useHTML: true,
             },
             xAxis: {
               title: {
