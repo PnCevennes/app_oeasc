@@ -37,6 +37,7 @@ const menus = {
     ]
   },
 
+
   admin: {
     label: 'Administration',
     icon: 'fa-cog',
@@ -70,7 +71,6 @@ const menus = {
 };
 
 const processRouteName = function(routeName, { $store, $router }) {
-  console.log(routeName)
   const route = $router.options.routes.find(route => route.name == routeName);
 
   const processRoute = {};
