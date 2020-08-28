@@ -359,7 +359,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declaration_degats_csv AS
 
     SELECT 
         ved."id",
-        vd."Valide",
+        ved."Valide",
         ved."Date",
         ved."Déclarant",
         ved."Organisme",
