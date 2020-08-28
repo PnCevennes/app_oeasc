@@ -12,7 +12,12 @@
 
 <script>
 import Highcharts from "highcharts";
+import exportingInit from "highcharts/modules/exporting";
+import offlineExporting from "highcharts/modules/offline-exporting";
 import * as chroma from "chroma-js";
+
+exportingInit(Highcharts);
+offlineExporting(Highcharts);
 
 const round = function (x, dec) {
   if (x == 0) return 0;
@@ -21,8 +26,17 @@ const round = function (x, dec) {
 
 export default {
   name: "in-graph",
-  props: ["dataIn", "espece", "ug", "width", "height", "displayReg", 'commentaires'],
+  props: [
+    "dataIn",
+    "espece",
+    "ug",
+    "width",
+    "height",
+    "displayReg",
+    "commentaires",
+  ],
   data: () => ({
+    dataGraph: null,
     chartOptions: null,
     hcInstance: Highcharts,
   }),
@@ -68,15 +82,18 @@ export default {
       return color.toString();
     },
     initGraph() {
-      console.log('init graph')
+      console.log("init graph", this.dataGraph, this.dataIn);
+      if (this.dataIn) {
+        this.dataGraph = this.dataIn;
+      }
       this.chartOptions = null;
       setTimeout(() => {
-        if (!(this.dataIn && this.espece)) {
+        if (!(this.dataGraph && this.espece)) {
           return;
         }
         const espece = this.espece;
         const series = [];
-        const data_espece = this.dataIn.especes[espece];
+        const data_espece = this.dataGraph.especes[espece];
         for (const [ug, data_ug] of Object.entries(data_espece.ugs)) {
           if (this.ug && ug != this.ug) {
             continue;
@@ -152,6 +169,33 @@ export default {
           });
 
           this.chartOptions = {
+            exporting: {
+              buttons: {
+                contextButton: {
+                  menuItems: [
+                    {
+                      text: "Télécharger l'image au format JPEG",
+                      onclick: function () {
+                        this.exportChart({
+                          type: "image/jpeg",
+                        });
+                      },
+                    },
+                  ],
+                },
+              },
+              chartOptions: {
+                // specific options for the exported image
+                plotOptions: {
+                  series: {
+                    dataLabels: {
+                      // enabled: true,
+                    },
+                  },
+                },
+              },
+              fallbackToExportServer: false,
+            },
             title: {
               text: `Indices nocturnes (${espece}, ${ug})`,
             },
@@ -184,8 +228,7 @@ export default {
   mounted() {
     if (!this.dataIn) {
       this.$store.dispatch("in_results").then((data) => {
-        this.dataIn = data;
-        console.log(this.dataIn)
+        this.dataGraph = data;
       });
       this.initGraph();
     } else {

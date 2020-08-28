@@ -25,7 +25,7 @@ const ROUTE = [
   {
     name: "in.tableau",
     path: "/in/tableau",
-    label: "Tableau de données",
+    label: "In - Tableau de données",
     parent: "in.index",
     hideTitle: true,
     component: inTable,
@@ -34,7 +34,7 @@ const ROUTE = [
   {
     name: "in.saisie",
     path: "/in/saisie/:idRealisation",
-    label: "Saisie",
+    label: "In - Saisie",
     parent: "in.index",
     hideTitle: true,
     component: inRealisationForm,

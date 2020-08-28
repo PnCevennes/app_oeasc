@@ -55,7 +55,7 @@ const menus = {
   resultats: {
     icon: 'show_chart',
     label: 'Résultats des suivis',
-    names: ["resultats.index", "resultats.declarations", "resultats.in"]
+    names: ["resultats.declarations", "resultats.in"]
   },
 
   documentation: {
