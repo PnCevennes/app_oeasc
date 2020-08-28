@@ -56,7 +56,16 @@ const ROUTE = [
     parent: "in.index",
     component: inTest,
     access: 5
+  },
+  {
+    path: "/resultats/in",
+    name: "resultats.in",
+    label: "Indices nocturnes",
+    content: "resultats.in",
+    parent: "resultats.resultats",
+    type: "page"
   }
+
 ];
 
 const STORE = {

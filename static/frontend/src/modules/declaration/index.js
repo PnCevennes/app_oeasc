@@ -53,16 +53,6 @@ const ROUTE = [
 
   {
     path: "/declaration/systeme_alerte",
-    name: "declaration.systeme_alerte_top",
-    label: "Signaler des dégâts en forêt",
-    content: "systeme_alerte",
-    icon: "report_problem",
-    parent: "page.accueil",
-    type: "page"
-  },
-
-  {
-    path: "/declaration/systeme_alerte",
     name: "declaration.systeme_alerte",
     content: "systeme_alerte",
     label: "Le système d'alerte",
@@ -77,6 +67,14 @@ const ROUTE = [
     content: "signaler_degat_explication",
     parent: "declaration.systeme_alerte",
     access: 1,
+    type: "page"
+  },
+  {
+    path: "/resultats/declarations",
+    name: "resultats.declarations",
+    label: "Système d'alerte",
+    content: "resultats.declarations",
+    parent: "resultats.resultats",
     type: "page"
   }
 ];

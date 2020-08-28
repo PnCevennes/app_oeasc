@@ -1,12 +1,13 @@
 const menus = {
   accueil: {
-    name: "page.accueil",
-    labelDrawer: "Accueil"
+    name: "page.accueil"
   },
   observatoire: {
-    name: "observatoire.presentation",
+    label: "L'Observatoire",
+    icon: "not_listed_location",
     labelDrawer: "L'Observatoire",
     names: [
+      "observatoire.presentation",
       "observatoire.justification",
       "observatoire.objectifs",
       "observatoire.perimetre",
@@ -14,8 +15,8 @@ const menus = {
     ]
   },
   systeme_alerte: {
-    labelDrawer: "Le système d'alerte",
-    name: "declaration.systeme_alerte_top",
+    label: "Le système d'alerte",
+    icon: "report_problem",
     names: [
       "declaration.systeme_alerte",
       "declaration.degat_grand_gibier",
@@ -24,35 +25,38 @@ const menus = {
     ]
   },
   user: {
-    name: "user.top",
-    labelDrawer: "Utilisateur",
+    label: 'Utilisateur',
+    icon: ({ $store }) =>
+      $store.getters.isAuth ? "mdi-account-check" : "mdi-account-cancel",
+    disabled: ({ $store }) => !$store.getters.isAuth,
     names: [
       "user.login",
       "user.logout",
       "user.creer_utilisateur",
       "user.espace_utilisateur",
-      "user.gerer_utilisateurs"
     ]
   },
 
-  restitution: {
-    name: "restitution",
-    labelDrawer: "Restitution",
-    names: ["restitution.test"],
-    condition: ({ $store }) => $store.getters.droitMax >= 5
+  admin: {
+    label: 'Administration',
+    icon: 'fa-cog',
+    hidden: ({$store}) => ($store.getters.droitMax <= 5),
+    names: ["in.tableau", "in.saisie_new", "user.gerer_utilisateurs"]
   },
 
-  indices_nocturnes: {
-    name: "in.index",
-    names: [
-      "in.index",
-      "in.resultats",
-      "in.tableau",
-      // "in.graphiques",
-      "in.saisie_new"
-    ],
-    condition: ({ $store }) => $store.getters.droitMax >= 5
+  dev: {
+    icon: 'engineering',
+    label: 'DEV',
+    names: ["restitution.test"],
+    hidden: ({$store}) => ($store.getters.droitMax <= 5)
   },
+
+  resultats: {
+    icon: 'show_chart',
+    label: 'Résultats des suivis',
+    names: ["resultats.index", "resultats.declarations", "resultats.in"]
+  },
+
   documentation: {
     name: "page.documentation"
   },
@@ -62,14 +66,15 @@ const menus = {
   partenaires: {
     name: "page.partenaires"
   }
+
 };
 
 const processRouteName = function(routeName, { $store, $router }) {
+  console.log(routeName)
   const route = $router.options.routes.find(route => route.name == routeName);
 
-  const processRoute = {
-    condition: true
-  };
+  const processRoute = {};
+
   for (const key of Object.keys(route)) {
     if (key == "component") {
       continue;
@@ -80,16 +85,26 @@ const processRouteName = function(routeName, { $store, $router }) {
   return processRoute;
 };
 
+const processMenu = function(menu, { $store, $router }) {
+  let menuOut = {...menu};
+  if (menu.name) {
+    menuOut = { ...menu, ...processRouteName(menu.name, { $store, $router }) };
+  }
+  for (const key of Object.keys(menuOut)) {
+    menuOut[key] =
+      typeof menuOut[key] === "function" ? menuOut[key]({ $store }) : menuOut[key];
+  }
+  return menuOut;
+};
+
 const configMenu = function(menuName, { $store, $router }) {
-  const menu = menus[menuName];
-  const condition = !menu.condition || menu.condition({ $store });
+  const menu = processMenu(menus[menuName], { $store, $router });
+
   return {
     ...menu,
-    ...processRouteName(menu.name, { $store, $router }),
     menus: (menu.names || [])
       .map(name => processRouteName(name, { $store, $router }))
-      .filter(menu => menu.condition),
-    condition
+      .filter(menu => !menu.hidden)
   };
 };
 

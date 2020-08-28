@@ -10,7 +10,7 @@
         <v-list-group v-if="item.menus.length" :key="`item.${index}`" :prepend-icon="item.icon">
           <template v-slot:activator>
             <v-list-item-title>{{
-              item.labelDrawer || item.label
+              item.label
             }}</v-list-item-title>
           </template>
           <v-list-item
@@ -19,6 +19,9 @@
             :to="subItem.path"
             @click="drawer = false"
           >
+          <v-list-item-icon>
+              <v-icon>blougi</v-icon>
+            </v-list-item-icon>
             <v-list-item-content>
               <v-list-item-title>{{ subItem.label }}</v-list-item-title>
             </v-list-item-content>

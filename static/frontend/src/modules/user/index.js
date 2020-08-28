@@ -15,7 +15,7 @@ const ROUTE = [
     name: "user.login",
     parent: 'page.accueil',
     component: login,
-    condition: ({$store}) => !$store.getters.isAuth
+    hidden: ({$store}) => !!$store.getters.isAuth
   },
   {
     path: "/logout",
@@ -23,17 +23,17 @@ const ROUTE = [
     name: "user.logout",
     icon: "mdi-logout",
     component: logout,
-    condition: ({$store}) => $store.getters.isAuth
+    hidden: ({$store}) => !$store.getters.isAuth
   },
-  {
-    path: "/user/espace_utilisateur",
-    access: 1,
-    name: "user.top",
-    component: userPage,
-    parent: 'page.accueil',
-    icon: ({$store}) => $store.getters.isAuth ? "mdi-account-check" : "mdi-account-cancel",
-    disabled: ({$store}) => !$store.getters.isAuth,
-  },
+  // {
+  //   path: "/user/espace_utilisateur",
+  //   access: 1,
+  //   name: "user.top",
+  //   component: userPage,
+  //   parent: 'page.accueil',
+  //   icon: ({$store}) => $store.getters.isAuth ? "mdi-account-check" : "mdi-account-cancel",
+  //   disabled: ({$store}) => !$store.getters.isAuth,
+  // },
   {
     path: "/user/espace_utilisateur",
     label: "Espace utilisateur",
@@ -42,7 +42,7 @@ const ROUTE = [
     name: "user.espace_utilisateur",
     parent: 'page.accueil',
     component: userPage,
-    condition: ({$store}) => $store.getters.isAuth
+    hidden: ({$store}) => !$store.getters.isAuth
   },
   {
     path: "/user/creer_utilisateur",
@@ -51,7 +51,7 @@ const ROUTE = [
     name: "user.creer_utilisateur",
     parent: 'page.accueil',
     component: createUser,
-    condition: ({$store}) => !$store.getters.isAuth
+    hidden: ({$store}) => !!$store.getters.isAuth
   },
   {
     path: "/user/gerer_utilisateurs",
@@ -61,7 +61,7 @@ const ROUTE = [
     parent: 'page.accueil',
     access: 4,
     component: manageUser,
-    condition: ({$store}) => $store.getters.droitMax >= 4
+    hidden: ({$store}) => !$store.getters.droitMax >= 4
   },
   {
     path: "/user/change_password",

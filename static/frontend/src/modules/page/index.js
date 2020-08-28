@@ -14,7 +14,6 @@ const ROUTE = [
     name: "observatoire.presentation",
     path: "/observatoire/presentation",
     label: "Présentation",
-    icon: "notes",
     content: 'presentation',
     parent: "page.accueil",
     type: "page"
@@ -81,7 +80,17 @@ const ROUTE = [
     content: 'partenaires',
     parent: "page.accueil",
     type: "page"
+  },
+
+  {
+    name: 'resultats.index',
+    path: '/resultats',
+    label: 'Résultats des alertes',
+    content: 'resultats',
+    parent: 'resultats.resultats',
+    type: 'page'
   }
+
 ];
 
 export { ROUTE, page };

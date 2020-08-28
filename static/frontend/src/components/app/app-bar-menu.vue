@@ -9,32 +9,23 @@
         :to="menu.path"
       >
         <v-icon v-if="!!menu.icon">{{ menu.icon }}</v-icon>
-        <template v-else>
-          {{ menu.label }}
-          </template>
+        <template v-else>{{ menu.label }}</template>
       </v-btn>
-      <v-menu
-        offset-y
-        transition="slide-x-transition"
-        open-on-hover
-        :key="indexMenu"
-        v-else
-      >
+      <v-menu offset-y transition="slide-x-transition" open-on-hover :key="indexMenu" v-else>
         <template v-slot:activator="{ on: bMenu }">
           <v-btn
             v-on="bMenu"
             :text="!menu.icon || !!menu.label"
             :icon="!menu.label && !!menu.icon"
-            :to="menu.path"
             class="text-none"
           >
-            <v-icon v-if="!menu.label">{{ menu.icon }}</v-icon>
-            {{ menu.label }}
+            <v-icon>{{ menu.icon }}</v-icon>
+            <span v-if="menu.label">{{ menu.label }}</span>
           </v-btn>
         </template>
         <v-list>
           <template v-for="(item, index) in menu.menus">
-            <v-list-item v-if="item.condition" :key="index" :to="item.path">
+            <v-list-item :key="index" :to="item.path">
               <v-list-item-icon v-if="item.icon">
                 <v-icon v-text="item.icon"></v-icon>
               </v-list-item-icon>
@@ -50,6 +41,6 @@
 <script>
 export default {
   name: "app-bar-menu",
-  props: ["config"]
+  props: ["config"],
 };
 </script>
