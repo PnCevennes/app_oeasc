@@ -32,6 +32,7 @@
 import declarationTable from "./declaration-table";
 import baseMap from "@/modules/map/base-map";
 import { exportPDF } from "@/modules/export";
+import "./declaration.css";
 
 const styles = {
   foret: {
@@ -164,3 +165,6 @@ export default {
   }
 };
 </script>
+<style scoped>
+
+</style>
