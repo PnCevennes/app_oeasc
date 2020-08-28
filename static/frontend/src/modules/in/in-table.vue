@@ -10,6 +10,32 @@
           ></list-form>
         </v-col>
       </v-row>
+      <v-row v-if="dataUg && graphOnly==undefined">
+        <v-col>
+             <v-simple-table dense class="stats" v-if="dataUg">
+          
+            <thead>
+              <tr>
+                <th>Année</th>
+                <th>Nb Séries</th>
+                <th>Nb Circuits(min)</th>
+                <th>Nb Circuits(max)</th>
+              </tr>
+            </thead>
+            
+            <tbody>
+              <tr v-for="(row, index) of resNbCircuits()" :key="index">
+                <td>{{row.annee}}</td>
+                <td>{{row.nbSeries}}</td>
+                <td>{{row.nbCircuitsMin}}</td>
+                <td>{{row.nbCircuitsMax}}</td>
+              </tr>
+            </tbody>
+         
+          </v-simple-table> 
+        </v-col>
+      </v-row>
+
       <v-row>
         <v-col>
           <in-graph
@@ -63,11 +89,7 @@
       <div v-if="dataUg && graphOnly==undefined">
         <h4>Indices nocturnes {{ settings.espece }} {{ settings.ug }}</h4>
 
-        <v-tabs
-          centered
-          dark
-          grow
-        >
+        <v-tabs centered dark grow>
           <v-tab
             v-for="annee of Object.keys(dataUg.annees)"
             :key="annee"
@@ -195,7 +217,7 @@ import "./table.css";
 
 export default {
   name: "in-table",
-  props: ['graphOnly', 'commentaires'],
+  props: ["graphOnly", "commentaires"],
   components: {
     listForm,
     "in-graph": () => import("./in-graph.vue"),
@@ -218,6 +240,22 @@ export default {
     },
   }),
   methods: {
+    resNbCircuits() {
+      const res = [];
+      if(!this.dataUg) return [];
+      for (const [annee, dataAnnee] of Object.entries(this.dataUg.annees || {})) {
+        let nbCircuitsMin = 1e10;
+        let nbCircuitsMax = -1e10;
+        let nbSeries = 0;
+        for (const serie of Object.values(dataAnnee.series)) {
+          nbSeries += 1;
+          nbCircuitsMax = Math.max(nbCircuitsMax, Object.keys(serie.id_circuits).length);
+          nbCircuitsMin = Math.min(nbCircuitsMin, Object.keys(serie.id_circuits).length);
+        }
+        res.push({ annee, nbCircuitsMin, nbCircuitsMax, nbSeries });
+      }
+      return res;
+    },
     round(x, dec) {
       if (x == 0) return 0;
       if (x == null) return "";
@@ -261,7 +299,6 @@ export default {
     },
 
     settingsChange() {
-      console.log("settings change");
       if (!this.ready) {
         return;
       }

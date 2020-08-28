@@ -43,7 +43,7 @@ const ROUTE = [
   {
     name: "in.saisie_new",
     path: "/in/saisie/",
-    label: "Saisie",
+    label: "In - Saisie",
     parent: "in.index",
     hideTitle: true,
     component: inRealisationForm,

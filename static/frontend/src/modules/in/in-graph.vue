@@ -82,7 +82,6 @@ export default {
       return color.toString();
     },
     initGraph() {
-      console.log("init graph", this.dataGraph, this.dataIn);
       if (this.dataIn) {
         this.dataGraph = this.dataIn;
       }
