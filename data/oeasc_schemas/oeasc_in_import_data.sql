@@ -22,9 +22,13 @@ FROM '/tmp/oeasc_in.csv' DELIMITER ',' CSV HEADER;
 
 -- circuits
 DELETE FROM oeasc_in.t_circuits CASCADE;
-INSERT INTO oeasc_in.t_circuits(ug, numero_circuit, nom_circuit, km)
+INSERT INTO oeasc_in.t_circuits(ug, numero_circuit, nom_circuit, km, ug_tags)
 SELECT 
-	ug, numero_circuit, nom_circuit, km 
+	ug, numero_circuit, nom_circuit, km,
+    CASE 
+        WHEN nom_circuit IN ('Fretma', 'Le Pradal') THEN ARRAY['all', 'coeur']
+        ELSE ARRAY['all']
+    END
 	FROM oeasc_in.import_data
 	GROUP BY ug, numero_circuit, km, nom_circuit
 	ORDER BY ug, numero_circuit

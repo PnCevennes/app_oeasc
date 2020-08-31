@@ -87,7 +87,7 @@ const ROUTE = [
     path: '/resultats',
     label: 'Résultats des alertes',
     content: 'resultats',
-    parent: 'resultats.resultats',
+    parent: 'page.accueil',
     type: 'page'
   }
 

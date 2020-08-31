@@ -50,7 +50,7 @@ def in_data():
 
     res = GenericQuery(
         DB,
-        'v1',
+        'v2',
         'oeasc_in',
         limit=1e6
     ).as_dict()['items']
@@ -66,7 +66,6 @@ def process_especes(res):
     especes = res['especes']
 
     for key_espece in especes:
-        print(key_espece)
         espece = especes.get(key_espece)
         process_ugs(espece)
 
@@ -76,7 +75,6 @@ def process_ugs(espece):
     ugs = espece['ugs']
 
     for key_ug in ugs:
-        print(  key_ug)
         ug = ugs.get(key_ug)
         process_annees(ug)
 
@@ -126,7 +124,6 @@ def process_annees(ug):
         'pvalues': [pvalues[0] or None, pvalues[1] or None],
     }
 
-    print(ug['reg_lin'])
 
 
 

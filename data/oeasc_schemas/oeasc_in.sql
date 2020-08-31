@@ -9,8 +9,10 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_circuits
     nom_circuit CHARACTER VARYING,
     numero_circuit INTEGER,
     ug CHARACTER VARYING,
+    ug_tags CHARACTER VARYING[],
     km DOUBLE PRECISION,
     geom geometry(MultiPolygon, 2154),
+
     
     CONSTRAINT pk_t_circuits_id_circuit PRIMARY KEY (id_circuit)
 );

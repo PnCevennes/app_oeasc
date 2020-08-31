@@ -12,6 +12,7 @@ SELECT
     c.numero_circuit,
 	c.ug,
 	c.km,
+    UNNEST(c.ug_tags) AS ug_tag,
     espece,
     valid,
 	nb/km as nbkm,
@@ -21,6 +22,28 @@ SELECT
 	JOIN oeasc_in.t_realisations r ON r.id_realisation = o.id_realisation
 	JOIN oeasc_in.t_circuits c ON c.id_circuit = r.id_circuit
 ;
+
+DROP VIEW IF EXISTS oeasc_in.v2 CASCADE;
+CREATE VIEW oeasc_in.v2 AS
+SELECT 
+    id_observation,
+	nb,
+    groupes,
+	serie,
+	date,
+	id_circuit,
+    nom_circuit,
+    numero_circuit,
+	REPLACE(CONCAT(ug, '_', ug_tag), '_all', '') as ug,
+	km,
+    espece,
+    valid,
+	nbkm,
+	annee
+	
+	FROM oeasc_in.v1
+;
+
 
 DROP VIEW IF EXISTS oeasc_in.v_observers CASCADE;
 CREATE VIEW oeasc_in.v_observers AS 
