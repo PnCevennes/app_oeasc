@@ -10,7 +10,7 @@ log_file=/tmp/init_view_oeasc.log
 echo 'init_view oeasc' > $log_file
 . $settings
 
-cat $settings
+# cat $settings
     
 EXEC_DIR=$(readlink -e "${0%/*}")
 

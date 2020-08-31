@@ -63,7 +63,7 @@ const ROUTE = [
     name: "resultats.in",
     label: "Indices nocturnes",
     content: "resultats.in",
-    parent: "resultats.resultats",
+    parent: "resultats.index",
     type: "page"
   }
 

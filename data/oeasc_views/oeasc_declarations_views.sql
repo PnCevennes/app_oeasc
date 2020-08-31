@@ -209,6 +209,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     peuplement_acces_code,
     deg.degat_types_code,
 	
+    d.precision_localisation,
     d.centroid,
 
     CASE 
@@ -333,6 +334,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_csv AS
         vd.peuplement_ess_1_mnemo AS "Ess. 1",
         vd.peuplement_ess_2_mnemo AS "Ess. 2",
         vd.peuplement_ess_3_mnemo AS "Ess. 3",
+        vd.precision_localisation AS "Précision localisation",
         SPLIT_PART(peuplement_ess_2_mnemo, ', ', 1) AS "ESS II.1",
         SPLIT_PART(peuplement_ess_2_mnemo, ', ', 2) AS "ESS II.2",
         SPLIT_PART(peuplement_ess_2_mnemo, ', ', 3) AS "ESS II.3",

@@ -74,7 +74,7 @@ const ROUTE = [
     name: "resultats.declarations",
     label: "Système d'alerte",
     content: "resultats.declarations",
-    parent: "resultats.resultats",
+    parent: "resultats.index",
     type: "page"
   }
 ];
