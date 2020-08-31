@@ -24,8 +24,9 @@ const menus = {
       "declaration.liste_declarations"
     ]
   },
+  
   user: {
-    label: 'Utilisateur',
+    label: ({ $store }) => $store.getters.isAuth ? $store.getters.nomComplet : 'Utilisateur',
     icon: ({ $store }) =>
       $store.getters.isAuth ? "mdi-account-check" : "mdi-account-cancel",
     disabled: ({ $store }) => !$store.getters.isAuth,
