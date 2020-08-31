@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_realisations
     temps CHARACTER VARYING,
     temperature CHARACTER VARYING,
     date_realisation DATE,
+    groupes INTEGER,
     
-
     CONSTRAINT pk_t_realisations_id_realisation PRIMARY KEY (id_realisation),
 
     CONSTRAINT fk_t_realisations_id_circuit FOREIGN KEY (id_circuit)
@@ -40,7 +40,6 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_observations
     id_realisation INTEGER NOT NULL,
     espece CHARACTER VARYING,
     nb INTEGER,
-    groupes INTEGER,
     valid BOOLEAN DEFAULT TRUE,
 
     CONSTRAINT pk_t_observations_id_observation PRIMARY KEY (id_observation),

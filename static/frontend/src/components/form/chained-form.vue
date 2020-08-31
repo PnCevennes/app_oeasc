@@ -13,8 +13,7 @@
 
         <generic-form :config="configSession(keySession)">
           <div slot="success">
-            <slot name="success">
-            </slot>
+            <slot name="success"></slot>
           </div>
         </generic-form>
       </div>
@@ -84,13 +83,15 @@ export default {
           sessionDef.action = {
             label: "Suivant",
             process: ({ $router, config }) => {
-              const nextSession = sessionFunctions.nextSession(
-                config,
-                config.keySession
-              );
-              if (nextSession) {
-                $router.push({ query: { keySession: nextSession } });
-              }
+              return new Promise(() => {
+                const nextSession = sessionFunctions.nextSession(
+                  config,
+                  config.keySession
+                );
+                if (nextSession) {
+                  $router.push({ query: { keySession: nextSession } });
+                }
+              });
             },
           };
         }

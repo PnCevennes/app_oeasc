@@ -105,7 +105,7 @@ export default {
   },
 
   mounted() {
-    this.$store.dispatch("in_results").then(data => {
+    this.$store.dispatch("inResults").then(data => {
       this.dataIn = data;
       this.initGraph();
     });

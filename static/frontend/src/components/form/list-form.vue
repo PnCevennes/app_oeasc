@@ -328,7 +328,7 @@ export default {
       if (typeof values[0] == "string") {
         return values.join(", ");
       } else {
-        const textArray = this.items
+        const textArray = (this.items || [])
           .filter(item => {
             return values.includes(item[this.config.valueFieldName]);
           })

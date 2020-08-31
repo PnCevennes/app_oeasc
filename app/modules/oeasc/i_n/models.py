@@ -46,6 +46,7 @@ class TRealisations(DB.Model):
         DB.ForeignKey('oeasc_in.t_circuits.id_circuit')
     )
     serie = DB.Column(DB.Integer)
+    groupes = DB.Column(DB.Integer)
 
     vent = DB.Column(DB.String(250))
     temps = DB.Column(DB.String(250))

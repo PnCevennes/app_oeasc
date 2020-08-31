@@ -106,13 +106,13 @@ export default {
     },
 
     updateContent: function() {
-      let data = {
+      let postData = {
         md: this.contentMD,
         code: this.getCode()
       };
 
       apiRequest("PATCH", `api/commons/content/${this.getCode()}`, {
-        data
+        postData
       }).then(data => this.setContent(data));
     }
   },

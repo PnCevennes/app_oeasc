@@ -2,6 +2,7 @@ import inTest from "./in-test";
 import inTable from "./in-table";
 import inRealisationForm from "./in-realisation-form";
 import { apiRequest } from "@/core/js/data/api.js";
+import storeUtils from '@/store/utils';
 
 const ROUTE = [
   {
@@ -70,15 +71,14 @@ const ROUTE = [
 
 const STORE = {
   actions: {
-    in_results: () => apiRequest("GET", "api/in/results/"),
-    in_realisation: ({ getters }, idRealisation) => {
-      getters;
-
-      return apiRequest("GET", `api/in/realisation/${idRealisation}`);
-    }
+    inResults: () => apiRequest("GET", "api/in/results/"),
   },
   getters: {},
   state: {},
   mutations: {}
 };
+
+storeUtils.addStore(STORE, 'inRealisation', 'api/in/realisation', 'id_realisation');
+storeUtils.addStore(STORE, 'inCircuits', 'api/in/circuit', 'id_circuit');
+
 export { ROUTE, STORE };

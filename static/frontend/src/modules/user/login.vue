@@ -59,7 +59,7 @@ export default {
   mounted() {
     if (this.token) {
       apiRequest("POST", "pypn/register/post_usershub/valid_temp_user", {
-        data: {
+        postData: {
           id_application: config.ID_APPLICATION,
           token: this.token
         }

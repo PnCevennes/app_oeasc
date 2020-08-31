@@ -146,14 +146,14 @@ export default {
                 });
               },
               action: {
+                onSuccess: ({ data }) => {
+                  this.configTable.items.find(
+                    (d) => d.id_declaration == data.id_declaration
+                  ).b_valid = data.b_valid;
+                },
                 request: {
                   url: "api/degat_foret/declaration",
                   method: "POST",
-                  onSuccess: ({ data }) => {
-                    this.configTable.items.find(
-                      (d) => d.id_declaration == data.id_declaration
-                    ).b_valid = data.b_valid;
-                  },
                 },
               },
               formDefs: {

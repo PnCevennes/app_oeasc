@@ -4,13 +4,13 @@ export default {
   formDefs,
   action: {
     label: "Modifier votre mot de passe",
+    preProcess: ({ baseModel, config }) => ({
+      ...baseModel,
+      token: config.token
+    }),
     request: {
       url: "pypn/register/post_usershub/change_password",
       method: "POST",
-      preProcess: ({ baseModel, config }) => ({
-        ...baseModel,
-        token: config.token
-      })
     }
   },
   forms: ["password", "password_confirmation"]

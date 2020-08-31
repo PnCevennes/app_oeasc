@@ -11,11 +11,11 @@
         <div>
           <dynamic-form-group :config="configDynamicGroupForm" :baseModel="baseModel"></dynamic-form-group>
           <div>
-           <span style="color:red">*</span> <i>champs obligatoires.</i>
+            <span style="color:red">*</span>
+            <i>champs obligatoires.</i>
           </div>
         </div>
-
-        <template v-if="!config.displayValue">
+        <template v-if="!displayValue">
           <v-btn
             v-if="config.action"
             absolute
@@ -76,7 +76,7 @@ export default {
         groups: this.config.groups,
         forms: this.config.forms,
         formDefs: this.config.formDefs,
-        displayValue: this.config.displayValue,
+        displayValue: this.displayValue,
         displayLabel: this.config.displayLabel,
       };
     },
@@ -95,6 +95,11 @@ export default {
         ? this.config.switchDisplay({ meta: this.meta })
         : this.config.switchDisplay;
     },
+    displayValue() {
+      return typeof this.config.displayValue == "function"
+        ? this.config.displayValue({ meta: this.meta })
+        : this.config.displayValue;
+    },
     title() {
       return typeof this.config.title == "function"
         ? this.config.title({ meta: this.meta })
@@ -105,25 +110,56 @@ export default {
     config() {
       this.initConfig();
     },
+    meta() {
+      console.log("meta", this.meta);
+      this.initConfig();
+    },
   },
   mounted() {
     this.initConfig();
   },
   methods: {
-    processAction() {
-      if (!this.$refs.form.validate()) return;
-      if (this.config.action.request) {
-        this.submit();
-        return;
-      } else {
-        this.config &&
-          this.config.action.process &&
-          this.config.action.process(this);
-      }
-    },
     initConfig() {
       if (!this.config) return;
       this.bInit = false;
+      const storeName = this.config.action && this.config.action.storeName;
+
+      if (storeName) {
+        const storeNameCapitalized =
+          storeName.charAt(0).toUpperCase() + storeName.slice(1);
+        this.config.preLoadData = ({ $store, meta, config }) => {
+          return new Promise((resolve) => {
+            if (!meta.id) {
+              resolve();
+            } else {
+              $store
+                .dispatch(`get${storeNameCapitalized}`, { id: meta.id })
+                .then((data) => {
+                  config.value = data;
+                  this.baseModel = null;
+                  resolve();
+                });
+            }
+          });
+        };
+        this.config.action.process = ({ meta, $store, postData }) => {
+          return $store.dispatch(`${meta.id ? "patch" : "post"}${storeNameCapitalized}`, {
+            id: meta.id,
+            postData,
+          });
+        };
+
+        this.config.action.onSuccess = ({$router, $store, data }) => {
+          if(!this.meta.id) {
+            const id = data[$store.getters[`${storeName}idFieldName`]];
+            console.log(id, $router)
+            $router.push(`${$router.history.current.path}${id}`)
+            console.log('yakou')
+          }
+        }
+
+      }
+
       if (this.config.preLoadData) {
         this.config
           .preLoadData({
@@ -154,49 +190,76 @@ export default {
       baseModel.freeze = false;
       this.baseModel = baseModel;
     },
-    submit() {
-      let postData = this.config.action.request.preProcess
-        ? this.config.action.request.preProcess({
+    postData() {
+      return this.config.action.preProcess
+        ? this.config.action.preProcess({
             baseModel: this.baseModel,
             globalConfig,
             config: this.config,
           })
         : this.baseModel;
-      this.$refs.form.validate();
-      if (!this.bValidForm) {
-        return;
-      }
-      this.bSending = true;
+    },
+    processAction() {
+      setTimeout(() => {
+        this.bValidForm = this.$refs.form.validate();
+        console.log(this.bValidForm);
+        if (!this.bValidForm) {
+          return;
+        }
 
-      apiRequest(this.method, this.url, {
-        data: postData,
-      }).then(
-        (data) => {
-          this.bSending = false;
-          this.bSuccess = true;
-          this.msgSuccess = "La requête à été effectuée avec succès";
+        console.log("aa", this.config.action.request);
 
-          if (this.config.action.request.onSuccess) {
-            this.config.action.request.onSuccess({
-              data,
-              $session: this.$session,
+        let promise = this.config.action.request
+          ? this.request()
+          : this.config.action.process &&
+            this.config.action.process({
+              postData: this.postData(),
               $store: this.$store,
               $router: this.$router,
-              redirect: this.redirect,
+              config: this.config,
+              meta: this.meta,
             });
+
+        console.log(promise);
+
+        if (!promise) return;
+
+        this.bSending = true;
+        promise.then(
+          (data) => {
+            this.bSending = false;
+            this.bSuccess = true;
+            this.msgSuccess = "La requête à été effectuée avec succès";
+
+            if (this.config.action.onSuccess) {
+              this.config.action.onSuccess({
+                data,
+                $session: this.$session,
+                $store: this.$store,
+                $router: this.$router,
+                $route: this.$route,
+                redirect: this.redirect,
+              });
+            }
+            if (this.switchDisplay) {
+              this.config.displayValue = true;
+            } else {
+              this.bRequestSuccess = true;
+            }
+          },
+          (error) => {
+            this.bSending = false;
+            this.bError = true;
+            this.msgError = `Erreur avec la requête : ${error.msg}`;
           }
-          if (this.switchDisplay) {
-            this.config.displayValue = true;
-          } else {
-            this.bRequestSuccess = true;
-          }
-        },
-        (error) => {
-          this.bSending = false;
-          this.bError = true;
-          this.msgError = `Erreur avec la requête : ${error.msg}`;
-        }
-      );
+        );
+      }, 100);
+    },
+
+    request() {
+      return apiRequest(this.method, this.url, {
+        postData: this.postData(),
+      });
     },
   },
   data: () => ({

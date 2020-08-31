@@ -1,18 +1,27 @@
 <template>
   <div>
     <b v-if="!config.displayValue">{{ config.label }}</b>
+    <v-row dense>
+      <v-col class="col-btn"></v-col>
+      <v-col v-for="keyForm of config.forms" :key="keyForm">
+        <b v-if="!config.formDefs[keyForm].hidden">{{config.formDefs[keyForm].label}}</b>
+      </v-col>
+    </v-row>
+
     <v-row dense v-for="(lineModel, indexLine) of lines" :key="indexLine">
       <v-col class="col-btn">
-        <v-btn icon color="red" @click="deleteItem(indexLine)">
+        <v-btn icon color="red" @click="deleteItem(indexLine)" v-if="!config.displayValue">
           <v-icon>mdi-close-circle</v-icon>
         </v-btn>
       </v-col>
+
       <v-col v-for="keyForm of config.forms" :key="keyForm">
         <dynamic-form
           :config="{
                 ...config.formDefs[keyForm],
                 name: keyForm,
-                change: newChange(config.formDefs[keyForm].change)
+                change: newChange(config.formDefs[keyForm].change),
+                displayValue: config.displayValue
               }"
           :baseModel="lineModel"
         ></dynamic-form>
@@ -20,7 +29,7 @@
     </v-row>
     <v-row dense>
       <v-col class="col-btn">
-        <v-btn color="green" icon>
+        <v-btn color="green" icon v-if="!config.displayValue">
           <v-icon @click="addItem" :disabled="!bValidForm">mdi-plus-circle</v-icon>
         </v-btn>
       </v-col>
@@ -40,7 +49,6 @@ export default {
     },
     addItem() {
       // valid form
-      console.log("add Items");
       this.baseModel[this.config.name].push({});
       this.refresh = !this.refresh;
     },
@@ -49,22 +57,19 @@ export default {
         this.refresh = !this.refresh;
         oldChange && oldChange({ $store, config, baseModel });
       };
-    }
+    },
   },
   watch: {
     baseModel: {
-      handler() {
-        console.log("aaa");
-      }
-    }
+      handler() {},
+    },
   },
   computed: {
     // TODO mettre ça dans formFunction
     bValidForm() {
       this.refresh;
       if (!this.baseModel[this.config.name]) return true;
-      console.log(this.baseModel[this.config.name]);
-      return !this.config.forms.some(keyForm => {
+      return !this.config.forms.some((keyForm) => {
         const formDef = { ...this.config.formDefs[keyForm], name: keyForm }; // copy ??
         if (
           formDef.condition &&
@@ -77,13 +82,11 @@ export default {
             : formDef.rules;
         formFunctions.rules.processRules(formDef);
 
-        console.log(formDef.name, formDef.rules);
-        return this.baseModel[this.config.name].some(line => {
+        return this.baseModel[this.config.name].some((line) => {
           const val = line[formDef.name];
-          const cond =
-            formDef.rules && formDef.rules.some(rule => rule(val) != true);
-          console.log(val, cond);
-          return formDef.rules && formDef.rules.some(rule => rule(val) != true);
+          return (
+            formDef.rules && formDef.rules.some((rule) => rule(val) != true)
+          );
         });
       });
     },
@@ -92,26 +95,25 @@ export default {
       return this.baseModel[this.config.name];
     },
     configDisplays() {
-      return (this.baseModel[this.config.name] || []).map(item => {
+      return (this.baseModel[this.config.name] || []).map((item) => {
         return {
           ...this.config,
           displayValue: true,
           display: "table",
-          value: item
+          value: item,
         };
       });
-    }
+    },
   },
   components: { dynamicForm: () => import("./dynamic-form") },
   data: () => ({
     configForm: null,
     localModel: {},
-    refresh: null
+    refresh: null,
   }),
   mounted() {
     this.baseModel[this.config.name] = this.baseModel[this.config.name] || [];
-    console.log(this.baseModel[this.config.name]);
-  }
+  },
 };
 </script>
 

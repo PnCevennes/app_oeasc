@@ -95,7 +95,7 @@ const processItems = {
 const change = {};
 const rules = {
   requiredBool: v => [true, false].includes(v) || "Ce champs est obligatoire.",
-  required: v => !!v || "Ce champs est obligatoire.",
+  required: v => ![null, undefined, ''].includes(v) || "Ce champs est obligatoire.",
   requiredListSimple: v => !!v || "Veuillez choisir un élément dans la liste.",
   requiredListMultiple: v =>
     v && v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",

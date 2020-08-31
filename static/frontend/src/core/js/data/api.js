@@ -17,7 +17,7 @@ var apiRequest = (method, urlRelative, options = {}) => {
 
     if (["POST", "PATCH"].includes(method)) {
       const postOptions = {
-        body: JSON.stringify(options.data || {}),
+        body: JSON.stringify(options.postData || {}),
         headers: {
           Accept: "application/json, text/plain, */*",
           "Content-Type": "application/json"

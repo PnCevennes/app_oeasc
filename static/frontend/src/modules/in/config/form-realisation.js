@@ -44,7 +44,7 @@ export default {
     },
     observations: {
       type: "list",
-      label: "Observations",
+      label: "Comptage",
       forms: ["espece", "nb", "id_observation"]
     },
     espece: {
@@ -61,6 +61,17 @@ export default {
       min: 0,
       required: true
     },
+    groupes: {
+      type: "number",
+      label: "Nombre de groupes de cerfs",
+      min: '0',
+    },
+    serie: {
+      type: "number",
+      label: "Série",
+      min: "0",
+      required: true,
+    },
     id_observation: {
       label: "ID observation",
       type: "text",
@@ -70,7 +81,7 @@ export default {
   groups: [
     {
       title: "Informations",
-      forms: ["date_realisation", "id_circuit", "observers"]
+      forms: ["date_realisation", "id_circuit", "serie", "observers"]
     },
     {
       title: "Météo",
@@ -78,35 +89,19 @@ export default {
       forms: ["temperature", "temps", "vent"]
     },
     {
-      forms: ["observations"]
+      title: 'Observations',
+      forms: ["groupes", "observations"]
     }
   ],
-  preLoadData: ({ $store, meta, config }) => {
-    console.log(meta);
-    return new Promise(resolve => {
-      if (!meta.idRealisation) {
-        resolve();
-      } else {
-        $store
-          .dispatch("in_realisation", meta.idRealisation)
-          .then(realisation => {
-            console.log(realisation);
-            config.value = realisation;
-            resolve();
-          });
-      }
-    });
-  },
-
+  
   title: ({ meta }) =>
-    meta.idRealisation
-      ? `Modificiation de la réalisation de sortie Indice Nocturne ${meta.idRealisation}`
+    meta.id
+      ? `Modificiation de la réalisation de sortie Indice Nocturne ${meta.id}`
       : "Création d'une réalisation de sortie Indice Nocturne",
-  switchDisplay: ({ meta }) => meta.idRealisation,
+  switchDisplay: true,
+  displayValue: ({ meta }) => meta && !!meta.id,
+  displayLabel: true,
   action: {
-    request: {
-      url: ({ meta }) => `api/in/realisation/${meta.idRealisation || ""}`,
-      method: ({ meta }) => `${meta.idRealisation ? "PATCH" : "POST"}`
-    }
+    storeName: 'inRealisation'
   }
 };

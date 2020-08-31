@@ -1,7 +1,7 @@
 <template>
   <div v-show="!configForm.hidden" :ref="config.name" class="dynamic-form">
     <template v-if="configForm.displayValue && configForm.displayLabel">
-      <b>{{ configForm.label }} :</b>
+      <b>{{ configForm.label }} : </b>
     </template>
 
     <!-- test config -->

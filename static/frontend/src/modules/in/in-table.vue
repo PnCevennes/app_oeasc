@@ -265,7 +265,7 @@ export default {
     validChange(id_observation, valid) {
       this.freezeValid = true;
       apiRequest("PATCH", "api/in/valid_obs/", {
-        data: { id_observation, valid },
+        postData: { id_observation, valid },
       }).then(() => {
         // this.dataIn = data;
         this.initInTable();
@@ -334,7 +334,7 @@ export default {
     },
     reload() {
       this.loading = true;
-      this.$store.dispatch("in_results").then((data) => {
+      this.$store.dispatch("inResults").then((data) => {
         this.ready = false;
         this.dataAnnee = false;
         this.dataIn = data;

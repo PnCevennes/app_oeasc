@@ -44,7 +44,7 @@ const STORE = {
         }
 
         //request and save in cache
-        apiRequest(method, url, { data: postData }).then(
+        apiRequest(method, url, { postData }).then(
           apiData => {
             let curData = apiData;
             for (const key of dataKeys) {

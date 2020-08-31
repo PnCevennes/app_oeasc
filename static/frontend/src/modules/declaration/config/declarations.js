@@ -11,7 +11,7 @@ const postDeclaration = function({baseModel}) {
   console.log('id_declarant post', baseModel.id_declarant);
 
   // post data
-  return apiRequest('POST', 'api/degat_foret/declaration', {data: postData})
+  return apiRequest('POST', 'api/degat_foret/declaration', {postData})
 
 }
 

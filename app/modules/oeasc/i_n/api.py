@@ -106,7 +106,7 @@ def get_realisation(id_realisation):
 
 
 @bp.route('realisation/<int:id_realisation>', methods=['PATCH'])
-@bp.route('realisation/', methods=['POST'], defaults={'id_realisation': None})
+@bp.route('realisation', methods=['POST'], defaults={'id_realisation': None})
 @json_resp
 def create_edit_realisation(id_realisation):
     '''
@@ -114,22 +114,20 @@ def create_edit_realisation(id_realisation):
 
     post_data = request.get_json()
 
-    realisation = (
-        TRealisations() if not id_realisation
-        else (
-            DB.session.query(TRealisations).
-            filter(TRealisations.id_realisation == id_realisation)
+    realisation = None
+
+    if not id_realisation:
+        realisation = TRealisations()
+        DB.session.add(realisation)
+    else:
+        realisation = ( 
+            DB.session.query(TRealisations)
+            .filter(TRealisations.id_realisation == id_realisation)
             .one()
-        )
-    )
+            )
 
-
-    # realisation(**post_data)
-    # realisation.from_dict(post_data)
     print(post_data)
     realisation.from_dict(post_data, True)
-    # setattr(realisation, 'observations', post_data['observations'])
-
 
     DB.session.commit()
 

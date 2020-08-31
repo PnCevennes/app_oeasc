@@ -226,7 +226,7 @@ export default {
 
   mounted() {
     if (!this.dataIn) {
-      this.$store.dispatch("in_results").then((data) => {
+      this.$store.dispatch("inResults").then((data) => {
         this.dataGraph = data;
       });
       this.initGraph();

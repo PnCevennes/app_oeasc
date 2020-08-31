@@ -4,7 +4,7 @@ CREATE VIEW oeasc_in.v1 AS
 SELECT 
     o.id_observation,
 	o.nb,
-    o.groupes,
+    r.groupes,
 	r.serie,
 	to_char(r.date_realisation, 'DD/MM/YYYY') AS date,
 	c.id_circuit,

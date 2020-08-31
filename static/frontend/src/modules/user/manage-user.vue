@@ -61,16 +61,16 @@ export default {
               return $store.getters.droitMax > baseModel.id_droit_max;
             },
             action: {
+              preProcess: ({ baseModel }) => {
+                return {
+                  id_role: baseModel.id_role,
+                  id_droit: baseModel.id_droit_max,
+                  id_application: config.ID_APPLICATION,
+                };
+              },
               request: {
                 url: "pypn/register/post_usershub/change_application_right",
                 method: "POST",
-                preProcess: ({ baseModel }) => {
-                  return {
-                    id_role: baseModel.id_role,
-                    id_droit: baseModel.id_droit_max,
-                    id_application: config.ID_APPLICATION,
-                  };
-                },
               },
             },
             formDefs: {
