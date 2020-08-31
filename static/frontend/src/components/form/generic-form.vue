@@ -135,7 +135,7 @@ export default {
               $store
                 .dispatch(`get${storeNameCapitalized}`, { id: meta.id })
                 .then((data) => {
-                  config.value = data;
+                  config.value = data;  
                   this.baseModel = null;
                   resolve();
                 });

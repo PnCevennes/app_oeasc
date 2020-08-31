@@ -34,7 +34,7 @@ const ROUTE = [
   },
   {
     name: "in.saisie",
-    path: "/in/saisie/:idRealisation",
+    path: "/in/saisie/:id",
     label: "In - Saisie",
     parent: "in.index",
     hideTitle: true,
