@@ -34,7 +34,7 @@ import { sessionFunctions } from "@/components/form/functions/session";
 
 export default {
   name: "declarationForm",
-  props: ["config", "meta"],
+  props: ["config"],
   components: {
     filArianne,
     help,
@@ -49,9 +49,12 @@ export default {
   }),
 
   computed: {
+    id() {
+      return this.$route.params.id;
+    },
     title() {
       return typeof this.config.title == "function"
-        ? this.config.title({ meta: this.meta, $store: this.$store })
+        ? this.config.title({ id: this.id, $store: this.$store })
         : this.config.title;
     },
     firstSession() {
@@ -108,7 +111,7 @@ export default {
         this.config
           .preLoadData({
             $store: this.$store,
-            meta: this.meta,
+            id: this.id,
             config: this.config,
           })
           .then(() => {

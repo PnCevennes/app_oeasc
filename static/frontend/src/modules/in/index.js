@@ -1,6 +1,8 @@
 import inTest from "./in-test";
 import inTable from "./in-table";
-import inRealisationForm from "./in-realisation-form";
+// import inRealisationForm from "./in-realisation-form";
+import genericForm from "@/components/form/generic-form";
+import configRealisationForm from "./config/form-realisation";
 import { apiRequest } from "@/core/js/data/api.js";
 import storeUtils from '@/store/utils';
 
@@ -38,18 +40,19 @@ const ROUTE = [
     label: "In - Saisie",
     parent: "in.index",
     hideTitle: true,
-    component: inRealisationForm,
-    access: 5
+    component: genericForm,
+    props: {config: configRealisationForm},
+    access: 5,
   },
-  {
-    name: "in.saisie_new",
-    path: "/in/saisie/",
-    label: "In - Saisie",
-    parent: "in.index",
-    hideTitle: true,
-    component: inRealisationForm,
-    access: 5
-  },
+  // {
+  //   name: "in.saisie_new",
+  //   path: "/in/saisie/",
+  //   label: "In - Saisie",
+  //   parent: "in.index",
+  //   hideTitle: true,
+  //   component: inRealisationForm,
+  //   access: 5
+  // },
   {
     name: "in.graphiques",
     path: "/in/graphiques",

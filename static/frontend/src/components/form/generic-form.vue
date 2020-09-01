@@ -69,8 +69,11 @@ export default {
   components: {
     dynamicFormGroup,
   },
-  props: ["config", "meta"],
+  props: ["config"],
   computed: {
+    id() {
+      return this.$route.params.id;
+    },
     configDynamicGroupForm() {
       return {
         groups: this.config.groups,
@@ -82,27 +85,27 @@ export default {
     },
     method() {
       return typeof this.config.action.request.method === "function"
-        ? this.config.action.request.method({ meta: this.meta })
+        ? this.config.action.request.method({ id: this.id })
         : this.config.action.request.method;
     },
     url() {
       return typeof this.config.action.request.url === "function"
-        ? this.config.action.request.url({ meta: this.meta })
+        ? this.config.action.request.url({ id: this.id })
         : this.config.action.request.url;
     },
     switchDisplay() {
       return typeof this.config.switchDisplay == "function"
-        ? this.config.switchDisplay({ meta: this.meta })
+        ? this.config.switchDisplay({ id: this.id })
         : this.config.switchDisplay;
     },
     displayValue() {
       return typeof this.config.displayValue == "function"
-        ? this.config.displayValue({ meta: this.meta })
+        ? this.config.displayValue({ id: this.id })
         : this.config.displayValue;
     },
     title() {
       return typeof this.config.title == "function"
-        ? this.config.title({ meta: this.meta })
+        ? this.config.title({ id: this.id })
         : this.config.title;
     },
   },
@@ -110,10 +113,9 @@ export default {
     config() {
       this.initConfig();
     },
-    meta() {
-      console.log("meta", this.meta);
+    id() {
       this.initConfig();
-    },
+    }
   },
   mounted() {
     this.initConfig();
@@ -127,13 +129,13 @@ export default {
       if (storeName) {
         const storeNameCapitalized =
           storeName.charAt(0).toUpperCase() + storeName.slice(1);
-        this.config.preLoadData = ({ $store, meta, config }) => {
+        this.config.preLoadData = ({ $store, id, config }) => {
           return new Promise((resolve) => {
-            if (!meta.id) {
+            if (!id) {
               resolve();
             } else {
               $store
-                .dispatch(`get${storeNameCapitalized}`, { id: meta.id })
+                .dispatch(`get${storeNameCapitalized}`, { id })
                 .then((data) => {
                   config.value = data;  
                   this.baseModel = null;
@@ -142,19 +144,17 @@ export default {
             }
           });
         };
-        this.config.action.process = ({ meta, $store, postData }) => {
-          return $store.dispatch(`${meta.id ? "patch" : "post"}${storeNameCapitalized}`, {
-            id: meta.id,
+        this.config.action.process = ({ id, $store, postData }) => {
+          return $store.dispatch(`${id ? "patch" : "post"}${storeNameCapitalized}`, {
+            id: id,
             postData,
           });
         };
 
-        this.config.action.onSuccess = ({$router, $store, data }) => {
-          if(!this.meta.id) {
-            const id = data[$store.getters[`${storeName}idFieldName`]];
-            console.log(id, $router)
-            $router.push(`${$router.history.current.path}${id}`)
-            console.log('yakou')
+        this.config.action.onSuccess = ({$router, $store, data, id }) => {
+          if(!id) {
+            const id_ = data[$store.getters[`${storeName}idFieldName`]];
+            $router.push(`${$router.history.current.path}${id_}`)
           }
         }
 
@@ -165,7 +165,7 @@ export default {
           .preLoadData({
             $store: this.$store,
             config: this.config,
-            meta: this.meta,
+            id: this.id,
           })
           .then(() => {
             this.initBaseModel();
@@ -202,12 +202,9 @@ export default {
     processAction() {
       setTimeout(() => {
         this.bValidForm = this.$refs.form.validate();
-        console.log(this.bValidForm);
         if (!this.bValidForm) {
           return;
         }
-
-        console.log("aa", this.config.action.request);
 
         let promise = this.config.action.request
           ? this.request()
@@ -217,10 +214,8 @@ export default {
               $store: this.$store,
               $router: this.$router,
               config: this.config,
-              meta: this.meta,
+              id: this.id,
             });
-
-        console.log(promise);
 
         if (!promise) return;
 
@@ -238,7 +233,6 @@ export default {
                 $store: this.$store,
                 $router: this.$router,
                 $route: this.$route,
-                redirect: this.redirect,
               });
             }
             if (this.switchDisplay) {

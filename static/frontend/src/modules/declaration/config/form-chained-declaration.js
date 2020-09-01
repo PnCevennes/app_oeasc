@@ -34,16 +34,16 @@ export default {
       url: "api/degat_foret/declaration"
     }
   },
-  preLoadData: ({ $store, meta, config }) => {
+  preLoadData: ({ $store, id, config }) => {
     return new Promise(resolve => {
       const promises = [
         $store.dispatch("nomenclatures"),
-        meta.idDeclaration &&
-          $store.dispatch("declarationForm", meta.idDeclaration)
+        id &&
+          $store.dispatch("declarationForm", id)
       ];
 
       Promise.all(promises).then(() => {
-        let declaration = meta.idDeclaration
+        let declaration = id
           ? $store.getters.declarationForm
           : {};
         declaration = { ...declaration.foret, ...declaration };
@@ -59,9 +59,9 @@ export default {
       });
     });
   },
-  title: ({ meta }) =>
-    meta.idDeclaration
-      ? `Modifier la déclaration ${meta.idDeclaration}`
+  title: ({ id }) =>
+    id
+      ? `Modifier la déclaration ${id}`
       : "Signaler des dégâts de grand gibier en forêt",
   formDefs,
   sessionDefs,

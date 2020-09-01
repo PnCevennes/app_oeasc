@@ -1,5 +1,5 @@
 <template>
-    <chained-form :config="configFormChainedDeclaration" :meta="{idDeclaration}">
+    <chained-form :config="configFormChainedDeclaration">
       <div slot="success">
          <v-dialog value=true persistent max-width="600">
           <v-card>
@@ -38,12 +38,6 @@ export default {
   data: () => ({
     configFormChainedDeclaration
   }),
-
-  computed: {
-    idDeclaration() {
-      return this.$route.params.idDeclaration || null;
-    }
-  }
 };
 </script>
 <style></style>

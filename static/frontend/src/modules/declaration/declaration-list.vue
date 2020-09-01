@@ -134,11 +134,10 @@ export default {
             text: "Validé",
             condition: ({ $store }) => $store.getters.droitMax >= 5,
             edit: {
-              preLoadData: ({ config, $store }) => {
-                const id_declaration = config.value.id_declaration;
+              preLoadData: ({ config, $store, id }) => {
                 return new Promise((resolve) => {
                   $store
-                    .dispatch("declarationForm", id_declaration)
+                    .dispatch("declarationForm", id)
                     .then((declaration) => {
                       config.value = declaration;
                       resolve();

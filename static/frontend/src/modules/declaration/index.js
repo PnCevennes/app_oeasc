@@ -15,7 +15,7 @@ const ROUTE = [
   },
 
   {
-    path: "/declaration/declarer_en_ligne/:idDeclaration",
+    path: "/declaration/declarer_en_ligne/:id",
     label: "Modifier déclaration",
     access: 1,
     hideTitle: true,
@@ -34,7 +34,7 @@ const ROUTE = [
   },
 
   {
-    path: "/declaration/voir_declaration/:idDeclaration",
+    path: "/declaration/voir_declaration/:id",
     label: "Déclaration",
     access: 1,
     name: "voir_declaration",
@@ -132,11 +132,11 @@ const STORE = {
   },
 
   actions: {
-    declarationForm: ({ commit }, idDeclaration) => {
+    declarationForm: ({ commit }, id) => {
       return new Promise((resolve, reject) => {
         apiRequest(
           "GET",
-          `api/degat_foret/declaration/${idDeclaration || ""}`
+          `api/degat_foret/declaration/${id || ""}`
         ).then(
           apiData => {
             commit("declarationForm", apiData);

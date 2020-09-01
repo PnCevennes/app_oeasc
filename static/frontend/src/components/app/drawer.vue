@@ -55,7 +55,7 @@ export default {
   props: ["config"],
   computed: {
     configMenus() {
-      return this.config.menus.map(menuName => configMenu(menuName, this));
+      return this.config.menus.map(menuName => configMenu(menuName, this)).filter(m => !m.hidden);
     }
   }
 };

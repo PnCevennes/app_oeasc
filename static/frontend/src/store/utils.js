@@ -5,6 +5,7 @@ export default {
   addStore(STORE, name, api, idFieldName) {
     const names = `${name}s`;
     const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1);
+    const namesCapitalized = names.charAt(0).toUpperCase() + names.slice(1);
     const nameIdFieldName = `${name}idFieldName`
 
     const state = {};
@@ -40,7 +41,7 @@ export default {
 
     const actions = {};
     /** requete GET pour avoir le tableau d'objets */
-    actions[`get_${names}`] = ({ getters, commit }) => {
+    actions[`get${namesCapitalized}`] = ({ getters, commit }) => {
       return new Promise((resolve, reject) => {
         const objList = getters[names];
         if (objList && objList.length) {

@@ -43,7 +43,7 @@ const menus = {
     label: 'Administration',
     icon: 'fa-cog',
     hidden: ({$store}) => ($store.getters.droitMax <= 5),
-    names: ["in.tableau", "in.saisie_new", "user.gerer_utilisateurs"]
+    names: ["in.tableau", "in.saisie", "user.gerer_utilisateurs"]
   },
 
   dev: {

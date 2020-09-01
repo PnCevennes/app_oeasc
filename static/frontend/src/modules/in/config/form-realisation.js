@@ -94,12 +94,12 @@ export default {
     }
   ],
   
-  title: ({ meta }) =>
-    meta.id
-      ? `Modificiation de la réalisation de sortie Indice Nocturne ${meta.id}`
+  title: ({ id }) =>
+    id
+      ? `Modificiation de la réalisation de sortie Indice Nocturne ${id}`
       : "Création d'une réalisation de sortie Indice Nocturne",
   switchDisplay: true,
-  displayValue: ({ meta }) => meta && !!meta.id,
+  displayValue: ({ id }) => !!id,
   displayLabel: true,
   action: {
     storeName: 'inRealisation'

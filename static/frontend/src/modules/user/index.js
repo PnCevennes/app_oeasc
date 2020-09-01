@@ -78,6 +78,7 @@ const STORE = {
     _redirectOnLogin: null,
     _organismes: [],
     _users: [],
+    _redirect: null,
   },
   mutations: {
     /**
@@ -94,6 +95,9 @@ const STORE = {
     },
     users(state, users) {
       state._users = users;
+    },
+    redirect(state, redirect) {
+      state.redirect = redirect;
     }
   },
 
@@ -113,6 +117,10 @@ const STORE = {
 
     redirectOnLogin(state) {
       return state._redirectOnLogin;
+    },
+
+    redirect(state) {
+      return state.redirect;
     },
     /**
      * Get user

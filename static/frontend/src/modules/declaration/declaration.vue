@@ -54,7 +54,7 @@ const styles = {
 export default {
   name: "declaration",
   data: () => ({
-    idDeclaration: null,
+    id: null,
     declaration: null,
     mapList: ["secteurs", "foret", "parcelles"]
   }),
@@ -70,10 +70,9 @@ export default {
       });
     },
     initDeclaration() {
-      this.idDeclaration = this.$route.params.idDeclaration;
       this.$store.dispatch("declarations").then(declarations => {
         this.declaration = declarations.find(
-          d => this.idDeclaration == d.id_declaration
+          d => this.id == d.id_declaration
         );
         console.log(this.declaration);
         // setTimeout(()=>  {this.exportPdf();}, 5000)
@@ -147,6 +146,9 @@ export default {
     }
   },
   computed: {
+    id() {
+      return this.$route.params.id;
+    },
     configMaps() {
       const configMaps = {};
       for (const type of this.mapList) {

@@ -1,6 +1,6 @@
 <template>
   <div v-if="configRealisationForm">
-    <generic-form :config="configRealisationForm" :meta="{id}">
+    <generic-form :config="configRealisationForm">
     </generic-form>
   </div>
 </template>
@@ -11,11 +11,6 @@ import configRealisationForm from "./config/form-realisation";
 
 export default {
   name: "in-form",
-  computed: {
-    id() {
-      return this.$route.params.id;
-    },
-  },
   data: () => ({
     configRealisationForm
   }),
