@@ -217,6 +217,11 @@ export default {
                 header.displayFieldName
               ];
           }
+          header.sort = (a, b) => {
+            const aa = header.display ? header.display(a, {$store: this.$store}) :a;
+            const bb = header.display ? header.display(b, {$store: this.$store}) :b;
+            return aa == bb ? 0 : aa < bb ? -1 : 1;
+          }
         }
 
         if (!header.condition || header.condition({ $store: this.$store })) {
