@@ -62,7 +62,7 @@ def in_valid_obs():
     return obs.as_dict()
 
 
-@bp.route('circuits/', methods=['GET'])
+@bp.route('circuits', methods=['GET'])
 @json_resp
 def in_get_circuits():
     '''
@@ -88,6 +88,20 @@ def in_get_observers():
         'oeasc_in',
         limit=1e6
     ).as_dict()['items']
+
+
+@bp.route('realisations', methods=['GET'])
+@json_resp
+def get_realisations():
+    '''
+    '''
+
+    realisations = (
+        DB.session.query(TRealisations)
+        .all()
+    )
+
+    return [r.as_dict(True) for r in realisations]
 
 
 @bp.route('realisation/<int:id_realisation>', methods=['GET'])

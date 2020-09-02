@@ -26,7 +26,7 @@ export default {
       );
       list.unshift({
         text: route.label,
-        to: route.path
+        to: route.path,
       });
       return this.breadcrumpList(route.parent, list);
     }

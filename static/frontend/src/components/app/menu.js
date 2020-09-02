@@ -43,7 +43,7 @@ const menus = {
     label: 'Administration',
     icon: 'fa-cog',
     hidden: ({$store}) => ($store.getters.droitMax <= 5),
-    names: ["in.tableau", "in.saisie", "user.gerer_utilisateurs"]
+    names: ["in.tableau", "in.realisation","in.realisations",  "user.gerer_utilisateurs"]
   },
 
   dev: {
@@ -82,7 +82,19 @@ const processRouteName = function(routeName, { $store, $router }) {
     }
     processRoute[key] =
       typeof route[key] == "function" ? route[key]({ $store }) : route[key];
+
+    if (key == 'path') {
+      const paths = route[key].split('/');
+      if (paths[paths.length -1 ][0]==':') {
+        paths[paths.length -1 ] = "";
+
+      }
+      route[key] = paths.join('/');
+    }
   }
+
+
+
   return processRoute;
 };
 

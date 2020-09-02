@@ -57,8 +57,7 @@ export default {
       ],
       bDialogExport: false,
       configTable: {
-        label: "id_declaration",
-        id: "id_declaration",
+        idFieldName: "id_declaration",
         dense: true,
         striped: true,
         small: true,

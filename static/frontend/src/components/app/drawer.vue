@@ -35,7 +35,7 @@
           <v-list-item-icon> </v-list-item-icon>
           <v-list-item-content>
             <v-list-item-title>{{
-              item.labelDrawer || item.label
+              item.label
             }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>

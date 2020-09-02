@@ -31,8 +31,8 @@ export default {
     bShowMailList: false,
     pathExportUser: `${config.URL_APPLICATION}/api/user/export`,
     configTable: {
-      id: "id_role",
-      label: "nom_complet",
+      idFieldName: "id_role",
+      labelFieldName: "nom_complet",
       title: "Liste des utilisateurs",
       sortBy: ["create_date"],
       sortDesc: [true],

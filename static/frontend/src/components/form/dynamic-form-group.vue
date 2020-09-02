@@ -1,7 +1,6 @@
 <template>
   <div>
     <!-- titre -->
-      
       <h2 v-if="depth==0">
         {{ config.title }}
         <help :code="`${config.help}`" v-if="config.help"></help>

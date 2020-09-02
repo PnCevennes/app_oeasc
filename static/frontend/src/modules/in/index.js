@@ -1,10 +1,12 @@
 import inTest from "./in-test";
 import inTable from "./in-table";
-// import inRealisationForm from "./in-realisation-form";
 import genericForm from "@/components/form/generic-form";
+import genericTable from "@/components/table/generic-table";
 import configRealisationForm from "./config/form-realisation";
+import configRealisationTable from "./config/table-realisation";
 import { apiRequest } from "@/core/js/data/api.js";
 import storeUtils from '@/store/utils';
+
 
 const ROUTE = [
   {
@@ -35,24 +37,27 @@ const ROUTE = [
     access: 5
   },
   {
-    name: "in.saisie",
-    path: "/in/saisie/:id",
-    label: "In - Saisie",
+    name: "in.realisation",
+    path: "/in/realisation/:id?",
+    label: "In - Réalisation",
     parent: "in.index",
     hideTitle: true,
     component: genericForm,
     props: {config: configRealisationForm},
     access: 5,
   },
-  // {
-  //   name: "in.saisie_new",
-  //   path: "/in/saisie/",
-  //   label: "In - Saisie",
-  //   parent: "in.index",
-  //   hideTitle: true,
-  //   component: inRealisationForm,
-  //   access: 5
-  // },
+
+  {
+    name: "in.realisations",
+    path: "/in/realisations",
+    label: "In - Réalisations",
+    parent: "in.index",
+    hideTitle: true,
+    component: genericTable,
+    props: {config: configRealisationTable},
+    access: 5,
+  },
+
   {
     name: "in.graphiques",
     path: "/in/graphiques",
@@ -82,6 +87,6 @@ const STORE = {
 };
 
 storeUtils.addStore(STORE, 'inRealisation', 'api/in/realisation', 'id_realisation');
-storeUtils.addStore(STORE, 'inCircuits', 'api/in/circuit', 'id_circuit');
+storeUtils.addStore(STORE, 'inCircuit', 'api/in/circuit', 'id_circuit');
 
 export { ROUTE, STORE };

@@ -6,7 +6,6 @@
     </div>
     <div v-else>
       <slot name="prependForm"></slot>
-
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
         <div>
           <dynamic-form-group :config="configDynamicGroupForm" :baseModel="baseModel"></dynamic-form-group>
@@ -28,11 +27,8 @@
         <v-btn
           v-if="switchDisplay"
           color="primary"
-          @click="
-            config.displayValue = !config.displayValue;
-            recompConfig = !recompConfig;
-          "
-        >{{ config.displayValue ? "Modifier" : "Annuler" }}</v-btn>
+          @click="processAnnulerModifier()"
+        >{{ displayValue ? "Modifier" : "Annuler" }}</v-btn>
 
         <v-btn
           v-if="config.cancel"
@@ -62,6 +58,8 @@
 import { apiRequest } from "@/core/js/data/api.js";
 import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import { config as globalConfig } from "@/config/config.js";
+import { copy } from "@/core/js/util/util";
+
 // import {copy} from '@/core/js/util/util'
 
 export default {
@@ -98,11 +96,6 @@ export default {
         ? this.config.switchDisplay({ id: this.id })
         : this.config.switchDisplay;
     },
-    displayValue() {
-      return typeof this.config.displayValue == "function"
-        ? this.config.displayValue({ id: this.id })
-        : this.config.displayValue;
-    },
     title() {
       return typeof this.config.title == "function"
         ? this.config.title({ id: this.id })
@@ -115,13 +108,29 @@ export default {
     },
     id() {
       this.initConfig();
-    }
+    },
   },
   mounted() {
     this.initConfig();
   },
   methods: {
+    processAnnulerModifier() {
+      setTimeout(() => {
+        if (!this.displayValue) {
+          this.baseModel = copy(this.baseModelSave);
+        }
+        this.displayValue = !this.displayValue;
+      }, 100);
+    },
+    test() {
+      this.config.displayValue = !this.displayValue;
+      console.log("aa", this.config.displayValue, this.displayValue);
+    },
     initConfig() {
+      this.displayValue =
+        typeof this.config.displayValue == "function"
+          ? this.config.displayValue({ id: this.id })
+          : this.config.displayValue;
       if (!this.config) return;
       this.bInit = false;
       const storeName = this.config.action && this.config.action.storeName;
@@ -137,7 +146,7 @@ export default {
               $store
                 .dispatch(`get${storeNameCapitalized}`, { id })
                 .then((data) => {
-                  config.value = data;  
+                  config.value = data;
                   this.baseModel = null;
                   resolve();
                 });
@@ -145,19 +154,22 @@ export default {
           });
         };
         this.config.action.process = ({ id, $store, postData }) => {
-          return $store.dispatch(`${id ? "patch" : "post"}${storeNameCapitalized}`, {
-            id: id,
-            postData,
-          });
+          return $store.dispatch(
+            `${id ? "patch" : "post"}${storeNameCapitalized}`,
+            {
+              id: id,
+              postData,
+            }
+          );
         };
 
-        this.config.action.onSuccess = ({$router, $store, data, id }) => {
-          if(!id) {
+        this.config.action.onSuccess = ({ $router, $store, data, id }) => {
+          console.log(id);
+          if (!id) {
             const id_ = data[$store.getters[`${storeName}idFieldName`]];
-            $router.push(`${$router.history.current.path}${id_}`)
+            $router.push(`${$router.history.current.path}${id_}`);
           }
-        }
-
+        };
       }
 
       if (this.config.preLoadData) {
@@ -189,6 +201,7 @@ export default {
       }
       baseModel.freeze = false;
       this.baseModel = baseModel;
+      this.baseModelSave = copy(this.baseModel);
     },
     postData() {
       return this.config.action.preProcess
@@ -233,10 +246,11 @@ export default {
                 $store: this.$store,
                 $router: this.$router,
                 $route: this.$route,
+                id: this.id,
               });
             }
             if (this.switchDisplay) {
-              this.config.displayValue = true;
+              this.displayValue = true;
             } else {
               this.bRequestSuccess = true;
             }
@@ -260,6 +274,7 @@ export default {
     bValidForm: null,
     bInit: false,
     baseModel: null,
+    baseModelSave: null,
     msgError: null,
     bError: false,
     msgSuccess: null,
@@ -267,6 +282,7 @@ export default {
     bRequestSuccess: false,
     bSending: false,
     recompConfig: true,
+    displayValue: null,
   }),
 };
 </script>
