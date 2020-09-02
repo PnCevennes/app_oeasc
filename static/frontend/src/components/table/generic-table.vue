@@ -105,6 +105,12 @@
         </template>
       </v-data-table>
     </v-card>
+        <v-snackbar color="error" v-model="bError" :timeout="5000">
+      {{
+      msgError
+      }}
+    </v-snackbar>
+
   </div>
 </template>
 
@@ -122,6 +128,8 @@ export default {
     searchs: {},
     bEditDialogs: null,
     saveValue: null,
+    msgError: null,
+    bError: false,
   }),
   watch: {
     config: {
@@ -200,7 +208,9 @@ export default {
         }
 
         if (header.storeName) {
-          config.storeList[value] = header.storeName;
+          if(!Object.values(config.storeList).includes(header.storeName)) {
+            config.storeList[value] = header.storeName;
+          }
           if (header.displayFieldName) {
             header.display = (id, { $store }) =>
               ($store.getters[header.storeName](id) || {})[
@@ -267,6 +277,8 @@ export default {
           },
           (error) => {
             console.log("process error", error);
+            this.msgError = error;
+            this.bError=true;
           }
         );
       }
