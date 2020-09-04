@@ -11,9 +11,6 @@ export default {
     /** Truc : pour les actions par ex getTruc postTruc */
     const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1);
 
-    /** Trucs : pour l'action qui recupère les listes getTrucs */
-    const namesCapitalized = names.charAt(0).toUpperCase() + names.slice(1);
-
     /** trucIdFiledName : pour stocker le nom du champs de l'id */
     const nameIdFieldName = `${name}IdFieldName`;
 
@@ -21,20 +18,31 @@ export default {
      *    (si par exemple on à recupérer un truc isolé et qu'on veut avoir la liste ensuite...) */
     const nameLoaded = `${nameCapitalized}Loaded`;
 
+    const nameConfig = `${name}Config`;
+
+    const config = {
+      get: `get${nameCapitalized}`,
+      post: `post${nameCapitalized}`,
+      patch: `patch${nameCapitalized}`,
+      delete: `delete${nameCapitalized}`,
+      getAll: `getAll${nameCapitalized}`,
+      idFieldName,
+      loaded: false,
+    }
+
     const state = {};
     /** ou l'on stoque le tableau de d'objets */
 
     state[names] = [];
-    state[nameIdFieldName] = idFieldName;
-    state[nameLoaded] = false;
+    state[nameConfig] = config;
 
     const getters = {};
-    /** divers */
-    getters[nameIdFieldName] = state => state[nameIdFieldName];
-    getters[nameLoaded] = state => state[nameLoaded];
-
     /** recupération du tableau entier */
+
     getters[names] = state => state[names];
+
+    /** recuperation des config doit marcher avec tous les stores */
+    getters.configStore = state => name => state[`${name}Config`] 
 
     /** récupération d'un objet */
     getters[name] = state => (value, fieldName = idFieldName) =>
@@ -66,9 +74,19 @@ export default {
       }
     };
 
+    /** suppression d'un objet */
+    mutations[config.delete] = (state, obj) => {
+      const index = state[names].findIndex(
+        o => o[idFieldName] === obj[idFieldName]
+      );
+      if (index == -1) {
+        state[names].splice(index, 1);
+      }
+    };
+
     const actions = {};
     /** requete GET pour avoir le tableau d'objets */
-    actions[`get${namesCapitalized}`] = ({ getters, commit }) => {
+    actions[config.getAll] = ({ getters, commit }) => {
       return new Promise((resolve, reject) => {
         const recupAll = getters[nameLoaded];
         const objList = getters[names];
@@ -120,7 +138,11 @@ export default {
         const apiUrl = requestType === "POST" ? `${api}` : `${api}/${id}`;
         apiRequest(requestType, apiUrl, { postData }).then(
           data => {
-            commit(name, data);
+            if(requestType === 'DELETE') {
+              commit(config.delete, data)
+            } else {
+              commit(name, data);
+            }
             resolve(data);
           },
           error => {
