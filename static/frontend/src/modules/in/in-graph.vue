@@ -6,7 +6,7 @@
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
-    <div v-if="commentaires" innerHTML="commentaires"></div>
+    <div v-if="commentaires" v-html="commentaires"></div>
   </div>
 </template>
 
