@@ -1,5 +1,6 @@
 <template>
   <div v-if="config" class="form-container">
+    {{ config.bChained }}
     <h2 v-if="title">{{ title }}</h2>
     <div v-if="bRequestSuccess">
       <slot name="success"></slot>
@@ -79,7 +80,10 @@ export default {
       return this.$route.params.id;
     },
     idModel() {
-      return this.baseModel && this.baseModel[this.config.idFieldName];
+      return (
+        (this.baseModel && this.baseModel[this.config.idFieldName]) ||
+        (this.config.value && this.config.value[this.config.idFieldName])
+      );
     },
     configDynamicGroupForm() {
       return {
@@ -113,11 +117,9 @@ export default {
   },
   watch: {
     config() {
-      console.log("config wtch");
       this.initConfig();
     },
     idRoute() {
-      console.log("id wtch");
       this.baseModel[this.config.idFieldName] = this.idRoute;
       this.initConfig();
     }
@@ -135,7 +137,6 @@ export default {
       }, 100);
     },
     initConfig() {
-      console.log("init config");
       this.displayValue =
         typeof this.config.displayValue == "function"
           ? this.config.displayValue({ id: this.idModel })
@@ -165,7 +166,6 @@ export default {
         };
         this.config.action = this.config.action || {};
         this.config.action.process = ({ id, $store, postData }) => {
-          console.log(id);
           return $store.dispatch(
             `${id ? "patch" : "post"}${storeNameCapitalized}`,
             {
@@ -174,8 +174,6 @@ export default {
             }
           );
         };
-
-        console.log(this.config.action.onSuccess)
 
         if (!this.config.action.onSuccess) {
           this.config.action.onSuccess = ({ $router, $store, data, id }) => {
@@ -192,7 +190,7 @@ export default {
           .preLoadData({
             $store: this.$store,
             config: this.config,
-            id: this.id
+            id: this.idModel
           })
           .then(() => {
             this.initBaseModel();
@@ -252,8 +250,11 @@ export default {
         promise.then(
           data => {
             this.bSending = false;
-            this.bSuccess = true;
-            this.msgSuccess = "La requête à été effectuée avec succès";
+
+            if (!this.config.bChained) {
+              this.bSuccess = true;
+              this.msgSuccess = "La requête à été effectuée avec succès";
+            }
 
             if (this.config.action.onSuccess) {
               this.config.action.onSuccess({
@@ -267,7 +268,7 @@ export default {
             }
             if (this.switchDisplay) {
               this.displayValue = true;
-            } else {
+            } else if(!this.config.bChained){
               this.bRequestSuccess = true;
             }
           },

@@ -197,9 +197,7 @@ export default {
     },
     configForm(prop, value) {
       const item = prop.item;
-      console.log(item)
       const label=  prop.header.text;
-      console.log("configForm");
       const header = this.configTable.headers.find(
         header => header && header.value == value
       );
@@ -214,7 +212,7 @@ export default {
         }`;
         configForm.label = label;
       }
-
+      configForm.idFieldName = configForm.idFieldName || this.configTable.idFieldName;
       configForm.value = copy(item);
       configForm.switchDisplay = false;
       configForm.cancel = {
@@ -223,9 +221,7 @@ export default {
           this.closeDialog();
         }
       };
-      console.log(configForm.action)
       if (configForm.action && configForm.action.onSuccess) {
-        console.log('ioiouoiuoiuiou')
         configForm.action.onSuccess2 = configForm.action.onSuccess;
       } else {
         configForm.action = configForm.action || {};
@@ -239,10 +235,8 @@ export default {
             data[this.configTable.idFieldName]
         );
         for (const key of Object.keys(data)) {
-          console.log(key, elem[key], data[key])
           elem[key] = data[key];
         }
-        console.log(elem.id_droit_max)
 
         this.closeDialog();
       };
@@ -257,7 +251,6 @@ export default {
       }
     },
     edit(value, id) {
-      console.log("edit", value, id);
       this.closeDialog();
       this.bEditDialogs[value] = {};
       this.bEditDialogs[value][id] = true;
@@ -268,25 +261,21 @@ export default {
       );
     },
     deleteRow(id) {
-      console.log(this.$store);
       const index = this.configTable.items.findIndex(
         d => d[this.configTable.idFieldName] == id
       );
       if (index !== -1) {
         if (this.configTable.delete) {
           this.configTable.delete(id, { $store: this.$store }).then(
-            d => {
-              console.log(`delete store ${id} ${d}`);
+            () => {
               this.configTable.items.splice(index, 1);
             },
             err => {
-              console.log(`delete error ${err}`);
               this.bError = true;
               this.msgError = err;
             }
           );
         } else {
-          console.log(`delete ${id}`);
           this.configTabel.items.splice(index, 1);
         }
       }
@@ -298,7 +287,6 @@ export default {
       }
     },
     initConfig() {
-      console.log("initConfig");
       const config = copy(this.config);
       config.loaded = false;
       config.stores = {};
@@ -386,7 +374,6 @@ export default {
 
       /** on place actions en début de liste */
       const headerActionsIndex = headers.findIndex(h => h.value === "actions");
-      console.log(headerActionsIndex);
       if (headerActionsIndex != -1) {
         const headerActions = headers[headerActionsIndex];
         headers.splice(headerActionsIndex, 1);
@@ -449,7 +436,6 @@ export default {
             this.configTable = copy(this.configTable);
           },
           error => {
-            console.log("process error", error);
             this.msgError = error;
             this.bError = true;
           }
@@ -459,7 +445,6 @@ export default {
   },
   computed: {
     filteredItems() {
-      console.log("filtered");
       if (!this.configTable.items) {
         return [];
       }

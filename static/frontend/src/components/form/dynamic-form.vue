@@ -198,7 +198,6 @@ import listForm from "./list-form";
 import selectMap from "./select-map.vue";
 import essenceForm from "./essence-form.vue";
 import degatsForm from "./degats-form.vue";
-import oeascContent from "@/modules/content/content";
 import help from "./help";
 import list from "./list";
 import { copy } from "@/core/js/util/util";
@@ -214,7 +213,7 @@ export default {
     essenceForm,
     listForm,
     degatsForm,
-    oeascContent,
+    oeascContent: () => import('@/modules/content/content.vue'),
     help,
     list
   },

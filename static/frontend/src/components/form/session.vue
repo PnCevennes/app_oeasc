@@ -100,7 +100,6 @@ export default {
     baseModel: {
       deep:true,
       handler() {
-        console.log('freeze', this.baseModel.freeze);
         this.freeze = this.baseModel.freeze;
       }
     }
@@ -120,7 +119,6 @@ export default {
         this.config.action
           .process({ baseModel: this.baseModel })
           .then(response => {
-            console.log("post ok", response);
             setTimeout(() => {
               this.bModalPost = false;
               this.bModalSuccess = true;

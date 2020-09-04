@@ -233,10 +233,6 @@ export default {
   methods: {
     change(event) {
       event;
-      // if (this.config.multiple && !this.config.display) {
-      //   console.log('local model')
-      //   this.baseModel[this.config.name] = this.localModel;
-      // }
       this.config.change &&
         this.config.change({
           baseModel: this.baseModel,

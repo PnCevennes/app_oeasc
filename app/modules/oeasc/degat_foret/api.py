@@ -92,7 +92,7 @@ def api_get_declaration(id_declaration):
     # id_areas TODO in front
 
     #   foret
-    areas_foret = [get_area_from_id(area['id_area']) for area in out['areas_foret']] 
+    areas_foret = [get_area_from_id(area['id_area']) for area in out.get('areas_foret', [])] 
 
     out['areas_foret_onf'] = get_id_area(areas_foret, ['OEASC_ONF_FRT'])
     out['areas_foret_dgd'] = get_id_area(areas_foret, ['OEASC_DGD'])
@@ -100,7 +100,7 @@ def api_get_declaration(id_declaration):
     out['areas_foret_sections'] = get_id_areas(areas_foret, ['OEASC_SECTION'])
 
     #   declaration
-    areas_localisation = [get_area_from_id(area['id_area']) for area in out['areas_localisation']] 
+    areas_localisation = [get_area_from_id(area['id_area']) for area in out.get('areas_localisation', [ ])] 
     out['areas_localisation_cadastre'] = get_id_areas(areas_localisation, ['OEASC_CADASTRE'])
     out['areas_localisation_onf_prf'] = get_id_areas(areas_localisation, ['OEASC_ONF_PRF'])
     out['areas_localisation_onf_ug'] = get_id_areas(areas_localisation, ['OEASC_ONF_UG'])
