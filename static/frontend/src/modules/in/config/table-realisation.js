@@ -3,13 +3,12 @@ import configRealisationForm from "./form-realisation";
 
 
 export default {
-  idFieldName: 'id_realisation',
+  storeName: "inRealisation",
   dense: true,
   striped: true,
   small: true,
-  storeName: "inRealisation",
   configForm: configRealisationForm,
-  headers: {
+  headerDefs: {
     date_realisation: {
       type: "date",
       text: "Date"

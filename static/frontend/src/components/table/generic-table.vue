@@ -1,5 +1,43 @@
 <template>
   <div>
+    <v-dialog persistent max-width="600px" v-model="deleteModal">
+      <v-card>
+        <v-card-title>
+          <v-icon large>warning</v-icon>
+          Êtes vous sûr de vouloir supprimer Cette ligne?
+
+        </v-card-title>
+
+        <v-card-text>
+          <v-checkbox
+          dense tiny
+            v-model="deleteWithoutWarning"
+            label="Ne plus afficher ce message avant la suppression"
+          ></v-checkbox>
+          
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="
+              deleteRow(idToDelete);
+              idToDelete = null;
+              deleteModal = false;
+            "
+          >
+            Oui
+          </v-btn>
+
+          <v-btn color="green darken-1" text @click="idToDelete = null; deleteModal=false">
+            Non
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-card>
       <v-card-title>
         {{ configTable.title }}
@@ -54,28 +92,23 @@
                       : action.to
                   "
                   :title="action.title"
+                  @click="
+                    action.click &&
+                      action.click(props.item[configTable.idFieldName])
+                  "
                 >
                   <v-icon small>{{ action.icon }}</v-icon>
                 </v-btn>
               </template>
             </div>
 
-            <div v-if="editCell(props)">
+            <div v-if="bEditCell(props)">
               <v-btn
+                v-if="value != 'actions'"
                 small
-                @click="
-                  openEditDialog(value, props.item[configTable.idFieldName])
-                "
+                @click="edit(value, props.item[configTable.idFieldName])"
               >
-                <span v-if="displayCell(props, value)">
-                  {{ displayCell(props, value) }}
-                  <!-- {{
-                    (typeof props.header.display == "function" &&
-                      props.header.display(props.item[value], { $store })) ||
-                      props.item[value]
-                  }} -->
-                </span>
-                <v-icon small v-else>edit</v-icon>
+                {{ displayCell(props, value) }}
               </v-btn>
               <v-dialog
                 v-if="bEditDialogs[value]"
@@ -124,7 +157,10 @@ export default {
     bEditDialogs: null,
     saveValue: null,
     msgError: null,
-    bError: false
+    bError: false,
+    idToDelete: null,
+    deleteModal: null,
+    deleteWithoutWarning: false
   }),
   watch: {
     config: {
@@ -143,7 +179,7 @@ export default {
           : props.item[value]);
       return res;
     },
-    editCell(props) {
+    bEditCell(props) {
       return (
         props.header.edit &&
         (!props.header.edit.condition ||
@@ -203,13 +239,8 @@ export default {
         elem[key] = this.saveVal[key];
       }
     },
-    closeDialog() {
-      this.bEditDialogs = {};
-      for (const key of Object.keys(this.config.headers)) {
-        this.bEditDialogs[key] = {};
-      }
-    },
-    openEditDialog(value, id) {
+    edit(value, id) {
+      console.log("edit", value, id);
       this.closeDialog();
       this.bEditDialogs[value] = {};
       this.bEditDialogs[value][id] = true;
@@ -218,33 +249,85 @@ export default {
           item => item[this.configTable.idFieldName] == id
         )
       );
-      console.log(this.bEditDialogs[value][id]);
+    },
+    deleteRow(id) {
+      console.log(this.$store);
+      const index = this.configTable.items.findIndex(
+        d => d[this.configTable.idFieldName] == id
+      );
+      if (index !== -1) {
+        if (this.configTable.delete) {
+          this.configTable.delete(id, { $store: this.$store }).then(
+            d => {
+              console.log(`delete store ${id} ${d}`);
+              this.configTable.items.splice(index, 1);
+            },
+            err => {
+              console.log(`delete error ${err}`);
+              this.bError = true;
+              this.msgError = err;
+            }
+          );
+        } else {
+          console.log(`delete ${id}`);
+          this.configTabel.items.splice(index, 1);
+        }
+      }
+    },
+    closeDialog() {
+      this.bEditDialogs = {};
+      for (const key of Object.keys(this.configTable.headerDefs)) {
+        this.bEditDialogs[key] = {};
+      }
     },
     initConfig() {
-      console.log("initCOnfig");
+      console.log("initConfig");
       const config = copy(this.config);
       config.loaded = false;
-      config.storeList = {};
+      config.stores = {};
 
       if (config.storeName) {
-        config.storeList.items = config.storeName;
-      }
-
-      const headers = [];
-
-      if (config.storeName && !(config.headers.actions && Object.keys(config.headers.actions).lenght)) {
-        console.log('youk')
-        config.headers.actions = {
-          noSearch: true,
-          width: "90px",
-          text: "Actions",
-          sortable: false,
-          edit: config.configForm
+        const configStore = this.$store.getters.configStore(config.storeName);
+        config.idFieldName = configStore.idFieldName;
+        config.delete = (id, { $store }) => {
+          return $store.dispatch(configStore.delete, { id });
         };
+        config.stores.items = config.storeName;
+        if (!config.headerDefs.actions) {
+          config.headerDefs.actions = {
+            noSearch: true,
+            width: "90px",
+            text: "Actions",
+            sortable: false,
+            edit: config.configForm,
+            list: [
+              {
+                title: "Editer la ligne",
+                icon: "mdi-pencil",
+                click: id => this.edit("actions", id)
+              },
+              {
+                title: "Supprimer la ligne",
+                icon: "mdi-trash-can",
+                click: id => {
+                  if (!this.deleteWithoutWarning) {
+                    this.idToDelete = id;
+                    this.deleteModal = true;
+                  } else {
+                    this.deleteRow(id);
+                  }
+                }
+              }
+            ]
+          };
+        }
       }
 
       this.bEditDialogs = {};
-      for (const [value, header] of Object.entries(config.headers)) {
+      /** contruction de la variable header */
+      const headers = [];
+
+      for (const [value, header] of Object.entries(config.headerDefs)) {
         this.bEditDialogs[value] = {};
         header.value = value;
         if (header.type == "date") {
@@ -259,8 +342,9 @@ export default {
         }
 
         if (header.storeName) {
-          if (!Object.values(config.storeList).includes(header.storeName)) {
-            config.storeList[value] = header.storeName;
+          /** test pour ne pas avoir deux fois le même store name */
+          if (!Object.values(config.stores).includes(header.storeName)) {
+            config.stores[value] = header.storeName;
           }
           if (header.displayFieldName) {
             header.display = (id, { $store }) =>
@@ -278,31 +362,40 @@ export default {
             return aa == bb ? 0 : aa < bb ? -1 : 1;
           };
         }
-
         if (!header.condition || header.condition({ $store: this.$store })) {
           headers.push(header);
         }
       }
 
+      /** on place actions en début de liste */
+      const headerActionsIndex = headers.findIndex(h => h.value === "actions");
+      console.log(headerActionsIndex);
+      if (headerActionsIndex != -1) {
+        const headerActions = headers[headerActionsIndex];
+        headers.splice(headerActionsIndex, 1);
+        headers.unshift(headerActions);
+      }
+
       config.headers = headers;
+
       config.classes = {
         "small-table": config.small,
         striped: config.striped
       };
 
-      if (Object.keys(config.storeList).length) {
+      /** preloadData with promises from storeNames */
+      if (Object.keys(config.stores).length) {
         config.preloadData = ({ $store }) => {
-          const actions = [];
-          for (const storeName of Object.values(config.storeList)) {
-            const storeNames = `${storeName}s`;
-            const namesCapitalized =
-              `${storeNames}`.charAt(0).toUpperCase() + storeNames.slice(1);
-            actions.push($store.dispatch(`get${namesCapitalized}`));
+          const promises = [];
+          for (const storeName of Object.values(config.stores)) {
+            const configStore = this.$store.getters.configStore(storeName);
+            promises.push($store.dispatch(configStore.getAll));
           }
-          return Promise.all(actions);
+          return Promise.all(promises);
         };
       }
 
+      /** preProcess from headerDefs */
       if (config.headers.some(h => h.preProcess)) {
         config.preProcess = ({ data }) => {
           return data.map(d => {
@@ -318,11 +411,12 @@ export default {
 
       this.configTable = config;
 
+      /** call preloadData */
       if (this.configTable.preloadData && !this.configTable.loaded) {
         config.preloadData({ $store: this.$store }).then(
           res => {
             for (const [index, key] of Object.keys(
-              this.configTable.storeList
+              this.configTable.stores
             ).entries()) {
               if (key == "items") {
                 const items = res[index];
@@ -344,9 +438,6 @@ export default {
           }
         );
       }
-    },
-    editRow({ item }) {
-      console.log(item);
     }
   },
   computed: {
