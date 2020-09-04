@@ -215,6 +215,7 @@ export default {
       configForm.idFieldName = configForm.idFieldName || this.configTable.idFieldName;
       configForm.value = copy(item);
       configForm.switchDisplay = false;
+      configForm.displayValue = false;
       configForm.cancel = {
         action: () => {
           this.cancel(value, item[this.configTable.idFieldName]);
