@@ -232,7 +232,8 @@ export default {
 
       const headers = [];
 
-      if (config.storeName && !config.headers.actions) {
+      if (config.storeName && !(config.headers.actions && Object.keys(config.headers.actions).lenght)) {
+        console.log('youk')
         config.headers.actions = {
           noSearch: true,
           width: "90px",

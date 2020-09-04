@@ -10,9 +10,6 @@ export default {
   storeName: "inRealisation",
   configForm: configRealisationForm,
   headers: {
-    id_realisation: {
-      text: 'ID',
-    },
     date_realisation: {
       type: "date",
       text: "Date"
