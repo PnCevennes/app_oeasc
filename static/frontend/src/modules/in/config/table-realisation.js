@@ -33,7 +33,7 @@ export default {
     },
     observers: {
       text: "Observateurs",
-      display: d => d && d.join(', ')
+      display: d => {console.log((d && d.length) ? d.join(', ') : ''); return (d && d.length) ? d.join(', ') : ''}
       // display: d => {return d && d.length && d.join(", ") || ''}
     },
     temperature: {

@@ -60,35 +60,20 @@
               </template>
             </div>
 
-            <div
-              v-if="
-                props.header.edit &&
-                  (!props.header.edit.condition ||
-                    props.header.edit.condition({
-                      $store,
-                      baseModel: props.item
-                    }))
-              "
-            >
+            <div v-if="editCell(props)">
               <v-btn
                 small
                 @click="
                   openEditDialog(value, props.item[configTable.idFieldName])
                 "
               >
-                <span
-                  v-if="
-                    props.items &&
-                      (typeof props.header.display == 'function'
-                        ? props.header.display(props.item[value], { $store })
-                        : props.items.value)
-                  "
-                >
-                  {{
+                <span v-if="displayCell(props, value)">
+                  {{ displayCell(props, value) }}
+                  <!-- {{
                     (typeof props.header.display == "function" &&
                       props.header.display(props.item[value], { $store })) ||
                       props.item[value]
-                  }}
+                  }} -->
                 </span>
                 <v-icon small v-else>edit</v-icon>
               </v-btn>
@@ -112,11 +97,7 @@
               </v-dialog>
             </div>
             <div v-else>
-              {{
-                (typeof props.header.display == "function" &&
-                  props.header.display(props.item[value], { $store })) ||
-                  props.item[value]
-              }}
+              {{ displayCell(props, value) }}
             </div>
           </div>
         </template>
@@ -154,8 +135,26 @@ export default {
     }
   },
   methods: {
+    displayCell(props, value) {
+      const res =
+        props.item &&
+        (typeof props.header.display == "function"
+          ? props.header.display(props.item[value], { $store: this.$store })
+          : props.item[value]);
+      return res;
+    },
+    editCell(props) {
+      return (
+        props.header.edit &&
+        (!props.header.edit.condition ||
+          props.header.edit.condition({
+            $store: this.$store,
+            baseModel: props.item
+          }))
+      );
+    },
     configForm(item, value) {
-      console.log('configForm');
+      console.log("configForm");
       const header = this.configTable.headers.find(
         header => header && header.value == value
       );
@@ -181,15 +180,17 @@ export default {
       } else {
         configForm.action = configForm.action || {};
       }
-      configForm.action.onSuccess = ({data}) => {
+      configForm.action.onSuccess = ({ data }) => {
         const elem = this.configTable.items.find(
-          item => item[this.configTable.idFieldName] == item[this.configTable.idFieldName]
+          item =>
+            item[this.configTable.idFieldName] ==
+            item[this.configTable.idFieldName]
         );
         for (const key of Object.keys(data)) {
           elem[key] = data[key];
         }
 
-        configForm.action.onSuccess2 && configForm.action.onSuccess2({data});
+        configForm.action.onSuccess2 && configForm.action.onSuccess2({ data });
         this.closeDialog();
       };
       return configForm;
@@ -220,7 +221,7 @@ export default {
       console.log(this.bEditDialogs[value][id]);
     },
     initConfig() {
-      console.log('initCOnfig')
+      console.log("initCOnfig");
       const config = copy(this.config);
       config.loaded = false;
       config.storeList = {};
@@ -236,12 +237,6 @@ export default {
           noSearch: true,
           width: "90px",
           text: "Actions",
-          // list: [
-          //   {
-          //     title: "Voir / Editer",
-          //     icon: "mdi-pencil"
-          //   }
-          // ],
           sortable: false,
           edit: config.configForm
         };
@@ -355,7 +350,7 @@ export default {
   },
   computed: {
     filteredItems() {
-      console.log('filtered')
+      console.log("filtered");
       if (!this.configTable.items) {
         return [];
       }
