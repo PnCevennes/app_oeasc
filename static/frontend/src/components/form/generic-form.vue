@@ -1,6 +1,6 @@
 <template>
   <div v-if="config" class="form-container">
-    <h2 v-if="title">{{title}}</h2>
+    <h2 v-if="title">{{ title }}</h2>
     <div v-if="bRequestSuccess">
       <slot name="success"></slot>
     </div>
@@ -8,7 +8,10 @@
       <slot name="prependForm"></slot>
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
         <div>
-          <dynamic-form-group :config="configDynamicGroupForm" :baseModel="baseModel"></dynamic-form-group>
+          <dynamic-form-group
+            :config="configDynamicGroupForm"
+            :baseModel="baseModel"
+          ></dynamic-form-group>
           <div>
             <span style="color:red">*</span>
             <i>champs obligatoires.</i>
@@ -21,35 +24,38 @@
             right
             color="success"
             @click="processAction()"
-            :disabled="bSending||baseModel.freeze"
-          >{{ config.action.label || "Valider" }}</v-btn>
+            :disabled="bSending || baseModel.freeze"
+            >{{ config.action.label || "Valider" }}</v-btn
+          >
         </template>
         <v-btn
           v-if="switchDisplay"
           color="primary"
           @click="processAnnulerModifier()"
-        >{{ displayValue ? "Modifier" : "Annuler" }}</v-btn>
+          >{{ displayValue ? "Modifier" : "Annuler" }}</v-btn
+        >
 
         <v-btn
           v-if="config.cancel"
           color="primary"
           @click="config.cancel.action({ baseModel })"
-        >Annuler</v-btn>
+          >Annuler</v-btn
+        >
 
-        <v-progress-linear indeterminate color="green" v-if="bSending"></v-progress-linear>
+        <v-progress-linear
+          indeterminate
+          color="green"
+          v-if="bSending"
+        ></v-progress-linear>
 
         <slot name="appendForm"></slot>
       </v-form>
     </div>
     <v-snackbar color="error" v-model="bError" :timeout="5000">
-      {{
-      msgError
-      }}
+      {{ msgError }}
     </v-snackbar>
     <v-snackbar color="success" v-model="bSuccess" :timeout="2000">
-      {{
-      msgSuccess
-      }}
+      {{ msgSuccess }}
     </v-snackbar>
   </div>
 </template>
@@ -65,12 +71,15 @@ import { copy } from "@/core/js/util/util";
 export default {
   name: "generic-form",
   components: {
-    dynamicFormGroup,
+    dynamicFormGroup
   },
   props: ["config"],
   computed: {
-    id() {
+    idRoute() {
       return this.$route.params.id;
+    },
+    idModel() {
+      return this.baseModel && this.baseModel[this.config.idFieldName];
     },
     configDynamicGroupForm() {
       return {
@@ -78,37 +87,40 @@ export default {
         forms: this.config.forms,
         formDefs: this.config.formDefs,
         displayValue: this.displayValue,
-        displayLabel: this.config.displayLabel,
+        displayLabel: this.config.displayLabel
       };
     },
     method() {
       return typeof this.config.action.request.method === "function"
-        ? this.config.action.request.method({ id: this.id })
+        ? this.config.action.request.method({ id: this.idModel })
         : this.config.action.request.method;
     },
     url() {
       return typeof this.config.action.request.url === "function"
-        ? this.config.action.request.url({ id: this.id })
+        ? this.config.action.request.url({ id: this.idModel })
         : this.config.action.request.url;
     },
     switchDisplay() {
       return typeof this.config.switchDisplay == "function"
-        ? this.config.switchDisplay({ id: this.id })
+        ? this.config.switchDisplay({ id: this.idModel })
         : this.config.switchDisplay;
     },
     title() {
       return typeof this.config.title == "function"
-        ? this.config.title({ id: this.id })
+        ? this.config.title({ id: this.idModel })
         : this.config.title;
-    },
+    }
   },
   watch: {
     config() {
+      console.log("config wtch");
       this.initConfig();
     },
-    id() {
+    idRoute() {
+      console.log("id wtch");
+      this.baseModel[this.config.idFieldName] = this.idRoute;
       this.initConfig();
-    },
+    }
   },
   mounted() {
     this.initConfig();
@@ -122,30 +134,28 @@ export default {
         this.displayValue = !this.displayValue;
       }, 100);
     },
-    test() {
-      this.config.displayValue = !this.displayValue;
-      console.log("aa", this.config.displayValue, this.displayValue);
-    },
     initConfig() {
+      console.log("init config");
       this.displayValue =
         typeof this.config.displayValue == "function"
-          ? this.config.displayValue({ id: this.id })
+          ? this.config.displayValue({ id: this.idModel })
           : this.config.displayValue;
       if (!this.config) return;
       this.bInit = false;
-      const storeName = this.config.action && this.config.action.storeName;
-
+      const storeName = this.config.storeName;
       if (storeName) {
         const storeNameCapitalized =
           storeName.charAt(0).toUpperCase() + storeName.slice(1);
+        // const storeNameIdFieldName = `${storeName}IdFieldName`;
+        // this.config.idFieldName = this.$store.getters[storeNameIdFieldName];
         this.config.preLoadData = ({ $store, id, config }) => {
-          return new Promise((resolve) => {
+          return new Promise(resolve => {
             if (!id) {
               resolve();
             } else {
               $store
                 .dispatch(`get${storeNameCapitalized}`, { id })
-                .then((data) => {
+                .then(data => {
                   config.value = data;
                   this.baseModel = null;
                   resolve();
@@ -153,23 +163,28 @@ export default {
             }
           });
         };
+        this.config.action = this.config.action || {};
         this.config.action.process = ({ id, $store, postData }) => {
+          console.log(id);
           return $store.dispatch(
             `${id ? "patch" : "post"}${storeNameCapitalized}`,
             {
               id: id,
-              postData,
+              postData
             }
           );
         };
 
-        this.config.action.onSuccess = ({ $router, $store, data, id }) => {
-          console.log(id);
-          if (!id) {
-            const id_ = data[$store.getters[`${storeName}idFieldName`]];
-            $router.push(`${$router.history.current.path}${id_}`);
-          }
-        };
+        console.log(this.config.action.onSuccess)
+
+        if (!this.config.action.onSuccess) {
+          this.config.action.onSuccess = ({ $router, $store, data, id }) => {
+            if (!id) {
+              const id_ = data[$store.getters[`${storeName}idFieldName`]];
+              $router.push(`${$router.history.current.path}${id_}`);
+            }
+          };
+        }
       }
 
       if (this.config.preLoadData) {
@@ -177,7 +192,7 @@ export default {
           .preLoadData({
             $store: this.$store,
             config: this.config,
-            id: this.id,
+            id: this.id
           })
           .then(() => {
             this.initBaseModel();
@@ -188,6 +203,7 @@ export default {
         this.bInit = true;
       }
     },
+
     initBaseModel() {
       let baseModel = {};
       baseModel = this.baseModel || this.config.value || {};
@@ -208,7 +224,7 @@ export default {
         ? this.config.action.preProcess({
             baseModel: this.baseModel,
             globalConfig,
-            config: this.config,
+            config: this.config
           })
         : this.baseModel;
     },
@@ -227,14 +243,14 @@ export default {
               $store: this.$store,
               $router: this.$router,
               config: this.config,
-              id: this.id,
+              id: this.idModel
             });
 
         if (!promise) return;
 
         this.bSending = true;
         promise.then(
-          (data) => {
+          data => {
             this.bSending = false;
             this.bSuccess = true;
             this.msgSuccess = "La requête à été effectuée avec succès";
@@ -246,7 +262,7 @@ export default {
                 $store: this.$store,
                 $router: this.$router,
                 $route: this.$route,
-                id: this.id,
+                id: this.idModel
               });
             }
             if (this.switchDisplay) {
@@ -255,7 +271,7 @@ export default {
               this.bRequestSuccess = true;
             }
           },
-          (error) => {
+          error => {
             this.bSending = false;
             this.bError = true;
             this.msgError = `Erreur avec la requête : ${error.msg}`;
@@ -266,9 +282,9 @@ export default {
 
     request() {
       return apiRequest(this.method, this.url, {
-        postData: this.postData(),
+        postData: this.postData()
       });
-    },
+    }
   },
   data: () => ({
     bValidForm: null,
@@ -282,11 +298,10 @@ export default {
     bRequestSuccess: false,
     bSending: false,
     recompConfig: true,
-    displayValue: null,
-  }),
+    displayValue: null
+  })
 };
 </script>
-
 
 <style>
 .form-container {

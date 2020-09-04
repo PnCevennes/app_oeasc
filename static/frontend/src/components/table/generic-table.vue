@@ -4,14 +4,6 @@
       <v-card-title>
         {{ configTable.title }}
         <v-spacer></v-spacer>
-        <!-- <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          placeholder="Rechercher..."
-          single-line
-          hide-details
-        ></v-text-field>-->
-        <!-- {{ search }} -->
       </v-card-title>
       {{ configTable.editValues }}
       <v-data-table
@@ -45,7 +37,9 @@
         >
           <div :key="index">
             <div v-if="value == 'actions'">
-              <template v-for="(action, indexAction) of props.header.list || []">
+              <template
+                v-for="(action, indexAction) of props.header.list || []"
+              >
                 <v-btn
                   small
                   v-if="
@@ -54,7 +48,11 @@
                   "
                   :key="indexAction"
                   icon
-                  :to="action.to({ item: props.item, $store }) || action.to"
+                  :to="
+                    typeof action.to == 'function'
+                      ? action.to({ item: props.item, $store })
+                      : action.to
+                  "
                   :title="action.title"
                 >
                   <v-icon small>{{ action.icon }}</v-icon>
@@ -72,23 +70,42 @@
                     }))
               "
             >
-              <v-btn small @click="openEditDialog(value, props.item[configTable.id])">
-                {{
-                (typeof props.header.display == 'function' &&
-                props.header.display(props.item[value], {$store})) ||
-                props.item[value]
-                }}
-                <!-- <v-icon small>edit</v-icon> -->
+              <v-btn
+                small
+                @click="
+                  openEditDialog(value, props.item[configTable.idFieldName])
+                "
+              >
+                <span
+                  v-if="
+                    props.items &&
+                      (typeof props.header.display == 'function'
+                        ? props.header.display(props.item[value], { $store })
+                        : props.items.value)
+                  "
+                >
+                  {{
+                    (typeof props.header.display == "function" &&
+                      props.header.display(props.item[value], { $store })) ||
+                      props.item[value]
+                  }}
+                </span>
+                <v-icon small v-else>edit</v-icon>
               </v-btn>
               <v-dialog
+                v-if="bEditDialogs[value]"
                 persistent
-                max-width="800px"
-                v-model="bEditDialogs[value][props.item[configTable.id]]"
+                max-width="1400px"
+                v-model="
+                  bEditDialogs[value][props.item[configTable.idFieldName]]
+                "
               >
                 <v-card>
                   <genericForm
                     class="edit-dialog"
-                    v-if="bEditDialogs[value][props.item[configTable.id]]"
+                    v-if="
+                      bEditDialogs[value][props.item[configTable.idFieldName]]
+                    "
                     :config="configForm(props.item, value)"
                   ></genericForm>
                 </v-card>
@@ -96,21 +113,18 @@
             </div>
             <div v-else>
               {{
-              (typeof props.header.display == 'function' &&
-              props.header.display(props.item[value], {$store})) ||
-              props.item[value]
+                (typeof props.header.display == "function" &&
+                  props.header.display(props.item[value], { $store })) ||
+                  props.item[value]
               }}
             </div>
           </div>
         </template>
       </v-data-table>
     </v-card>
-        <v-snackbar color="error" v-model="bError" :timeout="5000">
-      {{
-      msgError
-      }}
+    <v-snackbar color="error" v-model="bError" :timeout="5000">
+      {{ msgError }}
     </v-snackbar>
-
   </div>
 </template>
 
@@ -129,50 +143,64 @@ export default {
     bEditDialogs: null,
     saveValue: null,
     msgError: null,
-    bError: false,
+    bError: false
   }),
   watch: {
     config: {
       handler() {
         this.initConfig();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   methods: {
     configForm(item, value) {
+      console.log('configForm');
       const header = this.configTable.headers.find(
-        (header) => header.value == value
+        header => header && header.value == value
       );
       if (!header.edit) {
         return {};
       }
       const configForm = copy(header.edit);
-      configForm.title = `Modifier ${header.text} pour ${
-        item[this.configTable.labelFieldName || this.configTable.idFieldName]
-      }`;
-      configForm.value = item;
+      // configForm.title = `Modifier ${header.text} pour ${
+      //   item[this.configTable.labelFieldName || this.configTable.idFieldName]
+      // }`;
+      configForm.value = copy(item);
+      configForm.switchDisplay = false;
       configForm.cancel = {
         action: () => {
-          this.cancel(value, item[this.configTable.id]);
+          this.cancel(value, item[this.configTable.idFieldName]);
           this.closeDialog();
-        },
+        }
       };
-      configForm.formDefs[value].label = `${header.text}`;
+      // configForm.formDefs[value].label = `${header.text}`;
 
-      if (configForm.action.onSuccess) {
+      if (configForm.action && configForm.action.onSuccess) {
         configForm.action.onSuccess2 = configForm.action.onSuccess;
+      } else {
+        configForm.action = configForm.action || {};
       }
-      configForm.action.onSuccess = (data) => {
-        configForm.action.onSuccess2 && configForm.action.onSuccess2(data);
+      configForm.action.onSuccess = ({data}) => {
+        const elem = this.configTable.items.find(
+          item => item[this.configTable.idFieldName] == item[this.configTable.idFieldName]
+        );
+        for (const key of Object.keys(data)) {
+          elem[key] = data[key];
+        }
+
+        configForm.action.onSuccess2 && configForm.action.onSuccess2({data});
         this.closeDialog();
       };
       return configForm;
     },
     cancel(value, id) {
-      this.configTable.items.find((item) => item[this.configTable.id] == id)[
-        value
-      ] = this.saveVal;
+      const elem = this.configTable.items.find(
+        item => item[this.configTable.idFieldName] == id
+      );
+      for (const key of Object.keys(this.saveVal)) {
+        elem[key] = this.saveVal[key];
+      }
     },
     closeDialog() {
       this.bEditDialogs = {};
@@ -182,12 +210,17 @@ export default {
     },
     openEditDialog(value, id) {
       this.closeDialog();
+      this.bEditDialogs[value] = {};
       this.bEditDialogs[value][id] = true;
-      this.saveVal = this.configTable.items.find(
-        (item) => item[this.configTable.id] == id
-      )[value];
+      this.saveVal = copy(
+        this.configTable.items.find(
+          item => item[this.configTable.idFieldName] == id
+        )
+      );
+      console.log(this.bEditDialogs[value][id]);
     },
     initConfig() {
+      console.log('initCOnfig')
       const config = copy(this.config);
       config.loaded = false;
       config.storeList = {};
@@ -197,18 +230,40 @@ export default {
       }
 
       const headers = [];
+
+      if (config.storeName && !config.headers.actions) {
+        config.headers.actions = {
+          noSearch: true,
+          width: "90px",
+          text: "Actions",
+          // list: [
+          //   {
+          //     title: "Voir / Editer",
+          //     icon: "mdi-pencil"
+          //   }
+          // ],
+          sortable: false,
+          edit: config.configForm
+        };
+      }
+
       this.bEditDialogs = {};
       for (const [value, header] of Object.entries(config.headers)) {
         this.bEditDialogs[value] = {};
         header.value = value;
         if (header.type == "date") {
           header.sort = sortDate;
-          header.display = (a) =>
-            a && a.includes("-") ? a.split("-").reverse().join("/") : a;
+          header.display = a =>
+            a && a.includes("-")
+              ? a
+                  .split("-")
+                  .reverse()
+                  .join("/")
+              : a;
         }
 
         if (header.storeName) {
-          if(!Object.values(config.storeList).includes(header.storeName)) {
+          if (!Object.values(config.storeList).includes(header.storeName)) {
             config.storeList[value] = header.storeName;
           }
           if (header.displayFieldName) {
@@ -218,10 +273,14 @@ export default {
               ];
           }
           header.sort = (a, b) => {
-            const aa = header.display ? header.display(a, {$store: this.$store}) :a;
-            const bb = header.display ? header.display(b, {$store: this.$store}) :b;
+            const aa = header.display
+              ? header.display(a, { $store: this.$store })
+              : a;
+            const bb = header.display
+              ? header.display(b, { $store: this.$store })
+              : b;
             return aa == bb ? 0 : aa < bb ? -1 : 1;
-          }
+          };
         }
 
         if (!header.condition || header.condition({ $store: this.$store })) {
@@ -232,7 +291,7 @@ export default {
       config.headers = headers;
       config.classes = {
         "small-table": config.small,
-        striped: config.striped,
+        striped: config.striped
       };
 
       if (Object.keys(config.storeList).length) {
@@ -248,11 +307,13 @@ export default {
         };
       }
 
-      if (config.headers.some((h) => h.preProcess)) {
-        config.preProcess = ({data}) => {
+      if (config.headers.some(h => h.preProcess)) {
+        config.preProcess = ({ data }) => {
           return data.map(d => {
-            for (const header of this.configTable.headers.filter(h => h.preProcess)) {
-              d[header.value] = header.preProcess(d)
+            for (const header of this.configTable.headers.filter(
+              h => h.preProcess
+            )) {
+              d[header.value] = header.preProcess(d);
             }
             return d;
           });
@@ -263,7 +324,7 @@ export default {
 
       if (this.configTable.preloadData && !this.configTable.loaded) {
         config.preloadData({ $store: this.$store }).then(
-          (res) => {
+          res => {
             for (const [index, key] of Object.keys(
               this.configTable.storeList
             ).entries()) {
@@ -280,17 +341,21 @@ export default {
             this.configTable.loaded = true;
             this.configTable = copy(this.configTable);
           },
-          (error) => {
+          error => {
             console.log("process error", error);
             this.msgError = error;
-            this.bError=true;
+            this.bError = true;
           }
         );
       }
     },
+    editRow({ item }) {
+      console.log(item);
+    }
   },
   computed: {
     filteredItems() {
+      console.log('filtered')
       if (!this.configTable.items) {
         return [];
       }
@@ -304,20 +369,23 @@ export default {
           }
 
           const val = header.display
-            ? header.display(item[header.value])
+            ? header.display(item[header.value], { $store: this.$store })
             : item[header.value];
           cond =
-            cond && String(val).toLowerCase().includes(search.toLowerCase());
+            cond &&
+            String(val)
+              .toLowerCase()
+              .includes(search.toLowerCase());
         }
         if (cond) {
           filteredItems.push(item);
         }
       }
       return filteredItems;
-    },
+    }
   },
   mounted() {
     this.initConfig();
-  },
+  }
 };
 </script>

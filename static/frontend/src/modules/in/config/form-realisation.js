@@ -101,7 +101,6 @@ export default {
   switchDisplay: ({ id }) => !!id,
   displayValue: ({ id }) => !!id,
   displayLabel: true,
-  action: {
-    storeName: 'inRealisation'
-  }
+  storeName: 'inRealisation',
+  idFieldName: 'id_realisation'
 };

@@ -1,4 +1,4 @@
-// import configRealisationForm from "./form-realisation";
+import configRealisationForm from "./form-realisation";
 // import { sessionFunctions } from "@/components/form/functions/session.js";
 
 
@@ -8,7 +8,11 @@ export default {
   striped: true,
   small: true,
   storeName: "inRealisation",
+  configForm: configRealisationForm,
   headers: {
+    id_realisation: {
+      text: 'ID',
+    },
     date_realisation: {
       type: "date",
       text: "Date"
@@ -29,7 +33,8 @@ export default {
     },
     observers: {
       text: "Observateurs",
-      display: d => d && d.join(", ")
+      display: d => d && d.join(', ')
+      // display: d => {return d && d.length && d.join(", ") || ''}
     },
     temperature: {
       text: "Température"

@@ -15,7 +15,7 @@ export default {
     const namesCapitalized = names.charAt(0).toUpperCase() + names.slice(1);
 
     /** trucIdFiledName : pour stocker le nom du champs de l'id */
-    const nameIdFieldName = `${name}idFieldName`;
+    const nameIdFieldName = `${name}IdFieldName`;
 
     /** trucIdLoaded : pour savoir si on à récupéré la liste des truc
      *    (si par exemple on à recupérer un truc isolé et qu'on veut avoir la liste ensuite...) */

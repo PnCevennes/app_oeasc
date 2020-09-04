@@ -62,7 +62,7 @@ def in_valid_obs():
     return obs.as_dict()
 
 
-@bp.route('circuits', methods=['GET'])
+@bp.route('circuits/', methods=['GET'])
 @json_resp
 def in_get_circuits():
     '''
