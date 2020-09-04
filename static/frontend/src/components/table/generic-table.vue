@@ -5,16 +5,15 @@
         <v-card-title>
           <v-icon large>warning</v-icon>
           Êtes vous sûr de vouloir supprimer Cette ligne?
-
         </v-card-title>
 
         <v-card-text>
           <v-checkbox
-          dense tiny
+            dense
+            tiny
             v-model="deleteWithoutWarning"
             label="Ne plus afficher ce message avant la suppression"
           ></v-checkbox>
-          
         </v-card-text>
 
         <v-card-actions>
@@ -31,7 +30,14 @@
             Oui
           </v-btn>
 
-          <v-btn color="green darken-1" text @click="idToDelete = null; deleteModal=false">
+          <v-btn
+            color="green darken-1"
+            text
+            @click="
+              idToDelete = null;
+              deleteModal = false;
+            "
+          >
             Non
           </v-btn>
         </v-card-actions>
@@ -124,7 +130,7 @@
                     v-if="
                       bEditDialogs[value][props.item[configTable.idFieldName]]
                     "
-                    :config="configForm(props.item, value)"
+                    :config="configForm(props, value)"
                   ></genericForm>
                 </v-card>
               </v-dialog>
@@ -189,7 +195,10 @@ export default {
           }))
       );
     },
-    configForm(item, value) {
+    configForm(prop, value) {
+      const item = prop.item;
+      console.log(item)
+      const label=  prop.header.text;
       console.log("configForm");
       const header = this.configTable.headers.find(
         header => header && header.value == value
@@ -198,9 +207,14 @@ export default {
         return {};
       }
       const configForm = copy(header.edit);
-      // configForm.title = `Modifier ${header.text} pour ${
-      //   item[this.configTable.labelFieldName || this.configTable.idFieldName]
-      // }`;
+
+      if (value != "action") {
+        configForm.title = `Modifier ${prop.header.text} pour ${
+          item[this.configTable.labelFieldName || this.configTable.idFieldName]
+        }`;
+        configForm.label = label;
+      }
+
       configForm.value = copy(item);
       configForm.switchDisplay = false;
       configForm.cancel = {
@@ -209,24 +223,27 @@ export default {
           this.closeDialog();
         }
       };
-      // configForm.formDefs[value].label = `${header.text}`;
-
+      console.log(configForm.action)
       if (configForm.action && configForm.action.onSuccess) {
+        console.log('ioiouoiuoiuiou')
         configForm.action.onSuccess2 = configForm.action.onSuccess;
       } else {
         configForm.action = configForm.action || {};
       }
       configForm.action.onSuccess = ({ data }) => {
+        configForm.action.onSuccess2 && configForm.action.onSuccess2({ data });
+
         const elem = this.configTable.items.find(
           item =>
             item[this.configTable.idFieldName] ==
-            item[this.configTable.idFieldName]
+            data[this.configTable.idFieldName]
         );
         for (const key of Object.keys(data)) {
+          console.log(key, elem[key], data[key])
           elem[key] = data[key];
         }
+        console.log(elem.id_droit_max)
 
-        configForm.action.onSuccess2 && configForm.action.onSuccess2({ data });
         this.closeDialog();
       };
       return configForm;
