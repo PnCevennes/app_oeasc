@@ -14,7 +14,8 @@ SELECT
 	c.km,
     UNNEST(c.ug_tags) AS ug_tag,
     espece,
-    valid,
+    r.valid,
+    r.id_realisation,
 	nb/km as nbkm,
 	to_char(r.date_realisation, 'YYYY') AS annee
 	
@@ -39,7 +40,8 @@ SELECT
     espece,
     valid,
 	nbkm,
-	annee
+	annee,
+    id_realisation
 	
 	FROM oeasc_in.v1
 ;

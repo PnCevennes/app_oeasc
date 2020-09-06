@@ -55,7 +55,7 @@ const ROUTE = [
   },
   {
     path: "/user/gerer_utilisateurs",
-    label: "Gestion des utilisateurs",
+    label: "Utilisateurs - gestion",
     name: "user.gerer_utilisateurs",
     icon: 'mdi-account-group',
     parent: 'page.accueil',

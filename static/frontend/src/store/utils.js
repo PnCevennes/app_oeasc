@@ -11,14 +11,7 @@ export default {
     /** Truc : pour les actions par ex getTruc postTruc */
     const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1);
 
-    /** trucIdFiledName : pour stocker le nom du champs de l'id */
-    const nameIdFieldName = `${name}IdFieldName`;
-
-    /** trucIdLoaded : pour savoir si on à récupéré la liste des truc
-     *    (si par exemple on à recupérer un truc isolé et qu'on veut avoir la liste ensuite...) */
-    const nameLoaded = `${nameCapitalized}Loaded`;
-
-    const nameConfig = `${name}Config`;
+    const nameConfig = `${name}ConfigStore`;
 
     const config = {
       get: `get${nameCapitalized}`,
@@ -42,20 +35,20 @@ export default {
     getters[names] = state => state[names];
 
     /** recuperation des config doit marcher avec tous les stores */
-    getters.configStore = state => name => state[`${name}Config`] 
+    getters.configStore = state => name => state[`${name}ConfigStore`] 
 
     /** récupération d'un objet */
     getters[name] = state => (value, fieldName = idFieldName) =>
       state[names] && state[names].find(obj => obj[fieldName] == value);
 
     const mutations = {};
-    mutations[nameLoaded] = (state, recupAll) => {
-      state[nameLoaded] = recupAll;
-    };
 
-    mutations[nameIdFieldName] = (state, idFieldName) => {
-      state[nameIdFieldName] = idFieldName;
-    };
+    mutations[nameConfig] = (state, config) => {
+      const stateConfig = state[nameConfig];
+      for (const key of Object.keys(config)) {
+        stateConfig[key] = config[key];
+      }
+    }
 
     /** assignation du tableau entier */
     mutations[names] = (state, objList) => {
@@ -76,27 +69,24 @@ export default {
 
     /** suppression d'un objet */
     mutations[config.delete] = (state, obj) => {
-      const index = state[names].findIndex(
-        o => o[idFieldName] === obj[idFieldName]
-      );
-      if (index == -1) {
-        state[names].splice(index, 1);
-      }
+      state[names] = state[names].filter( o => o[idFieldName] !== obj[idFieldName]);
     };
 
     const actions = {};
     /** requete GET pour avoir le tableau d'objets */
     actions[config.getAll] = ({ getters, commit }) => {
       return new Promise((resolve, reject) => {
-        const recupAll = getters[nameLoaded];
+        const configStore = getters.configStore(name);
+
+        const loaded = configStore.loaded;
         const objList = getters[names];
-        if (objList && objList.length && recupAll) {
+        if (objList && objList.length && loaded) {
           resolve(objList);
           return;
         }
-        apiRequest("GET", `${api}s`).then(
+        apiRequest("GET", `${api}s/`).then(
           data => {
-            commit(nameLoaded, true);
+            commit(nameConfig, {loaded:true});
             commit(names, data);
             resolve(data);
           },
@@ -113,6 +103,7 @@ export default {
       { id = null, postData = null }
     ) => {
       return new Promise((resolve, reject) => {
+        const configStore = getters.configStore(name);
         /** verification des arguments */
         let error;
         if (["PATCH", "GET", "DELETE"].includes(requestType) && !id) {
@@ -139,7 +130,7 @@ export default {
         apiRequest(requestType, apiUrl, { postData }).then(
           data => {
             if(requestType === 'DELETE') {
-              commit(config.delete, data)
+              commit(configStore.delete, data)
             } else {
               commit(name, data);
             }
@@ -168,5 +159,36 @@ export default {
     for (const key of ["state", "getters", "mutations", "actions"]) {
       STORE[key] = { ...(STORE[key] || {}), ...store[key] };
     }
+  },
+
+  addStoreRestitution: (STORE, name, getData, configRestitution) => {
+
+    const nameConfig = `${name}ConfigRestitution`;
+
+    const config = {
+      getData,
+      ...configRestitution
+    };
+
+
+    const state = {};
+    state[nameConfig] = config;
+    const getters = {};
+
+    getters.configRestitution = state => name => state[`${name}ConfigRestitution`]; 
+    const mutations = {};
+    const actions = {};    
+
+    const store = {
+      state,
+      getters,
+      mutations,
+      actions,
+    };
+
+    for (const key of ["state", "getters", "mutations", "actions"]) {
+      STORE[key] = { ...(STORE[key] || {}), ...store[key] };
+    }
+
   }
 };

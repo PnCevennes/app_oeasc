@@ -1,4 +1,4 @@
-import restitution from './restitution.vue';
+import RestitutionTest from './restitution-test.vue';
 
 const ROUTE = [
 
@@ -9,7 +9,7 @@ const ROUTE = [
     parent: 'restitution',
     access: 1,
     hideTitle: true,
-    component: restitution
+    component: RestitutionTest,
   },
   {
     path: '/restitution',

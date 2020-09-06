@@ -116,6 +116,9 @@ with app.app_context():
     from app.modules.oeasc.commons import api as commons_api
     app.register_blueprint(commons_api.bp, url_prefix='/api/commons')
 
+    from app.modules.oeasc.generic import api as generic_api
+    app.register_blueprint(generic_api.bp, url_prefix='/api/generic')
+
     from app.modules.oeasc.i_n import api as in_api
     app.register_blueprint(in_api.bp, url_prefix='/api/in')
 

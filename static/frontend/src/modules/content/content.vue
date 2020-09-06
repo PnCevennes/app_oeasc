@@ -51,6 +51,7 @@ import contentImg from './content-img'
 import listePartenaire from './liste-partenaire'
 import inGraph from '@/modules/in/in-graph.vue'
 import inTable from '@/modules/in/in-table.vue'
+import restitution from '@/modules/restitution/restitution.vue'
 
 import "./content.css";
 // import Vue from "vue";
@@ -80,6 +81,7 @@ export default {
     listePartenaire, // eslint-disable-line
     inGraph, // eslint-disable-line
     inTable, // eslint-disable-line
+    restitution, // eslint-disable-line
   },
   data: () => ({
     // component: null,
