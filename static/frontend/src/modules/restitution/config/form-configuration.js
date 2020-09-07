@@ -10,6 +10,9 @@ export default {
       forms: ["display"]
     },
     {
+      forms: ["height"]
+    },
+    {
       forms: ["choix1", "nbMax1"],
       direction: "row"
     },
@@ -26,6 +29,10 @@ export default {
 
   ],
   formDefs: {
+    heigth: {
+      type:"text",
+      value: '400px',
+    },
     display: {
       type: "list_form",
       display: "button",
