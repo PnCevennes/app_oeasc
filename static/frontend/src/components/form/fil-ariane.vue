@@ -53,7 +53,6 @@ export default {
   watch: {
     baseModel: {
       handler() {
-      console.log('watch freeze', this.baseModel.freeze)
     }},
     deep: true,
   },
@@ -64,10 +63,7 @@ export default {
   },
   methods: {
     onSessionGroupClick(keySessionGroup) {
-      console.log(keySessionGroup)
-
       const keySession = sessionFunctions.firstSession(this.config, keySessionGroup);
-      console.log(keySession)
       this.onSessionClick(keySession);
     },
 

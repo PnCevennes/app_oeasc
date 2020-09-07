@@ -83,17 +83,20 @@ export default {
 
           // sinon on passe au formulaire suivant
         } else {
+          sessionDef.bChained = true;
           sessionDef.action = {
             label: "Suivant",
             process: ({ $router, config }) => {
-              return new Promise(() => {
+              return new Promise((resolve) => {
                 const nextSession = sessionFunctions.nextSession(
                   config,
                   config.keySession
                 );
                 if (nextSession) {
+
                   $router.push({ query: { keySession: nextSession } });
                 }
+                resolve();
               });
             },
           };

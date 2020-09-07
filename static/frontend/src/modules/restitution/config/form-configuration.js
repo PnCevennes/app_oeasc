@@ -1,7 +1,7 @@
 const configChoix = {
   type: "list_form",
   display: "autocomplete",
-  returnObject: true
+  // returnObject: true
 };
 
 export default {
@@ -10,16 +10,20 @@ export default {
       forms: ["display"]
     },
     {
-      forms: ["choix1", "nMax1"],
+      forms: ["choix1", "nbMax1"],
       direction: "row"
     },
     {
-      forms: ["choix2", "nMax2"],
+      forms: ["choix2", "nbMax2"],
       direction: "row"
     },
     {
       forms: ["typeGraph", "stacking"]
+    },
+    {
+      forms: ["filterList"]
     }
+
   ],
   formDefs: {
     display: {
@@ -46,7 +50,7 @@ export default {
       ...configChoix,
       label: "Choix 1 (Couleur)"
     },
-    nMax1: {
+    nbMax1: {
       type: "number",
       label: "Nb max 1"
     },
@@ -54,7 +58,7 @@ export default {
       ...configChoix,
       label: "Choix 2 (Icône)"
     },
-    nMax2: {
+    nbMax2: {
       type: "number",
       label: "Nb max 2"
     },
@@ -62,6 +66,13 @@ export default {
       type: "bool_switch",
       label: "Stacking",
       condition: ({ baseModel }) => baseModel.display == "graph"
-    }
+    },
+    filterList: {
+      type: "list_form",
+      display: "autocomplete",
+      name: "filters",
+      label: "Filtres",
+      multiple: true
+    },
   }
 };

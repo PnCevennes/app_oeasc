@@ -1,17 +1,53 @@
 <template>
   <div>
+    <v-dialog persistent max-width="600px" v-model="deleteModal">
+      <v-card>
+        <v-card-title>
+          <v-icon large>warning</v-icon>
+          Êtes vous sûr de vouloir supprimer Cette ligne?
+        </v-card-title>
+
+        <v-card-text>
+          <v-checkbox
+            dense
+            tiny
+            v-model="deleteWithoutWarning"
+            label="Ne plus afficher ce message avant la suppression"
+          ></v-checkbox>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            color="green darken-1"
+            text
+            @click="
+              deleteRow(idToDelete);
+              idToDelete = null;
+              deleteModal = false;
+            "
+          >
+            Oui
+          </v-btn>
+
+          <v-btn
+            color="green darken-1"
+            text
+            @click="
+              idToDelete = null;
+              deleteModal = false;
+            "
+          >
+            Non
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
     <v-card>
       <v-card-title>
         {{ configTable.title }}
         <v-spacer></v-spacer>
-        <!-- <v-text-field
-          v-model="search"
-          append-icon="mdi-magnify"
-          placeholder="Rechercher..."
-          single-line
-          hide-details
-        ></v-text-field>-->
-        <!-- {{ search }} -->
       </v-card-title>
       {{ configTable.editValues }}
       <v-data-table
@@ -45,7 +81,9 @@
         >
           <div :key="index">
             <div v-if="value == 'actions'">
-              <template v-for="(action, indexAction) of props.header.list || []">
+              <template
+                v-for="(action, indexAction) of props.header.list || []"
+              >
                 <v-btn
                   small
                   v-if="
@@ -54,57 +92,59 @@
                   "
                   :key="indexAction"
                   icon
-                  :to="action.to({ item: props.item, $store }) || action.to"
+                  :to="
+                    typeof action.to == 'function'
+                      ? action.to({ item: props.item, $store })
+                      : action.to
+                  "
                   :title="action.title"
+                  @click="
+                    action.click &&
+                      action.click(props.item[configTable.idFieldName])
+                  "
                 >
                   <v-icon small>{{ action.icon }}</v-icon>
                 </v-btn>
               </template>
             </div>
 
-            <div
-              v-if="
-                props.header.edit &&
-                  (!props.header.edit.condition ||
-                    props.header.edit.condition({
-                      $store,
-                      baseModel: props.item
-                    }))
-              "
-            >
-              <v-btn small @click="openEditDialog(value, props.item[configTable.id])">
-                {{
-                (typeof props.header.display == 'function' &&
-                props.header.display(props.item[value], {$store})) ||
-                props.item[value]
-                }}
-                <!-- <v-icon small>edit</v-icon> -->
+            <div v-if="bEditCell(props)">
+              <v-btn
+                v-if="value != 'actions'"
+                small
+                @click="edit(value, props.item[configTable.idFieldName])"
+              >
+                {{ displayCell(props, value) }}
               </v-btn>
               <v-dialog
+                v-if="bEditDialogs[value]"
                 persistent
-                max-width="800px"
-                v-model="bEditDialogs[value][props.item[configTable.id]]"
+                max-width="1400px"
+                v-model="
+                  bEditDialogs[value][props.item[configTable.idFieldName]]
+                "
               >
                 <v-card>
                   <genericForm
                     class="edit-dialog"
-                    v-if="bEditDialogs[value][props.item[configTable.id]]"
-                    :config="configForm(props.item, value)"
+                    v-if="
+                      bEditDialogs[value][props.item[configTable.idFieldName]]
+                    "
+                    :config="configForm(props, value)"
                   ></genericForm>
                 </v-card>
               </v-dialog>
             </div>
             <div v-else>
-              {{
-              (typeof props.header.display == 'function' &&
-              props.header.display(props.item[value], {$store})) ||
-              props.item[value]
-              }}
+              {{ displayCell(props, value) }}
             </div>
           </div>
         </template>
       </v-data-table>
     </v-card>
+    <v-snackbar color="error" v-model="bError" :timeout="5000">
+      {{ msgError }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -122,122 +162,252 @@ export default {
     searchs: {},
     bEditDialogs: null,
     saveValue: null,
+    msgError: null,
+    bError: false,
+    idToDelete: null,
+    deleteModal: null,
+    deleteWithoutWarning: false
   }),
   watch: {
     config: {
       handler() {
         this.initConfig();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
   methods: {
-    configForm(item, value) {
+    displayCell(props, value) {
+      const res =
+        props.item &&
+        (typeof props.header.display == "function"
+          ? props.header.display(props.item[value], { $store: this.$store })
+          : props.item[value]);
+      return res;
+    },
+    bEditCell(props) {
+      return (
+        props.header.edit &&
+        (!props.header.edit.condition ||
+          props.header.edit.condition({
+            $store: this.$store,
+            baseModel: props.item
+          }))
+      );
+    },
+    configForm(prop, value) {
+      const item = prop.item;
+      const label=  prop.header.text;
       const header = this.configTable.headers.find(
-        (header) => header.value == value
+        header => header && header.value == value
       );
       if (!header.edit) {
         return {};
       }
       const configForm = copy(header.edit);
-      configForm.title = `Modifier ${header.text} pour ${
-        item[this.configTable.labelFieldName || this.configTable.idFieldName]
-      }`;
-      configForm.value = item;
+
+      if (value != "action") {
+        configForm.title = `Modifier ${prop.header.text} pour ${
+          item[this.configTable.labelFieldName || this.configTable.idFieldName]
+        }`;
+        configForm.label = label;
+      }
+      configForm.idFieldName = configForm.idFieldName || this.configTable.idFieldName;
+      configForm.value = copy(item);
+      configForm.switchDisplay = false;
+      configForm.displayValue = false;
       configForm.cancel = {
         action: () => {
-          this.cancel(value, item[this.configTable.id]);
+          this.cancel(value, item[this.configTable.idFieldName]);
           this.closeDialog();
-        },
+        }
       };
-      configForm.formDefs[value].label = `${header.text}`;
-
-      if (configForm.action.onSuccess) {
+      if (configForm.action && configForm.action.onSuccess) {
         configForm.action.onSuccess2 = configForm.action.onSuccess;
+      } else {
+        configForm.action = configForm.action || {};
       }
-      configForm.action.onSuccess = (data) => {
-        configForm.action.onSuccess2 && configForm.action.onSuccess2(data);
+      configForm.action.onSuccess = ({ data }) => {
+        configForm.action.onSuccess2 && configForm.action.onSuccess2({ data });
+
+        const elem = this.configTable.items.find(
+          item =>
+            item[this.configTable.idFieldName] ==
+            data[this.configTable.idFieldName]
+        );
+        for (const key of Object.keys(data)) {
+          elem[key] = data[key];
+        }
+
         this.closeDialog();
       };
       return configForm;
     },
     cancel(value, id) {
-      this.configTable.items.find((item) => item[this.configTable.id] == id)[
-        value
-      ] = this.saveVal;
+      const elem = this.configTable.items.find(
+        item => item[this.configTable.idFieldName] == id
+      );
+      for (const key of Object.keys(this.saveVal)) {
+        elem[key] = this.saveVal[key];
+      }
+    },
+    edit(value, id) {
+      this.closeDialog();
+      this.bEditDialogs[value] = {};
+      this.bEditDialogs[value][id] = true;
+      this.saveVal = copy(
+        this.configTable.items.find(
+          item => item[this.configTable.idFieldName] == id
+        )
+      );
+    },
+    deleteRow(id) {
+      const index = this.configTable.items.findIndex(
+        d => d[this.configTable.idFieldName] == id
+      );
+      if (index !== -1) {
+        if (this.configTable.delete) {
+          this.configTable.delete(id, { $store: this.$store }).then(
+            () => {
+              this.configTable.items.splice(index, 1);
+            },
+            err => {
+              this.bError = true;
+              this.msgError = err;
+            }
+          );
+        } else {
+          this.configTabel.items.splice(index, 1);
+        }
+      }
     },
     closeDialog() {
       this.bEditDialogs = {};
-      for (const key of Object.keys(this.config.headers)) {
+      for (const key of Object.keys(this.configTable.headerDefs)) {
         this.bEditDialogs[key] = {};
       }
-    },
-    openEditDialog(value, id) {
-      this.closeDialog();
-      this.bEditDialogs[value][id] = true;
-      this.saveVal = this.configTable.items.find(
-        (item) => item[this.configTable.id] == id
-      )[value];
     },
     initConfig() {
       const config = copy(this.config);
       config.loaded = false;
-      config.storeList = {};
+      config.stores = {};
 
       if (config.storeName) {
-        config.storeList.items = config.storeName;
+        const configStore = this.$store.getters.configStore(config.storeName);
+        config.idFieldName = configStore.idFieldName;
+        config.delete = (id, { $store }) => {
+          return $store.dispatch(configStore.delete, { id });
+        };
+        config.stores.items = config.storeName;
+        if (!config.headerDefs.actions) {
+          config.headerDefs.actions = {
+            noSearch: true,
+            width: "90px",
+            text: "Actions",
+            sortable: false,
+            edit: config.configForm,
+            list: [
+              {
+                title: "Editer la ligne",
+                icon: "mdi-pencil",
+                click: id => this.edit("actions", id)
+              },
+              {
+                title: "Supprimer la ligne",
+                icon: "mdi-trash-can",
+                click: id => {
+                  if (!this.deleteWithoutWarning) {
+                    this.idToDelete = id;
+                    this.deleteModal = true;
+                  } else {
+                    this.deleteRow(id);
+                  }
+                }
+              }
+            ]
+          };
+        }
       }
 
-      const headers = [];
       this.bEditDialogs = {};
-      for (const [value, header] of Object.entries(config.headers)) {
+      /** contruction de la variable header */
+      const headers = [];
+
+      for (const [value, header] of Object.entries(config.headerDefs)) {
         this.bEditDialogs[value] = {};
         header.value = value;
         if (header.type == "date") {
           header.sort = sortDate;
-          header.display = (a) =>
-            a && a.includes("-") ? a.split("-").reverse().join("/") : a;
+          header.display = a =>
+            a && a.includes("-")
+              ? a
+                  .split("-")
+                  .reverse()
+                  .join("/")
+              : a;
         }
 
         if (header.storeName) {
-          config.storeList[value] = header.storeName;
+          /** test pour ne pas avoir deux fois le même store name */
+          if (!Object.values(config.stores).includes(header.storeName)) {
+            config.stores[value] = header.storeName;
+          }
           if (header.displayFieldName) {
             header.display = (id, { $store }) =>
               ($store.getters[header.storeName](id) || {})[
                 header.displayFieldName
               ];
           }
+          header.sort = (a, b) => {
+            const aa = header.display
+              ? header.display(a, { $store: this.$store })
+              : a;
+            const bb = header.display
+              ? header.display(b, { $store: this.$store })
+              : b;
+            return aa == bb ? 0 : aa < bb ? -1 : 1;
+          };
         }
-
         if (!header.condition || header.condition({ $store: this.$store })) {
           headers.push(header);
         }
       }
 
+      /** on place actions en début de liste */
+      const headerActionsIndex = headers.findIndex(h => h.value === "actions");
+      if (headerActionsIndex != -1) {
+        const headerActions = headers[headerActionsIndex];
+        headers.splice(headerActionsIndex, 1);
+        headers.unshift(headerActions);
+      }
+
       config.headers = headers;
+
       config.classes = {
         "small-table": config.small,
-        striped: config.striped,
+        striped: config.striped
       };
 
-      if (Object.keys(config.storeList).length) {
+      /** preloadData with promises from storeNames */
+      if (Object.keys(config.stores).length) {
         config.preloadData = ({ $store }) => {
-          const actions = [];
-          for (const storeName of Object.values(config.storeList)) {
-            const storeNames = `${storeName}s`;
-            const namesCapitalized =
-              `${storeNames}`.charAt(0).toUpperCase() + storeNames.slice(1);
-            actions.push($store.dispatch(`get${namesCapitalized}`));
+          const promises = [];
+          for (const storeName of Object.values(config.stores)) {
+            const configStore = this.$store.getters.configStore(storeName);
+            promises.push($store.dispatch(configStore.getAll));
           }
-          return Promise.all(actions);
+          return Promise.all(promises);
         };
       }
 
-      if (config.headers.some((h) => h.preProcess)) {
-        config.preProcess = ({data}) => {
+      /** preProcess from headerDefs */
+      if (config.headers.some(h => h.preProcess)) {
+        config.preProcess = ({ data }) => {
           return data.map(d => {
-            for (const header of this.configTable.headers.filter(h => h.preProcess)) {
-              d[header.value] = header.preProcess(d)
+            for (const header of this.configTable.headers.filter(
+              h => h.preProcess
+            )) {
+              d[header.value] = header.preProcess(d);
             }
             return d;
           });
@@ -246,11 +416,12 @@ export default {
 
       this.configTable = config;
 
+      /** call preloadData */
       if (this.configTable.preloadData && !this.configTable.loaded) {
         config.preloadData({ $store: this.$store }).then(
-          (res) => {
+          res => {
             for (const [index, key] of Object.keys(
-              this.configTable.storeList
+              this.configTable.stores
             ).entries()) {
               if (key == "items") {
                 const items = res[index];
@@ -265,12 +436,13 @@ export default {
             this.configTable.loaded = true;
             this.configTable = copy(this.configTable);
           },
-          (error) => {
-            console.log("process error", error);
+          error => {
+            this.msgError = error;
+            this.bError = true;
           }
         );
       }
-    },
+    }
   },
   computed: {
     filteredItems() {
@@ -287,20 +459,23 @@ export default {
           }
 
           const val = header.display
-            ? header.display(item[header.value])
+            ? header.display(item[header.value], { $store: this.$store })
             : item[header.value];
           cond =
-            cond && String(val).toLowerCase().includes(search.toLowerCase());
+            cond &&
+            String(val)
+              .toLowerCase()
+              .includes(search.toLowerCase());
         }
         if (cond) {
           filteredItems.push(item);
         }
       }
       return filteredItems;
-    },
+    }
   },
   mounted() {
     this.initConfig();
-  },
+  }
 };
 </script>

@@ -74,7 +74,6 @@ const changeAreaForet = ({ config, baseModel, $store }) => {
 
 const changeProprietaireDeclarant = ({ baseModel, $store }) => {
   if (baseModel.nom_proprietaire) {
-    console.log("deja", baseModel.nom_proprietaire);
     return;
   }
   // patch utiliser event???

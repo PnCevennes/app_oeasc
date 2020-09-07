@@ -2,6 +2,8 @@ import declarationForm from "./declaration-form";
 import declarationList from "./declaration-list";
 import declaration from "./declaration.vue";
 import { apiRequest } from "@/core/js/data/api.js";
+import storeUtils from '@/store/utils';
+import confgiResitutionDeclaration from './config/restitution-declaration';
 
 const ROUTE = [
   {
@@ -202,6 +204,9 @@ const STORE = {
       });
     }
   }
+
 };
+
+storeUtils.addStoreRestitution(STORE, 'declaration', 'declarations', confgiResitutionDeclaration); 
 
 export { ROUTE, STORE };

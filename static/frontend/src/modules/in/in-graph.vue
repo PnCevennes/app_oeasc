@@ -6,7 +6,7 @@
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
-    <!-- <div v-if="commentaires">{{commentaires}}</div> -->
+    <div v-if="commentaires" v-html="commentaires"></div>
   </div>
 </template>
 
@@ -198,10 +198,10 @@ export default {
             title: {
               text: `Indices nocturnes (${espece}, ${ug})`,
             },
-            caption: {
-              text: this.commentaires,
-              useHTML: true,
-            },
+            // caption: {
+            //   text: this.commentaires,
+            //   useHTML: true,
+            // },
             xAxis: {
               title: {
                 text: "Année",

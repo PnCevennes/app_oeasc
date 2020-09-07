@@ -1,7 +1,7 @@
 <template>
   <div class="help">
     <v-row justify="center">
-      <v-dialog v-model="dialog" max-width="1000">
+      <v-dialog v-model="dialog" max-width="1000" class="help-dialog">
         <v-card>
           <v-card-text>
             <oeasc-content
@@ -42,9 +42,11 @@ export default {
 </script>
 
 <style>
+.help-dialog {
+  z-index: 10000;
+}
 .help {
   display: inline-block;
-  z-index: 10000;
 }
 .help:not(:last-child) .btn {
   margin: 0 20px 0 0px;

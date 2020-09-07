@@ -20,7 +20,6 @@ const defaultValue = {
 };
 
 const restitution = {
-  
   condFilter(options, v) {
     const name = options.name;
     return (
@@ -36,7 +35,7 @@ const restitution = {
 
     const indexElemAutres = dataList.findIndex(e => e.text == "Autres");
     const value = this.getValue(d, options);
-    
+
     let index;
     let arrayOut = [];
     for (const v of value) {
@@ -211,7 +210,166 @@ const restitution = {
     return out;
   },
 
-  
+  results(data, options) {
+    const dataFiltered = restitution.filterData(data, options);
+    const itemChoix1 = restitution.getItem(options.choix1, options);
+    const itemChoix2 = restitution.getItem(options.choix2, options);
+    const resultChoix1 = {
+      dataList:
+        itemChoix1 && itemChoix2
+          ? restitution.dataList2(
+              dataFiltered,
+              {
+                ...itemChoix1,
+                nMax: options.nbMax1
+              },
+              {
+                ...itemChoix2,
+                nMax: options.nbMax2
+              }
+            )
+          : options.choix1 &&
+            restitution.dataList(dataFiltered, {
+              ...itemChoix1,
+              nMax: options.nbMax1
+            }),
+      text: itemChoix1.text,
+      name: itemChoix1.name
+    };
+
+    const resultChoix2 = itemChoix2 && {
+      dataList: restitution.dataList(dataFiltered, {
+        ...itemChoix2,
+        nMax: options.nbMax2
+      }),
+      text: itemChoix2.text,
+      name: itemChoix2.name
+    };
+    const markers = restitution.markers(
+      dataFiltered,
+      options,
+      resultChoix1,
+      resultChoix2
+    );
+    const markerLegendGroups = restitution.markerLegendGroups(
+      options,
+      resultChoix1,
+      resultChoix2
+    );
+    return {
+      choix: {
+        choix1: resultChoix1,
+        choix2: resultChoix2
+      },
+      markers,
+      markerLegendGroups,
+      ...options
+    };
+  },
+
+  getItem(name, options) {
+    return (
+      name in options.items && {
+        ...options.items[name],
+        name
+      }
+    );
+  },
+
+  filterData(data, options) {
+    if (!Object.keys(options.filters || {}).length) {
+      return data;
+    }
+    return data.filter(d => {
+      let cond = true;
+      for (const [filterName, filterValue] of Object.entries(options.filters)) {
+        const item = restitution.getItem(filterName, options);
+        const value = restitution.getValue(d[filterName], item);
+        const test = filterValue;
+        if (!filterValue) continue;
+        const condFilter =
+          !(test && test.length) || test.some(v => value.includes(v));
+        cond = cond && condFilter;
+      }
+      return cond;
+    });
+  },
+
+  markers(dataFiltered, options, resultChoix1, resultChoix2) {
+    return dataFiltered.map(data => {
+      const icon =
+        resultChoix2 &&
+        restitution.valueOfType(
+          "icon",
+          data[resultChoix2.name],
+          resultChoix2.dataList,
+          {
+            ...resultChoix2,
+            filters: options.filters
+          }
+        );
+      const color =
+        resultChoix1 &&
+        restitution.valueOfType(
+          "color",
+          data[resultChoix1.name],
+          resultChoix1.dataList,
+          {
+            ...resultChoix1,
+            filters: options.filters
+          }
+        );
+      return {
+        coords: data[options.coordsFieldName],
+        type: "label",
+        style: {
+          icon,
+          color
+        }
+      };
+    });
+  },
+
+  markerLegendGroups(options, resultChoix1, resultChoix2) {
+    const icon_default = "circle";
+    const color_default = "rgb(150,150,150)";
+    const markerLegendGroups = [];
+    const cond_same =
+      resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name;
+
+    for (const res of [resultChoix1, resultChoix2].filter(r => !!r)) {
+      let index = 0;
+      const markerLegends = {
+        title: res.text,
+        legends: res.dataList
+          .filter(
+            data =>
+              !(
+                options.filters &&
+                options.filters[res.name] &&
+                options.filters[res.name].length &&
+                !options.filters[res.name].includes(data.text)
+              )
+          )
+          .map(data => ({
+            text: data.text,
+            count: data.count,
+            icon:
+              ((cond_same || index==1) && data.icon) ||
+              icon_default,
+            color:
+              ((cond_same || index==0) && data.color) ||
+              color_default
+          }))
+      };
+      index += 1;
+
+      markerLegendGroups.push(markerLegends);
+
+      if (cond_same) break;
+    }
+    return markerLegendGroups;
+  }
 };
 
 export { restitution };

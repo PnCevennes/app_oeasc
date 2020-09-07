@@ -175,7 +175,7 @@
                         type="checkbox"
                         v-model="circuit.valid"
                         :disabled="freezeValid"
-                        @change="validChange(circuit.id_observation, circuit.valid)"
+                        @change="validChange(circuit.id_realisation, circuit.valid)"
                       />
                       <template v-else>
                         {{
@@ -262,10 +262,11 @@ export default {
       const e = 10 ** dec;
       return Math.round(x * e) / e;
     },
-    validChange(id_observation, valid) {
+    validChange(id_realisation, valid) {
+      console.log(id_realisation)
       this.freezeValid = true;
-      apiRequest("PATCH", "api/in/valid_obs/", {
-        postData: { id_observation, valid },
+      apiRequest("PATCH", "api/in/valid_realisation/", {
+        postData: { id_realisation, valid },
       }).then(() => {
         // this.dataIn = data;
         this.initInTable();

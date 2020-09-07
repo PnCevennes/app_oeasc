@@ -11,43 +11,44 @@ export default {
     /** Truc : pour les actions par ex getTruc postTruc */
     const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1);
 
-    /** Trucs : pour l'action qui recupère les listes getTrucs */
-    const namesCapitalized = names.charAt(0).toUpperCase() + names.slice(1);
+    const nameConfig = `${name}ConfigStore`;
 
-    /** trucIdFiledName : pour stocker le nom du champs de l'id */
-    const nameIdFieldName = `${name}idFieldName`;
-
-    /** trucIdLoaded : pour savoir si on à récupéré la liste des truc
-     *    (si par exemple on à recupérer un truc isolé et qu'on veut avoir la liste ensuite...) */
-    const nameLoaded = `${nameCapitalized}Loaded`;
+    const config = {
+      get: `get${nameCapitalized}`,
+      post: `post${nameCapitalized}`,
+      patch: `patch${nameCapitalized}`,
+      delete: `delete${nameCapitalized}`,
+      getAll: `getAll${nameCapitalized}`,
+      idFieldName,
+      loaded: false,
+    }
 
     const state = {};
     /** ou l'on stoque le tableau de d'objets */
 
     state[names] = [];
-    state[nameIdFieldName] = idFieldName;
-    state[nameLoaded] = false;
+    state[nameConfig] = config;
 
     const getters = {};
-    /** divers */
-    getters[nameIdFieldName] = state => state[nameIdFieldName];
-    getters[nameLoaded] = state => state[nameLoaded];
-
     /** recupération du tableau entier */
+
     getters[names] = state => state[names];
+
+    /** recuperation des config doit marcher avec tous les stores */
+    getters.configStore = state => name => state[`${name}ConfigStore`] 
 
     /** récupération d'un objet */
     getters[name] = state => (value, fieldName = idFieldName) =>
       state[names] && state[names].find(obj => obj[fieldName] == value);
 
     const mutations = {};
-    mutations[nameLoaded] = (state, recupAll) => {
-      state[nameLoaded] = recupAll;
-    };
 
-    mutations[nameIdFieldName] = (state, idFieldName) => {
-      state[nameIdFieldName] = idFieldName;
-    };
+    mutations[nameConfig] = (state, config) => {
+      const stateConfig = state[nameConfig];
+      for (const key of Object.keys(config)) {
+        stateConfig[key] = config[key];
+      }
+    }
 
     /** assignation du tableau entier */
     mutations[names] = (state, objList) => {
@@ -66,19 +67,26 @@ export default {
       }
     };
 
+    /** suppression d'un objet */
+    mutations[config.delete] = (state, obj) => {
+      state[names] = state[names].filter( o => o[idFieldName] !== obj[idFieldName]);
+    };
+
     const actions = {};
     /** requete GET pour avoir le tableau d'objets */
-    actions[`get${namesCapitalized}`] = ({ getters, commit }) => {
+    actions[config.getAll] = ({ getters, commit }) => {
       return new Promise((resolve, reject) => {
-        const recupAll = getters[nameLoaded];
+        const configStore = getters.configStore(name);
+
+        const loaded = configStore.loaded;
         const objList = getters[names];
-        if (objList && objList.length && recupAll) {
+        if (objList && objList.length && loaded) {
           resolve(objList);
           return;
         }
-        apiRequest("GET", `${api}s`).then(
+        apiRequest("GET", `${api}s/`).then(
           data => {
-            commit(nameLoaded, true);
+            commit(nameConfig, {loaded:true});
             commit(names, data);
             resolve(data);
           },
@@ -95,6 +103,7 @@ export default {
       { id = null, postData = null }
     ) => {
       return new Promise((resolve, reject) => {
+        const configStore = getters.configStore(name);
         /** verification des arguments */
         let error;
         if (["PATCH", "GET", "DELETE"].includes(requestType) && !id) {
@@ -120,7 +129,11 @@ export default {
         const apiUrl = requestType === "POST" ? `${api}` : `${api}/${id}`;
         apiRequest(requestType, apiUrl, { postData }).then(
           data => {
-            commit(name, data);
+            if(requestType === 'DELETE') {
+              commit(configStore.delete, data)
+            } else {
+              commit(name, data);
+            }
             resolve(data);
           },
           error => {
@@ -146,5 +159,36 @@ export default {
     for (const key of ["state", "getters", "mutations", "actions"]) {
       STORE[key] = { ...(STORE[key] || {}), ...store[key] };
     }
+  },
+
+  addStoreRestitution: (STORE, name, getData, configRestitution) => {
+
+    const nameConfig = `${name}ConfigRestitution`;
+
+    const config = {
+      getData,
+      ...configRestitution
+    };
+
+
+    const state = {};
+    state[nameConfig] = config;
+    const getters = {};
+
+    getters.configRestitution = state => name => state[`${name}ConfigRestitution`]; 
+    const mutations = {};
+    const actions = {};    
+
+    const store = {
+      state,
+      getters,
+      mutations,
+      actions,
+    };
+
+    for (const key of ["state", "getters", "mutations", "actions"]) {
+      STORE[key] = { ...(STORE[key] || {}), ...store[key] };
+    }
+
   }
 };

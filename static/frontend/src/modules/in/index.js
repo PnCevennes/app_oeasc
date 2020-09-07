@@ -86,7 +86,7 @@ const STORE = {
   mutations: {}
 };
 
-storeUtils.addStore(STORE, 'inRealisation', 'api/in/realisation', 'id_realisation');
-storeUtils.addStore(STORE, 'inCircuit', 'api/in/circuit', 'id_circuit');
+storeUtils.addStore(STORE, 'inRealisation', 'api/generic/in/realisation', 'id_realisation');
+storeUtils.addStore(STORE, 'inCircuit', 'api/generic/in/circuit', 'id_circuit');
 
 export { ROUTE, STORE };

@@ -74,8 +74,6 @@ export default {
         this.declaration = declarations.find(
           d => this.id == d.id_declaration
         );
-        console.log(this.declaration);
-        // setTimeout(()=>  {this.exportPdf();}, 5000)
       });
     },
     configMap(type) {

@@ -5,7 +5,7 @@ const ROUTE = [
     path: "/test",
     content: "test",
     name: "test",
-    label: "Test",
+    label: "restitution - Test",
     parent: "page.accueil",
     type: "page"
   },

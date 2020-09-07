@@ -35,8 +35,8 @@ SELECT
 ;
 
 -- realisations
-INSERT INTO oeasc_in.t_realisations (id_circuit, serie, date_realisation)
-SELECT id_circuit, serie, to_date(date_realisation, '%yy-%mm-%dd')
+INSERT INTO oeasc_in.t_realisations (id_circuit, serie, date_realisation, valid)
+SELECT id_circuit, serie, to_date(date_realisation, '%yy-%mm-%dd'), COUNT(valid) = 0
 FROM oeasc_in.import_data d
 JOIN oeasc_in.t_circuits c ON d.nom_circuit = c.nom_circuit
 WHERE nb >= 0
@@ -44,12 +44,9 @@ GROUP BY id_circuit, serie, date_realisation;
 
 
 -- observations (cerf)
-INSERT INTO oeasc_in.t_observations (id_realisation, espece, nb, valid)
+INSERT INTO oeasc_in.t_observations (id_realisation, espece, nb)
 SELECT 
-	r.id_realisation, espece, nb,
-    CASE WHEN valid = 'x' THEN FALSE
-    ELSE TRUE
-    END AS valid
+	r.id_realisation, espece, nb
 	---, *
 	FROM oeasc_in.import_data d
 	JOIN oeasc_in.t_realisations r ON r.date_realisation = to_date(d.date_realisation, '%yy-%mm-%dd')

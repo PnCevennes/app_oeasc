@@ -19,8 +19,8 @@ cp $EXEC_DIR/oeasc_in.csv /tmp/.
 
 for file in $(echo \
     "../oeasc_schemas/oeasc_in.sql" \
-    "../oeasc_schemas/oeasc_in_views.sql" \
     "../oeasc_schemas/oeasc_in_import_data.sql" \
+    "../oeasc_views/oeasc_in_views.sql" \
     )
 do
 

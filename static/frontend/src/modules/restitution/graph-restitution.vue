@@ -28,7 +28,6 @@ export default {
   },
   methods: {
     initGraph() {
-      console.log('Init graph');
       if (!this.results) {
         return;
       }
@@ -57,7 +56,7 @@ export default {
           ];
       // const data = this.results.choix.choix1.dataList.map(data => data.count);
       const yTitle = this.results.choix.choix1.text;
-
+      console.log(this.results.typeGraph)
       const chartOptions = {
         chart: {
           // type: "pie",

@@ -23,14 +23,10 @@
     <template v-else-if="configForm.type === 'bool_radio'">
       <span v-if="configForm.displayValue">
         <template v-if="baseModel[configForm.name] === true">
-          {{
-          configForm.labels[0]
-          }}
+          {{ configForm.labels[0] }}
         </template>
         <template v-else-if="baseModel[configForm.name] === false">
-          {{
-          configForm.labels[1]
-          }}
+          {{ configForm.labels[1] }}
         </template>
         <template v-else>Indéfini</template>
       </span>
@@ -56,7 +52,9 @@
     <template v-else-if="configForm.type === 'bool_switch'">
       <span v-if="configForm.displayValue">
         <template v-if="baseModel[configForm.name] === true">Oui</template>
-        <template v-else-if="baseModel[configForm.name] === false">non</template>
+        <template v-else-if="baseModel[configForm.name] === false"
+          >non</template
+        >
         <template v-else>Indéfini</template>
       </span>
       <v-switch
@@ -72,10 +70,14 @@
     <!-- text -->
     <template
       v-else-if="
-        ['text', 'number', 'password', 'date', 'email'].includes(configForm.type)
+        ['text', 'number', 'password', 'date', 'email'].includes(
+          configForm.type
+        )
       "
     >
-      <span v-if="configForm.displayValue">{{ baseModel[configForm.name] }}</span>
+      <span v-if="configForm.displayValue">{{
+        baseModel[configForm.name]
+      }}</span>
       <v-text-field
         v-else
         :type="
@@ -110,16 +112,32 @@
       >
         <span slot="label">
           {{ configForm.label }}
-          <span v-if="configForm.required && config.label" class="required">*</span>
+          <span v-if="configForm.required && config.label" class="required"
+            >*</span
+          >
         </span>
         {{ `form-${config.name}` }}
-        <help slot="append" :code="`form-${configForm.name}`" v-if="configForm.help"></help>
+
+        <span slot="append">
+          <v-icon tabindex=-1>
+            {{
+              config.type === "password"
+                ? show1
+                  ? "mdi-eye"
+                  : "mdi-eye-off"
+                : null
+            }}
+          </v-icon>
+          <help :code="`form-${configForm.name}`" v-if="configForm.help"></help>
+        </span>
       </v-text-field>
     </template>
 
     <!-- text area -->
     <template v-else-if="configForm.type === 'text_area'">
-      <span v-if="configForm.displayValue">{{ baseModel[configForm.name] }}</span>
+      <span v-if="configForm.displayValue">{{
+        baseModel[configForm.name]
+      }}</span>
       <v-textarea
         v-else
         v-model="baseModel[configForm.name]"
@@ -127,13 +145,20 @@
         :placeholder="configForm.placeholder"
         outlined
       >
-        <help slot="append" :code="`form-${configForm.name}`" v-if="configForm.help"></help>
+        <help
+          slot="append"
+          :code="`form-${configForm.name}`"
+          v-if="configForm.help"
+        ></help>
       </v-textarea>
     </template>
 
     <!-- nomenclature -->
     <template v-else-if="configForm.type === 'nomenclature'">
-      <nomenclature-form :config="configForm" :baseModel="baseModel"></nomenclature-form>
+      <nomenclature-form
+        :config="configForm"
+        :baseModel="baseModel"
+      ></nomenclature-form>
     </template>
 
     <!-- essence -->
@@ -173,7 +198,6 @@ import listForm from "./list-form";
 import selectMap from "./select-map.vue";
 import essenceForm from "./essence-form.vue";
 import degatsForm from "./degats-form.vue";
-import oeascContent from "@/modules/content/content";
 import help from "./help";
 import list from "./list";
 import { copy } from "@/core/js/util/util";
@@ -189,9 +213,9 @@ export default {
     essenceForm,
     listForm,
     degatsForm,
-    oeascContent,
+    oeascContent: () => import('@/modules/content/content.vue'),
     help,
-    list,
+    list
   },
 
   data: () => ({
@@ -212,9 +236,9 @@ export default {
       "degats",
       "content",
       "password",
-      "list",
+      "list"
     ],
-    configForm: null,
+    configForm: null
   }),
 
   props: ["config", "baseModel"],
@@ -225,18 +249,18 @@ export default {
       handler() {
         this.configForm = this.getConfigForm();
       },
-      deep: true,
+      deep: true
     },
     config: {
       handler() {
         this.configForm = this.getConfigForm();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
 
   methods: {
-    getConfigForm: function () {
+    getConfigForm: function() {
       const configResolved = { condition: true, valid: true };
 
       // if(this.config.multiple && !this.baseModel[this.config.name]) {
@@ -251,7 +275,7 @@ export default {
           // on resout les fonctions
           configResolved[key] = this.config[key]({
             baseModel: this.baseModel,
-            $store: this.$store,
+            $store: this.$store
           });
         } else {
           configResolved[key] = copy(this.config[key]);
@@ -268,15 +292,15 @@ export default {
       formFunctions.rules.processRules(configResolved);
 
       return configResolved;
-    },
+    }
   },
 
-  created: function () {
+  created: function() {
     this.configForm = this.getConfigForm();
-  },
+  }
 };
 </script>
 
 <style scoped>
-@import url('./form.css');
+@import url("./form.css");
 </style>

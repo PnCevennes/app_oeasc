@@ -32,7 +32,6 @@ class TObservations(DB.Model):
     )
     espece = DB.Column(DB.String(250))
     nb = DB.Column(DB.Integer)
-    valid = DB.Column(DB.Boolean)
 
 
 @serializable
@@ -53,8 +52,10 @@ class TRealisations(DB.Model):
     temperature = DB.Column(DB.String(250))
     date_realisation = DB.Column(DB.Date)
     observers = DB.Column(DB.String(250))
+    valid = DB.Column(DB.Boolean)
 
     observations = DB.relationship(
         TObservations,
-        cascade="save-update, merge, delete, delete-orphan"
+        cascade="save-update, merge, delete, delete-orphan",
+        lazy='joined'
     )
