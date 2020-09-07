@@ -8,6 +8,7 @@ from .definitions import GenericRouteDefinitions
 
 definitions = GenericRouteDefinitions()
 
+
 def check_object_type(droit_type):
     '''
         decorateur qui verifie les droits et les définitions
@@ -15,6 +16,8 @@ def check_object_type(droit_type):
     def check_object_type_(fn):
         @wraps(fn)
         def check_object_type__(*args, **kwargs):
+            print(session)
+
             module_name = kwargs.get('module_name')
             object_type = kwargs.get('object_type') or kwargs.get('object_types')[:-1]
             current_user = session.get('current_user', {})
@@ -45,7 +48,6 @@ def check_object_type(droit_type):
 
             # s'il n'y a pas de current user => droit à 0
             id_droit_max_user = current_user['id_droit_max'] if current_user else 0
-
 
             if id_droit_max_user < id_droit_max_object_type:
                 return (

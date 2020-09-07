@@ -30,7 +30,7 @@ const ROUTE = [
   {
     name: "in.tableau",
     path: "/in/tableau",
-    label: "In - Tableau de données",
+    label: "In - Analyse des données",
     parent: "in.index",
     hideTitle: true,
     component: inTable,
@@ -50,7 +50,7 @@ const ROUTE = [
   {
     name: "in.realisations",
     path: "/in/realisations",
-    label: "In - Réalisations",
+    label: "In - Saisie",
     parent: "in.index",
     hideTitle: true,
     component: genericTable,

@@ -4,7 +4,7 @@ const ROUTE = [
 
   {
     path: '/restitution/test',
-    label: 'Test',
+    label: 'Restitution - tableau de bord',
     name: 'restitution.test',
     parent: 'restitution',
     access: 1,

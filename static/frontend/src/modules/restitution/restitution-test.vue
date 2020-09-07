@@ -1,7 +1,7 @@
 <template>
   <div class="page-restitution">
+    {{settings}}
     <h2>Tableau de bord - restitution</h2>
-
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" icon @click="contentToClipboard()">

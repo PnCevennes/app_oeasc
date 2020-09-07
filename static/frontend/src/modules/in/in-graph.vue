@@ -117,7 +117,7 @@ export default {
           var dec = 2;
 
           const pValue = data_ug.reg_lin.pvalues[0];
-          if (pValue <= 0.1) {
+          if (pValue && pValue <= 0.1) {
             series.push({
               name: `y = ${round(data_ug.reg_lin.params[0], dec)}x + ${round(
                 data_ug.reg_lin.params[1],

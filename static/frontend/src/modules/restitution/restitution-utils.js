@@ -280,10 +280,13 @@ const restitution = {
     if (!Object.keys(options.filters || {}).length) {
       return data;
     }
-    return data.filter(d => {
+    const dataFiltered = data.filter(d => {
       let cond = true;
       for (const [filterName, filterValue] of Object.entries(options.filters)) {
-        const item = restitution.getItem(filterName, options);
+        const item = restitution.getItem(filterName, options) || {
+          name: filterName
+        };
+
         const value = restitution.getValue(d, item);
         const test = filterValue;
         if (!filterValue) continue;
@@ -293,25 +296,29 @@ const restitution = {
       }
       return cond;
     });
+    console.log(`Filtrage ${dataFiltered.length}/${data.length}`);
+    return dataFiltered;
   },
 
   markers(dataFiltered, options, resultChoix1, resultChoix2) {
-    return dataFiltered.map(data => {
+    return dataFiltered.map(d => {
       const icon =
         resultChoix2 &&
-        restitution.valueOfType("icon", data, resultChoix2.dataList, {
+        restitution.valueOfType("icon", d, resultChoix2.dataList, {
           ...resultChoix2,
           filters: options.filters
         });
       const color =
         resultChoix1 &&
-        restitution.valueOfType("color", data, resultChoix1.dataList, {
+        restitution.valueOfType("color", d, resultChoix1.dataList, {
           ...resultChoix1,
           ...options
         });
+      const defs = resultChoix1.processMarkerDefs && resultChoix1.processMarkerDefs(d, {...resultChoix1, ...options});
       return {
-        coords: data[options.coordsFieldName],
+        coords: d[options.coordsFieldName],
         type: "label",
+        defs,
         style: {
           icon,
           color

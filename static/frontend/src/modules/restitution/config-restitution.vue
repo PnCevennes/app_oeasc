@@ -16,7 +16,7 @@
 import { restitution } from "./restitution-utils.js";
 import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import dynamicForm from "@/components/form/dynamic-form";
-import configFormConfiguration from "./config/form-configuration.js";
+import configFormConfiguration from "./config/form-restitution.js";
 import { copy } from "@/core/js/util/util.js";
 
 
@@ -33,13 +33,13 @@ export default {
       nbMax1: 7,
       nbMax2: 7,
       choix1: "degat_gravite",
-      choix2: "secteur",
+      choix2: "degat_types_label",
       dataType: "declaration",
-      filterList: ["secteur"],
+      filters: {"degat_types_label": [ "Frottis" ]},
       n:0,
       height: '400px',
     },
-    filters: { secteur: ["Mont Aigoual"] },
+    // filters: { secteur: ["Mont Aigoual"] },
     configFormConfiguration: null,
     dataRestitution: null
   }),
@@ -52,6 +52,13 @@ export default {
         this.getData();
         return;
       }
+
+      if(!this.filters) {
+        console.log(this.configRestitution.filters)
+        this.filters = {...this.settings.filters, ...(this.configRestitution.filters|| {})};
+        this.settings.filterList = Object.keys(this.filters);
+      }
+
 
       for (const formDef of Object.values(configFormConfiguration.formDefs)) {
         formDef.change = () => this.processChoix(); // ideal newChange
@@ -95,7 +102,7 @@ export default {
       setTimeout(() => {
         this.filterForms = this.getFilterForms();
 
-        for (const key of Object.keys(this.filters)) {
+        for (const key of Object.keys({...this.filters})) {
           if (!this.settings.filterList.includes(key)) {
             delete this.filters[key];
           }
@@ -112,6 +119,8 @@ export default {
       }
       this.$store.dispatch(this.configRestitution.getData).then(data => {
         this.dataRestitution = data;
+        console.log(this.dataRestitution.map(d => d.valide))
+
         this.initConfig();
       });
     },

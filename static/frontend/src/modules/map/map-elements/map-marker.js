@@ -11,23 +11,33 @@ const mapMarker = {
   },
 
   markerLabel(marker) {
-    const color = marker.style.color || "blue";
-    const icon = marker.style.icon || "circle";
-    const colors = Array.isArray(color) ? color : [color];
-    const icons = Array.isArray(icon) ? icon : [icon];
-
+    let defs = [];
     let label = "";
 
-    if (marker.cond_same) {
-      for (var i = 0; i < colors.length; i++) {
-        label += `<i class='mdi mdi-${icons[i]}' style='color:${colors[i]}'></i>`;
-      }
+    if (marker.defs) {
+      defs = marker.defs;
     } else {
-      for (const color of colors) {
-        for (const icon of icons) {
-          label += `<i class='mdi mdi-${icon}' style='color:${color}'></i>`;
+      const color = marker.style.color || "blue";
+      const icon = marker.style.icon || "circle";
+      const colors = Array.isArray(color) ? color : [color];
+      const icons = Array.isArray(icon) ? icon : [icon];
+
+      if (marker.cond_same) {
+        for (var i = 0; i < colors.length; i++) {
+          defs.push({ icon: icons[i], color: color[i] });
+        }
+      } else {
+        // bourrin...
+        for (const color of colors) {
+          for (const icon of icons) {
+            defs.push({ icon: icon, color: color });
+          }
         }
       }
+    }
+
+    for (const def of defs) {
+      label += `<i class='mdi mdi-${def.icon}' style='color:${def.color}'></i>`;
     }
     return label;
   },

@@ -14,8 +14,6 @@ from .repository import (
     delete_object_type
 )
 
-
-
 bp = Blueprint('generic_api', __name__)
 
 @bp.route('<string:module_name>/<string:object_types>/', methods=['GET'])
@@ -36,14 +34,14 @@ def get_all_generic(module_name, object_types):
 
 
 @bp.route('<string:module_name>/<string:object_type>/<int:id>', methods=['GET'])
-# @check_object_type('R')
+@check_object_type('R')
 @json_resp
 def get_generic(module_name, object_type, id):
     '''
 
     '''
 
-    res = get_object_type(module_name,object_type, id)
+    res = get_object_type(module_name, object_type, id)
 
     if not res:
         return None
@@ -52,7 +50,7 @@ def get_generic(module_name, object_type, id):
 
 
 @bp.route('<string:module_name>/<string:object_type>/<int:id>', methods=['PATCH'])
-# @check_object_type('U')
+@check_object_type('U')
 @json_resp
 def patch_generic(module_name, object_type, id):
 
@@ -64,7 +62,7 @@ def patch_generic(module_name, object_type, id):
 
 
 @bp.route('<string:module_name>/<string:object_type>', methods=['POST'], defaults={'id': None})
-# @check_object_type('C')
+@check_object_type('C')
 @json_resp
 def post_generic(module_name, object_type, id):
     '''
@@ -79,7 +77,7 @@ def post_generic(module_name, object_type, id):
 
 
 @bp.route('<string:module_name>/<string:object_type>/<int:id>', methods=['DELETE'])
-# @check_object_type('D')
+@check_object_type('D')
 @json_resp
 def delete_generec(module_name, object_type, id):
     '''

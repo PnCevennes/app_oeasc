@@ -64,8 +64,6 @@ def in_valid_realisation():
 
     data = request.get_json()
 
-    current_user
-
     # update observation
     (
         DB.session.query(TRealisations)
