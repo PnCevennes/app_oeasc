@@ -10,7 +10,7 @@
       </template>
       <span>Copier le code du widget {{toContent()}}</span>
     </v-tooltip>
-      <br>
+    {{settings}}
     <div class="container-restitution">
       <div class="result">
         <restitution v-bind="settings"></restitution>

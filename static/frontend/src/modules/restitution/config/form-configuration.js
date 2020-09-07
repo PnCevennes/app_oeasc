@@ -29,9 +29,9 @@ export default {
 
   ],
   formDefs: {
-    heigth: {
+    height: {
       type:"text",
-      value: '400px',
+      label: 'hauteur',
     },
     display: {
       type: "list_form",

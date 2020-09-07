@@ -2,7 +2,7 @@
   <div>
     <highcharts
       v-if="chartOptions"
-      :style="`width:${width || '100%'}; height:${height || '600px'}`"
+      :style="`width:${width || '100%'}; height:${results.height || '600px'}`"
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
@@ -56,7 +56,6 @@ export default {
           ];
       // const data = this.results.choix.choix1.dataList.map(data => data.count);
       const yTitle = this.results.choix.choix1.text;
-      console.log(this.results.typeGraph)
       const chartOptions = {
         chart: {
           // type: "pie",

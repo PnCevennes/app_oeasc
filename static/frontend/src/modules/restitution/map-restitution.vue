@@ -1,6 +1,7 @@
 <template>
   <div v-if="config">
-    <base-map ref="map" mapId="map" :config="config" fillHeight></base-map>
+    {{results.height}} h
+    <base-map ref="map" mapId="map" :config="config" fillHeight :height="results.height"></base-map>
   </div>
 </template>
 

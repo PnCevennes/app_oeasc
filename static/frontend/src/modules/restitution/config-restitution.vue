@@ -36,7 +36,8 @@ export default {
       choix2: "secteur",
       dataType: "declaration",
       filterList: ["secteur"],
-      n:0
+      n:0,
+      height: '400px',
     },
     filters: { secteur: ["Mont Aigoual"] },
     configFormConfiguration: null,

@@ -36,7 +36,8 @@ const props = [
   "nbMax2",
   "typeGraph",
   "stacking",
-  "n"
+  "n",
+  "height"
 ];
 
 export default {
@@ -95,17 +96,14 @@ export default {
         return;
       }
 
+      const options = {};
+      for (const prop of props) {
+        options[prop] = this[prop];
+      }
+
       this.results = restitution.results(this.dataRestitution, {
         ...this.configRestitution,
-        choix1: this.choix1,
-        choix2: this.choix2,
-        display: this.display,
-        filters: this.filters,
-        nbMax1: this.nbMax1,
-        nbMax2: this.nbMax2,
-        typeGraph: this.typeGraph,
-        stacking: this.stacking,
-        n: this.n
+        ...options
       });
     },
     baywatch: function(props, watcher) {
