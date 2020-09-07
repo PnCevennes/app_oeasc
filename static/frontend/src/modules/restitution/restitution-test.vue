@@ -10,7 +10,7 @@
       </template>
       <span>Copier le code du widget {{toContent()}}</span>
     </v-tooltip>
-    {{settings}}
+    <!-- {{settings}} -->
     <div class="container-restitution">
       <div class="result">
         <restitution v-bind="settings"></restitution>
@@ -38,7 +38,7 @@ export default {
   },
   methods: {
     toContent() {
-      let content = "<restitution";
+      let content = "<div><restitution \n";
       for (const prop of Object.keys(this.settings)) {
         const propValue = this.settings[prop];
         content += propValue
@@ -47,7 +47,7 @@ export default {
             : ` ${prop}=${propValue} \n`
           : null;
       }
-      content += "></restitution>";
+      content += "></restitution></div>";
       return content;
     },
     contentToClipboard() {

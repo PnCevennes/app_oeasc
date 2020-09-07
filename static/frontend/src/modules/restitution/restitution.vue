@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div>    
     <div v-if="results">
       <div v-if="display == 'table'">
         <table-restitution :results="results"></table-restitution>
@@ -13,6 +13,10 @@
         <graph-restitution :results="results"></graph-restitution>
       </div>
     </div>
+    <div v-else>
+      <p>Chargement des données en cours</p>
+        <v-progress-linear active indeterminate></v-progress-linear>
+</div>
 
     <v-snackbar color="error" v-model="bError" :timeout="5000">
       {{ msgError }}

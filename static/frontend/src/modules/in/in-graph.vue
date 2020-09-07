@@ -6,6 +6,7 @@
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
+    <v-progress-linear v-else active indeterminate></v-progress-linear>
     <div v-if="commentaires" v-html="commentaires"></div>
   </div>
 </template>

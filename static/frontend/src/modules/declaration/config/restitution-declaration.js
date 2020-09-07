@@ -20,7 +20,8 @@ export default {
         "Mont Aigoual": "red",
         "Mont Lozère": "blue",
         "Vallées cévenoles": "green"
-      }
+      },
+      zoomOnFilter: "label",
     },
     organisme: {
       text: "Organisme",

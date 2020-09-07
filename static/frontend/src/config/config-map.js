@@ -65,7 +65,7 @@ const configMap = {
       style: styles.po,
       pane: 'PANE_FOND_3'
     },
-    secteurs: {
+    secteur: {
       legend: "Secteurs d'étude de l'Observatoire",
       url: 'api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR',
       type: 'OEASC_SECTEUR',
@@ -118,7 +118,7 @@ const preConfigMap = {
     layerList: {
       zc: {},
       aa: {},
-      secteurs: {
+      secteur: {
         zoom: true,
         tooltip: {
           permanent: true,

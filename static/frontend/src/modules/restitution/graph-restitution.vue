@@ -28,9 +28,6 @@ export default {
   },
   methods: {
     initGraph() {
-      if (!this.results) {
-        return;
-      }
 
       const categories = this.results.choix.choix1.dataList.map(
         data => data.text

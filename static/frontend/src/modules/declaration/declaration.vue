@@ -56,7 +56,7 @@ export default {
   data: () => ({
     id: null,
     declaration: null,
-    mapList: ["secteurs", "foret", "parcelles"]
+    mapList: ["secteur", "foret", "parcelles"]
   }),
   components: { declarationTable, baseMap },
   methods: {
@@ -102,13 +102,13 @@ export default {
         }
       ];
       const titles = {
-        secteurs:
+        secteur:
           "Localisation de l'alerte dans le périmètre de l'observatoire",
         foret: "Localisation des parcelles",
         parcelles: "Carte des parcelles"
       };
       const layerList = {
-        secteurs: {},
+        secteur: {},
         foret: {
           url: `api/ref_geo/areas/l?id_area=${this.declaration.areas_foret.join(
             "&id_area="
@@ -137,8 +137,8 @@ export default {
         },
         zoom: true
       };
-      if (type != "secteurs") {
-        delete layerList.secteurs;
+      if (type != "") {
+        delete layerList.secteur;
       }
       return { layerList, title: titles[type], markers, markerLegendGroups };
     }

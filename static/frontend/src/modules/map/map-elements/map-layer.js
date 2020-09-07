@@ -176,8 +176,9 @@ const mapLayer = {
     );
   },
 
-  findLayer: function(fieldName, value) {
-    const layer = Object.values(this._map._layers).find(layer =>
+  findLayer: function(fieldName, value, layersIn = null) {
+    const layers = layersIn || Object.values(this._map._layers);
+    const layer = layers.find(layer =>
       this.testLayer(
         layer.feature && layer.feature.properties,
         fieldName,
@@ -187,8 +188,9 @@ const mapLayer = {
     return layer;
   },
 
-  findLayers: function(fieldName, value) {
-    return Object.values(this._map._layers).filter(layer =>
+  findLayers: function(fieldName, value, layersIn = null) {
+    const layers = layersIn || Object.values(this._map._layers);
+    return layers.filter(layer =>
       this.testLayer(
         layer.feature && layer.feature.properties,
         fieldName,

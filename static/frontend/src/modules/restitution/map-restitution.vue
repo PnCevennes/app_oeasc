@@ -1,7 +1,6 @@
 <template>
   <div v-if="config">
-    {{results.height}} h
-    <base-map ref="map" mapId="map" :config="config" fillHeight :height="results.height"></base-map>
+    <base-map ref="map" :mapId="mapId" :config="config" fillHeight :height="results.height"></base-map>
   </div>
 </template>
 
@@ -12,26 +11,45 @@ export default {
   name: "map-restitution",
   components: { baseMap },
   props: ["results"],
-  data() {
-    return {
-      config: null
-    };
-  },
+  data: () => ({
+    config: null,
+    mapId: `map_${Math.ceil(Math.random() * 1e10)}`,
+  }),
   watch: {
     results() {
       this.processConfig();
-    }
+    },
   },
   methods: {
+    zoomOnFilter(keyZoomOnFilter, fieldName) {
+      return ($event) => {
+        const key = $event.detail.key;
+        if (key != keyZoomOnFilter) {
+          return;
+        }
+        let layers = this.$refs.map.mapService.findLayers("key", key);
+        const filters = this.results.filters[key] || [];
+        if (filters.length) {
+          layers = this.$refs.map.mapService.findLayers(
+            fieldName,
+            filters,
+            layers
+          );
+        }
+        setTimeout(() => {
+          this.$refs.map.mapService.zoomOnLayers(layers);
+        }, 100)
+      };
+    },
     processConfig() {
       const config = {
         layerList: {
           zc: {},
           aa: {},
-          secteurs: {
-            zoom: true
-          }
-        }
+          secteur: {
+            zoom: true,
+          },
+        },
       };
       if (this.results) {
         config.markers = this.results && this.results.markers;
@@ -41,13 +59,31 @@ export default {
       this.config = config;
       if (this.$refs.map && this.$refs.map.mapService) {
         this.$refs.map.mapService._config.markers = config.markers;
-        this.$refs.map.mapService._config.markerLegendGroups = config.markerLegendGroups;
+        this.$refs.map.mapService._config.markerLegendGroups =
+          config.markerLegendGroups;
         this.$refs.map.mapService.initMarkers();
       }
-    }
+
+      const zoomOnFilterKey = Object.keys(this.results.items).find(
+        (key) => this.results.items[key].zoomOnFilter
+      );
+      if (zoomOnFilterKey) {
+        setTimeout(() => {
+          document
+            .getElementById(this.mapId)
+            .addEventListener(
+              "layer-data",
+              this.zoomOnFilter(
+                zoomOnFilterKey,
+                this.results.items[zoomOnFilterKey].zoomOnFilter
+              )
+            );
+        }, 100);
+      }
+    },
   },
   mounted() {
     this.processConfig();
-  }
+  },
 };
 </script>
