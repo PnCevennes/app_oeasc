@@ -32,7 +32,7 @@ export default {
       typeGraph: "column",
       nbMax1: 7,
       nbMax2: 7,
-      choix1: "organisme",
+      choix1: "degat_gravite",
       choix2: "secteur",
       dataType: "declaration",
       filterList: ["secteur"],

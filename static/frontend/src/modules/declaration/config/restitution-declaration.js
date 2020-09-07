@@ -3,16 +3,25 @@ export default {
   items: {
     declaration_date: {
       text: 'Date',
-      process: (d) => {
-        return d.split('/').splice(1).join('/');
+      process: (d, options) => {
+        return d[options.name].split('/').splice(1).join('/');
       },
       type: 'date',
     },
-    declaration_degat_gravite: {
+    degat_gravite: {
       text: 'Gravite',
-      process: (d) => {
-        console.log(d); return d;
-      }
+      process: (d, options) => {
+        options;
+        let out = d.degats || [];
+        out = out.map(d => (d.degat_essences)||[]).map(d => (d||{})).flat().map(d => d.degat_gravite_label).filter(d => !!d);
+        return out;
+        // return (d.degats|| []).map(d => (d.degat_essences || [])).map(d => d.degat_gravite_label);
+      },
+      color: {
+        "Importants": "red",
+        "Modérés": "orange",
+        "Faibles": "yellow",
+      },
     },
     degat_types_label: {
       text: "Dégât",

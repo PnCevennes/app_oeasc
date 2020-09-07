@@ -35,7 +35,6 @@ const restitution = {
 
     const indexElemAutres = dataList.findIndex(e => e.text == "Autres");
     const value = this.getValue(d, options);
-
     let index;
     let arrayOut = [];
     for (const v of value) {
@@ -52,7 +51,7 @@ const restitution = {
             ? types[indexElemAutres]
             : null;
       } else {
-        out = types[d];
+        out = types[v];
       }
 
       out = out || defaultValue[type];
@@ -71,7 +70,8 @@ const restitution = {
   },
 
   getValue(d, options) {
-    let value = d;
+    let value = d[options.name];
+
     if (options.replace) {
       for (const rep of options.replace) {
         if (value == rep[0]) {
@@ -81,7 +81,7 @@ const restitution = {
     }
 
     if (options.process) {
-      value = options.process(d);
+      value = options.process(d, options);
     }
 
     value = !value
@@ -97,16 +97,15 @@ const restitution = {
 
   dataList(data, options) {
     let dataList = [];
-    const name = options.name;
     for (const d of data) {
-      const value = this.getValue(d[name], options);
+      const value = this.getValue(d, options);
       for (const v of value) {
         if (this.condFilter(options, v)) {
           continue;
         }
         let elem = dataList.find(d => d.text == v);
         if (!elem) {
-          elem = { text: v, count: 0, value: d[name] };
+          elem = { text: v, count: 0, value: d[options.name] || v };
           dataList.push(elem);
         }
         elem.count += 1;
@@ -147,34 +146,37 @@ const restitution = {
     } else {
       dataList = dataList.sort((a, b) => b.count - a.count);
     }
-
     if (options.nMax && options.type != "date") {
       dataList = this.cutDataList(dataList, options.nMax);
     }
 
     //color icon
     for (const data of dataList) {
-      data.icon = this.icon(data.text, dataList, options)[0];
-      data.color = this.color(data.text, dataList, options)[0];
+      data.icon = this.icon(data, dataList, {
+        ...options,
+        name: "text",
+        process: null
+      })[0];
+      data.color = this.color(data, dataList, {
+        ...options,
+        name: "text",
+        process: null
+      })[0];
     }
 
     return dataList;
   },
 
   dataList2(data, options1, options2) {
-    const name1 = options1.name;
-    const name2 = options2.name;
-
     const dataList1 = this.dataList(data, options1);
     const dataList2 = this.dataList(data, options2);
-
     for (const data1 of dataList1) {
       data1.data2 = [];
       for (const data2 of dataList2) {
         let countData2 = 0;
         for (const d of data) {
-          const value1 = this.getValue(d[name1], options1);
-          const value2 = this.getValue(d[name2], options2);
+          const value1 = this.getValue(d, options1);
+          const value2 = this.getValue(d, options2);
           const cond1 = data1.text != "Autres" && value1.includes(data1.text);
           const cond2 = data2.text != "Autres" && value2.includes(data2.text);
           const cond1_autre =
@@ -233,8 +235,7 @@ const restitution = {
               ...itemChoix1,
               nMax: options.nbMax1
             }),
-      text: itemChoix1.text,
-      name: itemChoix1.name
+      ...itemChoix1
     };
 
     const resultChoix2 = itemChoix2 && {
@@ -242,8 +243,7 @@ const restitution = {
         ...itemChoix2,
         nMax: options.nbMax2
       }),
-      text: itemChoix2.text,
-      name: itemChoix2.name
+      ...itemChoix2
     };
     const markers = restitution.markers(
       dataFiltered,
@@ -284,7 +284,7 @@ const restitution = {
       let cond = true;
       for (const [filterName, filterValue] of Object.entries(options.filters)) {
         const item = restitution.getItem(filterName, options);
-        const value = restitution.getValue(d[filterName], item);
+        const value = restitution.getValue(d, item);
         const test = filterValue;
         if (!filterValue) continue;
         const condFilter =
@@ -299,26 +299,16 @@ const restitution = {
     return dataFiltered.map(data => {
       const icon =
         resultChoix2 &&
-        restitution.valueOfType(
-          "icon",
-          data[resultChoix2.name],
-          resultChoix2.dataList,
-          {
-            ...resultChoix2,
-            filters: options.filters
-          }
-        );
+        restitution.valueOfType("icon", data, resultChoix2.dataList, {
+          ...resultChoix2,
+          filters: options.filters
+        });
       const color =
         resultChoix1 &&
-        restitution.valueOfType(
-          "color",
-          data[resultChoix1.name],
-          resultChoix1.dataList,
-          {
-            ...resultChoix1,
-            filters: options.filters
-          }
-        );
+        restitution.valueOfType("color", data, resultChoix1.dataList, {
+          ...resultChoix1,
+          ...options
+        });
       return {
         coords: data[options.coordsFieldName],
         type: "label",
@@ -337,8 +327,8 @@ const restitution = {
     const cond_same =
       resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name;
 
+    let index = 0;
     for (const res of [resultChoix1, resultChoix2].filter(r => !!r)) {
-      let index = 0;
       const markerLegends = {
         title: res.text,
         legends: res.dataList
@@ -354,12 +344,8 @@ const restitution = {
           .map(data => ({
             text: data.text,
             count: data.count,
-            icon:
-              ((cond_same || index==1) && data.icon) ||
-              icon_default,
-            color:
-              ((cond_same || index==0) && data.color) ||
-              color_default
+            icon: ((cond_same || index == 1) && data.icon) || icon_default,
+            color: ((cond_same || index == 0) && data.color) || color_default
           }))
       };
       index += 1;
