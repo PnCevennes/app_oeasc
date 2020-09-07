@@ -42,7 +42,7 @@ const menus = {
   admin: {
     label: 'Administration',
     icon: 'fa-cog',
-    hidden: ({$store}) => ($store.getters.droitMax <= 5),
+    hidden: ({$store}) => ($store.getters.droitMax < 5),
     names: ["in.tableau", "in.realisations",  "user.gerer_utilisateurs"]
   },
 
@@ -50,7 +50,7 @@ const menus = {
     icon: 'engineering',
     label: 'DEV',
     names: ["restitution.test"],
-    hidden: ({$store}) => ($store.getters.droitMax <= 5)
+    hidden: ({$store}) => ($store.getters.droitMax < 5)
   },
 
   resultats: {
