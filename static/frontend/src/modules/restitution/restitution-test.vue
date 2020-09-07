@@ -1,6 +1,6 @@
 <template>
   <div class="page-restitution">
-    <h2>Restitution test</h2>
+    <h2>Tableau de bord - restitution</h2>
 
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
@@ -8,7 +8,7 @@
           <v-icon>mdi-clipboard-text</v-icon>
         </v-btn>
       </template>
-      <span>Copier le code du widget {{toContent()}}</span>
+      <span>Copier le code du widget dans le presse papier</span>
     </v-tooltip>
     <!-- {{settings}} -->
     <div class="container-restitution">
@@ -19,8 +19,8 @@
         <config-restitution @updateSettings="settings = $event"></config-restitution>
       </div>
     </div>
-    <v-snackbar color="success" v-model="bContentCopied" :timeout="2000">
-      Le code du widget à été mis dans le presse-papier
+    <v-snackbar color="success" v-model="bContentCopied" :timeout="1000">
+      Le code du widget à été copié dans le presse-papier
     </v-snackbar>
   </div>
 </template>

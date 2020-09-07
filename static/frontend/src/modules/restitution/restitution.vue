@@ -78,8 +78,6 @@ export default {
         this.msgError = `Pas de configuration trouvée pour le type de donnée ${this.dataType}`;
         return;
       }
-      console.log("initRestitution", this.dataType, this.configRestitution);
-
       /** recupération des données (dispatch) */
       this.$store.dispatch(this.configRestitution.getData).then(
         data => {
@@ -95,10 +93,10 @@ export default {
     },
     processData() {
       const nbData = this.dataRestitution ? this.dataRestitution.length : 0;
-      console.log(`calcul du résultat avec ${nbData} données`);
       if (!(this.choix1 && this.display && nbData)) {
         return;
       }
+      console.log(`calcul du résultat avec ${nbData} données`);
 
       const options = {};
       for (const prop of props) {

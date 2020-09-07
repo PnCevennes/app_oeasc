@@ -8,6 +8,12 @@ export default {
       },
       type: 'date',
     },
+    declaration_degat_gravite: {
+      text: 'Gravite',
+      process: (d) => {
+        console.log(d); return d;
+      }
+    },
     degat_types_label: {
       text: "Dégât",
       split: ", "

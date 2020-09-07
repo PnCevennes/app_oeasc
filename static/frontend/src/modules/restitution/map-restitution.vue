@@ -21,25 +21,20 @@ export default {
     },
   },
   methods: {
-    zoomOnFilter(keyZoomOnFilter, fieldName) {
-      return ($event) => {
-        const key = $event.detail.key;
-        if (key != keyZoomOnFilter) {
-          return;
-        }
-        let layers = this.$refs.map.mapService.findLayers("key", key);
-        const filters = this.results.filters[key] || [];
-        if (filters.length) {
-          layers = this.$refs.map.mapService.findLayers(
-            fieldName,
-            filters,
-            layers
-          );
-        }
-        setTimeout(() => {
-          this.$refs.map.mapService.zoomOnLayers(layers);
-        }, 100)
-      };
+    zoomOnFilter(zoomOnFilterKey, fieldName) {
+      if(! ( this.$refs.map && this.$refs.map.mapService)) { return; }
+      let layers = this.$refs.map.mapService.findLayers("key", zoomOnFilterKey);
+      const filters = this.results.filters[zoomOnFilterKey] || [];
+      if (filters.length) {
+        layers = this.$refs.map.mapService.findLayers(
+          fieldName,
+          filters,
+          layers
+        );
+      }
+      setTimeout(() => {
+        this.$refs.map.mapService.zoomOnLayers(layers);
+      }, 100);
     },
     processConfig() {
       const config = {
@@ -71,14 +66,21 @@ export default {
         setTimeout(() => {
           document
             .getElementById(this.mapId)
-            .addEventListener(
-              "layer-data",
+            .addEventListener("layer-data", ($event) => {
+              const key = $event.detail.key;
+              if (key != zoomOnFilterKey) {
+                return;
+              }
               this.zoomOnFilter(
-                zoomOnFilterKey,
+                key,
                 this.results.items[zoomOnFilterKey].zoomOnFilter
-              )
-            );
+              );
+            });
         }, 100);
+        this.zoomOnFilter(
+          zoomOnFilterKey,
+          this.results.items[zoomOnFilterKey].zoomOnFilter
+        );
       }
     },
   },
