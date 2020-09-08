@@ -47,13 +47,11 @@ const testDataList2 = (d, data1, data2, options1, options2) => {
   for (const data of [data1, data2]) {
     let val = data.text;
     if (val == "Autres") {
-      console.log("agou");
       const autres = data.autres;
       val = autres.join(", ");
     }
     value[data.name] = val;
   }
-  console.log(value, data1, data2)
 
   for (const key of [...listFieldDegatEssence, "degat_type_labels"]) {
     let val =
@@ -62,9 +60,7 @@ const testDataList2 = (d, data1, data2, options1, options2) => {
     if (val) {
       value[key] = val;
     }
-    console.log(val);
     if (val == "Autres") {
-      console.log("agou");
       const autres =
         (options1.name == key && data1.autres) ||
         (options2.name == key && data2.autres);
@@ -72,7 +68,6 @@ const testDataList2 = (d, data1, data2, options1, options2) => {
     }
   }
 
-  // console.log(getDegats(d, options1).map(d => d.degat_type_label))
   for (const degat of getDegats(d, options1).filter(
     degat =>
       !value.degat_type_labels ||
@@ -86,10 +81,8 @@ const testDataList2 = (d, data1, data2, options1, options2) => {
             return !value[key] || value[key].includes(degat_essence[key]);
           })
     );
-    // console.log(degat_essences)
     add += degat_essences.length;
   }
-  console.log("add", add);
 
   return add;
 };

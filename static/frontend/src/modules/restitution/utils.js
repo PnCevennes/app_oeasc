@@ -178,10 +178,8 @@ const restitution = {
   },
 
   dataList2(data, options1, options2) {
-    // console.log(options1.filters);
     const dataList1 = this.dataList(data, options1);
     const dataList2 = this.dataList(data, options2);
-    console.log(dataList1, dataList2)
     for (const data1 of dataList1) {
       data1.data2 = [];
       for (const data2 of dataList2) {
@@ -220,7 +218,6 @@ const restitution = {
         data1.data2.push({ ...data2, count: countData2 });
       }
     }
-    console.log(dataList1)
     return dataList1;
   },
 
