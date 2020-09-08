@@ -8,7 +8,7 @@
 import baseMap from "@/modules/map/base-map.vue";
 
 export default {
-  name: "map-restitution",
+  name: "restitution-map",
   components: { baseMap },
   props: ["results"],
   data: () => ({

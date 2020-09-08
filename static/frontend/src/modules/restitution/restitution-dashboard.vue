@@ -1,6 +1,5 @@
 <template>
   <div class="page-restitution">
-    {{settings}}
     <h2>Tableau de bord - restitution</h2>
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
@@ -16,7 +15,7 @@
         <restitution v-bind="settings"></restitution>
       </div>
       <div class="config">
-        <config-restitution @updateSettings="settings = $event"></config-restitution>
+        <restitution-settings @updateSettings="settings = $event" :dataType='dataType'></restitution-settings>
       </div>
     </div>
     <v-snackbar color="success" v-model="bContentCopied" :timeout="1000">
@@ -27,14 +26,14 @@
 
 <script>
 import restitution from "./restitution.vue";
-import configRestitution from "./config-restitution";
+import restitutionSettings from "./restitution-settings";
 import "./restitution.css";
 
 export default {
-  name: "test-restitution",
+  name: "restitution-dashboard",
   components: {
     restitution,
-    configRestitution,
+    restitutionSettings,
   },
   methods: {
     toContent() {
@@ -55,12 +54,13 @@ export default {
     }
   },
   data: () => ({
-    settings: { display: "map", dataType: "declaration" },
+    settings: {},
     declarations: null,
     // configDeclaration,
     results: null,
     display: "table",
     bContentCopied: false,
+    dataType: 'declaration',
   }),
 };
 </script>

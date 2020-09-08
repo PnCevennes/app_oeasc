@@ -35,7 +35,6 @@ const restitution = {
 
   valueOfType(type, d, dataList, options = {}) {
     const types = options[type] || defaults[type];
-
     const indexElemAutres = dataList.findIndex(e => e.text == "Autres");
     const value = this.getValue(d, options);
     let index;
@@ -168,6 +167,14 @@ const restitution = {
       })[0];
     }
 
+    if(options.order) {
+      dataList = dataList.sort( (a, b) => {
+        const indexA = options.order.findIndex(e => e == a.text);
+        const indexB = options.order.findIndex(e => e == b.text);
+        return indexB - indexA;
+      });
+    }
+
     return dataList;
   },
 
@@ -269,8 +276,22 @@ const restitution = {
       markerLegendGroups,
       ...options,
       condSame:
-        resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name
+        resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name,
+      nbData: data.length,
+      nbDataFiltered: dataFiltered.length,
+      filtersDisplay: restitution.filtersDisplay(options)
     };
+  },
+
+  filtersDisplay(options) {
+    let out = [];
+    for (const [key, filter] of Object.entries(options.filters || {})) {
+      const filterText = filter && filter.length ? filter.join(", ") : "";
+      if (filterText) {
+        out.push(`${options.items[key].text} : ${filterText}`)
+      }
+    }
+    return out.join('; ');
   },
 
   getItem(name, options) {
@@ -302,7 +323,6 @@ const restitution = {
       }
       return cond;
     });
-    // console.log(`Filtrage ${dataFiltered.length}/${data.length}`);
     return dataFiltered;
   },
 
@@ -373,6 +393,26 @@ const restitution = {
       if (condSame) break;
     }
     return markerLegendGroups;
+  },
+
+  getData: (config, $store) => {
+    return new Promise((resolve, reject) => {
+      $store.dispatch(config.getData).then(
+        data => {
+          resolve(
+            restitution.filterData(data, {
+              ...config,
+              filters: config.preFilters
+            })
+          );
+          return;
+        },
+        error => {
+          reject(error);
+          return;
+        }
+      );
+    });
   }
 };
 

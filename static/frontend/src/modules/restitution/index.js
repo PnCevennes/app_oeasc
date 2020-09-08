@@ -1,4 +1,4 @@
-import RestitutionTest from './restitution-test.vue';
+import RestitutionTest from './restitution-dashboard.vue';
 
 const ROUTE = [
 

@@ -36,7 +36,7 @@
 
 <script>
 export default {
-  name: "table-restitution",
+  name: "restitution-table",
   props: ["results"],
 };
 </script>

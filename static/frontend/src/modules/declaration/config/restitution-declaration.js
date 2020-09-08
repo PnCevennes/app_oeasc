@@ -1,7 +1,9 @@
-import { restitution } from "@/modules/restitution/restitution-utils.js";
-let i = 1;
+/** definitions pour la restitution des déclaration à partir des données de la vue */
+
+import { processDegat, processDegatMarkerDefs } from "./utils";
 export default {
   coordsFieldName: "centroid",
+  dataType: "declaration",
   items: {
     declaration_date: {
       text: "Date",
@@ -14,96 +16,23 @@ export default {
       type: "date"
     },
     degat_gravite_label: {
-      text: "Gravite",
-      process: (d, options) => {
-        options;
-        let out = [];
-        for (const degat of d.degats || []) {
-          const condFilter = restitution.condFilter(
-            degat.degat_type_label,
-            { ...options, name: "degat_types_label" },
-          );
-          if (!condFilter) {
-            continue;
-          }
-          for (const degat_essence of degat.degat_essences || []) {
-            if(degat_essence.degat_gravite_label) {
-              out.push(degat_essence.degat_gravite_label);
-            }
-          }
-        }
-        return out;
-        // return (d.degats|| []).map(d => (d.degat_essences || [])).map(d => d.degat_gravite_label);
-      },
-      processMarkerDefs: (d, options) => {
-
-        restitution;
-        options;
-        d;
-
-        if(!(options.choix1=='degat_gravite_label' && options.choix2=='degat_types_label')) {
-          return;
-        }
-
-        if (i == 1) {
-          i = 0;
-        }
-
-        const defs = [];
-        if (!d.degats) {
-          return defs;
-        }
-
-        for (const degat of d.degats) {
-          let color = "black";
-          let icon = "pencil";
-          // filtre sur les dégâts
-          const condFilter = restitution.condFilter(
-            degat.degat_type_label,
-            { ...options, name: "degat_types_label" },
-          );
-          if (!condFilter) {
-            continue;
-          }
-
-          // icon
-          icon = restitution.icon(
-            { degat_type_label: degat.degat_type_label },
-            options.dataList[0].data2,
-            { name: "degat_type_label" }
-          );
-          // si degat essences le pire des dégats => couleur et type_degat => icone
-          let gravite = null;
-          let gravites = ["Faibles", "Modérés", "Importants"];
-          let lastIndex = -1;
-          for (const degat_essence of degat.degat_essences || []) {
-            if (!degat_essence.degat_gravite_label) {
-              continue;
-            }
-            const index = gravites.indexOf(degat_essence.degat_gravite_label);
-
-            if (index > lastIndex) {
-              lastIndex = index;
-              gravite = degat_essence.degat_gravite_label;
-            }
-          }
-
-          if (gravite) {
-            // color = restitution.color({degat_gravite: gravite}, options.dataList, options)
-            color = options.color[gravite];
-          }
-          defs.push({ color, icon });
-        }
-        return defs;
-      },
+      text: "Dégâts - gravite",
+      process: processDegat,
+      processMarkerDefs: processDegatMarkerDefs,
+      order: ["Faibles", "Modérés", "Importants"],
       color: {
         Importants: "red",
         Modérés: "orange",
         Faibles: "yellow"
       }
     },
-    degat_types_label: {
-      text: "Dégât",
+    degat_essence_label: {
+      text: "Dégâts - essence",
+      process: processDegat,
+      processMarkerDefs: processDegatMarkerDefs
+    },
+    degat_type_labels: {
+      text: "Dégâts - type",
       split: ", "
     },
     secteur: {
@@ -163,7 +92,21 @@ export default {
       text: "Validé"
     }
   },
-  filters: {
+  default: {
+    display: "table",
+    typeGraph: "column",
+    nbMax1: 7,
+    nbMax2: 7,
+    // choix2: "degat_essence_label",
+    choix1: "degat_gravite_label",
+    // choix2: "degat_type_labels",
+    n: 0,
+    height: "600px",
+    filters: {
+      degat_type_labels: ["Frottis"]
+    }
+  },
+  preFilters: {
     valide: ["Validé"]
   }
 };

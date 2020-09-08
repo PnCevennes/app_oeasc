@@ -1,34 +1,39 @@
 <template>
-  <div>    
+  <div>
     <div v-if="results">
       <div v-if="display == 'table'">
-        <table-restitution :results="results"></table-restitution>
+        <restitution-table :results="results"></restitution-table>
       </div>
 
       <div v-if="display == 'map'">
-        <map-restitution :results="results"> </map-restitution>
+        <restitution-map :results="results"></restitution-map>
       </div>
 
       <div v-if="display == 'graph'">
-        <graph-restitution :results="results"></graph-restitution>
+        <restitution-graph :results="results"></restitution-graph>
+      </div>
+
+      <div class="infos">
+        Données {{results.nbDataFiltered}} / {{results.nbData}}.
+        <template
+          v-if="results.filtersDisplay"
+        >Filtres : {{results.filtersDisplay}}</template>
       </div>
     </div>
     <div v-else>
       <p>Chargement des données en cours</p>
-        <v-progress-linear active indeterminate></v-progress-linear>
-</div>
+      <v-progress-linear active indeterminate></v-progress-linear>
+    </div>
 
-    <v-snackbar color="error" v-model="bError" :timeout="5000">
-      {{ msgError }}
-    </v-snackbar>
+    <v-snackbar color="error" v-model="bError" :timeout="5000">{{ msgError }}</v-snackbar>
   </div>
 </template>
 
 <script>
-import { restitution } from "./restitution-utils.js";
-import tableRestitution from "./table-restitution";
-import mapRestitution from "./map-restitution";
-import graphRestitution from "./graph-restitution";
+import { restitution } from "./utils.js";
+import restitutionTable from "./restitution-table";
+import restitutionMap from "./restitution-map";
+import restitutionGraph from "./restitution-graph";
 
 const props = [
   "dataType",
@@ -41,31 +46,30 @@ const props = [
   "typeGraph",
   "stacking",
   "n",
-  "height"
+  "height",
 ];
 
 export default {
   name: "restitution",
   props: props,
   components: {
-    mapRestitution,
-    graphRestitution,
-    tableRestitution
+    restitutionGraph,
+    restitutionMap,
+    restitutionTable,
   },
   data: () => ({
     dataRestitution: null,
     results: null,
     bError: false,
     msgError: null,
-    configRestitution: null
+    configRestitution: null,
   }),
   watch: {
     dataType() {
       this.initRestitution();
-    }
+    },
   },
   methods: {
-    
     initRestitution() {
       if (!this.dataType) {
         return;
@@ -79,13 +83,13 @@ export default {
         return;
       }
       /** recupération des données (dispatch) */
-      this.$store.dispatch(this.configRestitution.getData).then(
-        data => {
+      restitution.getData(this.configRestitution, this.$store).then(
+        (data) => {
           this.dataRestitution = data;
           /** calcul de result */
           this.processData();
         },
-        error => {
+        (error) => {
           this.bError = true;
           this.msgError = error;
         }
@@ -96,7 +100,6 @@ export default {
       if (!(this.choix1 && this.display && nbData)) {
         return;
       }
-      // console.log(`calcul du résultat avec ${nbData} données`);
 
       const options = {};
       for (const prop of props) {
@@ -105,15 +108,15 @@ export default {
 
       this.results = restitution.results(this.dataRestitution, {
         ...this.configRestitution,
-        ...options
+        ...options,
       });
     },
-    baywatch: function(props, watcher) {
-      var iterator = function(prop) {
+    baywatch: function (props, watcher) {
+      var iterator = function (prop) {
         this.$watch(prop, watcher);
       };
       props.forEach(iterator, this);
-    }
+    },
   },
 
   mounted() {
@@ -121,6 +124,12 @@ export default {
       this.processData();
     });
     this.initRestitution();
-  }
+  },
 };
 </script>
+<style scoped>
+.infos {
+  font-size: 0.8em;
+  color: rgb(80, 80, 80);
+}
+</style>

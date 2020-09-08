@@ -13,7 +13,7 @@
 import Highcharts from "highcharts";
 
 export default {
-  name: "graph-restitution",
+  name: "restitution-graph",
   props: ["results"],
   data: () => ({
     chartOptions: null,
@@ -54,7 +54,6 @@ export default {
                 }))
               }
             ];
-      console.log(series.map(s=>s.color))
       // const data = this.results.choix.choix1.dataList.map(data => data.count);
       const yTitle = this.results.choix.choix1.text;
       const chartOptions = {

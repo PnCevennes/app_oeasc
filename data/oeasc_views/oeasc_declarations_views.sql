@@ -116,9 +116,9 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
 
     degat_type AS ( SELECT
         deg.id_declaration,
-        ref_nomenclatures.get_nomenclature_mnemoniques(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_types_mnemo,
-        ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_types_label,
-        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_types_code
+        ref_nomenclatures.get_nomenclature_mnemoniques(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_type_mnemos,
+        ref_nomenclatures.get_nomenclature_labels(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_type_labels,
+        ref_nomenclatures.get_nomenclature_codes(ARRAY_AGG(DISTINCT deg.id_nomenclature_degat_type)) AS degat_type_codes
 
         FROM oeasc_declarations.t_degats deg
         GROUP BY deg.id_declaration
@@ -172,7 +172,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     pn.peuplement_protection_type_mnemo,
     pn.espece_mnemo,
     p.peuplement_acces_mnemo,
-    deg.degat_types_mnemo,
+    deg.degat_type_mnemos,
 
     p.peuplement_type_label,
     p.peuplement_origine_label,    
@@ -191,7 +191,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
 	END AS peuplement_protection_type_label,
     pn.espece_label,
     peuplement_acces_label,
-    deg.degat_types_label,
+    deg.degat_type_labels,
 
     p.peuplement_type_code,
     p.peuplement_origine_code,    
@@ -207,7 +207,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
     pn.peuplement_protection_type_code,
     pn.espece_code,
     peuplement_acces_code,
-    deg.degat_types_code,
+    deg.degat_type_codes,
 	
     d.precision_localisation,
     d.centroid,
@@ -349,7 +349,7 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_export_declarations_csv AS
         vd.peuplement_paturage_saison_mnemo AS "Pât. sais.",
         vd.peuplement_protection_type_mnemo AS "Pro. type",
         --vd.espece_mnemo AS "Espèce(s)",
-        vd.degat_types_mnemo AS "Dég. types"
+        vd.degat_type_mnemos AS "Dég. types"
         
         FROM oeasc_declarations.v_declarations vd
         ;
