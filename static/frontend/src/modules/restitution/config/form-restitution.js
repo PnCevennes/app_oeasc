@@ -19,14 +19,15 @@ export default {
       direction: "row"
     },
     {
-      forms: ["switch"]
-    },
-    {
       forms: ["choix2", "nbMax2"],
       direction: "row"
     },
+            {
+              forms: ["switch"]
+            },
     {
-      forms: ["typeGraph", "stacking"]
+      forms: ["typeGraph", "stacking"],
+      direction: "row",
     },
     {
       forms: ["filterList"]
