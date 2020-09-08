@@ -119,7 +119,7 @@
         {{ `form-${config.name}` }}
 
         <span slot="append">
-          <v-icon tabindex=-1>
+          <v-icon tabindex="-1">
             {{
               config.type === "password"
                 ? show1
@@ -189,6 +189,21 @@
         :containerClassIn="'content-container-form'"
       ></oeasc-content>
     </template>
+    <template v-else-if="configForm.type === 'button'">
+      <v-tooltip bottom>
+        <template v-slot:activator="{ on }">
+          <v-btn
+            v-on="on"
+            :icon="!!configForm.icon"
+            @click="configForm.click({ baseModel })"
+          >
+            {{ configForm.label }}
+            <v-icon v-if="configForm.icon">{{ configForm.icon }}</v-icon>
+          </v-btn>
+        </template>
+        <span>{{configForm.tooltip}}</span>
+      </v-tooltip>
+    </template>
   </div>
 </template>
 
@@ -213,7 +228,7 @@ export default {
     essenceForm,
     listForm,
     degatsForm,
-    oeascContent: () => import('@/modules/content/content.vue'),
+    oeascContent: () => import("@/modules/content/content.vue"),
     help,
     list
   },
@@ -236,7 +251,8 @@ export default {
       "degats",
       "content",
       "password",
-      "list"
+      "list",
+      "button"
     ],
     configForm: null
   }),

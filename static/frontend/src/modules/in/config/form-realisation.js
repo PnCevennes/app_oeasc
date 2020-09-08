@@ -3,7 +3,7 @@ export default {
     date_realisation: {
       type: "date",
       label: "Date",
-      required: true
+      required: false
     },
     id_circuit: {
       type: "list_form",

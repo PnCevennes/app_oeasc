@@ -1,9 +1,12 @@
 import inTest from "./in-test";
 import inTable from "./in-table";
-import genericForm from "@/components/form/generic-form";
+// import genericForm from "@/components/form/generic-form";
 import genericTable from "@/components/table/generic-table";
-import configRealisationForm from "./config/form-realisation";
+// import configRealisationForm from "./config/form-realisation";
 import configRealisationTable from "./config/table-realisation";
+// import configCircuitForm from "./config/form-circuit";
+import configCircuitTable from "./config/table-circuit";
+
 import { apiRequest } from "@/core/js/data/api.js";
 import storeUtils from '@/store/utils';
 
@@ -36,16 +39,16 @@ const ROUTE = [
     component: inTable,
     access: 5
   },
-  {
-    name: "in.realisation",
-    path: "/in/realisation/:id?",
-    label: "In - Réalisation",
-    parent: "in.index",
-    hideTitle: true,
-    component: genericForm,
-    props: {config: configRealisationForm},
-    access: 5,
-  },
+  // {
+  //   name: "in.realisation",
+  //   path: "/in/realisation/:id?",
+  //   label: "In - Réalisation",
+  //   parent: "in.index",
+  //   hideTitle: true,
+  //   component: genericForm,
+  //   props: {config: configRealisationForm},
+  //   access: 5,
+  // },
 
   {
     name: "in.realisations",
@@ -57,6 +60,18 @@ const ROUTE = [
     props: {config: configRealisationTable},
     access: 5,
   },
+
+  {
+    name: "in.circuits",
+    path: "/in/circuits",
+    label: "In - Circuits",
+    parent: "in.index",
+    hideTitle: true,
+    component: genericTable,
+    props: {config: configCircuitTable},
+    access: 5,
+  },
+
 
   {
     name: "in.graphiques",

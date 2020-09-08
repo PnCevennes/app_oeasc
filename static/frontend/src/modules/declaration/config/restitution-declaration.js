@@ -13,28 +13,40 @@ export default {
       },
       type: "date"
     },
-    degat_gravite: {
+    degat_gravite_label: {
       text: "Gravite",
       process: (d, options) => {
         options;
-        let out = d.degats || [];
-        out = out
-          .map(d => d.degat_essences || [])
-          .map(d => d || {})
-          .flat()
-          .map(d => d.degat_gravite_label)
-          .filter(d => !!d);
+        let out = [];
+        for (const degat of d.degats || []) {
+          const condFilter = restitution.condFilter(
+            degat.degat_type_label,
+            { ...options, name: "degat_types_label" },
+          );
+          if (!condFilter) {
+            continue;
+          }
+          for (const degat_essence of degat.degat_essences || []) {
+            if(degat_essence.degat_gravite_label) {
+              out.push(degat_essence.degat_gravite_label);
+            }
+          }
+        }
         return out;
         // return (d.degats|| []).map(d => (d.degat_essences || [])).map(d => d.degat_gravite_label);
       },
       processMarkerDefs: (d, options) => {
+
         restitution;
         options;
         d;
 
+        if(!(options.choix1=='degat_gravite_label' && options.choix2=='degat_types_label')) {
+          return;
+        }
+
         if (i == 1) {
           i = 0;
-          console.log(options);
         }
 
         const defs = [];
@@ -46,11 +58,9 @@ export default {
           let color = "black";
           let icon = "pencil";
           // filtre sur les dégâts
-          const condFilter = !(
-            options.filters &&
-            options.filters.degat_types_label &&
-            options.filters.degat_types_label.length &&
-            !options.filters.degat_types_label.includes(degat.degat_type_label)
+          const condFilter = restitution.condFilter(
+            degat.degat_type_label,
+            { ...options, name: "degat_types_label" },
           );
           if (!condFilter) {
             continue;

@@ -110,6 +110,20 @@ def in_get_observers():
     ).as_dict()['items']
 
 
+@bp.route('tags/', methods=['GET'])
+@json_resp_accept_empty_list
+def in_get_tags():
+    '''
+    '''
+
+    return GenericQuery(
+        DB,
+        'v_tags',
+        'oeasc_in',
+        limit=1e6
+    ).as_dict()['items']
+
+
 @bp.route('realisations/', methods=['GET'])
 @json_resp
 def get_realisations():

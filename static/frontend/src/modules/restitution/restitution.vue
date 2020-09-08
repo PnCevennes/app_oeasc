@@ -96,7 +96,7 @@ export default {
       if (!(this.choix1 && this.display && nbData)) {
         return;
       }
-      console.log(`calcul du résultat avec ${nbData} données`);
+      // console.log(`calcul du résultat avec ${nbData} données`);
 
       const options = {};
       for (const prop of props) {

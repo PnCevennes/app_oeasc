@@ -20,9 +20,12 @@ const defaultValue = {
 };
 
 const restitution = {
-  condFilter(options, v) {
+  condFilter(v, options) {
+    if (Array.isArray(v)) {
+      return v.some(e => this.condFilter(e, options));
+    }
     const name = options.name;
-    return (
+    return !(
       options.filters &&
       options.filters[name] &&
       options.filters[name].length &&
@@ -38,7 +41,7 @@ const restitution = {
     let index;
     let arrayOut = [];
     for (const v of value) {
-      if (this.condFilter(options, v)) {
+      if (!this.condFilter(v, options)) {
         continue;
       }
       let out;
@@ -99,8 +102,9 @@ const restitution = {
     let dataList = [];
     for (const d of data) {
       const value = this.getValue(d, options);
+
       for (const v of value) {
-        if (this.condFilter(options, v)) {
+        if (!this.condFilter(v, options)) {
           continue;
         }
         let elem = dataList.find(d => d.text == v);
@@ -263,7 +267,9 @@ const restitution = {
       },
       markers,
       markerLegendGroups,
-      ...options
+      ...options,
+      condSame:
+        resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name
     };
   },
 
@@ -296,11 +302,14 @@ const restitution = {
       }
       return cond;
     });
-    console.log(`Filtrage ${dataFiltered.length}/${data.length}`);
+    // console.log(`Filtrage ${dataFiltered.length}/${data.length}`);
     return dataFiltered;
   },
 
   markers(dataFiltered, options, resultChoix1, resultChoix2) {
+    const condSame =
+      resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name;
+
     return dataFiltered.map(d => {
       const icon =
         resultChoix2 &&
@@ -314,10 +323,13 @@ const restitution = {
           ...resultChoix1,
           ...options
         });
-      const defs = resultChoix1.processMarkerDefs && resultChoix1.processMarkerDefs(d, {...resultChoix1, ...options});
+      const defs =
+        resultChoix1.processMarkerDefs &&
+        resultChoix1.processMarkerDefs(d, { ...resultChoix1, ...options });
       return {
         coords: d[options.coordsFieldName],
         type: "label",
+        condSame,
         defs,
         style: {
           icon,
@@ -331,9 +343,8 @@ const restitution = {
     const icon_default = "circle";
     const color_default = "rgb(150,150,150)";
     const markerLegendGroups = [];
-    const cond_same =
+    const condSame =
       resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name;
-
     let index = 0;
     for (const res of [resultChoix1, resultChoix2].filter(r => !!r)) {
       const markerLegends = {
@@ -351,15 +362,15 @@ const restitution = {
           .map(data => ({
             text: data.text,
             count: data.count,
-            icon: ((cond_same || index == 1) && data.icon) || icon_default,
-            color: ((cond_same || index == 0) && data.color) || color_default
+            icon: ((condSame || index == 1) && data.icon) || icon_default,
+            color: ((condSame || index == 0) && data.color) || color_default
           }))
       };
       index += 1;
 
       markerLegendGroups.push(markerLegends);
 
-      if (cond_same) break;
+      if (condSame) break;
     }
     return markerLegendGroups;
   }

@@ -19,6 +19,7 @@ class TCircuits(DB.Model):
     numero_circuit = DB.Column(DB.Integer)
     ug = DB.Column(DB.String(250))
     km = DB.Column(DB.Integer)
+    ug_tags = DB.Column(DB.ARRAY(DB.String(250)))
 
 @serializable
 class TObservations(DB.Model):

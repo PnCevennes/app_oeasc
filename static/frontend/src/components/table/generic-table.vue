@@ -4,7 +4,7 @@
       <v-card>
         <v-card-title>
           <v-icon large>warning</v-icon>
-          Êtes vous sûr de vouloir supprimer Cette ligne?
+          Êtes vous sûr de vouloir supprimer la ligne?
         </v-card-title>
 
         <v-card-text>
@@ -205,8 +205,8 @@ export default {
         return {};
       }
       const configForm = copy(header.edit);
-
-      if (value != "action") {
+      console.log(value)
+      if (value != "actions") {
         configForm.title = `Modifier ${prop.header.text} pour ${
           item[this.configTable.labelFieldName || this.configTable.idFieldName]
         }`;

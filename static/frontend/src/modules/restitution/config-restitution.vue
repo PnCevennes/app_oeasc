@@ -24,15 +24,24 @@ export default {
   name: "restitutionConfig",
   props: ["dataType"],
   components: { dynamicFormGroup, dynamicForm },
+  watch: {
+    settings: {
+      deep: true,
+      handler() {
+        this.emitSettings()
+      }
+    }
+  },
   data: () => ({
     configRestitution: null,
     filterForms: [],
     settings: {
-      display: "map",
+      display: "graph",
       typeGraph: "column",
       nbMax1: 7,
       nbMax2: 7,
-      choix1: "degat_gravite",
+      choix1: "degat_gravite_label",
+      // choix2: "degat_gravite_label",
       choix2: "degat_types_label",
       dataType: "declaration",
       filters: {"degat_types_label": [ "Frottis" ]},
@@ -61,7 +70,7 @@ export default {
 
 
       for (const formDef of Object.values(configFormConfiguration.formDefs)) {
-        formDef.change = () => this.processChoix(); // ideal newChange
+        formDef.change = () => this.emitSettings(); // ideal newChange
       }
 
       const items = Object.keys(this.configRestitution.items).map(name => ({
@@ -77,7 +86,7 @@ export default {
 
       this.configFormConfiguration = configFormConfiguration;
       this.filterForms = this.getFilterForms();
-      this.processChoix();
+      this.emitSettings();
     },
 
     getFilterForms() {
@@ -92,7 +101,7 @@ export default {
           multiple: true,
           items: dataList.map(d => d.text),
           change: () => {
-            this.processChoix();
+            this.emitSettings();
           }
         };
       });
@@ -107,7 +116,7 @@ export default {
             delete this.filters[key];
           }
         }
-        this.processChoix();
+        this.emitSettings();
       }, 100);
     },
     getData() {
@@ -124,8 +133,7 @@ export default {
         this.initConfig();
       });
     },
-    processChoix() {
-      this.settings.n = this.settings.n + 1; 
+    emitSettings() {
       this.$emit("updateSettings", { ...this.settings, filters: copy(this.filters) });
     }
   }

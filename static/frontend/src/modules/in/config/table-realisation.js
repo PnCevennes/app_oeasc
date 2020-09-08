@@ -66,5 +66,6 @@ export default {
   },
 
   sortBy: ["date_realisation"],
-  sortDesc: [true]
+  sortDesc: [true],
+  label: 'réalisation'
 };

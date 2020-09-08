@@ -22,7 +22,7 @@ const mapMarker = {
       const colors = Array.isArray(color) ? color : [color];
       const icons = Array.isArray(icon) ? icon : [icon];
 
-      if (marker.cond_same) {
+      if (marker.condSame) {
         for (var i = 0; i < colors.length; i++) {
           defs.push({ icon: icons[i], color: color[i] });
         }
@@ -93,39 +93,6 @@ const mapMarker = {
 
     this.setMarkerStyle(marker);
   },
-
-  // applyFilters(marker) {
-  //   let cond = true;
-  //   for (const filter of this._markerFilters) {
-  //     let condFilter = true;
-  //     if (filter.type == "selectLayer") {
-  //       condFilter = this.condFilterSelectLayer(filter, marker);
-  //     }
-  //     cond = cond && condFilter;
-  //   }
-  //   marker.selected = cond;
-  // },
-
-  // condFilterSelectLayer(filter, marker) {
-  //   let value = this.baseModel[filter.key];
-  //   if (!value || (Array.isArray(value) && !value.length)) {
-  //     return true;
-  //   }
-  //   if (!Array.isArray(value)) {
-  //     value = [value];
-  //   }
-
-  //   let valueMarker = marker.properties[filter.markerFieldName];
-
-  //   if (!valueMarker || (Array.isArray(valueMarker) && !valueMarker.length)) {
-  //     return false;
-  //   }
-  //   if (!Array.isArray(valueMarker)) {
-  //     valueMarker = [valueMarker];
-  //   }
-  //   const cond = value.find(v => valueMarker.includes(v));
-  //   return cond;
-  // },
 
   setMarkerStyle(marker) {
     marker.style.opacity = 1;

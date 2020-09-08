@@ -61,6 +61,22 @@ SELECT observer FROM
     WHERE observer != ''
     ;
 
+
+DROP VIEW IF EXISTS oeasc_in.v_tags CASCADE;
+CREATE VIEW oeasc_in.v_tags AS 
+
+SELECT tag FROM
+(SELECT DISTINCT
+    UNNEST(
+    ug_tags
+    ) tag
+
+    FROM oeasc_in.t_circuits
+    WHERE ug_tags IS NOT NULL)a
+    WHERE tag != ''
+    ;
+
+
 DROP VIEW IF EXISTS oeasc_in.v_circuits CASCADE;
 
 CREATE VIEW oeasc_in.v_circuits AS
