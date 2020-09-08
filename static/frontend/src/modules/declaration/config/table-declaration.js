@@ -67,7 +67,7 @@ export default {
       peuplement_origine2_mnemo: {
         text: "Origine plants touchés",
       },
-      degat_types_mnemo: {
+      degat_type_mnemos: {
         text: "Type dégâts",
       },
       b_valid: {

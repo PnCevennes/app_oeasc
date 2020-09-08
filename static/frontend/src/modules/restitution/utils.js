@@ -108,7 +108,7 @@ const restitution = {
         }
         let elem = dataList.find(d => d.text == v);
         if (!elem) {
-          elem = { text: v, count: 0, value: d[options.name] || v };
+          elem = { text: v, count: 0, value: v, name: options.name };
           dataList.push(elem);
         }
         elem.count += 1;
@@ -150,7 +150,7 @@ const restitution = {
       dataList = dataList.sort((a, b) => b.count - a.count);
     }
     if (options.nMax && options.type != "date") {
-      dataList = this.cutDataList(dataList, options.nMax);
+      dataList = this.cutDataList(dataList, options);
     }
 
     //color icon
@@ -167,20 +167,21 @@ const restitution = {
       })[0];
     }
 
-    if(options.order) {
-      dataList = dataList.sort( (a, b) => {
+    if (options.order) {
+      dataList = dataList.sort((a, b) => {
         const indexA = options.order.findIndex(e => e == a.text);
         const indexB = options.order.findIndex(e => e == b.text);
         return indexB - indexA;
       });
     }
-
     return dataList;
   },
 
   dataList2(data, options1, options2) {
+    // console.log(options1.filters);
     const dataList1 = this.dataList(data, options1);
     const dataList2 = this.dataList(data, options2);
+    console.log(dataList1, dataList2)
     for (const data1 of dataList1) {
       data1.data2 = [];
       for (const data2 of dataList2) {
@@ -188,32 +189,49 @@ const restitution = {
         for (const d of data) {
           const value1 = this.getValue(d, options1);
           const value2 = this.getValue(d, options2);
-          const cond1 = data1.text != "Autres" && value1.includes(data1.text);
-          const cond2 = data2.text != "Autres" && value2.includes(data2.text);
+
+          let cond1, cond2;
+          cond1 = data1.text != "Autres" && value1.includes(data1.text);
+          cond2 = data2.text != "Autres" && value2.includes(data2.text);
+
           const cond1_autre =
             data1.text == "Autres" &&
             data1.autres.some(textAutre => value1.includes(textAutre));
           const cond2_autre =
             data2.text == "Autres" &&
             data2.autres.some(textAutre => value2.includes(textAutre));
-          if ((cond1 || cond1_autre) && (cond2 || cond2_autre)) {
-            countData2++;
+          let cond = (cond1 || cond1_autre) && (cond2 || cond2_autre);
+          let add = 0;
+
+          const testDataList2 = options1.testDataList2 || options2.testDataList2;
+          if (cond && testDataList2) {
+              add += testDataList2(
+              d,
+              data1,
+              data2,
+              options1,
+              options2,
+            );
+          } else {
+            add = cond ? 1 : 0;
           }
+          countData2 += add;
         }
         data1.data2.push({ ...data2, count: countData2 });
       }
     }
+    console.log(dataList1)
     return dataList1;
   },
 
-  cutDataList(dataList, nMax) {
-    const elemAutres = { text: "Autres", count: 0, autres: [] };
+  cutDataList(dataList, options) {
+    const elemAutres = { text: "Autres", count: 0, autres: [], name: options.name  };
     const out = [];
     for (let i = 0; i < dataList.length; i++) {
-      if (i < nMax) {
+      if (i < options.nMax) {
         out.push(dataList[i]);
       } else {
-        if (i == nMax) {
+        if (i == options.nMax) {
           out.push(elemAutres);
         }
         elemAutres.autres.push(dataList[i].text);
@@ -234,16 +252,20 @@ const restitution = {
               dataFiltered,
               {
                 ...itemChoix1,
+                filters: options.filters,
                 nMax: options.nbMax1
               },
               {
+                ...options,
                 ...itemChoix2,
+                filters: options.filters,
                 nMax: options.nbMax2
               }
             )
           : options.choix1 &&
             restitution.dataList(dataFiltered, {
               ...itemChoix1,
+              filters: options.filters,
               nMax: options.nbMax1
             }),
       ...itemChoix1
@@ -252,6 +274,7 @@ const restitution = {
     const resultChoix2 = itemChoix2 && {
       dataList: restitution.dataList(dataFiltered, {
         ...itemChoix2,
+        filters: options.filters,
         nMax: options.nbMax2
       }),
       ...itemChoix2
@@ -288,10 +311,10 @@ const restitution = {
     for (const [key, filter] of Object.entries(options.filters || {})) {
       const filterText = filter && filter.length ? filter.join(", ") : "";
       if (filterText) {
-        out.push(`${options.items[key].text} : ${filterText}`)
+        out.push(`${options.items[key].text} : ${filterText}`);
       }
     }
-    return out.join('; ');
+    return out.join("; ");
   },
 
   getItem(name, options) {

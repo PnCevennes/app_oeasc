@@ -1,6 +1,6 @@
 /** definitions pour la restitution des déclaration à partir des données de la vue */
 
-import { processDegat, processDegatMarkerDefs } from "./utils";
+import { processDegat, processDegatMarkerDefs, testDataList2 } from "./utils";
 export default {
   coordsFieldName: "centroid",
   dataType: "declaration",
@@ -19,6 +19,7 @@ export default {
       text: "Dégâts - gravite",
       process: processDegat,
       processMarkerDefs: processDegatMarkerDefs,
+      testDataList2,
       order: ["Faibles", "Modérés", "Importants"],
       color: {
         Importants: "red",
@@ -29,7 +30,8 @@ export default {
     degat_essence_label: {
       text: "Dégâts - essence",
       process: processDegat,
-      processMarkerDefs: processDegatMarkerDefs
+      processMarkerDefs: processDegatMarkerDefs,
+      testDataList2
     },
     degat_type_labels: {
       text: "Dégâts - type",
@@ -64,7 +66,6 @@ export default {
     declarant: {
       text: "Déclarant",
       name: "declarant",
-      split: ", "
     },
     b_peuplement_paturage_presence: {
       text: "Pâturage",
@@ -93,11 +94,11 @@ export default {
     }
   },
   default: {
-    display: "table",
+    display: "graph",
     typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
-    // choix2: "degat_essence_label",
+    choix2: "declarant",
     choix1: "degat_gravite_label",
     // choix2: "degat_type_labels",
     n: 0,

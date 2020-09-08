@@ -129,7 +129,7 @@ SELECT oeasc_resultats.create_declaration_view(field_name) FROM
 	'peuplement_type_mnemo',
     'peuplement_maturite_mnemo',
     'peuplement_paturage_type_mnemo',
-    'degat_types_mnemo'
+    'degat_type_mnemos'
 	]) AS field_name)a;
 
 SELECT oeasc_resultats.create_degat_view(field_name) FROM 

@@ -38,9 +38,10 @@ export default {
         ["column", "bar"].includes(this.results.typeGraph)
           ? this.results.choix.choix2.dataList.map(res2 => ({
               name: res2.text,
-              data: this.results.choix.choix1.dataList.map(
-                res1 => res1.data2.find(d => d.text == res2.text).count
-              ),
+              data: this.results.choix.choix1.dataList.map(res1 => {
+                const res = res1.data2.find(d => d.text == res2.text)
+                return res && res.count || 0;
+              }),
               color: res2.color
             }))
           : [
@@ -78,7 +79,7 @@ export default {
         },
         series
       };
-      setTimeout(()=>{
+      setTimeout(() => {
         this.chartOptions = chartOptions;
       });
     }

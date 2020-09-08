@@ -54,7 +54,6 @@ const styles = {
 export default {
   name: "declaration",
   data: () => ({
-    id: null,
     declaration: null,
     mapList: ["secteur", "foret", "parcelles"]
   }),
