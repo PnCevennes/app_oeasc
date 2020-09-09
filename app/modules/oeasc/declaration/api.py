@@ -48,6 +48,15 @@ config = current_app.config
 DB = config['DB']
 
 
+@bp.route('degats/', methods=['GET'])
+@json_resp
+def degats():
+    '''
+        Retourne les declarations accessible pour le declarant de id_role id_declarant
+    '''
+
+    return get_declarations(type_out='degat')
+
 @bp.route('declarations/', methods=['GET'])
 @json_resp
 def declarations():

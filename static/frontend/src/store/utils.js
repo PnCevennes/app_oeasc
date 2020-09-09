@@ -161,12 +161,12 @@ export default {
     }
   },
 
-  addStoreRestitution: (STORE, name, getData, configRestitution) => {
+  addStoreRestitution: (STORE, name, getDataAction, configRestitution) => {
 
     const nameConfig = `${name}ConfigRestitution`;
 
     const config = {
-      getData,
+      getDataAction,
       ...configRestitution
     };
 

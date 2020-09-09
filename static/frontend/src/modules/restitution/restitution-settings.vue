@@ -1,25 +1,24 @@
 <template>
   <div>
-    <div v-if="configFormConfiguration">
-      <dynamic-form-group :config="configFormConfiguration" :baseModel="settings"></dynamic-form-group>
-      <div class="filters" v-for="(filter, index) of filterForms" :key="index">
-        <dynamic-form :config="filter" :baseModel="filters"></dynamic-form>
+    <div v-if="configFormRestition">
+      <dynamic-form-group :config="configFormRestition" :baseModel="settings"></dynamic-form-group>
+      <div class="filters" v-for="filter of filterForms" :key="filter.name">
+        <dynamic-form :config="filter" :baseModel="settings.filters"></dynamic-form>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { restitution } from "./utils.js";
+import { Restitution } from "./restitution.js";
 import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import dynamicForm from "@/components/form/dynamic-form";
-import configFormConfiguration from "./config/form-restitution.js";
-import { copy } from "@/core/js/util/util.js";
+import configFormRestition from "./config/form-restitution.js";
 
 export default {
   name: "restitution-settings",
-  props: ["dataType"],
   components: { dynamicFormGroup, dynamicForm },
+  props: ["dataType"],
   watch: {
     settings: {
       deep: true,
@@ -29,58 +28,68 @@ export default {
     },
   },
   data: () => ({
-    configRestitution: null,
     filterForms: [],
     settings: {},
-    // filters: { secteur: ["Mont Aigoual"] },
-    configFormConfiguration: null,
-    dataRestitution: null,
+    configFormRestition: null,
+    restitution: null,
   }),
   mounted() {
     this.initConfig();
   },
   methods: {
+    initRestitution() {
+      this.restitution = new Restitution(
+        this.settings.dataType || this.dataType,
+        this.$store
+      );
+      this.restitution.getConfig();
+      this.restitution.getData().then(() => {
+        this.settings = this.restitution.options();
+        if (!this.filters) {
+          this.filters = {
+            ...this.settings.filters,
+            ...(this.restitution.options.filters || {}),
+          };
+          this.settings.filterList = Object.keys(this.filters);
+        }
+        this.initConfig();
+      });
+    },
     initConfig() {
-      if (!this.configRestitution) {
-        this.getData();
+      if (!this.restitution) {
+        this.initRestitution();
         return;
       }
 
-      if (!this.filters) {
-        this.filters = {
-          ...this.settings.filters,
-          ...(this.configRestitution.filters || {}),
-        };
-        this.settings.filterList = Object.keys(this.filters);
-      }
+      this.restitution.setOptions(this.options());
 
-      for (const formDef of Object.values(configFormConfiguration.formDefs)) {
+      for (const formDef of Object.values(configFormRestition.formDefs)) {
         formDef.change = () => this.emitSettings(); // ideal newChange
       }
 
-      const items = Object.keys(this.configRestitution.items).map((name) => ({
-        text: this.configRestitution.items[name].text,
+      const items = Object.keys(this.restitution.items).map((name) => ({
+        text: this.restitution.items[name].text,
         value: name,
       }));
 
       for (const keyForm of ["choix1", "choix2", "filterList"]) {
-        configFormConfiguration.formDefs[keyForm].items = items;
+        configFormRestition.formDefs[keyForm].items = items;
       }
 
-      configFormConfiguration.formDefs.filterList.change = this.filterSelectChange;
+      configFormRestition.formDefs.filterList.change = this.filterSelectChange;
 
-      this.configFormConfiguration = configFormConfiguration;
+      this.configFormRestition = configFormRestition;
       this.filterForms = this.getFilterForms();
       this.emitSettings();
     },
 
     getFilterForms() {
       return this.settings.filterList.map((name) => {
-        const item = restitution.getItem(name, this.configRestitution);
-        const dataList = restitution.dataList(this.dataRestitution, item);
+        const item = this.restitution.item(name);
+        const dataList = this.restitution.dataList(name, {});
         return {
           type: "list_form",
-          name: item.name,
+          name: item.key,
           label: `Filtre : ${item.text}`,
           display: "autocomplete",
           multiple: true,
@@ -93,41 +102,25 @@ export default {
     },
 
     filterSelectChange() {
+      this.filterforms={};
       setTimeout(() => {
         this.filterForms = this.getFilterForms();
 
-        for (const key of Object.keys({ ...this.filters })) {
+        for (const key of Object.keys({ ...this.settings.filters })) {
           if (!this.settings.filterList.includes(key)) {
-            delete this.filters[key];
+            delete this.settings.filters[key];
           }
         }
         this.emitSettings();
-      }, 100);
+      }, 10);
     },
-    getData() {
-      this.configRestitution = this.$store.getters.configRestitution(
-        this.dataType
-      );
-      if (!this.configRestitution) {
-        return;
-      }
-
-      this.settings = {
-        data_type: this.dataType,
-        ...(this.configRestitution.default || {}),
+    options() {
+      return {
+        ...this.settings,
       };
-
-      restitution.getData(this.configRestitution, this.$store).then((data) => {
-        this.dataRestitution = data;
-        this.initConfig();
-      });
     },
     emitSettings() {
-      this.$emit("updateSettings", {
-        ...this.settings,
-        filters: copy(this.filters),
-        dataType: this.dataType,
-      });
+      this.$emit("updateSettings", this.options());
     },
   },
 };

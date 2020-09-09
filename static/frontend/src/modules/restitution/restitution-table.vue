@@ -9,7 +9,7 @@
           <th>Icône</th>
         </tr>
       </thead>
-      <tbody v-for="(result, index1) of [results.choix.choix1, results.choix.choix2]" :key="index1">
+      <tbody v-for="(result, index1) of [results.choix.choix1, results.choix.choix2].filter(v => !!v)" :key="index1">
         <tr v-if="index1">
           <td colspan="4"></td>
         </tr>

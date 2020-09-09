@@ -1,14 +1,14 @@
 /** definitions pour la restitution des déclaration à partir des données de la vue */
+import restitutionUtils from "@/modules/restitution/utils.js";
 
-import { processDegat, processDegatMarkerDefs } from "./utils";
 export default {
   coordsFieldName: "centroid",
   dataType: "declaration",
   items: {
     declaration_date: {
       text: "Date",
-      process: (d, options) => {
-        return d[options.name]
+      process: (d, item) => {
+        return d[item.key]
           .split("/")
           .splice(1)
           .join("/");
@@ -17,28 +17,23 @@ export default {
     },
     degat_gravite_label: {
       text: "Dégâts - gravite",
-      process: processDegat,
-      processMarkerDefs: processDegatMarkerDefs,
-      order: ["Faibles", "Modérés", "Importants"],
-      color: {
+      // order: ["Faibles", "Modérés", "Importants"],
+      colors: {
         Importants: "red",
         Modérés: "orange",
         Faibles: "yellow"
       }
     },
     degat_essence_label: {
-      text: "Dégâts - essence",
-      process: processDegat,
-      processMarkerDefs: processDegatMarkerDefs
+      text: "Dégâts - essence"
     },
-    degat_type_labels: {
-      text: "Dégâts - type",
-      split: ", "
+    degat_type_label: {
+      text: "Dégâts - type"
     },
     secteur: {
       text: "Secteur",
-      split: ", ",
-      color: {
+      process: restitutionUtils.split(", "),
+      colors: {
         "Causses et Gorges": "#e8e805",
         "Mont Aigoual": "red",
         "Mont Lozère": "blue",
@@ -49,64 +44,65 @@ export default {
     organisme: {
       text: "Organisme",
       name: "organisme",
-      split: ", "
+      process: restitutionUtils.split(", ")
     },
     type_foret: {
       text: "Type de forêt",
       name: "type_foret",
-      split: ", "
+      process: restitutionUtils.split(", ")
     },
     communes: {
       text: "Commune",
       name: "communes",
-      split: ", "
+      process: restitutionUtils.split(", ")
     },
     declarant: {
       text: "Déclarant",
       name: "declarant",
-      split: ", "
+      process: restitutionUtils.split(", ")
     },
     b_peuplement_paturage_presence: {
       text: "Pâturage",
-      replace: [
+      process: restitutionUtils.replace([
         [true, "Oui"],
         [false, "Non"]
-      ]
+      ])
     },
     b_peuplement_protection_existence: {
       text: "Protection",
-      replace: [
+      process: restitutionUtils.replace([
         [true, "Oui"],
         [false, "Non"]
-      ]
+      ])
     },
     peuplement_acces_label: {
       text: "Accès au peuplement",
-      split: ", "
+      process: restitutionUtils.split(", ")
     },
     peuplement_ess_1_label: {
       text: "Essence principale",
-      split: ", "
+      process: restitutionUtils.split(", ")
     },
     valide: {
       text: "Validé"
     }
   },
   default: {
+    dataType: "declaration",
     display: "table",
     typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
-    // choix2: "degat_essence_label",
+    choix2: "degat_essence_label",
     choix1: "degat_gravite_label",
     // choix2: "degat_type_labels",
     n: 0,
     height: "600px",
     filters: {
-      degat_type_labels: ["Frottis"]
-    }
+      degat_type_label: ["Frottis"]
+    },
+    preFilters: {
+      valide: ["Validé"]
+    }  
   },
-  preFilters: {
-    valide: ["Validé"]
-  }
 };

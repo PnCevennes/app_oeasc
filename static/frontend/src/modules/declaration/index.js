@@ -3,7 +3,7 @@ import declarationList from "./declaration-list";
 import declaration from "./declaration.vue";
 import { apiRequest } from "@/core/js/data/api.js";
 import storeUtils from '@/store/utils';
-import confgiResitutionDeclaration from './config/restitution-declaration';
+import configResitutionDeclaration from './config/restitution-declaration';
 
 const ROUTE = [
   {
@@ -171,6 +171,7 @@ const STORE = {
       });
     },
 
+
     foretFromCode: ({ commit }, codeForet) => {
       return new Promise((resolve, reject) => {
         apiRequest("GET", `api/degat_foret/foret_from_code/${codeForet}`).then(
@@ -207,6 +208,11 @@ const STORE = {
 
 };
 
-storeUtils.addStoreRestitution(STORE, 'declaration', 'declarations', confgiResitutionDeclaration); 
+// storeUtils.addStoreRestitution(STORE, 'declaration', 'declarations', configResitutionDeclaration); 
+
+// patch pourri faire un genre addStoreGetAll
+storeUtils.addStore(STORE, 'degat', 'api/declaration/degat', 'id_declaration'); 
+storeUtils.addStoreRestitution(STORE, 'declaration', 'getAllDegat', configResitutionDeclaration); 
+
 
 export { ROUTE, STORE };

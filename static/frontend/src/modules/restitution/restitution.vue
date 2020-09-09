@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { restitution } from "./utils.js";
+import { Restitution } from "./restitution.js";
 import restitutionTable from "./restitution-table";
 import restitutionMap from "./restitution-map";
 import restitutionGraph from "./restitution-graph";
@@ -47,6 +47,7 @@ const props = [
   "stacking",
   "n",
   "height",
+  "preFilters"
 ];
 
 export default {
@@ -58,11 +59,10 @@ export default {
     restitutionTable,
   },
   data: () => ({
-    dataRestitution: null,
     results: null,
     bError: false,
     msgError: null,
-    configRestitution: null,
+    restitution: null,
   }),
   watch: {
     dataType() {
@@ -74,19 +74,19 @@ export default {
       if (!this.dataType) {
         return;
       }
-      this.configRestitution = this.$store.getters.configRestitution(
-        this.dataType
-      );
-      if (!this.configRestitution) {
+
+      this.restitution = new Restitution(this.dataType, this.$store);
+      this.setRestitutionConfig();
+      if (!this.restitution.getConfig(this.$store)) {
         this.bError = true;
         this.msgError = `Pas de configuration trouvée pour le type de donnée ${this.dataType}`;
         return;
       }
       /** recupération des données (dispatch) */
-      restitution.getData(this.configRestitution, this.$store).then(
-        (data) => {
-          this.dataRestitution = data;
-          /** calcul de result */
+      this.restitution.getData(this.$store).then(
+        () => {
+          /** calcul de results */
+          console.log('uu')
           this.processData();
         },
         (error) => {
@@ -95,21 +95,25 @@ export default {
         }
       );
     },
-    processData() {
-      const nbData = this.dataRestitution ? this.dataRestitution.length : 0;
-      if (!(this.choix1 && this.display && nbData)) {
-        return;
-      }
-
+    setRestitutionConfig() {
       const options = {};
       for (const prop of props) {
         options[prop] = this[prop];
       }
+      this.restitution.setOptions(options);
+    },
+    processData() {
+      if (!this.restitution) {
+        return;
+      }
+      this.setRestitutionConfig();
 
-      this.results = restitution.results(this.dataRestitution, {
-        ...this.configRestitution,
-        ...options,
-      });
+      const nbData = this.restitution.data().length;
+      if (!(this.choix1 && this.display && nbData)) {
+        return;
+      }
+      console.log(`process ${nbData}`)
+      this.results = this.restitution.results();
     },
     baywatch: function (props, watcher) {
       var iterator = function (prop) {

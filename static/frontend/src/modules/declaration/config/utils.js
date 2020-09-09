@@ -76,7 +76,6 @@ const processDegatMarkerDefs = (d, options) => {
     return;
   }
 
-
   const defs = [];
   for (const degat of getDegats(d, options)) {
     let color = "black";
@@ -117,7 +116,6 @@ const processDegatMarkerDefs = (d, options) => {
             process: null
           })[0];
         }
-        // color = (options.dataList.find(d => d.text === v) || {}).color;
         defs.push({ color, icon });
       }
     }
