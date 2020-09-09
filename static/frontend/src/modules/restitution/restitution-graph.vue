@@ -30,17 +30,17 @@ export default {
     initGraph() {
       this.chartOptions = null;
       const categories = this.results.choix.choix1.dataList.map(
-        data => data.text
+        data => `${data.text} (${data.count})`
       );
       const series =
         !this.results.condSame &&
         this.results.choix.choix2 &&
-        ["column", "bar"].includes(this.results.typeGraph)
+        ["column", "bar"].includes(this.results.options.typeGraph)
           ? this.results.choix.choix2.dataList.map(res2 => ({
-              name: res2.text,
+              name: `${res2.text} (${res2.count})`,
               data: this.results.choix.choix1.dataList.map(res1 => {
-                const res = res1.data2.find(d => d.text == res2.text)
-                return res && res.count || 0;
+                const res = res1.data2.find(d => d.text == res2.text);
+                return (res && res.count) || 0;
               }),
               color: res2.color
             }))
@@ -49,32 +49,29 @@ export default {
                 name: this.results.choix.choix1.text,
                 colorByPoint: true,
                 data: this.results.choix.choix1.dataList.map(data => ({
-                  name: data.text,
+                  name: `${data.text} (${data.count})`,
                   y: data.count,
                   color: data.color
                 }))
               }
             ];
-      // const data = this.results.choix.choix1.dataList.map(data => data.count);
-      const yTitle = this.results.choix.choix1.text;
       const chartOptions = {
         chart: {
-          // type: "pie",
-          type: this.results.typeGraph
+          type: this.results.options.typeGraph
         },
         title: "Test graphique",
         xAxis: {
-          categories
+          categories,
         },
         yAxis: {
           min: 0,
           title: {
-            text: yTitle
+            text: this.results.options.yTitle
           }
         },
         plotOptions: {
           series: {
-            stacking: this.results.stacking ? "normal" : null
+            stacking: this.results.options.stacking ? "normal" : null
           }
         },
         series

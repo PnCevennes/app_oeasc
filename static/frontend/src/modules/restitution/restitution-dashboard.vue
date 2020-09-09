@@ -17,7 +17,7 @@
         <restitution v-bind="settings"></restitution>
       </div>
       <div class="config">
-        <restitution-settings @updateSettings="settings = $event" :dataType='dataType'></restitution-settings>
+        <restitution-settings @updateSettings="updateSettings($event)" :dataType='dataType'></restitution-settings>
       </div>
     </div>
     <v-snackbar color="success" v-model="bContentCopied" :timeout="1000">
@@ -38,6 +38,9 @@ export default {
     restitutionSettings,
   },
   methods: {
+    updateSettings(settings) {
+      this.settings = settings;
+    },
     toContent() {
       let content = "<div><restitution \n";
       for (const prop of Object.keys(this.settings)) {

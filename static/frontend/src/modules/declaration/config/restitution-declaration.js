@@ -89,7 +89,7 @@ export default {
   },
   default: {
     dataType: "declaration",
-    display: "table",
+    display: "map",
     typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
@@ -103,6 +103,7 @@ export default {
     },
     preFilters: {
       valide: ["Validé"]
-    }  
+    },
+    yTitle: 'Nombre de dégâts',  
   },
 };

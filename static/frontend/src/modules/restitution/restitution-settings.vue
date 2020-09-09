@@ -32,6 +32,7 @@ export default {
     settings: {},
     configFormRestition: null,
     restitution: null,
+    n:0,
   }),
   mounted() {
     this.initConfig();
@@ -96,24 +97,28 @@ export default {
           multiple: true,
           items: dataList.map(d => d.text),
           change: () => {
-            this.emitSettings();
+            this.filterFormsChange();
           }
         };
       });
     },
 
-    filterSelectChange() {
-      this.filterforms={};
-      setTimeout(() => {
-        this.filterForms = this.getFilterForms();
+    filterFormsChange() {
+      this.n = this.n+1;
+      this.emitSettings();
+    },
 
+    filterSelectChange() {
+        this.filterForms = this.getFilterForms();
+        this.n = this.n+1;
         for (const key of Object.keys({ ...this.settings.filters })) {
           if (!this.settings.filterList.includes(key)) {
             delete this.settings.filters[key];
           }
         }
+      setTimeout(() => {
         this.emitSettings();
-      }, 10);
+      }, 100);
     },
     options() {
       return {
@@ -121,7 +126,11 @@ export default {
       };
     },
     emitSettings() {
-      this.$emit("updateSettings", this.options());
+      // this.n = this.n+1;
+      const settings = this.options();
+      settings.n = this.n;
+      console.log('es')
+      this.$emit("updateSettings", settings);
     },
   },
 };

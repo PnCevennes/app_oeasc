@@ -1,6 +1,6 @@
 <template>
   <div v-if="config">
-    <base-map ref="map" :mapId="mapId" :config="config" fillHeight :height="results.height"></base-map>
+    <base-map ref="map" :mapId="mapId" :config="config" fillHeight :height="results.options.height"></base-map>
   </div>
 </template>
 
@@ -24,8 +24,8 @@ export default {
     zoomOnFilter(zoomOnFilterKey, fieldName) {
       if(! ( this.$refs.map && this.$refs.map.mapService)) { return; }
       let layers = this.$refs.map.mapService.findLayers("key", zoomOnFilterKey);
-      const filters = this.results.filters[zoomOnFilterKey] || [];
-      if (filters.length) {
+      const filters = this.results.options.filters[zoomOnFilterKey] || [];
+      if (filters && filters.length) {
         layers = this.$refs.map.mapService.findLayers(
           fieldName,
           filters,

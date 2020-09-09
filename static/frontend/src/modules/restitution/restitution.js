@@ -85,13 +85,6 @@ class Restitution {
   /** list de {key, value, count, ect..} pour les resultats */
   /** comment faire le groupBy ??  */
   dataList(key, filters = null) {
-    console.log(
-      key,
-      this._rawData.length,
-      this.data().length,
-      this.filteredData().length,
-      filters
-    );
     let dataList = [];
     const item = this.item(key);
     for (const d of this.filteredData(filters)) {
@@ -125,16 +118,16 @@ class Restitution {
 
   /** quand on a deux choix (pour les graphes) */
   dataList_stacked(dataList1, dataList2) {
-      const filterData=this.filteredData();
+      const filteredData=this.filteredData();
     const dataLists = [dataList1, dataList2];
     for (const data1 of dataList1) {
       data1.data2 = [];
       let countData1 = 0;
       for (const data2 of dataList2) {
         let countData2 = 0;
-        for (const d of filterData) {
+        for (const d of filteredData) {
           let cond = true;
-          for (const key of dataLists.map(d => d.key)) {
+            for (const key of dataLists.map(data => data[0].key)) {
             const value = d[key];
             const data = data1.key == key ? data1 : data2;
             const condValue =
@@ -156,11 +149,17 @@ class Restitution {
   }
 
   markers(dataList1, dataList2) {
-    const condSame = this._options.choix1 == this._options.choix2;
+    const condSame = this.condSame();
 
     const markers = this.filteredData().map(d => {
-      const color = this.color(d[this._options.choix1], dataList1);
-      const icon = dataList2 && this.icon(d[this._options.choix2], dataList2);
+      const defs = []
+      for (const color of colors) {
+        for (const icons of icons) {
+          const icons = dataList2 && this.icon(d[this._options.choix2], dataList2);
+          const colors = this.color(d[this._options.choix1], dataList1);
+          defs.push(color, icon);
+        }
+      }
       const def = { color, icon };
       return {
         coords: d[this._options.coordsFieldName],
@@ -172,11 +171,15 @@ class Restitution {
     return markers;
   }
 
+  condSame() {
+    return this._options.choix1 == this._options.choix2; 
+  }
+
   markerLegendGroups(dataList1, dataList2) {
     const icon_default = "circle";
     const color_default = "rgb(150,150,150)";
     const markerLegendGroups = [];
-    const condSame = this._options.choix1 == this._options.choix2;
+    const condSame = this.condSame();
     let index = 0;
     for (const dataList of [dataList1, dataList2].filter(r => !!r)) {
       const key = dataList[0].key;
@@ -208,12 +211,21 @@ class Restitution {
         : [];
   }
 
+  resetFilteredData() {
+    this._filteredData = null;
+  }
+
   filteredData(filters = null) {
-    return this.filterData(this.data(), filters);
+    if(!this._filteredData) {
+      console.log('filteredData')
+      this._filteredData  = this.filterData(this.data(), filters);
+    }
+    return this._filteredData
   }
 
   /** results */
   results() {
+    this.resetFilteredData();
     let dataList1 = this.dataList(this._options.choix1);
     const item1 = this.item(this._options.choix1);
     const dataList2 =
@@ -225,6 +237,8 @@ class Restitution {
     }
 
     const out = {
+      condSame: this.condSame(),
+      options: this.options(),
       choix: {
         choix1: {
           text: item1.text,
@@ -232,7 +246,9 @@ class Restitution {
         }
       },
       makers: this.markers(dataList1, dataList2),
-      markerLegendGroups: this.markerLegendGroups(dataList1, dataList2)
+      markerLegendGroups: this.markerLegendGroups(dataList1, dataList2),
+      yTitle: this.options.yTitle,
+      items: this.items,
     };
     if (dataList2) {
       out.choix.choix2 = {
@@ -240,6 +256,7 @@ class Restitution {
         text: item2.text
       };
     }
+
     return out;
   }
 
