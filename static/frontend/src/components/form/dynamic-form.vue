@@ -103,12 +103,7 @@
         :disabled="configForm.disabled"
         @change="
           configForm.change && configForm.change({ baseModel, config, $store })
-        "
-        @click:append="
-          if (configForm.type === 'password') {
-            show1 = !show1;
-          }
-        "
+        " 
       >
         <span slot="label">
           {{ configForm.label }}
@@ -118,8 +113,9 @@
         </span>
         {{ `form-${config.name}` }}
 
-        <span slot="append">
-          <v-icon tabindex="-1">
+        <span slot="append" @click="show1=!!show1" >
+          <v-btn icon v-if='config.type === "password"' @click="show1=!show1" tabindex="-1">
+          <v-icon >
             {{
               config.type === "password"
                 ? show1
@@ -128,6 +124,7 @@
                 : null
             }}
           </v-icon>
+          </v-btn>
           <help :code="`form-${configForm.name}`" v-if="configForm.help"></help>
         </span>
       </v-text-field>
