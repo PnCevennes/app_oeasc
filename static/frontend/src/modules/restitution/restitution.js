@@ -149,10 +149,9 @@ class Restitution {
 
   /** quand on a deux choix (pour les graphes et les tableaux) */
   dataList_stacked(dataList1, dataList2) {
-      console.log('youk');
     const filteredData = this.filteredData();
     for (const data1 of dataList1) {
-      data1.data2 = [];
+      data1.subDataList = [];
       for (const data2 of dataList2) {
         const filters = {};
         filters[data1.key] =
@@ -162,7 +161,7 @@ class Restitution {
         const dataCur = this.filterData(filteredData, filters);
         const countData2 = this.groupBy(dataCur, this.options.groupByKey)
           .length;
-        data1.data2.push({ ...data2, count: countData2 });
+        data1.subDataList.push({ ...subDataList, count: countData2 });
       }
     }
   }
@@ -170,7 +169,7 @@ class Restitution {
   //       const filteredData=this.filteredData();
   //     const dataLists = [dataList1, dataList2];
   //     for (const data1 of dataList1) {
-  //       data1.data2 = [];
+  //       data1.subDataList = [];
   //       let countData1 = 0;
   //       for (const data2 of dataList2) {
   //         let countData2 = 0;
@@ -190,7 +189,7 @@ class Restitution {
   //           }
   //         }
   //         countData1 += countData2;
-  //         data1.data2.push({ ...data2, count: countData2 });
+  //         data1.subDataList.push({ ...subDataList, count: countData2 });
   //       }
   //       data1.count = countData1;
   //     }

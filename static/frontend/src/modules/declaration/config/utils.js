@@ -127,7 +127,7 @@ const processDegatMarkerDefs = (d, options) => {
     if (options.choix2 == "degat_type_labels") {
       icon = restitution.icon(
         { degat_type_labels: degat.degat_type_label },
-        options.dataList[0].data2,
+        options.dataList[0].subDataList,
         { name: "degat_type_labels" }
       )[0];
     }
@@ -158,7 +158,7 @@ const processDegatMarkerDefs = (d, options) => {
         })[0];
         if (options.choix2 != "degat_type_labels") {
           dd[options.choix2] = degat_essence[options.choix2];
-          icon = restitution.icon(dd, options.dataList[0].data2, {
+          icon = restitution.icon(dd, options.dataList[0].subDataList, {
             ...options,
             name: options.choix2,
             process: null

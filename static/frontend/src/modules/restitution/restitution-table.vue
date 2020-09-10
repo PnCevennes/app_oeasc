@@ -39,7 +39,7 @@
             <template v-if="!results.condSame">
               <tr
                 style="opacity: 0.3"
-                v-for="(result2, index2) of result.data2 || []"
+                v-for="(result2, index2) of result.subDataList || []"
                 :key="`${index}_${index1}_${index2}`"
               >
                 <td>- {{ result2.text }}</td>

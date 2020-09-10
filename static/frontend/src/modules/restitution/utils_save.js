@@ -182,7 +182,7 @@ const restitution = {
     const dataList1 = this.dataList(data, options1);
     const dataList2 = this.dataList(data, options2);
     for (const data1 of dataList1) {
-      data1.data2 = [];
+      data1.subDataList = [];
       for (const data2 of dataList2) {
         let countData2 = 0;
         for (const d of data) {
@@ -200,7 +200,7 @@ const restitution = {
             countData2++;
           }
         }
-        data1.data2.push({ ...data2, count: countData2 });
+        data1.subDataList.push({ ...subDataList, count: countData2 });
       }
     }
     return dataList1;
