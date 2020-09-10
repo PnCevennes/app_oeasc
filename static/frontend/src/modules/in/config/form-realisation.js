@@ -102,5 +102,4 @@ export default {
   displayValue: ({ id }) => !!id,
   displayLabel: true,
   storeName: 'inRealisation',
-  idFieldName: 'id_realisation'
 };

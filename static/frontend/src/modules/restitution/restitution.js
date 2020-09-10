@@ -89,6 +89,7 @@ class Restitution {
     const item = this.item(key);
     for (const d of this.filteredData(filters)) {
       const value = d[key];
+      // console.log(value)
       for (const v of value) {
         // test si déjà dans la liste
         let elem = dataList.find(d => d.text == v);
@@ -162,7 +163,7 @@ class Restitution {
         
         const countData2 = this.groupBy(dataCur, this.options.groupByKey)
           .length;
-        data1.subDataList.push({ ...subDataList, count: countData2 });
+        data1.subDataList.push({ ...data2, count: countData2 });
       }
     }
   }
@@ -267,7 +268,7 @@ class Restitution {
 
   filteredData(filters = null) {
     if (!this._filteredData) {
-      console.log("filteredData");
+      console.log("filteredData", this.data());
       this._filteredData = this.filterData(this.data(), filters);
     }
     return this._filteredData;

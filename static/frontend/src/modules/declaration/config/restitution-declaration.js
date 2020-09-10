@@ -89,7 +89,7 @@ export default {
   },
   default: {
     dataType: "declaration",
-    display: "map",
+    display: "graph",
     typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
