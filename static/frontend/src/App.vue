@@ -5,7 +5,7 @@
         <oeasc-app-bar class="oeasc-app-bar" :config="configAppBar" v-model="configDrawer.show"></oeasc-app-bar>
         <div class="oeasc-app-bar space"></div>
         <!-- <v-card color="grey lighten-4" flat tile> -->
-        <div class="img-titre" v-if="!this.$route.meta.hideTitle">
+        <div class="img-titre" v-if="!$route.meta.hideTitle">
           <h1 class="oeasc-titre">Observatoire de l'équilibre agro‑sylvo‑cynégétique</h1>
         </div>
         <oeasc-drawer :config="configDrawer"></oeasc-drawer>

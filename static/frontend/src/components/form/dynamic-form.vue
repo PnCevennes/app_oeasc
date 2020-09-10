@@ -125,7 +125,7 @@
             }}
           </v-icon>
           </v-btn>
-          <help :code="`form-${configForm.name}`" v-if="configForm.help"></help>
+          <help tabindex="-1" :code="`form-${configForm.name}`" v-if="configForm.help"></help>
         </span>
       </v-text-field>
     </template>

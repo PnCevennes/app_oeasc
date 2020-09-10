@@ -116,7 +116,7 @@ class Restitution {
     return dataList;
   }
 
-  /** quand on a deux choix (pour les graphes) */
+  /** quand on a deux choix (pour les graphes et les tableaux) */
   dataList_stacked(dataList1, dataList2) {
       const filteredData=this.filteredData();
     const dataLists = [dataList1, dataList2];
@@ -152,15 +152,16 @@ class Restitution {
     const condSame = this.condSame();
 
     const markers = this.filteredData().map(d => {
-      const defs = []
-      for (const color of colors) {
-        for (const icons of icons) {
-          const icons = dataList2 && this.icon(d[this._options.choix2], dataList2);
-          const colors = this.color(d[this._options.choix1], dataList1);
-          defs.push(color, icon);
-        }
-      }
-      const def = { color, icon };
+    //   const defs = []
+    //   for (const color of colors) {
+    //     for (const icons of icons) {
+    //       const icon = dataList2 && this.icon(d[this._options.choix2], dataList2);
+    //       const color = this.color(d[this._options.choix1], dataList1);
+    //       defs.push(color, icon);
+    //     }
+    //   }
+    dataList1, dataList2;
+      const def = { color:'red', icon:'pencil' };
       return {
         coords: d[this._options.coordsFieldName],
         type: "label",
