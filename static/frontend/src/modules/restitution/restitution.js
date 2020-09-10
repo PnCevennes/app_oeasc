@@ -116,52 +116,101 @@ class Restitution {
     return dataList;
   }
 
+  /**
+   * out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
+   */
+  groupBy(data, groupByKey = null, process = null, processArgs = null) {
+    // si pas de groupByKey on renvoie data
+    if (!groupByKey) {
+      return data;
+    }
+
+    const dataDict = {};
+    // on regroupe par groupByKey dans un dict
+    for (const d of data) {
+      for (const groupByValue of d[groupByKey]) {
+        dataDict[groupByValue] = dataDict[groupByValue] || [];
+        dataDict[groupByValue].push(d);
+      }
+    }
+
+    // out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
+    const out = Object.entries(dataDict).map((groupByValue, dataGroup) => {
+      const d = {};
+      d[groupByKey] = groupByValue;
+      if (process) {
+        d.res = process(dataGroup, processArgs);
+      }
+      return d;
+    });
+
+    return out;
+  }
+
   /** quand on a deux choix (pour les graphes et les tableaux) */
   dataList_stacked(dataList1, dataList2) {
-      const filteredData=this.filteredData();
-    const dataLists = [dataList1, dataList2];
+      console.log('youk');
+    const filteredData = this.filteredData();
     for (const data1 of dataList1) {
       data1.data2 = [];
-      let countData1 = 0;
       for (const data2 of dataList2) {
-        let countData2 = 0;
-        for (const d of filteredData) {
-          let cond = true;
-            for (const key of dataLists.map(data => data[0].key)) {
-            const value = d[key];
-            const data = data1.key == key ? data1 : data2;
-            const condValue =
-              data.text != "Autres"
-                ? value.includes(data.text)
-                : data.autres.some(textAutre => value.includes(textAutre));
-            cond = cond && condValue;
-          }
-          if (cond) {
-            countData2 += 1;
-          }
-        }
-        countData1 += countData2;
+        const filters = {};
+        filters[data1.key] =
+          data1.text == "Autres" ? [data1.text] : data1.autres;
+        filters[data2.key] =
+          data2.text == "Autres" ? [data2.text] : data2.autres;
+        const dataCur = this.filterData(filteredData, filters);
+        const countData2 = this.groupBy(dataCur, this.options.groupByKey)
+          .length;
         data1.data2.push({ ...data2, count: countData2 });
       }
-      data1.count = countData1;
     }
-    return dataList1;
   }
+  //   dataList_stacked(dataList1, dataList2) {
+  //       const filteredData=this.filteredData();
+  //     const dataLists = [dataList1, dataList2];
+  //     for (const data1 of dataList1) {
+  //       data1.data2 = [];
+  //       let countData1 = 0;
+  //       for (const data2 of dataList2) {
+  //         let countData2 = 0;
+  //         for (const d of filteredData) {
+  //           let cond = true;
+  //             for (const key of dataLists.map(data => data[0].key)) {
+  //             const value = d[key];
+  //             const data = data1.key == key ? data1 : data2;
+  //             const condValue =
+  //               data.text != "Autres"
+  //                 ? value.includes(data.text)
+  //                 : data.autres.some(textAutre => value.includes(textAutre));
+  //             cond = cond && condValue;
+  //           }
+  //           if (cond) {
+  //             countData2 += 1;
+  //           }
+  //         }
+  //         countData1 += countData2;
+  //         data1.data2.push({ ...data2, count: countData2 });
+  //       }
+  //       data1.count = countData1;
+  //     }
+  //     return dataList1;
+  //   }
 
   markers(dataList1, dataList2) {
     const condSame = this.condSame();
 
     const markers = this.filteredData().map(d => {
-    //   const defs = []
-    //   for (const color of colors) {
-    //     for (const icons of icons) {
-    //       const icon = dataList2 && this.icon(d[this._options.choix2], dataList2);
-    //       const color = this.color(d[this._options.choix1], dataList1);
-    //       defs.push(color, icon);
-    //     }
-    //   }
-    dataList1, dataList2;
-      const def = { color:'red', icon:'pencil' };
+      //   const defs = []
+      //   for (const color of colors) {
+      //     for (const icons of icons) {
+      //       const icon = dataList2 && this.icon(d[this._options.choix2], dataList2);
+      //       const color = this.color(d[this._options.choix1], dataList1);
+      //       defs.push(color, icon);
+      //     }
+      //   }
+      dataList1, dataList2;
+      const def = { color: "red", icon: "pencil" };
       return {
         coords: d[this._options.coordsFieldName],
         type: "label",
@@ -173,7 +222,7 @@ class Restitution {
   }
 
   condSame() {
-    return this._options.choix1 == this._options.choix2; 
+    return this._options.choix1 == this._options.choix2;
   }
 
   markerLegendGroups(dataList1, dataList2) {
@@ -204,12 +253,12 @@ class Restitution {
   }
 
   data() {
-      return this._rawData && this._rawData.length
-        ? this.filterData(
-            this.processData(this._rawData),
-            this._options.preFilters || {}
-          )
-        : [];
+    return this._rawData && this._rawData.length
+      ? this.filterData(
+          this.processData(this._rawData),
+          this._options.preFilters || {}
+        )
+      : [];
   }
 
   resetFilteredData() {
@@ -217,11 +266,11 @@ class Restitution {
   }
 
   filteredData(filters = null) {
-    if(!this._filteredData) {
-      console.log('filteredData')
-      this._filteredData  = this.filterData(this.data(), filters);
+    if (!this._filteredData) {
+      console.log("filteredData");
+      this._filteredData = this.filterData(this.data(), filters);
     }
-    return this._filteredData
+    return this._filteredData;
   }
 
   /** results */
@@ -249,7 +298,7 @@ class Restitution {
       makers: this.markers(dataList1, dataList2),
       markerLegendGroups: this.markerLegendGroups(dataList1, dataList2),
       yTitle: this.options.yTitle,
-      items: this.items,
+      items: this.items
     };
     if (dataList2) {
       out.choix.choix2 = {
