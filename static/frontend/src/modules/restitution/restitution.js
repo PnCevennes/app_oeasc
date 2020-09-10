@@ -159,6 +159,7 @@ class Restitution {
         filters[data2.key] =
           data2.text == "Autres" ? [data2.text] : data2.autres;
         const dataCur = this.filterData(filteredData, filters);
+        
         const countData2 = this.groupBy(dataCur, this.options.groupByKey)
           .length;
         data1.subDataList.push({ ...subDataList, count: countData2 });
