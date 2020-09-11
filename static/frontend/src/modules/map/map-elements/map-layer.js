@@ -35,7 +35,7 @@ const mapLayer = {
         this.processLayer(layerConfig, layerData);
       },
       error => {
-        console.log(error);
+        console.error(`MapLayer Error : ${error}`)        
       }
     );
   },

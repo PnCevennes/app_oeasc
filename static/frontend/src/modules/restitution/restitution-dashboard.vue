@@ -55,7 +55,7 @@ export default {
       return content;
     },
     contentToClipboard() {
-      navigator.clipboard.writeText(this.toContent()).then(() => {console.log('aa');this.bContentCopied = true});
+      navigator.clipboard.writeText(this.toContent()).then(() => {this.bContentCopied = true});
     }
   },
   data: () => ({

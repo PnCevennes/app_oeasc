@@ -7,7 +7,7 @@ class Restitution {
   _options = {};
   _rawData;
   _defaultTypes = {
-    icon: [
+    icons: [
       "circle",
       "square",
       "star",
@@ -17,7 +17,9 @@ class Restitution {
       "triangle",
       "wifi-strength-4"
     ],
-    color: chroma.brewer.Dark2
+    colors: chroma.brewer.Dark2,
+    icon: "circle",
+    color: "rgb(150,150,150)"
   };
 
   constructor(dataType, $store) {
@@ -64,6 +66,7 @@ class Restitution {
 
   filterData(data, filters) {
     let filteredData = data;
+
     for (const [key, filter] of Object.entries(
       filters || this._options.filters || {}
     )) {
@@ -79,7 +82,10 @@ class Restitution {
     const value = item.process ? item.process(d, item) : d[key];
 
     // toujours renvoyer un Array
-    return !value ? [] : Array.isArray(value) ? value : [value];
+    return (!value || value == [] || Array.isArray(value) && value.some(v => !v)) 
+    ? ['Indéfini'] 
+    : Array.isArray(value) 
+    ? value : [value];
   }
 
   /** list de {key, value, count, ect..} pour les resultats */
@@ -87,18 +93,34 @@ class Restitution {
   dataList(key, filters = null) {
     let dataList = [];
     const item = this.item(key);
-    for (const d of this.filteredData(filters)) {
+
+
+    const dataToProcess = this.groupBy(
+      this.filteredData(filters),
+      this._options.groupByKey,
+      [key],
+      "concat"
+    );
+          
+    for (const d of dataToProcess) {
       const value = d[key];
-      // console.log(value)
+
+      const elemTextSaves = [];
+      console.log(value)
       for (const v of value) {
         // test si déjà dans la liste
         let elem = dataList.find(d => d.text == v);
         /// si non on le rajoute
         if (!elem) {
           elem = { text: v, count: 0, key };
-          dataList.push(elem);
+          console.log('dl', key, v)
+          dataList.push(elem); 
         }
-        elem.count += 1;
+        const elemTextSave = elemTextSaves.find(text => text == elem.text);
+        if (!elemTextSave) {
+          elemTextSaves.push(elem.text);
+          elem.count += 1;
+        }
       }
     }
     if (item.type == "date") {
@@ -114,18 +136,19 @@ class Restitution {
       data.color = this.color(data.text, dataList);
     }
 
+    console.log(dataList)
+
     return dataList;
   }
 
   /**
    * out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
    */
-  groupBy(data, groupByKey = null, process = null, processArgs = null) {
+  groupBy(data, groupByKey = null, keys = [], action = null) {
     // si pas de groupByKey on renvoie data
     if (!groupByKey) {
       return data;
     }
-
     const dataDict = {};
     // on regroupe par groupByKey dans un dict
     for (const d of data) {
@@ -135,13 +158,46 @@ class Restitution {
       }
     }
 
+    
+
+
     // out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
-    const out = Object.entries(dataDict).map((groupByValue, dataGroup) => {
+    const out = Object.entries(dataDict).map(([groupByValue, dataGroup]) => {
       const d = {};
+
       d[groupByKey] = groupByValue;
-      if (process) {
-        d.res = process(dataGroup, processArgs);
+
+      if (!keys.length) {
+        return d;
       }
+
+      const listGroup = this._options.markersGroupByReduceKeys || [];
+      for (const key of keys.filter(key => !listGroup.includes(key) && !!key)) {
+        d[key] = dataGroup[0][key];
+      }
+
+      const condReduce = keys.some(choix => listGroup.includes(choix));
+      const dataProcessed = condReduce ? dataGroup : [dataGroup[0]];
+
+      d.res = dataProcessed.map(data => {
+        const res = {};
+        for (const key of keys.filter(key => !!key)) {
+          
+          res[key] = data[key];
+        }
+        return res;
+      });
+      if (action == "concat") {
+        for (const r of d.res) {
+          for (const key of Object.keys(r).filter(key =>
+            listGroup.includes(key)
+          )) {
+            console;
+            d[key] = (d[key] || []).concat(r[key]);
+          }
+        }
+      }
+
       return d;
     });
 
@@ -149,76 +205,78 @@ class Restitution {
   }
 
   /** quand on a deux choix (pour les graphes et les tableaux) */
-  dataList_stacked(dataList1, dataList2) {
+  dataListStacked(dataList1, dataList2) {
     const filteredData = this.filteredData();
     for (const data1 of dataList1) {
       data1.subDataList = [];
       for (const data2 of dataList2) {
+        console.log(data1.text, data2.text)
+
         const filters = {};
         filters[data1.key] =
-          data1.text == "Autres" ? [data1.text] : data1.autres;
+          data1.text != "Autres" ? [data1.text] : data1.autres;
         filters[data2.key] =
-          data2.text == "Autres" ? [data2.text] : data2.autres;
+          data2.text != "Autres" ? [data2.text] : data2.autres;
         const dataCur = this.filterData(filteredData, filters);
-        
+
         const countData2 = this.groupBy(dataCur, this.options.groupByKey)
           .length;
         data1.subDataList.push({ ...data2, count: countData2 });
       }
     }
+    return dataList1;
   }
-  //   dataList_stacked(dataList1, dataList2) {
-  //       const filteredData=this.filteredData();
-  //     const dataLists = [dataList1, dataList2];
-  //     for (const data1 of dataList1) {
-  //       data1.subDataList = [];
-  //       let countData1 = 0;
-  //       for (const data2 of dataList2) {
-  //         let countData2 = 0;
-  //         for (const d of filteredData) {
-  //           let cond = true;
-  //             for (const key of dataLists.map(data => data[0].key)) {
-  //             const value = d[key];
-  //             const data = data1.key == key ? data1 : data2;
-  //             const condValue =
-  //               data.text != "Autres"
-  //                 ? value.includes(data.text)
-  //                 : data.autres.some(textAutre => value.includes(textAutre));
-  //             cond = cond && condValue;
-  //           }
-  //           if (cond) {
-  //             countData2 += 1;
-  //           }
-  //         }
-  //         countData1 += countData2;
-  //         data1.subDataList.push({ ...subDataList, count: countData2 });
-  //       }
-  //       data1.count = countData1;
-  //     }
-  //     return dataList1;
-  //   }
 
   markers(dataList1, dataList2) {
     const condSame = this.condSame();
 
-    const markers = this.filteredData().map(d => {
-      //   const defs = []
-      //   for (const color of colors) {
-      //     for (const icons of icons) {
-      //       const icon = dataList2 && this.icon(d[this._options.choix2], dataList2);
-      //       const color = this.color(d[this._options.choix1], dataList1);
-      //       defs.push(color, icon);
-      //     }
-      //   }
-      dataList1, dataList2;
-      const def = { color: "red", icon: "pencil" };
+    let dataMarkers = this.filteredData();
+
+    const markersGroupByKey = this._options.markersGroupByKey;
+    if (markersGroupByKey) {
+      dataMarkers = this.groupBy(dataMarkers, this._options.markersGroupByKey, [
+        this._options.choix1,
+        this._options.choix2,
+        this._options.coordsFieldName
+      ]);
+    }
+    (dataMarkers);
+    const markers = dataMarkers.map(d => {
+      const defs = [];
+
+      for (const res of d.res) {
+        const d1 = res[this._options.choix1];
+        const d2 = res[this._options.choix2];
+        (d1, d2);
+        for (const v1 of d1) {
+          if (!d2) {
+            defs.push({
+              color: this.color(v1, dataList1),
+              icon: this.icon(null, dataList1)
+            });
+          } else if (d2 && condSame) {
+            defs.push({
+              icon: this.icon(v1, dataList1),
+              color: this.color(v1, dataList1)
+            });
+          } else {
+            for (const v2 of d2) {
+              defs.push({
+                icon: this.icon(v2, dataList2),
+                color: this.color(v1, dataList1)
+              });
+            }
+          }
+        }
+      }
       return {
         coords: d[this._options.coordsFieldName],
         type: "label",
         condSame,
-        defs: [def]
+        defs
       };
     });
+    (markers);
     return markers;
   }
 
@@ -227,8 +285,6 @@ class Restitution {
   }
 
   markerLegendGroups(dataList1, dataList2) {
-    const icon_default = "circle";
-    const color_default = "rgb(150,150,150)";
     const markerLegendGroups = [];
     const condSame = this.condSame();
     let index = 0;
@@ -240,8 +296,10 @@ class Restitution {
         legends: dataList.map(data => ({
           text: data.text,
           count: data.count,
-          icon: ((condSame || index == 1) && data.icon) || icon_default,
-          color: ((condSame || index == 0) && data.color) || color_default
+          icon:
+            ((condSame || index == 1) && data.icon) || this._defaultTypes.icon,
+          color:
+            ((condSame || index == 0) && data.color) || this._defaultTypes.color
         }))
       };
       index += 1;
@@ -254,29 +312,29 @@ class Restitution {
   }
 
   data() {
-    return this._rawData && this._rawData.length
+    if(this._data) {
+      return this._data;
+    }
+    this._data =  this._rawData && this._rawData.length
       ? this.filterData(
           this.processData(this._rawData),
           this._options.preFilters || {}
         )
       : [];
+      return this._data;
   }
 
-  resetFilteredData() {
-    this._filteredData = null;
+  resetData() {
+    this._data = null;
   }
 
   filteredData(filters = null) {
-    if (!this._filteredData) {
-      console.log("filteredData", this.data());
-      this._filteredData = this.filterData(this.data(), filters);
-    }
-    return this._filteredData;
+      return  this.filterData(this.data(), filters);
   }
 
   /** results */
   results() {
-    this.resetFilteredData();
+    this.resetData();
     let dataList1 = this.dataList(this._options.choix1);
     const item1 = this.item(this._options.choix1);
     const dataList2 =
@@ -284,7 +342,7 @@ class Restitution {
     const item2 = this.item(this._options.choix2);
 
     if (dataList1 && dataList2) {
-      dataList1 = this.dataList_stacked(dataList1, dataList2);
+      dataList1 = this.dataListStacked(dataList1, dataList2);
     }
 
     const out = {
@@ -296,10 +354,12 @@ class Restitution {
           dataList: dataList1
         }
       },
-      makers: this.markers(dataList1, dataList2),
+      markers: this.markers(dataList1, dataList2),
       markerLegendGroups: this.markerLegendGroups(dataList1, dataList2),
       yTitle: this.options.yTitle,
-      items: this.items
+      items: this.items,
+      nbDataFiltered: this.filteredData().length,
+      nbData: this.data().length,
     };
     if (dataList2) {
       out.choix.choix2 = {
@@ -317,20 +377,23 @@ class Restitution {
 
   /** type : icon ou color */
   valueOfType(type, value, dataList) {
+    let out;
     const key = dataList[0].key;
+
     const item = this.item(key);
-    const types = item[`${type}s`] || this._defaultTypes[type];
+    const types = item[`${type}s`] || this._defaultTypes[`${type}s`];
     if (!Array.isArray(types)) {
-      return types[value];
-    }
+      out = types[value];
+    } else {
+      // sinon types est un array
+      let index = dataList.findIndex(e => e.text == value );
+      if (index == -1) {
+        index = dataList.findIndex(e => e.text == "Autres");
+      }
 
-    // sinon types est un array
-    let index = dataList.findIndex(e => e.text == value);
-    if (index == -1) {
-      index = dataList.findIndex(e => e.text == "Autres");
+      out = types[index];
     }
-
-    return types[index];
+    return out || this._defaultTypes[type];
   }
 
   icon(value, dataList) {
@@ -352,7 +415,12 @@ class Restitution {
     if (!nbMax) {
       return dataList;
     }
-    const elemAutres = { text: "Autres", count: 0, autres: [] };
+    const elemAutres = {
+      text: "Autres",
+      count: 0,
+      autres: [],
+      key: dataList[0].key
+    };
     const out = [];
     for (let i = 0; i < dataList.length; i++) {
       if (i < nbMax) {

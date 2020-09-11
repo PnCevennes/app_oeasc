@@ -205,7 +205,7 @@ export default {
         return {};
       }
       const configForm = copy(header.edit);
-      console.log(value)
+      
       if (value != "actions") {
         configForm.title = `Modifier ${prop.header.text} pour ${
           item[this.configTable.labelFieldName || this.configTable.idFieldName]

@@ -47,7 +47,8 @@ const props = [
   "stacking",
   "n",
   "height",
-  "preFilters"
+  "preFilters",
+  "groupByKey",
 ];
 
 export default {
@@ -86,7 +87,7 @@ export default {
       this.restitution.getData(this.$store).then(
         () => {
           /** calcul de results */
-          console.log('uu')
+          
           this.processData();
         },
         (error) => {
@@ -112,7 +113,7 @@ export default {
       if (!(this.choix1 && this.display && nbData)) {
         return;
       }
-      console.log(`process ${nbData}`)
+      
       this.results = this.restitution.results();
     },
     baywatch: function (props, watcher) {
@@ -124,6 +125,7 @@ export default {
   },
 
   mounted() {
+    console.log('mounted')
     this.baywatch(props, () => {
       this.processData();
     });

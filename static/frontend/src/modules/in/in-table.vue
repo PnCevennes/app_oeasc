@@ -263,7 +263,7 @@ export default {
       return Math.round(x * e) / e;
     },
     validChange(id_realisation, valid) {
-      console.log(id_realisation)
+      
       this.freezeValid = true;
       apiRequest("PATCH", "api/in/valid_realisation/", {
         postData: { id_realisation, valid },
@@ -304,7 +304,7 @@ export default {
         return;
       }
       if (!this.items("ug").includes(this.settings.ug)) {
-        console.log("no ug");
+        
         this.settings.ug = null;
       }
 

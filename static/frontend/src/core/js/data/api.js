@@ -5,7 +5,7 @@ var url = urlRelative => {
 };
 
 var fail = msg => {
-  console.log(`apiRequest fail : ${msg}`);
+  console.error(`apiRequest fail : ${msg}`);
 };
 
 var apiRequest = (method, urlRelative, options = {}) => {
@@ -49,7 +49,7 @@ var apiRequest = (method, urlRelative, options = {}) => {
         }
       },
       msg_fail => {
-        console.log(`Erreur dans apiRequest ${urlRelative} ${msg_fail}`);
+        console.error(`Erreur dans apiRequest ${urlRelative} ${msg_fail}`);
         reject(msg_fail);
       }
     );

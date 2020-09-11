@@ -26,7 +26,7 @@ const mapExport = {
 
         // hide elem
         elem.style.display = "none";
-        console.log('img done', elem)
+        
         resolve(elem);
       });
     });

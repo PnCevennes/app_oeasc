@@ -42,7 +42,7 @@ export default {
               url: "pypn/register/post_usershub/change_application_right",
               method: "POST",
             },
-            onSuccess: ( { data }) => { console.log('yakk'); data.id_droit_max = data.id_droit;}
+            onSuccess: ( { data }) => { data.id_droit_max = data.id_droit;}
           },
           formDefs: {
             id_droit_max: {

@@ -64,6 +64,8 @@ export default {
 
       this.restitution.setOptions(this.options());
 
+      configFormRestition.formDefs.groupByKey.items = this.restitution.options().groupByKeyItems;
+
       for (const formDef of Object.values(configFormRestition.formDefs)) {
         formDef.change = () => this.emitSettings(); // ideal newChange
       }
@@ -73,7 +75,6 @@ export default {
         value: name,
       }));
 
-      console.log(items.map(a=>a.text))
       for (const keyForm of ["choix1", "choix2", "filterList"]) {
         configFormRestition.formDefs[keyForm].items = items;
       }
@@ -129,7 +130,7 @@ export default {
       // this.n = this.n+1;
       const settings = this.options();
       settings.n = this.n;
-      console.log('es')
+      
       this.$emit("updateSettings", settings);
     },
   },

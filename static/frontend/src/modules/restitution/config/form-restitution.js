@@ -9,7 +9,7 @@ const configChoix = {
 export default {
   groups: [
     {
-      forms: ["display"]
+      forms: ["display", "groupByKey"]
     },
     {
       forms: ["height"]
@@ -96,9 +96,13 @@ export default {
     filterList: {
       type: "list_form",
       display: "autocomplete",
-      name: "filters",
       label: "Filtres",
       multiple: true
+    },
+    groupByKey: {
+      type: 'list_form',
+      display: 'select',
+      label: 'Type de donneés',
     }
   }
 };
