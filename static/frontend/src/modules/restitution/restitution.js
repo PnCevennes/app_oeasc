@@ -82,10 +82,13 @@ class Restitution {
     const value = item.process ? item.process(d, item) : d[key];
 
     // toujours renvoyer un Array
-    return (!value || value == [] || Array.isArray(value) && value.some(v => !v)) 
-    ? ['Indéfini'] 
-    : Array.isArray(value) 
-    ? value : [value];
+    return !value ||
+      value == [] ||
+      (Array.isArray(value) && value.some(v => !v))
+      ? ["Indéfini"]
+      : Array.isArray(value)
+      ? value
+      : [value];
   }
 
   /** list de {key, value, count, ect..} pour les resultats */
@@ -94,27 +97,26 @@ class Restitution {
     let dataList = [];
     const item = this.item(key);
 
-
     const dataToProcess = this.groupBy(
       this.filteredData(filters),
       this._options.groupByKey,
       [key],
       "concat"
     );
-          
+
     for (const d of dataToProcess) {
       const value = d[key];
-
+      
       const elemTextSaves = [];
-      console.log(value)
+
       for (const v of value) {
         // test si déjà dans la liste
         let elem = dataList.find(d => d.text == v);
         /// si non on le rajoute
         if (!elem) {
           elem = { text: v, count: 0, key };
-          console.log('dl', key, v)
-          dataList.push(elem); 
+
+          dataList.push(elem);
         }
         const elemTextSave = elemTextSaves.find(text => text == elem.text);
         if (!elemTextSave) {
@@ -136,8 +138,6 @@ class Restitution {
       data.color = this.color(data.text, dataList);
     }
 
-    console.log(dataList)
-
     return dataList;
   }
 
@@ -157,9 +157,6 @@ class Restitution {
         dataDict[groupByValue].push(d);
       }
     }
-
-    
-
 
     // out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
     const out = Object.entries(dataDict).map(([groupByValue, dataGroup]) => {
@@ -182,7 +179,6 @@ class Restitution {
       d.res = dataProcessed.map(data => {
         const res = {};
         for (const key of keys.filter(key => !!key)) {
-          
           res[key] = data[key];
         }
         return res;
@@ -210,21 +206,32 @@ class Restitution {
     for (const data1 of dataList1) {
       data1.subDataList = [];
       for (const data2 of dataList2) {
-        console.log(data1.text, data2.text)
-
         const filters = {};
         filters[data1.key] =
           data1.text != "Autres" ? [data1.text] : data1.autres;
         filters[data2.key] =
           data2.text != "Autres" ? [data2.text] : data2.autres;
+          console.log(filters, data1.key)
         const dataCur = this.filterData(filteredData, filters);
 
         const countData2 = this.groupBy(dataCur, this.options.groupByKey)
           .length;
         data1.subDataList.push({ ...data2, count: countData2 });
       }
+      data1.subDataList.sort((a, b) => b.count - a.count);
     }
     return dataList1;
+  }
+
+  filtersDisplay() {
+    let out = [];
+    for (const [key, filter] of Object.entries(this._options.filters || {})) {
+      const filterText = filter && filter.length ? filter.join(", ") : "";
+      if (filterText) {
+        out.push(`${this.item(key).text} : ${filterText}`);
+      }
+    }
+    return out.join("; ");
   }
 
   markers(dataList1, dataList2) {
@@ -240,14 +247,14 @@ class Restitution {
         this._options.coordsFieldName
       ]);
     }
-    (dataMarkers);
+    dataMarkers;
     const markers = dataMarkers.map(d => {
       const defs = [];
 
       for (const res of d.res) {
         const d1 = res[this._options.choix1];
         const d2 = res[this._options.choix2];
-        (d1, d2);
+        d1, d2;
         for (const v1 of d1) {
           if (!d2) {
             defs.push({
@@ -276,7 +283,7 @@ class Restitution {
         defs
       };
     });
-    (markers);
+    markers;
     return markers;
   }
 
@@ -285,7 +292,7 @@ class Restitution {
   }
 
   markerLegendGroups(dataList1, dataList2) {
-    const markerLegendGroups = [];
+    const markerLegendGroups = [{ title: this.yTitle() }];
     const condSame = this.condSame();
     let index = 0;
     for (const dataList of [dataList1, dataList2].filter(r => !!r)) {
@@ -312,16 +319,17 @@ class Restitution {
   }
 
   data() {
-    if(this._data) {
+    if (this._data && this._data.length) {
       return this._data;
     }
-    this._data =  this._rawData && this._rawData.length
-      ? this.filterData(
-          this.processData(this._rawData),
-          this._options.preFilters || {}
-        )
-      : [];
-      return this._data;
+    this._data =
+      this._rawData && this._rawData.length
+        ? this.filterData(
+            this.processData(this._rawData),
+            this._options.preFilters || {}
+          )
+        : [];
+    return this._data;
   }
 
   resetData() {
@@ -329,7 +337,7 @@ class Restitution {
   }
 
   filteredData(filters = null) {
-      return  this.filterData(this.data(), filters);
+    return this.filterData(this.data(), filters);
   }
 
   /** results */
@@ -356,11 +364,13 @@ class Restitution {
       },
       markers: this.markers(dataList1, dataList2),
       markerLegendGroups: this.markerLegendGroups(dataList1, dataList2),
-      yTitle: this.options.yTitle,
+      yTitle: this.yTitle(),
       items: this.items,
       nbDataFiltered: this.filteredData().length,
       nbData: this.data().length,
+      filtersDisplay: this.filtersDisplay()
     };
+
     if (dataList2) {
       out.choix.choix2 = {
         dataList: dataList2,
@@ -369,6 +379,12 @@ class Restitution {
     }
 
     return out;
+  }
+
+  yTitle() {
+    return this._options.groupByKeyItems.find(
+      i => i.value == this._options.groupByKey
+    ).text;
   }
 
   item(key) {
@@ -386,7 +402,7 @@ class Restitution {
       out = types[value];
     } else {
       // sinon types est un array
-      let index = dataList.findIndex(e => e.text == value );
+      let index = dataList.findIndex(e => e.text == value);
       if (index == -1) {
         index = dataList.findIndex(e => e.text == "Autres");
       }

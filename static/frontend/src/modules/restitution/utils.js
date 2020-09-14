@@ -25,7 +25,7 @@ const fillDates = dataList => {
     }
     d = `${m < 10 ? "0" : ""}${m}/${y}`;
     if (!dataList.find(data => data.text == d)) {
-      dataList.push({ text: d, count: 0 });
+      dataList.push({ text: d, count: 0, key: dataList[0].key});
     }
   }
   dataList = dataList.sort(compareDates);

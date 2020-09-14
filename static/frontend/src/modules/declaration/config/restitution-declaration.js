@@ -106,12 +106,12 @@ export default {
     ],
     dataType: "declaration",
     // display: "graph",
-    display: "map",
+    display: "table",
     typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
-    choix1: 'secteur',
-    choix2: "degat_gravite_label",
+    choix1: 'declaration_date',
+    // choix2: "degat_gravite_label",
     // choix2: "degat_essence_label",
     // choix2: "degat_type_labels",
     n: 0,
@@ -122,6 +122,5 @@ export default {
     preFilters: {
       valide: ["Validé"]
     },
-    yTitle: "Nombre de dégâts"
   }
 };

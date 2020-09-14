@@ -22,12 +22,12 @@ export default {
       forms: ["choix2", "nbMax2"],
       direction: "row"
     },
-            {
-              forms: ["switch"]
-            },
+    {
+      forms: ["switch"]
+    },
     {
       forms: ["typeGraph", "stacking"],
-      direction: "row",
+      direction: "row"
     },
     {
       forms: ["filterList"]
@@ -66,7 +66,7 @@ export default {
     switch: {
       type: "button",
       icon: "mdi-swap-vertical-bold",
-      tooltip: 'Inverser choix1 et choix2',
+      tooltip: "Inverser choix1 et choix2",
       click: () => ({ baseModel }) => {
         const temp = { choix: baseModel.choix1, nbMax: baseModel.nbMax1 };
         baseModel.choix1 = baseModel.choix2;
@@ -100,9 +100,9 @@ export default {
       multiple: true
     },
     groupByKey: {
-      type: 'list_form',
-      display: 'select',
-      label: 'Type de donneés',
+      type: "list_form",
+      display: "select",
+      label: "Type de donneés",
     }
   }
 };

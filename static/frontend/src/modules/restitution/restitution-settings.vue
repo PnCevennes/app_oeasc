@@ -1,9 +1,15 @@
 <template>
   <div>
     <div v-if="configFormRestition">
-      <dynamic-form-group :config="configFormRestition" :baseModel="settings"></dynamic-form-group>
+      <dynamic-form-group
+        :config="configFormRestition"
+        :baseModel="settings"
+      ></dynamic-form-group>
       <div class="filters" v-for="filter of filterForms" :key="filter.name">
-        <dynamic-form :config="filter" :baseModel="settings.filters"></dynamic-form>
+        <dynamic-form
+          :config="filter"
+          :baseModel="settings.filters"
+        ></dynamic-form>
       </div>
     </div>
   </div>
@@ -32,7 +38,7 @@ export default {
     settings: {},
     configFormRestition: null,
     restitution: null,
-    n:0,
+    n: 0
   }),
   mounted() {
     this.initConfig();
@@ -49,7 +55,7 @@ export default {
         if (!this.filters) {
           this.filters = {
             ...this.settings.filters,
-            ...(this.restitution.options.filters || {}),
+            ...(this.restitution.options.filters || {})
           };
           this.settings.filterList = Object.keys(this.filters);
         }
@@ -65,14 +71,17 @@ export default {
       this.restitution.setOptions(this.options());
 
       configFormRestition.formDefs.groupByKey.items = this.restitution.options().groupByKeyItems;
-
       for (const formDef of Object.values(configFormRestition.formDefs)) {
-        formDef.change = () => this.emitSettings(); // ideal newChange
+        formDef.change = () => {
+          this.emitSettings()
+        }; // ideal newChange
       }
 
-      const items = Object.keys(this.restitution.items).map((name) => ({
+      
+
+      const items = Object.keys(this.restitution.items).map(name => ({
         text: this.restitution.items[name].text,
-        value: name,
+        value: name
       }));
 
       for (const keyForm of ["choix1", "choix2", "filterList"]) {
@@ -87,7 +96,7 @@ export default {
     },
 
     getFilterForms() {
-      return this.settings.filterList.map((name) => {
+      return this.settings.filterList.map(name => {
         const item = this.restitution.item(name);
         const dataList = this.restitution.dataList(name, {});
         return {
@@ -105,34 +114,36 @@ export default {
     },
 
     filterFormsChange() {
-      this.n = this.n+1;
+      this.n = this.n + 1;
       this.emitSettings();
     },
 
     filterSelectChange() {
-        this.filterForms = this.getFilterForms();
-        this.n = this.n+1;
-        for (const key of Object.keys({ ...this.settings.filters })) {
-          if (!this.settings.filterList.includes(key)) {
-            delete this.settings.filters[key];
-          }
+      this.filterForms = this.getFilterForms();
+      this.n = this.n + 1;
+      for (const key of Object.keys({ ...this.settings.filters })) {
+        if (!this.settings.filterList.includes(key)) {
+          delete this.settings.filters[key];
         }
+      }
       setTimeout(() => {
         this.emitSettings();
       }, 100);
     },
     options() {
       return {
-        ...this.settings,
+        ...this.settings
       };
     },
     emitSettings() {
+      
       // this.n = this.n+1;
+  
       const settings = this.options();
       settings.n = this.n;
-      
+
       this.$emit("updateSettings", settings);
-    },
-  },
+    }
+  }
 };
 </script>

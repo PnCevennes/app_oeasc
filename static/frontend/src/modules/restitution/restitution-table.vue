@@ -4,7 +4,7 @@
       <thead>
         <tr>
           <th>Texte</th>
-          <th>Nombre</th>
+          <th>{{results.yTitle}}</th>
           <th>Couleur</th>
           <th>Icône</th>
         </tr>
@@ -13,11 +13,12 @@
         v-for="(result, index) of [
           results.choix.choix1,
           results.choix.choix2
-        ]"
+        ].filter(c => !!c)"
       >
         <tbody v-if="!(results.condSame && index)" :key="`${index}`">
           <tr v-if="index">
-            <td colspan="4"></td>
+            <td colspan="4">
+            </td>
           </tr>
 
           <tr>

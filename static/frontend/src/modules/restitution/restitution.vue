@@ -87,8 +87,11 @@ export default {
       this.restitution.getData(this.$store).then(
         () => {
           /** calcul de results */
-          
+          setTimeout(() =>{ 
+
+            
           this.processData();
+          }, 100)
         },
         (error) => {
           this.bError = true;
@@ -111,6 +114,7 @@ export default {
 
       const nbData = this.restitution.data().length;
       if (!(this.choix1 && this.display && nbData)) {
+      
         return;
       }
       
@@ -125,7 +129,7 @@ export default {
   },
 
   mounted() {
-    console.log('mounted')
+    
     this.baywatch(props, () => {
       this.processData();
     });

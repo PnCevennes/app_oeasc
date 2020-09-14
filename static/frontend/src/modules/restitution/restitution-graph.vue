@@ -66,7 +66,7 @@ export default {
         yAxis: {
           min: 0,
           title: {
-            text: this.results.options.yTitle
+            text: this.results.yTitle
           }
         },
         plotOptions: {
