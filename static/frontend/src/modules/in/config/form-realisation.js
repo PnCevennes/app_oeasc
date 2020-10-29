@@ -133,15 +133,4 @@ export default {
   displayValue: ({ id }) => !!id,
   displayLabel: true,
   storeName: 'inRealisation',
-  idFieldName: 'id_realisation',
-  // action: {
-  //   preProcess: ({baseModel}) => {
-  //     const postData = copy(baseModel);
-  //     postData.observers = baseModel.observers.map((o) => 
-  //       typeof(o) == 'string' ? ({nom_observer: o, id_observer: null}) : o);
-  //     postData.tags = baseModel.tags.map((o) => 
-  //       typeof(o) == 'string' ? ({nom_tag: o, id_tag: null}) : o);
-  //     return postData
-  //   }
-  // }
 };

@@ -57,5 +57,4 @@ export default {
   displayValue: ({ id }) => !!id,
   displayLabel: true,
   storeName: "inCircuit",
-  idFieldName: "id_circuit"
 };

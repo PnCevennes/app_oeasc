@@ -2,8 +2,6 @@
 import restitutionUtils from "@/modules/restitution/utils.js";
 
 export default {
-  coordsFieldName: "centroid",
-  dataType: "declaration",
   items: {
     declaration_date: {
       text: "Date",
@@ -88,22 +86,41 @@ export default {
     }
   },
   default: {
+    groupByKeyItems: [
+      {
+        value: null,
+        text: "Nombre de dégâts"
+      },
+      {
+        value: "id_declaration",
+        text: "Nombre de déclarations"
+      }
+    ],
+    coordsFieldName: "centroid",
+    groupByKey: "id_declaration",
+    markersGroupByKey: "id_declaration",
+    markersGroupByReduceKeys: [
+      "degat_type_label",
+      "degat_gravite_label",
+      "degat_essence_label"
+    ],
     dataType: "declaration",
-    display: "map",
+    // display: "graph",
+    display: "table",
     typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
-    choix2: "degat_essence_label",
-    choix1: "degat_gravite_label",
+    choix1: 'declaration_date',
+    // choix2: "degat_gravite_label",
+    // choix2: "degat_essence_label",
     // choix2: "degat_type_labels",
     n: 0,
     height: "600px",
     filters: {
-      degat_type_label: ["Frottis"]
+      // degat_type_label: ["Frottis"]
     },
     preFilters: {
       valide: ["Validé"]
     },
-    yTitle: 'Nombre de dégâts',  
-  },
+  }
 };

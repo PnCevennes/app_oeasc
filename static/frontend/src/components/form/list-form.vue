@@ -362,7 +362,7 @@ export default {
       }
     },
     autocompleteChange: function(e) {
-      console.log("change", e);
+      e
     }
   },
   computed: {

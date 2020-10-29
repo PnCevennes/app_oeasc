@@ -65,12 +65,12 @@ export default {
         }
       }).then(
         data => {
-          console.log("success valid user", data);
+          
           this.bValidToken = true;
           this.$refs.form.baseModel.login = data.identifiant;
         },
         error => {
-          console.log("fail valid user", error);
+          
           this.$refs.form.msgError = `Erreur dans la validation du compte : ${error.msg}`;
           this.$refs.form.bError = true;
         }

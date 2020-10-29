@@ -180,7 +180,7 @@ const STORE = {
             resolve(apiData);
           },
           error => {
-            console.log(`subscribe foret error: ${error}`);
+            console.error(`subscribe foret error: ${error}`);
             reject(error);
           }
         );
@@ -198,7 +198,7 @@ const STORE = {
             resolve(apiData);
           },
           error => {
-            console.log(`subscribe proprietaire error: ${error}`);
+            console.error(`subscribe proprietaire error: ${error}`);
             reject(error);
           }
         );

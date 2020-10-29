@@ -39,6 +39,7 @@ const mapMarker = {
     for (const def of defs) {
       label += `<i class='mdi mdi-${def.icon}' style='color:${def.color}'></i>`;
     }
+    
     return label;
   },
 
@@ -95,6 +96,7 @@ const mapMarker = {
   },
 
   setMarkerStyle(marker) {
+    marker.style = marker.style || {};
     marker.style.opacity = 1;
     marker.style.fillOpacity = 0.2;
     if (marker.type == "marker") {

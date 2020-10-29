@@ -47,7 +47,9 @@ export default {
         },
       };
       if (this.results) {
+
         config.markers = this.results && this.results.markers;
+        
         config.markerLegendGroups =
           this.results && this.results.markerLegendGroups;
       }

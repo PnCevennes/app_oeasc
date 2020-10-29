@@ -344,7 +344,7 @@ export default {
         return;
       }
       if (!this.items("ug").includes(this.settings.ug)) {
-        console.log("no ug");
+        
         this.settings.ug = null;
       }
 

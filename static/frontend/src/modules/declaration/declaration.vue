@@ -65,7 +65,6 @@ export default {
         `declaration_${this.declaration.id_declaration}.pdf`,
         this.$store
       ).then(() => {
-        console.log("PDF done");
       });
     },
     initDeclaration() {

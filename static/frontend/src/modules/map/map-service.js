@@ -73,7 +73,7 @@ class MapService {
   init = function() {
     // process config
     if (!this.processConfig()) {
-      console.log("pb avec la config");
+      
       return;
     }
 

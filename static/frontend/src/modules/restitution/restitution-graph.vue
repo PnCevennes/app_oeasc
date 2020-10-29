@@ -39,7 +39,7 @@ export default {
           ? this.results.choix.choix2.dataList.map(res2 => ({
               name: `${res2.text} (${res2.count})`,
               data: this.results.choix.choix1.dataList.map(res1 => {
-                const res = res1.data2.find(d => d.text == res2.text);
+                const res = res1.subDataList.find(d => d.text == res2.text);
                 return (res && res.count) || 0;
               }),
               color: res2.color
@@ -66,7 +66,7 @@ export default {
         yAxis: {
           min: 0,
           title: {
-            text: this.results.options.yTitle
+            text: this.results.yTitle
           }
         },
         plotOptions: {

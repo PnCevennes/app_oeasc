@@ -92,7 +92,7 @@ export default {
             resolve(data);
           },
           error => {
-            console.log(`error in request ${api} : ${error}`);
+            console.error(`error in request ${api} : ${error}`);
             reject(error);
           }
         );
@@ -114,7 +114,7 @@ export default {
           error = `genericAction Error :  pas de postData fourni pour une requête ${requestType}`;
         }
         if (error) {
-          console.log(error);
+          console.error(error);
           reject(error);
           return;
         }
@@ -139,7 +139,7 @@ export default {
             resolve(data);
           },
           error => {
-            console.log(`error in request ${api} : ${error}`);
+            console.error(`error in request ${api} : ${error}`);
             reject(error);
           }
         );
