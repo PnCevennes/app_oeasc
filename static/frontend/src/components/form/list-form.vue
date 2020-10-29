@@ -5,7 +5,6 @@
       <span>{{ valueDisplay }}</span>
     </span>
     <div v-else>
-      {{ baseModel[config.name] }}
       <div class="list-form">
         <div v-if="config.display === 'button'">
           <div class="select-list-label">{{ config.label }}</div>

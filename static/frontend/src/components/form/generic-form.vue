@@ -1,6 +1,5 @@
 <template>
   <div v-if="config" class="form-container">
-    {{baseModel}}
     <h2 v-if="title">{{ title }}</h2>
     <div v-if="bRequestSuccess">
       <slot name="success"></slot>
@@ -14,7 +13,7 @@
             :baseModel="baseModel"
           ></dynamic-form-group>
           <div>
-            <span style="color:red">*</span>
+            <span style="color: red">*</span>
             <i>champs obligatoires.</i>
           </div>
         </div>
@@ -72,7 +71,7 @@ import { copy } from "@/core/js/util/util";
 export default {
   name: "generic-form",
   components: {
-    dynamicFormGroup
+    dynamicFormGroup,
   },
   props: ["config"],
   computed: {
@@ -91,7 +90,7 @@ export default {
         forms: this.config.forms,
         formDefs: this.config.formDefs,
         displayValue: this.displayValue,
-        displayLabel: this.config.displayLabel
+        displayLabel: this.config.displayLabel,
       };
     },
     method() {
@@ -113,7 +112,7 @@ export default {
       return typeof this.config.title == "function"
         ? this.config.title({ id: this.idModel })
         : this.config.title;
-    }
+    },
   },
   watch: {
     config() {
@@ -122,7 +121,7 @@ export default {
     idRoute() {
       this.baseModel[this.config.idFieldName] = this.idRoute;
       this.initConfig();
-    }
+    },
   },
   mounted() {
     this.initConfig();
@@ -146,35 +145,30 @@ export default {
       const storeName = this.config.storeName;
       if (storeName) {
         const configStore = this.$store.getters.configStore(storeName);
-
+        console.log(configStore)
         // const storeNameCapitalized =
         //   storeName.charAt(0).toUpperCase() + storeName.slice(1);
         // const storeNameIdFieldName = `${storeName}IdFieldName`;
         // this.config.idFieldName = this.$store.getters[storeNameIdFieldName];
         this.config.preLoadData = ({ $store, id, config }) => {
-          return new Promise(resolve => {
+          return new Promise((resolve) => {
             if (!id) {
               resolve();
             } else {
-              $store
-                .dispatch(configStore.get, { id })
-                .then(data => {
-                  config.value = data;
-                  this.baseModel = null;
-                  resolve();
-                });
+              $store.dispatch(configStore.get, { id }).then((data) => {
+                config.value = data;
+                this.baseModel = null;
+                resolve();
+              });
             }
           });
         };
         this.config.action = this.config.action || {};
         this.config.action.process = ({ id, $store, postData }) => {
-          return $store.dispatch(
-            id ? configStore.patch : configStore.post,
-            {
-              id: id,
-              postData
-            }
-          );
+          return $store.dispatch(id ? configStore.patch : configStore.post, {
+            id: id,
+            postData,
+          });
         };
 
         if (!this.config.action.onSuccess) {
@@ -192,7 +186,7 @@ export default {
           .preLoadData({
             $store: this.$store,
             config: this.config,
-            id: this.idModel
+            id: this.idModel,
           })
           .then(() => {
             this.initBaseModel();
@@ -224,7 +218,7 @@ export default {
         ? this.config.action.preProcess({
             baseModel: this.baseModel,
             globalConfig,
-            config: this.config
+            config: this.config,
           })
         : this.baseModel;
     },
@@ -243,15 +237,36 @@ export default {
               $store: this.$store,
               $router: this.$router,
               config: this.config,
-              id: this.idModel
+              id: this.idModel,
             });
 
         if (!promise) return;
 
         this.bSending = true;
 
+        // test si il y a des store à réactualiser
+        const updateStores = [];
+        for (const [key, formDef] of Object.entries(this.config.formDefs)) {
+          if (
+            formDef.storeName &&
+            formDef.returnObject &&
+            formDef.display == "combobox" // que dans les cas des combobox returnObject
+          ) {
+            let values = this.baseModel[key];
+            values = formDef.multiple ? values : [values];
+            const configStore = this.$store.getters.configStore(
+              formDef.storeName
+            );
+            const idFieldName = configStore.idFieldName;
+            const condReload = values.some((v) => !v[idFieldName]);
+            if (condReload) {
+              updateStores.push({ storeName: formDef.storeName, key });
+            }
+          }
+        }
+
         promise.then(
-          data => {
+          (data) => {
             this.bSending = false;
 
             if (!this.config.bChained) {
@@ -266,16 +281,29 @@ export default {
                 $store: this.$store,
                 $router: this.$router,
                 $route: this.$route,
-                id: this.idModel
+                id: this.idModel,
               });
             }
+
+            for (const updateStore of updateStores) {
+              let values = this.baseModel[updateStore.key];
+              values = this.config.formDefs[updateStore.key].multiple
+                ? values
+                : [values];
+              const configStore = this.$store.getters.configStore(
+                updateStore.storeName
+              );
+              console.log("commit", configStore.names, values);
+              this.$store.commit(configStore.names, values);
+            }
+
             if (this.switchDisplay) {
               this.displayValue = true;
-            } else if(!this.config.bChained){
+            } else if (!this.config.bChained) {
               this.bRequestSuccess = true;
             }
           },
-          error => {
+          (error) => {
             this.bSending = false;
             this.bError = true;
             this.msgError = `Erreur avec la requête : ${error.msg}`;
@@ -286,9 +314,9 @@ export default {
 
     request() {
       return apiRequest(this.method, this.url, {
-        postData: this.postData()
+        postData: this.postData(),
       });
-    }
+    },
   },
   data: () => ({
     bValidForm: null,
@@ -302,8 +330,8 @@ export default {
     bRequestSuccess: false,
     bSending: false,
     recompConfig: true,
-    displayValue: null
-  })
+    displayValue: null,
+  }),
 };
 </script>
 

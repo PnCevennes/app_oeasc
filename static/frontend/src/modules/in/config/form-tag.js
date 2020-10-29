@@ -1,26 +1,26 @@
 export default {
   formDefs: {
-    id_secteur: {
+    id_tag: {
       label: 'Id',
       type: "text",
-      hidden: "true"
+      hidden: true
     },
-    nom_secteur: {
+    nom_tag: {
       label: "Nom",
       type: "text",
       required: true,
     },
-    code_secteur: {
+    code_tag: {
       label: 'Code',
       type: "text",
-      required: "True"
+      required: true
     },
   },
 
   title: ({ id }) =>
-    id ? `Modificiation du secteur ${id}` : "Création d'un secteur",
+    id ? `Modificiation du tag ${id}` : "Création d'un tag",
   switchDisplay: ({ id }) => !!id,
   displayValue: ({ id }) => !!id,
   displayLabel: true,
-  storeName: "inSecteur",
+  storeName: "inTag",
 };

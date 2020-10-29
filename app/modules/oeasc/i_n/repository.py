@@ -16,15 +16,15 @@ student = [0, 0, 12.71, 4.30, 3.18, 2.78, 2.57]
 
 def sort_data(res):
     
-    keys = ['espece', 'ug', 'annee', 'serie', 'numero_circuit']
+    keys = ['nom_espece', 'ug', 'annee', 'serie', 'numero_circuit']
     for key in keys:
 
         res.sort(key=lambda x: x.get(key))
 
 def regroup_data(res):
 
-    out = { 'especes' : {}}
-    regroup = ['espece', 'ug', 'annee', 'serie', 'id_circuit']
+    out = { 'nom_especes' : {}}
+    regroup = ['nom_espece', 'ug', 'annee', 'serie', 'id_circuit']
     for r in res:
 
         cur = out
@@ -58,22 +58,22 @@ def in_data():
 
     sort_data(res)
     out = regroup_data(res)
-    process_especes(out)
+    process_nom_especes(out)
 
     return out
 
-def process_especes(res):
+def process_nom_especes(res):
 
-    especes = res['especes']
+    nom_especes = res['nom_especes']
 
-    for key_espece in especes:
-        espece = especes.get(key_espece)
-        process_ugs(espece)
+    for key_espece in nom_especes:
+        nom_espece = nom_especes.get(key_espece)
+        process_ugs(nom_espece)
 
 
-def process_ugs(espece):
+def process_ugs(nom_espece):
 
-    ugs = espece['ugs']
+    ugs = nom_espece['ugs']
 
     for key_ug in ugs:
         ug = ugs.get(key_ug)

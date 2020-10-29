@@ -17,8 +17,19 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_tags
 (
     id_tag serial NOT NULL,
     nom_tag CHARACTER VARYING,
+    code_tag CHARACTER VARYING,
 
     CONSTRAINT pk_t_tags_id_tag PRIMARY KEY (id_tag)
+
+);
+
+CREATE TABLE IF NOT EXISTS oeasc_in.t_especes
+(
+    id_espece serial NOT NULL,
+    nom_espece CHARACTER VARYING,
+    code_espece CHARACTER VARYING,
+
+    CONSTRAINT pk_t_especes_id_espece PRIMARY KEY (id_espece)
 
 );
 
@@ -31,7 +42,6 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_circuits
     km DOUBLE PRECISION,
     geom geometry(MultiPolygon, 2154),
 
-    
     CONSTRAINT pk_t_circuits_id_circuit PRIMARY KEY (id_circuit),
     CONSTRAINT fk_t_circuits_t_secteurs FOREIGN KEY (id_secteur)
         REFERENCES oeasc_commons.t_secteurs(id_secteur) MATCH SIMPLE
@@ -100,13 +110,18 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_observations
 (
     id_observation SERIAL NOT NULL,
     id_realisation INTEGER NOT NULL,
-    espece CHARACTER VARYING,
+    id_espece INTEGER NOT NULL,
     nb INTEGER,
 
     CONSTRAINT pk_t_observations_id_observation PRIMARY KEY (id_observation),
 
     CONSTRAINT fk_t_observations_id_realisation FOREIGN KEY (id_realisation)
         REFERENCES oeasc_in.t_realisations (id_realisation) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE CASCADE,
+
+    CONSTRAINT fk_t_observations_id_espece FOREIGN KEY (id_espece)
+        REFERENCES oeasc_in.t_especes (id_espece) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE
+
 );
 

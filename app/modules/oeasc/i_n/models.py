@@ -64,7 +64,7 @@ class TCircuits(DB.Model):
     __table_args__ = {'schema': 'oeasc_in', 'extend_existing': True}
 
     id_circuit = DB.Column(DB.Integer, primary_key=True)
-    nom_circuit = DB.Column(DB.String(250))
+    nom_circuit = DB.Column(DB.Unicode)
     numero_circuit = DB.Column(DB.Integer)
     km = DB.Column(DB.Integer)
     id_secteur = DB.Column(
@@ -76,6 +76,18 @@ class TCircuits(DB.Model):
         primaryjoin=TSecteurs.id_secteur == id_secteur,
         foreign_keys=[id_secteur]
     )
+
+
+@serializable
+class TEspeces(DB.Model):
+    '''
+        Especes
+    '''
+    __tablename__ = 't_especes'
+    __table_args__ = {'schema': 'oeasc_in', 'extend_existing': True}
+    id_espece = DB.Column(DB.Integer, primary_key=True)
+    nom_espece = DB.Column(DB.Unicode)
+    code_espece = DB.Column(DB.Unicode)
 
 @serializable
 class TObservations(DB.Model):
@@ -92,7 +104,11 @@ class TObservations(DB.Model):
         DB.Integer,
         DB.ForeignKey('oeasc_in.t_realisations.id_realisation')
     )
-    espece = DB.Column(DB.String(250))
+    id_espece = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc_in.t_especes.id_espece')
+    )
+    espece = DB.relationship(TEspeces, lazy='joined')
     nb = DB.Column(DB.Integer)
 
 
@@ -104,7 +120,8 @@ class TTags(DB.Model):
     __tablename__ = 't_tags'
     __table_args__ = {'schema': 'oeasc_in', 'extend_existing': True}
     id_tag = DB.Column(DB.Integer, primary_key=True)
-    nom_tag = DB.Column(DB.String(250))
+    nom_tag = DB.Column(DB.Unicode)
+    code_tag = DB.Column(DB.Unicode)
 
 
 
@@ -153,9 +170,9 @@ class TRealisations(DB.Model):
     serie = DB.Column(DB.Integer)
     groupes = DB.Column(DB.Integer)
 
-    vent = DB.Column(DB.String(250))
-    temps = DB.Column(DB.String(250))
-    temperature = DB.Column(DB.String(250))
+    vent = DB.Column(DB.Unicode)
+    temps = DB.Column(DB.Unicode)
+    temperature = DB.Column(DB.Unicode)
     date_realisation = DB.Column(DB.Date)
 
     circuit = DB.relationship(

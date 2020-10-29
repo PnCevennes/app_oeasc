@@ -57,27 +57,25 @@ export default {
     cerf: {
       text: "Cerf",
       preProcess: d =>
-        (d && (d.observations.find(o => o.espece == "Cerf") || {}).nb) || 0
+        (d && (d.observations.find(o => o.espece.nom_espece == "Cerf") || {}).nb) || 0
     },
     chevreuil: {
       text: "Chevreuil",
       preProcess: d =>
-        (d && (d.observations.find(o => o.espece == "Chevreuil") || {}).nb) || 0
+        (d && (d.observations.find(o => o.espece.nom_espece == "Chevreuil") || {}).nb) || 0
     },
     lievre: {
       text: "Lièvre",
       preProcess: d =>
-        (d && (d.observations.find(o => o.espece == "Lièvre") || {}).nb) || 0
+        (d && (d.observations.find(o => o.espece.nom_espece == "Lièvre") || {}).nb) || 0
     },
     renard: {
       text: "Renard",
       preProcess: d =>
-        (d && (d.observations.find(o => o.espece == "Renard") || {}).nb) || 0
+        (d && (d.observations.find(o => o.espece.nom_espece == "Renard") || {}).nb) || 0
     }
   },
 
-  // sortBy: ["date_realisation"],
-  // sortDesc: [true],
   sortBy: ["id_realisation"],
   sortDesc: [false],
   label: 'réalisation'

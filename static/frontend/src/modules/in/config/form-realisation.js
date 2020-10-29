@@ -1,9 +1,11 @@
+import { copy } from "@/core/js/util/util";
+
 export default {
   formDefs: {
     date_realisation: {
       type: "date",
       label: "Date",
-      required: false
+      required: true
     },
     id_circuit: {
       type: "list_form",
@@ -18,18 +20,21 @@ export default {
       label: "Observateurs",
       maxLength: 4,
       multiple: true,
-      storeName: 'inObserver',
+      storeName: "inObserver",
       returnObject: true
     },
     tags: {
       type: "list",
       label: "Tags",
-      forms: ['id_realisation', 'id_tag', 'valid'],
-      default: ({baseModel}) => ({id_realisation: baseModel.id_realisation, id_tag: null})
+      forms: ["id_realisation", "id_tag", "valid"]
+      // default: ({ baseModel }) => ({
+      //   id_realisation: baseModel.id_realisation,
+      //   id_tag: null
+      // })
     },
     id_realisation: {
       label: "ID realisation",
-      type:"text",
+      type: "text",
       hidden: true
     },
     id_tag: {
@@ -41,13 +46,13 @@ export default {
     },
     valid: {
       label: "Valide",
-      type: "bool_switch",
+      type: "bool_switch"
     },
     tag: {
       type: "list_form",
-      display: "combobox",
+      display: "select",
       label: "Tag",
-      storeName: 'inTag',
+      storeName: "inTag",
       returnObject: true
     },
     temperature: {
@@ -71,14 +76,14 @@ export default {
     observations: {
       type: "list",
       label: "Comptage",
-      forms: ["espece", "nb", "id_observation"]
+      forms: ["id_espece", "nb", "id_observation"],
+      required: true
     },
-    espece: {
+    id_espece: {
       type: "list_form",
-      display: "combobox",
-
+      display: "select",
       label: "Espece",
-      items: ["Cerf", "Chevreuil", "Renard", "Lièvre"],
+      storeName: "inEspece",
       required: true
     },
     nb: {
@@ -90,13 +95,13 @@ export default {
     groupes: {
       type: "number",
       label: "Nombre de groupes de cerfs",
-      min: '0',
+      min: "0"
     },
     serie: {
       type: "number",
       label: "Série",
       min: "0",
-      required: true,
+      required: true
     },
     id_observation: {
       label: "ID observation",
@@ -120,11 +125,30 @@ export default {
       forms: ["temperature", "temps", "vent"]
     },
     {
-      title: 'Observations',
+      title: "Observations",
       forms: ["groupes", "observations"]
     }
   ],
-  
+  value: {
+    tags: [{ id_tag: 1, valid: true }],
+    observations: [
+      { id_espece: 1, nb: 0 },
+      { id_espece: 2, nb: 0 },
+      { id_espece: 3, nb: 0 },
+      { id_espece: 4, nb: 0 }
+    ]
+  },
+  action: {
+    preProcess: ({baseModel}) => {
+      const out = copy(baseModel)
+      out.tags = baseModel.tags.map(t => ({
+        id_observation: t.id_observation,
+        id_tag: t.id_tag,
+        valild: t.valid
+      }));
+      return out;
+    },
+  },
   title: ({ id }) =>
     id
       ? `Modificiation de la réalisation de sortie Indice Nocturne ${id}`
@@ -132,5 +156,5 @@ export default {
   switchDisplay: ({ id }) => !!id,
   displayValue: ({ id }) => !!id,
   displayLabel: true,
-  storeName: 'inRealisation',
+  storeName: "inRealisation"
 };

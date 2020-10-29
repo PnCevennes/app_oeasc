@@ -3,11 +3,11 @@
     <h1>
       Indices nocturnes
     </h1>
-    <div v-for="espece of especes" :key="espece">
-      <div v-if="chartOptions[espece]">
+    <div v-for="nom_espece of nom_especes" :key="nom_espece">
+      <div v-if="chartOptions[nom_espece]">
         <highcharts
           style="height:600px; width:800px"
-          :options="chartOptions[espece]"
+          :options="chartOptions[nom_espece]"
           :highcharts="hcInstance"
         ></highcharts>
       </div>
@@ -28,7 +28,7 @@ export default {
   data: () => ({
     chartOptions: {},
     hcInstance: Highcharts,
-    especes: ["Cerf", "Chevreuil", "Lievre", "Renard"],
+    nom_especes: ["Cerf", "Chevreuil", "Lievre", "Renard"],
     dataIn: null
   }),
   methods: {
@@ -37,9 +37,9 @@ export default {
         return;
       }
 
-      for (const espece of this.especes) {
+      for (const nom_espece of this.nom_especes) {
         const series = [];
-        const data_espece = this.dataIn.especes[espece];
+        const data_espece = this.dataIn.nom_especes[nom_espece];
         for (const [ug, data_ug] of Object.entries(data_espece.ugs)) {
           const serie = [],
             error = [];
@@ -77,9 +77,9 @@ export default {
             data: error,
             enableMouseTracking: false
           });
-          this.chartOptions[espece] = {
+          this.chartOptions[nom_espece] = {
             title: {
-              text: `Indices nocturnes par unité de gestion (${espece})`
+              text: `Indices nocturnes par unité de gestion (${nom_espece})`
             },
             xAxis: {
               title: {

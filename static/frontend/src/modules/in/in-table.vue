@@ -40,17 +40,17 @@
       <v-row>
         <v-col>
           <in-graph
-            v-if="settings.espece"
+            v-if="settings.nom_espece"
             :displayReg="settings.displayReg"
             :dataIn="dataIn"
-            :espece="settings.espece"
+            :nom_espece="settings.nom_espece"
             :ug="settings.ug"
             width="100%"
             height="400px"
             :commentaires="
               commentaires &&
-                commentaires[settings.espece] &&
-                commentaires[settings.espece][settings.ug]
+                commentaires[settings.nom_espece] &&
+                commentaires[settings.nom_espece][settings.ug]
             "
           ></in-graph>
         </v-col>
@@ -96,7 +96,7 @@
       </v-row>
 
       <div v-if="dataUg && graphOnly == undefined">
-        <h4>Indices nocturnes {{ settings.espece }} {{ settings.ug }}</h4>
+        <h4>Indices nocturnes {{ settings.nom_espece }} {{ settings.ug }}</h4>
 
         <v-tabs centered dark grow>
           <v-tab
@@ -256,7 +256,7 @@ export default {
     configChoix: {},
     ready: false,
     loading: true,
-    settings: { espece: "Cerf", ug: "Méjean", displayReg: true },
+    settings: { nom_espece: "Cerf", ug: "Méjean", displayReg: true },
     dataAnnee: null,
     dataUg: null,
     dec: 4,
@@ -317,19 +317,19 @@ export default {
       this.dataAnnee = null;
       this.dataUg = null;
 
-      if (!(this.settings.ug && this.settings.espece && this.ready)) {
+      if (!(this.settings.ug && this.settings.nom_espece && this.ready)) {
         return null;
       }
-      const especes = this.dataIn.especes;
-      const ugs = especes[this.settings.espece].ugs;
+      const nom_especes = this.dataIn.nom_especes;
+      const ugs = nom_especes[this.settings.nom_espece].ugs;
       this.dataUg = ugs[this.settings.ug];
     },
 
-    nbCircuits(espece, ug, annee) {
-      if (!(espece && ug && annee)) return 0;
+    nbCircuits(nom_espece, ug, annee) {
+      if (!(nom_espece && ug && annee)) return 0;
 
-      const especes = this.dataIn.especes;
-      const ugs = especes[espece].ugs;
+      const nom_especes = this.dataIn.nom_especes;
+      const ugs = nom_especes[nom_espece].ugs;
       const annees = ugs[ug].annees;
 
       var nbCircuits = 0;
@@ -354,16 +354,16 @@ export default {
     },
 
     items(type) {
-      const especes = this.dataIn.especes;
-      if (type == "espece") {
-        return Object.keys(especes);
+      const nom_especes = this.dataIn.nom_especes;
+      if (type == "nom_espece") {
+        return Object.keys(nom_especes);
       }
 
-      if (!this.settings.espece) {
+      if (!this.settings.nom_espece) {
         return [];
       }
 
-      const ugs = especes[this.settings.espece].ugs;
+      const ugs = nom_especes[this.settings.nom_espece].ugs;
 
       if (type == "ug") {
         return Object.keys(ugs);
@@ -379,10 +379,10 @@ export default {
         this.ready = false;
         this.dataAnnee = false;
         this.dataIn = data;
-        this.configChoix.espece = {
-          name: "espece",
+        this.configChoix.nom_espece = {
+          name: "nom_espece",
           label: "Espèce",
-          items: this.items("espece"),
+          items: this.items("nom_espece"),
           change: this.settingsChange,
           display: "button"
         };

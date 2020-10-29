@@ -12,11 +12,11 @@ SELECT
     c.numero_circuit,
 	s.nom_secteur,
 	c.km,
-    cor.id_realisation IS NOT NULL AS valid,
+    cor.valid,
     t.nom_tag,
     t.id_tag,
     REPLACE(CONCAT(s.nom_secteur, '_', t.nom_tag), '_all', '') as ug,
-    espece,
+    e.nom_espece,
     r.id_realisation,
 	nb/km as nbkm,
 	to_char(r.date_realisation, 'YYYY') AS annee
@@ -32,4 +32,6 @@ SELECT
         ON cor.id_realisation = r.id_realisation
     JOIN oeasc_in.t_tags t
         ON t.id_tag = cor.id_tag
+    JOIN oeasc_in.t_especes e
+        ON e.id_espece = o.id_espece
 ;

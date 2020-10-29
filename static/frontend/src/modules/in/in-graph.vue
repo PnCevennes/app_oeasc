@@ -29,7 +29,7 @@ export default {
   name: "in-graph",
   props: [
     "dataIn",
-    "espece",
+    "nom_espece",
     "ug",
     "width",
     "height",
@@ -45,7 +45,7 @@ export default {
     dataIn() {
       this.initGraph();
     },
-    espece() {
+    nom_espece() {
       this.initGraph();
     },
     ug() {
@@ -88,12 +88,12 @@ export default {
       }
       this.chartOptions = null;
       setTimeout(() => {
-        if (!(this.dataGraph && this.espece)) {
+        if (!(this.dataGraph && this.nom_espece)) {
           return;
         }
-        const espece = this.espece;
+        const nom_espece = this.nom_espece;
         const series = [];
-        const data_espece = this.dataGraph.especes[espece];
+        const data_espece = this.dataGraph.nom_especes[nom_espece];
         for (const [ug, data_ug] of Object.entries(data_espece.ugs)) {
           if (this.ug && ug != this.ug) {
             continue;
@@ -197,7 +197,7 @@ export default {
               fallbackToExportServer: false,
             },
             title: {
-              text: `Indices nocturnes (${espece}, ${ug})`,
+              text: `Indices nocturnes (${nom_espece}, ${ug})`,
             },
             // caption: {
             //   text: this.commentaires,

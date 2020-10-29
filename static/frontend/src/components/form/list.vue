@@ -1,10 +1,10 @@
 <template>
   <div>
-    {{baseModel.tags}}
     <b v-if="!config.displayValue">{{ config.label }}</b>
     <v-row dense>
       <v-col class="col-btn"></v-col>
-      <v-col v-for="keyForm of config.forms" :key="keyForm">
+      <v-col v-for="keyForm of config.forms.filter(keyForm => !config.formDefs[keyForm].hidden)" :key="keyForm">
+        {{config.formDefs[keyForm].hidden}}
         <b v-if="!config.formDefs[keyForm].hidden">{{config.formDefs[keyForm].label}}</b>
       </v-col>
     </v-row>
@@ -16,7 +16,7 @@
         </v-btn>
       </v-col>
 
-      <v-col v-for="keyForm of config.forms" :key="keyForm">
+      <v-col v-for="keyForm of config.forms.filter(keyForm => !config.formDefs[keyForm].hidden)" :key="keyForm">
         <dynamic-form
           :config="{
                 ...config.formDefs[keyForm],

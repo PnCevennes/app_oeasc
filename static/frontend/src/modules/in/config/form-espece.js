@@ -1,26 +1,26 @@
 export default {
   formDefs: {
-    id_secteur: {
+    id_espece: {
       label: 'Id',
       type: "text",
-      hidden: "true"
+      hidden: true
     },
-    nom_secteur: {
+    nom_espece: {
       label: "Nom",
       type: "text",
       required: true,
     },
-    code_secteur: {
+    code_espece: {
       label: 'Code',
       type: "text",
-      required: "True"
+      required: true
     },
   },
 
   title: ({ id }) =>
-    id ? `Modificiation du secteur ${id}` : "Création d'un secteur",
+    id ? `Modificiation de l'espece ${id}` : "Création d'une espece",
   switchDisplay: ({ id }) => !!id,
   displayValue: ({ id }) => !!id,
   displayLabel: true,
-  storeName: "inSecteur",
+  storeName: "inEspece",
 };

@@ -88,7 +88,7 @@
         </template>
         <template
           v-for="(value, index) of (configTable.headers || []).map(
-            header => header.value
+            (header) => header.value
           )"
           #[`item.${value}`]="props"
         >
@@ -101,7 +101,7 @@
                   small
                   v-if="
                     !action.condition ||
-                      action.condition({ $store, item: props.item })
+                    action.condition({ $store, item: props.item })
                   "
                   :key="indexAction"
                   icon
@@ -171,15 +171,15 @@ export default {
     deleteModal: null,
     deleteWithoutWarning: false,
     configForm: null,
-    bEditDialog: false
+    bEditDialog: false,
   }),
   watch: {
     config: {
       handler() {
         this.initConfig();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
   methods: {
     displayCell(props, value) {
@@ -196,23 +196,23 @@ export default {
         (!props.header.edit.condition ||
           props.header.edit.condition({
             $store: this.$store,
-            baseModel: props.item
+            baseModel: props.item,
           }))
       );
     },
     getConfigForm(value, id) {
       const item = this.configTable.items.find(
-        item => item[this.configTable.idFieldName] === id
+        (item) => item[this.configTable.idFieldName] === id
       );
       const header = this.configTable.headers.find(
-        header => header && header.value == value
+        (header) => header && header.value == value
       );
       const label = header.text;
       if (!header.edit) {
         return null;
       }
       const configForm = copy(header.edit);
-      
+
       if (value != "actions") {
         configForm.title = `Modifier ${header.text} pour ${
           item[this.configTable.labelFieldName || this.configTable.idFieldName]
@@ -221,14 +221,14 @@ export default {
       }
       configForm.idFieldName =
         configForm.idFieldName || this.configTable.idFieldName;
-      configForm.value = copy(item);
+      configForm.value = copy(item) || configForm.value;
       configForm.switchDisplay = false;
       configForm.displayValue = false;
       configForm.cancel = {
         action: () => {
           this.cancel(value, item && item[this.configTable.idFieldName]);
           this.closeDialog();
-        }
+        },
       };
       if (configForm.action && configForm.action.onSuccess) {
         configForm.action.onSuccess2 = configForm.action.onSuccess;
@@ -239,7 +239,7 @@ export default {
         configForm.action.onSuccess2 && configForm.action.onSuccess2({ data });
 
         let elem = this.configTable.items.find(
-          item =>
+          (item) =>
             item[this.configTable.idFieldName] ==
             data[this.configTable.idFieldName]
         );
@@ -266,7 +266,7 @@ export default {
         return;
       }
       const elem = this.configTable.items.find(
-        item => item[this.configTable.idFieldName] == id
+        (item) => item[this.configTable.idFieldName] == id
       );
       for (const key of Object.keys(this.saveVal)) {
         elem[key] = this.saveVal[key];
@@ -278,7 +278,7 @@ export default {
       this.saveVal = id
         ? copy(
             this.configTable.items.find(
-              item => item[this.configTable.idFieldName] == id
+              (item) => item[this.configTable.idFieldName] == id
             )
           )
         : null;
@@ -287,7 +287,7 @@ export default {
 
     deleteRow(id) {
       const index = this.configTable.items.findIndex(
-        d => d[this.configTable.idFieldName] == id
+        (d) => d[this.configTable.idFieldName] == id
       );
       if (index !== -1) {
         if (this.configTable.delete) {
@@ -295,7 +295,7 @@ export default {
             () => {
               this.configTable.items.splice(index, 1);
             },
-            err => {
+            (err) => {
               this.bError = true;
               this.msgError = err;
             }
@@ -331,25 +331,41 @@ export default {
               {
                 title: "Editer la ligne",
                 icon: "mdi-pencil",
-                click: id => this.edit("actions", id)
+                click: (id) => this.edit("actions", id),
               },
               {
                 title: "Supprimer la ligne",
                 icon: "mdi-trash-can",
-                click: id => {
+                click: (id) => {
                   if (!this.deleteWithoutWarning) {
                     this.idToDelete = id;
                     this.deleteModal = true;
                   } else {
                     this.deleteRow(id);
                   }
-                }
-              }
-            ]
+                },
+              },
+            ],
           };
         }
-      }
 
+        this.$store.watch(
+          () => {
+            return this.$store.state[configStore.names];
+          },
+          (new_value, old_value) => {
+            console.log(
+              `STORE ${configStore.names} changed !!! loadData loaded ${!this.configTable.loaded}`,
+              old_value,
+              new_value
+            );
+            this.loadData(!this.configTable.loaded)
+          },
+          {
+            // deep: true,
+          }
+        );
+      }
       /** contruction de la variable header */
       const headers = [];
 
@@ -357,13 +373,8 @@ export default {
         header.value = value;
         if (header.type == "date") {
           header.sort = sortDate;
-          header.display = a =>
-            a && a.includes("-")
-              ? a
-                  .split("-")
-                  .reverse()
-                  .join("/")
-              : a;
+          header.display = (a) =>
+            a && a.includes("-") ? a.split("-").reverse().join("/") : a;
         }
 
         if (header.storeName) {
@@ -399,7 +410,9 @@ export default {
       }
 
       /** on place actions en début de liste */
-      const headerActionsIndex = headers.findIndex(h => h.value === "actions");
+      const headerActionsIndex = headers.findIndex(
+        (h) => h.value === "actions"
+      );
       if (headerActionsIndex != -1) {
         const headerActions = headers[headerActionsIndex];
         headers.splice(headerActionsIndex, 1);
@@ -410,7 +423,7 @@ export default {
 
       config.classes = {
         "small-table": config.small,
-        striped: config.striped
+        striped: config.striped,
       };
 
       /** preloadData with promises from storeNames */
@@ -426,11 +439,11 @@ export default {
       }
 
       /** preProcess from headerDefs */
-      if (config.headers.some(h => h.preProcess)) {
+      if (config.headers.some((h) => h.preProcess)) {
         config.preProcess = ({ data }) => {
-          return data.map(d => {
+          return data.map((d) => {
             for (const header of this.configTable.headers.filter(
-              h => h.preProcess
+              (h) => h.preProcess
             )) {
               d[header.value] = header.preProcess(d);
             }
@@ -440,34 +453,36 @@ export default {
       }
 
       this.configTable = config;
-
+      this.loadData(this.configTable.loaded);
+    },
+    loadData(loaded) {
       /** call preloadData */
-      if (this.configTable.preloadData && !this.configTable.loaded) {
-        config.preloadData({ $store: this.$store }).then(
-          res => {
+      if (this.configTable.preloadData && !loaded ) {
+        this.configTable.preloadData({ $store: this.$store }).then(
+          (res) => {
             for (const [index, key] of Object.keys(
               this.configTable.stores
             ).entries()) {
               if (key == "items") {
                 const items = res[index];
                 if (items) {
+                  console.log({items})
                   this.configTable.items = this.configTable.preProcess
                     ? this.configTable.preProcess({ data: items })
                     : items;
                 }
               }
             }
-            // this.configTable = copy(this.configTable)
             this.configTable.loaded = true;
             this.configTable = copy(this.configTable);
           },
-          error => {
+          (error) => {
             this.msgError = error;
             this.bError = true;
           }
         );
       }
-    }
+    },
   },
   computed: {
     filteredItems() {
@@ -487,20 +502,17 @@ export default {
             ? header.display(item[header.value], { $store: this.$store })
             : item[header.value];
           cond =
-            cond &&
-            String(val)
-              .toLowerCase()
-              .includes(search.toLowerCase());
+            cond && String(val).toLowerCase().includes(search.toLowerCase());
         }
         if (cond) {
           filteredItems.push(item);
         }
       }
       return filteredItems;
-    }
+    },
   },
   mounted() {
     this.initConfig();
-  }
+  },
 };
 </script>

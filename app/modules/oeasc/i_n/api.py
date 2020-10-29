@@ -5,7 +5,15 @@ from utils_flask_sqla.response import json_resp
 from app.modules.oeasc.user.utils import check_auth_redirect_login
 
 from .repository import in_data
-from .models import TRealisations, TCircuits, TSecteurs, TTags, TObservers, CorRealisationTag
+from .models import (
+    TRealisations,
+    TCircuits,
+    TSecteurs,
+    TTags,
+    TObservers,
+    CorRealisationTag,
+    TEspeces
+)
 
 from ..generic.definitions import GenericRouteDefinitions
 
@@ -48,7 +56,12 @@ definitions = {
             'C': 5, 'R': 0, 'U': 5, 'D': 5
         }
     },
-
+    'espece': {
+        'model': TEspeces,
+        'droits': {
+            'C': 5, 'R': 0, 'U': 5, 'D': 5
+        }
+    }
 }
 
 grd.add_generic_routes('in', definitions)

@@ -86,6 +86,7 @@ storeUtils.addStore(STORE, 'inCircuit', 'api/generic/in/circuit', {idFieldName: 
 storeUtils.addStore(STORE, 'inSecteur', 'api/generic/in/secteur', {idFieldName: 'id_secteur', displayFieldName: 'nom_secteur'});
 storeUtils.addStore(STORE, 'inObserver', 'api/generic/in/observer', {idFieldName: 'id_observer', displayFieldName: 'nom_observer'});
 storeUtils.addStore(STORE, 'inTag', 'api/generic/in/tag', {idFieldName: 'id_tag', displayFieldName: 'nom_tag'});
+storeUtils.addStore(STORE, 'inEspece', 'api/generic/in/espece', {idFieldName: 'id_espece', displayFieldName: 'nom_espece'});
 
 
 export { ROUTE, STORE };

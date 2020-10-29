@@ -1,26 +1,21 @@
 export default {
   formDefs: {
-    id_secteur: {
+    id_observer: {
       label: 'Id',
       type: "text",
-      hidden: "true"
+      hidden: true
     },
-    nom_secteur: {
+    nom_observer: {
       label: "Nom",
       type: "text",
       required: true,
     },
-    code_secteur: {
-      label: 'Code',
-      type: "text",
-      required: "True"
-    },
   },
 
   title: ({ id }) =>
-    id ? `Modificiation du secteur ${id}` : "Création d'un secteur",
+    id ? `Modificiation du observateur ${id}` : "Création d'un observateur",
   switchDisplay: ({ id }) => !!id,
   displayValue: ({ id }) => !!id,
   displayLabel: true,
-  storeName: "inSecteur",
+  storeName: "inObserver",
 };

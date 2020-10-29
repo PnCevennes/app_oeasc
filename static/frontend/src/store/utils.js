@@ -14,6 +14,8 @@ export default {
     const nameConfig = `${name}ConfigStore`;
 
     const config = {
+      name,
+      names,
       get: `get${nameCapitalized}`,
       post: `post${nameCapitalized}`,
       patch: `patch${nameCapitalized}`,
@@ -21,8 +23,8 @@ export default {
       getAll: `getAll${nameCapitalized}`,
       idFieldName: settings.idFieldName,
       displayFieldName: settings.displayFieldName,
-      loaded: false,
-    }
+      loaded: false
+    };
 
     const state = {};
     /** ou l'on stoque le tableau de d'objets */
@@ -36,7 +38,7 @@ export default {
     getters[names] = state => state[names];
 
     /** recuperation des config doit marcher avec tous les stores */
-    getters.configStore = state => name => state[`${name}ConfigStore`] 
+    getters.configStore = state => name => state[`${name}ConfigStore`];
 
     /** récupération d'un objet */
     getters[name] = state => (value, fieldName = settings.idFieldName) =>
@@ -49,11 +51,26 @@ export default {
       for (const key of Object.keys(config)) {
         stateConfig[key] = config[key];
       }
-    }
+    };
 
     /** assignation du tableau entier */
     mutations[names] = (state, objList) => {
-      state[names] = objList;
+      console.log('incommit', names, objList)
+      for (const obj of objList) {
+        const elem = state[names].find(
+          e => e[config.idFieldName] == obj[config.idFieldName]
+        );
+        if (elem) {
+          for (const key of Object.keys(obj)) {
+            elem[key] = obj[key];
+          }
+        } else {
+          console.log('aa')
+          state[names].push(obj);
+        }
+      }
+
+      // state[names] = objList;
     };
 
     /** assignation d'un objet */
@@ -64,13 +81,17 @@ export default {
       if (index == -1) {
         state[names].push(obj);
       } else {
-        state[names][index] = obj;
+        for (const key of Object.keys(obj)) {
+          state[names][index][key] = obj[key];
+        }
       }
     };
 
     /** suppression d'un objet */
     mutations[config.delete] = (state, obj) => {
-      state[names] = state[names].filter( o => o[settings.idFieldName] !== obj[settings.idFieldName]);
+      state[names] = state[names].filter(
+        o => o[settings.idFieldName] !== obj[settings.idFieldName]
+      );
     };
 
     const actions = {};
@@ -87,7 +108,7 @@ export default {
         }
         apiRequest("GET", `${api}s/`).then(
           data => {
-            commit(nameConfig, {loaded:true});
+            commit(nameConfig, { loaded: true });
             commit(names, data);
             resolve(data);
           },
@@ -128,11 +149,10 @@ export default {
         }
 
         const apiUrl = requestType === "POST" ? `${api}/` : `${api}/${id}`;
-        console.log(apiUrl)
         apiRequest(requestType, apiUrl, { postData }).then(
           data => {
-            if(requestType === 'DELETE') {
-              commit(configStore.delete, data)
+            if (requestType === "DELETE") {
+              commit(configStore.delete, data);
             } else {
               commit(name, data);
             }
@@ -164,7 +184,6 @@ export default {
   },
 
   addStoreRestitution: (STORE, name, getDataAction, configRestitution) => {
-
     const nameConfig = `${name}ConfigRestitution`;
 
     const config = {
@@ -172,25 +191,24 @@ export default {
       ...configRestitution
     };
 
-
     const state = {};
     state[nameConfig] = config;
     const getters = {};
 
-    getters.configRestitution = state => name => state[`${name}ConfigRestitution`]; 
+    getters.configRestitution = state => name =>
+      state[`${name}ConfigRestitution`];
     const mutations = {};
-    const actions = {};    
+    const actions = {};
 
     const store = {
       state,
       getters,
       mutations,
-      actions,
+      actions
     };
 
     for (const key of ["state", "getters", "mutations", "actions"]) {
       STORE[key] = { ...(STORE[key] || {}), ...store[key] };
     }
-
   }
 };

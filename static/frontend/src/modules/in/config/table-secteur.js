@@ -14,10 +14,10 @@ export default {
       text: "Nom"
     },
     code_secteur: {
-      text: "Numéro"
+      text: "Code"
     },
   },
   sortBy: ["nom_secteur"],
   sortDesc: [true],
-  label: 'circuit',
+  label: 'nom_secteur',
 };

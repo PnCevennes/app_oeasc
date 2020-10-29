@@ -30,7 +30,10 @@ import genericTable from "@/components/table/generic-table";
 import inTable from "@/modules/in/in-table";
 import configRealisationTable from "./config/table-realisation";
 import configCircuitTable from "./config/table-circuit";
+import configObserverTable from "./config/table-observer";
 import configSecteurTable from "./config/table-secteur";
+import configEspeceTable from "./config/table-espece";
+import configTagTable from "./config/table-tag";
 
 export default {
   name: "in-admin",
@@ -55,10 +58,25 @@ export default {
         label: "Circuits",
         type: "generic-table"
       },
+      observer: {
+        config: configObserverTable,
+        label: 'Observateurs',
+        type: "generic-table",
+      },
       secteur: {
         config: configSecteurTable,
         label: "Secteurs",
         type: "generic-table"
+      },
+      tag: {
+        config: configTagTable,
+        label: "Tags",
+        type: "generic-table",
+      },
+      espece: {
+        config: configEspeceTable,
+        label: 'Especes',
+        type: "generic-table",
       }
     }
   })
