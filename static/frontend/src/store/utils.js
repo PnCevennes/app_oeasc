@@ -2,7 +2,7 @@ import { apiRequest } from "@/core/js/data/api.js";
 
 export default {
   /** initialise un store avec getters mutation dispatch et */
-  addStore(STORE, name, api, idFieldName) {
+  addStore(STORE, name, api, settings) {
     /** si name = 'trucs */
 
     /** trucs : nom pour les listes (un s à la fin) */
@@ -19,7 +19,8 @@ export default {
       patch: `patch${nameCapitalized}`,
       delete: `delete${nameCapitalized}`,
       getAll: `getAll${nameCapitalized}`,
-      idFieldName,
+      idFieldName: settings.idFieldName,
+      displayFieldName: settings.displayFieldName,
       loaded: false,
     }
 
@@ -38,7 +39,7 @@ export default {
     getters.configStore = state => name => state[`${name}ConfigStore`] 
 
     /** récupération d'un objet */
-    getters[name] = state => (value, fieldName = idFieldName) =>
+    getters[name] = state => (value, fieldName = settings.idFieldName) =>
       state[names] && state[names].find(obj => obj[fieldName] == value);
 
     const mutations = {};
@@ -58,7 +59,7 @@ export default {
     /** assignation d'un objet */
     mutations[name] = (state, obj) => {
       const index = state[names].findIndex(
-        o => o[idFieldName] === obj[idFieldName]
+        o => o[settings.idFieldName] === obj[settings.idFieldName]
       );
       if (index == -1) {
         state[names].push(obj);
@@ -69,7 +70,7 @@ export default {
 
     /** suppression d'un objet */
     mutations[config.delete] = (state, obj) => {
-      state[names] = state[names].filter( o => o[idFieldName] !== obj[idFieldName]);
+      state[names] = state[names].filter( o => o[settings.idFieldName] !== obj[settings.idFieldName]);
     };
 
     const actions = {};
@@ -126,7 +127,8 @@ export default {
           }
         }
 
-        const apiUrl = requestType === "POST" ? `${api}` : `${api}/${id}`;
+        const apiUrl = requestType === "POST" ? `${api}/` : `${api}/${id}`;
+        console.log(apiUrl)
         apiRequest(requestType, apiUrl, { postData }).then(
           data => {
             if(requestType === 'DELETE') {

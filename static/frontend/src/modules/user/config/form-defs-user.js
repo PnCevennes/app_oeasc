@@ -20,7 +20,7 @@ export default {
     label: "Organisme",
     display: "select",
     url: "api/user/organismes",
-    textFieldName: "nom_organisme",
+    displayFieldName: "nom_organisme",
     valueFieldName: "id_organisme"
   },
   autre_organisme: {

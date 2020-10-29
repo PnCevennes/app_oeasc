@@ -3,7 +3,7 @@
 '''
 
 from flask import current_app
-from .models import TContent
+from .models import TContents
 
 config = current_app.config
 DB = config['DB']
@@ -17,8 +17,8 @@ def get_content(code):
     try:
         res = (
             DB.session
-            .query(TContent)
-            .filter(code == TContent.code)
+            .query(TContents)
+            .filter(code == TContents.code)
             .one()
         )
 
@@ -27,6 +27,6 @@ def get_content(code):
     except Exception as e:
         print('Exception get_content {}'.format(e))
 
-    out = TContent()
+    out = TContents()
 
     return out

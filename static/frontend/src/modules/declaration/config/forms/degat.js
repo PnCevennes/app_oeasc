@@ -4,7 +4,7 @@ export default {
         type: 'degats',
         required: true,
         valueFieldName: "id_nomenclature",
-        textFieldName: "label_fr",
+        displayFieldName: "label_fr",
         multiple: true,
         require: true,
     },

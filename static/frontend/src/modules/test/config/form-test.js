@@ -40,7 +40,7 @@ export default {
         "Entrez les premières lettres de la commune et/ou le code postal",
       url: ({ search }) => `api/commons/communes/${search}`,
       valueFieldName: "nom_cp",
-      textFieldName: "nom_cp",
+      displayFieldName: "nom_cp",
       required: ({ baseModel }) => baseModel.b_document != true,
       disabled: ({ baseModel }) => baseModel.b_document === true
     },

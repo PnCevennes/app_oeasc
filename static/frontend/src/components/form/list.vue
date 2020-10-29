@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{baseModel.tags}}
     <b v-if="!config.displayValue">{{ config.label }}</b>
     <v-row dense>
       <v-col class="col-btn"></v-col>
@@ -49,7 +50,9 @@ export default {
     },
     addItem() {
       // valid form
-      this.baseModel[this.config.name].push({});
+      let lineModel = this.config.default || {}
+      
+      this.baseModel[this.config.name].push(lineModel);
       this.refresh = !this.refresh;
     },
     newChange(oldChange) {

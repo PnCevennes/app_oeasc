@@ -5,9 +5,11 @@ export default {
       type: "text",
       required: true
     },
-    ug: {
+    id_secteur: {
       label: "Secteur",
-      type: "text",
+      type: "list_form",
+      display: "select",
+      storeName: "inSecteur",
       required: true
     },
     numero_circuit: {
@@ -22,16 +24,16 @@ export default {
       required: true,
       min: 0
     },
-    ug_tags: {
-      type: "list_form",
-      display: "combobox",
-      label: "Tags",
-      maxLength: 4,
-      multiple: true,
-      url: "api/in/tags/",
-      valueFieldName: "tag",
-      textFieldName: "tag"
-    }
+    // ug_tags: {
+    //   type: "list_form",
+    //   display: "combobox",
+    //   label: "Tags",
+    //   maxLength: 4,
+    //   multiple: true,
+    //   url: "api/in/tags/",
+    //   valueFieldName: "tag",
+    //   displayFieldName: "tag"
+    // }
   },
   //   groups: [
   //     {

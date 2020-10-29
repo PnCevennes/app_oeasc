@@ -1,6 +1,6 @@
 <template>
   <div v-if="config" class="form-container">
-    {{ config.bChained }}
+    {{baseModel}}
     <h2 v-if="title">{{ title }}</h2>
     <div v-if="bRequestSuccess">
       <slot name="success"></slot>
@@ -145,8 +145,10 @@ export default {
       this.bInit = false;
       const storeName = this.config.storeName;
       if (storeName) {
-        const storeNameCapitalized =
-          storeName.charAt(0).toUpperCase() + storeName.slice(1);
+        const configStore = this.$store.getters.configStore(storeName);
+
+        // const storeNameCapitalized =
+        //   storeName.charAt(0).toUpperCase() + storeName.slice(1);
         // const storeNameIdFieldName = `${storeName}IdFieldName`;
         // this.config.idFieldName = this.$store.getters[storeNameIdFieldName];
         this.config.preLoadData = ({ $store, id, config }) => {
@@ -155,7 +157,7 @@ export default {
               resolve();
             } else {
               $store
-                .dispatch(`get${storeNameCapitalized}`, { id })
+                .dispatch(configStore.get, { id })
                 .then(data => {
                   config.value = data;
                   this.baseModel = null;
@@ -167,7 +169,7 @@ export default {
         this.config.action = this.config.action || {};
         this.config.action.process = ({ id, $store, postData }) => {
           return $store.dispatch(
-            `${id ? "patch" : "post"}${storeNameCapitalized}`,
+            id ? configStore.patch : configStore.post,
             {
               id: id,
               postData
@@ -247,6 +249,7 @@ export default {
         if (!promise) return;
 
         this.bSending = true;
+
         promise.then(
           data => {
             this.bSending = false;

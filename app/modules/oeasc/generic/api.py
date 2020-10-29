@@ -49,29 +49,29 @@ def get_generic(module_name, object_type, id):
     return res.as_dict(True)
 
 
-@bp.route('<string:module_name>/<string:object_type>/<int:id>', methods=['PATCH'])
+@bp.route('<string:module_name>/<string:object_type>/<int:id_value>', methods=['PATCH'])
 @check_object_type('U')
 @json_resp
-def patch_generic(module_name, object_type, id):
+def patch_generic(module_name, object_type, id_value):
 
     post_data = request.get_json()
 
-    res = create_or_update_object_type(module_name, object_type, id, post_data)
+    res = create_or_update_object_type(module_name, object_type, id_value, post_data)
 
     return res.as_dict(True)
 
 
-@bp.route('<string:module_name>/<string:object_type>', methods=['POST'], defaults={'id': None})
+@bp.route('<string:module_name>/<string:object_type>/', methods=['POST'])
 @check_object_type('C')
 @json_resp
-def post_generic(module_name, object_type, id):
+def post_generic(module_name, object_type):
     '''
 
     '''
 
     post_data = request.get_json()
 
-    res = create_or_update_object_type(module_name, object_type, id, post_data)
+    res = create_or_update_object_type(module_name, object_type, None, post_data)
 
     return res.as_dict(True)
 

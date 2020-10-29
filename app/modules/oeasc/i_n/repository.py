@@ -18,6 +18,7 @@ def sort_data(res):
     
     keys = ['espece', 'ug', 'annee', 'serie', 'numero_circuit']
     for key in keys:
+
         res.sort(key=lambda x: x.get(key))
 
 def regroup_data(res):
@@ -50,7 +51,7 @@ def in_data():
 
     res = GenericQuery(
         DB,
-        'v2',
+        'v_result',
         'oeasc_in',
         limit=1e6
     ).as_dict()['items']

@@ -1,6 +1,6 @@
 DROP VIEW IF EXISTS oeasc_in.v1 CASCADE;
 
-CREATE VIEW oeasc_in.v1 AS
+CREATE VIEW oeasc_in.v_result AS
 SELECT 
     o.id_observation,
 	o.nb,
@@ -10,81 +10,26 @@ SELECT
 	c.id_circuit,
     c.nom_circuit,
     c.numero_circuit,
-	c.ug,
+	s.nom_secteur,
 	c.km,
-    UNNEST(c.ug_tags) AS ug_tag,
+    cor.id_realisation IS NOT NULL AS valid,
+    t.nom_tag,
+    t.id_tag,
+    REPLACE(CONCAT(s.nom_secteur, '_', t.nom_tag), '_all', '') as ug,
     espece,
-    r.valid,
     r.id_realisation,
 	nb/km as nbkm,
 	to_char(r.date_realisation, 'YYYY') AS annee
 	
 	FROM oeasc_in.t_observations o
-	JOIN oeasc_in.t_realisations r ON r.id_realisation = o.id_realisation
-	JOIN oeasc_in.t_circuits c ON c.id_circuit = r.id_circuit
+	JOIN oeasc_in.t_realisations r
+        ON r.id_realisation = o.id_realisation
+	JOIN oeasc_in.t_circuits c
+        ON c.id_circuit = r.id_circuit
+    JOIN oeasc_commons.t_secteurs s
+        ON s.id_secteur = c.id_secteur
+    JOIN oeasc_in.cor_realisation_tag cor 
+        ON cor.id_realisation = r.id_realisation
+    JOIN oeasc_in.t_tags t
+        ON t.id_tag = cor.id_tag
 ;
-
-DROP VIEW IF EXISTS oeasc_in.v2 CASCADE;
-CREATE VIEW oeasc_in.v2 AS
-SELECT 
-    id_observation,
-	nb,
-    groupes,
-	serie,
-	date,
-	id_circuit,
-    nom_circuit,
-    numero_circuit,
-	REPLACE(CONCAT(ug, '_', ug_tag), '_all', '') as ug,
-	km,
-    espece,
-    valid,
-	nbkm,
-	annee,
-    id_realisation
-	
-	FROM oeasc_in.v1
-;
-
-
-DROP VIEW IF EXISTS oeasc_in.v_observers CASCADE;
-CREATE VIEW oeasc_in.v_observers AS 
-
-SELECT observer FROM
-(SELECT DISTINCT
-    UNNEST(
-    observers
-    ) observer
-
-    FROM oeasc_in.t_realisations
-    WHERE observers IS NOT NULL)a
-    WHERE observer != ''
-    ;
-
-
-DROP VIEW IF EXISTS oeasc_in.v_tags CASCADE;
-CREATE VIEW oeasc_in.v_tags AS 
-
-SELECT tag FROM
-(SELECT DISTINCT
-    UNNEST(
-    ug_tags
-    ) tag
-
-    FROM oeasc_in.t_circuits
-    WHERE ug_tags IS NOT NULL)a
-    WHERE tag != ''
-    ;
-
-
-DROP VIEW IF EXISTS oeasc_in.v_circuits CASCADE;
-
-CREATE VIEW oeasc_in.v_circuits AS
-SELECT 
-    id_circuit,
-    nom_circuit,
-    ug,
-    CONCAT(ug, ' ',nom_circuit) as label
-
-    FROM oeasc_in.t_circuits
-    ORDER BY ug, nom_circuit

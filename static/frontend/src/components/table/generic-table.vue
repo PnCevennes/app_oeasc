@@ -70,6 +70,19 @@
                 v-model="searchs[header.value]"
                 type="text"
               ></v-text-field>
+              <v-tooltip top>
+                <template v-slot:activator="{ on }">
+                  <v-btn
+                    v-on="on"
+                    v-if="header.value == 'actions'"
+                    color="primary"
+                    icon
+                    @click="edit('actions')"
+                    ><v-icon>fa-plus</v-icon></v-btn
+                  >
+                </template>
+                <span>Ajouter une nouvelle ligne au tableau</span>
+              </v-tooltip>
             </td>
           </tr>
         </template>
@@ -116,24 +129,6 @@
               >
                 {{ displayCell(props, value) }}
               </v-btn>
-              <v-dialog
-                v-if="bEditDialogs[value]"
-                persistent
-                max-width="1400px"
-                v-model="
-                  bEditDialogs[value][props.item[configTable.idFieldName]]
-                "
-              >
-                <v-card>
-                  <genericForm
-                    class="edit-dialog"
-                    v-if="
-                      bEditDialogs[value][props.item[configTable.idFieldName]]
-                    "
-                    :config="configForm(props, value)"
-                  ></genericForm>
-                </v-card>
-              </v-dialog>
             </div>
             <div v-else>
               {{ displayCell(props, value) }}
@@ -145,6 +140,15 @@
     <v-snackbar color="error" v-model="bError" :timeout="5000">
       {{ msgError }}
     </v-snackbar>
+    <v-dialog max-width="1400px" v-model="bEditDialog">
+      <v-card>
+        <genericForm
+          class="edit-dialog"
+          v-if="configForm && bEditDialog"
+          :config="configForm"
+        ></genericForm>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -160,13 +164,14 @@ export default {
   data: () => ({
     configTable: {},
     searchs: {},
-    bEditDialogs: null,
     saveValue: null,
     msgError: null,
     bError: false,
     idToDelete: null,
     deleteModal: null,
-    deleteWithoutWarning: false
+    deleteWithoutWarning: false,
+    configForm: null,
+    bEditDialog: false
   }),
   watch: {
     config: {
@@ -195,30 +200,32 @@ export default {
           }))
       );
     },
-    configForm(prop, value) {
-      const item = prop.item;
-      const label=  prop.header.text;
+    getConfigForm(value, id) {
+      const item = this.configTable.items.find(
+        item => item[this.configTable.idFieldName] === id
+      );
       const header = this.configTable.headers.find(
         header => header && header.value == value
       );
+      const label = header.text;
       if (!header.edit) {
-        return {};
+        return null;
       }
       const configForm = copy(header.edit);
-      console.log(value)
       if (value != "actions") {
-        configForm.title = `Modifier ${prop.header.text} pour ${
+        configForm.title = `Modifier ${header.text} pour ${
           item[this.configTable.labelFieldName || this.configTable.idFieldName]
         }`;
         configForm.label = label;
       }
-      configForm.idFieldName = configForm.idFieldName || this.configTable.idFieldName;
+      configForm.idFieldName =
+        configForm.idFieldName || this.configTable.idFieldName;
       configForm.value = copy(item);
       configForm.switchDisplay = false;
       configForm.displayValue = false;
       configForm.cancel = {
         action: () => {
-          this.cancel(value, item[this.configTable.idFieldName]);
+          this.cancel(value, item && item[this.configTable.idFieldName]);
           this.closeDialog();
         }
       };
@@ -230,13 +237,23 @@ export default {
       configForm.action.onSuccess = ({ data }) => {
         configForm.action.onSuccess2 && configForm.action.onSuccess2({ data });
 
-        const elem = this.configTable.items.find(
+        let elem = this.configTable.items.find(
           item =>
             item[this.configTable.idFieldName] ==
             data[this.configTable.idFieldName]
         );
-        for (const key of Object.keys(data)) {
-          elem[key] = data[key];
+
+        if (!elem) {
+          elem = {};
+          this.configTable.items.push(elem);
+        }
+
+        const processedData = this.configTable.preProcess
+          ? this.configTable.preProcess({ data: [data] })[0]
+          : data;
+
+        for (const key of Object.keys(processedData)) {
+          elem[key] = processedData[key];
         }
 
         this.closeDialog();
@@ -244,6 +261,9 @@ export default {
       return configForm;
     },
     cancel(value, id) {
+      if (!id) {
+        return;
+      }
       const elem = this.configTable.items.find(
         item => item[this.configTable.idFieldName] == id
       );
@@ -253,14 +273,17 @@ export default {
     },
     edit(value, id) {
       this.closeDialog();
-      this.bEditDialogs[value] = {};
-      this.bEditDialogs[value][id] = true;
-      this.saveVal = copy(
-        this.configTable.items.find(
-          item => item[this.configTable.idFieldName] == id
-        )
-      );
+      this.configForm = this.getConfigForm(value, id);
+      this.saveVal = id
+        ? copy(
+            this.configTable.items.find(
+              item => item[this.configTable.idFieldName] == id
+            )
+          )
+        : null;
+      this.bEditDialog = !!this.configForm;
     },
+
     deleteRow(id) {
       const index = this.configTable.items.findIndex(
         d => d[this.configTable.idFieldName] == id
@@ -282,10 +305,7 @@ export default {
       }
     },
     closeDialog() {
-      this.bEditDialogs = {};
-      for (const key of Object.keys(this.configTable.headerDefs)) {
-        this.bEditDialogs[key] = {};
-      }
+      this.bEditDialog = false;
     },
     initConfig() {
       const config = copy(this.config);
@@ -329,12 +349,10 @@ export default {
         }
       }
 
-      this.bEditDialogs = {};
       /** contruction de la variable header */
       const headers = [];
 
       for (const [value, header] of Object.entries(config.headerDefs)) {
-        this.bEditDialogs[value] = {};
         header.value = value;
         if (header.type == "date") {
           header.sort = sortDate;
@@ -353,10 +371,16 @@ export default {
             config.stores[value] = header.storeName;
           }
           if (header.displayFieldName) {
-            header.display = (id, { $store }) =>
-              ($store.getters[header.storeName](id) || {})[
-                header.displayFieldName
-              ];
+            header.display = (id, { $store }) => {
+              // case secteur.nom_secteur
+              const displayFieldNames = header.displayFieldName.split(".");
+              let inter = $store.getters[header.storeName](id);
+
+              for (const displayFieldName of displayFieldNames) {
+                inter = inter[displayFieldName];
+              }
+              return inter;
+            };
           }
           header.sort = (a, b) => {
             const aa = header.display

@@ -9,6 +9,11 @@ export default {
   small: true,
   configForm: configRealisationForm,
   headerDefs: {
+    id_realisation: {
+      type: "number",
+      text: "ID"
+    },
+
     date_realisation: {
       type: "date",
       text: "Date"
@@ -20,16 +25,22 @@ export default {
     },
     secteur: {
       text: "Secteur",
-      storeName: "inCircuit",
-      displayFieldName: "ug",
-      preProcess: d => d.id_circuit
+      storeName: "inSecteur",
+      displayFieldName: "code_secteur",
+      preProcess: d => d.circuit.id_secteur
     },
     serie: {
       text: "Série"
     },
+    tags: {
+      text: "Tags",
+      display: d => {
+        return (d && d.length) ? d.map(dd => `${dd.tag.nom_tag}: ${dd.valid ? 'o' : 'x'}`  ).join(', ') : '';
+      }
+    },
     observers: {
       text: "Observateurs",
-      display: d => (d && d.length) ? d.join(', ') : '',
+      display: d => (d && d.length) ? d.map(dd => dd.nom_observer).join(', ') : '',
     },
     temperature: {
       text: "Température"
@@ -65,7 +76,9 @@ export default {
     }
   },
 
-  sortBy: ["date_realisation"],
-  sortDesc: [true],
+  // sortBy: ["date_realisation"],
+  // sortDesc: [true],
+  sortBy: ["id_realisation"],
+  sortDesc: [false],
   label: 'réalisation'
 };

@@ -17,7 +17,7 @@ export default {
   created: function() {
     this.config.url = `api/oeasc/nomenclatures/${this.config.nomenclatureType}`;
     this.config.valueFieldName = "id_nomenclature";
-    this.config.textFieldName = "label_fr";
+    this.config.displayFieldName = "label_fr";
     this.$store.dispatch("nomenclatures").then(() => {
       this.config.items = this.$store.getters.nomenclaturesOfType(
         this.config.nomenclatureType

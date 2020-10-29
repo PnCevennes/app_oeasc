@@ -48,7 +48,7 @@ Les paramètres principaux sont:
   - les autres paramètres des `list_form` sont:
     - `items`: on peut donner une liste de valeurs ou d'objets en configuration.
     - `valueFieldName` *value*: le nom du champs pour la valeur renvoyée
-    - `textFieldName` *text*: le nom du champs pour la valeur affichée
+    - `displayFieldName` *text*: le nom du champs pour la valeur affichée
     - `url`: l'URL de l'api qui renvoie la liste des items
  - `nomenclature`: se base sur le précédent pour le choix des nomenclatures,
  - `essence`: se base sur le précédent pour le  choix des essences (+ gestion de celles déjà choisie...),

@@ -218,7 +218,6 @@ class Restitution {
 
   filteredData(filters = null) {
     if(!this._filteredData) {
-      console.log('filteredData')
       this._filteredData  = this.filterData(this.data(), filters);
     }
     return this._filteredData

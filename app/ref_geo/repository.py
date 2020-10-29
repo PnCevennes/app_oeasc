@@ -132,7 +132,6 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
     out = []
 
-    print('aaa')
 
     for id_area_container in v:
 

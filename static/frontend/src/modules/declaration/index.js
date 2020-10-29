@@ -208,10 +208,7 @@ const STORE = {
 
 };
 
-// storeUtils.addStoreRestitution(STORE, 'declaration', 'declarations', configResitutionDeclaration); 
-
-// patch pourri faire un genre addStoreGetAll
-storeUtils.addStore(STORE, 'degat', 'api/declaration/degat', 'id_declaration'); 
+storeUtils.addStore(STORE, 'degat', 'api/declaration/degat', {idFieldNamne: 'id_declaration'}); 
 storeUtils.addStoreRestitution(STORE, 'declaration', 'getAllDegat', configResitutionDeclaration); 
 
 

@@ -51,7 +51,7 @@ export default {
     this.config.url = "api/oeasc/nomenclatures/OEASC_PEUPLEMENT_ESSENCE";
     this.config.processItems = formFunctions.processItems.essence;
     this.config.valueFieldName = "id_nomenclature";
-    this.config.textFieldName = "label_fr";
+    this.config.displayFieldName = "label_fr";
     this.config.items = this.$store.getters.nomenclaturesOfType(
       "OEASC_PEUPLEMENT_ESSENCE"
     );

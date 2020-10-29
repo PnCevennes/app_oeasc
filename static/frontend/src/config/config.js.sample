@@ -4,7 +4,7 @@ const config = {
   URL_APPLICATION: 'http://localhost:5005',
   distPath: '/static/frontend/dist/',
   ID_APPLICATION: '500',
-  defaultContent: 'accueil',
+  defaulTContents: 'accueil',
   map: configMap,
   preConfigMap,
 };

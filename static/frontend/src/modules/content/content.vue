@@ -4,26 +4,26 @@
       <div>
         <v-btn
           icon
-          v-if="!bEditContent && $store.getters.droitMax >= 5"
-          @click="bEditContent = true"
+          v-if="!bEdiTContents && $store.getters.droitMax >= 5"
+          @click="bEdiTContents = true"
         >
           <v-icon>edit</v-icon>
         </v-btn>
-        <v-btn icon v-if="bEditContent" @click="bEditContent = false">
+        <v-btn icon v-if="bEdiTContents" @click="bEdiTContents = false">
           <v-icon>cancel</v-icon>
         </v-btn>
 
-        <v-btn icon v-if="bEditContent" @click="updateContent()">
+        <v-btn icon v-if="bEdiTContents" @click="updateContent()">
           <v-icon>check</v-icon>
         </v-btn>
       </div>
 
       <v-runtime-template
-        v-if="!bEditContent"
+        v-if="!bEdiTContents"
         class="content"
         :template="contentHTML"
       ></v-runtime-template>
-      <div v-if="bEditContent" class="edit-content">
+      <div v-if="bEdiTContents" class="edit-content">
         <v-textarea
           :label="`Content ${getCode()}`"
           v-model="contentMD"
@@ -63,7 +63,7 @@ export default {
   watch: {
     $route() {
       // react to route changes...
-      this.initContent();
+      this.iniTContents();
     }
   },
   computed: {
@@ -87,23 +87,23 @@ export default {
     // component: null,
     contentHTML: "",
     contentMD: "",
-    bEditContent: false,
+    bEdiTContents: false,
     containerClass: {},
     mainConfig: config,
   }),
   methods: {
-    setContent: function(data) {
+    seTContents: function(data) {
       this.contentHTML = `<div>${data.html}</div>`;
       this.contentMD = data.md;
-      this.bEditContent = false;
+      this.bEdiTContents = false;
     },
     getCode: function() {
-      return this.code || this.$route.params.code || config.defaultContent;
+      return this.code || this.$route.params.code || config.defaulTContents;
     },
 
-    initContent: function() {
+    iniTContents: function() {
       apiRequest("GET", `api/commons/content/${this.getCode()}`).then(data =>
-        this.setContent(data)
+        this.seTContents(data)
       );
     },
 
@@ -115,12 +115,12 @@ export default {
 
       apiRequest("PATCH", `api/commons/content/${this.getCode()}`, {
         postData
-      }).then(data => this.setContent(data));
+      }).then(data => this.seTContents(data));
     }
   },
 
   mounted: function() {
-    this.initContent();
+    this.iniTContents();
   },
 };
 </script>

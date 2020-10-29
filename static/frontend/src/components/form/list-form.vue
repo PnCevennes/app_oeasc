@@ -5,15 +5,21 @@
       <span>{{ valueDisplay }}</span>
     </span>
     <div v-else>
+      {{ baseModel[config.name] }}
       <div class="list-form">
         <div v-if="config.display === 'button'">
           <div class="select-list-label">{{ config.label }}</div>
-          <v-btn-toggle v-model="baseModel[config.name]" @change="change($event)" dense>
+          <v-btn-toggle
+            v-model="baseModel[config.name]"
+            @change="change($event)"
+            dense
+          >
             <v-btn
               :value="item[config.valueFieldName]"
               v-for="(item, index) of items"
               :key="index"
-            >{{ item[config.textFieldName] }}</v-btn>
+              >{{ item[config.displayFieldName] }}</v-btn
+            >
           </v-btn-toggle>
         </div>
 
@@ -28,7 +34,7 @@
             :required="config.required ? true : false"
             :multiple="config.multiple ? true : false"
             :item-value="config.valueFieldName"
-            :item-text="config.textFieldName"
+            :item-text="config.displayFieldName"
             :rules="config.rules"
             :chips="config.multiple ? true : false"
             dense
@@ -59,7 +65,7 @@
             :required="config.required ? true : false"
             :multiple="config.multiple ? true : false"
             :item-value="config.valueFieldName"
-            :item-text="config.textFieldName"
+            :item-text="config.displayFieldName"
             :rules="config.rules"
             :chips="config.multiple ? true : false"
             dense
@@ -79,7 +85,11 @@
               <span v-if="config.required" class="required">*</span>
             </span>
 
-            <help slot="prepend" :code="`form-${config.name}`" v-if="config.help"></help>
+            <help
+              slot="prepend"
+              :code="`form-${config.name}`"
+              v-if="config.help"
+            ></help>
           </v-autocomplete>
         </div>
 
@@ -93,7 +103,7 @@
             :required="config.required ? true : false"
             :multiple="config.multiple ? true : false"
             :item-value="config.valueFieldName"
-            :item-text="config.textFieldName"
+            :item-text="config.displayFieldName"
             :rules="config.rules"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
@@ -127,7 +137,7 @@
                 :value="
                   (config.returnObject && item) || item[config.valueFieldName]
                 "
-                :label="item[config.textFieldName]"
+                :label="item[config.displayFieldName]"
                 dense
                 :rules="config.rules"
                 :disabled="config.disabled"
@@ -149,16 +159,22 @@
                 <span v-if="config.required" class="required">*</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
               </div>
-              <v-radio-group v-model="baseModel[config.name]" :rules="config.rules">
+              <v-radio-group
+                v-model="baseModel[config.name]"
+                :rules="config.rules"
+              >
                 <template v-for="item in items">
-                  <div :key="item[config.valueFieldName]" style="position: relative">
+                  <div
+                    :key="item[config.valueFieldName]"
+                    style="position: relative"
+                  >
                     <div class="radio">
                       <v-radio
                         :value="
                           (config.returnObject && item) ||
                             item[config.valueFieldName]
                         "
-                        :label="item[config.textFieldName]"
+                        :label="item[config.displayFieldName]"
                         :disabled="config.disabled"
                         @change="change($event)"
                       ></v-radio>
@@ -198,7 +214,7 @@ export default {
     },
     defaultConfig: {
       valueFieldName: "value",
-      textFieldName: "text"
+      displayFieldName: "text"
     },
     search: "",
     dataItems: null
@@ -232,13 +248,34 @@ export default {
   },
   methods: {
     change(event) {
-      event;
+      // cas combobox && string && returnObject =>
+      //  value = { <valueFieldName>: null, <displayFieldName>: <current_value>}
+
+      if (this.config.display == "combobox" && this.config.returnObject) {
+        let values = this.baseModel[this.config.name];
+        values = this.config.multiple ? values : [values];
+
+        values = values.map(value => {
+          if (typeof value === "string") {
+            const v = {};
+            v[this.config.valueFieldName] = null;
+            v[this.config.displayFieldName] = value;
+            return v;
+          } else {
+            return value;
+          }
+        });
+        this.baseModel[this.config.name] = this.config.multiple
+          ? values
+          : values[0];
+      }
+
       this.config.change &&
         this.config.change({
           baseModel: this.baseModel,
           config: this.config,
           $store: this.$store,
-          $event: event,
+          $event: event
         });
     },
     customFilter(item, queryText) {
@@ -266,6 +303,16 @@ export default {
       }, 10);
     },
     setDefaultConfig() {
+      if (this.config.storeName) {
+        const configStore = this.$store.getters.configStore(
+          this.config.storeName
+        );
+        this.defaultConfig.valueFieldName =
+          this.config.valueFieldName || configStore.idFieldName;
+        this.defaultConfig.displayFieldName =
+          this.config.displayFieldName || configStore.displayFieldName;
+      }
+
       for (const key in this.defaultConfig) {
         if (!(key in this.config)) {
           this.config[key] = this.defaultConfig[key];
@@ -274,39 +321,44 @@ export default {
     },
 
     getData: function() {
+      let promise = null;
       if (this.dataItems && !this.config.dataReloadOnSearch) {
         this.processItems();
-      } else {
-        if (this.config.url) {
-          // const urlParam = this.config.dataReloadOnSearch
-          //   ? this.search || ""
-          //   : this.baseModel;
+      } else if (this.config.storeName) {
+        const configStore = this.$store.getters.configStore(
+          this.config.storeName
+        );
+        promise = this.$store.dispatch(configStore.getAll);
+        this.config.valueFieldName = configStore.idFieldName;
+        this.config.displayFieldName =
+          configStore.displayFieldName || this.config.displayFieldName;
+      } else if (this.config.url) {
+        const url =
+          typeof this.config.url === "function"
+            ? this.config.url({
+                search: this.search || "",
+                baseModel: this.baseModel
+              })
+            : this.config.url;
 
-          const url =
-            typeof this.config.url === "function"
-              ? this.config.url({
-                  search: this.search || "",
-                  baseModel: this.baseModel
-                })
-              : this.config.url;
+        promise = this.$store.dispatch("cacheOrRequest", {
+          url
+        });
+      }
 
-          this.$store
-            .dispatch("cacheOrRequest", {
-              url
-            })
-            .then(
-              apiData => {
-                this.dataItems = apiData;
-                this.processItems();
-              },
-              error => {
-                this.info = {
-                  status: "error",
-                  msg: error
-                };
-              }
-            );
-        }
+      if (promise) {
+        promise.then(
+          apiData => {
+            this.dataItems = apiData;
+            this.processItems();
+          },
+          error => {
+            this.info = {
+              status: "error",
+              msg: error
+            };
+          }
+        );
       }
     },
     autocompleteChange: function(e) {
@@ -328,7 +380,7 @@ export default {
           .filter(item => {
             return values.includes(item[this.config.valueFieldName]);
           })
-          .map(item => item[this.config.textFieldName]);
+          .map(item => item[this.config.displayFieldName]);
         return textArray.join(", ");
       }
     }
@@ -338,7 +390,6 @@ export default {
     this.setDefaultConfig();
   },
   mounted: function() {
-
     if (this.config.items) {
       if (this.config.items.length && typeof this.config.items[0] != "object") {
         this.dataItems = this.config.items.map(item => ({
@@ -352,6 +403,7 @@ export default {
     if (this.config.dataReloadOnSearch) {
       this.search = this.baseModel[this.config.name];
     }
+
     this.getData();
   }
 };

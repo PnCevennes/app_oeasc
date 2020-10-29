@@ -8,9 +8,7 @@ export default {
     id_circuit: {
       type: "list_form",
       label: "Circuit",
-      url: "api/in/circuits/",
-      valueFieldName: "id_circuit",
-      textFieldName: "label",
+      storeName: "inCircuit",
       display: "autocomplete",
       required: true
     },
@@ -20,9 +18,37 @@ export default {
       label: "Observateurs",
       maxLength: 4,
       multiple: true,
-      url: "api/in/observers/",
-      valueFieldName: "observer",
-      textFieldName: "observer"
+      storeName: 'inObserver',
+      returnObject: true
+    },
+    tags: {
+      type: "list",
+      label: "Tags",
+      forms: ['id_realisation', 'id_tag', 'valid'],
+      default: ({baseModel}) => ({id_realisation: baseModel.id_realisation, id_tag: null})
+    },
+    id_realisation: {
+      label: "ID realisation",
+      type:"text",
+      hidden: true
+    },
+    id_tag: {
+      label: "Tag",
+      type:"list_form",
+      display:"select",
+      required: true,
+      storeName: 'inTag'
+    },
+    valid: {
+      label: "Valide",
+      type: "bool_switch",
+    },
+    tag: {
+      type: "list_form",
+      display: "combobox",
+      label: "Tag",
+      storeName: 'inTag',
+      returnObject: true
     },
     temperature: {
       label: "Température",
@@ -84,6 +110,11 @@ export default {
       forms: ["date_realisation", "id_circuit", "serie", "observers"]
     },
     {
+      title: "Validation",
+      forms: ["tags"]
+    },
+
+    {
       title: "Météo",
       direction: "row",
       forms: ["temperature", "temps", "vent"]
@@ -102,5 +133,15 @@ export default {
   displayValue: ({ id }) => !!id,
   displayLabel: true,
   storeName: 'inRealisation',
-  idFieldName: 'id_realisation'
+  idFieldName: 'id_realisation',
+  // action: {
+  //   preProcess: ({baseModel}) => {
+  //     const postData = copy(baseModel);
+  //     postData.observers = baseModel.observers.map((o) => 
+  //       typeof(o) == 'string' ? ({nom_observer: o, id_observer: null}) : o);
+  //     postData.tags = baseModel.tags.map((o) => 
+  //       typeof(o) == 'string' ? ({nom_tag: o, id_tag: null}) : o);
+  //     return postData
+  //   }
+  // }
 };

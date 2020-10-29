@@ -14,12 +14,10 @@ export default {
     numero_circuit: {
       text: "Numéro"
     },
-    ug: {
-      text: "Secteur"
-    },
-    ug_tags: {
-      text: 'Tags',
-      display: d => (d && d.length ? d.join(", ") : "")
+    id_secteur: {
+      text: "Secteur",
+      displayFieldName: "nom_secteur",
+      storeName: "inSecteur",
     },
     km: {
       text: "distance (km)"

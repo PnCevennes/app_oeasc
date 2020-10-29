@@ -38,12 +38,11 @@ const menus = {
     ]
   },
 
-
   admin: {
     label: 'Administration',
     icon: 'fa-cog',
     hidden: ({$store}) => ($store.getters.droitMax < 5),
-    names: ["in.tableau", "in.realisations", "in.circuits", "user.gerer_utilisateurs"]
+    names: ["in.admin", "user.admin"]
   },
 
   dev: {

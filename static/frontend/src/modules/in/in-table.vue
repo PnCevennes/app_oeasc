@@ -2,7 +2,10 @@
   <div class="in-table">
     <div>
       <v-row dense v-if="ready">
-        <v-col v-for="[type, config] of Object.entries(configChoix)" :key="type">
+        <v-col
+          v-for="[type, config] of Object.entries(configChoix)"
+          :key="type"
+        >
           <list-form
             v-if="ready && config && config.items.length"
             :config="config"
@@ -10,10 +13,9 @@
           ></list-form>
         </v-col>
       </v-row>
-      <v-row v-if="dataUg && graphOnly==undefined">
+      <v-row v-if="dataUg && graphOnly == undefined">
         <v-col>
-             <v-simple-table dense class="stats" v-if="dataUg">
-          
+          <v-simple-table dense class="stats" v-if="dataUg">
             <thead>
               <tr>
                 <th>Année</th>
@@ -22,17 +24,16 @@
                 <th>Nb Circuits(max)</th>
               </tr>
             </thead>
-            
+
             <tbody>
               <tr v-for="(row, index) of resNbCircuits()" :key="index">
-                <td>{{row.annee}}</td>
-                <td>{{row.nbSeries}}</td>
-                <td>{{row.nbCircuitsMin}}</td>
-                <td>{{row.nbCircuitsMax}}</td>
+                <td>{{ row.annee }}</td>
+                <td>{{ row.nbSeries }}</td>
+                <td>{{ row.nbCircuitsMin }}</td>
+                <td>{{ row.nbCircuitsMax }}</td>
               </tr>
             </tbody>
-         
-          </v-simple-table> 
+          </v-simple-table>
         </v-col>
       </v-row>
 
@@ -46,13 +47,21 @@
             :ug="settings.ug"
             width="100%"
             height="400px"
-            :commentaires="commentaires && commentaires[settings.espece] && commentaires[settings.espece][settings.ug]"
+            :commentaires="
+              commentaires &&
+                commentaires[settings.espece] &&
+                commentaires[settings.espece][settings.ug]
+            "
           ></in-graph>
         </v-col>
       </v-row>
-      <v-row v-if="graphOnly==undefined">
+      <v-row v-if="graphOnly == undefined">
         <v-col cols="2" class="col-switch">
-          <dynamic-form v-if="ready" :config="configSwitchReg" :baseModel="settings"></dynamic-form>
+          <dynamic-form
+            v-if="ready"
+            :config="configSwitchReg"
+            :baseModel="settings"
+          ></dynamic-form>
         </v-col>
         <v-col>
           <transition name="fade">
@@ -86,7 +95,7 @@
         </v-col>
       </v-row>
 
-      <div v-if="dataUg && graphOnly==undefined">
+      <div v-if="dataUg && graphOnly == undefined">
         <h4>Indices nocturnes {{ settings.espece }} {{ settings.ug }}</h4>
 
         <v-tabs centered dark grow>
@@ -94,7 +103,8 @@
             v-for="annee of Object.keys(dataUg.annees)"
             :key="annee"
             :href="`#tab-${annee}`"
-          >{{annee}}</v-tab>
+            >{{ annee }}</v-tab
+          >
 
           <v-tab-item
             v-for="[annee, dataAnnee] of Object.entries(dataUg.annees)"
@@ -147,16 +157,16 @@
               <tbody>
                 <template
                   v-for="([numeroSerie, serie], indexSerie) in Object.entries(
-              dataAnnee.series
-            )"
+                    dataAnnee.series
+                  )"
                 >
                   <tr
                     :class="{ serie: indexCircuit == 0 }"
                     v-for="(circuit, indexCircuit) of Object.values(
-                serie.id_circuits
-              ).sort((a, b) => {
-                return a.numero_circuit - b.numero_circuit;
-              })"
+                      serie.id_circuits
+                    ).sort((a, b) => {
+                      return a.numero_circuit - b.numero_circuit;
+                    })"
                     :key="`${numeroSerie}-${circuit.id_circuit}`"
                   >
                     <td
@@ -168,36 +178,54 @@
                       :class="{ gris: indexSerie % 2 }"
                       v-if="indexCircuit == 0"
                       :rowSpan="Object.entries(serie.id_circuits).length"
-                    >{{ numeroSerie }}</td>
+                    >
+                      {{ numeroSerie }}
+                    </td>
                     <td :class="{ gris: indexCircuit % 2 }">
                       <input
                         v-if="$store.getters.droitMax >= 5"
                         type="checkbox"
                         v-model="circuit.valid"
                         :disabled="freezeValid"
-                        @change="validChange(circuit.id_realisation, circuit.valid)"
+                        @change="
+                          validChange(
+                            circuit
+                          )
+                        "
                       />
                       <template v-else>
-                        {{
-                        `${circuit.valid ? "Oui" : "Non"}`
-                        }}
+                        {{ `${circuit.valid ? "Oui" : "Non"}` }}
                       </template>
                     </td>
 
-                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.date }}</td>
-                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.numero_circuit }}</td>
-                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.nom_circuit }}</td>
-                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.groupes }}</td>
-                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.km }}</td>
-                    <td :class="{ gris: indexCircuit % 2 }">{{ circuit.nb }}</td>
-                    <td
-                      :class="{ gris: indexCircuit % 2 }"
-                    >{{ round(circuit.nb / circuit.km, dec) }}</td>
+                    <td :class="{ gris: indexCircuit % 2 }">
+                      {{ circuit.date }}
+                    </td>
+                    <td :class="{ gris: indexCircuit % 2 }">
+                      {{ circuit.numero_circuit }}
+                    </td>
+                    <td :class="{ gris: indexCircuit % 2 }">
+                      {{ circuit.nom_circuit }}
+                    </td>
+                    <td :class="{ gris: indexCircuit % 2 }">
+                      {{ circuit.groupes }}
+                    </td>
+                    <td :class="{ gris: indexCircuit % 2 }">
+                      {{ circuit.km }}
+                    </td>
+                    <td :class="{ gris: indexCircuit % 2 }">
+                      {{ circuit.nb }}
+                    </td>
+                    <td :class="{ gris: indexCircuit % 2 }">
+                      {{ round(circuit.nb / circuit.km, dec) }}
+                    </td>
                     <td
                       :class="{ gris: indexSerie % 2, serie: true }"
                       v-if="indexCircuit == 0"
                       :rowSpan="Object.entries(serie.id_circuits).length"
-                    >{{ round(serie.moy, dec) }}</td>
+                    >
+                      {{ round(serie.moy, dec) }}
+                    </td>
                   </tr>
                 </template>
               </tbody>
@@ -221,7 +249,7 @@ export default {
   components: {
     listForm,
     "in-graph": () => import("./in-graph.vue"),
-    dynamicForm,
+    dynamicForm
   },
   data: () => ({
     dataIn: null,
@@ -236,21 +264,29 @@ export default {
     configSwitchReg: {
       type: "bool_switch",
       label: "Régression linéaire",
-      name: "displayReg",
-    },
+      name: "displayReg"
+    }
   }),
   methods: {
     resNbCircuits() {
       const res = [];
-      if(!this.dataUg) return [];
-      for (const [annee, dataAnnee] of Object.entries(this.dataUg.annees || {})) {
+      if (!this.dataUg) return [];
+      for (const [annee, dataAnnee] of Object.entries(
+        this.dataUg.annees || {}
+      )) {
         let nbCircuitsMin = 1e10;
         let nbCircuitsMax = -1e10;
         let nbSeries = 0;
         for (const serie of Object.values(dataAnnee.series)) {
           nbSeries += 1;
-          nbCircuitsMax = Math.max(nbCircuitsMax, Object.keys(serie.id_circuits).length);
-          nbCircuitsMin = Math.min(nbCircuitsMin, Object.keys(serie.id_circuits).length);
+          nbCircuitsMax = Math.max(
+            nbCircuitsMax,
+            Object.keys(serie.id_circuits).length
+          );
+          nbCircuitsMin = Math.min(
+            nbCircuitsMin,
+            Object.keys(serie.id_circuits).length
+          );
         }
         res.push({ annee, nbCircuitsMin, nbCircuitsMax, nbSeries });
       }
@@ -262,11 +298,15 @@ export default {
       const e = 10 ** dec;
       return Math.round(x * e) / e;
     },
-    validChange(id_realisation, valid) {
-      console.log(id_realisation)
+    validChange(circuit) {
       this.freezeValid = true;
+      const postData = {}
+      postData.id_tag = circuit.id_tag;
+      postData.id_realisation = circuit.id_realisation;
+      postData.valid = circuit.valid;
+      console.log(postData)
       apiRequest("PATCH", "api/in/valid_realisation/", {
-        postData: { id_realisation, valid },
+        postData
       }).then(() => {
         // this.dataIn = data;
         this.initInTable();
@@ -335,7 +375,7 @@ export default {
     },
     reload() {
       this.loading = true;
-      this.$store.dispatch("inResults").then((data) => {
+      this.$store.dispatch("inResults").then(data => {
         this.ready = false;
         this.dataAnnee = false;
         this.dataIn = data;
@@ -344,14 +384,14 @@ export default {
           label: "Espèce",
           items: this.items("espece"),
           change: this.settingsChange,
-          display: "button",
+          display: "button"
         };
         this.configChoix.ug = {
           name: "ug",
           label: "Secteur",
           items: this.items("ug"),
           change: this.settingsChange,
-          display: "button",
+          display: "button"
         };
 
         this.ready = true;
@@ -359,12 +399,12 @@ export default {
 
         this.initInTable();
       });
-    },
+    }
   },
 
   mounted() {
     this.reload();
-  },
+  }
 };
 </script>
 

@@ -46,6 +46,7 @@ def create_or_update_object_type(module_name, object_type, id, post_data):
         res = get_object_type(module_name, object_type, id)
 
     res.from_dict(post_data, True)
+    print(res.as_dict(True))
 
     DB.session.commit()
 

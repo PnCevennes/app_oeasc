@@ -86,7 +86,6 @@ export default {
       this.restitution.getData(this.$store).then(
         () => {
           /** calcul de results */
-          console.log('uu')
           this.processData();
         },
         (error) => {
