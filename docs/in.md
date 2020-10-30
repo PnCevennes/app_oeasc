@@ -81,5 +81,7 @@ Pour intégrer les graphiques il faut placer les lignes suivante dans le contenu
 ></in-table></div>
 ```
 
+Les graphiques présentent les résultats par secteurs pour une espèce choisie.
+
 - Les commentaires peuvent contenir du html.
 - Le caractère `'` doit être échappé `\'`.
