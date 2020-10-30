@@ -145,7 +145,6 @@ export default {
       const storeName = this.config.storeName;
       if (storeName) {
         const configStore = this.$store.getters.configStore(storeName);
-        console.log(configStore)
         // const storeNameCapitalized =
         //   storeName.charAt(0).toUpperCase() + storeName.slice(1);
         // const storeNameIdFieldName = `${storeName}IdFieldName`;
@@ -293,7 +292,6 @@ export default {
               const configStore = this.$store.getters.configStore(
                 updateStore.storeName
               );
-              console.log("commit", configStore.names, values);
               this.$store.commit(configStore.names, values);
             }
 

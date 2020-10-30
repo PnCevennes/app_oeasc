@@ -3,7 +3,11 @@
     <div>
       <v-row dense v-if="ready">
         <v-col
-          v-for="[type, config] of Object.entries(configChoix)"
+          v-for="[type, config] of Object.entries(configChoix).filter(
+            ([type, config]) => {
+              return graphOnly != undefined ? type == 'nom_espece' : true;
+            }
+          )"
           :key="type"
         >
           <list-form
@@ -37,20 +41,24 @@
         </v-col>
       </v-row>
 
-      <v-row>
+      <v-row
+        v-for="ug in graphOnly != undefined ? configChoix.ug ? configChoix.ug.items : [] : [settings.ug]"
+        :key="ug"
+      >
         <v-col>
           <in-graph
+            :class="{'graph-chained': graphOnly != undefined}"
             v-if="settings.nom_espece"
             :displayReg="settings.displayReg"
             :dataIn="dataIn"
             :nom_espece="settings.nom_espece"
-            :ug="settings.ug"
+            :ug="ug"
             width="100%"
             height="400px"
             :commentaires="
               commentaires &&
                 commentaires[settings.nom_espece] &&
-                commentaires[settings.nom_espece][settings.ug]
+                commentaires[settings.nom_espece][ug]
             "
           ></in-graph>
         </v-col>
@@ -187,11 +195,7 @@
                         type="checkbox"
                         v-model="circuit.valid"
                         :disabled="freezeValid"
-                        @change="
-                          validChange(
-                            circuit
-                          )
-                        "
+                        @change="validChange(circuit)"
                       />
                       <template v-else>
                         {{ `${circuit.valid ? "Oui" : "Non"}` }}
@@ -300,11 +304,10 @@ export default {
     },
     validChange(circuit) {
       this.freezeValid = true;
-      const postData = {}
+      const postData = {};
       postData.id_tag = circuit.id_tag;
       postData.id_realisation = circuit.id_realisation;
       postData.valid = circuit.valid;
-      console.log(postData)
       apiRequest("PATCH", "api/in/valid_realisation/", {
         postData
       }).then(() => {
@@ -344,7 +347,6 @@ export default {
         return;
       }
       if (!this.items("ug").includes(this.settings.ug)) {
-        
         this.settings.ug = null;
       }
 
@@ -419,5 +421,8 @@ export default {
 }
 .fade-enter, .fade-leave-to, .fade-leave-active  /* .fade-leave-active below version 2.1.8 */ {
   opacity: 0;
+}
+.graph-chained {
+  margin-bottom: 100px;
 }
 </style>

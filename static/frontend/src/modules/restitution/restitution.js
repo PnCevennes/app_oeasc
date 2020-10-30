@@ -211,7 +211,6 @@ class Restitution {
           data1.text != "Autres" ? [data1.text] : data1.autres;
         filters[data2.key] =
           data2.text != "Autres" ? [data2.text] : data2.autres;
-          console.log(filters, data1.key)
         const dataCur = this.filterData(filteredData, filters);
 
         const countData2 = this.groupBy(dataCur, this.options.groupByKey)

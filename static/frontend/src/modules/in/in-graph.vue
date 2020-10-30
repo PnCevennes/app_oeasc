@@ -7,7 +7,7 @@
       :highcharts="hcInstance"
     ></highcharts>
     <v-progress-linear v-else active indeterminate></v-progress-linear>
-    <div v-if="commentaires" v-html="commentaires"></div>
+    <div v-if="commentaires" class='commentaires' v-html="commentaires"></div>
   </div>
 </template>
 
@@ -237,3 +237,8 @@ export default {
   },
 };
 </script>
+<style>
+.commentaires {
+  color: rgb(100,100,100)
+}
+</style>

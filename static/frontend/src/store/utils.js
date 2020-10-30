@@ -55,7 +55,6 @@ export default {
 
     /** assignation du tableau entier */
     mutations[names] = (state, objList) => {
-      console.log('incommit', names, objList)
       for (const obj of objList) {
         const elem = state[names].find(
           e => e[config.idFieldName] == obj[config.idFieldName]
@@ -65,7 +64,6 @@ export default {
             elem[key] = obj[key];
           }
         } else {
-          console.log('aa')
           state[names].push(obj);
         }
       }

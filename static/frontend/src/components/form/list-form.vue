@@ -6,6 +6,7 @@
     </span>
     <div v-else>
       <div class="list-form">
+        <!-- {{ baseModel[config.name] }} -->
         <div v-if="config.display === 'button'">
           <div class="select-list-label">{{ config.label }}</div>
           <v-btn-toggle
@@ -254,16 +255,33 @@ export default {
         let values = this.baseModel[this.config.name];
         values = this.config.multiple ? values : [values];
 
-        values = values.map(value => {
-          if (typeof value === "string") {
-            const v = {};
-            v[this.config.valueFieldName] = null;
-            v[this.config.displayFieldName] = value;
-            return v;
-          } else {
+        values = values
+          .map(value => {
+            if (typeof value === "string") {
+              const elem = this.items.find(
+                item => item[this.config.displayFieldName] == value
+              );
+              if (elem) {
+                return elem;
+              }
+              const v = {};
+              v[this.config.valueFieldName] = null;
+              v[this.config.displayFieldName] = value;
+              return v;
+            }
             return value;
-          }
-        });
+          })
+          .filter((item, pos, self) => {
+            const index = self.findIndex(
+              e =>
+                (e[this.config.valueFieldName] &&
+                  e[this.config.valueFieldName] ==
+                    item[this.config.valueFieldName]) ||
+                e[this.config.displayFieldName] ==
+                  item  [this.config.displayFieldName]
+            );
+            return index == pos;
+          });
         this.baseModel[this.config.name] = this.config.multiple
           ? values
           : values[0];
@@ -361,7 +379,7 @@ export default {
       }
     },
     autocompleteChange: function(e) {
-      e
+      e;
     }
   },
   computed: {

@@ -354,11 +354,7 @@ export default {
             return this.$store.state[configStore.names];
           },
           (new_value, old_value) => {
-            console.log(
-              `STORE ${configStore.names} changed !!! loadData loaded ${!this.configTable.loaded}`,
-              old_value,
-              new_value
-            );
+            new_value; old_value;
             this.loadData(!this.configTable.loaded)
           },
           {
@@ -466,7 +462,6 @@ export default {
               if (key == "items") {
                 const items = res[index];
                 if (items) {
-                  console.log({items})
                   this.configTable.items = this.configTable.preProcess
                     ? this.configTable.preProcess({ data: items })
                     : items;
