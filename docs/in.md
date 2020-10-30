@@ -27,10 +27,20 @@ Cet onglet permet de
 
 ### Circuits
 
+![circuit](images/in/circuit.png)
+
+
 ### Tags
+
+Gestion des tags.
 
 ### Espèces
 
+Gestion des espèces.
+
+Les espèces déjà présentes sont les cerfs, chevreuils, renards, lièvres.
 ### Observateurs
+
+Gestion des observateurs.
 
 ## Resultats
