@@ -6,7 +6,9 @@
 
 ## Administration
 
-Six onglets pour gérer les données des Indices Nocturnes.
+L'administration des données des Indices Nocturnes est accessible depuis le menu de gauche (sous-menu `Administration`) ou directement à l'adresse `#/in/admin`.
+
+Il faut être connecté et avoir les droit >= 5 pour pouvoir y accéder.
 
 ### Statistiques
 Cet onglet permet de :
@@ -35,13 +37,49 @@ Cet onglet permet de
 
 Gestion des tags.
 
+Les Tags déjà présents sont `all` et `coeur`.
+Les tags permettent de valider une réalisation pour des contextes différents (par exemple `Méjean` et `Méjean  coeur`) sans avoir à dupliquer les circuits et les réalisations;
+
 ### Espèces
 
 Gestion des espèces.
 
 Les espèces déjà présentes sont les cerfs, chevreuils, renards, lièvres.
+
 ### Observateurs
 
 Gestion des observateurs.
 
 ## Resultats
+
+Les résutats des Indices nocturnes sont accéssible à tous depuis le menu horizontal `Résultats des suivi -> Indices Nocturnes` ou directement à l'adresse `resultats/in`.
+
+Il s'agit d'une page de contenu.
+
+Pour intégrer les graphiques il faut placer les lignes suivante dans le contenu.
+
+```
+## Résultats par espèce et par secteur
+
+<div><in-table graphOnly
+:commentaires="{
+  Cerf: {
+    'Méjean': 'Commentaire cerf Méjan ...',
+    'Mont Aigoual': '',
+    'Mont Lozère': '',
+    'Vallées cévenoles': '',
+    'Méjean_coeur': '',
+  },
+  Chevreuil: {
+    'Méjean': 'Commentaire cerf Méjan ...',
+    'Mont Aigoual': '',
+    'Mont Lozère': '',
+    'Vallées cévenoles': '',
+    'Méjean_coeur': '',
+  },
+}"
+></in-table></div>
+```
+
+- Les commentaires peuvent contenir du html.
+- Le caractère `'` doit être échappé `\'`.
