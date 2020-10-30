@@ -85,3 +85,6 @@ Les graphiques présentent les résultats par secteurs pour une espèce choisie.
 
 - Les commentaires peuvent contenir du html.
 - Le caractère `'` doit être échappé `\'`.
+
+![resultat](images/in/resultat.png)
+
