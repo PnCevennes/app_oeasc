@@ -1,12 +1,62 @@
+import storeUtils from '@/store/utils';
 import content from "./content";
+import actualite from "./actualite";
 import { apiRequest } from "@/core/js/data/api.js";
+import admin from "@/components/admin";
+
+import configContentTable from "./config/table-content";
+import configTagTable from "./config/table-tag";
+
+const configAdmin = {
+  title: "Contenu",
+  tabs: {
+    content: {
+      config: configContentTable,
+      label: "Contenus",
+      type: "generic-table"
+    },
+    tag: {
+      config: configTagTable,
+      label: "Tags",
+      type: "generic-table",
+    },
+  }
+}
 
 const ROUTE = [
+  {
+    path: "/content/admin",
+    label: "Contenu",
+    name: "content.admin",
+    component: admin,
+    props: {
+      config: configAdmin
+    }
+  },
+  {
+    path: "/actualites",
+    label: "Actualités",
+    name: "actualite.index",
+    parent: "page.accueil",
+    component: actualite,
+    props: {
+      tags: ['actualite']
+    }
+  },
+  {
+    path: "/actualite/:code",
+    name: "actualite.content",
+    parent: 'actualite.index',
+    type: "page"
+  },
   {
     path: "/content/:code",
     label: "content",
     name: "content",
-    component: content
+    component: content,
+    props: {
+      page: true
+    }
   }
 ];
 
@@ -45,4 +95,8 @@ const STORE = {
   }
 };
 
+storeUtils.addStore(STORE, 'commonsContent', 'api/generic/commons/content', {idFieldName: 'id_content', displayFieldName: 'code'});
+storeUtils.addStore(STORE, 'commonsTag', 'api/generic/commons/tag', {idFieldName: 'id_tag', displayFieldName:'nom_tag'});
 export { ROUTE, STORE, content };
+
+

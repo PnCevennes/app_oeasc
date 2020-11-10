@@ -6,7 +6,7 @@
 
 ## Administration
 
-L'administration des données des Indices Nocturnes est accessible depuis le menu de gauche (sous-menu `Administration`) ou directement à l'adresse `#/in/admin`.
+L'administration des données des Indices Nocturnes est accessible depuis le menu de gauche (sous-menu `Administration`) ou directement à l'adresse `#/admin/in`.
 
 Il faut être connecté et avoir les droit >= 5 pour pouvoir y accéder.
 

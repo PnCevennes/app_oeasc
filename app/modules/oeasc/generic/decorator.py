@@ -17,7 +17,6 @@ def check_object_type(droit_type):
         @wraps(fn)
         def check_object_type__(*args, **kwargs):
 
-            print(kwargs)
             module_name = kwargs.get('module_name')
             object_type = kwargs.get('object_type') or kwargs.get('object_types')[:-1]
             current_user = session.get('current_user', {})
@@ -30,8 +29,6 @@ def check_object_type(droit_type):
                 )
 
             object_definition = definitions.get_object_type(module_name, object_type)
-
-            print(module_name, object_type)
 
             if not object_definition:
                 return (

@@ -16,7 +16,7 @@ export default {
   components: { oeascContent },
   computed: {
     contentCode() {
-      return this.$route.meta.content;
+      return this.$route.meta.content || this.$route.params.code;
     }
   }
 };

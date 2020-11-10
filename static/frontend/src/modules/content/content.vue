@@ -1,38 +1,93 @@
 <template>
-  <div>
+  <div :class="{ 'content-page': page }">
     <div>
-      <div>
-        <v-btn
-          icon
-          v-if="!bEdiTContents && $store.getters.droitMax >= 5"
-          @click="bEdiTContents = true"
-        >
-          <v-icon>edit</v-icon>
-        </v-btn>
-        <v-btn icon v-if="bEdiTContents" @click="bEdiTContents = false">
-          <v-icon>cancel</v-icon>
-        </v-btn>
+      <div v-if="!bEditContents && content">
+        <div>
+          <v-btn
+            icon
+            v-if="!bEditContents && $store.getters.droitMax >= 5"
+            @click="bEditContents = true"
+          >
+            <v-icon>edit</v-icon>
+          </v-btn>
+        </div>
 
-        <v-btn icon v-if="bEdiTContents" @click="updateContent()">
-          <v-icon>check</v-icon>
-        </v-btn>
+        <div v-if="displayContentDate">
+          <i>Crée le {{ displayDate(content.meta_create_date) }}</i>
+
+          <i
+            v-if="
+              displayDate(content.meta_create_date) !=
+                displayDate(content.meta_update_date)
+            "
+            >, modifié le {{ displayDate(content.meta_create_date) }}</i
+          >
+        </div>
+        <v-runtime-template
+          class="content"
+          :template="content.html"
+        ></v-runtime-template>
+        <div v-if="linkFullContent">
+          <a :href="`#/${link}/${content.code}`">Lire la suite</a>
+        </div>
       </div>
+      <div>
+        <div v-if="bEditContents && content" class="edit-content">
+          <div>
+            <v-btn icon v-if="bEditContents" @click="bEditContents = false">
+              <v-icon>cancel</v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              v-if="bEditContents"
+              @click="
+                configImgForm.value = null;
+                dialogImg = true;
+              "
+            >
+              <v-icon>image</v-icon>
+            </v-btn>
+            <v-btn
+              icon
+              v-if="bEditContents"
+              @click="
+                configDocForm.value = null;
+                dialogDoc = true;
+              "
+            >
+              <v-icon>fa-file-alt</v-icon>
+            </v-btn>
+          </div>
 
-      <v-runtime-template
-        v-if="!bEdiTContents"
-        class="content"
-        :template="contentHTML"
-      ></v-runtime-template>
-      <div v-if="bEdiTContents" class="edit-content">
-        <v-textarea
-          :label="`Content ${getCode()}`"
-          v-model="contentMD"
-          :rows="20"
-          large
-          outlined
-          color="cyan"
-          class="edit-content"
-        ></v-textarea>
+          <generic-form
+            :config="configContentForm"
+            @onSuccess="setContent($event)"
+          >
+          </generic-form>
+
+          <v-dialog max-width="1400px" v-model="dialogImg">
+            <v-card v-if="dialogImg">
+              <genericForm
+                class="edit-dialog"
+                :config="configImgForm"
+                @onSuccess="getImg($event)"
+              ></genericForm>
+            </v-card>
+          </v-dialog>
+
+          <v-dialog max-width="1400px" v-model="dialogDoc">
+            <v-card v-if="dialogDoc">
+              <genericForm
+                class="edit-dialog"
+                :config="configDocForm"
+                @onSuccess="getDoc($event)"
+              ></genericForm>
+            </v-card>
+          </v-dialog>
+          <v-snackbar color="success" v-model="bSnack" :timeout="2000">
+            {{ msgSnack }}
+          </v-snackbar>
+        </div>
       </div>
     </div>
   </div>
@@ -40,35 +95,50 @@
 
 <script>
 // load content
-import { apiRequest } from "@/core/js/data/api.js";
 import { config } from "@/config/config.js";
 // import { MapService } from "@/modules/map";
 import faqDeclaration from "./faq-declaration";
 import tableAide from "./table-aide";
 import declarationTable from "@/modules/declaration/declaration-table";
 import baseMap from "@/modules/map/base-map";
-import contentImg from './content-img'
-import listePartenaire from './liste-partenaire'
-import inGraph from '@/modules/in/in-graph.vue'
-import inTable from '@/modules/in/in-table.vue'
-import restitution from '@/modules/restitution/restitution.vue'
+import contentImg from "./content-img";
+import listePartenaire from "./liste-partenaire";
+import inGraph from "@/modules/in/in-graph.vue";
+import inTable from "@/modules/in/in-table.vue";
+import restitution from "@/modules/restitution/restitution.vue";
 
 import "./content.css";
 // import Vue from "vue";
 import VRuntimeTemplate from "v-runtime-template";
+import configContentForm from "./config/form-content";
+import configImgForm from "./config/form-img";
+import configDocForm from "./config/form-doc";
+import genericForm from "@/components/form/generic-form";
+import marked from "marked";
 
 export default {
   name: "oeasc-content",
-  props: ["code", "containerClassIn", "meta"],
+  props: [
+    "code",
+    "containerClassIn",
+    "meta",
+    "nbLines",
+    "displayContentDate",
+    "link",
+    "page"
+  ],
   watch: {
     $route() {
       // react to route changes...
-      this.iniTContents();
+      this.initContent();
     }
   },
   computed: {
-    dp() {
-      return this.$store.getters.distPath;
+    mediaDocPath() {
+      return this.$store.getters.mediaDocPath;
+    },
+    isPage() {
+      return this.page != "undefined";
     }
   },
   components: {
@@ -82,45 +152,78 @@ export default {
     inGraph, // eslint-disable-line
     inTable, // eslint-disable-line
     restitution, // eslint-disable-line
+    genericForm
   },
   data: () => ({
-    // component: null,
-    contentHTML: "",
-    contentMD: "",
-    bEdiTContents: false,
+    dp: null,
+    content: null,
+    bEditContents: false,
     containerClass: {},
     mainConfig: config,
+    linkFullContent: null,
+    dialogImg: false,
+    dialogDoc: false,
+    configContentForm,
+    configImgForm,
+    configDocForm,
+    bSnack: false,
+    msgSnack: null,
   }),
   methods: {
-    seTContents: function(data) {
-      this.contentHTML = `<div>${data.html}</div>`;
-      this.contentMD = data.md;
-      this.bEdiTContents = false;
+    displayDate(date) {
+      return date.split(" ")[0];
     },
-    getCode: function() {
-      return this.code || this.$route.params.code || config.defaulTContents;
+    getImg(event) {
+      const str_img = `<content-img ${event.center ? "center" : ""}
+  src="${event.src || ""}"
+  title="${event.title || ""}"
+  source="${event.source || ""}"></content-img>`;
+      navigator.clipboard.writeText(str_img).then(() => {
+        this.dialogImg = false;
+        this.bSnack = true;
+        this.msgSnack = `Le code de l'image à été copié dans le presse-papier`; 
+      });
+    },
+    getDoc(event) {
+      const str_doc = `<a href="${this.$store.getters.mediaDocPath}${
+        event.src
+      }" target="_blanck">${event.txt || event.src}</a>`;
+      navigator.clipboard.writeText(str_doc).then(() => {
+        this.dialogDoc = false;
+        this.bSnack = true;
+        this.msgSnack = `Le code de l'image à été copié dans le presse-papier`; 
+
+      });
     },
 
-    iniTContents: function() {
-      apiRequest("GET", `api/commons/content/${this.getCode()}`).then(data =>
-        this.seTContents(data)
-      );
+    setContent(data) {
+      this.content = data;
+      this.configContentForm.value = this.content;
+      let html = marked(data.md);
+      if (this.nbLines) {
+        this.linkFullContent = html.split("\n").length > this.nbLines;
+        html = html
+          .split("\n")
+          .slice(0, this.nbLines)
+          .join("\n");
+      }
+      this.content.html = `<div>${html}</div>`;
+      this.bEditContents = false;
+    },
+    getCode() {
+      return this.code || this.$route.params.code || config.defaultContents;
     },
 
-    updateContent: function() {
-      let postData = {
-        md: this.contentMD,
-        code: this.getCode()
-      };
+    initContent() {
+      const configStore = this.$store.getters.configStore("commonsContent");
 
-      apiRequest("PATCH", `api/commons/content/${this.getCode()}`, {
-        postData
-      }).then(data => this.seTContents(data));
+      this.$store
+        .dispatch(configStore.get, { value: this.getCode(), fieldName: "code" })
+        .then(data => this.setContent(data));
     }
   },
-
-  mounted: function() {
-    this.iniTContents();
-  },
+  mounted() {
+    this.initContent();
+  }
 };
 </script>

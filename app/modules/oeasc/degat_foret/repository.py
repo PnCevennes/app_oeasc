@@ -29,8 +29,6 @@ def create_or_modify(model, key, dict_in):
         if val:
             elem = DB.session.query(model).filter(getattr(model, key) == val).first()
 
-    print(elem)
-
     if elem is None:
         elem = model()
         DB.session.add(elem)
@@ -122,8 +120,6 @@ def create_or_update_declaration(post_data):
 
     if not post_data['b_document']:
 
-        print('id_declarant', post_data['id_declarant'])
-
         id_declarant = post_data['id_declarant']
 
         nomenclature = (
@@ -204,7 +200,7 @@ def get_foret_from_code(code_foret):
     '''
         get_foret_from_code
     '''
-    print('code_foret', code_foret)
+
     foret = (
         DB.session.query(TForet)
         .filter(TForet.code_foret == code_foret)

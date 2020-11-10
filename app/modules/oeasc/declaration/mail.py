@@ -41,7 +41,6 @@ def send_mail_validation_declaration(declaration, b_create):
     '''
         Evoie un e-mail quand une declaration est validée
     '''
-    print('aaaa', b_create)
 
     user = get_user(session['current_user']['id_role'])
 
@@ -65,7 +64,6 @@ def send_mail_validation_declaration(declaration, b_create):
             conn.send(msg)
 
         # test si utilisateur est l'animateur pas de mail
-        print(email_user, config['ANIMATEUR_APPLICATION_MAIL'], config['ADMIN_APPLICATION_MAIL'])
         if email_user in [config['ANIMATEUR_APPLICATION_MAIL'], config['ADMIN_APPLICATION_MAIL']]:
             return  
 

@@ -34,7 +34,7 @@ export default {
       url: "api/degat_foret/declaration"
     }
   },
-  preLoadData: ({ $store, id, config }) => {
+  preloadData: ({ $store, id, config }) => {
     return new Promise(resolve => {
       const promises = [
         $store.dispatch("nomenclatures"),

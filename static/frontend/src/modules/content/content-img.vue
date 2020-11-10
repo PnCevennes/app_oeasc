@@ -1,21 +1,26 @@
 <template>
-  <div :class="classes">
-    <a :href="to ? `${$store.getters.distPath}${to}` : null">
-      <figure>
-        <img
-          :src="`${$store.getters.distPath}${src}`"
-          :title="`${title || src} ${source || ''}`.trim()"
-          :alt="`${title || src} ${source || ''}`.trim()"
-          :width="width"
-          :height="height"
-        />
-        <figcaption>
-          <div class="img-text">
-            {{ title }}
-            <i class="source" v-if="source"> - {{ source }}</i>
-          </div>
-        </figcaption>
-      </figure>
+  <div
+    :class="classes"
+  >
+  <a
+        :href="isLink ? `${$store.getters.mediaImgPath}${src}` : null"
+  >
+    <figure
+    >
+      <img
+        :src="`${$store.getters.mediaImgPath}${src}`"
+        :title="`${title || src || ''} ${source || ''}`.trim()"
+        :alt="`${title || src || ''} ${source || ''}`.trim()"
+        :width="width"
+        :height="height"
+      />
+      <figcaption>
+        <div class="img-text">
+          {{ title || "" }}
+          <i class="source" v-if="source"> - {{ source }}</i>
+        </div>
+      </figcaption>
+    </figure>
     </a>
   </div>
 </template>
@@ -33,9 +38,13 @@ export default {
         float: this.float,
         left: this.float == "left",
         right: this.float == "right",
-        risetitle: this["risetitle"] == ""
+        risetitle: this["risetitle"] == "",
+        'no-link': !this.isLink
       };
       return classes;
+    },
+    isLink() {
+      return this.link != undefined;
     }
   },
   props: [
@@ -47,7 +56,7 @@ export default {
     "title",
     "source",
     "risetitle",
-    "to"
+    "link"
   ]
 };
 </script>

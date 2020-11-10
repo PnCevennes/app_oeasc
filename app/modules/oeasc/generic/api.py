@@ -1,9 +1,9 @@
 '''
-
+    routes generiques
 '''
 
 from utils_flask_sqla.response import json_resp, json_resp_accept_empty_list
-from flask import Blueprint, current_app, request, session
+from flask import Blueprint, request
 
 from .decorator import check_object_type
 
@@ -24,7 +24,6 @@ def get_all_generic(module_name, object_types):
         get_all_generic
     '''
 
-
     # on enleve le s à la fin
     object_type = object_types[:-1]
 
@@ -33,15 +32,17 @@ def get_all_generic(module_name, object_types):
     return [r.as_dict(True) for r in res]
 
 
-@bp.route('<string:module_name>/<string:object_type>/<int:id>', methods=['GET'])
+@bp.route('<string:module_name>/<string:object_type>/<value>', methods=['GET'])
 @check_object_type('R')
 @json_resp
-def get_generic(module_name, object_type, id):
+def get_generic(module_name, object_type, value):
+    '''
+    field_name (id_field_name par defaut)
     '''
 
-    '''
+    field_name = request.args.get('field_name')
 
-    res = get_object_type(module_name, object_type, id)
+    res = get_object_type(module_name, object_type, value, field_name)
 
     if not res:
         return None
@@ -53,7 +54,9 @@ def get_generic(module_name, object_type, id):
 @check_object_type('U')
 @json_resp
 def patch_generic(module_name, object_type, id_value):
-
+    '''
+        patch generic
+    '''
     post_data = request.get_json()
 
     res = create_or_update_object_type(module_name, object_type, id_value, post_data)
@@ -66,7 +69,7 @@ def patch_generic(module_name, object_type, id_value):
 @json_resp
 def post_generic(module_name, object_type):
     '''
-
+        post generic
     '''
 
     post_data = request.get_json()
@@ -79,9 +82,9 @@ def post_generic(module_name, object_type):
 @bp.route('<string:module_name>/<string:object_type>/<int:id>', methods=['DELETE'])
 @check_object_type('D')
 @json_resp
-def delete_generec(module_name, object_type, id):
+def delete_generec(module_name, object_type, id_value):
+    '''
+    delete generic
     '''
 
-    '''
-
-    return  delete_object_type(module_name, object_type, id)
+    return  delete_object_type(module_name, object_type, id_value)

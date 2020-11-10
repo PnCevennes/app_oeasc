@@ -25,7 +25,7 @@ export default {
         route => route.name == name
       );
       list.unshift({
-        text: route.label,
+        text: route.label || this.$route.params.code,
         to: route.path,
       });
       return this.breadcrumpList(route.parent, list);

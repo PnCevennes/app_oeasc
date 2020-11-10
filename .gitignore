@@ -17,6 +17,8 @@ install/scripts_db/SQL/ref_geo_process.sql
 
 install/script_db/config.csv
 
+static/medias/img/*
+static/medias/doc/*
 # install/minimal_db/nomenclatures.sql
 # install/minimal_db/utilisateurs.sql
 # install/minimal_db/ref_geo.sql
@@ -26,10 +28,8 @@ static/data/*.json
 static/node_modules
 static/documents
 static/shapefiles/*
-!static/shapefiles/.gitkeep
 
 static/dist/*
-!static/dist/.gitkeep
 static/src/js/config/config*.js
 
 procedure_install_server.sh
@@ -62,3 +62,4 @@ static/frontend/.vscode
 static/frontend/src/config/config.js
 
     
+!.gitkeep

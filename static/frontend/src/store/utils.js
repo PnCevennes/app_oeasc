@@ -16,6 +16,7 @@ export default {
     const config = {
       name,
       names,
+      count: `count${nameCapitalized}`,
       get: `get${nameCapitalized}`,
       post: `post${nameCapitalized}`,
       patch: `patch${nameCapitalized}`,
@@ -37,11 +38,13 @@ export default {
 
     getters[names] = state => state[names];
 
+    getters[config.count] = state => state[names].length
+
     /** recuperation des config doit marcher avec tous les stores */
     getters.configStore = state => name => state[`${name}ConfigStore`];
 
     /** récupération d'un objet */
-    getters[name] = state => (value, fieldName = settings.idFieldName) =>
+    getters[name] = state => (value, fieldName = config.idFieldName) =>
       state[names] && state[names].find(obj => obj[fieldName] == value);
 
     const mutations = {};
@@ -55,6 +58,10 @@ export default {
 
     /** assignation du tableau entier */
     mutations[names] = (state, objList) => {
+      if (!state[names].length) {
+        state[names] = objList;
+        return 
+      }
       for (const obj of objList) {
         const elem = state[names].find(
           e => e[config.idFieldName] == obj[config.idFieldName]
@@ -67,14 +74,12 @@ export default {
           state[names].push(obj);
         }
       }
-
-      // state[names] = objList;
     };
 
     /** assignation d'un objet */
     mutations[name] = (state, obj) => {
       const index = state[names].findIndex(
-        o => o[settings.idFieldName] === obj[settings.idFieldName]
+        o => o[config.idFieldName] === obj[config.idFieldName]
       );
       if (index == -1) {
         state[names].push(obj);
@@ -88,7 +93,7 @@ export default {
     /** suppression d'un objet */
     mutations[config.delete] = (state, obj) => {
       state[names] = state[names].filter(
-        o => o[settings.idFieldName] !== obj[settings.idFieldName]
+        o => o[config.idFieldName] !== obj[config.idFieldName]
       );
     };
 
@@ -120,13 +125,13 @@ export default {
 
     const genericAction = requestType => (
       { getters, commit },
-      { id = null, postData = null }
+      { value = null, fieldName = config.idFieldName, postData = null }
     ) => {
       return new Promise((resolve, reject) => {
         const configStore = getters.configStore(name);
         /** verification des arguments */
         let error;
-        if (["PATCH", "GET", "DELETE"].includes(requestType) && !id) {
+        if (["PATCH", "GET", "DELETE"].includes(requestType) && !value) {
           error = `genericAction Error :  pas d'id fournie pour une requête ${requestType}`;
         }
         if (["PATCH", `POST`].includes(requestType) && !postData) {
@@ -139,15 +144,15 @@ export default {
         }
 
         if (requestType == "GET") {
-          const obj = getters[name](id);
+          const obj = getters[name](value, fieldName);
           if (obj) {
             resolve(obj);
             return;
           }
         }
 
-        const apiUrl = requestType === "POST" ? `${api}/` : `${api}/${id}`;
-        apiRequest(requestType, apiUrl, { postData }).then(
+        const apiUrl = requestType === "POST" ? `${api}/` : `${api}/${value}`;
+        apiRequest(requestType, apiUrl, { postData, params: {field_name: fieldName} }).then(
           data => {
             if (requestType === "DELETE") {
               commit(configStore.delete, data);
@@ -188,6 +193,7 @@ export default {
       getDataAction,
       ...configRestitution
     };
+
 
     const state = {};
     state[nameConfig] = config;

@@ -127,11 +127,13 @@
                 small
                 @click="edit(value, props.item[configTable.idFieldName])"
               >
-                {{ displayCell(props, value) }}
+                <span v-html="displayCell(props, value)"></span>
+                <!-- {{ displayCell(props, value) }} -->
               </v-btn>
             </div>
             <div v-else>
-              {{ displayCell(props, value) }}
+                <span v-html="displayCell(props, value)"></span>
+              <!-- {{ displayCell(props, value) }} -->
             </div>
           </div>
         </template>
@@ -140,7 +142,7 @@
     <v-snackbar color="error" v-model="bError" :timeout="5000">
       {{ msgError }}
     </v-snackbar>
-    <v-dialog max-width="1400px" v-model="bEditDialog">
+    <v-dialog persistent max-width="1400px" v-model="bEditDialog">
       <v-card>
         <genericForm
           class="edit-dialog"
@@ -221,7 +223,7 @@ export default {
       }
       configForm.idFieldName =
         configForm.idFieldName || this.configTable.idFieldName;
-      configForm.value = copy(item) || configForm.value;
+      configForm.value = copy(item) || configForm.value
       configForm.switchDisplay = false;
       configForm.displayValue = false;
       configForm.cancel = {

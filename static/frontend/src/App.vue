@@ -39,6 +39,7 @@ export default {
         rightMenus: ["user"],
         leftMenus: [
           "accueil",
+          "actualite",
           "observatoire",
           "systeme_alerte",
           "resultats",
@@ -47,6 +48,7 @@ export default {
       configDrawer: {
         menus: [
           "accueil",
+          "actualite",
           "observatoire",
           "systeme_alerte",
           "documentation",

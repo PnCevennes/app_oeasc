@@ -41,11 +41,14 @@ export default {
       url: ({ search }) => `api/commons/communes/${search}`,
       valueFieldName: "nom_cp",
       displayFieldName: "nom_cp",
-      required: ({ baseModel }) => baseModel.b_document != true,
-      disabled: ({ baseModel }) => baseModel.b_document === true
+      required: ({ baseModel }) => !baseModel.b_document,
     },
+    b_document: {
+      type: "file",
+      label: 'Document'
+    }
   },
-  forms: ['s_commune_proprietaire'],
+  forms: ['b_document', 's_commune_proprietaire'],
   value: {s_commune_proprietaire: 'Azay-le-Rideau 37190'},
   // groups: [
   //     {

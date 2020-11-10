@@ -108,7 +108,6 @@ def api_get_declaration(id_declaration):
     # hide proprietaire
     current_user = session.get('current_user', None)
     if (current_user['id_droit_max'] < 4) and (current_user['id_role'] != out['id_role']):
-        print('hide')
         hide_proprietaire(out)
 
     return out

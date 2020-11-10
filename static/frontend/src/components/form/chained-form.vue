@@ -110,9 +110,9 @@ export default {
       return sessionDef;
     },
     initChainedForm() {
-      if (this.config.preLoadData) {
+      if (this.config.preloadData) {
         this.config
-          .preLoadData({
+          .preloadData({
             $store: this.$store,
             id: this.id,
             config: this.config,

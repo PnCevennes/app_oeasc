@@ -7,6 +7,7 @@
         v-if="!menu.menus.length"
         :icon="!!menu.icon"
         :to="menu.path"
+        class="text-none"
       >
         <v-icon v-if="!!menu.icon">{{ menu.icon }}</v-icon>
         <template v-else>{{ menu.label }}</template>

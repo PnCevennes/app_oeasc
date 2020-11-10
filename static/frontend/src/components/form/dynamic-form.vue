@@ -140,7 +140,7 @@
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
         :placeholder="configForm.placeholder"
-        outlined
+        :rows="configForm.rows"
       >
         <help
           slot="append"
@@ -149,6 +149,26 @@
         ></help>
       </v-textarea>
     </template>
+
+    <template v-else-if="configForm.type === 'file'">
+      <span v-if="configForm.displayValue">{{
+        baseModel[configForm.name]
+      }}</span>
+      <v-file-input
+        v-else
+        v-model="baseModel[configForm.name]"
+        :label="configForm.label"
+        :placeholder="configForm.placeholder"
+      >
+        <help
+          slot="append"
+          :code="`form-${configForm.name}`"
+          v-if="configForm.help"
+        ></help>
+      </v-file-input>
+    </template>
+
+
 
     <!-- nomenclature -->
     <template v-else-if="configForm.type === 'nomenclature'">
@@ -249,7 +269,8 @@ export default {
       "content",
       "password",
       "list",
-      "button"
+      "button",
+      "file",
     ],
     configForm: null
   }),

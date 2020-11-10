@@ -1,3 +1,13 @@
+.no-link a {
+  color:inherit !important;
+  cursor:inherit !important;
+  /* pointer: inherit; */
+}
+
+.content-page {
+  width: 1000px;
+}
+
 /* .content, */
 .edit-content {
   /* width: 1000px; */
@@ -43,6 +53,11 @@ div.img-content.center {
   justify-content: center;
   flex-direction: column;
 }
+
+div.img-content img{
+  width: 100%;
+}
+
 
 div.img-content.float {
   width: 50%;

@@ -136,6 +136,7 @@ export default {
       }, 100);
     },
     initConfig() {
+      
       this.displayValue =
         typeof this.config.displayValue == "function"
           ? this.config.displayValue({ id: this.idModel })
@@ -145,16 +146,13 @@ export default {
       const storeName = this.config.storeName;
       if (storeName) {
         const configStore = this.$store.getters.configStore(storeName);
-        // const storeNameCapitalized =
-        //   storeName.charAt(0).toUpperCase() + storeName.slice(1);
-        // const storeNameIdFieldName = `${storeName}IdFieldName`;
-        // this.config.idFieldName = this.$store.getters[storeNameIdFieldName];
-        this.config.preLoadData = ({ $store, id, config }) => {
+        this.config.idFieldName = configStore.idFieldName;
+        this.config.preloadData = ({ $store, id, config }) => {
           return new Promise((resolve) => {
             if (!id) {
               resolve();
             } else {
-              $store.dispatch(configStore.get, { id }).then((data) => {
+              $store.dispatch(configStore.get, { value: id }).then((data) => {
                 config.value = data;
                 this.baseModel = null;
                 resolve();
@@ -165,29 +163,26 @@ export default {
         this.config.action = this.config.action || {};
         this.config.action.process = ({ id, $store, postData }) => {
           return $store.dispatch(id ? configStore.patch : configStore.post, {
-            id: id,
+            value: id,
             postData,
           });
         };
 
-        if (!this.config.action.onSuccess) {
-          this.config.action.onSuccess = ({ $router, $store, data, id }) => {
-            if (!id) {
-              const id_ = data[$store.getters[`${storeName}idFieldName`]];
-              $router.push(`${$router.history.current.path}${id_}`);
-            }
-          };
-        }
       }
-
-      if (this.config.preLoadData) {
+      
+      if (this.config.preloadData
+      //  && !this.config.value
+       ) {
+        
         this.config
-          .preLoadData({
+          .preloadData({
             $store: this.$store,
             config: this.config,
             id: this.idModel,
           })
           .then(() => {
+            this.baseModel = null;
+            
             this.initBaseModel();
             this.bInit = true;
           });
@@ -200,7 +195,9 @@ export default {
     initBaseModel() {
       let baseModel = {};
       baseModel = this.baseModel || this.config.value || {};
+
       for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
+        
         baseModel[keyForm] =
           baseModel[keyForm] != undefined
             ? baseModel[keyForm]
@@ -210,6 +207,7 @@ export default {
       }
       baseModel.freeze = false;
       this.baseModel = baseModel;
+      
       this.baseModelSave = copy(this.baseModel);
     },
     postData() {
@@ -239,7 +237,10 @@ export default {
               id: this.idModel,
             });
 
-        if (!promise) return;
+        if (!promise) {
+          this.$emit('onSuccess', this.postData())
+          return;
+        }
 
         this.bSending = true;
 
@@ -267,6 +268,8 @@ export default {
         promise.then(
           (data) => {
             this.bSending = false;
+
+            this.$emit('onSuccess', data)
 
             if (!this.config.bChained) {
               this.bSuccess = true;

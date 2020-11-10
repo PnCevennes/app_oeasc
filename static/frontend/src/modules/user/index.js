@@ -104,10 +104,9 @@ const STORE = {
   getters: {
 
     prod: () => !window.webpackHotUpdate,
-    distPath: () => {
-      
-      return STORE.getters.prod() ? config.distPath : '' 
-    },
+
+    mediaImgPath: () => `${config.URL_APPLICATION}/static/medias/img/`,
+    mediaDocPath: () => `${config.URL_APPLICATION}/static/medias/doc/`,
 
     users: state => state.users,
 

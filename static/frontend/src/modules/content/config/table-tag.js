@@ -1,7 +1,7 @@
 import configTagForm from "./form-tag";
 
 export default {
-  storeName: "inTag",
+  storeName: "commonsTag",
   dense: true,
   striped: true,
   small: true,
@@ -12,6 +12,9 @@ export default {
     },
     nom_tag: {
       text: "Nom"
+    },
+    code_tag: {
+      text: "Code"
     },
   },
   sortBy: ["nom_tag"],

@@ -15,7 +15,7 @@ config: {
     formDefs: { ... } // tableau contenant la config des formulaires (cf DFG)
     groups: { ... } // tableau contenant l'agencement des formulaires (cf DFG)
     forms: [...], // tableau contenant une liste de clé de formulaires (prioritaire sur groups)
-    preLoadData: ({$store, config}) => {...} // doit renvoyer une Promise, charge des données nécessaires au formulaire... peut charger des données initiales dans config.value
+    preloadData: ({$store, config}) => {...} // doit renvoyer une Promise, charge des données nécessaires au formulaire... peut charger des données initiales dans config.value
 
     action: { // lié au boutton de validation du formulaire
         label: 'Se connecter', // texte qui s'affiche sur le boutton de validation du formulaire 

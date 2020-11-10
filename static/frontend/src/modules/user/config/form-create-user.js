@@ -1,7 +1,7 @@
 import formDefsUser from "./form-defs-user";
 
 export default {
-  preLoadData: ({ $store }) => {
+  preloadData: ({ $store }) => {
     return new Promise(resolve => {
       // peut être pas utile....
       $store.dispatch("organismes").then(() => {

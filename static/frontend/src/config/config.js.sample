@@ -2,9 +2,8 @@ import { configMap, preConfigMap } from './config-map';
 
 const config = {
   URL_APPLICATION: 'http://localhost:5005',
-  distPath: '/static/frontend/dist/',
   ID_APPLICATION: '500',
-  defaulTContents: 'accueil',
+  defaultContents: 'accueil',
   map: configMap,
   preConfigMap,
 };

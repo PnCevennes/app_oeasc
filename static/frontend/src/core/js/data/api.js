@@ -1,7 +1,9 @@
 import { config } from "@/config/config.js";
 
-var url = urlRelative => {
-  return `${config.URL_APPLICATION}/${urlRelative}`;
+var url = (urlRelative, params = {}) => {
+  const url = new URL(`${config.URL_APPLICATION}/${urlRelative}`);
+  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+  return url;
 };
 
 var fail = msg => {
@@ -16,16 +18,26 @@ var apiRequest = (method, urlRelative, options = {}) => {
     };
 
     if (["POST", "PATCH"].includes(method)) {
-      const postOptions = {
-        body: JSON.stringify(options.postData || {}),
-        headers: {
+      const postOptions = {};
+      if (Object.values(options.postData).some(d => d instanceof File)) {
+        var data = new FormData();
+        for (const [key, value] of Object.entries(options.postData || {})) {
+          data.append(key, value);
+        }
+        postOptions.body = data;
+      } else {
+        postOptions.body = JSON.stringify(options.postData || {});
+        postOptions.headers = {
           Accept: "application/json, text/plain, */*",
           "Content-Type": "application/json"
-        }
-      };
+        };
+
+      }
+
       fetchOptions = { ...fetchOptions, ...postOptions };
     }
-    fetch(url(urlRelative), fetchOptions).then(
+
+    fetch(url(urlRelative, options.params), fetchOptions).then(
       response => {
         const acceptedStatus = options.accpetedStatus || [200];
         if (acceptedStatus.includes(response.status)) {

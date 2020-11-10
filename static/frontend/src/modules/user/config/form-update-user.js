@@ -15,7 +15,7 @@ export default {
     "desc_role",
     "accept_email"
   ],
-  preLoadData: ({ $store, config }) => {
+  preloadData: ({ $store, config }) => {
     return new Promise(resolve => {
       Promise.all([
         $store.dispatch("userInfo", $store.getters.user.id_role),
