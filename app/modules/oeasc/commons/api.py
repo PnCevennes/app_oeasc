@@ -85,6 +85,7 @@ def api_communes(test):
 @bp.route('files/<string:dir_file>', methods=['GET'])
 @json_resp_accept_empty_list
 def api_images(dir_file):
+    
     '''
     renvoie la liste des image du repertoire image
     '''
