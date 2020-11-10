@@ -17,6 +17,7 @@ var apiRequest = (method, urlRelative, options = {}) => {
       credentials: "include"
     };
 
+    
     if (["POST", "PATCH"].includes(method)) {
       const postOptions = {};
       if (Object.values(options.postData).some(d => d instanceof File)) {
