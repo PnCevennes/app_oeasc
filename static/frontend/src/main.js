@@ -10,7 +10,6 @@ import Highcharts from 'highcharts'
 import More from 'highcharts/highcharts-more'
 import HighchartsVue from 'highcharts-vue'
 
-
 More(Highcharts);
 
 Vue.config.productionTip = false;

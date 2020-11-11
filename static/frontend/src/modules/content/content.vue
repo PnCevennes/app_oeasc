@@ -185,13 +185,14 @@ export default {
       });
     },
     getDoc(event) {
-      const str_doc = `<a href="${this.$store.getters.mediaDocPath}${
+      const str_doc = `<a :href="$store.getters.mediaDocPath + '${
         event.src
-      }" target="_blanck">${event.txt || event.src}</a>`;
+      }'" target="_blanck">${event.txt || event.src}</a>`;
+      console.log(str_doc)
       navigator.clipboard.writeText(str_doc).then(() => {
         this.dialogDoc = false;
         this.bSnack = true;
-        this.msgSnack = `Le code de l'image à été copié dans le presse-papier`; 
+        this.msgSnack = `Le code du lien à été copié dans le presse-papier`; 
 
       });
     },
