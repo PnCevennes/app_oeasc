@@ -259,7 +259,7 @@ export default {
             ].$el.querySelector("textarea");
             textAreaContent.focus();
             if (index != -1) {
-              textAreaContent.setSelectionRange(index, index + text.length);
+              textAreaContent.setSelectionRange(index, index);
             }
           }, 500);
         }
