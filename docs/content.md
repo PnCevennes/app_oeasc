@@ -5,9 +5,13 @@
 
 * `Ctrl Espace`:  bien ré appuyer les deux touches pour refaire l'action
 
+  * utilisable si connecté en admin
   * Permet d'ouvrir l'edition d'un contenu
   * ou de valider le formulaire si on est en mode edition
-  * si on se place sur du texte (titre),  (ne marche pas pour les images)
+  * si on place la souris sur du texte (paragraphe titre ou liste), et que l'on execute le raccourcis
+    * il ouvre le formulaire et place le curseur au bon endroit  
+    * **!! ne marche pas sur les images !!**
+
 
 
 ## Icones image et document

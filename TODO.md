@@ -2,16 +2,13 @@
 
 - page component actualités (liste et plus)
 
-- medias
-  - formulaire
-    - popup 
-    - api liste images
-    - copie dans le presse papier
-    - image ou doc
-    - ftp ?? 
-      - api upload image
-  
-  - depuis static medias
+- revoir pages
+  - en cours 
+    - documents 
+  -  ok 
+    - generales
+
+
 
 - cadre couleur
 

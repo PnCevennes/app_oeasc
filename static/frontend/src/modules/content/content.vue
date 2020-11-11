@@ -136,7 +136,7 @@ export default {
     }
   },
   computed: {
-    mediaDocPath() {
+    docPath() {
       return this.$store.getters.mediaDocPath;
     },
     isPage() {
@@ -188,7 +188,7 @@ export default {
       });
     },
     getDoc(event) {
-      const str_doc = `<a :href="$store.getters.mediaDocPath + '${
+      const str_doc = `<a :href="docPath + '${
         event.src
       }'" target="_blanck">${event.txt || event.src}</a>`;
       console.log(str_doc);
