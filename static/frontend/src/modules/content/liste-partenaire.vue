@@ -6,7 +6,7 @@
         <div v-for="key_organisme of item.liste" :key="key_organisme">
           <a :href="organismes[key_organisme].url">
             <img
-              :src="`${$store.getters.distPath}img/logos/${key_organisme}.jpg`"
+              :src="`${$store.getters.mediaImgPath}${key_organisme}.jpg`"
               height="150px"
             />
           </a>

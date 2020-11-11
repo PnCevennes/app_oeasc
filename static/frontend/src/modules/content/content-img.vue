@@ -3,7 +3,7 @@
     :class="classes"
   >
   <a
-        :href="isLink ? `${$store.getters.mediaImgPath}${src}` : null"
+        :href="isLink ? `${$store.getters.mediaImgPath}${link || src}` : null"
   >
     <figure
     >
