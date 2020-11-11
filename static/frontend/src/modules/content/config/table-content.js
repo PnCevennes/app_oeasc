@@ -17,6 +17,10 @@ export default {
       text: "Tags",
       display: (d) => d && d.length ? d.map(d => d.nom_tag).join(', ') : ''
     },
+    md: {
+      text: "MarkDown",
+    },
+
     link: {
       text: 'Lien',
       preProcess: (d) => d.code,
