@@ -22,6 +22,7 @@
             v-if="config.action"
             absolute
             right
+            ref="btn-valid-form"
             color="success"
             @click="processAction()"
             :disabled="bSending || baseModel.freeze"

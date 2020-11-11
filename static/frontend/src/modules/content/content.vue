@@ -7,6 +7,7 @@
             icon
             v-if="!bEditContents && $store.getters.droitMax >= 5"
             @click="bEditContents = true"
+            ref="btn-edit-content"
           >
             <v-icon>edit</v-icon>
           </v-btn>
@@ -60,6 +61,7 @@
           </div>
 
           <generic-form
+            ref="content-form"
             :config="configContentForm"
             @onSuccess="setContent($event)"
           >
@@ -155,6 +157,7 @@ export default {
     genericForm
   },
   data: () => ({
+    keysPressed: {},
     dp: null,
     content: null,
     bEditContents: false,
@@ -167,7 +170,7 @@ export default {
     configImgForm,
     configDocForm,
     bSnack: false,
-    msgSnack: null,
+    msgSnack: null
   }),
   methods: {
     displayDate(date) {
@@ -181,19 +184,18 @@ export default {
       navigator.clipboard.writeText(str_img).then(() => {
         this.dialogImg = false;
         this.bSnack = true;
-        this.msgSnack = `Le code de l'image à été copié dans le presse-papier`; 
+        this.msgSnack = `Le code de l'image à été copié dans le presse-papier`;
       });
     },
     getDoc(event) {
       const str_doc = `<a :href="$store.getters.mediaDocPath + '${
         event.src
       }'" target="_blanck">${event.txt || event.src}</a>`;
-      console.log(str_doc)
+      console.log(str_doc);
       navigator.clipboard.writeText(str_doc).then(() => {
         this.dialogDoc = false;
         this.bSnack = true;
-        this.msgSnack = `Le code du lien à été copié dans le presse-papier`; 
-
+        this.msgSnack = `Le code du lien à été copié dans le presse-papier`;
       });
     },
 
@@ -221,10 +223,91 @@ export default {
       this.$store
         .dispatch(configStore.get, { value: this.getCode(), fieldName: "code" })
         .then(data => this.setContent(data));
+    },
+    manageKeys() {
+      if (
+        ["Control", " "].every(key =>
+          Object.keys(this.keysPressed).includes(key)
+        )
+      ) {
+        const elem = document.querySelector(
+          ".content :is(h1, h2, h3, h4, h5, h6):hover, .content p:hover, .content li:hover"
+        );
+
+        if (elem && elem.innerHTML) {
+          const preText =
+            elem.tagName[0].toLowerCase() == "h"
+              ? "# "
+              : elem.tagName.toLowerCase() == "li"
+              ? "* "
+              : "";
+          console.log(elem.tagName, preText);
+          const text = preText + elem.innerHTML;
+
+          let index = this.content.md 
+            .replace(this.$store.getters.mediaDocPath, "")
+            .replace(this.$store.getters.mediaImgPath, "")
+            .indexOf(text);
+          console.log(text);
+          for (let s = text.length; s >= 5 || index == -1; s--) {
+            index = this.content.md.indexOf(text.substring(0, s));
+          }
+          setTimeout(() => {
+            console.log(index);
+            const textAreaContent = this.$refs[
+              "content-form"
+            ].$el.querySelector("textarea");
+            textAreaContent.focus();
+            if (index != -1) {
+              textAreaContent.setSelectionRange(index, index + text.length);
+            }
+          }, 500);
+        }
+
+        // var elementMouseIsOver = document.elementFromPoint(x, y);
+        // console.log(elementMouseIsOver)
+        const btnEditContent = this.$refs["btn-edit-content"];
+        if (btnEditContent) {
+          btnEditContent.click({});
+        }
+        const btnValidFormContent =
+          this.$refs["content-form"] &&
+          this.$refs["content-form"].$refs["btn-valid-form"];
+        if (btnValidFormContent) {
+          btnValidFormContent.click({});
+        }
+      }
+    },
+    onKeyUp(event) {
+      if (this.$store.getters.droitMax <= 5 || !event) {
+        return;
+      }
+      setTimeout(() => {
+        if (this.keysPressed[event.key]) {
+          delete this.keysPressed[event.key];
+        }
+        this.keysPressed = {};
+      }, 50);
+    },
+    onKeyDown(event) {
+      if (this.$store.getters.droitMax <= 5 || !event) {
+        return;
+      }
+      if (!Object.keys(this.keysPressed).includes(event.key)) {
+        this.keysPressed[event.key] = true;
+        this.manageKeys(event);
+      }
     }
   },
   mounted() {
     this.initContent();
+  },
+  created() {
+    window.removeEventListener("keyup", this.onKeyUp);
+    window.addEventListener("keyup", this.onKeyUp);
+
+    window.removeEventListener("keydown", this.onKeyDown);
+    window.addEventListener("keydown", this.onKeyDown);
   }
 };
 </script>
