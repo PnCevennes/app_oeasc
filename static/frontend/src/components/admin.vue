@@ -38,7 +38,6 @@ export default {
   }),
   computed: {
     nbElems() {
-      console.log("nb_elems");
       const nbElems = {};
       for (const [key, tab] of Object.entries(this.config.tabs)) {
         const storeName = tab && tab.config && tab.config.storeName;

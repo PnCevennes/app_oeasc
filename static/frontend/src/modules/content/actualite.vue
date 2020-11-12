@@ -26,7 +26,7 @@
 import oeascContent from "./content";
 export default {
   name: "actualites",
-  props: ["tags"],
+  props: ["tagNames"],
   components: { oeascContent },
   data: () => ({
     contents: null
@@ -37,9 +37,9 @@ export default {
       const configStore = this.$store.getters.configStore(storeName);
       this.$store.dispatch(configStore.getAll).then(contents => {
         this.contents = contents.filter(content =>
-          this.tags && this.tags.length
-            ? this.tags.every(nom_tag => {
-                return content.tags.map(c => c.nom_tag).includes(nom_tag);
+          this.tagNames && this.tagNames.length
+            ? this.tagNames.every(nom_tag => {
+                return content.tags.map(t => t.nom_tag).includes(nom_tag);
               })
             : true
         );

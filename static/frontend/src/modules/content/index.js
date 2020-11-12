@@ -40,7 +40,7 @@ const ROUTE = [
     parent: "page.accueil",
     component: actualite,
     props: {
-      tags: ["actualite"]
+      tagNames: ["actualité"]
     }
   },
   {

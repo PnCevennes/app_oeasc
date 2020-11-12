@@ -193,7 +193,6 @@ export default {
       const str_doc = `<a :href="docPath + '${
         event.src
       }'" target="_blanck">${event.txt || event.src}</a>`;
-      console.log(str_doc);
       navigator.clipboard.writeText(str_doc).then(() => {
         this.dialogDoc = false;
         this.bSnack = true;
@@ -213,26 +212,22 @@ export default {
           .join("\n");
       }
       this.content.html = `<div>${html}</div>`;
-      this.bEditContents = false;
+      this.bEditContents = !this.content.code;
     },
     getCode() {
       return this.code || this.$route.params.code || config.defaultContents;
     },
 
     initContent() {
-      console.log("initContent");
 
       if (!this.getCode()) {
         const content = {};
         if (this.tagNames) {
           const configStoreTag = this.$store.getters.configStore("commonsTag");
-          console.log(this.tagNames, this.$store.getters[configStoreTag.names])
           content.tags = this.$store.getters[configStoreTag.names].filter(t => {  
-            console.log(t.nom_tag, this.tagNames, this.tagNames.includes(t.nom_tag))
             return this.tagNames.includes(t.nom_tag)
           }
           );
-          console.log(content)
         }
         this.setContent(content);
         return;
@@ -260,19 +255,16 @@ export default {
               : elem.tagName.toLowerCase() == "li"
               ? "* "
               : "";
-          console.log(elem.tagName, preText);
           const text = preText + elem.innerHTML;
 
           let index = this.content.md
             .replace(this.$store.getters.mediaDocPath, "")
             .replace(this.$store.getters.mediaImgPath, "")
             .indexOf(text);
-          console.log(text);
           for (let s = text.length; s >= 5 || index == -1; s--) {
             index = this.content.md.indexOf(text.substring(0, s));
           }
           setTimeout(() => {
-            console.log(index);
             const textAreaContent = this.$refs[
               "content-form"
             ].$el.querySelector("textarea");
@@ -284,7 +276,6 @@ export default {
         }
 
         // var elementMouseIsOver = document.elementFromPoint(x, y);
-        // console.log(elementMouseIsOver)
         const btnEditContent = this.$refs["btn-edit-content"];
         if (btnEditContent) {
           btnEditContent.click({});
