@@ -215,7 +215,7 @@ export default {
       this.bEditContents = !this.content.code;
     },
     getCode() {
-      return this.code || this.$route.params.code || config.defaultContents;
+      return this.code || this.$route.params.code;
     },
 
     initContent() {
