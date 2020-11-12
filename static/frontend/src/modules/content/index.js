@@ -1,4 +1,4 @@
-import storeUtils from '@/store/utils';
+import storeUtils from "@/store/utils";
 import content from "./content";
 import actualite from "./actualite";
 import { apiRequest } from "@/core/js/data/api.js";
@@ -18,10 +18,10 @@ const configAdmin = {
     tag: {
       config: configTagTable,
       label: "Tags",
-      type: "generic-table",
-    },
+      type: "generic-table"
+    }
   }
-}
+};
 
 const ROUTE = [
   {
@@ -40,13 +40,13 @@ const ROUTE = [
     parent: "page.accueil",
     component: actualite,
     props: {
-      tags: ['actualite']
+      tags: ["actualite"]
     }
   },
   {
     path: "/actualite/:code",
     name: "actualite.content",
-    parent: 'actualite.index',
+    parent: "actualite.index",
     type: "page"
   },
   {
@@ -56,6 +56,18 @@ const ROUTE = [
     component: content,
     props: {
       page: true
+    }
+  },
+  {
+    path: "/actualite/",
+    label: "actualite",
+    name: "actualite.new",
+    parent: "actualite.index",
+    component: content,
+    props: {
+      page: true,
+      code: null,
+      tagNames:['actualité'] 
     }
   }
 ];
@@ -95,8 +107,12 @@ const STORE = {
   }
 };
 
-storeUtils.addStore(STORE, 'commonsContent', 'api/generic/commons/content', {idFieldName: 'id_content', displayFieldName: 'code'});
-storeUtils.addStore(STORE, 'commonsTag', 'api/generic/commons/tag', {idFieldName: 'id_tag', displayFieldName:'nom_tag'});
+storeUtils.addStore(STORE, "commonsContent", "api/generic/commons/content", {
+  idFieldName: "id_content",
+  displayFieldName: "code"
+});
+storeUtils.addStore(STORE, "commonsTag", "api/generic/commons/tag", {
+  idFieldName: "id_tag",
+  displayFieldName: "nom_tag"
+});
 export { ROUTE, STORE, content };
-
-

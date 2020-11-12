@@ -1,5 +1,6 @@
 <template>
-  <div :class="{ 'content-page': page }">
+  <div :class="{ 'content-page': page }" v-if="bInitialized">
+    content
     <div>
       <div v-if="!bEditContents && content">
         <div>
@@ -127,7 +128,8 @@ export default {
     "nbLines",
     "displayContentDate",
     "link",
-    "page"
+    "page",
+    "tagNames"
   ],
   watch: {
     $route() {
@@ -170,7 +172,8 @@ export default {
     configImgForm,
     configDocForm,
     bSnack: false,
-    msgSnack: null
+    msgSnack: null,
+    bInitialized: false
   }),
   methods: {
     displayDate(date) {
@@ -202,7 +205,7 @@ export default {
     setContent(data) {
       this.content = data;
       this.configContentForm.value = this.content;
-      let html = marked(data.md);
+      let html = marked(data.md || "");
       if (this.nbLines) {
         this.linkFullContent = html.split("\n").length > this.nbLines;
         html = html
@@ -218,8 +221,25 @@ export default {
     },
 
     initContent() {
-      const configStore = this.$store.getters.configStore("commonsContent");
+      console.log("initContent");
 
+      if (!this.getCode()) {
+        const content = {};
+        if (this.tagNames) {
+          const configStoreTag = this.$store.getters.configStore("commonsTag");
+          console.log(this.tagNames, this.$store.getters[configStoreTag.names])
+          content.tags = this.$store.getters[configStoreTag.names].filter(t => {  
+            console.log(t.nom_tag, this.tagNames, this.tagNames.includes(t.nom_tag))
+            return this.tagNames.includes(t.nom_tag)
+          }
+          );
+          console.log(content)
+        }
+        this.setContent(content);
+        return;
+      }
+
+      const configStore = this.$store.getters.configStore("commonsContent");
       this.$store
         .dispatch(configStore.get, { value: this.getCode(), fieldName: "code" })
         .then(data => this.setContent(data));
@@ -244,7 +264,7 @@ export default {
           console.log(elem.tagName, preText);
           const text = preText + elem.innerHTML;
 
-          let index = this.content.md 
+          let index = this.content.md
             .replace(this.$store.getters.mediaDocPath, "")
             .replace(this.$store.getters.mediaImgPath, "")
             .indexOf(text);
@@ -300,7 +320,13 @@ export default {
     }
   },
   mounted() {
-    this.initContent();
+    // load Tags
+
+    const configStoreTag = this.$store.getters.configStore("commonsTag");
+    this.$store.dispatch(configStoreTag.getAll).then(() => {
+      this.bInitialized = true;
+      this.initContent();
+    });
   },
   created() {
     window.removeEventListener("keyup", this.onKeyUp);

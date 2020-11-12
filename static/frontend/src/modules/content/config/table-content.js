@@ -24,7 +24,7 @@ export default {
     link: {
       text: 'Lien',
       preProcess: (d) => d.code,
-      display: d => `<a href="#/content/${d}" target="_blank">${d}</a>`,
+      display: d => `<a href="#/content/${d}" target="_blank  ">${d}</a>`,
     }
   },
   sortBy: ["nom_content"],
