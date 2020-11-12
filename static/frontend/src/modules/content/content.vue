@@ -176,7 +176,7 @@ export default {
   }),
   methods: {
     displayDate(date) {
-      return date.split(" ")[0];
+      return date && date.split(" ")[0];
     },
     getImg(event) {
       const str_img = `<content-img ${event.center ? "center" : ""}
