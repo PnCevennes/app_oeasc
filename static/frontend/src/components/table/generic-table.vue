@@ -319,7 +319,7 @@ export default {
         const configStore = this.$store.getters.configStore(config.storeName);
         config.idFieldName = configStore.idFieldName;
         config.delete = (id, { $store }) => {
-          return $store.dispatch(configStore.delete, { id });
+          return $store.dispatch(configStore.delete, { value: id });
         };
         config.stores.items = config.storeName;
         if (!config.headerDefs.actions) {

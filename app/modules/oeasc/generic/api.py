@@ -79,10 +79,10 @@ def post_generic(module_name, object_type):
     return res.as_dict(True)
 
 
-@bp.route('<string:module_name>/<string:object_type>/<int:id>', methods=['DELETE'])
+@bp.route('<string:module_name>/<string:object_type>/<int:id_value>', methods=['DELETE'])
 @check_object_type('D')
 @json_resp
-def delete_generec(module_name, object_type, id_value):
+def delete_generic(module_name, object_type, id_value):
     '''
     delete generic
     '''
