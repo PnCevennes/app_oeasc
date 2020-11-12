@@ -1,6 +1,5 @@
 <template>
   <div :class="{ 'content-page': page }" v-if="bInitialized">
-    content
     <div>
       <div v-if="!bEditContents && content">
         <div>
