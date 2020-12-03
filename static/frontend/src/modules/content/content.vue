@@ -234,7 +234,6 @@ export default {
       }
 
       const configStore = this.$store.getters.configStore("commonsContent");
-      console.log('uuuu')
       this.$store
         .dispatch(configStore.get, { value: this.getCode(), fieldName: "code" })
         .then(

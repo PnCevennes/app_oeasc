@@ -3,11 +3,13 @@
     <div>
       <v-row dense v-if="ready">
         <v-col
-          v-for="[type, config] of Object.entries(configChoix).filter(
+          v-for="[type, config] of Object.entries(configChoix)
+          /**  .filter(
             ([type, config]) => {
               return graphOnly != undefined ? type == 'nom_espece' : true;
             }
-          )"
+          ) */
+          "
           :key="type"
         >
           <list-form
@@ -42,7 +44,7 @@
       </v-row>
 
       <v-row
-        v-for="ug in graphOnly != undefined ? configChoix.ug ? configChoix.ug.items : [] : [settings.ug]"
+        v-for="ug in [settings.ug]"
         :key="ug"
       >
         <v-col>

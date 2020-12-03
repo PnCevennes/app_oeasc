@@ -65,7 +65,7 @@ const ROUTE = [
     access: 5
   },
   {
-    // index
+    // admin
     name: "in.admin",
     path: "/in/admin",
     label: "Indices nocturnes ",
@@ -78,79 +78,53 @@ const ROUTE = [
     access: 5
   },
   {
-    // resultats (public)
-    name: "in.resultats",
-    path: "/in/resultats",
-    label: "Résultats",
-    type: "page",
-    content: "in.resultats",
-    parent: "in.index",
-    access: 5
-  },
-  // {
-  //   // resultat (admin)
-  //   name: "in.tableau",
-  //   path: "/in/tableau",
-  //   label: "In - Analyse des données",
-  //   parent: "in.index",
-  //   hideTitle: true,
-  //   component: inTable,
-  //   access: 5
-  //  },
-  // {
-  //   // test graphiques (admin)
-  //   name: "in.graphiques",
-  //   path: "/in/graphiques",
-  //   label: "Graphiques",
-  //   parent: "in.index",
-  //   component: inTest,
-  //   access: 5
-  // },
-  {
-    // page resultats ??
+    // page resultats grand public
     path: "/resultats/in",
     name: "resultats.in",
     label: "Indices nocturnes",
     content: "resultats.in",
     parent: "resultats.index",
     type: "page"
+  },
+  {
+    // page resultats grand public (tous graphes)
+    path: "/resultats/in_all",
+    name: "resultats.in",
+    label: "Indices nocturnes",
+    content: "resultats.in_all",
+    parent: "resultats.index",
+    type: "page"
   }
 ];
 
 const STORE = {}
-//   // actions: {
-//   //   inResults: () => {
-//   //     return addRequest("GET", "api/in/results/")
-//   //   }
-//   // },
-//   // getters: {},
-//   // state: {
-//   //   _inResults: null
-//   // },
-//   // mutations: {}
-// };
-storeUtils.addSimpleStore(STORE, "inResults", "api/in/results/")
 
+storeUtils.addSimpleStore(STORE, "inResults", "api/in/results/");
 
 storeUtils.addStore(STORE, "inRealisation", "api/generic/in/realisation", {
   idFieldName: "id_realisation"
 });
+
 storeUtils.addStore(STORE, "inCircuit", "api/generic/in/circuit", {
   idFieldName: "id_circuit",
   displayFieldName: "nom_circuit"
 });
+
 storeUtils.addStore(STORE, "inSecteur", "api/generic/in/secteur", {
   idFieldName: "id_secteur",
   displayFieldName: "nom_secteur"
 });
+
 storeUtils.addStore(STORE, "inObserver", "api/generic/in/observer", {
   idFieldName: "id_observer",
   displayFieldName: "nom_observer"
 });
+
 storeUtils.addStore(STORE, "inTag", "api/generic/in/tag", {
   idFieldName: "id_tag",
   displayFieldName: "nom_tag"
 });
+
 storeUtils.addStore(STORE, "inEspece", "api/generic/in/espece", {
   idFieldName: "id_espece",
   displayFieldName: "nom_espece"
