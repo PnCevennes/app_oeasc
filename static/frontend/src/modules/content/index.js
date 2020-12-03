@@ -55,7 +55,7 @@ const ROUTE = [
     name: "content",
     component: content,
     props: {
-      page: true
+      page: true,
     }
   },
   {

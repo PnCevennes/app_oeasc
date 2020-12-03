@@ -1,13 +1,13 @@
 <template>
-  <div :style="`height:${height || '400px'}`">
+  <div :style="`height:${height || '400px'}; width: 100%`">
     <highcharts
       v-if="chartOptions"
-      :style="`width:${width || '800px'}; height:${height || '400px'}`"
+      :style="`width:${width || '100%'}; height:${height || '400px'}`"
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
     <v-progress-linear v-else active indeterminate></v-progress-linear>
-    <div v-if="commentaires" class='commentaires' v-html="commentaires"></div>
+    <div v-if="commentaires" class="commentaires" v-html="commentaires"></div>
   </div>
 </template>
 
@@ -20,7 +20,7 @@ import * as chroma from "chroma-js";
 exportingInit(Highcharts);
 offlineExporting(Highcharts);
 
-const round = function (x, dec) {
+const round = function(x, dec) {
   if (x == 0) return 0;
   return Math.floor(x * 10 ** dec) / 10 ** dec;
 };
@@ -28,19 +28,30 @@ const round = function (x, dec) {
 export default {
   name: "in-graph",
   props: [
+    "displayTitle",
     "dataIn",
     "nom_espece",
+    "ugs",
     "ug",
     "width",
     "height",
     "displayReg",
-    "commentaires",
+    "commentaires"
   ],
   data: () => ({
     dataGraph: null,
     chartOptions: null,
-    hcInstance: Highcharts,
+    hcInstance: Highcharts
   }),
+  computed: {
+    getUgs() {
+      return this.ugs && this.ugs.length
+        ? this.ugs
+        : this.ug
+        ? [this.ug]
+        : null;
+    } 
+  },
   watch: {
     dataIn() {
       this.initGraph();
@@ -53,7 +64,7 @@ export default {
     },
     displayReg() {
       this.initGraph();
-    },
+    }
   },
   methods: {
     color(ug, type) {
@@ -61,7 +72,7 @@ export default {
         Méjean: "#e8e805",
         "Mont Aigoual": "red",
         "Mont Lozère": "blue",
-        "Vallées cévenoles": "green",
+        "Vallées cévenoles": "green"
       };
 
       var color = colors[ug];
@@ -95,7 +106,7 @@ export default {
         const series = [];
         const data_espece = this.dataGraph.nom_especes[nom_espece];
         for (const [ug, data_ug] of Object.entries(data_espece.ugs)) {
-          if (this.ug && ug != this.ug) {
+          if (this.getUgs && !this.getUgs.includes(ug)) {
             continue;
           }
           const serie = [],
@@ -110,7 +121,7 @@ export default {
             regLin.push([
               parseInt(annee),
               parseInt(annee) * data_ug.reg_lin.params[0] +
-                data_ug.reg_lin.params[1],
+                data_ug.reg_lin.params[1]
             ]);
           }
 
@@ -131,8 +142,8 @@ export default {
 
               lineWidth: 1 * (this.displayReg != undefined),
               marker: {
-                enabled: false,
-              },
+                enabled: false
+              }
             });
           }
           series.push({
@@ -142,22 +153,22 @@ export default {
             lineWidth: 0,
             color: this.color(ug),
             tooltip: {
-              pointFormatter: function () {
+              pointFormatter: function() {
                 var point = this;
                 var y = point.options.y;
                 var out = `Secteur : <b>${ug}</b><br>`;
                 out += `IN : <b>${round(y, 2)}</b><br>`;
                 return out;
-              },
+              }
             },
             cursor: "pointer",
             point: {
               events: {
-                click: (e) => {
+                click: e => {
                   this.$emit("clickPoint", e.point.options.x);
-                },
-              },
-            },
+                }
+              }
+            }
           });
           series.push({
             type: "errorbar",
@@ -165,7 +176,7 @@ export default {
             data: error,
             enableMouseTracking: false,
             maxPointWidth: 40,
-            color: this.color(ug, "error"),
+            color: this.color(ug, "error")
           });
 
           this.chartOptions = {
@@ -175,14 +186,14 @@ export default {
                   menuItems: [
                     {
                       text: "Télécharger l'image au format JPEG",
-                      onclick: function () {
+                      onclick: function() {
                         this.exportChart({
-                          type: "image/jpeg",
+                          type: "image/jpeg"
                         });
-                      },
-                    },
-                  ],
-                },
+                      }
+                    }
+                  ]
+                }
               },
               chartOptions: {
                 // specific options for the exported image
@@ -190,14 +201,15 @@ export default {
                   series: {
                     dataLabels: {
                       // enabled: true,
-                    },
-                  },
-                },
+                    }
+                  }
+                }
               },
-              fallbackToExportServer: false,
+              fallbackToExportServer: false
             },
             title: {
-              text: `Indices nocturnes (${nom_espece}, ${ug})`,
+              text:
+                this.displayTitle && `Indices nocturnes (${nom_espece}, ${ug})`
             },
             // caption: {
             //   text: this.commentaires,
@@ -205,42 +217,40 @@ export default {
             // },
             xAxis: {
               title: {
-                text: "Année",
-              },
+                text: "Année"
+              }
             },
             yAxis: {
               min: -0.01,
               endOnTick: false,
               startOnTick: false,
               title: {
-                text: "IN (individu / km)",
-              },
+                text: "IN (individu / km)"
+              }
             },
             series: series,
             height: "600px",
-            width: "600px",
+            width: "600px"
           };
         }
       }, 10);
-    },
+    }
   },
 
-  mounted() { 
+  mounted() {
     if (!this.dataIn) {
-      
-      this.$store.dispatch("inResults").then((data) => {
-        
+      this.$store.dispatch("inResults").then(data => {
         this.dataGraph = data;
-      this.initGraph();
+        this.initGraph();
       });
     } else {
       this.initGraph();
     }
-  },
+  }
 };
 </script>
 <style>
 .commentaires {
-  color: rgb(100,100,100)
+  color: rgb(100, 100, 100);
 }
 </style>

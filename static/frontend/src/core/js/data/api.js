@@ -40,6 +40,7 @@ var apiRequest = (method, urlRelative, options = {}) => {
 
     fetch(url(urlRelative, options.params), fetchOptions).then(
       response => {
+        console.log('uuuuuuu')
         const acceptedStatus = options.accpetedStatus || [200];
         if (acceptedStatus.includes(response.status)) {
           // && contentType.indexOf('application/json') !== -1) {

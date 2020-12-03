@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'content-page': page }" v-if="bInitialized">
+  <div :class="{ 'content-page': isPage }" v-if="bInitialized">
     <div>
       <div v-if="!bEditContents && content">
         <div>
@@ -234,9 +234,13 @@ export default {
       }
 
       const configStore = this.$store.getters.configStore("commonsContent");
+      console.log('uuuu')
       this.$store
         .dispatch(configStore.get, { value: this.getCode(), fieldName: "code" })
-        .then(data => this.setContent(data));
+        .then(
+          data => this.setContent(data),
+          error => {error; this.setContent({code: this.getCode()})}
+        );
     },
     manageKeys() {
       if (
