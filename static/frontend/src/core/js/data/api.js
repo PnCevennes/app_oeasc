@@ -53,8 +53,10 @@ var apiRequest = (method, urlRelative, options = {}) => {
           );
         } else {
           if (response.json) {
-            response.json().then(response => {
-              reject(response);
+            response.json().then(json => {
+              reject(json);
+            }, error => {
+              reject(error)
             });
           } else {
             reject(response);
