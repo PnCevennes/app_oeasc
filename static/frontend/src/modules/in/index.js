@@ -1,5 +1,5 @@
 import storeUtils from "@/store/utils";
-import { apiRequest } from "@/core/js/data/api.js";
+// import { apiRequest } from "@/core/js/data/api.js";
 
 // import inTest from "./in-test";
 // import inTable from "./in-table";
@@ -117,14 +117,20 @@ const ROUTE = [
   }
 ];
 
-const STORE = {
-  actions: {
-    inResults: () => apiRequest("GET", "api/in/results/")
-  },
-  getters: {},
-  state: {},
-  mutations: {}
-};
+const STORE = {}
+//   // actions: {
+//   //   inResults: () => {
+//   //     return addRequest("GET", "api/in/results/")
+//   //   }
+//   // },
+//   // getters: {},
+//   // state: {
+//   //   _inResults: null
+//   // },
+//   // mutations: {}
+// };
+storeUtils.addSimpleStore(STORE, "inResults", "api/in/results/")
+
 
 storeUtils.addStore(STORE, "inRealisation", "api/generic/in/realisation", {
   idFieldName: "id_realisation"

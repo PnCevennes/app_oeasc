@@ -1,16 +1,30 @@
 import { apiRequest } from "@/core/js/data/api.js";
 
 export default {
-  /** initialise un store avec getters mutation dispatch et */
+  /** initialise un store avec getters mutation dispatch etc 
+   * 
+   * Exemple : 
+  storeUtils.addStore(STORE, "inRealisation", "api/generic/in/realisation", {
+    idFieldName: "id_realisation"
+  });
+   * 
+   * name commonsContent
+   * api api/generic
+   * settings: {
+   *  idFieldName
+   *  labelFieldName
+   * }
+  */
   addStore(STORE, name, api, settings) {
     /** si name = 'trucs */
 
-    /** trucs : nom pour les listes (un s à la fin) */
+    /** trucs : nom pour les listes (un s à la fin)  pour les route de liste*/
     const names = `${name}s`;
 
     /** Truc : pour les actions par ex getTruc postTruc */
     const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1);
 
+    /** pour stocker et recupérer la config */
     const nameConfig = `${name}ConfigStore`;
 
     const config = {
@@ -27,28 +41,39 @@ export default {
       loaded: false
     };
 
+    /** STATE */
+
     const state = {};
     /** ou l'on stoque le tableau de d'objets */
 
+    /** stockage de la liste */
     state[names] = [];
     state[nameConfig] = config;
 
+    /** GETTER */
+
     const getters = {};
-    /** recupération du tableau entier */
-
-    getters[names] = state => state[names];
-
-    getters[config.count] = state => state[names].length
 
     /** recuperation des config doit marcher avec tous les stores */
     getters.configStore = state => name => state[`${name}ConfigStore`];
 
-    /** récupération d'un objet */
+    /** recupération du tableau entier */
+    getters[names] = state => state[names];
+
+    /** nombre d'éléments */
+    getters[config.count] = state => state[names].length;
+
+    /** récupération d'un objet  par value, fieldName
+     * avec idFieldName par défaut
+     */
     getters[name] = state => (value, fieldName = config.idFieldName) =>
       state[names] && state[names].find(obj => obj[fieldName] == value);
 
     const mutations = {};
 
+    /** MUTATIONS */
+
+    /** config ?? */
     mutations[nameConfig] = (state, config) => {
       const stateConfig = state[nameConfig];
       for (const key of Object.keys(config)) {
@@ -60,7 +85,7 @@ export default {
     mutations[names] = (state, objList) => {
       if (!state[names].length) {
         state[names] = objList;
-        return 
+        return;
       }
       for (const obj of objList) {
         const elem = state[names].find(
@@ -76,7 +101,7 @@ export default {
       }
     };
 
-    /** assignation d'un objet */
+    /** assignation / modification d'un element */
     mutations[name] = (state, obj) => {
       const index = state[names].findIndex(
         o => o[config.idFieldName] === obj[config.idFieldName]
@@ -98,12 +123,18 @@ export default {
     };
 
     const actions = {};
-    /** requete GET pour avoir le tableau d'objets */
-    actions[config.getAll] = ({ getters, commit }) => {
+    /** requete GET pour avoir le tableau d'objets
+     * forceReload : forcer la recupération des données depuis le serveur
+     * ajout de pendingState ( par url ) quand deux requete sont quasi simultanées
+     */
+    actions[config.getAll] = (
+      { getters, commit },
+      { forceReload = false } = {}
+    ) => {
       return new Promise((resolve, reject) => {
         const configStore = getters.configStore(name);
 
-        const loaded = configStore.loaded;
+        const loaded = !forceReload && configStore.loaded;
         const objList = getters[names];
         if (objList && objList.length && loaded) {
           resolve(objList);
@@ -123,6 +154,9 @@ export default {
       });
     };
 
+    /** un action = une requete pour une ligne
+     * requestType : GET, PATCH, POST, DELETE
+     */
     const genericAction = requestType => (
       { getters, commit },
       { value = null, fieldName = config.idFieldName, postData = null }
@@ -152,7 +186,11 @@ export default {
         }
 
         const apiUrl = requestType === "POST" ? `${api}/` : `${api}/${value}`;
-        apiRequest(requestType, apiUrl, { postData, params: {field_name: fieldName} }).then(
+
+        apiRequest(requestType, apiUrl, {
+          postData,
+          params: { field_name: fieldName }
+        }).then(
           data => {
             if (requestType === "DELETE") {
               commit(configStore.delete, data);
@@ -186,6 +224,7 @@ export default {
     }
   },
 
+  /** Besoin de clarification */
   addStoreRestitution: (STORE, name, getDataAction, configRestitution) => {
     const nameConfig = `${name}ConfigRestitution`;
 
@@ -193,7 +232,6 @@ export default {
       getDataAction,
       ...configRestitution
     };
-
 
     const state = {};
     state[nameConfig] = config;
@@ -203,6 +241,85 @@ export default {
       state[`${name}ConfigRestitution`];
     const mutations = {};
     const actions = {};
+
+    const store = {
+      state,
+      getters,
+      mutations,
+      actions
+    };
+
+    for (const key of ["state", "getters", "mutations", "actions"]) {
+      STORE[key] = { ...(STORE[key] || {}), ...store[key] };
+    }
+  },
+
+  /**
+   * Par exemple pour les in on a la route qui donne les résultat et qui peut servir pour plein de composants
+   * les besoin sont de charger une seul fois l'api et de récupérer les donnée par les getters
+   * un pending state est nécessaire pour ne pas faire deux appels quasi simultanés à l'api (cas de graphes multiples dans un content)
+   * il y a aussi le besoin de recharger les vrais données à la demande
+   *
+   * name: inResult
+   * api
+   */
+  addSimpleStore(STORE, name, api) {
+    const state = {},
+      getters = {},
+      mutations = {},
+      actions = {};
+    /** ou l'on stoque le tableau de d'objets */
+
+    /** STATE */
+    state[name] = null;
+    state.pendings = {};
+
+    /** GETTER */
+    getters[name] = state => state[name];
+    getters.pendings = state => api => state.pendings[api];
+
+    /** MUTATION */
+    mutations[name] = (state, obj) => {
+      state[name] = obj;
+    };
+
+    mutations.addPending = (state, { request, api }) => {
+      state.pendings[api] = request;
+    };
+
+    mutations.removePending = (state, api) => {
+      if (state.pendings[api]) {
+        delete state.pendings[api];
+      }
+    };
+
+    /** ACTIONS */
+    actions[name] = ({ getters, commit }, { forceReload = false } = {}) => {
+      return new Promise((resolve, reject) => {
+        const obj = getters[name];
+        if (obj && !forceReload) {
+          resolve(obj);
+          return;
+        }
+
+        if (!getters.pendings(api)) {
+          commit("addPending", { api, request: apiRequest("GET", `${api}`) });
+        }
+        const request = getters.pendings(api);
+
+        request.then(
+          data => {
+            commit(name, data);
+            commit("removePending", { api }); // remove pending
+            resolve(data);
+          },
+          error => {
+            console.error(`error in request ${api} : ${error}`);
+            reject(error);
+          }
+        );
+      });
+    };
 
     const store = {
       state,

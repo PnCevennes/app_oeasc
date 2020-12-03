@@ -313,6 +313,7 @@ export default {
     // load Tags
 
     const configStoreTag = this.$store.getters.configStore("commonsTag");
+    
     this.$store.dispatch(configStoreTag.getAll).then(() => {
       this.bInitialized = true;
       this.initContent();

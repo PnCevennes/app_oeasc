@@ -377,7 +377,9 @@ export default {
     },
     reload() {
       this.loading = true;
-      this.$store.dispatch("inResults").then(data => {
+      
+      this.$store.dispatch("inResults", {forceReload: true}).then(data => {
+        
         this.ready = false;
         this.dataAnnee = false;
         this.dataIn = data;

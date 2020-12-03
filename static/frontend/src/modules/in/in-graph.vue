@@ -225,12 +225,14 @@ export default {
     },
   },
 
-  mounted() {
+  mounted() { 
     if (!this.dataIn) {
+      
       this.$store.dispatch("inResults").then((data) => {
+        
         this.dataGraph = data;
-      });
       this.initGraph();
+      });
     } else {
       this.initGraph();
     }
