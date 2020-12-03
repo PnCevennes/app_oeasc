@@ -238,7 +238,7 @@ export default {
         .dispatch(configStore.get, { value: this.getCode(), fieldName: "code" })
         .then(
           data => this.setContent(data),
-          error => {error; this.setContent({code: this.getCode()})}
+          error => {error; console.log('aouh'); this.setContent({code: this.getCode()})}
         );
     },
     manageKeys() {
