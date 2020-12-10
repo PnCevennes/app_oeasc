@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'content-page': isPage }" v-if="bInitialized">
+  <div :class="{ 'content-page': isPage , 'content-appercu': this.nbLines}" v-if="bInitialized">
     <div>
       <div v-if="!bEditContents && content">
         <div>
@@ -59,9 +59,9 @@
               <v-icon>fa-file-alt</v-icon>
             </v-btn>
           </div>
-
+          {{get}}
           <generic-form
-            ref="content-form"
+            ref="content-form_{{getCode()}}"
             :config="configContentForm"
             @onSuccess="setContent($event)"
           >
@@ -205,11 +205,12 @@ export default {
       this.configContentForm.value = this.content;
       let html = marked(data.md || "");
       if (this.nbLines) {
+
         this.linkFullContent = html.split("\n").length > this.nbLines;
-        html = html
-          .split("\n")
-          .slice(0, this.nbLines)
-          .join("\n");
+        // html = ''
+        //   .split("\n")
+        //   .slice(0, this.nbLines)
+        //   .join("\n");
       }
       this.content.html = `<div>${html}</div>`;
       this.bEditContents = !this.content.code;

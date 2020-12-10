@@ -64,6 +64,10 @@ export default {
         text: "Date inscription",
         type: "date",
       },
+      accept_email: {
+        text: "Accepte Email",
+      },
+
     },
 
 }

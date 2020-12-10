@@ -2,7 +2,7 @@
   <div>
     <highcharts
       v-if="chartOptions"
-      :style="`width:${width || '100%'}; height:${results.height || '600px'}`"
+      :style="`width:${width || '100%'}; height:${results.options.height || '600px'}`"
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
