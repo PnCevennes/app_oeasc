@@ -59,7 +59,7 @@
               <v-icon>fa-file-alt</v-icon>
             </v-btn>
           </div>
-          {{get}}
+          {{getCode()}}
           <generic-form
             ref="content-form_{{getCode()}}"
             :config="configContentForm"

@@ -32,7 +32,9 @@ export default {
   data: () => ({
     config: {
       ...configFormUser,
-      // value: {
+      value: {
+        accept_email: true
+      }
       //   nom_role: "CLEMENT",
       //   prenom_role: "Joel",
       //   email: "joelclems@gmail.com",
