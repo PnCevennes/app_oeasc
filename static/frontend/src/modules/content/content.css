@@ -9,7 +9,7 @@
 }
 
 .content-appercu {
-  height: 300px;
+  max-height: 300px;
   overflow: hidden;
   box-shadow: inset 4px 2px -2px black;
 }

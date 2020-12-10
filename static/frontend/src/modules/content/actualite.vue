@@ -12,8 +12,9 @@
       </v-btn>
     </div>
 
-    <div v-for="content of contents" :key="content.code" class="page">
+    <div v-for="content of contents" :key="content.code"  class="page">
       <oeasc-content
+        :key="content.code"
         displayContentDate="true"
         nbLines="3"
         :code="content.code"
@@ -36,13 +37,14 @@ export default {
       const storeName = "commonsContent";
       const configStore = this.$store.getters.configStore(storeName);
       this.$store.dispatch(configStore.getAll).then(contents => {
-        this.contents = contents.filter(content =>
+        this.contents = contents
+        .filter(content =>
           this.tagNames && this.tagNames.length
             ? this.tagNames.every(nom_tag => {
                 return content.tags.map(t => t.nom_tag).includes(nom_tag);
               })
             : true
-        );
+        ).sort(content => content.meta_create_date);
       });
     }
   },

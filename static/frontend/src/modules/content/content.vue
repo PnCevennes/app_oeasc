@@ -1,5 +1,6 @@
 <template>
-  <div :class="{ 'content-page': isPage , 'content-appercu': this.nbLines}" v-if="bInitialized">
+  <div :class="{ 'content-page': isPage , 'content-appercu': this.nbLines}" v-if="bInitialized"
+  @mouseover="mouseIn=true" @mouseout="mouseIn=false">
     <div>
       <div v-if="!bEditContents && content">
         <div>
@@ -7,19 +8,19 @@
             icon
             v-if="!bEditContents && $store.getters.droitMax >= 5"
             @click="bEditContents = true"
-            ref="btn-edit-content"
+            :ref="`btn-edit-content_${getCode()}`"
           >
             <v-icon>edit</v-icon>
           </v-btn>
         </div>
 
         <div v-if="displayContentDate">
-          <i>Crée le {{ displayDate(content.meta_create_date) }}</i>
+          <i>Le {{ displayDate(content.meta_create_date) }}</i>
 
-          <i
+          <i  
             v-if="
               displayDate(content.meta_create_date) !=
-                displayDate(content.meta_update_date)
+                displayDate(content.meta_update_date) && false
             "
             >, modifié le {{ displayDate(content.meta_create_date) }}</i
           >
@@ -59,10 +60,9 @@
               <v-icon>fa-file-alt</v-icon>
             </v-btn>
           </div>
-          {{getCode()}}
           <generic-form
-            ref="content-form_{{getCode()}}"
-            :config="configContentForm"
+            :ref="`content-form_${getCode()}`"
+            :config="configForm"
             @onSuccess="setContent($event)"
           >
           </generic-form>
@@ -137,6 +137,13 @@ export default {
     }
   },
   computed: {
+    configForm() {
+      const configForm = {
+        ...this.configContentForm,
+        value: this.content
+      };
+      return configForm;
+    },
     docPath() {
       return this.$store.getters.mediaDocPath;
     },
@@ -158,6 +165,7 @@ export default {
     genericForm
   },
   data: () => ({
+    mouseIn: false,
     keysPressed: {},
     dp: null,
     content: null,
@@ -202,6 +210,7 @@ export default {
 
     setContent(data) {
       this.content = data;
+
       this.configContentForm.value = this.content;
       let html = marked(data.md || "");
       if (this.nbLines) {
@@ -243,6 +252,7 @@ export default {
           error => {error; this.setContent({code: this.getCode()})}
         );
     },
+
     manageKeys() {
       if (
         ["Control", " "].every(key =>
@@ -271,7 +281,7 @@ export default {
           }
           setTimeout(() => {
             const textAreaContent = this.$refs[
-              "content-form"
+              `content-form_${this.getCode()}`
             ].$el.querySelector("textarea");
             textAreaContent.focus();
             if (index != -1) {
@@ -281,20 +291,20 @@ export default {
         }
 
         // var elementMouseIsOver = document.elementFromPoint(x, y);
-        const btnEditContent = this.$refs["btn-edit-content"];
+        const btnEditContent = this.$refs[`btn-edit-content_${this.getCode()}`];
         if (btnEditContent) {
           btnEditContent.click({});
         }
         const btnValidFormContent =
-          this.$refs["content-form"] &&
-          this.$refs["content-form"].$refs["btn-valid-form"];
+          this.$refs[`content-form_${this.getCode()}`] &&
+          this.$refs[`content-form_${this.getCode()}`].$refs[`btn-valid-form`];
         if (btnValidFormContent) {
           btnValidFormContent.click({});
         }
       }
     },
     onKeyUp(event) {
-      if (this.$store.getters.droitMax <= 5 || !event) {
+      if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
         return;
       }
       setTimeout(() => {
@@ -305,7 +315,8 @@ export default {
       }, 50);
     },
     onKeyDown(event) {
-      if (this.$store.getters.droitMax <= 5 || !event) {
+    
+      if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
         return;
       }
       if (!Object.keys(this.keysPressed).includes(event.key)) {

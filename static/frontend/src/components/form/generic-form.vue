@@ -125,7 +125,6 @@ export default {
     },
   },
   mounted() {
-    console.log('gf',this.config)
     this.initConfig();
   },
   methods: {
