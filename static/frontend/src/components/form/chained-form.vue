@@ -79,6 +79,7 @@ export default {
 
         // si c'est la dernière session validation = requete
         if (sessionFunctions.lastSession(this.config) == keySession) {
+
           sessionDef.action = this.config.action;
 
           // sinon on passe au formulaire suivant
@@ -93,8 +94,10 @@ export default {
                   config.keySession
                 );
                 if (nextSession) {
-
-                  $router.push({ query: { keySession: nextSession } });
+                  // ici indispensable sinon bug et valide à l'avant dernière !!!!!
+                  setTimeout(() => {
+                    $router.push({ query: { keySession: nextSession } });
+                  }, 200)
                 }
                 resolve();
               });
