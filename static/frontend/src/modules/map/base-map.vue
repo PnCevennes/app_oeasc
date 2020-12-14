@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div v-if="exportImg != undefined || true">
+    <div v-if="exportImg != undefined">
       <v-btn icon @click="epxortMapToImg()">
         <v-icon>
           image
