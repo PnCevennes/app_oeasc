@@ -1,5 +1,32 @@
 import { apiRequest } from "@/core/js/data/api.js";
 
+/**
+ *
+ * Pour gérer les requêtes mulitples rapprochées
+ *
+ *
+ */
+const addPendingRequestStore = STORE => {
+  for (const key of ['state', 'mutations', 'getters']) {
+    STORE[key] = STORE[key] || {};
+  }
+  if (STORE.state.pendings == undefined) {
+    STORE.state.pendings = {};
+    STORE.getters.pendings = state => api => state.pendings[api];
+    STORE.mutations.addPending = (state, { request, api }) => {
+      state.pendings[api] = request;
+      console.info('add pending', api, state.pendings)
+    };
+    STORE.mutations.removePending = (state, api) => {
+      if (state.pendings[api]) {
+      console.info('delete pending', api)
+
+        delete state.pendings[api];
+      }
+    };
+  }
+};
+
 export default {
   /** initialise un store avec getters mutation dispatch etc 
    * 
@@ -17,7 +44,7 @@ export default {
   */
   addStore(STORE, name, api, settings) {
     /** si name = 'trucs */
-
+    addPendingRequestStore(STORE);
     /** trucs : nom pour les listes (un s à la fin)  pour les route de liste*/
     const names = `${name}s`;
 
@@ -140,14 +167,22 @@ export default {
           resolve(objList);
           return;
         }
-        apiRequest("GET", `${api}s/`).then(
+
+        const apis = `${api}s/`
+        if (!getters.pendings(apis)) {
+          commit("addPending", { api: apis, request: apiRequest("GET", `${apis}`) });
+        }
+        const request = getters.pendings(apis);
+
+        request.then(
           data => {
             commit(nameConfig, { loaded: true });
             commit(names, data);
+            commit("removePending", apis); // remove pending
             resolve(data);
           },
           error => {
-            console.error(`error in request ${api} : ${error}`);
+            console.error(`error in request ${apis} : ${error}`);
             reject(error);
           }
         );
@@ -264,6 +299,9 @@ export default {
    * api
    */
   addSimpleStore(STORE, name, api) {
+
+    addPendingRequestStore(STORE);
+
     const state = {},
       getters = {},
       mutations = {},
@@ -272,25 +310,13 @@ export default {
 
     /** STATE */
     state[name] = null;
-    state.pendings = {};
 
     /** GETTER */
     getters[name] = state => state[name];
-    getters.pendings = state => api => state.pendings[api];
 
     /** MUTATION */
     mutations[name] = (state, obj) => {
       state[name] = obj;
-    };
-
-    mutations.addPending = (state, { request, api }) => {
-      state.pendings[api] = request;
-    };
-
-    mutations.removePending = (state, api) => {
-      if (state.pendings[api]) {
-        delete state.pendings[api];
-      }
     };
 
     /** ACTIONS */
@@ -310,7 +336,7 @@ export default {
         request.then(
           data => {
             commit(name, data);
-            commit("removePending", { api }); // remove pending
+            commit("removePending", api); // remove pending
             resolve(data);
           },
           error => {

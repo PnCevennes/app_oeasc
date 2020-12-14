@@ -8,6 +8,7 @@ import "leaflet/dist/leaflet.css";
 import "./map.css";
 import "leaflet/dist/leaflet";
 import * as L from "leaflet";
+import "leaflet-easyprint";
 // const L = window.L
 
 import icon from "leaflet/dist/images/marker-icon.png";
@@ -73,7 +74,6 @@ class MapService {
   init = function() {
     // process config
     if (!this.processConfig()) {
-      
       return;
     }
 
@@ -98,9 +98,6 @@ class MapService {
     // init layers
     this.initLayers();
 
-    // init legends
-    // this.initLegends();
-
     // init marker
     this.initMarkers();
 
@@ -121,6 +118,7 @@ class MapService {
 for (const methods of mapModules) {
   Object.assign(MapService.prototype, methods);
 }
+
 
 // ajout des méthodes statiques
 for (const methods of staticMapModules) {

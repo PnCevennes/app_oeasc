@@ -9,7 +9,6 @@ const mapExport = {
     const method = methods[options.format] || "toPng";
     return new Promise(resolve => {
       const elem = document.getElementById(this._id);
-
       // preporcess
 
       elem.classList.add("map-img");
@@ -30,6 +29,15 @@ const mapExport = {
         resolve(elem);
       });
     });
+  },
+
+  toImgFile(options = {format: 'png', fileName: 'map'}) {
+    return new Promise((resolve) => {
+      this.toImg(options).then((elem) => {
+        console.log(elem.next)
+        resolve(elem);
+      });
+    })
   }
 };
 

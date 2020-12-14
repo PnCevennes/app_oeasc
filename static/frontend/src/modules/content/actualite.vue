@@ -16,7 +16,6 @@
       <oeasc-content
         :key="content.code"
         displayContentDate="true"
-        nbLines="3"
         :code="content.code"
         link="actualite"
       ></oeasc-content>

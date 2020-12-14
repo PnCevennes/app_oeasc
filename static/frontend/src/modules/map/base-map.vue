@@ -1,35 +1,44 @@
 <template>
-  <div class="map-container" :style="`height:${computedHeight}`">
-    <!-- map -->
-    <div
-      class="map"
-      :id="mapId"
-      :config="config"
-      :style="`height:${computedHeight}; z-index:0;`"
-    >
-      <map-legend
-        :config="(mapService && mapService._config) || {}"
-      ></map-legend>
+  <div>
+    <div v-if="exportImg != undefined || true">
+      <v-btn icon @click="epxortMapToImg()">
+        <v-icon>
+          image
+        </v-icon>
+      </v-btn>
     </div>
-
-    <!-- aside   -->
-    <div>
+    <div class="map-container" :style="`height:${computedHeight}`">
+      <!-- map -->
       <div
-        v-for="[key, configSelect] of Object.entries(configSelects)"
-        :key="key"
+        class="map"
+        :id="mapId"
+        :config="config"
+        :style="`height:${computedHeight}; z-index:0;`"
       >
-        <div
-          v-if="configSelect && mapService && mapService.baseModel"
-          class="map-select"
-        >
-          <list-form
-            :baseModel="mapService.baseModel"
-            :config="configSelect"
-          ></list-form>
-        </div>
+        <map-legend
+          :config="(mapService && mapService._config) || {}"
+        ></map-legend>
       </div>
+
+      <!-- aside   -->
       <div>
-        <slot name="aside"> </slot>
+        <div
+          v-for="[key, configSelect] of Object.entries(configSelects)"
+          :key="key"
+        >
+          <div
+            v-if="configSelect && mapService && mapService.baseModel"
+            class="map-select"
+          >
+            <list-form
+              :baseModel="mapService.baseModel"
+              :config="configSelect"
+            ></list-form>
+          </div>
+        </div>
+        <div>
+          <slot name="aside"> </slot>
+        </div>
       </div>
     </div>
   </div>
@@ -48,8 +57,18 @@ export default {
     mapService: null,
     configSelects: {}
   }),
-  props: ["config", "mapId", "preConfigName", "height", "fillHeight"],
+  props: [
+    "config",
+    "mapId",
+    "preConfigName",
+    "height",
+    "fillHeight",
+    "exportImg"
+  ],
   methods: {
+    epxortMapToImg() {
+      this.mapService.toImgFile("png");
+    },
     initSelect($event) {
       const key = $event.detail.key;
       this.configSelects[key] = this.mapService.configSelect(key);

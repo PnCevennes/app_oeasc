@@ -1,6 +1,7 @@
 <template>
   <div :class="{ 'content-page': isPage , 'content-appercu': this.nbLines}" v-if="bInitialized"
-  @mouseover="mouseIn=true" @mouseout="mouseIn=false">
+  >
+  <!-- @mouseover="onMouseOver()" @mouseout="onMouseOut()" -->
     <div>
       <div v-if="!bEditContents && content">
         <div>
@@ -165,7 +166,7 @@ export default {
     genericForm
   },
   data: () => ({
-    mouseIn: false,
+    mouseIn: true,
     keysPressed: {},
     dp: null,
     content: null,
@@ -183,6 +184,13 @@ export default {
     bInitialized: false
   }),
   methods: {
+    onMouseOver() {
+      this.mouseIn = true;
+    },
+    onMouseOut() {
+      this.mouseIn = false;
+    },
+
     displayDate(date) {
       return date && date.split(" ")[0];
     },
@@ -315,7 +323,6 @@ export default {
       }, 50);
     },
     onKeyDown(event) {
-    
       if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
         return;
       }
