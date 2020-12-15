@@ -4,6 +4,8 @@ sudo apt install -y git
 sudo apt-get install -y --no-install-recommends apt-utils
 
 sudo apt install -y python3 python3-pip
+sudo apt install -y libpq-dev
+sudo apt install -y libgeos-dev
 pip3 install virtualenv
 
 

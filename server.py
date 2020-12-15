@@ -55,13 +55,13 @@ app.config['DB'] = DB
 app.config['MAIL'] = mail
 
 
-@app.route('/')
-def accueil():
-    return redirect("/front/", code=302)
+# @app.route('/')
+# def accueil():
+#     return redirect("/front/", code=302)
 
-@app.route('/front/')
-def front():
-    return send_from_directory("static/frontend/dist", 'index.html')
+# @app.route('/front/')
+# def front():
+#     return send_from_directory("static/frontend/dist", 'index.html')
 
 
 @app.route('/oeasc/', defaults={'text':''})

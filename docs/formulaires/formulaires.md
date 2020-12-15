@@ -43,9 +43,9 @@ Les concept généraux, les composants et les input partagées par ces composant
 - Ce composant permet de gérer les formulaires enchaînés.
 
 Des exemples de configurations de formulaires peuvent être trouvés à :
-- [creation d'utilisateur](../../static/frontend/src/modules/user/config/form-create-user.js)
+- [creation d'utilisateur](../../frontend/src/modules/user/config/form-create-user.js)
 
-- pour les formulaires chaînées on pourra regarder [la configuration des déclaration des dégâts en forêt](../../static/frontend/src/modules/declaration/config/form-chained-declaration.js) et les fichiers associées pour les définitions des formulaires et des sessions.
+- pour les formulaires chaînées on pourra regarder [la configuration des déclaration des dégâts en forêt](../../frontend/src/modules/declaration/config/form-chained-declaration.js) et les fichiers associées pour les définitions des formulaires et des sessions.
 
 ## Les patchs et remarque
 

@@ -82,10 +82,10 @@ cat config/config.py
 # sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/src/js/config/config.js
 
 
-if [ ! -f "static/frontend/src/config/config.js" ];
-then 
-cp static/frontend/src/config/config.js.sample static/frontend/src/config/config.js
-fi
-sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/frontend/src/config/config.js
+# if [ ! -f "frontend/src/config/config.js" ];
+# then 
+cp frontend/src/config/config.js.sample frontend/src/config/config.js
+# fi
+sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! frontend/src/config/config.js
 
-cat static/frontend/src/config/config.js
+cat frontend/src/config/config.js
