@@ -1,0 +1,28 @@
+.filters {
+    margin-left: 20px;
+}
+
+.page-restitution {
+    width: 100%;
+    margin: 10px;
+}
+
+.container-restitution {
+    display: flex;
+    flex-direction: row;
+}
+
+.result {
+    width: 70%;
+}
+
+.result td:first-child {
+ width: 55%;
+}
+
+.result td:not:first-child {
+    width: 15%;
+}
+.config {
+    width: 30%;
+}
