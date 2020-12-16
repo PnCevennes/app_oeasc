@@ -47,6 +47,7 @@ replace_num() {
 }
 
 sed -i -e s!'^URL_APPLICATION.*'!"URL_APPLICATION = \""$URL_APPLICATION"\""! config/config.py
+sed -i -e s!'^URL_FRONTEND.*'!"URL_FRONTEND = \""$URL_FRONTEND"\""! config/config.py
 sed -i -e s!'^URL_USERSHUB.*'!"URL_USERSHUB = \""$URL_USERSHUB"\""! config/config.py
 sed -i -e s/'^SQLALCHEMY_DATABASE_URI.*'/"SQLALCHEMY_DATABASE_URI = \""$DB_URI\"/ config/config.py #> config/config.py
 
@@ -68,24 +69,8 @@ cat config/config.py
 
 
 # front
-
-# if [ ! -f "static/src/js/config/config.js" ];
-# then 
-# cp static/src/js/config/config.js.sample static/src/js/config/config.js
-# fi
-
-# if [ ! -f "static/src/js/config/config-map.js" ];
-# then 
-# cp static/src/js/config/config-map.js.sample static/src/js/config/config-map.js
-# fi
-
-# sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! static/src/js/config/config.js
-
-
-# if [ ! -f "frontend/src/config/config.js" ];
-# then 
 cp frontend/src/config/config.js.sample frontend/src/config/config.js
-# fi
 sed -i -e s!'URL_APPLICATION.*'!"URL_APPLICATION: '"$URL_APPLICATION"',"! frontend/src/config/config.js
+sed -i -e s!'URL_FRONTEND.*'!"URL_FRONTEND: '"$URL_FRONTEND"',"! frontend/src/config/config.js
 
 cat frontend/src/config/config.js
