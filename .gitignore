@@ -60,6 +60,6 @@ frontend/.vscode
 
 # frontend/vue.config.js
 frontend/src/config/config.js
-
+var/log/*
     
 !.gitkeep
