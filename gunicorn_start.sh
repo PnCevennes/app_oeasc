@@ -11,6 +11,7 @@ echo "Starting $app_name"
 # activate the virtualenv
 source venv/bin/activate
 
+echo FLASKDIR $FLASKDIR
 export PYTHONPATH=$FLASKDIR:$PYTHONPATH
 
 # cd $FLASKDIR
@@ -18,6 +19,6 @@ echo $PYTHONPATH
 
 
 # # Start your unicorn
-exec gunicorn  server:app --error-log $FLASKDIR/var/log/errors_develop.log --pid="${app_name}.pid" -w "${gun_num_workers}"  -b "${gun_host}:${gun_port}"  -n "${app_name}"
+exec gunicorn server:app --error-log $FLASKDIR/var/log/errors_develop.log --pid="${app_name}.pid" -w "${gun_num_workers}"  -b "${gun_host}:${gun_port}"  -n "${app_name}"
 
 echo done
