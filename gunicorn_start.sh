@@ -2,9 +2,10 @@
 
 FLASKDIR=$(readlink -e "${0%/*}")
 
+cd $FLASKDIR
+
 . config/settings.ini
 
-cd $FLASKDIR
 
 echo "Starting $app_name"
 
