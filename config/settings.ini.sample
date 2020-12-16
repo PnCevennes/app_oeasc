@@ -27,8 +27,9 @@ python_path=/usr/bin/python3
 MODE_TEST=0
 
 ID_APP=500
-URL_APPLICATION="localhost:5000"
-URL_USERSHUB="localhost:5001"
+URL_FRONTEND="http://localhost/"
+URL_APPLICATION="http://localhost/oeasc/api/"
+URL_USERSHUB="http://localhost:5001"
 
 ADMIN_APPLICATION_LOGIN=""
 ADMIN_APPLICATION_PASSWORD=""

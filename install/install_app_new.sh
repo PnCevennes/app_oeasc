@@ -6,6 +6,16 @@ sudo apt-get install -y --no-install-recommends apt-utils
 sudo apt install -y python3 python3-pip
 sudo apt install -y libpq-dev
 sudo apt install -y libgeos-dev
+sudo apt-get install -y apache2 libapache2-mod-wsgi libapache2-mod-perl2
+sudo apt install -y supervisor
+sudo sh -c 'echo "ServerName localhost" >> /etc/apache2/apache2.conf'
+sudo a2enmod rewrite
+sudo a2dismod mod_pyth
+sudo a2enmod wsgi
+sudo a2enmod proxy_http
+sudo apache2ctl restart
+
+
 pip3 install virtualenv
 
 
