@@ -9,11 +9,11 @@ FLASKDIR=$(readlink -e "${0%/*}")
 echo FLASKDIR $FLASKDIR
 . "$FLASKDIR"/config/settings.ini
 
-echo "Starting $app_name"
+echo "Starting OEASC"
 
 # activate the virtualenv
-echo cd $FLASKDIR/$venv_dir
-cd $FLASKDIR/$venv_dir
+echo cd $FLASKDIR/venv
+cd $FLASKDIR/venv
 source bin/activate
 
 export PYTHONPATH=$FLASKDIR:$PYTHONPATH
