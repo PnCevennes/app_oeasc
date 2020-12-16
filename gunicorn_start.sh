@@ -1,20 +1,15 @@
 #!/bin/bash
 
-readlink -e "${0%/*}"
-
-
-FLASKDIR=$(pwd)
 FLASKDIR=$(readlink -e "${0%/*}")
 
-echo FLASKDIR $FLASKDIR
 . "$FLASKDIR"/config/settings.ini
 
-echo "Starting OEASC"
+app_name=oeasc
+
+echo "Starting $app_name"
 
 # activate the virtualenv
-echo cd $FLASKDIR/venv
-cd $FLASKDIR/venv
-source bin/activate
+source venv/bin/activate
 
 export PYTHONPATH=$FLASKDIR:$PYTHONPATH
 
