@@ -9,7 +9,7 @@ app_name=oeasc
 echo "Starting $app_name"
 
 # activate the virtualenv
-source venv/bin/activate
+source $FLASKDIR/venv/bin/activate
 
 echo FLASKDIR $FLASKDIR
 export PYTHONPATH=$FLASKDIR:$PYTHONPATH
