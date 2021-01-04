@@ -7,8 +7,7 @@
       </h4>
       <!-- {{ config.containerName }} {{ baseModel[config.containerName] }} -->
       <div>
-        Sélectionnez
-        sur la carte ou dans la liste
+        Sélectionnez sur la carte ou dans la liste
         {{ description }}.
         <help code="selection_carte"></help>
       </div>
@@ -17,17 +16,22 @@
     <base-map v-if="mapConfig" :config="mapConfig" :mapId="config.name">
       <template v-slot:aside>
         <div class="aside-select">
-          <div class="btn-pre-select"
-              v-if="
-                baseModel.b_statut_public === false &&
-                  baseModel.b_document === true && name == 'areas_foret_dgd'
-              "
+          <div
+            class="btn-pre-select"
+            v-if="
+              baseModel.b_statut_public === false &&
+                baseModel.b_document === true &&
+                name == 'areas_foret_dgd'
+            "
           >
             <v-btn
               small
               :block="false"
               color="error"
-              @click="baseModel.b_statut_public=false; baseModel.b_document=false"
+              @click="
+                baseModel.b_statut_public = false;
+                baseModel.b_document = false;
+              "
             >
               Ma forêt n'apparait pas sur la liste
             </v-btn>
@@ -47,15 +51,19 @@
             "
             :rules="rules"
             dense
-            :chips="config.multiple ? true :false"
-            :small-chips="config.multiple ? true :false"
+            :chips="config.multiple ? true : false"
+            :small-chips="config.multiple ? true : false"
             hide-selected
-            :deletable-chips="config.multiple ? true :false"
+            :deletable-chips="config.multiple ? true : false"
             clearable
             placeholder="Choisir un element dans la liste"
             @change="selectChange"
           >
-          <help slot="append" :code="`form-${config.name}`" v-if="config.help"></help>
+            <help
+              slot="append"
+              :code="`form-${config.name}`"
+              v-if="config.help"
+            ></help>
           </v-autocomplete>
           <div v-if="config.containerUrl">
             <v-btn
@@ -110,19 +118,21 @@ export default {
     this.initMapConfig();
   },
   mounted: function() {
-    document
-      .getElementById(this.config.name)
-      .addEventListener("layer-data", this.initSelect);
+    setTimeout(() => {
+      document
+        .getElementById(this.config.name)
+        .addEventListener("layer-data", this.initSelect);
 
-    document
-      .getElementById(this.config.name)
-      .addEventListener("select-map-click", this.clickOnLayer);
+      document
+        .getElementById(this.config.name)
+        .addEventListener("select-map-click", this.clickOnLayer);
 
-    this.mapService = this.$store.getters.mapService(this.config.name);
-    this.mapService._config.layers['selection'] = {
-      style: this.mapConfig.styles.select,
-      legend: "Sélection"
-    }
+      this.mapService = this.$store.getters.mapService(this.config.name);
+      this.mapService._config.layers["selection"] = {
+        style: this.mapConfig.styles.select,
+        legend: "Sélection"
+      };
+    }, 200);
   }
 };
 </script>
