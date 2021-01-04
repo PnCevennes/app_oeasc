@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{results && results.options}}
     <div v-if="results">
       <div v-if="display == 'table'">
         <restitution-table :results="results"></restitution-table>
@@ -115,8 +116,14 @@ export default {
       
         return;
       }
-      
-      this.results = this.restitution.results();
+      const results = {...this.restitution.results()};
+      const options = {}
+      for(const key of props) {
+        options[key] = this[key] || results.options[key];
+        console.log(key,this[key], results.options[key])
+      }
+      results.options = options;
+      this.results = results
     },
     baywatch: function (props, watcher) {
       var iterator = function (prop) {

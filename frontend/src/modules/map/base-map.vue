@@ -10,7 +10,7 @@
         <v-card v-if="bExportMap">
           <generic-form
             class="edit-dialog"
-              :config="configFormExportMap"
+            :config="configFormExportMap"
           ></generic-form>
         </v-card>
       </v-dialog>
@@ -18,6 +18,7 @@
     <div class="map-container" :style="`height:${computedHeight}`">
       <!-- map -->
       <div
+        v-if="test"
         class="map"
         :ref="mapId"
         :id="mapId"
@@ -67,7 +68,8 @@ export default {
     bInit: false,
     mapService: null,
     configSelects: {},
-    bExportMap: false
+    bExportMap: false,
+    test: true
   }),
   props: [
     "config",
@@ -77,6 +79,17 @@ export default {
     "fillHeight",
     "exportImg"
   ],
+  watch: {
+    height() {
+      this.test = false;
+      setTimeout(() => {
+        this.test = true;
+        setTimeout(() => {
+          this.mapService.init();
+        }, 100);
+      });
+    }
+  },
   methods: {
     initSelect($event) {
       const key = $event.detail.key;
@@ -95,13 +108,11 @@ export default {
                 filename: postData.filename,
                 height: postData.height,
                 width: postData.width,
-                format: postData.filename.endsWith(".jpg")
-                ? "jpg"
-                : "png",
+                format: postData.filename.endsWith(".jpg") ? "jpg" : "png"
               };
 
               this.mapService.toImgFile(options).then(() => {
-                this.bExportMap = false; // ferme le dialogue 
+                this.bExportMap = false; // ferme le dialogue
                 resolve();
               });
             });
@@ -109,8 +120,9 @@ export default {
         },
         value: {
           filename: "export_carte_oeasc.png",
-          width: this.$refs[this.mapId].clientWidth+500,
-          height: this.$refs[this.mapId].clientHeight+500,
+          // width: 1000,
+          width: this.$refs[this.mapId].clientWidth,
+          height: this.$refs[this.mapId].clientHeight
         }
       };
       return out;

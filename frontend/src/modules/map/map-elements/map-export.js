@@ -9,6 +9,7 @@ const mapExport = {
     const method = methods[options.format] || "toPng";
     return new Promise(resolve => {
       let elem = document.getElementById(this._id);
+
       // preporcess
       elem.classList.add("map-img");
 
@@ -22,10 +23,7 @@ const mapExport = {
       elem.style.width = `${width}px`;
 
       this._map.invalidateSize();
-      setTimeout(() => {
-        this.reinitZoom();
-      }, 100)
-
+      this.reinitZoom();
 
       // if(elem) {
       //   resolve(elem);
@@ -34,7 +32,6 @@ const mapExport = {
 
       // on laisse temps à la carte de se redessiner 500ms ??
       setTimeout(() => {
-        // image
         elem = document.getElementById(this._id);
         domtoimage[method](elem, {
           height,
@@ -47,11 +44,11 @@ const mapExport = {
           elem.after(img);
 
           // hide elem
-          // elem.style.display = "none";
+          elem.style.display = "none";
 
           resolve(elem);
-        }, 5000);
-      });
+        });
+      }, 2000);
     });
   },
 
@@ -71,14 +68,16 @@ const mapExport = {
     });
   },
   resetMapStyle(elem) {
-    console.log(elem.style);
-    // const img = elem.nextElementSibling;
-    // elem.parentElement.remove(img);
+    const img = elem.nextElementSibling;
+    img.remove();
 
     elem.classList.remove("map-img");
     elem.style.display = "block";
-    // elem.style.width = this.widthSave + 'px';
-    // elem.style.height = this.heightSave + 'px';
+    elem.style.width = this.widthSave + "px";
+    elem.style.height = this.heightSave + "px";
+    this._map.invalidateSize();
+    this.reinitZoom();
+
   }
 };
 

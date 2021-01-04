@@ -2,14 +2,14 @@
   <div class="declaration" id="declaration">
     <div v-if="declaration">
       <h1>Déclaration {{ declaration.id_declaration }}</h1>
-      <v-btn
+      <!-- <v-btn
         class="ignorepdf"
         icon
         color="red"
         @click="exportPdf()"
         title="Exporter la déclaration au format pdf"
         ><v-icon>mdi-file-pdf</v-icon></v-btn
-      >
+      > -->
       <div>
         <declaration-table :declaration="declaration"></declaration-table>
       </div>
