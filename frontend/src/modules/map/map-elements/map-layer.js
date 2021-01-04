@@ -128,7 +128,6 @@ const mapLayer = {
   reinitZoom() {
     for (const [key, layerConfig] of Object.entries(this._config.layers)) {
       if (layerConfig.zoom) {
-        console.log(key)
         const layers = this.findLayers("key", key);
         this.zoomOnLayers(layers);
       }

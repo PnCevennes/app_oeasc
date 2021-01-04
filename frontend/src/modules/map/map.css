@@ -3,7 +3,8 @@
   flex-direction: row;
 }
 
-.map-img .leaflet-top {
+.map-img .leaflet-top, 
+.map-img .map-export {
   display: none;
 }
 
@@ -23,4 +24,11 @@
 
 .map-aside {
   margin-left: 10px;
+}
+
+.map-export {
+  z-index: 1000;
+  position: absolute;
+  right: 10px;
+  top: 60px;
 }

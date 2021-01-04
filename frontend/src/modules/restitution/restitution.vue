@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{results && results.options}}
     <div v-if="results">
       <div v-if="display == 'table'">
         <restitution-table :results="results"></restitution-table>
@@ -14,12 +13,12 @@
         <restitution-graph :results="results"></restitution-graph>
       </div>
 
-      <div class="infos">
+      <!-- <div class="infos">
         Données {{results.nbDataFiltered}} / {{results.nbData}}.
         <template
           v-if="results.filtersDisplay"
         >Filtres : {{results.filtersDisplay}}</template>
-      </div>
+      </div> -->
     </div>
     <div v-else>
       <p>Chargement des données en cours</p>
@@ -120,7 +119,6 @@ export default {
       const options = {}
       for(const key of props) {
         options[key] = this[key] || results.options[key];
-        console.log(key,this[key], results.options[key])
       }
       results.options = options;
       this.results = results

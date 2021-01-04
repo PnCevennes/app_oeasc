@@ -118,6 +118,7 @@ import configContentForm from "./config/form-content";
 import configImgForm from "./config/form-img";
 import configDocForm from "./config/form-doc";
 import genericForm from "@/components/form/generic-form";
+import dynamicForm from "@/components/form/dynamic-form";
 import marked from "marked";
 
 export default {
@@ -170,6 +171,7 @@ export default {
     inGraph, // eslint-disable-line
     inTable, // eslint-disable-line
     restitution, // eslint-disable-line
+    dynamicForm, // eslint-disable-line
     genericForm
   },
   data: () => ({
@@ -187,7 +189,8 @@ export default {
     configDocForm,
     bSnack: false,
     msgSnack: null,
-    bInitialized: false
+    bInitialized: false,
+    contentValues: {}
   }),
   methods: {
     onMouseOver() {

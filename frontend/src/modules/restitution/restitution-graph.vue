@@ -2,7 +2,9 @@
   <div>
     <highcharts
       v-if="chartOptions"
-      :style="`width:${width || '100%'}; height:${results.options.height || '600px'}`"
+      :style="
+        `width:${width || '100%'}; height:${results.options.height || '600px'}`
+      "
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
@@ -44,15 +46,21 @@ export default {
               }),
               color: res2.color
             }))
-          : [
+          : // pie
+            [
               {
                 name: this.results.choix.choix1.text,
                 colorByPoint: true,
                 data: this.results.choix.choix1.dataList.map(data => ({
                   name: `${data.text} (${data.count})`,
                   y: data.count,
-                  color: data.color
-                }))
+                  color: data.color,
+                })),
+                dataLabels: {
+                  style: {
+                    fontSize: '1.3em'
+                  }
+                }
               }
             ];
       const chartOptions = {
@@ -61,7 +69,7 @@ export default {
         },
         title: "Test graphique",
         xAxis: {
-          categories,
+          categories
         },
         yAxis: {
           min: 0,
