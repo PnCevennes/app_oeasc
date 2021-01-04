@@ -103,7 +103,7 @@
         :disabled="configForm.disabled"
         @change="
           configForm.change && configForm.change({ baseModel, config, $store })
-        " 
+        "
       >
         <span slot="label">
           {{ configForm.label }}
@@ -113,19 +113,28 @@
         </span>
         {{ `form-${config.name}` }}
 
-        <span slot="append" @click="show1=!!show1" >
-          <v-btn icon v-if='config.type === "password"' @click="show1=!show1" tabindex="-1">
-          <v-icon >
-            {{
-              config.type === "password"
-                ? show1
-                  ? "mdi-eye"
-                  : "mdi-eye-off"
-                : null
-            }}
-          </v-icon>
+        <span slot="append" @click="show1 = !!show1">
+          <v-btn
+            icon
+            v-if="config.type === 'password'"
+            @click="show1 = !show1"
+            tabindex="-1"
+          >
+            <v-icon>
+              {{
+                config.type === "password"
+                  ? show1
+                    ? "mdi-eye"
+                    : "mdi-eye-off"
+                  : null
+              }}
+            </v-icon>
           </v-btn>
-          <help tabindex="-1" :code="`form-${configForm.name}`" v-if="configForm.help"></help>
+          <help
+            tabindex="-1"
+            :code="`form-${configForm.name}`"
+            v-if="configForm.help"
+          ></help>
         </span>
       </v-text-field>
     </template>
@@ -167,8 +176,6 @@
         ></help>
       </v-file-input>
     </template>
-
-
 
     <!-- nomenclature -->
     <template v-else-if="configForm.type === 'nomenclature'">
@@ -218,7 +225,7 @@
             <v-icon v-if="configForm.icon">{{ configForm.icon }}</v-icon>
           </v-btn>
         </template>
-        <span>{{configForm.tooltip}}</span>
+        <span>{{ configForm.tooltip }}</span>
       </v-tooltip>
     </template>
   </div>
@@ -270,7 +277,7 @@ export default {
       "password",
       "list",
       "button",
-      "file",
+      "file"
     ],
     configForm: null
   }),
@@ -331,6 +338,12 @@ export default {
 
   created: function() {
     this.configForm = this.getConfigForm();
+  },
+  mounted() {
+    // setTimeout(() => {
+    //   this.baseModel[this.configForm.name] =
+    //     this.baseModel[this.configForm.name] || this.configForm.value;
+    // }, 2000);
   }
 };
 </script>

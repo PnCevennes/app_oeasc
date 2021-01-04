@@ -190,7 +190,7 @@ export default {
     bSnack: false,
     msgSnack: null,
     bInitialized: false,
-    contentValues: {}
+    contentValues: {espece:'Cerf'}
   }),
   methods: {
     onMouseOver() {
