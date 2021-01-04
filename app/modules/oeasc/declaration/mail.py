@@ -45,9 +45,9 @@ def send_mail_validation_declaration(declaration, b_create):
     user = get_user(session['current_user']['id_role'])
 
     email_user = user['email']
-
+    
     with mail.connect() as conn:
-        
+
         # on envoie le message à l'utilisateur seulement si c'est une creation
         if b_create:
             msg = Message(

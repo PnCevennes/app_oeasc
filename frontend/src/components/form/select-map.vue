@@ -89,13 +89,13 @@
 </template>
 
 <script>
-import baseMap from "@/modules/map/base-map";
+// import baseMap from "@/modules/map/base-map";
 import { selectMapMethods } from "./select-map.js";
 import help from "./help";
 
 export default {
   name: "selectMap",
-  components: { baseMap, help },
+  components: { baseMap: () => import("@/modules/map/base-map"), help },
   data: () => ({
     dataSelect: null,
     mapService: null,
@@ -132,7 +132,7 @@ export default {
         style: this.mapConfig.styles.select,
         legend: "Sélection"
       };
-    }, 200);
+    }, 300);
   }
 };
 </script>
