@@ -7,7 +7,7 @@ export default {
     },
     observatoire: {
       label: "L'Observatoire",
-      icon: "not_listed_location",
+      icon: "fa-tree",
       names: [
         "observatoire.presentation",
         "observatoire.justification",
@@ -26,7 +26,16 @@ export default {
         "declaration.liste_declarations"
       ]
     },
-    
+    informations: {
+      icon: 'not_listed_location',
+      label: "Informations",
+      names: [
+        "page.documentation",
+        "page.contact",
+        "page.partenaires",
+      ]
+    },
+
     user: {
       label: ({ $store }) => $store.getters.isAuth ? $store.getters.nomComplet : 'Utilisateur',
       icon: ({ $store }) =>
@@ -60,15 +69,15 @@ export default {
       names: ["resultats.declarations", "resultats.in"]
     },
   
-    documentation: {
-      name: "page.documentation"
-    },
-    contact: {
-      name: "page.contact"
-    },
-    partenaires: {
-      name: "page.partenaires"
-    }
+    // documentation: {
+    //   name: "page.documentation"
+    // },
+    // contact: {
+    //   name: "page.contact"
+    // },
+    // partenaires: {
+    //   name: "page.partenaires"
+    // }
   
   };
   

@@ -43,6 +43,7 @@ export default {
           "observatoire",
           "systeme_alerte",
           "resultats",
+          "informations",
         ],
       },
       configDrawer: {
@@ -51,9 +52,7 @@ export default {
           "actualite",
           "observatoire",
           "systeme_alerte",
-          "documentation",
-          "contact",
-          "partenaires",
+          "informations",
           "admin",
           "dev"
         ],
