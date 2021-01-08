@@ -135,14 +135,18 @@ class Restitution {
     if (item.type == "date") {
       // on rempli les mois pour ne pas avoir de trous
       dataList = restitutionUtils.fillDates(dataList);
+      for (const data of dataList) {
+        data.icon = this.icon(data.text, dataList);
+        data.color = 'grey';
+      }
     } else {
       dataList = dataList.sort((a, b) => b.count - a.count);
       dataList = this.cutDataList(dataList);
-    }
 
-    for (const data of dataList) {
-      data.icon = this.icon(data.text, dataList);
-      data.color = this.color(data.text, dataList);
+      for (const data of dataList) {
+        data.icon = this.icon(data.text, dataList);
+        data.color = this.color(data.text, dataList);
+      }
     }
 
     return dataList;
@@ -161,7 +165,10 @@ class Restitution {
     if (key_item_patch) {
       const keep = {};
       for (const r of d.res) {
-        if (keep[r.degat_type_label] && keep[r.degat_type_label].degat_gravite_label) {
+        if (
+          keep[r.degat_type_label] &&
+          keep[r.degat_type_label].degat_gravite_label
+        ) {
           const prev = keep[r.degat_type_label].degat_gravite_label[0];
           const cur = r.degat_gravite_label[0];
           const order = this.item(key_item_patch).order;

@@ -133,10 +133,10 @@ export default {
     typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
-    // choix1: 'declaration_date',
-    choix1: "degat_gravite_label_max",
+    choix1: 'declaration_date',
+    // choix1: "degat_gravite_label_max",
     // choix2: "degat_essence_label",
-    choix2: "degat_type_label",
+    // choix2: "degat_type_label",
     n: 0,
     height: "600px",
     filters: {
