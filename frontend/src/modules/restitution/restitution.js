@@ -55,9 +55,15 @@ class Restitution {
   }
 
   processData(data) {
+    const keys = Object.keys(this.items);
+    keys.push(this._options.coordsFieldName)
+    if (this._options.groupByKey) {
+      keys.push(this._options.groupByKey);
+    }
     return data.map(d => {
       const d_ = {};
-      for (const key of Object.keys(d)) {
+      for (const key of keys) {
+        // for (const key of Object.keys(d)) {
         d_[key] = this.getValue(d, key);
       }
       return d_;
@@ -79,7 +85,8 @@ class Restitution {
 
   getValue(d, key) {
     const item = this.item(key);
-    const value = item.process ? item.process(d, item) : d[key];
+    const name = item.source || key;
+    const value = item.process ? item.process(d, item) : d[name];
 
     // toujours renvoyer un Array
     return !value ||
@@ -106,7 +113,7 @@ class Restitution {
 
     for (const d of dataToProcess) {
       const value = d[key];
-      
+
       const elemTextSaves = [];
 
       for (const v of value) {
@@ -142,6 +149,38 @@ class Restitution {
   }
 
   /**
+   * pour garder seulement les pires degat
+   * apply patch
+   * un peu flottant à rendre robuste
+   * si patch : pour chaque degat de meme type on garde le max
+   */
+  patchMaxDegat(dataDict) {
+    const key_item_patch = [this._options.choix1, this.options.choix2].find(
+      key => this.item(key) && this.item(key).patch
+    );
+    if (key_item_patch) {
+      for (const key of Object.keys(dataDict)) {
+        const keep = {};
+        for (const d of dataDict[key]) {
+          if (keep[d.degat_type_label]) {
+            const prev = keep[d.degat_type_label].degat_gravite_label[0];
+            const cur = d.degat_gravite_label[0];
+            const order = this.item(key_item_patch).order;
+            const ind_prev = order.indexOf(prev);
+            const ind_cur = order.indexOf(cur);
+            if (ind_cur < ind_prev) {
+              keep[d.degat_gravite_label] = d;
+            }
+          } else {
+            keep[d.degat_type_label] = d;
+          }
+        }
+        dataDict[key] = Object.keys(keep).map(k => keep[k]);
+      }
+    }
+  }
+
+  /**
    * out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
    */
   groupBy(data, groupByKey = null, keys = [], action = null) {
@@ -157,6 +196,8 @@ class Restitution {
         dataDict[groupByValue].push(d);
       }
     }
+
+    this.patchMaxDegat(dataDict);
 
     // out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
     const out = Object.entries(dataDict).map(([groupByValue, dataGroup]) => {
@@ -188,7 +229,6 @@ class Restitution {
           for (const key of Object.keys(r).filter(key =>
             listGroup.includes(key)
           )) {
-            console;
             d[key] = (d[key] || []).concat(r[key]);
           }
         }
@@ -246,7 +286,7 @@ class Restitution {
         this._options.coordsFieldName
       ]);
     }
-    dataMarkers;
+
     const markers = dataMarkers.map(d => {
       const defs = [];
 

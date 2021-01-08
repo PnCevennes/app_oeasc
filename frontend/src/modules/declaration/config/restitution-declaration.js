@@ -15,13 +15,34 @@ export default {
     },
     degat_gravite_label: {
       text: "Dégâts - gravite",
-      // order: ["Faibles", "Modérés", "Importants"],
+      order: ["Faibles", "Modérés", "Importants"],
       colors: {
         Importants: "red",
         Modérés: "orange",
         Faibles: "yellow"
       }
     },
+    degat_gravite_label_max: {
+      source: 'degat_gravite_label',
+      text: "Dégâts - gravite (max)",
+      order: ["Faibles", "Modérés", "Importants"],
+      patch: 'max-only',
+      colors: {
+        Importants: "red",
+        Modérés: "orange",
+        Faibles: "yellow"
+      }
+    },
+
+    // degat_gravite_label: {
+    //   text: "Dégâts - gravite",
+    //   // order: ["Faibles", "Modérés", "Importants"],
+    //   colors: {
+    //     Importants: "red",
+    //     Modérés: "orange",
+    //     Faibles: "yellow"
+    //   }
+    // },
     degat_essence_label: {
       text: "Dégâts - essence"
     },
@@ -81,9 +102,9 @@ export default {
       text: "Essence principale",
       process: restitutionUtils.split(", ")
     },
-    // valide: {
-    //   text: "Validé"
-    // }
+    valide: {
+      // text: "Validé"
+    }
   },
   default: {
     groupByKeyItems: [
@@ -106,14 +127,15 @@ export default {
     ],
     dataType: "declaration",
     // display: "graph",
-    display: "table",
+    // display: "table",
+    display: "map",
     typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
-    choix1: 'declaration_date',
-    // choix2: "degat_gravite_label",
+    // choix1: 'declaration_date',
+    choix1: "degat_gravite_label_max",
     // choix2: "degat_essence_label",
-    // choix2: "degat_type_labels",
+    choix2: "degat_type_label",
     n: 0,
     height: "600px",
     filters: {

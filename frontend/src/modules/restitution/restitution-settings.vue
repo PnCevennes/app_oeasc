@@ -77,9 +77,9 @@ export default {
         }; // ideal newChange
       }
 
-      
-
-      const items = Object.keys(this.restitution.items).map(name => ({
+      const items = Object.keys(this.restitution.items)
+      .filter(name => this.restitution.items[name].text)
+      .map(name => ({
         text: this.restitution.items[name].text,
         value: name
       }));
