@@ -56,7 +56,7 @@ class Restitution {
 
   processData(data) {
     const keys = Object.keys(this.items);
-    keys.push(this._options.coordsFieldName)
+    keys.push(this._options.coordsFieldName);
     if (this._options.groupByKey) {
       keys.push(this._options.groupByKey);
     }
@@ -154,29 +154,27 @@ class Restitution {
    * un peu flottant à rendre robuste
    * si patch : pour chaque degat de meme type on garde le max
    */
-  patchMaxDegat(dataDict) {
+  patchMaxDegat(d) {
     const key_item_patch = [this._options.choix1, this.options.choix2].find(
       key => this.item(key) && this.item(key).patch
     );
     if (key_item_patch) {
-      for (const key of Object.keys(dataDict)) {
-        const keep = {};
-        for (const d of dataDict[key]) {
-          if (keep[d.degat_type_label]) {
-            const prev = keep[d.degat_type_label].degat_gravite_label[0];
-            const cur = d.degat_gravite_label[0];
-            const order = this.item(key_item_patch).order;
-            const ind_prev = order.indexOf(prev);
-            const ind_cur = order.indexOf(cur);
-            if (ind_cur < ind_prev) {
-              keep[d.degat_gravite_label] = d;
-            }
-          } else {
-            keep[d.degat_type_label] = d;
+      const keep = {};
+      for (const r of d.res) {
+        if (keep[r.degat_type_label] && keep[r.degat_type_label].degat_gravite_label) {
+          const prev = keep[r.degat_type_label].degat_gravite_label[0];
+          const cur = r.degat_gravite_label[0];
+          const order = this.item(key_item_patch).order;
+          const ind_prev = order.indexOf(prev);
+          const ind_cur = order.indexOf(cur);
+          if (ind_cur < ind_prev) {
+            keep[r.degat_gravite_label] = r;
           }
+        } else {
+          keep[r.degat_type_label] = r;
         }
-        dataDict[key] = Object.keys(keep).map(k => keep[k]);
       }
+      d.res = Object.keys(keep).map(key => keep[key]);
     }
   }
 
@@ -197,8 +195,6 @@ class Restitution {
       }
     }
 
-    this.patchMaxDegat(dataDict);
-
     // out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
     const out = Object.entries(dataDict).map(([groupByValue, dataGroup]) => {
       const d = {};
@@ -210,6 +206,7 @@ class Restitution {
       }
 
       const listGroup = this._options.markersGroupByReduceKeys || [];
+
       for (const key of keys.filter(key => !listGroup.includes(key) && !!key)) {
         d[key] = dataGroup[0][key];
       }
@@ -232,6 +229,10 @@ class Restitution {
             d[key] = (d[key] || []).concat(r[key]);
           }
         }
+      }
+
+      if (action == "max") {
+        this.patchMaxDegat(d);
       }
 
       return d;
@@ -280,11 +281,16 @@ class Restitution {
 
     const markersGroupByKey = this._options.markersGroupByKey;
     if (markersGroupByKey) {
-      dataMarkers = this.groupBy(dataMarkers, this._options.markersGroupByKey, [
-        this._options.choix1,
-        this._options.choix2,
-        this._options.coordsFieldName
-      ]);
+      dataMarkers = this.groupBy(
+        dataMarkers,
+        this._options.markersGroupByKey,
+        [
+          this._options.choix1,
+          this._options.choix2,
+          this._options.coordsFieldName
+        ],
+        "max"
+      );
     }
 
     const markers = dataMarkers.map(d => {

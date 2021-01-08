@@ -26,7 +26,7 @@ export default {
       source: 'degat_gravite_label',
       text: "Dégâts - gravite (max)",
       order: ["Faibles", "Modérés", "Importants"],
-      patch: 'max-only',
+      patch: 'degat_type_label',
       colors: {
         Importants: "red",
         Modérés: "orange",
@@ -104,7 +104,8 @@ export default {
     },
     valide: {
       // text: "Validé"
-    }
+    },
+    id_declaration: {}
   },
   default: {
     groupByKeyItems: [
