@@ -58,7 +58,7 @@ export default {
                 })),
                 dataLabels: {
                   style: {
-                    fontSize: '1.3em'
+                    fontSize: '1.15em'
                   }
                 }
               }
