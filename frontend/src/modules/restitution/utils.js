@@ -39,8 +39,9 @@ const split = separator => (d, item) => {
 const replace = replaceList => (d, item) => {
   let val = d[item.key];
   for (const replace of replaceList) {
-    if (replace[0] == val);
-    val = replace[1];
+    if (replace[0] == val) {
+      val = replace[1];
+    }
   }
   return val;
 };

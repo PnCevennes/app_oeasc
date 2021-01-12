@@ -163,19 +163,21 @@ class Restitution {
       key => this.item(key) && this.item(key).patch
     );
     if (key_item_patch) {
+      const item = this.item(key_item_patch);
+      const patch = item.patch;
       const keep = {};
       for (const r of d.res) {
         if (
-          keep[r.degat_type_label] &&
-          keep[r.degat_type_label].degat_gravite_label
+          keep[patch] &&
+          keep[patch][key_item_patch]
         ) {
-          const prev = keep[r.degat_type_label].degat_gravite_label[0];
-          const cur = r.degat_gravite_label[0];
+          const prev = keep[patch][key_item_patch][0];
+          const cur = r[key_item_patch][0];
           const order = this.item(key_item_patch).order;
           const ind_prev = order.indexOf(prev);
           const ind_cur = order.indexOf(cur);
           if (ind_cur < ind_prev) {
-            keep[r.degat_gravite_label] = r;
+            keep[r[key_item_patch]] = r;
           }
         } else {
           keep[r.degat_type_label] = r;
@@ -444,7 +446,12 @@ class Restitution {
   }
 
   item(key) {
-    return { ...(this.items[key] || {}), key };
+    let item = { ...(this.items[key] || {}), key };
+    if(item.source) {
+      const itemSource = this.items[item.source];
+      item = {...itemSource, ...item}
+    }
+    return item;
   }
 
   /** type : icon ou color */

@@ -14,37 +14,53 @@ export default {
       type: "date"
     },
     degat_gravite_label: {
-      text: "Dégâts - gravite",
+      text: "Dégâts - gravité",
       order: ["Faibles", "Modérés", "Importants"],
       colors: {
         Importants: "red",
         Modérés: "orange",
         Faibles: "yellow"
+      }
+    },
+    degat_etendue_label: {
+      text: "Dégâts - étendue",
+      order: ["Généralisés", "Localisés"],
+      colors: {
+        "Généralisés": "red",
+        // Modérés: "orange",
+        "Localisés": "yellow"
+      }
+    },
+    degat_anteriorite_label: {
+      text: "Dégâts - anteriorité",
+      order: ["Récents (année en cours)", "Récurrents", "Anciens (années antérieures)", "Ne sais pas", 'Indéfini'],
+      colors: {
+        "Récents (année en cours)": "red",
+        "Récurrents": "orange",
+        "Anciens (années antérieures)": "yellow"
       }
     },
     degat_gravite_label_max: {
       source: 'degat_gravite_label',
       text: "Dégâts - gravite (max)",
-      order: ["Faibles", "Modérés", "Importants"],
       patch: 'degat_type_label',
-      colors: {
-        Importants: "red",
-        Modérés: "orange",
-        Faibles: "yellow"
-      }
+    },
+    degat_etendue_label_max: {
+      source: 'degat_etendue_label',
+      text: "Dégâts - étendue (max)",
+      patch: 'degat_type_label',
+    },
+    degat_anteriorite_label_max: {
+      source: 'degat_anteriorite_label',
+      text: "Dégâts - antériorité (max)",
+      patch: 'degat_type_label',
     },
 
-    // degat_gravite_label: {
-    //   text: "Dégâts - gravite",
-    //   // order: ["Faibles", "Modérés", "Importants"],
-    //   colors: {
-    //     Importants: "red",
-    //     Modérés: "orange",
-    //     Faibles: "yellow"
-    //   }
-    // },
     degat_essence_label: {
       text: "Dégâts - essence"
+    },
+    peuplement_type_label: {
+      text: "Peuplement - type"
     },
     degat_type_label: {
       text: "Dégâts - type"
@@ -124,6 +140,8 @@ export default {
     markersGroupByReduceKeys: [
       "degat_type_label",
       "degat_gravite_label",
+      "degat_etendue_label",
+      "degat_anteriorite_label",
       "degat_essence_label"
     ],
     dataType: "declaration",
@@ -133,7 +151,7 @@ export default {
     typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
-    choix1: 'declaration_date',
+    choix1: 'b_peuplement_paturage_presence',
     // choix1: "degat_gravite_label_max",
     // choix2: "degat_essence_label",
     // choix2: "degat_type_label",
