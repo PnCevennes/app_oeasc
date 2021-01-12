@@ -262,7 +262,7 @@ export default {
     configChoix: {},
     ready: false,
     loading: true,
-    settings: { nom_espece: "Cerf", ug: "Méjean", displayReg: true },
+    settings: { nom_espece: "Cerf", ug: "Causse-Gorges", displayReg: true },
     dataAnnee: null,
     dataUg: null,
     dec: 4,
