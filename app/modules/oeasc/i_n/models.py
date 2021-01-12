@@ -71,6 +71,7 @@ class TCircuits(DB.Model):
         DB.Integer,
         DB.ForeignKey('oeasc_commons.t_secteurs.id_secteur')
     )
+    actif = DB.Column(DB.Boolean, default=True)
     secteur = DB.relationship(
         TSecteurs,
         primaryjoin=TSecteurs.id_secteur == id_secteur,

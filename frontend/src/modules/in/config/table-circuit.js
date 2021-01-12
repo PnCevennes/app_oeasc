@@ -21,6 +21,9 @@ export default {
     },
     km: {
       text: "distance (km)"
+    },
+    actif: {
+      text: "Actif"
     }
   },
 

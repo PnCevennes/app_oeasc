@@ -24,6 +24,13 @@ export default {
       required: true,
       min: 0
     },
+    actif: {
+      label: "Actif",
+      type: "bool_switch",
+      required: true,
+      min: 0
+    },
+
     // ug_tags: {
     //   type: "list_form",
     //   display: "combobox",

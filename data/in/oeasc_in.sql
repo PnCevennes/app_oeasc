@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_circuits
     numero_circuit INTEGER,
     id_secteur INTEGER,
     km DOUBLE PRECISION,
+    actif BOOLEAN,
     geom geometry(MultiPolygon, 2154),
 
     CONSTRAINT pk_t_circuits_id_circuit PRIMARY KEY (id_circuit),
