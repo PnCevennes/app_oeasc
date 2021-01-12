@@ -36,14 +36,13 @@ export default {
       menus: config.menus,
       userIcon: "person",
       configAppBar: {
-        rightMenus: ["user"],
+        rightMenus: ["informations", "user"],
         leftMenus: [
           "accueil",
           "actualite",
           "observatoire",
           "systeme_alerte",
           "resultats",
-          "informations",
         ],
       },
       configDrawer: {

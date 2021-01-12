@@ -28,7 +28,7 @@ export default {
     },
     informations: {
       icon: 'not_listed_location',
-      label: "Informations",
+      label: "En savoir plus ...",
       names: [
         "page.documentation",
         "page.contact",
