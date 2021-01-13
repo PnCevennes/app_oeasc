@@ -12,7 +12,8 @@ export default {
       label: "Circuit",
       storeName: "inCircuit",
       display: "autocomplete",
-      required: true
+      required: true,
+      filters: {actif:[true]}
     },
     observers: {
       type: "list_form",

@@ -278,7 +278,7 @@ export default {
                   e[this.config.valueFieldName] ==
                     item[this.config.valueFieldName]) ||
                 e[this.config.displayFieldName] ==
-                  item  [this.config.displayFieldName]
+                  item[this.config.displayFieldName]
             );
             return index == pos;
           });
@@ -300,13 +300,24 @@ export default {
       return true;
     },
     processItems: function() {
-      this.items = this.config.processItems
+      let items = this.config.processItems
         ? this.config.processItems({
             dataItems: this.dataItems,
             config: this.config,
             baseModel: this.baseModel
           })
         : this.dataItems;
+
+      // filtre des donnés avec config.filters
+      if (this.config.filters) {
+        console.log(this.config.filters, this.config.name);
+        items = items.filter(elem =>
+          Object.entries(this.config.filters).every(([key, values]) => {
+            return values.includes(elem[key]);
+          })
+        );
+      }
+      this.items = items;
       // patch search
       this.clickChips();
     },
