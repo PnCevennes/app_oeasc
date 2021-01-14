@@ -23,8 +23,12 @@ Permet de
   * place le code dans le presse-papier, à coller dans le texte
   * priorité au fichier uploadé (si un fichier est déjà choisi dans la liste) 
 
+### Précisions images
+
   * pour les images, possibilité de choisir un positionnement à gauche ou à droite
   * dans ce cas il est nécessaire de rajouter la balise `  <div style="clear:both"></div>` à la fin du texte qui suit l'image dans le markdown (pour la fin du texte qui sera en face de l'image dans le rendu final (prende en exemple la page `#/observatoire/contenu`))
+  * Les dimension s'expriment selon le language css, soit en pixel (`200px`) ou bine en pourcentage (`50%`)
+
 
 # Graphique
 

@@ -70,7 +70,7 @@ export default {
     color(ug, type) {
       const colors = {
         Méjean: "#e8e805",
-        "Mont Aigoual": "red",
+        "Aigoual": "red",
         "Mont Lozère": "blue",
         "Vallées cévenoles": "green"
       };

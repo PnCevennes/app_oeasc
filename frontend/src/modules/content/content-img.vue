@@ -14,7 +14,7 @@
         :width="width"
         :height="height"
       />
-      <figcaption>
+      <figcaption v-if='title || source'>
         <div class="img-text">
           {{ title || "" }}
           <i class="source" v-if="source"> - {{ source }}</i>

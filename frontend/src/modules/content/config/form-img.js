@@ -23,7 +23,8 @@ export default {
     position: {
       type: 'list_form',
       label: 'Position',
-      items: ['Centrée', 'Gauche', 'Droite']
+      items: ['left', 'center', 'right'],
+      display: 'button'
     },
     width: {
       type: 'text',
@@ -43,7 +44,6 @@ export default {
     }
   },
   value: {
-    "center": true,
-    "position": "Centrée"
+    position: "center"
   }
 };

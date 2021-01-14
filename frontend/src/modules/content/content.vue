@@ -45,7 +45,7 @@
               icon
               v-if="bEditContents"
               @click="
-                configImgForm.value = null;
+                configImgForm.value = {position: 'center'};
                 dialogImg = true;
               "
             >
@@ -110,6 +110,7 @@ import listePartenaire from "./liste-partenaire";
 import inGraph from "@/modules/in/in-graph.vue";
 import inTable from "@/modules/in/in-table.vue";
 import restitution from "@/modules/restitution/restitution.vue";
+import actualiteBandeau from "./actualites-bandeau.vue"
 
 import "./content.css";
 // import Vue from "vue";
@@ -168,6 +169,7 @@ export default {
     baseMap, // eslint-disable-line
     contentImg, // eslint-disable-line
     listePartenaire, // eslint-disable-line
+    actualiteBandeau, // eslint-disable-line
     inGraph, // eslint-disable-line
     inTable, // eslint-disable-line
     restitution, // eslint-disable-line
@@ -190,7 +192,7 @@ export default {
     bSnack: false,
     msgSnack: null,
     bInitialized: false,
-    contentValues: {espece:'Cerf'}
+    contentValues: {espece:'Cerf', secteur: 'Aigoual'}
   }),
   methods: {
     onMouseOver() {
@@ -204,15 +206,15 @@ export default {
       return date && date.split(" ")[0];
     },
     getImg(event) {
-      const str_img = ```<content-img
-      ${!event.position ? '' : event.position=='center' ? "center" : "float=${event.position}"}
-      ${event.src && `src=${event.src}`}
-      ${event.source && `source=${event.source}`}
-      ${event.author && `author=${event.author}`}
-      ${event.title && `title=${event.title}`}
-      ${event.height && `height=${event.height}`}
-      ${event.width && `width=${event.width}`}
-      </content-img>```;
+      let str_img = '<content-img '
+     str_img += !event.position ? '' : event.position=='center' ? " center" : ` float=${event.position}`;
+     str_img += !event.src ? '' : ` src=${event.src}`;
+     str_img += !event.source ? '' : ` source=${event.source}`;
+     str_img += !event.author ? '' : ` author=${event.author}`;
+     str_img += !event.title ? '' : ` title=${event.title}`;
+     str_img += !event.height ? '' : ` height=${event.height}`;
+     str_img += !event.width ? '' : ` width=${event.width}`;
+      str_img += ' ></content-img>';
       navigator.clipboard.writeText(str_img).then(() => {
         this.dialogImg = false;
         this.bSnack = true;

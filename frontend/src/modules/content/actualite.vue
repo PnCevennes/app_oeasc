@@ -43,7 +43,7 @@ export default {
                 return content.tags.map(t => t.nom_tag).includes(nom_tag);
               })
             : true
-        ).sort(content => content.meta_create_date);
+        ).sort((c1, c2)  => c1.meta_create_date < c2.meta_create_date);
       });
     }
   },
