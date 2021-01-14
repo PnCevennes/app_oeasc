@@ -20,10 +20,18 @@ export default {
       type: "text",
 
     },
-    center: {
-      type: 'bool_switch',
-      label: 'Centré',
-      value: true
+    position: {
+      type: 'list_form',
+      label: 'Position',
+      items: ['Centrée', 'Gauche', 'Droite']
+    },
+    width: {
+      type: 'text',
+      label: 'Largeur'
+    },
+    height: {
+      type:'text',
+      label: 'Hauteur'
     }
   },
 
@@ -35,6 +43,7 @@ export default {
     }
   },
   value: {
-    "center": true
+    "center": true,
+    "position": "Centrée"
   }
 };

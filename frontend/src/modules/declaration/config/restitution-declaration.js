@@ -70,7 +70,7 @@ export default {
       process: restitutionUtils.split(", "),
       colors: {
         "Causses et Gorges": "#e8e805",
-        "Mont Aigoual": "red",
+        "Aigoual": "red",
         "Mont Lozère": "blue",
         "Vallées cévenoles": "green"
       },

@@ -204,10 +204,15 @@ export default {
       return date && date.split(" ")[0];
     },
     getImg(event) {
-      const str_img = `<content-img ${event.center ? "center" : ""}
-      src="${event.src || ""}"
-      title="${event.title || ""}"
-      source="${event.source || ""}"></content-img>`;
+      const str_img = ```<content-img
+      ${!event.position ? '' : event.position=='center' ? "center" : "float=${event.position}"}
+      ${event.src && `src=${event.src}`}
+      ${event.source && `source=${event.source}`}
+      ${event.author && `author=${event.author}`}
+      ${event.title && `title=${event.title}`}
+      ${event.height && `height=${event.height}`}
+      ${event.width && `width=${event.width}`}
+      </content-img>```;
       navigator.clipboard.writeText(str_img).then(() => {
         this.dialogImg = false;
         this.bSnack = true;
@@ -238,7 +243,6 @@ export default {
     },
 
     initContent() {
-
       if (!this.getCode()) {
         const content = {};
         if (this.tagNames) {

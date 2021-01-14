@@ -31,7 +31,7 @@ Cet onglet permet de
 ### Circuits
 
 ![circuit](images/in/circuit.png)
-
+Il y a la possibilité de marquer les circuits comme non actif. Dans ce cas, ils n'apparaissent plus dans le menu déroulant des circuit pour une réalisation.
 
 ### Tags
 
@@ -54,37 +54,4 @@ Gestion des observateurs.
 
 Les résutats des Indices nocturnes sont accéssible à tous depuis le menu horizontal `Résultats des suivi -> Indices Nocturnes` ou directement à l'adresse `resultats/in`.
 
-Il s'agit d'une page de contenu.
-
-Pour intégrer les graphiques il faut placer les lignes suivante dans le contenu.
-
-```
-## Résultats par espèce et par secteur
-
-<div><in-table graphOnly
-:commentaires="{
-  Cerf: {
-    'Méjean': 'Commentaire cerf Méjan ...',
-    'Mont Aigoual': '',
-    'Mont Lozère': '',
-    'Vallées cévenoles': '',
-    'Méjean_coeur': '',
-  },
-  Chevreuil: {
-    'Méjean': 'Commentaire cerf Méjan ...',
-    'Mont Aigoual': '',
-    'Mont Lozère': '',
-    'Vallées cévenoles': '',
-    'Méjean_coeur': '',
-  },
-}"
-></in-table></div>
-```
-
-Les graphiques présentent les résultats par secteurs pour une espèce choisie.
-
-- Les commentaires peuvent contenir du html.
-- Le caractère `'` doit être échappé `\'`.
-
-![resultat](images/in/resultat.png)
 

@@ -1,16 +1,20 @@
 # Gestion des contenus
 
-## Raccourcis utiles
 
-* `Ctrl Espace`:  bien ré appuyer les deux touches pour refaire l'action
+## Créer un nouveau contenu / Modifier un contenu
 
-  * utilisable si connecté en admin
-  * Permet d'ouvrir l'edition d'un contenu
-  * ou de valider le formulaire si on est en mode edition
-  * **expérimental** si on place la souris sur du texte (paragraphe titre ou liste), et que l'on execute le raccourcis
-    * il ouvre le formulaire et place le curseur au bon endroit  
-    * **!! ne marche pas sur les images !!**
+Tropis possibilités
 
+- Aller sur la page concernée et éditer
+- Depuis la page d'administration
+- Aller sur la page `#/content/<code>`, en remplacant `<code>` par n'importe quelle chaîne de caractère raisonnable.
+  - Pratique pour tester avant de publier ailleurs, attention à ne pas modifier un contenu existant   
+
+
+
+## Format markdown
+
+* exemple de [documentation](https://www.christopheducamp.com/2014/09/18/love-markdown/)
 ## Icones image et document
 
 Permet de
@@ -19,6 +23,36 @@ Permet de
   * place le code dans le presse-papier, à coller dans le texte
   * priorité au fichier uploadé (si un fichier est déjà choisi dans la liste) 
 
+  * pour les images, possibilité de choisir un positionnement à gauche ou à droite
+  * dans ce cas il est nécessaire de rajouter la balise `  <div style="clear:both"></div>` à la fin du texte qui suit l'image dans le markdown (pour la fin du texte qui sera en face de l'image dans le rendu final (prende en exemple la page `#/observatoire/contenu`))
+
+# Graphique
+
+Sur la page `#/restitution/test` accessible depuis le menu de droite pour un utilisateur ayant des droit >= 5, on peut
+
+* Créer des éléments de restituion
+* Copier le code du widget dans un presse papier
+* Placer ce code dans un contenu
+
+## Colonnes
+
+On peut ici  utiliser les composant de vuetify `<v-row>` et `<v-col>` (à mettre dans un div).
+
+```
+<div>
+<v-row>
+  <v-col>
+  ...
+  </v-col>
+  <v-col>
+  ...
+  </v-col>
+</v-row>
+
+</div>
+```
+
+A partir du moment ou l'on utilise un div, le markdown ne sera pas utilisé.
 ## Gestion des actualités
 
 * Aller sur la page /#/actualites/
@@ -35,3 +69,15 @@ Permet de
   * `page.` 
   * `form.` 
   * `tooltip.` 
+
+
+## Administration des contenu
+
+La page d'administration des contenus `#/content/admin` (accessible en droit >= 5)
+permet de gérer les différents éléments
+
+### Content
+Tableau des contenus, possibilité d'éditer, modifier, supprimer les contenus
+
+### Tags
+Possibilité de gérer des tags pour organiser ces contenus 
