@@ -43,7 +43,7 @@ export default {
               : true
           )
           .sort((c1, c2) => c1.meta_create_date < c2.meta_create_date)
-          .filter((content, i) => {console.log(content, i); return i < (this.nb || 3)})
+          .filter((content, i) => {return i < (this.nb || 3)})
           .map(content => {
             const elem = document.createElement("div");
             let html = marked(content.md || "");

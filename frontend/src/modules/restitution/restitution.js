@@ -137,7 +137,7 @@ class Restitution {
       dataList = restitutionUtils.fillDates(dataList);
       for (const data of dataList) {
         data.icon = this.icon(data.text, dataList);
-        data.color = 'grey';
+        data.color = "grey";
       }
     } else {
       dataList = dataList.sort((a, b) => b.count - a.count);
@@ -167,10 +167,7 @@ class Restitution {
       const patch = item.patch;
       const keep = {};
       for (const r of d.res) {
-        if (
-          keep[patch] &&
-          keep[patch][key_item_patch]
-        ) {
+        if (keep[patch] && keep[patch][key_item_patch]) {
           const prev = keep[patch][key_item_patch][0];
           const cur = r[key_item_patch][0];
           const order = this.item(key_item_patch).order;
@@ -383,6 +380,10 @@ class Restitution {
             this._options.preFilters || {}
           )
         : [];
+    this.$store.commit("restitutionDataCount", {
+      dataType: this._options.dataType,
+      count: this._data.length
+    });
     return this._data;
   }
 
@@ -447,9 +448,9 @@ class Restitution {
 
   item(key) {
     let item = { ...(this.items[key] || {}), key };
-    if(item.source) {
+    if (item.source) {
       const itemSource = this.items[item.source];
-      item = {...itemSource, ...item}
+      item = { ...itemSource, ...item };
     }
     return item;
   }

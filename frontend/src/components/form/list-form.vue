@@ -310,7 +310,6 @@ export default {
 
       // filtre des donnés avec config.filters
       if (this.config.filters) {
-        console.log(this.config.filters, this.config.name);
         items = items.filter(elem =>
           Object.entries(this.config.filters).every(([key, values]) => {
             return values.includes(elem[key]);

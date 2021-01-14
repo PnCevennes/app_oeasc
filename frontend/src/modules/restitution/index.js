@@ -1,5 +1,5 @@
 import RestitutionTest from './restitution-dashboard.vue';
-
+import Vue from 'vue';
 const ROUTE = [
 
   {
@@ -22,4 +22,23 @@ const ROUTE = [
 
 ];
 
-export { ROUTE };
+const STORE = {
+  state: {
+    _restitutionDataCount: {}
+  },
+  getters: {
+    restitutionDataCount: state => dataType => {
+      return state._restitutionDataCount[dataType];
+  },
+},
+  mutations: { 
+    restitutionDataCount: (state, {dataType, count}) => {
+      // pb reactivité
+      // https://forum.vuejs.org/t/forcing-a-refresh-to-a-getter/32922/4
+      // state._restitutionDataCount[dataType] = count;
+      Vue.set(state._restitutionDataCount, dataType, count);
+    }
+  }
+}
+  
+export { ROUTE, STORE };

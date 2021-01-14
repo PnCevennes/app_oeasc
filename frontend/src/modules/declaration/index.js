@@ -2,8 +2,8 @@ import declarationForm from "./declaration-form";
 import declarationList from "./declaration-list";
 import declaration from "./declaration.vue";
 import { apiRequest } from "@/core/js/data/api.js";
-import storeUtils from '@/store/utils';
-import configResitutionDeclaration from './config/restitution-declaration';
+import storeUtils from "@/store/utils";
+import configResitutionDeclaration from "./config/restitution-declaration";
 
 const ROUTE = [
   {
@@ -105,8 +105,18 @@ const STORE = {
       return state._declarations;
     },
 
-    foret: id_foret => state => {
+    foret: state => id_foret => {
       return state._foret[id_foret];
+    },
+    nbDeclarationsValid: state => {
+      // depuis degats et remove doublons
+      return state.degats
+        .filter(d => d.b_valid)
+        .map(d => d.id_declaration)
+        .filter((id, index, self) => self.indexOf(id) == index).length;
+    },
+    nbDegatsValid: state => {
+      return state.degats && state.degats.filter(d => d.b_valid).length;
     }
   },
 
@@ -125,6 +135,7 @@ const STORE = {
     },
 
     declarations: (state, declarations) => {
+      console.log("declarations");
       state._declarations = declarations;
     },
 
@@ -136,10 +147,7 @@ const STORE = {
   actions: {
     declarationForm: ({ commit }, id) => {
       return new Promise((resolve, reject) => {
-        apiRequest(
-          "GET",
-          `api/degat_foret/declaration/${id || ""}`
-        ).then(
+        apiRequest("GET", `api/degat_foret/declaration/${id || ""}`).then(
           apiData => {
             commit("declarationForm", apiData);
             resolve(apiData);
@@ -171,7 +179,7 @@ const STORE = {
       });
     },
 
-
+    // pb
     foretFromCode: ({ commit }, codeForet) => {
       return new Promise((resolve, reject) => {
         apiRequest("GET", `api/degat_foret/foret_from_code/${codeForet}`).then(
@@ -205,11 +213,16 @@ const STORE = {
       });
     }
   }
-
 };
 
-storeUtils.addStore(STORE, 'degat', 'api/declaration/degat', {idFieldName: 'id_declaration'}); 
-storeUtils.addStoreRestitution(STORE, 'declaration', 'getAllDegat', configResitutionDeclaration); 
-
+storeUtils.addStore(STORE, "degat", "api/declaration/degat", {
+  idFieldName: "id_declaration"
+});
+storeUtils.addStoreRestitution(
+  STORE,
+  "declaration",
+  "getAllDegat",
+  configResitutionDeclaration
+);
 
 export { ROUTE, STORE };

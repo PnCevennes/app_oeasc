@@ -6,7 +6,7 @@ import {
 } from "./declaration";
 import { STORE as data_store } from "./data";
 import { ROUTE as test_routes } from "./test";
-import { ROUTE as restitution_routes } from "./restitution";
+import { ROUTE as restitution_routes, STORE as restitution_store } from "./restitution";
 import { ROUTE as page_routes } from "./page";
 import { ROUTE as in_routes, STORE as in_store } from "./in";
 import { STORE as map_store } from "./map";
@@ -27,7 +27,8 @@ const stores = [
   map_store,
   declaration_store,
   content_store,
-  in_store
+  in_store,
+  restitution_store
 ];
 
 const MODULES_STORE = {
