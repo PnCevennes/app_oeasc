@@ -10,7 +10,7 @@
             height="200px"
             center
           ></content-img>
-          <v-card-title v-html="content.title"></v-card-title>
+          <v-card-text v-html="content.title"></v-card-text>
         </v-card>
       </v-col>
     </v-row>
