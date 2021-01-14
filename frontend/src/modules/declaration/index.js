@@ -113,10 +113,10 @@ const STORE = {
       return state.degats
         .filter(d => d.b_valid)
         .map(d => d.id_declaration)
-        .filter((id, index, self) => self.indexOf(id) == index).length;
+        .filter((id, index, self) => self.indexOf(id) == index).length || '(...chargement en cours)';
     },
     nbDegatsValid: state => {
-      return state.degats && state.degats.filter(d => d.b_valid).length;
+      return state.degats && state.degats.filter(d => d.b_valid).length || '(...chargement en cours)';
     }
   },
 
