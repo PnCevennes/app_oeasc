@@ -10,7 +10,7 @@ log_file=/tmp/init_view_oeasc.log
 echo 'init_view oeasc' > $log_file
 . $settings
 
-cat $settings
+# cat $settings
     
 for file in $(echo \
     "../oeasc_schemas/oeasc_functions.sql" \

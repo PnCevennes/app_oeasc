@@ -376,7 +376,6 @@ class Restitution {
     if (this._data && this._data.length) {
       return this._data;
     }
-    console.log(this._options.preFilters)
     this._data =
       this._rawData && this._rawData.length
         ? this.filterData(

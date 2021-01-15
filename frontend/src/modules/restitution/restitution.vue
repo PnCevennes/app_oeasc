@@ -34,6 +34,7 @@ import { Restitution } from "./restitution.js";
 import restitutionTable from "./restitution-table";
 import restitutionMap from "./restitution-map";
 import restitutionGraph from "./restitution-graph";
+import deepEqual from "fast-deep-equal";
 
 const props = [
   "dataType",
@@ -136,8 +137,10 @@ export default {
   mounted() {
     this.baywatch(props, (prop) => (value) => {
       if(Object.keys(value).length) {
-        prop
-        this.processData();
+        if(!deepEqual(value, this.results.options[prop])) {
+          console.log(prop, value, this.results.options.filters)
+          this.processData();
+        }
       }
     });
     this.initRestitution();
