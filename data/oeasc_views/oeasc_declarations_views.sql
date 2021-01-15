@@ -310,6 +310,35 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declaration_degats AS
             ON vdeg.id_declaration_degat = vd.id_declaration;
 
 
+-- vue alléges pour la restitution
+DROP VIEW IF EXISTS oeasc_declarations.v_declaration_degats_restrict CASCADE;
+CREATE OR REPLACE VIEW oeasc_declarations.v_declaration_degats_restrict AS
+
+    SELECT 
+    vd.declaration_date,
+    vdeg.degat_gravite_label,
+    vdeg.degat_etendue_label,
+    vdeg.degat_anteriorite_label,
+    vdeg.degat_essence_label,
+    vdeg.degat_type_label,
+    vd.peuplement_type_label,
+    vd.secteur,
+    vd.centroid,
+    vd.organisme,
+    vd.type_foret,
+    vd.communes,
+    vd.declarant,
+    vd.b_peuplement_paturage_presence,
+    vd.b_peuplement_protection_existence,
+    vd.peuplement_acces_label,
+    vd.peuplement_ess_1_label,
+    vd.valide,
+    vd.id_declaration
+        FROM oeasc_declarations.v_declarations vd
+        JOIN oeasc_declarations.v_degats vdeg
+            ON vdeg.id_declaration_degat = vd.id_declaration;
+
+
 
 -- vues pour les CSV 1 ligne / declaration
 DROP VIEW IF EXISTS oeasc_declarations.v_export_declarations_csv CASCADE;

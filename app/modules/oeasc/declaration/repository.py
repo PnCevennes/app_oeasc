@@ -315,7 +315,7 @@ def get_declaration(id_declaration):
     return None
 
 
-def get_declarations(user=None, type_export=None, type_out=None, id_declaration=None):
+def get_declarations(user=None, type_export=None, type_out=None, id_declaration=None, restrict=False):
     '''
         retourne une liste de declaration sous forme de tableau de dictionnaire
         type_export : shape csv (dict par defaut)
@@ -331,7 +331,8 @@ def get_declarations(user=None, type_export=None, type_out=None, id_declaration=
         'shape': 'v_export_declarations_shape',
         'shape_deg': 'v_export_declaration_degats_shape',
         'default': 'v_declarations',
-        'default_deg': 'v_declaration_degats'
+        'default_deg': 'v_declaration_degats',
+        'default_deg_restrict': 'v_declaration_degats_restrict'
     }
 
     # choix de la vue selon les paramètres
@@ -342,6 +343,10 @@ def get_declarations(user=None, type_export=None, type_out=None, id_declaration=
 
     if type_out == 'degat':
         view_key += '_deg'
+
+    if restrict:
+        # a priori que pour degats ???
+        view_key += '_restrict'
 
     view_name = view_names[view_key]
 

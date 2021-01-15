@@ -55,7 +55,7 @@ def degats():
         Retourne les declarations accessible pour le declarant de id_role id_declarant
     '''
 
-    return get_declarations(type_out='degat')
+    return get_declarations(type_out='degat', restrict=True)
 
 @bp.route('declarations/', methods=['GET'])
 @json_resp

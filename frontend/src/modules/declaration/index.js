@@ -217,6 +217,7 @@ const STORE = {
 storeUtils.addStore(STORE, "degat", "api/declaration/degat", {
   idFieldName: "id_declaration"
 });
+
 storeUtils.addStoreRestitution(
   STORE,
   "declaration",
