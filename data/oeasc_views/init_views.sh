@@ -16,7 +16,7 @@ for file in $(echo \
     "../oeasc_schemas/oeasc_functions.sql" \
     "oeasc_commons_views.sql" \
     "oeasc_declarations_views.sql" \
-    "oeasc_in_views.sql" \
+    "../in/oeasc_in_views.sql" \
     )
 do
 
@@ -25,7 +25,7 @@ EXEC_DIR=$(readlink -e "${0%/*}")
 sql_file=${EXEC_DIR}/$file
 echo "exec $sql_file" >> $log_file
 echo "export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file"
-export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
+export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file
 done
 
 echo "process data oeasc done" &>> $log_file
