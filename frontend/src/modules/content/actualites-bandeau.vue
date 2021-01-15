@@ -2,15 +2,16 @@
   <div>
     <v-row>
       <v-col v-for="(content, index) of contents" :key="index">
-        <v-card height="400px" :to="content.to">
+        <v-card height=400px :to="content.to">
           <v-card-text>{{content.date}}</v-card-text>
           <content-img
+          class='list-actu'
             :src="content.src"
             alt="content.src"
-            height="200px"
+            height=200px
             center
           ></content-img>
-          <v-card-text v-html="content.title"></v-card-text>
+          <v-card-text class="card-title" v-html="content.title"></v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -18,13 +19,14 @@
 </template>
 
 <script>
+import "./content.css"
 import contentImg from "./content-img";
 import marked from "marked";
 import UtilsContent from './utils.js';
 
 export default {
   name: "actualites-bandeau",
-  props: ["tagNames", "nb"],
+  props: ["tagNames", "nb", "height"],
   components: { contentImg },
   data: () => ({
     contents: []

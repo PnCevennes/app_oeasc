@@ -131,9 +131,7 @@ export default {
       }, 100);
     },
     options() {
-      return {
-        ...this.settings
-      };
+      return JSON.parse(JSON.stringify(this.settings));
     },
     emitSettings() {
       
@@ -141,6 +139,7 @@ export default {
   
       const settings = this.options();
       settings.n = this.n;
+      settings.default = this.restitution.default;
 
       this.$emit("updateSettings", settings);
     }

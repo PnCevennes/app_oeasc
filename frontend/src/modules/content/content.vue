@@ -141,7 +141,6 @@ export default {
     },
     content: {
       handler() {
-        console.log('content')
       },
       deep: true
     }

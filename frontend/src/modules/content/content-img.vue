@@ -1,6 +1,7 @@
 <template>
   <div
     :class="classes"
+    :style="width && `width:${width}`"
   >
   <a
         :href="isLink ? `${$store.getters.mediaImgPath}${link || src}` : null"

@@ -135,7 +135,6 @@ const STORE = {
     },
 
     declarations: (state, declarations) => {
-      console.log("declarations");
       state._declarations = declarations;
     },
 

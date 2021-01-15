@@ -103,12 +103,14 @@ export default {
         options[prop] = this[prop];
       }
       this.restitution.setOptions(options);
+
     },
     processData() {
-      if (!this.restitution) {
+      if (!(this.restitution && this.restitution._options.choix1)) {
         return;
       }
       this.setRestitutionConfig();
+
 
       const nbData = this.restitution.data().length;
       if (!(this.choix1 && this.display && nbData)) {
@@ -125,16 +127,18 @@ export default {
     },
     baywatch: function (props, watcher) {
       var iterator = function (prop) {
-        this.$watch(prop, watcher);
+        this.$watch(prop, watcher(prop));
       };
       props.forEach(iterator, this);
     },
   },
 
   mounted() {
-    
-    this.baywatch(props, () => {
-      this.processData();
+    this.baywatch(props, (prop) => (value) => {
+      if(Object.keys(value).length) {
+        prop
+        this.processData();
+      }
     });
     this.initRestitution();
   },

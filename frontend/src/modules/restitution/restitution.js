@@ -40,17 +40,19 @@ class Restitution {
   }
 
   setOptions(options) {
+    this._options = JSON.parse(JSON.stringify(options));
     for (const key of Object.keys(options)) {
       this._options[key] = options[key];
     }
+    this.setDefaultOptions()
   }
 
   setDefaultOptions() {
     if (this.default) {
       for (const key of Object.keys(this.default)) {
-        this._options[key] = this._options[key] || this.default[key];
+        this._options[key] = this._options[key] != undefined ? this._options[key] : JSON.parse(JSON.stringify(this.default[key]));
       }
-      this._options = this.default;
+      // this._options = this.default;
     }
   }
 
@@ -370,9 +372,11 @@ class Restitution {
   }
 
   data() {
+    
     if (this._data && this._data.length) {
       return this._data;
     }
+    console.log(this._options.preFilters)
     this._data =
       this._rawData && this._rawData.length
         ? this.filterData(

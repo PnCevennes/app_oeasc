@@ -134,6 +134,8 @@ export default {
         text: "Nombre de déclarations"
       }
     ],
+    display:'graph',
+    typeGraph:'pie',
     coordsFieldName: "centroid",
     groupByKey: "id_declaration",
     markersGroupByKey: "id_declaration",
@@ -145,21 +147,14 @@ export default {
       "degat_essence_label"
     ],
     dataType: "declaration",
-    // display: "graph",
-    // display: "table",
-    display: "map",
-    typeGraph: "column",
     nbMax1: 7,
     nbMax2: 7,
-    choix1: 'b_peuplement_paturage_presence',
-    // choix1: "degat_gravite_label_max",
+    choix1: "degat_gravite_label_max",
     // choix2: "degat_essence_label",
     // choix2: "degat_type_label",
     n: 0,
     height: "600px",
-    filters: {
-      // degat_type_label: ["Frottis"]
-    },
+    filters: {},
     preFilters: {
       valide: ["Validé"]
     },
