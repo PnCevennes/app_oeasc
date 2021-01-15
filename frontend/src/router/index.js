@@ -21,6 +21,8 @@ export default new Router({
           access: route.access || 0,
           content: route.content,
           hideTitle: route.hideTitle,
+          label: route.label,
+          title: route.title,
         }
       };
     })

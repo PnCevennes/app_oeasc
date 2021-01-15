@@ -63,11 +63,14 @@ export default {
     $route() {
       this.checkRigths();
       // titre
-      const title = this.$route.meta.title || this.$route.meta.label;
-      document.title = title ? `OEASC - ${title}` : "OEASC";
+      this.setTitle();
     },
   },
   methods: {
+    setTitle() {
+      const title = this.$route.meta.title || this.$route.meta.label;
+      document.title = title ? `OEASC - ${title}` : "OEASC";
+    },
     checkRigths() {
       const access = this.$route.meta.access;
       const droitMax = this.$store.getters.droitMax;
@@ -86,6 +89,7 @@ export default {
   created: function () {
     this.$store.commit("user", this.$session.get("user"));
     this.checkRigths();
+    this.setTitle();
   },
 };
 </script>

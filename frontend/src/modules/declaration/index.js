@@ -108,15 +108,16 @@ const STORE = {
     foret: state => id_foret => {
       return state._foret[id_foret];
     },
-    nbDeclarationsValid: state => {
+    nbDeclarationsValid: (state) => {
       // depuis degats et remove doublons
-      return state.degats
-        .filter(d => d.b_valid)
+      console.log('nb dec', state.degats)
+
+      return state.degats && state.degats.filter(d => d.valide=='Validé')
         .map(d => d.id_declaration)
         .filter((id, index, self) => self.indexOf(id) == index).length || '(...chargement en cours)';
     },
     nbDegatsValid: state => {
-      return state.degats && state.degats.filter(d => d.b_valid).length || '(...chargement en cours)';
+      return state.degats && state.degats.filter(d => d.valide=='Validé').length || '(...chargement en cours)';
     }
   },
 

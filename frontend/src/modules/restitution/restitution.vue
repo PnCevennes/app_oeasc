@@ -137,8 +137,7 @@ export default {
   mounted() {
     this.baywatch(props, (prop) => (value) => {
       if(Object.keys(value).length) {
-        if(!deepEqual(value, this.results.options[prop])) {
-          console.log(prop, value, this.results.options.filters)
+        if((!this.results) || !deepEqual(value, this.results.options[prop])) {
           this.processData();
         }
       }
