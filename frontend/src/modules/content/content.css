@@ -156,4 +156,6 @@ margin-right: auto;
 
 .list-actu {
   margin: 0 !important;
+  object-fit: cover;
+  padding:20px !important;
 }

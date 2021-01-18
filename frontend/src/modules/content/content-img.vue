@@ -14,6 +14,7 @@
         :alt="`${title || src || ''} ${source || ''}`.trim()"
         :width="width"
         :height="height"
+        :style='imgStyle'
       />
       <figcaption v-if='title || source'>
         <div class="img-text">
@@ -57,7 +58,8 @@ export default {
     "title",
     "source",
     "risetitle",
-    "link"
+    "link",
+    "imgStyle",
   ]
 };
 </script>

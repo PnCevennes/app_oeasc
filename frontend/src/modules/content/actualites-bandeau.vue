@@ -5,11 +5,12 @@
         <v-card height=400px :to="content.to">
           <v-card-text>{{content.date}}</v-card-text>
           <content-img
-          class='list-actu'
+            class='list-actu'
             :src="content.src"
             alt="content.src"
             height=200px
             center
+            imgStyle="object-fit: cover;"
           ></content-img>
           <v-card-text class="card-title" v-html="content.title"></v-card-text>
         </v-card>
