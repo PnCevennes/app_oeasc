@@ -9,7 +9,7 @@ from sqlalchemy.ext.declarative import ConcreteBase
 
 from utils_flask_sqla.serializers import serializable
 
-from ..commons.models import TSecteurs
+from ..commons.models import TSecteurs, TEspeces
 
 
 config = current_app.config
@@ -78,17 +78,6 @@ class TCircuits(DB.Model):
         foreign_keys=[id_secteur]
     )
 
-
-@serializable
-class TEspeces(DB.Model):
-    '''
-        Especes
-    '''
-    __tablename__ = 't_especes'
-    __table_args__ = {'schema': 'oeasc_in', 'extend_existing': True}
-    id_espece = DB.Column(DB.Integer, primary_key=True)
-    nom_espece = DB.Column(DB.Unicode)
-    code_espece = DB.Column(DB.Unicode)
 
 @serializable
 class TObservations(DB.Model):

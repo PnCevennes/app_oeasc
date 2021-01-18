@@ -1,0 +1,5 @@
+espece passer de oeasc_in.t_especes à oeasc_commons.t_especes
+
+saison date type chasse ou bracelet ??? + fk constraint
+
+check UPDATE CASCADE !!!

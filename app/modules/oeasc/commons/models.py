@@ -71,3 +71,14 @@ class TSecteurs(DB.Model):
     code_secteur = DB.Column(DB.String(250))
     nom_secteur = DB.Column(DB.Text)
 
+
+@serializable
+class TEspeces(DB.Model):
+    '''
+        Especes
+    '''
+    __tablename__ = 't_especes'
+    __table_args__ = {'schema': 'oeasc_commons', 'extend_existing': True}
+    id_espece = DB.Column(DB.Integer, primary_key=True)
+    nom_espece = DB.Column(DB.Unicode)
+    code_espece = DB.Column(DB.Unicode)
