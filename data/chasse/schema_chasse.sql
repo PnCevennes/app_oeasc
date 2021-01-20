@@ -137,6 +137,10 @@ CREATE oeasc_plan_chasse.attribution
     id_zone_cinegetique_affectee INTEGER NOT NULL,
     id_zone_interet_affectee INTEGER NOT NULL,
     id_type_bracelet INTEGER NOT NULL,
+    meta_create_date timestamp without time zone,
+    meta_update_date timestamp without time zone,
+
+
 
     CONSTRAINT pk_t_attributions PRIMARY KEY (id_attribution),
     CONSTRAINT fk_t_attributions_t zone_cinegetiques FOREIGN KEY (id_zone_cinegetique_affectee)
@@ -178,8 +182,15 @@ CREATE oeasc_plan_chasse.realisation
     id_nomenclature_mode_chasse INTEGER,
     commentaire CHARACTER VARYING,
 
+    parcelle_onf BOOLEAN,
+    poid_indique BOOLEAN,
+    cors_indetermine BOOLEAN,
+    long_mandibule_indetermine BOOLEAN,
 
+    id_numerisateur INTEGER NOT NULL,
 
+    meta_create_date timestamp without time zone,
+    meta_update_date timestamp without time zone,
 
     CONSTRAINT pk_t_realisations PRIMARY KEY (id_attribution),
     CONSTRAINT fk_t_realisations_t_attributions FOREIGN KEY (id_attribution)
@@ -200,6 +211,20 @@ CREATE oeasc_plan_chasse.realisation
     CONSTRAINT fk_t_realisations_t_personnes FOREIGN KEY (id_auteur_constat)
         REFERENCES oeasc_plan_chasse.t_personnes(id_personne) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT fk_t_realisations_t_roles FOREIGN KEY (id_unmerisateur)
+        REFERENCES utilisateurs.t_roles(id_role) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE CASCADE
 
 }
 
+CREATE TRIGGER tri_meta_dates_change_t_realisations
+  BEFORE INSERT OR UPDATE
+  ON oeasc_plan_chasse.t_realisations
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.fct_trg_meta_dates_change();
+
+CREATE TRIGGER tri_meta_dates_change_t_affctations
+  BEFORE INSERT OR UPDATE
+  ON oeasc_plan_chasse.t_affctations
+  FOR EACH ROW
+  EXECUTE PROCEDURE public.fct_trg_meta_dates_change();
