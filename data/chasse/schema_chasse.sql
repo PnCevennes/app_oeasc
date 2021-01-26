@@ -1,23 +1,24 @@
-﻿DROP SCHEMA IF EXISTS oeasc_plan_chasse CASCADE;
+﻿DROP SCHEMA IF EXISTS oeasc_chasse CASCADE;
 
-CREATE SCHEMA oeasc_plan_chasse;
+CREATE SCHEMA oeasc_chasse;
 
 ALTER TABLE IF EXISTS oeasc_in.t_especes SET SCHEMA oeasc_commons;
 
 
-CREATE TABLE oeasc_plan_chasse.t_personnes
+CREATE TABLE oeasc_chasse.t_personnes
 (
-    id_personne INTEGER NOT NULL,
+    id_personne SERIAL NOT NULL,
     nom_personne CHARACTER VARYING,
 
-    CONSTRAINT pk_t_personnes_id_personne PRIMARY KEY (id_personne)
+    CONSTRAINT pk_t_personnes_id_personne PRIMARY KEY (id_personne),
+    CONSTRAINT unique_nom_personne UNIQUE(nom_personne)
 )
 ;
 
 
-CREATE TABLE oeasc_plan_chasse.t_zone_cinegetiques
+CREATE TABLE oeasc_chasse.t_zone_cinegetiques
 (
-    id_zone_cinegetique INTEGER NOT NULL,
+    id_zone_cinegetique SERIAL NOT NULL,
     nom_zone_cinegetique CHARACTER VARYING,
     code_zone_cinegetique CHARACTER VARYING,
     id_secteur INTEGER,
@@ -25,29 +26,32 @@ CREATE TABLE oeasc_plan_chasse.t_zone_cinegetiques
     CONSTRAINT pk_t_zone_cinegetiques_id_zone_cinegetique PRIMARY KEY (id_zone_cinegetique),
     CONSTRAINT fk_t_zone_cinegetiques_t_secteurs FOREIGN KEY (id_secteur)
         REFERENCES oeasc_commons.t_secteurs(id_secteur) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE CASCADE
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT unique_code_zone_cinegetique UNIQUE(code_zone_cinegetique)
+
 )
 ;
 
 
-CREATE TABLE oeasc_plan_chasse.t_zone_interets
+CREATE TABLE oeasc_chasse.t_zone_interets
 (
-    id_zone_interet INTEGER NOT NULL,
+    id_zone_interet SERIAL NOT NULL,
     nom_zone_interet CHARACTER VARYING,
     code_zone_interet CHARACTER VARYING,
     id_zone_cinegetique INTEGER,
 
     CONSTRAINT pk_t_zone_interets_id_zone_interet PRIMARY KEY (id_zone_interet),
     CONSTRAINT fk_t_zone_interets_t_zone_cinegetiques FOREIGN KEY (id_zone_cinegetique)
-        REFERENCES oeasc_plan_chasse.t_zone_cinegetiques(id_zone_cinegetique) MATCH SIMPLE
-        ON UPDATE CASCADE ON DELETE CASCADE
+        REFERENCES oeasc_chasse.t_zone_cinegetiques(id_zone_cinegetique) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE CASCADE,
+    CONSTRAINT unique_code_zone_interet_id_zone_cinegetique UNIQUE(code_zone_interet, id_zone_cinegetique)
 )
 ;
 
 
-CREATE TABLE oeasc_plan_chasse.t_lieu_tirs
+CREATE TABLE oeasc_chasse.t_lieu_tirs
 (
-    id_lieu_tir INTEGER NOT NULL,
+    id_lieu_tir SERIAL NOT NULL,
     nom_lieu_tir CHARACTER VARYING,
     code_lieu_tir CHARACTER VARYING,
     id_zone_interet INTEGER,
@@ -57,7 +61,7 @@ CREATE TABLE oeasc_plan_chasse.t_lieu_tirs
 
     CONSTRAINT pk_t_lieu_tirs_id_lieu_tir PRIMARY KEY (id_lieu_tir),
     CONSTRAINT fk_t_lieu_tirs_t_zone_interets FOREIGN KEY (id_zone_interet)
-        REFERENCES oeasc_plan_chasse.t_zone_interets(id_zone_interet) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_zone_interets(id_zone_interet) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_lieu_tirs_l_areas FOREIGN KEY (id_area_commune)
         REFERENCES ref_geo.l_areas(id_area) MATCH SIMPLE
@@ -66,18 +70,23 @@ CREATE TABLE oeasc_plan_chasse.t_lieu_tirs
 ;
 
 
-CREATE TABLE oeasc_plan_chasse.t_saisons
+CREATE TABLE oeasc_chasse.t_saisons
 (
-    id_saison INTEGER NOT NULL,
+    id_saison SERIAL NOT NULL,
     nom_saison CHARACTER VARYING,
+    date_debut timestamp without time zone,
+    date_fin timestamp without time zone,
+    current BOOLEAN,
+    commentaire CHARACTER VARYING,
 
     CONSTRAINT pk_t_saisons PRIMARY KEY (id_saison)
 )
 ;
 
 
-CREATE TABLE oeasc_plan_chasse.t_saison_dates
+CREATE TABLE oeasc_chasse.t_saison_dates
 (
+    id_saison_date SERIAL NOT NULL,
     id_saison INTEGER NOT NULL,
     id_espece INTEGER NOT NULL,
     nom_saison CHARACTER VARYING,
@@ -85,9 +94,9 @@ CREATE TABLE oeasc_plan_chasse.t_saison_dates
     date_fin timestamp without time zone,
     id_nomenclature_type_chasse INTEGER,
     
-    CONSTRAINT pk_t_saison_dates PRIMARY KEY (id_saison),
+    CONSTRAINT pk_t_saison_dates PRIMARY KEY (id_saison_date),
     CONSTRAINT fk_t_saison_dates_t_saisons FOREIGN KEY (id_saison)
-    REFERENCES oeasc_plan_chasse.t_saisons(id_saison) MATCH SIMPLE
+    REFERENCES oeasc_chasse.t_saisons(id_saison) MATCH SIMPLE
     ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_saison_dates_t_especes FOREIGN KEY (id_espece)
     REFERENCES oeasc_commons.t_especes(id_espece) MATCH SIMPLE
@@ -96,9 +105,9 @@ CREATE TABLE oeasc_plan_chasse.t_saison_dates
 ;
 
 
-CREATE TABLE oeasc_plan_chasse.t_attribution_massifs
+CREATE TABLE oeasc_chasse.t_attribution_massifs
 (
-    id_attribution_massif INTEGER NOT NULL,
+    id_attribution_massif SERIAL NOT NULL,
     id_espece INTEGER NOT NULL,
     id_zone_cinegetique INTEGER NOT NULL,
     id_saison INTEGER NOT NULL,
@@ -110,16 +119,16 @@ CREATE TABLE oeasc_plan_chasse.t_attribution_massifs
         REFERENCES oeasc_commons.t_especes(id_espece) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_attribution_massif_t_zone_cinegetiques FOREIGN KEY (id_zone_cinegetique)
-        REFERENCES oeasc_plan_chasse.t_zone_cinegetiques(id_zone_cinegetique) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_zone_cinegetiques(id_zone_cinegetique) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_attribution_massif_t_saisons FOREIGN KEY (id_saison)
-        REFERENCES oeasc_plan_chasse.t_saisons(id_saison) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_saisons(id_saison) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE
 )
 ;
 
-CREATE TABLE oeasc_plan_chasse.t_type_bracelet (
-    id_type_bracelet INTEGER NOT NULL,
+CREATE TABLE oeasc_chasse.t_type_bracelet (
+    id_type_bracelet SERIAL NOT NULL,
     code_type_bracelet INTEGER NOT NULL,
     description_type_bracelet INTEGER NOT NULL,
     id_espece INTEGER NOT NULL,
@@ -131,9 +140,9 @@ CREATE TABLE oeasc_plan_chasse.t_type_bracelet (
 )
 ;
 
-CREATE TABLE oeasc_plan_chasse.t_attributions
+CREATE TABLE oeasc_chasse.t_attributions
 (
-    id_attribution INTEGER NOT NULL,
+    id_attribution SERIAL NOT NULL,
     numero_bracelet CHARACTER VARYING,
     id_zone_cinegetique_affectee INTEGER NOT NULL,
     id_zone_interet_affectee INTEGER NOT NULL,
@@ -143,18 +152,18 @@ CREATE TABLE oeasc_plan_chasse.t_attributions
 
     CONSTRAINT pk_t_attributions PRIMARY KEY (id_attribution),
     CONSTRAINT fk_t_attributions_t_zone_cinegetiques FOREIGN KEY (id_zone_cinegetique_affectee)
-        REFERENCES oeasc_plan_chasse.t_zone_cinegetiques(id_zone_cinegetique) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_zone_cinegetiques(id_zone_cinegetique) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_attributions_t_zone_interets FOREIGN KEY (id_zone_interet_affectee)
-        REFERENCES oeasc_plan_chasse.t_zone_interets(id_zone_interet) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_zone_interets(id_zone_interet) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE
 )
 ;
 
 
-CREATE TABLE oeasc_plan_chasse.t_realisations
+CREATE TABLE oeasc_chasse.t_realisations
 (
-    id_attribution INTEGER NOT NULL, -- relation 1-1
+    id_attribution SERIAL NOT NULL, -- relation 1-1
     id_zone_cinegetique_realisee INTEGER NOT NULL,
     id_zone_interet_realisee INTEGER NOT NULL,
     id_lieu_tir INTEGER NOT NULL,
@@ -194,22 +203,22 @@ CREATE TABLE oeasc_plan_chasse.t_realisations
 
     CONSTRAINT pk_t_realisations PRIMARY KEY (id_attribution),
     CONSTRAINT fk_t_realisations_t_attributions FOREIGN KEY (id_attribution)
-        REFERENCES oeasc_plan_chasse.t_attributions(id_attribution) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_attributions(id_attribution) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_realisations_t_zone_cinegetiques FOREIGN KEY (id_zone_cinegetique_realisee)
-        REFERENCES oeasc_plan_chasse.t_zone_cinegetiques(id_zone_cinegetique) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_zone_cinegetiques(id_zone_cinegetique) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_realisations_t_zone_interets FOREIGN KEY (id_zone_interet_realisee)
-        REFERENCES oeasc_plan_chasse.t_zone_interets(id_zone_interet) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_zone_interets(id_zone_interet) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_realisations_t_lieu_tirs FOREIGN KEY (id_lieu_tir)
-        REFERENCES oeasc_plan_chasse.t_lieu_tirs(id_lieu_tir) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_lieu_tirs(id_lieu_tir) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_realisations_t_personne_tirs FOREIGN KEY (id_auteur_tir)
-        REFERENCES oeasc_plan_chasse.t_personnes(id_personne) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_personnes(id_personne) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_realisations_t_personne_constats FOREIGN KEY (id_auteur_constat)
-        REFERENCES oeasc_plan_chasse.t_personnes(id_personne) MATCH SIMPLE
+        REFERENCES oeasc_chasse.t_personnes(id_personne) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_realisations_t_roles FOREIGN KEY (id_numerisateur)
         REFERENCES utilisateurs.t_roles(id_role) MATCH SIMPLE
@@ -219,12 +228,12 @@ CREATE TABLE oeasc_plan_chasse.t_realisations
 
 CREATE TRIGGER tri_meta_dates_change_t_realisations
   BEFORE INSERT OR UPDATE
-  ON oeasc_plan_chasse.t_realisations
+  ON oeasc_chasse.t_realisations
   FOR EACH ROW
   EXECUTE PROCEDURE public.fct_trg_meta_dates_change();
 
 CREATE TRIGGER tri_meta_dates_change_t_attributions
   BEFORE INSERT OR UPDATE
-  ON oeasc_plan_chasse.t_attributions
+  ON oeasc_chasse.t_attributions
   FOR EACH ROW
   EXECUTE PROCEDURE public.fct_trg_meta_dates_change();
