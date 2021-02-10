@@ -50,10 +50,7 @@ class Restitution {
   setDefaultOptions() {
     if (this.default) {
       for (const key of Object.keys(this.default)) {
-        console.log(key, this._options[key], this._options[key] !== undefined)
         this._options[key] = this._options[key] !== undefined ? this._options[key] : JSON.parse(JSON.stringify(this.default[key]));
-        console.log(key, this._options[key])
-
       }
       // this._options = this.default;
     }

@@ -66,9 +66,14 @@ export default {
             ];
       const chartOptions = {
         chart: {
-          type: this.results.options.typeGraph
+          type: this.results.options.typeGraph,
+        
         },
-        title: "Test graphique",
+        title: {
+          text: this.results.options.typeGraph == 'pie' ? this.results.yTitle : null,
+          verticalAlign: 'bottom',
+          style: {fontSize: '1em'}  
+        },
         xAxis: {
           categories
         },

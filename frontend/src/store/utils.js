@@ -111,7 +111,6 @@ export default {
     /** assignation du tableau entier */
     mutations[names] = (state, objList) => {
       if (!state[names].length) {
-        console.log('mutation', objList)
         state[names] = objList;
         return;
       }

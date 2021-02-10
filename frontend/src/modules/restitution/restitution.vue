@@ -107,7 +107,6 @@ export default {
 
     },
     processData() {
-      console.log('process data')
       if (!(this.restitution && this.restitution._options.choix1)) {
         return;
       }
@@ -137,7 +136,6 @@ export default {
 
   mounted() {
     this.baywatch(props, (prop) => (value) => {
-      console.log(value, prop)
       // if(Object.keys(value).length) {
         if((!this.results) || !deepEqual(value, this.results.options[prop])) {
           this.processData();

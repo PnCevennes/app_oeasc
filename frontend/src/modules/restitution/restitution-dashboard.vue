@@ -10,7 +10,6 @@
       <span>Copier le code du widget dans le presse papier</span>
     </v-tooltip>
     {{ toContent() }}
-    <div>{{settings.groupByKey}}</div>
     <div class="container-restitution">
       <div class="result">
         <restitution ref="restitution" v-bind="settings"></restitution>
