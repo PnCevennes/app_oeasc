@@ -10,7 +10,7 @@
         :config="config"
         :style="`height:${computedHeight}; z-index:0;`"
       >
-                  <div v-if="exportImg != undefined" class='map-export'>
+                  <div v-if="exportImg !== undefined" class='map-export'>
       <v-btn icon @click="bExportMap = true">
         <v-icon>
           image

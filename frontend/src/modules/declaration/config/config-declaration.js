@@ -17,14 +17,14 @@ export default class ConfigDeclaration {
     // const model = {};
     for (const [keyForm, form] of Object.entries(this._forms)) {
       model[keyForm] =
-        model[keyForm] != undefined
+        model[keyForm] !== undefined
           ? model[keyForm]
           : form.multiple
           ? []
           : null;
       if (form.containerName) {
         model[form.containerName] =
-          model[form.containerName] != undefined
+          model[form.containerName] !== undefined
             ? model[form.containerName]
             : form.containerMultiple
             ? []

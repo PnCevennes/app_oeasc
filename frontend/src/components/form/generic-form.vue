@@ -200,7 +200,7 @@ export default {
       for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
         
         baseModel[keyForm] =
-          baseModel[keyForm] != undefined
+          baseModel[keyForm] !== undefined
             ? baseModel[keyForm]
             : formDef.multiple
             ? []

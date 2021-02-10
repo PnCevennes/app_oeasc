@@ -6,7 +6,7 @@
           v-for="[type, config] of Object.entries(configChoix)
           /**  .filter(
             ([type, config]) => {
-              return graphOnly != undefined ? type == 'nom_espece' : true;
+              return graphOnly !== undefined ? type == 'nom_espece' : true;
             }
           ) */
           "
@@ -19,7 +19,7 @@
           ></list-form>
         </v-col>
       </v-row>
-      <v-row v-if="dataUg && graphOnly == undefined">
+      <v-row v-if="dataUg && graphOnly === undefined">
         <v-col>
           <v-simple-table dense class="stats" v-if="dataUg">
             <thead>
@@ -49,7 +49,7 @@
       >
         <v-col>
           <in-graph
-            :class="{'graph-chained': graphOnly != undefined}"
+            :class="{'graph-chained': graphOnly !== undefined}"
             v-if="settings.nom_espece"
             :displayReg="settings.displayReg"
             :dataIn="dataIn"
@@ -65,7 +65,7 @@
           ></in-graph>
         </v-col>
       </v-row>
-      <v-row v-if="graphOnly == undefined">
+      <v-row v-if="graphOnly === undefined">
         <v-col cols="2" class="col-switch">
           <dynamic-form
             v-if="ready"

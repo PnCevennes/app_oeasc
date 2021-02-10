@@ -140,7 +140,7 @@ export default {
               enableMouseTracking: false,
               color: "grey",
 
-              lineWidth: 1 * (this.displayReg != undefined),
+              lineWidth: 1 * (this.displayReg !== undefined),
               marker: {
                 enabled: false
               }

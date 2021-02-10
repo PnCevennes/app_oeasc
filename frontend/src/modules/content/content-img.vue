@@ -46,7 +46,7 @@ export default {
       return classes;
     },
     isLink() {
-      return this.link != undefined;
+      return this.link !== undefined;
     }
   },
   props: [

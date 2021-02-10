@@ -157,7 +157,7 @@ export default {
       return this.$store.getters.mediaDocPath;
     },
     isPage() {
-      return this.page != "undefined";
+      return this.page !== "undefined";
     }
   },
   components: {
