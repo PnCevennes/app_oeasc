@@ -1,7 +1,7 @@
 EXEC_DIR=$(readlink -e "${0%/*}")
 OEASC_DIR=${EXEC_DIR}/../..
 source ${OEASC_DIR}/config/settings.ini
-
+    
 export PGPASSWORD=$user_pg_pass;
 
 psql -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/chasse/schema_chasse.sql
