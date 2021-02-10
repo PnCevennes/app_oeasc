@@ -152,7 +152,7 @@ export default {
     nbMax2: 7,
     choix1: "degat_type_label",
     // choix2: "degat_essence_label",
-    choix2: "degat_gravite_label",
+    // choix2: "degat_gravite_label",
     n: 0,
     height: "600px",
     filters: {

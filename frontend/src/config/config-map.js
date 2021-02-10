@@ -4,7 +4,7 @@ import { styles } from './config-style.js'
 const configMap = {
   INIT_VIEW: [44.323546, 3.593954],
   INIT_ZOOM: 8,
-  IGN_KEY: 'choisirgeoportail',
+  IGN_KEY: 'pratique',
   INIT_TILE: 'IGN (Cartes)',
   styles,
   baseTilesConfig: {
