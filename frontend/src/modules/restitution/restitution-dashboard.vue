@@ -1,7 +1,6 @@
 <template>
   <div class="page-restitution">
     <h2>Tableau de bord - restitution</h2>
-    {{ toContent() }}
     <v-tooltip bottom>
       <template v-slot:activator="{ on }">
         <v-btn v-on="on" icon @click="contentToClipboard()">
@@ -10,6 +9,8 @@
       </template>
       <span>Copier le code du widget dans le presse papier</span>
     </v-tooltip>
+    {{ toContent() }}
+    <div>{{settings.groupByKey}}</div>
     <div class="container-restitution">
       <div class="result">
         <restitution ref="restitution" v-bind="settings"></restitution>
@@ -50,7 +51,7 @@ export default {
         const propValue = this.settings[prop];
         if (
           !["n", "filterList"].includes(prop) &&
-          (["dataType", "choix1", "display", "height"].includes(prop) ||
+          (["dataType", "choix1", "display", "height", 'groupByKey'].includes(prop) ||
             (this.settings.display == "graph" &&
               ["typeGraph", "stacking"].includes(prop)) ||
             !deepEqual(propValue, this.settings.default[prop]))

@@ -135,7 +135,8 @@ export default {
       }
     ],
     display:'graph',
-    typeGraph:'pie',
+    typeGraph:'bar',
+    stacking:false,
     coordsFieldName: "centroid",
     groupByKey: "id_declaration",
     markersGroupByKey: "id_declaration",
@@ -149,12 +150,14 @@ export default {
     dataType: "declaration",
     nbMax1: 7,
     nbMax2: 7,
-    choix1: "degat_gravite_label_max",
+    choix1: "degat_type_label",
     // choix2: "degat_essence_label",
-    // choix2: "degat_type_label",
+    choix2: "degat_gravite_label",
     n: 0,
     height: "600px",
-    filters: {},
+    filters: {
+        // secteur: ['Causses et Gorges']
+    },
     preFilters: {
       valide: ["Validé"]
     },

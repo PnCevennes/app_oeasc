@@ -80,7 +80,7 @@ export default {
         },
         plotOptions: {
           series: {
-            stacking: this.results.options.stacking ? "normal" : null
+            stacking: this.results.options.typeGraph != 'pie' && this.results.options.stacking ? "normal" : null
           }
         },
         series

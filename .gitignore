@@ -63,3 +63,6 @@ frontend/src/config/config.js
 var/log/*
     
 !.gitkeep
+
+# chasse
+data/chasse/settings.ini
