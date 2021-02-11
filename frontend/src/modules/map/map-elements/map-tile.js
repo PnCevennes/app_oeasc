@@ -10,9 +10,9 @@ const mapTile = {
     for (const key of Object.keys(this._config.tileList)) {
       this._config.tilesConfig[key] = this._config.baseTilesConfig[key];
       // replace IGN_KEY
-      this._config.tilesConfig[key].url = this._config.tilesConfig[
-        key
-      ].url.replace('IGN_KEY', this._config.IGN_KEY);
+      // this._config.tilesConfig[key].url = this._config.tilesConfig[
+      //   key
+      // ].url.replace('IGN_KEY', this._config.IGN_KEY);
     }
   },
 
