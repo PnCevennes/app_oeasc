@@ -5,15 +5,18 @@
       <v-tabs-slider color="yellow"></v-tabs-slider>
 
       <v-tab v-for="[key, tab] of Object.entries(config.tabs)" :key="key">
-        {{ tab.label }} {{ nbElems[key] ? `(${nbElems[key]})` : '' }}
+        {{ tab.labels }} {{ nbElems[key] ? `(${nbElems[key]})` : "" }}
       </v-tab>
     </v-tabs>
 
     <v-tabs-items v-model="tab">
       <v-tab-item v-for="[key, tab] of Object.entries(config.tabs)" :key="key">
         <generic-table
-          v-if="tab.type == 'generic-table'"
-          :config="tab.config"
+          v-if="
+            ['generic-table', undefined].includes(tab.type) &&
+              configStores[tab.storeName]
+          "
+          :config="configStores[tab.storeName].configTable"
           :key="key"
         ></generic-table>
         <in-table v-if="tab.type == 'in-table'"></in-table>
@@ -27,20 +30,21 @@ import genericTable from "@/components/table/generic-table";
 import inTable from "@/modules/in/in-table";
 
 export default {
-  name: "in-admin",
+  name: "generic-admin",
   components: {
     genericTable,
     inTable
   },
   props: ["config"],
   data: () => ({
-    tab: null
+    tab: null,
+    configStores: {}
   }),
   computed: {
     nbElems() {
       const nbElems = {};
       for (const [key, tab] of Object.entries(this.config.tabs)) {
-        const storeName = tab && tab.config && tab.config.storeName;
+        const storeName = tab && tab.storeName;
         if (!storeName) {
           nbElems[key] = "";
           continue;
@@ -53,13 +57,19 @@ export default {
   },
   mounted() {
     for (const tab of Object.values(this.config.tabs)) {
-      const storeName = tab && tab.config && tab.config.storeName;
+      const storeName = tab && tab.storeName;
       if (!storeName) {
         continue;
       }
-      const configStore = this.$store.getters.configStore(storeName);
-      this.$store.dispatch(configStore.getAll);
+      this.configStores[storeName] = this.$store.getters.configStore(storeName);
+      this.$store.dispatch(this.configStores[storeName].getAll);
+      tab.labels = tab.labels || this.configStores[storeName].labels;
     }
   }
 };
 </script>
+<style scoped>
+.v-tab {
+  text-transform: none !important;
+}
+</style>

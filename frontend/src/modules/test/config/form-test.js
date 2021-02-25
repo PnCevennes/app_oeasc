@@ -7,7 +7,7 @@ export default {
     test_select_multi: {
       label: "Test select",
       type: "list_form",
-      display: "select",
+      list_type: "select",
       items: ["a", "b", "c"],
       multiple: true
     },
@@ -26,14 +26,14 @@ export default {
       label:
         "Origine des arbres / plants / semis touchés par les dégâts de grand gibier",
       type: "nomenclature",
-      display: "radio",
+      list_type: "radio",
       nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE2",
       multiple: true,
       required: true
     },
     s_commune_proprietaire: {
       type: "list_form",
-      display: "combobox",
+      list_type: "combobox",
       label: "Commune",
       dataReloadOnSearch: true,
       placeholder:

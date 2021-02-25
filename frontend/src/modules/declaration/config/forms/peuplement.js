@@ -86,7 +86,7 @@ export default {
   id_nomenclature_peuplement_origine: {
     label: "Origine du peuplement",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE",
     required: true,
     help: true,
@@ -97,7 +97,7 @@ export default {
     label:
       "Origine des arbres / plants / semis touchés par les dégâts de grand gibier",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ORIGINE2",
     multiple: true,
     required: true
@@ -106,7 +106,7 @@ export default {
   id_nomenclature_peuplement_type: {
     label: "Type de peuplement",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_TYPE",
     required: true,
     help: true,
@@ -118,7 +118,7 @@ export default {
   nomenclatures_peuplement_maturite: {
     label: "Maturité du peuplement",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_MATURITE",
     multiple: true,
     required: true,
@@ -153,7 +153,7 @@ export default {
   nomenclatures_peuplement_protection_type: {
     label: "Type de protection",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_PROTECTION_TYPE",
     multiple: true,
     required: true,
@@ -177,7 +177,7 @@ export default {
   nomenclatures_peuplement_paturage_type: {
     label: "Type de pâturage",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_PATURAGE_TYPE",
     multiple: true,
     required: true,
@@ -186,14 +186,14 @@ export default {
   id_nomenclature_peuplement_paturage_statut: {
     label: "Statut du pâturage",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_PATURAGE_STATUT",
     condition: ({ baseModel }) => baseModel.b_peuplement_paturage_presence
   },
   id_nomenclature_peuplement_paturage_frequence: {
     label: "Fréquence du pâturage",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_PATURAGE_FREQUENCE",
     required: true,
     condition: ({ baseModel }) => baseModel.b_peuplement_paturage_presence
@@ -201,7 +201,7 @@ export default {
   nomenclatures_peuplement_paturage_saison: {
     label: "Saisonalité du pâturage",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_PATURAGE_SAISON",
     multiple: true,
     required: true,
@@ -219,7 +219,7 @@ export default {
   id_nomenclature_peuplement_acces: {
     label: "Accessibilité du peuplement",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ACCES",
     required: true,
     help: true
@@ -228,7 +228,7 @@ export default {
     label:
       "Espèces de grand gibier dont la présence est avérée (observations directes ou indices de présence)",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PEUPLEMENT_ESPECE",
     multiple: true,
     required: true

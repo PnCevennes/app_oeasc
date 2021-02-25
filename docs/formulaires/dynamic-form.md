@@ -39,7 +39,7 @@ Les paramètres principaux sont:
  - `bool_radio`,
  - `bool_switch`,
 - choix dans une liste:
- - `list_form`: se décline en plusieurs versions selon le paramètre `display`:
+ - `list_form`: se décline en plusieurs versions selon le paramètre `list_type`:
   - `button`: choix dans une liste de bouttons
   - `select`: choix dans une liste classique
   - `autocomplete`: avec l'autocomplete

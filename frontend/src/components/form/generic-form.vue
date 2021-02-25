@@ -146,8 +146,8 @@ export default {
       this.bInit = false;
       const storeName = this.config.storeName;
       if (storeName) {
-        const configStore = this.$store.getters.configStore(storeName);
-        this.config.idFieldName = configStore.idFieldName;
+        const configStore = this.$store.getters.configStore(storeName);        
+
         this.config.preloadData = ({ $store, id, config }) => {
           return new Promise((resolve) => {
             if (!id) {
@@ -168,6 +168,8 @@ export default {
             postData,
           });
         };
+        
+        this.config.action.preProcess = configStore.preProcess;
 
       }
       
@@ -251,7 +253,7 @@ export default {
           if (
             formDef.storeName &&
             formDef.returnObject &&
-            formDef.display == "combobox" // que dans les cas des combobox returnObject
+            formDef.list_type == "combobox" // que dans les cas des combobox returnObject
           ) {
             let values = this.baseModel[key];
             values = formDef.multiple ? values : [values];
@@ -289,14 +291,14 @@ export default {
             }
 
             for (const updateStore of updateStores) {
-              let values = this.baseModel[updateStore.key];
+              let values = this.baseModel[updateStore.key];              
               values = this.config.formDefs[updateStore.key].multiple
                 ? values
                 : [values];
               const configStore = this.$store.getters.configStore(
                 updateStore.storeName
               );
-              this.$store.commit(configStore.names, values);
+              this.$store.commit(configStore.storeNames, values);
             }
 
             if (this.switchDisplay) {

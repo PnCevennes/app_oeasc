@@ -103,7 +103,7 @@ export default {
           type: "list_form",
           name: item.key,
           label: `Filtre : ${item.text}`,
-          display: "autocomplete",
+          list_type: "autocomplete",
           multiple: true,
           items: dataList.map(d => d.text),
           change: () => {

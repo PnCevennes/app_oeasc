@@ -221,7 +221,7 @@ export default {
   id_nomenclature_proprietaire_declarant: {
     label: "Êtes-vous propriétaire de la forêt concernée ?",
     type: "nomenclature",
-    display: "radio",
+    list_type: "radio",
     nomenclatureType: "OEASC_PROPRIETAIRE_DECLARANT",
     required: true,
     condition: ({ baseModel }) => baseModel.b_document != true,
@@ -261,7 +261,7 @@ export default {
 
   s_commune_proprietaire: {
     type: "list_form",
-    display: "combobox",
+    list_type: "combobox",
     label: "Commune",
     dataReloadOnSearch: true,
     placeholder:

@@ -59,4 +59,10 @@ const sortDate = (a, b) => {
     : Number(date_a[2]) - Number(date_b[2]);
 }
 
-export { addDays, copy, htmlToElement, removeDoublons, removeElementByClass, arrayEqual, sortDate };
+const upFirstLetter = (s) => {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+const camelToSnakeCase = str => str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+
+export { addDays, copy, htmlToElement, removeDoublons, removeElementByClass, arrayEqual, sortDate, upFirstLetter, camelToSnakeCase };

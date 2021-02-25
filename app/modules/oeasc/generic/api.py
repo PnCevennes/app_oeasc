@@ -26,8 +26,12 @@ def get_all_generic(module_name, object_types):
 
     # on enleve le s à la fin
     object_type = object_types[:-1]
+    
+    args = request.args
 
-    res = get_objects_type(module_name, object_type)
+    print('args', args)
+
+    res = get_objects_type(module_name, object_type, args)
 
     return [r.as_dict(True) for r in res]
 

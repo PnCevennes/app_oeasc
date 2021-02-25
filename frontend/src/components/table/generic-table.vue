@@ -50,7 +50,9 @@
         <v-spacer></v-spacer>
       </v-card-title>
       {{ configTable.editValues }}
+  {{options}}
       <v-data-table
+        :options.sync="options"
         :class="configTable.classes"
         :headers="configTable.headers"
         :items="filteredItems"
@@ -164,6 +166,7 @@ export default {
   components: { genericForm },
   props: ["config"],
   data: () => ({
+    options: {},
     configTable: {},
     searchs: {},
     saveValue: null,
@@ -318,6 +321,7 @@ export default {
       if (config.storeName) {
         const configStore = this.$store.getters.configStore(config.storeName);
         config.idFieldName = configStore.idFieldName;
+        config.displayFieldName = config.displayFieldName || configStore.displayFieldName;
         config.delete = (id, { $store }) => {
           return $store.dispatch(configStore.delete, { value: id });
         };
@@ -353,7 +357,7 @@ export default {
 
         this.$store.watch(
           () => {
-            return this.$store.state[configStore.names];
+            return this.$store.state[configStore.storeNames];
           },
           (new_value, old_value) => {
             new_value; old_value;
@@ -376,20 +380,26 @@ export default {
         }
 
         if (header.storeName) {
+          const configStore = this.$store.getters.configStore(header.storeName);
+          header.displayFieldName = header.displayFieldName || configStore.displayFieldName;
+          
           /** test pour ne pas avoir deux fois le même store name */
           if (!Object.values(config.stores).includes(header.storeName)) {
             config.stores[value] = header.storeName;
           }
           if (header.displayFieldName) {
             header.display = (id, { $store }) => {
+              if(!id) {
+                return ''
+              }
               // case secteur.nom_secteur
               const displayFieldNames = header.displayFieldName.split(".");
               let inter = $store.getters[header.storeName](id);
-
-              for (const displayFieldName of displayFieldNames) {
-                inter = inter[displayFieldName];
+              if(!inter) {  
+                return '';
               }
-              return inter;
+
+              return displayFieldNames.map(key => inter[key]).join(' ');
             };
           }
           header.sort = (a, b) => {
@@ -430,7 +440,8 @@ export default {
           const promises = [];
           for (const storeName of Object.values(config.stores)) {
             const configStore = this.$store.getters.configStore(storeName);
-            promises.push($store.dispatch(configStore.getAll));
+            // const args = storeName == config.storeName; 
+            promises.push($store.dispatch(configStore.getAll, {args=options}));
           }
           return Promise.all(promises);
         };
@@ -458,6 +469,7 @@ export default {
       if (this.configTable.preloadData && !loaded ) {
         this.configTable.preloadData({ $store: this.$store }).then(
           (res) => {
+
             for (const [index, key] of Object.keys(
               this.configTable.stores
             ).entries()) {

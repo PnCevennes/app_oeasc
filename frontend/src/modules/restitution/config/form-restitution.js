@@ -40,7 +40,7 @@ export default {
     },
     display: {
       type: "list_form",
-      display: "button",
+      list_type: "button",
       label: "Affichage",
       items: [
         { value: "table", text: "Tableau" },
@@ -50,7 +50,7 @@ export default {
     },
     typeGraph: {
       type: "list_form",
-      display: "button",
+      list_type: "button",
       label: "Type de graphique",
       items: [
         { value: "pie", text: "Camenbert" },
@@ -95,13 +95,13 @@ export default {
     },
     filterList: {
       type: "list_form",
-      display: "autocomplete",
+      list_type: "autocomplete",
       label: "Filtres",
       multiple: true
     },
     groupByKey: {
       type: "list_form",
-      display: "select",
+      list_type: "select",
       label: "Type de donneés",
     }
   }

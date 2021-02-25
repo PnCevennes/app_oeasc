@@ -308,6 +308,19 @@ export default {
       //   this.baseModel[this.config.name] = this.baseModel[this.config.name]||[];
       // }
 
+      if (this.config && this.config.storeName) {
+        const configStore = this.$store.getters.configStore(this.config.storeName);
+
+        // defaults
+        this.config.idFieldName =
+          this.config.idFieldName || configStore.idFieldName;
+        this.config.displayFieldName =
+          this.config.displayFieldName || configStore.displayFieldName;
+        this.config.type = this.config.type || configStore.type || "list_form";
+        this.config.list_type =
+          this.config.list_type || configStore.list_type || "select";
+      }
+
       for (const key in this.config) {
         if (
           typeof this.config[key] === "function" &&

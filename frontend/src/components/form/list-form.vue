@@ -6,8 +6,7 @@
     </span>
     <div v-else>
       <div class="list-form">
-        <!-- {{ baseModel[config.name] }} -->
-        <div v-if="config.display === 'button'">
+          <div v-if="config.list_type === 'button'">
           <div class="select-list-label">{{ config.label }}</div>
           <v-btn-toggle
             v-model="baseModel[config.name]"
@@ -24,7 +23,7 @@
         </div>
 
         <!-- select -->
-        <div v-else-if="config.display === 'combobox'">
+        <div v-else-if="config.list_type === 'combobox'">
           <v-combobox
             ref="autocomplete"
             clearable
@@ -55,7 +54,7 @@
             </span>
           </v-combobox>
         </div>
-        <div v-else-if="config.display === 'autocomplete'">
+        <div v-else-if="config.list_type === 'autocomplete'">
           <v-autocomplete
             ref="autocomplete"
             clearable
@@ -93,7 +92,7 @@
           </v-autocomplete>
         </div>
 
-        <div v-else-if="config.display === 'select'">
+        <div v-else-if="config.list_type === 'select'">
           <v-select
             clearable
             dense
@@ -251,7 +250,7 @@ export default {
       // cas combobox && string && returnObject =>
       //  value = { <valueFieldName>: null, <displayFieldName>: <current_value>}
 
-      if (this.config.display == "combobox" && this.config.returnObject) {
+      if (this.config.list_type == "combobox" && this.config.returnObject) {
         let values = this.baseModel[this.config.name];
         values = this.config.multiple ? values : [values];
 
@@ -341,9 +340,7 @@ export default {
       }
 
       for (const key in this.defaultConfig) {
-        if (!(key in this.config)) {
-          this.config[key] = this.defaultConfig[key];
-        }
+        this.config[key] = this.config[key] || this.defaultConfig[key];
       }
     },
 
@@ -358,7 +355,7 @@ export default {
         promise = this.$store.dispatch(configStore.getAll);
         this.config.valueFieldName = configStore.idFieldName;
         this.config.displayFieldName =
-          configStore.displayFieldName || this.config.displayFieldName;
+          this.config.displayFieldName || configStore.displayFieldName;
       } else if (this.config.url) {
         const url =
           typeof this.config.url === "function"

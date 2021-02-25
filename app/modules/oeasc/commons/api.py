@@ -11,9 +11,13 @@ from sqlalchemy import text
 
 from app.utils.env import ROOT_DIR
 
-from .models import TContents, TTags
+from .models import (
+    TContents, TTags, TSecteurs, TEspeces,  
+    TNomenclatures, BibNomenclaturesTypes
+)
 from ..generic.definitions import GenericRouteDefinitions
 
+from ..nomenclature import nomenclature_oeasc_types
 
 
 
@@ -34,7 +38,38 @@ definitions = {
         'droits': {
             'C': 5, 'R': 0, 'U': 5, 'D': 5
         }
-    }
+    },
+    'secteur': {
+        'model': TSecteurs,
+        'droits': {
+            'C': 5, 'R': 0, 'U': 5, 'D': 5
+        }
+    },
+    'espece': {
+        'model': TEspeces,
+        'droits': {
+            'C': 5, 'R': 0, 'U': 5, 'D': 5
+        }
+    },
+    'nomenclature': {
+        'model': TNomenclatures,
+        'droits': {
+            'C': 5, 'R': 0, 'U': 5, 'D': 5
+        },
+        'pre_filters': {
+            'type' : nomenclature_oeasc_types
+        }
+    },
+    'nomenclature_type': {
+        'model': BibNomenclaturesTypes,
+        'droits': {
+            'C': 5, 'R': 0, 'U': 5, 'D': 5
+        },
+        'pre_filters': {
+            'mnemonique' : nomenclature_oeasc_types
+        }
+
+    },
 }
 
 grd.add_generic_routes('commons', definitions)

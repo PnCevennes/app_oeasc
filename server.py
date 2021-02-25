@@ -122,6 +122,9 @@ with app.app_context():
     from app.modules.oeasc.i_n import api as in_api
     app.register_blueprint(in_api.bp, url_prefix='/api/in')
 
+    from app.modules.oeasc.chasse import api as chasse_api
+    app.register_blueprint(chasse_api.bp, url_prefix='/api/chasse')
+
     from pypnusershub import routes
     app.register_blueprint(routes.routes, url_prefix='/pypn/auth')
 

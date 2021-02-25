@@ -11,13 +11,13 @@ export default {
       type: "list_form",
       label: "Circuit",
       storeName: "inCircuit",
-      display: "autocomplete",
+      list_type: "autocomplete",
       required: true,
       filters: {actif:[true]}
     },
     observers: {
       type: "list_form",
-      display: "combobox",
+      list_type: "combobox",
       label: "Observateurs",
       maxLength: 4,
       multiple: true,
@@ -41,7 +41,7 @@ export default {
     id_tag: {
       label: "Tag",
       type:"list_form",
-      display:"select",
+      list_type:"select",
       required: true,
       storeName: 'inTag'
     },
@@ -51,7 +51,7 @@ export default {
     },
     tag: {
       type: "list_form",
-      display: "select",
+      list_type: "select",
       label: "Tag",
       storeName: "inTag",
       returnObject: true
@@ -59,19 +59,19 @@ export default {
     temperature: {
       label: "Température",
       type: "list_form",
-      display: "select",
+      list_type: "select",
       items: ["Froid", "Frais", "Doux", "Chaud"]
     },
     temps: {
       label: "Temps",
       type: "list_form",
-      display: "select",
+      list_type: "select",
       items: ["Sec", "Puie fine", "Brouillard", "Neige"]
     },
     vent: {
       label: "Vent",
       type: "list_form",
-      display: "select",
+      list_type: "select",
       items: ["Nul", "Faible", "Moyen", "Fort"]
     },
     observations: {
@@ -82,9 +82,9 @@ export default {
     },
     id_espece: {
       type: "list_form",
-      display: "select",
+      list_type: "select",
       label: "Espece",
-      storeName: "inEspece",
+      storeName: "commonsEspece",
       required: true
     },
     nb: {

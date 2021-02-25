@@ -110,8 +110,6 @@ const STORE = {
     },
     nbDeclarationsValid: (state) => {
       // depuis degats et remove doublons
-      console.log('nb dec', state.degats)
-
       return state.degats && state.degats.filter(d => d.valide=='Validé')
         .map(d => d.id_declaration)
         .filter((id, index, self) => self.indexOf(id) == index).length || '(...chargement en cours)';

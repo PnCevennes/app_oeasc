@@ -47,7 +47,7 @@ export default {
     }
   },
   created: function() {
-    this.config.display = "autocomplete";
+    this.config.list_type = "autocomplete";
     this.config.url = "api/oeasc/nomenclatures/OEASC_PEUPLEMENT_ESSENCE";
     this.config.processItems = formFunctions.processItems.essence;
     this.config.valueFieldName = "id_nomenclature";

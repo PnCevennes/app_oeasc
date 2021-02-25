@@ -12,16 +12,28 @@ DB = config['DB']
 definitions = GenericRouteDefinitions()
 
 
-def get_objects_type(module_name, object_type):
+def get_objects_type(module_name, object_type, args={}):
     '''
         get all
     '''
     Model, _ = definitions.get_model(module_name, object_type)
+    obj = definitions.get_object_type(module_name, object_type)
+    print(obj)
 
-    return (
-        DB.session.query(Model)
-        .all()
-    )
+    query = DB.session.query(Model)
+
+    # prefiltres 
+    pre_filters = obj.get('pre_filters', {})
+    for key in pre_filters:
+        if not hasattr(Model, key):
+            pass
+        query = query.filter(getattr(Model, key).in_(pre_filters[key]))
+
+    # filtres TODO
+    for key in args:
+        print(key)
+
+    return query.all()
 
 
 def get_object_type(module_name, object_type, value, field_name=None):

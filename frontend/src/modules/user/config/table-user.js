@@ -47,7 +47,7 @@ export default {
           formDefs: {
             id_droit_max: {
               type: "list_form",
-              display: "select",
+              list_type: "select",
               items: ({ $store }) =>
                 [1, 2, 3, 4, 5, 6].filter(
                   (droit) => $store.getters.droitMax > droit

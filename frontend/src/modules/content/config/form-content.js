@@ -13,7 +13,7 @@ export default {
     tags: {
       label: "Tags",
       type: "list_form",
-      display: "select",
+      list_type: "select",
       multiple: true,
       storeName: "commonsTag"
     },

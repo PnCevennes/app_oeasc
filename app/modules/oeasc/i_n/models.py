@@ -17,6 +17,8 @@ DB = config['DB']
 
 
 
+
+
 @serializable
 class TObservers(DB.Model):
     '''
@@ -49,11 +51,6 @@ cor_realisation_observer = DB.Table(
 
 )
 
-
-
-
-
-    
 
 @serializable
 class TCircuits(DB.Model):
@@ -96,7 +93,7 @@ class TObservations(DB.Model):
     )
     id_espece = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc_in.t_especes.id_espece')
+        DB.ForeignKey('oeasc_commons.t_especes.id_espece')
     )
     espece = DB.relationship(TEspeces, lazy='joined')
     nb = DB.Column(DB.Integer)
