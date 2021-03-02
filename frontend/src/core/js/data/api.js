@@ -19,7 +19,7 @@ if (STORE.state.pendings == undefined) {
 }
 
 var url = (urlRelative, params = {}) => {
-  const url = new URL(`${config.URL_APPLICATION}${urlRelative}`);
+  const url = new URL(`${config.URL_APPLICATION}/${urlRelative}`);
   Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
   return url;
 };
@@ -39,8 +39,6 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
     request = $store.getters.pendings(url_.href);
     if (!request) {
       commit = true;
-    } else {
-      // console.log("use pending", url_.href);
     }
   }
 

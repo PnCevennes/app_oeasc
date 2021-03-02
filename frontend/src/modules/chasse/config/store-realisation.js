@@ -4,39 +4,54 @@ export default {
   label: "Réalisation",
   serverSide: true,
   genre: "F",
-  // columns: [
-    // "nom_auteur_tir", "nom_auteur_constat",
-  // ],
-    form: {
-    // forms: ['id_saison', 'id_attribution', 'test'],
-    forms: ['test2', 'test'],
-},
+  columns: ["id_saison"],
   options: {
     page: 1,
     itemsPerPage: 5,
-    sortBy: ['nom_auteur_tir', 'nom_auteur_constat'],
-    sortDesc: [false, false],
+    sortBy: ["nom_auteur_tir", "nom_auteur_constat"],
+    sortDesc: [false, false]
   },
   defs: {
-    test: {
-      label: 'Test',
-      type: 'text'
-    },
-    test2: {
-      label: 'Test',
-      type: 'text'
-    },
-
-    // id_saison: {
-    //   label: 'Saison',
-    //   storeName: "chasseSaison",
-    //   list_type:'autocomplete',
-    //   params: {
-    //     sortBy: ['nom_saison'],
-    //     sortDesc: [true],
-    //     itemsPerPage: 10,
-    //   }
+    // test: {
+    //   label: 'Test',
+    //   type: 'text'
     // },
+    // test2: {
+    //   label: 'Test 2',
+    //   type: 'text'
+    // },
+    id_saison: {
+      label: "Saison",
+      storeName: "chasseSaison",
+      list_type: "autocomplete",
+      params: {
+        sortBy: ["nom_saison"],
+        sortDesc: [true],
+        itemsPerPage: 10
+      },
+      default: ({ $store }) => {
+        return $store
+          .dispatch($store.getters.configStore("chasseSaison").get, {
+            value: true,
+            fieldName: "current"
+          })
+          .then(saison => {
+            return saison.id_saison;
+          });
+      }
+    },
+    id_attribution: {
+      label: "Attribution",
+      storeName: "chasseAttribution",
+      displayFieldName: "label",
+      list_type: 'autocomplete',
+      params: ({baseModel}) => ({
+        sortBy: ['label'],
+        sortDesc: [true],
+        itemsPerPage: 10,
+        id_saison: baseModel['id_saison']
+      })
+
     // auteur_tir: {
     //   label: "Auteur tir",
     //   // type: "list_form",
@@ -191,7 +206,7 @@ export default {
     //   label: "Commentaires (général)",
     //   type: "text_area"
     // }
-  },
+  }
   // form: {
   //   forms: ['auteur_tir'],
   //   groups_: [
@@ -256,8 +271,8 @@ export default {
   //         const attribution = $store.getters.chasseAttribution(
   //           baseModel.id_attribution
   //         );
-          
-  //         return nomenclature_classe_age && nomenclature_classe_age.label_fr == 'Adulte' 
+
+  //         return nomenclature_classe_age && nomenclature_classe_age.label_fr == 'Adulte'
   //         && nomenclature_sexe && nomenclature_sexe.label_fr == 'Mâle'
   //         && attribution && attribution.label.includes('Cerf');
   //       },
@@ -283,5 +298,4 @@ export default {
   //     }
   //   ]
   // },
-
 };

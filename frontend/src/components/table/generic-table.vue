@@ -49,8 +49,6 @@
         {{ configTable.title }}
         <v-spacer></v-spacer>
       </v-card-title>
-      {{ searchs }}
-      {{options}}
       <v-data-table
         :options.sync="options"
         :class="configTable.classes"
