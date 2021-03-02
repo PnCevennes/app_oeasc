@@ -9,7 +9,7 @@ export default {
     "date_realisation",
     "id_circuit",
     "secteur",
-    "serie", 
+    "serie",
     "tags",
     "cerf",
     "chevreuil",

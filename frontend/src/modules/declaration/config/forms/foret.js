@@ -263,7 +263,7 @@ export default {
     type: "list_form",
     list_type: "combobox",
     label: "Commune",
-    dataReloadOnSearch: true,
+    dataReloadOnSearch:  true,
     placeholder:
       "Entrez les premières lettres de la commune et/ou le code postal",
     url: ({ search }) => `api/commons/communes/${search}`,

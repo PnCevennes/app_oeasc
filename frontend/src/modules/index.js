@@ -3,6 +3,7 @@ import { ROUTE as commons_routes, STORE as commons_store } from "./commons";
 import { ROUTE as in_routes, STORE as in_store } from "./in";
 import { ROUTE as chasse_routes, STORE as chasse_store } from "./chasse";
 import { STORE as data_store } from "./data";
+
 // import { ROUTE as content_routes, STORE as content_store } from "./content";
 // import { ROUTE as declaration_routes, STORE as declaration_store} from "./declaration";
 // import { ROUTE as test_routes } from "./test";

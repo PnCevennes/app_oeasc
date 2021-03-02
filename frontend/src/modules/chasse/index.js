@@ -11,7 +11,6 @@ import configStoreTypeBracelet from "./config/store-type-bracelet";
 import configStoreAttribution from "./config/store-attribution";
 import configStoreRealisation from "./config/store-realisation";
 
-
 const ROUTE = [
   {
     // admin
@@ -24,9 +23,9 @@ const ROUTE = [
       config: {
         title: "Indice Nocturnes",
         tabs: {          
-          // realisation: {
-          //   storeName: 'chasseRealisation'
-          // },
+          realisation: {
+            storeName: 'chasseRealisation'
+          },
           // attribution: {
           //   storeName: 'chasseAttribution'
           // },
@@ -39,9 +38,9 @@ const ROUTE = [
           // saisonDate: {
           //   storeName: "chasseSaisonDate"
           // },
-          // saison: {
-          //   storeName: "chasseSaison"
-          // },
+          saison: {
+            storeName: "chasseSaison"
+          },
           // lieuTir: {
           //   storeName: "chasseLieuTir"
           // },

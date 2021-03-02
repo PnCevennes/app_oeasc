@@ -208,7 +208,6 @@ select id_saison, id_type_bracelet, tzc.id_zone_cynegetique, tzi.id_zone_interet
 	left join oeasc_chasse.t_zone_interets tzi on tzi.code_zone_interet = pc.z_i_affectee 
 	left join saison_dates s on date_exacte > s.date_debut and date_exacte < s.date_fin
 	WHERE massif_realise IS NOT NULL AND pc.id NOT IN (6687, 4965, 10849, 9113)
-	limit 100
 ;
 -- nomenclature mode chasse
 
@@ -347,7 +346,7 @@ left join oeasc_chasse.t_zone_cynegetiques tzc
 	   		regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')
 left join oeasc_chasse.t_zone_interets tzi on tzi.code_zone_interet = pc.z_i_affectee 
 left join oeasc_chasse.t_personnes tp on tp.nom_personne = pc.auteur_tir 
-left join oeasc_chasse.t_personnes tp2 on tp2.nom_personne = pc.auteur_tir
+left join oeasc_chasse.t_personnes tp2 on tp2.nom_personne = pc.auteur_constat
 left join oeasc_chasse.t_lieu_tirs tlt on tlt.code_lieu_tir = pc.code_lieu_dit 
 left join nomenclature_sexe ns on ns.label_fr = pc.sexe
 left join nomenclature_age na on na.label_fr = replace(replace(classe_age, 'Jeune', 'Juvénile'), ' ', '-')

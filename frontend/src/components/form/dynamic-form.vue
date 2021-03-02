@@ -1,5 +1,9 @@
 <template>
   <div v-show="!configForm.hidden" :ref="config.name" class="dynamic-form">
+
+uuu      {{baseModel.test}} {{baseModel.test2}}
+
+
     <template v-if="configForm.displayValue && configForm.displayLabel">
       <b>{{ configForm.label }} : </b>
     </template>
@@ -288,12 +292,14 @@ export default {
   watch: {
     baseModel: {
       handler() {
+        console.log('BM')
         this.configForm = this.getConfigForm();
       },
       deep: true
     },
     config: {
       handler() {
+        console.log('confi')
         this.configForm = this.getConfigForm();
       },
       deep: true
@@ -302,6 +308,7 @@ export default {
 
   methods: {
     getConfigForm: function() {
+      console.log('cf', this.config.name)
       const configResolved = { condition: true, valid: true };
 
       // if(this.config.multiple && !this.baseModel[this.config.name]) {
@@ -316,9 +323,19 @@ export default {
           this.config.idFieldName || configStore.idFieldName;
         this.config.displayFieldName =
           this.config.displayFieldName || configStore.displayFieldName;
-        this.config.type = this.config.type || configStore.type || "list_form";
-        this.config.list_type =
-          this.config.list_type || configStore.list_type || "select";
+        this.config.api =
+          this.config.api || configStore.apis;
+
+        if(!this.config.type) {
+          this.config.dataReloadOnSearch = true,
+          this.config.url = ({search, config}) => {
+            const url = `${config.api}?${config.displayFieldName}=${search}`;
+            return url}
+        }
+          // select
+          this.config.type = this.config.type || configStore.type || "list_form";
+          this.config.list_type =
+            this.config.list_type || configStore.list_type || "select";
       }
 
       for (const key in this.config) {
@@ -352,12 +369,6 @@ export default {
   created: function() {
     this.configForm = this.getConfigForm();
   },
-  mounted() {
-    // setTimeout(() => {
-    //   this.baseModel[this.configForm.name] =
-    //     this.baseModel[this.configForm.name] || this.configForm.value;
-    // }, 2000);
-  }
 };
 </script>
 

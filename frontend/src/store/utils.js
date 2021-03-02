@@ -1,28 +1,5 @@
 import { apiRequest } from "@/core/js/data/api.js";
 import { upFirstLetter, camelToSnakeCase } from "@/core/js/util/util.js";
-/**
- *
- * Pour gérer les requêtes mulitples rapprochées
- *
- *
- */
-const addPendingRequestStore = STORE => {
-  for (const key of ["state", "mutations", "getters"]) {
-    STORE[key] = STORE[key] || {};
-  }
-  if (STORE.state.pendings == undefined) {
-    STORE.state.pendings = {};
-    STORE.getters.pendings = state => api => state.pendings[api];
-    STORE.mutations.addPending = (state, { request, api }) => {
-      state.pendings[api] = request;
-    };
-    STORE.mutations.removePending = (state, api) => {
-      if (state.pendings[api]) {
-        delete state.pendings[api];
-      }
-    };
-  }
-};
 
 /**;
  * Configuration pour generic-table
@@ -30,14 +7,13 @@ const addPendingRequestStore = STORE => {
 const processTableConfig = configStore => {
   const configTable = {
     storeName: configStore.storeName,
-    sortBy: configStore.sortBy,
+    options: configStore.options,
     labelFieldName: configStore.labelFieldName,
     idFieldName: configStore.idFieldName,
     dense: true,
     striped: true,
     small: true,
     configForm: configStore.form,
-    sortDesc: configStore.sortDesc
   };
 
   const headerDefs = {};
@@ -119,7 +95,6 @@ const processDefaults = configStore => {
     configStore.idFieldName || `id_${configStore.snakeName}`;
   configStore.displayFieldName =
     configStore.displayFieldName || `nom_${configStore.snakeName}`;
-  configStore.sortBy = configStore.sortBy || configStore.displayFieldName;
 };
 
 export default {
@@ -141,11 +116,11 @@ export default {
     // depuis la config
     const snakeName = camelToSnakeCase(configIn.name);
     const api = configIn.api || `api/generic/${configIn.group}/${snakeName}`;
+    const apis = `${api}s/`;
 
     const storeName = configIn.group + upFirstLetter(configIn.name);
 
     /** si name = 'trucs */
-    addPendingRequestStore(STORE);
     /** trucs : nom pour les listes (un s à la fin)  pour les route de liste*/
     const storeNames = `${storeName}s`;
 
@@ -160,17 +135,19 @@ export default {
       storeName,
       storeNames,
       snakeName,
+      apis,
+      api,
       labels: configIn.labels || `${configIn.label}s`,
-      count: `count${storeNameCapitalized}`,
       get: `get${storeNameCapitalized}`,
       post: `post${storeNameCapitalized}`,
       patch: `patch${storeNameCapitalized}`,
       delete: `delete${storeNameCapitalized}`,
       getAll: `getAll${storeNameCapitalized}`,
+      count: `count${storeNameCapitalized}`,
       idFieldName: configIn.idFieldName,
       displayFieldName: configIn.displayFieldName,
-      sortBy: configIn.sortBy,
-      loaded: false
+      loaded: false,
+      options: configIn.options
     };
 
     processDefaults(configStore);
@@ -198,7 +175,7 @@ export default {
     getters[storeNames] = state => state[storeNames];
 
     /** nombre d'éléments */
-    getters[configStore.count] = state => state[storeNames].length;
+    getters[configStore.count] = state => state[configStore.count];
 
     /** récupération d'un objet  par value, fieldName
      * avec idFieldName par défaut
@@ -206,9 +183,10 @@ export default {
     getters[storeName] = state => (
       value,
       fieldName = configStore.idFieldName
-    ) =>
-      state[storeNames] &&
+    ) => {
+      return state[storeNames] &&
       state[storeNames].find(obj => obj[fieldName] == value);
+    }
 
     const mutations = {};
 
@@ -263,38 +241,46 @@ export default {
       );
     };
 
+    mutations[configStore.count] = (state, count) => {
+      state[configStore.count] = count;
+    }
+
     const actions = {};
+
+    actions[configStore.count] = ({getters, commit}) => {
+      return new Promise((resolve) => {
+        getters;
+        apiRequest("GET", `${api}s/`, {params: {count:true}}).then((count) => {
+          commit(configStore.count, count);
+          resolve(count);
+        });
+      });
+    }
+
+
     /** requete GET pour avoir le tableau d'objets
      * forceReload : forcer la recupération des données depuis le serveur
-     * ajout de pendingState ( par url ) quand deux requete sont quasi simultanées
      */
     actions[configStore.getAll] = (
       { getters, commit },
-      { forceReload = false } = {}
+       options = {}
     ) => {
       return new Promise((resolve, reject) => {
-        const loaded = !forceReload && configStore.loaded;
+        const loaded = !options.forceReload && configStore.loaded;
         const objList = getters[storeNames];
         if (objList && objList.length && loaded) {
           resolve(objList);
           return;
         }
-
-        const apis = `${api}s/`;
-        if (!getters.pendings(apis)) {
-          commit("addPending", {
-            api: apis,
-            request: apiRequest("GET", `${apis}`)
-          });
-        }
-        const request = getters.pendings(apis);
-
-        request.then(
+        apiRequest("GET", `${apis}`, {params:options}, {commit, getters}).then(
           data => {
-            commit(storeNameConfig, { loaded: true });
-            commit(storeNames, data);
-            commit("removePending", apis); // remove pending
-            resolve(data);
+            const items = data.items || data;
+            // super la double negation
+            if(!options.notCommit) {
+              commit(storeNameConfig, { loaded: true });
+              commit(storeNames, items);
+            }
+            resolve(items);
           },
           error => {
             console.error(`error in request ${apis} : ${error}`);
@@ -339,7 +325,7 @@ export default {
 
         apiRequest(requestType, apiUrl, {
           postData,
-          params: { field_name: fieldName }
+          params: { field_name: fieldName },
         }).then(
           data => {
             if (requestType === "DELETE") {
@@ -374,6 +360,7 @@ export default {
     for (const key of ["state", "getters", "mutations", "actions"]) {
       STORE[key] = { ...(STORE[key] || {}), ...store[key] };
     }
+
   },
 
   /** Besoin de clarification */
@@ -416,7 +403,6 @@ export default {
    * api
    */
   addSimpleStore(STORE, storeNames, api) {
-    addPendingRequestStore(STORE);
 
     const state = {},
       getters = {},

@@ -2,6 +2,11 @@ export default {
   group: "chasse",
   name: "saison",
   label: "Saison",
+  serverSide: true,
+  options: {
+    sortBy: ['nom_saison'],
+    sortDesc: [true]
+  },
   defs: {
     id_saison: {
       label: "ID",

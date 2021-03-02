@@ -2,6 +2,7 @@ export default {
   group: "chasse",
   name: "attribution",
   label: "Attribution",
+  serverSide: true,
   defs: {
     id_attribution: {
       label: "ID",

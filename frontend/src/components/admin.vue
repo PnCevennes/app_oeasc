@@ -14,9 +14,9 @@
         <generic-table
           v-if="
             ['generic-table', undefined].includes(tab.type) &&
-              configStores[tab.storeName]
+              configStores[key]
           "
-          :config="configStores[tab.storeName].configTable"
+          :config="configStores[key].configTable"
           :key="key"
         ></generic-table>
         <in-table v-if="tab.type == 'in-table'"></in-table>
@@ -38,32 +38,19 @@ export default {
   props: ["config"],
   data: () => ({
     tab: null,
-    configStores: {}
+    configStores: {},
+    nbElems: {}
   }),
-  computed: {
-    nbElems() {
-      const nbElems = {};
-      for (const [key, tab] of Object.entries(this.config.tabs)) {
-        const storeName = tab && tab.storeName;
-        if (!storeName) {
-          nbElems[key] = "";
-          continue;
-        }
-        const configStore = this.$store.getters.configStore(storeName);
-        nbElems[key] = this.$store.getters[configStore.count];
-      }
-      return nbElems;
-    }
-  },
   mounted() {
-    for (const tab of Object.values(this.config.tabs)) {
+    for (const [key, tab] of Object.entries(this.config.tabs)) {
       const storeName = tab && tab.storeName;
       if (!storeName) {
         continue;
       }
-      this.configStores[storeName] = this.$store.getters.configStore(storeName);
-      this.$store.dispatch(this.configStores[storeName].getAll);
-      tab.labels = tab.labels || this.configStores[storeName].labels;
+      const configStore = this.$store.getters.configStore(storeName);
+      this.configStores[key] = configStore;
+      tab.labels = tab.labels || configStore.labels;
+      this.$store.dispatch(configStore.count).then(count => {this.nbElems[key] = count; this.nbElems = {...this.nbElems}});
     }
   }
 };

@@ -72,7 +72,7 @@ import { copy } from "@/core/js/util/util";
 export default {
   name: "generic-form",
   components: {
-    dynamicFormGroup,
+    dynamicFormGroup
   },
   props: ["config"],
   computed: {
@@ -91,7 +91,7 @@ export default {
         forms: this.config.forms,
         formDefs: this.config.formDefs,
         displayValue: this.displayValue,
-        displayLabel: this.config.displayLabel,
+        displayLabel: this.config.displayLabel
       };
     },
     method() {
@@ -113,7 +113,7 @@ export default {
       return typeof this.config.title == "function"
         ? this.config.title({ id: this.idModel })
         : this.config.title;
-    },
+    }
   },
   watch: {
     config() {
@@ -122,7 +122,7 @@ export default {
     idRoute() {
       this.baseModel[this.config.idFieldName] = this.idRoute;
       this.initConfig();
-    },
+    }
   },
   mounted() {
     this.initConfig();
@@ -137,7 +137,6 @@ export default {
       }, 100);
     },
     initConfig() {
-      
       this.displayValue =
         typeof this.config.displayValue == "function"
           ? this.config.displayValue({ id: this.idModel })
@@ -146,14 +145,14 @@ export default {
       this.bInit = false;
       const storeName = this.config.storeName;
       if (storeName) {
-        const configStore = this.$store.getters.configStore(storeName);        
+        const configStore = this.$store.getters.configStore(storeName);
 
         this.config.preloadData = ({ $store, id, config }) => {
-          return new Promise((resolve) => {
+          return new Promise(resolve => {
             if (!id) {
               resolve();
             } else {
-              $store.dispatch(configStore.get, { value: id }).then((data) => {
+              $store.dispatch(configStore.get, { value: id }).then(data => {
                 config.value = data;
                 this.baseModel = null;
                 resolve();
@@ -165,27 +164,26 @@ export default {
         this.config.action.process = ({ id, $store, postData }) => {
           return $store.dispatch(id ? configStore.patch : configStore.post, {
             value: id,
-            postData,
+            postData
           });
         };
-        
-        this.config.action.preProcess = configStore.preProcess;
 
+        this.config.action.preProcess = configStore.preProcess;
       }
-      
-      if (this.config.preloadData
-      //  && !this.config.value
-       ) {
-        
+
+      if (
+        this.config.preloadData
+        //  && !this.config.value
+      ) {
         this.config
           .preloadData({
             $store: this.$store,
             config: this.config,
-            id: this.idModel,
+            id: this.idModel
           })
           .then(() => {
             this.baseModel = null;
-            
+
             this.initBaseModel();
             this.bInit = true;
           });
@@ -196,11 +194,11 @@ export default {
     },
 
     initBaseModel() {
-      let baseModel = {};
-      baseModel = this.baseModel || this.config.value || {};
+      // let baseModel = {};
+      console.log(this.config.value, this.baseModel)
+      const baseModel = this.baseModel || this.config.value || {};
 
       for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
-        
         baseModel[keyForm] =
           baseModel[keyForm] != undefined
             ? baseModel[keyForm]
@@ -210,7 +208,7 @@ export default {
       }
       baseModel.freeze = false;
       this.baseModel = baseModel;
-      
+
       this.baseModelSave = copy(this.baseModel);
     },
     postData() {
@@ -218,7 +216,7 @@ export default {
         ? this.config.action.preProcess({
             baseModel: this.baseModel,
             globalConfig,
-            config: this.config,
+            config: this.config
           })
         : this.baseModel;
     },
@@ -237,11 +235,11 @@ export default {
               $store: this.$store,
               $router: this.$router,
               config: this.config,
-              id: this.idModel,
+              id: this.idModel
             });
 
         if (!promise) {
-          this.$emit('onSuccess', this.postData())
+          this.$emit("onSuccess", this.postData());
           return;
         }
 
@@ -261,7 +259,7 @@ export default {
               formDef.storeName
             );
             const idFieldName = configStore.idFieldName;
-            const condReload = values.some((v) => !v[idFieldName]);
+            const condReload = values.some(v => !v[idFieldName]);
             if (condReload) {
               updateStores.push({ storeName: formDef.storeName, key });
             }
@@ -269,10 +267,10 @@ export default {
         }
 
         promise.then(
-          (data) => {
+          data => {
             this.bSending = false;
 
-            this.$emit('onSuccess', data)
+            this.$emit("onSuccess", data);
 
             if (!this.config.bChained) {
               this.bSuccess = true;
@@ -286,12 +284,12 @@ export default {
                 $store: this.$store,
                 $router: this.$router,
                 $route: this.$route,
-                id: this.idModel,
+                id: this.idModel
               });
             }
 
             for (const updateStore of updateStores) {
-              let values = this.baseModel[updateStore.key];              
+              let values = this.baseModel[updateStore.key];
               values = this.config.formDefs[updateStore.key].multiple
                 ? values
                 : [values];
@@ -307,7 +305,7 @@ export default {
               this.bRequestSuccess = true;
             }
           },
-          (error) => {
+          error => {
             this.bSending = false;
             this.bError = true;
             this.msgError = `Erreur avec la requête : ${error.msg}`;
@@ -318,9 +316,9 @@ export default {
 
     request() {
       return apiRequest(this.method, this.url, {
-        postData: this.postData(),
-      });
-    },
+        postData: this.postData()
+      }, this.$store);
+    }
   },
   data: () => ({
     bValidForm: null,
@@ -334,8 +332,8 @@ export default {
     bRequestSuccess: false,
     bSending: false,
     recompConfig: true,
-    displayValue: null,
-  }),
+    displayValue: null
+  })
 };
 </script>
 

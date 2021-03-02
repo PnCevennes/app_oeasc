@@ -1,6 +1,7 @@
 <template>
   <div v-if="displayGroup">
     <div>
+      {{baseModel.test}} {{baseModel.test2}}
       <!-- titre -->
       <h2 v-if="depth == 0">
         {{ config.title }}

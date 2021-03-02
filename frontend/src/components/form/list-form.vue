@@ -5,8 +5,9 @@
       <span>{{ valueDisplay }}</span>
     </span>
     <div v-else>
+
       <div class="list-form">
-          <div v-if="config.list_type === 'button'">
+        <div v-if="config.list_type === 'button'">
           <div class="select-list-label">{{ config.label }}</div>
           <v-btn-toggle
             v-model="baseModel[config.name]"
@@ -202,6 +203,8 @@
 
 <script>
 import help from "./help";
+import { apiRequest } from "@/core/js/data/api.js";
+
 export default {
   name: "lisForm",
   components: { help },
@@ -220,14 +223,14 @@ export default {
   }),
   watch: {
     search() {
-      if (this.config.dataReloadOnSearch && this.search) {
+      if (this.config.dataReloadOnSearch) {
         this.getData();
       }
     },
     baseModel: {
       handler() {
         if (this.config.dataReloadOnSearch && !this.search) {
-          this.search = this.baseModel[this.config.name];
+          this.search = this.baseModel[this.config.name] + "";
         }
         if (
           this.config.dataReloadOnSearch &&
@@ -236,8 +239,6 @@ export default {
         ) {
           this.search = "";
         }
-
-        this.valueDisplay;
       },
       deep: true
     },
@@ -348,7 +349,7 @@ export default {
       let promise = null;
       if (this.dataItems && !this.config.dataReloadOnSearch) {
         this.processItems();
-      } else if (this.config.storeName) {
+      } else if (this.config.storeName && !this.config.dataReloadOnSearch) {
         const configStore = this.$store.getters.configStore(
           this.config.storeName
         );
@@ -361,19 +362,20 @@ export default {
           typeof this.config.url === "function"
             ? this.config.url({
                 search: this.search || "",
-                baseModel: this.baseModel
+                baseModel: this.baseModel,
+                config: this.config
               })
             : this.config.url;
-
-        promise = this.$store.dispatch("cacheOrRequest", {
-          url
-        });
+        promise = apiRequest("GET", url, { params: this.config.params || {} });
+        // promise = this.$store.dispatch("cacheOrRequest", {
+        //   url
+        // });
       }
 
       if (promise) {
         promise.then(
           apiData => {
-            this.dataItems = apiData;
+            this.dataItems = apiData.items || apiData;
             this.processItems();
           },
           error => {
@@ -425,7 +427,11 @@ export default {
       }
     }
     if (this.config.dataReloadOnSearch) {
-      this.search = this.baseModel[this.config.name];
+      let search = this.baseModel[this.config.name] || "";
+      if (this.config.returnObject && search) {
+        search = search[this.config.displayFieldName];
+      }
+      this.search = search + "";
     }
 
     this.getData();

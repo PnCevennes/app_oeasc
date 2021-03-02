@@ -49,18 +49,17 @@
         {{ configTable.title }}
         <v-spacer></v-spacer>
       </v-card-title>
-      {{ configTable.editValues }}
-  {{options}}
+      {{ searchs }}
+      {{options}}
       <v-data-table
         :options.sync="options"
         :class="configTable.classes"
         :headers="configTable.headers"
         :items="filteredItems"
         multi-sort
-        :sort-by="configTable.sortBy"
-        :sort-desc="configTable.sortDesc"
         :dense="configTable.dense"
         :loading="!configTable.items"
+        :server-items-length="itemsServerCount"
         loading-text="Chargement en cours... merci de patienter"
       >
         <template v-slot:body.prepend>
@@ -90,7 +89,7 @@
         </template>
         <template
           v-for="(value, index) of (configTable.headers || []).map(
-            (header) => header.value
+            header => header.value
           )"
           #[`item.${value}`]="props"
         >
@@ -103,7 +102,7 @@
                   small
                   v-if="
                     !action.condition ||
-                    action.condition({ $store, item: props.item })
+                      action.condition({ $store, item: props.item })
                   "
                   :key="indexAction"
                   icon
@@ -134,7 +133,7 @@
               </v-btn>
             </div>
             <div v-else>
-                <span v-html="displayCell(props, value)"></span>
+              <span v-html="displayCell(props, value)"></span>
               <!-- {{ displayCell(props, value) }} -->
             </div>
           </div>
@@ -177,16 +176,29 @@ export default {
     deleteWithoutWarning: false,
     configForm: null,
     bEditDialog: false,
+    itemsServerCount: null
   }),
   watch: {
     config: {
       handler() {
         this.initConfig();
       },
-      deep: true,
+      deep: true
     },
+    searchs: {
+      handler() {
+        this.loadData(false);
+      },
+      deep: true
+    },
+
+    options() {
+      this.loadData(false);
+    }
   },
   methods: {
+    onSearchChange() {
+    },
     displayCell(props, value) {
       const res =
         props.item &&
@@ -201,16 +213,16 @@ export default {
         (!props.header.edit.condition ||
           props.header.edit.condition({
             $store: this.$store,
-            baseModel: props.item,
+            baseModel: props.item
           }))
       );
     },
     getConfigForm(value, id) {
       const item = this.configTable.items.find(
-        (item) => item[this.configTable.idFieldName] === id
+        item => item[this.configTable.idFieldName] === id
       );
       const header = this.configTable.headers.find(
-        (header) => header && header.value == value
+        header => header && header.value == value
       );
       const label = header.text;
       if (!header.edit) {
@@ -226,14 +238,14 @@ export default {
       }
       configForm.idFieldName =
         configForm.idFieldName || this.configTable.idFieldName;
-      configForm.value = copy(item) || configForm.value
+      configForm.value = copy(item) || configForm.value;
       configForm.switchDisplay = false;
       configForm.displayValue = false;
       configForm.cancel = {
         action: () => {
           this.cancel(value, item && item[this.configTable.idFieldName]);
           this.closeDialog();
-        },
+        }
       };
       if (configForm.action && configForm.action.onSuccess) {
         configForm.action.onSuccess2 = configForm.action.onSuccess;
@@ -244,7 +256,7 @@ export default {
         configForm.action.onSuccess2 && configForm.action.onSuccess2({ data });
 
         let elem = this.configTable.items.find(
-          (item) =>
+          item =>
             item[this.configTable.idFieldName] ==
             data[this.configTable.idFieldName]
         );
@@ -271,7 +283,7 @@ export default {
         return;
       }
       const elem = this.configTable.items.find(
-        (item) => item[this.configTable.idFieldName] == id
+        item => item[this.configTable.idFieldName] == id
       );
       for (const key of Object.keys(this.saveVal)) {
         elem[key] = this.saveVal[key];
@@ -283,7 +295,7 @@ export default {
       this.saveVal = id
         ? copy(
             this.configTable.items.find(
-              (item) => item[this.configTable.idFieldName] == id
+              item => item[this.configTable.idFieldName] == id
             )
           )
         : null;
@@ -292,7 +304,7 @@ export default {
 
     deleteRow(id) {
       const index = this.configTable.items.findIndex(
-        (d) => d[this.configTable.idFieldName] == id
+        d => d[this.configTable.idFieldName] == id
       );
       if (index !== -1) {
         if (this.configTable.delete) {
@@ -300,7 +312,7 @@ export default {
             () => {
               this.configTable.items.splice(index, 1);
             },
-            (err) => {
+            err => {
               this.bError = true;
               this.msgError = err;
             }
@@ -320,8 +332,14 @@ export default {
 
       if (config.storeName) {
         const configStore = this.$store.getters.configStore(config.storeName);
+        config.serverSide = configStore.serverSide;
         config.idFieldName = configStore.idFieldName;
-        config.displayFieldName = config.displayFieldName || configStore.displayFieldName;
+        this.options = {
+          ...this.options,
+          ...(configStore.options||{}),
+        }
+        config.displayFieldName =
+          config.displayFieldName || configStore.displayFieldName;
         config.delete = (id, { $store }) => {
           return $store.dispatch(configStore.delete, { value: id });
         };
@@ -337,36 +355,38 @@ export default {
               {
                 title: "Editer la ligne",
                 icon: "mdi-pencil",
-                click: (id) => this.edit("actions", id),
+                click: id => this.edit("actions", id)
               },
               {
                 title: "Supprimer la ligne",
                 icon: "mdi-trash-can",
-                click: (id) => {
+                click: id => {
                   if (!this.deleteWithoutWarning) {
                     this.idToDelete = id;
                     this.deleteModal = true;
                   } else {
                     this.deleteRow(id);
                   }
-                },
-              },
-            ],
+                }
+              }
+            ]
           };
         }
 
-        this.$store.watch(
-          () => {
-            return this.$store.state[configStore.storeNames];
-          },
-          (new_value, old_value) => {
-            new_value; old_value;
-            this.loadData(!this.configTable.loaded)
-          },
-          {
-            // deep: true,
-          }
-        );
+        // surveille storeNames pour rester à jour????
+        // this.$store.watch(
+        //   () => {
+        //     return this.$store.state[configStore.storeNames];
+        //   },
+        //   (new_value, old_value) => {
+        //     new_value;
+        //     old_value;
+        //     this.loadData(!this.configTable.loaded);
+        //   },
+        //   {
+        //     // deep: true,
+        //   }
+        // );
       }
       /** contruction de la variable header */
       const headers = [];
@@ -375,31 +395,37 @@ export default {
         header.value = value;
         if (header.type == "date") {
           header.sort = sortDate;
-          header.display = (a) =>
-            a && a.includes("-") ? a.split("-").reverse().join("/") : a;
+          header.display = a =>
+            a && a.includes("-")
+              ? a
+                  .split("-")
+                  .reverse()
+                  .join("/")
+              : a;
         }
 
         if (header.storeName) {
           const configStore = this.$store.getters.configStore(header.storeName);
-          header.displayFieldName = header.displayFieldName || configStore.displayFieldName;
-          
+          header.displayFieldName =
+            header.displayFieldName || configStore.displayFieldName;
+
           /** test pour ne pas avoir deux fois le même store name */
           if (!Object.values(config.stores).includes(header.storeName)) {
             config.stores[value] = header.storeName;
           }
           if (header.displayFieldName) {
             header.display = (id, { $store }) => {
-              if(!id) {
-                return ''
+              if (!id) {
+                return "";
               }
               // case secteur.nom_secteur
               const displayFieldNames = header.displayFieldName.split(".");
               let inter = $store.getters[header.storeName](id);
-              if(!inter) {  
-                return '';
+              if (!inter) {
+                return "";
               }
 
-              return displayFieldNames.map(key => inter[key]).join(' ');
+              return displayFieldNames.map(key => inter[key]).join(" ");
             };
           }
           header.sort = (a, b) => {
@@ -418,9 +444,7 @@ export default {
       }
 
       /** on place actions en début de liste */
-      const headerActionsIndex = headers.findIndex(
-        (h) => h.value === "actions"
-      );
+      const headerActionsIndex = headers.findIndex(h => h.value === "actions");
       if (headerActionsIndex != -1) {
         const headerActions = headers[headerActionsIndex];
         headers.splice(headerActionsIndex, 1);
@@ -431,7 +455,7 @@ export default {
 
       config.classes = {
         "small-table": config.small,
-        striped: config.striped,
+        striped: config.striped
       };
 
       /** preloadData with promises from storeNames */
@@ -440,19 +464,26 @@ export default {
           const promises = [];
           for (const storeName of Object.values(config.stores)) {
             const configStore = this.$store.getters.configStore(storeName);
-            // const args = storeName == config.storeName; 
-            promises.push($store.dispatch(configStore.getAll, {args=options}));
+            const options =
+              storeName == config.storeName && configStore.serverSide
+                ? {
+                    ...this.options ,
+                    notCommit: true,
+                    ...(this.searchs || {})
+                  }
+                : {};
+            promises.push($store.dispatch(configStore.getAll, options));
           }
           return Promise.all(promises);
         };
       }
 
       /** preProcess from headerDefs */
-      if (config.headers.some((h) => h.preProcess)) {
+      if (config.headers.some(h => h.preProcess)) {
         config.preProcess = ({ data }) => {
-          return data.map((d) => {
+          return data.map(d => {
             for (const header of this.configTable.headers.filter(
-              (h) => h.preProcess
+              h => h.preProcess
             )) {
               d[header.value] = header.preProcess(d);
             }
@@ -466,15 +497,23 @@ export default {
     },
     loadData(loaded) {
       /** call preloadData */
-      if (this.configTable.preloadData && !loaded ) {
+      if (this.configTable.preloadData && !loaded) {
         this.configTable.preloadData({ $store: this.$store }).then(
-          (res) => {
-
+          res => {
             for (const [index, key] of Object.keys(
               this.configTable.stores
             ).entries()) {
               if (key == "items") {
-                const items = res[index];
+                let items = res[index];
+
+                // sortie du
+                if (items && items.items) {
+                  this.itemsServerCount = items.total;
+                  items = items.items;
+                } else if (items) {
+                  this.itemsServerCount = items.length;
+                }
+
                 if (items) {
                   this.configTable.items = this.configTable.preProcess
                     ? this.configTable.preProcess({ data: items })
@@ -485,13 +524,13 @@ export default {
             this.configTable.loaded = true;
             this.configTable = copy(this.configTable);
           },
-          (error) => {
+          error => {
             this.msgError = error;
             this.bError = true;
           }
         );
       }
-    },
+    }
   },
   computed: {
     filteredItems() {
@@ -511,17 +550,20 @@ export default {
             ? header.display(item[header.value], { $store: this.$store })
             : item[header.value];
           cond =
-            cond && String(val).toLowerCase().includes(search.toLowerCase());
+            cond &&
+            String(val)
+              .toLowerCase()
+              .includes(search.toLowerCase());
         }
         if (cond) {
           filteredItems.push(item);
         }
       }
       return filteredItems;
-    },
+    }
   },
   mounted() {
     this.initConfig();
-  },
+  }
 };
 </script>
