@@ -29,6 +29,7 @@ def create_or_modify(model, key, dict_in):
         if val:
             elem = DB.session.query(model).filter(getattr(model, key) == val).first()
 
+
     if elem is None:
         elem = model()
         DB.session.add(elem)
@@ -163,14 +164,15 @@ def create_or_update_declaration(post_data):
 
     post_data['foret'] = foret.as_dict(True)
 
-
     declaration = create_or_modify(
         TDeclaration,
         'id_declaration',
         post_data
     )
 
+
     patch_areas_declarations(declaration.id_declaration)
+
 
     return declaration.as_dict(True)
 
