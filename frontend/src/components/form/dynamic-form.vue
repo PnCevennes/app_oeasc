@@ -256,7 +256,7 @@ export default {
     degatsForm,
     oeascContent: () => import("@/modules/content/content.vue"),
     help,
-    list
+    list,
   },
 
   data: () => ({
@@ -279,9 +279,9 @@ export default {
       "password",
       "list",
       "button",
-      "file"
+      "file",
     ],
-    configForm: null
+    configForm: null,
   }),
 
   props: ["config", "baseModel"],
@@ -290,17 +290,16 @@ export default {
   watch: {
     baseModel: {
       handler() {
-        console.log('BM')
         this.configForm = this.getConfigForm();
       },
-      deep: true
+      deep: true,
     },
     config: {
       handler() {
         this.configForm = this.getConfigForm();
       },
-      deep: true
-    }
+      deep: true,
+    },
   },
 
   methods: {
@@ -312,21 +311,23 @@ export default {
       // }
 
       if (this.config && this.config.storeName) {
-        const configStore = this.$store.getters.configStore(this.config.storeName);
+        const configStore = this.$store.getters.configStore(
+          this.config.storeName
+        );
 
         // defaults
         this.config.idFieldName =
           this.config.idFieldName || configStore.idFieldName;
         this.config.displayFieldName =
           this.config.displayFieldName || configStore.displayFieldName;
-        this.config.api =
-          this.config.api || configStore.apis;
+        this.config.api = this.config.api || configStore.apis;
 
-        if(!this.config.type) {
-          this.config.dataReloadOnSearch = true,
-          this.config.url = ({search, config}) => {
-            const url = `${config.api}?${config.displayFieldName}=${search}`;
-            return url}
+        if (!this.config.type) {
+          (this.config.dataReloadOnSearch = true),
+            (this.config.url = ({ search, config }) => {
+              const url = `${config.api}?${config.displayFieldName}=${search}`;
+              return url;
+            });
         }
           // select
           this.config.type = this.config.type || configStore.type || "list_form";
@@ -345,7 +346,7 @@ export default {
           // on resout les fonctions
           configResolved[key] = this.config[key]({
             baseModel: this.baseModel,
-            $store: this.$store
+            $store: this.$store,
           });
         } else {
           configResolved[key] = copy(this.config[key]);
@@ -358,14 +359,21 @@ export default {
       configResolved.valid = this.configTypes.includes(this.config.type);
 
       // ajout automatique de regle selon le type
-      formFunctions;
       formFunctions.rules.processRules(configResolved);
 
+      // si default et non attribué => on lui donne la valeur
+      if (configResolved.default && !this.baseModel[this.config.name]) {
+        // si promise ou non ??
+        Promise.resolve(configResolved.default).then((value) => {
+        this.baseModel[this.config.name] = value;
+        });
+      }
+
       return configResolved;
-    }
+    },
   },
 
-  created: function() {
+  created: function () {
     this.configForm = this.getConfigForm();
   },
 };

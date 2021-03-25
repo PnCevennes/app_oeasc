@@ -16,25 +16,36 @@ export default {
     sortDesc: [true]
   },
   defs: {
-    // table
-    id_realisation: {
-      label: "ID"
-    },
-    numero_bracelet: {
-      label: "No Bracelet"
-    },
-    nom_saison: {
-      label: "Saison"
-    },
-    nom_auteur_tir: {
-      label: "Auteur tir"
-    },
-    nom_auteur_constat: {
-      label: "Auteur constat"
-    },
-    nom_zone_cynegetique_realisee: {
-      label: "Zone cynégétique réalisée"
-    },
+    // // table
+    // id_realisation: {
+    //   label: "ID"
+    // },
+    // numero_bracelet: {
+    //   label: "No Bracelet"
+    // },
+    // nom_saison: {
+    //   label: "Saison"
+    // },
+    // nom_auteur_tir: {
+    //   label: "Auteur tir"
+    // },
+    // nom_auteur_constat: {
+    //   label: "Auteur constat"
+    // },
+    // nom_zone_cynegetique_realisee: {
+    //   label: "Zone cynégétique réalisée"
+    // },
+    // id_attribution: {
+    //   label: "Attribution",
+    //   storeName: "chasseAttribution",
+    //   displayFieldName: "label",
+    //   list_type: 'autocomplete',
+    //   params: ({baseModel}) => ({
+    //     sortBy: ['label'],
+    //     sortDesc: [true],
+    //     itemsPerPage: 10,
+    //     id_saison: baseModel['id_saison']
+    //   }),
 
     // form
     saison: {
@@ -94,7 +105,28 @@ export default {
         sortDesc: [false],
         itemsPerPage: 10
       }
-    }
+    },
+
+    // id_saison: {
+    //   label: "Saison",
+    //   storeName: "chasseSaison",
+    //   list_type: "autocomplete",
+    //   params: {
+    //     sortBy: ["nom_saison"],
+    //     sortDesc: [true],
+    //     itemsPerPage: 10
+    //   },
+    //   default: ({ $store }) => {
+    //     return $store
+    //       .dispatch($store.getters.configStore("chasseSaison").get, {
+    //         value: true,
+    //         fieldName: "current"
+    //       })
+    //       .then(saison => {
+    //         return saison.id_saison;
+    //       });
+    //   }
+
 
     // attribution: {
     //   label: "Attribution",

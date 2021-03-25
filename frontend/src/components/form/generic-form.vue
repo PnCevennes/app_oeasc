@@ -4,7 +4,9 @@
     <div v-if="bRequestSuccess">
       <slot name="success"></slot>
     </div>
-    <div v-else>
+    <div v-else-if="baseModel">
+      {{baseModel.test}} {{baseModel.test2}}
+
       <slot name="prependForm"></slot>
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
         <div>
@@ -206,9 +208,10 @@ export default {
             : null;
       }
       baseModel.freeze = false;
-      this.baseModel = baseModel;
+        this.baseModel = copy(baseModel);
+        // this.baseModel = baseModel;
+      this.baseModelSave = copy(baseModel);
 
-      this.baseModelSave = copy(this.baseModel);
     },
     postData() {
       return this.config.action.preProcess

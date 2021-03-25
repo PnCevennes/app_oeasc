@@ -478,10 +478,9 @@ export default {
             for (const [index, keySort] of this.options.sortBy.entries()) {
               const header = this.configTable.headers.find(h => h.value === keySort)
               if (header.displayFieldName) {
-                sortBy[index] = `${this.options.sortBy}.${header.displayFieldName}`;
+                sortBy[index] = `${this.options.sortBy[index]}.${header.displayFieldName}`;
               }
             }
-            console.log(sortBy)
 
             const options =
               storeName == config.storeName && configStore.serverSide
