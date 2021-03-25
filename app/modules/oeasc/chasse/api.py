@@ -5,7 +5,7 @@ api chasse
 from .models import (
     TPersonnes, TZoneCynegetiques, TZoneInterets,
     TLieuTirs, TSaisons, TSaisonDates,
-    TAttributionMassifs, TTypeBracelets, TAttributions, TRealisations
+    TAttributionMassifs, TTypeBracelets, TAttributions, TRealisationsChasse
 )
 from ..generic.definitions import GenericRouteDefinitions
 from flask import Blueprint, current_app, request
@@ -58,7 +58,7 @@ definitions = {
         'droits': droits
     },
     'realisation': {
-        'model': TRealisations,
+        'model': TRealisationsChasse,
         'droits': droits
     },
 }

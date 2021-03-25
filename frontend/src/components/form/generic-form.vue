@@ -194,14 +194,13 @@ export default {
     },
 
     initBaseModel() {
-      // let baseModel = {};
-      console.log(this.config.value, this.baseModel)
-      const baseModel = this.baseModel || this.config.value || {};
-
+      const baseModel = {};
+      const value = this.config.value || {};
+      // const baseModel = this.baseModel || this.config.value || {};
       for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
         baseModel[keyForm] =
-          baseModel[keyForm] != undefined
-            ? baseModel[keyForm]
+          value[keyForm] != undefined
+            ? value[keyForm]
             : formDef.multiple
             ? []
             : null;

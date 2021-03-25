@@ -162,6 +162,8 @@ class TAttributions(DB.Model):
     meta_create_date = DB.Column(DB.DateTime)
     meta_update_date = DB.Column(DB.DateTime)
 
+    saison = DB.relationship(TSaisons)
+
     label = column_property(
         select(
             [
@@ -185,7 +187,7 @@ class TAttributions(DB.Model):
 
 
 @serializable
-class TRealisations(DB.Model):
+class TRealisationsChasse(DB.Model):
     '''
         Realisations
     '''
@@ -194,21 +196,51 @@ class TRealisations(DB.Model):
     __table_args__ = {'schema': 'oeasc_chasse', 'extend_existing': True}
 
     id_realisation = DB.Column(DB.Integer, primary_key = True)
+    id_attribution = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_attributions.id_attribution'), primary_key=True)
+
+    attribution = DB.relationship(TAttributions)
+    saison = DB.relationship(
+        TSaisons,
+        secondary='oeasc_chasse.t_attributions',
+        primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
+        secondaryjoin="TAttributions.id_saison==TSaisons.id_saison",
+        uselist=False
+    )
 
     id_auteur_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_personnes.id_personne'))
     id_auteur_constat = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_personnes.id_personne'))
-
-    # pour combobox
     auteur_tir = DB.relationship(TPersonnes, primaryjoin=TPersonnes.id_personne == id_auteur_tir)
     auteur_constat = DB.relationship(TPersonnes, primaryjoin=TPersonnes.id_personne == id_auteur_constat)
 
-    # pour table server side
-    nom_auteur_tir = column_property(select([TPersonnes.nom_personne]).where(TPersonnes.id_personne == id_auteur_tir))
-    nom_auteur_constat = column_property(select([TPersonnes.nom_personne]).where(TPersonnes.id_personne == id_auteur_constat))
+    # nom_saison = column_property(
+    #     select([TSaisons.nom_saison]).\
+    #         where(
+    #             and_(
+    #                 TAttributions.id_attribution == id_attribution,
+    #                 TAttributions.id_saison == TSaisons.id_saison,
+    #             )
+    #         )
+    # )
 
+    # numero_bracelet = column_property(
+    #     select([TAttributions.numero_bracelet]).\
+    #         where(TAttributions.id_attribution == id_attribution)
+    # )
+    
+
+
+
+    # nom_auteur_tir = column_property(select([TPersonnes.nom_personne]).where(TPersonnes.id_personne == id_auteur_tir))
+    # nom_auteur_constat = column_property(select([TPersonnes.nom_personne]).where(TPersonnes.id_personne == id_auteur_constat))
+
+    # id_zone_cynegetique_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique'))
+    # zone_cynegetique_realisee = DB.relationship(TZoneCynegetiques)
+    # nom_zone_cynegetique = column_property(
+    #     select([TZoneCynegetiques.nom_zone_cynegetique]).\
+    #         where(TZoneCynegetiques.id_zone_cynegetique == id_zone_cynegetique_realisee)
+    # )
 
     # id_realisation = DB.Column(DB.Integer, primary_key = True)
-    # id_attribution = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_attributions.id_attribution'), primary_key=True)
     # id_zone_cynegetique_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique'))
     # id_zone_interet_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_interets.id_zone_interet'))
     # id_lieu_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_lieu_tirs.id_lieu_tir'))
@@ -255,8 +287,6 @@ class TRealisations(DB.Model):
 
     # meta_create_date = DB.Column(DB.DateTime)
     # meta_update_date = DB.Column(DB.DateTime)
-
-    # attribution = DB.relationship(TAttributions)
 
     # id_zone_cynegetique_affectee = column_property(
     #     select([TAttributions.id_zone_cynegetique_affectee]).\

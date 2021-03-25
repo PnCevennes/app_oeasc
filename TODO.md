@@ -1,3 +1,9 @@
+# generic table
+
+pouvoir faire search et sort sur des relationships
+et c'est la fete !!!!
+
+
 # actualite
 
 - page component actualités (liste et plus)

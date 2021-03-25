@@ -49,8 +49,6 @@
         {{ configTable.title }}
         <v-spacer></v-spacer>
       </v-card-title>
-      {{ searchs }}
-      {{options}}
       <v-data-table
         :options.sync="options"
         :class="configTable.classes"
@@ -197,13 +195,12 @@ export default {
     }
   },
   methods: {
-    onSearchChange() {
-    },
+    onSearchChange() {},
     displayCell(props, value) {
       const res =
         props.item &&
         (typeof props.header.display == "function"
-          ? props.header.display(props.item[value], { $store: this.$store })
+          ? props.header.display(props.item, { $store: this.$store })
           : props.item[value]);
       return res;
     },
@@ -336,8 +333,8 @@ export default {
         config.idFieldName = configStore.idFieldName;
         this.options = {
           ...this.options,
-          ...(configStore.options||{}),
-        }
+          ...(configStore.options || {})
+        };
         config.displayFieldName =
           config.displayFieldName || configStore.displayFieldName;
         config.delete = (id, { $store }) => {
@@ -411,20 +408,22 @@ export default {
 
           /** test pour ne pas avoir deux fois le même store name */
           if (!Object.values(config.stores).includes(header.storeName)) {
-            config.stores[value] = header.storeName;
+            // config.stores[value] = header.storeName;
           }
           if (header.displayFieldName) {
-            header.display = (id, { $store }) => {
-              if (!id) {
-                return "";
-              }
-              // case secteur.nom_secteur
-              const displayFieldNames = header.displayFieldName.split(".");
-              let inter = $store.getters[header.storeName](id);
-              if (!inter) {
+            // on change ça
+            header.display = d => {
+              if (!d) {
                 return "";
               }
 
+              // case secteur.nom_secteur
+              const displayFieldNames = header.displayFieldName.split(".");
+
+              let inter = d[header.value];
+              if (!inter) {
+                return "";
+              }
               return displayFieldNames.map(key => inter[key]).join(" ");
             };
           }
@@ -464,12 +463,33 @@ export default {
           const promises = [];
           for (const storeName of Object.values(config.stores)) {
             const configStore = this.$store.getters.configStore(storeName);
+
+            // on ajoute __like apres les clés de filtres
+            // pour pouvoir filtrer en ilike ensuite
+            const searchOptions = {};
+            for (const [keySearch, valueSearch] of Object.entries(
+              this.searchs || {}
+            )) {
+              searchOptions[`${keySearch}__ilike`] = valueSearch;
+            }
+
+            // on change les clé de tri pour les storeName
+            const sortBy = [...this.options.sortBy]
+            for (const [index, keySort] of this.options.sortBy.entries()) {
+              const header = this.configTable.headers.find(h => h.value === keySort)
+              if (header.displayFieldName) {
+                sortBy[index] = `${this.options.sortBy}.${header.displayFieldName}`;
+              }
+            }
+            console.log(sortBy)
+
             const options =
               storeName == config.storeName && configStore.serverSide
                 ? {
-                    ...this.options ,
+                    ...this.options,
                     notCommit: true,
-                    ...(this.searchs || {})
+                    ...searchOptions,
+                    sortBy,
                   }
                 : {};
             promises.push($store.dispatch(configStore.getAll, options));
@@ -547,7 +567,7 @@ export default {
           }
 
           const val = header.display
-            ? header.display(item[header.value], { $store: this.$store })
+            ? header.display(item, { $store: this.$store })
             : item[header.value];
           cond =
             cond &&

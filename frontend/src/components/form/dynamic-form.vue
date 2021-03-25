@@ -1,8 +1,6 @@
 <template>
   <div v-show="!configForm.hidden" :ref="config.name" class="dynamic-form">
 
-uuu      {{baseModel.test}} {{baseModel.test2}}
-
 
     <template v-if="configForm.displayValue && configForm.displayLabel">
       <b>{{ configForm.label }} : </b>
@@ -299,7 +297,6 @@ export default {
     },
     config: {
       handler() {
-        console.log('confi')
         this.configForm = this.getConfigForm();
       },
       deep: true
@@ -308,7 +305,6 @@ export default {
 
   methods: {
     getConfigForm: function() {
-      console.log('cf', this.config.name)
       const configResolved = { condition: true, valid: true };
 
       // if(this.config.multiple && !this.baseModel[this.config.name]) {
@@ -334,8 +330,11 @@ export default {
         }
           // select
           this.config.type = this.config.type || configStore.type || "list_form";
-          this.config.list_type =
-            this.config.list_type || configStore.list_type || "select";
+          if(this.config.type === 'list_form') {
+            this.config.list_type =
+              this.config.list_type || configStore.list_type || "autocomplete";
+          }
+
       }
 
       for (const key in this.config) {

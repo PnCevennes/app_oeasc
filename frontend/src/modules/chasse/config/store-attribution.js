@@ -3,7 +3,11 @@ export default {
   name: "attribution",
   label: "Attribution",
   serverSide: true,
+  displayFieldName: 'numero_bracelet',
   defs: {
+    label: {  
+      label: 'Attribution'
+    },
     id_attribution: {
       label: "ID",
       hidden: true,

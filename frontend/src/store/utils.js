@@ -83,7 +83,7 @@ const processFormConfig = configStore => {
       ...col
     };
     // process defaults
-    // formDefs[keyCol].type = formDefs[keyCol].type || "text";
+    // formDefs[keyCol].type = formDefs[keyCol].type;
   }
 
   configForm.formDefs = formDefs;
