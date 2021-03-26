@@ -32,14 +32,17 @@ def get_all_generic(module_name, object_types):
     
     args = request.args
 
-    res, count = get_objects_type(module_name, object_type, args)
+    res, count, count_filtered = get_objects_type(module_name, object_type, args)
 
     if 'count' in args:
         return count
 
+    items = [r.as_dict(True) for r in res.all()]
+
     return {
-        'total': count,
-        'items':[r.as_dict(True) for r in res.all()]
+        'total' : count,
+        'total_filtered' : count_filtered,
+        'items' : items
     }
 
 @bp.route('<string:module_name>/<string:object_type>/<value>', methods=['GET'])

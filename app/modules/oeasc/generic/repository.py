@@ -98,6 +98,8 @@ def get_objects_type(module_name, object_type, args={}):
             continue
         query = query.filter(getattr(Model, key).in_(pre_filters[key]))
 
+    count = query.count()
+
     # filtres
     #
     # si ?<key>=<value_filter> -> filtre =
@@ -157,7 +159,6 @@ def get_objects_type(module_name, object_type, args={}):
         model_attribute, rel = custom_getattr(Model, key)
         if model_attribute is None:
             continue
-        print('key', key)
         if rel:
             query = query.join(getattr(Model, rel)) 
         desc = sort_desc[index]
@@ -172,7 +173,7 @@ def get_objects_type(module_name, object_type, args={}):
     if order_bys:
         query = query.order_by(*(tuple(order_bys)))
 
-    count = query.count()
+    count_filtered = query.count()
 
     page = args.get('page')
     itemsPerPage = args.get('itemsPerPage')
@@ -182,7 +183,7 @@ def get_objects_type(module_name, object_type, args={}):
         if page:
             query = query.offset((int(page)-1))
 
-    return query, count
+    return query, count, count_filtered
 
 
 def get_object_type(module_name, object_type, value, field_name=None):

@@ -43,12 +43,13 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-
     <v-card>
       <v-card-title>
         {{ configTable.title }}
         <v-spacer></v-spacer>
       </v-card-title>
+  {{options}}
+
       <v-data-table
         :options.sync="options"
         :class="configTable.classes"
@@ -391,14 +392,15 @@ export default {
       for (const [value, header] of Object.entries(config.headerDefs)) {
         header.value = value;
         if (header.type == "date") {
-          header.sort = sortDate;
+          // header.sort = sortDate;
+          sortDate;
           header.display = a =>
-            a && a.includes("-")
-              ? a
+            a && a[header.value].includes("-")
+              ? a[header.value]
                   .split("-")
                   .reverse()
                   .join("/")
-              : a;
+              : a[header.value];
         }
 
         if (header.storeName) {
@@ -470,7 +472,9 @@ export default {
             for (const [keySearch, valueSearch] of Object.entries(
               this.searchs || {}
             )) {
-              searchOptions[`${keySearch}__ilike`] = valueSearch;
+              const header = this.configTable.headers.find(h => h.value === keySearch)
+              let key = header.displayFieldName ? `${keySearch}.${header.displayFieldName}` : keySearch
+              searchOptions[`${key}__ilike`] = valueSearch;
             }
 
             // on change les clé de tri pour les storeName
@@ -489,6 +493,7 @@ export default {
                     notCommit: true,
                     ...searchOptions,
                     sortBy,
+                    serverSide: true
                   }
                 : {};
             promises.push($store.dispatch(configStore.getAll, options));
@@ -527,7 +532,7 @@ export default {
 
                 // sortie du
                 if (items && items.items) {
-                  this.itemsServerCount = items.total;
+                  this.itemsServerCount = items.total_filtered;
                   items = items.items;
                 } else if (items) {
                   this.itemsServerCount = items.length;

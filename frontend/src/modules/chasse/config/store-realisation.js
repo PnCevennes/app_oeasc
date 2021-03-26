@@ -3,15 +3,75 @@ export default {
   name: "realisation",
   label: "Réalisation",
   serverSide: true,
-  
+
   genre: "F",
-  columns: ["saison", "attribution", "auteur_tir", "auteur_constat"],
+  columns: [
+    "saison",
+    "attribution",
+    "auteur_tir",
+    "auteur_constat",
+    "zone_cynegetique_realisee",
+    "zone_interet_realisee",
+    "lieu_tir",
+    "date_exacte",
+    "nomenclature_sexe",
+    "nomenclature_classe_age",
+  ],
   form: {
-    forms: ["saison", "attribution", "auteur_tir", "auteur_constat"]
+    groups: [
+      {
+        title: "Bracelet",
+        forms: ["saison", "attribution"],
+        direction: "row"
+      },
+      {
+        title: "Localisation",
+        groups: [
+          {
+            forms: ["zone_cynegetique_affectee", "zone_cynegetique_realisee"],
+            direction: "row"
+          },
+          {
+            forms: ["zone_interet_affectee", "zone_interet_realisee"],
+            direction: "row"
+          },
+          {
+            forms: ["lieu_tir", "mortalite_hors_pc", "parcelle_onf"],
+            direction: "row"
+          }
+        ]
+      },
+      {
+        title: "Informations (auteur, date)",
+        groups: [
+          {
+            forms: ["auteur_tir", "auteur_constat"],
+            direction: "row"
+          },
+          {
+            forms: ["date_exacte", "date_enreg"],
+            direction: "row"
+          }
+        ]
+      },
+      {
+        title: "Information animal",
+        groups: [
+          {
+            forms: ["nomenclature_sexe", "nomenclature_classe_age"],
+            direction: "row"
+          },
+          {
+            forms: ["poid_entier", "poid_vide", "poid_c_f_p"],
+            direction: "row"
+          }
+        ]
+      }
+    ]
+    // forms: ["saison", "attribution", "auteur_tir", "auteur_constat", "zone_cynegetique_realisee", "zone_cynegetique_affectee"]
   },
   options: {
     page: 1,
-    itemsPerPage: 5,
     sortBy: ["saison"],
     sortDesc: [true]
   },
@@ -20,32 +80,6 @@ export default {
     // id_realisation: {
     //   label: "ID"
     // },
-    // numero_bracelet: {
-    //   label: "No Bracelet"
-    // },
-    // nom_saison: {
-    //   label: "Saison"
-    // },
-    // nom_auteur_tir: {
-    //   label: "Auteur tir"
-    // },
-    // nom_auteur_constat: {
-    //   label: "Auteur constat"
-    // },
-    // nom_zone_cynegetique_realisee: {
-    //   label: "Zone cynégétique réalisée"
-    // },
-    // id_attribution: {
-    //   label: "Attribution",
-    //   storeName: "chasseAttribution",
-    //   displayFieldName: "label",
-    //   list_type: 'autocomplete',
-    //   params: ({baseModel}) => ({
-    //     sortBy: ['label'],
-    //     sortDesc: [true],
-    //     itemsPerPage: 10,
-    //     id_saison: baseModel['id_saison']
-    //   }),
 
     // form
     saison: {
@@ -95,8 +129,18 @@ export default {
         itemsPerPage: 10
       }
     },
-
-    id_zone_cynegetique_realisee: {
+    zone_cynegetique_affectee: {
+      label: "Zone cynégétique affectee",
+      storeName: "chasseZoneCynegetique",
+      returnObject: true,
+      params: {
+        sortBy: ["nom_zone_cinegetique"],
+        sortDesc: [false],
+        itemsPerPage: 10
+      },
+      disabled: true
+    },
+    zone_cynegetique_realisee: {
       label: "Zone cynégétique réalisée",
       storeName: "chasseZoneCynegetique",
       returnObject: true,
@@ -106,123 +150,91 @@ export default {
         itemsPerPage: 10
       }
     },
+    zone_interet_affectee: {
+      label: "Zone d'intérêt affectée",
+      storeName: "chasseZoneInteret",
+      returnObject: true,
+      params: {
+        sortBy: ["nom_zone_interet"],
+        sortDesc: [false],
+        itemsPerPage: 10
+      },
+      disabled: true
+    },
+    zone_interet_realisee: {
+      label: "Zone d'intérêt réalisée",
+      storeName: "chasseZoneInteret",
+      returnObject: true,
+      params: {
+        sortBy: ["nom_zone_interet"],
+        sortDesc: [false],
+        itemsPerPage: 10
+      }
+    },
+    lieu_tir: {
+      label: "Lieu de tir",
+      storeName: "chasseLieuTir",
+      returnObject: true,
+      params: {
+        sortBy: ["nom_lieu_tir"],
+        sortDesc: [false],
+        itemsPerPage: 10
+      }
+    },
+    date_exacte: {
+      label: "Date exacte",
+      type: "date"
+    },
+    date_enreg: {
+      label: "Date enregistrement",
+      type: "date"
+    },
+    mortalite_hors_pc: {
+      label: "Mortalité hors Parc",
+      type: "bool_switch"
+    },
+    parcelle_onf: {
+      label: "Parcelle ONF",
+      type: "bool_switch"
+    },
+    nomenclature_sexe: {
+      label: "Sexe",
+      type: "nomenclature",
+      returnObject: true,
+      list_type: "select",
+      storeName: "commonsNomenclature",
+      nomenclatureType: "SEXE"
+    },
+    nomenclature_classe_age: {
+      label: "Classe d'age",
+      type: "nomenclature",
+      returnObject: true,
+      list_type: "select",
+      storeName: "commonsNomenclature",
+      nomenclatureType: "STADE_VIE"
+    },
 
-    // id_saison: {
-    //   label: "Saison",
-    //   storeName: "chasseSaison",
-    //   list_type: "autocomplete",
-    //   params: {
-    //     sortBy: ["nom_saison"],
-    //     sortDesc: [true],
-    //     itemsPerPage: 10
-    //   },
-    //   default: ({ $store }) => {
-    //     return $store
-    //       .dispatch($store.getters.configStore("chasseSaison").get, {
-    //         value: true,
-    //         fieldName: "current"
-    //       })
-    //       .then(saison => {
-    //         return saison.id_saison;
-    //       });
-    //   }
-
-
-    // attribution: {
-    //   label: "Attribution",
-    //   list_type: 'autocomplete',
-    //   type: 'list_form',
-    //   params: ({baseModel}) => ({
-    //     sortBy: ['label'],
-    //     sortDesc: [true],
-    //     itemsPerPage: 10,
-    //     id_saison: baseModel['id_saison']
-    //   })
-    // },
-    // id_auteur_tir: {
-    //   label: "Auteur tir",
-    //   storeName: "chassePersonne"
-    // },
-    // id_auteur_constat: {
-    //   label: "Auteur constat",
-    //   storeName: "chassePersonne"
-    // },
-    // id_realisation: {
-    //   label: "ID prout",
-    //   hidden: true,
-    //   displayFieldName: "numero_bracelet"
-    // },
-    // id_zone_cynegetique_affectee: {
-    //   label: "Zone cynégétique affectée",
-    //   storeName: "chasseZoneCynegetique",
-    //   disabled: true
-    // },
-    // id_zone_interet_affectee: {
-    //   label: "Zone intérêt affectee",
-    //   storeName: "chasseZoneInteret",
-    //   disabled: true
-    // },
-    // id_zone_cynegetique_realisee: {
-    //   label: "Zone cynégétique réalisée",
-    //   storeName: "chasseZoneCynegetique"
-    // },
-    // id_zone_interet_realisee: {
-    //   label: "Zone intérêt réalisée",
-    //   storeName: "chasseZoneInteret"
-    // },
-    // id_lieu_tir: {
-    //   label: "Lieu de tir",
-    //   storeName: "chasseLieuTir"
-    // },
-    // date_exacte: {
-    //   label: "Date exacte",
-    //   type: "date"
-    // },
-    // date_enreg: {
-    //   label: "Date enregistrement",
-    //   type: "date"
-    // },
-    // mortalite_hors_pc: {
-    //   label: "Mortalité hors Parc",
-    //   type: "bool_switch"
-    // },
-    // parcelle_onf: {
-    //   label: "Parcelle ONF",
-    //   type: "bool_switch"
-    // },
-    // id_nomenclature_sexe: {
-    //   label: "Sexe",
-    //   type: "nomenclature",
-    //   storeName: "commonsNomenclature",
-    //   nomenclatureType: "SEXE"
-    // },
-    // id_nomenclature_classe_age: {
-    //   label: "Classe d'age",
-    //   type: "nomenclature",
-    //   storeName: "commonsNomenclature",
-    //   nomenclatureType: "STADE_VIE"
-    // },
     // id_nomenclature_mode_chasse: {
     //   label: "Mode de chasse",
     //   type: "nomenclature",
     //   storeName: "commonsNomenclature",
     //   nomenclatureType: "OEASC_MOD_CHASSE"
     // },
-    // poid_entier: {
-    //   label: "Poid entier",
-    //   type: "number",
-    //   min: 0
-    // },
-    // poid_vide: {
-    //   label: "Poid vide",
-    //   type: "number",
-    //   min: 0
-    // },
-    // poid_c_f_p: {
-    //   label: "Poid CFP",
-    //   type: "number",
-    //   min: 0
-    // },
+    poid_entier: {
+      label: "Poid entier",
+      type: "number",
+      min: 0
+    },
+    poid_vide: {
+      label: "Poid vide",
+      type: "number",
+      min: 0
+    },
+    poid_c_f_p: {
+      label: "Poid CFP",
+      type: "number",
+      min: 0
+    },
     // long_mandibules_droite: {
     //   label: "Longueur mandibules droite",
     //   type: "number",
@@ -353,3 +365,23 @@ export default {
   //   ]
   // },
 };
+
+// id_saison: {
+//   label: "Saison",
+//   storeName: "chasseSaison",
+//   list_type: "autocomplete",
+//   params: {
+//     sortBy: ["nom_saison"],
+//     sortDesc: [true],
+//     itemsPerPage: 10
+//   },
+//   default: ({ $store }) => {
+//     return $store
+//       .dispatch($store.getters.configStore("chasseSaison").get, {
+//         value: true,
+//         fieldName: "current"
+//       })
+//       .then(saison => {
+//         return saison.id_saison;
+//       });
+//   }

@@ -325,7 +325,7 @@ export default {
         if (!this.config.type) {
           (this.config.dataReloadOnSearch = true),
             (this.config.url = ({ search, config }) => {
-              const url = `${config.api}?${config.displayFieldName}=${search}`;
+              const url = `${config.api}?${config.displayFieldName}__ilike=${search}`;
               return url;
             });
         }

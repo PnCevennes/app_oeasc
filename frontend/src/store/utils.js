@@ -274,12 +274,19 @@ export default {
         }
         apiRequest("GET", `${apis}`, {params:options}, {commit, getters}).then(
           data => {
+
             const items = data.items || data;
-            // super la double negation
+
             if(!options.notCommit) {
               commit(storeNameConfig, { loaded: true });
               commit(storeNames, items);
             }
+
+            if(options.serverSide) {
+              resolve(data);
+              return;
+            }
+
             resolve(items);
           },
           error => {

@@ -7,7 +7,7 @@ from utils_flask_sqla.serializers import serializable
 from geoalchemy2 import Geometry
 from sqlalchemy.orm import column_property
 from sqlalchemy import select, func, and_
-from ..commons.models import TEspeces
+from ..commons.models import TEspeces, TNomenclatures   
 
 config = current_app.config
 DB = config['DB']
@@ -212,59 +212,45 @@ class TRealisationsChasse(DB.Model):
     auteur_tir = DB.relationship(TPersonnes, primaryjoin=TPersonnes.id_personne == id_auteur_tir)
     auteur_constat = DB.relationship(TPersonnes, primaryjoin=TPersonnes.id_personne == id_auteur_constat)
 
-    # nom_saison = column_property(
-    #     select([TSaisons.nom_saison]).\
-    #         where(
-    #             and_(
-    #                 TAttributions.id_attribution == id_attribution,
-    #                 TAttributions.id_saison == TSaisons.id_saison,
-    #             )
-    #         )
-    # )
 
-    # numero_bracelet = column_property(
-    #     select([TAttributions.numero_bracelet]).\
-    #         where(TAttributions.id_attribution == id_attribution)
-    # )
-    
+    id_zone_cynegetique_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique'))
+    zone_cynegetique_realisee = DB.relationship(TZoneCynegetiques)
+    zone_cynegetique_affectee = DB.relationship(
+        TZoneCynegetiques,
+        secondary='oeasc_chasse.t_attributions',
+        primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
+        secondaryjoin="TAttributions.id_zone_cynegetique_affectee==TZoneCynegetiques.id_zone_cynegetique",
+        uselist=False
+    )
 
+    id_zone_interet_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_interets.id_zone_interet'))
+    zone_interet_realisee = DB.relationship(TZoneInterets)
+    zone_interet_affectee = DB.relationship(
+        TZoneInterets,
+        secondary='oeasc_chasse.t_attributions',
+        primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
+        secondaryjoin="TAttributions.id_zone_interet_affectee==TZoneInterets.id_zone_interet",
+        uselist=False
+    )
 
+    id_lieu_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_lieu_tirs.id_lieu_tir'))
+    lieu_tir = DB.relationship(TLieuTirs)
 
-    # nom_auteur_tir = column_property(select([TPersonnes.nom_personne]).where(TPersonnes.id_personne == id_auteur_tir))
-    # nom_auteur_constat = column_property(select([TPersonnes.nom_personne]).where(TPersonnes.id_personne == id_auteur_constat))
+    date_exacte = DB.Column(DB.Date)
+    date_enreg = DB.Column(DB.Date)
 
-    # id_zone_cynegetique_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique'))
-    # zone_cynegetique_realisee = DB.relationship(TZoneCynegetiques)
-    # nom_zone_cynegetique = column_property(
-    #     select([TZoneCynegetiques.nom_zone_cynegetique]).\
-    #         where(TZoneCynegetiques.id_zone_cynegetique == id_zone_cynegetique_realisee)
-    # )
+    mortalite_hors_pc = DB.Column(DB.Boolean)
+    parcelle_onf = DB.Column(DB.Boolean)
 
-    # id_realisation = DB.Column(DB.Integer, primary_key = True)
-    # id_zone_cynegetique_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique'))
-    # id_zone_interet_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_interets.id_zone_interet'))
-    # id_lieu_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_lieu_tirs.id_lieu_tir'))
+    id_nomenclature_sexe = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
+    nomenclature_sexe = DB.relationship(TNomenclatures, foreign_keys=[id_nomenclature_sexe])
 
-    # date_exacte = DB.Column(DB.Date)
-    # date_enreg = DB.Column(DB.Date)
+    id_nomenclature_classe_age = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
+    nomenclature_classe_age = DB.relationship(TNomenclatures, foreign_keys=[id_nomenclature_classe_age])
 
-    # mortalite_hors_pc = DB.Column(DB.Boolean)
-
-    # id_auteur_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_personnes.id_personne'))
-    # id_auteur_constat = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_personnes.id_personne'))
-
-    # auteur_tir = DB.relationship(TPersonnes, primaryjoin=TPersonnes.id_personne == id_auteur_tir)
-    # auteur_constat = DB.relationship(TPersonnes, primaryjoin=TPersonnes.id_personne == id_auteur_constat)
-
-    # nom_auteur_tir = column_property(select([TPersonnes.nom_personne]).where(TPersonnes.id_personne==id_auteur_tir))
-    # nom_auteur_constat = column_property(select([TPersonnes.nom_personne]).where(TPersonnes.id_personne==id_auteur_constat))
-
-    # id_nomenclature_sexe = DB.Column(DB.Integer)
-    # id_nomenclature_classe_age = DB.Column(DB.Integer)
-
-    # poid_entier = DB.Column(DB.Integer)
-    # poid_vide = DB.Column(DB.Integer)
-    # poid_c_f_p = DB.Column(DB.Integer)
+    poid_entier = DB.Column(DB.Integer)
+    poid_vide = DB.Column(DB.Integer)
+    poid_c_f_p = DB.Column(DB.Integer)
 
     # long_dagues_droite = DB.Column(DB.Integer)
     # long_dagues_gauche = DB.Column(DB.Integer)
@@ -278,7 +264,6 @@ class TRealisationsChasse(DB.Model):
     # id_nomenclature_mode_chasse = DB.Column(DB.Integer)
     # commentaire = DB.Column(DB.Unicode)
 
-    # parcelle_onf = DB.Column(DB.Boolean)
     # poid_indique = DB.Column(DB.Boolean)
     # cors_indetermine = DB.Column(DB.Boolean)
     # long_mandibule_indetermine = DB.Column(DB.Boolean)
