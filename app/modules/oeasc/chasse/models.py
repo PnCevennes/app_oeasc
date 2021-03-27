@@ -208,9 +208,10 @@ class TRealisationsChasse(DB.Model):
     )
 
     id_auteur_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_personnes.id_personne'))
+    auteur_tir = DB.relationship(TPersonnes, foreign_keys=id_auteur_tir)
+
     id_auteur_constat = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_personnes.id_personne'))
-    auteur_tir = DB.relationship(TPersonnes, primaryjoin=TPersonnes.id_personne == id_auteur_tir)
-    auteur_constat = DB.relationship(TPersonnes, primaryjoin=TPersonnes.id_personne == id_auteur_constat)
+    auteur_constat = DB.relationship(TPersonnes, foreign_keys=id_auteur_constat)
 
 
     id_zone_cynegetique_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique'))
@@ -243,10 +244,10 @@ class TRealisationsChasse(DB.Model):
     parcelle_onf = DB.Column(DB.Boolean)
 
     id_nomenclature_sexe = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
-    nomenclature_sexe = DB.relationship(TNomenclatures, foreign_keys=[id_nomenclature_sexe])
+    nomenclature_sexe = DB.relationship(TNomenclatures, foreign_keys=id_nomenclature_sexe)
 
     id_nomenclature_classe_age = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
-    nomenclature_classe_age = DB.relationship(TNomenclatures, foreign_keys=[id_nomenclature_classe_age])
+    nomenclature_classe_age = DB.relationship(TNomenclatures, foreign_keys=id_nomenclature_classe_age)
 
     poid_entier = DB.Column(DB.Integer)
     poid_vide = DB.Column(DB.Integer)

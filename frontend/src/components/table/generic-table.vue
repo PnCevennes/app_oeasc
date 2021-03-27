@@ -331,6 +331,7 @@ export default {
       if (config.storeName) {
         const configStore = this.$store.getters.configStore(config.storeName);
         config.serverSide = configStore.serverSide;
+        console.log(config.serverSide);
         config.idFieldName = configStore.idFieldName;
         this.options = {
           ...this.options,
@@ -574,6 +575,7 @@ export default {
             ? header.display(item, { $store: this.$store })
             : item[header.value];
           cond =
+            this.configTable.serverSide ||
             cond &&
             String(val)
               .toLowerCase()

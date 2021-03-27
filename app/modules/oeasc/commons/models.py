@@ -115,7 +115,7 @@ class TNomenclatures(DB.Model):
     mnemonique = DB.Column(DB.Unicode)
     label_fr = DB.Column(DB.Unicode)
     definition_fr = DB.Column(DB.Unicode)
-    id_type = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.bib_nomenclatures_type.id_type'))
+    id_type = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.bib_nomenclatures_types.id_type'))
 
     type = column_property(
         select([BibNomenclaturesTypes.mnemonique]).\

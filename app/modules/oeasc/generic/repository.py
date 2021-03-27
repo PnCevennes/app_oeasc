@@ -4,7 +4,15 @@
 
 from flask import current_app
 from.definitions import GenericRouteDefinitions
-from sqlalchemy import func, cast
+from sqlalchemy import func, cast, orm
+import unidecode
+
+
+from sqlalchemy.sql.functions import ReturnTypeFromArgs
+
+class unaccent(ReturnTypeFromArgs):
+    pass
+
 
 config = current_app.config
 DB = config['DB']
@@ -49,7 +57,7 @@ def getlist(args, key):
 
 
 
-def custom_getattr(Model, attr_name):
+def custom_getattr(Model, attr_name, query):
     '''
         Recupere 
             - l'attribut d'un modele Model.attr si attr_name = 'attr'
@@ -65,25 +73,35 @@ def custom_getattr(Model, attr_name):
         col = attr_name.split('.')[1]
 
         if not hasattr(Model, rel):
-            return None, None
+            return None, query
 
         if not hasattr(getattr(Model, rel).mapper.columns, col):
-            return None, None
+            return None, query
 
-        return  getattr(getattr(Model, rel).mapper.columns, col), rel
+        relationship = getattr(Model, rel)
+        alias = orm.aliased(relationship.mapper.entity) # Model ?????
+
+        query = query.join(alias, relationship)
+
+        model_attribute = getattr(alias, col)
+
+        return  model_attribute, query
         
     else:
 
         if not hasattr(Model, attr_name):
-            return None, None
+            return None, query
         
-        return  getattr(Model, attr_name), None
+        return  getattr(Model, attr_name), query
 
 
 def get_objects_type(module_name, object_type, args={}):
     '''
         get all
     '''
+
+    joins = []
+
     Model, _ = definitions.get_model(module_name, object_type)
     obj = definitions.get_object_type(module_name, object_type)
 
@@ -125,29 +143,36 @@ def get_objects_type(module_name, object_type, args={}):
         #  test si clé null à ajouter ???
         value_filter = args[key]
 
+        if not value_filter:
+            continue
+
         # value
 
         # # si la cle n'est pas présente dans le modèle on passe
 
         # pour les cas ou key_filter = relationship.attribute 
         # (ou plus profond ?? r1.r2.attribute)
-        model_attribute, rel = custom_getattr(Model, key_filter)
+        model_attribute, query = custom_getattr(Model, key_filter, query)
 
         if model_attribute is None:
             continue
 
-        if rel:
-            query = query.join(getattr(Model, rel))
-            
-        if type_filter == 'ilike':
+        if type_filter == 'ilike':  
 
             # filre ILIKE            
-            query = query.filter(cast(model_attribute, DB.String ).ilike('%' + value_filter + '%'))
+            value_filter_unaccent = unidecode.unidecode(value_filter)
+            query = query.filter(
+                (unaccent(
+                    cast(model_attribute, DB.String)
+                )).ilike(func.concat('%', unaccent(value_filter), '%'))
+            )
+
         else:
 
             # filtre =
-            print('dfdf', key_filter, value_filter)
-            query = query.filter(cast(model_attribute, DB.String ) == value_filter)
+            query = query.filter(
+                cast(model_attribute, DB.String ) == value_filter
+            )
 
     # print sort by
     sort_by = getlist(args, 'sortBy')
@@ -156,11 +181,10 @@ def get_objects_type(module_name, object_type, args={}):
     # sort
     order_bys = []
     for index, key in enumerate(sort_by):
-        model_attribute, rel = custom_getattr(Model, key)
+        model_attribute, query = custom_getattr(Model, key, query)
         if model_attribute is None:
             continue
-        if rel:
-            query = query.join(getattr(Model, rel)) 
+
         desc = sort_desc[index]
         if(desc == 'true'):
             model_attribute = model_attribute.desc()
