@@ -30,10 +30,10 @@ const ROUTE = [
       config: {
         title: "Indice Nocturnes",
         tabs: {
-          // graphiques: {
-          //   label: "Statistiques",
-          //   type: "in-table"
-          // },
+          graphiques: {
+            label: "Statistiques",
+            type: "in-table"
+          },
           realisation: {
             storeName: 'inRealisation',
           },
@@ -75,7 +75,6 @@ const STORE = {}
 
 storeUtils.addSimpleStore(STORE, "inResults", "api/in/results/");
 
-// storeUtils.addStore(STORE, "Realisation")
 storeUtils.addStore(STORE, configStoreCircuit)
 storeUtils.addStore(STORE, configStoreObserver)
 storeUtils.addStore(STORE, configStoreTag)

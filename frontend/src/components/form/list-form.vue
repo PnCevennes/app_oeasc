@@ -4,8 +4,8 @@
     <span v-else-if="config.displayValue">
       <span>{{ valueDisplay }}</span>
     </span>
-    <div v-else>
 
+    <div v-else>
       <div class="list-form">
         <div v-if="config.list_type === 'button'">
           <div class="select-list-label">{{ config.label }}</div>
@@ -228,18 +228,7 @@ export default {
       }
     },
     baseModel: {
-      handler() {
-        if (this.config.dataReloadOnSearch && !this.search) {
-          this.search = this.baseModel[this.config.name] + "";
-        }
-        if (
-          this.config.dataReloadOnSearch &&
-          this.search &&
-          !this.baseModel[this.config.name]
-        ) {
-          this.search = "";
-        }
-      },
+      handler() {},
       deep: true
     },
     config() {
@@ -317,8 +306,22 @@ export default {
         );
       }
       this.items = items;
+      // this.setInitSearch();
       // patch search
-      this.clickChips();
+    },
+
+    setInitSearch() {
+      const value =
+        this.baseModel[this.config.name] &&
+        this.baseModel[this.config.name][this.config.displayFieldName];
+      if (
+        ["autocomplete", "combobox"].includes(this.config.list_type) &&
+        this.config.returnObject &&
+        !this.search &&
+        value
+      ) {
+        this.search = value;
+      }
     },
 
     clickChips() {
@@ -349,11 +352,22 @@ export default {
       let promise = null;
       if (this.dataItems && !this.config.dataReloadOnSearch) {
         this.processItems();
-      } else if (this.config.storeName && !this.config.dataReloadOnSearch) {
+      } else if (this.config.storeName) {
         const configStore = this.$store.getters.configStore(
           this.config.storeName
         );
-        promise = this.$store.dispatch(configStore.getAll);
+
+        const params = {
+          notCommit: this.config.dataReloadOnSearch,
+          sortBy: [this.config.displayFieldName],
+          sortDesc: [false],
+          itemsPerPage: this.config.dataReloadOnSearch ? 10 : -1,
+          ...this.config.params
+        };
+        if (this.config.dataReloadOnSearch && this.search) {
+          params[`${this.config.displayFieldName}__ilike`] = this.search || "";
+        }
+        promise = this.$store.dispatch(configStore.getAll, params);
         this.config.valueFieldName = configStore.idFieldName;
         this.config.displayFieldName =
           this.config.displayFieldName || configStore.displayFieldName;
@@ -367,9 +381,6 @@ export default {
               })
             : this.config.url;
         promise = apiRequest("GET", url, { params: this.config.params || {} });
-        // promise = this.$store.dispatch("cacheOrRequest", {
-        //   url
-        // });
       }
 
       if (promise) {
@@ -426,13 +437,7 @@ export default {
         this.dataItems = this.config.items;
       }
     }
-    if (this.config.dataReloadOnSearch) {
-      let search = this.baseModel[this.config.name] || "";
-      if (this.config.returnObject && search) {
-        search = search[this.config.displayFieldName];
-      }
-      this.search = search + "";
-    }
+    this.setInitSearch();
 
     this.getData();
   }

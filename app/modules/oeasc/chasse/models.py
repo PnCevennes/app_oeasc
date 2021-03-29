@@ -7,7 +7,7 @@ from utils_flask_sqla.serializers import serializable
 from geoalchemy2 import Geometry
 from sqlalchemy.orm import column_property
 from sqlalchemy import select, func, and_
-from ..commons.models import TEspeces, TNomenclatures   
+from ..commons.models import TEspeces, TNomenclatures, TSecteurs   
 
 config = current_app.config
 DB = config['DB']
@@ -40,6 +40,7 @@ class TZoneCynegetiques(DB.Model):
         DB.Integer,
         DB.ForeignKey('oeasc_commons.t_secteurs.id_secteur')
     )
+    secteur = DB.relationship(TSecteurs, foreign_keys=id_secteur)
 
 
 @serializable
@@ -57,6 +58,7 @@ class TZoneInterets(DB.Model):
         DB.Integer,
         DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique')
     )
+    zone_cynegetique = DB.relationship(TZoneCynegetiques, foreign_keys=id_zone_cynegetique)
 
 @serializable
 class TLieuTirs(DB.Model):
@@ -75,6 +77,7 @@ class TLieuTirs(DB.Model):
         DB.Integer,
         DB.ForeignKey('oeasc_chasse.t_zone_interets.id_zone_interet')
     )
+    zone_interet = DB.relationship(TZoneInterets, foreign_keys=id_zone_interet)
 
 
 @serializable
@@ -104,11 +107,13 @@ class TSaisonDates(DB.Model):
 
     id_saison_date = DB.Column(DB.Integer, primary_key=True)
     id_saison = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_saisons.id_saison'))
+    saison = DB.relationship(TSaisons, foreign_keys=id_saison)
     id_espece = DB.Column(DB.Integer, DB.ForeignKey('oeasc_commons.t_especes.id_espece'))
+    espece = DB.relationship(TEspeces, foreign_keys=id_espece)
     date_debut = DB.Column(DB.Date)
     date_fin = DB.Column(DB.Date)
-    id_nomenclature_type_chasse = DB.Column(DB.Integer)
-
+    id_nomenclature_type_chasse = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
+    nomenclature_type_chasse = DB.relationship(TNomenclatures, foreign_keys=id_nomenclature_type_chasse)
     
 
 
@@ -128,6 +133,11 @@ class TAttributionMassifs(DB.Model):
     nb_affecte_min = DB.Column(DB.Integer)
     nb_affecte_max = DB.Column(DB.Integer)
 
+    saison = DB.relationship(TSaisons)
+    espece = DB.relationship(TEspeces)
+    zone_cynegetique = DB.relationship(TZoneCynegetiques)
+
+
 
 @serializable
 class TTypeBracelets(DB.Model):
@@ -140,6 +150,7 @@ class TTypeBracelets(DB.Model):
 
     id_type_bracelet = DB.Column(DB.Integer, primary_key=True)
     id_espece = DB.Column(DB.Integer, DB.ForeignKey('oeasc_commons.t_especes.id_espece'))
+    espece = DB.relationship(TEspeces, foreign_keys=id_espece)
     code_type_bracelet = DB.Column(DB.Unicode)
     description_type_bracelet = DB.Column(DB.Unicode)
 
@@ -163,26 +174,9 @@ class TAttributions(DB.Model):
     meta_update_date = DB.Column(DB.DateTime)
 
     saison = DB.relationship(TSaisons)
-
-    label = column_property(
-        select(
-            [
-                func.concat(
-                    TSaisons.nom_saison,
-                    '  ',
-                    TEspeces.nom_espece,
-                    '  ',
-                    numero_bracelet,
-                )
-            ]).\
-            where(
-                and_(
-                    TTypeBracelets.id_type_bracelet == id_type_bracelet,
-                    TEspeces.id_espece == TTypeBracelets.id_espece,
-                    TSaisons.id_saison == id_saison
-                )
-        )
-    )
+    zone_cynegetique_affectee = DB.relationship(TZoneCynegetiques)
+    zone_interet_affectee = DB.relationship(TZoneInterets)
+    type_bracelet = DB.relationship(TTypeBracelets)
 
 
 

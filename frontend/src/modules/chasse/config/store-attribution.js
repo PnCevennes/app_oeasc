@@ -5,28 +5,44 @@ export default {
   serverSide: true,
   displayFieldName: 'numero_bracelet',
   defs: {
-    label: {  
-      label: 'Attribution'
+    numero_bracelet: {  
+      label: 'Numéro bracelet',
+      type: "text",
     },
     id_attribution: {
       label: "ID",
       hidden: true,
+      type: 'text',
     },
-    id_type_bracelet: {
+    type_bracelet: {
         label: 'Type de bracelet',
-        storeName: 'chasseTypeBracelet'
+        storeName: 'chasseTypeBracelet',
+        type: 'list_form',
+        list_type: 'select',
+        returnObject: true,
     },
-    id_saison: {
+    saison: {
         label: 'saison',
-        storeName: 'chasseSaison'
+        storeName: 'chasseSaison',
+        type: 'list_form',
+        list_type: 'autocomplete',
+        returnObject: true,
+        dataReloadOnSearch: true
     },
-    id_zone_cynegetique_affectee: {
+    zone_cynegetique_affectee: {
         label: 'Zone cynégétique affectée',
-        storeName: 'chasseZoneCynegetique'
+        storeName: 'chasseZoneCynegetique',
+        type: 'list_form',
+        list_type: 'select',
+        returnObject: true,
     },
-    id_zone_interet_affectee: {
+    zone_interet_affectee: {
         label: 'Zone intérêt affectée',
-        storeName: 'chasseZoneInteret'
+        storeName: 'chasseZoneInteret',
+        type: 'list_form',
+        list_type: 'autocomplete',
+        returnObject: true,
+        dataReloadOnSearch: true
     },
   }
 };

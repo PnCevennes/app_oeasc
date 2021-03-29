@@ -3,13 +3,15 @@
 '''
 from flask import current_app
 
-from sqlalchemy import select
+from sqlalchemy import and_ , select, func, literal_column
 from sqlalchemy.orm import aliased
 from sqlalchemy.ext.declarative import ConcreteBase
+from sqlalchemy.sql.expression import case
 
 from utils_flask_sqla.serializers import serializable
 
 from ..commons.models import TSecteurs, TEspeces
+from sqlalchemy.orm import column_property
 
 
 config = current_app.config
@@ -69,11 +71,7 @@ class TCircuits(DB.Model):
         DB.ForeignKey('oeasc_commons.t_secteurs.id_secteur')
     )
     actif = DB.Column(DB.Boolean, default=True)
-    secteur = DB.relationship(
-        TSecteurs,
-        primaryjoin=TSecteurs.id_secteur == id_secteur,
-        foreign_keys=[id_secteur]
-    )
+    secteur = DB.relationship(TSecteurs)
 
 
 @serializable
@@ -138,6 +136,28 @@ class CorRealisationTag(DB.Model):
     )
 
 
+@serializable
+class CorRealisationObserver(DB.Model):
+    '''
+        Cor Realisation Observer
+    '''
+    __tablename__ = 'cor_realisation_observer'
+    __table_args__ = {'schema': 'oeasc_in', 'extend_existing': True}
+
+    id_observer = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc_in.t_observers.id_observer'),
+        primary_key=True, 
+    )
+    id_realisation = DB.Column(
+        DB.Integer,
+        DB.ForeignKey('oeasc_in.t_realisations.id_realisation'), # POURQUOI CA MARCHE PAS ????????????
+        primary_key=True,
+    )
+
+
+
+
 
 
 
@@ -161,6 +181,13 @@ class TRealisations(DB.Model):
     temps = DB.Column(DB.Unicode)
     temperature = DB.Column(DB.Unicode)
     date_realisation = DB.Column(DB.Date)
+
+    secteur = DB.relationship(TSecteurs,
+        secondary="oeasc_in.t_circuits",
+        primaryjoin="TRealisations.id_circuit == TCircuits.id_circuit",
+        secondaryjoin="TCircuits.id_secteur == TSecteurs.id_secteur",
+        uselist=False
+    )
 
     circuit = DB.relationship(
         TCircuits,
@@ -187,4 +214,87 @@ class TRealisations(DB.Model):
         lazy='joined'
     )
 
+    observers_table = column_property(
+        select([
+            func.string_agg(TObservers.nom_observer, ', ')
+        ])
+        .where(
+            and_(
+                TObservers.id_observer == CorRealisationObserver.id_observer,
+                id_realisation == CorRealisationObserver.id_observer
+            )
+        )
+    )
 
+    tags_table = column_property(
+        select([
+            func.string_agg(
+                func.concat(
+                    TTags.nom_tag,
+                    ' : ',
+                    case(
+                        [(CorRealisationTag.valid, 'o')],
+                        else_='x'
+                    )
+                )
+                 , ', '
+            )
+        ])
+        .where(
+            and_(
+                CorRealisationTag.id_realisation == id_realisation,
+                CorRealisationTag.id_tag == TTags.id_tag
+            )
+        )
+    )
+
+    cerfs = column_property(
+        select([TObservations.nb])
+        .where(
+            and_(
+                TObservations.id_realisation == id_realisation,
+                TObservations.id_espece == TEspeces.id_espece,
+                TEspeces.nom_espece == 'Cerf'
+            )
+        )
+    )
+
+    lievres = column_property(
+        select([TObservations.nb])
+        .where(
+            and_(
+                TObservations.id_realisation == id_realisation,
+                TObservations.id_espece == TEspeces.id_espece,
+                TEspeces.nom_espece == 'Lièvre'
+            )
+        )
+    )
+
+    chevreuils = column_property(
+        select([TObservations.nb])
+        .where(
+            and_(
+                TObservations.id_realisation == id_realisation,
+                TObservations.id_espece == TEspeces.id_espece,
+                TEspeces.nom_espece == 'Chevreuil'
+            )
+        )
+    )
+
+    renards = column_property(
+        select([TObservations.nb])
+        .where(
+            and_(
+                TObservations.id_realisation == id_realisation,
+                TObservations.id_espece == TEspeces.id_espece,
+                TEspeces.nom_espece == 'Renard'
+            )
+        )
+    )
+
+
+
+        # id_zone_cynegetique_affectee = column_property(
+    #     select([TAttributions.id_zone_cynegetique_affectee]).\
+    #         where(TAttributions.id_attribution == id_attribution)
+    # )

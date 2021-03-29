@@ -4,7 +4,7 @@
 
 from flask import current_app
 from.definitions import GenericRouteDefinitions
-from sqlalchemy import func, cast, orm
+from sqlalchemy import func, cast, orm, and_
 import unidecode
 
 
@@ -161,11 +161,15 @@ def get_objects_type(module_name, object_type, args={}):
 
             # filre ILIKE            
             value_filter_unaccent = unidecode.unidecode(value_filter)
-            query = query.filter(
-                (unaccent(
-                    cast(model_attribute, DB.String)
-                )).ilike(func.concat('%', unaccent(value_filter), '%'))
-            )
+            value_filters=value_filter.split(' ')
+            filters = []
+            for v in value_filters:
+                filters.append(
+                    unaccent(cast(model_attribute, DB.String))
+                    .ilike(func.concat('%', unaccent(v), '%'))
+                )
+
+            query = query.filter(and_(*(tuple(filters))))
 
         else:
 

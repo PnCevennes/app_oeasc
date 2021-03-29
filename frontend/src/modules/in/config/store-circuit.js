@@ -2,20 +2,23 @@ export default {
   group: "in",
   name: "circuit",
   label: "Circuit",
+  serverSide: true,
   defs: {
     id_circuit: {
       label: "ID",
       hidden: true
     },
-    id_secteur: {
+    secteur: {
       label: "Secteur",
       type: "list_form",
       list_type: "select",
       storeName: "commonsSecteur",
+      returnObject: true,
       required: true
     },
     nom_circuit: {
       label: "Nom",
+      type: "text",
       required: true
     },
     numero_circuit: {
@@ -35,6 +38,6 @@ export default {
       type: "bool_switch",
       required: true,
       min: 0
-    },
+    }
   }
 };

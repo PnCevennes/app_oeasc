@@ -149,7 +149,7 @@ export default {
       loaded: false,
       options: configIn.options
     };
-
+    console.log(configStore.getAll)
     processDefaults(configStore);
     processFormConfig(configStore);
     processTableConfig(configStore);
@@ -268,7 +268,7 @@ export default {
       return new Promise((resolve, reject) => {
         const loaded = !options.forceReload && configStore.loaded;
         const objList = getters[storeNames];
-        if (objList && objList.length && loaded) {
+        if (objList && objList.length && loaded && !options.notCommit) {
           resolve(objList);
           return;
         }
@@ -276,7 +276,7 @@ export default {
           data => {
 
             const items = data.items || data;
-
+            
             if(!options.notCommit) {
               commit(storeNameConfig, { loaded: true });
               commit(storeNames, items);

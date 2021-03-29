@@ -15,7 +15,7 @@ export default {
     "lieu_tir",
     "date_exacte",
     "nomenclature_sexe",
-    "nomenclature_classe_age",
+    "nomenclature_classe_age"
   ],
   form: {
     groups: [
@@ -85,22 +85,20 @@ export default {
     saison: {
       label: "Saison",
       storeName: "chasseSaison",
+      type: 'list_form',
+      list_type: 'select',
       returnObject: true,
-      params: {
-        sortBy: ["nom_saison"],
-        sortDesc: [true],
-        itemsPerPage: 10
-      },
       required: true
     },
     attribution: {
       label: "Attribution",
       storeName: "chasseAttribution",
+      type: "list_form",
+      list_type: "autocomplete",
+      dataReloadOnSearch: true,
       returnObject: true,
+      displayFieldName: 'numero_bracelet',
       params: ({ baseModel }) => ({
-        sortBy: ["numero_bracelet"],
-        sortDesc: [false],
-        itemsPerPage: 10,
         id_saison: baseModel.saison && baseModel.saison.id_saison
       }),
       disabled: ({ baseModel }) =>
@@ -109,77 +107,77 @@ export default {
     },
     auteur_tir: {
       label: "Auteur tir",
+      type: 'list_form',
       list_type: "combobox",
       returnObject: true,
-      storeName: "chassePersonne",
-      params: {
-        sortBy: ["nom_personne"],
-        sortDesc: [false],
-        itemsPerPage: 10
-      }
+      dataReloadOnSearch: true,
+      storeName: "chassePersonne"
     },
     auteur_constat: {
       label: "Auteur constat",
+      type: 'list_form',
       list_type: "combobox",
       returnObject: true,
-      storeName: "chassePersonne",
-      params: {
-        sortBy: ["nom_personne"],
-        sortDesc: [false],
-        itemsPerPage: 10
-      }
+      dataReloadOnSearch: true,
+      storeName: "chassePersonne"
     },
     zone_cynegetique_affectee: {
       label: "Zone cynégétique affectee",
       storeName: "chasseZoneCynegetique",
+      type: 'list_form',
+      list_type: 'select',
       returnObject: true,
-      params: {
-        sortBy: ["nom_zone_cinegetique"],
-        sortDesc: [false],
-        itemsPerPage: 10
-      },
-      disabled: true
+      disabled: true,
     },
     zone_cynegetique_realisee: {
       label: "Zone cynégétique réalisée",
       storeName: "chasseZoneCynegetique",
+      type: 'list_form',
+      list_type: 'select',
       returnObject: true,
-      params: {
-        sortBy: ["nom_zone_cinegetique"],
-        sortDesc: [false],
-        itemsPerPage: 10
-      }
     },
     zone_interet_affectee: {
       label: "Zone d'intérêt affectée",
       storeName: "chasseZoneInteret",
+      type: 'list_form',
+      list_type: "autocomplete",
       returnObject: true,
-      params: {
-        sortBy: ["nom_zone_interet"],
-        sortDesc: [false],
-        itemsPerPage: 10
-      },
+      dataReloadOnSearch: true,
       disabled: true
     },
     zone_interet_realisee: {
       label: "Zone d'intérêt réalisée",
       storeName: "chasseZoneInteret",
+      type: 'list_form',
+      list_type: "autocomplete",
       returnObject: true,
-      params: {
-        sortBy: ["nom_zone_interet"],
-        sortDesc: [false],
-        itemsPerPage: 10
-      }
+      dataReloadOnSearch: true,
+      // params: ({ baseModel }) => ({
+      //   id_zone_cynegetique: baseModel.zone_cynegetique_realisee &&
+      //   baseModel.zone_cynegetique_realisee.id_zone_cynegetique
+      // }),
+      // disabled: ({ baseModel }) =>
+      //   !(
+      //     baseModel.zone_cynegetique_realisee &&
+      //     baseModel.zone_cynegetique_realisee.id_zone_cynegetique
+      //   )
     },
     lieu_tir: {
       label: "Lieu de tir",
       storeName: "chasseLieuTir",
+      list_type: "autocomplete",
+      type: 'list_form',
       returnObject: true,
-      params: {
-        sortBy: ["nom_lieu_tir"],
-        sortDesc: [false],
-        itemsPerPage: 10
-      }
+      dataReloadOnSearch: true,
+      // params: ({ baseModel }) => ({
+      //   id_zone_interet: baseModel.zone_interet_realisee &&
+      //   baseModel.zone_interet_realisee.id_zone_interet
+      // }),
+      // disabled: ({ baseModel }) =>
+      //   !(
+      //     baseModel.zone_interet_realisee &&
+      //     baseModel.zone_interet_realisee.id_zone_interet
+      //   )
     },
     date_exacte: {
       label: "Date exacte",
@@ -234,7 +232,7 @@ export default {
       label: "Poid CFP",
       type: "number",
       min: 0
-    },
+    }
     // long_mandibules_droite: {
     //   label: "Longueur mandibules droite",
     //   type: "number",

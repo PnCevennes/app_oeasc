@@ -21,35 +21,35 @@ const ROUTE = [
     component: admin,
     props: {
       config: {
-        title: "Indice Nocturnes",
+        title: "Données chasse",
         tabs: {          
           realisation: {
             storeName: 'chasseRealisation'
           },
-          // attribution: {
-          //   storeName: 'chasseAttribution'
-          // },
-          // typeBracelet: {
-          //   storeName: 'chasseTypeBracelet'
-          // },
-          // affectationMassif: {
-          //   storeName: 'chasseAttributionMassif'
-          // },
-          // saisonDate: {
-          //   storeName: "chasseSaisonDate"
-          // },
+          attribution: {
+            storeName: 'chasseAttribution'
+          },
+          typeBracelet: {
+            storeName: 'chasseTypeBracelet'
+          },
+          affectationMassif: {
+            storeName: 'chasseAttributionMassif'
+          },
+          saisonDate: {
+            storeName: "chasseSaisonDate"
+          },
           saison: {
             storeName: "chasseSaison"
           },
-          // lieuTir: {
-          //   storeName: "chasseLieuTir"
-          // },
-          // zoneInteret: {
-          //   storeName: "chasseZoneInteret"
-          // },
-          // zoneCynegetique: {
-          //   storeName: "chasseZoneCynegetique"
-          // },
+          lieuTir: {
+            storeName: "chasseLieuTir"
+          },
+          zoneInteret: {
+            storeName: "chasseZoneInteret"
+          },
+          zoneCynegetique: {
+            storeName: "chasseZoneCynegetique"
+          },
           personne: {
             storeName: "chassePersonne"
           },

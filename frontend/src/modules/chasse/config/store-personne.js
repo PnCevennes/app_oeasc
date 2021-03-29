@@ -6,10 +6,12 @@ export default {
     defs: {
       id_personne: {
         label: "ID",
+        type:'text',
         hidden: true
       },
       nom_personne: {
         label: "Nom",
+        type:'text',
         required: true
       }
     }

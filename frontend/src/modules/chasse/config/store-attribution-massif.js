@@ -2,22 +2,32 @@ export default {
   group: "chasse",
   name: "attributionMassif",
   label: "Attribution Massif",
+  serverSide: true,
   defs: {
     id_attribution_massif: {
       label: "ID",
       hidden: true
     },
-    id_saison: {
+    saison: {
         label: 'saison',
-        storeName: 'chasseSaison'
+        storeName: 'chasseSaison',
+        type: 'list_form',
+        list_type: 'select',
+        returnObject: true,
     },
-    id_espece: {
+    espece: {
         label: 'Espèce',
-        storeName: 'commonsEspece'
+        storeName: 'commonsEspece',
+        type: 'list_form',
+        list_type: 'select',
+        returnObject: true,
     },
-    id_zone_cynegetique: {
+    zone_cynegetique: {
         label: 'Zone Cinégétique',
-        storeName: 'chasseZoneCynegetique'
+        storeName: 'chasseZoneCynegetique',
+        type: 'list_form',
+        list_type: 'select',
+        returnObject: true,
     },
     nb_affecte_min: {
         label: 'nb affecté min',
@@ -30,5 +40,4 @@ export default {
         min: 0
     }
   },
-  sortBy: ['id_saison', 'id_espece', 'id_zone_cynegetique']
 };

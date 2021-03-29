@@ -4,6 +4,7 @@ import declaration from "./declaration.vue";
 import { apiRequest } from "@/core/js/data/api.js";
 import storeUtils from "@/store/utils";
 import configResitutionDeclaration from "./config/restitution-declaration";
+import configStoreDegat from './config/store-degat'
 
 const ROUTE = [
   {
@@ -213,14 +214,12 @@ const STORE = {
   }
 };
 
-storeUtils.addStore(STORE, "degat", "api/declaration/degat", {
-  idFieldName: "id_declaration"
-});
+storeUtils.addStore(STORE, configStoreDegat);
 
 storeUtils.addStoreRestitution(
   STORE,
   "declaration",
-  "getAllDegat",
+  "getAllDeclarationDegat",
   configResitutionDeclaration
 );
 

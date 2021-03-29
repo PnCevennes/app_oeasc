@@ -1,7 +1,5 @@
 <template>
   <div v-show="!configForm.hidden" :ref="config.name" class="dynamic-form">
-
-
     <template v-if="configForm.displayValue && configForm.displayLabel">
       <b>{{ configForm.label }} : </b>
     </template>
@@ -256,7 +254,7 @@ export default {
     degatsForm,
     oeascContent: () => import("@/modules/content/content.vue"),
     help,
-    list,
+    list
   },
 
   data: () => ({
@@ -279,9 +277,9 @@ export default {
       "password",
       "list",
       "button",
-      "file",
+      "file"
     ],
-    configForm: null,
+    configForm: null
   }),
 
   props: ["config", "baseModel"],
@@ -292,14 +290,14 @@ export default {
       handler() {
         this.configForm = this.getConfigForm();
       },
-      deep: true,
+      deep: true
     },
     config: {
       handler() {
         this.configForm = this.getConfigForm();
       },
-      deep: true,
-    },
+      deep: true
+    }
   },
 
   methods: {
@@ -322,20 +320,32 @@ export default {
           this.config.displayFieldName || configStore.displayFieldName;
         this.config.api = this.config.api || configStore.apis;
 
-        if (!this.config.type) {
-          (this.config.dataReloadOnSearch = true),
-            (this.config.url = ({ search, config }) => {
-              const url = `${config.api}?${config.displayFieldName}__ilike=${search}`;
-              return url;
-            });
-        }
-          // select
-          this.config.type = this.config.type || configStore.type || "list_form";
-          if(this.config.type === 'list_form') {
-            this.config.list_type =
-              this.config.list_type || configStore.list_type || "autocomplete";
-          }
+        // select
+        // this.config.type = this.config.type || configStore.type || "list_form";
+        // this.config.list_type =
+        //   this.config.list_type || configStore.list_type || "select";
 
+        // si autocomplete => serverSide ??
+        // if (["autocomplete", "combobox"].includes(this.config.list_type)) {
+        //   this.config.dataReloadOnSearch = true;
+        //   this.config.params = {
+        //     sortBy: [this.config.displayFieldName],
+        //     sortDesc: [false],
+        //     itemsPerPage: 10,
+        //     ...(this.config.params || {})
+        //   };
+        // }
+        // this.config.returnObject = [null, undefined].includes(
+        //     this.config.returnObject
+        //   )
+        //     ? true
+        //     : this.config.returnObject;
+        // console.log(this.config.returnObject, this.config.list_type)
+        // on passe en parametre
+        // this.config.url = ({ search, config }) => {
+        //   const url = `${config.api}?${config.displayFieldName}__ilike=${search}`;
+        //   return url;
+        // };
       }
 
       for (const key in this.config) {
@@ -346,7 +356,7 @@ export default {
           // on resout les fonctions
           configResolved[key] = this.config[key]({
             baseModel: this.baseModel,
-            $store: this.$store,
+            $store: this.$store
           });
         } else {
           configResolved[key] = copy(this.config[key]);
@@ -364,18 +374,18 @@ export default {
       // si default et non attribué => on lui donne la valeur
       if (configResolved.default && !this.baseModel[this.config.name]) {
         // si promise ou non ??
-        Promise.resolve(configResolved.default).then((value) => {
-        this.baseModel[this.config.name] = value;
+        Promise.resolve(configResolved.default).then(value => {
+          this.baseModel[this.config.name] = value;
         });
       }
 
       return configResolved;
-    },
+    }
   },
 
-  created: function () {
+  created: function() {
     this.configForm = this.getConfigForm();
-  },
+  }
 };
 </script>
 

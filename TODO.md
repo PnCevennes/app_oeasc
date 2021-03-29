@@ -1,19 +1,25 @@
-# generic table
+- remettre routes
+- admin commons content tag
+- in / stats
+- routes
 
-recherche sans accents
-# actualite
+# declaration
 
-- page component actualités (liste et plus)
+ville !!
 
-- revoir pages
-  - en cours 
-    - documents 
-  -  ok 
-    - generales
+# 
+
+- remettre en formme
+- verifier tout le reste
+- demo
+
+- search separer espaces
 
 
+# changement de page
+admin-chasse -> admin-in 
 
-- cadre couleur
+# chasse
 
-- mode résumé (les n premières lignes)
-    
+- affiner formulaire
+

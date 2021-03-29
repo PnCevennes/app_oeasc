@@ -1,22 +1,27 @@
-import { copy } from "@/core/js/util/util";
+// import { copy } from "@/core/js/util/util";
 
 export default {
   group: "in",
   name: "realisation",
   label: "Réalisation",
+  serverSide: true,
   columns: [
     "id_realisation",
     "date_realisation",
-    "id_circuit",
+    "circuit",
     "secteur",
     "serie",
-    "tags",
-    "cerf",
-    "chevreuil",
-    "lievre",
-    "renard"
+    "tags_table",
+    "observers_table",
+    "cerfs",
+    "chevreuils",
+    "lievres",
+    "renards"
   ],
   defs: {
+    observers_table: {
+      label: 'Observateurs',
+    },
     id_realisation: {
       label: "ID",
       hidden: true
@@ -26,19 +31,23 @@ export default {
       label: "Date",
       required: true
     },
-    id_circuit: {
-      type: "list_form",
+    circuit: {
       label: "Circuit",
       storeName: "inCircuit",
+      type: "list_form",
       list_type: "autocomplete",
+      returnObject: true,
+      dataReloadOnSearch: true,
       required: true,
-      filters: { actif: [true] }
+      params: { actif: true }
     },
     secteur: {
       text: "Secteur",
       storeName: "commonsSecteur",
       displayFieldName: "code_secteur",
-      preProcess: d => d.circuit.id_secteur
+      type: "list_form",
+      list_type: "select",
+      returnObject: true
     },
     observers: {
       type: "list_form",
@@ -48,18 +57,17 @@ export default {
       multiple: true,
       storeName: "inObserver",
       returnObject: true,
+      dataReloadOnSearch: true,
       display: d =>
         d && d.length ? d.map(dd => dd.nom_observer).join(", ") : ""
+    },
+    tags_table: {
+      label: "Tags"
     },
     tags: {
       type: "list",
       label: "Tags",
       forms: ["id_realisation", "id_tag", "valid"],
-      display: d => {
-        return d && d.length
-          ? d.map(dd => `${dd.tag.nom_tag}: ${dd.valid ? "o" : "x"}`).join(", ")
-          : "";
-      }
     },
     id_tag: {
       label: "Tag",
@@ -132,43 +140,28 @@ export default {
       type: "text",
       hidden: true
     },
-    cerf: {
-      text: "Cerf",
-      preProcess: d =>
-        (d &&
-          (d.observations.find(o => o.espece.nom_espece == "Cerf") || {}).nb) ||
-        0
+    cerfs: {
+      text: "Cerfs",
+      type: "number"
     },
-    chevreuil: {
-      text: "Chevreuil",
-      preProcess: d =>
-        (d &&
-          (d.observations.find(o => o.espece.nom_espece == "Chevreuil") || {})
-            .nb) ||
-        0
+    chevreuils: {
+      text: "Chevreuils",
+      type: "number"
     },
-    lievre: {
-      text: "Lièvre",
-      preProcess: d =>
-        (d &&
-          (d.observations.find(o => o.espece.nom_espece == "Lièvre") || {})
-            .nb) ||
-        0
+    lievres: {
+      text: "Lièvres",
+      type: "number"
     },
-    renard: {
-      text: "Renard",
-      preProcess: d =>
-        (d &&
-          (d.observations.find(o => o.espece.nom_espece == "Renard") || {})
-            .nb) ||
-        0
+    renards: {
+      text: "Renards",
+      type: "number"
     }
   },
   form: {
     groups: [
       {
         title: "Informations",
-        forms: ["date_realisation", "id_circuit", "serie", "observers"]
+        forms: ["date_realisation", "circuit", "serie", "observers"]
       },
       {
         title: "Validation",
@@ -193,17 +186,17 @@ export default {
         { id_espece: 3, nb: 0 },
         { id_espece: 4, nb: 0 }
       ]
-    },
-    action: {
-      preProcess: ({ baseModel }) => {
-        const out = copy(baseModel);
-        out.tags = baseModel.tags.map(t => ({
-          id_observation: t.id_observation,
-          id_tag: t.id_tag,
-          valild: t.valid
-        }));
-        return out;
-      }
     }
+    // action: {
+    // preProcess: ({ baseModel }) => {
+    //   const out = copy(baseModel);
+    //   out.tags = baseModel.tags.map(t => ({
+    //     id_observation: t.id_observation,
+    //     id_tag: t.id_tag,
+    //     valild: t.valid
+    //   }));
+    //   return out;
+    // }
+    // }
   }
 };

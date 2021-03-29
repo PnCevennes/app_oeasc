@@ -2,6 +2,7 @@ export default {
   group: "commons",
   name: "secteur",
   label: "Secteur",
+  serverSide: true,
   defs: {
     id_secteur: {
       label: "ID",

@@ -6,17 +6,23 @@ export default {
   defs: {
     id_type_bracelet: {
       label: "ID",
+      type: "text",
       hidden: true,
     },
-    id_espece: {
+    espece: {
         label: 'Espèce',
-        storeName: 'commonsEspece'
+        storeName: 'commonsEspece',
+        type: 'list_form',
+        list_type: 'select',
+        returnObject: true,
     },
     code_type_bracelet: {
-        label: 'Code'
+        label: 'Code',
+        type: "text",
     },
     description_type_bracelet: {
-        label: 'Description'
+        label: 'Description',
+        type: "text",
     }
   }
 };

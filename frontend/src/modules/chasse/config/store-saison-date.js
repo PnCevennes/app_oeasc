@@ -2,24 +2,34 @@ export default {
   group: "chasse",
   name: "saisonDate",
   label: "Saisons (date/espèce)",
+  serverSide: true,
   defs: {
     id_saison_date: {
       label: "ID",
       hidden: true,
     },
-    id_saison: {
+    saison: {
         label: 'saison',
-        storeName: 'chasseSaison'
+        storeName: 'chasseSaison',
+        type: 'list_form',
+        list_type: 'autocomplete',
+        returnObject: true,
+        dataReloadOnSearch: true,
     },
-    id_espece: {
+    espece: {
         label: 'Espèce',
-        storeName: 'commonsEspece'
+        storeName: 'commonsEspece',
+        type: 'list_form',
+        list_type: 'select',
+        returnObject: true,
     },
-    id_nomenclature_type_chasse: {
+    nomenclature_type_chasse: {
         label: 'Type de chasse',
         storeName: 'commonsNomenclature',
         type: 'nomenclature',
         nomenclatureType: "OEASC_MOD_CHASSE",
+        list_type: 'select',
+        returnObject: true,
     },
     date_debut: {
       label: "Date début",

@@ -10,10 +10,12 @@ export default {
   defs: {
     id_saison: {
       label: "ID",
+      type: "text",
       hidden: true
     },
     nom_saison: {
       label: "Nom",
+      type: "text",
       required: true
     },
     date_debut: {
@@ -27,10 +29,12 @@ export default {
       required: true
     },
     current: {
-        label: 'En cours'
+        label: 'En cours',
+        type: "bool_switch",
     },
     commentaire: {
-        label: 'Commentaires'
+        label: 'Commentaires',
+        type: "text_area",
     }
   }
 };

@@ -48,7 +48,6 @@
         {{ configTable.title }}
         <v-spacer></v-spacer>
       </v-card-title>
-  {{options}}
 
       <v-data-table
         :options.sync="options"
@@ -331,7 +330,6 @@ export default {
       if (config.storeName) {
         const configStore = this.$store.getters.configStore(config.storeName);
         config.serverSide = configStore.serverSide;
-        console.log(config.serverSide);
         config.idFieldName = configStore.idFieldName;
         this.options = {
           ...this.options,
@@ -396,7 +394,7 @@ export default {
           // header.sort = sortDate;
           sortDate;
           header.display = a =>
-            a && a[header.value].includes("-")
+            a && a[header.value] && a[header.value].includes("-")
               ? a[header.value]
                   .split("-")
                   .reverse()
