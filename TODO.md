@@ -1,10 +1,5 @@
-- remettre routes
-- admin commons content tag
-- in / stats
-- routes
-
+content 
 # declaration
-
 ville !!
 
 # 

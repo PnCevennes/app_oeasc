@@ -340,7 +340,6 @@ export default {
         //   )
         //     ? true
         //     : this.config.returnObject;
-        // console.log(this.config.returnObject, this.config.list_type)
         // on passe en parametre
         // this.config.url = ({ search, config }) => {
         //   const url = `${config.api}?${config.displayFieldName}__ilike=${search}`;

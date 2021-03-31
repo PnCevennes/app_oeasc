@@ -69,8 +69,6 @@ import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import { config as globalConfig } from "@/config/config.js";
 import { copy } from "@/core/js/util/util";
 
-// import {copy} from '@/core/js/util/util'
-
 export default {
   name: "generic-form",
   components: {
@@ -78,10 +76,11 @@ export default {
   },
   props: ["config"],
   computed: {
-    idRoute() {
-      return this.$route.params.id;
-    },
+    // idRoute() {
+    //   return this.$route.params.id;
+    // },
     idModel() {
+      console.log('id_model', this.config.idFieldName, this.baseModel && this.baseModel[this.config.idFieldName])
       return (
         (this.baseModel && this.baseModel[this.config.idFieldName]) ||
         (this.config.value && this.config.value[this.config.idFieldName])
@@ -121,10 +120,10 @@ export default {
     config() {
       this.initConfig();
     },
-    idRoute() {
-      this.baseModel[this.config.idFieldName] = this.idRoute;
-      this.initConfig();
-    }
+    // idRoute() {
+    //   this.baseModel[this.config.idFieldName] = this.idRoute;
+    //   this.initConfig();
+    // }
   },
   mounted() {
     this.initConfig();
@@ -162,6 +161,7 @@ export default {
             }
           });
         };
+        this.config.idFieldName = this.config.idFieldName || configStore.idFieldName;
         this.config.action = this.config.action || {};
         this.config.action.process = ({ id, $store, postData }) => {
           return $store.dispatch(id ? configStore.patch : configStore.post, {

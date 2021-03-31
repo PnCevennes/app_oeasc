@@ -31,7 +31,7 @@ const ROUTE = [
         title: "Indice Nocturnes",
         tabs: {
           graphiques: {
-            label: "Statistiques",
+            labels: "Statistiques",
             type: "in-table"
           },
           realisation: {

@@ -64,6 +64,7 @@ const processFormConfig = configStore => {
   const configForm = {
     ...(configStore.form || {}),
     storeName: configStore.storeName,
+    idFieldName: configStore.idFieldName,
     title: ({ id }) =>
       id
         ? `Modificiation ${articleDef(
@@ -88,6 +89,7 @@ const processFormConfig = configStore => {
 
   configForm.formDefs = formDefs;
   configStore.configForm = configForm;
+  console.log(configStore.configForm.idFieldName)
 };
 
 const processDefaults = configStore => {
@@ -149,7 +151,6 @@ export default {
       loaded: false,
       options: configIn.options
     };
-    console.log(configStore.getAll)
     processDefaults(configStore);
     processFormConfig(configStore);
     processTableConfig(configStore);

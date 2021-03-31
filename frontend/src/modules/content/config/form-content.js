@@ -1,4 +1,5 @@
 export default {
+  idFieldName: 'id_content',  
   formDefs: {
     id_content: {
       label: "Id",
@@ -17,7 +18,6 @@ export default {
       multiple: true,
       storeName: "commonsTag"
     },
-
     md: {
       label: "Texte",
       type: "text_area",
