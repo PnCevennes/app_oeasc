@@ -33,18 +33,18 @@ CREATE TABLE oeasc_chasse.t_zone_cynegetiques
 ;
 
 
-CREATE TABLE oeasc_chasse.t_zone_interets
+CREATE TABLE oeasc_chasse.t_zone_indicatives
 (
-    id_zone_interet SERIAL NOT NULL,
-    nom_zone_interet CHARACTER VARYING,
-    code_zone_interet CHARACTER VARYING,
+    id_zone_indicative SERIAL NOT NULL,
+    nom_zone_indicative CHARACTER VARYING,
+    code_zone_indicative CHARACTER VARYING,
     id_zone_cynegetique INTEGER,
 
-    CONSTRAINT pk_t_zone_interets_id_zone_interet PRIMARY KEY (id_zone_interet),
-    CONSTRAINT fk_t_zone_interets_t_zone_cynegetiques FOREIGN KEY (id_zone_cynegetique)
+    CONSTRAINT pk_t_zone_indicatives_id_zone_indicative PRIMARY KEY (id_zone_indicative),
+    CONSTRAINT fk_t_zone_indicatives_t_zone_cynegetiques FOREIGN KEY (id_zone_cynegetique)
         REFERENCES oeasc_chasse.t_zone_cynegetiques(id_zone_cynegetique) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT unique_code_zone_interet_id_zone_cynegetique UNIQUE(code_zone_interet, id_zone_cynegetique)
+    CONSTRAINT unique_code_zone_indicative_id_zone_cynegetique UNIQUE(code_zone_indicative, id_zone_cynegetique)
 )
 ;
 
@@ -54,14 +54,14 @@ CREATE TABLE oeasc_chasse.t_lieu_tirs
     id_lieu_tir SERIAL NOT NULL,
     nom_lieu_tir CHARACTER VARYING,
     code_lieu_tir CHARACTER VARYING,
-    id_zone_interet INTEGER,
+    id_zone_indicative INTEGER,
     id_area_commune INTEGER,
     synonymes CHARACTER VARYING[],
     geom GEOMETRY,
 
     CONSTRAINT pk_t_lieu_tirs_id_lieu_tir PRIMARY KEY (id_lieu_tir),
-    CONSTRAINT fk_t_lieu_tirs_t_zone_interets FOREIGN KEY (id_zone_interet)
-        REFERENCES oeasc_chasse.t_zone_interets(id_zone_interet) MATCH SIMPLE
+    CONSTRAINT fk_t_lieu_tirs_t_zone_indicatives FOREIGN KEY (id_zone_indicative)
+        REFERENCES oeasc_chasse.t_zone_indicatives(id_zone_indicative) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_lieu_tirs_l_areas FOREIGN KEY (id_area_commune)
         REFERENCES ref_geo.l_areas(id_area) MATCH SIMPLE
@@ -145,7 +145,7 @@ CREATE TABLE oeasc_chasse.t_attributions
     id_saison INTEGER NOT NULL,
     numero_bracelet CHARACTER VARYING,
     id_zone_cynegetique_affectee INTEGER NOT NULL,
-    id_zone_interet_affectee INTEGER NOT NULL,
+    id_zone_indicative_affectee INTEGER NOT NULL,
     id_type_bracelet INTEGER NOT NULL,
     meta_create_date timestamp without time zone,
     meta_update_date timestamp without time zone,
@@ -157,8 +157,8 @@ CREATE TABLE oeasc_chasse.t_attributions
     CONSTRAINT fk_t_attributions_t_saisons FOREIGN KEY (id_saison)
         REFERENCES oeasc_chasse.t_saisons(id_saison ) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_t_attributions_t_zone_interets FOREIGN KEY (id_zone_interet_affectee)
-        REFERENCES oeasc_chasse.t_zone_interets(id_zone_interet) MATCH SIMPLE
+    CONSTRAINT fk_t_attributions_t_zone_indicatives FOREIGN KEY (id_zone_indicative_affectee)
+        REFERENCES oeasc_chasse.t_zone_indicatives(id_zone_indicative) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_attributions_t_type_bracelets FOREIGN KEY (id_type_bracelet)
         REFERENCES oeasc_chasse.t_type_bracelets(id_type_bracelet) MATCH SIMPLE
@@ -173,7 +173,7 @@ CREATE TABLE oeasc_chasse.t_realisations
     id_realisation SERIAL NOT NULL, 
     id_attribution INTEGER NOT NULL, -- relation 1-1 ??1
     id_zone_cynegetique_realisee INTEGER NOT NULL,
-    id_zone_interet_realisee INTEGER NOT NULL,
+    id_zone_indicative_realisee INTEGER NOT NULL,
     id_lieu_tir INTEGER,
 
     date_exacte DATE,
@@ -219,8 +219,8 @@ CREATE TABLE oeasc_chasse.t_realisations
     CONSTRAINT fk_t_realisations_t_zone_cynegetiques FOREIGN KEY (id_zone_cynegetique_realisee)
         REFERENCES oeasc_chasse.t_zone_cynegetiques(id_zone_cynegetique) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
-    CONSTRAINT fk_t_realisations_t_zone_interets FOREIGN KEY (id_zone_interet_realisee)
-        REFERENCES oeasc_chasse.t_zone_interets(id_zone_interet) MATCH SIMPLE
+    CONSTRAINT fk_t_realisations_t_zone_indicatives FOREIGN KEY (id_zone_indicative_realisee)
+        REFERENCES oeasc_chasse.t_zone_indicatives(id_zone_indicative) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE CASCADE,
     CONSTRAINT fk_t_realisations_t_lieu_tirs FOREIGN KEY (id_lieu_tir)
         REFERENCES oeasc_chasse.t_lieu_tirs(id_lieu_tir) MATCH SIMPLE

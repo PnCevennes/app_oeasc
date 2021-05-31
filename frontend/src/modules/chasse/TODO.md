@@ -21,5 +21,5 @@ oeasc_commons.t_especes
 oeasc_chasse.t_saisons
 oeasc_chasse.t_saison_dates
 oeasc_chasse.t_zone_cynegetiques
-oeasc_chasse.t_zone_interets
+oeasc_chasse.t_zone_indicatives
 oeasc_chasse.t_lieu_tirs

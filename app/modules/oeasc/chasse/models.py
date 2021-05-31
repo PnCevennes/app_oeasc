@@ -44,16 +44,16 @@ class TZoneCynegetiques(DB.Model):
 
 
 @serializable
-class TZoneInterets(DB.Model):
+class TZoneIndicatives(DB.Model):
     '''
         Zones d'interet cynegetiques
     '''
-    __tablename__ = 't_zone_interets'
+    __tablename__ = 't_zone_indicatives'
     __table_args__ = {'schema': 'oeasc_chasse', 'extend_existing': True}
 
-    id_zone_interet = DB.Column(DB.Integer, primary_key=True)
-    code_zone_interet = DB.Column(DB.Unicode)
-    nom_zone_interet = DB.Column(DB.Unicode)
+    id_zone_indicative = DB.Column(DB.Integer, primary_key=True)
+    code_zone_indicative = DB.Column(DB.Unicode)
+    nom_zone_indicative = DB.Column(DB.Unicode)
     id_zone_cynegetique = DB.Column(
         DB.Integer,
         DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique')
@@ -73,11 +73,11 @@ class TLieuTirs(DB.Model):
     nom_lieu_tir = DB.Column(DB.Unicode)
     geom = DB.Column(Geometry)
     id_area_commune = DB.Column(DB.Integer, DB.ForeignKey('ref_geo.l_areas.id_area'))
-    id_zone_interet = DB.Column(
+    id_zone_indicative = DB.Column(
         DB.Integer,
-        DB.ForeignKey('oeasc_chasse.t_zone_interets.id_zone_interet')
+        DB.ForeignKey('oeasc_chasse.t_zone_indicatives.id_zone_indicative')
     )
-    zone_interet = DB.relationship(TZoneInterets, foreign_keys=id_zone_interet)
+    zone_indicative = DB.relationship(TZoneIndicatives, foreign_keys=id_zone_indicative)
 
 
 @serializable
@@ -169,13 +169,13 @@ class TAttributions(DB.Model):
     id_saison = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_saisons.id_saison'))
     numero_bracelet = DB.Column(DB.Unicode)
     id_zone_cynegetique_affectee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique'))
-    id_zone_interet_affectee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_interets.id_zone_interet'))
+    id_zone_indicative_affectee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_indicatives.id_zone_indicative'))
     meta_create_date = DB.Column(DB.DateTime)
     meta_update_date = DB.Column(DB.DateTime)
 
     saison = DB.relationship(TSaisons)
     zone_cynegetique_affectee = DB.relationship(TZoneCynegetiques)
-    zone_interet_affectee = DB.relationship(TZoneInterets)
+    zone_indicative_affectee = DB.relationship(TZoneIndicatives)
     type_bracelet = DB.relationship(TTypeBracelets)
 
 
@@ -218,13 +218,13 @@ class TRealisationsChasse(DB.Model):
         uselist=False
     )
 
-    id_zone_interet_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_interets.id_zone_interet'))
-    zone_interet_realisee = DB.relationship(TZoneInterets)
-    zone_interet_affectee = DB.relationship(
-        TZoneInterets,
+    id_zone_indicative_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_indicatives.id_zone_indicative'))
+    zone_indicative_realisee = DB.relationship(TZoneIndicatives)
+    zone_indicative_affectee = DB.relationship(
+        TZoneIndicatives,
         secondary='oeasc_chasse.t_attributions',
         primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
-        secondaryjoin="TAttributions.id_zone_interet_affectee==TZoneInterets.id_zone_interet",
+        secondaryjoin="TAttributions.id_zone_indicative_affectee==TZoneIndicatives.id_zone_indicative",
         uselist=False
     )
 
@@ -247,17 +247,20 @@ class TRealisationsChasse(DB.Model):
     poid_vide = DB.Column(DB.Integer)
     poid_c_f_p = DB.Column(DB.Integer)
 
-    # long_dagues_droite = DB.Column(DB.Integer)
-    # long_dagues_gauche = DB.Column(DB.Integer)
-    # long_mandibules_droite = DB.Column(DB.Integer)
-    # long_mandibules_gauche = DB.Column(DB.Integer)
+    long_dagues_droite = DB.Column(DB.Integer)
+    long_dagues_gauche = DB.Column(DB.Integer)
+    long_mandibules_droite = DB.Column(DB.Integer)
+    long_mandibules_gauche = DB.Column(DB.Integer)
 
-    # cors_nb = DB.Column(DB.Integer)
-    # cors_commentaires = DB.Column(DB.Unicode)
+    cors_nb = DB.Column(DB.Integer)
+    cors_commentaires = DB.Column(DB.Unicode)
 
-    # gestation = DB.Column(DB.Boolean)
-    # id_nomenclature_mode_chasse = DB.Column(DB.Integer)
-    # commentaire = DB.Column(DB.Unicode)
+    gestation = DB.Column(DB.Boolean)
+
+    id_nomenclature_mode_chasse = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
+    nomenclature_mode_chasse = DB.relationship(TNomenclatures, foreign_keys=id_nomenclature_mode_chasse)
+
+    commentaire = DB.Column(DB.Unicode)
 
     # poid_indique = DB.Column(DB.Boolean)
     # cors_indetermine = DB.Column(DB.Boolean)
@@ -268,13 +271,4 @@ class TRealisationsChasse(DB.Model):
     # meta_create_date = DB.Column(DB.DateTime)
     # meta_update_date = DB.Column(DB.DateTime)
 
-    # id_zone_cynegetique_affectee = column_property(
-    #     select([TAttributions.id_zone_cynegetique_affectee]).\
-    #         where(TAttributions.id_attribution == id_attribution)
-    # )
-
-    # id_zone_interet_affectee = column_property(
-    #     select([TAttributions.id_zone_interet_affectee]).\
-    #         where(TAttributions.id_attribution == id_attribution)
-    # )
 

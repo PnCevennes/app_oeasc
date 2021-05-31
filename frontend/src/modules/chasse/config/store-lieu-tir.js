@@ -19,13 +19,13 @@ export default {
         type: 'text',
         required: true
       },
-      zone_interet: {
+      zone_indicative: {
         label: "Zone d'intérêt",
         type: 'list_form',
         list_type: "autocomplete",
         dataReloadOnSearch: true,
         returnObject: true,  
-        storeName: 'chasseZoneInteret',
+        storeName: 'chasseZoneIndicative',
       }
     }
   };

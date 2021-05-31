@@ -36,9 +36,9 @@ export default {
         list_type: 'select',
         returnObject: true,
     },
-    zone_interet_affectee: {
+    zone_indicative_affectee: {
         label: 'Zone intérêt affectée',
-        storeName: 'chasseZoneInteret',
+        storeName: 'chasseZoneIndicative',
         type: 'list_form',
         list_type: 'autocomplete',
         returnObject: true,

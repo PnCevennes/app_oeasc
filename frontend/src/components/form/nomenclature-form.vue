@@ -21,7 +21,11 @@ export default {
     this.$store.dispatch("nomenclatures").then(() => {
       this.config.items = this.$store.getters.nomenclaturesOfType(
         this.config.nomenclatureType
-      );
+      )
+      
+      if (this.config.codes) {
+        this.config.items = this.config.codes.map(cd_nomenclature => this.config.items.find(item => item.cd_nomenclature == cd_nomenclature))
+      }
 
       // TODO DANS LA CONFIG OU AUTRE
       if (this.config.nomenclatureType == "OEASC_PEUPLEMENT_TYPE") {

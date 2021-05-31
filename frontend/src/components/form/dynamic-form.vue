@@ -59,8 +59,10 @@
       </span>
       <v-switch
         v-else
+        dense
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
+        :disabled="config.disabled"
         @change="
           configForm.change && configForm.change({ baseModel, config, $store })
         "

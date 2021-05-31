@@ -3,7 +3,7 @@ api chasse
 '''
 
 from .models import (
-    TPersonnes, TZoneCynegetiques, TZoneInterets,
+    TPersonnes, TZoneCynegetiques, TZoneIndicatives,
     TLieuTirs, TSaisons, TSaisonDates,
     TAttributionMassifs, TTypeBracelets, TAttributions, TRealisationsChasse
 )
@@ -29,8 +29,8 @@ definitions = {
         'model': TZoneCynegetiques,
         'droits': droits
     },
-    'zone_interet': {
-        'model': TZoneInterets,
+    'zone_indicative': {
+        'model': TZoneIndicatives,
         'droits': droits
     },
     'lieu_tir': {

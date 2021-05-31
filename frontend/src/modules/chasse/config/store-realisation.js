@@ -1,9 +1,11 @@
+
+
+
 export default {
   group: "chasse",
   name: "realisation",
   label: "Réalisation",
   serverSide: true,
-
   genre: "F",
   columns: [
     "saison",
@@ -11,7 +13,7 @@ export default {
     "auteur_tir",
     "auteur_constat",
     "zone_cynegetique_realisee",
-    "zone_interet_realisee",
+    "zone_indicative_realisee",
     "lieu_tir",
     "date_exacte",
     "nomenclature_sexe",
@@ -26,49 +28,114 @@ export default {
       },
       {
         title: "Localisation",
+        condition: ({ baseModel }) =>
+          baseModel.attribution && baseModel.attribution.id_attribution,
         groups: [
           {
-            forms: ["zone_cynegetique_affectee", "zone_cynegetique_realisee"],
-            direction: "row"
-          },
-          {
-            forms: ["zone_interet_affectee", "zone_interet_realisee"],
-            direction: "row"
-          },
-          {
-            forms: ["lieu_tir", "mortalite_hors_pc", "parcelle_onf"],
-            direction: "row"
+            direction: "row",
+            groups: [
+              {
+                title: "Zone cynégetique",
+                forms: [
+                  "zone_cynegetique_affectee",
+                  "zone_cynegetique_realisee"
+                ]
+              },
+              {
+                title: "Zone d'intérêt",
+                forms: ["zone_indicative_affectee", "zone_indicative_realisee"]
+              },
+              {
+                title: "Lieu de tir",
+                groups: [
+                  {
+                    forms: ["lieu_tir"]
+                  },
+                  {
+                    direction: "row",
+                    forms: ["mortalite_hors_pc", "parcelle_onf"]
+                  }
+                ]
+              }
+            ]
           }
         ]
       },
       {
-        title: "Informations (auteur, date)",
+        title: "Informations",
+        condition: ({ baseModel }) =>
+          baseModel.attribution && baseModel.attribution.id_attribution,
+        direction: "row",
         groups: [
           {
-            forms: ["auteur_tir", "auteur_constat"],
-            direction: "row"
+            title: "Auteurs",
+            forms: ["auteur_tir", "auteur_constat"]
           },
           {
-            forms: ["date_exacte", "date_enreg"],
-            direction: "row"
+            title: "Dates",
+            forms: ["date_exacte", "date_enreg"]
+          },
+          {
+            title: "Compléments",
+            forms: ["nomenclature_mode_chasse"]
           }
         ]
       },
       {
         title: "Information animal",
+        condition: ({ baseModel }) =>
+          baseModel.attribution && baseModel.attribution.id_attribution,
+        direction: "row",
         groups: [
           {
-            forms: ["nomenclature_sexe", "nomenclature_classe_age"],
-            direction: "row"
+            title: "Général",
+            forms: ["nomenclature_sexe", "nomenclature_classe_age", "gestation"]
           },
           {
-            forms: ["poid_entier", "poid_vide", "poid_c_f_p"],
-            direction: "row"
+            title: "Poids",
+            forms: ["poid_entier", "poid_vide", "poid_c_f_p"]
           }
         ]
+      },
+      {
+        title: "Description avancée (cerf)",
+        condition: ({ baseModel }) =>
+          baseModel.nomenclature_classe_age &&
+          ["Adulte", "Sub-adulte"].includes(baseModel.nomenclature_classe_age.label_fr) &&
+          baseModel.nomenclature_sexe &&
+          baseModel.nomenclature_sexe.label_fr == "Mâle",
+        direction: "row",
+        groups: [
+          {
+            groups: [
+              {
+                title: "Mandibules",
+                forms: ["long_mandibules_gauche", "long_mandibules_droite"],
+                direction: "row"
+              },
+              {
+                title: "Dagues",
+                forms: ["long_dagues_gauche", "long_dagues_droite"],
+                direction: "row"
+              },
+              {
+                title: "Cors",
+                forms: ["cors_nb"]
+              }
+            ]
+          },
+          {
+            forms: ["cors_commentaires"]
+          }
+        ]
+      },
+      {
+        condition: ({ baseModel }) =>
+          baseModel.attribution && baseModel.attribution.id_attribution,
+        title: "Commentaires",
+        forms: ["commentaires"]
       }
     ]
-    // forms: ["saison", "attribution", "auteur_tir", "auteur_constat", "zone_cynegetique_realisee", "zone_cynegetique_affectee"]
   },
   options: {
     page: 1,
@@ -77,18 +144,34 @@ export default {
   },
   defs: {
     // // table
-    // id_realisation: {
-    //   label: "ID"
-    // },
+    id_realisation: {
+      label: "ID",
+      hidden: true
+    },
 
     // form
     saison: {
       label: "Saison",
       storeName: "chasseSaison",
-      type: 'list_form',
-      list_type: 'select',
+      type: "list_form",
+      list_type: "select",
       returnObject: true,
-      required: true
+      required: true,
+      default: ({ $store }) =>
+        new Promise(resolve => {
+          const configStore = $store.getters.configStore("chasseSaison");
+          $store
+            .dispatch(configStore.getAll, {
+              current: true
+            })
+            .then(saisons => {
+              if (saisons && saisons[0]) {
+                resolve(saisons[0]);
+              } else {
+                resolve(null);
+              }
+            });
+        })
     },
     attribution: {
       label: "Attribution",
@@ -97,17 +180,48 @@ export default {
       list_type: "autocomplete",
       dataReloadOnSearch: true,
       returnObject: true,
-      displayFieldName: 'numero_bracelet',
+      displayFieldName: "numero_bracelet",
       params: ({ baseModel }) => ({
         id_saison: baseModel.saison && baseModel.saison.id_saison
       }),
       disabled: ({ baseModel }) =>
         !(baseModel.saison && baseModel.saison.id_saison),
-      required: true
+      required: true,
+      changed: ({ baseModel }) => {
+        if (!baseModel.attribution) {
+          return;
+        }
+
+        baseModel.zone_cynegetique_affectee =
+          baseModel.zone_cynegetique_affectee ||
+          baseModel.attribution.zone_cynegetique_affectee;
+
+        baseModel.zone_cynegetique_realisee =
+          baseModel.zone_cynegetique_realisee ||
+          baseModel.attribution.zone_cynegetique_affectee;
+
+        baseModel.id_zone_cynegetique_affectee =
+          baseModel.id_zone_cynegetique_affectee ||
+          baseModel.attribution.id_zone_cynegetique_affectee;
+
+        baseModel.zone_indicative_affectee =
+          baseModel.zone_indicative_affectee ||
+          baseModel.attribution.zone_indicative_affectee;
+
+        baseModel.zone_indicative_realisee =
+          baseModel.zone_indicative_realisee ||
+          baseModel.attribution.zone_indicative_affectee;
+
+        baseModel.id_zone_indicative_affectee =
+          baseModel.id_zone_indicative_affectee ||
+          baseModel.attribution.id_zone_indicative_affectee;
+
+        // sexe et age auto en fonction du bracelet ??
+      }
     },
     auteur_tir: {
       label: "Auteur tir",
-      type: 'list_form',
+      type: "list_form",
       list_type: "combobox",
       returnObject: true,
       dataReloadOnSearch: true,
@@ -115,7 +229,7 @@ export default {
     },
     auteur_constat: {
       label: "Auteur constat",
-      type: 'list_form',
+      type: "list_form",
       list_type: "combobox",
       returnObject: true,
       dataReloadOnSearch: true,
@@ -124,60 +238,42 @@ export default {
     zone_cynegetique_affectee: {
       label: "Zone cynégétique affectee",
       storeName: "chasseZoneCynegetique",
-      type: 'list_form',
-      list_type: 'select',
+      type: "list_form",
+      list_type: "select",
       returnObject: true,
-      disabled: true,
+      disabled: true
     },
     zone_cynegetique_realisee: {
       label: "Zone cynégétique réalisée",
       storeName: "chasseZoneCynegetique",
-      type: 'list_form',
-      list_type: 'select',
-      returnObject: true,
+      type: "list_form",
+      list_type: "select",
+      returnObject: true
     },
-    zone_interet_affectee: {
+    zone_indicative_affectee: {
       label: "Zone d'intérêt affectée",
-      storeName: "chasseZoneInteret",
-      type: 'list_form',
+      storeName: "chasseZoneIndicative",
+      type: "list_form",
       list_type: "autocomplete",
       returnObject: true,
       dataReloadOnSearch: true,
       disabled: true
     },
-    zone_interet_realisee: {
+    zone_indicative_realisee: {
       label: "Zone d'intérêt réalisée",
-      storeName: "chasseZoneInteret",
-      type: 'list_form',
+      storeName: "chasseZoneIndicative",
+      type: "list_form",
       list_type: "autocomplete",
       returnObject: true,
-      dataReloadOnSearch: true,
-      // params: ({ baseModel }) => ({
-      //   id_zone_cynegetique: baseModel.zone_cynegetique_realisee &&
-      //   baseModel.zone_cynegetique_realisee.id_zone_cynegetique
-      // }),
-      // disabled: ({ baseModel }) =>
-      //   !(
-      //     baseModel.zone_cynegetique_realisee &&
-      //     baseModel.zone_cynegetique_realisee.id_zone_cynegetique
-      //   )
+      dataReloadOnSearch: true
     },
     lieu_tir: {
       label: "Lieu de tir",
       storeName: "chasseLieuTir",
       list_type: "autocomplete",
-      type: 'list_form',
+      type: "list_form",
       returnObject: true,
-      dataReloadOnSearch: true,
-      // params: ({ baseModel }) => ({
-      //   id_zone_interet: baseModel.zone_interet_realisee &&
-      //   baseModel.zone_interet_realisee.id_zone_interet
-      // }),
-      // disabled: ({ baseModel }) =>
-      //   !(
-      //     baseModel.zone_interet_realisee &&
-      //     baseModel.zone_interet_realisee.id_zone_interet
-      //   )
+      dataReloadOnSearch: true
     },
     date_exacte: {
       label: "Date exacte",
@@ -188,7 +284,7 @@ export default {
       type: "date"
     },
     mortalite_hors_pc: {
-      label: "Mortalité hors Parc",
+      label: "Hors PNC",
       type: "bool_switch"
     },
     parcelle_onf: {
@@ -201,6 +297,7 @@ export default {
       returnObject: true,
       list_type: "select",
       storeName: "commonsNomenclature",
+      codes: ['3', '2', '0'],
       nomenclatureType: "SEXE"
     },
     nomenclature_classe_age: {
@@ -209,15 +306,17 @@ export default {
       returnObject: true,
       list_type: "select",
       storeName: "commonsNomenclature",
+      codes: ['0', '2', '3', '4', '5'],
       nomenclatureType: "STADE_VIE"
     },
-
-    // id_nomenclature_mode_chasse: {
-    //   label: "Mode de chasse",
-    //   type: "nomenclature",
-    //   storeName: "commonsNomenclature",
-    //   nomenclatureType: "OEASC_MOD_CHASSE"
-    // },
+    nomenclature_mode_chasse: {
+      label: "Mode de chasse",
+      type: "nomenclature",
+      returnObject: true,
+      list_type: "select",
+      storeName: "commonsNomenclature",
+      nomenclatureType: "OEASC_MOD_CHASSE"
+    },
     poid_entier: {
       label: "Poid entier",
       type: "number",
@@ -232,154 +331,46 @@ export default {
       label: "Poid CFP",
       type: "number",
       min: 0
+    },
+    long_mandibules_droite: {
+      label: "Longueur mandibules droite",
+      type: "number",
+      min: 0
+    },
+    long_mandibules_gauche: {
+      label: "Longueur mandibules gauche",
+      type: "number",
+      min: 0
+    },
+    long_dagues_droite: {
+      label: "Longueur dagues droite",
+      type: "number",
+      min: 0
+    },
+    long_dagues_gauche: {
+      label: "Longueur dagues gauche",
+      type: "number",
+      min: 0
+    },
+    cors_nb: {
+      label: "Nombre de cors",
+      type: "number",
+      min: 0
+    },
+    cors_commentaires: {
+      label: "Commentaires (cors)",
+      type: "text_area"
+    },
+    gestation: {
+      label: "gestation",
+      type: "bool_switch",
+      disabled: baseModel =>
+        baseModel.nomenclature_sexe &&
+        baseModel.nomenclature_sexe.label_fr != "Femelle"
+    },
+    commentaires: {
+      label: "Commentaires (général)",
+      type: "text_area"
     }
-    // long_mandibules_droite: {
-    //   label: "Longueur mandibules droite",
-    //   type: "number",
-    //   min: 0
-    // },
-    // long_mandibules_gauche: {
-    //   label: "Longueur mandibules gauche",
-    //   type: "number",
-    //   min: 0
-    // },
-    // long_dagues_droite: {
-    //   label: "Longueur dagues droite",
-    //   type: "number",
-    //   min: 0
-    // },
-    // long_dagues_gauche: {
-    //   label: "Longueur dagues gauche",
-    //   type: "number",
-    //   min: 0
-    // },
-    // cors_nb: {
-    //   label: "Nombre de cors",
-    //   type: "number",
-    //   min: 0
-    // },
-    // cors_commentaires: {
-    //   label: "Commentaires (cors)",
-    //   type: "text_area"
-    // },
-    // gestation: {
-    //   label: "gestation",
-    //   type: "boolean"
-    // },
-    // commentaires: {
-    //   label: "Commentaires (général)",
-    //   type: "text_area"
-    // }
   }
-  // form: {
-  //   forms: ['auteur_tir'],
-  //   groups_: [
-  //     {
-  //       title: "Attribution",
-  //       forms: ["id_attribution"]
-  //     },
-  //     {
-  //       title: "Tir",
-  //       forms: ["date_exacte", "auteur_tir"],
-  //       direction: "row"
-  //     },
-  //     {
-  //       title: "Constat",
-  //       forms: ["date_enreg", "auteur_constat"],
-  //       direction: "row"
-  //     },
-  //     {
-  //       title: "Localisation",
-  //       groups: [
-  //         {
-  //           forms: [
-  //             "id_zone_cynegetique_affectee",
-  //             "id_zone_cynegetique_realisee"
-  //           ],
-  //           direction: "row"
-  //         },
-  //         {
-  //           forms: ["id_zone_interet_affectee", "id_zone_interet_realisee"],
-  //           direction: "row"
-  //         },
-  //         {
-  //           forms: ["id_lieu_tir", "mortalite_hors_pc", "parcelle_onf"],
-  //           direction: "row"
-  //         }
-  //       ]
-  //     },
-  //     {
-  //       title: "Description",
-  //       groups: [
-  //         {
-  //           forms: ["id_nomenclature_sexe", "id_nomenclature_classe_age"],
-  //           direction: "row"
-  //         },
-  //         {
-  //           forms: ["poid_entier", "poid_vide", "poid_c_f_p"],
-  //           direction: "row"
-  //         }
-  //       ]
-  //     },
-  //     {
-  //       title: "Description avancée (cerf)",
-  //       condition: ({baseModel, $store}) => {
-  //         // cerf + sexe + age
-  //         const nomenclature_sexe = $store.getters.nomenclature(
-  //           baseModel.id_nomenclature_sexe
-  //         );
-  //         const nomenclature_classe_age = $store.getters.nomenclature(
-  //           baseModel.id_nomenclature_classe_age
-  //         );
-
-  //         const attribution = $store.getters.chasseAttribution(
-  //           baseModel.id_attribution
-  //         );
-
-  //         return nomenclature_classe_age && nomenclature_classe_age.label_fr == 'Adulte'
-  //         && nomenclature_sexe && nomenclature_sexe.label_fr == 'Mâle'
-  //         && attribution && attribution.label.includes('Cerf');
-  //       },
-  //       groups_: [
-  //         {
-  //           direction: "row",
-  //           groups: [
-  //             {
-  //               title: "Mandibules",
-  //               forms: ["long_mandibules_gauche", "long_mandibules_droite"]
-  //             },
-  //             {
-  //               title: "Dagues",
-  //               forms: ["long_dagues_gauche", "long_dagues_droite"]
-  //             }
-  //           ]
-  //         },
-  //         {
-  //           title: "Cors",
-  //           forms: ["cors_nb", "cors_commentaires"]
-  //         }
-  //       ]
-  //     }
-  //   ]
-  // },
 };
-
-// id_saison: {
-//   label: "Saison",
-//   storeName: "chasseSaison",
-//   list_type: "autocomplete",
-//   params: {
-//     sortBy: ["nom_saison"],
-//     sortDesc: [true],
-//     itemsPerPage: 10
-//   },
-//   default: ({ $store }) => {
-//     return $store
-//       .dispatch($store.getters.configStore("chasseSaison").get, {
-//         value: true,
-//         fieldName: "current"
-//       })
-//       .then(saison => {
-//         return saison.id_saison;
-//       });
-//   }

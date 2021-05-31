@@ -135,7 +135,7 @@ JOIN oeasc_commons.t_secteurs s ON s.code_secteur = SPLIT_PART(zc2.code_zone_cyn
 
 -- zone interet
 
-INSERT INTO oeasc_chasse.t_zone_interets (nom_zone_interet, code_zone_interet, id_zone_cynegetique)
+INSERT INTO oeasc_chasse.t_zone_indicatives (nom_zone_indicative, code_zone_indicative, id_zone_cynegetique)
 SELECT DISTINCT 
 	z_i_affectee, z_i_affectee, zc.id_zone_cynegetique
 	FROM import_chasse.plan_chasse ipc
@@ -150,7 +150,7 @@ ON CONFLICT DO NOTHING
 -- synonymes à faire plus tard
 
 insert into oeasc_chasse.t_lieu_tirs
-    (nom_lieu_tir, code_lieu_tir, id_zone_interet, id_area_commune, synonymes, geom)
+    (nom_lieu_tir, code_lieu_tir, id_zone_indicative, id_area_commune, synonymes, geom)
     select nom_lieudit, code_lieudit, zc.id_zone_cynegetique, id_area, NULL, lt.geom
     from import_chasse.lieux_tir lt 
     left join oeasc_chasse.t_zone_cynegetiques zc 
@@ -197,15 +197,15 @@ with saison_dates as(
 		TO_DATE(SPLIT_PART(nom_saison, '-', 2) || '0601', 'YYYYMMDD') as date_fin 
 		from oeasc_chasse.t_saisons ts 
 )
-insert into oeasc_chasse.t_attributions (id_saison, id_type_bracelet, id_zone_cynegetique_affectee, id_zone_interet_affectee, numero_bracelet)
-select id_saison, id_type_bracelet, tzc.id_zone_cynegetique, tzi.id_zone_interet, no_bracelet
+insert into oeasc_chasse.t_attributions (id_saison, id_type_bracelet, id_zone_cynegetique_affectee, id_zone_indicative_affectee, numero_bracelet)
+select id_saison, id_type_bracelet, tzc.id_zone_cynegetique, tzi.id_zone_indicative, no_bracelet
 	from import_chasse.plan_chasse pc 
 	left join oeasc_commons.t_especes te on te.nom_espece = split_part(pc.nom_vern, ' ', 1) 
 	left join oeasc_chasse.t_type_bracelets ttb on ttb.id_espece = te.id_espece 
 	left join oeasc_chasse.t_zone_cynegetiques tzc 
 		on 	regexp_replace(tzc.nom_zone_cynegetique, ',? \(.*\),?', '') = 
 	   		regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')
-	left join oeasc_chasse.t_zone_interets tzi on tzi.code_zone_interet = pc.z_i_affectee 
+	left join oeasc_chasse.t_zone_indicatives tzi on tzi.code_zone_indicative = pc.z_i_affectee 
 	left join saison_dates s on date_exacte > s.date_debut and date_exacte < s.date_fin
 	WHERE massif_realise IS NOT NULL AND pc.id NOT IN (6687, 4965, 10849, 9113)
 ;
@@ -284,7 +284,7 @@ where bnt.mnemonique = 'STADE_VIE'
 insert into oeasc_chasse.t_realisations(
 	id_attribution,
 	id_zone_cynegetique_realisee,
-	id_zone_interet_realisee,
+	id_zone_indicative_realisee,
 	id_lieu_tir,
     date_exacte,
     date_enreg,
@@ -313,7 +313,7 @@ insert into oeasc_chasse.t_realisations(
 select
 	id_attribution,
 	tzc.id_zone_cynegetique ,
-	tzi.id_zone_interet,
+	tzi.id_zone_indicative,
 	tlt.id_lieu_tir,
     pc.date_exacte,
     pc.date_enreg,
@@ -344,7 +344,7 @@ join oeasc_chasse.t_attributions ta on ta.numero_bracelet = pc.no_bracelet and t
 left join oeasc_chasse.t_zone_cynegetiques tzc 
 	on 	regexp_replace(tzc.nom_zone_cynegetique, ',? \(.*\),?', '') = 
 	   		regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')
-left join oeasc_chasse.t_zone_interets tzi on tzi.code_zone_interet = pc.z_i_affectee 
+left join oeasc_chasse.t_zone_indicatives tzi on tzi.code_zone_indicative = pc.z_i_affectee 
 left join oeasc_chasse.t_personnes tp on tp.nom_personne = pc.auteur_tir 
 left join oeasc_chasse.t_personnes tp2 on tp2.nom_personne = pc.auteur_constat
 left join oeasc_chasse.t_lieu_tirs tlt on tlt.code_lieu_tir = pc.code_lieu_dit 

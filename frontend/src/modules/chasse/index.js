@@ -2,7 +2,7 @@ import storeUtils from "@/store/utils";
 import admin from "@/components/admin";
 import configStorePersonne from "./config/store-personne";
 import configStoreZoneCynegetique from "./config/store-zone-cynegetique";
-import configStoreZoneInteret from "./config/store-zone-interet";
+import configStoreZoneIndicative from "./config/store-zone-interet";
 import configStoreLieuTir from "./config/store-lieu-tir";
 import configStoreSaison from "./config/store-saison";
 import configStoreSaisonDate from "./config/store-saison-date";
@@ -10,6 +10,7 @@ import configStoreAttributionMassif from "./config/store-attribution-massif";
 import configStoreTypeBracelet from "./config/store-type-bracelet";
 import configStoreAttribution from "./config/store-attribution";
 import configStoreRealisation from "./config/store-realisation";
+import genericForm from "@/components/form/generic-form";
 
 const ROUTE = [
   {
@@ -44,8 +45,8 @@ const ROUTE = [
           lieuTir: {
             storeName: "chasseLieuTir"
           },
-          zoneInteret: {
-            storeName: "chasseZoneInteret"
+          zoneIndicative: {
+            storeName: "chasseZoneIndicative"
           },
           zoneCynegetique: {
             storeName: "chasseZoneCynegetique"
@@ -57,6 +58,21 @@ const ROUTE = [
       }
     },
     access: 5
+  },
+  {
+    name: "chasse.testForm",
+    path: "/chasse/testForm",
+    label: "Données chasse",
+    hideTitle: true,
+    component: genericForm,
+    props: {
+      config: {
+        storeName: 'chasseRealisation',
+        value: {
+            // id_realisation: 89
+        }
+      },
+    }
   }
 ];
 
@@ -64,7 +80,7 @@ const STORE = {};
 
 storeUtils.addStore(STORE, configStorePersonne);
 storeUtils.addStore(STORE, configStoreZoneCynegetique);
-storeUtils.addStore(STORE, configStoreZoneInteret);
+storeUtils.addStore(STORE, configStoreZoneIndicative);
 storeUtils.addStore(STORE, configStoreLieuTir);
 storeUtils.addStore(STORE, configStoreSaison);
 storeUtils.addStore(STORE, configStoreSaisonDate);

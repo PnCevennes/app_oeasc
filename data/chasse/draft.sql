@@ -23,7 +23,7 @@ select id_saison, nom_saison, no_bracelet, count(*), array_agg(massif_realise), 
 	left join oeasc_chasse.t_zone_cynegetiques tzc 
 		on 	regexp_replace(tzc.nom_zone_cynegetique, ',? \(.*\),?', '') = 
 	   		regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')
-	left join oeasc_chasse.t_zone_interets tzi on tzi.code_zone_interet = pc.z_i_affectee 
+	left join oeasc_chasse.t_zone_indicatives tzi on tzi.code_zone_indicative = pc.z_i_affectee 
 	left join saison_dates s on date_exacte > s.date_debut and date_exacte < s.date_fin
 	WHERE massif_realise IS NOT NULL
 group by id_saison, no_bracelet, nom_saison

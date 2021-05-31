@@ -63,7 +63,7 @@ const ROUTE = [
   {
     // page resultats grand public (tous graphes)
     path: "/resultats/in_all",
-    name: "resultats.in",
+    name: "resultats.in2",
     label: "Indices nocturnes",
     content: "resultats.in_all",
     parent: "resultats.index",

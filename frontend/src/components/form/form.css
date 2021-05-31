@@ -40,6 +40,10 @@
 }
   
 
+.v-input--selection-controls {
+  margin-top: 0px;
+}
+
 /* .form-group.border {
   border: 1px solid lightgrey;
   border-radius: 10px;

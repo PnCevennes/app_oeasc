@@ -59,7 +59,7 @@ export default {
       },
       parcelles: {
         text: "Parcelle(s)",
-        display: (val) => displayParcelles(val),
+        display: (val) => displayParcelles(val.parcelles),
       },
       peuplement_type_mnemo: {
         text: "Type peupl.",
@@ -72,7 +72,7 @@ export default {
       },
       b_valid: {
         display: (val) =>
-          val === true ? "Oui" : val === false ? "Non" : "?",
+          val.b_valid === true ? "Oui" : val.b_valid === false ? "Non" : "?",
         width: "100px",
         text: "Validé",
         condition: ({ $store }) => $store.getters.droitMax >= 5,

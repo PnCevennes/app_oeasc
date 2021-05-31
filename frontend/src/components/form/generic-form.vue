@@ -5,7 +5,6 @@
       <slot name="success"></slot>
     </div>
     <div v-else-if="baseModel">
-      {{baseModel.test}} {{baseModel.test2}}
 
       <slot name="prependForm"></slot>
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
@@ -80,7 +79,6 @@ export default {
     //   return this.$route.params.id;
     // },
     idModel() {
-      console.log('id_model', this.config.idFieldName, this.baseModel && this.baseModel[this.config.idFieldName])
       return (
         (this.baseModel && this.baseModel[this.config.idFieldName]) ||
         (this.config.value && this.config.value[this.config.idFieldName])
@@ -148,6 +146,12 @@ export default {
       if (storeName) {
         const configStore = this.$store.getters.configStore(storeName);
 
+        if(!this.config.formDefs) {
+          for( const [key,value] of Object.entries(configStore.configForm)) {
+            this.config[key] = value;
+          }
+        }
+
         this.config.preloadData = ({ $store, id, config }) => {
           return new Promise(resolve => {
             if (!id) {
@@ -196,9 +200,10 @@ export default {
     },
 
     initBaseModel() {
-      const baseModel = {};
+      
+      const baseModel = this.config.value || {};
       const value = this.config.value || {};
-      // const baseModel = this.baseModel || this.config.value || {};
+
       for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
         baseModel[keyForm] =
           value[keyForm] != undefined
@@ -208,8 +213,7 @@ export default {
             : null;
       }
       baseModel.freeze = false;
-        this.baseModel = copy(baseModel);
-        // this.baseModel = baseModel;
+      this.baseModel = baseModel;
       this.baseModelSave = copy(baseModel);
 
     },

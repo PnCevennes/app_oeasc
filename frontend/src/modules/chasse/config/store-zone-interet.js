@@ -1,23 +1,21 @@
 export default {
     group: "chasse",
-    name: "zoneInteret",
-    label: "Zone d'intérêt",
-    labels: "Zones d'intérêt",
+    name: "zoneIndicative",
+    label: "Zone indicatives",
+    labels: "Zones indicatives",
     serverSide: true,
     defs: {
-      id_zone_interet: {
+      id_zone_indicative: {
         label: "ID",
         type: 'text',
         hidden: true
-        
       },
-      code_zone_interet: {
+      code_zone_indicative: {
         label: "Code",
         type: 'text',
         required: true
-        
       },
-      nom_zone_interet: {
+      nom_zone_indicative: {
         label: "Nom",
         type: 'text',
         required: true

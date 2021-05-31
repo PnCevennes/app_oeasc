@@ -2,7 +2,7 @@ import { copy } from "@/core/js/util/util";
 
 const configChoix = {
   type: "list_form",
-  display: "autocomplete"
+  list_type: "autocomplete",
   // returnObject: true
 };
 
@@ -61,7 +61,7 @@ export default {
     },
     choix1: {
       ...configChoix,
-      label: "Choix 1 (Couleur)"
+      label: "Choix 1 (Couleur)", 
     },
     switch: {
       type: "button",

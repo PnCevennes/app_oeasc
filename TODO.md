@@ -1,20 +1,26 @@
-content 
-# declaration
-ville !!
+TODO
 
-# 
+- restitution
+  - bug ??
 
-- remettre en formme
-- verifier tout le reste
-- demo
+- admin
+  - tout serveur side
+  - nb indiqué dans l'onglet mis a jour (store.getter nb_total ??) 
 
-- search separer espaces
+- chasse
+  - zone interet -> zone indicative
+  - formulaire
+    - titre 
+    - css 
+    - structure
+    - bracelet -> sexe + espece
+  - données
+    - reprendre les données
 
+- serveur demo
 
-# changement de page
-admin-chasse -> admin-in 
-
-# chasse
-
-- affiner formulaire
+DONE
+- chasse 
+  - [x] app.pnc.int 10.30   
+  - [x] test ajout personne
 

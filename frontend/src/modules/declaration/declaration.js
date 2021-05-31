@@ -143,6 +143,8 @@ const rawToDisplay = function({ declaration, $store }) {
 
 const displayParcelles = function(parcelles) {
   
+  console.log(parcelles)
+
   const parcellesArray = parcelles.split(", ");
   if ((parcellesArray[0].split("-").length != 3)) {
     return parcelles;

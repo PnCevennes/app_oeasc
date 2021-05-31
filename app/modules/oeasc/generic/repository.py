@@ -157,7 +157,7 @@ def get_objects_type(module_name, object_type, args={}):
         if model_attribute is None:
             continue
 
-        if type_filter == 'ilike':  
+        if type_filter == 'ilike' and value_filter and value_filter[0] != '=':  
 
             # filre ILIKE            
             value_filter_unaccent = unidecode.unidecode(value_filter)
@@ -172,10 +172,13 @@ def get_objects_type(module_name, object_type, args={}):
             query = query.filter(and_(*(tuple(filters))))
 
         else:
-
+            
+            value_filter_effectif = value_filter
+            if value_filter and value_filter[0] == '=':
+                value_filter_effectif = value_filter[1:] 
             # filtre =
             query = query.filter(
-                cast(model_attribute, DB.String ) == value_filter
+                cast(model_attribute, DB.String ) == value_filter_effectif
             )
 
     # print sort by

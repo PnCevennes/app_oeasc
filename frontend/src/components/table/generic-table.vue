@@ -57,7 +57,7 @@
         multi-sort
         :dense="configTable.dense"
         :loading="!configTable.items"
-        :server-items-length="itemsServerCount"
+        :server-items-length="configTable.serverSide && itemsServerCount"
         loading-text="Chargement en cours... merci de patienter"
       >
         <template v-slot:body.prepend>
