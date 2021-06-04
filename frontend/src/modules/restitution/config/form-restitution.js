@@ -12,7 +12,7 @@ export default {
       forms: ["display", "groupByKey"]
     },
     {
-      forms: ["height"]
+      forms: ["width", "height"]
     },
     {
       forms: ["choix1", "nbMax1"],
@@ -38,6 +38,11 @@ export default {
       type: "text",
       label: "hauteur"
     },
+    width: {
+      type: "text",
+      label: "largeur"
+    },
+
     display: {
       type: "list_form",
       list_type: "button",

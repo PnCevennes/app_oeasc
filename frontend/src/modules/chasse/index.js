@@ -2,7 +2,7 @@ import storeUtils from "@/store/utils";
 import admin from "@/components/admin";
 import configStorePersonne from "./config/store-personne";
 import configStoreZoneCynegetique from "./config/store-zone-cynegetique";
-import configStoreZoneIndicative from "./config/store-zone-interet";
+import configStoreZoneIndicative from "./config/store-zone-indicative";
 import configStoreLieuTir from "./config/store-lieu-tir";
 import configStoreSaison from "./config/store-saison";
 import configStoreSaisonDate from "./config/store-saison-date";

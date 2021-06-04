@@ -157,3 +157,8 @@ margin-right: auto;
 .list-actu {
   margin: 0 !important;
 }
+
+.list-actu img {
+  object-fit: cover;
+}
+

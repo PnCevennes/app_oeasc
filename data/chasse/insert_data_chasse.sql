@@ -1,6 +1,14 @@
-﻿    -- PREPA ESPECES
+﻿-- correct 
+ALTER TABLE import_chasse.plan_chasse DISABLE trigger ALL;
+update import_chasse.plan_chasse pc set date_exacte = date_exacte - interval '1 year' 
+where date_exacte > '2021-07-01';
+
+
+    -- PREPA ESPECES
 --
 -- TODO ajouter cd_nom ??
+
+
 
 ALTER TABLE oeasc_commons.t_especes DROP CONSTRAINT IF EXISTS oeasc_commons_t_espece_unique_code_espece;
 ALTER TABLE oeasc_commons.t_especes ADD CONSTRAINT oeasc_commons_t_espece_unique_code_espece UNIQUE(code_espece);
@@ -206,7 +214,7 @@ select id_saison, id_type_bracelet, tzc.id_zone_cynegetique, tzi.id_zone_indicat
 		on 	regexp_replace(tzc.nom_zone_cynegetique, ',? \(.*\),?', '') = 
 	   		regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')
 	left join oeasc_chasse.t_zone_indicatives tzi on tzi.code_zone_indicative = pc.z_i_affectee 
-	left join saison_dates s on date_exacte > s.date_debut and date_exacte < s.date_fin
+	join saison_dates s on date_exacte > s.date_debut and date_exacte < s.date_fin
 	WHERE massif_realise IS NOT NULL AND pc.id NOT IN (6687, 4965, 10849, 9113)
 ;
 -- nomenclature mode chasse

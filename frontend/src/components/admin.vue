@@ -1,5 +1,5 @@
 <template>
-  <div style="width:100%">
+  <div style="width: 100%">
     <h1>{{ config.title }} - Page d'administation</h1>
     <v-tabs v-model="tab" fixed>
       <v-tabs-slider color="yellow"></v-tabs-slider>
@@ -12,10 +12,7 @@
     <v-tabs-items v-model="tab">
       <v-tab-item v-for="[key, tab] of Object.entries(config.tabs)" :key="key">
         <generic-table
-          v-if="
-            ['generic-table', undefined].includes(tab.type) &&
-              configStores[key]
-          "
+          v-if="['generic-table', undefined].includes(tab.type) && configStores[key]"
           :config="configStores[key].configTable"
           :key="key"
         ></generic-table>
@@ -33,26 +30,42 @@ export default {
   name: "generic-admin",
   components: {
     genericTable,
-    inTable
+    inTable,
   },
   props: ["config"],
   data: () => ({
     tab: null,
     configStores: {},
-    nbElems: {}
+    nbElems: {},
   }),
-  mounted() {
-    for (const [key, tab] of Object.entries(this.config.tabs)) {
-      const storeName = tab && tab.storeName;
-      if (!storeName) {
-        continue;
+  watch: {
+    $route(to, from) {
+      to;
+      from;
+      console.log("route", to, from);
+      this.init();
+    },
+  },
+  methods: {
+    init() {
+      for (const [key, tab] of Object.entries(this.config.tabs)) {
+        const storeName = tab && tab.storeName;
+        if (!storeName) {
+          continue;
+        }
+        const configStore = this.$store.getters.configStore(storeName);
+        this.configStores[key] = configStore;
+        tab.labels = tab.labels || configStore.labels;
+        this.$store.dispatch(configStore.count).then((count) => {
+          this.nbElems[key] = count;
+          this.nbElems = { ...this.nbElems };
+        });
       }
-      const configStore = this.$store.getters.configStore(storeName);
-      this.configStores[key] = configStore;
-      tab.labels = tab.labels || configStore.labels;
-      this.$store.dispatch(configStore.count).then(count => {this.nbElems[key] = count; this.nbElems = {...this.nbElems}});
-    }
-  }
+    },
+  },
+  mounted() {
+    this.init();
+  },
 };
 </script>
 <style scoped>

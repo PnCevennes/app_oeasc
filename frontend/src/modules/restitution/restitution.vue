@@ -48,6 +48,7 @@ const props = [
   "stacking",
   "n",
   "height",
+  "width",
   "preFilters",
   "groupByKey",
 ];
@@ -135,12 +136,11 @@ export default {
   },
 
   mounted() {
+  console.log(props)
     this.baywatch(props, (prop) => (value) => {
-      if(Object.keys(value).length) {
         if((!this.results) || !deepEqual(value, this.results.options[prop])) {
           this.processData();
         }
-      }
     });
     this.initRestitution();
   },
