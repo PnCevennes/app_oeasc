@@ -390,14 +390,14 @@ export default {
           label: "Espèce",
           items: this.items("nom_espece"),
           change: this.settingsChange,
-          display: "button"
+          list_type: "button"
         };
         this.configChoix.ug = {
           name: "ug",
           label: "Secteur",
           items: this.items("ug"),
           change: this.settingsChange,
-          display: "button"
+          list_type: "button"
         };
 
         this.ready = true;

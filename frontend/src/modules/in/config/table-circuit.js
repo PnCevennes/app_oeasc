@@ -17,7 +17,7 @@ export default {
     id_secteur: {
       text: "Secteur",
       displayFieldName: "nom_secteur",
-      storeName: "inSecteur",
+      storeName: "commonsSecteur",
     },
     km: {
       text: "distance (km)"

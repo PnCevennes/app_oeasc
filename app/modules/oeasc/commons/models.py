@@ -4,6 +4,8 @@
 
 from flask import current_app
 
+from sqlalchemy.orm import column_property
+from sqlalchemy import select
 from utils_flask_sqla.serializers import serializable
 
 config = current_app.config
@@ -29,6 +31,7 @@ cor_content_tag = DB.Table(
     schema='oeasc_commons'
 
 )
+
 
 @serializable
 class TTags(DB.Model):
@@ -70,4 +73,52 @@ class TSecteurs(DB.Model):
     id_secteur = DB.Column(DB.Integer, primary_key=True)
     code_secteur = DB.Column(DB.String(250))
     nom_secteur = DB.Column(DB.Text)
+
+
+@serializable
+class TEspeces(DB.Model):
+    '''
+        Especes
+    '''
+    __tablename__ = 't_especes'
+    __table_args__ = {'schema': 'oeasc_commons', 'extend_existing': True}
+
+    id_espece = DB.Column(DB.Integer, primary_key=True)
+    nom_espece = DB.Column(DB.Unicode)
+    code_espece = DB.Column(DB.Unicode)
+
+
+
+@serializable
+class BibNomenclaturesTypes(DB.Model):
+    '''
+        Nomenclature type
+    '''
+    __tablename__ = 'bib_nomenclatures_types'
+    __table_args__ = {'schema': 'ref_nomenclatures', 'extend_existing': True}
+
+    id_type = DB.Column(DB.Integer, primary_key=True)
+    mnemonique = DB.Column(DB.Unicode)
+    label_fr = DB.Column(DB.Unicode)
+    definition_fr = DB.Column(DB.Unicode)
+
+@serializable
+class TNomenclatures(DB.Model):
+    '''
+        Nomenclature
+    '''
+    __tablename__ = 't_nomenclatures'
+    __table_args__ = {'schema': 'ref_nomenclatures', 'extend_existing': True}
+
+    id_nomenclature = DB.Column(DB.Integer, primary_key=True)
+    cd_nomenclature = DB.Column(DB.Unicode)
+    mnemonique = DB.Column(DB.Unicode)
+    label_fr = DB.Column(DB.Unicode)
+    definition_fr = DB.Column(DB.Unicode)
+    id_type = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.bib_nomenclatures_types.id_type'))
+
+    type = column_property(
+        select([BibNomenclaturesTypes.mnemonique]).\
+            where(BibNomenclaturesTypes.id_type == id_type)
+    )
 

@@ -1,30 +1,113 @@
 import { apiRequest } from "@/core/js/data/api.js";
+import { upFirstLetter, camelToSnakeCase } from "@/core/js/util/util.js";
 
-/**
- *
- * Pour gérer les requêtes mulitples rapprochées
- *
- *
+/**;
+ * Configuration pour generic-table
  */
-const addPendingRequestStore = STORE => {
-  for (const key of ['state', 'mutations', 'getters']) {
-    STORE[key] = STORE[key] || {};
-  }
-  if (STORE.state.pendings === undefined) {
-    STORE.state.pendings = {};
-    STORE.getters.pendings = state => api => state.pendings[api];
-    STORE.mutations.addPending = (state, { request, api }) => {
-      state.pendings[api] = request;
-      console.info('add pending', api, state.pendings)
-    };
-    STORE.mutations.removePending = (state, api) => {
-      if (state.pendings[api]) {
-      console.info('delete pending', api)
+// const addPendingRequestStore = STORE => {
+//   for (const key of ['state', 'mutations', 'getters']) {
+//     STORE[key] = STORE[key] || {};
+//   }
+//   if (STORE.state.pendings === undefined) {
+//     STORE.state.pendings = {};
+//     STORE.getters.pendings = state => api => state.pendings[api];
+//     STORE.mutations.addPending = (state, { request, api }) => {
+//       state.pendings[api] = request;
+//       console.info('add pending', api, state.pendings)
+//     }
+//   }
+// }
 
-        delete state.pendings[api];
-      }
+const processTableConfig = configStore => {
+  const configTable = {
+    storeName: configStore.storeName,
+    options: configStore.options,
+    labelFieldName: configStore.labelFieldName,
+    idFieldName: configStore.idFieldName,
+    dense: true,
+    striped: true,
+    small: true,
+    configForm: configStore.form,
+  };
+
+  const headerDefs = {};
+  for (const [keyCol, col] of Object.entries(configStore.defs)
+    .filter(
+      ([keyCol]) => !configStore.columns || configStore.columns.includes(keyCol)
+    )
+    .sort((a, b) =>
+      configStore.columns
+        ? configStore.columns.indexOf(b[0]) - configStore.columns.indexOf(a[0]) < 0
+          ? 1
+          : -1
+        : 0
+    )) {
+    headerDefs[keyCol] = {
+      ...col,
+      text: col.text || col.label,
+      type: col.type || "text"
     };
   }
+
+  configTable.headerDefs = headerDefs;
+  configTable.configForm = configStore.configForm;
+  configStore.configTable = configTable;
+};
+
+const unaccent = s => {
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
+const articleDef = configStore => {
+  const voyelle = "aeiouy".includes(
+    unaccent(configStore.label[0]).toLowerCase()
+  );
+  const M = ["M", undefined].includes(configStore.genre);
+  return voyelle ? "de l'" : M ? "du " : "de la ";
+};
+
+const articleUndefNew = configStore => {
+  const voyelle = "aeiouy".includes(
+    unaccent(configStore.label[0]).toLowerCase()
+  );
+  const M = ["M", undefined].includes(configStore.genre);
+  return voyelle && M ? "d'un nouvel" : M ? "d'un nouveau " : "d'une nouvelle ";
+};
+
+const processFormConfig = configStore => {
+  const configForm = {
+    ...(configStore.form || {}),
+    storeName: configStore.storeName,
+    idFieldName: configStore.idFieldName,
+    title: ({ id }) =>
+      id
+        ? `Modificiation ${articleDef(
+            configStore
+          )}${configStore.label.toLowerCase()} (id=${id})`
+        : `Création ${articleUndefNew(
+            configStore
+          )}${configStore.label.toLowerCase()}`,
+    switchDisplay: ({ id }) => !!id,
+    displayValue: ({ id }) => !!id,
+    displayLabel: true
+  };
+
+  const formDefs = {};
+  for (const [keyCol, col] of Object.entries(configStore.defs)) {
+    formDefs[keyCol] = {
+      ...col
+    };
+  }
+
+  configForm.formDefs = formDefs;
+  configStore.configForm = configForm;
+};
+
+const processDefaults = configStore => {
+  configStore.idFieldName =
+    configStore.idFieldName || `id_${configStore.snakeName}`;
+  configStore.displayFieldName =
+    configStore.displayFieldName || `nom_${configStore.snakeName}`;
 };
 
 export default {
@@ -42,31 +125,46 @@ export default {
    *  labelFieldName
    * }
   */
-  addStore(STORE, name, api, settings) {
+  addStore(STORE, configIn) {
+    // depuis la config
+    const snakeName = camelToSnakeCase(configIn.name);
+    const api = configIn.api || `api/generic/${configIn.group}/${snakeName}`;
+    const apis = `${api}s/`;
+
+    const storeName = configIn.group + upFirstLetter(configIn.name);
+
     /** si name = 'trucs */
-    addPendingRequestStore(STORE);
     /** trucs : nom pour les listes (un s à la fin)  pour les route de liste*/
-    const names = `${name}s`;
+    const storeNames = `${storeName}s`;
 
     /** Truc : pour les actions par ex getTruc postTruc */
-    const nameCapitalized = name.charAt(0).toUpperCase() + name.slice(1);
+    const storeNameCapitalized = upFirstLetter(storeName);
 
     /** pour stocker et recupérer la config */
-    const nameConfig = `${name}ConfigStore`;
+    const storeNameConfig = `${storeName}ConfigStore`;
 
-    const config = {
-      name,
-      names,
-      count: `count${nameCapitalized}`,
-      get: `get${nameCapitalized}`,
-      post: `post${nameCapitalized}`,
-      patch: `patch${nameCapitalized}`,
-      delete: `delete${nameCapitalized}`,
-      getAll: `getAll${nameCapitalized}`,
-      idFieldName: settings.idFieldName,
-      displayFieldName: settings.displayFieldName,
-      loaded: false
+    const configStore = {
+      ...configIn,
+      storeName,
+      storeNames,
+      snakeName,
+      apis,
+      api,
+      labels: configIn.labels || `${configIn.label}s`,
+      get: `get${storeNameCapitalized}`,
+      post: `post${storeNameCapitalized}`,
+      patch: `patch${storeNameCapitalized}`,
+      delete: `delete${storeNameCapitalized}`,
+      getAll: `getAll${storeNameCapitalized}`,
+      count: `count${storeNameCapitalized}`,
+      idFieldName: configIn.idFieldName,
+      displayFieldName: configIn.displayFieldName,
+      loaded: false,
+      options: configIn.options
     };
+    processDefaults(configStore);
+    processFormConfig(configStore);
+    processTableConfig(configStore);
 
     /** STATE */
 
@@ -74,112 +172,134 @@ export default {
     /** ou l'on stoque le tableau de d'objets */
 
     /** stockage de la liste */
-    state[names] = [];
-    state[nameConfig] = config;
+    state[storeNames] = [];
+    state[storeNameConfig] = configStore;
 
     /** GETTER */
 
     const getters = {};
 
     /** recuperation des config doit marcher avec tous les stores */
-    getters.configStore = state => name => state[`${name}ConfigStore`];
+    getters.configStore = state => storeName =>
+      state[`${storeName}ConfigStore`];
 
     /** recupération du tableau entier */
-    getters[names] = state => state[names];
+    getters[storeNames] = state => state[storeNames];
 
     /** nombre d'éléments */
-    getters[config.count] = state => state[names].length;
+    getters[configStore.count] = state => state[configStore.count];
 
     /** récupération d'un objet  par value, fieldName
      * avec idFieldName par défaut
      */
-    getters[name] = state => (value, fieldName = config.idFieldName) =>
-      state[names] && state[names].find(obj => obj[fieldName] == value);
+    getters[storeName] = state => (
+      value,
+      fieldName = configStore.idFieldName
+    ) => {
+      return state[storeNames] &&
+      state[storeNames].find(obj => obj[fieldName] == value);
+    }
 
     const mutations = {};
 
     /** MUTATIONS */
 
     /** config ?? */
-    mutations[nameConfig] = (state, config) => {
-      const stateConfig = state[nameConfig];
+    mutations[storeNameConfig] = (state, config) => {
+      const stateConfig = state[storeNameConfig];
       for (const key of Object.keys(config)) {
         stateConfig[key] = config[key];
       }
     };
 
     /** assignation du tableau entier */
-    mutations[names] = (state, objList) => {
-      if (!state[names].length) {
-        state[names] = objList;
+    mutations[storeNames] = (state, objList) => {
+      if (!state[storeNames].length) {
+        state[storeNames] = objList;
         return;
       }
       for (const obj of objList) {
-        const elem = state[names].find(
-          e => e[config.idFieldName] == obj[config.idFieldName]
+        const elem = state[storeNames].find(
+          e => e[configStore.idFieldName] == obj[configStore.idFieldName]
         );
         if (elem) {
           for (const key of Object.keys(obj)) {
             elem[key] = obj[key];
           }
         } else {
-          state[names].push(obj);
+          state[storeNames].push(obj);
         }
       }
     };
 
     /** assignation / modification d'un element */
-    mutations[name] = (state, obj) => {
-      const index = state[names].findIndex(
-        o => o[config.idFieldName] === obj[config.idFieldName]
+    mutations[storeName] = (state, obj) => {
+      const index = state[storeNames].findIndex(
+        o => o[configStore.idFieldName] === obj[configStore.idFieldName]
       );
       if (index == -1) {
-        state[names].push(obj);
+        state[storeNames].push(obj);
       } else {
         for (const key of Object.keys(obj)) {
-          state[names][index][key] = obj[key];
+          state[storeNames][index][key] = obj[key];
         }
       }
     };
 
     /** suppression d'un objet */
-    mutations[config.delete] = (state, obj) => {
-      state[names] = state[names].filter(
-        o => o[config.idFieldName] !== obj[config.idFieldName]
+    mutations[configStore.delete] = (state, obj) => {
+      state[storeNames] = state[storeNames].filter(
+        o => o[configStore.idFieldName] !== obj[configStore.idFieldName]
       );
     };
 
+    mutations[configStore.count] = (state, count) => {
+      state[configStore.count] = count;
+    }
+
     const actions = {};
+
+    actions[configStore.count] = ({getters, commit}) => {
+      return new Promise((resolve) => {
+        getters;
+        apiRequest("GET", `${api}s/`, {params: {count:true}}).then((count) => {
+          commit(configStore.count, count);
+          resolve(count);
+        });
+      });
+    }
+
+
     /** requete GET pour avoir le tableau d'objets
      * forceReload : forcer la recupération des données depuis le serveur
-     * ajout de pendingState ( par url ) quand deux requete sont quasi simultanées
      */
-    actions[config.getAll] = (
+    actions[configStore.getAll] = (
       { getters, commit },
-      { forceReload = false } = {}
+       options = {}
     ) => {
       return new Promise((resolve, reject) => {
-        const configStore = getters.configStore(name);
-
-        const loaded = !forceReload && configStore.loaded;
-        const objList = getters[names];
-        if (objList && objList.length && loaded) {
+        const loaded = !options.forceReload && configStore.loaded;
+        const objList = getters[storeNames];
+        if (objList && objList.length && loaded && !options.notCommit) {
           resolve(objList);
           return;
         }
-
-        const apis = `${api}s/`
-        if (!getters.pendings(apis)) {
-          commit("addPending", { api: apis, request: apiRequest("GET", `${apis}`) });
-        }
-        const request = getters.pendings(apis);
-
-        request.then(
+        apiRequest("GET", `${apis}`, {params:options}, {commit, getters}).then(
           data => {
-            commit(nameConfig, { loaded: true });
-            commit(names, data);
-            commit("removePending", apis); // remove pending
-            resolve(data);
+
+            const items = data.items || data;
+            
+            if(!options.notCommit) {
+              commit(storeNameConfig, { loaded: true });
+              commit(storeNames, items);
+            }
+
+            if(options.serverSide) {
+              resolve(data);
+              return;
+            }
+
+            resolve(items);
           },
           error => {
             console.error(`error in request ${apis} : ${error}`);
@@ -194,10 +314,10 @@ export default {
      */
     const genericAction = requestType => (
       { getters, commit },
-      { value = null, fieldName = config.idFieldName, postData = null }
+      { value = null, fieldName = configStore.idFieldName, postData = null }
     ) => {
       return new Promise((resolve, reject) => {
-        const configStore = getters.configStore(name);
+        // const configStore = getters.configStore(storeName);
         /** verification des arguments */
         let error;
         if (["PATCH", "GET", "DELETE"].includes(requestType) && !value) {
@@ -213,7 +333,7 @@ export default {
         }
 
         if (requestType == "GET") {
-          const obj = getters[name](value, fieldName);
+          const obj = getters[storeName](value, fieldName);
           if (obj) {
             resolve(obj);
             return;
@@ -224,13 +344,13 @@ export default {
 
         apiRequest(requestType, apiUrl, {
           postData,
-          params: { field_name: fieldName }
+          params: { field_name: fieldName },
         }).then(
           data => {
             if (requestType === "DELETE") {
               commit(configStore.delete, data);
             } else {
-              commit(name, data);
+              commit(storeName, data);
             }
             resolve(data);
           },
@@ -244,7 +364,9 @@ export default {
 
     /** requetes GET POST PATCH DELETE */
     for (const key of ["GET", "POST", "PATCH", "DELETE"]) {
-      actions[`${key.toLowerCase()}${nameCapitalized}`] = genericAction(key);
+      actions[`${key.toLowerCase()}${storeNameCapitalized}`] = genericAction(
+        key
+      );
     }
 
     const store = {
@@ -257,11 +379,12 @@ export default {
     for (const key of ["state", "getters", "mutations", "actions"]) {
       STORE[key] = { ...(STORE[key] || {}), ...store[key] };
     }
+
   },
 
   /** Besoin de clarification */
-  addStoreRestitution: (STORE, name, getDataAction, configRestitution) => {
-    const nameConfig = `${name}ConfigRestitution`;
+  addStoreRestitution: (STORE, storeName, getDataAction, configRestitution) => {
+    const storeNameConfig = `${storeName}ConfigRestitution`;
 
     const config = {
       getDataAction,
@@ -269,11 +392,11 @@ export default {
     };
 
     const state = {};
-    state[nameConfig] = config;
+    state[storeNameConfig] = config;
     const getters = {};
 
-    getters.configRestitution = state => name =>
-      state[`${name}ConfigRestitution`];
+    getters.configRestitution = state => storeName =>
+      state[`${storeName}ConfigRestitution`];
     const mutations = {};
     const actions = {};
 
@@ -298,9 +421,7 @@ export default {
    * name: inResult
    * api
    */
-  addSimpleStore(STORE, name, api) {
-
-    addPendingRequestStore(STORE);
+  addSimpleStore(STORE, storeNames, api) {
 
     const state = {},
       getters = {},
@@ -309,20 +430,23 @@ export default {
     /** ou l'on stoque le tableau de d'objets */
 
     /** STATE */
-    state[name] = null;
+    state[storeNames] = null;
 
     /** GETTER */
-    getters[name] = state => state[name];
+    getters[storeNames] = state => state[storeNames];
 
     /** MUTATION */
-    mutations[name] = (state, obj) => {
-      state[name] = obj;
+    mutations[storeNames] = (state, obj) => {
+      state[storeNames] = obj;
     };
 
     /** ACTIONS */
-    actions[name] = ({ getters, commit }, { forceReload = false } = {}) => {
+    actions[storeNames] = (
+      { getters, commit },
+      { forceReload = false } = {}
+    ) => {
       return new Promise((resolve, reject) => {
-        const obj = getters[name];
+        const obj = getters[storeNames];
         if (obj && !forceReload) {
           resolve(obj);
           return;
@@ -335,7 +459,7 @@ export default {
 
         request.then(
           data => {
-            commit(name, data);
+            commit(storeNames, data);
             commit("removePending", api); // remove pending
             resolve(data);
           },

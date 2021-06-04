@@ -8,7 +8,7 @@ remove/
 *.pyc
 venv/
 var/log/error*
-config/settings.ini
+settings.ini
 config/settings.ini_*
 config/config.py
 

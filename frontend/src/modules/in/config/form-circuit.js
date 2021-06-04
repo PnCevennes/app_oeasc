@@ -8,8 +8,8 @@ export default {
     id_secteur: {
       label: "Secteur",
       type: "list_form",
-      display: "select",
-      storeName: "inSecteur",
+      list_type: "select",
+      storeName: "commonsSecteur",
       required: true
     },
     numero_circuit: {
@@ -33,7 +33,7 @@ export default {
 
     // ug_tags: {
     //   type: "list_form",
-    //   display: "combobox",
+    //   list_type: "combobox",
     //   label: "Tags",
     //   maxLength: 4,
     //   multiple: true,

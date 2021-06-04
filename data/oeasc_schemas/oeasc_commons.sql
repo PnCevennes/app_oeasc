@@ -57,11 +57,18 @@ CREATE TABLE IF NOT EXISTS oeasc_commons.cor_content_tag
         ON UPDATE CASCADE ON DELETE CASCADE
 );
 
-
-
-
 CREATE TRIGGER tri_meta_dates_change_t_contents
    BEFORE INSERT OR UPDATE
    ON oeasc_commons.t_contents
    FOR EACH ROW
    EXECUTE PROCEDURE public.fct_trg_meta_dates_change();
+
+
+CREATE TABLE IF NOT EXISTS oeasc_commons.t_especes
+(
+    id_espece serial NOT NULL,
+    nom_espece CHARACTER VARYING,
+    code_espece CHARACTER VARYING,
+
+    CONSTRAINT pk_t_especes_id_espece PRIMARY KEY (id_espece)
+);

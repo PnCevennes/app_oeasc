@@ -1,19 +1,19 @@
 <template>
-  <div style="width:100%">
+  <div style="width: 100%">
     <h1>{{ config.title }} - Page d'administation</h1>
     <v-tabs v-model="tab" fixed>
       <v-tabs-slider color="yellow"></v-tabs-slider>
 
       <v-tab v-for="[key, tab] of Object.entries(config.tabs)" :key="key">
-        {{ tab.label }} {{ nbElems[key] ? `(${nbElems[key]})` : '' }}
+        {{ tab.labels }} {{ nbElems[key] ? `(${nbElems[key]})` : "" }}
       </v-tab>
     </v-tabs>
 
     <v-tabs-items v-model="tab">
       <v-tab-item v-for="[key, tab] of Object.entries(config.tabs)" :key="key">
         <generic-table
-          v-if="tab.type == 'generic-table'"
-          :config="tab.config"
+          v-if="['generic-table', undefined].includes(tab.type) && configStores[key]"
+          :config="configStores[key].configTable"
           :key="key"
         ></generic-table>
         <in-table v-if="tab.type == 'in-table'"></in-table>
@@ -27,39 +27,49 @@ import genericTable from "@/components/table/generic-table";
 import inTable from "@/modules/in/in-table";
 
 export default {
-  name: "in-admin",
+  name: "generic-admin",
   components: {
     genericTable,
-    inTable
+    inTable,
   },
   props: ["config"],
   data: () => ({
-    tab: null
+    tab: null,
+    configStores: {},
+    nbElems: {},
   }),
-  computed: {
-    nbElems() {
-      const nbElems = {};
+  watch: {
+    $route(to, from) {
+      to;
+      from;
+      console.log("route", to, from);
+      this.init();
+    },
+  },
+  methods: {
+    init() {
       for (const [key, tab] of Object.entries(this.config.tabs)) {
-        const storeName = tab && tab.config && tab.config.storeName;
+        const storeName = tab && tab.storeName;
         if (!storeName) {
-          nbElems[key] = "";
           continue;
         }
         const configStore = this.$store.getters.configStore(storeName);
-        nbElems[key] = this.$store.getters[configStore.count];
+        this.configStores[key] = configStore;
+        tab.labels = tab.labels || configStore.labels;
+        this.$store.dispatch(configStore.count).then((count) => {
+          this.nbElems[key] = count;
+          this.nbElems = { ...this.nbElems };
+        });
       }
-      return nbElems;
-    }
+    },
   },
   mounted() {
-    for (const tab of Object.values(this.config.tabs)) {
-      const storeName = tab && tab.config && tab.config.storeName;
-      if (!storeName) {
-        continue;
-      }
-      const configStore = this.$store.getters.configStore(storeName);
-      this.$store.dispatch(configStore.getAll);
-    }
-  }
+    this.init();
+  },
 };
 </script>
+<style scoped>
+.v-tab {
+  text-transform: none !important;
+}
+</style>

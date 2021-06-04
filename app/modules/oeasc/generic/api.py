@@ -11,10 +11,13 @@ from .repository import (
     get_objects_type,
     get_object_type,
     create_or_update_object_type,
-    delete_object_type
+    delete_object_type,
+
 )
 
 bp = Blueprint('generic_api', __name__)
+
+
 
 @bp.route('<string:module_name>/<string:object_types>/', methods=['GET'])
 @check_object_type('R')
@@ -26,11 +29,21 @@ def get_all_generic(module_name, object_types):
 
     # on enleve le s à la fin
     object_type = object_types[:-1]
+    
+    args = request.args
 
-    res = get_objects_type(module_name, object_type)
+    res, count, count_filtered = get_objects_type(module_name, object_type, args)
 
-    return [r.as_dict(True) for r in res]
+    if 'count' in args:
+        return count
 
+    items = [r.as_dict(True) for r in res.all()]
+
+    return {
+        'total' : count,
+        'total_filtered' : count_filtered,
+        'items' : items
+    }
 
 @bp.route('<string:module_name>/<string:object_type>/<value>', methods=['GET'])
 @check_object_type('R')

@@ -4,7 +4,8 @@
     <div v-if="bRequestSuccess">
       <slot name="success"></slot>
     </div>
-    <div v-else>
+    <div v-else-if="baseModel">
+
       <slot name="prependForm"></slot>
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
         <div>
@@ -67,18 +68,16 @@ import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import { config as globalConfig } from "@/config/config.js";
 import { copy } from "@/core/js/util/util";
 
-// import {copy} from '@/core/js/util/util'
-
 export default {
   name: "generic-form",
   components: {
-    dynamicFormGroup,
+    dynamicFormGroup
   },
   props: ["config"],
   computed: {
-    idRoute() {
-      return this.$route.params.id;
-    },
+    // idRoute() {
+    //   return this.$route.params.id;
+    // },
     idModel() {
       return (
         (this.baseModel && this.baseModel[this.config.idFieldName]) ||
@@ -91,7 +90,7 @@ export default {
         forms: this.config.forms,
         formDefs: this.config.formDefs,
         displayValue: this.displayValue,
-        displayLabel: this.config.displayLabel,
+        displayLabel: this.config.displayLabel
       };
     },
     method() {
@@ -113,16 +112,16 @@ export default {
       return typeof this.config.title == "function"
         ? this.config.title({ id: this.idModel })
         : this.config.title;
-    },
+    }
   },
   watch: {
     config() {
       this.initConfig();
     },
-    idRoute() {
-      this.baseModel[this.config.idFieldName] = this.idRoute;
-      this.initConfig();
-    },
+    // idRoute() {
+    //   this.baseModel[this.config.idFieldName] = this.idRoute;
+    //   this.initConfig();
+    // }
   },
   mounted() {
     this.initConfig();
@@ -137,7 +136,6 @@ export default {
       }, 100);
     },
     initConfig() {
-      
       this.displayValue =
         typeof this.config.displayValue == "function"
           ? this.config.displayValue({ id: this.idModel })
@@ -147,13 +145,19 @@ export default {
       const storeName = this.config.storeName;
       if (storeName) {
         const configStore = this.$store.getters.configStore(storeName);
-        this.config.idFieldName = configStore.idFieldName;
+
+        if(!this.config.formDefs) {
+          for( const [key,value] of Object.entries(configStore.configForm)) {
+            this.config[key] = value;
+          }
+        }
+
         this.config.preloadData = ({ $store, id, config }) => {
-          return new Promise((resolve) => {
+          return new Promise(resolve => {
             if (!id) {
               resolve();
             } else {
-              $store.dispatch(configStore.get, { value: id }).then((data) => {
+              $store.dispatch(configStore.get, { value: id }).then(data => {
                 config.value = data;
                 this.baseModel = null;
                 resolve();
@@ -161,29 +165,31 @@ export default {
             }
           });
         };
+        this.config.idFieldName = this.config.idFieldName || configStore.idFieldName;
         this.config.action = this.config.action || {};
         this.config.action.process = ({ id, $store, postData }) => {
           return $store.dispatch(id ? configStore.patch : configStore.post, {
             value: id,
-            postData,
+            postData
           });
         };
 
+        this.config.action.preProcess = configStore.preProcess;
       }
-      
-      if (this.config.preloadData
-      //  && !this.config.value
-       ) {
-        
+
+      if (
+        this.config.preloadData
+        //  && !this.config.value
+      ) {
         this.config
           .preloadData({
             $store: this.$store,
             config: this.config,
-            id: this.idModel,
+            id: this.idModel
           })
           .then(() => {
             this.baseModel = null;
-            
+
             this.initBaseModel();
             this.bInit = true;
           });
@@ -194,29 +200,29 @@ export default {
     },
 
     initBaseModel() {
-      let baseModel = {};
-      baseModel = this.baseModel || this.config.value || {};
+      
+      const baseModel = this.config.value || {};
+      const value = this.config.value || {};
 
       for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
-        
         baseModel[keyForm] =
-          baseModel[keyForm] !== undefined
-            ? baseModel[keyForm]
+          value[keyForm] != undefined
+            ? value[keyForm]
             : formDef.multiple
             ? []
             : null;
       }
       baseModel.freeze = false;
       this.baseModel = baseModel;
-      
-      this.baseModelSave = copy(this.baseModel);
+      this.baseModelSave = copy(baseModel);
+
     },
     postData() {
       return this.config.action.preProcess
         ? this.config.action.preProcess({
             baseModel: this.baseModel,
             globalConfig,
-            config: this.config,
+            config: this.config
           })
         : this.baseModel;
     },
@@ -235,11 +241,11 @@ export default {
               $store: this.$store,
               $router: this.$router,
               config: this.config,
-              id: this.idModel,
+              id: this.idModel
             });
 
         if (!promise) {
-          this.$emit('onSuccess', this.postData())
+          this.$emit("onSuccess", this.postData());
           return;
         }
 
@@ -251,7 +257,7 @@ export default {
           if (
             formDef.storeName &&
             formDef.returnObject &&
-            formDef.display == "combobox" // que dans les cas des combobox returnObject
+            formDef.list_type == "combobox" // que dans les cas des combobox returnObject
           ) {
             let values = this.baseModel[key];
             values = formDef.multiple ? values : [values];
@@ -259,7 +265,7 @@ export default {
               formDef.storeName
             );
             const idFieldName = configStore.idFieldName;
-            const condReload = values.some((v) => !v[idFieldName]);
+            const condReload = values.some(v => !v[idFieldName]);
             if (condReload) {
               updateStores.push({ storeName: formDef.storeName, key });
             }
@@ -267,10 +273,10 @@ export default {
         }
 
         promise.then(
-          (data) => {
+          data => {
             this.bSending = false;
 
-            this.$emit('onSuccess', data)
+            this.$emit("onSuccess", data);
 
             if (!this.config.bChained) {
               this.bSuccess = true;
@@ -284,7 +290,7 @@ export default {
                 $store: this.$store,
                 $router: this.$router,
                 $route: this.$route,
-                id: this.idModel,
+                id: this.idModel
               });
             }
 
@@ -296,7 +302,7 @@ export default {
               const configStore = this.$store.getters.configStore(
                 updateStore.storeName
               );
-              this.$store.commit(configStore.names, values);
+              this.$store.commit(configStore.storeNames, values);
             }
 
             if (this.switchDisplay) {
@@ -305,7 +311,7 @@ export default {
               this.bRequestSuccess = true;
             }
           },
-          (error) => {
+          error => {
             this.bSending = false;
             this.bError = true;
             this.msgError = `Erreur avec la requête : ${error.msg}`;
@@ -316,9 +322,9 @@ export default {
 
     request() {
       return apiRequest(this.method, this.url, {
-        postData: this.postData(),
-      });
-    },
+        postData: this.postData()
+      }, this.$store);
+    }
   },
   data: () => ({
     bValidForm: null,
@@ -332,8 +338,8 @@ export default {
     bRequestSuccess: false,
     bSending: false,
     recompConfig: true,
-    displayValue: null,
-  }),
+    displayValue: null
+  })
 };
 </script>
 

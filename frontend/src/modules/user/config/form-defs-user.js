@@ -18,7 +18,7 @@ export default {
     type: "list_form",
     required: true,
     label: "Organisme",
-    display: "select",
+    list_type: "select",
     url: "api/user/organismes",
     displayFieldName: "nom_organisme",
     valueFieldName: "id_organisme"
@@ -38,7 +38,7 @@ export default {
     type: "list_form",
     required: true,
     label: "Rôle",
-    display: "select",
+    list_type: "select",
     items: [
       "Propriétaire forestier privé",
       "Salarié, agent, fonctionnaire",

@@ -1,4 +1,5 @@
 export default {
+  idFieldName: 'id_content',  
   formDefs: {
     id_content: {
       label: "Id",
@@ -13,11 +14,10 @@ export default {
     tags: {
       label: "Tags",
       type: "list_form",
-      display: "select",
+      list_type: "select",
       multiple: true,
       storeName: "commonsTag"
     },
-
     md: {
       label: "Texte",
       type: "text_area",

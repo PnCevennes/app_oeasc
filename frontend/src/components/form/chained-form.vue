@@ -10,7 +10,8 @@
         </p>
 
         <fil-arianne :config="config" :keySession="keySession" :baseModel="config.value"></fil-arianne>
-
+      
+    {{config.value}}
         <generic-form :config="configSession(keySession)">
           <div slot="success">
             <slot name="success"></slot>

@@ -159,3 +159,8 @@ margin-right: auto;
   object-fit: cover;
   padding:20px !important;
 }
+
+.list-actu img {
+  object-fit: cover;
+}
+

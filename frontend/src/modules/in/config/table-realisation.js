@@ -25,7 +25,7 @@ export default {
     },
     secteur: {
       text: "Secteur",
-      storeName: "inSecteur",
+      storeName: "commonsSecteur",
       displayFieldName: "code_secteur",
       preProcess: d => d.circuit.id_secteur
     },

@@ -3,7 +3,7 @@ export default {
     src: {
       label: "Choisir un document",
       type: "list_form",
-      display: "autocomplete",
+      list_type: "autocomplete",
       url: "api/commons/files/doc",
       search: true,
     },

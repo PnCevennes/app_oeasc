@@ -1,16 +1,26 @@
-# actualite
+TODO
 
-- page component actualités (liste et plus)
+- restitution
+  - bug ??
 
-- revoir pages
-  - en cours 
-    - documents 
-  -  ok 
-    - generales
+- admin
+  - tout serveur side
+  - nb indiqué dans l'onglet mis a jour (store.getter nb_total ??) 
 
+- chasse
+  - zone interet -> zone indicative
+  - formulaire
+    - titre 
+    - css 
+    - structure
+    - bracelet -> sexe + espece
+  - données
+    - reprendre les données
 
+- serveur demo
 
-- cadre couleur
+DONE
+- chasse 
+  - [x] app.pnc.int 10.30   
+  - [x] test ajout personne
 
-- mode résumé (les n premières lignes)
-    

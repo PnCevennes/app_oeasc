@@ -6,6 +6,35 @@ from app.ref_geo.models import VAreas as VA, TAreas
 config = current_app.config
 DB = config['DB']
 
+nomenclature_oeasc_types = [
+    'OEASC_PEUPLEMENT_ESSENCE',
+    'OEASC_PEUPLEMENT_MATURITE',
+    'OEASC_PEUPLEMENT_PROTECTION_TYPE',
+    'OEASC_PEUPLEMENT_PATURAGE_TYPE',
+    'OEASC_PEUPLEMENT_PATURAGE_STATUT',
+    'OEASC_PEUPLEMENT_ESPECE',
+    'OEASC_PEUPLEMENT_ORIGINE',
+    'OEASC_PEUPLEMENT_ORIGINE2',
+    'OEASC_PEUPLEMENT_TYPE',
+    'OEASC_PEUPLEMENT_ACCES',
+    'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE',
+    'OEASC_PEUPLEMENT_PATURAGE_SAISON',
+    'OEASC_PEUPLEMENT_ESSENCE',
+    'OEASC_DEGAT_TYPE',
+    'OEASC_DEGAT_GRAVITE',
+    'OEASC_DEGAT_ETENDUE',
+    'OEASC_DEGAT_ANTERIORITE',
+    'OEASC_FORET_TYPE',
+    'OEASC_PROPRIETAIRE_DECLARANT',
+    'OEASC_PROPRIETAIRE_TYPE',
+    'OEASC_DECLARANT_FONCTION',
+    'OEASC_MOD_CHASSE',
+    'SEXE',
+    'STADE_VIE',
+]
+
+
+
 
 def nomenclature_oeasc():
     '''
@@ -18,30 +47,7 @@ def nomenclature_oeasc():
     # if not getattr(config, '_nomenclature', None):
 
         print("get_nomenclature from db")
-        list_data = [
-            'OEASC_PEUPLEMENT_ESSENCE',
-            'OEASC_PEUPLEMENT_MATURITE',
-            'OEASC_PEUPLEMENT_PROTECTION_TYPE',
-            'OEASC_PEUPLEMENT_PATURAGE_TYPE',
-            'OEASC_PEUPLEMENT_PATURAGE_STATUT',
-            'OEASC_PEUPLEMENT_ESPECE',
-            'OEASC_PEUPLEMENT_ORIGINE',
-            'OEASC_PEUPLEMENT_ORIGINE2',
-            'OEASC_PEUPLEMENT_TYPE',
-            'OEASC_PEUPLEMENT_ACCES',
-            'OEASC_PEUPLEMENT_PATURAGE_FREQUENCE',
-            'OEASC_PEUPLEMENT_PATURAGE_SAISON',
-            'OEASC_PEUPLEMENT_ESSENCE',
-            'OEASC_DEGAT_TYPE',
-            'OEASC_DEGAT_GRAVITE',
-            'OEASC_DEGAT_ETENDUE',
-            'OEASC_DEGAT_ANTERIORITE',
-            'OEASC_FORET_TYPE',
-            'OEASC_PROPRIETAIRE_DECLARANT',
-            'OEASC_PROPRIETAIRE_TYPE',
-            'OEASC_DECLARANT_FONCTION',
-
-        ]
+        list_data = nomenclature_oeasc_types
 
         data = {}
 

@@ -59,8 +59,10 @@
       </span>
       <v-switch
         v-else
+        dense
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
+        :disabled="config.disabled"
         @change="
           configForm.change && configForm.change({ baseModel, config, $store })
         "
@@ -308,6 +310,45 @@ export default {
       //   this.baseModel[this.config.name] = this.baseModel[this.config.name]||[];
       // }
 
+      if (this.config && this.config.storeName) {
+        const configStore = this.$store.getters.configStore(
+          this.config.storeName
+        );
+
+        // defaults
+        this.config.idFieldName =
+          this.config.idFieldName || configStore.idFieldName;
+        this.config.displayFieldName =
+          this.config.displayFieldName || configStore.displayFieldName;
+        this.config.api = this.config.api || configStore.apis;
+
+        // select
+        // this.config.type = this.config.type || configStore.type || "list_form";
+        // this.config.list_type =
+        //   this.config.list_type || configStore.list_type || "select";
+
+        // si autocomplete => serverSide ??
+        // if (["autocomplete", "combobox"].includes(this.config.list_type)) {
+        //   this.config.dataReloadOnSearch = true;
+        //   this.config.params = {
+        //     sortBy: [this.config.displayFieldName],
+        //     sortDesc: [false],
+        //     itemsPerPage: 10,
+        //     ...(this.config.params || {})
+        //   };
+        // }
+        // this.config.returnObject = [null, undefined].includes(
+        //     this.config.returnObject
+        //   )
+        //     ? true
+        //     : this.config.returnObject;
+        // on passe en parametre
+        // this.config.url = ({ search, config }) => {
+        //   const url = `${config.api}?${config.displayFieldName}__ilike=${search}`;
+        //   return url;
+        // };
+      }
+
       for (const key in this.config) {
         if (
           typeof this.config[key] === "function" &&
@@ -329,8 +370,15 @@ export default {
       configResolved.valid = this.configTypes.includes(this.config.type);
 
       // ajout automatique de regle selon le type
-      formFunctions;
       formFunctions.rules.processRules(configResolved);
+
+      // si default et non attribué => on lui donne la valeur
+      if (configResolved.default && !this.baseModel[this.config.name]) {
+        // si promise ou non ??
+        Promise.resolve(configResolved.default).then(value => {
+          this.baseModel[this.config.name] = value;
+        });
+      }
 
       return configResolved;
     }
@@ -338,12 +386,6 @@ export default {
 
   created: function() {
     this.configForm = this.getConfigForm();
-  },
-  mounted() {
-    // setTimeout(() => {
-    //   this.baseModel[this.configForm.name] =
-    //     this.baseModel[this.configForm.name] || this.configForm.value;
-    // }, 2000);
   }
 };
 </script>

@@ -23,16 +23,6 @@ CREATE TABLE IF NOT EXISTS oeasc_in.t_tags
 
 );
 
-CREATE TABLE IF NOT EXISTS oeasc_in.t_especes
-(
-    id_espece serial NOT NULL,
-    nom_espece CHARACTER VARYING,
-    code_espece CHARACTER VARYING,
-
-    CONSTRAINT pk_t_especes_id_espece PRIMARY KEY (id_espece)
-
-);
-
 CREATE TABLE IF NOT EXISTS oeasc_in.t_circuits
 (
     id_circuit serial NOT NULL,

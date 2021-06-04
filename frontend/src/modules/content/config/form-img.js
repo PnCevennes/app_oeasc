@@ -3,7 +3,7 @@ export default {
     src: {
       label: "Choisir une image",
       type: "list_form",
-      display: "autocomplete",
+      list_type: "autocomplete",
       url: "api/commons/files/img",
       search: true,
     },
@@ -24,7 +24,7 @@ export default {
       type: 'list_form',
       label: 'Position',
       items: ['left', 'center', 'right'],
-      display: 'button'
+      list_type: 'button'
     },
     width: {
       type: 'text',

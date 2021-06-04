@@ -2,7 +2,7 @@ import { copy } from "@/core/js/util/util";
 
 const configChoix = {
   type: "list_form",
-  display: "autocomplete"
+  list_type: "autocomplete",
   // returnObject: true
 };
 
@@ -12,7 +12,7 @@ export default {
       forms: ["display", "groupByKey"]
     },
     {
-      forms: ["height"]
+      forms: ["width", "height"]
     },
     {
       forms: ["choix1", "nbMax1"],
@@ -38,9 +38,14 @@ export default {
       type: "text",
       label: "hauteur"
     },
+    width: {
+      type: "text",
+      label: "largeur"
+    },
+
     display: {
       type: "list_form",
-      display: "button",
+      list_type: "button",
       label: "Affichage",
       items: [
         { value: "table", text: "Tableau" },
@@ -50,7 +55,7 @@ export default {
     },
     typeGraph: {
       type: "list_form",
-      display: "button",
+      list_type: "button",
       label: "Type de graphique",
       items: [
         { value: "pie", text: "Camenbert" },
@@ -61,7 +66,7 @@ export default {
     },
     choix1: {
       ...configChoix,
-      label: "Choix 1 (Couleur)"
+      label: "Choix 1 (Couleur)", 
     },
     switch: {
       type: "button",
@@ -95,13 +100,13 @@ export default {
     },
     filterList: {
       type: "list_form",
-      display: "autocomplete",
+      list_type: "autocomplete",
       label: "Filtres",
       multiple: true
     },
     groupByKey: {
       type: "list_form",
-      display: "select",
+      list_type: "select",
       label: "Type de donneés",
     }
   }

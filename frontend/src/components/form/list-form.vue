@@ -4,10 +4,10 @@
     <span v-else-if="config.displayValue">
       <span>{{ valueDisplay }}</span>
     </span>
+
     <div v-else>
       <div class="list-form">
-        <!-- {{ baseModel[config.name] }} -->
-        <div v-if="config.display === 'button'">
+        <div v-if="config.list_type === 'button'">
           <div class="select-list-label">{{ config.label }}</div>
           <v-btn-toggle
             v-model="baseModel[config.name]"
@@ -24,7 +24,7 @@
         </div>
 
         <!-- select -->
-        <div v-else-if="config.display === 'combobox'">
+        <div v-else-if="config.list_type === 'combobox'">
           <v-combobox
             ref="autocomplete"
             clearable
@@ -55,7 +55,7 @@
             </span>
           </v-combobox>
         </div>
-        <div v-else-if="config.display === 'autocomplete'">
+        <div v-else-if="config.list_type === 'autocomplete'">
           <v-autocomplete
             ref="autocomplete"
             clearable
@@ -93,7 +93,7 @@
           </v-autocomplete>
         </div>
 
-        <div v-else-if="config.display === 'select'">
+        <div v-else-if="config.list_type === 'select'">
           <v-select
             clearable
             dense
@@ -203,6 +203,8 @@
 
 <script>
 import help from "./help";
+import { apiRequest } from "@/core/js/data/api.js";
+
 export default {
   name: "lisForm",
   components: { help },
@@ -221,25 +223,12 @@ export default {
   }),
   watch: {
     search() {
-      if (this.config.dataReloadOnSearch && this.search) {
+      if (this.config.dataReloadOnSearch) {
         this.getData();
       }
     },
     baseModel: {
-      handler() {
-        if (this.config.dataReloadOnSearch && !this.search) {
-          this.search = this.baseModel[this.config.name];
-        }
-        if (
-          this.config.dataReloadOnSearch &&
-          this.search &&
-          !this.baseModel[this.config.name]
-        ) {
-          this.search = "";
-        }
-
-        this.valueDisplay;
-      },
+      handler() {},
       deep: true
     },
     config() {
@@ -251,7 +240,7 @@ export default {
       // cas combobox && string && returnObject =>
       //  value = { <valueFieldName>: null, <displayFieldName>: <current_value>}
 
-      if (this.config.display == "combobox" && this.config.returnObject) {
+      if (this.config.list_type == "combobox" && this.config.returnObject) {
         let values = this.baseModel[this.config.name];
         values = this.config.multiple ? values : [values];
 
@@ -317,8 +306,22 @@ export default {
         );
       }
       this.items = items;
+      // this.setInitSearch();
       // patch search
-      this.clickChips();
+    },
+
+    setInitSearch() {
+      const value =
+        this.baseModel[this.config.name] &&
+        this.baseModel[this.config.name][this.config.displayFieldName];
+      if (
+        ["autocomplete", "combobox"].includes(this.config.list_type) &&
+        this.config.returnObject &&
+        !this.search &&
+        value
+      ) {
+        this.search = value;
+      }
     },
 
     clickChips() {
@@ -341,9 +344,7 @@ export default {
       }
 
       for (const key in this.defaultConfig) {
-        if (!(key in this.config)) {
-          this.config[key] = this.defaultConfig[key];
-        }
+        this.config[key] = this.config[key] || this.defaultConfig[key];
       }
     },
 
@@ -355,28 +356,37 @@ export default {
         const configStore = this.$store.getters.configStore(
           this.config.storeName
         );
-        promise = this.$store.dispatch(configStore.getAll);
+
+        const params = {
+          notCommit: this.config.dataReloadOnSearch,
+          sortBy: [this.config.displayFieldName],
+          sortDesc: [false],
+          itemsPerPage: this.config.dataReloadOnSearch ? 10 : -1,
+          ...this.config.params
+        };
+        if (this.config.dataReloadOnSearch && this.search) {
+          params[`${this.config.displayFieldName}__ilike`] = this.search || "";
+        }
+        promise = this.$store.dispatch(configStore.getAll, params);
         this.config.valueFieldName = configStore.idFieldName;
         this.config.displayFieldName =
-          configStore.displayFieldName || this.config.displayFieldName;
+          this.config.displayFieldName || configStore.displayFieldName;
       } else if (this.config.url) {
         const url =
           typeof this.config.url === "function"
             ? this.config.url({
                 search: this.search || "",
-                baseModel: this.baseModel
+                baseModel: this.baseModel,
+                config: this.config
               })
             : this.config.url;
-
-        promise = this.$store.dispatch("cacheOrRequest", {
-          url
-        });
+        promise = apiRequest("GET", url, { params: this.config.params || {} });
       }
 
       if (promise) {
         promise.then(
           apiData => {
-            this.dataItems = apiData;
+            this.dataItems = apiData.items || apiData;
             this.processItems();
           },
           error => {
@@ -427,9 +437,7 @@ export default {
         this.dataItems = this.config.items;
       }
     }
-    if (this.config.dataReloadOnSearch) {
-      this.search = this.baseModel[this.config.name];
-    }
+    this.setInitSearch();
 
     this.getData();
   }
