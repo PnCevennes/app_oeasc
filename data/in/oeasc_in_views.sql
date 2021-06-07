@@ -32,6 +32,6 @@ SELECT
         ON cor.id_realisation = r.id_realisation
     JOIN oeasc_in.t_tags t
         ON t.id_tag = cor.id_tag
-    JOIN oeasc_in.t_especes e
+    JOIN oeasc_commons.t_especes e
         ON e.id_espece = o.id_espece
 ;
