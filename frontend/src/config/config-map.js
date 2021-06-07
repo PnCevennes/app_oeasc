@@ -31,7 +31,7 @@ const configMap = {
       label: 'IGN (Cartes)'
     },
     ign_ortho: {
-      url: `https://wxs.ign.fr/${IGN_KEY}/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg`,
+      url: `https://wxs.ign.fr/${IGN_KEY}/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=ORTHOIMAGERY.ORTHOPHOTOS&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg`,
       attribution: '&copy; <a href="http://www.ign.fr/">IGN</a>',
       id: 'ign_ortho',
       label: 'IGN (Ortho.)'
