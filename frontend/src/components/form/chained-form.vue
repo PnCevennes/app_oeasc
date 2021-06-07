@@ -9,9 +9,12 @@
           <help :code="config.help"></help>
         </p>
 
-        <fil-arianne :config="config" :keySession="keySession" :baseModel="config.value"></fil-arianne>
-      
-    {{config.value}}
+        <fil-arianne
+          :config="config"
+          :keySession="keySession"
+          :baseModel="config.value"
+        ></fil-arianne>
+  
         <generic-form :config="configSession(keySession)">
           <div slot="success">
             <slot name="success"></slot>
@@ -39,14 +42,14 @@ export default {
   components: {
     filArianne,
     help,
-    genericForm,
+    genericForm
   },
 
   data: () => ({
     declaration: null,
     validForms: {},
     initialized: false,
-    freeze: null,
+    freeze: null
   }),
 
   computed: {
@@ -65,7 +68,7 @@ export default {
     // retourne la clé de session courrante
     keySession() {
       return this.$route.query.keySession || this.firstSession;
-    },
+    }
   },
 
   methods: {
@@ -80,7 +83,6 @@ export default {
 
         // si c'est la dernière session validation = requete
         if (sessionFunctions.lastSession(this.config) == keySession) {
-
           sessionDef.action = this.config.action;
 
           // sinon on passe au formulaire suivant
@@ -89,7 +91,7 @@ export default {
           sessionDef.action = {
             label: "Suivant",
             process: ({ $router, config }) => {
-              return new Promise((resolve) => {
+              return new Promise(resolve => {
                 const nextSession = sessionFunctions.nextSession(
                   config,
                   config.keySession
@@ -98,11 +100,11 @@ export default {
                   // ici indispensable sinon bug et valide à l'avant dernière !!!!!
                   setTimeout(() => {
                     $router.push({ query: { keySession: nextSession } });
-                  }, 200)
+                  }, 200);
                 }
                 resolve();
               });
-            },
+            }
           };
         }
       }
@@ -119,7 +121,7 @@ export default {
           .preloadData({
             $store: this.$store,
             id: this.id,
-            config: this.config,
+            config: this.config
           })
           .then(() => {
             this.initialized = true;
@@ -129,20 +131,20 @@ export default {
       }
     },
 
-    showSession: function (keySession) {
+    showSession: function(keySession) {
       return this.keySession === "all" || this.keySession == keySession;
     },
 
-    showGroupSession: function (keySessionGroup) {
+    showGroupSession: function(keySessionGroup) {
       return (
         this.keySession === "all" ||
         this.keySession in this.config.sessionGroups[keySessionGroup].sessions
       );
-    },
+    }
   },
-  created: function () {
+  created: function() {
     this.initChainedForm();
-  },
+  }
 };
 </script>
 

@@ -18,6 +18,7 @@
             <i>champs obligatoires.</i>
           </div>
         </div>
+        
         <template v-if="!displayValue">
           <v-btn
             v-if="config.action"
@@ -30,6 +31,7 @@
             >{{ config.action.label || "Valider" }}</v-btn
           >
         </template>
+
         <v-btn
           v-if="switchDisplay"
           color="primary"
