@@ -111,12 +111,12 @@ const STORE = {
     },
     nbDeclarationsValid: (state) => {
       // depuis degats et remove doublons
-      return state.degats && state.degats.filter(d => d.valide=='Validé')
+      return state.declarationDegats && state.declarationDegats.filter(d => d.valide=='Validé')
         .map(d => d.id_declaration)
         .filter((id, index, self) => self.indexOf(id) == index).length || '(...chargement en cours)';
     },
     nbDegatsValid: state => {
-      return state.degats && state.degats.filter(d => d.valide=='Validé').length || '(...chargement en cours)';
+      return state.declarationDegats && state.declarationDegats.filter(d => d.valide=='Validé').length || '(...chargement en cours)';
     }
   },
 

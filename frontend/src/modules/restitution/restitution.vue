@@ -125,6 +125,7 @@ export default {
         options[key] = this[key] || results.options[key];
       }
       results.options = options;
+      
       this.results = results
     },
     baywatch: function (props, watcher) {
@@ -135,8 +136,8 @@ export default {
     },
   },
 
+
   mounted() {
-  console.log(props)
     this.baywatch(props, (prop) => (value) => {
         if((!this.results) || !deepEqual(value, this.results.options[prop])) {
           this.processData();
