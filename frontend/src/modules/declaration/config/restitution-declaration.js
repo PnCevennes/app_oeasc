@@ -15,11 +15,11 @@ export default {
     },
     degat_gravite_label: {
       text: "Dégâts - gravité",
-      order: ["Faibles", "Modérés", "Importants"],
+      order: ["Faibles", "Modérés", "Importants", "Indéfini"],
       colors: {
         Importants: "red",
         Modérés: "orange",
-        Faibles: "yellow"
+        Faibles: "yellow",
       }
     },
     degat_etendue_label: {
@@ -27,7 +27,6 @@ export default {
       order: ["Généralisés", "Localisés"],
       colors: {
         "Généralisés": "red",
-        // Modérés: "orange",
         "Localisés": "yellow"
       }
     },

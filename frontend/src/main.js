@@ -7,11 +7,11 @@ import vuetify from "@/plugins/vuetify"; // path to vuetify export
 import VueSession from "vue-session";
 
 import Highcharts from 'highcharts'
-// import More from 'highcharts/highcharts-more'
+import More from 'highcharts/highcharts-more'
 import exporting from 'highcharts/modules/exporting';
 import HighchartsVue from 'highcharts-vue'
 
-// More(Highcharts);
+More(Highcharts);
 exporting(Highcharts);
 
 Vue.config.productionTip = false;
