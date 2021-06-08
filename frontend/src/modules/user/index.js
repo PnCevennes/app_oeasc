@@ -134,11 +134,11 @@ const STORE = {
       if (!state._user) {
         return false;
       }
-
       // check date
       const date = new Date(state._user.expires);
-      const date1 = new Date(date.toString().split("GMT")[0] + "GMT");
+      const date1 = new Date(date.toString().split(" ")[0]);
       const now = new Date();
+      console.log(state._user.expires, date1, now)
       return !!(state._user && state._user.id_role && date1 >= now);
     },
     /**
