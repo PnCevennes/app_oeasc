@@ -216,7 +216,6 @@ export default {
     mutations[storeNames] = (state, objList) => {
       
       if (!state[storeNames].length) {
-        console.log('commit', storeNames)
         state[storeNames] = objList;
         return;
       }
@@ -279,7 +278,6 @@ export default {
       { getters, commit },
        options = {}
     ) => {    
-      console.log('getall', storeName);
       return new Promise((resolve, reject) => {
         const loaded = !options.forceReload && configStore.loaded;
         const objList = getters[storeNames];
@@ -291,10 +289,8 @@ export default {
           data => {
 
             const items = data.items || data;
-            console.log(options.notCommit)
             
             if(!options.notCommit) {
-              console.log('commit')
               commit(storeNameConfig, { loaded: true });
               commit(storeNames, items);
             }

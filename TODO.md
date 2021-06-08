@@ -1,14 +1,13 @@
 TODO
 
 - restitution
-  - bug ??
+  - bug (en cours)
+  - cartes, ne charger qu'une seule fois les layers
 
-- admin
-  - tout serveur side
-  - nb indiqué dans l'onglet mis a jour (store.getter nb_total ??) 
+- in 
+  - resultats select foireux a passer en bouton
 
 - chasse
-  - zone interet -> zone indicative
   - formulaire
     - titre 
     - css 
@@ -16,11 +15,6 @@ TODO
     - bracelet -> sexe + espece
   - données
     - reprendre les données
-
-- serveur demo
-
-DONE
-- chasse 
-  - [x] app.pnc.int 10.30   
-  - [x] test ajout personne
-
+  - restitutions
+    - graphe ice
+    - graphe objectifs
