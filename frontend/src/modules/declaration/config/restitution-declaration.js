@@ -15,7 +15,7 @@ export default {
     },
     degat_gravite_label: {
       text: "Dégâts - gravité",
-      order: ["Faibles", "Modérés", "Importants", "Indéfini"],
+      order: ["Indéfini", "Faibles", "Modérés", "Importants"],
       colors: {
         Importants: "red",
         Modérés: "orange",
@@ -24,7 +24,7 @@ export default {
     },
     degat_etendue_label: {
       text: "Dégâts - étendue",
-      order: ["Généralisés", "Localisés"],
+      order: ['Indéfini', "Localisés", "Généralisés"],
       colors: {
         "Généralisés": "red",
         "Localisés": "yellow"
@@ -32,7 +32,13 @@ export default {
     },
     degat_anteriorite_label: {
       text: "Dégâts - anteriorité",
-      order: ["Récents (année en cours)", "Récurrents", "Anciens (années antérieures)", "Ne sais pas", 'Indéfini'],
+      order: [
+        'Indéfini',
+        "Ne sais pas",
+        "Anciens (années antérieures)",
+        "Récurrents",
+        "Récents (année en cours)",
+      ],
       colors: {
         "Récents (année en cours)": "red",
         "Récurrents": "orange",

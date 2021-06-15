@@ -37,7 +37,7 @@ export default {
         returnObject: true,
     },
     zone_indicative_affectee: {
-        label: 'Zone intérêt affectée',
+        label: 'Zone indicative affectée',
         storeName: 'chasseZoneIndicative',
         type: 'list_form',
         list_type: 'autocomplete',

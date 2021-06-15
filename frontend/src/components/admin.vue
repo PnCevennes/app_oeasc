@@ -42,7 +42,6 @@ export default {
     $route(to, from) {
       to;
       from;
-      console.log("route", to, from);
       this.init();
     },
   },

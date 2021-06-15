@@ -20,7 +20,7 @@ export default {
         required: true
       },
       zone_indicative: {
-        label: "Zone d'intérêt",
+        label: "Zone indicative",
         type: 'list_form',
         list_type: "autocomplete",
         dataReloadOnSearch: true,

@@ -6,7 +6,13 @@ import { apiRequest } from "@/core/js/data/api.js";
 
 const L = window.L;
 
+
 const mapLayer = {
+/**
+ * Pour garder en mémoire les layers déjà charger et ne pas faire plusieurs appels aux api 
+ */
+  _layersData: {},
+
   /**
    * pour pouvoir gérer les url de façon dynamique:
    *
@@ -15,12 +21,12 @@ const mapLayer = {
    * - url est une fonction qui sera appelée avec le parametre urlParams
    *
    *  */
-
   getUrl: function(layerConfig) {
     return typeof layerConfig.url == "function"
       ? layerConfig.url(layerConfig.urlParams)
       : layerConfig.url;
   },
+
 
   /**
    * Ajoute un layer à partir de sa configuration
@@ -30,14 +36,22 @@ const mapLayer = {
     const url = this.getUrl(layerConfig);
 
     // requete
-    apiRequest("GET", url).then(
-      layerData => {
-        this.processLayer(layerConfig, layerData);
-      },
-      error => {
-        console.error(`MapLayer Error : ${error}`)        
-      }
-    );
+    if(this._layersData[url]) {
+      const layerData = this._layersData[url];
+      setTimeout(()=> {
+        this.processLayer(layerConfig, layerData)
+      });
+    } else {
+      apiRequest("GET", url).then(
+        layerData => {
+          this._layersData[url] = layerData;          
+          this.processLayer(layerConfig, layerData);
+        },
+        error => {
+          console.error(`MapLayer Error : ${error}`)        
+        }
+      );
+    }
   },
 
   /**

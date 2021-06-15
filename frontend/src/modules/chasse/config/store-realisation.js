@@ -42,7 +42,7 @@ export default {
                 ]
               },
               {
-                title: "Zone d'intérêt",
+                title: "Zone indicative",
                 forms: ["zone_indicative_affectee", "zone_indicative_realisee"]
               },
               {
@@ -251,7 +251,7 @@ export default {
       returnObject: true
     },
     zone_indicative_affectee: {
-      label: "Zone d'intérêt affectée",
+      label: "Zone indicative affectée",
       storeName: "chasseZoneIndicative",
       type: "list_form",
       list_type: "autocomplete",
@@ -260,7 +260,7 @@ export default {
       disabled: true
     },
     zone_indicative_realisee: {
-      label: "Zone d'intérêt réalisée",
+      label: "Zone indicative réalisée",
       storeName: "chasseZoneIndicative",
       type: "list_form",
       list_type: "autocomplete",

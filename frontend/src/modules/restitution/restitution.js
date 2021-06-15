@@ -105,7 +105,6 @@ class Restitution {
   dataList(key, filters = null) {
     let dataList = [];
     const item = this.item(key);
-
     const dataToProcess = this.groupBy(
       this.filteredData(filters),
       this._options.groupByKey,
@@ -142,7 +141,7 @@ class Restitution {
         data.color = "grey";
       }
     } else {
-      dataList = dataList.sort((a, b) => b.count - a.count);
+      dataList = item.order ? dataList.sort((a, b) => item.order.indexOf(b.text) - item.order.indexOf(a.text)) : dataList.sort((a, b) => b.count - a.count);
       dataList = this.cutDataList(dataList);
 
       for (const data of dataList) {
@@ -179,7 +178,7 @@ class Restitution {
             keep[r[key_item_patch]] = r;
           }
         } else {
-          keep[r.degat_type_label] = r;
+          keep[r[key_item_patch]] = r;
         }
       }
       d.res = Object.keys(keep).map(key => keep[key]);
@@ -190,6 +189,7 @@ class Restitution {
    * out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
    */
   groupBy(data, groupByKey = null, keys = [], action = null) {
+
     // si pas de groupByKey on renvoie data
     if (!groupByKey) {
       return data;
@@ -203,11 +203,13 @@ class Restitution {
       }
     }
 
+
     // out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
     const out = Object.entries(dataDict).map(([groupByValue, dataGroup]) => {
       const d = {};
 
       d[groupByKey] = groupByValue;
+
 
       if (!keys.length) {
         return d;
@@ -216,6 +218,10 @@ class Restitution {
       const listGroup = this._options.markersGroupByReduceKeys || [];
 
       for (const key of keys.filter(key => !listGroup.includes(key) && !!key)) {
+        const order = this.item(key).order;
+        if(order) {
+          dataGroup = dataGroup.sort((a, b) => order.indexOf(a[key]) - order.indexOf(b[key]));
+        }
         d[key] = dataGroup[0][key];
       }
 
@@ -229,6 +235,7 @@ class Restitution {
         }
         return res;
       });
+
       if (action == "concat") {
         for (const r of d.res) {
           for (const key of Object.keys(r).filter(key =>
@@ -239,13 +246,13 @@ class Restitution {
         }
       }
 
+
       if (action == "max") {
         this.patchMaxDegat(d);
       }
 
       return d;
     });
-
     return out;
   }
 
@@ -372,10 +379,10 @@ class Restitution {
   }
 
   data() {
-    
     if (this._data && this._data.length) {
       return this._data;
     }
+    
     this._data =
       this._rawData && this._rawData.length
         ? this.filterData(

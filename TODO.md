@@ -2,6 +2,7 @@ TODO
 
 - restitution
   - bug (en cours)
+    - max
   - cartes, ne charger qu'une seule fois les layers
 
 - in 
