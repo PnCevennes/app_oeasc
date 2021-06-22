@@ -20,7 +20,8 @@ export default {
       },
       desc_role: {
         text: "Rôle",
-        display: (val) => {
+        display: (d) => {
+          const val = d['desc_role'];     
           return val.split(" ")[0].split(",")[0];
         },
       },

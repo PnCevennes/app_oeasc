@@ -50,8 +50,7 @@ export default {
     label: "Administration",
     icon: "fa-cog",
     hidden: ({ $store }) => $store.getters.droitMax < 5,
-    // names: ["commons.admin", "content.admin", "in.admin", "user.admin", "chasse.admin"]
-    names: ["commons.admin", "in.admin", "chasse.admin"]
+    names: ["user.admin", "commons.admin", "in.admin", "chasse.admin"]
   },
 
   dev: {
