@@ -1,5 +1,4 @@
-﻿
--- schema oeasc_chasse
+﻿-- schema oeasc_chasse
 
 -- DROP SCHEMA IF EXISTS oeasc_chasse CASCADE;
 
