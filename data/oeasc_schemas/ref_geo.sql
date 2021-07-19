@@ -55,7 +55,7 @@ WITH (
 DROP VIEW IF EXISTS ref_geo.vl_areas;
 
 CREATE OR REPLACE VIEW ref_geo.vl_areas AS
-    SELECT li.id_area, li.id_type, l.geom_4326, li.area_code, li.label, li.area_name, li.surface_calculee, li.surface_renseignee, li.source, li.enable
+    SELECT li.id_area, li.id_type, l.geom_4326, l.geom, li.area_code, li.label, li.area_name, li.surface_calculee, li.surface_renseignee, li.source, li.enable
         FROM ref_geo.l_areas l, ref_geo.li_areas li
         WHERE  l.id_area=li.id_area;
 

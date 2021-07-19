@@ -291,10 +291,3 @@ class TRealisations(DB.Model):
             )
         )
     )
-
-
-
-        # id_zone_cynegetique_affectee = column_property(
-    #     select([TAttributions.id_zone_cynegetique_affectee]).\
-    #         where(TAttributions.id_attribution == id_attribution)
-    # )

@@ -65,6 +65,12 @@ const upFirstLetter = s => {
 const camelToSnakeCase = str =>
   str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
+const round = function(x, dec) {
+  if (x == 0) return 0;
+  return Math.floor(x * 10 ** dec) / 10 ** dec;
+};
+
+
 export {
   addDays,
   copy,
@@ -74,5 +80,6 @@ export {
   arrayEqual,
   sortDate,
   upFirstLetter,
-  camelToSnakeCase
+  camelToSnakeCase,
+  round
 };

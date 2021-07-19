@@ -1,5 +1,9 @@
 <template>
   <div v-if="config" class="form-container">
+    <div class="debug" v-if="debug && Object.keys(debug).length">
+      <h3>Debug</h3>
+      <pre>{{debug}}</pre>
+    </div>
     <h2 v-if="title">{{ title }}</h2>
     <div v-if="bRequestSuccess">
       <slot name="success"></slot>
@@ -99,6 +103,17 @@ export default {
       return typeof this.config.action.request.method === "function"
         ? this.config.action.request.method({ id: this.idModel })
         : this.config.action.request.method;
+    },
+    debug() {
+      const debug = {}
+      for (const key of (this.config.debug || [])) {
+        let val;
+        for (const subkey of key.split('.')) {
+          val = val == undefined ? (this.baseModel || {})[subkey] : val[subkey];
+        }
+        debug[key] = val;
+      }
+      return debug;
     },
     url() {
       return typeof this.config.action.request.url === "function"
@@ -349,5 +364,9 @@ export default {
 .form-container {
   min-width: 800px;
   position: relative;
+}
+.debug {
+  font-style: italic;
+  background-color: lightgray;
 }
 </style>

@@ -33,7 +33,7 @@ const processTableConfig = configStore => {
   const headerDefs = {};
   for (const [keyCol, col] of Object.entries(configStore.defs)
     .filter(
-      ([keyCol]) => !configStore.columns || configStore.columns.includes(keyCol)
+      ([keyCol]) => (!configStore.columns) || configStore.columns.includes(keyCol)
     )
     .sort((a, b) =>
       configStore.columns

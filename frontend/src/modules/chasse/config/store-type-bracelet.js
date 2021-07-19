@@ -3,6 +3,7 @@ export default {
   name: "typeBracelet",
   label: "Type de bracelet",
   labels: "Types de bracelet",
+  displayFieldName: "code_type_bracelet",
   defs: {
     id_type_bracelet: {
       label: "ID",

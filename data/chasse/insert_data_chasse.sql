@@ -155,21 +155,30 @@ ON CONFLICT DO NOTHING
 ;
 
 -- lieu tir
--- synonymes à faire plus tard
 
 insert into oeasc_chasse.t_lieu_tirs
-    (nom_lieu_tir, code_lieu_tir, id_zone_indicative, id_area_commune, synonymes, geom)
-    select nom_lieudit, code_lieudit, zc.id_zone_cynegetique, id_area, NULL, lt.geom
+    (nom_lieu_tir, code_lieu_tir, id_zone_indicative, id_area_commune, label_commune, geom)
+    select nom_lieudit, code_lieudit, zc.id_zone_cynegetique, id_area, label, lt.geom
     from import_chasse.lieux_tir lt 
     left join oeasc_chasse.t_zone_cynegetiques zc 
         on regexp_replace(zc.nom_zone_cynegetique, ',? \(.*\),?', '') = lt.zon_cyne0
-    join ref_geo.l_areas la
+    join ref_geo.vl_areas la
         on ST_INTERSECTS(la.geom, lt.geom) 
     join ref_geo.bib_areas_types bat
         on bat.id_type = la.id_type 
     where bat.type_code = 'OEASC_COMMUNE'
 ;
 
+-- synonymes
+
+insert into oeasc_chasse.t_lieu_tir_synonymes
+	(id_lieu_tir, nom_lieu_tir_synonyme)
+	select distinct on (lt.id_lieu_tir, lts.libelle_lieudit) 
+		lt.id_lieu_tir,
+		lts.libelle_lieudit as nom_lieu_tir
+	from import_chasse.lieu_tir_synonymes lts
+	join oeasc_chasse.t_lieu_tirs lt on lt.code_lieu_tir::int = lts.code_lieudit
+;
 
 -- oeasc_chasse.t_attribution_massifs
 
@@ -215,7 +224,7 @@ select id_saison, id_type_bracelet, tzc.id_zone_cynegetique, tzi.id_zone_indicat
 	   		regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')
 	left join oeasc_chasse.t_zone_indicatives tzi on tzi.code_zone_indicative = pc.z_i_affectee 
 	join saison_dates s on date_exacte > s.date_debut and date_exacte < s.date_fin
-	WHERE massif_realise IS NOT NULL AND pc.id NOT IN (6687, 4965, 10849, 9113)
+	WHERE pc.id NOT IN (6687, 4965, 10849, 9113) -- pq ????
 ;
 -- nomenclature mode chasse
 
@@ -238,6 +247,7 @@ values
 ('Affut','AFF')
 ,('Approche', 'APP')
 ,('Battue', 'BAT')
+,('Poussée silencieuse', 'POU/SI')
 ,('Indéterminé', 'IND')
 ;
 
@@ -268,32 +278,38 @@ drop table oeasc_chasse.tmp_nomenclature_mode_chasse;
 -- oeasc_chasse.t_realisations
 
 with nomenclature_mode_chasse as (
-select id_nomenclature, tn.label_fr
-from ref_nomenclatures.t_nomenclatures tn 
-join ref_nomenclatures.bib_nomenclatures_types bnt on bnt.id_type =tn.id_type
-where bnt.mnemonique = 'OEASC_MOD_CHASSE'
+	select id_nomenclature, tn.label_fr
+	from ref_nomenclatures.t_nomenclatures tn 
+	join ref_nomenclatures.bib_nomenclatures_types bnt on bnt.id_type =tn.id_type
+	where bnt.mnemonique = 'OEASC_MOD_CHASSE'
 ), nomenclature_sexe as (
-select id_nomenclature, tn.label_fr
-from ref_nomenclatures.t_nomenclatures tn 
-join ref_nomenclatures.bib_nomenclatures_types bnt on bnt.id_type =tn.id_type
-where bnt.mnemonique = 'SEXE'
+	select id_nomenclature, tn.label_fr
+	from ref_nomenclatures.t_nomenclatures tn 
+	join ref_nomenclatures.bib_nomenclatures_types bnt on bnt.id_type =tn.id_type
+	where bnt.mnemonique = 'SEXE'
 ), nomenclature_age as (
-select id_nomenclature, tn.label_fr
-from ref_nomenclatures.t_nomenclatures tn 
-join ref_nomenclatures.bib_nomenclatures_types bnt on bnt.id_type =tn.id_type
-where bnt.mnemonique = 'STADE_VIE'
+	select id_nomenclature, tn.label_fr
+	from ref_nomenclatures.t_nomenclatures tn 
+	join ref_nomenclatures.bib_nomenclatures_types bnt on bnt.id_type =tn.id_type
+	where bnt.mnemonique = 'STADE_VIE'
 ),saison_dates as(
 	select 
 		id_saison,
 		TO_DATE(SPLIT_PART(nom_saison, '-', 1) || '0701', 'YYYYMMDD') as date_debut, 
 		TO_DATE(SPLIT_PART(nom_saison, '-', 2) || '0601', 'YYYYMMDD') as date_fin 
 		from oeasc_chasse.t_saisons ts 
+), synonymes as (
+    select code_lieu_tir, id_lieu_tir_synonyme 
+	from oeasc_chasse.t_lieu_tir_synonymes s
+	join oeasc_chasse.t_lieu_tirs t on t.id_lieu_tir = s.id_lieu_tir
+	where s.nom_lieu_tir_synonyme = t.nom_lieu_tir
+	order by code_lieu_tir, id_lieu_tir_synonyme
 )
 insert into oeasc_chasse.t_realisations(
 	id_attribution,
 	id_zone_cynegetique_realisee,
 	id_zone_indicative_realisee,
-	id_lieu_tir,
+	id_lieu_tir_synonyme,
     date_exacte,
     date_enreg,
 	mortalite_hors_pc,
@@ -320,9 +336,9 @@ insert into oeasc_chasse.t_realisations(
 )
 select
 	id_attribution,
-	tzc.id_zone_cynegetique ,
-	tzi.id_zone_indicative,
-	tlt.id_lieu_tir,
+	coalesce(tzc.id_zone_cynegetique, ta.id_zone_cynegetique_affectee) ,
+	coalesce(tzi.id_zone_indicative, ta.id_zone_indicative_affectee),
+	tlt.id_lieu_tir_synonyme,
     pc.date_exacte,
     pc.date_enreg,
 	pc.mortalite_hors_pc, 
@@ -355,8 +371,33 @@ left join oeasc_chasse.t_zone_cynegetiques tzc
 left join oeasc_chasse.t_zone_indicatives tzi on tzi.code_zone_indicative = pc.z_i_affectee 
 left join oeasc_chasse.t_personnes tp on tp.nom_personne = pc.auteur_tir 
 left join oeasc_chasse.t_personnes tp2 on tp2.nom_personne = pc.auteur_constat
-left join oeasc_chasse.t_lieu_tirs tlt on tlt.code_lieu_tir = pc.code_lieu_dit 
+left join synonymes tlt on tlt.code_lieu_tir = pc.code_lieu_dit 
 left join nomenclature_sexe ns on ns.label_fr = pc.sexe
 left join nomenclature_age na on na.label_fr = replace(replace(classe_age, 'Jeune', 'Juvénile'), ' ', '-')
 left join nomenclature_mode_chasse nc on nc.label_fr = pc.mode_chasse 
+;
+
+-- bilan chasse
+insert into oeasc_chasse.t_bilan_chasse_historique(
+	id_saison,
+	id_espece,
+	id_zone_indicative,
+	nb_affecte_min,
+	nb_affecte_max,
+	nb_realise,
+	nb_realise_avant_11
+)
+select 
+	ts.id_saison,
+	te.id_espece,
+	tzi.id_zone_indicative,
+	nb_affecte_min,
+	nb_affecte_max,
+	nb_realise,
+	nb_realise_avant11
+	from import_chasse.bilan_chasse_historique bch 
+	join oeasc_chasse.t_saisons ts on ts.nom_saison = bch.saison
+	join oeasc_commons.t_especes te on nom_vern ilike concat('%', te.nom_espece, '%')
+	join oeasc_chasse.t_zone_indicatives tzi on tzi.nom_zone_indicative = bch.z_i_affectee 
+	order by z_i_affectee::int
 ;

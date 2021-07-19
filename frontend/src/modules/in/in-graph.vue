@@ -16,14 +16,10 @@ import Highcharts from "highcharts";
 import exportingInit from "highcharts/modules/exporting";
 import offlineExporting from "highcharts/modules/offline-exporting";
 import * as chroma from "chroma-js";
-
+import { round } from "@/core/js/util/util.js";
 exportingInit(Highcharts);
 offlineExporting(Highcharts);
 
-const round = function(x, dec) {
-  if (x == 0) return 0;
-  return Math.floor(x * 10 ** dec) / 10 ** dec;
-};
 
 export default {
   name: "in-graph",
@@ -139,7 +135,6 @@ export default {
               dashStyle: pValue <= 0.05 ? "Solid" : "Dash",
               enableMouseTracking: false,
               color: "grey",
-
               lineWidth: 1 * (this.displayReg !== undefined),
               marker: {
                 enabled: false
@@ -211,10 +206,6 @@ export default {
               text:
                 this.displayTitle && `Indices nocturnes (${nom_espece}, ${ug})`
             },
-            // caption: {
-            //   text: this.commentaires,
-            //   useHTML: true,
-            // },
             xAxis: {
               title: {
                 text: "Année"
