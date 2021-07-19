@@ -3,7 +3,7 @@
 
 -- DROP SCHEMA IF EXISTS oeasc_chasse CASCADE;
 
-CREATE SCHEMA oeasc_chasse;
+-- CREATE SCHEMA oeasc_chasse;
 
 ALTER TABLE IF EXISTS oeasc_in.t_especes SET SCHEMA oeasc_commons;
 
