@@ -25,7 +25,7 @@ fi
 psql -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/chasse/functions_chasse.sql
 psql -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/chasse/ice.sql
 psql -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/chasse/views_chasse.sql
-psql -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/oeasc_schema/ref_geo.sql
+psql -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/oeasc_schemas/ref_geo.sql
 
 psql -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/chasse/insert_data_chasse.sql
 
