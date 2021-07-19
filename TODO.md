@@ -1,12 +1,5 @@
 TODO
 
-- restitution
-  - bug (en cours)
-    - max
-  - cartes, ne charger qu'une seule fois les layers
-
-- in 
-  - resultats select foireux a passer en bouton
 
 - chasse
   - formulaire
@@ -19,3 +12,6 @@ TODO
   - restitutions
     - graphe ice
     - graphe objectifs
+      - api : zc + espece => (saisons, nb_realise, nb_min, nb_max)
+      - composant (zc + espece) => graphe
+      - choix + ????

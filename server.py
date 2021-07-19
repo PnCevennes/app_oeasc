@@ -54,6 +54,7 @@ DB.init_app(app)
 app.config['DB'] = DB
 app.config['MAIL'] = mail
 
+app.config['SQLALCHEMY_ECHO'] = True
 
 # @app.route('/')
 # def accueil():

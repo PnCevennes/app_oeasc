@@ -14,7 +14,6 @@ DB = config['DB']
 
 bp = Blueprint('oeasc_api', __name__)
 
-
 @bp.route('nomenclatures', methods=['GET'])
 @json_resp
 def get_nomenclature_oeasc():

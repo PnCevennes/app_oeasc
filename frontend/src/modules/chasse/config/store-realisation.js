@@ -1,6 +1,3 @@
-
-
-
 export default {
   group: "chasse",
   name: "realisation",
@@ -14,10 +11,11 @@ export default {
     "auteur_constat",
     "zone_cynegetique_realisee",
     "zone_indicative_realisee",
-    "lieu_tir",
+    "lieu_tir_synonyme",
     "date_exacte",
     "nomenclature_sexe",
-    "nomenclature_classe_age"
+    "nomenclature_classe_age",
+    "nomenclature_mode_chasse"
   ],
   form: {
     groups: [
@@ -46,17 +44,22 @@ export default {
                 forms: ["zone_indicative_affectee", "zone_indicative_realisee"]
               },
               {
-                title: "Lieu de tir",
+                title: "Informations",
                 groups: [
                   {
-                    forms: ["lieu_tir"]
-                  },
-                  {
-                    direction: "row",
                     forms: ["mortalite_hors_pc", "parcelle_onf"]
                   }
                 ]
               }
+    
+            ]
+          },
+          {
+            title: "Lieu de tir",
+            groups: [
+              {
+                forms: ["lieu_tir_synonyme"]
+              },
             ]
           }
         ]
@@ -101,18 +104,20 @@ export default {
         title: "Description avancée (cerf)",
         condition: ({ baseModel }) =>
           baseModel.nomenclature_classe_age &&
-          ["Adulte", "Sub-adulte"].includes(baseModel.nomenclature_classe_age.label_fr) &&
+          ["Adulte", "Sub-adulte"].includes(
+            baseModel.nomenclature_classe_age.label_fr
+          ) &&
           baseModel.nomenclature_sexe &&
           baseModel.nomenclature_sexe.label_fr == "Mâle",
         direction: "row",
         groups: [
           {
             groups: [
-              {
-                title: "Mandibules",
-                forms: ["long_mandibules_gauche", "long_mandibules_droite"],
-                direction: "row"
-              },
+              // {
+              //   title: "Mandibules",
+              //   forms: ["long_mandibules_gauche", "long_mandibules_droite"],
+              //   direction: "row"
+              // },
               {
                 title: "Dagues",
                 forms: ["long_dagues_gauche", "long_dagues_droite"],
@@ -193,27 +198,27 @@ export default {
         }
 
         baseModel.zone_cynegetique_affectee =
-          baseModel.zone_cynegetique_affectee ||
+          // baseModel.zone_cynegetique_affectee ||
           baseModel.attribution.zone_cynegetique_affectee;
 
         baseModel.zone_cynegetique_realisee =
-          baseModel.zone_cynegetique_realisee ||
+          // baseModel.zone_cynegetique_realisee ||
           baseModel.attribution.zone_cynegetique_affectee;
 
         baseModel.id_zone_cynegetique_affectee =
-          baseModel.id_zone_cynegetique_affectee ||
+          // baseModel.id_zone_cynegetique_affectee ||
           baseModel.attribution.id_zone_cynegetique_affectee;
 
         baseModel.zone_indicative_affectee =
-          baseModel.zone_indicative_affectee ||
+          // baseModel.zone_indicative_affectee ||
           baseModel.attribution.zone_indicative_affectee;
 
         baseModel.zone_indicative_realisee =
-          baseModel.zone_indicative_realisee ||
+          // baseModel.zone_indicative_realisee ||
           baseModel.attribution.zone_indicative_affectee;
 
         baseModel.id_zone_indicative_affectee =
-          baseModel.id_zone_indicative_affectee ||
+          // baseModel.id_zone_indicative_affectee ||
           baseModel.attribution.id_zone_indicative_affectee;
 
         // sexe et age auto en fonction du bracelet ??
@@ -249,6 +254,7 @@ export default {
       type: "list_form",
       list_type: "select",
       returnObject: true
+      // changed: ({baseModel}) => {}
     },
     zone_indicative_affectee: {
       label: "Zone indicative affectée",
@@ -265,13 +271,20 @@ export default {
       type: "list_form",
       list_type: "autocomplete",
       returnObject: true,
+      // params: ({baseModel}) => ({
+      //   "id_zone_cynegetique": baseModel.id_zone_cynegetique_affectee
+      // }),
       dataReloadOnSearch: true
     },
-    lieu_tir: {
-      label: "Lieu de tir",
-      storeName: "chasseLieuTir",
+    lieu_tir_synonyme: {
+      label: "Lieu de tir (Syn)",
+      storeName: "chasseLieuTirSynonyme",
+      displayFieldName: "lieu_tir_synonyme_display",
       list_type: "autocomplete",
       type: "list_form",
+      // params: ({ baseModel }) => ({
+      //   "lieu_tir.id_zone_indicative": baseModel.id_zone_indicative_affectee
+      // }),
       returnObject: true,
       dataReloadOnSearch: true
     },
@@ -297,7 +310,7 @@ export default {
       returnObject: true,
       list_type: "select",
       storeName: "commonsNomenclature",
-      codes: ['3', '2', '0'],
+      codes: ["3", "2", "1"],
       nomenclatureType: "SEXE"
     },
     nomenclature_classe_age: {
@@ -306,7 +319,7 @@ export default {
       returnObject: true,
       list_type: "select",
       storeName: "commonsNomenclature",
-      codes: ['0', '2', '3', '4', '5'],
+      codes: ["1", "2", "3", "5"],
       nomenclatureType: "STADE_VIE"
     },
     nomenclature_mode_chasse: {
@@ -364,7 +377,7 @@ export default {
     gestation: {
       label: "gestation",
       type: "bool_switch",
-      disabled: baseModel =>
+      disabled: ({ baseModel }) =>
         baseModel.nomenclature_sexe &&
         baseModel.nomenclature_sexe.label_fr != "Femelle"
     },

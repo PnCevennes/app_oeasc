@@ -111,6 +111,7 @@ import inGraph from "@/modules/in/in-graph.vue";
 import inTable from "@/modules/in/in-table.vue";
 import restitution from "@/modules/restitution/restitution.vue";
 import actualiteBandeau from "./actualites-bandeau.vue"
+import { graphChasse } from "@/modules/chasse/"
 
 import "./content.css";
 // import Vue from "vue";
@@ -173,6 +174,7 @@ export default {
     inTable, // eslint-disable-line
     restitution, // eslint-disable-line
     dynamicForm, // eslint-disable-line
+    graphChasse, // eslint-disable-line
     genericForm
   },
   data: () => ({

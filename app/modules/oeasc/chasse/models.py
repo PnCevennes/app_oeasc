@@ -5,8 +5,10 @@
 from flask import current_app
 from utils_flask_sqla.serializers import serializable
 from geoalchemy2 import Geometry
-from sqlalchemy.orm import column_property
-from sqlalchemy import select, func, and_
+from sqlalchemy.orm import column_property, object_session
+from sqlalchemy import select, func, and_, join
+from sqlalchemy.sql.expression import case
+
 from ..commons.models import TEspeces, TNomenclatures, TSecteurs   
 
 config = current_app.config
@@ -60,6 +62,7 @@ class TZoneIndicatives(DB.Model):
     )
     zone_cynegetique = DB.relationship(TZoneCynegetiques, foreign_keys=id_zone_cynegetique)
 
+
 @serializable
 class TLieuTirs(DB.Model):
     '''
@@ -73,11 +76,34 @@ class TLieuTirs(DB.Model):
     nom_lieu_tir = DB.Column(DB.Unicode)
     geom = DB.Column(Geometry)
     id_area_commune = DB.Column(DB.Integer, DB.ForeignKey('ref_geo.l_areas.id_area'))
+    label_commune = DB.Column(DB.Unicode)
     id_zone_indicative = DB.Column(
         DB.Integer,
         DB.ForeignKey('oeasc_chasse.t_zone_indicatives.id_zone_indicative')
     )
     zone_indicative = DB.relationship(TZoneIndicatives, foreign_keys=id_zone_indicative)
+
+
+@serializable
+class TLieuTirSynonymes(DB.Model):
+    '''
+        Lieu de tir synonymes
+    '''
+
+    __tablename__ = 't_lieu_tir_synonymes'
+    __table_args__ = {'schema': 'oeasc_chasse', 'extend_existing': True}
+
+    id_lieu_tir_synonyme = DB.Column(DB.Integer, primary_key=True)
+    id_lieu_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_lieu_tirs.id_lieu_tir'))
+    nom_lieu_tir_synonyme = DB.Column(DB.Unicode)
+
+    lieu_tir = DB.relationship(TLieuTirs)
+    # lieu_tir_synonyme_display = DB.Column(DB.Unicode)
+
+    lieu_tir_synonyme_display = column_property(
+        func.oeasc_chasse.get_lieu_tir_synonyme_label(id_lieu_tir_synonyme)
+    )
+
 
 
 @serializable
@@ -228,8 +254,8 @@ class TRealisationsChasse(DB.Model):
         uselist=False
     )
 
-    id_lieu_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_lieu_tirs.id_lieu_tir'))
-    lieu_tir = DB.relationship(TLieuTirs)
+    id_lieu_tir_synonyme = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_lieu_tir_synonymes.id_lieu_tir_synonyme'))
+    lieu_tir_synonyme = DB.relationship(TLieuTirSynonymes)
 
     date_exacte = DB.Column(DB.Date)
     date_enreg = DB.Column(DB.Date)
@@ -272,3 +298,25 @@ class TRealisationsChasse(DB.Model):
     # meta_update_date = DB.Column(DB.DateTime)
 
 
+@serializable
+class VChasseBilan(DB.Model):
+    '''
+        Realisations
+    '''
+
+    __tablename__ = 'v_bilan_pretty'
+    __table_args__ = {
+        'schema': 'oeasc_chasse',
+        'extend_existing': True, 
+    }
+
+    id_espece = DB.Column(DB.Integer(), primary_key=True)
+    id_zone_cynegetique = DB.Column(DB.Integer(), primary_key=True)
+    id_saison = DB.Column(DB.Integer(), primary_key=True)
+    nom_saison = DB.Column(DB.Unicode())
+    nom_zone_cynegetique = DB.Column(DB.Unicode())
+    nom_espece = DB.Column(DB.Unicode())
+    nb_affecte_max = DB.Column(DB.Integer())
+    nb_affecte_min = DB.Column(DB.Integer())
+    nb_realise = DB.Column(DB.Integer())
+    nb_realise_avant_11 = DB.Column(DB.Integer())

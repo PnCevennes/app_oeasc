@@ -4,6 +4,7 @@ import configStorePersonne from "./config/store-personne";
 import configStoreZoneCynegetique from "./config/store-zone-cynegetique";
 import configStoreZoneIndicative from "./config/store-zone-indicative";
 import configStoreLieuTir from "./config/store-lieu-tir";
+import configStoreLieuTirSynonyme from "./config/store-lieu-tir-synonyme";
 import configStoreSaison from "./config/store-saison";
 import configStoreSaisonDate from "./config/store-saison-date";
 import configStoreAttributionMassif from "./config/store-attribution-massif";
@@ -11,6 +12,8 @@ import configStoreTypeBracelet from "./config/store-type-bracelet";
 import configStoreAttribution from "./config/store-attribution";
 import configStoreRealisation from "./config/store-realisation";
 import genericForm from "@/components/form/generic-form";
+import graphChasse from "./graph-chasse";
+import { apiRequest } from "@/core/js/data/api.js";
 
 const ROUTE = [
   {
@@ -23,18 +26,18 @@ const ROUTE = [
     props: {
       config: {
         title: "Données chasse",
-        tabs: {          
+        tabs: {
           realisation: {
-            storeName: 'chasseRealisation'
+            storeName: "chasseRealisation"
           },
           attribution: {
-            storeName: 'chasseAttribution'
+            storeName: "chasseAttribution"
           },
           typeBracelet: {
-            storeName: 'chasseTypeBracelet'
+            storeName: "chasseTypeBracelet"
           },
           affectationMassif: {
-            storeName: 'chasseAttributionMassif'
+            storeName: "chasseAttributionMassif"
           },
           saisonDate: {
             storeName: "chasseSaisonDate"
@@ -45,6 +48,9 @@ const ROUTE = [
           lieuTir: {
             storeName: "chasseLieuTir"
           },
+          lieuTirSynonyme: {
+            storeName: "chasseLieuTirSynonyme"
+          },
           zoneIndicative: {
             storeName: "chasseZoneIndicative"
           },
@@ -53,7 +59,7 @@ const ROUTE = [
           },
           personne: {
             storeName: "chassePersonne"
-          },
+          }
         }
       }
     },
@@ -67,21 +73,35 @@ const ROUTE = [
     component: genericForm,
     props: {
       config: {
-        storeName: 'chasseRealisation',
+        storeName: "chasseRealisation",
         value: {
-            // id_realisation: 89
-        }
-      },
+          id_realisation: 89,
+        },
+        debug: ['id_attribution', 'id_lieu_tir_synonyme', 'attribution.id_attribution', 'id_zone_indicative_realisee']
+      }
     }
   }
 ];
 
-const STORE = {};
+const STORE = {
+  actions: {
+    chasseBilan: ( {getter}, { id_espece, id_zone_cynegetique }) => {
+      getter;
+      return apiRequest('GET', `api/chasse/bilan/${id_espece}/${id_zone_cynegetique}`);
+    },
+    chasseIce: ( {getter}, { id_espece, id_zone_cynegetique }) => {
+      getter;
+      return apiRequest('GET', `api/chasse/ice/${id_espece}/${id_zone_cynegetique}`);
+    }
+
+  }
+};
 
 storeUtils.addStore(STORE, configStorePersonne);
 storeUtils.addStore(STORE, configStoreZoneCynegetique);
 storeUtils.addStore(STORE, configStoreZoneIndicative);
 storeUtils.addStore(STORE, configStoreLieuTir);
+storeUtils.addStore(STORE, configStoreLieuTirSynonyme);
 storeUtils.addStore(STORE, configStoreSaison);
 storeUtils.addStore(STORE, configStoreSaisonDate);
 storeUtils.addStore(STORE, configStoreAttributionMassif);
@@ -89,5 +109,4 @@ storeUtils.addStore(STORE, configStoreTypeBracelet);
 storeUtils.addStore(STORE, configStoreAttribution);
 storeUtils.addStore(STORE, configStoreRealisation);
 
-
-export { ROUTE, STORE };
+export { ROUTE, STORE, graphChasse };
