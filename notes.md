@@ -21,19 +21,18 @@
 
   - [ ] parcelles ug foret ?
  
-  - [ ] resultats ???
-    - [ ] ice
-      - [ ] longueur dague
-        - [ ] sql, [ ] api,  [ ] js
-      - [x] pie afficher le nombre
-    - [ ] custom
-      - [ ] test (simple), [ ] sql, [ ] api,  [ ] js
-        - js meme rendu 
-          - [ ] count label pie
-      - [ ] test (filtres), [ ] sql, [ ] api,  [ ] js
-      - [ ] test (double), [ ] sql, [ ] api,  [ ] js
-      - [ ] test (geom (zi)), [ ] sql, [ ] api,  [ ] js
-      - [ ] dash board
+- [ ] resultats ???
+  - [ ] ice
+    - [ ] longueur dague
+      - [ ] sql, [ ] api,  [ ] js
+  - [ ] custom
+    - [x] test (simple), [x] sql, [x] api,  [x] js
+      - js meme rendu 
+        - [ ] count label pie
+    - [ ] test (filtres), [ ] sql, [ ] api,  [ ] js
+    - [ ] test (double), [ ] sql, [ ] api,  [ ] js
+    - [ ] test (geom (zi)), [ ] sql, [ ] api,  [ ] js
+    - [ ] dash board
 
 - [ ] admin afficher les tables selon les droits
 - [ ] export csv des tables admin
@@ -60,8 +59,7 @@
 - [x] sexe, classe_age => (inconnu) -> indetermine dans les nomenclatures et dans les imports
 
 
--  [x]restitution chasse
-
+- [x] restitution chasse
   - [x] realisation
     - [x] api
     - [x] graph
