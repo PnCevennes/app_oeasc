@@ -62,8 +62,11 @@ frontend/.vscode
 frontend/src/config/config.js
 var/log/*
     
-!.gitkeep
 
 # chasse
 data/chasse/settings.ini
+data/chasse/shp/*
+data/chasse/data/*
 
+
+!.gitkeep

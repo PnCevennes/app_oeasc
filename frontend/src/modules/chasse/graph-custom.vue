@@ -1,7 +1,7 @@
 <template>
   <div :style="`height:${height || '400px'}; width: 100%`">
     <highcharts
-      v-if="!processing"
+      v-if="!processing && chartOptions"
       :style="`width:${width || '100%'}; height:${height || '400px'}`"
       :options="chartOptions"
       :highcharts="hcInstance"
@@ -14,34 +14,27 @@
 import Highcharts from "highcharts";
 import exportingInit from "highcharts/modules/exporting";
 import offlineExporting from "highcharts/modules/offline-exporting";
-import processIce from "./config/graph-ice";
-import processIceData from "./config/graph-ice-data";
-import processBilan from "./config/graph-bilan";
+import processData from "./config/graph-custom";
+import restitutionChasse from "./config/restitution-chasse";
+
 
 exportingInit(Highcharts);
 offlineExporting(Highcharts);
 
 export default {
   name: "graph-chasse",
-  props: ["id_espece", "id_zone_cynegetique", "type", "width", "height"],
+  props: ["key1", "height", "width", "title", "typeGraph"],
   data: () => ({
     chartOptions: null,
     hcInstance: Highcharts,
-    processData: {
-      ice: processIce,
-      ice_data: processIceData,
-      bilan: processBilan
-    },
-    actions: {
-      ice: "chasseIce",
-      ice_data: "chasseIce",
-      bilan: "chasseBilan"
-    },
+    processData: processData,
+    action: "chasseCustom",
     processing: false
   }),
   watch: {
     $props: {
       handler() {
+        console.log(this.key1)
         this.process();
       },
       deep: true,
@@ -50,29 +43,21 @@ export default {
   },
   methods: {
     process() {
+        console.log('process', this.key1)
       if (this.processing) {
           return 
       }
       if (
-        !(this.id_zone_cynegetique && this.id_espece && this.type)
+        !(this.key1)
       ) {
-        return;
-      }
-      if (!(this.actions[this.type] && this.processData[this.type])) {
-        console.error(
-          `Pas de fonctionalité définies pour le type ${this.type}`
-        );
         return;
       }
 
       this.processing = true;
       this.$store
-        .dispatch(this.actions[this.type], {
-          id_espece: this.id_espece,
-          id_zone_cynegetique: this.id_zone_cynegetique
-        })
+        .dispatch(this.action, this.$props)
         .then(data => {
-          this.chartOptions = this.processData[this.type](data);
+          this.chartOptions = this.processData(data, this.$props, restitutionChasse);
           this.processing = false;
         });
     }

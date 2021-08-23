@@ -13,6 +13,7 @@ import configStoreAttribution from "./config/store-attribution";
 import configStoreRealisation from "./config/store-realisation";
 import genericForm from "@/components/form/generic-form";
 import graphChasse from "./graph-chasse";
+import graphCustom from "./graph-custom";
 import { apiRequest } from "@/core/js/data/api.js";
 
 const ROUTE = [
@@ -75,9 +76,14 @@ const ROUTE = [
       config: {
         storeName: "chasseRealisation",
         value: {
-          id_realisation: 89,
+          id_realisation: 89
         },
-        debug: ['id_attribution', 'id_lieu_tir_synonyme', 'attribution.id_attribution', 'id_zone_indicative_realisee']
+        debug: [
+          "id_attribution",
+          "id_lieu_tir_synonyme",
+          "attribution.id_attribution",
+          "id_zone_indicative_realisee"
+        ]
       }
     }
   }
@@ -85,15 +91,24 @@ const ROUTE = [
 
 const STORE = {
   actions: {
-    chasseBilan: ( {getter}, { id_espece, id_zone_cynegetique }) => {
+    chasseBilan: ({ getter }, { id_espece, id_zone_cynegetique }) => {
       getter;
-      return apiRequest('GET', `api/chasse/bilan/${id_espece}/${id_zone_cynegetique}`);
+      return apiRequest(
+        "GET",
+        `api/chasse/results/bilan/${id_espece}/${id_zone_cynegetique}`
+      );
     },
-    chasseIce: ( {getter}, { id_espece, id_zone_cynegetique }) => {
+    chasseIce: ({ getter }, { id_espece, id_zone_cynegetique }) => {
       getter;
-      return apiRequest('GET', `api/chasse/ice/${id_espece}/${id_zone_cynegetique}`);
+      return apiRequest(
+        "GET",
+        `api/chasse/results/ice/${id_espece}/${id_zone_cynegetique}`
+      );
+    },
+    chasseCustom: ({ getter }, params) => {
+      getter;
+      return apiRequest("GET", `api/chasse/results/custom/`, { params });
     }
-
   }
 };
 
@@ -109,4 +124,9 @@ storeUtils.addStore(STORE, configStoreTypeBracelet);
 storeUtils.addStore(STORE, configStoreAttribution);
 storeUtils.addStore(STORE, configStoreRealisation);
 
-export { ROUTE, STORE, graphChasse };
+const CONTENT = {
+  graphChasse,
+  graphCustom
+};
+
+export { ROUTE, STORE, CONTENT };

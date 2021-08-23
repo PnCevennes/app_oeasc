@@ -61,7 +61,7 @@ class TZoneIndicatives(DB.Model):
         DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique')
     )
     zone_cynegetique = DB.relationship(TZoneCynegetiques, foreign_keys=id_zone_cynegetique)
-
+    geom = DB.Column(Geometry)
 
 @serializable
 class TLieuTirs(DB.Model):
