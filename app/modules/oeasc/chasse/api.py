@@ -77,7 +77,7 @@ definitions = {
 grd.add_generic_routes('chasse', definitions)
 
 
-@bp.route('bilan/<id_espece>/<id_zone_cynegetique>', methods=['GET'])
+@bp.route('results/bilan/<id_espece>/<id_zone_cynegetique>', methods=['GET'])
 @json_resp
 def chasse_bilan(id_espece, id_zone_cynegetique):
     '''
@@ -108,13 +108,28 @@ def chasse_bilan(id_espece, id_zone_cynegetique):
 
     return out
 
-@bp.route('ice/<id_espece>/<id_zone_cynegetique>', methods=['GET'])
+@bp.route('results/ice/<id_espece>/<id_zone_cynegetique>', methods=['GET'])
 @json_resp
-def api_ice(id_espece, id_zone_cynegetique):
+def api_result_ice(id_espece, id_zone_cynegetique):
     '''
         API ICE
     '''
 
     req = func.oeasc_chasse.fct_calcul_ice_mc(id_espece, id_zone_cynegetique)
+    res = DB.engine.execute(req).first()[0]
+    return res
+
+
+@bp.route('results/custom/', methods=['GET'])
+@json_resp
+def api_result_custom():
+    '''
+        API CUSTOM
+    '''
+
+    # gestion paramètres
+    key1 = request.args['key1']
+
+    req = func.oeasc_chasse.fct_custom_results_j(key1)
     res = DB.engine.execute(req).first()[0]
     return res

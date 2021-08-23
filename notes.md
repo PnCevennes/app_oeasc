@@ -1,8 +1,12 @@
+# urgent 
+
+- [ ] test connexion actif
+
 # Chasse
+
 
 ## Saisie realisation chasse
 
-- [ ] bracelets
 
 - [ ] tableau
   - [ ] filtre date
@@ -16,11 +20,27 @@
   - [ ] dague : que les sub-adultes
 
   - [ ] parcelles ug foret ?
+ 
+  - [ ] resultats ???
+    - [ ] ice
+      - [ ] longueur dague
+        - [ ] sql, [ ] api,  [ ] js
+      - [x] pie afficher le nombre
+    - [ ] custom
+      - [ ] test (simple), [ ] sql, [ ] api,  [ ] js
+        - js meme rendu 
+          - [ ] count label pie
+      - [ ] test (filtres), [ ] sql, [ ] api,  [ ] js
+      - [ ] test (double), [ ] sql, [ ] api,  [ ] js
+      - [ ] test (geom (zi)), [ ] sql, [ ] api,  [ ] js
+      - [ ] dash board
 
+- [ ] admin afficher les tables selon les droits
+- [ ] export csv des tables admin
 
-- admin afficher les tables selon les droits
-- export csv des tables admin
-
+- [x] bracelets
+- [x] zc / zi geom
+- [x] zi data
 
 - [x] mode de chasse 
   - [x] ajout poussée silencieuse
@@ -41,6 +61,7 @@
 
 
 -  [x]restitution chasse
+
   - [x] realisation
     - [x] api
     - [x] graph
@@ -63,16 +84,8 @@
 
 export pdf alertes
 
-
 ## Import données
-
-
-
 
 # Volet agricole
 
 Amandine
-
-
-# IC IA
-

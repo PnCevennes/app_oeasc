@@ -19,10 +19,25 @@ VALUES
 ('Lièvre', 'LI'),
 ('Renard', 'RE'),
 ('Mouflon', 'MF'),
-('Daim', 'DA')
+('Daim', 'DA'),
+('Sanglier', 'SG')
 ON CONFLICT DO NOTHING
 ;
+ 
+ALTER TABLE oeasc_commons.t_especes ADD IF NOT EXISTS cd_nom INTEGER;
 
+UPDATE oeasc_commons.t_especes SET cd_nom = (
+	SELECT CASE
+		WHEN code_espece = 'CF' THEN 61000
+		WHEN code_espece = 'CH' THEN 61057
+		WHEN code_espece = 'DA' THEN 61028
+		WHEN code_espece = 'LI' THEN 61701
+		WHEN code_espece = 'MF' THEN 61110
+		WHEN code_espece = 'RE' THEN 60588
+		WHEN code_espece = 'SG' THEN 60981
+	END
+)
+;
 -- SAISONS
 
 -- - t_saisons
@@ -141,16 +156,32 @@ JOIN oeasc_commons.t_secteurs s ON s.code_secteur = SPLIT_PART(zc2.code_zone_cyn
 )
 ;
 
--- zone interet
-
-INSERT INTO oeasc_chasse.t_zone_indicatives (nom_zone_indicative, code_zone_indicative, id_zone_cynegetique)
+-- zone indicatives
+WITH info_zi AS (
+	SELECT 
+		num_zi,
+		nom_zi,
+		ST_UNION(geom) AS geom
+		FROM oeasc_chasse.t_import_zi tiz 
+		GROUP BY num_zi, nom_zi
+)
+INSERT INTO oeasc_chasse.t_zone_indicatives (
+	code_zone_indicative,
+	nom_zone_indicative,
+	geom,
+	id_zone_cynegetique
+)
 SELECT DISTINCT 
-	z_i_affectee, z_i_affectee, zc.id_zone_cynegetique
-	FROM import_chasse.plan_chasse ipc
-	LEFT JOIN oeasc_chasse.t_zone_cynegetiques zc
-		ON 
-        regexp_replace(zc.nom_zone_cynegetique, ',? \(.*\),?', '') = 
-        regexp_replace(ipc.massif_affecte, ',? \(.*\),?', '')
+	z_i_affectee,
+	iz.nom_zi,
+	iz.geom,
+	zc.id_zone_cynegetique
+FROM import_chasse.plan_chasse ipc
+LEFT JOIN oeasc_chasse.t_zone_cynegetiques zc
+	ON 
+    regexp_replace(zc.nom_zone_cynegetique, ',? \(.*\),?', '') = 
+    regexp_replace(ipc.massif_affecte, ',? \(.*\),?', '')
+LEFT JOIN info_zi iz ON iz.num_zi = z_i_affectee::int
 ON CONFLICT DO NOTHING
 ;
 
@@ -197,12 +228,28 @@ left join oeasc_chasse.t_saisons ts
 -- oeasc_chasse.t_type_bracelet
 
 insert into oeasc_chasse.t_type_bracelets (id_espece, code_type_bracelet, description_type_bracelet)
-select 
-	id_espece, 
-	'BRACELET_' || code_espece as code_type_bracelet,
-	'Bracelet pour l''espece ' || nom_espece as description_type_bracelet
-	from oeasc_commons.t_especes te 
-;
+WITH info_bracelet AS (
+	SELECT
+		SPLIT_PART(no_bracelet, ' ', 1) AS code_bracelet,
+		sexe,
+		classe_age, 
+		nom_vern
+	FROM import_chasse.plan_chasse
+)
+SELECT
+	id_espece,
+	code_bracelet,
+	'sexe : ' || string_agg(distinct sexe, ', ')
+	|| '; classe age : '  || string_agg(distinct classe_age, ', ')
+	|| '; espece : ' || string_agg(distinct nom_vern, ', ') AS description
+from info_bracelet
+LEFT JOIN oeasc_commons.t_especes ON
+( code_bracelet = 'CHI' AND code_espece = 'CH' )
+OR ( code_bracelet IN ('CEFF', 'CEM', 'CEFFD') AND code_espece = 'CF' )
+OR ( code_bracelet IN ('MOM', 'MOF', 'MOM1', 'MOIJ', 'MOI') AND code_espece = 'MF' )
+OR ( code_bracelet = 'DAI' AND code_espece = 'DA' )
+group by code_bracelet,  nom_espece, id_espece
+order by count(*) desc;
 
 -- oeasc_chasse.t_attributions
 -- test double
@@ -218,7 +265,7 @@ insert into oeasc_chasse.t_attributions (id_saison, id_type_bracelet, id_zone_cy
 select id_saison, id_type_bracelet, tzc.id_zone_cynegetique, tzi.id_zone_indicative, no_bracelet
 	from import_chasse.plan_chasse pc 
 	left join oeasc_commons.t_especes te on te.nom_espece = split_part(pc.nom_vern, ' ', 1) 
-	left join oeasc_chasse.t_type_bracelets ttb on ttb.id_espece = te.id_espece 
+	left join oeasc_chasse.t_type_bracelets ttb on ttb.code_type_bracelet = SPLIT_PART(no_bracelet, ' ', 1) 
 	left join oeasc_chasse.t_zone_cynegetiques tzc 
 		on 	regexp_replace(tzc.nom_zone_cynegetique, ',? \(.*\),?', '') = 
 	   		regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')

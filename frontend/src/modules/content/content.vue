@@ -100,31 +100,26 @@
 <script>
 // load content
 import { config } from "@/config/config.js";
-// import { MapService } from "@/modules/map";
-import faqDeclaration from "./faq-declaration";
-import tableAide from "./table-aide";
-import declarationTable from "@/modules/declaration/declaration-table";
-import baseMap from "@/modules/map/base-map";
-import contentImg from "./content-img";
-import listePartenaire from "./liste-partenaire";
-import inGraph from "@/modules/in/in-graph.vue";
-import inTable from "@/modules/in/in-table.vue";
-import restitution from "@/modules/restitution/restitution.vue";
-import actualiteBandeau from "./actualites-bandeau.vue"
-import { graphChasse } from "@/modules/chasse/"
+import components from "./config/components"
 
 import "./content.css";
 // import Vue from "vue";
-import VRuntimeTemplate from "v-runtime-template";
 import configContentForm from "./config/form-content";
 import configImgForm from "./config/form-img";
 import configDocForm from "./config/form-doc";
-import genericForm from "@/components/form/generic-form";
-import dynamicForm from "@/components/form/dynamic-form";
 import marked from "marked";
+
+import genericForm from "@/components/form/generic-form";
+import VRuntimeTemplate from "v-runtime-template";
 
 export default {
   name: "oeasc-content",
+  components: {
+    ...components,
+    VRuntimeTemplate,
+    genericForm
+  },
+
   props: [
     "code",
     "containerClassIn",
@@ -160,22 +155,6 @@ export default {
     isPage() {
       return this.page !== "undefined";
     }
-  },
-  components: {
-    VRuntimeTemplate,
-    faqDeclaration, // eslint-disable-line
-    tableAide, // eslint-disable-line
-    declarationTable, // eslint-disable-line
-    baseMap, // eslint-disable-line
-    contentImg, // eslint-disable-line
-    listePartenaire, // eslint-disable-line
-    actualiteBandeau, // eslint-disable-line
-    inGraph, // eslint-disable-line
-    inTable, // eslint-disable-line
-    restitution, // eslint-disable-line
-    dynamicForm, // eslint-disable-line
-    graphChasse, // eslint-disable-line
-    genericForm
   },
   data: () => ({
     mouseIn: true,

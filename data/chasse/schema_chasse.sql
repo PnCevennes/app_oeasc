@@ -38,10 +38,10 @@ CREATE TABLE oeasc_chasse.t_zone_cynegetiques
 CREATE TABLE oeasc_chasse.t_zone_indicatives
 (
     id_zone_indicative SERIAL NOT NULL,
-    nom_zone_indicative CHARACTER VARYING,
     code_zone_indicative CHARACTER VARYING,
+    nom_zone_indicative CHARACTER VARYING,
     id_zone_cynegetique INTEGER,
-
+    geom GEOMETRY,
     CONSTRAINT pk_t_zone_indicatives_id_zone_indicative PRIMARY KEY (id_zone_indicative),
     CONSTRAINT fk_t_zone_indicatives_t_zone_cynegetiques FOREIGN KEY (id_zone_cynegetique)
         REFERENCES oeasc_chasse.t_zone_cynegetiques(id_zone_cynegetique) MATCH SIMPLE
@@ -143,7 +143,7 @@ CREATE TABLE oeasc_chasse.t_attribution_massifs
 CREATE TABLE oeasc_chasse.t_type_bracelets (
     id_type_bracelet SERIAL NOT NULL,   
     code_type_bracelet CHARACTER VARYING NOT NULL,
-    description_type_bracelet CHARACTER VARYING NOT NULL,
+    description_type_bracelet CHARACTER VARYING,
     id_espece INTEGER NOT NULL,
 
     CONSTRAINT pk_t_type_bracelets PRIMARY KEY (id_type_bracelet),

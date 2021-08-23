@@ -4,6 +4,8 @@ import configStoreTag from './config/store-tag';
 import configStoreObserver from "./config/store-observer";
 import configStoreCircuit from "./config/store-circuit";
 import configStoreRealisation from "./config/store-realisation";
+import inGraph from "@/modules/in/in-graph.vue";
+import inTable from "@/modules/in/in-table.vue";
 
 // route definitions
 
@@ -80,5 +82,8 @@ storeUtils.addStore(STORE, configStoreObserver)
 storeUtils.addStore(STORE, configStoreTag)
 storeUtils.addStore(STORE, configStoreRealisation)
 
+const CONTENT = {
+  inGraph, inTable
+}
 
-export { ROUTE, STORE };
+export { ROUTE, STORE, CONTENT };

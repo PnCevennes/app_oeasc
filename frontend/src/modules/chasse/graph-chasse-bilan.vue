@@ -19,7 +19,7 @@ exportingInit(Highcharts);
 offlineExporting(Highcharts);
 
 export default {
-  name: "graph-bilan-chasse",
+  name: "graph-chasse",
   props: ["id_espece", "id_zone_cynegetique", "width", "height"],
   data: () => ({
     dataBilanChasse: null,

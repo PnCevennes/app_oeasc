@@ -141,7 +141,7 @@ CREATE OR REPLACE FUNCTION tinv(IN p_value_in FLOAT, IN df_in INTEGER)
     LANGUAGE plr;
 
 -- Calcul ice
-DROP FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_cynegetique_in INTEGER);
+DROP FUNCTION IF EXISTS oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_cynegetique_in INTEGER);
 CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_cynegetique_in INTEGER)
 		RETURNS JSONB AS
 		$BODY$
@@ -266,25 +266,3 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 		END;
 		$BODY$
 		LANGUAGE plpgsql;
-	
-
-	
-
--- WITH
--- 	especes_zc AS ( SELECT
--- 	*
--- 	FROM 
--- 		oeasc_chasse.t_zone_cynegetiques tzc,
--- 		oeasc_commons.t_especes te 
--- 	WHERE te.code_espece IN ('CF', 'CH')
--- 		AND id_zone_cynegetique < 8
--- 	)
--- 	, results AS  (
--- 		SELECT
--- 			oeasc_chasse.fct_calcul_ice_mc(id_espece, id_zone_cynegetique) AS res
--- 		FROM especes_zc
--- 	)
--- 	SELECT
--- 	*
--- 	FROM results
-
