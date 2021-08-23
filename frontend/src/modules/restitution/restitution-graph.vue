@@ -1,6 +1,5 @@
 <template>
   <div>
-    uuuuuu
     <highcharts
       v-if="chartOptions"
       :style="
