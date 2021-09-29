@@ -12,7 +12,6 @@ from config import config
 
 from flask_cors import CORS
 
-
 class ReverseProxied(object):
 
     def __init__(self, app_in, script_name=None, scheme=None, server=None):
@@ -56,15 +55,6 @@ app.config['MAIL'] = mail
 
 app.config['SQLALCHEMY_ECHO'] = True
 
-# @app.route('/')
-# def accueil():
-#     return redirect("/front/", code=302)
-
-# @app.route('/front/')
-# def front():
-#     return send_from_directory("static/frontend/dist", 'index.html')
-
-
 @app.route('/oeasc/', defaults={'text':''})
 @app.route('/oeasc/<path:text>')
 def redirect_front(text):
@@ -74,6 +64,8 @@ def redirect_front(text):
 @app.route('/google4b0945b8a2f6425f.html')
 def google():
     return redirect(url_for('static', filename='google4b0945b8a2f6425f.html'))
+
+
 
 with app.app_context():
 
@@ -135,6 +127,12 @@ with app.app_context():
     from pypnnomenclature.routes import routes
     app.register_blueprint(routes, url_prefix='/api/nomenclatures')
 
+    print('uuuu')
+    from app.modules.oeasc.commands import commands
+    for cmd in commands:
+        app.cli.add_command(cmd)
+
+
 if __name__ == '__main__':
     app.run(debug=config.DEBUG, port=config.PORT)
 
@@ -176,3 +174,5 @@ def cleanid(eval_ctx, value):
     s2 = s2.replace(".", "")
     s2 = s2.strip()
     return s2
+
+
