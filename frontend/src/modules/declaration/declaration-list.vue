@@ -2,7 +2,7 @@
   <div>
     <div>
       <div>
-        <v-btn @click="bDialogExport = true" color="primary">Exporter les données</v-btn>
+        <v-btn v-if="$store.getters.isAuth" @click="bDialogExport = true" color="primary">Exporter les données</v-btn>
         <v-spacer></v-spacer>
 
         <v-dialog v-model="bDialogExport" max-width="500">

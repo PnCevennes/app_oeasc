@@ -9,10 +9,12 @@ from .models import (
     VChasseBilan, 
 )
 from ..generic.definitions import GenericRouteDefinitions
+from ..generic.repository import getlist
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
 from utils_flask_sqla.generic import GenericQuery
 from sqlalchemy import select, func
+import json
 
 config = current_app.config
 DB = config['DB']
@@ -128,8 +130,18 @@ def api_result_custom():
     '''
 
     # gestion paramètres
-    key1 = request.args['key1']
+    args = {}
+    params=['field_name', 'view']
+    params_list = ['filters']
 
-    req = func.oeasc_chasse.fct_custom_results_j(key1)
+    for p in params:
+        args[p] = request.args.get(p)
+
+    for p in params_list:
+        args[p] = getlist(request.args, 'filters')
+
+    args['filters']={}
+
+    req = func.oeasc_chasse.fct_custom_results_j(json.dumps(args))
     res = DB.engine.execute(req).first()[0]
     return res
