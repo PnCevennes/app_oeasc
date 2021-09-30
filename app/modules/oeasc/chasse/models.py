@@ -216,15 +216,16 @@ class TRealisationsChasse(DB.Model):
     __table_args__ = {'schema': 'oeasc_chasse', 'extend_existing': True}
 
     id_realisation = DB.Column(DB.Integer, primary_key = True)
-    id_attribution = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_attributions.id_attribution'), primary_key=True)
-
+    id_attribution = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_attributions.id_attribution'))
     attribution = DB.relationship(TAttributions)
+
     saison = DB.relationship(
         TSaisons,
         secondary='oeasc_chasse.t_attributions',
         primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
         secondaryjoin="TAttributions.id_saison==TSaisons.id_saison",
-        uselist=False
+        uselist=False,
+        viewonly=True
     )
 
     id_auteur_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_personnes.id_personne'))
@@ -241,7 +242,8 @@ class TRealisationsChasse(DB.Model):
         secondary='oeasc_chasse.t_attributions',
         primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
         secondaryjoin="TAttributions.id_zone_cynegetique_affectee==TZoneCynegetiques.id_zone_cynegetique",
-        uselist=False
+        uselist=False,
+        viewonly=True
     )
 
     id_zone_indicative_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_indicatives.id_zone_indicative'))
@@ -251,7 +253,8 @@ class TRealisationsChasse(DB.Model):
         secondary='oeasc_chasse.t_attributions',
         primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
         secondaryjoin="TAttributions.id_zone_indicative_affectee==TZoneIndicatives.id_zone_indicative",
-        uselist=False
+        uselist=False,
+        viewonly=True
     )
 
     id_lieu_tir_synonyme = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_lieu_tir_synonymes.id_lieu_tir_synonyme'))

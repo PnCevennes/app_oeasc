@@ -197,31 +197,25 @@ export default {
           return;
         }
 
+        // on n'affecte que si ce n'est pas déja fait
+
         baseModel.zone_cynegetique_affectee =
-          // baseModel.zone_cynegetique_affectee ||
+          baseModel.zone_cynegetique_affectee ||
           baseModel.attribution.zone_cynegetique_affectee;
 
         baseModel.zone_cynegetique_realisee =
-          // baseModel.zone_cynegetique_realisee ||
+          baseModel.zone_cynegetique_realisee ||
           baseModel.attribution.zone_cynegetique_affectee;
 
-        baseModel.id_zone_cynegetique_affectee =
-          // baseModel.id_zone_cynegetique_affectee ||
-          baseModel.attribution.id_zone_cynegetique_affectee;
-
         baseModel.zone_indicative_affectee =
-          // baseModel.zone_indicative_affectee ||
+          baseModel.zone_indicative_affectee ||
           baseModel.attribution.zone_indicative_affectee;
 
         baseModel.zone_indicative_realisee =
-          // baseModel.zone_indicative_realisee ||
+          baseModel.zone_indicative_realisee ||
           baseModel.attribution.zone_indicative_affectee;
 
-        baseModel.id_zone_indicative_affectee =
-          // baseModel.id_zone_indicative_affectee ||
-          baseModel.attribution.id_zone_indicative_affectee;
-
-        // sexe et age auto en fonction du bracelet ??
+        // sexe et age en fct  du bracelet ??
       }
     },
     auteur_tir: {

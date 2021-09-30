@@ -185,7 +185,7 @@ CREATE TABLE oeasc_chasse.t_attributions
 CREATE TABLE oeasc_chasse.t_realisations
 (
     id_realisation SERIAL NOT NULL, 
-    id_attribution INTEGER NOT NULL, -- relation 1-1 ??1
+    id_attribution INTEGER NOT NULL, -- relation 1-1 -> contrainte unicité
     id_zone_cynegetique_realisee INTEGER NOT NULL,
     id_zone_indicative_realisee INTEGER NOT NULL,
     id_lieu_tir_synonyme INTEGER,
@@ -226,7 +226,10 @@ CREATE TABLE oeasc_chasse.t_realisations
     meta_create_date timestamp without time zone,
     meta_update_date timestamp without time zone,
 
+    UNIQUE(id_attribution);
+
     CONSTRAINT pk_t_realisations PRIMARY KEY (id_attribution),
+
     CONSTRAINT fk_t_realisations_t_attributions FOREIGN KEY (id_attribution)
         REFERENCES oeasc_chasse.t_attributions(id_attribution) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE NO ACTION,
@@ -248,8 +251,10 @@ CREATE TABLE oeasc_chasse.t_realisations
     CONSTRAINT fk_t_realisations_t_roles FOREIGN KEY (id_numerisateur)
         REFERENCES utilisateurs.t_roles(id_role) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE NO ACTION
+
 );
 
+-- ALTER TABLE oeasc_chasse.t_realisations ADD UNIQUE (id_realisation);
 
 CREATE TRIGGER tri_meta_dates_change_t_realisations
   BEFORE INSERT OR UPDATE

@@ -282,7 +282,7 @@ export default {
               formDef.storeName
             );
             const idFieldName = configStore.idFieldName;
-            const condReload = values.some(v => !v[idFieldName]);
+            const condReload = values.some(v => v && !v[idFieldName]);
             if (condReload) {
               updateStores.push({ storeName: formDef.storeName, key });
             }

@@ -53,7 +53,7 @@ DB.init_app(app)
 app.config['DB'] = DB
 app.config['MAIL'] = mail
 
-app.config['SQLALCHEMY_ECHO'] = True
+# app.config['SQLALCHEMY_ECHO'] = True
 
 @app.route('/oeasc/', defaults={'text':''})
 @app.route('/oeasc/<path:text>')
@@ -127,7 +127,6 @@ with app.app_context():
     from pypnnomenclature.routes import routes
     app.register_blueprint(routes, url_prefix='/api/nomenclatures')
 
-    print('uuuu')
     from app.modules.oeasc.commands import commands
     for cmd in commands:
         app.cli.add_command(cmd)
