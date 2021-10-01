@@ -1,7 +1,4 @@
 ﻿
-ALTER TABLE import_chasse.plan_chasse DISABLE trigger ALL;
-update import_chasse.plan_chasse pc set date_exacte = date_exacte - interval '1 year'
-where date_exacte > '2021-07-01';
 
 
     -- PREPA ESPECES
