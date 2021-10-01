@@ -188,7 +188,7 @@ export default {
       displayFieldName: "numero_bracelet",
       params: ({ baseModel }) => ({
         id_saison: baseModel.saison && baseModel.saison.id_saison,
-        has_realisation: false
+        has_realisation: (baseModel.id_realisation) ? true : false
       }),
       disabled: ({ baseModel }) =>
         !(baseModel.saison && baseModel.saison.id_saison),
