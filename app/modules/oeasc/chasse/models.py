@@ -6,10 +6,10 @@ from flask import current_app
 from utils_flask_sqla.serializers import serializable
 from geoalchemy2 import Geometry
 from sqlalchemy.orm import column_property, object_session
-from sqlalchemy import select, func, and_, join
+from sqlalchemy import select, func, and_, join, exists
 from sqlalchemy.sql.expression import case
 
-from ..commons.models import TEspeces, TNomenclatures, TSecteurs   
+from ..commons.models import TEspeces, TNomenclatures, TSecteurs
 
 config = current_app.config
 DB = config['DB']
@@ -140,7 +140,7 @@ class TSaisonDates(DB.Model):
     date_fin = DB.Column(DB.Date)
     id_nomenclature_type_chasse = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
     nomenclature_type_chasse = DB.relationship(TNomenclatures, foreign_keys=id_nomenclature_type_chasse)
-    
+
 
 
 @serializable
@@ -203,7 +203,6 @@ class TAttributions(DB.Model):
     zone_cynegetique_affectee = DB.relationship(TZoneCynegetiques)
     zone_indicative_affectee = DB.relationship(TZoneIndicatives)
     type_bracelet = DB.relationship(TTypeBracelets)
-
 
 
 @serializable
@@ -300,6 +299,18 @@ class TRealisationsChasse(DB.Model):
     # meta_create_date = DB.Column(DB.DateTime)
     # meta_update_date = DB.Column(DB.DateTime)
 
+'''
+relation : TAttributions.realisation
+
+ou
+
+column_property : TAttributions.has_realisation
+'''
+
+# TAttributions.realisation = DB.relationship(TRealisationsChasse)
+TAttributions.has_realisation = column_property(exists().where(TRealisationsChasse.id_attribution == TAttributions.id_attribution))
+
+TAttributions = serializable(TAttributions)
 
 @serializable
 class VChasseBilan(DB.Model):
@@ -310,7 +321,7 @@ class VChasseBilan(DB.Model):
     __tablename__ = 'v_bilan_pretty'
     __table_args__ = {
         'schema': 'oeasc_chasse',
-        'extend_existing': True, 
+        'extend_existing': True,
     }
 
     id_espece = DB.Column(DB.Integer(), primary_key=True)

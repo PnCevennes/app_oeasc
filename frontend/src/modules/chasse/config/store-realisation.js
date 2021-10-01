@@ -51,7 +51,7 @@ export default {
                   }
                 ]
               }
-    
+
             ]
           },
           {
@@ -187,7 +187,8 @@ export default {
       returnObject: true,
       displayFieldName: "numero_bracelet",
       params: ({ baseModel }) => ({
-        id_saison: baseModel.saison && baseModel.saison.id_saison
+        id_saison: baseModel.saison && baseModel.saison.id_saison,
+        has_realisation: false
       }),
       disabled: ({ baseModel }) =>
         !(baseModel.saison && baseModel.saison.id_saison),
