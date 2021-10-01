@@ -1,17 +1,5 @@
 ﻿
---- Correction lieux de tirs
-
-ALTER TABLE import_chasse.plan_chasse DISABLE trigger ALL;
-update import_chasse.plan_chasse pc set date_exacte = date_exacte - interval '1 year'
-where date_exacte > '2021-07-01';
-
-
-    -- PREPA ESPECES
---
--- TODO ajouter cd_nom ??
-
-
-
+-- Insertion des taxons
 ALTER TABLE oeasc_commons.t_especes DROP CONSTRAINT IF EXISTS oeasc_commons_t_espece_unique_code_espece;
 ALTER TABLE oeasc_commons.t_especes ADD CONSTRAINT oeasc_commons_t_espece_unique_code_espece UNIQUE(code_espece);
 INSERT INTO oeasc_commons.t_especes(nom_espece, code_espece)

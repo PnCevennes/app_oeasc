@@ -23,7 +23,7 @@ DB = config['DB']
 bp = Blueprint('chasse_api', __name__)
 grd = GenericRouteDefinitions()
 
-droits = { 'C': 5, 'R': 0, 'U': 5, 'D': 5 }
+droits = { 'C': 4, 'R': 0, 'U': 4, 'D': 4 }
 
 definitions = {
     'personne': {
