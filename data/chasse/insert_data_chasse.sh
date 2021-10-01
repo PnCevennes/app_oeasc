@@ -26,6 +26,7 @@ psql -h $db_host -U $user_pg -d $db_name -c 'ALTER SCHEMA chasse RENAME TO impor
 # import des données zi zc
 shp2pgsql -s 2154 -I shp/ZI_chasse_v2clean.shp oeasc_chasse.t_import_zi | psql -h $db_host -U $user_pg -d $db_name
 
+
 psql -v ON_ERROR_STOP=1 -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/chasse/functions_chasse.sql
 psql -v ON_ERROR_STOP=1 -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/chasse/result_ice.sql
 psql -v ON_ERROR_STOP=1 -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/chasse/result_custom.sql

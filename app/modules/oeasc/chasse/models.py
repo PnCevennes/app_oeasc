@@ -271,9 +271,9 @@ class TRealisationsChasse(DB.Model):
     id_nomenclature_classe_age = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
     nomenclature_classe_age = DB.relationship(TNomenclatures, foreign_keys=id_nomenclature_classe_age)
 
-    poid_entier = DB.Column(DB.Integer)
-    poid_vide = DB.Column(DB.Integer)
-    poid_c_f_p = DB.Column(DB.Integer)
+    poid_entier = DB.Column(DB.Float)
+    poid_vide = DB.Column(DB.Float)
+    poid_c_f_p = DB.Column(DB.Float)
 
     long_dagues_droite = DB.Column(DB.Integer)
     long_dagues_gauche = DB.Column(DB.Integer)

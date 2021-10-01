@@ -106,7 +106,7 @@ CREATE TABLE oeasc_chasse.t_saison_dates
     date_debut date,
     date_fin date,
     id_nomenclature_type_chasse INTEGER,
-    
+
     CONSTRAINT pk_t_saison_dates PRIMARY KEY (id_saison_date),
     CONSTRAINT fk_t_saison_dates_t_saisons FOREIGN KEY (id_saison)
     REFERENCES oeasc_chasse.t_saisons(id_saison) MATCH SIMPLE
@@ -141,7 +141,7 @@ CREATE TABLE oeasc_chasse.t_attribution_massifs
 ;
 
 CREATE TABLE oeasc_chasse.t_type_bracelets (
-    id_type_bracelet SERIAL NOT NULL,   
+    id_type_bracelet SERIAL NOT NULL,
     code_type_bracelet CHARACTER VARYING NOT NULL,
     description_type_bracelet CHARACTER VARYING,
     id_espece INTEGER NOT NULL,
@@ -184,7 +184,7 @@ CREATE TABLE oeasc_chasse.t_attributions
 
 CREATE TABLE oeasc_chasse.t_realisations
 (
-    id_realisation SERIAL NOT NULL, 
+    id_realisation SERIAL NOT NULL,
     id_attribution INTEGER NOT NULL, -- relation 1-1 -> contrainte unicité
     id_zone_cynegetique_realisee INTEGER NOT NULL,
     id_zone_indicative_realisee INTEGER NOT NULL,
@@ -195,14 +195,14 @@ CREATE TABLE oeasc_chasse.t_realisations
 
     mortalite_hors_pc BOOLEAN,
     id_auteur_tir INTEGER,
-    id_auteur_constat INTEGER, 
+    id_auteur_constat INTEGER,
 
     id_nomenclature_sexe INTEGER,
     id_nomenclature_classe_age INTEGER,
 
-    poid_entier INTEGER,
-    poid_vide INTEGER,
-    poid_c_f_p INTEGER,
+    poid_entier FLOAT,
+    poid_vide FLOAT,
+    poid_c_f_p FLOAT,
 
     long_dagues_droite INTEGER,
     long_dagues_gauche INTEGER,
@@ -226,7 +226,7 @@ CREATE TABLE oeasc_chasse.t_realisations
     meta_create_date timestamp without time zone,
     meta_update_date timestamp without time zone,
 
-    UNIQUE(id_attribution);
+    UNIQUE(id_attribution),
 
     CONSTRAINT pk_t_realisations PRIMARY KEY (id_attribution),
 

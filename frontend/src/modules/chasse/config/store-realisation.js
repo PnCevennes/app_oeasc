@@ -162,6 +162,8 @@ export default {
       list_type: "select",
       returnObject: true,
       required: true,
+      // on ne change pas la saison pour un update
+      disabled: ({ baseModel }) => baseModel.id_realisation,
       default: ({ $store }) =>
         new Promise(resolve => {
           const configStore = $store.getters.configStore("chasseSaison");
@@ -190,8 +192,6 @@ export default {
         id_saison: baseModel.saison && baseModel.saison.id_saison,
         has_realisation: (baseModel.id_realisation) ? true : false
       }),
-      disabled: ({ baseModel }) =>
-        !(baseModel.saison && baseModel.saison.id_saison),
       required: true,
       changed: ({ baseModel }) => {
         if (!baseModel.attribution) {
