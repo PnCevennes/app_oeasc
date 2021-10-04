@@ -24,13 +24,13 @@
 		tzc.nom_zone_cynegetique,
 		tzi.id_zone_indicative,
 		tzi.nom_zone_indicative,
-
-		'a'
+		ts.nom_saison
 		FROM oeasc_chasse.t_realisations tr
 		LEFT JOIN ref_nomenclatures.t_nomenclatures tnmc ON tnmc.id_nomenclature = id_nomenclature_mode_chasse
 		LEFT JOIN ref_nomenclatures.t_nomenclatures tns ON tns.id_nomenclature = id_nomenclature_sexe
 		LEFT JOIN ref_nomenclatures.t_nomenclatures tnca ON tnca.id_nomenclature = id_nomenclature_classe_age
 		JOIN oeasc_chasse.t_attributions ta ON ta.id_attribution = tr.id_attribution
+		JOIN oeasc_chasse.t_saisons ts ON ts.id_saison = ta.id_saison
 		JOIN oeasc_chasse.t_type_bracelets ttb ON ttb.id_type_bracelet = ta.id_type_bracelet
 		JOIN oeasc_commons.t_especes te  ON te.id_espece = ttb.id_espece
 		JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = id_zone_cynegetique_realisee
