@@ -1,12 +1,12 @@
-﻿
+﻿-- Nettoyage
+TRUNCATE TABLE oeasc_chasse.t_attributions CASCADE;
+TRUNCATE TABLE oeasc_chasse.t_saisons CASCADE;
+TRUNCATE TABLE oeasc_chasse.t_personnes CASCADE;
+TRUNCATE TABLE oeasc_chasse.t_zone_cynegetiques CASCADE;
 
 
-    -- PREPA ESPECES
---
--- TODO ajouter cd_nom ??
 
-
-
+-- Insertion des taxons
 ALTER TABLE oeasc_commons.t_especes DROP CONSTRAINT IF EXISTS oeasc_commons_t_espece_unique_code_espece;
 ALTER TABLE oeasc_commons.t_especes ADD CONSTRAINT oeasc_commons_t_espece_unique_code_espece UNIQUE(code_espece);
 INSERT INTO oeasc_commons.t_especes(nom_espece, code_espece)
@@ -40,11 +40,11 @@ UPDATE oeasc_commons.t_especes SET cd_nom = (
 -- - t_saisons
 
 INSERT INTO oeasc_chasse.t_saisons (
-nom_saison,
-date_debut,
-date_fin,
-current,
-commentaire
+	nom_saison,
+	date_debut,
+	date_fin,
+	current,
+	commentaire
 )
 SELECT
 	saison AS nom_saison,
@@ -56,6 +56,8 @@ FROM import_chasse.saison_chasse
 ;
 
 -- t_saison toujours (complement avec la table import_chasse.plan_chasse_attribution_massif pcam)
+-- Import des saisons historiques qui n'ont pas de données saisies dans le plan de chasse
+-- mais une donnée dans attribution massif
 insert into oeasc_chasse.t_saisons (nom_saison)
 select distinct saison from import_chasse.plan_chasse_attribution_massif pcam
 left join oeasc_chasse.t_saisons ts on ts.nom_saison = pcam.saison
@@ -119,9 +121,11 @@ SELECT auteur_tir AS nom_personne FROM import_chasse.plan_chasse
 UNION
 SELECT auteur_constat AS nom_personne FROM import_chasse.plan_chasse
 )
-SELECT DISTINCT nom_personne FROM auteur
+SELECT DISTINCT min(nom_personne)
+FROM auteur
 WHERE nom_personne IS NOT NULL AND nom_personne NOT IN ('', '?')
-ORDER BY nom_personne
+GROUP BY lower(unaccent(nom_personne)) -- suppression des orthographe similaire
+ORDER BY min(nom_personne)
 ;
 
 
@@ -158,7 +162,7 @@ WITH info_zi AS (
 	SELECT
 		num_zi,
 		nom_zi,
-		ST_UNION(geom) AS geom
+		st_multi(ST_UNION(geom)) AS geom
 		FROM oeasc_chasse.t_import_zi tiz
 		GROUP BY num_zi, nom_zi
 )
@@ -169,26 +173,38 @@ INSERT INTO oeasc_chasse.t_zone_indicatives (
 	id_zone_cynegetique
 )
 SELECT DISTINCT
-	z_i_affectee,
+	num_zi,
 	iz.nom_zi,
 	iz.geom,
 	zc.id_zone_cynegetique
-FROM import_chasse.plan_chasse ipc
+FROM  info_zi iz
+LEFT JOIN import_chasse.plan_chasse ipc
+ON iz.num_zi = z_i_affectee::int
 LEFT JOIN oeasc_chasse.t_zone_cynegetiques zc
-	ON
-    regexp_replace(zc.nom_zone_cynegetique, ',? \(.*\),?', '') =
-    regexp_replace(ipc.massif_affecte, ',? \(.*\),?', '')
-LEFT JOIN info_zi iz ON iz.num_zi = z_i_affectee::int
-ON CONFLICT DO NOTHING
-;
+ON regexp_replace(zc.nom_zone_cynegetique, ',? \(.*\),?', '') = regexp_replace(ipc.massif_affecte, ',? \(.*\),?', '')
+ON CONFLICT DO NOTHING;
+
+
+UPDATE  oeasc_chasse.t_zone_indicatives SET  id_zone_cynegetique = (SELECT id_zone_cynegetique FROM oeasc_chasse.t_zone_cynegetiques WHERE code_zone_cynegetique = 'CAUS')
+WHERE code_zone_indicative  IN ('21', '25', '27', '29', '31')
+	AND id_zone_cynegetique IS NULL;
+
+-- insertion zc pour daim et mouflons
+INSERT INTO oeasc_chasse.t_zone_indicatives
+(code_zone_indicative, nom_zone_indicative, id_zone_cynegetique)
+SELECT '99', d.nom_zone_cynegetique , id_zone_cynegetique
+FROM oeasc_chasse.t_zone_cynegetiques d
+WHERE code_zone_cynegetique = 'ZC';
 
 -- lieu tir
 
 insert into oeasc_chasse.t_lieu_tirs
-    (nom_lieu_tir, code_lieu_tir, id_zone_indicative, id_area_commune, label_commune, geom)
-    select nom_lieudit, code_lieudit, zc.id_zone_cynegetique, id_area, label, lt.geom
+    (nom_lieu_tir, code_lieu_tir, id_zone_indicative, id_zone_cynegetique,  id_area_commune, label_commune, geom)
+    select nom_lieudit, code_lieudit, zi.id_zone_indicative, zc.id_zone_cynegetique, id_area, label, lt.geom
     from import_chasse.lieux_tir lt
-    left join oeasc_chasse.t_zone_cynegetiques zc
+    LEFT join oeasc_chasse.t_zone_indicatives zi
+        on ST_INTERSECTS(zi.geom, lt.geom)
+    LEFT join oeasc_chasse.t_zone_cynegetiques zc
         on regexp_replace(zc.nom_zone_cynegetique, ',? \(.*\),?', '') = lt.zon_cyne0
     join ref_geo.vl_areas la
         on ST_INTERSECTS(la.geom, lt.geom)
@@ -196,6 +212,25 @@ insert into oeasc_chasse.t_lieu_tirs
         on bat.id_type = la.id_type
     where bat.type_code = 'OEASC_COMMUNE'
 ;
+
+-- corrections fusions communes
+
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Bédouès)' WHERE code_lieu_tir = '4802299';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Saint-Julien-du-Tournel)' WHERE code_lieu_tir = '4816499';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (La Salle-Prunet)' WHERE code_lieu_tir = '4818699';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Mas-d''Orcières)' WHERE code_lieu_tir = '4809399';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Fraissinet-de-Lozère)' WHERE code_lieu_tir = '4806699';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Saint-Andéol-de-Clerguemort)' WHERE code_lieu_tir = '4813499';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Le Villaret (Saint-Maurice-de-Ventalon)' WHERE code_lieu_tir = '4817241';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Saint-Maurice-de-Ventalon)' WHERE code_lieu_tir = '4817299';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Saint-Julien-d''Arpaon)' WHERE code_lieu_tir = '4816299';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Florac)' WHERE code_lieu_tir = '4806199';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Saint-Frézal-de-Ventalon)' WHERE code_lieu_tir = '4815299';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Le Villaret (Le Pont-de-Montvert)' WHERE code_lieu_tir = '4811603';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Le Pont-de-Montvert)' WHERE code_lieu_tir = '4811699';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Cocurès)' WHERE code_lieu_tir = '4805099';
+UPDATE oeasc_chasse.t_lieu_tirs tlt SET  nom_lieu_tir ='Indéterminé (Saint-Laurent-de-Trèves)' WHERE code_lieu_tir = '4816699';
+
 
 -- synonymes
 
@@ -251,24 +286,21 @@ order by count(*) desc;
 -- oeasc_chasse.t_attributions
 -- test double
 
-with saison_dates as(
-	select
-		id_saison,
-		TO_DATE(SPLIT_PART(nom_saison, '-', 1) || '0701', 'YYYYMMDD') as date_debut,
-		TO_DATE(SPLIT_PART(nom_saison, '-', 2) || '0601', 'YYYYMMDD') as date_fin
-		from oeasc_chasse.t_saisons ts
+with join_saison as (
+	SELECT ts.id_saison , sc.id AS old_id_saison
+	FROM oeasc_chasse.t_saisons ts
+	JOIN import_chasse.saison_chasse sc
+	ON ts.nom_saison = sc.saison
 )
 insert into oeasc_chasse.t_attributions (id_saison, id_type_bracelet, id_zone_cynegetique_affectee, id_zone_indicative_affectee, numero_bracelet)
 select id_saison, id_type_bracelet, tzc.id_zone_cynegetique, tzi.id_zone_indicative, no_bracelet
-	from import_chasse.plan_chasse pc
-	left join oeasc_commons.t_especes te on te.nom_espece = split_part(pc.nom_vern, ' ', 1)
-	left join oeasc_chasse.t_type_bracelets ttb on ttb.code_type_bracelet = SPLIT_PART(no_bracelet, ' ', 1)
-	left join oeasc_chasse.t_zone_cynegetiques tzc
-		on 	regexp_replace(tzc.nom_zone_cynegetique, ',? \(.*\),?', '') =
-	   		regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')
-	left join oeasc_chasse.t_zone_indicatives tzi on tzi.code_zone_indicative = pc.z_i_affectee
-	join saison_dates s on date_exacte > s.date_debut and date_exacte < s.date_fin
-	WHERE pc.id NOT IN (6687, 4965, 10849, 9113) -- pq ????
+from import_chasse.plan_chasse pc
+left join oeasc_commons.t_especes te on te.nom_espece = split_part(pc.nom_vern, ' ', 1)
+left join oeasc_chasse.t_type_bracelets ttb on ttb.code_type_bracelet = SPLIT_PART(no_bracelet, ' ', 1)
+left join oeasc_chasse.t_zone_cynegetiques tzc
+	on 	regexp_replace(tzc.nom_zone_cynegetique, ',? \(.*\),?', '') = regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')
+left join oeasc_chasse.t_zone_indicatives tzi on tzi.code_zone_indicative = pc.z_i_affectee
+join join_saison s on s.old_id_saison = pc.fk_saison
 ;
 -- nomenclature mode chasse
 
@@ -295,7 +327,6 @@ values
 ,('Indéterminé', 'IND')
 ;
 
-
 delete from ref_nomenclatures.t_nomenclatures n
 using ref_nomenclatures.bib_nomenclatures_types t
 where n.id_type = t.id_type AND t.mnemonique = 'OEASC_MOD_CHASSE'
@@ -321,6 +352,7 @@ drop table oeasc_chasse.tmp_nomenclature_mode_chasse;
 
 -- oeasc_chasse.t_realisations
 
+
 with nomenclature_mode_chasse as (
 	select id_nomenclature, tn.label_fr
 	from ref_nomenclatures.t_nomenclatures tn
@@ -336,12 +368,11 @@ with nomenclature_mode_chasse as (
 	from ref_nomenclatures.t_nomenclatures tn
 	join ref_nomenclatures.bib_nomenclatures_types bnt on bnt.id_type =tn.id_type
 	where bnt.mnemonique = 'STADE_VIE'
-),saison_dates as(
-	select
-		id_saison,
-		TO_DATE(SPLIT_PART(nom_saison, '-', 1) || '0701', 'YYYYMMDD') as date_debut,
-		TO_DATE(SPLIT_PART(nom_saison, '-', 2) || '0601', 'YYYYMMDD') as date_fin
-		from oeasc_chasse.t_saisons ts
+), join_saison as (
+	SELECT ts.id_saison , sc.id AS old_id_saison
+	FROM oeasc_chasse.t_saisons ts
+	JOIN import_chasse.saison_chasse sc
+	ON ts.nom_saison = sc.saison
 ), synonymes as (
     select code_lieu_tir, id_lieu_tir_synonyme
 	from oeasc_chasse.t_lieu_tir_synonymes s
@@ -407,8 +438,8 @@ select
 	pc.cors_indetermine,
 	pc.long_mandibules_indertermine
 from import_chasse.plan_chasse pc
-left join saison_dates s on date_exacte > s.date_debut and date_exacte < s.date_fin
-join oeasc_chasse.t_attributions ta on ta.numero_bracelet = pc.no_bracelet and ta.id_saison=s.id_saison
+left join join_saison s on s.old_id_saison = pc.fk_saison
+join oeasc_chasse.t_attributions ta on ta.numero_bracelet = pc.no_bracelet and ta.id_saison = s.id_saison
 left join oeasc_chasse.t_zone_cynegetiques tzc
 	on 	regexp_replace(tzc.nom_zone_cynegetique, ',? \(.*\),?', '') =
 	   		regexp_replace(pc.massif_affecte, ',? \(.*\),?', '')
@@ -419,7 +450,11 @@ left join synonymes tlt on tlt.code_lieu_tir = pc.code_lieu_dit
 left join nomenclature_sexe ns on ns.label_fr = pc.sexe
 left join nomenclature_age na on na.label_fr = replace(replace(classe_age, 'Jeune', 'Juvénile'), ' ', '-')
 left join nomenclature_mode_chasse nc on nc.label_fr = pc.mode_chasse
+WHERE NOT pc.date_exacte IS NULL
 ;
+
+
+
 
 -- bilan chasse
 insert into oeasc_chasse.t_bilan_chasse_historique(
@@ -442,6 +477,6 @@ select
 	from import_chasse.bilan_chasse_historique bch
 	join oeasc_chasse.t_saisons ts on ts.nom_saison = bch.saison
 	join oeasc_commons.t_especes te on nom_vern ilike concat('%', te.nom_espece, '%')
-	join oeasc_chasse.t_zone_indicatives tzi on tzi.nom_zone_indicative = bch.z_i_affectee
+	LEFT join oeasc_chasse.t_zone_indicatives tzi on tzi.code_zone_indicative = bch.z_i_affectee
 	order by z_i_affectee::int
 ;
