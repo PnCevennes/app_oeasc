@@ -1,4 +1,25 @@
+/**
+ *
+ * configuration pour la restitution custom de type 'chasse'
+ *
+ * TODO compléter la vue sql et la config en fonction des besoins
+ */
+
 export default {
+
+    // données d'exemple (dev)
+    default: {
+        display: 'graph',
+        fieldName: 'nom_espece',
+        dataType: 'chasse',
+        typeGraph: 'column',
+        filters: {
+            nom_espece: [ "Chevreuil" ]
+        },
+        filterList: [ "nom_espece" ]
+    },
+
+    // definitions et labels, en lien avec la vue
     items: {
         label_mode_chasse: {
             text: 'Mode de chasse'
@@ -17,6 +38,9 @@ export default {
         },
         nom_espece: {
             text: 'Espece'
+        },
+        nom_saison: {
+            text: 'Saison'
         }
     }
-}   
+}
