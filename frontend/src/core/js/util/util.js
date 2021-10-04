@@ -63,7 +63,7 @@ const upFirstLetter = s => {
 };
 
 const isObject = obj => {
-  return Object(obj) === obj;
+  return Object(obj) === obj && !Array.isArray(obj);
 }
 
 const camelToSnakeCase = str =>
