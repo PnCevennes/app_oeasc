@@ -57,13 +57,17 @@ CREATE TABLE oeasc_chasse.t_lieu_tirs
     nom_lieu_tir CHARACTER VARYING,
     code_lieu_tir CHARACTER VARYING,
     id_zone_indicative INTEGER,
+    id_zone_cynegetique INTEGER,
     id_area_commune INTEGER,
     label_commune CHARACTER VARYING,
     geom GEOMETRY,
 
     CONSTRAINT pk_t_lieu_tirs_id_lieu_tir PRIMARY KEY (id_lieu_tir),
     CONSTRAINT fk_t_lieu_tirs_t_zone_indicatives FOREIGN KEY (id_zone_indicative)
-        REFERENCES oeasc_chasse.t_zone_indicatives(id_zone_indicative) MATCH SIMPLE
+    REFERENCES oeasc_chasse.t_zone_indicatives(id_zone_indicative) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE NO ACTION,
+    CONSTRAINT id_zone_cynegetique FOREIGN KEY (id_zone_cynegetique)
+    REFERENCES oeasc_chasse.t_zone_cynegetiques(id_zone_cynegetique) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT fk_t_lieu_tirs_l_areas FOREIGN KEY (id_area_commune)
         REFERENCES ref_geo.l_areas(id_area) MATCH SIMPLE
@@ -291,7 +295,7 @@ CREATE TABLE oeasc_chasse.t_bilan_chasse_historique
 )
 ;
 
-ALTER TABLE oeasc_chasse.t_bilan_chasse_historique 
+ALTER TABLE oeasc_chasse.t_bilan_chasse_historique
     ADD CONSTRAINT unique_t_bilan_chasse_historique_saison_espece_zi
     UNIQUE (id_saison, id_espece, id_zone_indicative)
 ;
