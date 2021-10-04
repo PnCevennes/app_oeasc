@@ -118,6 +118,29 @@ const rules = {
   max: max => v =>
     v >= max || `La valeur doit être inférieure ou égale à ${max}.`,
 
+
+  /**
+   * contrainte de date minimale
+   *
+   *  - dateMin string (2020/12/31)
+   *
+   */
+  dateMin: dateMin => v => {
+    const dateMinFr = dateMin.split('-').reverse().join('/');
+    return v >= dateMin || `dateMin : La date saisie doit être supérieure ou égale à ${dateMinFr}`;
+  },
+
+    /**
+   * contrainte de date maximale
+   *
+   *  - dateMax string (2020/12/31)
+   *
+   */
+  dateMax: dateMax => v => {
+    const dateMaxFr = dateMax.split('-').reverse().join('/');
+    return v <= dateMax || `dateMax La date saisie doit être inférieure ou égale à ${dateMaxFr}`;
+  },
+
   processRules: function(config) {
     config.rules = config.rules || [];
 

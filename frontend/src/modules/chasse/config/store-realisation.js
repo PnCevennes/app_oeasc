@@ -1,3 +1,5 @@
+import { formFunctions } from "@/components/form/functions/form";
+
 export default {
   group: "chasse",
   name: "realisation",
@@ -163,7 +165,7 @@ export default {
       returnObject: true,
       required: true,
       // on ne change pas la saison pour un update
-      disabled: ({ baseModel }) => baseModel.id_realisation,
+      disabled: ({ baseModel }) => !!baseModel.id_realisation,
       default: ({ $store }) =>
         new Promise(resolve => {
           const configStore = $store.getters.configStore("chasseSaison");
@@ -188,12 +190,21 @@ export default {
       dataReloadOnSearch: true,
       returnObject: true,
       displayFieldName: "numero_bracelet",
-      params: ({ baseModel }) => ({
-        id_saison: baseModel.saison && baseModel.saison.id_saison,
-        has_realisation: (baseModel.id_realisation) ? true : false
-      }),
+      params: ({ baseModel }) => {
+        const params = {
+          id_saison: baseModel.saison && baseModel.saison.id_saison,
+        }
+        // si on crée une nouvelle réalisation :
+        //   - on choisit parmi des attributions sans réalisation
+        if (!baseModel.id_realisation) {
+          params.has_realisation = false;
+        }
+
+        return params;
+      },
       required: true,
-      changed: ({ baseModel }) => {
+      change: ({ baseModel }) => {
+        console.log('change')
         if (!baseModel.attribution) {
           return;
         }
@@ -290,6 +301,14 @@ export default {
       label: "Date exacte",
       type: "date",
       required: true,
+
+      // la date exacte doit être comprise entre la date de debut de saison et la date de fin de saison
+      rules: ({baseModel}) => baseModel.saison
+        ? [
+          formFunctions.rules.dateMin(baseModel.saison.date_debut),
+          formFunctions.rules.dateMax(baseModel.saison.date_fin)
+        ]
+        : null
     },
     date_enreg: {
       label: "Date enregistrement",
