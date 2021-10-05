@@ -13,6 +13,8 @@
 - ajouter choix de tri autre que par count en interface ou en config ?
   - par exemple pour les saison on doit pouvoir les afficher dans l'ordre
 
+- champs par defaut pour alléger le code des widgets
+
 - rendu chasse
   - ajouter des champs
     - en fonction des retours

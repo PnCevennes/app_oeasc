@@ -85,8 +85,6 @@ def api_result_custom():
     #  - les noms utilisés dans la fonction sql sont en snake_case
     args['field_name'] = request.args.get('fieldName')
     args['field_name_2'] = request.args.get('fieldName2')
-    if args['field_name_2'] == 'undefined':
-        args['field_name_2'] = None
     args['data_type'] = request.args.get('dataType')
 
     # filtres

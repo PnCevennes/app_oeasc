@@ -35,14 +35,9 @@
 
       <!-- Composant de rendu (tableau, graphique, carte)-->
       <div class="result">
-
-        <!-- Affichage des graphes -->
-        <div v-if="this.settings.display == 'graph'">
-            <restitution-graph v-bind="settings"></restitution-graph>
+        <div>
+          <restitution2 v-bind="settings"></restitution2>
         </div>
-
-        <!-- TODO ajouter rendus tableau et carte -->
-
       </div>
 
       <!-- Composant formulaire pour les choix des paramètres de restitution -->
@@ -59,8 +54,8 @@
 
 <script>
 
-import restitutionGraph from "./restitution-graph.vue";
 import restitutionForm from "./restitution-form";
+import restitution2 from './restitution.vue';
 // import deepEqual from "fast-deep-equal";
 
 export default {
@@ -69,7 +64,7 @@ export default {
 
   components: {
     restitutionForm,
-    restitutionGraph
+    restitution2
   },
 
   data: () => ({
@@ -93,28 +88,37 @@ export default {
      * en fonction des données contenus dans settings
      */
     toContent() {
-      let content = "<div><restitution \n";
-      for (const prop of Object.keys(this.settings).filter(
-        prop => prop != "default"
-      )) {
-        const propValue = this.settings[prop];
-        if (
-          !["n", "filterList"].includes(prop) &&
-          (["dataType", "fieldName", "display", "height", 'groupByKey'].includes(prop) ||
-            (this.settings.display == "graph" &&
-              ["typeGraph", "stacking"].includes(prop)) //
-              // ||!deepEqual(propValue, this.settings.default[prop])
-            )
-        ) {
-          content += propValue
-            ? typeof propValue == "object"
-              ? ` :${prop}='${JSON.stringify(propValue)}'`
-              : ` ${prop}=${propValue}`
-            : ` :${prop}="null"`;
-        }
+
+      /**
+       * propStr pour lister toutes les propriétés du widget
+       */
+      let propsStr = "";
+
+      // liste des propriétés de settings utiles pour le code du widget
+      const propList = Object.keys(this.settings)
+        // filtre sur les clé
+        .filter( prop =>
+          !["n", "filterList"].includes(prop)
+          &&  (
+            ["dataType", "fieldName", "fieldName2", "display", "height"].includes(prop)
+            // clés spéciales graph
+            || this.settings.display == "graph" && ["typeGraph", "stacking"].includes(prop)
+          )
+        )
+
+      // boucle sur la liste de clé pour faire les propriétés
+      for (const prop of propList) {
+      const propValue = this.settings[prop];
+      console.log(propValue)
+        propsStr += propValue
+          ? typeof propValue == "object"
+            ? ` :${prop}='${JSON.stringify(propValue)}'`
+            : ` ${prop}=${propValue}`
+          : ` :${prop}="null"`;
       }
-      content += "></restitution></div>";
-      return content;
+
+      // code du widget
+      return `<div><restitution2 ${propsStr} ></restitution2></div>`;
     },
 
     /**

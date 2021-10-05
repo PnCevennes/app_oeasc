@@ -22,6 +22,7 @@ if (STORE.state.pendings == undefined) {
 var url = (urlRelative, params = {}) => {
   const url = new URL(`${config.URL_APPLICATION}/${urlRelative}`);
   Object.keys(params)
+    .filter((key) => ![null, undefined].includes(params[key]))
     .forEach(
       key => isObject(params[key])
         // si la clé est un 'objet' ou dictionnaire
