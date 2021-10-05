@@ -144,18 +144,6 @@ export default (data, options, text) => {
       }
     },
     series,
-    // [
-    //   {
-    //     type: options.typeGraph,
-    //     name: restitution.items[options.fieldName].text,
-    //     colorByPoint: true,
-    //     data: data.map(d => ({
-    //       name: `${d.text} (${d.count})`,
-    //       y: d.count,
-    //       color: null
-    //     }))
-    //   }
-    // ],
     height: "600px",
     width: "600px"
   };
