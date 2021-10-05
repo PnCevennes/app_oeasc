@@ -34,7 +34,8 @@ export default {
   name: "restitution-graph",
   props: [
     "dataType", // type de données (chasse) => quelle api / view est utilisée pour les données
-    "fieldName", // quel champs est utilsé pour les rendus²
+    "fieldName", // quel champs est utilsé pour les rendus
+    "fieldName2", // quel champs est utilsé pour les rendus (sous graphe)
     "height", // hauteur du composant
     "width", // largeur du composant
     "title", // titre du composant

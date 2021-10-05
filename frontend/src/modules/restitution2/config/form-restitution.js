@@ -18,13 +18,16 @@ export default {
       forms: ["dataType"]
     },
     {
-      forms: ["display"]
+      forms: ["typeGraph"]
     },
     {
       forms: ["width", "height"]
     },
     {
-      forms: ["fieldName", "typeGraph"],
+      forms: ["fieldName"],
+    },
+    {
+      forms: ["fieldName2"],
     },
     {
       forms: ["filterList"]
@@ -71,7 +74,7 @@ export default {
     },
     fieldName: {
       ...configChoix,
-      label: "Field Name",
+      label: "Choix 1",
     },
     switch: {
       type: "button",
@@ -90,9 +93,9 @@ export default {
       type: "number",
       label: "Nb max 1"
     },
-    choix2: {
+    fieldName2: {
       ...configChoix,
-      label: "Choix 2 (Icône)"
+      label: "Choix 2"
     },
     nbMax2: {
       type: "number",

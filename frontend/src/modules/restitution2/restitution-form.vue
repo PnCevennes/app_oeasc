@@ -79,13 +79,14 @@ export default {
       }
 
 
-      // items pour les choix de fieldName et filterList
+      // les listes des composant fieldName, fieldName2 et filterList
+      // sont données par restitution.items
       const items = Object.keys(this.restitution.items)
       .map(name => ({
         text: this.restitution.items[name].text,
         value: name
       }));
-      for (const keyForm of ["fieldName", "filterList"]) {
+      for (const keyForm of ["fieldName", "fieldName2", "filterList"]) {
         configFormRestition.formDefs[keyForm].items = items;
       }
 

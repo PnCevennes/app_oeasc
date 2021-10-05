@@ -11,12 +11,13 @@ export default {
     default: {
         display: 'graph',
         fieldName: 'nom_espece',
+        fieldName2: 'label_sexe',
         dataType: 'chasse',
         typeGraph: 'column',
         filters: {
-            nom_espece: [ "Chevreuil" ]
+            nom_zone_cynegetique: [ "Causse Méjean" ]
         },
-        filterList: [ "nom_espece" ]
+        filterList: [ "nom_zone_cynegetique" ]
     },
 
     // definitions et labels, en lien avec la vue
