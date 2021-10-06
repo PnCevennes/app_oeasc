@@ -127,7 +127,7 @@ const rules = {
    */
   dateMin: dateMin => v => {
     const dateMinFr = dateMin.split('-').reverse().join('/');
-    return v >= dateMin || `dateMin : La date saisie doit être supérieure ou égale à ${dateMinFr}`;
+    return v >= dateMin || `La date saisie est inférieure à la date minimale : ${dateMinFr}`;
   },
 
     /**
@@ -138,7 +138,7 @@ const rules = {
    */
   dateMax: dateMax => v => {
     const dateMaxFr = dateMax.split('-').reverse().join('/');
-    return v <= dateMax || `dateMax La date saisie doit être inférieure ou égale à ${dateMaxFr}`;
+    return v <= dateMax || `La date saisie est supérieure à la date maximale : ${dateMaxFr}`;
   },
 
   processRules: function(config) {
