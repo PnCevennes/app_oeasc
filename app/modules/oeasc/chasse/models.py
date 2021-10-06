@@ -6,10 +6,10 @@ from flask import current_app
 from utils_flask_sqla.serializers import serializable
 from geoalchemy2 import Geometry
 from sqlalchemy.orm import column_property, object_session
-from sqlalchemy import select, func, and_, join
+from sqlalchemy import select, func, and_, join, exists
 from sqlalchemy.sql.expression import case
 
-from ..commons.models import TEspeces, TNomenclatures, TSecteurs   
+from ..commons.models import TEspeces, TNomenclatures, TSecteurs
 
 config = current_app.config
 DB = config['DB']
@@ -140,7 +140,7 @@ class TSaisonDates(DB.Model):
     date_fin = DB.Column(DB.Date)
     id_nomenclature_type_chasse = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
     nomenclature_type_chasse = DB.relationship(TNomenclatures, foreign_keys=id_nomenclature_type_chasse)
-    
+
 
 
 @serializable
@@ -205,7 +205,6 @@ class TAttributions(DB.Model):
     type_bracelet = DB.relationship(TTypeBracelets)
 
 
-
 @serializable
 class TRealisationsChasse(DB.Model):
     '''
@@ -216,15 +215,16 @@ class TRealisationsChasse(DB.Model):
     __table_args__ = {'schema': 'oeasc_chasse', 'extend_existing': True}
 
     id_realisation = DB.Column(DB.Integer, primary_key = True)
-    id_attribution = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_attributions.id_attribution'), primary_key=True)
-
+    id_attribution = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_attributions.id_attribution'))
     attribution = DB.relationship(TAttributions)
+
     saison = DB.relationship(
         TSaisons,
         secondary='oeasc_chasse.t_attributions',
         primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
         secondaryjoin="TAttributions.id_saison==TSaisons.id_saison",
-        uselist=False
+        uselist=False,
+        viewonly=True
     )
 
     id_auteur_tir = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_personnes.id_personne'))
@@ -241,7 +241,8 @@ class TRealisationsChasse(DB.Model):
         secondary='oeasc_chasse.t_attributions',
         primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
         secondaryjoin="TAttributions.id_zone_cynegetique_affectee==TZoneCynegetiques.id_zone_cynegetique",
-        uselist=False
+        uselist=False,
+        viewonly=True
     )
 
     id_zone_indicative_realisee = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_indicatives.id_zone_indicative'))
@@ -251,7 +252,8 @@ class TRealisationsChasse(DB.Model):
         secondary='oeasc_chasse.t_attributions',
         primaryjoin="TAttributions.id_attribution==TRealisationsChasse.id_attribution",
         secondaryjoin="TAttributions.id_zone_indicative_affectee==TZoneIndicatives.id_zone_indicative",
-        uselist=False
+        uselist=False,
+        viewonly=True
     )
 
     id_lieu_tir_synonyme = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_lieu_tir_synonymes.id_lieu_tir_synonyme'))
@@ -269,9 +271,9 @@ class TRealisationsChasse(DB.Model):
     id_nomenclature_classe_age = DB.Column(DB.Integer, DB.ForeignKey('ref_nomenclatures.t_nomenclatures.id_nomenclature'))
     nomenclature_classe_age = DB.relationship(TNomenclatures, foreign_keys=id_nomenclature_classe_age)
 
-    poid_entier = DB.Column(DB.Integer)
-    poid_vide = DB.Column(DB.Integer)
-    poid_c_f_p = DB.Column(DB.Integer)
+    poid_entier = DB.Column(DB.Float)
+    poid_vide = DB.Column(DB.Float)
+    poid_c_f_p = DB.Column(DB.Float)
 
     long_dagues_droite = DB.Column(DB.Integer)
     long_dagues_gauche = DB.Column(DB.Integer)
@@ -297,6 +299,18 @@ class TRealisationsChasse(DB.Model):
     # meta_create_date = DB.Column(DB.DateTime)
     # meta_update_date = DB.Column(DB.DateTime)
 
+'''
+relation : TAttributions.realisation
+
+ou
+
+column_property : TAttributions.has_realisation
+'''
+
+# TAttributions.realisation = DB.relationship(TRealisationsChasse)
+TAttributions.has_realisation = column_property(exists().where(TRealisationsChasse.id_attribution == TAttributions.id_attribution))
+
+TAttributions = serializable(TAttributions)
 
 @serializable
 class VChasseBilan(DB.Model):
@@ -307,7 +321,7 @@ class VChasseBilan(DB.Model):
     __tablename__ = 'v_bilan_pretty'
     __table_args__ = {
         'schema': 'oeasc_chasse',
-        'extend_existing': True, 
+        'extend_existing': True,
     }
 
     id_espece = DB.Column(DB.Integer(), primary_key=True)

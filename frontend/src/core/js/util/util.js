@@ -62,6 +62,10 @@ const upFirstLetter = s => {
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
 
+const isObject = obj => {
+  return Object(obj) === obj && !Array.isArray(obj);
+}
+
 const camelToSnakeCase = str =>
   str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
 
@@ -81,5 +85,6 @@ export {
   sortDate,
   upFirstLetter,
   camelToSnakeCase,
-  round
+  round,
+  isObject
 };

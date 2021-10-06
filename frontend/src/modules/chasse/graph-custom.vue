@@ -23,7 +23,7 @@ offlineExporting(Highcharts);
 
 export default {
   name: "graph-chasse",
-  props: ["key1", "height", "width", "title", "typeGraph"],
+  props: ["field_name", "height", "width", "title", "typeGraph", "view"],
   data: () => ({
     chartOptions: null,
     hcInstance: Highcharts,
@@ -34,7 +34,7 @@ export default {
   watch: {
     $props: {
       handler() {
-        console.log(this.key1)
+        console.log(this.field_name)
         this.process();
       },
       deep: true,
@@ -43,17 +43,18 @@ export default {
   },
   methods: {
     process() {
-        console.log('process', this.key1)
+        console.log('process', this.field_name)
       if (this.processing) {
           return 
       }
       if (
-        !(this.key1)
+        !(this.field_name)
       ) {
         return;
       }
 
       this.processing = true;
+      console.log(this.$props)
       this.$store
         .dispatch(this.action, this.$props)
         .then(data => {

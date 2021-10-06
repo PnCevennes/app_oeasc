@@ -57,13 +57,17 @@ CREATE TABLE oeasc_chasse.t_lieu_tirs
     nom_lieu_tir CHARACTER VARYING,
     code_lieu_tir CHARACTER VARYING,
     id_zone_indicative INTEGER,
+    id_zone_cynegetique INTEGER,
     id_area_commune INTEGER,
     label_commune CHARACTER VARYING,
     geom GEOMETRY,
 
     CONSTRAINT pk_t_lieu_tirs_id_lieu_tir PRIMARY KEY (id_lieu_tir),
     CONSTRAINT fk_t_lieu_tirs_t_zone_indicatives FOREIGN KEY (id_zone_indicative)
-        REFERENCES oeasc_chasse.t_zone_indicatives(id_zone_indicative) MATCH SIMPLE
+    REFERENCES oeasc_chasse.t_zone_indicatives(id_zone_indicative) MATCH SIMPLE
+        ON UPDATE CASCADE ON DELETE NO ACTION,
+    CONSTRAINT id_zone_cynegetique FOREIGN KEY (id_zone_cynegetique)
+    REFERENCES oeasc_chasse.t_zone_cynegetiques(id_zone_cynegetique) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT fk_t_lieu_tirs_l_areas FOREIGN KEY (id_area_commune)
         REFERENCES ref_geo.l_areas(id_area) MATCH SIMPLE
@@ -106,7 +110,7 @@ CREATE TABLE oeasc_chasse.t_saison_dates
     date_debut date,
     date_fin date,
     id_nomenclature_type_chasse INTEGER,
-    
+
     CONSTRAINT pk_t_saison_dates PRIMARY KEY (id_saison_date),
     CONSTRAINT fk_t_saison_dates_t_saisons FOREIGN KEY (id_saison)
     REFERENCES oeasc_chasse.t_saisons(id_saison) MATCH SIMPLE
@@ -141,7 +145,7 @@ CREATE TABLE oeasc_chasse.t_attribution_massifs
 ;
 
 CREATE TABLE oeasc_chasse.t_type_bracelets (
-    id_type_bracelet SERIAL NOT NULL,   
+    id_type_bracelet SERIAL NOT NULL,
     code_type_bracelet CHARACTER VARYING NOT NULL,
     description_type_bracelet CHARACTER VARYING,
     id_espece INTEGER NOT NULL,
@@ -184,8 +188,8 @@ CREATE TABLE oeasc_chasse.t_attributions
 
 CREATE TABLE oeasc_chasse.t_realisations
 (
-    id_realisation SERIAL NOT NULL, 
-    id_attribution INTEGER NOT NULL, -- relation 1-1 ??1
+    id_realisation SERIAL NOT NULL,
+    id_attribution INTEGER NOT NULL, -- relation 1-1 -> contrainte unicité
     id_zone_cynegetique_realisee INTEGER NOT NULL,
     id_zone_indicative_realisee INTEGER NOT NULL,
     id_lieu_tir_synonyme INTEGER,
@@ -195,14 +199,14 @@ CREATE TABLE oeasc_chasse.t_realisations
 
     mortalite_hors_pc BOOLEAN,
     id_auteur_tir INTEGER,
-    id_auteur_constat INTEGER, 
+    id_auteur_constat INTEGER,
 
     id_nomenclature_sexe INTEGER,
     id_nomenclature_classe_age INTEGER,
 
-    poid_entier INTEGER,
-    poid_vide INTEGER,
-    poid_c_f_p INTEGER,
+    poid_entier FLOAT,
+    poid_vide FLOAT,
+    poid_c_f_p FLOAT,
 
     long_dagues_droite INTEGER,
     long_dagues_gauche INTEGER,
@@ -226,7 +230,10 @@ CREATE TABLE oeasc_chasse.t_realisations
     meta_create_date timestamp without time zone,
     meta_update_date timestamp without time zone,
 
+    UNIQUE(id_attribution),
+
     CONSTRAINT pk_t_realisations PRIMARY KEY (id_attribution),
+
     CONSTRAINT fk_t_realisations_t_attributions FOREIGN KEY (id_attribution)
         REFERENCES oeasc_chasse.t_attributions(id_attribution) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE NO ACTION,
@@ -248,8 +255,10 @@ CREATE TABLE oeasc_chasse.t_realisations
     CONSTRAINT fk_t_realisations_t_roles FOREIGN KEY (id_numerisateur)
         REFERENCES utilisateurs.t_roles(id_role) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE NO ACTION
+
 );
 
+-- ALTER TABLE oeasc_chasse.t_realisations ADD UNIQUE (id_realisation);
 
 CREATE TRIGGER tri_meta_dates_change_t_realisations
   BEFORE INSERT OR UPDATE
@@ -286,7 +295,7 @@ CREATE TABLE oeasc_chasse.t_bilan_chasse_historique
 )
 ;
 
-ALTER TABLE oeasc_chasse.t_bilan_chasse_historique 
+ALTER TABLE oeasc_chasse.t_bilan_chasse_historique
     ADD CONSTRAINT unique_t_bilan_chasse_historique_saison_espece_zi
     UNIQUE (id_saison, id_espece, id_zone_indicative)
 ;

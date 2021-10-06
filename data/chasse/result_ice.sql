@@ -25,8 +25,8 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_day_of_year(IN date_exacte DATE, IN 
 	COST 100;
 
 -- function qui calcule le poid vide en fonction des valeurs de (poid_entier, poid_vide, poid_c_f_p)
-DROP FUNCTION IF EXISTS oeasc_chasse.fct_poid_vide(IN id_espece_in INTEGER, IN poids_entier_in INTEGER, IN poids_vide_in INTEGER, IN poids_c_f_p_in INTEGER);
-CREATE OR REPLACE FUNCTION oeasc_chasse.fct_poid_vide(IN id_espece_in INTEGER, IN poids_entier_in INTEGER, IN poids_vide_in INTEGER, IN poids_c_f_p_in INTEGER)
+DROP FUNCTION IF EXISTS oeasc_chasse.fct_poid_vide(IN id_espece_in INTEGER, IN poids_entier_in FLOAT, IN poids_vide_in FLOAT, IN poids_c_f_p_in FLOAT);
+CREATE OR REPLACE FUNCTION oeasc_chasse.fct_poid_vide(IN id_espece_in INTEGER, IN poids_entier_in FLOAT, IN poids_vide_in FLOAT, IN poids_c_f_p_in FLOAT)
 	RETURNS INTEGER AS
 	$BODY$
 		DECLARE 

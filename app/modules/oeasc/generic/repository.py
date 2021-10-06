@@ -244,15 +244,15 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
     '''
     (Model, _) = definitions.get_model(module_name, object_type)
 
-    res = None
-
-    if not id_value:
-        res = Model()
-        DB.session.add(res)
-    else:
-        res = get_object_type(module_name, object_type, id_value)
+    res = (
+        get_object_type(module_name, object_type, id_value) if id_value
+        else Model()
+    )
 
     res.from_dict(post_data, True)
+
+    if not id_value:
+        DB.session.add(res)
 
     DB.session.commit()
 

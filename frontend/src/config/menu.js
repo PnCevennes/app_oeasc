@@ -56,7 +56,7 @@ export default {
   dev: {
     icon: "engineering",
     label: "DEV",
-    names: ["restitution.test"],
+    names: ["restitution.test", "restitution2.test"],
     hidden: ({ $store }) => $store.getters.droitMax < 5
   },
 

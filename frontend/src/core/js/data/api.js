@@ -1,4 +1,5 @@
 import { config } from "@/config/config.js";
+import { isObject } from "@/core/js/util/util";
 
 const STORE = {};
 
@@ -20,7 +21,15 @@ if (STORE.state.pendings == undefined) {
 
 var url = (urlRelative, params = {}) => {
   const url = new URL(`${config.URL_APPLICATION}/${urlRelative}`);
-  Object.keys(params).forEach(key => url.searchParams.append(key, params[key]));
+  Object.keys(params)
+    .filter((key) => ![null, undefined].includes(params[key]))
+    .forEach(
+      key => isObject(params[key])
+        // si la clé est un 'objet' ou dictionnaire
+        // -> on le renvoie sous forme de chaine de caractère
+        ? url.searchParams.append(key, JSON.stringify(params[key]))
+        // sinon on le traite de manière 'classique'
+        : url.searchParams.append(key, params[key]));
   return url;
 };
 

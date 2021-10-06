@@ -14,7 +14,7 @@ psql -h $db_host -U $user_pg -d $db_name -f ${OEASC_DIR}/data/chasse/schema_chas
 if [ ! -f data/import_chasse.dump ]; then
     export PGPASSWORD=$chasse_user_pg_pass;
     pg_dump -h $chasse_db_host -U $chasse_user_pg -d $chasse_db_name -n chasse --no-owner --no-acl -Fc > data/import_chasse.dump
-fi 
+fi
 
 export PGPASSWORD=$user_pg_pass;
 psql -h $db_host -U $user_pg -d $db_name -c 'DROP SCHEMA IF EXISTS import_chasse CASCADE'

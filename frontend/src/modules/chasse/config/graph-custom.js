@@ -17,7 +17,7 @@ export default (data, options, restitution) => {
     series: [
       {
         type: options.typeGraph,
-        name: restitution.items[options.key1].text,
+        name: restitution.items[options.field_name].text,
         colorByPoint: true,
         data: data.map(d => ({
           name: `${d.text} (${d.count})`,

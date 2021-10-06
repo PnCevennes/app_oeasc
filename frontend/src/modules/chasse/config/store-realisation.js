@@ -1,3 +1,5 @@
+import { formFunctions } from "@/components/form/functions/form";
+
 export default {
   group: "chasse",
   name: "realisation",
@@ -51,7 +53,7 @@ export default {
                   }
                 ]
               }
-    
+
             ]
           },
           {
@@ -162,6 +164,8 @@ export default {
       list_type: "select",
       returnObject: true,
       required: true,
+      // on ne change pas la saison pour un update
+      disabled: ({ baseModel }) => !!baseModel.id_realisation,
       default: ({ $store }) =>
         new Promise(resolve => {
           const configStore = $store.getters.configStore("chasseSaison");
@@ -186,42 +190,44 @@ export default {
       dataReloadOnSearch: true,
       returnObject: true,
       displayFieldName: "numero_bracelet",
-      params: ({ baseModel }) => ({
-        id_saison: baseModel.saison && baseModel.saison.id_saison
-      }),
-      disabled: ({ baseModel }) =>
-        !(baseModel.saison && baseModel.saison.id_saison),
+      params: ({ baseModel }) => {
+        const params = {
+          id_saison: baseModel.saison && baseModel.saison.id_saison,
+        }
+        // si on crée une nouvelle réalisation :
+        //   - on choisit parmi des attributions sans réalisation
+        if (!baseModel.id_realisation) {
+          params.has_realisation = false;
+        }
+
+        return params;
+      },
       required: true,
-      changed: ({ baseModel }) => {
+      change: ({ baseModel }) => {
+        console.log('change')
         if (!baseModel.attribution) {
           return;
         }
 
+        // on n'affecte que si ce n'est pas déja fait
+
         baseModel.zone_cynegetique_affectee =
-          // baseModel.zone_cynegetique_affectee ||
+          baseModel.zone_cynegetique_affectee ||
           baseModel.attribution.zone_cynegetique_affectee;
 
         baseModel.zone_cynegetique_realisee =
-          // baseModel.zone_cynegetique_realisee ||
+          baseModel.zone_cynegetique_realisee ||
           baseModel.attribution.zone_cynegetique_affectee;
 
-        baseModel.id_zone_cynegetique_affectee =
-          // baseModel.id_zone_cynegetique_affectee ||
-          baseModel.attribution.id_zone_cynegetique_affectee;
-
         baseModel.zone_indicative_affectee =
-          // baseModel.zone_indicative_affectee ||
+          baseModel.zone_indicative_affectee ||
           baseModel.attribution.zone_indicative_affectee;
 
         baseModel.zone_indicative_realisee =
-          // baseModel.zone_indicative_realisee ||
+          baseModel.zone_indicative_realisee ||
           baseModel.attribution.zone_indicative_affectee;
 
-        baseModel.id_zone_indicative_affectee =
-          // baseModel.id_zone_indicative_affectee ||
-          baseModel.attribution.id_zone_indicative_affectee;
-
-        // sexe et age auto en fonction du bracelet ??
+        // sexe et age en fct  du bracelet ??
       }
     },
     auteur_tir: {
@@ -246,14 +252,15 @@ export default {
       type: "list_form",
       list_type: "select",
       returnObject: true,
-      disabled: true
+      disabled: true,
     },
     zone_cynegetique_realisee: {
       label: "Zone cynégétique réalisée",
       storeName: "chasseZoneCynegetique",
       type: "list_form",
       list_type: "select",
-      returnObject: true
+      returnObject: true,
+      required: true
       // changed: ({baseModel}) => {}
     },
     zone_indicative_affectee: {
@@ -274,7 +281,8 @@ export default {
       // params: ({baseModel}) => ({
       //   "id_zone_cynegetique": baseModel.id_zone_cynegetique_affectee
       // }),
-      dataReloadOnSearch: true
+      dataReloadOnSearch: true,
+      required: true,
     },
     lieu_tir_synonyme: {
       label: "Lieu de tir (Syn)",
@@ -286,15 +294,26 @@ export default {
       //   "lieu_tir.id_zone_indicative": baseModel.id_zone_indicative_affectee
       // }),
       returnObject: true,
-      dataReloadOnSearch: true
+      dataReloadOnSearch: true,
+      required: true
     },
     date_exacte: {
       label: "Date exacte",
-      type: "date"
+      type: "date",
+      required: true,
+
+      // la date exacte doit être comprise entre la date de debut de saison et la date de fin de saison
+      rules: ({baseModel}) => baseModel.saison
+        ? [
+          formFunctions.rules.dateMin(baseModel.saison.date_debut),
+          formFunctions.rules.dateMax(baseModel.saison.date_fin)
+        ]
+        : null
     },
     date_enreg: {
       label: "Date enregistrement",
-      type: "date"
+      type: "date",
+      required: true,
     },
     mortalite_hors_pc: {
       label: "Hors PNC",
@@ -311,7 +330,8 @@ export default {
       list_type: "select",
       storeName: "commonsNomenclature",
       codes: ["3", "2", "1"],
-      nomenclatureType: "SEXE"
+      nomenclatureType: "SEXE",
+      required: true,
     },
     nomenclature_classe_age: {
       label: "Classe d'age",
@@ -320,7 +340,8 @@ export default {
       list_type: "select",
       storeName: "commonsNomenclature",
       codes: ["1", "2", "3", "5"],
-      nomenclatureType: "STADE_VIE"
+      nomenclatureType: "STADE_VIE",
+      required: true,
     },
     nomenclature_mode_chasse: {
       label: "Mode de chasse",
@@ -328,40 +349,41 @@ export default {
       returnObject: true,
       list_type: "select",
       storeName: "commonsNomenclature",
-      nomenclatureType: "OEASC_MOD_CHASSE"
+      nomenclatureType: "OEASC_MOD_CHASSE",
+      required: true,
     },
     poid_entier: {
-      label: "Poid entier",
+      label: "Poid entier (kg)",
       type: "number",
       min: 0
     },
     poid_vide: {
-      label: "Poid vide",
+      label: "Poid vide  (kg)",
       type: "number",
       min: 0
     },
     poid_c_f_p: {
-      label: "Poid CFP",
+      label: "Poid CFP (kg)",
       type: "number",
       min: 0
     },
     long_mandibules_droite: {
-      label: "Longueur mandibules droite",
+      label: "Longueur mandibules droite (mm)",
       type: "number",
       min: 0
     },
     long_mandibules_gauche: {
-      label: "Longueur mandibules gauche",
+      label: "Longueur mandibules gauche (mm)",
       type: "number",
       min: 0
     },
     long_dagues_droite: {
-      label: "Longueur dagues droite",
+      label: "Longueur dagues droite (mm)",
       type: "number",
       min: 0
     },
     long_dagues_gauche: {
-      label: "Longueur dagues gauche",
+      label: "Longueur dagues gauche (mm)",
       type: "number",
       min: 0
     },
