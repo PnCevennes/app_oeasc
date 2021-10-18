@@ -37,21 +37,24 @@ export default {
         displayForm: false,
     }),
     methods: {
-        initForm() {
-            this.displayForm = true;
-            this.$store.dispatch("focus", {id:"form-attribution", t: 100})
+        initForm(dt) {
+            setTimeout(
+                () => {
+                    this.displayForm = true;
+                    this.$store.dispatch("focus", {id:"form-attribution", t: dt});
+                },
+                1000
+            )
+
         },
         onSuccess(event) {
             this.bracelets.push(event.attribution.numero_bracelet)
             this.displayForm = false;
-            setTimeout(
-                () => { this.initForm() },
-                1000
-            )
+            this.initForm(500);
         }
     },
     mounted() {
-        this.initForm()
+        this.initForm(1000)
     }
 }
 </script>
