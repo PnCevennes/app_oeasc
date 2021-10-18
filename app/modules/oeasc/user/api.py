@@ -26,6 +26,7 @@ def api_test():
     '''
         route pour tester la connexion à l'application
     '''
+    print('test')
     return session.get('current_user')
 
 
@@ -49,6 +50,9 @@ def logout_external():
     '''
         logout redefinition
     '''
+
+    session['current_user']=None
+
     return {'msg': 'logout ok'}
 
 @bp.route('/logout', methods=['GET', 'POST'])
@@ -57,11 +61,11 @@ def logout():
         logout redefinition
     '''
     params = request.args
+    resp.delete_cookie('token')
     if 'redirect' in params:
         resp = redirect(params['redirect'], code=302)
     else:
         resp = redirect("/", code=302)
-    resp.delete_cookie('token')
     return resp
 
 

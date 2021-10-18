@@ -47,8 +47,7 @@
             @change="change($event)"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
-            @blur="onBlur($event)"
-            no-data-text
+            @update:list-index="comboboxUpdateListIndex($event)"
           >
             <span slot="label">
               {{ config.label }}
@@ -223,7 +222,9 @@ export default {
     items: null,
     info: {
       status: "loading",
-      msg: "Chargement des données"
+      msg: "Chargement des données",
+      comboBoxIndex: null,
+      comboBoxSelected: null
     },
     defaultConfig: {
       valueFieldName: "value",
@@ -247,49 +248,59 @@ export default {
     }
   },
   methods: {
-    onBlur(event) {
-        console.log(event, this.items)
+    // pour choisir une valeur avec tab
+    comboboxUpdateListIndex(event) {
+      this.comboBoxIndex=event;
+      this.comboBoxSelected=this.items[event]
     },
     change(event) {
+      this.$store.dispatch('setClearableTabIndex');
+
       // cas combobox && string && returnObject =>
       //  value = { <valueFieldName>: null, <displayFieldName>: <current_value>}
 
       if (this.config.list_type == "combobox" && this.config.returnObject) {
+
+        // pour choisir une valeur avec tab
+        if(!this.config.multiple && this.comboBoxSelected) {
+          this.baseModel[this.config.name] = this.comboBoxSelected
+        } else {
+
         let values = this.baseModel[this.config.name];
         values = this.config.multiple ? values : [values];
 
-        values = values
-          .map(value => {
-            if (typeof value === "string") {
-              const elem = this.items.find(
-                item => item[this.config.displayFieldName] == value
-              );
-              if (elem) {
-                return elem;
+          values = values
+            .map(value => {
+              if (typeof value === "string") {
+                const elem = this.items.find(
+                  item => item[this.config.displayFieldName] == value
+                );
+                if (elem) {
+                  return elem;
+                }
+                const v = {};
+                v[this.config.valueFieldName] = null;
+                v[this.config.displayFieldName] = value;
+                return v;
               }
-              const v = {};
-              v[this.config.valueFieldName] = null;
-              v[this.config.displayFieldName] = value;
-              return v;
-            }
-            return value;
-          })
-          .filter((item, pos, self) => {
-            const index = self.findIndex(
-              e =>
-                (e[this.config.valueFieldName] &&
-                  e[this.config.valueFieldName] ==
-                    item[this.config.valueFieldName]) ||
-                e[this.config.displayFieldName] ==
-                  item[this.config.displayFieldName]
-            );
-            return index == pos;
-          });
-        this.baseModel[this.config.name] = this.config.multiple
-          ? values
-          : values[0];
+              return value;
+            })
+            .filter((item, pos, self) => {
+              const index = self.findIndex(
+                e =>
+                  (e[this.config.valueFieldName] &&
+                    e[this.config.valueFieldName] ==
+                      item[this.config.valueFieldName]) ||
+                  e[this.config.displayFieldName] ==
+                    item[this.config.displayFieldName]
+              );
+              return index == pos;
+            });
+          this.baseModel[this.config.name] = this.config.multiple
+            ? values
+            : values[0];
+        }
       }
-
       this.config.change &&
         this.config.change({
           baseModel: this.baseModel,

@@ -14,7 +14,6 @@ const getDateFromMMJJ =(v, dateMin, dateMax) => {
     const dateCur = `${aa}-${mm}-${jj}`;
     const testDate = (new Date(dateCur)) != 'Invalid Date';
     condDate = condDate || testDate
-    console.log(dateCur, testDate)
     if(testDate && dateCur >= dateMin && dateCur <= dateMax) {
       return dateCur
     }
