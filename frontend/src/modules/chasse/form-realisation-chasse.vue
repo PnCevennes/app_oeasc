@@ -54,7 +54,7 @@ export default {
         }
     },
     mounted() {
-        this.initForm(1000)
+        this.initForm(2000)
     }
 }
 </script>
