@@ -37,11 +37,11 @@ export default {
         displayForm: false,
     }),
     methods: {
-        initForm(dt) {
+        initForm() {
             setTimeout(
                 () => {
                     this.displayForm = true;
-                    this.$store.dispatch("focus", {id:"form-attribution", t: dt});
+                    this.$store.dispatch("focus", "#form-attribution");
                 },
                 1000
             )
@@ -50,11 +50,11 @@ export default {
         onSuccess(event) {
             this.bracelets.push(event.attribution.numero_bracelet)
             this.displayForm = false;
-            this.initForm(500);
+            this.initForm();
         }
     },
     mounted() {
-        this.initForm(2000)
+        this.initForm()
     }
 }
 </script>
