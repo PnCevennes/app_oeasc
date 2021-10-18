@@ -232,7 +232,6 @@ export default {
 
 
         $store.dispatch('setClearableTabIndex');
-        // $store.dispatch('focus', {id: 'form-mortalite_hors_pc'});
         // sexe et age en fct  du bracelet ??
       }
     },
@@ -316,8 +315,7 @@ export default {
         if (!d.err) {
           baseModel.date_enreg = baseModel.date_enreg || d;
           baseModel.date_exacte = d;
-          $store.dispatch('focus', { id: 'form-date_enreg'})
-          // $store.dispatch('focus', { id: 'form-nomenclature_mode_chasse', })
+          $store.dispatch('focus','#form-date_enreg')
         }
       },
       required: ({ baseModel }) => !baseModel.date_exacte,
@@ -426,7 +424,7 @@ export default {
       required: true,
       change: ({baseModel, $store}) => {
         if(baseModel.nomenclature_sexe && !baseModel.nomenclature_classe_age) {
-          $store.dispatch('focus', {id: 'form-nomenclature_classe_age'});
+          $store.dispatch('focus', '#form-nomenclature_classe_age');
         }
       }
     },
@@ -450,7 +448,7 @@ export default {
       required: true,
       change: ({baseModel, $store}) => {
         if(baseModel.nomenclature_mode_chasse && !baseModel.nomenclature_sexe) {
-          $store.dispatch('focus', {id: 'form-nomenclature_sexe'});
+          $store.dispatch('focus', '#form-nomenclature_sexe');
         }
       }
     },
