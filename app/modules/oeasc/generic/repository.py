@@ -30,7 +30,7 @@ definitions = GenericRouteDefinitions()
 #     obj = definitions.get_object_type(module_name, object_type)
 #     query = DB.session.query(Model)
 
-#     # prefiltres 
+#     # prefiltres
 #     pre_filters = obj.get('pre_filters', {})
 #     for key in pre_filters:
 #         if not hasattr(Model, key):
@@ -40,7 +40,7 @@ definitions = GenericRouteDefinitions()
 #     return query.count()
 
 
-def getlist(args, key): 
+def getlist(args, key):
     '''
         patch getlist pour tenir compte des cas ?val='val1,val2'
     '''
@@ -51,7 +51,7 @@ def getlist(args, key):
         return []
 
     if ',' in val:
-        return val.split(',')       
+        return val.split(',')
 
     return args.getlist(key)
 
@@ -59,7 +59,7 @@ def getlist(args, key):
 
 def custom_getattr(Model, attr_name, query):
     '''
-        Recupere 
+        Recupere
             - l'attribut d'un modele Model.attr si attr_name = 'attr'
             - ou l'attribut d'une relation Model si attr_name = 'rel.attr'
 
@@ -67,7 +67,7 @@ def custom_getattr(Model, attr_name, query):
     '''
 
     if '.' in attr_name:
-            
+
         # cas a.b on verra ensuite
         rel = attr_name.split('.')[0]
         col = attr_name.split('.')[1]
@@ -86,12 +86,12 @@ def custom_getattr(Model, attr_name, query):
         model_attribute = getattr(alias, col)
 
         return  model_attribute, query
-        
+
     else:
 
         if not hasattr(Model, attr_name):
             return None, query
-        
+
         return  getattr(Model, attr_name), query
 
 
@@ -109,7 +109,7 @@ def get_objects_type(module_name, object_type, args={}):
     query.enable_assertions = True # prttt ???
 
 
-    # prefiltres 
+    # prefiltres
     pre_filters = obj.get('pre_filters', {})
     for key in pre_filters:
         if not hasattr(Model, key):
@@ -124,18 +124,18 @@ def get_objects_type(module_name, object_type, args={}):
     # si ?<key>__ilike=<value_filter> -> filtre ilike (ajouter sans accents ??)
     #
     # ajouter filtre par relationship (join ???)
-    # si . in key 
+    # si . in key
     # ?a.b=<value_filter>
     # a : relationship et b attribut de a
     #
     for key in args:
-        
+
         # test search- ?
 
         params_filter = key.split('__')
 
         key_filter = params_filter[0]
-        
+
         type_filter=None
         if len(params_filter) > 1:
             type_filter = params_filter[1]
@@ -150,16 +150,16 @@ def get_objects_type(module_name, object_type, args={}):
 
         # # si la cle n'est pas présente dans le modèle on passe
 
-        # pour les cas ou key_filter = relationship.attribute 
+        # pour les cas ou key_filter = relationship.attribute
         # (ou plus profond ?? r1.r2.attribute)
         model_attribute, query = custom_getattr(Model, key_filter, query)
 
         if model_attribute is None:
             continue
 
-        if type_filter == 'ilike' and value_filter and value_filter[0] != '=':  
+        if type_filter == 'ilike' and value_filter and value_filter[0] != '=':
 
-            # filre ILIKE            
+            # filre ILIKE
             value_filter_unaccent = unidecode.unidecode(value_filter)
             value_filters=value_filter.split(' ')
             filters = []
@@ -172,10 +172,10 @@ def get_objects_type(module_name, object_type, args={}):
             query = query.filter(and_(*(tuple(filters))))
 
         else:
-            
+
             value_filter_effectif = value_filter
             if value_filter and value_filter[0] == '=':
-                value_filter_effectif = value_filter[1:] 
+                value_filter_effectif = value_filter[1:]
             # filtre =
             query = query.filter(
                 cast(model_attribute, DB.String ) == value_filter_effectif
@@ -195,7 +195,7 @@ def get_objects_type(module_name, object_type, args={}):
         desc = sort_desc[index]
         if(desc == 'true'):
             model_attribute = model_attribute.desc()
-        else: 
+        else:
             model_attribute.asc()
 
         order_bys.append(model_attribute)

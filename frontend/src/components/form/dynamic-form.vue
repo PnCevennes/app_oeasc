@@ -1,5 +1,6 @@
 <template>
   <div v-show="!configForm.hidden" :ref="config.name" class="dynamic-form">
+    {{ baseModel.date_test}}
     <template v-if="configForm.displayValue && configForm.displayLabel">
       <b>{{ configForm.label }} : </b>
     </template>
@@ -58,6 +59,7 @@
         <template v-else>Indéfini</template>
       </span>
       <v-switch
+        :id="`form-${config.name}`"
         v-else
         dense
         v-model="baseModel[configForm.name]"
@@ -82,8 +84,9 @@
       }}</span>
       <v-text-field
         v-else
+        :id="`form-${configForm.name}`"
         :type="
-          !show1 && config.type === 'password'
+          !show1 && configForm.type === 'password'
             ? 'password'
             : configForm.type == 'date'
             ? configForm.type

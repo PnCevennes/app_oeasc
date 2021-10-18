@@ -48,6 +48,7 @@ def check_object_type(droit_type):
             # s'il n'y a pas de current user => droit à 0
             id_droit_max_user = current_user['id_droit_max'] if current_user else 0
 
+            print(current_user, id_droit_max_user, id_droit_max_object_type)
             if id_droit_max_user < id_droit_max_object_type:
                 return (
                     "pas de droit suffisant pour {} en {} : ({} < {})".format(

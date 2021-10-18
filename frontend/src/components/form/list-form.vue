@@ -27,6 +27,7 @@
         <div v-else-if="config.list_type === 'combobox'">
           <v-combobox
             ref="autocomplete"
+            :id="`form-${config.name}`"
             clearable
             v-model="baseModel[config.name]"
             :items="items"
@@ -46,6 +47,7 @@
             @change="change($event)"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
+            @blur="onBlur($event)"
             no-data-text
           >
             <span slot="label">
@@ -58,6 +60,7 @@
         <div v-else-if="config.list_type === 'autocomplete'">
           <v-autocomplete
             ref="autocomplete"
+            :id="`form-${config.name}`"
             clearable
             v-model="baseModel[config.name]"
             :items="items"
@@ -94,7 +97,10 @@
         </div>
 
         <div v-else-if="config.list_type === 'select'">
+            <!-- {{`form-${config.name}`}} -->
+
           <v-select
+            :id="`form-${config.name}`"
             clearable
             dense
             v-model="baseModel[config.name]"
@@ -114,6 +120,11 @@
               <i v-if="config.multiple">(plusieurs réponses possibles)</i>
               <span v-if="config.required" class="required">*</span>
             </span>
+            <help
+              slot="prepend"
+              :code="`form-${config.name}`"
+              v-if="config.help"
+            ></help>
           </v-select>
         </div>
 
@@ -236,6 +247,9 @@ export default {
     }
   },
   methods: {
+    onBlur(event) {
+        console.log(event, this.items)
+    },
     change(event) {
       // cas combobox && string && returnObject =>
       //  value = { <valueFieldName>: null, <displayFieldName>: <current_value>}

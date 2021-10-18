@@ -53,7 +53,6 @@ export default {
                   }
                 ]
               }
-
             ]
           },
           {
@@ -61,7 +60,7 @@ export default {
             groups: [
               {
                 forms: ["lieu_tir_synonyme"]
-              },
+              }
             ]
           }
         ]
@@ -78,7 +77,12 @@ export default {
           },
           {
             title: "Dates",
-            forms: ["date_exacte", "date_enreg"]
+            forms: [
+              "date_exacte_fast",
+              "date_exacte",
+              "date_enreg_fast",
+              "date_enreg"
+            ]
           },
           {
             title: "Compléments",
@@ -192,8 +196,8 @@ export default {
       displayFieldName: "numero_bracelet",
       params: ({ baseModel }) => {
         const params = {
-          id_saison: baseModel.saison && baseModel.saison.id_saison,
-        }
+          id_saison: baseModel.saison && baseModel.saison.id_saison
+        };
         // si on crée une nouvelle réalisation :
         //   - on choisit parmi des attributions sans réalisation
         if (!baseModel.id_realisation) {
@@ -203,8 +207,7 @@ export default {
         return params;
       },
       required: true,
-      change: ({ baseModel }) => {
-        console.log('change')
+      change: ({ baseModel, $store }) => {
         if (!baseModel.attribution) {
           return;
         }
@@ -227,6 +230,9 @@ export default {
           baseModel.zone_indicative_realisee ||
           baseModel.attribution.zone_indicative_affectee;
 
+
+          $store.dispatch('setClearableTabIndex');
+          $store.dispatch('focus', {id: 'form-mortalite_hors_pc'});
         // sexe et age en fct  du bracelet ??
       }
     },
@@ -252,7 +258,7 @@ export default {
       type: "list_form",
       list_type: "select",
       returnObject: true,
-      disabled: true,
+      disabled: true
     },
     zone_cynegetique_realisee: {
       label: "Zone cynégétique réalisée",
@@ -282,7 +288,7 @@ export default {
       //   "id_zone_cynegetique": baseModel.id_zone_cynegetique_affectee
       // }),
       dataReloadOnSearch: true,
-      required: true,
+      required: true
     },
     lieu_tir_synonyme: {
       label: "Lieu de tir (Syn)",
@@ -297,23 +303,107 @@ export default {
       dataReloadOnSearch: true,
       required: true
     },
+
+    date_exacte_fast: {
+      label: "Date du tir",
+      type: "text",
+      change: ({ baseModel, $store }) => {
+        const d = formFunctions.getDateFromMMJJ(
+          baseModel.date_exacte_fast,
+          baseModel.saison.date_debut,
+          baseModel.saison.date_fin
+        );
+        if (!d.err) {
+          baseModel.date_enreg = baseModel.date_enreg || d;
+          baseModel.date_exacte = d;
+          $store.dispatch('focus', { id: 'form-nomenclature_mode_chasse'})
+        }
+      },
+      condition: ({ baseModel }) => !baseModel.date_exacte,
+      rules: ({ baseModel }) =>
+        baseModel.saison && [
+          v =>
+            (v && v.length == 4) ||
+            'la date doit être au format "JJMM" (4 caractères)',
+          v => {
+            const d = formFunctions.getDateFromMMJJ(
+              v,
+              baseModel.saison.date_debut,
+              baseModel.saison.date_fin
+            );
+            if (d.err) {
+              return d.err;
+            }
+            return true;
+          }
+        ]
+    },
+
+    date_enreg_fast: {
+      label: "Date du constat",
+      type: "text",
+      change: ({ baseModel }) => {
+        const d = formFunctions.getDateFromMMJJ(
+          baseModel.date_enreg_fast,
+          baseModel.saison.date_debut,
+          baseModel.saison.date_fin
+        );
+        if (!d.err) {
+          baseModel.date_enreg = d;
+        }
+      },
+      condition: ({ baseModel }) => !baseModel.date_enreg,
+      rules: ({ baseModel }) =>
+        baseModel.saison && [
+          v =>
+            (v && v.length == 4) ||
+            'la date doit être au format "JJMM" (4 caractères)',
+          v => {
+            const dateMin = `${baseModel.saison.date_debut.substring(
+              0,
+              4
+            )}-01-01`;
+            const dateMax = `${baseModel.saison.date_fin.substring(
+              0,
+              4
+            )}-12-31`;
+            const d = formFunctions.getDateFromMMJJ(v, dateMin, dateMax);
+            if (d.err) {
+              return d.err;
+            }
+            return true;
+          }
+        ]
+    },
+
     date_exacte: {
-      label: "Date exacte",
+      label: "Date du tir",
       type: "date",
       required: true,
+      condition: ({ baseModel }) => !!baseModel.date_exacte,
 
       // la date exacte doit être comprise entre la date de debut de saison et la date de fin de saison
-      rules: ({baseModel}) => baseModel.saison
-        ? [
-          formFunctions.rules.dateMin(baseModel.saison.date_debut),
-          formFunctions.rules.dateMax(baseModel.saison.date_fin)
-        ]
-        : null
+      rules: ({ baseModel }) =>
+        baseModel.saison
+          ? [
+              formFunctions.rules.dateMin(baseModel.saison.date_debut),
+              formFunctions.rules.dateMax(baseModel.saison.date_fin)
+            ]
+          : null,
+
+      change: ({ baseModel }) => {
+        // par défaut la date d'enregistrement (ou date de constat), est égale à la date de tir
+        // cf. max (c'est le cas très souvent)
+        if (baseModel.date_exacte && !baseModel.date_enreg) {
+          baseModel.date_enreg = baseModel.date_exacte;
+        }
+      }
     },
     date_enreg: {
-      label: "Date enregistrement",
+      label: "Date du constat",
       type: "date",
       required: true,
+      condition: ({ baseModel }) => !!baseModel.date_enreg
     },
     mortalite_hors_pc: {
       label: "Hors PNC",
@@ -332,6 +422,11 @@ export default {
       codes: ["3", "2", "1"],
       nomenclatureType: "SEXE",
       required: true,
+      change: ({baseModel, $store}) => {
+        if(baseModel.nomenclature_sexe && !baseModel.nomenclature_classe_age) {
+          $store.dispatch('focus', {id: 'form-nomenclature_classe_age'});
+        }
+      }
     },
     nomenclature_classe_age: {
       label: "Classe d'age",
@@ -342,6 +437,11 @@ export default {
       codes: ["1", "2", "3", "5"],
       nomenclatureType: "STADE_VIE",
       required: true,
+      change: ({baseModel, $store}) => {
+        if(baseModel.nomenclature_classe_age && !baseModel.poid_entier) {
+          $store.dispatch('focus', {id: 'form-poid_entier'});
+        }
+      }
     },
     nomenclature_mode_chasse: {
       label: "Mode de chasse",
@@ -351,6 +451,11 @@ export default {
       storeName: "commonsNomenclature",
       nomenclatureType: "OEASC_MOD_CHASSE",
       required: true,
+      change: ({baseModel, $store}) => {
+        if(baseModel.nomenclature_mode_chasse && !baseModel.nomenclature_sexe) {
+          $store.dispatch('focus', {id: 'form-nomenclature_sexe'});
+        }
+      }
     },
     poid_entier: {
       label: "Poid entier (kg)",

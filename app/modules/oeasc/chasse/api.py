@@ -49,7 +49,7 @@ definitions = {
     'lieu_tir_synonyme': {
         'model': TLieuTirSynonymes,
         'droits': droits
-    },  
+    },
     'saison': {
         'model': TSaisons,
         'droits': droits
