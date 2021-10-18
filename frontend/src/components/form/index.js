@@ -2,14 +2,13 @@ const STORE = {
     actions: {
         focus: ({state}, d) => {
             state
-            console.log(d.id)
             setTimeout(() => {
                 const elem = document.getElementById(d.id);
                 if(!elem) {
                     return
                 }
-                console.log(elem)
-                elem.focus()
+                elem.focus();
+
             }, d.t || 100)
         },
         setClearableTabIndex: ({state}) => {
