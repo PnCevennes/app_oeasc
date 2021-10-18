@@ -14,6 +14,7 @@ import configStoreRealisation from "./config/store-realisation";
 import genericForm from "@/components/form/generic-form";
 import graphChasse from "./graph-chasse";
 import graphCustom from "./graph-custom";
+import formRealisationChasse from "./form-realisation-chasse";
 import { apiRequest } from "@/core/js/data/api.js";
 
 const ROUTE = [
@@ -86,6 +87,13 @@ const ROUTE = [
         ]
       }
     }
+  },
+  {
+    name: "chasse.saisie",
+    path: "/chasse/saisie",
+    label: "Saisie données chasse",
+    hideTitle: true,
+    component: formRealisationChasse,
   }
 ];
 

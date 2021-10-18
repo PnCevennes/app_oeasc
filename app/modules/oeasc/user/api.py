@@ -2,9 +2,9 @@
     api user
 '''
 from flask import (
-    Blueprint, request, redirect, current_app
+    Blueprint, request, redirect, current_app, session
 )
-from utils_flask_sqla.response import json_resp
+from utils_flask_sqla.response import json_resp, json_resp_accept
 
 from .repository import (
     get_user_form_email,
@@ -20,17 +20,26 @@ config = current_app.config
 bp = Blueprint('user_api', __name__)
 
 
+@bp.route('test', methods=['GET'])
+@json_resp
+def api_test():
+    '''
+        route pour tester la connexion à l'application
+    '''
+    return session.get('current_user')
+
+
 @bp.route('login_error', methods=['GET'])
 @json_resp
 def login_error():
-    
+
     return 'login error', 403
 
 
 @bp.route('organismes', methods=['GET'])
 @json_resp
 def api_organimes():
-    
+
     return get_liste_organismes_oeasc()
 
 

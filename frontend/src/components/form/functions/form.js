@@ -1,5 +1,32 @@
 import { copy } from "@/core/js/util/util.js";
 
+const getDateFromMMJJ =(v, dateMin, dateMax) => {
+  if (!v || (v && v.length != 4)) {
+    return { err: `${v} doit être au format "JJMM" (4 caractères)`}
+  }
+
+  const jj = v.substring(0,2)
+  const mm = v.substring(2,4)
+
+  // if (new Date(`${2000}-${jj}-${mm}`))
+  let condDate = false
+  for (const aa of [dateMin, dateMax].map(d => d.split('-')[0])) {
+    const dateCur = `${aa}-${mm}-${jj}`;
+    const testDate = (new Date(dateCur)) != 'Invalid Date';
+    condDate = condDate || testDate
+    console.log(dateCur, testDate)
+    if(testDate && dateCur >= dateMin && dateCur <= dateMax) {
+      return dateCur
+    }
+  }
+
+  if (condDate) {
+    return {err: `La date ne convient pas à l'intervalle [ ${dateMin}, ${dateMax}]`}
+  } else {
+    return {err: `La valeur de JJMM : ${v} n'est pas valide`}
+  }
+}
+
 const processEssenceSort = a => {
   const b = a.label_fr.toLowerCase();
   b.replace("é", "e");
@@ -204,6 +231,7 @@ const formFunctions = {
   getEssencesSelected,
   processAreas,
   isValidForm,
+  getDateFromMMJJ
   // processFormGroupConfig
 };
 

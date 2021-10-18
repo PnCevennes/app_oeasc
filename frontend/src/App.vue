@@ -61,12 +61,30 @@ export default {
   },
   watch: {
     $route() {
-      this.checkRigths();
-      // titre
-      this.setTitle();
-    },
+      this.process()
+    }
   },
   methods: {
+    process() {
+      this.$store.dispatch('testConnexion', {}).then(
+        (user) => {
+          this.$store.commit("user", user);
+          this.$session.set("user", user);
+          this.checkRigths();
+          // titre
+          this.setTitle();
+        },
+        error=> {
+          error;
+          this.$store.commit("user", {});
+          this.$session.set("user", {});
+          this.checkRigths();
+          // titre
+          this.setTitle();
+
+        }
+      )
+    },
     setTitle() {
       const title = this.$route.meta.title || this.$route.meta.label;
       document.title = title ? `OEASC - ${title}` : "OEASC";
@@ -84,14 +102,12 @@ export default {
           query: { redirect: this.$route.fullPath },
         });
       }
-    },
+    }
   },
   created: function () {
-    this.$store.commit("user", this.$session.get("user"));
-    this.checkRigths();
-    this.setTitle();
-  },
-};
+    this.process()
+  }
+}
 </script>
 
 <style lang="scss" scoped>

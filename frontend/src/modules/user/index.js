@@ -135,9 +135,9 @@ const STORE = {
         return false;
       }
       // check date
-      const date = new Date(state._user.expires);
-      const now = new Date();
-      return !!(state._user && state._user.id_role && date >= now);
+      // const date = new Date(state._user.expires);
+      // const now = new Date();
+      return !!(state._user && state._user.id_role);
     },
     /**
      * Nom complet
@@ -155,9 +155,24 @@ const STORE = {
     }
   },
   actions: {
+
+    testConnexion({state, commit}) {
+      state, commit;
+      return new Promise((resolve, reject) => {
+        apiRequest('GET', "api/user/test").then(
+          res => {
+            resolve(res)
+          },
+          error => {
+            reject(error)
+          }
+        );
+      });
+    },
+
     organismes({ commit, state }) {
       return new Promise((resolve, reject) => {
-        const organismes = STORE.getters.organismes(state); 
+        const organismes = STORE.getters.organismes(state);
         if (organismes && organismes.length) {
           resolve(organismes);
         }
@@ -172,6 +187,7 @@ const STORE = {
         );
       });
     },
+
     userInfo({ commit }, id_role) {
       return new Promise((resolve, reject) => {
         commit;

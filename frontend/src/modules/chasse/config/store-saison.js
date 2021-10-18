@@ -2,6 +2,7 @@ export default {
   group: "chasse",
   name: "saison",
   label: "Saison",
+  genre : "M",
   serverSide: true,
   options: {
     sortBy: ['nom_saison'],
