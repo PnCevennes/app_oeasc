@@ -78,6 +78,7 @@ export default {
           error;
           this.$store.commit("user", {});
           this.$session.set("user", {});
+
           this.checkRigths();
           // titre
           this.setTitle();
@@ -92,11 +93,12 @@ export default {
     checkRigths() {
       const access = this.$route.meta.access;
       const droitMax = this.$store.getters.droitMax;
-      if (!access) {
-        return;
-      }
-      // redirect to login
-      if (access > droitMax) {
+
+    if (!access) {
+      return;
+    }
+
+    if ( access > droitMax) {
         this.$router.push({
           name: "user.login",
           query: { redirect: this.$route.fullPath },

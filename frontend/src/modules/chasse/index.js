@@ -86,7 +86,8 @@ const ROUTE = [
           "id_zone_indicative_realisee"
         ]
       }
-    }
+    },
+    access: 4
   },
   {
     name: "chasse.saisie",
@@ -94,6 +95,7 @@ const ROUTE = [
     label: "Saisie données chasse",
     hideTitle: true,
     component: formRealisationChasse,
+    access: 4
   }
 ];
 

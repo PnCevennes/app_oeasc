@@ -5,7 +5,7 @@ export default {
   serverSide: true,
   displayFieldName: 'numero_bracelet',
   defs: {
-    numero_bracelet: {  
+    numero_bracelet: {
       label: 'Numéro bracelet',
       type: "text",
     },

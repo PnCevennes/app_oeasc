@@ -1,16 +1,17 @@
 <template>
-<div>
+<div class="form-realisation">
+
+    <v-progress-linear  v-if="!displayForm"  indeterminate></v-progress-linear>
+
     <div v-if="bracelets.length">
         <h4>Bracelets Effectués</h4>
         {{bracelets}}
     </div>
 
 
-    <div v-if="displayForm" 
-            class="form-realisation"
+    <div v-if="displayForm"
     >
         <generic-form
-            class="form-realisation"
             ref="form"
             :config=config
             @onSuccess="onSuccess($event)"
@@ -38,13 +39,15 @@ export default {
     methods: {
         initForm() {
             this.displayForm = true;
-            this.$store.dispatch("focus", {id:"form-attribution", t:600})
+            this.$store.dispatch("focus", {id:"form-attribution", t: 100})
         },
         onSuccess(event) {
-            console.log(event)
             this.bracelets.push(event.attribution.numero_bracelet)
             this.displayForm = false;
-            setTimeout(() => { this.initForm(), 100})
+            setTimeout(
+                () => { this.initForm() },
+                1000
+            )
         }
     },
     mounted() {

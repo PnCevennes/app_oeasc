@@ -231,8 +231,8 @@ export default {
           baseModel.attribution.zone_indicative_affectee;
 
 
-          $store.dispatch('setClearableTabIndex');
-          $store.dispatch('focus', {id: 'form-mortalite_hors_pc'});
+        $store.dispatch('setClearableTabIndex');
+        // $store.dispatch('focus', {id: 'form-mortalite_hors_pc'});
         // sexe et age en fct  du bracelet ??
       }
     },
@@ -316,7 +316,8 @@ export default {
         if (!d.err) {
           baseModel.date_enreg = baseModel.date_enreg || d;
           baseModel.date_exacte = d;
-          $store.dispatch('focus', { id: 'form-nomenclature_mode_chasse'})
+          $store.dispatch('focus', { id: 'form-date_enreg'})
+          // $store.dispatch('focus', { id: 'form-nomenclature_mode_chasse', })
         }
       },
       condition: ({ baseModel }) => !baseModel.date_exacte,
@@ -437,11 +438,6 @@ export default {
       codes: ["1", "2", "3", "5"],
       nomenclatureType: "STADE_VIE",
       required: true,
-      change: ({baseModel, $store}) => {
-        if(baseModel.nomenclature_classe_age && !baseModel.poid_entier) {
-          $store.dispatch('focus', {id: 'form-poid_entier'});
-        }
-      }
     },
     nomenclature_mode_chasse: {
       label: "Mode de chasse",
