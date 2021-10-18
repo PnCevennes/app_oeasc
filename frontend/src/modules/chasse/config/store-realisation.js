@@ -9,12 +9,12 @@ export default {
   columns: [
     "saison",
     "attribution",
+    "date_exacte",
     "auteur_tir",
     "auteur_constat",
     "zone_cynegetique_realisee",
     "zone_indicative_realisee",
     "lieu_tir_synonyme",
-    "date_exacte",
     "nomenclature_sexe",
     "nomenclature_classe_age",
     "nomenclature_mode_chasse"
@@ -150,8 +150,8 @@ export default {
   },
   options: {
     page: 1,
-    sortBy: ["saison"],
-    sortDesc: [true]
+    sortBy: ["saison", "date_exacte"],
+    sortDesc: [true, true]
   },
   defs: {
     // // table
@@ -380,7 +380,7 @@ export default {
       label: "Date du tir",
       type: "date",
       required: true,
-      condition: ({ baseModel }) => !!baseModel.date_exacte,
+      condition: ({ baseModel }) => {console.log(baseModel); return !baseModel || !!baseModel.date_exacte},
 
       // la date exacte doit être comprise entre la date de debut de saison et la date de fin de saison
       rules: ({ baseModel }) =>
