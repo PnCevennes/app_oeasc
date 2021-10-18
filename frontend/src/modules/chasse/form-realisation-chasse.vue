@@ -5,7 +5,7 @@
 
     <div v-if="bracelets.length">
         <h4>Bracelets Effectués</h4>
-        {{bracelets}}
+        {{(bracelets || []).join(', ')}}
     </div>
 
 
