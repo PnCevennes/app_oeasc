@@ -320,6 +320,7 @@ export default {
           // $store.dispatch('focus', { id: 'form-nomenclature_mode_chasse', })
         }
       },
+      required: ({ baseModel }) => !baseModel.date_exacte,
       condition: ({ baseModel }) => !baseModel.date_exacte,
       rules: ({ baseModel }) =>
         baseModel.saison && [
