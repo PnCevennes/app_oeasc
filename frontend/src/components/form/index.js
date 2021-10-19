@@ -3,7 +3,6 @@ function waitForElm(selector) {
         if (document.querySelector(selector)) {
             return resolve(document.querySelector(selector));
         }
-
         const observer = new MutationObserver(mutations => {
             mutations
             if (document.querySelector(selector)) {
@@ -23,7 +22,7 @@ const STORE = {
     actions: {
         focus: ({state}, id) => {
             state;
-            waitForElm(id).then(elem => setTimeout(() => {console.log('elem', elem); elem.focus()}, 500));
+            waitForElm(id).then(elem => setTimeout(() => { elem.focus() }, 100));
         },
         setClearableTabIndex: ({state}) => {
             state;
