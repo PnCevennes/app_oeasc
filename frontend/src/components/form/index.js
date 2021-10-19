@@ -23,7 +23,7 @@ const STORE = {
     actions: {
         focus: ({state}, id) => {
             state;
-            waitForElm(id).then(elem => setTimeout(() => elem.focus(), 250));
+            waitForElm(id).then(elem => setTimeout(() => {console.log('elem', elem); elem.focus()}, 500));
         },
         setClearableTabIndex: ({state}) => {
             state;
