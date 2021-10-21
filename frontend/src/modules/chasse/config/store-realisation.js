@@ -303,6 +303,7 @@ export default {
       required: true
     },
 
+
     date_exacte_fast: {
       label: "Date du tir",
       type: "text",
@@ -380,7 +381,7 @@ export default {
       label: "Date du tir",
       type: "date",
       required: true,
-      condition: ({ baseModel }) => {console.log(baseModel); return !baseModel || !!baseModel.date_exacte},
+      condition: ({ baseModel }) => {return !baseModel || !!baseModel.date_exacte},
 
       // la date exacte doit être comprise entre la date de debut de saison et la date de fin de saison
       rules: ({ baseModel }) =>
@@ -391,13 +392,13 @@ export default {
             ]
           : null,
 
-      change: ({ baseModel }) => {
-        // par défaut la date d'enregistrement (ou date de constat), est égale à la date de tir
-        // cf. max (c'est le cas très souvent)
-        if (baseModel.date_exacte && !baseModel.date_enreg) {
-          baseModel.date_enreg = baseModel.date_exacte;
-        }
-      }
+      // change: ({ baseModel }) => {
+      //   // par défaut la date d'enregistrement (ou date de constat), est égale à la date de tir
+      //   // cf. max (c'est le cas très souvent)
+      //   if (baseModel.date_exacte && !baseModel.date_enreg) {
+      //     baseModel.date_enreg = baseModel.date_exacte;
+      //   }
+      // }
     },
     date_enreg: {
       label: "Date du constat",
@@ -421,12 +422,12 @@ export default {
       storeName: "commonsNomenclature",
       codes: ["3", "2", "1"],
       nomenclatureType: "SEXE",
-      required: true,
-      change: ({baseModel, $store}) => {
-        if(baseModel.nomenclature_sexe && !baseModel.nomenclature_classe_age) {
-          $store.dispatch('focus', '#form-nomenclature_classe_age');
-        }
-      }
+      // required: true,
+      // change: ({baseModel, $store}) => {
+      //   if(baseModel.nomenclature_sexe && !baseModel.nomenclature_classe_age) {
+      //     $store.dispatch('focus', '#form-nomenclature_classe_age');
+      //   }
+      // }
     },
     nomenclature_classe_age: {
       label: "Classe d'age",
@@ -446,11 +447,11 @@ export default {
       storeName: "commonsNomenclature",
       nomenclatureType: "OEASC_MOD_CHASSE",
       required: true,
-      change: ({baseModel, $store}) => {
-        if(baseModel.nomenclature_mode_chasse && !baseModel.nomenclature_sexe) {
-          $store.dispatch('focus', '#form-nomenclature_sexe');
-        }
-      }
+      // change: ({baseModel, $store}) => {
+      //   if(baseModel.nomenclature_mode_chasse && !baseModel.nomenclature_sexe) {
+      //     $store.dispatch('focus', '#form-nomenclature_sexe');
+      //   }
+      // }
     },
     poid_entier: {
       label: "Poid entier (kg)",

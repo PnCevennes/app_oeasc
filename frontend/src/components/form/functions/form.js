@@ -20,7 +20,7 @@ const getDateFromMMJJ =(v, dateMin, dateMax) => {
   }
 
   if (condDate) {
-    return {err: `La date ne convient pas à l'intervalle [ ${dateMin}, ${dateMax}]`}
+    return {err: `La date ne convient pas à l'intervalle ${dateMin.split('-').reverse().join('/')} - ${dateMax.split('-').reverse().join('/')}`}
   } else {
     return {err: `La valeur de JJMM : ${v} n'est pas valide`}
   }
