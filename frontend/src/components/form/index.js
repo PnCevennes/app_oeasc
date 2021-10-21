@@ -22,18 +22,28 @@ const STORE = {
     actions: {
         focus: ({state}, id) => {
             state;
-            waitForElm(id).then(elem => setTimeout(() => { elem.focus() }, 100));
+            waitForElm(id).then(elem => setTimeout(() => {
+                elem.focus();
+            }, 100));
         },
-        setClearableTabIndex: ({state}) => {
+        setClearableTabIndex: ({state}, selector) => {
             state;
             setTimeout(() => {
-                document.getElementsByClassName('v-input__icon--clear')
-                    .forEach(elem =>
+                const elem = selector
+                    ? document.querySelector(selector)
+                    : document
+                if (!elem) {
+                    console.error(`Selector ${selector} no match`)
+                    return;
+                }
+                // mdi-close
+                elem.querySelectorAll('.v-input__icon--clear, .mdi-close')
+                    .forEach(elem =>  {
                         elem.getElementsByTagName('button').
                             forEach(b => {
                                 b.tabIndex = -1;
                             })
-                    )
+                        }   )
             }, 600);
         }
     }

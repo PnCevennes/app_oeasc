@@ -242,12 +242,15 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
     '''
         toujours par id_value
     '''
-    (Model, _) = definitions.get_model(module_name, object_type)
+    (Model, id_field_name) = definitions.get_model(module_name, object_type)
 
     res = (
         get_object_type(module_name, object_type, id_value) if id_value
         else Model()
     )
+
+    if id_field_name in post_data and post_data[id_field_name] is None:
+        del post_data[id_field_name]
 
     res.from_dict(post_data, True)
 

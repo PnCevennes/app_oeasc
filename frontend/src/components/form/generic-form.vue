@@ -217,7 +217,7 @@ export default {
     },
 
     initBaseModel() {
-      
+
       const baseModel = this.config.value || {};
       const value = this.config.value || {};
 
@@ -292,7 +292,6 @@ export default {
         promise.then(
           data => {
             this.bSending = false;
-
             this.$emit("onSuccess", data);
 
             if (!this.config.bChained) {
@@ -336,7 +335,15 @@ export default {
         );
       }, 100);
     },
-
+    updateBaseModel(baseModel) {
+        setTimeout(() => {
+          this.$nextTick(() => {
+            for (const [key, value] of Object.entries(baseModel || {})) {
+              this.baseModel[key] = value;
+            }
+          });
+        }, 100)
+    },
     request() {
       return apiRequest(this.method, this.url, {
         postData: this.postData()

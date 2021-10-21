@@ -240,7 +240,10 @@ export default {
       }
     },
     baseModel: {
-      handler() {},
+      handler() {
+
+        this.setInitSearch();
+      },
       deep: true
     },
     config() {
@@ -254,7 +257,7 @@ export default {
       this.comboBoxSelected=this.items[event]
     },
     change(event) {
-      this.$store.dispatch('setClearableTabIndex');
+      this.$store.dispatch('setClearableTabIndex', `#form-${this.config.name}`);
 
       // cas combobox && string && returnObject =>
       //  value = { <valueFieldName>: null, <displayFieldName>: <current_value>}
@@ -339,6 +342,8 @@ export default {
       const value =
         this.baseModel[this.config.name] &&
         this.baseModel[this.config.name][this.config.displayFieldName];
+
+
       if (
         ["autocomplete", "combobox"].includes(this.config.list_type) &&
         this.config.returnObject &&

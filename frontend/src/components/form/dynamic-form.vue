@@ -106,9 +106,7 @@
         :counter="configForm.counter"
         :maxlength="configForm.maxlength"
         :disabled="configForm.disabled"
-        @change="
-          configForm.change && configForm.change({ baseModel, config, $store })
-        "
+        @change="inputChange($event)"
       >
         <span slot="label">
           {{ configForm.label }}
@@ -306,6 +304,15 @@ export default {
   },
 
   methods: {
+    inputChange(event) {
+      event;
+      // si on a '' pour number => erreur insert sql
+      if(this.configForm.type == 'number' && this.baseModel[this.config.name] == '') {
+        this.baseModel[this.config.name]=null
+      }
+      return this.configForm.change && this.configForm.change({ baseModel: this.baseModel, config : this.config, $store: this.$store })
+    },
+
     getConfigForm: function() {
       const configResolved = { condition: true, valid: true };
 
