@@ -144,7 +144,7 @@ export default {
         condition: ({ baseModel }) =>
           baseModel.attribution && baseModel.attribution.id_attribution,
         title: "Commentaires",
-        forms: ["commentaires"]
+        forms: ["commentaire"]
       }
     ]
   },
@@ -230,9 +230,7 @@ export default {
           baseModel.zone_indicative_realisee ||
           baseModel.attribution.zone_indicative_affectee;
 
-
         $store.dispatch('setClearableTabIndex');
-        // sexe et age en fct  du bracelet ??
       }
     },
     auteur_tir: {
@@ -504,7 +502,7 @@ export default {
         baseModel.nomenclature_sexe &&
         baseModel.nomenclature_sexe.label_fr != "Femelle"
     },
-    commentaires: {
+    commentaire: {
       label: "Commentaires (général)",
       type: "text_area"
     }

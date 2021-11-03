@@ -4,7 +4,7 @@
     <v-progress-linear  v-if="!displayForm"  indeterminate></v-progress-linear>
 {{$refs.form && $refs.form.baseModel.attribution && $refs.form.baseModel.attribution.numero_bracelet}}
     <div v-if="realisations.length">
-        <h4>realisations Effectués</h4>
+        <h4>Réalisations effectuées</h4>
 
         <v-chip
             v-for="realisation of realisations"
