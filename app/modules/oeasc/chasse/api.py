@@ -2,11 +2,12 @@
 api chasse
 '''
 
+from typing import KeysView
 from .models import (
     TPersonnes, TZoneCynegetiques, TZoneIndicatives,
     TLieuTirs, TLieuTirSynonymes, TSaisons, TSaisonDates,
     TAttributionMassifs, TTypeBracelets, TAttributions, TRealisationsChasse,
-    VChasseBilan, 
+    VChassePreBilan,
 )
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
@@ -79,34 +80,88 @@ definitions = {
 grd.add_generic_routes('chasse', definitions)
 
 
-@bp.route('results/bilan/<id_espece>/<id_zone_cynegetique>', methods=['GET'])
+@bp.route('results/bilan', methods=['GET'])
 @json_resp
-def chasse_bilan(id_espece, id_zone_cynegetique):
+def chasse_bilan():
     '''
         route pour le bilan chasse
     '''
 
-    res = (
-        DB.session.query(VChasseBilan)
-        .filter(VChasseBilan.id_espece==id_espece)
-        .filter(VChasseBilan.id_zone_cynegetique==id_zone_cynegetique)
-        .all()
-    )
+    id_espece = request.args.get('id_espece')
+    id_zone_indicative = request.args.get('id_zone_indicative')
+    id_zone_cynegetique = request.args.get('id_zone_cynegetique')
 
-    out = {}
-    for key in [
+    sum_keys = [
         'nb_affecte_min',
         'nb_affecte_max',
         'nb_realise',
         'nb_realise_avant_11',
-    ]:
-        out[key] = [ [r.nom_saison, getattr(r, key)] for r in res]
+    ]
 
-    for key in [
+    group_by_keys = [
+        'nom_saison',
         'nom_espece',
-        'nom_zone_cynegetique'
-    ]:
-        out[key] = getattr(res[0], key)
+    ]
+
+    if id_zone_indicative:
+        group_by_keys.append('nom_zone_indicative')
+    elif id_zone_cynegetique:
+        group_by_keys.append('nom_zone_cynegetique')
+
+    query_keys = sum_keys + group_by_keys
+
+
+    res = (
+        DB.session.query(
+            * (map(lambda k: func.sum(getattr(VChassePreBilan, k)), sum_keys)),
+            * (map(lambda k: getattr(VChassePreBilan, k), group_by_keys))
+        )
+    )
+    res = res.filter(VChassePreBilan.id_espece==id_espece)
+
+    if id_zone_indicative:
+        res = res.filter(VChassePreBilan.id_zone_indicative==id_zone_indicative)
+    elif id_zone_cynegetique:
+        res = res.filter(VChassePreBilan.id_zone_cynegetique==id_zone_cynegetique)
+
+
+
+    res = res.order_by(VChassePreBilan.nom_saison)
+    res = res.group_by(
+        * (map(lambda k: getattr(VChassePreBilan, k), group_by_keys))
+
+    )
+
+    res = res.all()
+
+    if not res:
+        return None
+
+    out = {}
+    for index, key in enumerate([
+        'nb_affecte_min',
+        'nb_affecte_max',
+        'nb_realise',
+        'nb_realise_avant_11',
+    ]):
+        out[key] = [
+            [
+                r[query_keys.index('nom_saison')],
+                (
+                    int(r[query_keys.index(key)]) if r[query_keys.index(key)] is not None
+                    else 0
+                )
+            ]
+            for r in res
+        ]
+
+    for key in group_by_keys:
+        try:
+            out[key] = res[0][query_keys.index(key)] if query_keys.index(key)  else None
+        except ValueError:
+            pass
+
+    print(out)
 
     return out
 

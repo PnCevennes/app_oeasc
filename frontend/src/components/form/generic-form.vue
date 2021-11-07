@@ -9,7 +9,6 @@
       <slot name="success"></slot>
     </div>
     <div v-else-if="baseModel">
-
       <slot name="prependForm"></slot>
       <v-form v-model="bValidForm" ref="form" v-if="bInit">
         <div>
@@ -22,7 +21,7 @@
             <i>champs obligatoires.</i>
           </div>
         </div>
-        
+
         <template v-if="!displayValue">
           <v-btn
             v-if="config.action"
@@ -343,6 +342,9 @@ export default {
             }
           });
         }, 100)
+    },
+    getBaseModel() {
+      return this.baseModel;
     },
     request() {
       return apiRequest(this.method, this.url, {

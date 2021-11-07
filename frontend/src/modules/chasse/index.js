@@ -101,11 +101,17 @@ const ROUTE = [
 
 const STORE = {
   actions: {
-    chasseBilan: ({ getter }, { id_espece, id_zone_cynegetique }) => {
+    chasseBilan: ({ getter }, { id_espece, id_zone_cynegetique, id_zone_indicative }) => {
       getter;
+      console.log('chasseBilan', id_espece, id_zone_cynegetique, id_zone_indicative)
       return apiRequest(
         "GET",
-        `api/chasse/results/bilan/${id_espece}/${id_zone_cynegetique}`
+        `api/chasse/results/bilan`,
+        { params: {
+          id_espece,
+          id_zone_cynegetique,
+          id_zone_indicative
+        }}
       );
     },
     chasseIce: ({ getter }, { id_espece, id_zone_cynegetique }) => {

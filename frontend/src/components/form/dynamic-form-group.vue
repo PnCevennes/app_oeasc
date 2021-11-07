@@ -1,5 +1,6 @@
 <template>
   <div v-if="displayGroup">
+
     <div>
       <!-- titre -->
       <h2 v-if="depth == 0">

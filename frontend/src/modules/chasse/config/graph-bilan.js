@@ -1,7 +1,12 @@
 export default ( data ) => {
+  let names = data.nom_espece
+  for (const key of ['nom_zone_indicative', 'nom_zone_cynegetique'].filter(k => !!data[k])) {
+    names += `, ${data[key]}`
+    break;
+  }
   const chartOptions = {
       title: {
-        text: `Évolution des plans de chasse : ${data.nom_espece}, ${data.nom_zone_cynegetique}.`
+        text: `Évolution des plans de chasse : ${names}.`
       },
       xAxis: {
         title: {

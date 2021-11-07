@@ -326,8 +326,36 @@ class VChasseBilan(DB.Model):
 
     id_espece = DB.Column(DB.Integer(), primary_key=True)
     id_zone_cynegetique = DB.Column(DB.Integer(), primary_key=True)
+    id_zone_indicative = DB.Column(DB.Integer(), primary_key=True)
     id_saison = DB.Column(DB.Integer(), primary_key=True)
     nom_saison = DB.Column(DB.Unicode())
+    nom_zone_indicative = DB.Column(DB.Unicode())
+    nom_zone_cynegetique = DB.Column(DB.Unicode())
+    nom_espece = DB.Column(DB.Unicode())
+    nb_affecte_max = DB.Column(DB.Integer())
+    nb_affecte_min = DB.Column(DB.Integer())
+    nb_realise = DB.Column(DB.Integer())
+    nb_realise_avant_11 = DB.Column(DB.Integer())
+
+
+@serializable
+class VChassePreBilan(DB.Model):
+    '''
+        Realisations
+    '''
+
+    __tablename__ = 'v_pre_bilan_pretty'
+    __table_args__ = {
+        'schema': 'oeasc_chasse',
+        'extend_existing': True,
+    }
+
+    id_espece = DB.Column(DB.Integer(), primary_key=True)
+    id_zone_cynegetique = DB.Column(DB.Integer(), primary_key=True)
+    id_zone_indicative = DB.Column(DB.Integer(), primary_key=True)
+    id_saison = DB.Column(DB.Integer(), primary_key=True)
+    nom_saison = DB.Column(DB.Unicode())
+    nom_zone_indicative = DB.Column(DB.Unicode())
     nom_zone_cynegetique = DB.Column(DB.Unicode())
     nom_espece = DB.Column(DB.Unicode())
     nb_affecte_max = DB.Column(DB.Integer())
