@@ -7,6 +7,9 @@
 
     <div v-else>
       <div class="list-form">
+        <!-- <pre>
+          {{config}}
+        </pre> -->
         <div v-if="config.list_type === 'button'">
           <div class="select-list-label">{{ config.label }}</div>
           <v-btn-toggle
@@ -97,7 +100,6 @@
 
         <div v-else-if="config.list_type === 'select'">
             <!-- {{`form-${config.name}`}} -->
-
           <v-select
             :id="`form-${config.name}`"
             clearable

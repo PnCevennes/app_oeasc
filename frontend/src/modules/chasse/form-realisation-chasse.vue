@@ -63,7 +63,9 @@ export default {
 
                     // attribution des valeurs
                     this.$nextTick(() => {
-                        this.$refs.form.updateBaseModel(realisation)
+                        if(this.$refs.form) {
+                            this.$refs.form.updateBaseModel(realisation)
+                        }
                     });
 
                     // focus sur les bracelets

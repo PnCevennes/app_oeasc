@@ -1,5 +1,6 @@
 <template>
-  <div :style="`height:${height || '400px'}; width: 100%`">
+<div>
+  <div v-if="chartOptions" :style="`height:${height || '400px'}; width: 100%`">
     <highcharts
       v-if="!processing"
       :style="`width:${width || '100%'}; height:${height || '400px'}`"
@@ -8,6 +9,11 @@
     ></highcharts>
     <v-progress-linear v-else active indeterminate></v-progress-linear>
   </div>
+    <v-snackbar color="error" v-model="bError" :timeout="5000">
+      {{ msgError }}
+    </v-snackbar>
+</div>
+
 </template>
 
 <script>
@@ -23,8 +29,10 @@ offlineExporting(Highcharts);
 
 export default {
   name: "graph-chasse",
-  props: ["id_espece", "id_zone_cynegetique", "type", "width", "height"],
+  props: ["id_espece", "id_zone_cynegetique", "id_zone_indicative", "type", "width", "height"],
   data: () => ({
+    msgError: null,
+    bError: null,
     chartOptions: null,
     hcInstance: Highcharts,
     processData: {
@@ -42,6 +50,7 @@ export default {
   watch: {
     $props: {
       handler() {
+        console.log('handler')
         this.process();
       },
       deep: true,
@@ -50,12 +59,19 @@ export default {
   },
   methods: {
     process() {
+      console.log('porcess')
       if (this.processing) {
-          return 
+        console.log('porcessing')
+
+          return
       }
       if (
-        !(this.id_zone_cynegetique && this.id_espece && this.type)
+        !(this.id_espece && this.type)
+        // !((this.id_zone_cynegetique ||this.id_zone_indicative) && this.id_espece && this.type)
+
       ) {
+        console.log('not porcessing', this.id_zone_cynegetique, this.id_espece)
+
         return;
       }
       if (!(this.actions[this.type] && this.processData[this.type])) {
@@ -66,15 +82,26 @@ export default {
       }
 
       this.processing = true;
+        console.log('porcessing2')
+
       this.$store
         .dispatch(this.actions[this.type], {
           id_espece: this.id_espece,
-          id_zone_cynegetique: this.id_zone_cynegetique
+          id_zone_cynegetique: this.id_zone_cynegetique,
+          id_zone_indicative: this.id_zone_indicative,
         })
         .then(data => {
           this.chartOptions = this.processData[this.type](data);
           this.processing = false;
-        });
+        },
+        error => {
+          console.log('error',error);
+          this.msgError = `pas de données pour les valeurs suivantes id_espece ${this.id_espece} id_zone_cynegetique ${this.id_zone_cynegetique} id_zone_indicative ${this.id_zone_indicative}`
+          this.bError = true;
+          this.processing = false;
+          this.chartOptions = null;
+
+        })
     }
   },
   mounted() {

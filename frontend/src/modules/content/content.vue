@@ -61,6 +61,14 @@
             >
               <v-icon>fa-file-alt</v-icon>
             </v-btn>
+            <v-btn
+              icon
+              v-if="bEditContents"
+              @click="triggerValidForm()"
+            >
+              <v-icon>fa-check</v-icon>
+            </v-btn>
+
           </div>
           <generic-form
             :ref="`content-form_${getCode()}`"
@@ -172,7 +180,8 @@ export default {
     bSnack: false,
     msgSnack: null,
     bInitialized: false,
-    contentValues: {espece:'Cerf', secteur: 'Aigoual'}
+    // contentValues: {espece:'Cerf', secteur: 'Aigoual'}
+    contentValues: {espece: {}, zi: {}, zc: {}}
   }),
   methods: {
     onMouseOver() {
@@ -211,7 +220,20 @@ export default {
         this.msgSnack = `Le code du lien à été copié dans le presse-papier`;
       });
     },
+    getFormData(ref, key) {
+      setTimeout(() => {
 
+        var out = this.$refs && this.$refs[ref] && this.$refs[ref].baseModel;
+        console.log(this.$refs, ref, out)
+        for (const k of key.split('.')) {
+          if (!out) {
+            break;
+          }
+          out = out[k]
+        }
+        return out
+      }, 1000)
+    },
     setContent(data) {
       this.content = data;
 
@@ -297,6 +319,14 @@ export default {
           btnValidFormContent.click({});
         }
       }
+    },
+    triggerValidForm() {
+        const btnValidFormContent =
+          this.$refs[`content-form_${this.getCode()}`] &&
+          this.$refs[`content-form_${this.getCode()}`].$refs[`btn-valid-form`];
+        if (btnValidFormContent) {
+          btnValidFormContent.click({});
+        }
     },
     onKeyUp(event) {
       if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
