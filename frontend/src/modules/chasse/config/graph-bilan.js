@@ -29,20 +29,26 @@ export default ( data ) => {
           text: "Réalisation"
         }
       },
+      tooltip: {
+        xDateFormat: '%d/%m/%Y',
+        shared: true,
+        split: false,
+        enabled: true
+      },
       series: [
         {
           type: "column",
           name: "Affectation min",
-          data: data.nb_attribution_min
+          data: data.nb_attribution_min,
         },
         {
           type: "column",
           name: "Affectation max",
-          data: data.nb_attribution_max
+          data: data.nb_attribution_max,
         },
         {
           name: "Réalisations avant novembre",
-          data: data.nb_realisation_avant_11
+          data: data.nb_realisation_avant_11,
         },
         {
           name: "Réalisations",
