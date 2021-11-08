@@ -16,7 +16,7 @@ export default ( data ) => {
           enabled: true,
           formatter: function() {
             return (
-              data.nb_realise[this.value][0]
+              data.nb_realisation[this.value][0]
             );
           }
         }
@@ -33,20 +33,20 @@ export default ( data ) => {
         {
           type: "column",
           name: "Affectation min",
-          data: data.nb_affecte_min
+          data: data.nb_attribution_min
         },
         {
           type: "column",
           name: "Affectation max",
-          data: data.nb_affecte_max
+          data: data.nb_attribution_max
         },
         {
           name: "Réalisations avant novembre",
-          data: data.nb_realise_avant_11
+          data: data.nb_realisation_avant_11
         },
         {
           name: "Réalisations",
-          data: data.nb_realise
+          data: data.nb_realisation
         }
       ],
       height: "600px",

@@ -59,10 +59,7 @@ export default {
   },
   methods: {
     process() {
-      console.log('porcess')
       if (this.processing) {
-        console.log('porcessing')
-
           return
       }
       if (
@@ -70,8 +67,6 @@ export default {
         // !((this.id_zone_cynegetique ||this.id_zone_indicative) && this.id_espece && this.type)
 
       ) {
-        console.log('not porcessing', this.id_zone_cynegetique, this.id_espece)
-
         return;
       }
       if (!(this.actions[this.type] && this.processData[this.type])) {
@@ -82,7 +77,6 @@ export default {
       }
 
       this.processing = true;
-        console.log('porcessing2')
 
       this.$store
         .dispatch(this.actions[this.type], {
