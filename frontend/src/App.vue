@@ -43,6 +43,7 @@ export default {
           "observatoire",
           "systeme_alerte",
           "resultats",
+          "chasse"
         ],
       },
       configDrawer: {

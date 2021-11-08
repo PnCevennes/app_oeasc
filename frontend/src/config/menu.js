@@ -66,6 +66,14 @@ export default {
     names: ["resultats.declarations", "resultats.in"]
   },
 
+  chasse: {
+    icon: "fa-cog",
+    label: 'Chasse',
+    names: ['chasse.saisie', 'chasse.admin', 'chasse.bilan'],
+    hidden: ({ $store }) => $store.getters.droitMax < 5
+
+  },
+
   documentation: {
     name: "page.documentation"
   },

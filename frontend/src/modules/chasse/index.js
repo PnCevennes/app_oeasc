@@ -96,6 +96,15 @@ const ROUTE = [
     hideTitle: true,
     component: formRealisationChasse,
     access: 4
+  },
+  {
+    name: "chasse.bilan",
+    path: "/chasse/bilan",
+    label: "Bilan données chasse",
+    hideTitle: true,
+    type: "page",
+    content: "bilanChasse",
+    access: 4
   }
 ];
 
