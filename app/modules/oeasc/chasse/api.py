@@ -7,13 +7,12 @@ from .models import (
     TPersonnes, TZoneCynegetiques, TZoneIndicatives,
     TLieuTirs, TLieuTirSynonymes, TSaisons, TSaisonDates,
     TAttributionMassifs, TTypeBracelets, TAttributions, TRealisationsChasse,
-    VChassePreBilan,
 )
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
-from utils_flask_sqla.generic import GenericQuery
+from utils_flask_sqla.generic import GenericQuery, GenericTable
 from sqlalchemy import select, func
 import json
 
@@ -87,49 +86,55 @@ def chasse_bilan():
         route pour le bilan chasse
     '''
 
+    columns = GenericTable('v_pre_bilan_pretty', 'oeasc_chasse', DB.engine).tableDef.columns
+
     id_espece = request.args.get('id_espece')
     id_zone_indicative = request.args.get('id_zone_indicative')
     id_zone_cynegetique = request.args.get('id_zone_cynegetique')
 
-    sum_keys = [
-        'nb_affecte_min',
-        'nb_affecte_max',
-        'nb_realise',
-        'nb_realise_avant_11',
+
+    suffix = (
+        '_zi' if id_zone_indicative
+        else '_zc' if id_zone_cynegetique
+        else '_espece'
+    )
+
+    res_keys = [
+        'nb_realisation{}'.format(suffix),
+        'nb_realisation_avant_11{}'.format(suffix),
+        'nb_attribution_min{}'.format(suffix),
+        'nb_attribution_max{}'.format(suffix),
     ]
 
-    group_by_keys = [
-        'nom_saison',
+    name_keys = [
         'nom_espece',
+        'nom_saison',
     ]
 
     if id_zone_indicative:
-        group_by_keys.append('nom_zone_indicative')
+        name_keys.append('nom_zone_indicative')
     elif id_zone_cynegetique:
-        group_by_keys.append('nom_zone_cynegetique')
+        name_keys.append('nom_zone_cynegetique')
 
-    query_keys = sum_keys + group_by_keys
+
+    query_keys = res_keys + name_keys
 
 
     res = (
         DB.session.query(
-            * (map(lambda k: func.sum(getattr(VChassePreBilan, k)), sum_keys)),
-            * (map(lambda k: getattr(VChassePreBilan, k), group_by_keys))
+            * (map(lambda k: columns[k], query_keys))
         )
     )
-    res = res.filter(VChassePreBilan.id_espece==id_espece)
+    res = res.filter(columns['id_espece']==id_espece)
 
     if id_zone_indicative:
-        res = res.filter(VChassePreBilan.id_zone_indicative==id_zone_indicative)
+        res = res.filter(columns['id_zone_indicative']==id_zone_indicative)
     elif id_zone_cynegetique:
-        res = res.filter(VChassePreBilan.id_zone_cynegetique==id_zone_cynegetique)
+        res = res.filter(columns['id_zone_cynegetique']==id_zone_cynegetique)
 
-
-
-    res = res.order_by(VChassePreBilan.nom_saison)
+    res = res.order_by(columns['nom_saison'])
     res = res.group_by(
-        * (map(lambda k: getattr(VChassePreBilan, k), group_by_keys))
-
+        * (map(lambda k: columns[k], query_keys))
     )
 
     res = res.all()
@@ -138,13 +143,8 @@ def chasse_bilan():
         return None
 
     out = {}
-    for index, key in enumerate([
-        'nb_affecte_min',
-        'nb_affecte_max',
-        'nb_realise',
-        'nb_realise_avant_11',
-    ]):
-        out[key] = [
+    for index, key in enumerate(res_keys):
+        out[key.replace(suffix, '')] = [
             [
                 r[query_keys.index('nom_saison')],
                 (
@@ -155,13 +155,11 @@ def chasse_bilan():
             for r in res
         ]
 
-    for key in group_by_keys:
+    for key in name_keys:
         try:
             out[key] = res[0][query_keys.index(key)] if query_keys.index(key)  else None
         except ValueError:
             pass
-
-    print(out)
 
     return out
 
