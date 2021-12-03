@@ -251,7 +251,7 @@ export default {
         const content = {};
         if (this.tagNames) {
           const configStoreTag = this.$store.getters.configStore("commonsTag");
-          content.tags = this.$store.getters[configStoreTag.names].filter(t => {
+          content.tags = this.$store.getters[configStoreTag.storeNames].filter(t => {
             return this.tagNames.includes(t.nom_tag)
           }
           );
