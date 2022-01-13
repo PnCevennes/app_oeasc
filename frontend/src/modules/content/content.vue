@@ -180,8 +180,7 @@ export default {
     bSnack: false,
     msgSnack: null,
     bInitialized: false,
-    // contentValues: {espece:'Cerf', secteur: 'Aigoual'}
-    contentValues: {espece: {}, zi: {}, zc: {}}
+    contentValues: {espece: null, zi: null, zc: null}
   }),
   methods: {
     onMouseOver() {

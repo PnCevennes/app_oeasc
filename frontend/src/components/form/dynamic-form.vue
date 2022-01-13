@@ -1,6 +1,6 @@
 <template>
   <div v-show="!configForm.hidden" :ref="config.name" class="dynamic-form">
-    {{ baseModel.date_test}}
+
     <template v-if="configForm.displayValue && configForm.displayLabel">
       <b>{{ configForm.label }} : </b>
     </template>
