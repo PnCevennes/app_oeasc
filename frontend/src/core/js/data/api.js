@@ -131,4 +131,4 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
   return request;
 };
 
-export { apiRequest, STORE };
+export { apiRequest, url,  STORE };

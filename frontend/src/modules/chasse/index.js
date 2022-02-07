@@ -15,6 +15,7 @@ import genericForm from "@/components/form/generic-form";
 import graphChasse from "./graph-chasse";
 import graphCustom from "./graph-custom";
 import formRealisationChasse from "./form-realisation-chasse";
+import exportsChasse from "./exports-chasse";
 import { apiRequest } from "@/core/js/data/api.js";
 
 const ROUTE = [
@@ -105,11 +106,33 @@ const ROUTE = [
     type: "page",
     content: "bilanChasse",
     access: 4
-  }
+  },
+  {
+    name: "chasse.exports",
+    path: "/chasse/export",
+    label: "Exports données chasse",
+    hideTitle: true,
+    component: exportsChasse,
+    access: 4
+  },
+
 ];
 
 const STORE = {
   actions: {
+    // exportChasse: ( {getter}, { dataType, exportType, filters }) => {
+    //   getter;
+    //   return apiRequest(
+    //     'GET',
+    //     `api/chasse/export/${exportType}`,
+    //     {
+    //       params: {
+    //         data_type: dataType,
+    //         filters
+    //       }
+    //     }
+    //   )
+    // },
     chasseBilan: ({ getter }, { id_espece, id_zone_cynegetique, id_zone_indicative }) => {
       getter;
       console.log('chasseBilan', id_espece, id_zone_cynegetique, id_zone_indicative)

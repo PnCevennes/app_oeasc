@@ -196,5 +196,3 @@ SELECT
 	join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = vb.id_zone_cynegetique
 	join oeasc_chasse.t_zone_indicatives tzi on tzi.id_zone_indicative = vb.id_zone_indicative
 	join oeasc_commons.t_especes te on te.id_espece = vb.id_espece;
-
-SELECT DISTINCT nom_saison, nb_attribution_min_espece FROM oeasc_chasse.v_pre_bilan_pretty vbp
