@@ -1,7 +1,7 @@
 settings=$1
 
 if [ -z "$1" ];
-then 
+then
 echo 'Veuillez specifier un fichier settings.ini'
 exit 1
 fi
@@ -11,12 +11,14 @@ echo 'init_view oeasc' > $log_file
 . $settings
 
 # cat $settings
-    
+
 for file in $(echo \
     "../oeasc_schemas/oeasc_functions.sql" \
     "oeasc_commons_views.sql" \
     "oeasc_declarations_views.sql" \
     "../in/oeasc_in_views.sql" \
+    "../chasse/views_chasse.sql" \
+    "../chasse/views_export_chasse.sql" \
     )
 do
 

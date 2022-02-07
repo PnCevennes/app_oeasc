@@ -3,6 +3,7 @@ api chasse
 '''
 
 from typing import KeysView
+from unittest import result
 from .models import (
     TPersonnes, TZoneCynegetiques, TZoneIndicatives,
     TLieuTirs, TLieuTirSynonymes, TSaisons, TSaisonDates,
@@ -11,10 +12,11 @@ from .models import (
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
 from flask import Blueprint, current_app, request
-from utils_flask_sqla.response import json_resp
+from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery, GenericTable
-from sqlalchemy import select, func
+from sqlalchemy import select, func, table
 import json
+import datetime
 
 config = current_app.config
 DB = config['DB']
@@ -198,3 +200,32 @@ def api_result_custom():
     req = func.oeasc_chasse.fct_custom_results_j(json.dumps(args))
     res = DB.engine.execute(req).first()[0]
     return res
+
+
+@bp.route('export/csv/', methods=['GET'])
+@csv_resp
+def api_result_export():
+    '''
+        API CUSTOM
+    '''
+
+    # gestion paramètres
+    data_type = request.args.get('data_type')
+    filters = getlist(request.args, 'filters')
+
+    views = {
+        'realisation': 'oeasc_chasse.v_export_realisation_csv'
+    }
+
+    view = views.get(data_type)
+    schema_name = view.split('.')[0]
+    table_name = view.split('.')[1]
+
+    # view + filters
+    results = (
+        GenericQuery(DB, schemaName=schema_name, tableName=table_name, filters=filters)
+        .return_query()
+    )
+    data = results['items']
+    file_name = 'export_{}_{}'.format(data_type, datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%s"))
+    return (file_name, data, data[0].keys(), ";")
