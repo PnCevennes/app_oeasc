@@ -71,6 +71,7 @@ with app.app_context():
 
     from app.modules.oeasc.user.mail import function_dict
     app.config['after_USERSHUB_request'] = function_dict
+    # app.config['SQLALCHEMY_ECHO'] = function_dict
 
     from app.modules.oeasc.utils import utils_dict
     app.jinja_env.globals["utils"] = utils_dict

@@ -14,7 +14,7 @@ from ..generic.repository import getlist
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery, GenericTable
-from sqlalchemy import select, func, table
+from sqlalchemy import column, select, func, table, distinct
 import json
 import datetime
 
@@ -91,13 +91,12 @@ def chasse_bilan():
     columns = GenericTable('v_pre_bilan_pretty', 'oeasc_chasse', DB.engine).tableDef.columns
 
     id_espece = request.args.get('id_espece')
-    id_zone_indicative = request.args.get('id_zone_indicative')
-    id_zone_cynegetique = request.args.get('id_zone_cynegetique')
-
+    ids_zone_indicative = getlist(request.args, 'ids_zone_indicative')
+    ids_zone_cynegetique = getlist(request.args, 'ids_zone_cynegetique')
 
     suffix = (
-        '_zi' if id_zone_indicative
-        else '_zc' if id_zone_cynegetique
+        '_zi' if ids_zone_indicative
+        else '_zc' if ids_zone_cynegetique
         else '_espece'
     )
 
@@ -113,30 +112,38 @@ def chasse_bilan():
         'nom_saison',
     ]
 
-    if id_zone_indicative:
-        name_keys.append('nom_zone_indicative')
-    elif id_zone_cynegetique:
-        name_keys.append('nom_zone_cynegetique')
-
+    # scope =
+    # if ids_zone_indicative:
+        # name_keys.append('nom_zone_indicative')
+    # elif ids_zone_cynegetique:
+        # name_keys.append('nom_zone_cynegetique')
 
     query_keys = res_keys + name_keys
 
+    scope = (
+        list(map(lambda k: func.sum(columns[k]), res_keys))
+        + list(map(lambda k: columns[k], name_keys))
+    )
+
+    if ids_zone_indicative:
+        scope.append(func.string_agg(distinct(columns['nom_zone_indicative']), ', '))
+    elif ids_zone_cynegetique:
+        scope.append(func.string_agg(distinct(columns['nom_zone_cynegetique']), ', '))
+
 
     res = (
-        DB.session.query(
-            * (map(lambda k: columns[k], query_keys))
-        )
+        DB.session.query(*scope)
     )
     res = res.filter(columns['id_espece']==id_espece)
 
-    if id_zone_indicative:
-        res = res.filter(columns['id_zone_indicative']==id_zone_indicative)
-    elif id_zone_cynegetique:
-        res = res.filter(columns['id_zone_cynegetique']==id_zone_cynegetique)
+    if ids_zone_indicative:
+        res = res.filter(columns['id_zone_indicative'].in_(ids_zone_indicative))
+    elif ids_zone_cynegetique:
+        res = res.filter(columns['id_zone_cynegetique'].in_(ids_zone_cynegetique))
 
     res = res.order_by(columns['nom_saison'])
     res = res.group_by(
-        * (map(lambda k: columns[k], query_keys))
+        * (map(lambda k: columns[k], name_keys))
     )
 
     res = res.all()
@@ -162,6 +169,11 @@ def chasse_bilan():
             out[key] = res[0][query_keys.index(key)] if query_keys.index(key)  else None
         except ValueError:
             pass
+
+    if ids_zone_indicative:
+        out['nom_zone_indicative'] = res[0][-1]
+    elif ids_zone_cynegetique:
+        out['nom_zone_cynegetique'] = res[0][-1]
 
     return out
 
