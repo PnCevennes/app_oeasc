@@ -133,16 +133,16 @@ const STORE = {
     //     }
     //   )
     // },
-    chasseBilan: ({ getter }, { id_espece, id_zone_cynegetique, id_zone_indicative }) => {
+    chasseBilan: ({ getter }, { id_espece, ids_zone_cynegetique, ids_zone_indicative }) => {
       getter;
-      console.log('chasseBilan', id_espece, id_zone_cynegetique, id_zone_indicative)
+      console.log('chasseBilan', id_espece, ids_zone_cynegetique, ids_zone_indicative)
       return apiRequest(
         "GET",
         `api/chasse/results/bilan`,
         { params: {
           id_espece,
-          id_zone_cynegetique,
-          id_zone_indicative
+          ids_zone_cynegetique,
+          ids_zone_indicative
         }}
       );
     },

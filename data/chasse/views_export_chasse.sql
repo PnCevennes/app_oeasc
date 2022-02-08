@@ -38,7 +38,9 @@ SELECT
 	tr.parcelle_onf,
 	tr.poid_indique,
 	tr.cors_indetermine,
-	tr.long_mandibule_indetermine
+	tr.long_mandibule_indetermine,
+	ST_X(ST_CENTROID(ST_TRANSFORM(tlt.geom, 4326))) AS X,
+	ST_Y(ST_CENTROID(ST_TRANSFORM(tlt.geom, 4326))) AS Y
 	FROM oeasc_chasse.t_attributions ta
 	LEFT JOIN oeasc_chasse.t_realisations tr ON tr.id_attribution = ta.id_attribution
 	LEFT JOIN oeasc_chasse.t_zone_cynegetiques tzcr ON tzcr.id_zone_cynegetique = tr.id_zone_cynegetique_realisee
@@ -98,6 +100,9 @@ CREATE VIEW oeasc_chasse.v_export_realisation_csv AS (
 		parcelle_onf,
 		poid_indique,
 --		long_mandibule_indetermine,
-		cors_indetermine
+		cors_indetermine,
+		X,
+		Y
 	FROM oeasc_chasse.v_export_realisation
 );
+
