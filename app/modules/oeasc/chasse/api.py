@@ -223,7 +223,7 @@ def api_result_export():
 
     # view + filters
     results = (
-        GenericQuery(DB, schemaName=schema_name, tableName=table_name, filters=filters)
+        GenericQuery(DB, schemaName=schema_name, tableName=table_name, filters=filters, limit=1e6)
         .return_query()
     )
     data = results['items']
