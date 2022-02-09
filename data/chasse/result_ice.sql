@@ -162,6 +162,7 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 					ta.id_saison
 				FROM oeasc_chasse.t_realisations tr
 				JOIN oeasc_chasse.t_attributions ta ON ta.id_attribution = tr.id_attribution
+				JOIN oeasc_chasse.t_saisons ts ON ts.id_saison = ta.id_saison
 				JOIN oeasc_chasse.t_type_bracelets ttb ON ta.id_type_bracelet = ttb.id_type_bracelet
 				JOIN ref_nomenclatures.t_nomenclatures tn ON tn.id_nomenclature = id_nomenclature_classe_age
 				JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = tr.id_zone_cynegetique_realisee
@@ -169,6 +170,7 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 					date_exacte IS NOT NULL
 					AND COALESCE(poid_entier, poid_vide, poid_c_f_p) IS NOT NULL
 					AND tn.cd_nomenclature = '3' -- juvenile
+				ORDER BY nom_saison
 				)
 				-- minimum des dates de chasse (apres le 06-01) tout confondu (pour rapporter à cette date)
 				, min_doy AS ( SELECT
