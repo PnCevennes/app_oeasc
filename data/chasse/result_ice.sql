@@ -159,7 +159,8 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 					id_zone_indicative_realisee,
 					oeasc_chasse.fct_day_of_year(date_exacte, '06-01') AS doy,
 					oeasc_chasse.fct_poid_vide(id_espece, poid_entier, poid_vide, poid_c_f_p) AS pv,
-					ta.id_saison
+					ta.id_saison,
+					ts.nom_saison
 				FROM oeasc_chasse.t_realisations tr
 				JOIN oeasc_chasse.t_attributions ta ON ta.id_attribution = tr.id_attribution
 				JOIN oeasc_chasse.t_saisons ts ON ts.id_saison = ta.id_saison
@@ -170,7 +171,6 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 					date_exacte IS NOT NULL
 					AND COALESCE(poid_entier, poid_vide, poid_c_f_p) IS NOT NULL
 					AND tn.cd_nomenclature = '3' -- juvenile
-				ORDER BY nom_saison
 				)
 				-- minimum des dates de chasse (apres le 06-01) tout confondu (pour rapporter à cette date)
 				, min_doy AS ( SELECT
@@ -263,12 +263,14 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 				-- regression
 				, regr_2 AS ( SELECT
 --					to_jsonb(ARRAY_AGG(y_moy::FLOAT)) AS lm
-					r_lm_slope_j(ARRAY_AGG(y_moy::FLOAT), ARRAY_AGG(SPLIT_PART(nom_saison, '-', 1)::FLOAT)) || icj.infsup AS lm
+					r_lm_slope_j(
+						ARRAY_AGG(y_moy::FLOAT ORDER BY nom_saison),
+						ARRAY_AGG(SPLIT_PART(nom_saison, '-', 1)::FLOAT ORDER BY nom_saison)
+					) || icj.infsup AS lm
 					FROM inter_conf ic
 					JOIN inter_conf_json icj ON TRUE
 					JOIN oeasc_chasse.t_saisons ts ON ts.id_saison = ic.id_saison
 					GROUP BY icj.infsup
-					--ORDER BY nom_saison
 				)
 				SELECT INTO j_out
 					row_to_json(a)::jsonb
