@@ -4,7 +4,7 @@ export default ( data ) => {
   const dataGraph = data.res_lm_moy;
   const chartOptions = {
     title: {
-      text: `Evolution des ICE - Masse Corporelle - ${data.nom_espece} - ${data.nom_zone_cynegetique}`
+      text: `Evolution des ICE - Masse Corporelle - ${data.nom_espece} - ${data.nom_zone_cynegetique || data.nom_secteur}`
     },
     xAxis: {
       title: {

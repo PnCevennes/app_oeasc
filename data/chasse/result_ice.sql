@@ -7,7 +7,7 @@ DROP FUNCTION IF EXISTS oeasc_chasse.fct_day_of_year(IN date_exacte DATE, IN MD_
 CREATE OR REPLACE FUNCTION oeasc_chasse.fct_day_of_year(IN date_exacte DATE, IN MD_ref CHARACTER VARYING)
 	RETURNS INTEGER AS
 	$BODY$
-		DECLARE 
+		DECLARE
 			day_of_year INTEGER;
 			ref_date DATE;
 			ref_date_minus_one DATE;
@@ -29,14 +29,14 @@ DROP FUNCTION IF EXISTS oeasc_chasse.fct_poid_vide(IN id_espece_in INTEGER, IN p
 CREATE OR REPLACE FUNCTION oeasc_chasse.fct_poid_vide(IN id_espece_in INTEGER, IN poids_entier_in FLOAT, IN poids_vide_in FLOAT, IN poids_c_f_p_in FLOAT)
 	RETURNS INTEGER AS
 	$BODY$
-		DECLARE 
+		DECLARE
 			poids_vide_out INTEGER;
 			CODE_ESPECE VARCHAR;
 			pe_exp FLOAT;
 			pe_puis FLOAT;
 			pcfp_exp FLOAT;
 			pcfp_puis FLOAT;
-		BEGIN 
+		BEGIN
 			SELECT INTO code_espece te.code_espece FROM oeasc_commons.t_especes te WHERE te.id_espece = id_espece_in;
 			IF code_espece = 'CF' THEN
 				pe_exp := -0.3948 ;
@@ -65,7 +65,7 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_poid_vide(IN id_espece_in INTEGER, I
 -- out : array :
 --  - 1: intercept
 -- 	- 2: slope
---  - 3: p_value_intercept 
+--  - 3: p_value_intercept
 --  - 4: p_value_slope
 --  - 5: r2
 DROP FUNCTION IF EXISTS r_lm_slope_a(FLOAT[], FLOAT[]);
@@ -81,9 +81,9 @@ CREATE OR REPLACE FUNCTION r_lm_slope_a(FLOAT[], FLOAT[])
 	    outa[2] <- res$coefficients[2]
 	    outa[3] <- summary(res)$coefficients[1, 4]
 	    outa[4] <- summary(res)$coefficients[2, 4]
-	    outa[5] <- summary(res)$r.squared	
+	    outa[5] <- summary(res)$r.squared
 	    return (outa)
-	$BODY$ 
+	$BODY$
 	LANGUAGE plr;
 
 -- regression lineaire avec sortie sous forme de table
@@ -100,12 +100,12 @@ CREATE OR REPLACE FUNCTION r_lm_slope_t(y_in FLOAT[], x_in FLOAT[])
 		nb INTEGER
 	) AS
 	$BODY$
-		DECLARE 
+		DECLARE
 			lm_res FLOAT[];
 		BEGIN
 			SELECT INTO lm_res r_lm_slope_a(y_in, x_in);
-			RETURN QUERY 
-				SELECT 
+			RETURN QUERY
+				SELECT
 					lm_res[1] AS intercept,
 					lm_res[2] AS slope,
 					lm_res[3] AS p_value_interept,
@@ -115,7 +115,7 @@ CREATE OR REPLACE FUNCTION r_lm_slope_t(y_in FLOAT[], x_in FLOAT[])
 					y_in,
 					array_length(x, 1) AS nb;
 		END;
-	$BODY$ 
+	$BODY$
 	LANGUAGE plpgsql;
 
 -- regression lineaire avec sortie sous forme de jsonb
@@ -130,31 +130,33 @@ CREATE OR REPLACE FUNCTION r_lm_slope_j(y FLOAT[], x FLOAT[])
 	LANGUAGE plpgsql;
 
 
-	
+
 -- Distribution de student inverse( intervalle, ddl)
 DROP FUNCTION IF EXISTS tinv(IN p_value_in FLOAT, IN df_in INTEGER);
 CREATE OR REPLACE FUNCTION tinv(IN p_value_in FLOAT, IN df_in INTEGER)
 	 RETURNS FLOAT AS
-	 $BODY$	
+	 $BODY$
 	    return (abs(qt(p_value_in, df = df_in)));
 	$BODY$
     LANGUAGE plr;
 
 -- Calcul ice
-DROP FUNCTION IF EXISTS oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_cynegetique_in INTEGER);
-CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_cynegetique_in INTEGER)
+DROP FUNCTION IF EXISTS oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, ids_zone_indicative_in INTEGER[], ids_zone_cynegetique_in INTEGER[], ids_secteur_in INTEGER[]);
+CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, ids_zone_indicative_in INTEGER[], ids_zone_cynegetique_in INTEGER[], ids_secteur_in INTEGER[])
 		RETURNS JSONB AS
 		$BODY$
 		DECLARE
 			j_out JSONB;
 		BEGIN
-			RAISE NOTICE 'calcul ice pour id_espece % id_zone_cynegetique %', id_espece_in, id_zone_cynegetique_in;
+			RAISE NOTICE 'calcul ice pour id_espece % ids_zone_indicative %d ids_zone_cynegetique % ids_secteur %', id_espece_in, ids_zone_indicative_in, ids_zone_cynegetique_in, ids_secteur_in;
 		    WITH
 				-- 1 ere extraction (date + poids)
 				pre_data_1 AS ( SELECT
 					date_exacte,
 					id_espece,
+					id_secteur,
 					id_zone_cynegetique_realisee,
+					id_zone_indicative_realisee,
 					oeasc_chasse.fct_day_of_year(date_exacte, '06-01') AS doy,
 					oeasc_chasse.fct_poid_vide(id_espece, poid_entier, poid_vide, poid_c_f_p) AS pv,
 					ta.id_saison
@@ -162,13 +164,14 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 				JOIN oeasc_chasse.t_attributions ta ON ta.id_attribution = tr.id_attribution
 				JOIN oeasc_chasse.t_type_bracelets ttb ON ta.id_type_bracelet = ttb.id_type_bracelet
 				JOIN ref_nomenclatures.t_nomenclatures tn ON tn.id_nomenclature = id_nomenclature_classe_age
-				WHERE 
+				JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = tr.id_zone_cynegetique_realisee
+				WHERE
 					date_exacte IS NOT NULL
 					AND COALESCE(poid_entier, poid_vide, poid_c_f_p) IS NOT NULL
 					AND tn.cd_nomenclature = '3' -- juvenile
 				)
 				-- minimum des dates de chasse (apres le 06-01) tout confondu (pour rapporter à cette date)
-				, min_doy AS ( SELECT 
+				, min_doy AS ( SELECT
 					min(doy) AS min_doy
 					FROM pre_data_1
 				)
@@ -178,9 +181,23 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 					doy - md.min_doy + 1 AS x,
 					pv AS y
 					FROM pre_data_1 p1, min_doy md
-					WHERE 
+					WHERE
 						p1.id_espece = id_espece_in
-						AND p1.id_zone_cynegetique_realisee = id_zone_cynegetique_in
+						AND (
+							array_length(ids_zone_indicative_in, 1) IS NULL
+							OR
+							p1.id_zone_indicative_realisee =  ANY(ids_zone_indicative_in)
+						)
+						AND (
+							array_length(ids_zone_cynegetique_in, 1) IS NULL
+							OR
+							p1.id_zone_cynegetique_realisee =  ANY(ids_zone_cynegetique_in)
+						)
+						AND (
+							array_length(ids_secteur_in, 1) IS NULL
+							OR
+							p1.id_secteur = ANY(ids_secteur_in)
+						)
 					ORDER BY doy - md.min_doy, y
 				)
 				-- mediane des jours de chasse
@@ -192,7 +209,7 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 				, regr_1 AS ( SELECT
 					r_lm_slope_j(ARRAY_AGG(y::FLOAT), ARRAY_AGG(x::FLOAT)) AS lm
 					FROM pre_data_2
-				)		
+				)
 				-- poid rapporté au jour médian
 				, p_corr AS ( SELECT
 					id_saison,
@@ -207,15 +224,15 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 					FROM p_corr
 				)
 				-- erreurs pour intervalles de confiance
-				, erreurs AS ( SELECT 
+				, erreurs AS ( SELECT
 					ts.id_saison,
 					y_moy,
 					CASE
-						WHEN count(*) > 1 THEN 
+						WHEN count(*) > 1 THEN
 							sqrt(
 								sum( (y_corr - y_moy)^2 ) / ( (count(*) -1) * count(*) )
-							) 
-						ELSE NULL 
+							)
+						ELSE NULL
 					END AS err,
 					count(*) AS nb
 					FROM p_moy
@@ -235,9 +252,9 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 				SELECT
 					row_to_json(a)::jsonb AS infsup
 					FROM (
-						SELECT 
+						SELECT
 							ARRAY_AGG(limit_inf) AS inf,
-							ARRAY_AGG(limit_sup) AS sup 
+							ARRAY_AGG(limit_sup) AS sup
 						FROM inter_conf
 					)a
 				)
@@ -256,11 +273,24 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 					FROM ( SELECT
 						r2.lm AS res_lm_moy,
 						r1.lm AS res_lm_data,
-						nom_zone_cynegetique,
+						(
+							SELECT STRING_AGG(nom_zone_cynegetique, ', ' ORDER BY nom_zone_cynegetique)
+								FROM oeasc_chasse.t_zone_cynegetiques tzc
+								WHERE tzc.id_zone_cynegetique = ANY(ids_zone_cynegetique_in)
+						) as  nom_zone_cynegetique,
+						(
+							SELECT STRING_AGG(nom_zone_indicative, ', ' ORDER BY nom_zone_indicative)
+								FROM oeasc_chasse.t_zone_indicatives tzi
+								WHERE tzi.id_zone_indicative = ANY(ids_zone_indicative_in)
+						) as  nom_zone_indicative,
+						(
+							SELECT STRING_AGG(nom_secteur, ', ' ORDER BY nom_secteur)
+								FROM oeasc_commons.t_secteurs ts
+								WHERE ts.id_secteur = ANY(ids_secteur_in)
+						) as  nom_secteur,
 						nom_espece
 						FROM regr_1 r1, regr_2 r2
 						JOIN oeasc_commons.t_especes te ON te.id_espece = id_espece_in
-						JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = id_zone_cynegetique_in
 					)a;
 			RETURN j_out;
 		END;

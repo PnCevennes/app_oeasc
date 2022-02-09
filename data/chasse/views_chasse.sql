@@ -179,6 +179,8 @@ SELECT
 	vb.id_zone_indicative,
 	nom_zone_indicative,
 	code_zone_indicative,
+	nom_secteur,
+	code_secteur,
 	nb_attribution_min_zi,
 	nb_attribution_max_zi,
 	nb_realisation_zi,
@@ -195,4 +197,5 @@ SELECT
 	join oeasc_chasse.t_saisons ts on ts.id_saison =vb.id_saison
 	join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = vb.id_zone_cynegetique
 	join oeasc_chasse.t_zone_indicatives tzi on tzi.id_zone_indicative = vb.id_zone_indicative
+	join oeasc_commons.t_secteurs tsec on tsec.id_secteur = tzc.id_secteur
 	join oeasc_commons.t_especes te on te.id_espece = vb.id_espece;

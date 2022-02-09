@@ -93,10 +93,12 @@ def chasse_bilan():
     id_espece = request.args.get('id_espece')
     ids_zone_indicative = getlist(request.args, 'ids_zone_indicative')
     ids_zone_cynegetique = getlist(request.args, 'ids_zone_cynegetique')
+    ids_secteur = getlist(request.args, 'ids_secteur')
 
     suffix = (
         '_zi' if ids_zone_indicative
         else '_zc' if ids_zone_cynegetique
+        else '_zc' if ids_secteur
         else '_espece'
     )
 
@@ -112,12 +114,6 @@ def chasse_bilan():
         'nom_saison',
     ]
 
-    # scope =
-    # if ids_zone_indicative:
-        # name_keys.append('nom_zone_indicative')
-    # elif ids_zone_cynegetique:
-        # name_keys.append('nom_zone_cynegetique')
-
     query_keys = res_keys + name_keys
 
     scope = (
@@ -129,6 +125,8 @@ def chasse_bilan():
         scope.append(func.string_agg(distinct(columns['nom_zone_indicative']), ', '))
     elif ids_zone_cynegetique:
         scope.append(func.string_agg(distinct(columns['nom_zone_cynegetique']), ', '))
+    elif ids_secteur:
+        scope.append(func.string_agg(distinct(columns['nom_secteur']), ', '))
 
 
     res = (
@@ -140,6 +138,8 @@ def chasse_bilan():
         res = res.filter(columns['id_zone_indicative'].in_(ids_zone_indicative))
     elif ids_zone_cynegetique:
         res = res.filter(columns['id_zone_cynegetique'].in_(ids_zone_cynegetique))
+    elif ids_secteur:
+        res = res.filter(columns['id_secteur'].in_(ids_secteur))
 
     res = res.order_by(columns['nom_saison'])
     res = res.group_by(
@@ -174,17 +174,28 @@ def chasse_bilan():
         out['nom_zone_indicative'] = res[0][-1]
     elif ids_zone_cynegetique:
         out['nom_zone_cynegetique'] = res[0][-1]
+    elif ids_secteur:
+        out['nom_secteur'] = res[0][-1]
 
     return out
 
-@bp.route('results/ice/<id_espece>/<id_zone_cynegetique>', methods=['GET'])
+@bp.route('results/ice', methods=['GET'])
 @json_resp
-def api_result_ice(id_espece, id_zone_cynegetique):
+def api_result_ice():
     '''
         API ICE
     '''
 
-    req = func.oeasc_chasse.fct_calcul_ice_mc(id_espece, id_zone_cynegetique)
+    id_espece = request.args.get('id_espece')
+    ids_secteur = getlist(request.args, 'ids_secteur')
+    ids_zone_cynegetique = getlist(request.args, 'ids_zone_cynegetique')
+    ids_zone_indicative = getlist(request.args, 'ids_zone_indicative')
+
+    ids_secteur = list(map(lambda x: int(x), ids_secteur))
+    ids_zone_cynegetique = list(map(lambda x: int(x), ids_zone_cynegetique))
+    ids_zone_indicative = list(map(lambda x: int(x), ids_zone_indicative))
+
+    req = func.oeasc_chasse.fct_calcul_ice_mc(id_espece, ids_zone_indicative, ids_zone_cynegetique, ids_secteur)
     res = DB.engine.execute(req).first()[0]
     return res
 

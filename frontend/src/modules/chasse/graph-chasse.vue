@@ -29,7 +29,7 @@ offlineExporting(Highcharts);
 
 export default {
   name: "graph-chasse",
-  props: ["id_espece", "ids_zone_cynegetique", "ids_zone_indicative", "type", "width", "height"],
+  props: ["id_espece", "ids_zone_cynegetique", "ids_secteur", "ids_zone_indicative", "type", "width", "height"],
   data: () => ({
     msgError: null,
     bError: null,
@@ -59,7 +59,6 @@ export default {
   },
   methods: {
     process() {
-      console.log('process', this.processing)
       if (this.processing) {
           return
       }
@@ -83,6 +82,7 @@ export default {
           id_espece: this.id_espece,
           ids_zone_cynegetique: this.ids_zone_cynegetique,
           ids_zone_indicative: this.ids_zone_indicative,
+          ids_secteur: this.ids_secteur
         })
         .then(data => {
           this.chartOptions = this.processData[this.type](data);

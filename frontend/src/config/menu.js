@@ -69,7 +69,7 @@ export default {
   chasse: {
     icon: "fa-cog",
     label: 'Chasse',
-    names: ['chasse.saisie', 'chasse.admin', 'chasse.bilan', 'chasse.exports'],
+    names: ['chasse.saisie', 'chasse.admin', 'chasse.bilan', 'chasse.exports', 'chasse.resultats_exemples'],
     hidden: ({ $store }) => $store.getters.droitMax < 5
 
   },

@@ -180,7 +180,7 @@ export default {
     bSnack: false,
     msgSnack: null,
     bInitialized: false,
-    contentValues: {espece: null, zi: null, zc: null}
+    contentValues: { espece: null, zc: null, zi: null }
   }),
   methods: {
     onMouseOver() {

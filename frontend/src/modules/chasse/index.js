@@ -11,6 +11,7 @@ import configStoreAttributionMassif from "./config/store-attribution-massif";
 import configStoreTypeBracelet from "./config/store-type-bracelet";
 import configStoreAttribution from "./config/store-attribution";
 import configStoreRealisation from "./config/store-realisation";
+import configFormContentChasse from './config/form-content-chasse'
 import genericForm from "@/components/form/generic-form";
 import graphChasse from "./graph-chasse";
 import graphCustom from "./graph-custom";
@@ -115,42 +116,50 @@ const ROUTE = [
     component: exportsChasse,
     access: 4
   },
+  {
+    name: "chasse.resultats_exemples",
+    path: "/chasse/resultats_exemples",
+    label: "Resultats (exemples)",
+    hideTitle: true,
+    type: 'page',
+    content: 'chasseResultatsExemples',
+    access: 4
+  }
 
 ];
 
 const STORE = {
+  getters: {
+    configFormContentChasse: () => configFormContentChasse
+  },
   actions: {
-    // exportChasse: ( {getter}, { dataType, exportType, filters }) => {
-    //   getter;
-    //   return apiRequest(
-    //     'GET',
-    //     `api/chasse/export/${exportType}`,
-    //     {
-    //       params: {
-    //         data_type: dataType,
-    //         filters
-    //       }
-    //     }
-    //   )
-    // },
     chasseBilan: ({ getter }, { id_espece, ids_zone_cynegetique, ids_zone_indicative }) => {
       getter;
       console.log('chasseBilan', id_espece, ids_zone_cynegetique, ids_zone_indicative)
       return apiRequest(
         "GET",
         `api/chasse/results/bilan`,
-        { params: {
-          id_espece,
-          ids_zone_cynegetique,
-          ids_zone_indicative
+        {
+          params: {
+            id_espece,
+            ids_zone_cynegetique,
+            ids_zone_indicative
         }}
       );
     },
-    chasseIce: ({ getter }, { id_espece, id_zone_cynegetique }) => {
+    chasseIce: ({ getter }, { id_espece, ids_zone_indicative, ids_zone_cynegetique, ids_secteur }) => {
       getter;
       return apiRequest(
         "GET",
-        `api/chasse/results/ice/${id_espece}/${id_zone_cynegetique}`
+        `api/chasse/results/ice`,
+        {
+          params: {
+            id_espece,
+            ids_zone_cynegetique,
+            ids_secteur,
+            ids_zone_indicative
+          }
+        }
       );
     },
     chasseCustom: ({ getter }, params) => {
