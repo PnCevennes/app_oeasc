@@ -1,10 +1,11 @@
 import { round } from "@/core/js/util/util.js";
+import {localisationTitle } from './util.js'
 
 export default ( data ) => {
   const dataGraph = data.res_lm_moy;
   const chartOptions = {
     title: {
-      text: `Evolution des ICE - Masse Corporelle - ${data.nom_espece} - ${data.nom_zone_cynegetique || data.nom_secteur}`
+      text: `Evolution des ICE - Masse Corporelle - ${data.nom_espece}${localisationTitle(data)}`
     },
     xAxis: {
       title: {

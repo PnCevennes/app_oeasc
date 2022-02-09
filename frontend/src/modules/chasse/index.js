@@ -133,15 +133,15 @@ const STORE = {
     configFormContentChasse: () => configFormContentChasse
   },
   actions: {
-    chasseBilan: ({ getter }, { id_espece, ids_zone_cynegetique, ids_zone_indicative }) => {
+    chasseBilan: ({ getter }, { id_espece, ids_zone_cynegetique, ids_zone_indicative, ids_secteur }) => {
       getter;
-      console.log('chasseBilan', id_espece, ids_zone_cynegetique, ids_zone_indicative)
       return apiRequest(
         "GET",
         `api/chasse/results/bilan`,
         {
           params: {
             id_espece,
+            ids_secteur,
             ids_zone_cynegetique,
             ids_zone_indicative
         }}
