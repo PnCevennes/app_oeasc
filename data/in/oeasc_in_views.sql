@@ -1,7 +1,8 @@
 DROP VIEW IF EXISTS oeasc_in.v1 CASCADE;
 
+DROP VIEW IF EXISTS oeasc_in.v_result  CASCADE;
 CREATE VIEW oeasc_in.v_result AS
-SELECT 
+SELECT
     o.id_observation,
 	o.nb,
     r.groupes,
@@ -20,7 +21,7 @@ SELECT
     r.id_realisation,
 	nb/km as nbkm,
 	to_char(r.date_realisation, 'YYYY') AS annee
-	
+
 	FROM oeasc_in.t_observations o
 	JOIN oeasc_in.t_realisations r
         ON r.id_realisation = o.id_realisation
@@ -28,7 +29,7 @@ SELECT
         ON c.id_circuit = r.id_circuit
     JOIN oeasc_commons.t_secteurs s
         ON s.id_secteur = c.id_secteur
-    JOIN oeasc_in.cor_realisation_tag cor 
+    JOIN oeasc_in.cor_realisation_tag cor
         ON cor.id_realisation = r.id_realisation
     JOIN oeasc_in.t_tags t
         ON t.id_tag = cor.id_tag
