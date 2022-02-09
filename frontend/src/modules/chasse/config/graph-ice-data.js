@@ -1,12 +1,11 @@
 import { round } from "@/core/js/util/util.js";
+import {localisationTitle } from './util.js'
 
 export default ( data )  => {
-  let localisationTitle = data.nom_zone_indicative || data.nom_zone_cynegetique || data.nom_secteur;
-  localisationTitle = localisationTitle ? `- ${localisationTitle}` : ""
   const dataGraph = data.res_lm_data;
   const chartOptions = {
     title: {
-      text: `Poids vide / jour - ${data.nom_espece} ${localisationTitle}`
+      text: `Poids vide / jour - ${data.nom_espece}${localisationTitle(data)}`
     },
     xAxis: {
       title: {

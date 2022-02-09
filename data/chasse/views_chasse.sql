@@ -179,6 +179,7 @@ SELECT
 	vb.id_zone_indicative,
 	nom_zone_indicative,
 	code_zone_indicative,
+	tsec.id_secteur,
 	nom_secteur,
 	code_secteur,
 	nb_attribution_min_zi,
