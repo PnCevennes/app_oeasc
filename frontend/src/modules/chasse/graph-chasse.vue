@@ -50,7 +50,6 @@ export default {
   watch: {
     $props: {
       handler() {
-        console.log('handler')
         this.process();
       },
       deep: true,
@@ -62,12 +61,24 @@ export default {
       if (this.processing) {
           return
       }
+
       if (
         !(this.id_espece && this.type)
 
       ) {
         return;
       }
+
+      // test qu'il n'y ai pas 2 valeur pour zi zc secteur
+      if (
+          !!this.ids_zone_cynegetique.length + !!this.ids_zone_indicative.length + !! this.ids_secteur.length > 1
+      ) {
+        console.log(
+          !!this.ids_zone_cynegetique.length + !!this.ids_zone_indicative.length + !! this.ids_secteur.length
+          )
+        return;
+      }
+
       if (!(this.actions[this.type] && this.processData[this.type])) {
         console.error(
           `Pas de fonctionalité définies pour le type ${this.type}`

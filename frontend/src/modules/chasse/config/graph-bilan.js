@@ -1,4 +1,4 @@
-import {localisationTitle } from './util.js'
+import { localisationTitle } from './util.js'
 export default ( data ) => {
   const chartOptions = {
       title: {

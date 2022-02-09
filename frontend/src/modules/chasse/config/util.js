@@ -1,5 +1,4 @@
 const localisationTitle = (data) => {
-  console.log(data)
   return data.nom_zone_indicative
 ? ` - ZI : ${data.nom_zone_indicative}`
 : data.nom_zone_cynegetique

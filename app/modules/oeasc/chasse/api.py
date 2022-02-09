@@ -195,6 +195,14 @@ def api_result_ice():
     ids_zone_cynegetique = list(map(lambda x: int(x), ids_zone_cynegetique))
     ids_zone_indicative = list(map(lambda x: int(x), ids_zone_indicative))
 
+    # priorisation ZI > ZC > Secteur
+    if len(ids_zone_indicative) > 0:
+        ids_secteur = ids_zone_cynegetique = []
+
+    if len(ids_zone_cynegetique) > 0:
+        ids_secteur = []
+
+
     req = func.oeasc_chasse.fct_calcul_ice_mc(id_espece, ids_zone_indicative, ids_zone_cynegetique, ids_secteur)
     res = DB.engine.execute(req).first()[0]
     return res

@@ -1,6 +1,5 @@
 // raz des autres champs de localisation
 const changeLocalisation = ({baseModel, config}) => {
-    console.log('change', config.name)
     for (const name of['secteur', 'zc', 'zi'].filter(n => n != config.name)) {
         baseModel[name] = []
     }
@@ -16,7 +15,6 @@ export default {
             label: 'Espece',
             filters: { 'code_espece': ['CF', 'CH', 'MF'] },
             default: 1,
-            change: changeLocalisation
         },
         secteur: {
             storeName: 'commonsSecteur',
@@ -42,7 +40,8 @@ export default {
             multiple: true,
             returnObject: false,
             list_type: 'autocomplete',
-            label: 'ZI'
+            label: 'ZI',
+            change: changeLocalisation
         },
     },
     groups: [{
