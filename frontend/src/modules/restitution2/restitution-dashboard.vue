@@ -109,7 +109,6 @@ export default {
       // boucle sur la liste de clé pour faire les propriétés
       for (const prop of propList) {
       const propValue = this.settings[prop];
-      console.log(propValue)
         propsStr += propValue
           ? typeof propValue == "object"
             ? ` :${prop}='${JSON.stringify(propValue)}'`

@@ -8,7 +8,6 @@
  * configuration des series pour les cas 'simple'
  */
 const seriesSimple = (data, typeGraph, text) => {
-  console.log(typeGraph, text)
   return [
     {
       type: typeGraph,
@@ -117,6 +116,7 @@ const seriesRamifiees = (data, typeGraph) => {
  */
 export default (data, options, text) => {
 
+  console.log(options)
   // pour savoir si on a affaire à un graph 'simple' ou un graphe 'ramifié
   // sert pour le calcul des series
   const condDoubleGraph = options.fieldName2 && options.fieldName2 != options.fieldName;
@@ -125,8 +125,6 @@ export default (data, options, text) => {
   const series = condDoubleGraph && (options.typeGraph != 'pie')
   ? seriesRamifiees(data, options.typeGraph)
   : seriesSimple(data, options.typeGraph, text);
-
-  console.log(series)
 
   const chartOptions = {
     title: {
@@ -141,6 +139,11 @@ export default (data, options, text) => {
       // startOnTick: false,
       title: {
         text: "nb"
+      }
+    },
+    plotOptions: {
+      series: {
+        stacking: options.stacking
       }
     },
     series,

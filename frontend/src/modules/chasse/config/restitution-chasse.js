@@ -14,6 +14,7 @@ export default {
         fieldName2: 'label_sexe',
         dataType: 'chasse',
         typeGraph: 'column',
+        stacking: true,
         filters: {
             nom_zone_cynegetique: [ "Causse Méjean" ]
         },
