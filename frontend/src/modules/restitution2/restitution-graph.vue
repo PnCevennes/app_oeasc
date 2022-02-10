@@ -26,22 +26,14 @@ import exportingInit from "highcharts/modules/exporting";
 import offlineExporting from "highcharts/modules/offline-exporting";
 import processData from "./process/graph-custom";
 import restitutions from "./config/restitutions";
+import props from './config/props';
 
 exportingInit(Highcharts);
 offlineExporting(Highcharts);
 
 export default {
   name: "restitution-graph",
-  props: [
-    "dataType", // type de données (chasse) => quelle api / view est utilisée pour les données
-    "fieldName", // quel champs est utilsé pour les rendus
-    "fieldName2", // quel champs est utilsé pour les rendus (sous graphe)
-    "height", // hauteur du composant
-    "width", // largeur du composant
-    "title", // titre du composant
-    "typeGraph", // type de graphique : ['pie', 'bar', 'colmun']
-    "filters", // filtres
-  ],
+  props: props,
   data: () => ({
     chartOptions: null, // option pour le graphique highchart (calculé en fonction des options et des données)
     hcInstance: Highcharts,

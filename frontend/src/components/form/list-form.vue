@@ -262,7 +262,9 @@ export default {
       this.comboBoxSelected=this.items[event]
     },
     change(event) {
-      this.$store.dispatch('setClearableTabIndex', `#form-${this.config.name}`);
+      if( ["combobox", "select", "autocomplete"].includes(this.config.list_type)) {
+        this.$store.dispatch('setClearableTabIndex', `#form-${this.config.name}`);
+      }
 
       // cas combobox && string && returnObject =>
       //  value = { <valueFieldName>: null, <displayFieldName>: <current_value>}

@@ -18,7 +18,8 @@ export default {
       forms: ["dataType"]
     },
     {
-      forms: ["typeGraph"]
+      direction: "row",
+      forms: ["typeGraph", "stacking"]
     },
     {
       forms: ["width", "height"]
@@ -103,8 +104,8 @@ export default {
     },
     stacking: {
       type: "bool_switch",
-      label: "Stacking",
-      condition: ({ baseModel }) => baseModel.display == "graph"
+      label: "Empilé",
+      condition: ({ baseModel }) => baseModel.display == "graph" && ['bar', 'column'].includes(baseModel.typeGraph)
     },
     filterList: {
       type: "list_form",
