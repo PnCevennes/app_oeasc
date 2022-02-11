@@ -42,7 +42,8 @@ export default {
             text: 'Espece'
         },
         nom_saison: {
-            text: 'Saison'
+            text: 'Saison',
+            sort: 'nom_saison+'
         }
     }
 }

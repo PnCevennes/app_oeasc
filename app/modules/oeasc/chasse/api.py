@@ -14,7 +14,7 @@ from ..generic.repository import getlist
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery, GenericTable
-from sqlalchemy import column, select, func, table, distinct
+from sqlalchemy import column, select, func, table, distinct, over
 import json
 import datetime
 
@@ -95,10 +95,28 @@ def chasse_bilan():
     ids_zone_cynegetique = getlist(request.args, 'ids_zone_cynegetique')
     ids_secteur = getlist(request.args, 'ids_secteur')
 
+    localisation = (
+        'zone_indicative' if ids_zone_indicative
+        else 'zone_cynegetique' if ids_zone_cynegetique
+        else 'secteur' if ids_secteur
+        else ""
+    )
+
+    localisation_id_key = 'id_{}'.format(localisation)
+    localisation_name_key = 'nom_{}'.format(localisation or 'espece')
+
+    localisation_keys = (
+        ids_zone_indicative
+        or ids_zone_cynegetique
+        or ids_secteur
+        or []
+    )
+
+
     suffix = (
         '_zi' if ids_zone_indicative
         else '_zc' if ids_zone_cynegetique
-        else '_zc' if ids_secteur
+        else '_secteur' if ids_secteur
         else '_espece'
     )
 
@@ -114,44 +132,54 @@ def chasse_bilan():
         'nom_saison',
     ]
 
-    query_keys = res_keys + name_keys
-
-    scope = (
-        list(map(lambda k: func.sum(columns[k]), res_keys))
-        + list(map(lambda k: columns[k], name_keys))
+    localisation_name_keys = (
+        [localisation_name_key] if localisation_name_key
+        else []
     )
 
-    if ids_zone_indicative:
-        scope.append(func.string_agg(distinct(columns['nom_zone_indicative']), ', '))
-    elif ids_zone_cynegetique:
-        scope.append(func.string_agg(distinct(columns['nom_zone_cynegetique']), ', '))
-    elif ids_secteur:
-        scope.append(func.string_agg(distinct(columns['nom_secteur']), ', '))
-
+    scope = (
+        list(map(lambda k: (columns[k]), res_keys + name_keys + localisation_name_keys))
+    )
 
     res = (
         DB.session.query(*scope)
+        .filter(columns['id_espece']==id_espece)
     )
-    res = res.filter(columns['id_espece']==id_espece)
 
-    if ids_zone_indicative:
-        res = res.filter(columns['id_zone_indicative'].in_(ids_zone_indicative))
-    elif ids_zone_cynegetique:
-        res = res.filter(columns['id_zone_cynegetique'].in_(ids_zone_cynegetique))
-    elif ids_secteur:
-        res = res.filter(columns['id_secteur'].in_(ids_secteur))
+    if localisation:
+        res = res.filter(columns[localisation_id_key].in_(localisation_keys))
 
     res = res.order_by(columns['nom_saison'])
     res = res.group_by(
-        * (map(lambda k: columns[k], name_keys))
+        * (map(lambda k: columns[k], res_keys + name_keys + localisation_name_keys))
     )
 
-    res = res.all()
+    res = res.subquery()
+
+    scope2 = (
+        list(map(lambda k: func.sum(res.columns[k]), res_keys))
+        + list(map(lambda k: res.columns[k], name_keys))
+    )
+
+    if localisation_name_key:
+        scope2.append(func.string_agg(res.columns[localisation_name_key], ', '))
+
+    res2 = (
+        DB.session.query(*scope2)
+        .group_by(
+            * (map(lambda k: res.columns[k], name_keys))
+        )
+        .order_by( res.columns['nom_saison'])
+    )
+
+    res2 = res2.all()
+    res  = res2
 
     if not res:
         return None
 
     out = {}
+    query_keys = res_keys + name_keys
     for index, key in enumerate(res_keys):
         out[key.replace(suffix, '')] = [
             [
