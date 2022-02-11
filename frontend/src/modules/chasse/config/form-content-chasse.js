@@ -10,7 +10,7 @@ export default {
         espece: {
             storeName: 'commonsEspece',
             type: 'list_form',
-            returnObject: true,
+            returnObject: false,
             list_type: 'select',
             label: 'Espece',
             filters: { 'code_espece': ['CF', 'CH', 'MF'] },
