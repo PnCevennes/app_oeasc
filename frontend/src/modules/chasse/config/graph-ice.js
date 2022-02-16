@@ -50,6 +50,14 @@ export default ( data ) => {
       },
       {
         name: `Regression (p-value=${round(dataGraph.p_value_slope, 3)})`,
+        dashStyle: dataGraph.p_value_slope < 0.05
+          ? 'Solid'
+          : 'ShortDash'
+        ,
+        lineWidth : dataGraph.p_value_slope <= 0.1
+          ? 2
+          : 0
+        ,
         data: [
           [
             dataGraph.x[0],
