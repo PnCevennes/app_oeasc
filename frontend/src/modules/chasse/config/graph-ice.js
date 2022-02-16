@@ -30,6 +30,7 @@ export default ( data ) => {
       {
         id: "ice",
         name: "Poids moyen",
+        lineWidth : 0,
         data: Object.keys(dataGraph.x).map(ind => [
           dataGraph.x[ind],
           dataGraph.y[ind]
