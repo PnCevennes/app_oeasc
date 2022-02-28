@@ -34,7 +34,7 @@ export default {
             label: 'ZC',
             change: changeLocalisation
         },
-        ids_zone_interet: {
+        ids_zone_indicative: {
             storeName: 'chasseZoneIndicative',
             type: 'list_form',
             multiple: true,
@@ -54,6 +54,6 @@ export default {
     },
     groups: [{
         direction: 'row',
-        forms: ['id_espece', 'ids_secteur', 'ids_zone_cynegetique', 'ids_zone_interet'],
+        forms: ['id_espece', 'ids_secteur', 'ids_zone_cynegetique', 'ids_zone_indicative'],
     }]
 }
