@@ -4,6 +4,7 @@ import router from "@/router";
 import store from "@/store/store";
 
 import vuetify from "@/plugins/vuetify"; // path to vuetify export
+import { Promised } from 'vue-promised'
 import VueSession from "vue-session";
 
 import Highcharts from 'highcharts'
@@ -23,6 +24,9 @@ Vue.use(vuetify);
 Vue.use(HighchartsVue, {
 	highcharts: Highcharts
 })
+
+Vue.component('Promised', Promised)
+
 
 new Vue({
   router,

@@ -7,7 +7,7 @@ const changeLocalisation = ({baseModel, config}) => {
 
 export default {
     formDefs: {
-        espece: {
+        id_espece: {
             storeName: 'commonsEspece',
             type: 'list_form',
             returnObject: false,
@@ -16,7 +16,7 @@ export default {
             filters: { 'code_espece': ['CF', 'CH', 'MF'] },
             default: 1,
         },
-        secteur: {
+        ids_secteur: {
             storeName: 'commonsSecteur',
             type: 'list_form',
             multiple: true,
@@ -25,7 +25,7 @@ export default {
             label: 'Secteur',
             change: changeLocalisation
         },
-        zc: {
+        ids_zone_cynegetique: {
             storeName: 'chasseZoneCynegetique',
             type: 'list_form',
             multiple: true,
@@ -34,7 +34,7 @@ export default {
             label: 'ZC',
             change: changeLocalisation
         },
-        zi: {
+        ids_zone_interet: {
             storeName: 'chasseZoneIndicative',
             type: 'list_form',
             multiple: true,
@@ -43,9 +43,17 @@ export default {
             label: 'ZI',
             change: changeLocalisation
         },
+        // s_min: {
+        //     storeName: 'chasseSaison',
+        //     type: 'list_form',
+        //     multiple: false,
+        //     returnObject: false,
+        //     list_type: 'autocomplete',
+        //     label: "Saison (min)"
+        // }
     },
     groups: [{
         direction: 'row',
-        forms: ['espece', 'secteur', 'zc', 'zi'],
+        forms: ['id_espece', 'ids_secteur', 'ids_zone_cynegetique', 'ids_zone_interet'],
     }]
 }

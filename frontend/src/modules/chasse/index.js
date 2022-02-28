@@ -18,7 +18,7 @@ import graphCustom from "./graph-custom";
 import formRealisationChasse from "./form-realisation-chasse";
 import exportsChasse from "./exports-chasse";
 import { apiRequest } from "@/core/js/data/api.js";
-
+import { round } from "@/core/js/util/util"
 const ROUTE = [
   {
     // admin
@@ -128,40 +128,38 @@ const ROUTE = [
 
 ];
 
+const chasseAction = (actionType) => ({ getter }, { id_espece, ids_zone_cynegetique, ids_zone_indicative, ids_secteur }) => {
+  getter;
+  return apiRequest(
+    "GET",
+    `api/chasse/results/${actionType}`,
+    {
+      params: {
+        id_espece,
+        ids_secteur,
+        ids_zone_cynegetique,
+        ids_zone_indicative
+    }}
+  );
+
+}
+
 const STORE = {
   getters: {
     configFormContentChasse: () => configFormContentChasse
   },
   actions: {
-    chasseBilan: ({ getter }, { id_espece, ids_zone_cynegetique, ids_zone_indicative, ids_secteur }) => {
-      getter;
-      return apiRequest(
-        "GET",
-        `api/chasse/results/bilan`,
-        {
-          params: {
-            id_espece,
-            ids_secteur,
-            ids_zone_cynegetique,
-            ids_zone_indicative
-        }}
-      );
+    chasseLastTauxRealisation: ({getter}, params) => {
+      return new Promise((resolve) => chasseAction('bilan')({getter}, params).then((bilan) => {
+        const last = bilan['taux_realisation'][bilan['taux_realisation'].length-1];
+        resolve({
+          saison: last[0],
+          taux_realisation: round(last[1] * 100, 1)
+        });
+      }))
     },
-    chasseIce: ({ getter }, { id_espece, ids_zone_indicative, ids_zone_cynegetique, ids_secteur }) => {
-      getter;
-      return apiRequest(
-        "GET",
-        `api/chasse/results/ice`,
-        {
-          params: {
-            id_espece,
-            ids_zone_cynegetique,
-            ids_secteur,
-            ids_zone_indicative
-          }
-        }
-      );
-    },
+    chasseBilan: chasseAction('bilan'),
+    chasseIce: chasseAction('ice'),
     chasseCustom: ({ getter }, params) => {
       getter;
       return apiRequest("GET", `api/chasse/results/custom/`, { params });
