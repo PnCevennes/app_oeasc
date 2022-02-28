@@ -127,7 +127,6 @@ export default {
     VRuntimeTemplate,
     genericForm
   },
-
   props: [
     "code",
     "containerClassIn",
@@ -180,7 +179,13 @@ export default {
     bSnack: false,
     msgSnack: null,
     bInitialized: false,
-    contentValues: { espece: null, zc: null, zi: null }
+    contentValues: {
+      id_espece: null,
+      espece:null,
+      ids_zone_indicative: [],
+      ids_zone_cynegetique: [],
+      ids_secteur: [],
+    },
   }),
   methods: {
     onMouseOver() {
