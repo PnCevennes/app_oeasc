@@ -32,7 +32,7 @@ const configMap = {
       label: 'IGN (Cartes)'
     },
     ign_ortho: {
-      url: `https://wxs.ign.fr/${IGN_KEY2}/geoportail/wmts?` +
+      url: `https://wxs.ign.fr/${IGN_KEY}/geoportail/wmts?` +
       "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
       "&STYLE=normal" +
       "&TILEMATRIXSET=PM" +
