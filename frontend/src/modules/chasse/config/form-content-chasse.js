@@ -1,6 +1,6 @@
 // raz des autres champs de localisation
 const changeLocalisation = ({baseModel, config}) => {
-    for (const name of['secteur', 'zc', 'zi'].filter(n => n != config.name)) {
+    for (const name of['ids_secteur', 'ids_zone_cynegetique', 'ids_zone_indicative'].filter(n => n != config.name)) {
         baseModel[name] = []
     }
 }
