@@ -2,7 +2,7 @@ import { styles } from './config-style.js'
 
 
 const IGN_KEY = '3s8maqk3hm42vsjty9yoajtb';
-const IGN_KEY2 = 'frqnaqqjemn7urmlxde3qkjj';
+// const IGN_KEY2 = 'frqnaqqjemn7urmlxde3qkjj';
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoiam9lbGNsZW1zIiwiYSI6ImNrbDBtaDkzcDBwZGwycG1sejQxczh0bWIifQ.LkAgAh9XQXuK1UeAcisSAA';
 const MAPBOX_ID = 'mapbox/streets-v11';
 
