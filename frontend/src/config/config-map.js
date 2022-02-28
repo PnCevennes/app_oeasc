@@ -1,8 +1,8 @@
 import { styles } from './config-style.js'
 
 
-const IGN_KEY = '3s8maqk3hm42vsjty9yoajtb';
-// const IGN_KEY2 = '4yfu5sc8fce57kufieu8hcsc';
+const IGN_KEY = '3s8maqk3hm42vsjty9yoajtb'; // scan25
+const IGN_KEY2 = 'decouverte'; // ORTHO
 const MAPBOX_ACCESS_TOKEN = 'pk.eyJ1Ijoiam9lbGNsZW1zIiwiYSI6ImNrbDBtaDkzcDBwZGwycG1sejQxczh0bWIifQ.LkAgAh9XQXuK1UeAcisSAA';
 const MAPBOX_ID = 'mapbox/streets-v11';
 
@@ -32,7 +32,7 @@ const configMap = {
       label: 'IGN (Cartes)'
     },
     ign_ortho: {
-      url: `https://wxs.ign.fr/clc/geoportail/wmts?` +
+      url: `https://wxs.ign.fr/${IGN_KEY2}/geoportail/wmts?` +
       "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
       "&STYLE=normal" +
       "&TILEMATRIXSET=PM" +
