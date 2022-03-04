@@ -20,7 +20,7 @@ WITH pre_bilan AS (
 	join oeasc_chasse.t_saisons ts on ts.id_saison = ta.id_saison
 	join oeasc_chasse.t_type_bracelets ttb on ttb.id_type_bracelet = ta.id_type_bracelet
 	join oeasc_chasse.t_attribution_massifs tam on tam.id_saison = ta.id_saison and tam.id_espece = ttb.id_espece and tr.id_zone_cynegetique_realisee = tam.id_zone_cynegetique
-	join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = tr.id_zone_cynegetique_realisee
+	left join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = tr.id_zone_cynegetique_realisee
 	GROUP BY
 		ta.id_saison,
 		ttb.id_espece,
