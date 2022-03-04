@@ -13,8 +13,8 @@ WITH pre_bilan AS (
 	tzc.id_secteur,
 	tam.nb_affecte_min AS nb_attribution_min_zc,
 	tam.nb_affecte_max  AS nb_attribution_max_zc,
-	COUNT(*) as nb_realisation_zi (WHERE ta.id_realisation IS NOT NULL),
-	COUNT(*) filter (where ta.id_realisation IS NOT NULL AND date_exacte IS NOT NULL AND date_exacte <= (CONCAT(SPLIT_PART(ts.nom_saison, '-', 1), '-10-31'))::date) nb_realisation_avant_11_zi
+	COUNT(*) filter (WHERE tr.id_realisation IS NOT NULL) as nb_realisation_zi,
+	COUNT(*) filter (where tr.id_realisation IS NOT NULL AND tr.date_exacte IS NOT NULL AND tr.date_exacte <= (CONCAT(SPLIT_PART(ts.nom_saison, '-', 1), '-10-31'))::date) nb_realisation_avant_11_zi
 	from oeasc_chasse.t_attributions ta
 	left join oeasc_chasse.t_realisations tr on ta.id_attribution = tr.id_attribution
 	join oeasc_chasse.t_saisons ts on ts.id_saison = ta.id_saison
