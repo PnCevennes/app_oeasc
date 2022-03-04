@@ -15,12 +15,12 @@ WITH pre_bilan AS (
 	tam.nb_affecte_max  AS nb_attribution_max_zc,
 	COUNT(*) as nb_realisation_zi,
 	COUNT(*) filter (where date_exacte <= (CONCAT(SPLIT_PART(ts.nom_saison, '-', 1), '-10-31'))::date) nb_realisation_avant_11_zi
-	from oeasc_chasse.t_realisations tr
-	join oeasc_chasse.t_attributions ta on ta.id_attribution = tr.id_attribution
+	from oeasc_chasse.t_attributions ta
+	left join oeasc_chasse.t_realisations tr on ta.id_attribution = tr.id_attribution
 	join oeasc_chasse.t_saisons ts on ts.id_saison = ta.id_saison
 	join oeasc_chasse.t_type_bracelets ttb on ttb.id_type_bracelet = ta.id_type_bracelet
 	join oeasc_chasse.t_attribution_massifs tam on tam.id_saison = ta.id_saison and tam.id_espece = ttb.id_espece and tr.id_zone_cynegetique_realisee = tam.id_zone_cynegetique
-	join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = tr.id_zone_cynegetique_realisee 
+	join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = tr.id_zone_cynegetique_realisee
 	GROUP BY
 		ta.id_saison,
 		ttb.id_espece,
@@ -110,7 +110,7 @@ SELECT
 	cs.nb_attribution_min_secteur,
 	cs.nb_attribution_max_secteur,
 	cs.nb_realisation_secteur,
-	cs.nb_realisation_avant_11_secteur,	
+	cs.nb_realisation_avant_11_secteur,
 	pb.nb_attribution_min_zc,
 	pb.nb_attribution_max_zc,
 	czc.nb_realisation_zc,
@@ -122,7 +122,7 @@ SELECT
 	FROM pre_bilan pb
 	JOIN count_attribution_zi cazi ON cazi.id_saison = pb.id_saison AND cazi.id_espece = pb.id_espece AND cazi.id_zone_indicative = pb.id_zone_indicative
 	JOIN count_zc czc ON czc.id_saison = pb.id_saison AND czc.id_espece = pb.id_espece AND czc.id_zone_cynegetique = pb.id_zone_cynegetique
-	JOIN count_secteur cs ON cs.id_saison = pb.id_saison AND cs.id_espece = pb.id_espece AND cs.id_secteur = pb.id_secteur  
+	JOIN count_secteur cs ON cs.id_saison = pb.id_saison AND cs.id_espece = pb.id_espece AND cs.id_secteur = pb.id_secteur
 	JOIN count_espece ce ON ce.id_saison = pb.id_saison AND ce.id_espece = pb.id_espece
 ;
 
@@ -171,7 +171,7 @@ WITH pre_bilan AS (
 		GROUP BY
 			id_secteur,
 			id_espece,
-			id_saison		
+			id_saison
 ), count_espece AS (
 	SELECT
 		SUM(nb_attribution_min_zi) AS nb_attribution_min_espece,
