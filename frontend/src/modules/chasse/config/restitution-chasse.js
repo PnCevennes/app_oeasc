@@ -38,6 +38,9 @@ export default {
         nom_zone_cynegetique: {
             text: 'Massif Cynégetique'
         },
+        bracelet: {
+          text: "Type de bracelet",
+        },
         nom_espece: {
             text: 'Espece',
             id: "id_espece"

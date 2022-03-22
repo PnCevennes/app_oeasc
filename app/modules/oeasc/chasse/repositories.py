@@ -1,4 +1,5 @@
 from posixpath import normpath
+import json
 from utils_flask_sqla.generic import GenericTable
 from flask import request, current_app
 from ..generic.repository import getlist
@@ -33,8 +34,6 @@ def chasse_process_args():
     if len(id_zone_cynegetique) > 0:
         id_secteur = []
 
-
-
     return {
         'id_saison': id_saison,
         'id_espece': id_espece,
@@ -42,6 +41,35 @@ def chasse_process_args():
         'id_zone_cynegetique': id_zone_cynegetique,
         'id_zone_indicative': id_zone_indicative,
     }
+
+def get_attribution_result(params):
+
+    columns = GenericTable('v_custom_result_attribution', 'oeasc_chasse', DB.engine).tableDef.columns
+
+    query = (
+        DB.session.query(
+            func.count(columns.id_attribution),
+            func.count(columns.id_attribution).filter(columns.id_realisation != None)
+        )
+    )
+
+    for filter_key, filter_value in params.items():
+        if not hasattr(columns, filter_key) or filter_value in [None, []]:
+            continue
+        print(filter_key, filter_value)
+        if isinstance(filter_value, list):
+            query = query.filter(getattr(columns, filter_key).in_(filter_value))
+        else:
+            query = query.filter(getattr(columns, filter_key) == (filter_value))
+
+    res = query.one()
+
+    return {
+        "nb_realisation": res[1],
+        "nb_attribution": res[0],
+        "taux_realisation": 0 if not res[1]  else round(res[1]/res[0] * 100)
+    }
+
 
 def chasse_get_infos():
     args = chasse_process_args()
@@ -80,7 +108,7 @@ def chasse_get_infos():
         else 'Cœur'
     )
 
-    taux_realisation = get_chasse_bilan(args)['taux_realisation'][-1][1]
+    # taux_realisation = get_chasse_bilan(args)['taux_realisation'][-1][1]
 
     nom_saison = DB.session.query(TSaisons.nom_saison).filter(TSaisons.id_saison == args['id_saison']).one()[0]
     last_5_id_saisons = list(map(
@@ -96,10 +124,11 @@ def chasse_get_infos():
         'nom_saison': nom_saison,
         'nom_espece': nom_espece,
         'echelle': echelle,
-        'taux_realisation': round(taux_realisation, 2)*100,
         'last_5_id_saison': last_5_id_saisons,
-        'nom_saison': nom_saison
+        'nom_saison': nom_saison,
+        **get_attribution_result(args)
     }
+
 
 def get_chasse_bilan(params):
 
