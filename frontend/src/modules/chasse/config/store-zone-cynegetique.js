@@ -4,7 +4,6 @@ export default {
   label: "Zone Cynegetique",
   labels: "Zones Cynegetiques",
   serverSide: true,
-
   defs: {
     id_zone_cynegetique: {
       label: "ID",

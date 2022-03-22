@@ -43,9 +43,8 @@ export default {
   },
   methods: {
     process() {
-        console.log('process', this.field_name)
       if (this.processing) {
-          return 
+          return
       }
       if (
         !(this.field_name)

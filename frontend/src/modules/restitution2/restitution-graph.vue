@@ -27,6 +27,8 @@ import offlineExporting from "highcharts/modules/offline-exporting";
 import processData from "./process/graph-custom";
 import restitutions from "./config/restitutions";
 import props from './config/props';
+import { jsoncopy, fde }  from '../../core/js/util/util'
+
 
 exportingInit(Highcharts);
 offlineExporting(Highcharts);
@@ -37,7 +39,8 @@ export default {
   data: () => ({
     chartOptions: null, // option pour le graphique highchart (calculé en fonction des options et des données)
     hcInstance: Highcharts,
-    isProcessing: false // test pour ne pas lancer plusieurs requêtes en même temps
+    isProcessing: false, // test pour ne pas lancer plusieurs requêtes en même temps
+    processedProps: null,
   }),
 
   // on déclenche process à chaque changement de propriété
@@ -55,7 +58,8 @@ export default {
     process() {
 
       // test pour ne pas lancer plusieurs requêtes en meme temps
-      if (this.isProcessing) {
+      if (this.isProcessing && fde(this.$props, this.processedProps)) {
+        console.log('processing', this.$props, this.processedProps)
           return
       }
 
@@ -65,23 +69,31 @@ export default {
         return;
       }
 
+      this.processedProps = jsoncopy(this.$props)
+
       // debut process
       this.isProcessing = true;
 
       // configuration de la restitution selon le type
       const restitution = restitutions[this.dataType];
 
+      const params = this.$props
+      console.log(params, restitution)
+      params.sort = restitution.items[params.fieldName].sort;
+
       this.$store
         // requete avec les props en parametres de route
         // l'action restitutionCustom est définie dans l'index
-        .dispatch('restitutionCustom', this.$props)
+        .dispatch('restitutionCustom', params)
         .then(data => {
 
           // calcul des options du graph
-          this.chartOptions = processData(data, this.$props, restitution);
+          this.chartOptions = processData(data, this.$props, restitution.items[params.fieldName].text);
 
           // process terminé
           this.isProcessing = false;
+          this.processedProps = null;
+
         });
     }
   },

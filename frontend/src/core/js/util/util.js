@@ -1,7 +1,18 @@
 /* eslint-disable no-magic-numbers */
 import moment from "moment";
-
+import fastDeepEqual from 'fast-deep-equal';
 /** Functions utiles */
+
+
+const fde = (obj1, obj2) => {
+  return fastDeepEqual(obj1, obj2)
+}
+
+const jsoncopy = obj => {
+  return obj
+    ? JSON.parse(JSON.stringify(obj))
+    : null;
+}
 
 const copy = obj => {
   if (Array.isArray(obj)) {
@@ -86,5 +97,7 @@ export {
   upFirstLetter,
   camelToSnakeCase,
   round,
-  isObject
+  isObject,
+  jsoncopy,
+  fde
 };

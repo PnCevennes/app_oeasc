@@ -69,7 +69,8 @@ export default {
       items: [
         { value: "pie", text: "Camenbert" },
         { value: "column", text: "Barre |" },
-        { value: "bar", text: "Barre -" }
+        { value: "bar", text: "Barre -" },
+        { value: "line", text: "Ligne" }
       ],
       condition: ({ baseModel }) => baseModel.display == "graph"
     },
@@ -105,7 +106,7 @@ export default {
     stacking: {
       type: "bool_switch",
       label: "Empilé",
-      condition: ({ baseModel }) => baseModel.display == "graph" && ['bar', 'column'].includes(baseModel.typeGraph)
+      condition: ({ baseModel }) => baseModel.display == "graph" && ['bar', 'column', 'line'].includes(baseModel.typeGraph)
     },
     filterList: {
       type: "list_form",

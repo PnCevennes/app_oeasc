@@ -1,6 +1,9 @@
-from sqlalchemy import text
+from sqlalchemy import text, func
 from flask import current_app
 from ..nomenclature import nomenclature_oeasc
+from utils_flask_sqla.generic import GenericTable
+
+cache_generic_table = {}
 
 config = current_app.config
 DB = config['DB']
@@ -177,3 +180,40 @@ SELECT
     }
 
     return out
+
+
+def result_custom(params):
+
+    print('custom')
+    schema_name = params['view'].split('.')[0]
+    table_name = params['view'].split('.')[1]
+    if not cache_generic_table.get(params['view']):
+        print('get view')
+        cache_generic_table[params['view']] = GenericTable(table_name, schema_name, DB.engine)
+
+    view = cache_generic_table.get(params['view'])
+
+    query = DB.session.query(getattr(view.tableDef.columns, params['field_name']), func.count('*'))
+
+    # filter
+    for filter_key, filter_value in params.get('filters', {}).items():
+        query = query.filter(getattr(view.tableDef.columns, filter_key).in_(filter_value))
+
+
+    group_bys = [ params['field_name'] ]
+    order_by = 'COUNT(*) DESC'
+
+    if params['sort']:
+        field_sort = params['sort'].replace('+', '')
+        if field_sort != params['field_name']:
+            group_bys.append(field_sort)
+
+        order_by = field_sort
+
+        if '+' == params['sort'][-1]:
+            order_by += " DESC"
+
+    query = query.group_by(text(', '.join(group_bys)))
+    query = query.order_by(text(order_by))
+    res = query.all()
+    return [ {'text': r[0], 'count': r[1] } for r in res ]

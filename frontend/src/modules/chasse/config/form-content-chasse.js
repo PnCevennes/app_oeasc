@@ -1,6 +1,6 @@
 // raz des autres champs de localisation
 const changeLocalisation = ({baseModel, config}) => {
-    for (const name of['ids_secteur', 'ids_zone_cynegetique', 'ids_zone_indicative'].filter(n => n != config.name)) {
+    for (const name of['id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'].filter(n => n != config.name)) {
         baseModel[name] = []
     }
 }
@@ -16,7 +16,7 @@ export default {
             filters: { 'code_espece': ['CF', 'CH', 'MF'] },
             default: 1,
         },
-        ids_secteur: {
+        id_secteur: {
             storeName: 'commonsSecteur',
             type: 'list_form',
             multiple: true,
@@ -25,7 +25,7 @@ export default {
             label: 'Secteur',
             change: changeLocalisation
         },
-        ids_zone_cynegetique: {
+        id_zone_cynegetique: {
             storeName: 'chasseZoneCynegetique',
             type: 'list_form',
             multiple: true,
@@ -34,7 +34,7 @@ export default {
             label: 'ZC',
             change: changeLocalisation
         },
-        ids_zone_indicative: {
+        id_zone_indicative: {
             storeName: 'chasseZoneIndicative',
             type: 'list_form',
             multiple: true,
@@ -43,7 +43,16 @@ export default {
             label: 'ZI',
             change: changeLocalisation
         },
-        // s_min: {
+        id_saison: {
+            label: "Saison",
+            storeName: "chasseSaison",
+            type: "list_form",
+            list_type: "select",
+            returnObject: false,
+            required: true,
+            default: ({ $store }) => $store._actions.lastSaison[0]($store, {returnObject:false})
+          },
+              // s_min: {
         //     storeName: 'chasseSaison',
         //     type: 'list_form',
         //     multiple: false,
@@ -54,6 +63,6 @@ export default {
     },
     groups: [{
         direction: 'row',
-        forms: ['id_espece', 'ids_secteur', 'ids_zone_cynegetique', 'ids_zone_indicative'],
+        forms: ['id_saison', 'id_espece', 'id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'],
     }]
 }

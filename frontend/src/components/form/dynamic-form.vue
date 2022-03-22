@@ -382,7 +382,7 @@ export default {
       formFunctions.rules.processRules(configResolved);
 
       // si default et non attribué => on lui donne la valeur
-      if (configResolved.default && !this.baseModel[this.config.name]) {
+      if (configResolved.default && (configResolved.multiple ? this.baseModel[this.config.name].length : !this.baseModel[this.config.name])) {
         // si promise ou non ??
         Promise.resolve(configResolved.default).then(value => {
           this.baseModel[this.config.name] = value;

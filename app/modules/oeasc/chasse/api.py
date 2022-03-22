@@ -14,7 +14,8 @@ from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery, GenericTable
 from .repositories import (
     get_chasse_bilan,
-    chasse_process_args
+    chasse_process_args,
+    chasse_get_infos
 )
 from sqlalchemy import column, select, func, table, distinct, over
 import json
@@ -106,9 +107,9 @@ def api_result_ice():
 
     req = func.oeasc_chasse.fct_calcul_ice_mc(
         params['id_espece'],
-        params['ids_zone_indicative'],
-        params['ids_zone_cynegetique'],
-        params['ids_secteur']
+        params['id_zone_indicative'],
+        params['id_zone_cynegetique'],
+        params['id_secteur']
     )
     res = DB.engine.execute(req).first()[0]
     return res
@@ -119,6 +120,13 @@ def api_result_ice():
 #     params = chasse_process_args()
 #     columns = GenericTable('v_pre_bilan_pretty', 'oeasc_chasse', DB.engine).tableDef.columns
 
+
+@bp.route('results/infos', methods=['GET'])
+@json_resp
+def api_chasse_result_info():
+    '''
+    '''
+    return chasse_get_infos()
 
 @bp.route('results/custom/', methods=['GET'])
 @json_resp
@@ -139,6 +147,9 @@ def api_result_custom():
         args[p] = getlist(request.args, 'filters')
 
     args['filters']={}
+
+
+
 
     req = func.oeasc_chasse.fct_custom_results_j(json.dumps(args))
     res = DB.engine.execute(req).first()[0]

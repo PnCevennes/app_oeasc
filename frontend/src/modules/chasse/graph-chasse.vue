@@ -29,7 +29,7 @@ offlineExporting(Highcharts);
 
 export default {
   name: "graph-chasse",
-  props: ["id_espece", "ids_zone_cynegetique", "ids_secteur", "ids_zone_indicative", "type", "width", "height"],
+  props: ["id_espece", "id_zone_cynegetique", "id_secteur", "id_zone_indicative", "type", "width", "height"],
   data: () => ({
     msgError: null,
     bError: null,
@@ -71,10 +71,10 @@ export default {
 
       // test qu'il n'y ai pas 2 valeur pour zi zc secteur
       if (
-          !!this.ids_zone_cynegetique.length + !!this.ids_zone_indicative.length + !! this.ids_secteur.length > 1
+          !!this.id_zone_cynegetique.length + !!this.id_zone_indicative.length + !! this.id_secteur.length > 1
       ) {
         console.log(
-          !!this.ids_zone_cynegetique.length + !!this.ids_zone_indicative.length + !! this.ids_secteur.length
+          !!this.id_zone_cynegetique.length + !!this.id_zone_indicative.length + !! this.id_secteur.length
           )
         return;
       }
@@ -91,9 +91,9 @@ export default {
       this.$store
         .dispatch(this.actions[this.type], {
           id_espece: this.id_espece,
-          ids_zone_cynegetique: this.ids_zone_cynegetique,
-          ids_zone_indicative: this.ids_zone_indicative,
-          ids_secteur: this.ids_secteur
+          id_zone_cynegetique: this.id_zone_cynegetique,
+          id_zone_indicative: this.id_zone_indicative,
+          id_secteur: this.id_secteur
         })
         .then(data => {
           this.chartOptions = this.processData[this.type](data);
@@ -101,7 +101,7 @@ export default {
         },
         error => {
           console.log('error',error);
-          this.msgError = `pas de données pour les valeurs suivantes id_espece ${this.id_espece} ids_zone_cynegetique ${this.ids_zone_cynegetique} ids_zone_indicative ${this.ids_zone_indicative}`
+          this.msgError = `pas de données pour les valeurs suivantes id_espece ${this.id_espece} id_zone_cynegetique ${this.id_zone_cynegetique} id_zone_indicative ${this.id_zone_indicative}`
           this.bError = true;
           this.processing = false;
           this.chartOptions = null;

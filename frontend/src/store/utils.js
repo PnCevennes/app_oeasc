@@ -111,13 +111,13 @@ const processDefaults = configStore => {
 };
 
 export default {
-  /** initialise un store avec getters mutation dispatch etc 
-   * 
-   * Exemple : 
+  /** initialise un store avec getters mutation dispatch etc
+   *
+   * Exemple :
   storeUtils.addStore(STORE, "inRealisation", "api/generic/in/realisation", {
     idFieldName: "id_realisation"
   });
-   * 
+   *
    * name commonsContent
    * api api/generic
    * settings: {
@@ -157,6 +157,7 @@ export default {
       delete: `delete${storeNameCapitalized}`,
       getAll: `getAll${storeNameCapitalized}`,
       count: `count${storeNameCapitalized}`,
+      find: `find${storeNameCapitalized}`,
       idFieldName: configIn.idFieldName,
       displayFieldName: configIn.displayFieldName,
       loaded: false,
@@ -180,8 +181,20 @@ export default {
     const getters = {};
 
     /** recuperation des config doit marcher avec tous les stores */
-    getters.configStore = state => storeName =>
-      state[`${storeName}ConfigStore`];
+    getters.configStore = state => storeName => state[`${storeName}ConfigStore`];
+
+    getters.findConfigStore = state => params => {
+      const key = Object.keys(state).find(key => {
+        if (!key.includes('ConfigStore')) {
+          return false;
+        }
+        return Object.entries(params).every(([k,v]) => {
+          return state[key][k] == v
+        } )
+      });
+      return key && state[key];
+    }
+
 
     /** recupération du tableau entier */
     getters[storeNames] = state => state[storeNames];
@@ -189,6 +202,20 @@ export default {
     /** nombre d'éléments */
     getters[configStore.count] = state => state[configStore.count];
 
+
+    getters[configStore.find] = state => (params) => {
+      return state[storeNames].filter(v =>
+        {
+          return Object.keys(params).length == 0
+          || Object.entries(params).every(([pk,pv]) => {
+            return (!Object.keys(v).includes(pk)) ||
+              ( Array.isArray(pv)
+                ? ((!pv.length) || pv.includes(v[pk]))
+                : v[pk] == pv
+              )
+          })
+        })
+    }
     /** récupération d'un objet  par value, fieldName
      * avec idFieldName par défaut
      */
@@ -214,7 +241,7 @@ export default {
 
     /** assignation du tableau entier */
     mutations[storeNames] = (state, objList) => {
-      
+
       if (!state[storeNames].length) {
         state[storeNames] = objList;
         return;
@@ -277,11 +304,14 @@ export default {
     actions[configStore.getAll] = (
       { getters, commit },
        options = {}
-    ) => {    
+    ) => {
       return new Promise((resolve, reject) => {
         const loaded = !options.forceReload && configStore.loaded;
         const objList = getters[storeNames];
         if (objList && objList.length && loaded && !options.notCommit) {
+          if(options) {
+            resolve(getters[configStore.find](options))
+          }
           resolve(objList);
           return;
         }
@@ -289,7 +319,7 @@ export default {
           data => {
 
             const items = data.items || data;
-            
+
             if(!options.notCommit) {
               commit(storeNameConfig, { loaded: true });
               commit(storeNames, items);

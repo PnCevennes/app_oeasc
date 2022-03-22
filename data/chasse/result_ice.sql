@@ -141,14 +141,14 @@ CREATE OR REPLACE FUNCTION tinv(IN p_value_in FLOAT, IN df_in INTEGER)
     LANGUAGE plr;
 
 -- Calcul ice
-DROP FUNCTION IF EXISTS oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, ids_zone_indicative_in INTEGER[], ids_zone_cynegetique_in INTEGER[], ids_secteur_in INTEGER[]);
-CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, ids_zone_indicative_in INTEGER[], ids_zone_cynegetique_in INTEGER[], ids_secteur_in INTEGER[])
+DROP FUNCTION IF EXISTS oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_indicative_in INTEGER[], id_zone_cynegetique_in INTEGER[], id_secteur_in INTEGER[]);
+CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_indicative_in INTEGER[], id_zone_cynegetique_in INTEGER[], id_secteur_in INTEGER[])
 		RETURNS JSONB AS
 		$BODY$
 		DECLARE
 			j_out JSONB;
 		BEGIN
-			RAISE NOTICE 'calcul ice pour id_espece % ids_zone_indicative %d ids_zone_cynegetique % ids_secteur %', id_espece_in, ids_zone_indicative_in, ids_zone_cynegetique_in, ids_secteur_in;
+			RAISE NOTICE 'calcul ice pour id_espece % id_zone_indicative %d id_zone_cynegetique % id_secteur %', id_espece_in, id_zone_indicative_in, id_zone_cynegetique_in, id_secteur_in;
 		    WITH
 				-- 1 ere extraction (date + poids)
 				pre_data_1 AS ( SELECT
@@ -186,19 +186,19 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 					WHERE
 						p1.id_espece = id_espece_in
 						AND (
-							array_length(ids_zone_indicative_in, 1) IS NULL
+							array_length(id_zone_indicative_in, 1) IS NULL
 							OR
-							p1.id_zone_indicative_realisee =  ANY(ids_zone_indicative_in)
+							p1.id_zone_indicative_realisee =  ANY(id_zone_indicative_in)
 						)
 						AND (
-							array_length(ids_zone_cynegetique_in, 1) IS NULL
+							array_length(id_zone_cynegetique_in, 1) IS NULL
 							OR
-							p1.id_zone_cynegetique_realisee =  ANY(ids_zone_cynegetique_in)
+							p1.id_zone_cynegetique_realisee =  ANY(id_zone_cynegetique_in)
 						)
 						AND (
-							array_length(ids_secteur_in, 1) IS NULL
+							array_length(id_secteur_in, 1) IS NULL
 							OR
-							p1.id_secteur = ANY(ids_secteur_in)
+							p1.id_secteur = ANY(id_secteur_in)
 						)
 					ORDER BY doy - md.min_doy, y
 				)
@@ -280,17 +280,17 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 						(
 							SELECT STRING_AGG(nom_zone_cynegetique, ', ' ORDER BY nom_zone_cynegetique)
 								FROM oeasc_chasse.t_zone_cynegetiques tzc
-								WHERE tzc.id_zone_cynegetique = ANY(ids_zone_cynegetique_in)
+								WHERE tzc.id_zone_cynegetique = ANY(id_zone_cynegetique_in)
 						) as  nom_zone_cynegetique,
 						(
 							SELECT STRING_AGG(nom_zone_indicative, ', ' ORDER BY nom_zone_indicative)
 								FROM oeasc_chasse.t_zone_indicatives tzi
-								WHERE tzi.id_zone_indicative = ANY(ids_zone_indicative_in)
+								WHERE tzi.id_zone_indicative = ANY(id_zone_indicative_in)
 						) as  nom_zone_indicative,
 						(
 							SELECT STRING_AGG(nom_secteur, ', ' ORDER BY nom_secteur)
 								FROM oeasc_commons.t_secteurs ts
-								WHERE ts.id_secteur = ANY(ids_secteur_in)
+								WHERE ts.id_secteur = ANY(id_secteur_in)
 						) as  nom_secteur,
 						nom_espece
 						FROM regr_1 r1, regr_2 r2

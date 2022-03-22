@@ -48,7 +48,10 @@ export default ( data ) => {
         },
         {
           name: "Réalisations",
-          data: data.nb_realisation
+          data: data.nb_realisation,
+          dataLabels: {
+            enabled: true
+          }
         }
       ],
       height: "600px",

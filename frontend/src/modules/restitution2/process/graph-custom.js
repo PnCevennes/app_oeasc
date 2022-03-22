@@ -115,8 +115,6 @@ const seriesRamifiees = (data, typeGraph) => {
  *      - seulement besoin de text pour graphe simple
  */
 export default (data, options, text) => {
-
-  console.log(options)
   // pour savoir si on a affaire à un graph 'simple' ou un graphe 'ramifié
   // sert pour le calcul des series
   const condDoubleGraph = options.fieldName2 && options.fieldName2 != options.fieldName;
