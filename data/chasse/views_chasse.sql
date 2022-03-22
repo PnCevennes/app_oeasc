@@ -8,8 +8,8 @@ WITH pre_bilan AS (
 	select
 	ta.id_saison,
 	ttb.id_espece,
-	tr.id_zone_cynegetique_realisee as id_zone_cynegetique,
-	tr.id_zone_indicative_realisee as id_zone_indicative,
+	ta.id_zone_cynegetique_affectee as id_zone_cynegetique,
+	ta.id_zone_indicative_affectee as id_zone_indicative,
 	tzc.id_secteur,
 	tam.nb_affecte_min AS nb_attribution_min_zc,
 	tam.nb_affecte_max  AS nb_attribution_max_zc,
@@ -19,13 +19,13 @@ WITH pre_bilan AS (
 	left join oeasc_chasse.t_realisations tr on ta.id_attribution = tr.id_attribution
 	join oeasc_chasse.t_saisons ts on ts.id_saison = ta.id_saison
 	join oeasc_chasse.t_type_bracelets ttb on ttb.id_type_bracelet = ta.id_type_bracelet
-	join oeasc_chasse.t_attribution_massifs tam on tam.id_saison = ta.id_saison and tam.id_espece = ttb.id_espece and tr.id_zone_cynegetique_realisee = tam.id_zone_cynegetique
-	left join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = tr.id_zone_cynegetique_realisee
+	join oeasc_chasse.t_attribution_massifs tam on tam.id_saison = ta.id_saison and tam.id_espece = ttb.id_espece and ta.id_zone_cynegetique_affectee = tam.id_zone_cynegetique
+	join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = ta.id_zone_cynegetique_affectee
 	GROUP BY
 		ta.id_saison,
 		ttb.id_espece,
-		tr.id_zone_indicative_realisee,
-		tr.id_zone_cynegetique_realisee,
+		ta.id_zone_indicative_affectee,
+		ta.id_zone_cynegetique_affectee,
 		id_secteur,
 		nb_affecte_min,
 		nb_affecte_max

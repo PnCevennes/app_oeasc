@@ -10,6 +10,7 @@ from utils_flask_sqla.response import json_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
 
+from .repository import result_custom
 from ..generic.repository import getlist
 
 config = current_app.config
@@ -86,6 +87,7 @@ def api_result_custom():
     args['field_name'] = request.args.get('fieldName')
     args['field_name_2'] = request.args.get('fieldName2')
     args['data_type'] = request.args.get('dataType')
+    args['sort'] = request.args.get('sort')
 
     # filtres
     args['filters'] = request.args.get('filters', {})
@@ -93,7 +95,10 @@ def api_result_custom():
     # on retire les filtres qui sont à []
     # sinon cela pose problème dans la fonction sql
     args['filters'] = {
-        k:v
+        k: (
+            v if isinstance(v, list)
+            else [v]
+        )
         for (k,v) in args['filters'].items()
         if v
     }
@@ -105,8 +110,12 @@ def api_result_custom():
 
     # exectution de la function oeasc_chasse.fct_custom_results_j
     # qui renvoie un objet de type dictionnaire
-    req = func.oeasc_chasse.fct_custom_results_j(json.dumps(args))
-    res = DB.engine.execute(req).first()[0]
+
+    res = result_custom(args)
+
+
+    # req = func.oeasc_chasse.fct_custom_results_j(json.dumps(args))
+    # res = DB.engine.execute(req).first()[0]
 
     # ici res est un tableau :
     # [ ...
@@ -118,6 +127,8 @@ def api_result_custom():
     # - on renvoie res
     if not args['field_name_2'] or args['field_name'] == args['field_name_2']:
         return res
+
+
 
     # si field_name_2 est défini on calcule les sous-données
 
@@ -131,8 +142,6 @@ def api_result_custom():
     for r in res:
         # on défini un filtre pour le champs <field_name_save> à [ r['text'] ]
         args['filters'][field_name_save] = [r['text']]
-        req = func.oeasc_chasse.fct_custom_results_j(json.dumps(args))
         # on place le résultat dans r['data']
-        r['data'] = DB.engine.execute(req).first()[0]
-
+        r['data'] = result_custom(args)
     return res

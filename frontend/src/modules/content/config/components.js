@@ -1,3 +1,5 @@
+
+import val from "../val"
 import faqDeclaration from "../faq-declaration";
 import tableAide from "../table-aide";
 import listePartenaire from "../liste-partenaire";
@@ -13,6 +15,7 @@ import dynamicForm from "@/components/form/dynamic-form";
 import dynamicFormGroup from "@/components/form/dynamic-form-group";
 
 export default {
+    val,
     faqDeclaration,
     tableAide,
     declarationTable,

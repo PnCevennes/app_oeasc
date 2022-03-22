@@ -24,11 +24,10 @@ export default {
           label: "Zone cinégétique",
           type: 'list_form',
           list_type: "select",
-          returnObject: true,    
+          returnObject: true,
           displayFieldName: 'code_zone_cynegetique',
           storeName: 'chasseZoneCynegetique',
           required: true,
       },
     }
   };
-  

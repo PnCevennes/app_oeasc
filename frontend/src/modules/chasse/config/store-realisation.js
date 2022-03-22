@@ -170,21 +170,7 @@ export default {
       required: true,
       // on ne change pas la saison pour un update
       disabled: ({ baseModel }) => !!baseModel.id_realisation,
-      default: ({ $store }) =>
-        new Promise(resolve => {
-          const configStore = $store.getters.configStore("chasseSaison");
-          $store
-            .dispatch(configStore.getAll, {
-              current: true
-            })
-            .then(saisons => {
-              if (saisons && saisons[0]) {
-                resolve(saisons[0]);
-              } else {
-                resolve(null);
-              }
-            });
-        })
+      default: ({ $store }) => $store._actions.lastSaison[0]($store)
     },
     attribution: {
       label: "Attribution",

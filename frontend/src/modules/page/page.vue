@@ -1,8 +1,8 @@
 <template>
 
   <div>
-    <div v-if="contentCode" class='page'>
-      <oeasc-content :code="contentCode"></oeasc-content>
+    <div v-if="contentCode"  >
+      <oeasc-content :code="contentCode" :class="{page: true, large}"></oeasc-content>
     </div>
   </div>
 </template>
@@ -13,6 +13,7 @@ import './page.css';
 
 export default {
   name: "page",
+  props: ["large"],
   components: { oeascContent },
   computed: {
     contentCode() {

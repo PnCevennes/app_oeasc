@@ -20,6 +20,7 @@ for file in $(echo \
     "../chasse/views_chasse.sql" \
     "../chasse/result_ice.sql" \
     "../chasse/views_export_chasse.sql" \
+    "../chasse/result_custom.sql" \
     )
 do
 

@@ -17,6 +17,7 @@ import graphChasse from "./graph-chasse";
 import graphCustom from "./graph-custom";
 import formRealisationChasse from "./form-realisation-chasse";
 import exportsChasse from "./exports-chasse";
+import pageTypeChasse from "./page-chasse";
 import { apiRequest } from "@/core/js/data/api.js";
 import { round } from "@/core/js/util/util"
 const ROUTE = [
@@ -117,28 +118,34 @@ const ROUTE = [
     access: 4
   },
   {
-    name: "chasse.resultats_exemples",
-    path: "/chasse/resultats_exemples",
-    label: "Resultats (exemples)",
+    name: "chasse.page_type",
+    path: "/chasse/page_type",
+    label: "Bilan analyse plan de chasse",
     hideTitle: true,
-    type: 'page',
-    content: 'chasseResultatsExemples',
+    component: pageTypeChasse,
+    // type: 'page',
+    // props: {
+    //   large: true
+    // },
+    // content: 'chassePageType',
     access: 4
   }
 
+
 ];
 
-const chasseAction = (actionType) => ({ getter }, { id_espece, ids_zone_cynegetique, ids_zone_indicative, ids_secteur }) => {
+const chasseAction = (actionType) => ({ getter }, { id_saison, id_espece, id_zone_cynegetique, id_zone_indicative, id_secteur }) => {
   getter;
   return apiRequest(
     "GET",
     `api/chasse/results/${actionType}`,
     {
       params: {
+        id_saison,
         id_espece,
-        ids_secteur,
-        ids_zone_cynegetique,
-        ids_zone_indicative
+        id_secteur,
+        id_zone_cynegetique,
+        id_zone_indicative
     }}
   );
 
@@ -146,16 +153,49 @@ const chasseAction = (actionType) => ({ getter }, { id_espece, ids_zone_cynegeti
 
 const STORE = {
   getters: {
-    configFormContentChasse: () => configFormContentChasse
+    configFormContentChasse: () => configFormContentChasse,
   },
   actions: {
+    lastSaison: ($store, options = {returnObject: true}) => {
+      return new Promise(resolve => {
+        const configStore = $store.getters.configStore("chasseSaison");
+        $store
+          .dispatch(configStore.getAll, {
+            current: true
+          })
+          .then(saisons => {
+            if (saisons && saisons[0]) {
+              resolve(options.returnObject ? saisons[0] : saisons[0].id_saison);
+            } else {
+              resolve(null);
+            }
+          });
+      })
+    },
+    chasseEchelle: ($store, params) => {
+      const testVar = (v) => Array.isArray(v) ? v.length : v;
+      return new Promise((resolve) => {
+        for (const idFieldName of ['id_zone_indicative', 'id_zone_cynegetique', 'id_secteur']) {
+          if(!testVar(params[idFieldName])) {
+            continue
+          }
+          const configStore = $store.getters.findConfigStore({idFieldName});
+          $store.dispatch(configStore.getAll, params )
+            .then( val => {
+                resolve(`${configStore.labels} : ${val.map(v => v[configStore.displayFieldName]).join(', ')}`)
+            });
+          return;
+        }
+        resolve(`Cœur`);
+      });
+    },
+    getAnalyseBilanInfos: ($store, params) => {
+      return apiRequest("GET", 'api/chasse/results/infos',  { params })
+    },
     chasseLastTauxRealisation: ({getter}, params) => {
       return new Promise((resolve) => chasseAction('bilan')({getter}, params).then((bilan) => {
         const last = bilan['taux_realisation'][bilan['taux_realisation'].length-1];
-        resolve({
-          saison: last[0],
-          taux_realisation: round(last[1] * 100, 1)
-        });
+        resolve(round(last[1] * 100, 1));
       }))
     },
     chasseBilan: chasseAction('bilan'),

@@ -10,8 +10,8 @@ export default {
     // données d'exemple (dev)
     default: {
         display: 'graph',
-        fieldName: 'nom_espece',
-        fieldName2: 'label_sexe',
+        fieldName: 'mois_txt',
+        fieldName2: 'nom_saison',
         dataType: 'chasse',
         typeGraph: 'column',
         stacking: true,
@@ -39,11 +39,16 @@ export default {
             text: 'Massif Cynégetique'
         },
         nom_espece: {
-            text: 'Espece'
+            text: 'Espece',
+            id: "id_espece"
         },
         nom_saison: {
             text: 'Saison',
             sort: 'nom_saison+'
+        },
+        mois_txt: {
+            text: "Mois",
+            sort: "mois_txt_sort"
         }
     }
 }

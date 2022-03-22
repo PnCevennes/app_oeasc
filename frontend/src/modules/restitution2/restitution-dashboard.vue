@@ -100,7 +100,7 @@ export default {
         .filter( prop =>
           !["n", "filterList"].includes(prop)
           &&  (
-            ["dataType", "fieldName", "fieldName2", "display", "height"].includes(prop)
+            ["dataType", "fieldName", "fieldName2", "display", "height", "filters"].includes(prop)
             // clés spéciales graph
             || this.settings.display == "graph" && ["typeGraph", "stacking"].includes(prop)
           )

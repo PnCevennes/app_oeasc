@@ -177,9 +177,15 @@ def get_objects_type(module_name, object_type, args={}):
             if value_filter and value_filter[0] == '=':
                 value_filter_effectif = value_filter[1:]
             # filtre =
-            query = query.filter(
-                cast(model_attribute, DB.String ) == value_filter_effectif
-            )
+
+            if len(value_filter_effectif.split(',')) > 1:
+                query = query.filter(
+                    cast(model_attribute, DB.String ).in_(value_filter_effectif.split(','))
+                )
+            else:
+                query = query.filter(
+                    cast(model_attribute, DB.String ) == value_filter_effectif
+                )
 
     # print sort by
     sort_by = getlist(args, 'sortBy')

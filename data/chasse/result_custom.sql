@@ -20,11 +20,20 @@
 		tns.label_fr AS label_sexe,
 		tnca.label_fr AS label_classe_age,
 		te.nom_espece,
+		te.id_espece,
 		tzc.id_zone_cynegetique,
 		tzc.nom_zone_cynegetique,
 		tzi.id_zone_indicative,
 		tzi.nom_zone_indicative,
-		ts.nom_saison
+		ts.nom_saison,
+		ts.id_saison,
+		tsec.nom_secteur,
+		tsec.id_secteur,
+		to_char(tr.date_exacte, 'MM')::text AS mois_txt,
+		CASE
+			WHEN date_part('month', tr.date_exacte) < 6 THEN date_part('month', tr.date_exacte) + 12
+			ELSE date_part('month', tr.date_exacte)
+		END AS mois_txt_sort
 		FROM oeasc_chasse.t_realisations tr
 		LEFT JOIN ref_nomenclatures.t_nomenclatures tnmc ON tnmc.id_nomenclature = id_nomenclature_mode_chasse
 		LEFT JOIN ref_nomenclatures.t_nomenclatures tns ON tns.id_nomenclature = id_nomenclature_sexe
@@ -35,6 +44,7 @@
 		JOIN oeasc_commons.t_especes te  ON te.id_espece = ttb.id_espece
 		JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = id_zone_cynegetique_realisee
 		JOIN oeasc_chasse.t_zone_indicatives tzi ON tzi.id_zone_indicative = id_zone_indicative_realisee
+		JOIN oeasc_commons.t_secteurs tsec ON tsec.id_secteur = tzc.id_secteur
 	;
 
 --
@@ -113,9 +123,9 @@
 	--
 	--  test de la function oeasc_chasse.fct_custom_results_j
 	--
-	SELECT * FROM oeasc_chasse.fct_custom_results_j(
-		'{
-			"view": "oeasc_chasse.v_custom_results",
-			"field_name": "nom_espece",
-	    	"filters": {"id_zone_cynegetique": ["1", "2","3"]}
-		}'::JSONB);
+	-- SELECT * FROM oeasc_chasse.fct_custom_results_j(
+	-- 	'{
+	-- 		"view": "oeasc_chasse.v_custom_results",
+	-- 		"field_name": "nom_espece",
+	--     	"filters": {"id_zone_cynegetique": ["1", "2","3"]}
+	-- 	}'::JSONB);

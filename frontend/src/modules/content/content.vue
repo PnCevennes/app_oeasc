@@ -102,6 +102,7 @@
         </div>
       </div>
     </div>
+    <val/>
   </div>
 </template>
 
@@ -182,9 +183,10 @@ export default {
     contentValues: {
       id_espece: null,
       espece:null,
-      ids_zone_indicative: [],
-      ids_zone_cynegetique: [],
-      ids_secteur: [],
+      id_zone_indicative: [],
+      id_zone_cynegetique: [],
+      id_secteur: [],
+      id_saison:null
     },
   }),
   methods: {
