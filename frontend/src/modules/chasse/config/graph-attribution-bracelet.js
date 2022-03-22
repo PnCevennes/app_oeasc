@@ -45,7 +45,7 @@ export default (data, { bracelet }) => {
           [
             `Non Réalisé: ${data[
               bracelet
-            ].nb_attribution - data[bracelet].nb_realisation}(${100 - data[bracelet].taux_realisation}%)`,
+            ].nb_attribution - data[bracelet].nb_realisation} (${100 - data[bracelet].taux_realisation}%)`,
             100 - data[bracelet]["taux_realisation"]
           ]
         ]
