@@ -10,7 +10,7 @@ from utils_flask_sqla.response import json_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
 
-from .repository import result_custom
+from .repository import result_custom ,cache_generic_table
 from ..generic.repository import getlist
 
 config = current_app.config
@@ -65,7 +65,6 @@ def get_views():
 
     return data
 
-
 @bp.route('custom/', methods=['GET'])
 @json_resp
 def api_result_custom():
@@ -79,6 +78,7 @@ def api_result_custom():
         - filters : quels filtres appliqués
     '''
 
+    cache_generic_table = {}
     # gestion paramètres pour créer args
     args = {}
 

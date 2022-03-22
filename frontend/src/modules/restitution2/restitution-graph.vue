@@ -78,7 +78,6 @@ export default {
       const restitution = restitutions[this.dataType];
 
       const params = this.$props
-      console.log(params, restitution)
       params.sort = restitution.items[params.fieldName].sort;
 
       this.$store

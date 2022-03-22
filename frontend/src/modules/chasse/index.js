@@ -198,6 +198,7 @@ const STORE = {
         resolve(round(last[1] * 100, 1));
       }))
     },
+    chasseAttributionBracelet: chasseAction('attribution_bracelet'),
     chasseBilan: chasseAction('bilan'),
     chasseIce: chasseAction('ice'),
     chasseCustom: ({ getter }, params) => {

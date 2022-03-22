@@ -14,6 +14,7 @@ from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery, GenericTable
 from .repositories import (
     get_chasse_bilan,
+    get_attribution_result,
     chasse_process_args,
     chasse_get_infos
 )
@@ -128,32 +129,23 @@ def api_chasse_result_info():
     '''
     return chasse_get_infos()
 
-@bp.route('results/custom/', methods=['GET'])
+@bp.route('results/attribution_bracelet', methods=['GET'])
 @json_resp
 def api_result_custom():
     '''
         API CUSTOM
     '''
 
-    # gestion paramètres
-    args = {}
-    params=['field_name', 'view']
-    params_list = ['filters']
+    params = chasse_process_args()
 
-    for p in params:
-        args[p] = request.args.get(p)
+    out = {}
 
-    for p in params_list:
-        args[p] = getlist(request.args, 'filters')
+    for bracelet in ['CEM', 'CEFF', 'CEFFD']:
+        params['bracelet'] = bracelet
+        data= get_attribution_result(params)
+        out[bracelet] = data
+    return out
 
-    args['filters']={}
-
-
-
-
-    req = func.oeasc_chasse.fct_custom_results_j(json.dumps(args))
-    res = DB.engine.execute(req).first()[0]
-    return res
 
 
 @bp.route('export/csv/', methods=['GET'])
