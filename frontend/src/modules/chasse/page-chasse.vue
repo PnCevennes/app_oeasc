@@ -24,7 +24,7 @@
         <li><b>Echelle</b> : {{ infos.echelle }}</li>
         <li><b>Espèce</b> : {{ infos.nom_espece }}</li>
         <li><b>Nombre d'attributions</b> : {{ infos.nb_attribution }}</li>
-        <li><b>Nombre de réalisation enregistrée</b> : {{ infos.nb_realisation }}</li>
+        <li><b>Nombre de réalisations</b> : {{ infos.nb_realisation }}</li>
         <li><b>Taux de réalisation</b> : {{ infos.taux_realisation }}%</li>
       </ul>
 
