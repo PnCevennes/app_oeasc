@@ -170,7 +170,7 @@ export default {
       required: true,
       // on ne change pas la saison pour un update
       disabled: ({ baseModel }) => !!baseModel.id_realisation,
-      default: ({ $store }) => $store._actions.lastSaison[0]($store)
+      default: ({ $store, config }) => $store._actions.lastSaison[0](config)
     },
     attribution: {
       label: "Attribution",
