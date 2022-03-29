@@ -2,7 +2,12 @@
 -- Vues chasse pour les bilans
 --
 
-DROP VIEW IF EXISTS oeasc_chasse.v_pre_bilan_saisie CASCADE;
+DROP VIEW IF EXISTS oeasc_chasse.v_pre_bilan_pretty;
+DROP VIEW IF EXISTS oeasc_chasse.v_pre_bilan;
+DROP VIEW IF EXISTS oeasc_chasse.v_pre_bilan_saisie;
+DROP VIEW IF EXISTS oeasc_chasse.v_pre_bilan_histo;
+
+
 CREATE VIEW oeasc_chasse.v_pre_bilan_saisie AS
 WITH pre_bilan AS (
 	select
@@ -126,8 +131,7 @@ SELECT
 	JOIN count_espece ce ON ce.id_saison = pb.id_saison AND ce.id_espece = pb.id_espece
 ;
 
-DROP VIEW IF EXISTS oeasc_chasse.v_pre_bilan_histo CASCADE;
-CREATE VIEW oeasc_chasse.v_pre_bilan_histo AS
+CREATE OR REPLACE VIEW oeasc_chasse.v_pre_bilan_histo AS
 WITH pre_bilan AS (
 	SELECT
 		id_saison,
@@ -212,14 +216,12 @@ SELECT
 	JOIN count_secteur cs ON cs.id_saison = pb.id_saison AND cs.id_espece = pb.id_espece AND cs.id_secteur = pb.id_secteur
 	JOIN count_espece ce ON ce.id_saison = pb.id_saison AND ce.id_espece = pb.id_espece;
 
-DROP VIEW IF EXISTS oeasc_chasse.v_pre_bilan CASCADE;
 CREATE VIEW oeasc_chasse.v_pre_bilan AS
 	SELECT * FROM oeasc_chasse.v_pre_bilan_histo
 	UNION
 	SELECT * FROM oeasc_chasse.v_pre_bilan_saisie
 ;
 
-DROP VIEW IF EXISTS oeasc_chasse.v_pre_bilan_pretty CASCADE;
 CREATE VIEW oeasc_chasse.v_pre_bilan_pretty AS
 SELECT
 	vb.id_saison,
