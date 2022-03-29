@@ -152,7 +152,7 @@ WITH pre_bilan AS (
 		SUM(nb_realisation_avant_11_zi) AS nb_realisation_avant_11_zc,
 		SUM(nb_attribution_min_zi) AS nb_attribution_min_zc,
 		SUM(nb_attribution_max_zi) AS nb_attribution_max_zc,
-		id_secteur
+		id_secteur,
 		id_espece,
 		id_saison,
 		id_zone_cynegetique
