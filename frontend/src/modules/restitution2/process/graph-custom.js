@@ -96,7 +96,6 @@ const seriesRamifiees = (data, typeGraph) => {
     }
   }
 
-
   return series;
 
 }
