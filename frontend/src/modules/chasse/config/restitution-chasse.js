@@ -11,14 +11,15 @@ export default {
     default: {
         display: 'graph',
         fieldName: 'mois_txt',
-        fieldName2: 'nom_saison',
+        fieldName2: 'bracelet',
         dataType: 'chasse',
         typeGraph: 'column',
         stacking: true,
         filters: {
-            nom_zone_cynegetique: [ "Causse Méjean" ]
+            nom_espece: [ "Cerf" ],
+            nom_saison: ['2020-2021']
         },
-        filterList: [ "nom_zone_cynegetique" ]
+        filterList: [ "nom_espece", "nom_saison" ]
     },
 
     // definitions et labels, en lien avec la vue
