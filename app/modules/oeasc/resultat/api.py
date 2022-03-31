@@ -144,4 +144,19 @@ def api_result_custom():
         args['filters'][field_name_save] = [r['text']]
         # on place le résultat dans r['data']
         r['data'] = result_custom(args)
+
+    # on complete les zeros ?
+    texts = []
+    for r in res:
+        for d in r['data']:
+            if d['text'] in texts:
+                continue
+            texts.append(d['text'])
+
+    for text in texts:
+        for r in res:
+            if [ d for d in r['data'] if d['text'] == text]:
+                continue
+            r['data'].append({'text': text, 'count': 0})
+
     return res

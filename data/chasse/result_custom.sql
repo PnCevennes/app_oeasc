@@ -31,15 +31,18 @@
 		tsec.id_secteur,
 		ttb.code_type_bracelet AS bracelet,
 		CASE
-			WHEN to_char(tr.date_exacte, 'MM')::text = '07' THEN 'Jui.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '01' THEN 'Jan.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '02' THEN 'Fev.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '03' THEN 'Mar.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '04' THEN 'Avr.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '05' THEN 'Mai'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '06' THEN 'Juin'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '07' THEN 'Juil.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '08' THEN 'Aou.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '09' THEN 'Sep.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '10' THEN 'Oct.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '11' THEN 'Nov.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '12' THEN 'Dec.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '01' THEN 'Jan.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '02' THEN 'Fev.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '03' THEN 'Mar.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '12' THEN 'Déc.'
 			ELSE to_char(tr.date_exacte, 'MM')::text
 		END AS mois_txt,
 		CASE
@@ -83,15 +86,18 @@
 		tsec.id_secteur,
 		ttb.code_type_bracelet AS bracelet,
 		CASE
-			WHEN to_char(tr.date_exacte, 'MM')::text = '07' THEN 'Jui.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '01' THEN 'Jan.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '02' THEN 'Fev.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '03' THEN 'Mar.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '04' THEN 'Avr.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '05' THEN 'Mai'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '06' THEN 'Juin'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '07' THEN 'Juil.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '08' THEN 'Aou.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '09' THEN 'Sep.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '10' THEN 'Oct.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '11' THEN 'Nov.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '12' THEN 'Dec.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '01' THEN 'Jan.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '02' THEN 'Fev.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '03' THEN 'Mar.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '12' THEN 'Déc.'
 			ELSE to_char(tr.date_exacte, 'MM')::text
 		END AS mois_txt,
 		CASE
