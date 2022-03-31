@@ -55,8 +55,8 @@
 		JOIN oeasc_chasse.t_saisons ts ON ts.id_saison = ta.id_saison
 		JOIN oeasc_chasse.t_type_bracelets ttb ON ttb.id_type_bracelet = ta.id_type_bracelet
 		JOIN oeasc_commons.t_especes te  ON te.id_espece = ttb.id_espece
-		JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = id_zone_cynegetique_realisee
-		JOIN oeasc_chasse.t_zone_indicatives tzi ON tzi.id_zone_indicative = id_zone_indicative_realisee
+		JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = ta.id_zone_cynegetique_affectee
+		JOIN oeasc_chasse.t_zone_indicatives tzi ON tzi.id_zone_indicative = ta.id_zone_indicative_affectee
 		JOIN oeasc_commons.t_secteurs tsec ON tsec.id_secteur = tzc.id_secteur
 	;
 
@@ -106,8 +106,8 @@
 		JOIN oeasc_chasse.t_saisons ts ON ts.id_saison = ta.id_saison
 		JOIN oeasc_chasse.t_type_bracelets ttb ON ttb.id_type_bracelet = ta.id_type_bracelet
 		JOIN oeasc_commons.t_especes te  ON te.id_espece = ttb.id_espece
-		LEFT JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = id_zone_cynegetique_realisee
-		LEFT JOIN oeasc_chasse.t_zone_indicatives tzi ON tzi.id_zone_indicative = id_zone_indicative_realisee
+		LEFT JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = ta.id_zone_cynegetique_affectee
+		LEFT JOIN oeasc_chasse.t_zone_indicatives tzi ON tzi.id_zone_indicative = ta.id_zone_indicative_affectee
 		LEFT JOIN oeasc_commons.t_secteurs tsec ON tsec.id_secteur = tzc.id_secteur
 	;
 
