@@ -131,7 +131,7 @@ export default (data, options, text) => {
       categories: data.map(d => `${d.text} (${d.count})`)
     },
     yAxis: {
-      // min: -0.01,
+      min: 0,
       // endOnTick: false,
       // startOnTick: false,
       title: {
