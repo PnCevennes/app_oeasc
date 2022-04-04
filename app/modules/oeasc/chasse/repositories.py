@@ -233,7 +233,10 @@ def get_chasse_bilan(params):
     out['taux_realisation'] = [
         [
             out['nb_realisation'][i][0],
-            out['nb_realisation'][i][1] / out['nb_attribution_max'][i][1]
+            (
+                out['nb_realisation'][i][1] / out['nb_attribution_max'][i][1]
+                if out['nb_attribution_max'][i][1] else 0
+            )
         ]
         for i in range(len(out['nb_realisation']))
     ]
