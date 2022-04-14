@@ -1,19 +1,25 @@
 <template>
-<div>
-  <h1> Exports des données Chasse</h1>
+  <div>
+    <h1>Exports des données Chasse</h1>
 
-<h2>Réalisations</h2>
-            <v-row dense>
-
-<v-col>
-  <v-btn
-    :href="UrlExport('realisation', 'csv')"
-  >
-    CSV
-  </v-btn>
-  </v-col>
-            </v-row>
-</div>
+    <h2>Réalisations</h2>
+    <v-row dense>
+      <v-col>
+        <v-btn :href="UrlExport('realisation', 'csv')">
+          CSV
+        </v-btn>
+        : Export CSV des données chasses
+      </v-col>
+    </v-row>
+        <v-row dense>
+      <v-col>
+        <v-btn :href="UrlExportOds('realisation', 'csv')">
+          ODS
+        </v-btn>
+        : Tableur 'Bilan' pour la saison en cours
+      </v-col>
+    </v-row>
+  </div>
 </template>
 
 <script>
@@ -24,16 +30,11 @@ export default {
   data: () => ({}),
   methods: {
     UrlExport(dataType, exportType) {
-      return url(`api/chasse/export/${exportType}`, { data_type: dataType })
+      return url(`api/chasse/export/${exportType}`, { data_type: dataType });
+    },
+    UrlExportOds() {
+      return url(`api/chasse/export/ods`);
     }
-    // downloadExport(dataType, exportType) {
-    //   console.log(`Export ${dataType} ${exportType}`)
-    //   this.$store.dispatch('exportChasse', { dataType, exportType }).then(
-    //     () => {
-    //       console.log(`L'Export ${dataType} de type ${exportType} à bien été réalisé`)
-    //     }
-    //   )
-    // }
   }
-}
+};
 </script>
