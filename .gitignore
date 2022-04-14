@@ -24,7 +24,7 @@ static/medias/doc/*
 # install/minimal_db/ref_geo.sql
 
 static/data/*.json
-static/export/*.json
+static/export
 
 static/node_modules
 static/documents
