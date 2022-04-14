@@ -9,18 +9,22 @@ from .models import (
 )
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
-from flask import Blueprint, current_app, request
+from flask import Blueprint, current_app, request, send_file, jsonify
 from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery, GenericTable
 from .repositories import (
     get_chasse_bilan,
     get_attribution_result,
     chasse_process_args,
-    chasse_get_infos
+    chasse_get_infos,
+    get_data_export_ods,
+    get_data_all_especes_export_ods
 )
 from sqlalchemy import column, select, func, table, distinct, over
 import json
 import datetime
+from app.utils.env import ROOT_DIR
+from py3o.template import Template
 
 config = current_app.config
 DB = config['DB']
@@ -175,3 +179,25 @@ def api_result_export():
     data = results['items']
     file_name = 'export_{}_{}'.format(data_type, datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%s"))
     return (file_name, data, data[0].keys(), ";")
+
+
+@bp.route('export/ods', methods=['GET'])
+def api_chasse_ods():
+    '''
+        test export ods
+    '''
+
+    template_path = ROOT_DIR / 'app/templates/ods/template_test.ods'
+    output_path = ROOT_DIR / 'static/export/test.ods'
+
+    data = get_data_all_especes_export_ods('2021-2022')
+    # return jsonify(data)
+    # data = {
+    #     "nom_saison": "2021-2022",
+    #     "nom_espece": "Chevreuil"
+    # }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    t = Template(template_path, output_path)
+    t.render(data)
+
+    return send_file(output_path)

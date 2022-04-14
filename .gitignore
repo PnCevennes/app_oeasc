@@ -24,6 +24,7 @@ static/medias/doc/*
 # install/minimal_db/ref_geo.sql
 
 static/data/*.json
+static/export/*.json
 
 static/node_modules
 static/documents
@@ -61,7 +62,7 @@ frontend/.vscode
 # frontend/vue.config.js
 frontend/src/config/config.js
 var/log/*
-    
+
 
 # chasse
 data/chasse/settings.ini
