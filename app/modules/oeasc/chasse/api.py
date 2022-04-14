@@ -187,7 +187,7 @@ def api_chasse_ods():
         test export ods
     '''
 
-    template_path = ROOT_DIR / 'app/templates/ods/template_test.ods'
+    template_path = ROOT_DIR / 'app/templates/ods/template_bilan_chasse.ods'
     output_path = ROOT_DIR / 'static/export/test.ods'
 
     data = get_data_all_especes_export_ods('2021-2022')

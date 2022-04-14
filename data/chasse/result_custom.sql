@@ -32,7 +32,7 @@
 		ttb.code_type_bracelet AS bracelet,
 		CASE
 			WHEN to_char(tr.date_exacte, 'MM')::text = '01' THEN 'Jan.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '02' THEN 'Fev.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '02' THEN 'Fév.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '03' THEN 'Mar.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '04' THEN 'Avr.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '05' THEN 'Mai'
@@ -87,7 +87,7 @@
 		ttb.code_type_bracelet AS bracelet,
 		CASE
 			WHEN to_char(tr.date_exacte, 'MM')::text = '01' THEN 'Jan.'
-			WHEN to_char(tr.date_exacte, 'MM')::text = '02' THEN 'Fev.'
+			WHEN to_char(tr.date_exacte, 'MM')::text = '02' THEN 'Fév.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '03' THEN 'Mar.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '04' THEN 'Avr.'
 			WHEN to_char(tr.date_exacte, 'MM')::text = '05' THEN 'Mai'

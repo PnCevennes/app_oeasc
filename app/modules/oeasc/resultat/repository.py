@@ -203,7 +203,7 @@ def result_custom(params):
     group_bys = [ params['field_name'] ]
     order_by = 'COUNT(*) DESC'
 
-    if params['sort']:
+    if params.get('sort'):
         field_sort = params['sort'].replace('+', '')
         if field_sort != params['field_name']:
             group_bys.append(field_sort)
