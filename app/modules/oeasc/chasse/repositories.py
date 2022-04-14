@@ -292,32 +292,32 @@ def get_details(nom_saison, nom_espece, filter= {}):
     })
 
 
-    out['nb_sexe_male'] = next((elem['count'] for elem in res_details['label_sexe'] if elem['text'] == 'Mâle'), 0)
-    out['nb_sexe_femelle'] = next((elem['count'] for elem in res_details['label_sexe'] if elem['text'] == 'Femelle'), 0)
-    out['nb_sexe_ind'] = next((elem['count'] for elem in res_details['label_sexe'] if elem['text'] == 'Indéterminé'), 0)
-    out['nb_mois_sep'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Sep.'), 0)
-    out['nb_mois_oct'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Oct.'), 0)
-    out['nb_mois_nov'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Nov.'), 0)
-    out['nb_mois_dec'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Déc.'), 0)
-    out['nb_mois_jan'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Jan.'), 0)
-    out['nb_mois_fev'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Fév.'), 0)
-    out['nb_age_ad'] = next((elem['count'] for elem in res_details['label_classe_age'] if elem['text'] == 'Adulte'), 0)
-    out['nb_age_ind'] = next((elem['count'] for elem in res_details['label_classe_age'] if elem['text'] == 'Indéterminé'), 0)
-    out['nb_age_suba'] = next((elem['count'] for elem in res_details['label_classe_age'] if elem['text'] == 'Sub-adulte'), 0)
-    out['nb_age_juv'] = next((elem['count'] for elem in res_details['label_classe_age'] if elem['text'] == 'Juvénile'), 0)
-    out['nb_mode_chasse_app'] = next((elem['count'] for elem in res_details['label_mode_chasse'] if elem['text'] == 'Approche'), 0)
-    out['nb_mode_chasse_aff'] = next((elem['count'] for elem in res_details['label_mode_chasse'] if elem['text'] == 'Affut'), 0)
-    out['nb_mode_chasse_ind'] = next((elem['count'] for elem in res_details['label_mode_chasse'] if elem['text'] == 'Indéterminé'), 0)
-    out['nb_mode_chasse_bat'] = next((elem['count'] for elem in res_details['label_mode_chasse'] if elem['text'] == 'Battue'), 0)
-    out['nb_real_cem'] = next((elem['count'] for elem in res_details['bracelet'] if elem['text'] == 'CEM'), 0)
-    out['nb_real_ceff'] = next((elem['count'] for elem in res_details['bracelet'] if elem['text'] == 'CEFF'), 0)
-    out['nb_real_ceffd'] = next((elem['count'] for elem in res_details['bracelet'] if elem['text'] == 'CEFFD'), 0)
-    out['nb_attr_cem'] = next((elem['count'] for elem in res_details['bracelet_attr'] if elem['text'] == 'CEM'), 0)
-    out['nb_attr_ceff'] = next((elem['count'] for elem in res_details['bracelet_attr'] if elem['text'] == 'CEFF'), 0)
-    out['nb_attr_ceffd'] = next((elem['count'] for elem in res_details['bracelet_attr'] if elem['text'] == 'CEFFD'), 0)
-    out['pourcent_cem'] = out['nb_real_cem'] / out['nb_real_cem'] if out['nb_real_cem'] else 0
-    out['pourcent_ceff'] = out['nb_real_ceff'] / out['nb_real_ceff'] if out['nb_real_ceff'] else 0
-    out['pourcent_ceffd'] = out['nb_real_ceffd'] / out['nb_real_ceffd'] if out['nb_real_ceffd'] else 0
+    out['nb_sexe_male'] = next((elem['count'] for elem in res_details['label_sexe'] if elem['text'] == 'Mâle'), 0) or ""
+    out['nb_sexe_femelle'] = next((elem['count'] for elem in res_details['label_sexe'] if elem['text'] == 'Femelle'), 0) or ""
+    out['nb_sexe_ind'] = next((elem['count'] for elem in res_details['label_sexe'] if elem['text'] == 'Indéterminé'), 0) or ""
+    out['nb_mois_sep'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Sep.'), 0) or ""
+    out['nb_mois_oct'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Oct.'), 0) or ""
+    out['nb_mois_nov'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Nov.'), 0) or ""
+    out['nb_mois_dec'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Déc.'), 0) or ""
+    out['nb_mois_jan'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Jan.'), 0) or ""
+    out['nb_mois_fev'] = next((elem['count'] for elem in res_details['mois_txt'] if elem['text'] == 'Fév.'), 0) or ""
+    out['nb_age_ad'] = next((elem['count'] for elem in res_details['label_classe_age'] if elem['text'] == 'Adulte'), 0) or ""
+    out['nb_age_ind'] = next((elem['count'] for elem in res_details['label_classe_age'] if elem['text'] == 'Indéterminé'), 0) or ""
+    out['nb_age_suba'] = next((elem['count'] for elem in res_details['label_classe_age'] if elem['text'] == 'Sub-adulte'), 0) or ""
+    out['nb_age_juv'] = next((elem['count'] for elem in res_details['label_classe_age'] if elem['text'] == 'Juvénile'), 0) or ""
+    out['nb_mode_chasse_app'] = next((elem['count'] for elem in res_details['label_mode_chasse'] if elem['text'] == 'Approche'), 0) or ""
+    out['nb_mode_chasse_aff'] = next((elem['count'] for elem in res_details['label_mode_chasse'] if elem['text'] == 'Affut'), 0) or ""
+    out['nb_mode_chasse_ind'] = next((elem['count'] for elem in res_details['label_mode_chasse'] if elem['text'] == 'Indéterminé'), 0) or ""
+    out['nb_mode_chasse_bat'] = next((elem['count'] for elem in res_details['label_mode_chasse'] if elem['text'] == 'Battue'), 0) or ""
+    out['nb_real_cem'] = next((elem['count'] for elem in res_details['bracelet'] if elem['text'] == 'CEM'), 0) or ""
+    out['nb_real_ceff'] = next((elem['count'] for elem in res_details['bracelet'] if elem['text'] == 'CEFF'), 0) or ""
+    out['nb_real_ceffd'] = next((elem['count'] for elem in res_details['bracelet'] if elem['text'] == 'CEFFD'), 0) or ""
+    out['nb_attr_cem'] = next((elem['count'] for elem in res_details['bracelet_attr'] if elem['text'] == 'CEM'), 0) or ""
+    out['nb_attr_ceff'] = next((elem['count'] for elem in res_details['bracelet_attr'] if elem['text'] == 'CEFF'), 0) or ""
+    out['nb_attr_ceffd'] = next((elem['count'] for elem in res_details['bracelet_attr'] if elem['text'] == 'CEFFD'), 0) or ""
+    out['pourcent_cem'] = out['nb_real_cem'] / out['nb_real_cem'] if out['nb_real_cem'] else ''
+    out['pourcent_ceff'] = out['nb_real_ceff'] / out['nb_real_ceff'] if out['nb_real_ceff'] else ''
+    out['pourcent_ceffd'] = out['nb_real_ceffd'] / out['nb_real_ceffd'] if out['nb_real_ceffd'] else ''
     return out
 
 def get_data_export_ods(nom_saison, nom_espece):
@@ -352,21 +352,21 @@ def get_data_export_ods(nom_saison, nom_espece):
 
             zc = {
                     'nom': r['nom_zone_cynegetique'],
-                    'mini': r['nb_attribution_min_zc'],
-                    'maxi': r['nb_attribution_max_zc'],
-                    'realisation': int(r['nb_realisation_zc']),
-                    'pourcent': round(r['nb_realisation_zc']/r['nb_attribution_max_zc']*100),
+                    'mini': r['nb_attribution_min_zc'] or '',
+                    'maxi': r['nb_attribution_max_zc'] or '',
+                    'realisation': int(r['nb_realisation_zc']) or '',
+                    'pourcent': round(r['nb_realisation_zc']/r['nb_attribution_max_zc']*100) or '',
                     'zis': [],
                     **get_details(nom_saison, nom_espece, { 'nom_zone_cynegetique': [r['nom_zone_cynegetique']]})
                 }
             zcs.append(zc)
         zc['zis'].append({
-            'nom': r['nom_zone_indicative'],
-            'code': r['code_zone_indicative'],
-            'mini': r['nb_attribution_min_zi'],
-            'maxi': r['nb_attribution_max_zi'],
-            'realisation': int(r['nb_realisation_zi']),
-            'pourcent': round(r['nb_realisation_zi']/r['nb_attribution_max_zi']*100),
+            'nom': r['nom_zone_indicative'] or '',
+            'code': r['code_zone_indicative'] or '',
+            'mini': r['nb_attribution_min_zi'] or '',
+            'maxi': r['nb_attribution_max_zi'] or '',
+            'realisation': int(r['nb_realisation_zi']) or '',
+            'pourcent': round(r['nb_realisation_zi']/r['nb_attribution_max_zi']*100) or '',
             **get_details(nom_saison, nom_espece, { 'nom_zone_indicative': [r['nom_zone_indicative']]})
 
         })
@@ -374,10 +374,10 @@ def get_data_export_ods(nom_saison, nom_espece):
     data = {
         'nom_saison': nom_saison,
         'nom_espece': nom_espece,
-        'mini':  r['nb_attribution_min_espece'],
-        'max':  r['nb_attribution_max_espece'],
-        'realisation': int(r['nb_realisation_espece']),
-        'pourcent': round(r['nb_realisation_espece']/r['nb_attribution_max_espece']*100),
+        'mini':  r['nb_attribution_min_espece'] or '',
+        'max':  r['nb_attribution_max_espece'] or '',
+        'realisation': int(r['nb_realisation_espece']) or '',
+        'pourcent': round(r['nb_realisation_espece']/r['nb_attribution_max_espece']*100) or '',
         'zcs': zcs,
         **get_details(nom_saison, nom_espece)
     }
