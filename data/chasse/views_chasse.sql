@@ -159,7 +159,9 @@ SELECT
 	nb_attribution_max_zc,
 	nb_realisation_zc,
 	nb_realisation_avant_11_zc
-	FROM oeasc_chasse.v_pre_bilan vb
+    -- ,
+    -- min  (code_zone_indicative::int) OVER (PARTITION BY vb.id_saison, vb.id_espece, vb.id_secteur, vb.id_zone_cynegetique) AS min_zc_code_zi
+    	FROM oeasc_chasse.v_pre_bilan vb
 	join oeasc_chasse.t_saisons ts on ts.id_saison =vb.id_saison
 	join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = vb.id_zone_cynegetique
 	join oeasc_chasse.t_zone_indicatives tzi on tzi.id_zone_indicative = vb.id_zone_indicative
