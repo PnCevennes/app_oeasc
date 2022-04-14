@@ -1,3 +1,4 @@
+from asyncore import file_dispatcher
 from posixpath import normpath
 import json
 from utils_flask_sqla.generic import GenericTable
@@ -256,3 +257,72 @@ def get_chasse_bilan(params):
 
     return out
 
+
+def get_data_export_ods(nom_saison, nom_espece):
+
+    columns = GenericTable('v_pre_bilan_pretty', 'oeasc_chasse', DB.engine).tableDef.columns
+
+    query = (
+        DB.session.query(
+            *[c for c in columns]
+        )
+        .filter(columns.nom_saison==nom_saison)
+        .filter(columns.nom_espece==nom_espece)
+        .order_by(
+            columns.nom_zone_cynegetique,
+            columns.nom_zone_indicative,
+        )
+    )
+
+    res = [
+        {
+            (str(col.key)): getattr(r, str(col.key))
+            for col in columns
+        }
+        for r in query.all()
+    ]
+
+    zcs = []
+
+    for r in res:
+
+        zc = next((item for item in zcs if item["nom"] == r['nom_zone_cynegetique']), None)
+        if not zc:
+            zc = {
+                    'nom': r['nom_zone_cynegetique'],
+                    'mini': r['nb_attribution_max_zc'],
+                    'maxi': r['nb_attribution_min_zc'],
+                    'realisation': int(r['nb_realisation_zc']),
+                    'pourcent': round(r['nb_realisation_zc']/r['nb_attribution_max_zc']*100),
+                    'zis': []
+                }
+            zcs.append(zc)
+        zc['zis'].append({
+            'nom': r['nom_zone_indicative'],
+            'mini': r['nb_attribution_max_zi'],
+            'maxi': r['nb_attribution_min_zi'],
+            'realisation': int(r['nb_realisation_zi']),
+            'pourcent': round(r['nb_realisation_zi']/r['nb_attribution_max_zi']*100),
+        })
+
+
+
+
+
+    data = {
+        'nom_saison': nom_saison,
+        'nom_espece': nom_espece,
+        'zcs': zcs
+    }
+
+    return data
+
+def get_data_all_especes_export_ods(nom_saison):
+    data = {
+        'nom_saison': nom_saison,
+        'especes': []
+    }
+    for nom_espece in ['Cerf', 'Chevreuil', 'Mouflon']:
+        data['especes'].append(get_data_export_ods(nom_saison, nom_espece))
+
+    return data
