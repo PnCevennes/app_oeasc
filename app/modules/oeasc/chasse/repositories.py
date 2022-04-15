@@ -20,6 +20,7 @@ def chasse_process_args():
     '''
     id_espece = request.args.get('id_espece')
     id_saison = request.args.get('id_saison')
+    poids_ou_dagues = request.args.get('poids_ou_dagues')
 
     id_secteur = getlist(request.args, 'id_secteur')
     id_zone_cynegetique = getlist(request.args, 'id_zone_cynegetique')
@@ -28,6 +29,7 @@ def chasse_process_args():
     id_secteur = list(map(lambda x: int(x), id_secteur))
     id_zone_cynegetique = list(map(lambda x: int(x), id_zone_cynegetique))
     id_zone_indicative = list(map(lambda x: int(x), id_zone_indicative))
+
 
     # priorisation ZI > ZC > Secteur
     if len(id_zone_indicative) > 0:
@@ -42,6 +44,7 @@ def chasse_process_args():
         'id_secteur': id_secteur,
         'id_zone_cynegetique': id_zone_cynegetique,
         'id_zone_indicative': id_zone_indicative,
+        'poids_ou_dagues': poids_ou_dagues
     }
 
 def get_attribution_result(params):
@@ -315,9 +318,9 @@ def get_details(nom_saison, nom_espece, filter= {}):
     out['nb_attr_cem'] = next((elem['count'] for elem in res_details['bracelet_attr'] if elem['text'] == 'CEM'), 0) or ""
     out['nb_attr_ceff'] = next((elem['count'] for elem in res_details['bracelet_attr'] if elem['text'] == 'CEFF'), 0) or ""
     out['nb_attr_ceffd'] = next((elem['count'] for elem in res_details['bracelet_attr'] if elem['text'] == 'CEFFD'), 0) or ""
-    out['pourcent_cem'] = out['nb_real_cem'] / out['nb_real_cem'] if out['nb_real_cem'] else ''
-    out['pourcent_ceff'] = out['nb_real_ceff'] / out['nb_real_ceff'] if out['nb_real_ceff'] else ''
-    out['pourcent_ceffd'] = out['nb_real_ceffd'] / out['nb_real_ceffd'] if out['nb_real_ceffd'] else ''
+    out['pourcent_cem'] = round(1.0 * out['nb_real_cem'] / out['nb_attr_cem'] * 100) if out['nb_real_cem'] else ''
+    out['pourcent_ceff'] = round(1.0 * out['nb_real_ceff'] / out['nb_attr_ceff'] * 100) if out['nb_real_ceff'] else ''
+    out['pourcent_ceffd'] = round(1.0 * out['nb_real_ceffd'] / out['nb_attr_ceffd'] * 100) if out['nb_real_ceffd'] else ''
     return out
 
 def get_data_export_ods(nom_saison, nom_espece):
@@ -375,7 +378,7 @@ def get_data_export_ods(nom_saison, nom_espece):
         'nom_saison': nom_saison,
         'nom_espece': nom_espece,
         'mini':  r['nb_attribution_min_espece'] or '',
-        'max':  r['nb_attribution_max_espece'] or '',
+        'maxi':  r['nb_attribution_max_espece'] or '',
         'realisation': int(r['nb_realisation_espece']) or '',
         'pourcent': round(r['nb_realisation_espece']/r['nb_attribution_max_espece']*100) or '',
         'zcs': zcs,

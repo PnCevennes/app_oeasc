@@ -141,14 +141,22 @@ CREATE OR REPLACE FUNCTION tinv(IN p_value_in FLOAT, IN df_in INTEGER)
     LANGUAGE plr;
 
 -- Calcul ice
+
+-- CASE
+-- 						WHEN long_dagues_droite AND long_dagues_gauche THEN (long_dagues_droite + LON)
+-- 						ELSE NULL
+-- 					END as longueur_daguet
+
+DROP FUNCTION IF EXISTS oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_indicative_in INTEGER[], id_zone_cynegetique_in INTEGER[], id_secteur_in INTEGER[], poids_ou_dagues_in  BOOLEAN);
+DROP FUNCTION IF EXISTS oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_indicative_in INTEGER[], id_zone_cynegetique_in INTEGER[], id_secteur_in INTEGER[], poids_ou_dagues BOOLEAN);
 DROP FUNCTION IF EXISTS oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_indicative_in INTEGER[], id_zone_cynegetique_in INTEGER[], id_secteur_in INTEGER[]);
-CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_indicative_in INTEGER[], id_zone_cynegetique_in INTEGER[], id_secteur_in INTEGER[])
+CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, id_zone_indicative_in INTEGER[], id_zone_cynegetique_in INTEGER[], id_secteur_in INTEGER[], poids_ou_dagues_in BOOLEAN)
 		RETURNS JSONB AS
 		$BODY$
 		DECLARE
 			j_out JSONB;
 		BEGIN
-			RAISE NOTICE 'calcul ice pour id_espece % id_zone_indicative %d id_zone_cynegetique % id_secteur %', id_espece_in, id_zone_indicative_in, id_zone_cynegetique_in, id_secteur_in;
+			RAISE NOTICE 'calcul ice pour id_espece % id_zone_indicative %d id_zone_cynegetique % id_secteur % poids dagues %', id_espece_in, id_zone_indicative_in, id_zone_cynegetique_in, id_secteur_in, poids_ou_dagues_in;
 		    WITH
 				-- 1 ere extraction (date + poids)
 				pre_data_1 AS ( SELECT
@@ -159,6 +167,11 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 					id_zone_indicative_realisee,
 					oeasc_chasse.fct_day_of_year(date_exacte, '06-01') AS doy,
 					oeasc_chasse.fct_poid_vide(id_espece, poid_entier, poid_vide, poid_c_f_p) AS pv,
+					CASE
+						WHEN long_dagues_droite IS NOT NULL AND long_dagues_gauche IS NOT NULL
+							THEN (long_dagues_droite + long_dagues_gauche) / 2
+						ELSE COALESCE(long_dagues_droite, long_dagues_gauche)
+ 					END as long_dagues,
 					ta.id_saison,
 					ts.nom_saison
 				FROM oeasc_chasse.t_realisations tr
@@ -170,7 +183,13 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 				WHERE
 					date_exacte IS NOT NULL
 					AND COALESCE(poid_entier, poid_vide, poid_c_f_p) IS NOT NULL
-					AND tn.cd_nomenclature = '3' -- juvenile
+					AND (
+						-- si on veut les resultats sur les dagues alors on prend toutes les classes d'ages
+						(poids_ou_dagues_in IS FALSE) AND (tn.cd_nomenclature IN ('3', '5')) --juvenile et subadulte
+						OR
+						-- si on veut les poids on ne prend que les juvenile
+						( poids_ou_dagues_in IS TRUE) AND (tn.cd_nomenclature = '3') --juvenile
+					)
 				)
 				-- minimum des dates de chasse (apres le 06-01) tout confondu (pour rapporter à cette date)
 				, min_doy AS ( SELECT
@@ -181,10 +200,14 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 				, pre_data_2 AS ( SELECT
 					id_saison,
 					doy - md.min_doy + 1 AS x,
-					pv AS y
+					CASE
+						WHEN poids_ou_dagues_in THEN pv
+						ELSE long_dagues
+					END AS y
 					FROM pre_data_1 p1, min_doy md
 					WHERE
 						p1.id_espece = id_espece_in
+						AND ( poids_ou_dagues_in OR long_dagues IS NOT NULL )
 						AND (
 							array_length(id_zone_indicative_in, 1) IS NULL
 							OR
@@ -292,7 +315,8 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 								FROM oeasc_commons.t_secteurs ts
 								WHERE ts.id_secteur = ANY(id_secteur_in)
 						) as  nom_secteur,
-						nom_espece
+						nom_espece,
+						CASE WHEN poids_ou_dagues_in THEN 'poids' ELSE 'dagues' END AS data_type
 						FROM regr_1 r1, regr_2 r2
 						JOIN oeasc_commons.t_especes te ON te.id_espece = id_espece_in
 					)a;
@@ -300,3 +324,6 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 		END;
 		$BODY$
 		LANGUAGE plpgsql;
+
+
+

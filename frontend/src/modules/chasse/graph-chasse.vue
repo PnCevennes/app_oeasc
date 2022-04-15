@@ -41,7 +41,8 @@ export default {
     "bracelet",
     "type",
     "width",
-    "height"
+    "height",
+    "poids_ou_dagues"
   ],
   data: () => ({
     msgError: null,
@@ -112,7 +113,8 @@ export default {
           id_zone_indicative: this.id_zone_indicative,
           id_secteur: this.id_secteur,
           id_saison: this.id_saison,
-          bracelet: this.id_bracelet
+          bracelet: this.id_bracelet,
+          poids_ou_dagues: this.poids_ou_dagues
         })
         .then(
           data => {

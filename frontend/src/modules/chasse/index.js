@@ -134,7 +134,7 @@ const ROUTE = [
 
 ];
 
-const chasseAction = (actionType) => ({ getter }, { id_saison, id_espece, id_zone_cynegetique, id_zone_indicative, id_secteur }) => {
+const chasseAction = (actionType) => ({ getter }, { id_saison, id_espece, id_zone_cynegetique, id_zone_indicative, id_secteur, poids_ou_dagues }) => {
   getter;
   return apiRequest(
     "GET",
@@ -145,7 +145,8 @@ const chasseAction = (actionType) => ({ getter }, { id_saison, id_espece, id_zon
         id_espece,
         id_secteur,
         id_zone_cynegetique,
-        id_zone_indicative
+        id_zone_indicative,
+        poids_ou_dagues
     }}
   );
 
