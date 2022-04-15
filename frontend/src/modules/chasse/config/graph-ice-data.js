@@ -1,11 +1,12 @@
 import { round } from "@/core/js/util/util.js";
-import {localisationTitle } from './util.js'
+import {localisationTitle, dataTxt } from './util.js'
 
 export default ( data )  => {
   const dataGraph = data.res_lm_data;
+  const { dataTypeAxis, dataTypeTitle, dataTypeSerie } = dataTxt(data);
   const chartOptions = {
     title: {
-      text: `Poids vide / jour - ${data.nom_espece}${localisationTitle(data)}`
+      text: `${dataTypeTitle} / jour - ${data.nom_espece}${localisationTitle(data)}`
     },
     xAxis: {
       title: {
@@ -23,13 +24,13 @@ export default ( data )  => {
       // endOnTick: false,
       // startOnTick: false,
       title: {
-        text: "Poids (kg)"
+        text: dataTypeAxis
       }
     },
     series: [
       {
         id: "pv",
-        name: "Poids vide",
+        name: dataTypeSerie,
         lineWidth: 0,
         marker: {
           enabled: true,

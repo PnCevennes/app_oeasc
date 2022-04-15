@@ -114,9 +114,11 @@ def api_result_ice():
         params['id_espece'],
         params['id_zone_indicative'],
         params['id_zone_cynegetique'],
-        params['id_secteur']
+        params['id_secteur'],
+        params['poids_ou_dagues']
     )
     res = DB.engine.execute(req).first()[0]
+    print(res)
     return res
 
 # @bp.route('results/realisation', methods=['GET'])

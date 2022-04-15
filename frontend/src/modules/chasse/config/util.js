@@ -8,6 +8,15 @@ const localisationTitle = (data) => {
     : ''
 };
 
+const dataTxt = (data) => {
+  return {
+    dataTypeTitle: data.data_type == 'poids' ? 'Masse corporelle' : 'Longueur des dagues',
+    dataTypeAxis: data.data_type == 'poids' ? 'Poids (kg)' : 'Longueur des dagues (mm)',
+    dataTypeSerie: data.data_type == 'poids' ? 'Poids vide moyen (kg)' : 'Longueur des dagues (mm)',
+  }
+}
+
 export {
-  localisationTitle
+  localisationTitle,
+  dataTxt
 }

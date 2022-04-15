@@ -1,11 +1,12 @@
 import { round } from "@/core/js/util/util.js";
-import {localisationTitle } from './util.js'
+import {localisationTitle, dataTxt } from './util.js'
 
 export default ( data ) => {
   const dataGraph = data.res_lm_moy;
+  const { dataTypeAxis, dataTypeTitle, dataTypeSerie } = dataTxt(data);
   const chartOptions = {
     title: {
-      text: `Evolution des ICE - Masse Corporelle - ${data.nom_espece}${localisationTitle(data)}`
+      text: `Evolution des ICE - ${dataTypeTitle} - ${data.nom_espece}${localisationTitle(data)}`
     },
     xAxis: {
       title: {
@@ -23,13 +24,13 @@ export default ( data ) => {
       // endOnTick: false,
       // startOnTick: false,
       title: {
-        text: "Poids (kg)"
+        text: dataTypeAxis
       }
     },
     series: [
       {
         id: "ice",
-        name: "Poids moyen",
+        name: dataTypeSerie,
         lineWidth : 0,
         data: Object.keys(dataGraph.x).map(ind => [
           dataGraph.x[ind],
