@@ -8,13 +8,18 @@
  * configuration des series pour les cas 'simple'
  */
 const seriesSimple = (data, typeGraph, text) => {
+  const total = data.reduce((p,c) => {return p + c.count}, 0);
+  console.log(total, data)
   return [
     {
       type: typeGraph,
       name: text,
+
       colorByPoint: true,
       data: data.map(d => ({
-        name: `${d.text} (${d.count})`,
+        name: `<b>${d.text}</b><br> ${d.count} (${Math.round(100.0*d.count/total)}%)`,
+        // name: `${d.text}: ${d.count}<br>(${Math.round(100.0*d.count/total)}%)`,
+        useHTML: true,
         y: d.count,
         color: null
       }))
@@ -82,7 +87,7 @@ const seriesRamifiees = (data, typeGraph) => {
       name :`${key} (${value})`,
       data: [],
       color: null,
-      type: typeGraph
+      type: typeGraph,
     })
   );
 
@@ -122,8 +127,10 @@ export default (data, options, text) => {
   const series = condDoubleGraph && (options.typeGraph != 'pie')
   ? seriesRamifiees(data, options.typeGraph)
   : seriesSimple(data, options.typeGraph, text);
-
   const chartOptions = {
+    pie: {
+      size: 50
+    },
     title: {
       text: options.title
     },
