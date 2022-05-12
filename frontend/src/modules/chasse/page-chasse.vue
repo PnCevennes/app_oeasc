@@ -95,6 +95,18 @@
       <div v-if="infos.nom_espece == 'Cerf'">
         <h2>Résultats par catégories</h2>
         <v-row>
+          <v-col>
+            <restitution2
+            display="graph"
+            fieldName="bracelet"
+            dataType="chasse"
+            typeGraph="pie"
+            :title="`Prélèvements par type de bracelet`"
+            :filters="{ ...bilanParams }"
+          ></restitution2>
+          </v-col>
+        </v-row>
+        <v-row>
           <v-col v-for="bracelet in ['CEM', 'CEFF', 'CEFFD']" :key="bracelet">
             <graph-chasse
               v-bind="bilanParams"
@@ -131,6 +143,7 @@
             ></restitution2>
           </v-col>
         </v-row>
+
         <v-row>
           <v-col>
             <restitution2
