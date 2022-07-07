@@ -1,30 +1,38 @@
 <template>
-  <div class="declaration" id="declaration">
-    <div v-if="declaration">
-      <h1>Déclaration {{ declaration.id_declaration }}</h1>
-      <!-- <v-btn
-        class="ignorepdf"
-        icon
-        color="red"
-        @click="exportPdf()"
-        title="Exporter la déclaration au format pdf"
-        ><v-icon>mdi-file-pdf</v-icon></v-btn
-      > -->
-      <div>
-        <declaration-table :declaration="declaration"></declaration-table>
+  <div>
+    <v-progress-linear
+      v-if="pdfProcessing"
+      active
+      indeterminate
+    ></v-progress-linear>
+    <div class="declaration" id="declaration">
+      <div v-if="declaration">
+        <h1>Déclaration {{ declaration.id_declaration }}</h1>
+
+        <v-btn
+          class="ignorepdf"
+          icon
+          color="red"
+          @click="exportPdf()"
+          title="Exporter la déclaration au format pdf"
+          ><v-icon>mdi-file-pdf</v-icon></v-btn
+        >
+        <div>
+          <declaration-table :declaration="declaration"></declaration-table>
+        </div>
       </div>
+      <div class="html2pdf__page-break"></div>
+      <template v-for="type in mapList">
+        <div v-if="configMaps[type]" :key="type">
+          <div small>{{ configMaps[type].title }}</div>
+          <base-map
+            :mapId="`map_${type}`"
+            :config="configMaps[type]"
+            height="315px"
+          ></base-map>
+        </div>
+      </template>
     </div>
-    <div class="html2pdf__page-break"></div>
-    <template v-for="type in mapList">
-      <div v-if="configMaps[type]" :key="type">
-        <div small>{{ configMaps[type].title }}</div>
-        <base-map
-          :mapId="`map_${type}`"
-          :config="configMaps[type]"
-          height="315px"
-        ></base-map>
-      </div>
-    </template>
   </div>
 </template>
 
@@ -54,24 +62,26 @@ const styles = {
 export default {
   name: "declaration",
   data: () => ({
+    pdfProcessing: false,
     declaration: null,
     mapList: ["secteur", "foret", "parcelles"]
   }),
   components: { declarationTable, baseMap },
   methods: {
     exportPdf() {
+      this.pdfProcessing = true;
       exportPDF(
         "declaration",
         `declaration_${this.declaration.id_declaration}.pdf`,
         this.$store
       ).then(() => {
+        console.log('pdf end')
+        this.pdfProcessing = false;
       });
     },
     initDeclaration() {
       this.$store.dispatch("declarations").then(declarations => {
-        this.declaration = declarations.find(
-          d => this.id == d.id_declaration
-        );
+        this.declaration = declarations.find(d => this.id == d.id_declaration);
       });
     },
     configMap(type) {
@@ -81,12 +91,12 @@ export default {
       const markers = [
         {
           coords: this.declaration.centroid,
-        type: 'marker',
-        style: {
-          color: "blue",
+          type: "marker",
+          style: {
+            color: "blue",
             icon: "map-marker"
-          },
-        },
+          }
+        }
       ];
       const markerLegendGroups = [
         {
@@ -100,8 +110,7 @@ export default {
         }
       ];
       const titles = {
-        secteur:
-          "Localisation de l'alerte dans le périmètre de l'observatoire",
+        secteur: "Localisation de l'alerte dans le périmètre de l'observatoire",
         foret: "Localisation des parcelles",
         parcelles: "Carte des parcelles"
       };
@@ -163,6 +172,4 @@ export default {
   }
 };
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>
