@@ -1,13 +1,14 @@
 from asyncore import file_dispatcher
 from posixpath import normpath
 import json
+from psycopg2 import paramstyle
 from utils_flask_sqla.generic import GenericTable
 from flask import request, current_app
 from ..generic.repository import getlist
 from ..resultat.repository import result_custom
 from sqlalchemy import column, select, func, table, distinct, over, cast
 from ..commons.models import TEspeces, TSecteurs
-from .models import TSaisons, TZoneCynegetiques, TZoneIndicatives
+from .models import TSaisons, TZoneCynegetiques, TZoneIndicatives, TAttributionMassifs, VPlanChasseRealisationBilan
 
 config = current_app.config
 DB = config['DB']
@@ -135,106 +136,156 @@ def chasse_get_infos():
     }
 
 
+def build_chasse_bilan_filters(params, query, tableModel):
+
+    # filter query
+    if params['id_zone_indicative']:
+        query = query.filter(
+            tableModel.id_zone_indicative.in_(params['id_zone_indicative'])
+        )
+    elif params['id_zone_cynegetique']:
+        query = query.filter(tableModel.id_zone_cynegetique.in_(params['id_zone_cynegetique']))
+    elif params['id_secteur']:
+        query = query.join(
+            TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == TAttributionMassifs.id_zone_cynegetique
+        ).filter(
+            TZoneCynegetiques.id_secteur.in_(params['id_secteur'])
+        )
+    if params['id_espece']:
+        query = query.filter(tableModel.id_espece == params['id_espece'])
+
+    return query
+
+def get_chasse_bilan_realisation(params):
+    # Fonction de représentation de la réalisation des plans de chasse
+    # Pb dans les données, les données historiques sont aggrégés à la zi pour la réalisation et à la zc pour les attributions
+    # D'où le fait d'utiliser 2 requêtes différentes en fonction du filtre demandé
+
+    if params['id_zone_indicative']:
+        query = DB.session.query(
+            TSaisons.nom_saison,
+            VPlanChasseRealisationBilan.id_espece,
+            func.sum(VPlanChasseRealisationBilan.nb_affecte_min).label("nb_attribution_min"),
+            func.sum(VPlanChasseRealisationBilan.nb_affecte_max).label("nb_attribution_max"),
+            func.sum(VPlanChasseRealisationBilan.nb_realisation).label("nb_realisation"),
+            func.sum(VPlanChasseRealisationBilan.nb_realisation_avant_11).label("nb_realisation_avant_11")
+        )
+        query = query.join(VPlanChasseRealisationBilan,
+                    TSaisons.id_saison == VPlanChasseRealisationBilan.id_saison)
+        query = build_chasse_bilan_filters(params, query, VPlanChasseRealisationBilan)
+        # group by
+        query = query.group_by(VPlanChasseRealisationBilan.id_espece, TSaisons.nom_saison)
+
+    else:
+        realisation = DB.session.query(
+            VPlanChasseRealisationBilan.id_espece,
+            VPlanChasseRealisationBilan.id_saison,
+            func.sum(VPlanChasseRealisationBilan.nb_realisation).label("nb_realisation"),
+            func.sum(VPlanChasseRealisationBilan.nb_realisation_avant_11).label("nb_realisation_avant_11")
+        )
+        realisation =  build_chasse_bilan_filters(params, realisation, VPlanChasseRealisationBilan)
+        realisation = realisation.group_by(
+            VPlanChasseRealisationBilan.id_espece, VPlanChasseRealisationBilan.id_saison
+        ).subquery()
+
+        attribution = DB.session.query(
+            TAttributionMassifs.id_espece,
+            TAttributionMassifs.id_saison,
+            func.sum(TAttributionMassifs.nb_affecte_min).label("nb_attribution_min"),
+            func.sum(TAttributionMassifs.nb_affecte_max).label("nb_attribution_max"),
+        )
+        attribution =  build_chasse_bilan_filters(params, attribution, TAttributionMassifs)
+        attribution = attribution.group_by(
+            TAttributionMassifs.id_espece, TAttributionMassifs.id_saison
+        ).subquery()
+
+
+        query = DB.session.query(
+            TSaisons.nom_saison,
+            attribution.c.id_espece,
+            attribution.c.nb_attribution_min,
+            attribution.c.nb_attribution_max,
+            realisation.c.nb_realisation,
+            realisation.c.nb_realisation_avant_11
+        ).join(
+            realisation,  TSaisons.id_saison == realisation.c.id_saison
+        ).join(
+            attribution,  attribution.c.id_saison == realisation.c.id_saison
+        )
+    query = query.order_by(TSaisons.nom_saison)
+
+    return query
+
+def get_plain_text_data(params):
+    # Espèces
+    out = {}
+    print(params)
+    if 'id_espece' in params:
+        res = TEspeces.query.get(params['id_espece'])
+        out['nom_espece'] = res.nom_espece
+    # Saison
+    if 'id_saison' in params:
+        res = TSaisons.query.get(params['id_saison'])
+        if res:
+            out['nom_saison'] = res.nom_saison
+    # Nom zone
+    zones = None
+    if params['id_zone_indicative']:
+        zones = TZoneIndicatives.query.filter(TZoneIndicatives.id_zone_indicative.in_(params['id_zone_indicative']))
+        column_name = 'nom_zone_indicative'
+    elif params['id_zone_cynegetique']:
+        zones = TZoneCynegetiques.query.filter(TZoneCynegetiques.id_zone_cynegetique.in_(params['id_zone_cynegetique']))
+        column_name = 'nom_zone_cynegetique'
+    elif params['id_secteur']:
+        zones = TSecteurs.query.filter(TSecteurs.id_secteur.in_(params['id_secteur']))
+        column_name = 'nom_secteur'
+
+    if zones:
+        out[column_name] = ','.join([getattr( z, column_name) for z in zones])
+
+    return out
+
+
 def get_chasse_bilan(params):
 
-    columns = GenericTable('v_pre_bilan_pretty', 'oeasc_chasse', DB.engine).tableDef.columns
-    localisation = (
-        'zone_indicative' if params['id_zone_indicative']
-        else 'zone_cynegetique' if params['id_zone_cynegetique']
-        else 'secteur' if params['id_secteur']
-        else ""
-    )
-
-    localisation_id_key = 'id_{}'.format(localisation)
-    localisation_name_key = 'nom_{}'.format(localisation or 'espece')
-
-    localisation_keys = (
-        params['id_zone_indicative']
-        or params['id_zone_cynegetique']
-        or params['id_secteur']
-        or []
-    )
-
-
-    suffix = (
-        '_zi' if params['id_zone_indicative']
-        else '_zc' if params['id_zone_cynegetique']
-        else '_secteur' if params['id_secteur']
-        else '_espece'
-     )
-
-    res_keys = [
-        'nb_realisation{}'.format(suffix),
-        'nb_realisation_avant_11{}'.format(suffix),
-        'nb_attribution_min{}'.format(suffix),
-        'nb_attribution_max{}'.format(suffix),
-    ]
-
-    name_keys = [
-        'nom_espece',
-        'nom_saison',
-    ]
-
-    localisation_name_keys = (
-        [localisation_name_key] if localisation_name_key
-        else []
-    )
-
-    scope = (
-        list(map(lambda k: (columns[k]), res_keys + name_keys + localisation_name_keys))
-    )
-
-    res = (
-        DB.session.query(*scope)
-        .filter(columns['id_espece']==params['id_espece'])
-    )
-
-    if localisation:
-        res = res.filter(columns[localisation_id_key].in_(localisation_keys))
-
-    res = res.order_by(columns['nom_saison'])
-    res = res.group_by(
-        * (map(lambda k: columns[k], res_keys + name_keys + localisation_name_keys))
-    )
-
-    res = res.subquery()
-
-    scope2 = (
-        list(map(lambda k: func.sum(res.columns[k]), res_keys))
-        + list(map(lambda k: res.columns[k], name_keys))
-    )
-
-    if localisation_name_key:
-        scope2.append(func.string_agg(res.columns[localisation_name_key], ', '))
-
-    res2 = (
-        DB.session.query(*scope2)
-        .group_by(
-            * (map(lambda k: res.columns[k], name_keys))
-        )
-        .order_by( res.columns['nom_saison'])
-    )
-
-    res2 = res2.all()
-    res  = res2
-
-    if not res:
-        return None
-
+    query = get_chasse_bilan_realisation(params)
+    res = query.all()
+    # 0: nom_saison
+    # 1: id_espece
+    # 2: nb_affecte_min
+    # 3: nb_affecte_max
+    # 4: nb_realisation
+    # 5: nb_realisation_avant_11
+    columns_index = {
+        "nom_saison" : 0,
+        "id_espece" : 1,
+        "nb_realisation" : 4,
+        "nb_realisation_avant_11" : 5,
+        "nb_attribution_min" : 2,
+        "nb_attribution_max" : 3
+    }
     out = {}
-    query_keys = res_keys + name_keys
-    for index, key in enumerate(res_keys):
-        out[key.replace(suffix, '')] = [
+    # Fonction permettant de formater les données pour highcharts
+    # traitement des colones contenus dans res_keys
+    #   "nb_realisation": [["2001-2002", 809], ["2002-2003", 702], ["2003-2004", 595], [...]],
+    #   "nb_realisation_avant_11": [["2010-2011", 0], [...]],
+    #   "nb_attribution_min": [["2010-2011", 0], [...]],
+    #   "nb_attribution_max": [["2010-2011", 0], [...]]
+    for key in ["nb_attribution_min", "nb_attribution_max", "nb_realisation", "nb_realisation_avant_11"]:
+        index_nom_saison = columns_index["nom_saison"]
+        index_col = columns_index[key]
+        print(key, index_col)
+        out[key] = [
             [
-                r[query_keys.index('nom_saison')],
+                r[index_nom_saison],
                 (
-                    int(r[index]) if r[index] is not None
+                    int(r[index_col]) if r[index_col] is not None
                     else 0
                 )
             ]
             for r in res
         ]
-
+    # Calcul du taux de réalisation
     out['taux_realisation'] = [
         [
             out['nb_realisation'][i][0],
@@ -246,20 +297,11 @@ def get_chasse_bilan(params):
         for i in range(len(out['nb_realisation']))
     ]
 
-    for key in name_keys:
-        try:
-            out[key] = res[0][query_keys.index(key)] if query_keys.index(key)  else None
-        except ValueError:
-            pass
+    # Récupération des données d'affichage des paramètres
+    # TSaisons, TZoneIndicatives, TZoneCynegetiques
+    context_data = get_plain_text_data(params=params)
+    return {**out, **context_data}
 
-    if params['id_zone_indicative']:
-        out['nom_zone_indicative'] = res[0][-1]
-    elif params['id_zone_cynegetique']:
-        out['nom_zone_cynegetique'] = res[0][-1]
-    elif params['id_secteur']:
-        out['nom_secteur'] = res[0][-1]
-
-    return out
 
 
 def get_details(nom_saison, nom_espece, filter= {}):
