@@ -1,3 +1,11 @@
+// Définition des menus
+//    - label : Nom d'affichage du menu
+//    - icon : Icone précédant le label
+//    - disabled : Fonction indiquant si le menu doit être désactivé
+//    - hidden : Fonction indiquant si le menu doit être affiché (en fonction des droits de l'utilisateur)
+//    - name : Cas des menus sans liste déroulante => nom de la route du menu
+//    - names : Cas des menus avec liste déroulante =>  listes des routes composants un menu
+
 export default {
   accueil: {
     name: "page.accueil"
@@ -71,7 +79,6 @@ export default {
     label: 'Chasse',
     names: ['chasse.saisie', 'chasse.admin', 'chasse.bilan', 'chasse.exports', 'chasse.page_type'],
     hidden: ({ $store }) => $store.getters.droitMax < 5
-
   },
 
   documentation: {
