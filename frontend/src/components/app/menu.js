@@ -1,6 +1,6 @@
 // Fonctions de permettant de traiter les données du fichier `config/menu.js`
 
-import menus from '@/config/menu.js'
+import { menus } from '@/config/menu.js'
 
 
 const processRouteName = function(routeName, { $store, $router }) {

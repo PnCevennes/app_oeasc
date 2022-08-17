@@ -21,6 +21,7 @@
 
 <script>
 import { config } from "@/config/config.js";
+import { configAppBar, configDrawerMenus } from "@/config/menu.js";
 import "@/core/css/main.scss";
 import oeascAppBar from "@/components/app/app-bar";
 import oeascDrawer from "@/components/app/drawer";
@@ -35,29 +36,12 @@ export default {
       drawer: false,
       menus: config.menus,
       userIcon: "person",
-      configAppBar: {
-        rightMenus: ["informations", "user"],
-        leftMenus: [
-          "accueil",
-          "actualite",
-          "observatoire",
-          "systeme_alerte",
-          "resultats",
-          "chasse"
-        ],
-      },
+      configAppBar: configAppBar,
       configDrawer: {
-        menus: [
-          "accueil",
-          "actualite",
-          "observatoire",
-          "systeme_alerte",
-          "informations",
-          "admin",
-          "dev"
-        ],
-        show: this.drawer,
+        menus: configDrawerMenus,
+        show: false
       },
+      drawerShow: false,
     };
   },
   watch: {
@@ -108,7 +92,7 @@ export default {
     }
   },
   created: function () {
-    this.process()
+    this.process();
   }
 }
 </script>
