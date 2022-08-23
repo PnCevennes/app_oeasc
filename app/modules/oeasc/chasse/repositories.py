@@ -241,7 +241,7 @@ def get_plain_text_data(params):
         column_name = 'nom_secteur'
 
     if zones:
-        out[column_name] = ','.join([getattr( z, column_name) for z in zones])
+        out[column_name] = ', '.join([getattr( z, column_name) for z in zones])
 
     return out
 
