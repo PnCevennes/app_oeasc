@@ -14,6 +14,9 @@ const FIELDS = {
         list_type: "select",
         returnObject: false,
         required: true,
+        displayFieldName: "nom_saison",
+        displayFieldValue: "id_saison",
+        displayFieldSortDesc: true,
         default: ({ $store }) => $store._actions.lastSaison[0]($store, { returnObject: false })
     },
     id_espece: {
@@ -62,7 +65,6 @@ const generateConfigformDef = (fieldList) => {
     }
     // Test si les champs sécifiés sont bien défini
     fieldList = fieldList.filter(x => Object.keys(FIELDS).includes(x));
-    console.log(fieldList);
 
     let fields = {}
 
