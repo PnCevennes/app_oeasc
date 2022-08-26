@@ -92,7 +92,7 @@ def create_or_update_declaration(post_data):
                     'id_declaration': post_data.get('id_declaration'),
                     'id_nomenclature': id_nomenclature
                 }
-                for id_nomenclature in post_data[key] 
+                for id_nomenclature in post_data[key]
             ]
 
     # areas
@@ -102,12 +102,12 @@ def create_or_update_declaration(post_data):
     if post_data['areas_foret_dgd']:
         post_data['areas_foret'].append(post_data['areas_foret_dgd'])
 
-    post_data['areas_localisation'] = ( 
+    post_data['areas_localisation'] = (
         [] +
         post_data['areas_localisation_cadastre'] +
         post_data['areas_localisation_onf_prf'] +
         post_data['areas_localisation_onf_ug']
-    ) 
+    )
 
     for key in ['areas_localisation', 'areas_foret']:
         post_data[key] = [
@@ -125,7 +125,7 @@ def create_or_update_declaration(post_data):
 
         nomenclature = (
             post_data['id_nomenclature_proprietaire_declarant'] and
-            get_nomenclature_from_id(post_data['id_nomenclature_proprietaire_declarant']) 
+            get_nomenclature_from_id(post_data['id_nomenclature_proprietaire_declarant'])
         )
 
         if nomenclature and nomenclature['cd_nomenclature'] != 'P_D_O_NP':
@@ -181,7 +181,7 @@ def get_id_areas(areas, type_list):
     '''
         get_id_areas
     '''
-    
+
     return [
         x['id_area'] for x in filter(
             lambda x: x['type_code'] in type_list,
@@ -236,7 +236,6 @@ def get_declarations():
         .all()
     )
 
-    print(declarations)
     out = []
     for declaration in declarations:
         d = declaration[0].as_dict()

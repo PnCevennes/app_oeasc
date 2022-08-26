@@ -12,7 +12,7 @@ from sqlalchemy import text
 from app.utils.env import ROOT_DIR
 
 from .models import (
-    TContents, TTags, TSecteurs, TEspeces,  
+    TContents, TTags, TSecteurs, TEspeces,
     TNomenclatures, BibNomenclaturesTypes
 )
 from ..generic.definitions import GenericRouteDefinitions
@@ -106,7 +106,7 @@ def api_communes(test):
     )
 
     sql_text = """
-    SELECT 
+    SELECT
         CONCAT(nom, ' ', cp) as nom_cp
         FROM oeasc_commons.t_communes WHERE {0} ORDER BY population DESC, nom, cp LIMIT 20
     """.format(cond_text)
@@ -120,11 +120,10 @@ def api_communes(test):
 @bp.route('files/<string:dir_file>', methods=['GET'])
 @json_resp_accept_empty_list
 def api_images(dir_file):
-    
+
     '''
     renvoie la liste des image du repertoire image
     '''
-    print('images')
 
     if not dir_file in  ['img', 'doc']:
         return []
@@ -132,7 +131,6 @@ def api_images(dir_file):
     file_dir_path = Path(ROOT_DIR, 'static/medias/'+ dir_file)
     files_out = []
     for root, dirs, files in os.walk(file_dir_path):
-        print(root, dirs)
         for i in files:
             if i[0] == '.':
                 continue
@@ -167,8 +165,6 @@ def api_add_images(dir_file):
             out[key] = False
         if out[key] == 'true':
             out[key] = True
-
-        print(key, out[key])
 
     filename = file.filename
     for c in '/!;, ()}{}':
