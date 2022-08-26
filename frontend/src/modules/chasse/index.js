@@ -101,6 +101,22 @@ const ROUTE = [
     access: 4
   },
   {
+    name: "chasse.restitution_gd_public",
+    path: "/chasse/restitution_gd_public",
+    label: "Chasse: Restitution des données",
+    type: "page",
+    content: "chasse_restitution_gd_public",
+    access: 4 // Acces restreint temporairement le temps de construire les pages
+  },
+  {
+    name: "chasse.restitution_indices_performances",
+    path: "/chasse/restitution_indices_performances",
+    label: "Indices de performance",
+    type: "page",
+    content: "chasse_restitution_indices_performances",
+    access: 4 // Acces restreint temporairement le temps de construire les pages
+  },
+  {
     name: "chasse.bilan",
     path: "/chasse/bilan",
     label: "Bilan données chasse",
@@ -117,10 +133,10 @@ const ROUTE = [
     component: exportsChasse,
     access: 4
   },
-  {
+  { //TODO rename component
     name: "chasse.page_type",
     path: "/chasse/page_type",
-    label: "Bilan analyse plan de chasse",
+    label: "Chasse : analyse détaillée",
     hideTitle: true,
     component: pageTypeChasse,
     // type: 'page',

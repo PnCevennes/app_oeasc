@@ -75,13 +75,23 @@ const menus = {
   resultats: {
     icon: "show_chart",
     label: "Résultats des suivis",
-    names: ["resultats.declarations", "resultats.in"]
+    names: [
+      "resultats.declarations",
+      "resultats.in",
+      "chasse.restitution_gd_public",
+      "chasse.page_type",
+      "chasse.restitution_indices_performances",
+      "icia.restitution_gd_public",
+      "degats_agricoles.restitution_gd_public",
+      "sylviculture.restitution_diagnostics_sylvicoles",
+      "sylviculture.restitution_suivi_peuplements_sensibles"
+    ]
   },
 
   chasse: {
     icon: "fa-cog",
     label: 'Chasse',
-    names: ['chasse.saisie', 'chasse.admin', 'chasse.bilan', 'chasse.exports', 'chasse.page_type'],
+    names: ['chasse.saisie', 'chasse.admin', 'chasse.bilan', 'chasse.exports'],
     hidden: ({ $store }) => $store.getters.droitMax < 5
   },
 
