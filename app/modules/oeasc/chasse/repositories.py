@@ -147,10 +147,11 @@ def build_chasse_bilan_filters(params, query, tableModel):
         query = query.filter(tableModel.id_zone_cynegetique.in_(params['id_zone_cynegetique']))
     elif params['id_secteur']:
         query = query.join(
-            TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == TAttributionMassifs.id_zone_cynegetique
+            TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == tableModel.id_zone_cynegetique
         ).filter(
             TZoneCynegetiques.id_secteur.in_(params['id_secteur'])
         )
+
     if params['id_espece']:
         query = query.filter(tableModel.id_espece == params['id_espece'])
 

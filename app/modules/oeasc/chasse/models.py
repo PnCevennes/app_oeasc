@@ -175,6 +175,7 @@ class VPlanChasseRealisationBilan(DB.Model):
     id_attribution_massif = DB.Column(DB.Integer, primary_key=True)
     id_saison = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_saisons.id_saison'))
     id_espece = DB.Column(DB.Integer, DB.ForeignKey('oeasc_commons.t_especes.id_espece'))
+    id_secteur = DB.Column(DB.Integer, DB.ForeignKey('oeasc_commons.t_secteurs.id_secteur'))
     id_zone_cynegetique = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique'))
     id_zone_indicative = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_indicatives.id_zone_indicative'))
     nb_affecte_min = DB.Column(DB.Integer)
@@ -186,7 +187,7 @@ class VPlanChasseRealisationBilan(DB.Model):
     espece = DB.relationship(TEspeces)
     zone_cynegetique = DB.relationship(TZoneCynegetiques)
     zone_indicative = DB.relationship(TZoneIndicatives)
-
+    secteur = DB.relationship(TSecteurs)
 
 @serializable
 class TTypeBracelets(DB.Model):
