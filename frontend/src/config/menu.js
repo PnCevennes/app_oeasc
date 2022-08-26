@@ -1,4 +1,16 @@
-export default {
+// Pour ajouter un menu il faut :
+//  Créer une définition de ce menu dans la variable `menus`
+//  Puis spécifier son emplacement configAppBar ou configDrawerMenus
+
+// Définition des menus
+//    - label : Nom d'affichage du menu
+//    - icon : Icone précédant le label
+//    - disabled : Fonction indiquant si le menu doit être désactivé
+//    - hidden : Fonction indiquant si le menu doit être affiché (en fonction des droits de l'utilisateur)
+//    - name : Cas des menus sans liste déroulante => nom de la route du menu
+//    - names : Cas des menus avec liste déroulante =>  listes des routes composants un menu
+
+const menus = {
   accueil: {
     name: "page.accueil"
   },
@@ -71,7 +83,6 @@ export default {
     label: 'Chasse',
     names: ['chasse.saisie', 'chasse.admin', 'chasse.bilan', 'chasse.exports', 'chasse.page_type'],
     hidden: ({ $store }) => $store.getters.droitMax < 5
-
   },
 
   documentation: {
@@ -84,3 +95,31 @@ export default {
     name: "page.partenaires"
   }
 };
+
+// Configuration de l'affichage des menus sur la bare du haut
+// rightMenus => menus alignés à droite
+// leftMenus => menus alignés à gauche
+const configAppBar = {
+  rightMenus: ["informations", "user"],
+  leftMenus: [
+    "accueil",
+    "actualite",
+    "observatoire",
+    "systeme_alerte",
+    "resultats",
+    "chasse"
+  ],
+};
+
+// Configuration de l'affichage des menus sur le paneau latéral
+const configDrawerMenus = [
+  "accueil",
+  "actualite",
+  "observatoire",
+  "systeme_alerte",
+  "informations",
+  "admin",
+  "dev"
+]
+
+export { menus, configAppBar, configDrawerMenus }

@@ -163,7 +163,31 @@ class TAttributionMassifs(DB.Model):
     espece = DB.relationship(TEspeces)
     zone_cynegetique = DB.relationship(TZoneCynegetiques)
 
+@serializable
+class VPlanChasseRealisationBilan(DB.Model):
+    '''
+        Attribution selon les années
+    '''
 
+    __tablename__ = 'v_plan_chasse_realisation_bilan'
+    __table_args__ = {'schema': 'oeasc_chasse', 'extend_existing': True}
+
+    id_attribution_massif = DB.Column(DB.Integer, primary_key=True)
+    id_saison = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_saisons.id_saison'))
+    id_espece = DB.Column(DB.Integer, DB.ForeignKey('oeasc_commons.t_especes.id_espece'))
+    id_secteur = DB.Column(DB.Integer, DB.ForeignKey('oeasc_commons.t_secteurs.id_secteur'))
+    id_zone_cynegetique = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique'))
+    id_zone_indicative = DB.Column(DB.Integer, DB.ForeignKey('oeasc_chasse.t_zone_indicatives.id_zone_indicative'))
+    nb_affecte_min = DB.Column(DB.Integer)
+    nb_affecte_max = DB.Column(DB.Integer)
+    nb_realisation = DB.Column(DB.Integer)
+    nb_realisation_avant_11 = DB.Column(DB.Integer)
+
+    saison = DB.relationship(TSaisons)
+    espece = DB.relationship(TEspeces)
+    zone_cynegetique = DB.relationship(TZoneCynegetiques)
+    zone_indicative = DB.relationship(TZoneIndicatives)
+    secteur = DB.relationship(TSecteurs)
 
 @serializable
 class TTypeBracelets(DB.Model):
