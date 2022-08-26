@@ -252,7 +252,5 @@ def get_areas_simples_from_type_code_container(data_type, type_code, ids_area_co
                     l -> renvoie aussi la geometrie
 
     '''
-
-    print(data_type, type_code, ids_area_container)
     b_simple = True
     return areas_from_type_code_container(b_simple, data_type, type_code, ids_area_container)
