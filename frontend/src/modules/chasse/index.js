@@ -11,7 +11,7 @@ import configStoreAttributionMassif from "./config/store-attribution-massif";
 import configStoreTypeBracelet from "./config/store-type-bracelet";
 import configStoreAttribution from "./config/store-attribution";
 import configStoreRealisation from "./config/store-realisation";
-import configFormContentChasse from './config/form-content-chasse'
+import { generateConfigformDef } from './config/form-content-chasse';
 import genericForm from "@/components/form/generic-form";
 import graphChasse from "./graph-chasse";
 import graphCustom from "./graph-custom";
@@ -19,7 +19,8 @@ import formRealisationChasse from "./form-realisation-chasse";
 import exportsChasse from "./exports-chasse";
 import pageTypeChasse from "./page-chasse";
 import { apiRequest } from "@/core/js/data/api.js";
-import { round } from "@/core/js/util/util"
+import { round } from "@/core/js/util/util";
+
 const ROUTE = [
   {
     // admin
@@ -170,7 +171,9 @@ const chasseAction = (actionType) => ({ getter }, { id_saison, id_espece, id_zon
 
 const STORE = {
   getters: {
-    configFormContentChasse: () => configFormContentChasse,
+    // Usage configFormContentChasse(['id_saison', 'id_espece', 'id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'])
+    // eslint-disable-next-line no-unused-vars
+    configFormContentChasse: (state) => (fields) => generateConfigformDef(fields)
   },
   actions: {
     lastSaison: ($store, options = {returnObject: true}) => {
