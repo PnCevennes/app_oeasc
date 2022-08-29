@@ -2,9 +2,9 @@
   <div>
     <!-- Choix des paramètres de filtres pour le bilan -->
     <generic-form :config="{
-        ...$store.getters.configFormContentChasse,
-        value: bilanParams
-      }"></generic-form>
+      ...$store.getters.configFormContentChasse(),
+      value: bilanParams
+    }"></generic-form>
 
     <!-- Titre et infos -->
     <h1>Bilan synthétique et analyse des plans de chasse</h1>
