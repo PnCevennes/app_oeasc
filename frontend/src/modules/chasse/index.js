@@ -103,7 +103,7 @@ const ROUTE = [
   {
     name: "chasse.restitution_gd_public",
     path: "/chasse/restitution_gd_public",
-    label: "Chasse: Restitution des données",
+    label: "Plans de chasse",
     type: "page",
     content: "chasse_restitution_gd_public",
     access: 4 // Acces restreint temporairement le temps de construire les pages

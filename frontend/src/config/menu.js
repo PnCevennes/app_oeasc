@@ -76,10 +76,9 @@ const menus = {
     icon: "show_chart",
     label: "Résultats des suivis",
     names: [
+      "chasse.restitution_gd_public",
       "resultats.declarations",
       "resultats.in",
-      "chasse.restitution_gd_public",
-      "chasse.page_type",
       "chasse.restitution_indices_performances",
       "icia.restitution_gd_public",
       "degats_agricoles.restitution_gd_public",
@@ -91,7 +90,13 @@ const menus = {
   chasse: {
     icon: "fa-cog",
     label: 'Chasse',
-    names: ['chasse.saisie', 'chasse.admin', 'chasse.bilan', 'chasse.exports'],
+    names: [
+      "chasse.saisie",
+      "chasse.admin",
+      "chasse.bilan",
+      "chasse.page_type",
+      "chasse.exports"
+    ],
     hidden: ({ $store }) => $store.getters.droitMax < 5
   },
 
