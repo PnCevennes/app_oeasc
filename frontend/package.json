@@ -28,7 +28,7 @@
     "marked": "^1.2.3",
     "moment": "^2.29.4",
     "node-sass": "^4.14.1",
-    "npm": "^8.5.3",
+    "npm": "^8.11.0",
     "sass": "^1.29.0",
     "sass-loader": "^8.0.2",
     "v-runtime-template": "^1.10.0",
