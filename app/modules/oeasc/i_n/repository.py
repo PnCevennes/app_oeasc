@@ -3,7 +3,6 @@
 """
 
 import math
-import numpy
 from statsmodels.regression.linear_model import OLS
 from utils_flask_sqla.generic import GenericQuery
 from flask import current_app
@@ -98,15 +97,6 @@ def process_annees(ug):
 
     if not len(X):
         return
-
-    # moindres carres
-    # resultat = numpy.linalg.lstsq(X,Y)
-    # err = (resultat[1][0] if len(resultat[1]) else 0) / len(Y)
-    # a, b = resultat[0]
-    # ug['reg_lin'] = {}
-    # ug['reg_lin']['a'] =  a[0]
-    # ug['reg_lin']['b'] =  b[0]
-    # ug['reg_lin']['err'] =  err
 
     # statistiques
     model = OLS(Y, [x for x in X])
