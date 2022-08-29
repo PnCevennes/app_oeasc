@@ -10,21 +10,21 @@ from .declaration.repository import get_foret_type
 from .declaration.utils import get_areas_from_type_code
 
 config = current_app.config
-DB = config['DB']
+DB = config["DB"]
 
 
 def print_date(s_date):
     """
-        pour affichage dans tableau
+    pour affichage dans tableau
     """
     if not s_date:
-        return ''
+        return ""
     return parser.parse(s_date).strftime("%d/%m/%Y")
 
 
 def get_some_config(config_text):
     """
-        pour avoir des elements de config dans jinja
+    pour avoir des elements de config dans jinja
     """
     keys = [
         "ID_APP",
@@ -38,16 +38,16 @@ def get_some_config(config_text):
 
 def to_string(x):
     """
-        patch jinja
+    patch jinja
     """
     return str(x)
 
 
 utils_dict = {
     # "get_db": get_db,
-    'print_date': print_date,
-    'get_areas_from_type_code': get_areas_from_type_code,
-    'get_foret_type': get_foret_type,
-    'get_some_config': get_some_config,
-    'to_string': to_string
+    "print_date": print_date,
+    "get_areas_from_type_code": get_areas_from_type_code,
+    "get_foret_type": get_foret_type,
+    "get_some_config": get_some_config,
+    "to_string": to_string,
 }

@@ -1,168 +1,167 @@
-'''
+"""
     Routes pour les résultats
-'''
+"""
 from flask import Blueprint, render_template
 
 from ..declaration.repository import get_declarations
-bp = Blueprint('resultat', __name__)
+
+bp = Blueprint("resultat", __name__)
 
 
 # tests
-@bp.route('/test/d3')
+@bp.route("/test/d3")
 def test_d3():
-    '''
-        page du suvi de l'équilibre ASC
+    """
+    page du suvi de l'équilibre ASC
 
-        TODO
-    '''
+    TODO
+    """
 
-    return render_template('modules/oeasc/test/d3.html')
+    return render_template("modules/oeasc/test/d3.html")
 
 
 # tests
-@bp.route('/test/chart/bar')
+@bp.route("/test/chart/bar")
 def test_chart_bar():
-    '''
-        page du suvi de l'équilibre ASC
+    """
+    page du suvi de l'équilibre ASC
 
-        TODO
-    '''
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/test/chart_bar.html')
+    return render_template("modules/oeasc/pages/resultats/test/chart_bar.html")
 
 
 # tests
-@bp.route('/test/chart/pie')
+@bp.route("/test/chart/pie")
 def test_chart_pie():
-    '''
-        page du suvi de l'équilibre ASC
+    """
+    page du suvi de l'équilibre ASC
 
-        TODO
-    '''
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/test/chart_pie.html')
+    return render_template("modules/oeasc/pages/resultats/test/chart_pie.html")
 
 
 # tests
-@bp.route('/test/chart/timeline')
+@bp.route("/test/chart/timeline")
 def test_chart_timeline():
-    '''
-        page du suvi de l'équilibre ASC
+    """
+    page du suvi de l'équilibre ASC
 
-        TODO
-    '''
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/test/chart_timeline.html')
+    return render_template("modules/oeasc/pages/resultats/test/chart_timeline.html")
 
 
-@bp.route('/suivi_equilibre_ASC')
+@bp.route("/suivi_equilibre_ASC")
 def resultats():
-    '''
-        page du suvi de l'équilibre ASC
+    """
+    page du suvi de l'équilibre ASC
 
-        TODO
-    '''
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/resultats.html')
+    return render_template("modules/oeasc/pages/resultats/resultats.html")
 
 
-@bp.route('/degats_forestiers')
+@bp.route("/degats_forestiers")
 def degats_forestiers():
-    '''
-        resultats pour les degats_forestiers
-        TODO
-    '''
+    """
+    resultats pour les degats_forestiers
+    TODO
+    """
 
-    return render_template(
-        'modules/oeasc/pages/resultats/degats_forestiers.html'
-    )
+    return render_template("modules/oeasc/pages/resultats/degats_forestiers.html")
 
 
-@bp.route('/diagnostics_sylvicoles')
+@bp.route("/diagnostics_sylvicoles")
 def diagnostics_sylvicoles():
-    '''
-        resultats pour les diagnostics_sylvicoles
-        TODO
-    '''
+    """
+    resultats pour les diagnostics_sylvicoles
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/diagnostics_sylvicoles.html')
+    return render_template("modules/oeasc/pages/resultats/diagnostics_sylvicoles.html")
 
 
-@bp.route('/donnees_cynegetiques')
+@bp.route("/donnees_cynegetiques")
 def donnees_cynegetiques():
-    '''
-        resultats pour les donnees_cynegetiques
-        TODO
-    '''
+    """
+    resultats pour les donnees_cynegetiques
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/donnees_cynegetiques.html')
+    return render_template("modules/oeasc/pages/resultats/donnees_cynegetiques.html")
 
 
-@bp.route('/ice')
+@bp.route("/ice")
 def ice():
-    '''
-        resultats pour les ice
-        TODO
-    '''
+    """
+    resultats pour les ice
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/ice.html')
+    return render_template("modules/oeasc/pages/resultats/ice.html")
 
 
-@bp.route('/peuplements_degradables')
+@bp.route("/peuplements_degradables")
 def peuplements_degradables():
-    '''
-        resultats pour les peuplements_degradables
-        TODO
-    '''
+    """
+    resultats pour les peuplements_degradables
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/peuplements_degradables.html')
+    return render_template("modules/oeasc/pages/resultats/peuplements_degradables.html")
 
 
-@bp.route('/degats_agricoles')
+@bp.route("/degats_agricoles")
 def degats_agricoles():
-    '''
-        resultats pour les degats_agricoles
-        TODO
-    '''
+    """
+    resultats pour les degats_agricoles
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/degats_agricoles.html')
+    return render_template("modules/oeasc/pages/resultats/degats_agricoles.html")
 
 
-@bp.route('/mont_aigoual')
+@bp.route("/mont_aigoual")
 def mont_aigoual():
-    '''
-        resultats pour les mont_aigoual
-        TODO
-    '''
+    """
+    resultats pour les mont_aigoual
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/mont_aigoual.html')
+    return render_template("modules/oeasc/pages/resultats/mont_aigoual.html")
 
 
-@bp.route('/vallees_cevenoles')
+@bp.route("/vallees_cevenoles")
 def vallees_cevenoles():
-    '''
-        resultats pour les vallees_cevenoles
-        TODO
-    '''
+    """
+    resultats pour les vallees_cevenoles
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/vallees_cevenoles.html')
+    return render_template("modules/oeasc/pages/resultats/vallees_cevenoles.html")
 
 
-@bp.route('/mont_lozere')
+@bp.route("/mont_lozere")
 def mont_lozere():
-    '''
-        resultats pour les mont_lozere
-        TODO
-    '''
+    """
+    resultats pour les mont_lozere
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/mont_lozere.html')
+    return render_template("modules/oeasc/pages/resultats/mont_lozere.html")
 
 
-@bp.route('/causses_gorges')
+@bp.route("/causses_gorges")
 def causses_gorges():
-    '''
-        resultats pour les causses_gorges
-        TODO
-    '''
+    """
+    resultats pour les causses_gorges
+    TODO
+    """
 
-    return render_template('modules/oeasc/pages/resultats/causses_gorges.html')
+    return render_template("modules/oeasc/pages/resultats/causses_gorges.html")

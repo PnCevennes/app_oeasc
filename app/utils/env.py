@@ -131,7 +131,6 @@ URL_REDIRECT = "{}/{}".format(config.URL_APPLICATION, "oeasc/login")
 #     cmd_path.chmod(0o777)
 
 
-
 # def get_config_file_path(config_file=None):
 #     """ Return the config file path by checking several sources
 
