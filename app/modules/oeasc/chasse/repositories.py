@@ -62,7 +62,6 @@ def get_attribution_result(params):
     for filter_key, filter_value in params.items():
         if not hasattr(columns, filter_key) or filter_value in [None, []]:
             continue
-        print(filter_key, filter_value)
         if isinstance(filter_value, list):
             query = query.filter(getattr(columns, filter_key).in_(filter_value))
         else:
@@ -220,7 +219,6 @@ def get_chasse_bilan_realisation(params):
 def get_plain_text_data(params):
     # Espèces
     out = {}
-    print(params)
     if 'id_espece' in params:
         res = TEspeces.query.get(params['id_espece'])
         out['nom_espece'] = res.nom_espece
@@ -275,7 +273,6 @@ def get_chasse_bilan(params):
     for key in ["nb_attribution_min", "nb_attribution_max", "nb_realisation", "nb_realisation_avant_11"]:
         index_nom_saison = columns_index["nom_saison"]
         index_col = columns_index[key]
-        print(key, index_col)
         out[key] = [
             [
                 r[index_nom_saison],

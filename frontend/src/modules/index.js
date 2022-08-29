@@ -2,6 +2,10 @@ import { ROUTE as user_routes, STORE as user_store } from "./user";
 import { ROUTE as commons_routes, STORE as commons_store } from "./commons";
 import { ROUTE as in_routes, STORE as in_store } from "./in";
 import { ROUTE as chasse_routes, STORE as chasse_store } from "./chasse";
+import { ROUTE as icia_routes } from "./icia";
+import { ROUTE as degats_agricoles_routes } from "./degats_agricoles";
+import { ROUTE as sylviculture_routes } from "./sylviculture";
+
 import { STORE as data_store } from "./data";
 
 import { ROUTE as content_routes, STORE as content_store } from "./content";
@@ -23,6 +27,9 @@ const MODULES_ROUTES = [
   ...page_routes,
   ...restitution_routes,
   ...restitution2_routes,
+  ...icia_routes,
+  ...degats_agricoles_routes,
+  ...sylviculture_routes
 ];
 
 

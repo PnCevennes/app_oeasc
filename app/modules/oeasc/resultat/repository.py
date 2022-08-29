@@ -184,11 +184,9 @@ SELECT
 
 def result_custom(params):
 
-    print('custom')
     schema_name = params['view'].split('.')[0]
     table_name = params['view'].split('.')[1]
     if not cache_generic_table.get(params['view']):
-        print('get view')
         cache_generic_table[params['view']] = GenericTable(table_name, schema_name, DB.engine)
 
     view = cache_generic_table.get(params['view'])

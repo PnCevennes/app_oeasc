@@ -104,6 +104,11 @@ const processFormConfig = configStore => {
 };
 
 const processDefaults = configStore => {
+  /**
+   * Fonction magique qui définit des paramètres par défaut basé sur snakeName pour le store
+   * idFieldName et displayFieldName
+   * @TODO => A SUPPRIMER : specifier les valeurs en dur dans les stores
+   */
   configStore.idFieldName =
     configStore.idFieldName || `id_${configStore.snakeName}`;
   configStore.displayFieldName =

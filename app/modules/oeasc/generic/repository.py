@@ -218,7 +218,6 @@ def get_objects_type(module_name, object_type, args={}):
         query = query.limit(itemsPerPage)
 
         if page and int(page) > 1:
-            print(page, itemsPerPage, (int(page)-1) * itemsPerPage)
             query = query.offset((int(page)-1) * int(itemsPerPage) )
 
 

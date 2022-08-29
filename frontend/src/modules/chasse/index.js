@@ -11,15 +11,16 @@ import configStoreAttributionMassif from "./config/store-attribution-massif";
 import configStoreTypeBracelet from "./config/store-type-bracelet";
 import configStoreAttribution from "./config/store-attribution";
 import configStoreRealisation from "./config/store-realisation";
-import configFormContentChasse from './config/form-content-chasse'
+import { generateConfigformDef } from './config/form-content-chasse';
 import genericForm from "@/components/form/generic-form";
 import graphChasse from "./graph-chasse";
 import graphCustom from "./graph-custom";
 import formRealisationChasse from "./form-realisation-chasse";
 import exportsChasse from "./exports-chasse";
-import pageTypeChasse from "./page-chasse";
+import pageChasseBilanDetaille from "./page-chasse-bilan-detaille";
 import { apiRequest } from "@/core/js/data/api.js";
-import { round } from "@/core/js/util/util"
+import { round } from "@/core/js/util/util";
+
 const ROUTE = [
   {
     // admin
@@ -101,6 +102,22 @@ const ROUTE = [
     access: 4
   },
   {
+    name: "chasse.restitution_gd_public",
+    path: "/chasse/restitution_gd_public",
+    label: "Plans de chasse",
+    type: "page",
+    content: "chasse_restitution_gd_public",
+    access: 4 // Acces restreint temporairement le temps de construire les pages
+  },
+  {
+    name: "chasse.restitution_indices_performances",
+    path: "/chasse/restitution_indices_performances",
+    label: "Indices de performance",
+    type: "page",
+    content: "chasse_restitution_indices_performances",
+    access: 4 // Acces restreint temporairement le temps de construire les pages
+  },
+  {
     name: "chasse.bilan",
     path: "/chasse/bilan",
     label: "Bilan données chasse",
@@ -117,12 +134,12 @@ const ROUTE = [
     component: exportsChasse,
     access: 4
   },
-  {
-    name: "chasse.page_type",
-    path: "/chasse/page_type",
-    label: "Bilan analyse plan de chasse",
+  { //TODO rename component
+    name: "chasse.restitution_bilan_detaille",
+    path: "/chasse/restitution_bilan_detaille",
+    label: "Chasse : analyse détaillée",
     hideTitle: true,
-    component: pageTypeChasse,
+    component: pageChasseBilanDetaille,
     // type: 'page',
     // props: {
     //   large: true
@@ -154,7 +171,9 @@ const chasseAction = (actionType) => ({ getter }, { id_saison, id_espece, id_zon
 
 const STORE = {
   getters: {
-    configFormContentChasse: () => configFormContentChasse,
+    // Usage configFormContentChasse(['id_saison', 'id_espece', 'id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'])
+    // eslint-disable-next-line no-unused-vars
+    configFormContentChasse: (state) => (fields) => generateConfigformDef(fields)
   },
   actions: {
     lastSaison: ($store, options = {returnObject: true}) => {

@@ -26,7 +26,6 @@ def api_test():
     '''
         route pour tester la connexion à l'application
     '''
-    print('test')
     return session.get('current_user')
 
 

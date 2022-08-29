@@ -7,51 +7,26 @@
 
     <div v-else>
       <div class="list-form">
-        <!-- <pre>
-          {{config}}
-        </pre> -->
         <div v-if="config.list_type === 'button'">
           <div class="select-list-label">{{ config.label }}</div>
-          <v-btn-toggle
-            v-model="baseModel[config.name]"
-            @change="change($event)"
-            dense
-          >
-            <v-btn
-              :value="item[config.valueFieldName]"
-              v-for="(item, index) of items"
-              :key="index"
-              >{{ item[config.displayFieldName] }}</v-btn
-            >
+          <v-btn-toggle v-model="baseModel[config.name]" @change="change($event)" dense>
+            <v-btn :value="item[config.valueFieldName]" v-for="(item, index) of items" :key="index">
+              {{ item[config.displayFieldName] }}</v-btn>
           </v-btn-toggle>
         </div>
 
         <!-- select -->
         <div v-else-if="config.list_type === 'combobox'">
-          <v-combobox
-            ref="autocomplete"
-            :id="`form-${config.name}`"
-            clearable
-            v-model="baseModel[config.name]"
-            :items="items"
-            :label="config.label"
-            :required="config.required ? true : false"
-            :multiple="config.multiple ? true : false"
-            :item-value="config.valueFieldName"
-            :item-text="config.displayFieldName"
-            :rules="config.rules"
-            :chips="config.multiple ? true : false"
-            dense
+          <v-combobox ref="autocomplete" :id="`form-${config.name}`" clearable
+            v-model="baseModel[config.name]" :items="items" :label="config.label"
+            :required="config.required ? true : false" :multiple="config.multiple ? true : false"
+            :item-value="config.valueFieldName" :item-text="config.displayFieldName"
+            :rules="config.rules" :chips="config.multiple ? true : false" dense
             :small-chips="config.multiple ? true : false"
-            :deletable-chips="config.multiple ? true : false"
-            :search-input.sync="search"
-            :placeholder="config.placeholder"
-            :filter="config.dataReloadOnSearch && customFilter"
-            @change="change($event)"
-            :return-object="config.returnObject ? true : false"
-            :disabled="config.disabled"
-            @update:list-index="comboboxUpdateListIndex($event)"
-          >
+            :deletable-chips="config.multiple ? true : false" :search-input.sync="search"
+            :placeholder="config.placeholder" :filter="config.dataReloadOnSearch && customFilter"
+            @change="change($event)" :return-object="config.returnObject ? true : false"
+            :disabled="config.disabled" @update:list-index="comboboxUpdateListIndex($event)">
             <span slot="label">
               {{ config.label }}
               <i v-if="config.multiple">(plusieurs réponses possibles)</i>
@@ -60,75 +35,42 @@
           </v-combobox>
         </div>
         <div v-else-if="config.list_type === 'autocomplete'">
-          <v-autocomplete
-            ref="autocomplete"
-            :id="`form-${config.name}`"
-            clearable
-            v-model="baseModel[config.name]"
-            :items="items"
-            :label="config.label"
-            :required="config.required ? true : false"
-            :multiple="config.multiple ? true : false"
-            :item-value="config.valueFieldName"
-            :item-text="config.displayFieldName"
-            :rules="config.rules"
-            :chips="config.multiple ? true : false"
-            dense
+          <v-autocomplete ref="autocomplete" :id="`form-${config.name}`" clearable
+            v-model="baseModel[config.name]" :items="items" :label="config.label"
+            :required="config.required ? true : false" :multiple="config.multiple ? true : false"
+            :item-value="config.valueFieldName" :item-text="config.displayFieldName"
+            :rules="config.rules" :chips="config.multiple ? true : false" dense
             :small-chips="config.multiple ? true : false"
-            :deletable-chips="config.multiple ? true : false"
-            :search-input.sync="search"
-            :placeholder="config.placeholder"
-            :filter="config.dataReloadOnSearch && customFilter"
-            @change="change($event)"
-            :return-object="config.returnObject ? true : false"
-            :disabled="config.disabled"
-            no-data-text="Pas de donnée disponible"
-          >
+            :deletable-chips="config.multiple ? true : false" :search-input.sync="search"
+            :placeholder="config.placeholder" :filter="config.dataReloadOnSearch && customFilter"
+            @change="change($event)" :return-object="config.returnObject ? true : false"
+            :disabled="config.disabled" no-data-text="Pas de donnée disponible">
             <span slot="label">
               {{ config.label }}
               <i v-if="config.multiple">(plusieurs réponses possibles)</i>
               <span v-if="config.required" class="required">*</span>
             </span>
 
-            <help
-              slot="prepend"
-              :code="`form-${config.name}`"
-              v-if="config.help"
-            ></help>
+            <help slot="prepend" :code="`form-${config.name}`" v-if="config.help"></help>
           </v-autocomplete>
         </div>
 
         <div v-else-if="config.list_type === 'select'">
-            <!-- {{`form-${config.name}`}} -->
-          <v-select
-            :id="`form-${config.name}`"
-            clearable
-            dense
-            v-model="baseModel[config.name]"
-            :items="items"
-            :label="config.label"
-            :required="config.required ? true : false"
-            :multiple="config.multiple ? true : false"
-            :item-value="config.valueFieldName"
-            :item-text="config.displayFieldName"
-            :rules="config.rules"
-            :chips="config.multiple ? true : false"
-            :small-chips="config.multiple ? true : false"
+          <!-- {{`form-${config.name}`}} -->
+          <v-select :id="`form-${config.name}`" clearable dense v-model="baseModel[config.name]"
+            :items="items" :label="config.label" :required="config.required ? true : false"
+            :multiple="config.multiple ? true : false" :item-value="config.valueFieldName"
+            :item-text="config.displayFieldName" :rules="config.rules"
+            :chips="config.multiple ? true : false" :small-chips="config.multiple ? true : false"
             :deletable-chips="config.multiple ? true : false"
-            :return-object="config.returnObject ? true : false"
-            :disabled="config.disabled"
-            @change="change($event)"
-          >
+            :return-object="config.returnObject ? true : false" :disabled="config.disabled"
+            @change="change($event)">
             <span slot="label">
               {{ config.label }}
               <i v-if="config.multiple">(plusieurs réponses possibles)</i>
               <span v-if="config.required" class="required">*</span>
             </span>
-            <help
-              slot="prepend"
-              :code="`form-${config.name}`"
-              v-if="config.help"
-            ></help>
+            <help slot="prepend" :code="`form-${config.name}`" v-if="config.help"></help>
           </v-select>
         </div>
 
@@ -144,25 +86,14 @@
                 <br />
                 <i>(plusieurs réponses possibles)</i>
               </div>
-              <v-checkbox
-                v-for="(item, index) in items"
-                :key="index"
+              <v-checkbox v-for="(item, index) in items" :key="index"
                 v-model="baseModel[config.name]"
-                :hide-details="index < items.length - 1 ? true : false"
-                :value="
+                :hide-details="index < items.length - 1 ? true : false" :value="
                   (config.returnObject && item) || item[config.valueFieldName]
-                "
-                :label="item[config.displayFieldName]"
-                dense
-                :rules="config.rules"
-                :disabled="config.disabled"
-                @change="change($event)"
-              ></v-checkbox>
-              <help
-                class="help-radio-item"
-                :code="`item-${item[config.valueFieldName]}`"
-                v-if="config.helps"
-              ></help>
+                " :label="item[config.displayFieldName]" dense :rules="config.rules"
+                :disabled="config.disabled" @change="change($event)"></v-checkbox>
+              <help class="help-radio-item" :code="`item-${item[config.valueFieldName]}`"
+                v-if="config.helps"></help>
             </v-container>
           </div>
 
@@ -174,37 +105,24 @@
                 <span v-if="config.required" class="required">*</span>
                 <help :code="`form-${config.name}`" v-if="config.help"></help>
               </div>
-              <v-radio-group
-                v-model="baseModel[config.name]"
-                :rules="config.rules"
-              >
+              <v-radio-group v-model="baseModel[config.name]" :rules="config.rules">
                 <template v-for="item in items">
-                  <div
-                    :key="item[config.valueFieldName]"
-                    style="position: relative"
-                  >
+                  <div :key="item[config.valueFieldName]" style="position: relative">
                     <div class="radio">
-                      <v-radio
-                        :value="
-                          (config.returnObject && item) ||
-                            item[config.valueFieldName]
-                        "
-                        :label="item[config.displayFieldName]"
-                        :disabled="config.disabled"
-                        @change="change($event)"
-                      ></v-radio>
+                      <v-radio :value="
+                        (config.returnObject && item) ||
+                          item[config.valueFieldName]
+                      " :label="item[config.displayFieldName]" :disabled="config.disabled"
+                        @change="change($event)"></v-radio>
                     </div>
-                    <help
-                      class="help-radio-item"
-                      :code="`list-${item[config.valueFieldName]}`"
+                    <help class="help-radio-item" :code="`list-${item[config.valueFieldName]}`"
                       v-if="
                         config.helps &&
                           !(
                             config.helps.except &&
                             config.helps.except.includes(item.cd_nomenclature)
                           )
-                      "
-                    ></help>
+                      "></help>
                   </div>
                 </template>
               </v-radio-group>
@@ -390,14 +308,25 @@ export default {
       if (this.dataItems && !this.config.dataReloadOnSearch) {
         this.processItems();
       } else if (this.config.storeName) {
+        // Si c'est un store, récupération de la configuration
+        //  et surcharge avec les paramètres spécifiques au champ
         const configStore = this.$store.getters.configStore(
           this.config.storeName
         );
+        // Nom du champ valeur
+        this.config.valueFieldName =
+          this.config.valueFieldName || configStore.idFieldName;
+        // Nom du champ d'affichage
+        this.config.displayFieldName =
+          this.config.displayFieldName || configStore.displayFieldName;
+        // Tri (asc/desc) de la colonne d'affichage
+        this.config.displayFieldSortDesc =
+          this.config.displayFieldSortDesc || false;
 
         const params = {
           notCommit: this.config.dataReloadOnSearch,
           sortBy: [this.config.displayFieldName],
-          sortDesc: [false],
+          sortDesc: [this.config.displayFieldSortDesc],
           itemsPerPage: this.config.dataReloadOnSearch ? 10 : -1,
           ...this.config.params
         };
@@ -405,9 +334,7 @@ export default {
           params[`${this.config.displayFieldName}__ilike`] = this.search || "";
         }
         promise = this.$store.dispatch(configStore.getAll, params);
-        this.config.valueFieldName = configStore.idFieldName;
-        this.config.displayFieldName =
-          this.config.displayFieldName || configStore.displayFieldName;
+
       } else if (this.config.url) {
         const url =
           typeof this.config.url === "function"
