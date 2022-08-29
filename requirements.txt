@@ -10,7 +10,7 @@ GeoAlchemy2==0.4.0
 geojson==2.4.0
 inflect==0.3.1
 itsdangerous==0.24
-Jinja2==2.10.1
+Jinja2==2.11.3
 MarkupSafe==1.1.1
 Markdown==3.2.1
 marshmallow==2.15.3
