@@ -49,6 +49,7 @@ const removeElementByClass = (className, element) => {
 
 const removeDoublons = array => [...new Set(array)];
 
+// TODO REMOVE moment use only once
 const addDays = (sDate, days) => {
   const m = moment(sDate);
   m.add(days, "days");
