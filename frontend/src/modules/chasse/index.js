@@ -17,7 +17,7 @@ import graphChasse from "./graph-chasse";
 import graphCustom from "./graph-custom";
 import formRealisationChasse from "./form-realisation-chasse";
 import exportsChasse from "./exports-chasse";
-import pageTypeChasse from "./page-chasse";
+import pageChasseBilanDetaille from "./page-chasse-bilan-detaille";
 import { apiRequest } from "@/core/js/data/api.js";
 import { round } from "@/core/js/util/util";
 
@@ -135,11 +135,11 @@ const ROUTE = [
     access: 4
   },
   { //TODO rename component
-    name: "chasse.page_type",
-    path: "/chasse/page_type",
+    name: "chasse.restitution_bilan_detaille",
+    path: "/chasse/restitution_bilan_detaille",
     label: "Chasse : analyse détaillée",
     hideTitle: true,
-    component: pageTypeChasse,
+    component: pageChasseBilanDetaille,
     // type: 'page',
     // props: {
     //   large: true

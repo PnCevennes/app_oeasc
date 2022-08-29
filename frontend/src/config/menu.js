@@ -94,7 +94,7 @@ const menus = {
       "chasse.saisie",
       "chasse.admin",
       "chasse.bilan",
-      "chasse.page_type",
+      "chasse.restitution_bilan_detaille",
       "chasse.exports"
     ],
     hidden: ({ $store }) => $store.getters.droitMax < 5
