@@ -1,6 +1,6 @@
-'''
+"""
     Fonctions pour récupérer les géometries
-'''
+"""
 from sqlalchemy import and_, text
 from flask import current_app
 from geojson import FeatureCollection
@@ -14,7 +14,7 @@ from .models import (
 
 
 config = current_app.config
-DB = config['DB']
+DB = config["DB"]
 
 
 def get_id_type(type_code):
@@ -23,8 +23,7 @@ def get_id_type(type_code):
     """
 
     return DB.session.execute(
-        "SELECT ref_geo.get_id_type(:type_code);",
-        {'type_code': type_code}
+        "SELECT ref_geo.get_id_type(:type_code);", {"type_code": type_code}
     ).first()[0]
 
 
@@ -35,17 +34,17 @@ def get_type_code(id_type):
 
     return DB.session.execute(
         "SELECT type_code FROM ref_geo.bib_areas_types WHERE  id_type = :id_type;",
-        {'id_type': id_type}
+        {"id_type": id_type},
     ).first()[0]
 
 
 def set_table(b_simple, data_type):
-    '''
-        choisi la table qui correspond aux données demandées
-        - b_simple : geometrie simplifée ou brute
-        - data_type : t -> attributs seul
-                    l -> on ajoute la geometrie
-    '''
+    """
+    choisi la table qui correspond aux données demandées
+    - b_simple : geometrie simplifée ou brute
+    - data_type : t -> attributs seul
+                l -> on ajoute la geometrie
+    """
     if b_simple:
 
         attributs = VAS
@@ -56,7 +55,7 @@ def set_table(b_simple, data_type):
         attributs = VA
         layers = VLA
 
-    if data_type == 'l':
+    if data_type == "l":
 
         table = layers
 
@@ -68,15 +67,15 @@ def set_table(b_simple, data_type):
 
 
 def areas_from_type_code(b_simple, data_type, type_code):
-    '''
-        retourne toutes les aires pour un type_code donne (par exemple OEASC_CADASTRE)
+    """
+    retourne toutes les aires pour un type_code donne (par exemple OEASC_CADASTRE)
 
-        b_simple : renvoie  geométrie simplifiee si vrai
-                            géométrie d'origine sinon
+    b_simple : renvoie  geométrie simplifiee si vrai
+                        géométrie d'origine sinon
 
-        data type : t -> renvoie seulement les attributs
-                    l -> renvoie aussi la geometrie
-    '''
+    data type : t -> renvoie seulement les attributs
+                l -> renvoie aussi la geometrie
+    """
 
     table = set_table(b_simple, data_type)
 
@@ -84,47 +83,42 @@ def areas_from_type_code(b_simple, data_type, type_code):
 
     data = (
         DB.session.query(table)
-        .filter(
-            and_(
-                table.id_type == id_type,
-                table.enable
-            )
-        )
+        .filter(and_(table.id_type == id_type, table.enable))
         .order_by(table.label)
         .all()
     )
 
-    if data_type == 'l':
+    if data_type == "l":
         out = FeatureCollection([d.get_geofeature() for d in data])
     else:
         out = [d.as_dict() for d in data]
 
-    if data_type == 'l':
-        for o in out['features']:
-            o['properties']['type'] = type_code
+    if data_type == "l":
+        for o in out["features"]:
+            o["properties"]["type"] = type_code
     else:
         for o in out:
-            o['type'] = type_code
+            o["type"] = type_code
 
     return out
 
 
 def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_container):
-    '''
-        retourne toutes les aires pour un type_code donne (par exemple OEASC_CADASTRE)
-        et étant contenue dans la geometrie identifiée par son id_area : id_area_container
-        la recherche de ses élément se fait par rapport aux area_code:
-            - soit en comparant les area_code des contenus et du contenant (cas général)
-            - soit en se servant d'une table de correlation
-            precalculée pour le cas des forêts avec DGD
+    """
+    retourne toutes les aires pour un type_code donne (par exemple OEASC_CADASTRE)
+    et étant contenue dans la geometrie identifiée par son id_area : id_area_container
+    la recherche de ses élément se fait par rapport aux area_code:
+        - soit en comparant les area_code des contenus et du contenant (cas général)
+        - soit en se servant d'une table de correlation
+        precalculée pour le cas des forêts avec DGD
 
-        data type : t -> renvoie seulement les attributs
-                    l -> renvoie aussi la geometrie
+    data type : t -> renvoie seulement les attributs
+                l -> renvoie aussi la geometrie
 
-        b_simple : renvoie  geométrie simplifiee si vrai
-                            géométrie d'origine sinon
+    b_simple : renvoie  geométrie simplifiee si vrai
+                        géométrie d'origine sinon
 
-    '''
+    """
     table = set_table(b_simple, data_type)
 
     id_type = get_id_type(type_code)
@@ -132,18 +126,21 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
     out = []
 
-
     for id_area_container in v:
 
-        container = DB.session.query(table).filter(table.id_area == id_area_container).first()
+        container = (
+            DB.session.query(table).filter(table.id_area == id_area_container).first()
+        )
 
-        id_type_commune = get_id_type('OEASC_COMMUNE')
-        id_type_dgd = get_id_type('OEASC_DGD')
+        id_type_commune = get_id_type("OEASC_COMMUNE")
+        id_type_dgd = get_id_type("OEASC_DGD")
 
         # cas des section de communes
         if container.id_type == id_type_commune:
 
-            sql_text = text("SELECT ref_geo.get_old_communes('{}')".format(container.area_code))
+            sql_text = text(
+                "SELECT ref_geo.get_old_communes('{}')".format(container.area_code)
+            )
 
             result = DB.engine.execute(sql_text)
 
@@ -158,7 +155,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                         and_(
                             table.id_type == id_type,
                             table.enable,
-                            table.area_code.like(area_code + "-%")
+                            table.area_code.like(area_code + "-%"),
                         )
                     )
                     .order_by(table.label)
@@ -172,17 +169,19 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
             res = DB.engine.execute(
                 text(
                     "SELECT area_code_cadastre \
-                        FROM oeasc_forets.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;"
-                    .format(container.area_code)
+                        FROM oeasc_forets.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(
+                        container.area_code
                     )
                 )
+            )
 
             v = [r[0] for r in res]
 
             data = (
                 DB.session.query(table)
                 .filter(table.area_code.in_(v))
-                .order_by(table.label).all()
+                .order_by(table.label)
+                .all()
             )
 
         # autres cas ONF
@@ -193,7 +192,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                     and_(
                         table.id_type == id_type,
                         table.enable,
-                        table.area_code.like(container.area_code + "-%")
+                        table.area_code.like(container.area_code + "-%"),
                     )
                 )
                 .order_by(table.label)
@@ -201,7 +200,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
             )
 
         # output
-        if data_type == 'l':
+        if data_type == "l":
             out = out + [d.get_geofeature() for d in data]
 
         else:
@@ -209,7 +208,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
             out = out + [d.as_dict() for d in data]
 
     # output final
-    if data_type == 'l':
+    if data_type == "l":
 
         out = FeatureCollection(out)
 
@@ -217,9 +216,9 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
 
 def areas_post(b_simple, data_type, areas):
-    '''
-        TODO
-    '''
+    """
+    TODO
+    """
     table = set_table(b_simple, data_type)
 
     out = []
@@ -228,7 +227,7 @@ def areas_post(b_simple, data_type, areas):
 
     data = DB.session.query(table).filter(table.id_area.in_(t_areas)).all()
 
-    if data_type == 'l':
+    if data_type == "l":
 
         out = FeatureCollection([d.get_geofeature() for d in data])
 

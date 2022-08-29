@@ -1,5 +1,6 @@
 from sqlalchemy.inspection import inspect
 
+
 class GenericRouteDefinitions:
     # partage tout avec toutes les instances de classe
     # ref: https://python-3-patterns-idioms-test.readthedocs.io/en/latest/Singleton.html
@@ -20,10 +21,7 @@ class GenericRouteDefinitions:
 
     def get_model(self, module_name, object_type):
 
-        Model = (
-            self.get_object_type(module_name, object_type)
-            .get('model')
-        )
+        Model = self.get_object_type(module_name, object_type).get("model")
 
         id_field_name = inspect(Model).primary_key[0].name if Model else None
 

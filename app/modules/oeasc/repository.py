@@ -6,7 +6,7 @@ from pypnnomenclature.models import TNomenclatures
 
 
 config = current_app.config
-DB = config['DB']
+DB = config["DB"]
 
 
 def test_db():

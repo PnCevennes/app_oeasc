@@ -1,7 +1,5 @@
 # import markdown
-from flask import (
-    Blueprint, render_template
-)
+from flask import Blueprint, render_template
 
 from pypnusershub import routes as fnauth
 from app.modules.oeasc.user.utils import check_auth_redirect_login
@@ -13,17 +11,18 @@ from utils_flask_sqla.response import json_resp
 
 # from .commons.repository import get_text
 
-bp = Blueprint('test', __name__)
+bp = Blueprint("test", __name__)
 # md = markdown.Markdown()
 
-@bp.route('/carte/', defaults={'id_areas': "", 'type_code': 'OEASC_COMMUNE'})
-@bp.route('/carte/<string:type_code>', defaults={'id_areas': ""})
-@bp.route('/carte/<string:type_code>/<string:id_areas>')
-def carte(type_code, id_areas):
-    '''
-        test cartes
 
-    '''
+@bp.route("/carte/", defaults={"id_areas": "", "type_code": "OEASC_COMMUNE"})
+@bp.route("/carte/<string:type_code>", defaults={"id_areas": ""})
+@bp.route("/carte/<string:type_code>/<string:id_areas>")
+def carte(type_code, id_areas):
+    """
+    test cartes
+
+    """
 
     areas_container = []
 
@@ -31,16 +30,14 @@ def carte(type_code, id_areas):
 
         if id_area != "":
 
-            areas_container.append({'id_area': int(id_area)})
+            areas_container.append({"id_area": int(id_area)})
 
     data = {
-
-        'type_code': type_code,
-        'areas_container': areas_container,
-
+        "type_code": type_code,
+        "areas_container": areas_container,
     }
 
-    return render_template('modules/oeasc/test/carte.html', data=data)
+    return render_template("modules/oeasc/test/carte.html", data=data)
 
 
 # @bp.route('/test_connexion', methods=['GET', 'POST'])
@@ -54,7 +51,7 @@ def carte(type_code, id_areas):
 
 #     text = get_text(code)
 
-#     if not text: 
+#     if not text:
 #         return None
 
 
@@ -78,7 +75,7 @@ def carte(type_code, id_areas):
 
 #     text = get_text(code)
 
-#     if not text: 
+#     if not text:
 #         return None
 
 
@@ -89,7 +86,7 @@ def carte(type_code, id_areas):
 
 #     text = get_text(code)
 
-#     if not text: 
+#     if not text:
 #         return None
 
 
@@ -106,7 +103,7 @@ def carte(type_code, id_areas):
 
 #     text = get_text(code)
 
-#     if not text: 
+#     if not text:
 #         return None
 
 

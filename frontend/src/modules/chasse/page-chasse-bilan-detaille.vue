@@ -115,7 +115,7 @@ import graphChasse from "./graph-chasse.vue";
 import restitution2 from "@/modules/restitution2/restitution";
 
 export default {
-  name: "pageTypeChasse",
+  name: "pageChasseBilanDetaille",
   components: { genericForm, graphChasse, restitution2 },
   data: () => ({
     bilanParams: {

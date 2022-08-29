@@ -6,7 +6,8 @@ from flask import current_app
 
 # custom class to send email in SSL and with non ascii character
 class SSLSMTPHandler(SMTPHandler):
-    """ Custom class to emit email log with SSL """
+    """Custom class to emit email log with SSL"""
+
     def emit(self, record):
         """
         Emit a record.
@@ -20,7 +21,7 @@ class SSLSMTPHandler(SMTPHandler):
                 port = smtplib.SMTP_PORT
             smtp = smtplib.SMTP_SSL(self.mailhost, port)
             msg = self.format(record)
-            message = MIMEText(msg, _charset = "utf-8")
+            message = MIMEText(msg, _charset="utf-8")
 
             message.add_header("Subject", self.getSubject(record))
             message.add_header("From", self.fromaddr)
@@ -36,12 +37,14 @@ class SSLSMTPHandler(SMTPHandler):
         except:
             self.handleError(record)
 
-MAIL_CONFIG = current_app.config['MAILERROR']
+
+MAIL_CONFIG = current_app.config["MAILERROR"]
 mail_handler = SSLSMTPHandler(
-    mailhost=(MAIL_CONFIG['MAIL_HOST'], MAIL_CONFIG['HOST_PORT']),
-    fromaddr=MAIL_CONFIG['MAIL_FROM'],
-    toaddrs=MAIL_CONFIG['MAIL_TO'],
-    subject='GeoNature error',
-    credentials=(MAIL_CONFIG['MAIL_USERNAME'], MAIL_CONFIG['MAIL_PASS']))
+    mailhost=(MAIL_CONFIG["MAIL_HOST"], MAIL_CONFIG["HOST_PORT"]),
+    fromaddr=MAIL_CONFIG["MAIL_FROM"],
+    toaddrs=MAIL_CONFIG["MAIL_TO"],
+    subject="GeoNature error",
+    credentials=(MAIL_CONFIG["MAIL_USERNAME"], MAIL_CONFIG["MAIL_PASS"]),
+)
 
 mail_handler.setLevel(logging.ERROR)

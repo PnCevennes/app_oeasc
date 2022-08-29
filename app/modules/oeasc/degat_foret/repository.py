@@ -1,6 +1,6 @@
-'''
+"""
     degat module api
-'''
+"""
 
 from flask import current_app
 
@@ -13,13 +13,12 @@ from ..user.models import VUsers
 
 
 config = current_app.config
-DB = config['DB']
-
+DB = config["DB"]
 
 
 def create_or_modify(model, key, dict_in):
     """
-        fonction generique de creation ou modification
+    fonction generique de creation ou modification
     """
     elem = None
 
@@ -28,7 +27,6 @@ def create_or_modify(model, key, dict_in):
         val = dict_in.get(key, None)
         if val:
             elem = DB.session.query(model).filter(getattr(model, key) == val).first()
-
 
     if elem is None:
         elem = model()
@@ -42,36 +40,28 @@ def create_or_modify(model, key, dict_in):
 
 
 def get_declaration(id_declaration):
-    '''
+    """
     create_or_update_declaration
-    '''
+    """
 
     try:
         declaration = (
             DB.session.query(TDeclaration)
-            .filter(
-                TDeclaration.id_declaration == id_declaration
-            )
+            .filter(TDeclaration.id_declaration == id_declaration)
             .one()
         )
 
         foret = (
             DB.session.query(TForet)
-            .filter(
-                TForet.id_foret == declaration.id_foret
-            )
+            .filter(TForet.id_foret == declaration.id_foret)
             .one()
         )
 
         proprietaire = (
             DB.session.query(TProprietaire)
-            .filter(
-                TProprietaire.id_proprietaire == foret.id_proprietaire
-            )
+            .filter(TProprietaire.id_proprietaire == foret.id_proprietaire)
             .one()
-
         )
-
 
     except Exception:
         return (TDeclaration(), TForet(), TProprietaire())
@@ -80,134 +70,110 @@ def get_declaration(id_declaration):
 
 
 def create_or_update_declaration(post_data):
-    '''
+    """
     create_or_update_declaration
-    '''
+    """
 
     # nomenclature
     for key in post_data:
-        if 'nomenclatures_' in key:
+        if "nomenclatures_" in key:
             post_data[key] = [
                 {
-                    'id_declaration': post_data.get('id_declaration'),
-                    'id_nomenclature': id_nomenclature
+                    "id_declaration": post_data.get("id_declaration"),
+                    "id_nomenclature": id_nomenclature,
                 }
                 for id_nomenclature in post_data[key]
             ]
 
     # areas
-    post_data['areas_foret'] = [] + post_data['areas_foret_communes'] +  post_data['areas_foret_sections']
-    if post_data['areas_foret_onf']:
-        post_data['areas_foret'].append(post_data['areas_foret_onf'])
-    if post_data['areas_foret_dgd']:
-        post_data['areas_foret'].append(post_data['areas_foret_dgd'])
+    post_data["areas_foret"] = (
+        [] + post_data["areas_foret_communes"] + post_data["areas_foret_sections"]
+    )
+    if post_data["areas_foret_onf"]:
+        post_data["areas_foret"].append(post_data["areas_foret_onf"])
+    if post_data["areas_foret_dgd"]:
+        post_data["areas_foret"].append(post_data["areas_foret_dgd"])
 
-    post_data['areas_localisation'] = (
-        [] +
-        post_data['areas_localisation_cadastre'] +
-        post_data['areas_localisation_onf_prf'] +
-        post_data['areas_localisation_onf_ug']
+    post_data["areas_localisation"] = (
+        []
+        + post_data["areas_localisation_cadastre"]
+        + post_data["areas_localisation_onf_prf"]
+        + post_data["areas_localisation_onf_ug"]
     )
 
-    for key in ['areas_localisation', 'areas_foret']:
+    for key in ["areas_localisation", "areas_foret"]:
         post_data[key] = [
-            {
-                'id_area': id_area,
-                'id_declaration': post_data.get('id_declaration')
-            }
+            {"id_area": id_area, "id_declaration": post_data.get("id_declaration")}
             for id_area in post_data[key]
         ]
 
+    if not post_data["b_document"]:
 
-    if not post_data['b_document']:
+        id_declarant = post_data["id_declarant"]
 
-        id_declarant = post_data['id_declarant']
-
-        nomenclature = (
-            post_data['id_nomenclature_proprietaire_declarant'] and
-            get_nomenclature_from_id(post_data['id_nomenclature_proprietaire_declarant'])
+        nomenclature = post_data[
+            "id_nomenclature_proprietaire_declarant"
+        ] and get_nomenclature_from_id(
+            post_data["id_nomenclature_proprietaire_declarant"]
         )
 
-        if nomenclature and nomenclature['cd_nomenclature'] != 'P_D_O_NP':
-            post_data['id_declarant'] = None
+        if nomenclature and nomenclature["cd_nomenclature"] != "P_D_O_NP":
+            post_data["id_declarant"] = None
         # proprietaire
-        proprietaire = create_or_modify(
-            TProprietaire,
-            'id_proprietaire',
-            post_data
-        )
+        proprietaire = create_or_modify(TProprietaire, "id_proprietaire", post_data)
 
-        post_data['id_proprietaire'] = proprietaire.id_proprietaire
+        post_data["id_proprietaire"] = proprietaire.id_proprietaire
 
-        post_data['id_declarant'] = id_declarant
-
+        post_data["id_declarant"] = id_declarant
 
         # foret
-        foret = create_or_modify(
-            TForet,
-            'id_foret',
-            post_data
-        )
-        post_data['id_foret'] = foret.id_foret
+        foret = create_or_modify(TForet, "id_foret", post_data)
+        post_data["id_foret"] = foret.id_foret
 
     else:
         # get id_foret form id_areas
-        id_area_foret = post_data['areas_foret_onf'] or post_data['areas_foret_dgd']
+        id_area_foret = post_data["areas_foret_onf"] or post_data["areas_foret_dgd"]
 
-        code_foret = get_area_from_id(id_area_foret)['area_code']
+        code_foret = get_area_from_id(id_area_foret)["area_code"]
 
         foret = DB.session.query(TForet).filter(TForet.code_foret == code_foret).first()
 
-        post_data['id_foret'] = foret.id_foret
+        post_data["id_foret"] = foret.id_foret
 
     # declaration
 
-    post_data['foret'] = foret.as_dict(True)
+    post_data["foret"] = foret.as_dict(True)
 
-    declaration = create_or_modify(
-        TDeclaration,
-        'id_declaration',
-        post_data
-    )
-
+    declaration = create_or_modify(TDeclaration, "id_declaration", post_data)
 
     patch_areas_declarations(declaration.id_declaration)
-
 
     return declaration.as_dict(True)
 
 
 def get_id_areas(areas, type_list):
-    '''
-        get_id_areas
-    '''
+    """
+    get_id_areas
+    """
 
-    return [
-        x['id_area'] for x in filter(
-            lambda x: x['type_code'] in type_list,
-            areas
-        )
-    ]
+    return [x["id_area"] for x in filter(lambda x: x["type_code"] in type_list, areas)]
 
 
 def get_id_area(areas, type_list):
-    '''
-        get_id_area
-    '''
+    """
+    get_id_area
+    """
 
     id_areas = get_id_areas(areas, type_list)
     return id_areas[0] if id_areas else None
 
-def get_foret_from_code(code_foret):
-    '''
-        get_foret_from_code
-    '''
 
-    foret = (
-        DB.session.query(TForet)
-        .filter(TForet.code_foret == code_foret)
-        .first()
-    )
+def get_foret_from_code(code_foret):
+    """
+    get_foret_from_code
+    """
+
+    foret = DB.session.query(TForet).filter(TForet.code_foret == code_foret).first()
 
     proprietaire = (
         DB.session.query(TProprietaire)
@@ -216,6 +182,7 @@ def get_foret_from_code(code_foret):
     )
 
     return (foret, proprietaire)
+
 
 def get_proprietaire_from_id_declarant(id_declarant):
     proprietaire = (
@@ -247,14 +214,15 @@ def get_declarations():
 
     return out
 
+
 def hide_proprietaire(proprietaire):
     for key in [
-        'nom_proprietaire',
-        'adresse',
-        's_code_postal',
-        's_commune_proprietaire'
+        "nom_proprietaire",
+        "adresse",
+        "s_code_postal",
+        "s_commune_proprietaire",
     ]:
-        proprietaire[key] = '***'
+        proprietaire[key] = "***"
 
-    proprietaire['telephone'] = '09 99 99 99 99'
-    proprietaire['email'] = 'prive@prive.prive'
+    proprietaire["telephone"] = "09 99 99 99 99"
+    proprietaire["email"] = "prive@prive.prive"
