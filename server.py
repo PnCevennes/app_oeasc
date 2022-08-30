@@ -4,13 +4,30 @@
 
 import json
 import re
+
 from flask import Flask, redirect, session, request, url_for, send_from_directory
 from jinja2 import evalcontextfilter, Markup, escape
+
 
 from app.utils.env import DB, mail
 from config import config
 
 from flask_cors import CORS
+
+# Configure sentry if var SENTRY_DSN is set in config
+try:
+    sentry_config = config.SENTRY_DSN
+    if sentry_config:
+        import sentry_sdk
+        from sentry_sdk.integrations.flask import FlaskIntegration
+
+        sentry_sdk.init(
+            sentry_config,
+            integrations=[FlaskIntegration()],
+            traces_sample_rate=1.0,
+        )
+except AttributeError:
+    pass
 
 
 class ReverseProxied(object):
@@ -159,8 +176,7 @@ _paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
 @evalcontextfilter
 def nl2br(eval_ctx, value):
     result = "\n\n".join(
-        "<p>%s</p>" % p.replace("\n", "<br>\n")
-        for p in _paragraph_re.split(escape(value))
+        "<p>%s</p>" % p.replace("\n", "<br>\n") for p in _paragraph_re.split(escape(value))
     )
     if eval_ctx.autoescape:
         result = Markup(result)
