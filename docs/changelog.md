@@ -1,4 +1,12 @@
 
+## 0.0.1 2022-08-30
+ * Integration de sentry : Ajout d'un paramètre de configuration `SENTRY_DSN`
+ * Prenettoyage de requirements.txt
+
+**migration**
+ * Mettre a jour le virtualenv: `pip install -r requirements.txt`
+ * Voir le supprimer et le recréer `rm -r venv; python3 -m venv venv` avant l'installation des paquets
+
 ## 0.0.1 2022-08-29
  * Possibilité de paramétrer les champs du filtre chasse :
    * configFormContentChasse(['id_saison', 'id_espece', 'id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'])
