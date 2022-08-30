@@ -127,7 +127,6 @@ def api_result_custom():
 
     # pour garder en mémoire args['field_name']
     field_name_save = args["field_name"]
-    print("******************************", args["field_name_2"])
     # desormais on groupe par <field_name_2>
     args["field_name"] = args["field_name_2"]
 
