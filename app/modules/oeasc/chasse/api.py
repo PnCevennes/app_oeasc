@@ -119,7 +119,7 @@ def api_result_custom():
     out = {}
 
     for bracelet in ["CEM", "CEFF", "CEFFD"]:
-        params["bracelet"] = bracelet
+        params["code_type_bracelet"] = bracelet
         data = get_attribution_result(params)
         out[bracelet] = data
     return out

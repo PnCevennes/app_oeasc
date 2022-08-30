@@ -9,11 +9,15 @@ from ..resultat.repository import result_custom
 from sqlalchemy import column, select, func, table, distinct, over, cast
 from ..commons.models import TEspeces, TSecteurs
 from .models import (
+    TRealisationsChasse,
     TSaisons,
     TZoneCynegetiques,
     TZoneIndicatives,
     TAttributionMassifs,
     VPlanChasseRealisationBilan,
+    TAttributions,
+    TRealisationsChasse,
+    TTypeBracelets
 )
 
 config = current_app.config
@@ -56,23 +60,37 @@ def chasse_process_args():
 
 
 def get_attribution_result(params):
-
-    columns = GenericTable(
-        "v_custom_result_attribution", "oeasc_chasse", DB.engine
-    ).tableDef.columns
+    # mapping beetween params (filter) and db columns
+    filter_mapping = {
+        "id_saison": TAttributions.id_saison,
+        "id_espece": TTypeBracelets.id_espece,
+        "id_secteur": TZoneCynegetiques.id_secteur,
+        "id_zone_cynegetique": TAttributions.id_zone_cynegetique_affectee,
+        "id_zone_indicative": TAttributions.id_zone_indicative_affectee,
+        "code_type_bracelet": TTypeBracelets.code_type_bracelet
+    }
 
     query = DB.session.query(
-        func.count(columns.id_attribution),
-        func.count(columns.id_attribution).filter(columns.id_realisation != None),
+        func.count(TAttributions.id_attribution),
+        func.count(TAttributions.id_attribution).filter(TRealisationsChasse.id_realisation != None)
+    ).join(
+         TTypeBracelets, TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet
+    ).join(
+         TZoneCynegetiques, TAttributions.id_zone_cynegetique_affectee == TZoneCynegetiques.id_zone_cynegetique
+    ).outerjoin(
+         TRealisationsChasse, TAttributions.id_attribution == TRealisationsChasse.id_attribution
     )
 
     for filter_key, filter_value in params.items():
-        if not hasattr(columns, filter_key) or filter_value in [None, []]:
+        column_to_filter = filter_mapping.get(filter_key, None)
+
+        if not column_to_filter or filter_value in [None, []]:
             continue
+
         if isinstance(filter_value, list):
-            query = query.filter(getattr(columns, filter_key).in_(filter_value))
+            query = query.filter(column_to_filter.in_(filter_value))
         else:
-            query = query.filter(getattr(columns, filter_key) == (filter_value))
+            query = query.filter(column_to_filter == (filter_value))
 
     res = query.one()
 
