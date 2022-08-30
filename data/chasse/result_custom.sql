@@ -64,7 +64,7 @@
 	;
 
 
-
+-- TO DELETE UNUSED
 	DROP VIEW IF EXISTS oeasc_chasse.v_custom_result_attribution;
 	CREATE OR REPLACE VIEW oeasc_chasse.v_custom_result_attribution AS
 	SELECT
