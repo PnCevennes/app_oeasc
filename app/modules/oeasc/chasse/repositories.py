@@ -17,7 +17,7 @@ from .models import (
     VPlanChasseRealisationBilan,
     TAttributions,
     TRealisationsChasse,
-    TTypeBracelets
+    TTypeBracelets,
 )
 
 config = current_app.config
@@ -67,18 +67,29 @@ def get_attribution_result(params):
         "id_secteur": TZoneCynegetiques.id_secteur,
         "id_zone_cynegetique": TAttributions.id_zone_cynegetique_affectee,
         "id_zone_indicative": TAttributions.id_zone_indicative_affectee,
-        "code_type_bracelet": TTypeBracelets.code_type_bracelet
+        "code_type_bracelet": TTypeBracelets.code_type_bracelet,
     }
 
-    query = DB.session.query(
-        func.count(TAttributions.id_attribution),
-        func.count(TAttributions.id_attribution).filter(TRealisationsChasse.id_realisation != None)
-    ).join(
-         TTypeBracelets, TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet
-    ).join(
-         TZoneCynegetiques, TAttributions.id_zone_cynegetique_affectee == TZoneCynegetiques.id_zone_cynegetique
-    ).outerjoin(
-         TRealisationsChasse, TAttributions.id_attribution == TRealisationsChasse.id_attribution
+    query = (
+        DB.session.query(
+            func.count(TAttributions.id_attribution),
+            func.count(TAttributions.id_attribution).filter(
+                TRealisationsChasse.id_realisation != None
+            ),
+        )
+        .join(
+            TTypeBracelets,
+            TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet,
+        )
+        .join(
+            TZoneCynegetiques,
+            TAttributions.id_zone_cynegetique_affectee
+            == TZoneCynegetiques.id_zone_cynegetique,
+        )
+        .outerjoin(
+            TRealisationsChasse,
+            TAttributions.id_attribution == TRealisationsChasse.id_attribution,
+        )
     )
 
     for filter_key, filter_value in params.items():

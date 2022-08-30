@@ -427,6 +427,7 @@ class VChasseBilan(DB.Model):
     nb_realise = DB.Column(DB.Integer())
     nb_realise_avant_11 = DB.Column(DB.Integer())
 
+
 @serializable
 class VCustomResults(DB.Model):
     """
