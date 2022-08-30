@@ -28,17 +28,17 @@ class OeascPySchemaConf(Schema):
 
 
 class MailConf(Schema):
-    MAIL_HOST = fields.String(missing="")
-    HOST_PORT = fields.Integer(missing=465)
-    MAIL_FROM = fields.String(missing="")
-    MAIL_USERNAME = fields.String(missing="")
-    MAIL_PASS = fields.String(missing="")
-    MAIL_TO = fields.List(fields.String(), missing=list())
-
-
-class OeascAdminInfo(Schema):
-    ADMIN_APPLICATION_LOGIN = fields.String()
-    ADMIN_APPLICATION_MAIL = fields.String()
+    MAIL_SERVER = fields.String(required=False)
+    MAIL_PORT = fields.Integer(required=False)
+    MAIL_USE_TLS = fields.Boolean(required=False)
+    MAIL_USE_SSL = fields.Boolean(required=False)
+    MAIL_USERNAME = fields.String(required=False)
+    MAIL_PASSWORD = fields.String(required=False)
+    MAIL_DEFAULT_SENDER = fields.String(required=False)
+    MAIL_MAX_EMAILS = fields.Integer(required=False)
+    MAIL_SUPPRESS_SEND = fields.Boolean(required=False)
+    MAIL_ASCII_ATTACHMENTS = fields.Boolean(required=False)
+    # ERROR_MAIL_TO = EmailStrOrListOfEmailStrField(load_default=None)
 
 
 class OeascGeneralSchemaConf(Schema):
@@ -57,5 +57,6 @@ class OeascGeneralSchemaConf(Schema):
     MAIL_ON_ERROR = fields.Boolean(missing=False)
     ANIMATEUR_APPLICATION_MAIL = fields.String(missing="")
     ADMIN_APPLICATION_PASSWORD = fields.String()
+    ADMIN_APPLICATION_LOGIN = fields.String()
+    ADMIN_APPLICATION_MAIL = fields.String()
     MAIL_CONFIG = fields.Nested(MailConf, load_default=MailConf().load({}))
-    ADMIN_INFO = fields.Nested(OeascAdminInfo, missing=dict())
