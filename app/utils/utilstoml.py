@@ -1,7 +1,7 @@
 from pathlib import Path
 import toml
 
-from geonature.utils.errors import ConfigError, GeoNatureError
+from .errors import ConfigError, OeascError
 
 
 def load_and_validate_toml(toml_file, config_schema):
@@ -16,7 +16,7 @@ def load_and_validate_toml(toml_file, config_schema):
             raise ConfigError(toml_file, configerrors)
         return configs_py
     else:
-        raise GeoNatureError("Missing file {}".format(toml_file))
+        raise OeascError("Missing file {}".format(toml_file))
 
 
 def load_toml(toml_file):
@@ -27,4 +27,4 @@ def load_toml(toml_file):
         toml_config = toml.load(str(toml_file))
         return toml_config
     else:
-        raise GeoNatureError("Missing file {}".format(toml_file))
+        raise OeascError("Missing file {}".format(toml_file))

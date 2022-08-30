@@ -15,7 +15,7 @@ bp = Blueprint("oeasc_api_mail", __name__)
 
 def send_mail(recipients, subject, msg_html):
 
-    if not MAIL and config.get("ANIMATEUR_APPLICATION_MAIL", None):
+    if not MAIL and config["MAIL_ANIMATEUR"].get("ANIMATEUR_APPLICATION_MAIL", None):
 
         return {
             "msg": "les paramètres d'envoi de mail ne sont pas correctement définis"
@@ -31,7 +31,7 @@ def send_mail(recipients, subject, msg_html):
 
         msg = Message(
             "[" + application.nom_application + "] " + subject,
-            sender=config["ANIMATEUR_APPLICATION_MAIL"],
+            sender=config["MAIL_ANIMATEUR"]["ANIMATEUR_APPLICATION_MAIL"],
             recipients=recipients,
         )
 
@@ -81,8 +81,8 @@ def valid_temp_user(data):
         return {"msg": "Pas de role pour valid_temp_user"}
 
     recipients = [
-        config["ANIMATEUR_APPLICATION_MAIL"],
-        config["ADMIN_APPLICATION_MAIL"],
+        config.get("ANIMATEUR_APPLICATION_MAIL"),
+        config.get("ADMIN_APPLICATION_MAIL"),
     ]
     subject = " [ANIMATEUR] création d" " un nouvel utilisateur"
 

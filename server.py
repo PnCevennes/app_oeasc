@@ -8,27 +8,20 @@ import re
 from flask import Flask, redirect, session, request, url_for, send_from_directory
 from jinja2 import evalcontextfilter, Markup, escape
 
-
+from app.utils.config import config
 from app.utils.env import DB, mail
-from config import config
 
 from flask_cors import CORS
 
-# Configure sentry if var SENTRY_DSN is set in config
-try:
-    sentry_config = config.SENTRY_DSN
-    if sentry_config:
-        import sentry_sdk
-        from sentry_sdk.integrations.flask import FlaskIntegration
+if config.get("SENTRY_DSN"):
+    import sentry_sdk
+    from sentry_sdk.integrations.flask import FlaskIntegration
 
-        sentry_sdk.init(
-            sentry_config,
-            integrations=[FlaskIntegration()],
-            traces_sample_rate=1.0,
-        )
-except AttributeError:
-    pass
-
+    sentry_sdk.init(
+        config.get("SENTRY_DSN"),
+        integrations=[FlaskIntegration()],
+        traces_sample_rate=1.0,
+    )
 
 class ReverseProxied(object):
     def __init__(self, app_in, script_name=None, scheme=None, server=None):
@@ -55,6 +48,8 @@ class ReverseProxied(object):
 
 app = Flask(__name__, template_folder="app/templates", static_folder="static")
 
+app.config.update(config)
+
 cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 
 
@@ -62,15 +57,20 @@ cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 
 app.secret_key = "dfsdbegerbnergfbergqbqerg"
 
-app.config.from_pyfile("config/config.py", silent=True)
 
-mail.init_app(app)
+# Emails configuration
+if app.config.get("MAIL_CONFIG"):
+    conf = app.config.copy()
+    conf.update(app.config.get("MAIL_CONFIG"))
+    app.config = conf
+    mail.init_app(app)
+
+
 DB.init_app(app)
 
 app.config["DB"] = DB
 app.config["MAIL"] = mail
 
-# app.config['SQLALCHEMY_ECHO'] = True
 
 
 @app.route("/oeasc/", defaults={"text": ""})
@@ -89,7 +89,6 @@ with app.app_context():
     from app.modules.oeasc.user.mail import function_dict
 
     app.config["after_USERSHUB_request"] = function_dict
-    # app.config['SQLALCHEMY_ECHO'] = True
 
     from app.modules.oeasc.utils import utils_dict
 

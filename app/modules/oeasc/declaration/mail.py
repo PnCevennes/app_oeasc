@@ -55,7 +55,7 @@ def send_mail_validation_declaration(declaration, b_create):
         if b_create:
             msg = Message(
                 "[OEASC] Votre déclaration a bien été prise en compte",
-                sender=config["ANIMATEUR_APPLICATION_MAIL"],
+                sender=config.get("ANIMATEUR_APPLICATION_MAIL"),
                 recipients=[email_user],
             )
             msg.html = render_template(
@@ -69,8 +69,8 @@ def send_mail_validation_declaration(declaration, b_create):
 
         # test si utilisateur est l'animateur pas de mail
         if email_user in [
-            config["ANIMATEUR_APPLICATION_MAIL"],
-            config["ADMIN_APPLICATION_MAIL"],
+            config.get("ANIMATEUR_APPLICATION_MAIL"),
+            config.get("ADMIN_APPLICATION_MAIL"),
         ]:
             return
 
@@ -79,10 +79,10 @@ def send_mail_validation_declaration(declaration, b_create):
             if b_create
             else "[OEASC] [ANIMATEUR] Modification de la déclaration "
             + str(declaration["id_declaration"]),
-            sender=config["ANIMATEUR_APPLICATION_MAIL"],
+            sender=config.get("ANIMATEUR_APPLICATION_MAIL"),
             recipients=[
-                config["ANIMATEUR_APPLICATION_MAIL"],
-                config["ADMIN_APPLICATION_MAIL"],
+                config.get("ANIMATEUR_APPLICATION_MAIL"),
+                config.get("ADMIN_APPLICATION_MAIL"),
             ],
         )
 
