@@ -60,3 +60,6 @@ class OeascGeneralSchemaConf(Schema):
     ADMIN_APPLICATION_LOGIN = fields.String()
     ADMIN_APPLICATION_MAIL = fields.String()
     MAIL_CONFIG = fields.Nested(MailConf, load_default=MailConf().load({}))
+
+    # Paramètre de pypnnomenclature
+    ENABLE_NOMENCLATURE_TAXONOMIC_FILTERS = fields.Boolean(missing=True)
