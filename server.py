@@ -91,9 +91,9 @@ with app.app_context():
     app.config["after_USERSHUB_request"] = function_dict
     # app.config['SQLALCHEMY_ECHO'] = True
 
-    from app.modules.oeasc.utils import utils_dict
-
-    app.jinja_env.globals["utils"] = utils_dict
+    # TODO : is used ?
+    # from app.modules.oeasc.utils import utils_dict
+    # app.jinja_env.globals["utils"] = utils_dict
 
     @app.after_request
     def after_login_method(response):
@@ -167,44 +167,47 @@ with app.app_context():
 
 
 if __name__ == "__main__":
+    import logging
+    logging.basicConfig(filename='error.log',level=logging.INFO)
+
     app.run(debug=config.DEBUG, port=config.PORT)
 
-_paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
+# _paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
 
 
-@app.template_filter()
-@evalcontextfilter
-def nl2br(eval_ctx, value):
-    result = "\n\n".join(
-        "<p>%s</p>" % p.replace("\n", "<br>\n") for p in _paragraph_re.split(escape(value))
-    )
-    if eval_ctx.autoescape:
-        result = Markup(result)
-    return result
+# @app.template_filter()
+# @evalcontextfilter
+# def nl2br(eval_ctx, value):
+#     result = "\n\n".join(
+#         "<p>%s</p>" % p.replace("\n", "<br>\n") for p in _paragraph_re.split(escape(value))
+#     )
+#     if eval_ctx.autoescape:
+#         result = Markup(result)
+#     return result
 
 
-@app.template_filter()
-@evalcontextfilter
-def nopar(eval_ctx, value):
+# @app.template_filter()
+# @evalcontextfilter
+# def nopar(eval_ctx, value):
 
-    if not value:
+#     if not value:
 
-        return ""
+#         return ""
 
-    s2 = re.sub(r"\(.*\)", "", value)
-    s2 = s2.strip()
-    return s2
+#     s2 = re.sub(r"\(.*\)", "", value)
+#     s2 = s2.strip()
+#     return s2
 
 
-@app.template_filter()
-@evalcontextfilter
-def cleanid(eval_ctx, value):
+# @app.template_filter()
+# @evalcontextfilter
+# def cleanid(eval_ctx, value):
 
-    if not value:
+#     if not value:
 
-        return ""
+#         return ""
 
-    s2 = value.replace(" ", "")
-    s2 = s2.replace(".", "")
-    s2 = s2.strip()
-    return s2
+#     s2 = value.replace(" ", "")
+#     s2 = s2.replace(".", "")
+#     s2 = s2.strip()
+#     return s2

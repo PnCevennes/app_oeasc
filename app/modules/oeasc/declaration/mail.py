@@ -14,7 +14,7 @@ from .declaration_sample import declaration_dict_random_sample
 
 config = current_app.config
 
-
+# @TOCLEAN : NOT USE
 def display_mail_test(destinataire):
 
     declaration = declaration_dict_random_sample()
@@ -30,7 +30,7 @@ def display_mail_test(destinataire):
         user=user,
     )
 
-
+# @TOCLEAN : NOT USE
 def send_mail_test():
 
     declaration = declaration_dict_random_sample()
