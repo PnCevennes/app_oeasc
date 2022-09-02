@@ -2,8 +2,6 @@
     Description des options de configuration
 """
 
-import os
-
 from marshmallow import Schema, fields
 from marshmallow.validate import OneOf, Regexp
 
@@ -43,15 +41,15 @@ class MailConf(Schema):
 
 class OeascGeneralSchemaConf(Schema):
     appName = fields.String(missing="oeasc")
-    PASS_METHOD = fields.String(missing="hash", validate=OneOf(["hash", "md5"]))
+    PASS_METHOD = fields.String(
+        missing="hash",
+        validate=OneOf(["hash", "md5"])
+    )
     DEBUG = fields.Boolean(missing=False)
     URL_APPLICATION = fields.Url(required=True)
     URL_FRONTEND = fields.Url(required=True)
     URL_USERSHUB = fields.Url(required=True)
 
-    # API_ENDPOINT = fields.Url(required=True)
-    # API_TAXHUB = fields.Url(required=True)
-    # LOCAL_SRID = fields.Integer(required=True, missing=2154)
     ID_APP = fields.Integer(required=True)
 
     MAIL_ON_ERROR = fields.Boolean(missing=False)
