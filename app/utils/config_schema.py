@@ -41,10 +41,7 @@ class MailConf(Schema):
 
 class OeascGeneralSchemaConf(Schema):
     appName = fields.String(missing="oeasc")
-    PASS_METHOD = fields.String(
-        missing="hash",
-        validate=OneOf(["hash", "md5"])
-    )
+    PASS_METHOD = fields.String(missing="hash", validate=OneOf(["hash", "md5"]))
     DEBUG = fields.Boolean(missing=False)
     URL_APPLICATION = fields.Url(required=True)
     URL_FRONTEND = fields.Url(required=True)
