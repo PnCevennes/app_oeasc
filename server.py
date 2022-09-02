@@ -23,6 +23,7 @@ if config.get("SENTRY_DSN"):
         traces_sample_rate=1.0,
     )
 
+
 class ReverseProxied(object):
     def __init__(self, app_in, script_name=None, scheme=None, server=None):
         self.app = app_in
@@ -55,8 +56,6 @@ cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
 
-app.secret_key = "dfsdbegerbnergfbergqbqerg"
-
 
 # Emails configuration
 if app.config.get("MAIL_CONFIG"):
@@ -70,7 +69,6 @@ DB.init_app(app)
 
 app.config["DB"] = DB
 app.config["MAIL"] = mail
-
 
 
 @app.route("/oeasc/", defaults={"text": ""})
