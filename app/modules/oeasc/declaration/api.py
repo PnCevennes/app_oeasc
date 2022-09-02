@@ -181,7 +181,7 @@ def random_declaration():
     get_dict_nomenclature_areas(declaration_dict)
     return declaration_dict
 
-
+# @TODO => IS USED???
 @bp.route("random_populate", defaults={"nb": 1}, methods=["GET"])
 @bp.route("random_populate/<int:nb>", methods=["GET"])
 @check_auth_redirect_login(5)

@@ -15,29 +15,29 @@ from .declaration_sample import declaration_dict_random_sample
 config = current_app.config
 
 # @TOCLEAN : NOT USE
-def display_mail_test(destinataire):
+# def display_mail_test(destinataire):
 
-    declaration = declaration_dict_random_sample()
+#     declaration = declaration_dict_random_sample()
 
-    declaration = f_create_or_update_declaration(declaration)
+#     declaration = f_create_or_update_declaration(declaration)
 
-    user = get_user(declaration["id_declarant"])
+#     user = get_user(declaration["id_declarant"])
 
-    return render_template(
-        "modules/oeasc/mail/validation_declaration.html",
-        destinataire=destinataire,
-        declaration=declaration,
-        user=user,
-    )
+#     return render_template(
+#         "modules/oeasc/mail/validation_declaration.html",
+#         destinataire=destinataire,
+#         declaration=declaration,
+#         user=user,
+#     )
 
 # @TOCLEAN : NOT USE
-def send_mail_test():
+# def send_mail_test():
 
-    declaration = declaration_dict_random_sample()
+#     declaration = declaration_dict_random_sample()
 
-    declaration = f_create_or_update_declaration(declaration)
+#     declaration = f_create_or_update_declaration(declaration)
 
-    return send_mail_validation_declaration(declaration, True)
+#     return send_mail_validation_declaration(declaration, True)
 
 
 def send_mail_validation_declaration(declaration, b_create):

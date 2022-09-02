@@ -5,6 +5,7 @@ from flask_bcrypt import (
 
 password = '1234'
 
+# @TODO is used ? => to del
 if __name__ == '__main__':
 
     password_hash = generate_password_hash(password.encode('utf-8')).decode('utf-8')
