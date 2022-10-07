@@ -200,8 +200,8 @@ def result_custom(params):
 
         field_sort = params["sort"]
         dir = "ASC"
-        if field_sort[-1] in '+-':
-            if field_sort[-1] == '-':
+        if field_sort[-1] in "+-":
+            if field_sort[-1] == "-":
                 dir = "DESC"
             field_sort = field_sort[:-1]
 
