@@ -22,7 +22,14 @@ const seriesSimple = (data, typeGraph, text) => {
         useHTML: true,
         y: d.count,
         color: null
-      }))
+      })),
+      dataLabels: {
+        style: {
+          fontSize: "1em",
+          fontWeight: 1,
+          color: 'black'
+        },
+      },
     }
   ];
 
