@@ -197,14 +197,21 @@ def result_custom(params):
     order_by = "COUNT(*) DESC"
 
     if params.get("sort"):
-        field_sort = params["sort"].replace("+", "")
+
+        field_sort = params["sort"]
+        dir = "ASC"
+        if field_sort[-1] in '+-':
+            if field_sort[-1] == '-':
+                dir = "DESC"
+            field_sort = field_sort[:-1]
+
         if field_sort != params["field_name"]:
             group_bys.append(field_sort)
 
         order_by = field_sort
 
-        if "+" == params["sort"][-1]:
-            order_by += " DESC"
+        if "-" == params["sort"][-1]:
+            order_by += f" {dir}"
 
     query = query.group_by(text(", ".join(group_bys)))
     query = query.order_by(text(order_by))
