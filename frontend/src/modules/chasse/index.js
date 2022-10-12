@@ -107,7 +107,7 @@ const ROUTE = [
     label: "Plans de chasse",
     type: "page",
     content: "chasse_restitution_gd_public",
-    access: 4 // Acces restreint temporairement le temps de construire les pages
+    parent: "resultats.index",
   },
   {
     name: "chasse.restitution_indices_performances",
@@ -115,7 +115,7 @@ const ROUTE = [
     label: "Indices de performance",
     type: "page",
     content: "chasse_restitution_indices_performances",
-    access: 4 // Acces restreint temporairement le temps de construire les pages
+    parent: "resultats.index",
   },
   {
     name: "chasse.bilan",

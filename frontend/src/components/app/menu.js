@@ -7,6 +7,11 @@ const processRouteName = function(routeName, { $store, $router }) {
   // Fonction qui premet de retourner les données relatives à une route
   //    à partir de son nom
 
+  // pour traiter les divider (barre horizontale pour faire une séparation dans le menu)
+  if (routeName == '-') {
+    return routeName;
+  }
+
   // Récupération de la définition de la route à partir de son nom
   const route = $router.options.routes.find(route => route.name == routeName);
 

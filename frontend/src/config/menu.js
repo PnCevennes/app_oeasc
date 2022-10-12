@@ -76,6 +76,8 @@ const menus = {
     icon: "show_chart",
     label: "Résultats des suivis",
     names: [
+      "resultats.index",
+      "-",
       "chasse.restitution_gd_public",
       "resultats.declarations",
       "resultats.in",

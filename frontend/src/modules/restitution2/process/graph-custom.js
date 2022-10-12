@@ -9,7 +9,6 @@
  */
 const seriesSimple = (data, typeGraph, text) => {
   const total = data.reduce((p,c) => {return p + c.count}, 0);
-  console.log(total, data)
   return [
     {
       type: typeGraph,

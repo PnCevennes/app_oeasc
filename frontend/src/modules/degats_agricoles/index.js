@@ -7,7 +7,7 @@ const ROUTE = [
     label: "Dégâts agricoles",
     type: "page",
     content: "degats_agricoles_restitution_gd_public",
-    access: 4 // Acces restreint temporairement le temps de construire les pages
+    parent: "resultats.index"
   }
 ];
 

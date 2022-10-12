@@ -1,4 +1,6 @@
-
+## 0.0.1 2022-10-12
+ * Ajout de la possibilité de mettre des séparations dans les menus (`'-'`)
+ * Ouverture de l'accès aux pages de restitution
 ## 0.0.1 2022-08-30
  * Integration de sentry : Ajout d'un paramètre de configuration `SENTRY_DSN`
  * Prenettoyage de requirements.txt

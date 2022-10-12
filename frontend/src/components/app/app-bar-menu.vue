@@ -17,11 +17,12 @@
         <v-list>
           <template v-for="(item, index) in menu.menus">
             <v-list-item :key="index" :to="item.path"
-              v-if="item.meta.access <= $store.getters.droitMax">
+              v-if="item == '-' || item.meta && item.meta.access <= $store.getters.droitMax">
               <v-list-item-icon v-if="item.icon">
                 <v-icon v-text="item.icon"></v-icon>
               </v-list-item-icon>
-              <v-list-item-title>{{ item.label }}</v-list-item-title>
+              <v-list-item-title v-if="item.label">{{ item.label }}</v-list-item-title>
+              <v-divider v-if="item=='-'"></v-divider>
             </v-list-item>
           </template>
         </v-list>

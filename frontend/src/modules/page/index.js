@@ -85,7 +85,7 @@ const ROUTE = [
   {
     name: 'resultats.index',
     path: '/resultats',
-    label: 'Résultats des alertes',
+    label: "Présentation des résultats de l'Observatoire",
     content: 'resultats',
     parent: 'page.accueil',
     type: 'page'

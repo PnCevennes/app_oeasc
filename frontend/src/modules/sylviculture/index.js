@@ -6,7 +6,7 @@ const ROUTE = [
     label: "Diagnostics sylvicoles",
     type: "page",
     content: "sylviculture_restitution_diagnostics_sylvicoles",
-    access: 4 // Acces restreint temporairement le temps de construire les pages
+    parent: "resultats.index",
   },
   {
     name: "sylviculture.restitution_suivi_peuplements_sensibles",
@@ -14,7 +14,7 @@ const ROUTE = [
     label: "Suivi des peuplements sensibles",
     type: "page",
     content: "sylviculture_restitution_suivi_peuplements_sensibles",
-    access: 4 // Acces restreint temporairement le temps de construire les pages
+    parent: "resultats.index",
   }
 ];
 
