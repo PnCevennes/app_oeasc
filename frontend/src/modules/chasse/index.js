@@ -145,7 +145,7 @@ const ROUTE = [
     //   large: true
     // },
     // content: 'chassePageType',
-    access: 4
+    // access: 4
   }
 
 
