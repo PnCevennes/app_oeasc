@@ -140,12 +140,6 @@ const ROUTE = [
     label: "Chasse : analyse détaillée",
     hideTitle: true,
     component: pageChasseBilanDetaille,
-    // type: 'page',
-    // props: {
-    //   large: true
-    // },
-    // content: 'chassePageType',
-    // access: 4
   }
 
 
