@@ -40,8 +40,8 @@ export default {
       },
       {
         question: "<b>Ma forêt est-elle incluse dans le périmètre de l'Observatoire ?</b>",
-        response: `Le périmètre de l'Observatoire est constitué de l'ensemble des communes en partie incluses ou frontalières au coeur du Parc national des Cévennes. 
-                  <br><br> Pour vérifier si votre forêt est située dans ce périmètre, consultez <a href='#/presentation/perimetre'>la carte présentée ici</a>.`
+        response: `Le périmètre de l'Observatoire est constitué de l'ensemble des communes en partie incluses ou frontalières au coeur du Parc national des Cévennes.
+                  <br><br> Pour vérifier si votre forêt est située dans ce périmètre, consultez <a href='#/observatoire/perimetre'>la carte présentée ici</a>.`
       },
       {
         question: "<b>Ai-je besoin d'aller collecter des informations en forêt pour déclarer des dégâts ?</b>",
