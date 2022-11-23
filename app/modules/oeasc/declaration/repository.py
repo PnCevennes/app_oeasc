@@ -216,16 +216,16 @@ RETURNING e.id_declaration, e.centroid;
 
     INSERT INTO oeasc_declarations.cor_areas_declarations
 
-    WITH 
-    selected_types AS (SELECT UNNEST(ARRAY [          
+    WITH
+    selected_types AS (SELECT UNNEST(ARRAY [
              'OEASC_SECTEUR',
              'OEASC_COMMUNE',
              'OEASC_SECTION',
              'OEASC_ONF_FRT',
              'OEASC_DGD'
          ]) AS id_type)
-        
-         SELECT 
+
+         SELECT
              {0},
              ref_geo.intersect_geom_type_tol(d.geom, selected_types.id_type, 0.05) as id_area
              FROM selected_types
@@ -332,7 +332,7 @@ def get_declarations(
     """
 
     liste_id_organismes_solo = get_id_organismes(
-        ["Autre (préciser)", "Pas d'organisme"]
+        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
     )
 
     view_names = {
@@ -377,7 +377,7 @@ def get_declarations(
 
         # les personnes de droit 1 (leurs alertes seulement)
         elif user["id_droit_max"] >= 1:
-            filters = {"id_declarant": user["id_declarant"]}
+            filters = {"id_declarant": user["id_role"]}
 
     # cas où on veut une seule declaration
     if id_declaration:

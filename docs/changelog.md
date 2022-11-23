@@ -1,3 +1,6 @@
+## 0.0.1 2022-11-23
+* correction de la prise en compte des droits de l'utilisateur pour savoir quelles déclarations lui sont accessibles
+
 ## 0.0.1 2022-10-12
  * Ajout de la possibilité de mettre des séparations dans les menus (`'-'`)
  * Ouverture de l'accès aux pages de restitution
