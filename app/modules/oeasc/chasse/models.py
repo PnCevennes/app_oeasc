@@ -428,6 +428,39 @@ class VChasseBilan(DB.Model):
     nb_realise_avant_11 = DB.Column(DB.Integer())
 
 
+@serializable
+class VCustomResults(DB.Model):
+    """
+    Realisations
+    """
+
+    __tablename__ = "v_custom_results"
+    __table_args__ = {
+        "schema": "oeasc_chasse",
+        "extend_existing": True,
+    }
+
+    id_nomenclature_mode_chasse = DB.Column(DB.Integer())
+    label_mode_chasse = DB.Column(DB.Unicode())
+    label_sexe = DB.Column(DB.Unicode())
+    label_classe_age = DB.Column(DB.Unicode())
+    nom_espece = DB.Column(DB.Unicode())
+    id_espece = DB.Column(DB.Integer(), primary_key=True)
+    id_zone_cynegetique = DB.Column(DB.Integer(), primary_key=True)
+    nom_zone_indicative = DB.Column(DB.Unicode())
+    id_zone_indicative = DB.Column(DB.Integer(), primary_key=True)
+    nom_zone_indicative = DB.Column(DB.Unicode())
+    id_saison = DB.Column(DB.Integer(), primary_key=True)
+    nom_saison = DB.Column(DB.Unicode())
+    nom_saison = DB.Column(DB.Unicode())
+    id_saison = DB.Column(DB.Integer(), primary_key=True)
+    id_secteur = DB.Column(DB.Integer())
+    nom_secteur = DB.Column(DB.Unicode())
+    bracelet = DB.Column(DB.Unicode())
+    mois_txt = DB.Column(DB.Unicode())
+    mois_txt_sort = DB.Column(DB.Integer())
+
+
 # @serializable
 # class VChassePreBilan(DB.Model):
 #     '''

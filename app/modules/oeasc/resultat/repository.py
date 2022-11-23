@@ -174,23 +174,16 @@ SELECT
 
 def result_custom(params):
 
-    schema_name = params["view"].split(".")[0]
-    table_name = params["view"].split(".")[1]
-    if not cache_generic_table.get(params["view"]):
-        cache_generic_table[params["view"]] = GenericTable(
-            table_name, schema_name, DB.engine
-        )
-
-    view = cache_generic_table.get(params["view"])
+    view = params["view"]
 
     query = DB.session.query(
-        getattr(view.tableDef.columns, params["field_name"]), func.count("*")
+        getattr(view.__table__.columns, params["field_name"]), func.count("*")
     )
 
     # filter
     for filter_key, filter_value in params.get("filters", {}).items():
         query = query.filter(
-            getattr(view.tableDef.columns, filter_key).in_(filter_value)
+            getattr(view.__table__.columns, filter_key).in_(filter_value)
         )
 
     group_bys = [params["field_name"]]

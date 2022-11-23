@@ -10,8 +10,10 @@ from utils_flask_sqla.response import json_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
 
-from .repository import result_custom, cache_generic_table
+from .repository import result_custom
 from ..generic.repository import getlist
+
+from ..chasse.models import VCustomResults
 
 config = current_app.config
 DB = config["DB"]
@@ -20,9 +22,9 @@ bp = Blueprint("resultat_api", __name__)
 # pour les rendus customisés (route 'custom/')
 # dictionaire de relation entre
 #  - datatype : le type de données
-#  - view : la vue utilisée pour ce type de données
+#  - model : Model utilisé pour ce type de données
 data_type_view_dict = {
-    "chasse": "oeasc_chasse.v_custom_results",
+    "chasse": VCustomResults,
 }
 
 
@@ -78,8 +80,6 @@ def api_result_custom():
     - field_name : champs de la vue servant pour l'analyse
     - filters : quels filtres appliqués
     """
-
-    cache_generic_table = {}
     # gestion paramètres pour créer args
     args = {}
 
@@ -104,8 +104,6 @@ def api_result_custom():
     # récupération de la vue associée à data_type
     args["view"] = data_type_view_dict[args["data_type"]]
 
-    # print(json.dumps(args, indent=4))
-
     # exectution de la function oeasc_chasse.fct_custom_results_j
     # qui renvoie un objet de type dictionnaire
 
@@ -129,7 +127,6 @@ def api_result_custom():
 
     # pour garder en mémoire args['field_name']
     field_name_save = args["field_name"]
-
     # desormais on groupe par <field_name_2>
     args["field_name"] = args["field_name_2"]
 
