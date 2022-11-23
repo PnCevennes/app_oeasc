@@ -65,7 +65,13 @@ def declarations():
     Retourne les declarations accessible pour le declarant de id_role id_declarant
     """
 
-    return get_declarations()
+    user = (
+        get_user(session["current_user"]["id_role"])
+        if session["current_user"]
+        else None
+    )
+
+    return get_declarations(user=user)
 
 
 @bp.route("declaration/<int:id_declaration>", methods=["GET"])
