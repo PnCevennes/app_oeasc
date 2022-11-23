@@ -90,67 +90,70 @@ def route_declaration(id_declaration):
     return declaration
 
 
-@bp.route("declaration_html/<int:id_declaration>", methods=["GET", "POST"])
-@check_auth_redirect_login(1)
-@json_resp
-def declaration_html(id_declaration):
-    """
-    Retourne la declaration en html d'id id_declaration
-    """
+# # @TOCLEAN : NOT USE => modules/oeasc/entity/* n'existe pas
+# @bp.route("declaration_html/<int:id_declaration>", methods=["GET", "POST"])
+# @check_auth_redirect_login(1)
+# @json_resp
+# def declaration_html(id_declaration):
+#     """
+#     Retourne la declaration en html d'id id_declaration
+#     """
 
-    btn_action = request.args.get("btn_action", "")
-    map_display = request.args.get("map_display", "")
+#     btn_action = request.args.get("btn_action", "")
+#     map_display = request.args.get("map_display", "")
 
-    declaration = get_declaration(id_declaration)
+#     declaration = get_declaration(id_declaration)
 
-    if not declaration:
-        return None
+#     if not declaration:
+#         return None
 
-    return render_template(
-        "modules/oeasc/entity/declaration_table.html",
-        declaration_table=declaration,
-        id_declaration=id_declaration,
-        nomenclature=nomenclature_oeasc(),
-        btn_action=btn_action,
-        map_display=map_display,
-    )
+#     return render_template(
+#         "modules/oeasc/entity/declaration_table.html",
+#         declaration_table=declaration,
+#         id_declaration=id_declaration,
+#         nomenclature=nomenclature_oeasc(),
+#         btn_action=btn_action,
+#         map_display=map_display,
+#     )
 
 
-@bp.route("get_form_declaration", methods=["POST"])
-@check_auth_redirect_login(1)
-@json_resp
-def get_form_declaration():
-    """
-    Retourne le formulaire correspondant
-    à la déclaration envoyée en post dans data['declaration']
-    """
-    data = request.get_json()
 
-    nomenclature = nomenclature_oeasc()
-    declaration_dict = data["declaration"]
-    id_form = data["id_form"]
+# # @TOCLEAN : NOT USE => modules/oeasc/form/* n'existe pas
+# @bp.route("get_form_declaration", methods=["POST"])
+# @check_auth_redirect_login(1)
+# @json_resp
+# def get_form_declaration():
+#     """
+#     Retourne le formulaire correspondant
+#     à la déclaration envoyée en post dans data['declaration']
+#     """
+#     data = request.get_json()
 
-    # recherche de la  foret le cas echeant (apres un choix de foret documentee)
-    get_dict_nomenclature_areas(declaration_dict)
+#     nomenclature = nomenclature_oeasc()
+#     declaration_dict = data["declaration"]
+#     id_form = data["id_form"]
 
-    check_foret(declaration_dict)
+#     # recherche de la  foret le cas echeant (apres un choix de foret documentee)
+#     get_dict_nomenclature_areas(declaration_dict)
 
-    check_proprietaire(declaration_dict)
+#     check_foret(declaration_dict)
 
-    check_massif(declaration_dict)
+#     check_proprietaire(declaration_dict)
 
-    listes_essences = get_listes_essences(declaration_dict)
+#     check_massif(declaration_dict)
 
-    declaration_table = get_declaration_table(declaration_dict)
+#     listes_essences = get_listes_essences(declaration_dict)
 
-    return render_template(
-        "modules/oeasc/form/form_declaration.html",
-        declaration=declaration_dict,
-        declaration_table=declaration_table,
-        nomenclature=nomenclature,
-        listes_essences=listes_essences,
-        id_form=id_form,
-    )
+#     declaration_table = get_declaration_table(declaration_dict)
+
+#     return render_template(
+#         "modules/oeasc/form/form_declaration.html",
+#         declaration=declaration_dict,
+#         declaration_table=declaration_table,
+#         nomenclature=nomenclature,
+#         listes_essences=listes_essences,
+#         id_form=id_form,
+#     )
 
 
 @bp.route("delete_declaration/<int:id_declaration>", methods=["POST"])
@@ -184,7 +187,7 @@ def random_declaration():
     get_dict_nomenclature_areas(declaration_dict)
     return declaration_dict
 
-
+# @TODO => IS USED???
 @bp.route("random_populate", defaults={"nb": 1}, methods=["GET"])
 @bp.route("random_populate/<int:nb>", methods=["GET"])
 @check_auth_redirect_login(5)

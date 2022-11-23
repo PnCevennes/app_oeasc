@@ -42,12 +42,12 @@ def to_string(x):
     """
     return str(x)
 
-
-utils_dict = {
-    # "get_db": get_db,
-    "print_date": print_date,
-    "get_areas_from_type_code": get_areas_from_type_code,
-    "get_foret_type": get_foret_type,
-    "get_some_config": get_some_config,
-    "to_string": to_string,
-}
+# @TODO : is used ?
+# utils_dict = {
+#     # "get_db": get_db,
+#     "print_date": print_date,
+#     "get_areas_from_type_code": get_areas_from_type_code,
+#     "get_foret_type": get_foret_type,
+#     "get_some_config": get_some_config,
+#     "to_string": to_string,
+# }
