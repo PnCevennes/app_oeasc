@@ -1,0 +1,45 @@
+
+# Database
+SQLALCHEMY_DATABASE_URI = "postgresql://user:pass@host:port/db"
+SQLALCHEMY_TRACK_MODIFICATIONS = false
+
+
+# Remplacer par une clé alétoire complexe
+SECRET_KEY = "super secret key"
+
+
+# Applications
+URL_APPLICATION = "http://localhost:5005"
+URL_USERSHUB = "http://localhost:5001"
+
+URL_FRONTEND = "http://localhost:8080"
+
+DEBUG = true
+
+ID_APP = 500
+
+PASS_METHOD = "hash"
+COOKIE_EXPIRATION = 43200
+COOKIE_AUTORENEW = true
+
+# Sentry
+#SENTRY_DSN=""
+
+
+
+ANIMATEUR_APPLICATION_MAIL = "somemail"
+ADMIN_APPLICATION_MAIL="somemail"
+
+# Administrateur OEASC
+[ADMIN_INFO]
+    ADMIN_APPLICATION_LOGIN="login"
+    ADMIN_APPLICATION_PASSWORD="pass"
+
+[MAIL_CONFIG]
+    MAIL_SERVER = "mail.smtp.fr"
+    MAIL_PORT = 465
+    MAIL_USE_TLS = false
+    MAIL_USE_SSL = true
+    MAIL_USERNAME = "mail"
+    MAIL_PASSWORD = "pass"
+    MAIL_DEFAULT_SENDER = "mail"

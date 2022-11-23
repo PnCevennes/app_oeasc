@@ -32,6 +32,7 @@ static/shapefiles/*
 
 static/dist/*
 static/src/js/config/config*.js
+static/src/js/config/config*.toml
 
 procedure_install_server.sh
 

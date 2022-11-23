@@ -28,15 +28,13 @@ def send_mail(recipients, subject, msg_html):
     )
 
     with MAIL.connect() as conn:
-
         msg = Message(
             "[" + application.nom_application + "] " + subject,
-            sender=config["ANIMATEUR_APPLICATION_MAIL"],
+            sender=config.get("ANIMATEUR_APPLICATION_MAIL"),
             recipients=recipients,
         )
 
         msg.html = msg_html
-
         conn.send(msg)
 
     return {"msg": "ok"}
@@ -81,8 +79,8 @@ def valid_temp_user(data):
         return {"msg": "Pas de role pour valid_temp_user"}
 
     recipients = [
-        config["ANIMATEUR_APPLICATION_MAIL"],
-        config["ADMIN_APPLICATION_MAIL"],
+        config.get("ANIMATEUR_APPLICATION_MAIL"),
+        config.get("ADMIN_APPLICATION_MAIL"),
     ]
     subject = " [ANIMATEUR] création d" " un nouvel utilisateur"
 

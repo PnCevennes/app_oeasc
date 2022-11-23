@@ -2,19 +2,15 @@ import logging
 
 log = logging.getLogger(__name__)
 """
-    Erreurs propres à GN
+    Erreurs propres à l'oeasc
 """
 
 
-class GeoNatureError(Exception):
+class OeascError(Exception):
     pass
 
 
-class GNModuleInstallError(GeoNatureError):
-    pass
-
-
-class ConfigError(GeoNatureError):
+class ConfigError(OeascError):
     """
     Configuration error class
     Quand un fichier de configuration n'est pas conforme aux attentes
@@ -33,13 +29,12 @@ class ConfigError(GeoNatureError):
         return msg
 
 
-class GeonatureApiError(Exception):
+class OeascApiError(Exception):
     def __init__(self, message, status_code=500):
         Exception.__init__(self)
         self.message = message
         self.status_code = status_code
         raised_error = self.__class__.__name__
-        log_message = "Raise: {}, {}".format(raised_error, message)
 
     def to_dict(self):
         return {
@@ -53,13 +48,13 @@ class GeonatureApiError(Exception):
         return message.format(self.status_code, self.message, self.__class__.__name__)
 
 
-class InsufficientRightsError(GeonatureApiError):
+class InsufficientRightsError(OeascApiError):
     pass
 
 
-class AuthentificationError(GeonatureApiError):
+class AuthentificationError(OeascApiError):
     pass
 
 
-class CasAuthentificationError(GeonatureApiError):
+class CasAuthentificationError(OeascApiError):
     pass
