@@ -169,4 +169,8 @@ def api_chasse_ods():
     t = Template(template_path, output_path)
     t.render(data)
 
-    return send_file(output_path, as_attachment=True, attachment_filename=f"bilan_chasse_{nom_saison}.ods")
+    return send_file(
+        output_path,
+        as_attachment=True,
+        attachment_filename=f"bilan_chasse_{nom_saison}.ods",
+    )
