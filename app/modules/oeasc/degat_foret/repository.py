@@ -23,7 +23,6 @@ def create_or_modify(model, key, dict_in):
     elem = None
 
     if key:
-
         val = dict_in.get(key, None)
         if val:
             elem = DB.session.query(model).filter(getattr(model, key) == val).first()
@@ -108,7 +107,6 @@ def create_or_update_declaration(post_data):
         ]
 
     if not post_data["b_document"]:
-
         id_declarant = post_data["id_declarant"]
 
         nomenclature = post_data[
@@ -195,7 +193,6 @@ def get_proprietaire_from_id_declarant(id_declarant):
 
 
 def get_declarations():
-
     declarations = (
         DB.session.query(TDeclaration, TForet, VUsers)
         .join(TForet, TForet.id_foret == TDeclaration.id_foret)

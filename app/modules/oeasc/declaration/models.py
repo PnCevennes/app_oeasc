@@ -28,7 +28,6 @@ class CorAreasDeclaration(DB.Model):
     id_area = DB.Column(DB.Integer, primary_key=True)
 
     def __init__(self, id_area=None):
-
         super(CorAreasDeclaration, self).__init__()
         self.id_area = id_area
 
@@ -48,7 +47,6 @@ class CorAreasForet(DB.Model):
     )
 
     def __init__(self, id_area=None):
-
         super(CorAreasForet, self).__init__()
         self.id_area = id_area
 
@@ -70,7 +68,6 @@ class CorNomenclatureDeclarationEssenceSecondaire(DB.Model):
     )
 
     def __init__(self, id_nomenclature=None):
-
         super(CorNomenclatureDeclarationEssenceSecondaire, self).__init__()
         self.id_nomenclature = id_nomenclature
 
@@ -92,7 +89,6 @@ class CorNomenclatureDeclarationEssenceComplementaire(DB.Model):
     )
 
     def __init__(self, id_nomenclature=None):
-
         super(CorNomenclatureDeclarationEssenceComplementaire, self).__init__()
         self.id_nomenclature = id_nomenclature
 
@@ -114,7 +110,6 @@ class CorNomenclatureDeclarationMaturite(DB.Model):
     )
 
     def __init__(self, id_nomenclature=None):
-
         super(CorNomenclatureDeclarationMaturite, self).__init__()
         self.id_nomenclature = id_nomenclature
 
@@ -136,7 +131,6 @@ class CorNomenclatureDeclarationOrigine(DB.Model):
     )
 
     def __init__(self, id_nomenclature=None):
-
         super(CorNomenclatureDeclarationOrigine, self).__init__()
         self.id_nomenclature = id_nomenclature
 
@@ -158,7 +152,6 @@ class CorNomenclatureDeclarationProtectionType(DB.Model):
     )
 
     def __init__(self, id_nomenclature=None):
-
         super(CorNomenclatureDeclarationProtectionType, self).__init__()
         self.id_nomenclature = id_nomenclature
 
@@ -180,7 +173,6 @@ class CorNomenclatureDeclarationPaturageType(DB.Model):
     )
 
     def __init__(self, id_nomenclature=None):
-
         super(CorNomenclatureDeclarationPaturageType, self).__init__()
         self.id_nomenclature = id_nomenclature
 
@@ -202,7 +194,6 @@ class CorNomenclatureDeclarationPaturageSaison(DB.Model):
     )
 
     def __init__(self, id_nomenclature=None):
-
         super(CorNomenclatureDeclarationPaturageSaison, self).__init__()
         self.id_nomenclature = id_nomenclature
 
@@ -224,7 +215,6 @@ class CorNomenclatureDeclarationEspece(DB.Model):
     )
 
     def __init__(self, id_nomenclature=None):
-
         super(CorNomenclatureDeclarationEspece, self).__init__()
         self.id_nomenclature = id_nomenclature
 

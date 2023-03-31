@@ -16,7 +16,6 @@ DB = config["DB"]
 
 
 def get_areas_from_type_code(areas, type_code):
-
     out = []
     if not areas:
         return out
@@ -116,7 +115,6 @@ def check_proprietaire(declaration_dict):
     ]
 
     if id_declarant_proprietaire:
-
         proprietaire = (
             DB.session.query(TProprietaire)
             .filter(id_declarant_proprietaire == TProprietaire.id_declarant)
@@ -190,7 +188,6 @@ def get_listes_essences(declaration):
     b_feuillus = True
 
     for elem in nomenclature["OEASC_PEUPLEMENT_ESSENCE"]["values"]:
-
         id = elem["id_nomenclature"]
 
         if id not in listes_essences["selected"]:
@@ -244,7 +241,6 @@ def get_listes_essences(declaration):
 
 
 def get_foret_from_name(nom_foret):
-
     data = DB.session.query(TForet).filter(TForet.nom_foret == nom_foret).first()
     if not data:
         return None

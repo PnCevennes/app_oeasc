@@ -14,9 +14,7 @@ bp = Blueprint("oeasc_api_mail", __name__)
 
 
 def send_mail(recipients, subject, msg_html):
-
     if not MAIL and config.get("ANIMATEUR_APPLICATION_MAIL", None):
-
         return {
             "msg": "les paramètres d'envoi de mail ne sont pas correctement définis"
         }
@@ -28,7 +26,6 @@ def send_mail(recipients, subject, msg_html):
     )
 
     with MAIL.connect() as conn:
-
         msg = Message(
             "[" + application.nom_application + "] " + subject,
             sender=config["ANIMATEUR_APPLICATION_MAIL"],
@@ -43,13 +40,11 @@ def send_mail(recipients, subject, msg_html):
 
 
 def create_temp_user(data):
-
     token = data.get("token", None)
 
     role = DB.session.query(TempUser).filter(TempUser.token_role == token).first()
 
     if not role:
-
         return {"msg": token + " : ce token n'est pas associé à un compte temporaire"}
 
     recipients = [role.email]
@@ -64,7 +59,6 @@ def create_temp_user(data):
 
 
 def valid_temp_user(data):
-
     role = data
     organisme = DB.engine.execute(
         text(
@@ -77,7 +71,6 @@ def valid_temp_user(data):
         role["organisme"] = organisme[0]
 
     if not role:
-
         return {"msg": "Pas de role pour valid_temp_user"}
 
     recipients = [
@@ -99,13 +92,11 @@ def valid_temp_user(data):
 
 
 def change_application_right(data):
-
     role = data["role"]
 
     id_droit = data["id_droit"]
 
     if not role:
-
         return {"msg": "Pas de role pour valid_temp_user"}
 
     recipients = [role["email"]]
@@ -119,7 +110,6 @@ def change_application_right(data):
 
 
 def create_cor_role_token(data):
-
     token = data["token"]
     id_role = data["id_role"]
 

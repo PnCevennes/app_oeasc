@@ -26,11 +26,9 @@ def get_foret_type(id_foret):
     foret, proprietaire = get_foret(id_foret)
 
     if not foret:
-
         return
 
     if not proprietaire.id_nomenclature_proprietaire_type:
-
         return "Indéterminé"
 
     proprietaire_type = get_nomenclature_from_id(
@@ -59,19 +57,15 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
     en dictionnaire
     """
     if not declaration:
-
         declaration = TDeclaration()
 
     if not foret:
-
         foret = TForet()
 
     if not proprietaire:
-
         proprietaire = TProprietaire()
 
     if not declarant:
-
         declarant = get_user()
 
     declaration_dict = declaration.as_dict(True)
@@ -117,11 +111,9 @@ def get_foret(id_foret):
     foret = DB.session.query(TForet).filter(id_foret == TForet.id_foret).first()
 
     if foret:
-
         id_proprietaire = foret.id_proprietaire
 
         if id_proprietaire:
-
             proprietaire = (
                 DB.session.query(TProprietaire)
                 .filter(id_proprietaire == TProprietaire.id_proprietaire)
@@ -144,16 +136,13 @@ def get_dfpu(id_declaration):
     )
 
     if declaration:
-
         id_declarant = declaration.id_declarant
 
         if id_declarant:
-
             declarant = get_user(id_declarant)
         id_foret = declaration.id_foret
 
         if id_foret:
-
             foret, proprietaire = get_foret(id_foret)
 
     return (declaration, foret, proprietaire, declarant)
@@ -166,7 +155,6 @@ def create_or_modify(model, key, val, dict_in):
     elem = None
 
     if key:
-
         elem = DB.session.query(model).filter(getattr(model, key) == val).first()
 
     if elem is None:
@@ -251,7 +239,6 @@ def f_create_or_update_declaration(declaration_dict):
     # on n'écrit la foret ou le proprietaire dans la base
     # que dans le cas d'une foret non documentée
     if not declaration_dict["foret"]["b_document"]:
-
         id_foret = declaration_dict["foret"].get("id_foret", None)
         id_proprietaire = declaration_dict["foret"]["proprietaire"].get(
             "id_proprietaire", None
@@ -273,7 +260,6 @@ def f_create_or_update_declaration(declaration_dict):
         declaration_dict["id_foret"] = foret.id_foret
 
     else:
-
         proprietaire = TProprietaire().from_dict(
             declaration_dict["foret"]["proprietaire"], True
         )
@@ -283,7 +269,6 @@ def f_create_or_update_declaration(declaration_dict):
     # - elle sera crée un fois avec la date courante
     # - puis modifiée pour lui donner la date choisie aléatoirement
     if declaration_dict.get("meta_create_date", None):
-
         declaration = create_or_modify(
             TDeclaration, "id_declaration", id_declaration, declaration_dict
         )
@@ -363,7 +348,6 @@ def get_declarations(
     # choix des filtrers selon les droits de l'utilisateur
     filters = {}
     if user:
-
         # administrateur et animateur >=5
         if user["id_droit_max"] >= 5:
             pass
@@ -436,7 +420,6 @@ def add_degats(declarations):
     degats_declarations = {}
 
     for deg in data_degats:
-
         dd = degats_declarations.get(deg["id_declaration_degat"])
         if not dd:
             dd = degats_declarations[deg["id_declaration_degat"]] = []
@@ -488,7 +471,6 @@ def resume_gravite(declaration_dict):
         return
     for degat in declaration_dict.get("degats"):
         for degat_essence in degat["degat_essences"]:
-
             if not degat_essence["id_nomenclature_degat_gravite"]:
                 continue
 
@@ -537,7 +519,6 @@ def get_declaration_table(declaration_dict):
         return get_declaration(declaration_dict["id_declaration"])
 
     else:
-
         d = {}
         d["declaration_date"] = declaration_dict.get("meta_create_date") or ""
         d["b_autorisation"] = declaration_dict.get("b_autorisation")

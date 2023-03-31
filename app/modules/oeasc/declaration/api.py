@@ -195,7 +195,6 @@ def random_populate(nb):
     """
 
     for i in range(nb):
-
         declaration_dict = declaration_dict_random_sample()
 
         if not declaration_dict:

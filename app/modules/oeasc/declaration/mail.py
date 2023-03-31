@@ -16,7 +16,6 @@ config = current_app.config
 
 
 def display_mail_test(destinataire):
-
     declaration = declaration_dict_random_sample()
 
     declaration = f_create_or_update_declaration(declaration)
@@ -32,7 +31,6 @@ def display_mail_test(destinataire):
 
 
 def send_mail_test():
-
     declaration = declaration_dict_random_sample()
 
     declaration = f_create_or_update_declaration(declaration)
@@ -50,7 +48,6 @@ def send_mail_validation_declaration(declaration, b_create):
     email_user = user["email"]
 
     with mail.connect() as conn:
-
         # on envoie le message à l'utilisateur seulement si c'est une creation
         if b_create:
             msg = Message(

@@ -85,7 +85,6 @@ def google():
 
 
 with app.app_context():
-
     from app.modules.oeasc.user.mail import function_dict
 
     app.config["after_USERSHUB_request"] = function_dict
@@ -97,7 +96,6 @@ with app.app_context():
 
     @app.after_request
     def after_login_method(response):
-
         if not request.cookies.get("token"):
             session["current_user"] = None
 
@@ -187,9 +185,7 @@ def nl2br(eval_ctx, value):
 @app.template_filter()
 @evalcontextfilter
 def nopar(eval_ctx, value):
-
     if not value:
-
         return ""
 
     s2 = re.sub(r"\(.*\)", "", value)
@@ -200,9 +196,7 @@ def nopar(eval_ctx, value):
 @app.template_filter()
 @evalcontextfilter
 def cleanid(eval_ctx, value):
-
     if not value:
-
         return ""
 
     s2 = value.replace(" ", "")

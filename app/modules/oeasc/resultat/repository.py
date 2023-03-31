@@ -10,7 +10,6 @@ DB = config["DB"]
 
 
 def data_to_chart_data(data):
-
     keys = data.keys()
     datasets = [
         {"label": key, "data": data[key]}
@@ -147,7 +146,6 @@ def req_degats_type(type_degat=""):
 
 
 def req_timeline():
-
     r = """
 SELECT
     CONCAT(to_char(meta_create_date,'YYYY-MM'), '-01') as date,
@@ -173,7 +171,6 @@ SELECT
 
 
 def result_custom(params):
-
     schema_name = params["view"].split(".")[0]
     table_name = params["view"].split(".")[1]
     if not cache_generic_table.get(params["view"]):
@@ -197,7 +194,6 @@ def result_custom(params):
     order_by = "COUNT(*) DESC"
 
     if params.get("sort"):
-
         field_sort = params["sort"]
         dir = "ASC"
         if field_sort[-1] in "+-":

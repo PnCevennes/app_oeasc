@@ -151,13 +151,11 @@ def get_areas_centroid_post(data_type):
     d_out = {}
 
     for key, value in d_areas.items():
-
         v = value
 
         t = tuple(v)
 
         if len(v) == 1:
-
             t = str(t).replace(",", "")
 
         sql_text = text(

@@ -17,7 +17,6 @@ def check_object_type(droit_type):
     def check_object_type_(fn):
         @wraps(fn)
         def check_object_type__(*args, **kwargs):
-
             module_name = kwargs.get("module_name")
             object_type = kwargs.get("object_type") or kwargs.get("object_types")[:-1]
             current_user = session.get("current_user", {})

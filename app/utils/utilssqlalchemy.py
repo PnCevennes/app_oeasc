@@ -290,7 +290,6 @@ def serializeQueryTest(data, columnDef):
 
 
 def as_dict(self, recursif=False, columns=()):
-
     cls = self.__class__
 
     cls_db_columns = [
@@ -321,33 +320,26 @@ def as_dict(self, recursif=False, columns=()):
         for db_rel in cls.__mapper__.relationships
     ]
 
-    for (rel, uselist, argument) in cls_db_relationships:
-
+    for rel, uselist, argument in cls_db_relationships:
         # if (getattr(self, rel) is None):
         # continue
 
         if uselist is True:
-
             # out[rel] = [as_dict(x, recursif=recursif) for x in getattr(self, rel)]
             out[rel] = [as_dict(x, recursif=recursif) for x in getattr(self, rel)]
 
         else:
-
             if getattr(self, rel) is None:
-
                 out[rel] = as_dict(argument(), recursif=recursif)
 
             else:
-
                 out[rel] = as_dict(getattr(self, rel), recursif=recursif)
 
     return out
 
 
 def from_dict(self, dict_in, recursif=False):
-
     if not dict_in:
-
         return self
 
     cls = self.__class__
@@ -379,20 +371,17 @@ def from_dict(self, dict_in, recursif=False):
 
     frel = cls_db_relationships
 
-    for (rel, uselist, argument) in frel:
-
+    for rel, uselist, argument in frel:
         # if getattr(argument, 'from_dict', True):
         # pass
 
         if uselist:
-
             v_obj = [
                 from_dict(argument(), dict_obj, recursif)
                 for dict_obj in dict_in.get(rel, [])
             ]
 
         else:
-
             v_obj = from_dict(argument(), dict_in.get(rel, None), recursif)
 
         setattr(self, rel, v_obj)
@@ -452,8 +441,7 @@ def serializable(cls):
         if recursif is False:
             return out
 
-        for (rel, uselist, argument) in cls_db_relationships:
-
+        for rel, uselist, argument in cls_db_relationships:
             # if (getattr(self, rel) is None):
             # continue
 
@@ -492,20 +480,17 @@ def serializable(cls):
 
         frel = cls_db_relationships
 
-        for (rel, uselist, argument) in frel:
-
+        for rel, uselist, argument in frel:
             if getattr(argument, "from_dict", True):
                 pass
 
             if uselist:
-
                 v_obj = [
                     argument().from_dict(dict_obj, recursif)
                     for dict_obj in dict_in.get(rel, [])
                 ]
 
             else:
-
                 v_obj = argument().from_dict(dict_in.get(rel, None), recursif)
 
             setattr(self, rel, v_obj)

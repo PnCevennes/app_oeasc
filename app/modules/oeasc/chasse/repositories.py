@@ -56,7 +56,6 @@ def chasse_process_args():
 
 
 def get_attribution_result(params):
-
     columns = GenericTable(
         "v_custom_result_attribution", "oeasc_chasse", DB.engine
     ).tableDef.columns
@@ -154,7 +153,6 @@ def chasse_get_infos():
 
 
 def build_chasse_bilan_filters(params, query, tableModel):
-
     # filter query
     if params["id_zone_indicative"]:
         query = query.filter(
@@ -290,7 +288,6 @@ def get_plain_text_data(params):
 
 
 def get_chasse_bilan(params):
-
     query = get_chasse_bilan_realisation(params)
     res = query.all()
     # 0: nom_saison
@@ -656,7 +653,6 @@ def get_details(nom_saison, nom_espece, filter={}):
 
 
 def get_data_export_ods(nom_saison, nom_espece):
-
     columns = GenericTable(
         "v_pre_bilan_pretty", "oeasc_chasse", DB.engine
     ).tableDef.columns
@@ -678,12 +674,10 @@ def get_data_export_ods(nom_saison, nom_espece):
     zcs = []
 
     for r in res:
-
         zc = next(
             (item for item in zcs if item["nom"] == r["nom_zone_cynegetique"]), None
         )
         if not zc:
-
             zc = {
                 "nom": r["nom_zone_cynegetique"],
                 "mini": r["nb_attribution_min_zc"] or "",

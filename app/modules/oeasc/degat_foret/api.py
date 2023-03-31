@@ -30,7 +30,6 @@ bp = Blueprint("degat_foret_api", __name__)
 @bp.route("proprietaire_from_id_declarant/<int:id_declarant>", methods=["GET"])
 @check_auth_redirect_login(1)
 def api_get_proprietaire_from_id_declarant(id_declarant):
-
     (proprietaire) = get_proprietaire_from_id_declarant(id_declarant)
     out = proprietaire.as_dict(True)
 
@@ -40,7 +39,6 @@ def api_get_proprietaire_from_id_declarant(id_declarant):
 @bp.route("foret_from_code/<string:code_foret>", methods=["GET"])
 @check_auth_redirect_login(1)
 def api_get_foret_from_code(code_foret):
-
     (foret, proprietaire) = get_foret_from_code(code_foret)
     out = foret.as_dict(True)
     out.update(proprietaire.as_dict(True))

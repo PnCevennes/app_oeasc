@@ -109,7 +109,6 @@ def route_declarations():
     id_declarant = None
 
     if session.get("current_user", None):
-
         id_declarant = session["current_user"]["id_role"]
 
     nomenclature = nomenclature_oeasc()

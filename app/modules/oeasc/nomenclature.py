@@ -108,7 +108,6 @@ def get_nomenclature_from_id(id_nomenclature, key=""):
 
 
 def get_nomenclature(key_in, value_in, type_code, key_out=""):
-
     nomemclature_type = nomenclature_oeasc().get(type_code, None)
 
     if not nomemclature_type:
@@ -134,19 +133,15 @@ def get_areas_from_ids(id_areas):
     id_areas_to_query = []
 
     for id in id_areas:
-
         if not config["_areas"].get(str(id), None):
-
             id_areas_to_query.append(id)
 
     if id_areas_to_query:
-
         print("get areas from db ", len(id_areas_to_query))
 
         data = DB.session.query(VA).filter(VA.id_area.in_(id_areas_to_query))
 
         for d in data:
-
             d_dict = d.as_dict()
             d_dict["type_code"] = get_type_code(d_dict["id_type"])
             config["_areas"][str(d_dict["id_area"])] = d_dict
@@ -161,13 +156,11 @@ def get_area_from_id(id_area):
         config["_areas"] = {}
 
     if not config["_areas"].get(str(id_area), None):
-
         print("get single area from db : " + str(id_area))
 
         data = DB.session.query(VA).filter(id_area == VA.id_area).first()
 
         if not data:
-
             return None
 
         out = data.as_dict(
@@ -189,7 +182,6 @@ def pre_get_dict_nomenclature_areas(declarations):
     v_id_areas = []
 
     for declaration in declarations:
-
         for area in declaration.get("areas_localisation", []):
             v_id_areas.append(area)
 
@@ -214,7 +206,6 @@ def get_dict_nomenclature_areas(dict_in):
     la fonction est appliquée récursivement aux dictionnaire et aux listes
     """
     if not isinstance(dict_in, dict):
-
         return dict_in
 
     for key in dict_in:

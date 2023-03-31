@@ -54,7 +54,6 @@ def get_views():
     data = {}
 
     for p in views:
-
         v = p.split(".")
         schema = v[0]
         view = v[1]

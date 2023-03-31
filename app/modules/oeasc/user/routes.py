@@ -70,19 +70,16 @@ def route_user(id_user):
 
     # current user
     if not id_user and current_user:
-
         id_user = current_user["id_role"]
         user = get_user(id_user)
         modify = True
 
     # register
     elif not id_user:
-
         user = User().as_dict()
 
     # user plus pour les responsable?
     elif id_user and current_user:
-
         user = get_user(id_user)
 
         cond_org = (
@@ -91,7 +88,6 @@ def route_user(id_user):
         )
 
         if not current_user["id_droit_max"] >= 4 and not cond_org:
-
             user = None
 
         modify = (

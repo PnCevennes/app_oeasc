@@ -20,7 +20,6 @@ class GenericRouteDefinitions:
         return self.get_module(module_name).get(object_type, {})
 
     def get_model(self, module_name, object_type):
-
         Model = self.get_object_type(module_name, object_type).get("model")
 
         id_field_name = inspect(Model).primary_key[0].name if Model else None

@@ -26,14 +26,12 @@ def api_test():
 @bp.route("login_error", methods=["GET"])
 @json_resp
 def login_error():
-
     return "login error", 403
 
 
 @bp.route("organismes", methods=["GET"])
 @json_resp
 def api_organimes():
-
     return get_liste_organismes_oeasc()
 
 

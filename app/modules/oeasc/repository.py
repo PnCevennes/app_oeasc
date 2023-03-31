@@ -10,7 +10,6 @@ DB = config["DB"]
 
 
 def test_db():
-
     sql_text = text("SELECT 'a'")
     result = DB.engine.execute(sql_text).first()[0]
 

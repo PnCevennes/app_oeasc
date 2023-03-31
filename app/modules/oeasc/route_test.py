@@ -27,9 +27,7 @@ def carte(type_code, id_areas):
     areas_container = []
 
     for id_area in id_areas.split(","):
-
         if id_area != "":
-
             areas_container.append({"id_area": int(id_area)})
 
     data = {

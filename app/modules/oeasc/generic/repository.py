@@ -66,7 +66,6 @@ def custom_getattr(Model, attr_name, query):
     """
 
     if "." in attr_name:
-
         # cas a.b on verra ensuite
         rel = attr_name.split(".")[0]
         col = attr_name.split(".")[1]
@@ -87,7 +86,6 @@ def custom_getattr(Model, attr_name, query):
         return model_attribute, query
 
     else:
-
         if not hasattr(Model, attr_name):
             return None, query
 
@@ -127,7 +125,6 @@ def get_objects_type(module_name, object_type, args={}):
     # a : relationship et b attribut de a
     #
     for key in args:
-
         # test search- ?
 
         params_filter = key.split("__")
@@ -156,7 +153,6 @@ def get_objects_type(module_name, object_type, args={}):
             continue
 
         if type_filter == "ilike" and value_filter and value_filter[0] != "=":
-
             # filre ILIKE
             value_filter_unaccent = unidecode.unidecode(value_filter)
             value_filters = value_filter.split(" ")
@@ -171,7 +167,6 @@ def get_objects_type(module_name, object_type, args={}):
             query = query.filter(and_(*(tuple(filters))))
 
         else:
-
             value_filter_effectif = value_filter
             if value_filter and value_filter[0] == "=":
                 value_filter_effectif = value_filter[1:]

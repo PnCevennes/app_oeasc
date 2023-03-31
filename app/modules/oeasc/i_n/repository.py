@@ -14,22 +14,17 @@ student = [0, 0, 12.71, 4.30, 3.18, 2.78, 2.57]
 
 
 def sort_data(res):
-
     keys = ["nom_espece", "ug", "annee", "serie", "numero_circuit"]
     for key in keys:
-
         res.sort(key=lambda x: x.get(key))
 
 
 def regroup_data(res):
-
     out = {"nom_especes": {}}
     regroup = ["nom_espece", "ug", "annee", "serie", "id_circuit"]
     for r in res:
-
         cur = out
         for key_group in regroup:
-
             group_name = key_group + "s"
             if group_name not in cur:
                 cur[group_name] = {}
@@ -49,7 +44,6 @@ def regroup_data(res):
 
 
 def in_data():
-
     res = GenericQuery(DB, "v_result", "oeasc_in", limit=1e6).as_dict()["items"]
 
     sort_data(res)
@@ -60,7 +54,6 @@ def in_data():
 
 
 def process_nom_especes(res):
-
     nom_especes = res["nom_especes"]
 
     for key_espece in nom_especes:
@@ -69,7 +62,6 @@ def process_nom_especes(res):
 
 
 def process_ugs(nom_espece):
-
     ugs = nom_espece["ugs"]
 
     for key_ug in ugs:
@@ -78,7 +70,6 @@ def process_ugs(nom_espece):
 
 
 def process_annees(ug):
-
     annees = ug["annees"]
 
     # regression lineaire avec numpy
@@ -114,7 +105,6 @@ def process_annees(ug):
 
 
 def process_series(annee):
-
     series = annee["series"]
 
     # calcul de la moyenne par annee
@@ -166,7 +156,6 @@ def process_series(annee):
 
 
 def process_circuits(serie):
-
     circuits = serie["id_circuits"]
 
     # calcul de la moyenne par serie

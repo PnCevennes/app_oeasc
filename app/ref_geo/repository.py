@@ -46,21 +46,17 @@ def set_table(b_simple, data_type):
                 l -> on ajoute la geometrie
     """
     if b_simple:
-
         attributs = VAS
         layers = VLAS
 
     else:
-
         attributs = VA
         layers = VLA
 
     if data_type == "l":
-
         table = layers
 
     else:
-
         table = attributs
 
     return table
@@ -127,7 +123,6 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
     out = []
 
     for id_area_container in v:
-
         container = (
             DB.session.query(table).filter(table.id_area == id_area_container).first()
         )
@@ -137,7 +132,6 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
         # cas des section de communes
         if container.id_type == id_type_commune:
-
             sql_text = text(
                 "SELECT ref_geo.get_old_communes('{}')".format(container.area_code)
             )
@@ -165,7 +159,6 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
         # cas des dgd
         elif container.id_type == id_type_dgd:
-
             res = DB.engine.execute(
                 text(
                     "SELECT area_code_cadastre \
@@ -204,12 +197,10 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
             out = out + [d.get_geofeature() for d in data]
 
         else:
-
             out = out + [d.as_dict() for d in data]
 
     # output final
     if data_type == "l":
-
         out = FeatureCollection(out)
 
     return out
@@ -228,11 +219,9 @@ def areas_post(b_simple, data_type, areas):
     data = DB.session.query(table).filter(table.id_area.in_(t_areas)).all()
 
     if data_type == "l":
-
         out = FeatureCollection([d.get_geofeature() for d in data])
 
     else:
-
         out = [d.as_dict() for d in data]
 
     return out
