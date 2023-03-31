@@ -161,15 +161,16 @@ def api_chasse_ods():
 
     template_path = ROOT_DIR / "app/templates/ods/template_bilan_chasse.ods"
     output_path = ROOT_DIR / "static/export/test.ods"
+    nom_saison = request.args.get("saison", "current")
 
-    data = get_data_all_especes_export_ods("2021-2022")
-    # return jsonify(data)
-    # data = {
-    #     "nom_saison": "2021-2022",
-    #     "nom_espece": "Chevreuil"
-    # }
+    data = get_data_all_especes_export_ods(nom_saison)
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
     t = Template(template_path, output_path)
     t.render(data)
 
-    return send_file(output_path)
+    return send_file(
+        output_path,
+        as_attachment=True,
+        attachment_filename=f"bilan_chasse_{nom_saison}.ods",
+    )

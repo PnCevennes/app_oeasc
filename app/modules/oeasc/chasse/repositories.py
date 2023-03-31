@@ -738,6 +738,12 @@ def get_data_export_ods(nom_saison, nom_espece):
 
 
 def get_data_all_especes_export_ods(nom_saison):
+    if nom_saison == "current":
+        nom_saison = (
+            DB.session.query(TSaisons.nom_saison)
+            .filter(TSaisons.current == True)
+            .one()[0]
+        )
     data = {"nom_saison": nom_saison, "especes": []}
     for nom_espece in ["Cerf", "Chevreuil", "Mouflon"]:
         data["especes"].append(get_data_export_ods(nom_saison, nom_espece))
