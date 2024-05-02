@@ -63,6 +63,8 @@ def get_attribution_result(params):
     query = DB.session.query(
         func.count(columns.id_attribution),
         func.count(columns.id_attribution).filter(columns.id_realisation != None),
+        func.count(columns.transfert_zc).filter(columns.transfert_zc == True),
+        func.count(columns.transfert_zi).filter(columns.transfert_zi == True),
     )
 
     for filter_key, filter_value in params.items():
@@ -78,6 +80,8 @@ def get_attribution_result(params):
     return {
         "nb_realisation": res[1],
         "nb_attribution": res[0],
+        "transfert_zc": res[2],
+        "transfert_zi": res[3],
         "taux_realisation": 0 if not res[1] else round(res[1] / res[0] * 100),
     }
 

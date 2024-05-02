@@ -21,6 +21,8 @@
         <li><b>Nombre d'attributions</b> : {{ infos.nb_attribution }}</li>
         <li><b>Nombre de réalisations</b> : {{ infos.nb_realisation }}</li>
         <li><b>Taux de réalisation</b> : {{ infos.taux_realisation }}%</li>
+        <li><b>Nombre de transfert vers la/les zc</b> : {{ infos.transfert_zc }}</li>
+        <li><b>Nombre de transfert vers la/les zi</b> : {{ infos.transfert_zi }}</li>
       </ul>
 
       <!-- Bilan chasse -->
