@@ -108,7 +108,7 @@
       <div v-if="dataUg && graphOnly == undefined">
         <h4>Indices nocturnes {{ settings.nom_espece }} {{ settings.ug }}</h4>
 
-        <v-tabs centered dark grow>
+        <v-tabs center-active dark>
           <v-tab
             v-for="annee of Object.keys(dataUg.annees)"
             :key="annee"
@@ -417,7 +417,7 @@ export default {
 <style lang="css">
 .in-table {
   width: 100%;
-  margin: 0 100px;
+  padding: 0 50px;
 }
 .fade-enter-active,
 .fade-leave-active {
