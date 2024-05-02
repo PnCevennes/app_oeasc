@@ -79,6 +79,7 @@ const menus = {
       "resultats.index",
       "-",
       "chasse.restitution_gd_public",
+      "chasse.restitution_bilan_detaille",
       "resultats.declarations",
       "resultats.in",
       "chasse.restitution_indices_performances",
