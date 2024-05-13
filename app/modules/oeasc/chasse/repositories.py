@@ -79,10 +79,12 @@ def get_attribution_result(params):
 
     return {
         "nb_realisation": res[1],
-        "nb_attribution": res[0],
+        "nb_attribution": res[0] - res[3],  # Suppression des bracelets transférés
         "transfert_zc": res[2],
         "transfert_zi": res[3],
-        "taux_realisation": 0 if not res[1] else round(res[1] / res[0] * 100),
+        "taux_realisation": (
+            0 if not res[1] else round(res[1] / (res[0] - res[3]) * 100)
+        ),
     }
 
 
