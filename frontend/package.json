@@ -27,7 +27,7 @@
     "leaflet-easyprint": "^2.1.9",
     "marked": "^1.2.3",
     "moment": "^2.29.4",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "npm": "^8.11.0",
     "sass": "^1.29.0",
     "sass-loader": "^8.0.2",
