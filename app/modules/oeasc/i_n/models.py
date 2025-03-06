@@ -207,7 +207,7 @@ class TRealisations(DB.Model):
                 TObservers.id_observer == CorRealisationObserver.id_observer,
                 id_realisation == CorRealisationObserver.id_observer,
             )
-        )
+        ).scalar_subquery() 
     )
 
     tags_table = column_property(
@@ -227,7 +227,7 @@ class TRealisations(DB.Model):
                 CorRealisationTag.id_realisation == id_realisation,
                 CorRealisationTag.id_tag == TTags.id_tag,
             )
-        )
+        ).scalar_subquery() 
     )
 
     cerfs = column_property(
@@ -237,7 +237,7 @@ class TRealisations(DB.Model):
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Cerf",
             )
-        )
+        ).scalar_subquery() 
     )
 
     lievres = column_property(
@@ -247,7 +247,7 @@ class TRealisations(DB.Model):
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Lièvre",
             )
-        )
+        ).scalar_subquery() 
     )
 
     chevreuils = column_property(
@@ -257,7 +257,7 @@ class TRealisations(DB.Model):
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Chevreuil",
             )
-        )
+        ).scalar_subquery() 
     )
 
     renards = column_property(
@@ -267,5 +267,5 @@ class TRealisations(DB.Model):
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Renard",
             )
-        )
+        ).scalar_subquery() 
     )

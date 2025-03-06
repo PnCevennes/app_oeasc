@@ -7,7 +7,8 @@ from flask import current_app
 from sqlalchemy.orm import column_property
 from sqlalchemy import select
 from utils_flask_sqla.serializers import serializable
-
+# todo: verifier l'import
+from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 config = current_app.config
 DB = config["DB"]
 
@@ -85,42 +86,3 @@ class TEspeces(DB.Model):
     nom_espece = DB.Column(DB.Unicode)
     code_espece = DB.Column(DB.Unicode)
 
-
-@serializable
-class BibNomenclaturesTypes(DB.Model):
-    """
-    Nomenclature type
-    """
-
-    __tablename__ = "bib_nomenclatures_types"
-    __table_args__ = {"schema": "ref_nomenclatures", "extend_existing": True}
-
-    id_type = DB.Column(DB.Integer, primary_key=True)
-    mnemonique = DB.Column(DB.Unicode)
-    label_fr = DB.Column(DB.Unicode)
-    definition_fr = DB.Column(DB.Unicode)
-
-
-@serializable
-class TNomenclatures(DB.Model):
-    """
-    Nomenclature
-    """
-
-    __tablename__ = "t_nomenclatures"
-    __table_args__ = {"schema": "ref_nomenclatures", "extend_existing": True}
-
-    id_nomenclature = DB.Column(DB.Integer, primary_key=True)
-    cd_nomenclature = DB.Column(DB.Unicode)
-    mnemonique = DB.Column(DB.Unicode)
-    label_fr = DB.Column(DB.Unicode)
-    definition_fr = DB.Column(DB.Unicode)
-    id_type = DB.Column(
-        DB.Integer, DB.ForeignKey("ref_nomenclatures.bib_nomenclatures_types.id_type")
-    )
-
-    type = column_property(
-        select([BibNomenclaturesTypes.mnemonique]).where(
-            BibNomenclaturesTypes.id_type == id_type
-        )
-    )

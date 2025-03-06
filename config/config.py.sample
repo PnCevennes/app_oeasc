@@ -17,6 +17,7 @@ URL_FRONTEND = 'http://localhost:8080'
 
 
 ID_APP = 1
+CODE_APPLICATION = "OEASC"
 SECRET_KEY = 'super secret key'
 PASS_METHOD = 'hash'
 COOKIE_EXPIRATION = 43200

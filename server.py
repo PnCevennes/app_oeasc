@@ -6,13 +6,15 @@ import json
 import re
 
 from flask import Flask, redirect, session, request, url_for, send_from_directory
-from jinja2 import evalcontextfilter, Markup, escape
+#from jinja2 import evalcontextfilter, Markup, escape n'est plus supporté
+from jinja2 import pass_context
 
-
+from markupsafe import Markup, escape
 from app.utils.env import DB, mail
 from config import config
-
 from flask_cors import CORS
+from pypnusershub.auth import auth_manager
+
 
 # Configure sentry if var SENTRY_DSN is set in config
 try:
@@ -70,7 +72,17 @@ DB.init_app(app)
 app.config["DB"] = DB
 app.config["MAIL"] = mail
 
-# app.config['SQLALCHEMY_ECHO'] = True
+
+
+
+providers_config = [
+    {
+    "module" : "pypnusershub.auth.providers.default.LocalProvider",
+    "id_provider":"local_provider"
+    },
+]
+auth_manager.init_app(app,providers_declaration=providers_config)
+
 
 
 @app.route("/oeasc/", defaults={"text": ""})
@@ -88,7 +100,7 @@ with app.app_context():
     from app.modules.oeasc.user.mail import function_dict
 
     app.config["after_USERSHUB_request"] = function_dict
-    # app.config['SQLALCHEMY_ECHO'] = True
+
 
     from app.modules.oeasc.utils import utils_dict
 
@@ -146,10 +158,6 @@ with app.app_context():
 
     app.register_blueprint(chasse_api.bp, url_prefix="/api/chasse")
 
-    from pypnusershub import routes
-
-    app.register_blueprint(routes.routes, url_prefix="/pypn/auth")
-
     from pypnusershub import routes_register
 
     app.register_blueprint(routes_register.bp, url_prefix="/pypn/register")
@@ -164,6 +172,8 @@ with app.app_context():
         app.cli.add_command(cmd)
 
 
+
+
 if __name__ == "__main__":
     app.run(debug=config.DEBUG, port=config.PORT)
 
@@ -171,7 +181,7 @@ _paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
 
 
 @app.template_filter()
-@evalcontextfilter
+@pass_context
 def nl2br(eval_ctx, value):
     result = "\n\n".join(
         "<p>%s</p>" % p.replace("\n", "<br>\n")
@@ -183,7 +193,7 @@ def nl2br(eval_ctx, value):
 
 
 @app.template_filter()
-@evalcontextfilter
+@pass_context
 def nopar(eval_ctx, value):
     if not value:
         return ""
@@ -194,7 +204,7 @@ def nopar(eval_ctx, value):
 
 
 @app.template_filter()
-@evalcontextfilter
+@pass_context
 def cleanid(eval_ctx, value):
     if not value:
         return ""

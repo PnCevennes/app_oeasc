@@ -46,7 +46,7 @@ def check_object_type(droit_type):
                 )
 
             # s'il n'y a pas de current user => droit à 0
-            id_droit_max_user = current_user["id_droit_max"] if current_user else 0
+            id_droit_max_user = current_user["max_level_profil"] if current_user else 0
 
             if id_droit_max_user < id_droit_max_object_type:
                 return (
