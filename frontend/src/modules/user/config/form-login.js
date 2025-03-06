@@ -16,7 +16,7 @@ export default {
       }, 1000);
     },
     request: {
-      url: "pypn/auth/login",
+      url: "auth/login",
       method: "POST",
     }
   },

@@ -151,7 +151,8 @@ const STORE = {
      * User permissions
      */
     droitMax(state) {
-      return (STORE.getters.isAuth(state) && state._user.id_droit_max) || 0;
+      // return (STORE.getters.isAuth(state) && state._user.id_droit_max) || 0;
+      return (STORE.getters.isAuth(state) && state._user.max_level_profil) || 0;
     }
   },
   actions: {

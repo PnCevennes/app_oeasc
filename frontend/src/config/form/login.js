@@ -2,7 +2,7 @@ const configLogin = {
   //   display: "table",
   title: "Connexion",
   request: {
-    url: "pypn/auth/login",
+    url: "auth/login",
     label: "Créer un compte"
   },
 

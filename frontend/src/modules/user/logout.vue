@@ -13,7 +13,7 @@ export default {
     bMsg: false
   }),
   created: function() {
-    apiRequest('GET', 'pypn/auth/logout?redirect=/api/user/logout_external', {
+    apiRequest('GET', 'auth/logout?redirect=/api/user/logout_external', {
       acceptedStatus: [200, 302]
     }).then(
       () => {

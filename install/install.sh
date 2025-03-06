@@ -45,9 +45,9 @@ fi
 $ROOT_DIR/install/init_config.sh $ROOT_DIR/config/settings.ini
 
 echo "Installation"
+echo "Aucune suppression du venv configuré pour le test; Refaire le fichier d'installation pour la phase de production"
 
 echo "Installation du virtual env"
-
 # Suppression du venv s'il existe
 if [ "$REMOVE_VENV" = "1" ] && [ -d 'venv/' ]
 then
@@ -63,7 +63,7 @@ fi
 #     sudo apt-get install libgdal-dev
 # fi
 
-python3 -m venv venv
+#python3 -m venv venv
 
 echo "Activation du virtual env..."
 source venv/bin/activate
@@ -85,20 +85,23 @@ fi
 
 if [[ -z  $(which nvm) ]]; then
 
-    curl -sL https://deb.nodesource.com/setup_10.x | sudo bash -
-
+    sudo apt install curl
     sudo apt install nodejs
 
-    # wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.6/install.sh | bash
-    # export NVM_DIR="$HOME/.nvm"
-    # [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-    # nvm install 8.1.1
-    # npm install
+    # installation de nvm pour gérer les versions de node
+    wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+    # cette partie permet d'eviter de relancer le terminal
+    export NVM_DIR="$HOME/.nvm"
+    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+    [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+    # installation de la version 10 de node
+    nvm install 10
+
 fi
 
-echo "Instalation des paquets npm"
+echo "Installation des paquets npm"
 npm install
-
 cd frontend/
 npm install
 npm run build

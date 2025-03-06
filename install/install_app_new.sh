@@ -31,8 +31,8 @@ export NVM_DIR="$HOME/.nvm"
 
 echo "Installation de Node et Npm"
 cd frontend
-nvm install 8.11.0
-
+nvm install 10
+cd ..
 
 echo " ############"
 echo "Installation des paquets Npm"
