@@ -1,0 +1,2 @@
+[alembic]
+migrations = oeasc.migrations:versions
