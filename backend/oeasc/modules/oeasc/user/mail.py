@@ -128,8 +128,8 @@ def create_cor_role_token(data):
 
 
 function_dict = {
-    "create_cor_role_token": create_cor_role_token,
-    "create_temp_user": create_temp_user,
-    "valid_temp_user": valid_temp_user,
-    "change_application_right": change_application_right,
+    "create_cor_role_token": create_cor_role_token, 
+    "create_temp_user": create_temp_user, # créé un temp_user dans la base de donnée et envoi un mail pour confirmer l'adresse mail
+    "valid_temp_user": valid_temp_user, # envoi d'un mail a l'animateur pour prévenir d'un nouvel utlisateurs
+    "change_application_right": change_application_right, # envoi d'un mail a l'utilisateur pour lui dire qu'il a changé de droit
 }

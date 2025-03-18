@@ -40,7 +40,7 @@ export default {
               };
             },
             request: {
-              url: "pypn/register/post_usershub/change_application_right",
+              url: "register/post_usershub/change_application_right",
               method: "POST",
             },
             onSuccess: ( { data }) => { data.id_droit_max = data.id_droit;}

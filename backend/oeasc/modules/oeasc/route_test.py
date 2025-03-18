@@ -38,19 +38,19 @@
 #     return render_template("modules/oeasc/test/carte.html", data=data)
 
 
-# # @bp.route('/test_connexion', methods=['GET', 'POST'])
-# # @fnauth.check_auth(1)
-# # @bp.route('/md/<string:code>')
-# # @check_auth_redirect_login(1)
-# # def test_md(code):
-# #     '''
-# #         test md
-# #     '''
+# @bp.route('/test_connexion', methods=['GET', 'POST'])
+# @fnauth.check_auth(1)
+# @bp.route('/md/<string:code>')
+# @check_auth_redirect_login(1)
+# def test_md(code):
+#     '''
+#         test md
+#     '''
 
-# #     text = get_text(code)
+#     text = get_text(code)
 
-# #     if not text:
-# #         return None
+#     if not text:
+#         return None
 
 
 # #     md.reset()

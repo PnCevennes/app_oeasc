@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# pour le serveur en production
+
 FLASKDIR=$(readlink -e "${0%/*}")
 
 cd $FLASKDIR

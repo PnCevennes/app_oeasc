@@ -9,7 +9,7 @@ export default {
       token: config.token
     }),
     request: {
-      url: "pypn/register/post_usershub/change_password",
+      url: "register/post_usershub/change_password",
       method: "POST",
     }
   },

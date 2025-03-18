@@ -28,7 +28,7 @@ export default {
     },
     request: {
       method: "POST",
-      url: "pypn/register/post_usershub/create_temp_user",
+      url: "register/post_usershub/create_temp_user",
     }
   },
   formDefs: formDefsUser,

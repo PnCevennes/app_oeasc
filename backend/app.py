@@ -26,6 +26,8 @@ from config import config
 from flask_cors import CORS
 from pypnusershub.auth import auth_manager
 
+# permet de définir des actions apres l'enregistrement d'un utilisateur (envoi de mail, ...)
+from pypnusershub.env import REGISTER_POST_ACTION_FCT
 
 ##################### CONFIGURATION DE SENTRY (appli de monitoring) ############################
 try:
@@ -66,7 +68,7 @@ class ReverseProxied(object):
         return self.app(environ, start_response)
 
 # initiation du framework flask
-app = Flask(__name__, template_folder="app/templates", static_folder="../static")
+app = Flask(__name__, template_folder="oeasc/templates", static_folder="../static")
 
 # cors permet de gérer les requetes venant d'autres domaines. * signifie que tout le monde peut se connecter
 cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
@@ -75,17 +77,19 @@ cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 
 # pour signer les cookies de session et proteger contre les attaques CSRF
 # inutile c'est déja déclaré dans app.config.from_pyfile("../config/config.py", silent=True)
-# app.secret_key = config.SECRET_KEY
+app.secret_key = config.SECRET_KEY
 
 # intégration des données de configuration dans l'application. Mettre silent=True en production
 app.config.from_pyfile("../config/config.py", silent=False)
-# initialisation des parametres de mails. Récupère les paramètres dans config.py via app.config
-mail.init_app(app)
+
 # initialisation de sqlalchemy pour Flask. Créé les engines et les sessions
 DB.init_app(app)
 
 # ajoute l'instance sqlalchemy à la configuration de l'application pour y acceder facilement
 app.config["DB"] = DB
+
+# initialisation des parametres de mails. Récupère les paramètres dans config.py via app.config
+mail.init_app(app)
 # ajoute l'instance mail à la configuration de l'application pour y acceder facilement
 app.config["MAIL"] = mail 
 
@@ -99,6 +103,7 @@ providers_config = [
     "id_provider":"local_provider"
     },
 ]
+# initialise et integre les route "auth/"
 auth_manager.init_app(app,providers_declaration=providers_config)
 
 
@@ -145,9 +150,13 @@ def google():
 # on utilise le contexte de l'application pour pouvoir utiliser les fonctions de l'application
 with app.app_context():
 
-    # peut être a remettre si l'envoi de mail ne fonctionne pas
-    # from oeasc.modules.oeasc.user.mail import function_dict
-    # app.config["after_USERSHUB_request"] = function_dict
+    # ajouter à after_USERSHUB_request des fonction qui seront executé après les requetes
+    from oeasc.modules.oeasc.user.mail import function_dict
+    # ici on ajoute des fonctions d'envoi de mail
+    # configuration of post_request actions for registrations
+    REGISTER_POST_ACTION_FCT.update(function_dict)
+    #app.config["after_USERSHUB_request"] = function_dict # obsolete
+
 
     # intègre au générateur de template Jinja des données comme (print_date, get_areas_from_type_code, get_foret_type, get_some_config, to_string)
     from oeasc.modules.oeasc.utils import utils_dict
@@ -213,7 +222,8 @@ with app.app_context():
 
     # routes pour l'enregistrement des utilisateurs, changer mots de passe, éditer droits utilisateurs
     from pypnusershub import routes_register
-    app.register_blueprint(routes_register.bp, url_prefix="/pypn/register")
+    app.register_blueprint(routes_register.bp, url_prefix="/register")
+    
 
     from pypnnomenclature.routes import routes
     app.register_blueprint(routes, url_prefix="/api/nomenclatures")

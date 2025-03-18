@@ -8,7 +8,7 @@ with (root_dir / "VERSION").open() as f:
 with (root_dir / "README.md").open() as f:
     long_description = f.read()
 
-
+### Méta-données du package ###
 setuptools.setup(
     name="oeasc",
     description="",

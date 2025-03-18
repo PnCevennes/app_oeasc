@@ -49,7 +49,7 @@ export default {
       return baseModel;
     },
     request: {
-      url: "pypn/register/post_usershub/update_user",
+      url: "register/post_usershub/update_user",
       method: "POST",
     }
   }

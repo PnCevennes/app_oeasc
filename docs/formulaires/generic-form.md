@@ -21,7 +21,7 @@ config: {
         label: 'Se connecter', // texte qui s'affiche sur le boutton de validation du formulaire 
         request: {
             method: 'POST' // POST ou PATCH
-            url: 'pypn/auth/login' // url relative de la requête,
+            url: 'auth/login' // url relative de la requête,
             preProcess: preProcess: ({ baseModel, globalConfig }) => ({
                 ...baseModel,
                 id_application: globalConfig.ID_APPLICATION

@@ -1,8 +1,8 @@
-# """
-# routes pour les utilisateurs
-# les routes sont dans api.py maintenant
-# """
-
+# # """
+# # routes pour les utilisateurs
+# # les routes sont dans api.py maintenant
+# # """
+# import pdb
 # from flask import (
 #     Blueprint,
 #     render_template,
@@ -121,6 +121,9 @@
 #     identifiant = request.args.get("identifiant", "")
 #     type_login = request.args.get("type", "")
 
+    
+#     breakpoint()
+
 #     return render_template(
 #         "modules/oeasc/user/login.html",
 #         config=config,
@@ -138,7 +141,7 @@
 #     """
 #     page pour recreer un mot de passe
 #     """
-
+#     breakpoint()
 #     return render_template(
 #         "modules/oeasc/user/change_password.html", config=config, token=token
 #     )
