@@ -6,6 +6,7 @@ class GenericRouteDefinitions:
     # ref: https://python-3-patterns-idioms-test.readthedocs.io/en/latest/Singleton.html
     _shared_state = {}
     _definitions = {}
+    
 
     def __init__(self):
         self.__dict__ = self._shared_state

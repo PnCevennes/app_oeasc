@@ -6,44 +6,33 @@ from flask import current_app
 from .definitions import GenericRouteDefinitions
 from sqlalchemy import func, cast, orm, and_
 import unidecode
-
-
 from sqlalchemy.sql.functions import ReturnTypeFromArgs
 
 
+# s'assure de retourner le bon type de donnée da la requête sql
 class unaccent(ReturnTypeFromArgs):
+    inherit_cache = True
     pass
 
 
 config = current_app.config
 DB = config["DB"]
 
-
+# les routes pour accéder aux modèles de la base de données
 definitions = GenericRouteDefinitions()
 
 
-# def count_objects_type(module_name, object_type, args={}):
-#     '''
-#         get count
-#     '''
-#     Model, _ = definitions.get_model(module_name, object_type)
-#     obj = definitions.get_object_type(module_name, object_type)
-#     query = DB.session.query(Model)
-
-#     # prefiltres
-#     pre_filters = obj.get('pre_filters', {})
-#     for key in pre_filters:
-#         if not hasattr(Model, key):
-#             pass
-#         query = query.filter(getattr(Model, key).in_(pre_filters[key]))
-
-#     return query.count()
-
-
 def getlist(args, key):
+
     """
-    patch getlist pour tenir compte des cas ?val='val1,val2'
+    Cette fonction getlist(args, key) est une fonction utilitaire qui améliore la récupération des valeurs d'un paramètre GET dans une requête HTTP. Elle traite les cas où le paramètre peut être :
+
+    Un seul élément (?val=unique_value)
+    Une liste d'éléments séparés par des virgules (?val=val1,val2,val3)
+    Une liste d'éléments envoyés sous forme de plusieurs occurrences du même paramètre (?val=val1&val=val2)
+    retourne ["val1", "val2", "val3"]
     """
+
 
     val = args.get(key)
 
@@ -57,12 +46,13 @@ def getlist(args, key):
 
 
 def custom_getattr(Model, attr_name, query):
-    """
-    Recupere
-        - l'attribut d'un modele Model.attr si attr_name = 'attr'
-        - ou l'attribut d'une relation Model si attr_name = 'rel.attr'
 
-    Pour une relation directement, a voir si on peut le faire sur plusieurs niveaux
+    """
+    Cette fonction custom_getattr(Model, attr_name, query) est une fonction utilitaire conçue pour récupérer dynamiquement un attribut d'un modèle SQLAlchemy. Elle permet de gérer :
+
+    Les attributs simples d'un modèle (Model.attr) si attr_name = 'attr'
+    Les attributs d'une relation (Model.relation.attr) si attr_name = 'rel.attr'
+    Les jointures dynamiques sur une relation (via query.join())
     """
 
     if "." in attr_name:
@@ -94,7 +84,21 @@ def custom_getattr(Model, attr_name, query):
 
 def get_objects_type(module_name, object_type, args={}):
     """
-    get all
+    La fonction get_objects_type(module_name, object_type, args={}) construit dynamiquement une requête
+    SQLAlchemy pour récupérer des objets en fonction de filtres, de tris et de la pagination. Elle est
+    conçue pour être générique, permettant d'interroger n'importe quel modèle SQLAlchemy en fonction
+    des paramètres fournis.
+
+    module_name : Nom du module contenant le modèle.
+    object_type : Type d'objet (nom du modèle SQLAlchemy).
+    args : Dictionnaire contenant les paramètres de filtrage, de tri et de pagination (généralement récupérés depuis request.args).
+
+    clé possible dans args :
+    ?name=John → name="John" (égalité)
+    ?name__ilike=jo → name ILIKE "%jo%" (recherche insensible à la casse)
+    ?status=active,inactive → status IN ('active', 'inactive') (filtrage multiple)
+    ?profile.name=Admin → jointure avec une relation (profile) et filtrage sur profile.name
+
     """
 
     joins = []
@@ -220,9 +224,20 @@ def get_objects_type(module_name, object_type, args={}):
 
 def get_object_type(module_name, object_type, value, field_name=None):
     """
-    get one
-    value = model.<field_name>
-    default field_name = id_field_name
+
+    Objectif :
+
+    Trouver un objet unique (.one()) en fonction de la valeur d'un champ.
+    Si field_name n'est pas fourni, utilise l'ID par défaut du modèle.
+    Fonction utile pour récupérer un objet via une clé primaire ou une autre colonne unique.
+
+    Paramètres :
+
+    module_name : Nom du module contenant le modèle.
+    object_type : Nom du modèle SQLAlchemy.
+    value : Valeur à rechercher (Model.<field_name> = value).
+    field_name (optionnel) : Nom de la colonne à utiliser pour la recherche (par défaut, la clé primaire du modèle).
+
     """
     (Model, id_field_name) = definitions.get_model(module_name, object_type)
 
@@ -234,7 +249,19 @@ def get_object_type(module_name, object_type, value, field_name=None):
 
 def create_or_update_object_type(module_name, object_type, id_value, post_data):
     """
-    toujours par id_value
+    Cette fonction permet de créer ou mettre à jour un objet d’un modèle SQLAlchemy en fonction d’un id_value.
+
+    Objectif :
+    Si id_value est fourni → Met à jour l'objet existant.
+    Si id_value est None → Crée un nouvel objet.
+
+    Paramètres :
+
+    module_name : Nom du module contenant le modèle.
+    object_type : Nom du modèle SQLAlchemy.
+    id_value : Valeur de l'identifiant de l'objet (ex: User.id).
+    post_data : Dictionnaire contenant les valeurs à mettre à jour/créer.
+
     """
     (Model, id_field_name) = definitions.get_model(module_name, object_type)
 
@@ -255,7 +282,16 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
 
 def delete_object_type(module_name, object_type, id_value):
     """
-    toujours par id_value
+    Objectif :
+
+    Supprimer un objet dans la base de données en fonction de son ID (id_value).
+    Retourner les données de l'objet supprimé sous forme de dictionnaire.
+
+    Paramètres :
+
+    module_name : Nom du module contenant le modèle.
+    object_type : Nom du modèle SQLAlchemy.
+    id_value : Identifiant de l'objet à supprimer.
     """
 
     (Model, id_field_name) = definitions.get_model(module_name, object_type)

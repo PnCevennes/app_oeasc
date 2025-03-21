@@ -11,7 +11,9 @@ definitions = GenericRouteDefinitions()
 
 def check_object_type(droit_type):
     """
-    decorateur qui verifie les droits et les définitions
+    decorateur qui verifie si l'utilisateur a les droits pour acceder à la route
+    si le module demandé existe dans la défitions des modules
+    et si le module existe.
     """
 
     def check_object_type_(fn):
