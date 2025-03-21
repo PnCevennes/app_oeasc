@@ -1,12 +1,9 @@
+
+
 from flask_sqlalchemy import SQLAlchemy
-
 from flask_mail import Mail
-
 from pathlib import Path
-
-from config import config
-
-
+# from config import config
 from os import environ
 from importlib import import_module
 
@@ -22,11 +19,15 @@ else:
     # pour la migration sqlalchemy 2.0 il faut déclarer la Base
     Base = DB.Model
 
+db = DB # pour le module auth_authentification, il faut db et non DB
 mail = Mail()
-
 ROOT_DIR = Path(__file__).absolute().parent.parent.parent
 
-URL_REDIRECT = "{}/{}".format(config.URL_APPLICATION, "oeasc/login")
+# URL_REDIRECT = "{}/{}".format(config.URL_APPLICATION, "oeasc/login")
+
+
+
+
 # URL_REDIRECT = "login/"
 
 # """ Helpers to manipulate the execution environment """

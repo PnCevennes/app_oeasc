@@ -11,6 +11,9 @@ os.environ["PYTHONWARNINGS"] = "always"
 os.environ["SQLALCHEMY_WARN_20"] = "1"
 warnings.simplefilter("always", exc.SAWarning)
 ##########################
+import sys
+base_path = os.path.abspath(os.path.join(os.getcwd(), '..'))
+sys.path.append(os.path.join(base_path, 'config'))
 
 import json
 import re
@@ -22,7 +25,8 @@ from flask_migrate import Migrate
 from jinja2 import pass_context
 from markupsafe import Markup, escape
 from oeasc.utils.env import DB, mail
-from config import config
+import config
+# from config import config
 from flask_cors import CORS
 from pypnusershub.auth import auth_manager
 
@@ -75,9 +79,6 @@ cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
 
-# pour signer les cookies de session et proteger contre les attaques CSRF
-# inutile c'est déja déclaré dans app.config.from_pyfile("../config/config.py", silent=True)
-app.secret_key = config.SECRET_KEY
 
 # intégration des données de configuration dans l'application. Mettre silent=True en production
 app.config.from_pyfile("../config/config.py", silent=False)
@@ -92,6 +93,10 @@ app.config["DB"] = DB
 mail.init_app(app)
 # ajoute l'instance mail à la configuration de l'application pour y acceder facilement
 app.config["MAIL"] = mail 
+
+# pour signer les cookies de session et proteger contre les attaques CSRF
+# inutile c'est déja déclaré dans app.config.from_pyfile("../config/config.py", silent=True)
+app.secret_key = app.config['SECRET_KEY']
 
 
 # configuration et initialisation du gestionnaire d'authentification propre au parc (pypnusershub)
@@ -208,7 +213,7 @@ with app.app_context():
     from oeasc.modules.oeasc.commons import api as commons_api
     app.register_blueprint(commons_api.bp, url_prefix="/api/commons")
 
-    # generic semble avoir quelques fonctions pour charger des modèles et des données
+    # generic gère des routes dynamiques pour plusieurs modules. Permet d'accéder à des models et de gérér les accès selon les droits utilisateurs
     from oeasc.modules.oeasc.generic import api as generic_api
     app.register_blueprint(generic_api.bp, url_prefix="/api/generic")
 
