@@ -22,26 +22,31 @@ DB = config["DB"]
 
 def chasse_process_args():
     """
-    Traitement des arguments de requete
-    communs à plusieurs routes
-    bilan, ice, restitution etc..
+    Traitement des arguments de requete pour la plupart des routes de l'api chasse
+    met les arguments à choix multiple comme id_secteur, id_zone_cynegetique, id_zone_indicative sous forme de liste
+    Si plusieurs type de zone sont définis, priorise zone indicative > zone cynegetique > secteur en vidant les listes des types de zone inférieurs
+    retourne les arguments de requete en un dictionnaire.
     """
+    # récupération des id dans la requête. Ces choix sont uniques
     id_espece = request.args.get("id_espece")
     id_saison = request.args.get("id_saison")
     poids_ou_dagues = request.args.get("poids_ou_dagues")
 
+    # récupération des id dans les paramètres de la requête sous forme de liste car le formulaire est à choix multiple
     id_secteur = getlist(request.args, "id_secteur")
     id_zone_cynegetique = getlist(request.args, "id_zone_cynegetique")
     id_zone_indicative = getlist(request.args, "id_zone_indicative")
 
+    #conversion des id en int dans les listes
     id_secteur = list(map(lambda x: int(x), id_secteur))
     id_zone_cynegetique = list(map(lambda x: int(x), id_zone_cynegetique))
     id_zone_indicative = list(map(lambda x: int(x), id_zone_indicative))
 
     # priorisation ZI > ZC > Secteur
+    # la zone indicative est définie, on supprime id_secteur et id_zone_cynegetique
     if len(id_zone_indicative) > 0:
         id_secteur = id_zone_cynegetique = []
-
+    # id_zone_cynegetique est définie, on supprime id_secteur
     if len(id_zone_cynegetique) > 0:
         id_secteur = []
 
@@ -262,13 +267,21 @@ def get_plain_text_data(params):
     # Espèces
     out = {}
     if "id_espece" in params:
-        res = TEspeces.query.get(params["id_espece"])
-        out["nom_espece"] = res.nom_espece
+        # res = TEspeces.query.get(params["id_espece"])
+        if (params["id_espece"] is not None):
+            res = DB.session.get(TEspeces, params["id_espece"])
+            out["nom_espece"] = res.nom_espece
     # Saison
     if "id_saison" in params:
-        res = TSaisons.query.get(params["id_saison"])
-        if res:
-            out["nom_saison"] = res.nom_saison
+        # res = TSaisons.query.get(params["id_saison"])
+        if (params["id_saison"] is not None):
+            res = DB.session.get(TSaisons, params["id_saison"])
+            if res:
+                out["nom_saison"] = res.nom_saison
+            else:
+                out["nom_saison"] = "???"
+        else:
+            out["nom_saison"] = "???"
     # Nom zone
     zones = None
     if params["id_zone_indicative"]:

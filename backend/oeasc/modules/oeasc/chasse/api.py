@@ -34,15 +34,25 @@ import datetime
 from oeasc.utils.env import ROOT_DIR
 from py3o.template import Template
 
+
 config = current_app.config
 DB = config["DB"]
 
-
 bp = Blueprint("chasse_api", __name__)
+
+############################################################################################
+########### ROUTES DYNAMIQUES POUR ACCEDER AUX MODELES DE LA BASE DE DONNEES ##############
+############################################################################################
+
+# générateur de routes situé dans le module generic (c'est un singleton). L'objet grd est partagé entre toutes les instances de la classe
+# les definitions suivantes seront ajoutées à celles des autres modules oeasc
 grd = GenericRouteDefinitions()
 
+# définis les droit pour chaque route (C: create, R: read, U: update, D: delete)
 droits = {"C": 4, "R": 0, "U": 4, "D": 4}
 
+# routes dynamiques pour accéder aux modèles de la base de données
+# la route est par exemple de la forme <blueprint>/chasse/personne/ pour accéder à la table TPersonnes
 definitions = {
     "personne": {"model": TPersonnes, "droits": droits},
     "zone_cynegetique": {"model": TZoneCynegetiques, "droits": droits},
@@ -57,8 +67,11 @@ definitions = {
     "attribution": {"model": TAttributions, "droits": droits},
     "realisation": {"model": TRealisationsChasse, "droits": droits},
 }
-
+# ajout des définition dans le singleton grd
 grd.add_generic_routes("chasse", definitions)
+
+
+
 
 
 @bp.route("results/bilan", methods=["GET"])
@@ -67,7 +80,15 @@ def chasse_bilan():
     """
     route pour le bilan chasse
     """
-
+    # traitement des paramètres dans la requete. définie la zone prioritaire et retourne un dictionnaire de type
+    # return {
+    #     "id_saison": id_saison,
+    #     "id_espece": id_espece,
+    #     "id_secteur": id_secteur, (liste)
+    #     "id_zone_cynegetique": id_zone_cynegetique, (liste)
+    #     "id_zone_indicative": id_zone_indicative, (liste)
+    #     "poids_ou_dagues": poids_ou_dagues,
+    # }
     params = chasse_process_args()
 
     return get_chasse_bilan(params)
@@ -89,7 +110,8 @@ def api_result_ice():
         params["id_secteur"],
         params["poids_ou_dagues"],
     )
-    res = DB.engine.execute(req).first()[0]
+    # res = DB.engine.execute(req).first()[0]
+    res = DB.session.execute(req).first()[0]
     return res
 
 
