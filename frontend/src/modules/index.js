@@ -16,6 +16,7 @@ import { ROUTE as restitution2_routes, STORE as restitution2_store } from "./res
 import { ROUTE as page_routes } from "./page";
 import { STORE as map_store } from "./map";
 
+// centralise toutes les routes récupérée dans les import dans une seule liste
 const MODULES_ROUTES = [
   ...user_routes,
   ...in_routes,
@@ -34,7 +35,7 @@ const MODULES_ROUTES = [
 
 
 
-
+// Centralise toutes les stores récupérées dans les import dans une seule liste
 const stores = [
   user_store,
   commons_store,
@@ -48,6 +49,7 @@ const stores = [
   restitution2_store,
 ];
 
+// initialise MODULES_STORE avec des dict vides
 const MODULES_STORE = {
   getters: {},
   mutations: {},
@@ -55,10 +57,12 @@ const MODULES_STORE = {
   state: {}
 };
 
+// Pour chaque module, on ajoute ses store dans MODULES_STORE
 for (const store of stores) {
   for (const key of Object.keys(MODULES_STORE)) {
     MODULES_STORE[key] = { ...MODULES_STORE[key], ...store[key] };
   }
 }
 
+// exporte les routes et les stores
 export { MODULES_ROUTES, MODULES_STORE };

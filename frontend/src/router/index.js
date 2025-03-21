@@ -1,3 +1,5 @@
+// importe les routes depuis les modules dans le repertoire modules/
+
 import Vue from "vue";
 import Router from "vue-router";
 import {page} from "@/modules/page"

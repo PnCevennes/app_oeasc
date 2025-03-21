@@ -1,3 +1,5 @@
+// les formulaires sont importés ici. Puis ajoutés à la fin de ce fichier dans storeUtils.addStore
+
 import storeUtils from "@/store/utils";
 import admin from "@/components/admin";
 import configStorePersonne from "./config/store-personne";
@@ -32,7 +34,7 @@ const ROUTE = [
     props: {
       config: {
         title: "Données chasse",
-        tabs: {
+        tabs: { // les différents onglets du formulaire
           realisation: {
             storeName: "chasseRealisation"
           },
@@ -71,6 +73,7 @@ const ROUTE = [
     },
     access: 5
   },
+  // Route de test
   {
     name: "chasse.testForm",
     path: "/chasse/testForm",

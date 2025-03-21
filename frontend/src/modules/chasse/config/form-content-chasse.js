@@ -1,4 +1,6 @@
-// raz des autres champs de localisation
+
+
+// Si un champ de localisation est modifié, on réinitialise les autres champs de localisation pour éviter les incohérences
 const changeLocalisation = ({baseModel, config}) => {
     for (const name of['id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'].filter(n => n != config.name)) {
         baseModel[name] = []
@@ -35,7 +37,7 @@ const FIELDS = {
         returnObject: false,
         list_type: 'select',
         label: 'Secteur',
-        change: changeLocalisation
+        change: changeLocalisation // si le champ est modifié, on réinitialise les autres champs de localisation
     },
     id_zone_cynegetique: {
         storeName: 'chasseZoneCynegetique',
@@ -43,8 +45,8 @@ const FIELDS = {
         multiple: true,
         returnObject: false,
         list_type: 'select',
-        label: 'ZC',
-        change: changeLocalisation
+        label: 'ZC', 
+        change: changeLocalisation // si le champ est modifié, on réinitialise les autres champs de localisation
     },
     id_zone_indicative: {
         storeName: 'chasseZoneIndicative',

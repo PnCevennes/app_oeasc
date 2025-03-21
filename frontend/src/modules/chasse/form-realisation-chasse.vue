@@ -1,7 +1,9 @@
 <template>
 <div class="form-realisation">
-
+    <!-- barre de progression-->
     <v-progress-linear  v-if="!displayForm"  indeterminate></v-progress-linear>
+
+
 {{$refs.form && $refs.form.baseModel.attribution && $refs.form.baseModel.attribution.numero_bracelet}}
     <div v-if="realisations.length">
         <h4>Réalisations effectuées</h4>
