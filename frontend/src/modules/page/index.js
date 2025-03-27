@@ -1,4 +1,9 @@
+
+// import { apiRequest } from "@/core/js/data/api.js";
+// import storeUtils from "@/store/utils";
+//import { component } from "vue/types/umd";
 import page from "./page";
+// import accueil from "./content/accueil";
 
 const ROUTE = [
   {
@@ -9,6 +14,7 @@ const ROUTE = [
     type: "page",
     content: 'accueil',
   },
+
 
   {
     name: "observatoire.presentation",

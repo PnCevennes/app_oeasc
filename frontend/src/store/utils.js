@@ -18,7 +18,13 @@ import { upFirstLetter, camelToSnakeCase } from "@/core/js/util/util.js";
 //   }
 // }
 
+
+
+
+// fonction uniquement utilée dans addStore
+// Créé un objet de type configTable à partir de configStore et le stocke dans configStore
 const processTableConfig = configStore => {
+  // initialisation de la config de la table
   const configTable = {
     storeName: configStore.storeName,
     options: configStore.options,
@@ -31,10 +37,14 @@ const processTableConfig = configStore => {
   };
 
   const headerDefs = {};
+  // transformation des defintion de configStore.defs en tableau de valeurs
   for (const [keyCol, col] of Object.entries(configStore.defs)
+    // On ne garde que les colonnes qui sont dans configStore.columns si elles existent 
+    // et trie les colonnes dans l'ordre de configStore.columns
     .filter(
       ([keyCol]) => (!configStore.columns) || configStore.columns.includes(keyCol)
     )
+    // trie les colonnes dans l'ordre de configStore.columns
     .sort((a, b) =>
       configStore.columns
         ? configStore.columns.indexOf(b[0]) - configStore.columns.indexOf(a[0]) < 0
@@ -42,6 +52,7 @@ const processTableConfig = configStore => {
           : -1
         : 0
     )) {
+
     headerDefs[keyCol] = {
       ...col,
       text: col.text || col.label,
@@ -54,10 +65,17 @@ const processTableConfig = configStore => {
   configStore.configTable = configTable;
 };
 
+
+
+// fonction uniquement utilée dans ce fichier
+// Supprime les accents d'une chaine de caractères
 const unaccent = s => {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 };
 
+// uniquement utilisé dans ce fichier
+// Détermine l'article à utiliser pour un nom de store
+// Exemple : "de l'objet" ou "du truc"
 const articleDef = configStore => {
   const voyelle = "aeiouy".includes(
     unaccent(configStore.label[0]).toLowerCase()
@@ -66,6 +84,9 @@ const articleDef = configStore => {
   return voyelle ? "de l'" : M ? "du " : "de la ";
 };
 
+// uniquement utilisé dans ce fichier
+// Détermine l'article à utiliser pour un nom de store
+// Exemple : "d'un nouvel objet" ou "d'une nouvelle truc"
 const articleUndefNew = configStore => {
   const voyelle = "aeiouy".includes(
     unaccent(configStore.label[0]).toLowerCase()
@@ -73,6 +94,9 @@ const articleUndefNew = configStore => {
   const M = ["M", undefined].includes(configStore.genre);
   return voyelle && M ? "d'un nouvel" : M ? "d'un nouveau " : "d'une nouvelle ";
 };
+
+// fonction uniquement utilée dans addStore
+// Créé un objet de type configForm à partir de configStore et le stocke dans configStore
 
 const processFormConfig = configStore => {
   const configForm = {
@@ -103,6 +127,9 @@ const processFormConfig = configStore => {
   configStore.configForm = configForm;
 };
 
+
+// fonction uniquement utilisée dans addStore
+// Définit les valeurs par défaut pour les champs idFieldName et displayFieldName
 const processDefaults = configStore => {
   /**
    * Fonction magique qui définit des paramètres par défaut basé sur snakeName pour le store
@@ -115,39 +142,75 @@ const processDefaults = configStore => {
     configStore.displayFieldName || `nom_${configStore.snakeName}`;
 };
 
+
+
+
+
+
+
 export default {
-  /** initialise un store avec getters mutation dispatch etc
-   *
-   * Exemple :
-  storeUtils.addStore(STORE, "inRealisation", "api/generic/in/realisation", {
-    idFieldName: "id_realisation"
-  });
-   *
-   * name commonsContent
-   * api api/generic
-   * settings: {
-   *  idFieldName
-   *  labelFieldName
-   * }
-  */
+
+
+  // utilisé dans les index.js des modules pour traiter leurs stores de données
+  // construit des éléments comme des getters, mutations, actions, state et les ajoute à STORE
+  // configIn est le fichier de config du store dans chaque module
+  // group: "chasse",
+  // name: "typeBracelet",
+  // label: "Type de bracelet",
+  // labels: "Types de bracelet",
+  // displayFieldName: "code_type_bracelet",
+  // defs: {
+  //   id_type_bracelet: {
+  //     label: "ID",
+  //     type: "text",
+  //     hidden: true,
+  //   },
+
+
+
+  /**
+   * Ajoute un store au store Vuex basé sur un objet de configuration.
+   * 
+   * Cette fonction crée un module Vuex complet avec state, getters, mutations et actions
+   * pour une ressource générique. Elle gère les opérations CRUD (Création, Lecture, Mise à jour, Suppression) 
+   * et configure automatiquement les points de terminaison API selon des conventions de nommage.
+   * 
+   * @param {Object} STORE - L'objet store Vuex auquel le module sera ajouté
+   * @param {Object} configIn - Objet de configuration qui définit le comportement du store
+   * @param {string} configIn.name - Nom de la ressource en camelCase (ex: 'typeBracelet')
+   * @param {string} configIn.group - Préfixe de groupe pour le nom du store (ex: 'chasse')
+   * @param {string} [configIn.api] - Point de terminaison API personnalisé, par défaut '/api/generic/{group}/{snake_name}'
+   * @param {string} configIn.label - Libellé singulier pour la ressource
+   * @param {string} [configIn.labels] - Libellés pluriels pour la ressource, par défaut label + 's'
+   * @param {string} configIn.idFieldName - Nom du champ utilisé comme identifiant
+   * @param {string} configIn.displayFieldName - Nom du champ utilisé pour l'affichage
+   * @param {Object} [configIn.options] - Options supplémentaires pour le store
+   * @param {boolean} [configIn.loaded=false] - Indique si le store a été chargé
+   * 
+   * @returns {void} - Modifie le paramètre STORE en ajoutant state, getters, mutations et actions
+   */
+
+
   addStore(STORE, configIn) {
     // depuis la config
+
+
+    //créé un url pour la requête api à partir du nom typeBracelet => type_bracelet
     const snakeName = camelToSnakeCase(configIn.name);
     const api = configIn.api || `api/generic/${configIn.group}/${snakeName}`;
     const apis = `${api}s/`;
 
+    // Créé un nom de store à partir de la config : typeBracelet => chasseTypeBracelet
     const storeName = configIn.group + upFirstLetter(configIn.name);
 
     /** si name = 'trucs */
     /** trucs : nom pour les listes (un s à la fin)  pour les route de liste*/
     const storeNames = `${storeName}s`;
 
-    /** Truc : pour les actions par ex getTruc postTruc */
+    // met la première lettre en majuscule pour ensuite créer des noms de fonctions getTypeBracelet
     const storeNameCapitalized = upFirstLetter(storeName);
 
-    /** pour stocker et recupérer la config */
-    const storeNameConfig = `${storeName}ConfigStore`;
-
+    // creation d'un objet config pour l'enregistrer ensuite dans le store
     const configStore = {
       ...configIn,
       storeName,
@@ -179,27 +242,29 @@ export default {
 
     /** stockage de la liste */
     state[storeNames] = [];
+    /** pour stocker et recupérer la config */
+    const storeNameConfig = `${storeName}ConfigStore`;
     state[storeNameConfig] = configStore;
 
-    /** GETTER */
-
+    /** ******************************************************************************** */
+    /***************************** CREATION DES GETTERS *********************************/
+    /*********************************************************************************** */
     const getters = {};
 
     /** recuperation des config doit marcher avec tous les stores */
     getters.configStore = state => storeName => state[`${storeName}ConfigStore`];
 
-    getters.findConfigStore = state => params => {
-      const key = Object.keys(state).find(key => {
-        if (!key.includes('ConfigStore')) {
+    getters.findConfigStore = state => params => { // on cherche la config qui correspond aux paramètres
+      const key = Object.keys(state).find(key => { // on cherche la clé qui correspond
+        if (!key.includes('ConfigStore')) { // si la clé ne contient pas ConfigStore, on retourne faux
           return false;
         }
-        return Object.entries(params).every(([k,v]) => {
-          return state[key][k] == v
-        } )
+        return Object.entries(params).every(([k,v]) => { // on vérifie que chaque paramètre est respecté
+          return state[key][k] == v // on vérifie que la valeur est égale
+        } ) 
       });
-      return key && state[key];
+      return key && state[key]; // on retourne la config si elle existe
     }
-
 
     /** recupération du tableau entier */
     getters[storeNames] = state => state[storeNames];
@@ -211,26 +276,33 @@ export default {
     getters[configStore.find] = state => (params) => {
       return state[storeNames].filter(v =>
         {
-          return Object.keys(params).length == 0
-          || Object.entries(params).every(([pk,pv]) => {
-            return (!Object.keys(v).includes(pk)) ||
-              ( Array.isArray(pv)
-                ? ((!pv.length) || pv.includes(v[pk]))
-                : v[pk] == pv
-              )
-          })
-        })
-    }
+          return Object.keys(params).length == 0 // si params est vide, on retourne tout
+          || Object.entries(params).every(([pk,pv]) => { // on vérifie que chaque paramètre est respecté pour chaque objet
+            return (!Object.keys(v).includes(pk)) || // si la clé n'existe pas, on retourne faux
+              ( Array.isArray(pv) // si la valeur est un tableau, on vérifie que la valeur est dans le tableau
+                ? ((!pv.length) || pv.includes(v[pk])) // si le tableau est vide, on retourne vrai
+                : v[pk] == pv // sinon on vérifie que la valeur est égale à la valeur du paramètre
+              ) // on retourne vrai si la valeur est égale
+          }) // on retourne vrai si tous les paramètres sont respectés pour un objet
+        }) // on retourne les objets qui respectent les paramètres 
+    } 
+
+
     /** récupération d'un objet  par value, fieldName
      * avec idFieldName par défaut
      */
-    getters[storeName] = state => (
+    getters[storeName] = state => ( 
       value,
-      fieldName = configStore.idFieldName
+      fieldName = configStore.idFieldName 
     ) => {
       return state[storeNames] &&
       state[storeNames].find(obj => obj[fieldName] == value);
-    }
+    } // on retourne l'objet qui correspond à la valeur du champ fieldName
+
+
+    /** ******************************************************************************** */
+    /***************************** CREATION DES MUTATIONS *********************************/
+    /*********************************************************************************** */
 
     const mutations = {};
 
@@ -290,6 +362,10 @@ export default {
       state[configStore.count] = count;
     }
 
+    /** ******************************************************************************** */
+    /***************************** CREATION DES ACTIONS *********************************/
+    /*********************************************************************************** */
+
     const actions = {};
 
     actions[configStore.count] = ({getters, commit}) => {
@@ -303,9 +379,13 @@ export default {
     }
 
 
-    /** requete GET pour avoir le tableau d'objets
-     * forceReload : forcer la recupération des données depuis le serveur
-     */
+  /** Cette partie gère les données en cache pour optimiser les requêtes
+   * Si les données existent dans le cache, elles sont retournées directement
+   * Sinon, une requête est envoyée au serveur pour les récupérer
+   * Les données peuvent être filtrées par des options directement dans le cache
+   * Si ForceReload est activé, les données sont toujours récupérées depuis le serveur
+   * si serverSide est activé, les données sont retournées directement depuis le serveur
+   */
     actions[configStore.getAll] = (
       { getters, commit },
        options = {}
@@ -345,8 +425,50 @@ export default {
       });
     };
 
-    /** un action = une requete pour une ligne
-     * requestType : GET, PATCH, POST, DELETE
+
+
+    /**
+     * Crée une fonction d'action générique pour gérer les requêtes HTTP vers une API RESTful.
+     * 
+     * @param {string} requestType - La méthode HTTP à utiliser (GET, POST, PATCH, DELETE).
+     * @returns {Function} Une fonction d'action du store qui prend un contexte ({ getters, commit }) et des options.
+     * @param {Object} options - Les options pour la requête.
+     * @param {*} [options.value=null] - La valeur d'identifiant pour la requête, requise pour GET, PATCH et DELETE.
+     * @param {string} [options.fieldName=configStore.idFieldName] - Le nom du champ à utiliser comme identifiant.
+     * @param {Object} [options.postData=null] - Les données à envoyer dans le corps de la requête, requis pour POST et PATCH.
+     * @returns {Promise<Object>} Une promesse qui se résout avec les données de réponse ou rejette avec une erreur.
+     * 
+     * Retourne une erreur Lorsque des paramètres requis sont manquants selon le type de requête.
+     * 
+     * @example
+     * // Définir une action GET
+     * const getItem = genericAction('GET');
+     * // Utilisation dans le store
+     * dispatch('getItem', { value: 123 });
+     * 
+     * @example
+     * // Créer un nouvel élément
+     * dispatch('postChasseBracelet', { 
+     *   postData: { code_bracelet: 'BR001', description: 'Bracelet chevreuil' } 
+     * });
+     * 
+     * @example
+     * // Mettre à jour un élément existant
+     * dispatch('patchChasseBracelet', { 
+     *   value: 42, 
+     *   postData: { description: 'Bracelet chevreuil modifié' } 
+     * });
+     * 
+     * @example
+     * // Supprimer un élément
+     * dispatch('deleteChasseBracelet', { value: 42 });
+     * 
+     * @example
+     * // Récupérer un élément avec un champ personnalisé
+     * dispatch('getChasseBracelet', { 
+     *   value: 'BR001', 
+     *   fieldName: 'code_bracelet' 
+     * });
      */
     const genericAction = requestType => (
       { getters, commit },
@@ -398,12 +520,19 @@ export default {
       });
     };
 
+    
+
     /** requetes GET POST PATCH DELETE */
     for (const key of ["GET", "POST", "PATCH", "DELETE"]) {
       actions[`${key.toLowerCase()}${storeNameCapitalized}`] = genericAction(
         key
       );
     }
+
+
+    /************************************************************************** */
+    /******************* ENREGISTREMENT DES CONFIG  *****************************/
+    /************************************************************************** */
 
     const store = {
       state,
@@ -418,7 +547,17 @@ export default {
 
   },
 
-  /** Besoin de clarification */
+
+
+
+
+
+
+  /**
+   Utilisé dans lo module déclaration
+   Ajoute des spécificité au store restitution
+  */
+
   addStoreRestitution: (STORE, storeName, getDataAction, configRestitution) => {
     const storeNameConfig = `${storeName}ConfigRestitution`;
 
@@ -448,7 +587,10 @@ export default {
     }
   },
 
+
+
   /**
+   * Pour l'instant utilisé uniquement dans le module IN
    * Par exemple pour les in on a la route qui donne les résultat et qui peut servir pour plein de composants
    * les besoin sont de charger une seul fois l'api et de récupérer les donnée par les getters
    * un pending state est nécessaire pour ne pas faire deux appels quasi simultanés à l'api (cas de graphes multiples dans un content)

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <div v-if="contentCode"  >
+    <div v-if="contentCode"  > 
       <oeasc-content :code="contentCode" :class="{page: true, large}"></oeasc-content>
     </div>
   </div>

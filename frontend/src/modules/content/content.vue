@@ -5,19 +5,24 @@
   >
     <!-- @mouseover="onMouseOver()" @mouseout="onMouseOut()" -->
     <div>
-      <div v-if="!bEditContents && content">
+      
+      <!-- si on n'est pas en mode édition et que le contenu est défini -->
+      <div v-if="!bEditContents && content"> 
         <div>
+          <!-- bouton pour éditer le contenu -->
           <v-btn
             icon
             v-if="!bEditContents && $store.getters.droitMax >= 5"
             @click="bEditContents = true"
             :ref="`btn-edit-content_${getCode()}`"
-          >
+          > 
             <v-icon>edit</v-icon>
           </v-btn>
         </div>
 
+        <!-- affichage de la date de création et de modification pour les actu -->
         <div v-if="displayContentDate">
+          <h1>a isuceraci ercareauieruasteruas eiusr ecuarsceuisracesriuae</h1>
           <i>Le {{ displayDate(content.meta_create_date) }}</i>
 
           <i
@@ -28,14 +33,21 @@
             >, modifié le {{ displayDate(content.meta_create_date) }}</i
           >
         </div>
+
+        <!-- affichage du contenu -->
+        <!-- evite la propagation des événements de clavier vers les élements parents pour éviter les conflits raccourcis clavier -->
         <v-runtime-template
           class="content"
           @keydown="$event.stopPropagation()"
           @keyup="$event.stopPropagation()"
-          :template="content.html"
-        ></v-runtime-template>
+          :template="content.html">
+        </v-runtime-template>
+        
       </div>
       <div>
+
+
+        <!-- si on est en mode édition -->
         <div v-if="bEditContents && content" class="edit-content">
           <div>
             <v-btn icon v-if="bEditContents" @click="bEditContents = false">
@@ -100,6 +112,8 @@
             {{ msgSnack }}
           </v-snackbar>
         </div>
+
+        <!-- fin -->
       </div>
     </div>
     <val/>
@@ -107,7 +121,10 @@
 </template>
 
 <script>
-// load content
+// Chargement des contenu pour les type = "page" défini dans le index.js
+
+
+
 import { config } from "@/config/config.js";
 import components from "./config/components"
 
@@ -118,8 +135,8 @@ import configImgForm from "./config/form-img";
 import configDocForm from "./config/form-doc";
 import marked from "marked";
 
-import genericForm from "@/components/form/generic-form";
-import VRuntimeTemplate from "v-runtime-template";
+import genericForm from "@/components/form/generic-form"; // formulaire de modification de page
+import VRuntimeTemplate from "v-runtime-template"; // pour l'affichage du contenu markdown dynamique
 
 export default {
   name: "oeasc-content",
@@ -190,12 +207,12 @@ export default {
     },
   }),
   methods: {
-    onMouseOver() {
-      this.mouseIn = true;
-    },
-    onMouseOut() {
-      this.mouseIn = false;
-    },
+    // onMouseOver() { // non utilisé
+    //   this.mouseIn = true;
+    // },
+    // onMouseOut() { // non utilisé
+    //   this.mouseIn = false;
+    // },
 
     displayDate(date) {
       return date && date.split(" ")[0];
@@ -226,21 +243,24 @@ export default {
         this.msgSnack = `Le code du lien à été copié dans le presse-papier`;
       });
     },
-    getFormData(ref, key) {
-      setTimeout(() => {
 
-        var out = this.$refs && this.$refs[ref] && this.$refs[ref].baseModel;
-        console.log(this.$refs, ref, out)
-        for (const k of key.split('.')) {
-          if (!out) {
-            break;
-          }
-          out = out[k]
-        }
-        return out
-      }, 1000)
-    },
-    setContent(data) {
+    // getFormData(ref, key) { // non utilisé
+    //   setTimeout(() => {
+
+    //     var out = this.$refs && this.$refs[ref] && this.$refs[ref].baseModel;
+    //     console.log(this.$refs, ref, out)
+    //     for (const k of key.split('.')) {
+    //       if (!out) {
+    //         break;
+    //       }
+    //       out = out[k]
+    //     }
+    //     return out
+    //   }, 1000)
+    // },
+
+    setContent(data) { 
+      // recupère le contenu est le transforme en html. Place ce contenu dans content.html qui sera ensuite intégré au template
       this.content = data;
 
       this.configContentForm.value = this.content;
@@ -248,6 +268,7 @@ export default {
       this.content.html = `<div>${html}</div>`;
       this.bEditContents = !this.content.code;
     },
+
     getCode() {
       return this.code || this.$route.params.code;
     },
@@ -270,12 +291,16 @@ export default {
       this.$store
         .dispatch(configStore.get, { value: this.getCode(), fieldName: "code" })
         .then(
-          data => this.setContent(data),
+          data => {
+            this.setContent(data);
+            console.log(data);
+          },
           // si erreur => content vide (comportement prod != dev)
           error => {error; this.setContent({code: this.getCode()})}
         );
     },
 
+    // Non utilisé. Permet des raccourcis clavier dans les formulaires
     manageKeys() {
       if (
         ["Control", " "].every(key =>
@@ -326,6 +351,9 @@ export default {
         }
       }
     },
+
+
+
     triggerValidForm() {
         const btnValidFormContent =
           this.$refs[`content-form_${this.getCode()}`] &&
@@ -334,27 +362,27 @@ export default {
           btnValidFormContent.click({});
         }
     },
-    onKeyUp(event) {
-      if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
-        return;
-      }
-      setTimeout(() => {
-        if (this.keysPressed[event.key]) {
-          delete this.keysPressed[event.key];
-        }
-        this.keysPressed = {};
-      }, 50);
-    },
-    onKeyDown(event) {
+    // onKeyUp(event) {
+    //   if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
+    //     return;
+    //   }
+    //   setTimeout(() => {
+    //     if (this.keysPressed[event.key]) {
+    //       delete this.keysPressed[event.key];
+    //     }
+    //     this.keysPressed = {};
+    //   }, 50);
+    // },
+    // onKeyDown(event) {
 
-      if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
-        return;
-      }
-      if (!Object.keys(this.keysPressed).includes(event.key)) {
-        this.keysPressed[event.key] = true;
-        this.manageKeys(event);
-      }
-    }
+    //   if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
+    //     return;
+    //   }
+    //   if (!Object.keys(this.keysPressed).includes(event.key)) {
+    //     this.keysPressed[event.key] = true;
+    //     this.manageKeys(event);
+    //   }
+    // }
   },
   mounted() {
     // load Tags

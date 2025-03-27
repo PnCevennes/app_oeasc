@@ -48,7 +48,12 @@
 </template>
 
 <script>
+
 import { configMenu } from "./menu.js";
+
+// Création d'un menu latéral coulissant contenu dans menu.js
+// temporary : Le drawer est temporaire, ce qui signifie qu'il se superpose au contenu principal et disparaît lorsqu'il est fermé.
+// fixed : Le drawer est fixé à sa position et ne défile pas avec le contenu principal.
 
 export default {
   name: "oeasc-drawer",

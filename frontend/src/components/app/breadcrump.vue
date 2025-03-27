@@ -8,6 +8,7 @@
 
 <script>
 export default {
+  // Création d'un fil d'ariane
   name: "breadcrump",
   computed: {
     getBreadcrumpList() {

@@ -1,3 +1,8 @@
+<!-- Formulaire de modification de page. Structure globale avec les boutons d'action
+ le contenu du formulaire est plutot dans dynamic-form-group-->
+<!-- est appelé dans content/content.vue -->
+
+
 <template>
   <div v-if="config" class="form-container">
     <div class="debug" v-if="debug && Object.keys(debug).length">
@@ -39,15 +44,13 @@
           v-if="switchDisplay"
           color="primary"
           @click="processAnnulerModifier()"
-          >{{ displayValue ? "Modifier" : "Annuler" }}</v-btn
-        >
+          >{{ displayValue ? "Modifier" : "Annuler" }}</v-btn>
 
         <v-btn
           v-if="config.cancel"
           color="primary"
           @click="config.cancel.action({ baseModel })"
-          >Annuler</v-btn
-        >
+          >Annuler</v-btn >
 
         <v-progress-linear
           indeterminate

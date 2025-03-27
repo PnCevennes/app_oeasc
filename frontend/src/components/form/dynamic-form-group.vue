@@ -1,8 +1,13 @@
+
+
 <template>
+  <!-- formulaire de modification de page -->
+
   <div v-if="displayGroup">
 
     <div>
       <!-- titre -->
+       
       <h2 v-if="depth == 0">
         {{ config.title }}
         <help :code="`${config.help}`" v-if="config.help"></help>
@@ -20,8 +25,10 @@
 
       <div>
         <!-- les forms -->
+
         <div v-if="formList && formList.length">
           <template v-if="config.direction === 'row'">
+
             <v-row dense>
               <v-col v-for="(configForm, index) of formList" :key="index">
                 <dynamic-form

@@ -154,8 +154,9 @@
 </template>
 
 <script>
-import { copy } from "@/core/js/util/util.js";
-import { sortDate } from "./util.js";
+import { copy, sortDate } from "@/core/js/util/util.js";
+
+// import { sortDate } from "./util.js"; // remis dans js/util/util.js car c'était un doublon
 import genericForm from "@/components/form/generic-form";
 import "./table.css";
 export default {
@@ -390,9 +391,9 @@ export default {
 
       for (const [value, header] of Object.entries(config.headerDefs)) {
         header.value = value;
+        
         if (header.type == "date") {
-          // header.sort = sortDate;
-          sortDate;
+          sortDate; // apparemment inutilisé
           header.display = a =>
             a && a[header.value] && a[header.value].includes("-")
               ? a[header.value]

@@ -1,3 +1,6 @@
+// importé dans le main.js
+// configuration de vutify qui est un framework css pour vuejs
+
 import Vue from 'vue'
 import Vuetify from 'vuetify'
 import 'vuetify/dist/vuetify.min.css'

@@ -1,3 +1,10 @@
+// liens et clé pour accéder aux tuiles de la carte
+// styles pour les différentes couches de la carte
+// configuration des couches de la carte
+// configuration des selecteurs de la carte
+
+
+
 import { styles } from './config-style.js'
 
 
@@ -12,12 +19,16 @@ const configMap = {
   INIT_TILE: 'IGN (Cartes)',
   styles,
   baseTilesConfig: {
+
+
     open_topo_map: {
       url: 'https://b.tile.opentopomap.org/{z}/{x}/{y}.png',
       attribution: '&copy; <a href="https://opentopomap.org/">OpenTopoMap</a>',
       id: 'open_topo_map',
       label: 'OpenTopoMap'
     },
+
+
     mapbox: {
       url:`https://api.mapbox.com/styles/v1/${MAPBOX_ID}/tiles/{z}/{x}/{y}?access_token=${MAPBOX_ACCESS_TOKEN}`,
       attribution:
@@ -25,12 +36,16 @@ const configMap = {
       id: 'mapbox',
       label: 'Mapbox'
     },
+
+
     ign_carte: {
       url: `https://wxs.ign.fr/${IGN_KEY}/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg`,
       attribution: '&copy; <a href="http://www.ign.fr/">IGN</a>',
       id: 'ign_carte',
       label: 'IGN (Cartes)'
     },
+
+
     ign_ortho: {
       url: `https://wxs.ign.fr/${IGN_KEY2}/geoportail/wmts?` +
       "&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0" +
@@ -46,6 +61,7 @@ const configMap = {
       label: 'IGN (Ortho.)'
     }
   },
+
   tileList: {
     'open_topo_map': {},
     'mapbox': {
@@ -54,6 +70,8 @@ const configMap = {
     'ign_carte': {},
     'ign_ortho': {}
   },
+
+
   layers: {
     zc: {
       legend: 'Zone cœur du Parc national',
@@ -62,6 +80,8 @@ const configMap = {
       style: styles.zc,
       pane: 'PANE_FOND_2'
     },
+
+
     aa: {
       legend: "Aire d'adhésion du Parc national",
       url: 'api/ref_geo/areas_simples_from_type_code/l/AA_PNC',
@@ -69,6 +89,8 @@ const configMap = {
       style: styles.aa,
       pane: 'PANE_FOND_1'
     },
+
+
     po: {
       legend: "Périmètre de l'Observatoire",
       url: 'api/ref_geo/areas_simples_from_type_code/l/OEASC_PERIMETRE',
@@ -76,6 +98,8 @@ const configMap = {
       style: styles.po,
       pane: 'PANE_FOND_3'
     },
+
+
     secteur: {
       legend: "Secteurs d'étude de l'Observatoire",
       url: 'api/ref_geo/areas_simples_from_type_code/l/OEASC_SECTEUR',
@@ -83,6 +107,8 @@ const configMap = {
       style: styles.secteur,
       pane: 'PANE_FOND_4'
     },
+
+
     foret_onf: {
       legend: "Forêt relevant du régime forestier",
       url: 'api/ref_geo/areas_simples_from_type_code/l/OEASC_ONF_FRT',
@@ -90,6 +116,8 @@ const configMap = {
       style: styles.normal,
       pane: 'PANE_LAYER_1'
     },
+
+    
     //   parcelle_onf: {
     //   legend: "Parcelle forestière",
     //   url: (id_area_container) => `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_ONF_PRF/${id_area_container}`,
