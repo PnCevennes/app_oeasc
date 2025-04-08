@@ -2,7 +2,17 @@ export default {
     group: "chasse",
     name: "personne",
     label: "Personne",
-    serverSide: "true",
+    serverSide: true,
+
+    options: { // Ajoute des param à la requête get pour filtrer les données
+      page: 1, // on affiche la première page par défaut 
+      sortBy: ["id_personne"], 
+      sortDesc: [false], // tri en ordre décroissant
+      fields: [ //les des champs des modèles à intégrer à la requête get
+        "id_personne", "nom_personne"
+      ]
+    },
+
     defs: {
       id_personne: {
         label: "ID",

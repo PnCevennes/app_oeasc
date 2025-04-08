@@ -6,6 +6,7 @@ export default {
   label: "Réalisation",
   serverSide: true,
   genre: "F",
+
   columns: [
     "saison",
     "attribution",
@@ -19,7 +20,9 @@ export default {
     "nomenclature_classe_age",
     "nomenclature_mode_chasse"
   ],
+
   form: {
+
     groups: [
       {
         title: "Bracelet",
@@ -148,11 +151,27 @@ export default {
       }
     ]
   },
-  options: {
+
+
+  options: { // paramètres ajoutés à la requête get
     page: 1,
     sortBy: ["saison", "date_exacte"],
-    sortDesc: [true, true]
+    sortDesc: [true, true],
+    // les champs des modèles liés
+    fields: [
+      "saison.id_saison", "saison.nom_saison",
+      "attribution.id_attribution", "attribution.numero_bracelet",
+      "auteur_tir.id_personne", "auteur_tir.nom_personne", "auteur_constat.id_personne", "auteur_constat.nom_personne",
+      "zone_cynegetique_realisee.id_zone_cynegetique", "zone_cynegetique_realisee.nom_zone_cynegetique",
+      "zone_indicative_realisee.id_zone_indicative", "zone_indicative_realisee.nom_zone_indicative",
+      "lieu_tir_synonyme.id_lieu_tir_synonyme", "lieu_tir_synonyme.lieu_tir_synonyme_display",
+      "nomenclature_sexe.id_nomenclature", "nomenclature_sexe.label_fr",
+      "nomenclature_classe_age.id_nomenclature", "nomenclature_classe_age.label_fr",
+      "nomenclature_mode_chasse.id_nomenclature", "nomenclature_mode_chasse.label_fr",
+      ]
   },
+
+
   defs: {
     // // table
     id_realisation: {
@@ -172,6 +191,8 @@ export default {
       disabled: ({ baseModel }) => !!baseModel.id_realisation,
       default: ({ $store, config }) => $store._actions.lastSaison[0](config)
     },
+
+    
     attribution: {
       label: "Attribution",
       storeName: "chasseAttribution",
@@ -219,6 +240,8 @@ export default {
         $store.dispatch('setClearableTabIndex');
       }
     },
+
+
     auteur_tir: {
       label: "Auteur tir",
       type: "list_form",
@@ -227,6 +250,8 @@ export default {
       dataReloadOnSearch: true,
       storeName: "chassePersonne"
     },
+
+
     auteur_constat: {
       label: "Auteur constat",
       type: "list_form",
@@ -235,6 +260,8 @@ export default {
       dataReloadOnSearch: true,
       storeName: "chassePersonne"
     },
+
+
     zone_cynegetique_affectee: {
       label: "Zone cynégétique affectee",
       storeName: "chasseZoneCynegetique",
@@ -243,6 +270,8 @@ export default {
       returnObject: true,
       disabled: true
     },
+
+
     zone_cynegetique_realisee: {
       label: "Zone cynégétique réalisée",
       storeName: "chasseZoneCynegetique",
@@ -252,6 +281,8 @@ export default {
       required: true
       // changed: ({baseModel}) => {}
     },
+
+
     zone_indicative_affectee: {
       label: "Zone indicative affectée",
       storeName: "chasseZoneIndicative",
@@ -261,6 +292,8 @@ export default {
       dataReloadOnSearch: true,
       disabled: true
     },
+
+
     zone_indicative_realisee: {
       label: "Zone indicative réalisée",
       storeName: "chasseZoneIndicative",
@@ -273,6 +306,8 @@ export default {
       dataReloadOnSearch: true,
       required: true
     },
+
+
     lieu_tir_synonyme: {
       label: "Lieu de tir (Syn)",
       storeName: "chasseLieuTirSynonyme",
@@ -323,6 +358,7 @@ export default {
           }
         ]
     },
+    
 
     date_enreg_fast: {
       label: "Date du constat",
@@ -361,6 +397,7 @@ export default {
         ]
     },
 
+
     date_exacte: {
       label: "Date du tir",
       type: "date",
@@ -384,20 +421,26 @@ export default {
       //   }
       // }
     },
+
+
     date_enreg: {
       label: "Date du constat",
       type: "date",
       required: true,
       condition: ({ baseModel }) => !!baseModel.date_enreg
     },
+
+
     mortalite_hors_pc: {
       label: "Hors PNC",
       type: "bool_switch"
     },
+
     parcelle_onf: {
       label: "Parcelle ONF",
       type: "bool_switch"
     },
+
     nomenclature_sexe: {
       label: "Sexe",
       type: "nomenclature",
@@ -413,6 +456,7 @@ export default {
       //   }
       // }
     },
+
     nomenclature_classe_age: {
       label: "Classe d'age",
       type: "nomenclature",
@@ -423,6 +467,8 @@ export default {
       nomenclatureType: "STADE_VIE",
       required: true,
     },
+
+
     nomenclature_mode_chasse: {
       label: "Mode de chasse",
       type: "nomenclature",
@@ -437,50 +483,70 @@ export default {
       //   }
       // }
     },
+
+
     poid_entier: {
       label: "Poid entier (kg)",
       type: "number",
       min: 0
     },
+
+
     poid_vide: {
       label: "Poid vide  (kg)",
       type: "number",
       min: 0
     },
+
+
     poid_c_f_p: {
       label: "Poid CFP (kg)",
       type: "number",
       min: 0
     },
+
+
     long_mandibules_droite: {
       label: "Longueur mandibules droite (mm)",
       type: "number",
       min: 0
     },
+
+
     long_mandibules_gauche: {
       label: "Longueur mandibules gauche (mm)",
       type: "number",
       min: 0
     },
+
+
     long_dagues_droite: {
       label: "Longueur dagues droite (mm)",
       type: "number",
       min: 0
     },
+
+
     long_dagues_gauche: {
       label: "Longueur dagues gauche (mm)",
       type: "number",
       min: 0
     },
+
+
     cors_nb: {
       label: "Nombre de cors",
       type: "number",
       min: 0
     },
+
+
     cors_commentaires: {
       label: "Commentaires (cors)",
       type: "text_area"
     },
+
+
     gestation: {
       label: "gestation",
       type: "bool_switch",
@@ -488,9 +554,13 @@ export default {
         baseModel.nomenclature_sexe &&
         baseModel.nomenclature_sexe.label_fr != "Femelle"
     },
+
+
     commentaire: {
       label: "Commentaires (général)",
       type: "text_area"
     }
   }
+
+
 };

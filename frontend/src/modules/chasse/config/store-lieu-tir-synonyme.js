@@ -3,6 +3,20 @@ export default {
   name: "lieuTirSynonyme",
   label: "Lieu de tir (synonyme)",
   serverSide: true,
+
+  options: {
+    // Ajoute des param à la requête get pour filtrer les données
+    page: 1, // on affiche la première page par défaut
+    sortBy: ["id_lieu_tir_synonyme"],
+    sortDesc: [false], // tri en ordre décroissant
+    fields: [
+      "lieu_tir.id_lieu_tir",
+      "lieu_tir.nom_lieu_tir",
+      "lieu_tir.code_lieu_tir"
+    ]
+  },
+
+
   defs: {
     id_lieu_tir_synonyme: {
       label: "ID synonyme",

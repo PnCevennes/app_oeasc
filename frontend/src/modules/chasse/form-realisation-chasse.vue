@@ -1,3 +1,5 @@
+<!-- formulaire de saisie données chasse -->
+
 <template>
 <div class="form-realisation">
     <!-- barre de progression-->
@@ -5,6 +7,8 @@
 
 
 {{$refs.form && $refs.form.baseModel.attribution && $refs.form.baseModel.attribution.numero_bracelet}}
+
+
     <div v-if="realisations.length">
         <h4>Réalisations effectuées</h4>
 
@@ -19,8 +23,7 @@
     </div>
 
 
-    <div v-if="displayForm"
-    >
+    <div v-if="displayForm">
         <generic-form
             ref="form"
             :config=config
@@ -29,12 +32,12 @@
     </div>
 
 
-</div>
+</div>  
 </template>
 
 
 <script>
-import genericForm from "@/components/form/generic-form";
+import genericForm from "./form/generic-form.vue";
 
 export default {
     name: 'form-realisation-chasse',
@@ -103,9 +106,12 @@ export default {
             this.initForm();
         },
     },
+
+
     mounted() {
         this.initForm()
     }
+    
 }
 </script>
 

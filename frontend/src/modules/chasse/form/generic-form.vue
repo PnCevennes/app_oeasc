@@ -77,9 +77,12 @@
 
 <script>
 import { apiRequest } from "@/core/js/data/api.js";
-import dynamicFormGroup from "@/components/form/dynamic-form-group";
 import { config as globalConfig } from "@/config/config.js";
-import { copy } from "@/core/js/util/util";
+import { copy } from "@/core/js/util/util.js";
+
+
+import dynamicFormGroup from "./dynamic-form-group.vue";
+
 
 export default {
   name: "generic-form",

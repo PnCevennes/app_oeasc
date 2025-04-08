@@ -2,6 +2,7 @@ export default {
   group: "commons",
   name: "espece",
   label: "Espèce",
+
   defs: {
     id_espece: {
       label: "Id",
@@ -9,11 +10,13 @@ export default {
     },
     nom_espece: {
       label: "Nom",
-      required: true
+      required: true,
     },
     code_espece: {
       label: "Code",
       required: true
     }
-  }
+  },
+
+
 };

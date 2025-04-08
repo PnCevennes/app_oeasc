@@ -69,7 +69,7 @@ var fail = msg => {
 // elle gère également les requêtes POST qui envoient des fichiers
 // dans ce cas, les données sont envoyées sous forme de FormData
 // sinon elles sont envoyées sous forme de JSON
-
+ 
 
 var apiRequest = (method, urlRelative, options = {}, $store = null) => {
 
@@ -119,6 +119,7 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
         }
         // on ajoute les options de la requête POST
         fetchOptions = { ...fetchOptions, ...postOptions };
+        // console.log(postOptions);
       }
 
       // on fait la requête, 
@@ -166,6 +167,7 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
           reject(msg_fail);
         }
       );
+      
     });
 
   if (commit) {
@@ -174,6 +176,8 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
       request
     });
   }
+
+
 
   return request;
 };

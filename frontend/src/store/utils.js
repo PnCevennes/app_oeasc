@@ -4,20 +4,6 @@ import { upFirstLetter, camelToSnakeCase } from "@/core/js/util/util.js";
 /**;
  * Configuration pour generic-table
  */
-// const addPendingRequestStore = STORE => {
-//   for (const key of ['state', 'mutations', 'getters']) {
-//     STORE[key] = STORE[key] || {};
-//   }
-//   if (STORE.state.pendings === undefined) {
-//     STORE.state.pendings = {};
-//     STORE.getters.pendings = state => api => state.pendings[api];
-//     STORE.mutations.addPending = (state, { request, api }) => {
-//       state.pendings[api] = request;
-//       console.info('add pending', api, state.pendings)
-//     }
-//   }
-// }
-
 
 
 
@@ -384,20 +370,21 @@ export default {
    * Sinon, une requête est envoyée au serveur pour les récupérer
    * Les données peuvent être filtrées par des options directement dans le cache
    * Si ForceReload est activé, les données sont toujours récupérées depuis le serveur
-   * si serverSide est activé, les données sont retournées directement depuis le serveur
+   * si serverSide est activé, les données sont retournées directement depuis le serveur. peut être utilise pour l'autocompletion
    */
     actions[configStore.getAll] = (
       { getters, commit },
        options = {}
     ) => {
       return new Promise((resolve, reject) => {
-        const loaded = !options.forceReload && configStore.loaded;
+        const loaded = !options.forceReload && configStore.loaded; 
         const objList = getters[storeNames];
+        // on vérifie si les données sont déjà chargées
         if (objList && objList.length && loaded && !options.notCommit) {
-          if(options) {
-            resolve(getters[configStore.find](options))
+          if(options) { // on vérifie si les options sont définies
+            resolve(getters[configStore.find](options)) 
           }
-          resolve(objList);
+          resolve(objList); // on retourne les données du cache
           return;
         }
         apiRequest("GET", `${apis}`, {params:options}, {commit, getters}).then(

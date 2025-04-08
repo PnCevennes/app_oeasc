@@ -60,7 +60,7 @@
           <template v-if="config.direction === 'row'">
             <v-row dense>
               <v-col v-for="(configGroup, index) of groupList" :key="index">
-                <!-- <h3>test test</h3> -->
+                <h3>test test</h3>
                 <dynamic-form-group
                   :baseModel="baseModel"
                   :depthIn="depth + 1"
@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import dynamicForm from "@/components/form/dynamic-form";
+import dynamicForm from "./dynamic-form.vue";
 import help from "./help";
 
 export default {

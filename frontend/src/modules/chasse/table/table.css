@@ -1,0 +1,8 @@
+.striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, .1);
+}
+
+
+.small-table tbody td {
+    font-size: 12px !important;
+}

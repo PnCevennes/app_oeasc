@@ -7,6 +7,8 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
+
+
   "dependencies": {
     "@vue/composition-api": "^1.4.6",
     "bootstrap": "^4.5.3",
@@ -44,6 +46,8 @@
     "vuetify": "^2.3.17",
     "vuex": "^3.5.1"
   },
+
+
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.2.0",
     "@vue/cli-plugin-eslint": "~4.2.0",
@@ -53,6 +57,9 @@
     "eslint-plugin-vue": "^6.1.2",
     "vue-template-compiler": "^2.6.12"
   },
+
+
+
   "eslintConfig": {
     "root": true,
     "env": {
@@ -62,11 +69,21 @@
       "plugin:vue/essential",
       "eslint:recommended"
     ],
+
+
+    "rules": {
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "vue/no-unused-vars": "off"
+    },
     "parserOptions": {
       "parser": "babel-eslint"
-    },
-    "rules": {}
+    }
+
   },
+
+
+
   "browserslist": [
     "> 1%",
     "last 2 versions"

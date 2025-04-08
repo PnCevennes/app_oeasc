@@ -4,10 +4,23 @@ export default {
   label: "Saison",
   genre : "M",
   serverSide: true,
+
+
   options: {
-    sortBy: ['nom_saison'],
-    sortDesc: [true]
+    page: 1, // on affiche la première page par défaut 
+    sortBy: ['id_saison'],
+    sortDesc: [true],
+    fields: [ //les des champs des modèles à intégrer à la requête get
+      "id_saison",
+      "nom_saison",
+      "date_debut",
+      "date_fin",
+      "current",
+      "commentaire"     
+    ] // ici il n'est pas nécéssaire de lister les champs mais pour plus de lisibilité on les met
   },
+
+  
   defs: {
     id_saison: {
       label: "ID",

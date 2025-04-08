@@ -1,4 +1,4 @@
-<div>
+<!-- <div>
     <generic-form
     :config="{
         ...$store.getters.configFormContentChasse(['id_saison', 'id_espece', 'id_secteur', 'id_zone_cynegetique', 'id_zone_indicative']),
@@ -46,4 +46,4 @@
     type='ice_data'
 >
 </graph-chasse>
-</div>
+</div> -->

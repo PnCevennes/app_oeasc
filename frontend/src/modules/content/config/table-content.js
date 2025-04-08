@@ -6,6 +6,17 @@ export default {
   striped: true,
   small: true,
   configForm: configContentForm,
+
+  options: { // paramètres ajoutés à la requête get
+    // page: 1,
+    // sortBy: ["meta_create_date"],
+    // sortDesc: [true],
+    // les champs des modèles liés
+    fields: [
+      "tags.id_tag", "tags.nom_tag", "tags.code_tag"
+      ]
+  },
+
   headerDefs: {
     id_content: {
       text: "Id"

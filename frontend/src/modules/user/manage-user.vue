@@ -20,6 +20,10 @@
 </template>
 
 <script>
+
+// PAGE : gestion  administration des utilisateurs
+// Liste les utilisateurs, modification de leur niveau d'accès, creation de mailing list et export CSV de la liste de mailling
+// Utilise les valeurs dans le store._users
 import { config } from "@/config/config";
 import genericTable from "@/components/table/generic-table";
 import configUserTable from "./config/table-user.js"

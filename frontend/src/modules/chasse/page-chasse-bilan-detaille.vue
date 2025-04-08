@@ -106,9 +106,11 @@
               :filters="{ ...bilanParams, bracelet: ['CEFF'] }"></restitution2>
           </v-col>
         </v-row>
+
       </div>
     </div>
   </div>
+  
 </template>
 
 <script>

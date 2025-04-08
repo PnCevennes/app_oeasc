@@ -47,10 +47,15 @@
     </v-dialog>
     
     <v-card>
-      <v-card-title>
+
+      <!-- pas de sous titre dans le module chasse -->
+      <!-- <v-card-title>
         {{ configTable.title }}
         <v-spacer></v-spacer>
-      </v-card-title>
+      </v-card-title> -->
+
+      <!-- dense: reduit la hauteur des lignes
+      server-items-length: pour la pagination. indique le nombre d'éléments total -->
 
       <v-data-table
         :options.sync="options"
@@ -58,7 +63,7 @@
         :headers="configTable.headers"
         :items="filteredItems"
         multi-sort
-        :dense="configTable.dense"
+        :dense="configTable.dense" 
         :loading="!configTable.items"
         :server-items-length="configTable.serverSide && itemsServerCount"
         loading-text="Chargement en cours... merci de patienter"
@@ -68,12 +73,15 @@
         <template v-slot:body.prepend>
           <tr>
             <td v-for="header of configTable.headers" :key="header.value">
+              
+              <!-- ligne de recherche au dessus du tableau -->
               <v-text-field
                 v-if="!header.noSearch"
                 dense
                 v-model="searchs[header.value]"
                 type="text"
               ></v-text-field>
+
               <v-tooltip top>
                 <template v-slot:activator="{ on }">
                   <v-btn
@@ -176,10 +184,11 @@
 
 <script>
 import { copy, sortDate } from "@/core/js/util/util.js";
-
-// import { sortDate } from "./util.js"; // remis dans js/util/util.js car c'était un doublon
-import genericForm from "@/components/form/generic-form";
 import "./table.css";
+import genericForm from "../form/generic-form.vue";
+
+
+
 export default {
   name: "generic-table",
   components: { genericForm },
@@ -192,12 +201,13 @@ export default {
     msgError: null,
     bError: false,
     idToDelete: null,
-    deleteModal: null,
+    deleteModal: false, // fenetre de suppression, true elle s'ouvre
     deleteWithoutWarning: false,
     configForm: null,
-    bEditDialog: false,
+    bEditDialog: false, // Si true, la fenetre de modification s'ouvre, sinon elle se ferme
     itemsServerCount: null
   }),
+
   watch: {
     config: {
       handler() {
@@ -216,6 +226,8 @@ export default {
       this.loadData(false);
     }
   },
+
+
   methods: {
     onSearchChange() {},
     displayCell(props, value) {
@@ -226,6 +238,8 @@ export default {
           : props.item[value]);
       return res;
     },
+
+
     bEditCell(props) {
       return (
         props.header.edit &&
@@ -236,6 +250,7 @@ export default {
           }))
       );
     },
+
     getConfigForm(value, id) {
       const item = this.configTable.items.find(
         item => item[this.configTable.idFieldName] === id
@@ -263,7 +278,7 @@ export default {
       configForm.cancel = {
         action: () => {
           this.cancel(value, item && item[this.configTable.idFieldName]);
-          this.closeDialog();
+          this.bEditDialog = false; // ferme la fenetre de modification
         }
       };
       if (configForm.action && configForm.action.onSuccess) {
@@ -293,7 +308,7 @@ export default {
           elem[key] = processedData[key];
         }
 
-        this.closeDialog();
+        this.bEditDialog = false; // ferme la fenetre de modification
       };
       return configForm;
     },
@@ -309,7 +324,7 @@ export default {
       }
     },
     edit(value, id) {
-      this.closeDialog();
+      this.bEditDialog = false; // ferme la fenetre de modification
       this.configForm = this.getConfigForm(value, id);
       this.saveVal = id
         ? copy(
@@ -341,13 +356,12 @@ export default {
         }
       }
     },
-    closeDialog() {
-      this.bEditDialog = false;
-    },
-    
+
+
     initConfig() {
-      const config = copy(this.config);
-      config.loaded = false;
+      const config = copy(this.config); // copy l'objet config en profondeur et transforme tableau en objet
+      
+      config.loaded = false; // si tout ce passe bien, on loaded sera égal à true à la fin de initConfig
       config.stores = {};
 
       if (config.storeName) {
@@ -383,7 +397,7 @@ export default {
                 click: id => {
                   if (!this.deleteWithoutWarning) {
                     this.idToDelete = id;
-                    this.deleteModal = true;
+                    this.deleteModal = true; // ouvre la fenetre de suppression
                   } else {
                     this.deleteRow(id);
                   }
@@ -392,25 +406,12 @@ export default {
             ]
           };
         }
-
-        // surveille storeNames pour rester à jour????
-        // this.$store.watch(
-        //   () => {
-        //     return this.$store.state[configStore.storeNames];
-        //   },
-        //   (new_value, old_value) => {
-        //     new_value;
-        //     old_value;
-        //     this.loadData(!this.configTable.loaded);
-        //   },
-        //   {
-        //     // deep: true,
-        //   }
-        // );
       }
+
+
+
       /** contruction de la variable header */
       const headers = [];
-
       for (const [value, header] of Object.entries(config.headerDefs)) {
         header.value = value;
         
@@ -465,6 +466,7 @@ export default {
           headers.push(header);
         }
       }
+
 
       /** on place actions en début de liste */
       const headerActionsIndex = headers.findIndex(h => h.value === "actions");
@@ -546,6 +548,8 @@ export default {
       this.loadData(this.configTable.loaded);
     },
 
+
+
     loadData(loaded) {
       /** call preloadData */
       if (this.configTable.preloadData && !loaded) {
@@ -584,6 +588,8 @@ export default {
     }
 
   },
+
+
   computed: {
     filteredItems() {
       if (!this.configTable.items) {

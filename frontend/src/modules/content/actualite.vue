@@ -38,15 +38,13 @@ export default {
     getContents() {
       const storeName = "commonsContent";
       const configStore = this.$store.getters.configStore(storeName);
-      this.$store.dispatch(configStore.getAll).then(contents => {
-        this.contents = contents
-        .filter(content =>
-          this.tagNames && this.tagNames.length
-            ? this.tagNames.every(nom_tag => {
-                return content.tags.map(t => t.nom_tag).includes(nom_tag);
-              })
-            : true
-        ).sort((c1, c2)  => c1.meta_create_date < c2.meta_create_date);
+      const options = {
+        ...configStore.options,
+        "tags.nom_tag": this.tagNames
+      }
+
+      this.$store.dispatch(configStore.getAll, options).then(contents => {
+        this.contents = contents.sort((c1, c2)  => c1.meta_create_date < c2.meta_create_date);
       });
     }
   },

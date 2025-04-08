@@ -3,6 +3,19 @@ export default {
   name: "attributionMassif",
   label: "Attribution Massif",
   serverSide: true,
+
+
+  options: { // paramètres ajoutés à la requête get
+    page: 1,
+    sortBy: ["id_attribution_massif"],
+    sortDesc: [true],
+    // les champs des modèles liés
+    fields: [
+      "zone_cynegetique", "espece", "saison"
+      ]
+  },
+
+
   defs: {
     id_attribution_massif: {
       label: "ID",

@@ -1,27 +1,37 @@
 // les formulaires sont importés ici. Puis ajoutés à la fin de ce fichier dans storeUtils.addStore
 
-import storeUtils from "@/store/utils";
-import admin from "@/components/admin";
-import configStorePersonne from "./config/store-personne";
-import configStoreZoneCynegetique from "./config/store-zone-cynegetique";
-import configStoreZoneIndicative from "./config/store-zone-indicative";
-import configStoreLieuTir from "./config/store-lieu-tir";
-import configStoreLieuTirSynonyme from "./config/store-lieu-tir-synonyme";
-import configStoreSaison from "./config/store-saison";
-import configStoreSaisonDate from "./config/store-saison-date";
-import configStoreAttributionMassif from "./config/store-attribution-massif";
-import configStoreTypeBracelet from "./config/store-type-bracelet";
-import configStoreAttribution from "./config/store-attribution";
-import configStoreRealisation from "./config/store-realisation";
-import { generateConfigformDef } from './config/form-content-chasse';
-import genericForm from "@/components/form/generic-form";
-import graphChasse from "./graph-chasse";
-import graphCustom from "./graph-custom";
-import formRealisationChasse from "./form-realisation-chasse";
-import exportsChasse from "./exports-chasse";
-import pageChasseBilanDetaille from "./page-chasse-bilan-detaille";
-import { apiRequest } from "@/core/js/data/api.js";
-import { round } from "@/core/js/util/util";
+import storeUtils from "@/store/utils.js"; // pour importer addStore qui construit les states, mutations, actions et getters
+import { apiRequest } from "@/core/js/data/api.js"; // pour intégrer apiRequest dang des actions de store
+import { round } from "@/core/js/util/util.js";
+
+
+// Import des fichiers de configuration des stores
+import admin from "./admin.vue"; // la page d'administration avec le tableau de données
+import genericForm from "./form/generic-form.vue";
+import { generateConfigformDef } from './config/form-content-chasse.js';
+import configStorePersonne from "./config/store-personne.js";
+import configStoreZoneCynegetique from "./config/store-zone-cynegetique.js";
+import configStoreZoneIndicative from "./config/store-zone-indicative.js";
+import configStoreLieuTir from "./config/store-lieu-tir.js";
+import configStoreLieuTirSynonyme from "./config/store-lieu-tir-synonyme.js";
+import configStoreSaison from "./config/store-saison.js";
+import configStoreSaisonDate from "./config/store-saison-date.js";
+import configStoreAttributionMassif from "./config/store-attribution-massif.js";
+import configStoreTypeBracelet from "./config/store-type-bracelet.js";
+import configStoreAttribution from "./config/store-attribution.js";
+import configStoreRealisation from "./config/store-realisation.js";
+
+
+
+// Import des routes 
+import donneesChasse from "./donnees-chasse.vue";
+import graphChasse from "./graph-chasse.vue";
+import graphCustom from "./graph-custom.vue";
+import formRealisationChasse from "./form-realisation-chasse.vue";
+import exportsChasse from "./exports-chasse.vue";
+import pageChasseBilanDetaille from "./page-chasse-bilan-detaille.vue";
+
+
 
 const ROUTE = [
   {
@@ -29,12 +39,69 @@ const ROUTE = [
     name: "chasse.admin",
     path: "/chasse/admin",
     label: "Données chasse",
-    hideTitle: true,
-    component: admin,
+    hideTitle: true, // True => cache le bandeau header pour plus de place
+    component: admin, // le component admin est le composant générique qui affiche une table avec generic-table.vue (il faut la props.config.tabs)
+    props: {
+      config: { 
+        // titre affiché en haut de page suivi de "- Page d'administration"
+        title: "Données chasse",
+        // tabs nécéssaire pour le composant admin
+        // liste des onglets avec les stores associés corresondants aux fichiers dans le dossier config
+        // le nom du tab peut être différent du nom du store, Ça ne change rien
+        tabs: {
+          realisation_tab: {
+            storeName: "chasseRealisation"
+          },
+          attribution_tab: {
+            storeName: "chasseAttribution"
+          },
+          typeBracelet_tab: {
+            storeName: "chasseTypeBracelet"
+          },
+          affectationMassif_tab: {
+            storeName: "chasseAttributionMassif"
+          },
+          saisonDate_tab: {
+            storeName: "chasseSaisonDate"
+          },
+          saison_tab: {
+            storeName: "chasseSaison"
+          },
+          lieuTir_tab: {
+            storeName: "chasseLieuTir"
+          },
+          lieuTirSynonyme_tab: {
+            storeName: "chasseLieuTirSynonyme"
+          },
+          zoneIndicative_tab: {
+            storeName: "chasseZoneIndicative"
+          },
+          zoneCynegetique_tab: {
+            storeName: "chasseZoneCynegetique"
+          },
+          personne_tab: {
+            storeName: "chassePersonne"
+          }
+        }
+      }
+    },
+    access: 5 // droit d'accès minimum
+  },
+
+  {
+    // Listing des données de chasse avec possibilité de les modifier, supprimer, ajouter
+    // C'est la version standard de la page admin pour ne plus passer par le formulaire dynamique
+    name: "chasse.donneesChasse",
+    path: "/chasse/donneesChasse",
+    label: "Données chasse",
+    hideTitle: true,// True => cache le bandeau header pour plus de place
+    component: donneesChasse,
     props: {
       config: {
         title: "Données chasse",
         tabs: { // les différents onglets du formulaire
+
+
           realisation: {
             storeName: "chasseRealisation"
           },
@@ -73,12 +140,14 @@ const ROUTE = [
     },
     access: 5
   },
+
+
   // Route de test
   {
     name: "chasse.testForm",
     path: "/chasse/testForm",
     label: "Données chasse",
-    hideTitle: true,
+    hideTitle: true,// True => cache le bandeau header pour plus de place
     component: genericForm,
     props: {
       config: {
@@ -96,44 +165,23 @@ const ROUTE = [
     },
     access: 4
   },
+
+
+
   {
     name: "chasse.saisie",
     path: "/chasse/saisie",
     label: "Saisie données chasse",
-    hideTitle: true,
+    hideTitle: true,// True => cache le bandeau header pour plus de place
     component: formRealisationChasse,
     access: 4
   },
-  {
-    name: "chasse.restitution_gd_public",
-    path: "/chasse/restitution_gd_public",
-    label: "Plans de chasse",
-    type: "page",
-    content: "chasse_restitution_gd_public",
-    parent: "resultats.index",
-  },
-  {
-    name: "chasse.restitution_indices_performances",
-    path: "/chasse/restitution_indices_performances",
-    label: "Indices de performance",
-    type: "page",
-    content: "chasse_restitution_indices_performances",
-    parent: "resultats.index",
-  },
-  {
-    name: "chasse.bilan",
-    path: "/chasse/bilan",
-    label: "Bilan données chasse",
-    hideTitle: true,
-    type: "page",
-    content: "bilanChasse",
-    access: 4
-  },
+
   {
     name: "chasse.exports",
     path: "/chasse/export",
-    label: "Exports données chasse",
-    hideTitle: true,
+    label: "Exports données chasse", // titre dans le menu (mais pas dans la page)
+    hideTitle: true,// True => cache le bandeau header pour plus de place
     component: exportsChasse,
     access: 4
   },
@@ -141,9 +189,39 @@ const ROUTE = [
     name: "chasse.restitution_bilan_detaille",
     path: "/chasse/restitution_bilan_detaille",
     label: "Chasse : analyse détaillée",
-    hideTitle: true,
+    hideTitle: true,// True => cache le bandeau header pour plus de place
     component: pageChasseBilanDetaille,
-  }
+  },
+
+
+
+
+  // les type: page => il faut défénir content qui correspond à l'id du contenu dans la base de données dans la table content
+  {
+    name: "chasse.restitution_gd_public",
+    path: "/chasse/restitution_gd_public",
+    label: "Plans de chasse", // titre dans le menu (mais pas dans la page)
+    type: "page", 
+    content: "chasse_restitution_gd_public",
+    parent: "resultats.index", // définit la place dans le menu. Ici dans "resultats des suivis"
+  },
+  {
+    name: "chasse.restitution_indices_performances",
+    path: "/chasse/restitution_indices_performances",
+    label: "Indices de performance", // titre dans le menu (mais pas dans la page)
+    type: "page",
+    content: "chasse_restitution_indices_performances",
+    parent: "resultats.index", // définit la place dans le menu. Ici dans "resultats des suivis"
+  },
+  {
+    name: "chasse.bilan",
+    path: "/chasse/bilan",
+    label: "Bilan données chasse", // titre dans le menu (mais pas dans la page)
+    hideTitle: true,// True => cache le bandeau header pour plus de place
+    type: "page",
+    content: "bilanChasse",
+    access: 4
+  },
 
 
 ];
@@ -225,6 +303,9 @@ const STORE = {
   }
 };
 
+
+
+// Ajout des configStore en fonction des fichiers dans config
 storeUtils.addStore(STORE, configStorePersonne);
 storeUtils.addStore(STORE, configStoreZoneCynegetique);
 storeUtils.addStore(STORE, configStoreZoneIndicative);

@@ -1,3 +1,4 @@
+
 import login from "./login";
 import {config} from '@/config/config.js';
 import userPage from "./user-page";
@@ -6,6 +7,14 @@ import manageUser from "./manage-user";
 import changePassword from "./change-password";
 import logout from "./logout";
 import { apiRequest } from "@/core/js/data/api.js";
+
+
+// ROUTE: intègre les routes pour la connexion, l'inscription, la déconnexion et
+// la gestion du mot de passe oublié, ainsi que le profil utilisateur.
+// ROUTE vers l'administration des utilisateurs.
+// LE STORE stocke les informations de l'utilisateur connecté et les informations
+// sur les utilisateurs de l'application.
+
 
 const ROUTE = [
   {
@@ -76,7 +85,7 @@ const STORE = {
   state: {
     _user: null,
     _redirectOnLogin: null,
-    _organismes: [],
+    _organismes: [], // juste utilisé dans le profil utilisateur
     _users: [],
     _redirect: null,
   },
@@ -90,7 +99,7 @@ const STORE = {
     redirectOnLogin(state, path) {
       state._redirectOnLogin = path;
     },
-    organismes(state, organismes) {
+    organismes(state, organismes) { // peue être inutile car ne peut être modifié via l'appli
       state._organismes = organismes;
     },
     users(state, users) {
@@ -103,14 +112,14 @@ const STORE = {
 
   getters: {
 
-    prod: () => !window.webpackHotUpdate,
+    prod: () => !window.webpackHotUpdate, // verifie si l'application est en mode production. Retourne true si c'est le cas
 
-    mediaImgPath: () => `${config.URL_APPLICATION}/static/medias/img/`,
-    mediaDocPath: () => `${config.URL_APPLICATION}/static/medias/doc/`,
+    mediaImgPath: () => `${config.URL_APPLICATION}/static/medias/img/`, // Génère le chemin d'accès aux images
+    mediaDocPath: () => `${config.URL_APPLICATION}/static/medias/doc/`, // Génère le chemin d'accès aux documents
 
-    users: state => state.users,
+    users: state => state.users, // retourne la liste des utilisateurs stockée dans le state ()
 
-    organismes: state => {
+    organismes: state => { // retourne les organismes. Utile dans le profil utilisateur
       return state._organismes;
     },
 
@@ -156,7 +165,9 @@ const STORE = {
   },
   actions: {
 
-    testConnexion({state, commit}) {
+    // vérifie si l'utilisateur est connecté dans le backend
+    // Est exécuté dans le app.vue
+    testConnexion({state, commit}) { 
       state, commit;
       return new Promise((resolve, reject) => {
         apiRequest('GET', "api/user/test").then(
@@ -170,7 +181,10 @@ const STORE = {
       });
     },
 
-    organismes({ commit, state }) {
+    // verifie si les organismes sont déjà stockés dans le state
+    // Apparemment les organismes sont vides tout le temps
+    // Si non il les récupère dans le backend
+    organismes({ commit, state }) { 
       return new Promise((resolve, reject) => {
         const organismes = STORE.getters.organismes(state);
         if (organismes && organismes.length) {
@@ -188,9 +202,11 @@ const STORE = {
       });
     },
 
+
+    // récupère les informations de l'utilisateur. Utilisé dans le profil utilisateur
     userInfo({ commit }, id_role) {
       return new Promise((resolve, reject) => {
-        commit;
+        // commit; pas utilisé
         apiRequest("GET", `api/user/user_information/${id_role}`).then(
           apiData => {
             resolve(apiData);
@@ -201,6 +217,10 @@ const STORE = {
         );
       });
     },
+
+    // retourne la liste des utilisateurs. Fait seulement une requète GET dans le backend et stocke le résultat
+    // dans le state._users
+    // Utilisé dans manage-user. la page de gestion administration des utilisateurs 
     users({commit}) {
       return new Promise((resolve, reject) => {
         apiRequest("GET", `api/user/users`).then(

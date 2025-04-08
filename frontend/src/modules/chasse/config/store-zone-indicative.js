@@ -4,6 +4,20 @@ export default {
     label: "Zone indicatives",
     labels: "Zones indicatives",
     serverSide: true,
+    
+
+    options: { // Ajoute des param à la requête get pour filtrer les données
+
+      page: 1, // on affiche la première page par défaut 
+      sortBy: ["id_zone_indicative"], 
+      sortDesc: [false], // tri en ordre décroissant
+      fields: [ //les des champs des modèles à intégrer à la requête get
+        "zone_cynegetique.id_zone_cynegetique", "zone_cynegetique.code_zone_cynegetique",
+        "zone_cynegetique.nom_zone_cynegetique"
+      ]
+    },
+
+
     defs: {
       id_zone_indicative: {
         label: "ID",

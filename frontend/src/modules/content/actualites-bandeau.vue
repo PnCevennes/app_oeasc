@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <v-row>
       <v-col v-for="(content, index) of contents" :key="index">
@@ -68,4 +68,4 @@ export default {
     this.getContents();
   }
 };
-</script>
+</script> -->

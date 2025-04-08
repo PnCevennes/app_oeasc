@@ -24,11 +24,19 @@
         </div>
       </div>
     </div>
+    <!-- <pre>CONFIG:::{{ JSON.stringify(test_affichage_config, null, 2) }}</pre> -->
+    <!-- <pre>session:::{{ JSON.stringify(test_affichage_session, null, 2) }}</pre> -->
+    <!-- <pre>STORE::: {{ JSON.stringify(test_affichage_store, null, 2) }}</pre> -->
+    <!-- <pre>STORE_MUTATION::: {{ JSON.stringify(test_store_mutation, null, 2) }}</pre> -->
+    <!-- <pre>STORE_ACTION::: {{ JSON.stringify(test_store_action, null, 2) }}</pre> -->
   </v-app>
+
 </template> 
 
 <script>
-import { config } from "@/config/config.js";
+import { config } from "@/config/config.js"; // rassemble les config (map, style, menu)
+
+
 import { configAppBar, configDrawerMenus } from "@/config/menu.js"; // config du menu, liste, position et droits
 import "@/core/css/main.scss";
 import oeascAppBar from "@/components/app/app-bar"; // template de la barre de menu
@@ -43,7 +51,14 @@ import breadcrump from "@/components/app/breadcrump";
 export default {
   name: "App",
   components: { oeascAppBar, oeascDrawer, breadcrump },
-  computed: {},
+
+  computed: {
+    test_affichage_store() {// a retirer. C'est pour voir le contenu du store sans l'objet _user  }
+      const { ...rest } = this.$store.state;
+      return rest; 
+    }
+  },
+
   data() {
     return {
       drawer: false,
@@ -55,19 +70,27 @@ export default {
         show: false 
       },
       drawerShow: false,
+      test_affichage_session: this.$session, // a retirer. C'est pour voir le contenu de la session
+      test_affichage_config: config, // a retirer. C'est pour voir le contenu de config
+      // test_affichage_store: this.$store.state, // a retirer. C'est pour voir le contenu du store
+      test_store_mutation: this.$store._mutations, // a retirer. C'est pour voir le contenu des mutations du store
+      test_store_action: this.$store._actions, // a retirer. C'est pour voir le contenu des mutations du store
+      // test_store_unique: this.$store.configDrawer
     }; 
   },
+
   watch: {
     $route() { // si changement de page on lance la fonction process
       this.process()
     }
   },
+
   methods: {
     process() {
       this.$store.dispatch('testConnexion', {}).then( // verifie si l'utilisateur est connecté
         (user) => {
-          this.$store.commit("user", user); // me à jour les données de l'utilisateur
-          this.$session.set("user", user); // met à jour la session avec les données de l'utilisateur
+          this.$store.commit("user", user); // met à jour les données de l'utilisateur
+          // this.$session.set("user", user); // met à jour la session avec les données de l'utilisateur inutilisé apparemment
           this.checkRigths(); // 
           // titre
           this.setTitle();
@@ -75,7 +98,7 @@ export default {
         error=> { // si erreur on déconnecte l'utilisateur
           error;
           this.$store.commit("user", {});
-          this.$session.set("user", {});
+          // this.$session.set("user", {}); inutilisé apparemment
 
           this.checkRigths();
           // titre

@@ -234,26 +234,26 @@
 </template>
 
 <script>
-import nomenclatureForm from "./nomenclature-form";
-import listForm from "./list-form";
-import selectMap from "./select-map.vue";
-import essenceForm from "./essence-form.vue";
-import degatsForm from "./degats-form.vue";
+import nomenclatureForm from "./nomenclature-form.vue";
+import listForm from "./list-form.vue";
+// import selectMap from "./select-map.vue";
+// import essenceForm from "./essence-form.vue";
+// import degatsForm from "./degats-form.vue";
 import help from "./help";
 import list from "./list";
-import { copy } from "@/core/js/util/util";
+import { copy } from "@/core/js/util/util.js";
 
-import { formFunctions } from "@/components/form/functions/form";
+import { formFunctions } from "./functions/form.js";
 
 export default {
   name: "dynamicForm",
 
   components: {
     nomenclatureForm,
-    selectMap,
-    essenceForm,
+    // selectMap,
+    // essenceForm,
     listForm,
-    degatsForm,
+    // degatsForm,
     oeascContent: () => import("@/modules/content/content.vue"),
     help,
     list
@@ -327,7 +327,6 @@ export default {
         // defaults
         this.config.idFieldName =
           this.config.idFieldName || configStore.idFieldName;
-          
         this.config.displayFieldName =
           this.config.displayFieldName || configStore.displayFieldName;
         this.config.api = this.config.api || configStore.apis;

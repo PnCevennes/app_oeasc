@@ -28,16 +28,21 @@ const jsoncopy = obj => {
 }
 
 
-// fonction de copie d'objet
-// elle permet de copier un objet
-// en profondeur
-// exemple :
-// const obj = {a: 1, b: {c: 2}}
-// const objCopy = copy(obj)
-// objCopy.b.c = 3
-// console.log(obj.b.c) // 2
-// console.log(objCopy.b.c) // 3
+
 const copy = obj => {
+  /*
+    // fonction de copie d'objet
+    // elle permet de copier un objet
+    // en profondeur
+    // exemple :
+    // const obj = {a: 1, b: {c: 2}}
+    // const objCopy = copy(obj)
+    // objCopy.b.c = 3
+    // console.log(obj.b.c) // 2
+    // console.log(objCopy.b.c) // 3
+  */
+
+
   if (Array.isArray(obj)) {
     return obj.map(item => copy(item));
   } else if (typeof obj === "object" && obj) {

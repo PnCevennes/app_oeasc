@@ -7,6 +7,8 @@ import configResitutionDeclaration from "./config/restitution-declaration";
 import configStoreDegat from './config/store-degat'
 
 const ROUTE = [
+
+
   {
     path: "/declaration/declarer_en_ligne",
     label: "Créér déclaration",
@@ -144,6 +146,7 @@ const STORE = {
   },
 
   actions: {
+    
     declarationForm: ({ commit }, id) => {
       return new Promise((resolve, reject) => {
         apiRequest("GET", `api/degat_foret/declaration/${id || ""}`).then(
@@ -159,6 +162,7 @@ const STORE = {
       });
     },
 
+    
     declarations: ({ state, commit }) => {
       return new Promise((resolve, reject) => {
         if (state._declarations.length) {

@@ -22,7 +22,7 @@ exportingInit(Highcharts);
 offlineExporting(Highcharts);
 
 export default {
-  name: "graph-chasse",
+  name: "graph-custom",
   props: ["field_name", "height", "width", "title", "typeGraph", "view"],
   data: () => ({
     chartOptions: null,

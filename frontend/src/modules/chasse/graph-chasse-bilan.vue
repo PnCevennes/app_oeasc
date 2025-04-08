@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div :style="`height:${height || '400px'}; width: 100%`">
     <highcharts
       v-if="chartOptions"
@@ -110,4 +110,4 @@ export default {
     this.process();
   }
 };
-</script>
+</script> -->
