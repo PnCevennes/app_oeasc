@@ -22,7 +22,7 @@
 
         <!-- affichage de la date de création et de modification pour les actu -->
         <div v-if="displayContentDate">
-          <h1>a isuceraci ercareauieruasteruas eiusr ecuarsceuisracesriuae</h1>
+
           <i>Le {{ displayDate(content.meta_create_date) }}</i>
 
           <i

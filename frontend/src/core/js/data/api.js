@@ -14,7 +14,12 @@ for (const key of ["state", "mutations", "getters"]) {
 // on la crée
 if (STORE.state.pendings == undefined) {
   STORE.state.pendings = {};
-  STORE.getters.pendings = state => api => state.pendings[api];
+  // STORE.getters.pendings = state => api => state.pendings[api];
+  STORE.getters.pendings = (state) => {
+      return (api) => {
+        return state.pendings[api]; 
+      }; 
+    }
   STORE.mutations.addPending = (state, { request, api }) => {
     state.pendings[api] = request;
   };

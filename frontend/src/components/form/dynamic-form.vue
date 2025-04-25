@@ -7,7 +7,7 @@
     <!-- test config -->
     <template v-if="!configForm.valid">
       <label>{{ configForm.label }}</label>
-      Problème avec la config
+      Problème avec la config de form
       {{ config }}
     </template>
 
@@ -377,6 +377,8 @@ export default {
       // configResolved.rules = (this.configResolved.rules || []).map(r => r);
 
       //teste si type dans type autorisé
+      // console.log ("##########################################")
+      // console.log (this.config.type)
       configResolved.valid = this.configTypes.includes(this.config.type);
 
       // ajout automatique de regle selon le type

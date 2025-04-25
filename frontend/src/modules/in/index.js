@@ -10,16 +10,17 @@ import inTable from "@/modules/in/in-table.vue";
 // route definitions
 
 const ROUTE = [
-  {
-    // index
-    name: "in.index",
-    path: "/in/index",
-    label: "Indices nocturnes",
-    type: "page",
-    content: "in.index",
-    parent: "page.accueil",
-    access: 5
-  },
+  // {
+  //   // index
+  //   name: "in.index",
+  //   path: "/in/index",
+  //   label: "Indices nocturnes",
+  //   type: "page",
+  //   content: "in.index",
+  //   parent: "page.accueil",
+  //   access: 5
+  // },
+  
   {
     // admin
     name: "in.admin",

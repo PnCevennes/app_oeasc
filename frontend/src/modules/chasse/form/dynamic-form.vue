@@ -7,7 +7,7 @@
     <!-- test config -->
     <template v-if="!configForm.valid">
       <label>{{ configForm.label }}</label>
-      Problème avec la config
+      Problème avec la config dans chasse
       {{ config }}
     </template>
 

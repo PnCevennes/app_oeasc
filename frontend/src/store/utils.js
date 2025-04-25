@@ -606,7 +606,7 @@ export default {
     };
 
     /** ACTIONS */
-    actions[storeNames] = (
+    actions[storeNames] = ( 
       { getters, commit },
       { forceReload = false } = {}
     ) => {

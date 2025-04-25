@@ -21,7 +21,7 @@ export default {
       },
       description_fr: {
         label: "Description",
-        required: true,
+        // required: true,
         type: 'text',
       },
     },

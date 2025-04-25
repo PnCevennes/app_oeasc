@@ -35,7 +35,7 @@ Les paramètres principaux sont:
  - `text_area`,
  - `number`,
  - `password`,
-- choix binaire:
+- choix binaire: 
  - `bool_radio`,
  - `bool_switch`,
 - choix dans une liste:
