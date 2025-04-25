@@ -17,9 +17,9 @@ depends_on = None
 
 # Chemin du fichier contenant les views SQL
 
-VIEW_FILE_PATH1 = f"data/oeasc_views/oeasc_commons_views.sql"
-VIEW_FILE_PATH2 = f"data/oeasc_views/oeasc_declarations_views.sql"
-VIEW_FILE_PATH3 = f"data/oeasc_views/oeasc_resultats_views.sql"
+VIEW_FILE_PATH1 = f"../data/oeasc_views/oeasc_commons_views.sql"
+VIEW_FILE_PATH2 = f"../data/oeasc_views/oeasc_declarations_views.sql"
+VIEW_FILE_PATH3 = f"../data/oeasc_views/oeasc_resultats_views.sql"
 
 
 

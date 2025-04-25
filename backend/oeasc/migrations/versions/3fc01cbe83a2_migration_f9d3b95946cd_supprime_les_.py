@@ -16,10 +16,13 @@ down_revision = '8857f2169f96'
 branch_labels = None
 depends_on = None
 
+# récupère le chemin du actuel courant
+# ROOT_PATH = subprocess.check_output(['pwd']).decode('utf-8').strip()
 
-VIEW_FILE_PATH1 = f"data/oeasc_views/oeasc_commons_views.sql"
-VIEW_FILE_PATH2 = f"data/oeasc_views/oeasc_declarations_views.sql"
-VIEW_FILE_PATH3 = f"data/oeasc_views/oeasc_resultats_views.sql"
+
+VIEW_FILE_PATH1 = f"../data/oeasc_views/oeasc_commons_views.sql"
+VIEW_FILE_PATH2 = f"../data/oeasc_views/oeasc_declarations_views.sql"
+VIEW_FILE_PATH3 = f"../data/oeasc_views/oeasc_resultats_views.sql"
 
 
 
