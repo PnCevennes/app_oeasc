@@ -183,7 +183,7 @@ def api_chasse_ods():
     test export ods
     """
 
-    template_path = config["ROOT_DIR"] / "app/templates/ods/template_bilan_chasse.ods"
+    template_path = config["ROOT_DIR"] / "app_oeasc/backend/oeasc/templates/ods/template_bilan_chasse.ods"
     output_path = config["ROOT_DIR"] / "static/export/test.ods"
     nom_saison = request.args.get("saison", "current")
 
@@ -196,5 +196,5 @@ def api_chasse_ods():
     return send_file(
         output_path,
         as_attachment=True,
-        attachment_filename=f"bilan_chasse_{nom_saison}.ods",
+        download_name=f"bilan_chasse_{nom_saison}.ods",
     )

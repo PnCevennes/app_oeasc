@@ -58,7 +58,7 @@ def get_all_generic(module_name, object_types):
     # si la clé "fields" est présente dans les arguments, on retourne seulement les champs demandés
     if "fields" in args:
         fields = args.get("fields").split(",")
-        items = [r.as_dict(fields=(fields)) for r in res.all()]
+        items = [r.as_dict(fields=(fields)) for r in res.unique().all()]
     else:
         print("################# fields à rajouter dans les args de la requete")
         items = [r.as_dict() for r in res.all()]
