@@ -74,7 +74,7 @@ cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 # intégration des données de configuration dans l'application. Mettre silent=True en production
 app.config.from_pyfile("../config/config.py", silent=False)
 
-ROOT_DIR = Path(__file__).absolute().parent.parent.parent
+ROOT_DIR = Path(__file__).absolute().parent.parent
 app.config["ROOT_DIR"] = ROOT_DIR
 
 
