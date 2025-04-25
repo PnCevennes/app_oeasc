@@ -137,13 +137,13 @@ def create_or_update_declaration(post_data):
 
     # declaration
 
-    post_data["foret"] = foret.as_dict(True)
+    post_data["foret"] = foret.as_dict()
 
     declaration = create_or_modify(TDeclaration, "id_declaration", post_data)
 
     patch_areas_declarations(declaration.id_declaration)
 
-    return declaration.as_dict(True)
+    return declaration.as_dict()
 
 
 def get_id_areas(areas, type_list):

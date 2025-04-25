@@ -10,7 +10,7 @@ from .repository import in_data
 from .models import (
     TRealisations,
     TCircuits,
-    TTags,
+    TTags as TTags_in, 
     TObservers,
     CorRealisationTag,
 )
@@ -28,7 +28,7 @@ DB = config["DB"]
 definitions = {
     "realisation": {"model": TRealisations, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
     "circuit": {"model": TCircuits, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
-    "tag": {"model": TTags, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
+    "tag": {"model": TTags_in, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
     "observer": {"model": TObservers, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
 }
 
@@ -53,7 +53,7 @@ def in_test_results():
     renvoie les résultats des in pour faire les graphs (IN, variance, ug, année)
     """
 
-    return in_data()["especes"]["Cerf"]["ugs"]["Méjean"]
+    return in_data()
 
 
 @bp.route("valid_realisation/", methods=["PATCH"])
@@ -69,10 +69,15 @@ def in_valid_realisation():
     id_realisation = (data["id_realisation"],)
     id_tag = data["id_tag"]
 
+    # cor = (
+    #     DB.session.query(CorRealisationTag)
+    #     .filter_by(id_realisation=id_realisation, id_tag=id_tag)
+    #     .update(data, synchronize_session=False)
+    # )
     cor = (
         DB.session.query(CorRealisationTag)
         .filter_by(id_realisation=id_realisation, id_tag=id_tag)
-        .update(data, synchronize_session=False)
+        .update(data, synchronize_session="fetch")
     )
 
     DB.session.commit()

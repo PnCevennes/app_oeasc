@@ -24,24 +24,38 @@ def get_id_type(type_code):
     # return DB.session.execute(
     #     "SELECT ref_geo.get_id_type(:type_code);", {"type_code": type_code}
     # ).first()[0]
-    return DB.session.execute(
-        text("SELECT ref_geo.get_id_type(:type_code);"), {"type_code": type_code}
-    ).first()[0]
+
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        res = conn.execute(
+            text("SELECT ref_geo.get_id_type(:type_code);"), {"type_code": type_code}
+        ).first()[0]
+    return res
 
 
 def get_type_code(id_type):
     """
-    TODO
+    Récupère le type_code pour un id_type donné.
     """
+    with DB.engine.begin() as conn:  # SQLAlchemy 2.0
+        res = conn.execute(
+            text("SELECT type_code FROM ref_geo.bib_areas_types WHERE id_type = :id_type"),
+            {"id_type": id_type},
+        ).first()  # Récupère la première ligne
 
-    # return DB.session.execute(
-    #     "SELECT type_code FROM ref_geo.bib_areas_types WHERE  id_type = :id_type;",
-    #     {"id_type": id_type},
-    # ).first()[0]
-    return DB.session.execute(
-        text("SELECT type_code FROM ref_geo.bib_areas_types WHERE id_type = :id_type;"),
-        {"id_type": id_type},
-    ).first()[0]
+    return res[0] if res else None  # Vérifie si un résultat existe
+
+
+# def get_type_code(id_type):
+#     """
+#     TODO
+#     """
+
+#     # return DB.session.execute(
+#     #     "SELECT type_code FROM ref_geo.bib_areas_types WHERE  id_type = :id_type;",
+#     #     {"id_type": id_type},
+#     # ).first()[0]
+
+
 
 
 def set_table(b_simple, data_type):
@@ -165,14 +179,24 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
         # cas des dgd
         elif container.id_type == id_type_dgd:
-            res = DB.engine.execute(
-                text(
-                    "SELECT area_code_cadastre \
-                        FROM oeasc_forets.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(
-                        container.area_code
+
+            with DB.engine.begin() as conn: # sqlalchemy 2.0
+                res = conn.execute(
+                    text(
+                        "SELECT area_code_cadastre \
+                            FROM oeasc_forets.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(
+                            container.area_code
+                        )
                     )
                 )
-            )
+            # res = DB.engine.execute(
+            #     text(
+            #         "SELECT area_code_cadastre \
+            #             FROM oeasc_forets.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(
+            #             container.area_code
+            #         )
+            #     )
+            # )
 
             v = [r[0] for r in res]
 

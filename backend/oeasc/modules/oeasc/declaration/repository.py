@@ -68,10 +68,10 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
     if not declarant:
         declarant = get_user()
 
-    declaration_dict = declaration.as_dict(True)
-    declaration_dict["foret"] = foret.as_dict(True)
+    declaration_dict = declaration.as_dict()
+    declaration_dict["foret"] = foret.as_dict()
     declaration_dict["declarant"] = declarant
-    declaration_dict["foret"]["proprietaire"] = proprietaire.as_dict(True)
+    declaration_dict["foret"]["proprietaire"] = proprietaire.as_dict()
 
     if b_resolve:
         get_dict_nomenclature_areas(declaration_dict)
@@ -177,54 +177,57 @@ def patch_areas_declarations(id_declaration):
     -- set geom geom_4326 centroid
 
     UPDATE oeasc_declarations.t_declarations e SET geom=d.geom, geom_4326=d.geom_4326, centroid=d.centroid
-FROM (SELECT id_declaration, geom, geom_4326, ARRAY[ST_Y(centroid), ST_X(centroid)] AS centroid
-FROM (SELECT id_declaration, geom, geom_4326, ST_CENTROID(geom_4326) AS centroid
-FROM (SELECT id_declaration, geom, ST_TRANSFORM(geom, 4326) AS geom_4326
-FROM (SELECT id_declaration, ST_MULTI(ST_UNION(l.geom)) AS geom
-FROM oeasc_declarations.cor_areas_declarations c
-JOIN ref_geo.l_areas l ON c.id_area = l.id_area AND l.id_type IN (ref_geo.get_id_type('OEASC_ONF_UG'), ref_geo.get_id_type('OEASC_CADASTRE'))
-WHERE {0} = id_declaration
-GROUP BY id_declaration)a)b)c)d
-WHERE {0} = e.id_declaration
-RETURNING e.id_declaration, e.centroid;
+        FROM (SELECT id_declaration, geom, geom_4326, ARRAY[ST_Y(centroid), ST_X(centroid)] AS centroid
+        FROM (SELECT id_declaration, geom, geom_4326, ST_CENTROID(geom_4326) AS centroid
+        FROM (SELECT id_declaration, geom, ST_TRANSFORM(geom, 4326) AS geom_4326
+        FROM (SELECT id_declaration, ST_MULTI(ST_UNION(l.geom)) AS geom
+        FROM oeasc_declarations.cor_areas_declarations c
+        JOIN ref_geo.l_areas l ON c.id_area = l.id_area AND l.id_type IN (ref_geo.get_id_type('OEASC_ONF_UG'), ref_geo.get_id_type('OEASC_CADASTRE'))
+        WHERE {0} = id_declaration
+        GROUP BY id_declaration)a)b)c)d
+        WHERE {0} = e.id_declaration
+        RETURNING e.id_declaration, e.centroid;
 
-    -- set cor for areas in SECTEUR, COMMUNE, SECTION, ONF_FRT, DGD
+            -- set cor for areas in SECTEUR, COMMUNE, SECTION, ONF_FRT, DGD
 
-    DELETE FROM oeasc_declarations.cor_areas_declarations c
-	USING ref_geo.l_areas l
-	WHERE l.id_area=c.id_area AND l.id_type in (
-	ref_geo.get_id_type('OEASC_SECTEUR'),
-	ref_geo.get_id_type('OEASC_COMMUNE'),
-	ref_geo.get_id_type('OEASC_SECTION'),
-	ref_geo.get_id_type('OEASC_ONF_FRT'),
-	ref_geo.get_id_type('OEASC_DGD')
-	)
-	AND c.id_declaration = {0}
-   ;
+            DELETE FROM oeasc_declarations.cor_areas_declarations c
+            USING ref_geo.l_areas l
+            WHERE l.id_area=c.id_area AND l.id_type in (
+            ref_geo.get_id_type('OEASC_SECTEUR'),
+            ref_geo.get_id_type('OEASC_COMMUNE'),
+            ref_geo.get_id_type('OEASC_SECTION'),
+            ref_geo.get_id_type('OEASC_ONF_FRT'),
+            ref_geo.get_id_type('OEASC_DGD')
+            )
+            AND c.id_declaration = {0}
+        ;
 
-    INSERT INTO oeasc_declarations.cor_areas_declarations
+            INSERT INTO oeasc_declarations.cor_areas_declarations
 
-    WITH
-    selected_types AS (SELECT UNNEST(ARRAY [
-             'OEASC_SECTEUR',
-             'OEASC_COMMUNE',
-             'OEASC_SECTION',
-             'OEASC_ONF_FRT',
-             'OEASC_DGD'
-         ]) AS id_type)
+            WITH
+            selected_types AS (SELECT UNNEST(ARRAY [
+                    'OEASC_SECTEUR',
+                    'OEASC_COMMUNE',
+                    'OEASC_SECTION',
+                    'OEASC_ONF_FRT',
+                    'OEASC_DGD'
+                ]) AS id_type)
 
-         SELECT
-             {0},
-             ref_geo.intersect_geom_type_tol(d.geom, selected_types.id_type, 0.05) as id_area
-             FROM selected_types
-             JOIN oeasc_declarations.t_declarations d ON d.id_declaration = {0}
-        RETURNING *;
+                SELECT
+                    {0},
+                    ref_geo.intersect_geom_type_tol(d.geom, selected_types.id_type, 0.05) as id_area
+                    FROM selected_types
+                    JOIN oeasc_declarations.t_declarations d ON d.id_declaration = {0}
+                RETURNING *;
 
-""".format(
-        id_declaration
-    )
+        """.format(
+                id_declaration
+            )
 
-    DB.engine.execution_options(autocommit=True).execute(txt)
+    with DB.engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+        conn.execute(txt)
+
+    # DB.engine.execution_options(autocommit=True).execute(txt)
 
 
 def f_create_or_update_declaration(declaration_dict):

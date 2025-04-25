@@ -166,8 +166,9 @@ def get_areas_centroid_post(data_type):
                 t
             )
         )
-
-        result = DB.engine.execute(sql_text).first()
+        with DB.engine.begin() as conn: # sqlalchemy 2.0
+            result = conn.execute(sql_text).first()
+        # result = DB.engine.execute(sql_text).first()
 
         v = [result[1], result[0]]
         d_out[key] = v

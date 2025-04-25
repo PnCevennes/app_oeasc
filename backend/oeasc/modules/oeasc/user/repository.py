@@ -25,7 +25,9 @@ def get_liste_organismes_oeasc():
     )
 
     # result = DB.engine.execute(sql_text)
-    result = DB.session.execute(sql_text)
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        result = conn.execute(sql_text)
+    # result = DB.session.execute(sql_text)
 
     v = []
     autre = None
@@ -107,8 +109,9 @@ def get_id_organismes(liste_nom):
         + "','".join(liste_nom_)
         + "');"
     )
-
-    result = DB.engine.execute(text(sql_text))
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        result = conn.execute(text(sql_text))
+    # result = DB.engine.execute(text(sql_text))
 
     out = [res[0] for res in result]
 

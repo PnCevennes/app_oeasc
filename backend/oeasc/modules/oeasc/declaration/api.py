@@ -12,7 +12,7 @@ from utils_flask_sqla.response import csv_resp
 from utils_flask_sqla_geo.generic import GenericTableGeo
 from oeasc.modules.oeasc.nomenclature import nomenclature_oeasc
 from utils_flask_sqla.response import json_resp
-from oeasc.utils.env import ROOT_DIR
+# from oeasc.utils.env import ROOT_DIR
 
 from .repository import (
     get_user,
@@ -279,7 +279,9 @@ def declarations_shape():
     type_out = request.args.get("type_out")  # 'degat', ''
 
     file_name = "export_declarations_shape"
-    dir_path = str(ROOT_DIR / "static/shapefiles")
+    dir_path = str(config['ROOT_DIR'] / "static/shapefiles")
+    print ("########################$###")
+    print (config['ROOT_DIR'])
 
     view_name = (
         "v_export_declaration_degats_shape"

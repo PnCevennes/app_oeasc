@@ -10,10 +10,12 @@ from sqlalchemy import exc
 os.environ["PYTHONWARNINGS"] = "always"
 os.environ["SQLALCHEMY_WARN_20"] = "1"
 warnings.simplefilter("always", exc.SAWarning)
+
+
 ##########################
-import sys
-base_path = os.path.abspath(os.path.join(os.getcwd(), '..'))
-sys.path.append(os.path.join(base_path, 'config'))
+# import sys
+# base_path = os.path.abspath(os.path.join(os.getcwd(), '..'))
+# sys.path.append(os.path.join(base_path, 'config'))
 
 import json
 import re
@@ -24,30 +26,20 @@ from flask_migrate import Migrate
 #from jinja2 import evalcontextfilter, Markup, escape n'est plus supporté
 from jinja2 import pass_context
 from markupsafe import Markup, escape
-from oeasc.utils.env import DB, mail
-import config
-# from config import config
+from oeasc.utils.env import db
+# import config
+# from ..config import config
 from flask_cors import CORS
 from pypnusershub.auth import auth_manager
+from flask_sqlalchemy import SQLAlchemy
+from flask_mail import Mail
+# from os import environ
+from importlib import import_module
 
 # permet de définir des actions apres l'enregistrement d'un utilisateur (envoi de mail, ...)
 from pypnusershub.env import REGISTER_POST_ACTION_FCT
 
-##################### CONFIGURATION DE SENTRY (appli de monitoring) ############################
-try:
-    sentry_config = config.SENTRY_DSN
-    if sentry_config:
-        import sentry_sdk
-        from sentry_sdk.integrations.flask import FlaskIntegration
-
-        sentry_sdk.init(
-            sentry_config,
-            integrations=[FlaskIntegration()],
-            traces_sample_rate=1.0,
-        )
-except AttributeError:
-    pass
-
+# db = DB 
 
 class ReverseProxied(object):
     def __init__(self, app_in, script_name=None, scheme=None, server=None):
@@ -79,16 +71,72 @@ cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
 
-
 # intégration des données de configuration dans l'application. Mettre silent=True en production
 app.config.from_pyfile("../config/config.py", silent=False)
 
+ROOT_DIR = Path(__file__).absolute().parent.parent.parent
+app.config["ROOT_DIR"] = ROOT_DIR
+
+
+app.config["URL_REDIRECT"] = app.config["URL_FRONTEND"] + app.config['REDIRECT_ON_FORBIDDEN']
+
+
+##################### CONFIGURATION DE SENTRY (appli de monitoring) ############################
+# try:
+#     sentry_config = app.config["SENTRY_DSN"]
+#     if sentry_config:
+#         import sentry_sdk
+#         from sentry_sdk.integrations.flask import FlaskIntegration
+
+#         sentry_sdk.init(
+#             sentry_config,
+#             integrations=[FlaskIntegration()],
+#             traces_sample_rate=1.0,
+#         )
+# except AttributeError:
+#     pass
+
+
+##################### CONFIGURATION DE LA BDD ############################
+
+# on force la connexion la config de la base à se faire dans ce module pour pouvoir y ajouter des options nécéssaires
+# pour la migration vers sqlalchemy 2.0. On peut retirer la ligne suivante après
+# os.environ["FLASK_SQLALCHEMY_DB"] = f"{__name__}.db"
+
+# db_path = os.environ.get("FLASK_SQLALCHEMY_DB")
+
+# if db_path and db_path != f"{__name__}.db":
+#     print("èzist")
+#     db_module_name, db_object_name = db_path.rsplit(".", 1)
+#     db_module = import_module(db_module_name)
+#     try:
+#         db = getattr(db_module, db_object_name)
+#     except AttributeError:
+#         raise AttributeError(f"The module '{db_module_name}' does not have an attribute '{db_object_name}'. Ensure the database object is correctly defined.")
+
+#     # Merge the engine options from config.py
+#     db.engine.update_execution_options(**app.config['SQLALCHEMY_ENGINE_OPTIONS'])
+
+# else:
+#     print("n'existe pas")
+    
+#     db = SQLAlchemy( engine_options=app.config['SQLALCHEMY_ENGINE_OPTIONS']) # future pour sqlalchemy 2.0
+#     os.environ["FLASK_SQLALCHEMY_DB"] = f"{__name__}.db"
+
+#     # pour la migration sqlalchemy 2.0 il faut déclarer la Base
+#     # Base = db.Model
+
 # initialisation de sqlalchemy pour Flask. Créé les engines et les sessions
-DB.init_app(app)
+# récupère les paramètres de la base de données dans config.py via app.config
+db.init_app(app)
 
 # ajoute l'instance sqlalchemy à la configuration de l'application pour y acceder facilement
-app.config["DB"] = DB
+app.config["DB"] = db
 
+
+##################### CONFIGURATION DES MAIL ############################
+mail = Mail()
+app.config["MAIL"] = mail
 # initialisation des parametres de mails. Récupère les paramètres dans config.py via app.config
 mail.init_app(app)
 # ajoute l'instance mail à la configuration de l'application pour y acceder facilement
@@ -115,7 +163,7 @@ auth_manager.init_app(app,providers_declaration=providers_config)
 # initalisation de la gestion de migration alembic
 migrate = Migrate()
 # on definit le repertoire de migration
-migrate.init_app(app, DB, directory=Path(__file__).absolute().parent / "oeasc" /"migrations")
+migrate.init_app(app, db, directory=Path(__file__).absolute().parent / "oeasc" /"migrations")
 @migrate.configure
 def configure_alembic(alembic_config):
     """
@@ -240,7 +288,7 @@ with app.app_context():
 
 # lancement de l'appli
 if __name__ == "__main__":
-    app.run(debug=config.DEBUG, port=config.PORT)
+    app.run(debug=app.config["DEBUG"], port=app.config["PORT"])
 
 
 

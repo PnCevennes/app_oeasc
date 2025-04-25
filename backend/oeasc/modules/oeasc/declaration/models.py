@@ -10,9 +10,15 @@ from utils_flask_sqla.serializers import serializable
 config = current_app.config
 DB = config["DB"]
 
+# les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0
+# Cela permet de ne pas générer d'erreur avec l'ancienne manière de déclarer les models.
+# Une fois la migration en 2.0 terminée il faudra réécrire les models en utilisant Mapped (cette fonction n'est pas dispo dans la 1.4)
+class CustomModel(DB.Model):
+    __abstract__ = True # evite que la classe soit considérée comme une table
+    __allow_unmapped__ = True
 
 @serializable
-class CorAreasDeclaration(DB.Model):
+class CorAreasDeclaration(CustomModel):
     """
     areas localisation
     """
@@ -33,7 +39,7 @@ class CorAreasDeclaration(DB.Model):
 
 
 @serializable
-class CorAreasForet(DB.Model):
+class CorAreasForet(CustomModel):
     """
     areas foret
     """
@@ -52,7 +58,7 @@ class CorAreasForet(DB.Model):
 
 
 @serializable
-class CorNomenclatureDeclarationEssenceSecondaire(DB.Model):
+class CorNomenclatureDeclarationEssenceSecondaire(CustomModel):
     """
     nomenclatures essences secondaires
     """
@@ -73,7 +79,7 @@ class CorNomenclatureDeclarationEssenceSecondaire(DB.Model):
 
 
 @serializable
-class CorNomenclatureDeclarationEssenceComplementaire(DB.Model):
+class CorNomenclatureDeclarationEssenceComplementaire(CustomModel):
     """
     nomenclatures essences complementaires
     """
@@ -94,7 +100,7 @@ class CorNomenclatureDeclarationEssenceComplementaire(DB.Model):
 
 
 @serializable
-class CorNomenclatureDeclarationMaturite(DB.Model):
+class CorNomenclatureDeclarationMaturite(CustomModel):
     """
     nomenclatures peuplement maturite
     """
@@ -115,7 +121,7 @@ class CorNomenclatureDeclarationMaturite(DB.Model):
 
 
 @serializable
-class CorNomenclatureDeclarationOrigine(DB.Model):
+class CorNomenclatureDeclarationOrigine(CustomModel):
     """
     nomenclatures peuplement origine
     """
@@ -136,7 +142,7 @@ class CorNomenclatureDeclarationOrigine(DB.Model):
 
 
 @serializable
-class CorNomenclatureDeclarationProtectionType(DB.Model):
+class CorNomenclatureDeclarationProtectionType(CustomModel):
     """
     nomenclatures protection type
     """
@@ -157,7 +163,7 @@ class CorNomenclatureDeclarationProtectionType(DB.Model):
 
 
 @serializable
-class CorNomenclatureDeclarationPaturageType(DB.Model):
+class CorNomenclatureDeclarationPaturageType(CustomModel):
     """
     nomenclatures paturage type
     """
@@ -178,7 +184,7 @@ class CorNomenclatureDeclarationPaturageType(DB.Model):
 
 
 @serializable
-class CorNomenclatureDeclarationPaturageSaison(DB.Model):
+class CorNomenclatureDeclarationPaturageSaison(CustomModel):
     """
     nomenclatures paturage saison
     """
@@ -199,7 +205,7 @@ class CorNomenclatureDeclarationPaturageSaison(DB.Model):
 
 
 @serializable
-class CorNomenclatureDeclarationEspece(DB.Model):
+class CorNomenclatureDeclarationEspece(CustomModel):
     """
     nomenclatures especes
     """
@@ -220,7 +226,7 @@ class CorNomenclatureDeclarationEspece(DB.Model):
 
 
 @serializable
-class TProprietaire(DB.Model):
+class TProprietaire(CustomModel):
     """
     modeles proprietaires
     """
@@ -243,7 +249,7 @@ class TProprietaire(DB.Model):
 
 
 @serializable
-class TForet(DB.Model):
+class TForet(CustomModel):
     """
     modele foret
     """
@@ -273,7 +279,7 @@ class TForet(DB.Model):
 
 
 @serializable
-class TDegatEssence(DB.Model):
+class TDegatEssence(CustomModel):
     """
     modele degat essence
     """
@@ -294,7 +300,7 @@ class TDegatEssence(DB.Model):
 
 
 @serializable
-class TDegat(DB.Model):
+class TDegat(CustomModel):
     """
     modele degat
     """
@@ -316,7 +322,7 @@ class TDegat(DB.Model):
 
 
 @serializable
-class TDeclaration(DB.Model):
+class TDeclaration(CustomModel):
     """
     modele declaration
     """

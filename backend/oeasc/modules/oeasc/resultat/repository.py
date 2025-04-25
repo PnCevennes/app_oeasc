@@ -43,26 +43,29 @@ def nb_declarations():
         SELECT COUNT(*) FROM oeasc_declarations.t_declarations
     """
 
-    data = DB.engine.execute(text(r)).first()
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        data = conn.execute(text(r)).first()
+
+    # data = DB.engine.execute(text(r)).first()
     out = data[0]
     return out
 
 
 def req_degats(name, var_name="", id_nomenclature_degat_type="", multi=False):
     r = """
-SELECT
-    n.mnemonique as label,
-    a.nb as {}
+    SELECT
+        n.mnemonique as label,
+        a.nb as {}
 
-    FROM (SELECT
-        id_nomenclature_degat_type as id,
-        COUNT(*) as nb
-        FROM oeasc_declarations.t_degats d
-        JOIN ref_nomenclatures.t_nomenclatures
-            ON d.id_nomenclature_degat_type = id_nomenclature
-        """.format(
-        name
-    )
+        FROM (SELECT
+            id_nomenclature_degat_type as id,
+            COUNT(*) as nb
+            FROM oeasc_declarations.t_degats d
+            JOIN ref_nomenclatures.t_nomenclatures
+                ON d.id_nomenclature_degat_type = id_nomenclature
+            """.format(
+            name
+        )
 
     if var_name and not multi:
         r += """
@@ -87,8 +90,9 @@ SELECT
         ORDER BY label
     """
     # .format(name, type, id)
-
-    data = DB.engine.execute(text(r))
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        data = conn.execute(text(r))
+    # data = DB.engine.execute(text(r))
 
     return data_to_dict(data)
 
@@ -155,7 +159,10 @@ SELECT
     ORDER BY 1
     """
 
-    data = DB.engine.execute(text(r))
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        data = conn.execute(text(r))
+
+    # data = DB.engine.execute(text(r))
 
     data_array = [
         {

@@ -12,7 +12,7 @@ import time
 
 from flask.cli import AppGroup, with_appcontext
 
-from oeasc.utils.env import DB
+# from oeasc.utils.env import DB
 
 from oeasc.modules.oeasc.chasse.models import TRealisationsChasse
 

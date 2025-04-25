@@ -241,17 +241,33 @@ def get_random_area_dgd_cadastre(area_code_dgd):
     """
     get_random_area_dgd_cadastre
     """
-    res = DB.engine.execute(
-        text(
-            "SELECT area_code_cadastre \
-        FROM oeasc_forets.cor_dgd_cadastre \
-        WHERE area_code_dgd = '{}' \
-        ORDER BY RANDOM() \
-        LIMIT 1;".format(
-                area_code_dgd
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        res = conn.execute(
+            text(
+                "SELECT area_code_cadastre \
+            FROM oeasc_forets.cor_dgd_cadastre \
+            WHERE area_code_dgd = '{}' \
+            ORDER BY RANDOM() \
+            LIMIT 1;".format(
+                    area_code_dgd
+                )
             )
-        )
-    ).first()[0]
+        ).first()[0]
+
+
+    # res = DB.engine.execute(
+    #     text(
+    #         "SELECT area_code_cadastre \
+    #     FROM oeasc_forets.cor_dgd_cadastre \
+    #     WHERE area_code_dgd = '{}' \
+    #     ORDER BY RANDOM() \
+    #     LIMIT 1;".format(
+    #             area_code_dgd
+    #         )
+    #     )
+    # ).first()[0]
+
+
     area_code = res
     area = (
         DB.session.query(TAreas)
@@ -311,7 +327,7 @@ def foret_dict_random_sample():
         if not proprietaire:
             return None
 
-        foret_dict = foret.as_dict(True)
+        foret_dict = foret.as_dict()
         foret_dict["proprietaire"] = proprietaire.as_dict()
 
         return foret_dict
@@ -409,7 +425,8 @@ def get_random_id_declarant():
         + str(config["ID_APP"])
         + ""
     )
-    data = DB.engine.execute(sql_text)
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        data = conn.execute(sql_text)
     v = [d[0] for d in data]
     if v == []:
         return None

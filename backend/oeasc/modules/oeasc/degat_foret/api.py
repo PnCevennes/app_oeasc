@@ -27,7 +27,7 @@ bp = Blueprint("degat_foret_api", __name__)
 @check_auth_redirect_login(1)
 def api_get_proprietaire_from_id_declarant(id_declarant):
     (proprietaire) = get_proprietaire_from_id_declarant(id_declarant)
-    out = proprietaire.as_dict(True)
+    out = proprietaire.as_dict()
 
     return out
 
@@ -36,8 +36,8 @@ def api_get_proprietaire_from_id_declarant(id_declarant):
 @check_auth_redirect_login(1)
 def api_get_foret_from_code(code_foret):
     (foret, proprietaire) = get_foret_from_code(code_foret)
-    out = foret.as_dict(True)
-    out.update(proprietaire.as_dict(True))
+    out = foret.as_dict()
+    out.update(proprietaire.as_dict())
 
     nomenclature = get_nomenclature_from_id(
         proprietaire.id_nomenclature_proprietaire_type
@@ -69,13 +69,13 @@ def api_get_declaration(id_declaration):
     if not declaration:
         return
 
-    out = declaration.as_dict(True)
+    out = declaration.as_dict()
 
     # flat data
-    out.update(foret.as_dict(True))
+    out.update(foret.as_dict())
 
     id_declarant = declaration.id_declarant
-    out.update(proprietaire.as_dict(True))
+    out.update(proprietaire.as_dict())
     out["id_declarant"] = id_declarant
 
     # nomenclature
@@ -133,8 +133,8 @@ def api_post_declaration():
 
     post_data = request.get_json()
     d = create_or_update_declaration(post_data)
-    send_mail_validation_declaration(d.as_dict(True), False)
-    return d.as_dict(True)
+    send_mail_validation_declaration(d.as_dict(), False)
+    return d.as_dict()
 
 
 @bp.route("declaration", methods=["POST"])

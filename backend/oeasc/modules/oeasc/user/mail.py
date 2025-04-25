@@ -7,8 +7,10 @@ from pypnusershub.db.models_register import TempUser
 
 
 config = current_app.config
+DB = config["DB"]
+
 MAIL = config.get("MAIL", None)
-DB = config.get("DB", None)
+# DB = config.get("DB", None)
 
 bp = Blueprint("oeasc_api_mail", __name__)
 
@@ -60,12 +62,20 @@ def create_temp_user(data):
 
 def valid_temp_user(data):
     role = data
-    organisme = DB.engine.execute(
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        organisme = conn.execute(
         text(
             "SELECT nom_organisme FROM utilisateurs.bib_organismes WHERE id_organisme="
             + str(role["id_organisme"])
         )
     ).first()
+        
+    # organisme = DB.engine.execute(
+    #     text(
+    #         "SELECT nom_organisme FROM utilisateurs.bib_organismes WHERE id_organisme="
+    #         + str(role["id_organisme"])
+    #     )
+    # ).first()
 
     if organisme:
         role["organisme"] = organisme[0]

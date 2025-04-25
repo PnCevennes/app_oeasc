@@ -3,23 +3,25 @@
 """
 from flask import current_app
 
-from sqlalchemy import and_, select, func, literal_column
-from sqlalchemy.orm import aliased
-from sqlalchemy.ext.declarative import ConcreteBase
-from sqlalchemy.sql.expression import case
-
+from sqlalchemy import Table, Column, Integer, Unicode, Boolean, Date, ForeignKey
+from sqlalchemy import and_, select, func, case
+from sqlalchemy.orm import relationship, column_property
 from utils_flask_sqla.serializers import serializable
-
 from ..commons.models import TSecteurs, TEspeces
-from sqlalchemy.orm import column_property
 
 
 config = current_app.config
 DB = config["DB"]
 
+# les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0
+# Cela permet de ne pas générer d'erreur avec l'ancienne manière de déclarer les models.
+# Une fois la migration en 2.0 terminée il faudra réécrire les models en utilisant Mapped (cette fonction n'est pas dispo dans la 1.4)
+class CustomModel(DB.Model):
+    __abstract__ = True # evite que la classe soit considérée comme une table
+    __allow_unmapped__ = True
 
 @serializable
-class TObservers(DB.Model):
+class TObservers(CustomModel):
     """
     Tags for circuits
     """
@@ -27,22 +29,23 @@ class TObservers(DB.Model):
     __tablename__ = "t_observers"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_observer = DB.Column(DB.Integer, primary_key=True)
-    nom_observer = DB.Column(DB.Unicode)
+    id_observer = Column(Integer, primary_key=True)
+    nom_observer = Column(Unicode)
 
 
-cor_realisation_observer = DB.Table(
+cor_realisation_observer = Table(
     "cor_realisation_observer",
-    DB.Column(
+    DB.metadata,
+    Column(
         "id_observer",
-        DB.Integer,
-        DB.ForeignKey("oeasc_in.t_observers.id_observer"),
+        Integer,
+        ForeignKey("oeasc_in.t_observers.id_observer"),
         primary_key=True,
     ),
-    DB.Column(
+    Column(
         "id_realisation",
-        DB.Integer,
-        DB.ForeignKey("oeasc_in.t_realisations.id_realisation"),
+        Integer,
+        ForeignKey("oeasc_in.t_realisations.id_realisation"),
         primary_key=True,
     ),
     extend_existing=True,
@@ -51,7 +54,7 @@ cor_realisation_observer = DB.Table(
 
 
 @serializable
-class TCircuits(DB.Model):
+class TCircuits(CustomModel):
     """
     Circuits for IN
     """
@@ -59,19 +62,19 @@ class TCircuits(DB.Model):
     __tablename__ = "t_circuits"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_circuit = DB.Column(DB.Integer, primary_key=True)
-    nom_circuit = DB.Column(DB.Unicode)
-    numero_circuit = DB.Column(DB.Integer)
-    km = DB.Column(DB.Integer)
-    id_secteur = DB.Column(
-        DB.Integer, DB.ForeignKey("oeasc_commons.t_secteurs.id_secteur")
+    id_circuit = Column(Integer, primary_key=True)
+    nom_circuit = Column(Unicode)
+    numero_circuit = Column(Integer)
+    km = Column(Integer)
+    id_secteur = Column(
+        Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur")
     )
-    actif = DB.Column(DB.Boolean, default=True)
-    secteur = DB.relationship(TSecteurs)
+    actif = Column(Boolean, default=True)
+    secteur = relationship(TSecteurs)
 
 
 @serializable
-class TObservations(DB.Model):
+class TObservations(CustomModel):
     """
     Observation for In
     espece
@@ -81,32 +84,32 @@ class TObservations(DB.Model):
     __tablename__ = "t_observations"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_observation = DB.Column(DB.Integer, primary_key=True)
-    id_realisation = DB.Column(
-        DB.Integer, DB.ForeignKey("oeasc_in.t_realisations.id_realisation")
+    id_observation = Column(Integer, primary_key=True)
+    id_realisation = Column(
+        Integer, ForeignKey("oeasc_in.t_realisations.id_realisation")
     )
-    id_espece = DB.Column(
-        DB.Integer, DB.ForeignKey("oeasc_commons.t_especes.id_espece")
+    id_espece = Column(
+        Integer, ForeignKey("oeasc_commons.t_especes.id_espece")
     )
-    espece = DB.relationship(TEspeces, lazy="joined")
-    nb = DB.Column(DB.Integer)
+    espece = relationship(TEspeces, lazy="joined")
+    nb = Column(Integer)
 
 
 @serializable
-class TTags(DB.Model):
+class TTags(CustomModel):
     """
     Tags for circuits
     """
 
     __tablename__ = "t_tags"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
-    id_tag = DB.Column(DB.Integer, primary_key=True)
-    nom_tag = DB.Column(DB.Unicode)
-    code_tag = DB.Column(DB.Unicode)
+    id_tag = Column(Integer, primary_key=True)
+    nom_tag = Column(Unicode)
+    code_tag = Column(Unicode)
 
 
 @serializable
-class CorRealisationTag(DB.Model):
+class CorRealisationTag(CustomModel):
     """
     Cor Realisation Tag
     """
@@ -114,25 +117,23 @@ class CorRealisationTag(DB.Model):
     __tablename__ = "cor_realisation_tag"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_tag = DB.Column(
-        DB.Integer,
-        DB.ForeignKey("oeasc_in.t_tags.id_tag"),
+    id_tag = Column(
+        Integer,
+        ForeignKey("oeasc_in.t_tags.id_tag"),
         primary_key=True,
     )
-    id_realisation = DB.Column(
-        DB.Integer,
-        DB.ForeignKey(
-            "oeasc_in.t_realisations.id_realisation"
-        ),  # POURQUOI CA MARCHE PAS ????????????
+    id_realisation = Column(
+        Integer,
+        ForeignKey("oeasc_in.t_realisations.id_realisation"),
         primary_key=True,
     )
-    valid = DB.Column(DB.Boolean)
+    valid = Column(Boolean)
 
-    tag = DB.relationship(TTags, lazy="joined")
+    tag = relationship(TTags, lazy="joined")
 
 
 @serializable
-class CorRealisationObserver(DB.Model):
+class CorRealisationObserver(CustomModel):
     """
     Cor Realisation Observer
     """
@@ -140,22 +141,20 @@ class CorRealisationObserver(DB.Model):
     __tablename__ = "cor_realisation_observer"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_observer = DB.Column(
-        DB.Integer,
-        DB.ForeignKey("oeasc_in.t_observers.id_observer"),
+    id_observer = Column(
+        Integer,
+        ForeignKey("oeasc_in.t_observers.id_observer"),
         primary_key=True,
     )
-    id_realisation = DB.Column(
-        DB.Integer,
-        DB.ForeignKey(
-            "oeasc_in.t_realisations.id_realisation"
-        ),  # POURQUOI CA MARCHE PAS ????????????
+    id_realisation = Column(
+        Integer,
+        ForeignKey("oeasc_in.t_realisations.id_realisation"),
         primary_key=True,
     )
 
 
 @serializable
-class TRealisations(DB.Model):
+class TRealisations(CustomModel):
     """
     Realisation of a circuit
     """
@@ -163,39 +162,40 @@ class TRealisations(DB.Model):
     __tablename__ = "t_realisations"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_realisation = DB.Column(DB.Integer, primary_key=True)
-    id_circuit = DB.Column(DB.Integer, DB.ForeignKey("oeasc_in.t_circuits.id_circuit"))
-    serie = DB.Column(DB.Integer)
-    groupes = DB.Column(DB.Integer)
+    id_realisation = Column(Integer, primary_key=True)
+    id_circuit = Column(Integer, ForeignKey("oeasc_in.t_circuits.id_circuit"))
+    serie = Column(Integer)
+    groupes = Column(Integer)
 
-    vent = DB.Column(DB.Unicode)
-    temps = DB.Column(DB.Unicode)
-    temperature = DB.Column(DB.Unicode)
-    date_realisation = DB.Column(DB.Date)
+    vent = Column(Unicode)
+    temps = Column(Unicode)
+    temperature = Column(Unicode)
+    date_realisation = Column(Date)
 
-    secteur = DB.relationship(
+    secteur = relationship(
         TSecteurs,
         secondary="oeasc_in.t_circuits",
         primaryjoin="TRealisations.id_circuit == TCircuits.id_circuit",
         secondaryjoin="TCircuits.id_secteur == TSecteurs.id_secteur",
         uselist=False,
+        overlaps="circuit",
     )
 
-    circuit = DB.relationship(TCircuits, lazy="joined")
+    circuit = relationship(TCircuits, lazy="joined")
 
-    observations = DB.relationship(
+    observations = relationship(
         TObservations,
         cascade="save-update, merge, delete, delete-orphan",
         lazy="joined",
     )
 
-    observers = DB.relationship(
+    observers = relationship(
         TObservers,
         secondary=cor_realisation_observer,
         lazy="joined",
     )
 
-    tags = DB.relationship(
+    tags = relationship(
         CorRealisationTag,
         cascade="save-update, merge, delete, delete-orphan",
         lazy="joined",
@@ -207,7 +207,7 @@ class TRealisations(DB.Model):
                 TObservers.id_observer == CorRealisationObserver.id_observer,
                 id_realisation == CorRealisationObserver.id_observer,
             )
-        ).scalar_subquery() 
+        ).scalar_subquery()
     )
 
     tags_table = column_property(
@@ -216,7 +216,7 @@ class TRealisations(DB.Model):
                     func.concat(
                         TTags.nom_tag,
                         " : ",
-                        case((CorRealisationTag.valid, "o"), else_="x"),
+                        case((CorRealisationTag.valid == True, "o"), else_="x"),
                     ),
                     ", ",
                 )
@@ -225,7 +225,7 @@ class TRealisations(DB.Model):
                 CorRealisationTag.id_realisation == id_realisation,
                 CorRealisationTag.id_tag == TTags.id_tag,
             )
-        ).scalar_subquery() 
+        ).scalar_subquery()
     )
 
     cerfs = column_property(
@@ -235,7 +235,7 @@ class TRealisations(DB.Model):
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Cerf",
             )
-        ).scalar_subquery() 
+        ).scalar_subquery()
     )
 
     lievres = column_property(
@@ -245,7 +245,7 @@ class TRealisations(DB.Model):
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Lièvre",
             )
-        ).scalar_subquery() 
+        ).scalar_subquery()
     )
 
     chevreuils = column_property(
@@ -255,7 +255,7 @@ class TRealisations(DB.Model):
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Chevreuil",
             )
-        ).scalar_subquery() 
+        ).scalar_subquery()
     )
 
     renards = column_property(
@@ -265,5 +265,5 @@ class TRealisations(DB.Model):
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Renard",
             )
-        ).scalar_subquery() 
+        ).scalar_subquery()
     )

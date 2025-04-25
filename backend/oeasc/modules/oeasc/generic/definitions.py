@@ -18,9 +18,11 @@ class GenericRouteDefinitions:
         return self._definitions.get(module_name, {})
 
     def get_object_type(self, module_name, object_type):
+        """retourne un dictionnaire contenant le modèle et diverses infos comme les droits d'accès"""
         return self.get_module(module_name).get(object_type, {})
 
     def get_model(self, module_name, object_type):
+        """ Retourne le modèle et le nom de sa clé primaire"""
         Model = self.get_object_type(module_name, object_type).get("model")
 
         id_field_name = inspect(Model).primary_key[0].name if Model else None

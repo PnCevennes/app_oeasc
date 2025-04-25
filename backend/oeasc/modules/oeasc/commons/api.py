@@ -9,16 +9,16 @@ from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp_accept_empty_list, json_resp
 from sqlalchemy import text
 
-from oeasc.utils.env import ROOT_DIR
+# from oeasc.utils.env import ROOT_DIR
 
 from .models import (
     TContents,
     TTags,
     TSecteurs,
     TEspeces,
-    TNomenclatures,
-    BibNomenclaturesTypes,
+
 )
+from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from ..generic.definitions import GenericRouteDefinitions
 
 from ..nomenclature import nomenclature_oeasc_types
@@ -86,8 +86,10 @@ def api_communes(test):
     """.format(
         cond_text
     )
-
-    result = DB.engine.execute(text(sql_text))
+    with DB.engine.begin() as conn: # sqlalchemy 2.0
+        result = conn.execute(text(sql_text))
+    # result = DB.engine.execute(text(sql_text))
+    
     out = [{"nom_cp": res[0]} for res in result]
     return out
 
@@ -102,7 +104,7 @@ def api_images(dir_file):
     if not dir_file in ["img", "doc"]:
         return []
 
-    file_dir_path = Path(ROOT_DIR, "static/medias/" + dir_file)
+    file_dir_path = Path(config["ROOT_DIR"], "static/medias/" + dir_file)
     files_out = []
     for root, dirs, files in os.walk(file_dir_path):
         for i in files:
@@ -142,7 +144,7 @@ def api_add_images(dir_file):
     for c in "/!;, ()}{}":
         filename = filename.replace(c, "_")
 
-    file.save(os.path.join(ROOT_DIR, "static/medias/" + dir_file, filename))
+    file.save(os.path.join(config["ROOT_DIR"], "static/medias/" + dir_file, filename))
     out["src"] = filename
 
     return out

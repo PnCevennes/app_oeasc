@@ -1,6 +1,6 @@
 from flask_mail import Message
 
-from oeasc.utils.env import mail
+# from oeasc.utils.env import mail
 
 from flask import render_template, session, current_app
 
@@ -13,6 +13,7 @@ from .declaration_sample import declaration_dict_random_sample
 
 
 config = current_app.config
+mail = config["MAIL"]
 
 
 def display_mail_test(destinataire):

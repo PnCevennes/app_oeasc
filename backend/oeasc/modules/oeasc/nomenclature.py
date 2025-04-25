@@ -2,6 +2,7 @@ from flask import session, current_app
 from pypnnomenclature.repository import get_nomenclature_list
 from oeasc.ref_geo.repository import get_type_code
 from oeasc.ref_geo.models import VAreas as VA, TAreas
+from sqlalchemy import select
 
 config = current_app.config
 DB = config["DB"]
@@ -139,12 +140,16 @@ def get_areas_from_ids(id_areas):
     if id_areas_to_query:
         print("get areas from db ", len(id_areas_to_query))
 
-        data = DB.session.query(VA).filter(VA.id_area.in_(id_areas_to_query))
+        # data = DB.session.query(VA).filter(VA.id_area.in_(id_areas_to_query))
+
+        stmt = select(VA).where(VA.id_area.in_(id_areas_to_query))
+        data = DB.session.execute(stmt).all()  # Récupération des résultats complets
 
         for d in data:
             d_dict = d.as_dict()
             d_dict["type_code"] = get_type_code(d_dict["id_type"])
             config["_areas"][str(d_dict["id_area"])] = d_dict
+
 
 
 def get_area_from_id(id_area):
@@ -158,18 +163,26 @@ def get_area_from_id(id_area):
     if not config["_areas"].get(str(id_area), None):
         print("get single area from db : " + str(id_area))
 
-        data = DB.session.query(VA).filter(id_area == VA.id_area).first()
+        stmt = select(VA).where(VA.id_area == id_area)
+        data = DB.session.execute(stmt).first()
 
         if not data:
             return None
 
-        out = data.as_dict(
-            columns=["id_area", "id_type", "area_name", "area_code", "label"]
-        )
+        out = data._mapping  # Access row as a dictionary-like object
+        out = {key: out[key] for key in ["id_area", "id_type", "area_name", "area_code", "label"]}
 
         out["type_code"] = get_type_code(out["id_type"])
 
         config["_areas"][str(id_area)] = out
+
+        # data = DB.session.query(VA).filter(id_area == VA.id_area).first()
+        # out = data.as_dict(
+        #     columns=["id_area", "id_type", "area_name", "area_code", "label"]
+        # )
+
+
+
 
     return config["_areas"][str(id_area)]
 

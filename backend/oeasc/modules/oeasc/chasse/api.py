@@ -31,7 +31,7 @@ from .repositories import (
 from sqlalchemy import column, select, func, table, distinct, over
 import json
 import datetime
-from oeasc.utils.env import ROOT_DIR
+# from oeasc.utils.env import ROOT_DIR
 from py3o.template import Template
 
 
@@ -111,7 +111,10 @@ def api_result_ice():
         params["poids_ou_dagues"],
     )
     # res = DB.engine.execute(req).first()[0]
+
     res = DB.session.execute(req).first()[0]
+
+    # res = DB.session.execute(req).first()[0]
     return res
 
 
@@ -163,16 +166,22 @@ def api_result_export():
     view = views.get(data_type)
     schema_name = view.split(".")[0]
     table_name = view.split(".")[1]
+       
 
     # view + filters
     results = GenericQuery(
         DB, schemaName=schema_name, tableName=table_name, filters=filters, limit=1e6
     ).return_query()
+
+
     data = results["items"]
     file_name = "export_{}_{}".format(
         data_type, datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%s")
     )
     return (file_name, data, data[0].keys(), ";")
+
+
+
 
 
 @bp.route("export/ods", methods=["GET"])
@@ -181,8 +190,8 @@ def api_chasse_ods():
     test export ods
     """
 
-    template_path = ROOT_DIR / "app/templates/ods/template_bilan_chasse.ods"
-    output_path = ROOT_DIR / "static/export/test.ods"
+    template_path = config["ROOT_DIR"] / "app/templates/ods/template_bilan_chasse.ods"
+    output_path = config["ROOT_DIR"] / "static/export/test.ods"
     nom_saison = request.args.get("saison", "current")
 
     data = get_data_all_especes_export_ods(nom_saison)

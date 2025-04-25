@@ -4,7 +4,8 @@
 
 from flask import current_app
 from .definitions import GenericRouteDefinitions
-from sqlalchemy import func, cast, orm, and_
+
+from sqlalchemy import func, cast, select, orm, and_, delete
 import unidecode
 from sqlalchemy.sql.functions import ReturnTypeFromArgs
 
@@ -63,13 +64,16 @@ def custom_getattr(Model, attr_name, query):
         if not hasattr(Model, rel):
             return None, query
 
-        if not hasattr(getattr(Model, rel).mapper.columns, col):
+        relationship = getattr(Model, rel)
+        target_model = relationship.prop.mapper.class_
+
+        # Check if the column exists in the target model
+        if not hasattr(target_model, col):
             return None, query
 
-        relationship = getattr(Model, rel)
-        alias = orm.aliased(relationship.mapper.entity)  # Model ?????
-
+        alias = orm.aliased(target_model)
         query = query.join(alias, relationship)
+
 
         model_attribute = getattr(alias, col)
 
@@ -82,7 +86,7 @@ def custom_getattr(Model, attr_name, query):
         return getattr(Model, attr_name), query
 
 
-def get_objects_type(module_name, object_type, args={}):
+def get_objects_type_ancien(module_name, object_type, args={}):
     """
     La fonction get_objects_type(module_name, object_type, args={}) construit dynamiquement une requête
     SQLAlchemy pour récupérer des objets en fonction de filtres, de tris et de la pagination. Elle est
@@ -101,11 +105,15 @@ def get_objects_type(module_name, object_type, args={}):
 
     """
 
-    joins = []
+    # joins = []
 
-    Model, _ = definitions.get_model(module_name, object_type)
+
+    Model, cle_primaire = definitions.get_model(module_name, object_type)
+
+    # recupère un dictionnaire contenant le modèle et diverses options
     obj = definitions.get_object_type(module_name, object_type)
 
+    # on charge le modèle
     query = DB.session.query(Model)
     query.enable_assertions = True  # prttt ???
 
@@ -222,6 +230,130 @@ def get_objects_type(module_name, object_type, args={}):
     return query, count, count_filtered
 
 
+def get_objects_type(module_name, object_type, args={}):
+    """
+    La fonction get_objects_type(module_name, object_type, args={}) construit dynamiquement une requête
+    SQLAlchemy pour récupérer des objets en fonction de filtres, de tris et de la pagination. Elle est
+    conçue pour être générique, permettant d'interroger n'importe quel modèle SQLAlchemy en fonction
+    des paramètres fournis.
+
+    module_name : Nom du module contenant le modèle.
+    object_type : Type d'objet (nom du modèle SQLAlchemy).
+    args : Dictionnaire contenant les paramètres de filtrage, de tri et de pagination (généralement récupérés depuis request.args).
+
+    clé possible dans args :
+    ?name=John → name="John" (égalité)
+    ?name__ilike=jo → name ILIKE "%jo%" (recherche insensible à la casse)
+    ?status=active,inactive → status IN ('active', 'inactive') (filtrage multiple)
+    ?profile.name=Admin → jointure avec une relation (profile) et filtrage sur profile.name
+
+    """
+
+    Model, _ = definitions.get_model(module_name, object_type)
+
+    # recupère un dictionnaire contenant le modèle et diverses options
+    obj = definitions.get_object_type(module_name, object_type)
+
+    # on charge le modèle
+    stmt = select(Model)
+
+    # prefiltres
+    pre_filters = obj.get("pre_filters", {})
+    for key in pre_filters:
+        if not hasattr(Model, key):
+            continue
+        stmt = stmt.where(getattr(Model, key).in_(pre_filters[key]))
+
+    count_result = DB.session.execute(select(func.count()).select_from(stmt.subquery())).scalar_one()
+    count = count_result or 0
+
+    # filtres
+    for key in args:
+        params_filter = key.split("__")
+        key_filter = params_filter[0]
+
+        type_filter = None
+        if len(params_filter) > 1:
+            type_filter = params_filter[1]
+
+        value_filter = args[key]
+
+        if not value_filter:
+            continue
+
+        model_attribute, stmt = custom_getattr(Model, key_filter, stmt)
+
+        if model_attribute is None:
+            continue
+
+        if type_filter == "ilike" and value_filter and value_filter[0] != "=":
+            # filtre ILIKE
+            value_filters = value_filter.split(" ")
+            filters = []
+            for v in value_filters:
+                filters.append(
+                    unaccent(cast(model_attribute, DB.String)).ilike(
+                        func.concat("%", unaccent(v), "%")
+                    )
+                )
+
+            stmt = stmt.where(and_(*(tuple(filters))))
+
+        else:
+            value_filter_effectif = value_filter
+            if value_filter and value_filter[0] == "=":
+                value_filter_effectif = value_filter[1:]
+            # filtre =
+
+            if len(value_filter_effectif.split(",")) > 1:
+                stmt = stmt.where(
+                    cast(model_attribute, DB.String).in_(
+                        value_filter_effectif.split(",")
+                    )
+                )
+            else:
+                stmt = stmt.where(
+                    cast(model_attribute, DB.String) == value_filter_effectif
+                )
+
+    # Triage
+    sort_by = getlist(args, "sortBy")
+    sort_desc = getlist(args, "sortDesc")
+
+    # sort
+    order_bys = []
+    for index, key in enumerate(sort_by):
+        model_attribute, stmt = custom_getattr(Model, key, stmt)
+        if model_attribute is None:
+            continue
+
+        desc = sort_desc[index] if index < len(sort_desc) else 'false'
+        if desc == "true":
+            order_bys.append(model_attribute.desc())
+        else:
+            order_bys.append(model_attribute.asc())
+
+    if order_bys:
+        stmt = stmt.order_by(*(tuple(order_bys)))
+
+    count_filtered_result = DB.session.execute(select(func.count()).select_from(stmt.subquery())).scalar_one()
+    count_filtered = count_filtered_result or 0
+
+    # Pagination
+    page = args.get("page")
+    itemsPerPage = args.get("itemsPerPage")
+    if itemsPerPage and int(itemsPerPage) > 0:
+        stmt = stmt.limit(int(itemsPerPage))
+
+        if page and int(page) > 1:
+            stmt = stmt.offset((int(page) - 1) * int(itemsPerPage))
+
+    # Exécution de la requête
+    query = DB.session.execute(stmt).scalars()
+    
+    return query, count, count_filtered
+
+
 def get_object_type(module_name, object_type, value, field_name=None):
     """
 
@@ -244,40 +376,57 @@ def get_object_type(module_name, object_type, value, field_name=None):
     if not field_name:
         field_name = id_field_name
 
-    return DB.session.query(Model).filter(getattr(Model, field_name) == value).one()
+    select_object = select(Model).where(getattr(Model, field_name) == value)
+    result = DB.session.execute(select_object).scalars().one_or_none()
+
+    return result
+    # return DB.session.query(Model).filter(getattr(Model, field_name) == value).one()
 
 
 def create_or_update_object_type(module_name, object_type, id_value, post_data):
     """
-    Cette fonction permet de créer ou mettre à jour un objet d’un modèle SQLAlchemy en fonction d’un id_value.
-
-    Objectif :
-    Si id_value est fourni → Met à jour l'objet existant.
-    Si id_value est None → Crée un nouvel objet.
-
-    Paramètres :
-
-    module_name : Nom du module contenant le modèle.
-    object_type : Nom du modèle SQLAlchemy.
-    id_value : Valeur de l'identifiant de l'objet (ex: User.id).
-    post_data : Dictionnaire contenant les valeurs à mettre à jour/créer.
-
+    Crée ou met à jour un objet du type spécifié avec les données fournies.
+    
+    Args:
+        module_name: Nom du module contenant le modèle
+        object_type: Type d'objet à créer/mettre à jour
+        id_value: Valeur d'ID pour la mise à jour (None pour création)
+        post_data: Données à appliquer à l'objet
+        
+    Returns:
+        L'objet créé ou mis à jour
     """
     (Model, id_field_name) = definitions.get_model(module_name, object_type)
+    
+    try:
+        # SQLAlchemy 2.0 préfère l'utilisation explicite des sessions
+        if id_value:
+            # Récupération de l'objet existant
+            res = get_object_type(module_name, object_type, id_value)
+            if not res:
+                raise ValueError(f"Objet {object_type} avec {id_field_name}={id_value} non trouvé")
+        else:
+            # Création d'un nouvel objet
+            res = Model()
+            # En 2.0, on préfère add() explicitement même si ce sera fait lors du commit
+            DB.session.add(res)
+        
+        # Suppression de l'ID si sa valeur est None
+        if id_field_name in post_data and post_data[id_field_name] is None:
+            del post_data[id_field_name]
+        
+        # Application des données (méthode personnalisée)
+        res.from_dict(post_data, True)
+        
+        # Commit des changements
+        DB.session.commit()
+        return res
+        
+    except Exception as e:
+        DB.session.rollback()
+        # Considérez de logger l'erreur ici
+        raise e
 
-    res = get_object_type(module_name, object_type, id_value) if id_value else Model()
-
-    if id_field_name in post_data and post_data[id_field_name] is None:
-        del post_data[id_field_name]
-
-    res.from_dict(post_data, True)
-
-    if not id_value:
-        DB.session.add(res)
-
-    DB.session.commit()
-
-    return res
 
 
 def delete_object_type(module_name, object_type, id_value):
@@ -301,9 +450,10 @@ def delete_object_type(module_name, object_type, id_value):
     if not res:
         return None
 
-    out = res.as_dict(True)
+    out = res.as_dict()
 
-    (DB.session.query(Model).filter(getattr(Model, id_field_name) == id_value).delete())
+    
+    DB.session.delete(res)
 
     DB.session.commit()
 

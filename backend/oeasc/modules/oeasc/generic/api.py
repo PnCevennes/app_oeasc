@@ -7,6 +7,8 @@ from flask import Blueprint, request
 
 from .decorator import check_object_type
 
+from .definitions import GenericRouteDefinitions
+definitions = GenericRouteDefinitions()
 
 from .repository import (
     get_objects_type,
@@ -15,6 +17,7 @@ from .repository import (
     delete_object_type,
 )
 
+from oeasc.modules.oeasc.chasse.models import TLieuTirs
 bp = Blueprint("generic_api", __name__)
 
 
@@ -50,10 +53,11 @@ def get_all_generic(module_name, object_types):
         return count
     # si la clé "fields" est présente dans les arguments, on retourne seulement les champs demandés
     if "fields" in args:
-        fields = args.get("fields_name").split(",")
+        fields = args.get("fields").split(",")
         items = [r.as_dict(fields=(fields)) for r in res.all()]
     else:
-        items = [r.as_dict(True) for r in res.all()]
+        print ("################# fields à rajouter dans les args de la requete")
+        items = [r.as_dict() for r in res.all()]
 
     return {"total": count, "total_filtered": count_filtered, "items": items}
 
@@ -77,14 +81,17 @@ def get_all_generic(module_name, object_types):
 def get_generic(module_name, object_type, value):
 
     field_name = request.args.get("field_name")
+    # in_relationship = request.args.get("in_relationship")
 
+    (Model, id_field_name) = definitions.get_model(module_name, object_type)
     res = get_object_type(module_name, object_type, value, field_name)
 
     if not res:
         return None
+ 
+    relat = [db_rel.key for db_rel in Model.__mapper__.relationships]
 
-    return res.as_dict(True)
-
+    return res.as_dict(fields=relat)
 
 
 # Cette fonction est une route Flask qui permet de mettre à jour un objet unique en fonction
@@ -114,7 +121,7 @@ def patch_generic(module_name, object_type, id_value):
 
     res = create_or_update_object_type(module_name, object_type, id_value, post_data)
 
-    return res.as_dict(True)
+    return res.as_dict()
 
 
 
@@ -138,7 +145,7 @@ def post_generic(module_name, object_type):
 
     res = create_or_update_object_type(module_name, object_type, None, post_data)
 
-    return res.as_dict(True)
+    return res.as_dict()
 
 
 # Cette fonction est une route Flask qui permet de supprimer un objet unique en fonction
