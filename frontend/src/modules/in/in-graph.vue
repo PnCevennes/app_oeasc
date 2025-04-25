@@ -15,7 +15,8 @@
 import Highcharts from "highcharts";
 import exportingInit from "highcharts/modules/exporting";
 import offlineExporting from "highcharts/modules/offline-exporting";
-import * as chroma from "chroma-js";
+import chroma from "chroma-js";
+// import * as chroma from "chroma-js";
 import { round } from "@/core/js/util/util.js";
 exportingInit(Highcharts);
 offlineExporting(Highcharts);
@@ -89,6 +90,8 @@ export default {
 
       return color.toString();
     },
+
+
     initGraph() {
       if (this.dataIn) {
         this.dataGraph = this.dataIn;

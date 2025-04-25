@@ -60,7 +60,9 @@
 </template>
 
 <script>
-import * as chroma from "chroma-js";
+
+import chroma from "chroma-js";
+// import * as chroma from "chroma-js";
 
 export default {
   name: "mapLegend",

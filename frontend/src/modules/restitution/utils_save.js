@@ -1,4 +1,5 @@
-import * as chroma from "chroma-js";
+// import * as chroma from "chroma-js";
+import chroma from "chroma-js";
 
 const defaults = {
   icon: [

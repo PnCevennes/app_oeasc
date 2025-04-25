@@ -1,5 +1,6 @@
 // import * as chroma from "chroma-js";
 import restitutionUtils from "./utils.js";
+import chroma from "chroma-js";
 
 class Restitution {
   $store;
@@ -17,8 +18,8 @@ class Restitution {
       "triangle",
       "wifi-strength-4"
     ],
-    colors: ["#1b9e77", "#d95f02", "#7570b3"], 
-    // colors: chroma.brewer.Dark2, retourne un warning
+    // colors: ["#1b9e77", "#d95f02", "#7570b3"], 
+    colors: chroma.brewer.Dark2,
     
     icon: "circle",
     color: "rgb(150,150,150)"
