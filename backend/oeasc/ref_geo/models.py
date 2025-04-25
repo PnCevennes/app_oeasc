@@ -1,11 +1,12 @@
 """
-    modeles pour ref_geo
-    TODO !!
-    simplifier les vues
-    ajouter type dans les vues
-    etc...
-    améliorer forets
+modeles pour ref_geo
+TODO !!
+simplifier les vues
+ajouter type dans les vues
+etc...
+améliorer forets
 """
+
 from flask import current_app
 from geoalchemy2 import Geometry
 

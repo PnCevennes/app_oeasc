@@ -1,8 +1,7 @@
-
-
 from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
 from pathlib import Path
+
 # from config import config
 from os import environ
 from importlib import import_module
@@ -18,15 +17,13 @@ if db_path and db_path != f"{__name__}.db":
     # db = DB
 
 else:
-    print ("module db connecté ###### => ", __name__)
-    db = SQLAlchemy( engine_options={"future": True}) # future pour sqlalchemy 2.0
+    print("module db connecté ###### => ", __name__)
+    db = SQLAlchemy(engine_options={"future": True})  # future pour sqlalchemy 2.0
     # DB = SQLAlchemy( engine_options=app.config['SQLALCHEMY_ENGINE_OPTIONS']) # future pour sqlalchemy 2.0
     environ["FLASK_SQLALCHEMY_DB"] = f"{__name__}.db"
     # db = DB
     # pour la migration sqlalchemy 2.0 il faut déclarer la Base
     Base = db.Model
-
-
 
 
 # db = DB # pour le module auth_authentification, il faut db et non DB
@@ -35,15 +32,7 @@ else:
 # # URL_REDIRECT = "{}/{}".format(config.URL_APPLICATION, "oeasc/login")
 
 
-
-
 # # URL_REDIRECT = "login/"
-
-
-
-
-
-
 
 
 # # """ Helpers to manipulate the execution environment """

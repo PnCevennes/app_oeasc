@@ -16,8 +16,6 @@
 #     return result
 
 
-
-
 # def get_db(type, key, val):
 
 #     switch_model = {

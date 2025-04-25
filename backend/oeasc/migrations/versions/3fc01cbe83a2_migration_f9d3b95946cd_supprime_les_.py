@@ -5,14 +5,15 @@ Revises: 8857f2169f96
 Create Date: 2025-03-10 11:22:11.138327
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 import subprocess
 
 
 # revision identifiers, used by Alembic.
-revision = '3fc01cbe83a2'
-down_revision = '8857f2169f96'
+revision = "3fc01cbe83a2"
+down_revision = "8857f2169f96"
 branch_labels = None
 depends_on = None
 
@@ -23,7 +24,6 @@ depends_on = None
 VIEW_FILE_PATH1 = f"../data/oeasc_views/oeasc_commons_views.sql"
 VIEW_FILE_PATH2 = f"../data/oeasc_views/oeasc_declarations_views.sql"
 VIEW_FILE_PATH3 = f"../data/oeasc_views/oeasc_resultats_views.sql"
-
 
 
 def upgrade():

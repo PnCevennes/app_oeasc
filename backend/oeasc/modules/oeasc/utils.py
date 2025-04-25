@@ -1,7 +1,8 @@
 """
-    Fonctions à utilisé danbs Jinja
-    ex: utils.print_date pour afficher la date au format jour-mois-année
+Fonctions à utilisé danbs Jinja
+ex: utils.print_date pour afficher la date au format jour-mois-année
 """
+
 from dateutil import parser
 from flask import current_app
 

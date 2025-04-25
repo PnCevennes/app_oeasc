@@ -1,5 +1,5 @@
 """
-    routes generiques
+routes generiques
 """
 
 from utils_flask_sqla.response import json_resp, json_resp_accept_empty_list
@@ -8,6 +8,7 @@ from flask import Blueprint, request
 from .decorator import check_object_type
 
 from .definitions import GenericRouteDefinitions
+
 definitions = GenericRouteDefinitions()
 
 from .repository import (
@@ -18,6 +19,7 @@ from .repository import (
 )
 
 from oeasc.modules.oeasc.chasse.models import TLieuTirs
+
 bp = Blueprint("generic_api", __name__)
 
 
@@ -36,7 +38,9 @@ bp = Blueprint("generic_api", __name__)
 #   ]
 # }
 @bp.route("<string:module_name>/<string:object_types>/", methods=["GET"])
-@check_object_type(droit_type="R") # verifie les droits en lecture et si le module existe
+@check_object_type(
+    droit_type="R"
+)  # verifie les droits en lecture et si le module existe
 @json_resp_accept_empty_list
 def get_all_generic(module_name, object_types):
     """
@@ -56,11 +60,10 @@ def get_all_generic(module_name, object_types):
         fields = args.get("fields").split(",")
         items = [r.as_dict(fields=(fields)) for r in res.all()]
     else:
-        print ("################# fields à rajouter dans les args de la requete")
+        print("################# fields à rajouter dans les args de la requete")
         items = [r.as_dict() for r in res.all()]
 
     return {"total": count, "total_filtered": count_filtered, "items": items}
-
 
 
 # Cette fonction est une route Flask qui permet de récupérer un objet unique en fonction
@@ -75,6 +78,7 @@ def get_all_generic(module_name, object_types):
 #   "name": "Alice"
 # }
 
+
 @bp.route("<string:module_name>/<string:object_type>/<value>", methods=["GET"])
 @check_object_type("R")
 @json_resp
@@ -88,7 +92,7 @@ def get_generic(module_name, object_type, value):
 
     if not res:
         return None
- 
+
     relat = [db_rel.key for db_rel in Model.__mapper__.relationships]
 
     return res.as_dict(fields=relat)
@@ -112,8 +116,9 @@ def get_generic(module_name, object_type, value):
 #   "name": "Alice"
 # }
 
+
 @bp.route("<string:module_name>/<string:object_type>/<int:id_value>", methods=["PATCH"])
-@check_object_type("U") # vérifie les droits en écriture (Update)
+@check_object_type("U")  # vérifie les droits en écriture (Update)
 @json_resp
 def patch_generic(module_name, object_type, id_value):
 
@@ -124,7 +129,6 @@ def patch_generic(module_name, object_type, id_value):
     return res.as_dict()
 
 
-
 # Cette fonction est une route Flask qui permet de créer un nouvel objet d'un type donné.
 # <nom_module>/<nom_modele>/ ---- exemple: chasse/personne/ -> crée un nouvel objet de type personne
 # corp de la requete: {"nom": "Alice"}
@@ -133,8 +137,9 @@ def patch_generic(module_name, object_type, id_value):
 #   "name": "Alice",
 # }
 
+
 @bp.route("<string:module_name>/<string:object_type>/", methods=["POST"])
-@check_object_type("C")# vérifie les droits en création (Create)
+@check_object_type("C")  # vérifie les droits en création (Create)
 @json_resp
 def post_generic(module_name, object_type):
     """
@@ -159,7 +164,7 @@ def post_generic(module_name, object_type):
 @bp.route(
     "<string:module_name>/<string:object_type>/<int:id_value>", methods=["DELETE"]
 )
-@check_object_type("D")    # vérifie les droits en suppression (Delete)
+@check_object_type("D")  # vérifie les droits en suppression (Delete)
 @json_resp
 def delete_generic(module_name, object_type, id_value):
     """

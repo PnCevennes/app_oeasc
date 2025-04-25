@@ -43,7 +43,7 @@ def nb_declarations():
         SELECT COUNT(*) FROM oeasc_declarations.t_declarations
     """
 
-    with DB.engine.begin() as conn: # sqlalchemy 2.0
+    with DB.engine.begin() as conn:  # sqlalchemy 2.0
         data = conn.execute(text(r)).first()
 
     # data = DB.engine.execute(text(r)).first()
@@ -64,8 +64,8 @@ def req_degats(name, var_name="", id_nomenclature_degat_type="", multi=False):
             JOIN ref_nomenclatures.t_nomenclatures
                 ON d.id_nomenclature_degat_type = id_nomenclature
             """.format(
-            name
-        )
+        name
+    )
 
     if var_name and not multi:
         r += """
@@ -90,7 +90,7 @@ def req_degats(name, var_name="", id_nomenclature_degat_type="", multi=False):
         ORDER BY label
     """
     # .format(name, type, id)
-    with DB.engine.begin() as conn: # sqlalchemy 2.0
+    with DB.engine.begin() as conn:  # sqlalchemy 2.0
         data = conn.execute(text(r))
     # data = DB.engine.execute(text(r))
 
@@ -159,7 +159,7 @@ SELECT
     ORDER BY 1
     """
 
-    with DB.engine.begin() as conn: # sqlalchemy 2.0
+    with DB.engine.begin() as conn:  # sqlalchemy 2.0
         data = conn.execute(text(r))
 
     # data = DB.engine.execute(text(r))

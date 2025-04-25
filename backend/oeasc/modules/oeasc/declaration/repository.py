@@ -221,8 +221,8 @@ def patch_areas_declarations(id_declaration):
                 RETURNING *;
 
         """.format(
-                id_declaration
-            )
+        id_declaration
+    )
 
     with DB.engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
         conn.execute(txt)

@@ -1,6 +1,7 @@
 """
-    IN models
+IN models
 """
+
 from flask import current_app
 
 from sqlalchemy import Table, Column, Integer, Unicode, Boolean, Date, ForeignKey
@@ -13,12 +14,14 @@ from ..commons.models import TSecteurs, TEspeces
 config = current_app.config
 DB = config["DB"]
 
+
 # les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0
 # Cela permet de ne pas générer d'erreur avec l'ancienne manière de déclarer les models.
 # Une fois la migration en 2.0 terminée il faudra réécrire les models en utilisant Mapped (cette fonction n'est pas dispo dans la 1.4)
 class CustomModel(DB.Model):
-    __abstract__ = True # evite que la classe soit considérée comme une table
+    __abstract__ = True  # evite que la classe soit considérée comme une table
     __allow_unmapped__ = True
+
 
 @serializable
 class TObservers(CustomModel):
@@ -66,9 +69,7 @@ class TCircuits(CustomModel):
     nom_circuit = Column(Unicode)
     numero_circuit = Column(Integer)
     km = Column(Integer)
-    id_secteur = Column(
-        Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur")
-    )
+    id_secteur = Column(Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur"))
     actif = Column(Boolean, default=True)
     secteur = relationship(TSecteurs)
 
@@ -88,9 +89,7 @@ class TObservations(CustomModel):
     id_realisation = Column(
         Integer, ForeignKey("oeasc_in.t_realisations.id_realisation")
     )
-    id_espece = Column(
-        Integer, ForeignKey("oeasc_commons.t_especes.id_espece")
-    )
+    id_espece = Column(Integer, ForeignKey("oeasc_commons.t_especes.id_espece"))
     espece = relationship(TEspeces, lazy="joined")
     nb = Column(Integer)
 
@@ -202,68 +201,80 @@ class TRealisations(CustomModel):
     )
 
     observers_table = column_property(
-        select(func.string_agg(TObservers.nom_observer, ", ")).where(
+        select(func.string_agg(TObservers.nom_observer, ", "))
+        .where(
             and_(
                 TObservers.id_observer == CorRealisationObserver.id_observer,
                 id_realisation == CorRealisationObserver.id_observer,
             )
-        ).scalar_subquery()
+        )
+        .scalar_subquery()
     )
 
     tags_table = column_property(
         select(
-                func.string_agg(
-                    func.concat(
-                        TTags.nom_tag,
-                        " : ",
-                        case((CorRealisationTag.valid == True, "o"), else_="x"),
-                    ),
-                    ", ",
-                )
-        ).where(
+            func.string_agg(
+                func.concat(
+                    TTags.nom_tag,
+                    " : ",
+                    case((CorRealisationTag.valid == True, "o"), else_="x"),
+                ),
+                ", ",
+            )
+        )
+        .where(
             and_(
                 CorRealisationTag.id_realisation == id_realisation,
                 CorRealisationTag.id_tag == TTags.id_tag,
             )
-        ).scalar_subquery()
+        )
+        .scalar_subquery()
     )
 
     cerfs = column_property(
-        select(TObservations.nb).where(
+        select(TObservations.nb)
+        .where(
             and_(
                 TObservations.id_realisation == id_realisation,
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Cerf",
             )
-        ).scalar_subquery()
+        )
+        .scalar_subquery()
     )
 
     lievres = column_property(
-        select(TObservations.nb).where(
+        select(TObservations.nb)
+        .where(
             and_(
                 TObservations.id_realisation == id_realisation,
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Lièvre",
             )
-        ).scalar_subquery()
+        )
+        .scalar_subquery()
     )
 
     chevreuils = column_property(
-        select(TObservations.nb).where(
+        select(TObservations.nb)
+        .where(
             and_(
                 TObservations.id_realisation == id_realisation,
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Chevreuil",
             )
-        ).scalar_subquery()
+        )
+        .scalar_subquery()
     )
 
     renards = column_property(
-        select(TObservations.nb).where(
+        select(TObservations.nb)
+        .where(
             and_(
                 TObservations.id_realisation == id_realisation,
                 TObservations.id_espece == TEspeces.id_espece,
                 TEspeces.nom_espece == "Renard",
             )
-        ).scalar_subquery()
+        )
+        .scalar_subquery()
     )

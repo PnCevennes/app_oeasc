@@ -1,5 +1,5 @@
 """
-  config
+config
 """
 
 from flask import current_app
@@ -24,7 +24,6 @@ definitions = GenericRouteDefinitions()
 
 
 def getlist(args, key):
-
     """
     Cette fonction getlist(args, key) est une fonction utilitaire qui améliore la récupération des valeurs d'un paramètre GET dans une requête HTTP. Elle traite les cas où le paramètre peut être :
 
@@ -33,7 +32,6 @@ def getlist(args, key):
     Une liste d'éléments envoyés sous forme de plusieurs occurrences du même paramètre (?val=val1&val=val2)
     retourne ["val1", "val2", "val3"]
     """
-
 
     val = args.get(key)
 
@@ -47,7 +45,6 @@ def getlist(args, key):
 
 
 def custom_getattr(Model, attr_name, query):
-
     """
     Cette fonction custom_getattr(Model, attr_name, query) est une fonction utilitaire conçue pour récupérer dynamiquement un attribut d'un modèle SQLAlchemy. Elle permet de gérer :
 
@@ -73,7 +70,6 @@ def custom_getattr(Model, attr_name, query):
 
         alias = orm.aliased(target_model)
         query = query.join(alias, relationship)
-
 
         model_attribute = getattr(alias, col)
 
@@ -106,7 +102,6 @@ def get_objects_type_ancien(module_name, object_type, args={}):
     """
 
     # joins = []
-
 
     Model, cle_primaire = definitions.get_model(module_name, object_type)
 
@@ -264,7 +259,9 @@ def get_objects_type(module_name, object_type, args={}):
             continue
         stmt = stmt.where(getattr(Model, key).in_(pre_filters[key]))
 
-    count_result = DB.session.execute(select(func.count()).select_from(stmt.subquery())).scalar_one()
+    count_result = DB.session.execute(
+        select(func.count()).select_from(stmt.subquery())
+    ).scalar_one()
     count = count_result or 0
 
     # filtres
@@ -327,7 +324,7 @@ def get_objects_type(module_name, object_type, args={}):
         if model_attribute is None:
             continue
 
-        desc = sort_desc[index] if index < len(sort_desc) else 'false'
+        desc = sort_desc[index] if index < len(sort_desc) else "false"
         if desc == "true":
             order_bys.append(model_attribute.desc())
         else:
@@ -336,7 +333,9 @@ def get_objects_type(module_name, object_type, args={}):
     if order_bys:
         stmt = stmt.order_by(*(tuple(order_bys)))
 
-    count_filtered_result = DB.session.execute(select(func.count()).select_from(stmt.subquery())).scalar_one()
+    count_filtered_result = DB.session.execute(
+        select(func.count()).select_from(stmt.subquery())
+    ).scalar_one()
     count_filtered = count_filtered_result or 0
 
     # Pagination
@@ -350,7 +349,7 @@ def get_objects_type(module_name, object_type, args={}):
 
     # Exécution de la requête
     query = DB.session.execute(stmt).scalars()
-    
+
     return query, count, count_filtered
 
 
@@ -386,47 +385,48 @@ def get_object_type(module_name, object_type, value, field_name=None):
 def create_or_update_object_type(module_name, object_type, id_value, post_data):
     """
     Crée ou met à jour un objet du type spécifié avec les données fournies.
-    
+
     Args:
         module_name: Nom du module contenant le modèle
         object_type: Type d'objet à créer/mettre à jour
         id_value: Valeur d'ID pour la mise à jour (None pour création)
         post_data: Données à appliquer à l'objet
-        
+
     Returns:
         L'objet créé ou mis à jour
     """
     (Model, id_field_name) = definitions.get_model(module_name, object_type)
-    
+
     try:
         # SQLAlchemy 2.0 préfère l'utilisation explicite des sessions
         if id_value:
             # Récupération de l'objet existant
             res = get_object_type(module_name, object_type, id_value)
             if not res:
-                raise ValueError(f"Objet {object_type} avec {id_field_name}={id_value} non trouvé")
+                raise ValueError(
+                    f"Objet {object_type} avec {id_field_name}={id_value} non trouvé"
+                )
         else:
             # Création d'un nouvel objet
             res = Model()
             # En 2.0, on préfère add() explicitement même si ce sera fait lors du commit
             DB.session.add(res)
-        
+
         # Suppression de l'ID si sa valeur est None
         if id_field_name in post_data and post_data[id_field_name] is None:
             del post_data[id_field_name]
-        
+
         # Application des données (méthode personnalisée)
         res.from_dict(post_data, True)
-        
+
         # Commit des changements
         DB.session.commit()
         return res
-        
+
     except Exception as e:
         DB.session.rollback()
         # Considérez de logger l'erreur ici
         raise e
-
 
 
 def delete_object_type(module_name, object_type, id_value):
@@ -452,7 +452,6 @@ def delete_object_type(module_name, object_type, id_value):
 
     out = res.as_dict()
 
-    
     DB.session.delete(res)
 
     DB.session.commit()

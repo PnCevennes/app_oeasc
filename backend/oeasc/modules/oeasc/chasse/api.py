@@ -31,6 +31,7 @@ from .repositories import (
 from sqlalchemy import column, select, func, table, distinct, over
 import json
 import datetime
+
 # from oeasc.utils.env import ROOT_DIR
 from py3o.template import Template
 
@@ -69,9 +70,6 @@ definitions = {
 }
 # ajout des définition dans le singleton grd
 grd.add_generic_routes("chasse", definitions)
-
-
-
 
 
 @bp.route("results/bilan", methods=["GET"])
@@ -166,22 +164,17 @@ def api_result_export():
     view = views.get(data_type)
     schema_name = view.split(".")[0]
     table_name = view.split(".")[1]
-       
 
     # view + filters
     results = GenericQuery(
         DB, schemaName=schema_name, tableName=table_name, filters=filters, limit=1e6
     ).return_query()
 
-
     data = results["items"]
     file_name = "export_{}_{}".format(
         data_type, datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%s")
     )
     return (file_name, data, data[0].keys(), ";")
-
-
-
 
 
 @bp.route("export/ods", methods=["GET"])

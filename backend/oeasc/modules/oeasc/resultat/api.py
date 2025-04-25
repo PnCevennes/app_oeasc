@@ -1,14 +1,18 @@
 """
-    api pour les resultats
+api pour les resultats
 """
+
 import json
+
 # from sqlalchemy import select, func
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
+
 # from .repository import result_custom, cache_generic_table
 from .repository import result_custom
+
 # from ..generic.repository import getlist
 
 config = current_app.config

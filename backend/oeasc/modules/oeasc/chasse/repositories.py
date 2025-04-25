@@ -1,11 +1,12 @@
-#from posixpath import normpath
-#import json
-#from psycopg2 import paramstyle
+# from posixpath import normpath
+# import json
+# from psycopg2 import paramstyle
 from utils_flask_sqla.generic import GenericTable
 from flask import request, current_app
 from ..generic.repository import getlist
 from ..resultat.repository import result_custom
-#from sqlalchemy import column, select, func, table, distinct, over, cast
+
+# from sqlalchemy import column, select, func, table, distinct, over, cast
 from sqlalchemy import func, cast, select
 from ..commons.models import TEspeces, TSecteurs
 from sqlalchemy.exc import SQLAlchemyError
@@ -16,7 +17,6 @@ from .models import (
     TAttributionMassifs,
     VPlanChasseRealisationBilan,
 )
-
 
 
 config = current_app.config
@@ -40,7 +40,7 @@ def chasse_process_args():
     id_zone_cynegetique = getlist(request.args, "id_zone_cynegetique")
     id_zone_indicative = getlist(request.args, "id_zone_indicative")
 
-    #conversion des id en int dans les listes
+    # conversion des id en int dans les listes
     id_secteur = list(map(lambda x: int(x), id_secteur))
     id_zone_cynegetique = list(map(lambda x: int(x), id_zone_cynegetique))
     id_zone_indicative = list(map(lambda x: int(x), id_zone_indicative))
@@ -68,7 +68,6 @@ def get_attribution_result(params):
         "v_custom_result_attribution", "oeasc_chasse", DB.engine
     ).tableDef.columns
 
-
     query = select(
         func.count(columns.id_attribution),
         func.count(columns.id_attribution).filter(columns.id_realisation.is_not(None)),
@@ -92,7 +91,9 @@ def get_attribution_result(params):
         "nb_attribution": res[0],
         "transfert_zc": res[2],
         "transfert_zi": res[3],
-        "taux_realisation": 0 if not res[1] or not res[0] else round(res[1] / res[0] * 100),
+        "taux_realisation": (
+            0 if not res[1] or not res[0] else round(res[1] / res[0] * 100)
+        ),
     }
 
 
@@ -111,19 +112,17 @@ def chasse_get_infos():
     if id_espece is None:
         raise ValueError("L'argument 'id_espece' est requis.")
 
-
     ####################### Nom de l'espèce #######################
     try:
         # Préparation de la requête
         stmt = select(TEspeces.nom_espece).where(TEspeces.id_espece == id_espece)
         # Exécution de la requête
         nom_espece = DB.session.scalar(stmt)
-        print (f"Nom de l'espèce : {nom_espece}")
+        print(f"Nom de l'espèce : {nom_espece}")
         if nom_espece is None:
             print("Aucune espèce trouvée pour cet ID.")
     except SQLAlchemyError as e:
         print(f"Erreur lors de l'exécution de la requête : {e}")
-
 
     #################################################################################################
     ####  définis l'echelle de la zone en fonction de l'id_zone_indicative, id_zone_cynegetique ou id_secteur
@@ -147,31 +146,30 @@ def chasse_get_infos():
         query_zones_echelle = None
         # select_zones_echelle = select(TSecteurs.nom_secteur)
 
-
-    if (not select_zones_echelle == None):
+    if not select_zones_echelle == None:
         query_zones_echelle = DB.session.execute(select_zones_echelle)
-
 
     nom_zones_echelle = (
         ", ".join(map(lambda x: x[0], query_zones_echelle.all()))
         if query_zones_echelle
         else ""
     )
-    
+
     echelle = (
         f"Zone(s) indicative(s) : {nom_zones_echelle}"
         if args["id_zone_indicative"]
-        else f"Zone(s) Cynegetique(s) : {nom_zones_echelle}"
-        if args["id_zone_cynegetique"]
-        else f"Secteur(s): {nom_zones_echelle}"
-        if args["id_secteur"]
-        else "Cœur"
+        else (
+            f"Zone(s) Cynegetique(s) : {nom_zones_echelle}"
+            if args["id_zone_cynegetique"]
+            else f"Secteur(s): {nom_zones_echelle}" if args["id_secteur"] else "Cœur"
+        )
     )
 
     # taux_realisation = get_chasse_bilan(args)['taux_realisation'][-1][1]
 
-
-    select_saison = select(TSaisons.nom_saison).where(TSaisons.id_saison == args["id_saison"])
+    select_saison = select(TSaisons.nom_saison).where(
+        TSaisons.id_saison == args["id_saison"]
+    )
     nom_saison = DB.session.scalar(select_saison)
 
     # recupère l'id des 5 saisons avec nom_saison (il faut que nom_saison soit du type 2022-2023 ou 2025)
@@ -182,11 +180,10 @@ def chasse_get_infos():
         .order_by(TSaisons.nom_saison.desc())
         .limit(5)
     )
-    
+
     # Récpère les 5 dernières saisons pour un des graphique qui fera un comparatif
     last_5_id_saisons = [
-        id_saison 
-        for id_saison in DB.session.scalars(last_5_seasons_query).all()
+        id_saison for id_saison in DB.session.scalars(last_5_seasons_query).all()
     ]
 
     return {
@@ -232,15 +229,23 @@ def get_chasse_bilan_realisation(params):
             select(
                 TSaisons.nom_saison,
                 VPlanChasseRealisationBilan.id_espece,
-                func.sum(VPlanChasseRealisationBilan.nb_affecte_min).label("nb_attribution_min"),
-                func.sum(VPlanChasseRealisationBilan.nb_affecte_max).label("nb_attribution_max"),
-                func.sum(VPlanChasseRealisationBilan.nb_realisation).label("nb_realisation"),
-                func.sum(VPlanChasseRealisationBilan.nb_realisation_avant_11).label("nb_realisation_avant_11")
+                func.sum(VPlanChasseRealisationBilan.nb_affecte_min).label(
+                    "nb_attribution_min"
+                ),
+                func.sum(VPlanChasseRealisationBilan.nb_affecte_max).label(
+                    "nb_attribution_max"
+                ),
+                func.sum(VPlanChasseRealisationBilan.nb_realisation).label(
+                    "nb_realisation"
+                ),
+                func.sum(VPlanChasseRealisationBilan.nb_realisation_avant_11).label(
+                    "nb_realisation_avant_11"
+                ),
             )
             .select_from(TSaisons)
             .join(
                 VPlanChasseRealisationBilan,
-                TSaisons.id_saison == VPlanChasseRealisationBilan.id_saison
+                TSaisons.id_saison == VPlanChasseRealisationBilan.id_saison,
             )
         )
         query = build_chasse_bilan_filters(params, query, VPlanChasseRealisationBilan)
@@ -302,13 +307,13 @@ def get_plain_text_data(params):
     out = {}
     if "id_espece" in params:
         # res = TEspeces.query.get(params["id_espece"])
-        if (params["id_espece"] is not None):
+        if params["id_espece"] is not None:
             res = DB.session.get(TEspeces, params["id_espece"])
             out["nom_espece"] = res.nom_espece
     # Saison
     if "id_saison" in params:
         # res = TSaisons.query.get(params["id_saison"])
-        if (params["id_saison"] is not None):
+        if params["id_saison"] is not None:
             res = DB.session.get(TSaisons, params["id_saison"])
             if res:
                 out["nom_saison"] = res.nom_saison

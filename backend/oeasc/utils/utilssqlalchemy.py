@@ -114,7 +114,6 @@
 #             fprops = self.serialize_columns
 
 #         return {item: _serializer(getattr(data, item)) for item, _serializer in fprops}
-    
 
 
 #     def as_geofeature(self, data, columns=None):

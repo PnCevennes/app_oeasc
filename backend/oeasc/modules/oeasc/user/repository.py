@@ -1,5 +1,5 @@
 """
-    fonction acces DB pour la partie user
+fonction acces DB pour la partie user
 """
 
 from flask import current_app, session
@@ -25,7 +25,7 @@ def get_liste_organismes_oeasc():
     )
 
     # result = DB.engine.execute(sql_text)
-    with DB.engine.begin() as conn: # sqlalchemy 2.0
+    with DB.engine.begin() as conn:  # sqlalchemy 2.0
         result = conn.execute(sql_text)
     # result = DB.session.execute(sql_text)
 
@@ -109,7 +109,7 @@ def get_id_organismes(liste_nom):
         + "','".join(liste_nom_)
         + "');"
     )
-    with DB.engine.begin() as conn: # sqlalchemy 2.0
+    with DB.engine.begin() as conn:  # sqlalchemy 2.0
         result = conn.execute(text(sql_text))
     # result = DB.engine.execute(text(sql_text))
 

@@ -1,5 +1,5 @@
 """
-    pour mapper la vue user de oeasc_commons
+pour mapper la vue user de oeasc_commons
 """
 
 from flask import current_app
@@ -11,7 +11,6 @@ from utils_flask_sqla.serializers import serializable
 
 from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from sqlalchemy.ext.hybrid import hybrid_property
-
 
 
 config = current_app.config

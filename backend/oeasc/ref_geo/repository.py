@@ -1,6 +1,7 @@
 """
-    Fonctions pour récupérer les géometries
+Fonctions pour récupérer les géometries
 """
+
 from sqlalchemy import and_, text
 from flask import current_app
 from geojson import FeatureCollection
@@ -25,7 +26,7 @@ def get_id_type(type_code):
     #     "SELECT ref_geo.get_id_type(:type_code);", {"type_code": type_code}
     # ).first()[0]
 
-    with DB.engine.begin() as conn: # sqlalchemy 2.0
+    with DB.engine.begin() as conn:  # sqlalchemy 2.0
         res = conn.execute(
             text("SELECT ref_geo.get_id_type(:type_code);"), {"type_code": type_code}
         ).first()[0]
@@ -38,7 +39,9 @@ def get_type_code(id_type):
     """
     with DB.engine.begin() as conn:  # SQLAlchemy 2.0
         res = conn.execute(
-            text("SELECT type_code FROM ref_geo.bib_areas_types WHERE id_type = :id_type"),
+            text(
+                "SELECT type_code FROM ref_geo.bib_areas_types WHERE id_type = :id_type"
+            ),
             {"id_type": id_type},
         ).first()  # Récupère la première ligne
 
@@ -54,8 +57,6 @@ def get_type_code(id_type):
 #     #     "SELECT type_code FROM ref_geo.bib_areas_types WHERE  id_type = :id_type;",
 #     #     {"id_type": id_type},
 #     # ).first()[0]
-
-
 
 
 def set_table(b_simple, data_type):
@@ -180,7 +181,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
         # cas des dgd
         elif container.id_type == id_type_dgd:
 
-            with DB.engine.begin() as conn: # sqlalchemy 2.0
+            with DB.engine.begin() as conn:  # sqlalchemy 2.0
                 res = conn.execute(
                     text(
                         "SELECT area_code_cadastre \

@@ -121,7 +121,7 @@
 #     identifiant = request.args.get("identifiant", "")
 #     type_login = request.args.get("type", "")
 
-    
+
 #     breakpoint()
 
 #     return render_template(

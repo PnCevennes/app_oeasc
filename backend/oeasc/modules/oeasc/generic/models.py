@@ -2,7 +2,7 @@
 # # from sqlalchemy.orm import declarative_base
 # from sqlalchemy.sql import func
 # from sqlalchemy.orm import registry, relationship
-# # 
+# #
 
 # mapper_reg = registry()
 # Base = mapper_reg.generate_base()

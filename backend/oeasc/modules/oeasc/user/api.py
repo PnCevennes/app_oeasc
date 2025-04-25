@@ -1,9 +1,11 @@
 """
-    api user
+api user
 """
+
 from flask import Blueprint, request, redirect, current_app, session
 from utils_flask_sqla.response import json_resp
-#from utils_flask_sqla.response import json_resp, json_resp_accept
+
+# from utils_flask_sqla.response import json_resp, json_resp_accept
 from .repository import get_user_form_email, get_users, get_liste_organismes_oeasc
 from ..user.utils import check_auth_redirect_login
 from utils_flask_sqla.response import csv_resp

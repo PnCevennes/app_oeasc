@@ -16,7 +16,6 @@ from .models import (
     TTags,
     TSecteurs,
     TEspeces,
-
 )
 from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 from ..generic.definitions import GenericRouteDefinitions
@@ -86,10 +85,10 @@ def api_communes(test):
     """.format(
         cond_text
     )
-    with DB.engine.begin() as conn: # sqlalchemy 2.0
+    with DB.engine.begin() as conn:  # sqlalchemy 2.0
         result = conn.execute(text(sql_text))
     # result = DB.engine.execute(text(sql_text))
-    
+
     out = [{"nom_cp": res[0]} for res in result]
     return out
 

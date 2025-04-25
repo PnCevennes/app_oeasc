@@ -1,5 +1,5 @@
 """
-    degat module api
+degat module api
 """
 
 from flask import current_app

@@ -151,7 +151,6 @@ def get_areas_from_ids(id_areas):
             config["_areas"][str(d_dict["id_area"])] = d_dict
 
 
-
 def get_area_from_id(id_area):
     """
     search areas attributes in db if not yet in session._areas
@@ -170,7 +169,10 @@ def get_area_from_id(id_area):
             return None
 
         out = data._mapping  # Access row as a dictionary-like object
-        out = {key: out[key] for key in ["id_area", "id_type", "area_name", "area_code", "label"]}
+        out = {
+            key: out[key]
+            for key in ["id_area", "id_type", "area_name", "area_code", "label"]
+        }
 
         out["type_code"] = get_type_code(out["id_type"])
 
@@ -180,9 +182,6 @@ def get_area_from_id(id_area):
         # out = data.as_dict(
         #     columns=["id_area", "id_type", "area_name", "area_code", "label"]
         # )
-
-
-
 
     return config["_areas"][str(id_area)]
 

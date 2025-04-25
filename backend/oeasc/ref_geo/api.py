@@ -1,5 +1,5 @@
 """
-    api pour la table ref_geo
+api pour la table ref_geo
 """
 
 from geojson import FeatureCollection
@@ -166,7 +166,7 @@ def get_areas_centroid_post(data_type):
                 t
             )
         )
-        with DB.engine.begin() as conn: # sqlalchemy 2.0
+        with DB.engine.begin() as conn:  # sqlalchemy 2.0
             result = conn.execute(sql_text).first()
         # result = DB.engine.execute(sql_text).first()
 

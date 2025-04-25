@@ -241,7 +241,7 @@ def get_random_area_dgd_cadastre(area_code_dgd):
     """
     get_random_area_dgd_cadastre
     """
-    with DB.engine.begin() as conn: # sqlalchemy 2.0
+    with DB.engine.begin() as conn:  # sqlalchemy 2.0
         res = conn.execute(
             text(
                 "SELECT area_code_cadastre \
@@ -254,7 +254,6 @@ def get_random_area_dgd_cadastre(area_code_dgd):
             )
         ).first()[0]
 
-
     # res = DB.engine.execute(
     #     text(
     #         "SELECT area_code_cadastre \
@@ -266,7 +265,6 @@ def get_random_area_dgd_cadastre(area_code_dgd):
     #         )
     #     )
     # ).first()[0]
-
 
     area_code = res
     area = (
@@ -425,7 +423,7 @@ def get_random_id_declarant():
         + str(config["ID_APP"])
         + ""
     )
-    with DB.engine.begin() as conn: # sqlalchemy 2.0
+    with DB.engine.begin() as conn:  # sqlalchemy 2.0
         data = conn.execute(sql_text)
     v = [d[0] for d in data]
     if v == []:

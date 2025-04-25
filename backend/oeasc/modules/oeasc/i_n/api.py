@@ -10,7 +10,7 @@ from .repository import in_data
 from .models import (
     TRealisations,
     TCircuits,
-    TTags as TTags_in, 
+    TTags as TTags_in,
     TObservers,
     CorRealisationTag,
 )

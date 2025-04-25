@@ -1,5 +1,5 @@
 """
-    repository in
+repository in
 """
 
 import math
@@ -14,8 +14,18 @@ student = [0, 0, 12.71, 4.30, 3.18, 2.78, 2.57]
 
 
 def sort_data(res):
-    """ Tri le resultat JSON par nom_espece, ug, annee, serie et enfin numero_circuit"""
-    res.sort(key=(lambda x: (x.get("nom_espece"), x.get("ug"), x.get("annee"), x.get("serie"), x.get("numero_circuit"))))
+    """Tri le resultat JSON par nom_espece, ug, annee, serie et enfin numero_circuit"""
+    res.sort(
+        key=(
+            lambda x: (
+                x.get("nom_espece"),
+                x.get("ug"),
+                x.get("annee"),
+                x.get("serie"),
+                x.get("numero_circuit"),
+            )
+        )
+    )
 
     # ne fonctionne pas
     # keys = ["nom_espece", "ug", "annee", "serie", "numero_circuit"]
@@ -27,9 +37,9 @@ def regroup_data(res):
     out = {"nom_especes": {}}
     regroup = ["nom_espece", "ug", "annee", "serie", "id_circuit"]
 
-    for r in res: # parcours des lignes du resultat
+    for r in res:  # parcours des lignes du resultat
         cur = out
-        for key_group in regroup: 
+        for key_group in regroup:
             # pacours de regroup pour créer la structure
             group_name = key_group + "s"
             cur.setdefault(group_name, {})
@@ -38,10 +48,11 @@ def regroup_data(res):
                 break  # Skip this entry if the key is missing
             cur = cur[group_name].setdefault(key, {})
 
-        if key is not None and key_group == "id_circuit": # tout s'est bien passé, 
-            cur.update(r)  # remplissage du niveau final (id_circuit) 
+        if key is not None and key_group == "id_circuit":  # tout s'est bien passé,
+            cur.update(r)  # remplissage du niveau final (id_circuit)
 
     return out
+
 
 # obsolete car très gourmand en calcul et ne prend pas en compte l'absence de clé
 # def regroup_data(res):
@@ -70,7 +81,7 @@ def regroup_data(res):
 
 def in_data():
     fields = []
-    res = GenericQuery(DB, "v_result", "oeasc_in", limit=300).as_dict()["items"]
+    res = GenericQuery(DB, "v_result", "oeasc_in", limit=1e6).as_dict()["items"]
     # remettre 1e6 a après les tests
 
     sort_data(res)
@@ -81,7 +92,7 @@ def in_data():
 
 
 def process_nom_especes(res):
-    """ Parcours les espèces dans le resultat de la requete et lance le traitement de touts les niveaux inférieurs"""
+    """Parcours les espèces dans le resultat de la requete et lance le traitement de touts les niveaux inférieurs"""
     nom_especes = res["nom_especes"]
 
     for key_espece in nom_especes:
@@ -111,18 +122,15 @@ def process_annees(ug):
         annee = annees.get(key_annee)
         process_series(annee)
 
-
         if not annee.get("moy"):
-            print( "### annee sans moyenne")
+            print("### annee sans moyenne")
             continue
 
         X.append([int(key_annee), 1])
         Y.append([annee["moy"]])
 
- 
-
-        if not len(X) or len(X) <= 1:
-            return
+    if not len(X) or len(X) <= 1:
+        return
 
     # statistiques
     model = OLS(Y, [x for x in X])
@@ -132,16 +140,12 @@ def process_annees(ug):
     if math.isnan(results.pvalues[0]):
         pvalues = [None, None]
 
-
-
-    # erreur ici sur les régréssions linéaires mais l'erreur semble être provoquée dans le model.fit
-
     # rsquared = 1000 if results.rsquared == float("-inf") else results.rsquared
-    # ug["reg_lin"] = {
-    #     "R2": results.rsquared,
-    #     "params": [results.params[0], results.params[1]],
-    #     "pvalues": [pvalues[0] or None, pvalues[1] or None],
-    # }
+    ug["reg_lin"] = {
+        "R2": results.rsquared,
+        "params": [results.params[0], results.params[1]],
+        "pvalues": [pvalues[0] or None, pvalues[1] or None],
+    }
 
 
 def process_series(annee):
@@ -193,8 +197,6 @@ def process_series(annee):
     annee["d"] = d
     annee["inf"] = max(0, annee["moy"] - d)
     annee["sup"] = annee["moy"] + d
-
-
 
 
 def process_circuits(serie):

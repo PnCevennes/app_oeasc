@@ -1,5 +1,5 @@
 """
-    decorator
+decorator
 """
 
 from functools import wraps

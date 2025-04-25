@@ -1,7 +1,8 @@
 """
-    décorateur de route qui verifie si l'utilisateur est connecté
-    et redirige vers la page requise apres authentification
+décorateur de route qui verifie si l'utilisateur est connecté
+et redirige vers la page requise apres authentification
 """
+
 from functools import wraps
 from pypnusershub import routes as fnauth
 from flask import request, current_app
@@ -25,7 +26,7 @@ def check_auth_redirect_login(level):
             # )
 
             # return fnauth.check_auth(level, False, redirect_url)(f)(*args, **kwargs)
-            
+
             return fnauth.check_auth(level)(f)(*args, **kwargs)
 
         return __check_auth_redirect_login

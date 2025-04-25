@@ -19,8 +19,10 @@ logger = logging.getLogger("alembic.env")
 
 # Configuration de la connexion à la base de données.
 from flask import current_app
+
 config.set_main_option(
-    "sqlalchemy.url", str(current_app.extensions["migrate"].db.engine.url).replace("%", "%%")
+    "sqlalchemy.url",
+    str(current_app.extensions["migrate"].db.engine.url).replace("%", "%%"),
 )
 target_metadata = current_app.extensions["migrate"].db.metadata
 

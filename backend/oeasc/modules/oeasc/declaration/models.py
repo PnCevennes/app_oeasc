@@ -1,6 +1,7 @@
 """
-    modeles alerte OEASC
+modeles alerte OEASC
 """
+
 from flask import current_app
 
 from pypnusershub.db.models import User
@@ -10,12 +11,14 @@ from utils_flask_sqla.serializers import serializable
 config = current_app.config
 DB = config["DB"]
 
+
 # les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0
 # Cela permet de ne pas générer d'erreur avec l'ancienne manière de déclarer les models.
 # Une fois la migration en 2.0 terminée il faudra réécrire les models en utilisant Mapped (cette fonction n'est pas dispo dans la 1.4)
 class CustomModel(DB.Model):
-    __abstract__ = True # evite que la classe soit considérée comme une table
+    __abstract__ = True  # evite que la classe soit considérée comme une table
     __allow_unmapped__ = True
+
 
 @serializable
 class CorAreasDeclaration(CustomModel):
