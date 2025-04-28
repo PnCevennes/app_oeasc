@@ -71,7 +71,7 @@ class TCircuits(CustomModel):
     km = Column(Integer)
     id_secteur = Column(Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur"))
     actif = Column(Boolean, default=True)
-    secteur = relationship(TSecteurs)
+    secteur = relationship(TSecteurs, back_populates="circuits")
 
 
 @serializable

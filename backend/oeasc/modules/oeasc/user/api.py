@@ -16,7 +16,7 @@ config = current_app.config
 bp = Blueprint("user_api", __name__)
 
 
-# test mais indispensable
+
 @bp.route("test", methods=["GET"])
 @json_resp
 def api_test():

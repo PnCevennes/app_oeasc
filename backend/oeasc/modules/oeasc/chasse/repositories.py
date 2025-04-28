@@ -7,7 +7,7 @@ from ..generic.repository import getlist
 from ..resultat.repository import result_custom
 
 # from sqlalchemy import column, select, func, table, distinct, over, cast
-from sqlalchemy import func, cast, select
+from sqlalchemy import func, cast, select, Integer
 from ..commons.models import TEspeces, TSecteurs
 from sqlalchemy.exc import SQLAlchemyError
 from .models import (
@@ -223,6 +223,7 @@ def get_chasse_bilan_realisation(params):
     # Pb dans les données, les données historiques sont aggrégés à la zi pour la réalisation et à la zc pour les attributions
     # D'où le fait d'utiliser 2 requêtes différentes en fonction du filtre demandé
 
+
     if params["id_zone_indicative"]:
 
         query = (
@@ -255,48 +256,63 @@ def get_chasse_bilan_realisation(params):
         )
 
     else:
-        realisation = DB.session.query(
+
+        realisation_subq = (
+            select(
             VPlanChasseRealisationBilan.id_espece,
             VPlanChasseRealisationBilan.id_saison,
-            func.sum(VPlanChasseRealisationBilan.nb_realisation).label(
-                "nb_realisation"
-            ),
-            func.sum(VPlanChasseRealisationBilan.nb_realisation_avant_11).label(
-                "nb_realisation_avant_11"
-            ),
-        )
-        realisation = build_chasse_bilan_filters(
-            params, realisation, VPlanChasseRealisationBilan
-        )
-        realisation = realisation.group_by(
+            func.sum(VPlanChasseRealisationBilan.nb_realisation).label("nb_realisation"),
+            func.sum(VPlanChasseRealisationBilan.nb_realisation_avant_11).label("nb_realisation_avant_11"),
+            )
+            .group_by(
             VPlanChasseRealisationBilan.id_espece, VPlanChasseRealisationBilan.id_saison
+            )
+        )
+
+        realisation_subq = build_chasse_bilan_filters(
+            params, realisation_subq, VPlanChasseRealisationBilan
         ).subquery()
 
-        attribution = DB.session.query(
+
+        attribution_subq = (
+            select(
             TAttributionMassifs.id_espece,
             TAttributionMassifs.id_saison,
             func.sum(TAttributionMassifs.nb_affecte_min).label("nb_attribution_min"),
             func.sum(TAttributionMassifs.nb_affecte_max).label("nb_attribution_max"),
-        )
-        attribution = build_chasse_bilan_filters(
-            params, attribution, TAttributionMassifs
-        )
-        attribution = attribution.group_by(
+            )
+            .group_by(
             TAttributionMassifs.id_espece, TAttributionMassifs.id_saison
+            )
+        )
+
+        attribution_subq = build_chasse_bilan_filters(
+            params, attribution_subq, TAttributionMassifs
         ).subquery()
 
+
         query = (
-            DB.session.query(
-                TSaisons.nom_saison,
-                attribution.c.id_espece,
-                attribution.c.nb_attribution_min,
-                attribution.c.nb_attribution_max,
-                realisation.c.nb_realisation,
-                realisation.c.nb_realisation_avant_11,
+            select(
+            TSaisons.nom_saison,
+            attribution_subq.c.id_espece,
+            attribution_subq.c.nb_attribution_min,
+            attribution_subq.c.nb_attribution_max,
+            realisation_subq.c.nb_realisation,
+            realisation_subq.c.nb_realisation_avant_11,
             )
-            .join(realisation, TSaisons.id_saison == realisation.c.id_saison)
-            .join(attribution, attribution.c.id_saison == realisation.c.id_saison)
+            .select_from(TSaisons)
+            .join(
+            realisation_subq,
+            TSaisons.id_saison == realisation_subq.c.id_saison
+            )
+            .join(
+            attribution_subq,
+            attribution_subq.c.id_saison == realisation_subq.c.id_saison
+            )
         )
+
+
+
     query = query.order_by(TSaisons.nom_saison)
 
     return query
@@ -309,7 +325,10 @@ def get_plain_text_data(params):
         # res = TEspeces.query.get(params["id_espece"])
         if params["id_espece"] is not None:
             res = DB.session.get(TEspeces, params["id_espece"])
-            out["nom_espece"] = res.nom_espece
+            if res:
+                out["nom_espece"] = res.nom_espece
+            else:
+                out["nom_espece"] = "???"
     # Saison
     if "id_saison" in params:
         # res = TSaisons.query.get(params["id_saison"])
@@ -324,17 +343,31 @@ def get_plain_text_data(params):
     # Nom zone
     zones = None
     if params["id_zone_indicative"]:
-        zones = TZoneIndicatives.query.filter(
+        zones = DB.session.scalars(
+            select(TZoneIndicatives).where(
             TZoneIndicatives.id_zone_indicative.in_(params["id_zone_indicative"])
-        )
+            )
+        ).all()
         column_name = "nom_zone_indicative"
     elif params["id_zone_cynegetique"]:
-        zones = TZoneCynegetiques.query.filter(
-            TZoneCynegetiques.id_zone_cynegetique.in_(params["id_zone_cynegetique"])
-        )
+
+        zones = DB.session.scalars(
+            select(TZoneCynegetiques).where(
+                TZoneCynegetiques.id_zone_cynegetique.in_(params["id_zone_cynegetique"]
+                )
+            )
+        ).all()
+
         column_name = "nom_zone_cynegetique"
     elif params["id_secteur"]:
-        zones = TSecteurs.query.filter(TSecteurs.id_secteur.in_(params["id_secteur"]))
+
+        zones = DB.session.scalars(
+            select(TSecteurs).where(
+                TSecteurs.id_secteur.in_(params["id_secteur"]
+                )
+            )
+        ).all()
+
         column_name = "nom_secteur"
 
     if zones:
@@ -714,14 +747,14 @@ def get_data_export_ods(nom_saison, nom_espece):
         "v_pre_bilan_pretty", "oeasc_chasse", DB.engine
     ).tableDef.columns
 
-    query = (
-        DB.session.query(*[c for c in columns])
-        .filter(columns.nom_saison == nom_saison)
-        .filter(columns.nom_espece == nom_espece)
-        .order_by(
-            cast(columns.code_zone_indicative, DB.Integer),
-        )
+    stmt = (
+        select(*[c for c in columns])
+        .where(columns.nom_saison == nom_saison)
+        .where(columns.nom_espece == nom_espece)
+        .order_by(cast(columns.code_zone_indicative, Integer))
     )
+
+    query = DB.session.execute(stmt)
 
     res = [
         {(str(col.key)): getattr(r, str(col.key)) for col in columns}
@@ -790,11 +823,8 @@ def get_data_export_ods(nom_saison, nom_espece):
 
 def get_data_all_especes_export_ods(nom_saison):
     if nom_saison == "current":
-        nom_saison = (
-            DB.session.query(TSaisons.nom_saison)
-            .filter(TSaisons.current == True)
-            .one()[0]
-        )
+        stmt = select(TSaisons.nom_saison).where(TSaisons.current == True)
+        nom_saison = DB.session.execute(stmt).scalar_one()
     data = {"nom_saison": nom_saison, "especes": []}
     for nom_espece in ["Cerf", "Chevreuil", "Mouflon"]:
         data["especes"].append(get_data_export_ods(nom_saison, nom_espece))

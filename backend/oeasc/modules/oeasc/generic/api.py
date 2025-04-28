@@ -60,7 +60,6 @@ def get_all_generic(module_name, object_types):
         fields = args.get("fields").split(",")
         items = [r.as_dict(fields=(fields)) for r in res.unique().all()]
     else:
-        print("################# fields à rajouter dans les args de la requete")
         items = [r.as_dict() for r in res.all()]
 
     return {"total": count, "total_filtered": count_filtered, "items": items}

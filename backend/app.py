@@ -39,7 +39,10 @@ from importlib import import_module
 # permet de définir des actions apres l'enregistrement d'un utilisateur (envoi de mail, ...)
 from pypnusershub.env import REGISTER_POST_ACTION_FCT
 
-# db = DB 
+
+# import logging
+# for name in ['sqlalchemy.engine', 'sqlalchemy.pool', 'sqlalchemy.dialects']:
+#     logging.getLogger(name).setLevel(logging.WARNING)
 
 class ReverseProxied(object):
     def __init__(self, app_in, script_name=None, scheme=None, server=None):
@@ -65,6 +68,8 @@ class ReverseProxied(object):
 
 # initiation du framework flask
 app = Flask(__name__, template_folder="oeasc/templates", static_folder="../static")
+
+
 
 # cors permet de gérer les requetes venant d'autres domaines. * signifie que tout le monde peut se connecter
 cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
@@ -96,35 +101,6 @@ app.config["URL_REDIRECT"] = app.config["URL_FRONTEND"] + app.config['REDIRECT_O
 # except AttributeError:
 #     pass
 
-
-##################### CONFIGURATION DE LA BDD ############################
-
-# on force la connexion la config de la base à se faire dans ce module pour pouvoir y ajouter des options nécéssaires
-# pour la migration vers sqlalchemy 2.0. On peut retirer la ligne suivante après
-# os.environ["FLASK_SQLALCHEMY_DB"] = f"{__name__}.db"
-
-# db_path = os.environ.get("FLASK_SQLALCHEMY_DB")
-
-# if db_path and db_path != f"{__name__}.db":
-#     print("èzist")
-#     db_module_name, db_object_name = db_path.rsplit(".", 1)
-#     db_module = import_module(db_module_name)
-#     try:
-#         db = getattr(db_module, db_object_name)
-#     except AttributeError:
-#         raise AttributeError(f"The module '{db_module_name}' does not have an attribute '{db_object_name}'. Ensure the database object is correctly defined.")
-
-#     # Merge the engine options from config.py
-#     db.engine.update_execution_options(**app.config['SQLALCHEMY_ENGINE_OPTIONS'])
-
-# else:
-#     print("n'existe pas")
-    
-#     db = SQLAlchemy( engine_options=app.config['SQLALCHEMY_ENGINE_OPTIONS']) # future pour sqlalchemy 2.0
-#     os.environ["FLASK_SQLALCHEMY_DB"] = f"{__name__}.db"
-
-#     # pour la migration sqlalchemy 2.0 il faut déclarer la Base
-#     # Base = db.Model
 
 # initialisation de sqlalchemy pour Flask. Créé les engines et les sessions
 # récupère les paramètres de la base de données dans config.py via app.config

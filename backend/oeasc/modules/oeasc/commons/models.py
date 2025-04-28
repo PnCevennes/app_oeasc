@@ -4,7 +4,7 @@ pour mapper la vue user de oeasc_commons
 
 from flask import current_app
 
-from sqlalchemy.orm import column_property
+from sqlalchemy.orm import column_property , relationship
 from sqlalchemy import select, String
 from utils_flask_sqla.serializers import serializable
 
@@ -98,6 +98,7 @@ class TSecteurs(CustomModel):
     id_secteur = DB.Column(DB.Integer, primary_key=True)
     code_secteur = DB.Column(DB.String(250))
     nom_secteur = DB.Column(DB.Text)
+    circuits = relationship("TCircuits", back_populates="secteur")
 
 
 @serializable
