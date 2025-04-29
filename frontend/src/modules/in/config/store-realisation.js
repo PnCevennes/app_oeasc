@@ -12,10 +12,9 @@ export default {
     // sortBy: ["id_realisation"], // tri par défaut
     // sortDesc: [true], // tri en ordre décroissant
     fields: [ //les des champs des modèles à intégrer à la requête get
-      "secteur.id_secteur", "secteur.nom_secteur", "secteur.code_secteur", "circuit.id_circuit", "circuit.nom_circuit", "circuit.numero_circuit",
+      "circuit.secteur.id_secteur", "circuit.secteur.nom_secteur", "circuit.secteur.code_secteur", "circuit.id_circuit", "circuit.nom_circuit", "circuit.numero_circuit",
     ]
   },
-
 
 
   columns: [
@@ -60,7 +59,8 @@ export default {
       displayFieldName: "code_secteur",
       type: "list_form",
       list_type: "select",
-      returnObject: true
+      returnObject: true,
+      preProcess: d => d.circuit.secteur
     },
     observers: {
       type: "list_form",

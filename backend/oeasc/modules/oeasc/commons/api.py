@@ -8,6 +8,7 @@ from pathlib import Path
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp_accept_empty_list, json_resp
 from sqlalchemy import text
+from sqlalchemy.orm import Session
 
 # from oeasc.utils.env import ROOT_DIR
 
@@ -85,8 +86,9 @@ def api_communes(test):
     """.format(
         cond_text
     )
-    with DB.engine.begin() as conn:  # sqlalchemy 2.0
-        result = conn.execute(text(sql_text))
+    with Session(DB.engine) as session:
+        result = session.execute(text(sql_text))
+
     # result = DB.engine.execute(text(sql_text))
 
     out = [{"nom_cp": res[0]} for res in result]

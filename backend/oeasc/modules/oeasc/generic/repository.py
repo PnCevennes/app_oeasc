@@ -376,7 +376,7 @@ def get_object_type(module_name, object_type, value, field_name=None):
         field_name = id_field_name
 
     select_object = select(Model).where(getattr(Model, field_name) == value)
-    result = DB.session.execute(select_object).scalars().one_or_none()
+    result = DB.session.execute(select_object).unique().scalars().one_or_none()
 
     return result
     # return DB.session.query(Model).filter(getattr(Model, field_name) == value).one()

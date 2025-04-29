@@ -3,6 +3,7 @@ from pypnnomenclature.repository import get_nomenclature_list
 from oeasc.ref_geo.repository import get_type_code
 from oeasc.ref_geo.models import VAreas as VA, TAreas
 from sqlalchemy import select
+from sqlalchemy.orm import Session
 
 config = current_app.config
 DB = config["DB"]
@@ -142,8 +143,9 @@ def get_areas_from_ids(id_areas):
 
         # data = DB.session.query(VA).filter(VA.id_area.in_(id_areas_to_query))
 
-        stmt = select(VA).where(VA.id_area.in_(id_areas_to_query))
-        data = DB.session.execute(stmt).all()  # Récupération des résultats complets
+        with Session(DB.engine) as session:
+            stmt = select(VA).where(VA.id_area.in_(id_areas_to_query))
+            data = session.execute(stmt).all()  # Récupération des résultats complets
 
         for d in data:
             d_dict = d.as_dict()

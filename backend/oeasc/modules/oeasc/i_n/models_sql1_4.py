@@ -6,7 +6,7 @@ from flask import current_app
 
 from sqlalchemy import Table, Column, Integer, Unicode, Boolean, Date, ForeignKey
 from sqlalchemy import and_, select, func, case
-from sqlalchemy.orm import relationship, column_property, Mapped
+from sqlalchemy.orm import relationship, column_property
 from utils_flask_sqla.serializers import serializable
 from ..commons.models import TSecteurs, TEspeces
 
@@ -71,9 +71,7 @@ class TCircuits(CustomModel):
     km = Column(Integer)
     id_secteur = Column(Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur"))
     actif = Column(Boolean, default=True)
-    secteur = relationship(
-        TSecteurs,
-        back_populates="circuits",)
+    secteur = relationship(TSecteurs, back_populates="circuits")
 
 
 @serializable
@@ -173,15 +171,24 @@ class TRealisations(CustomModel):
     temperature = Column(Unicode)
     date_realisation = Column(Date)
 
+    secteur = relationship(
+        TSecteurs,
+        secondary="oeasc_in.t_circuits",
+        primaryjoin="TRealisations.id_circuit == TCircuits.id_circuit",
+        secondaryjoin="TCircuits.id_secteur == TSecteurs.id_secteur",
+        uselist=False, 
+        back_populates="realisations",
+        # overlaps="circuit, secteur",
+        # viewonly=True,
+    )
 
-    circuit = relationship(TCircuits, lazy="joined", overlaps="circuit, secteur")
+    circuit = relationship(TCircuits, lazy="joined")
 
     observations = relationship(
         TObservations,
         cascade="save-update, merge, delete, delete-orphan",
         lazy="joined",
     )
-
 
     observers = relationship(
         TObservers,

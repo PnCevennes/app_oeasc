@@ -98,7 +98,7 @@ class TSecteurs(CustomModel):
     id_secteur = DB.Column(DB.Integer, primary_key=True)
     code_secteur = DB.Column(DB.String(250))
     nom_secteur = DB.Column(DB.Text)
-    circuits = relationship("TCircuits", back_populates="secteur")
+    circuits = relationship("TCircuits", back_populates="secteur", overlaps="circuits")
 
 
 @serializable
