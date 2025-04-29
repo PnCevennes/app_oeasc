@@ -85,7 +85,7 @@ class LAreas(DB.Model):
 
     geom_4326 = DB.Column(Geometry("MULTIPOLYGON", 4326))
 
-    def get_geofeature(self, recursif=True):
+    def get_geofeature(self, recursif=False):
         """
         utilSqlaGeo
         """
@@ -157,7 +157,7 @@ class VLAreas(DB.Model):
     surface_renseignee = DB.Column(DB.Float)
     geom_4326 = DB.Column(Geometry("MULTIPOLYGON", 4326))
 
-    def get_geofeature(self, recursif=True):
+    def get_geofeature(self, recursif=False):
         """
         ??? Use utilsSqlaGeo
         """
@@ -185,7 +185,7 @@ class VLAreasSimples(DB.Model):
     surface_renseignee = DB.Column(DB.Float)
     geom_4326 = DB.Column(Geometry("MULTIPOLYGON", 4326))
 
-    def get_geofeature(self, recursif=True):
+    def get_geofeature(self, recursif=False):
         """
         ??? Use utilsSqlaGeo
         """
