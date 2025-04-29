@@ -170,7 +170,7 @@ const STORE = {
     testConnexion({state, commit}) { 
       state, commit;
       return new Promise((resolve, reject) => {
-        apiRequest('GET', "api/user/test").then(
+        apiRequest('GET', "api/user/test").then( 
           res => {
             resolve(res)
           },
