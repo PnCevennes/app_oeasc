@@ -100,10 +100,14 @@ if [[ -z  $(which nvm) ]]; then
 
 fi
 
+
 echo "Installation des paquets npm"
 npm install
 cd frontend/
 npm install
+# la route du frontent est défini dans frontend/vue.config.js et est actuellement à /front/ en production et / en devellopement
 npm run build
+
+
 
 cd $ROOT_DIR

@@ -63,6 +63,9 @@ else
     flask db upgrade f8c2c8482419
     flask db upgrade b820c66d8daa
 
+    # ajout de clé primaire pour les cadastres
+    flask db upgrade 437c188c6344
+
 fi
 
 

@@ -42,25 +42,6 @@ class CorAreasDeclaration(CustomModel):
 
 
 @serializable
-class CorAreasForet(CustomModel):
-    """
-    areas foret
-    """
-
-    __tablename__ = "cor_areas_forets"
-    __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
-
-    id_area = DB.Column(DB.Integer, primary_key=True)
-    id_foret = DB.Column(
-        DB.Integer, DB.ForeignKey("oeasc_forets.t_forets.id_foret"), primary_key=True
-    )
-
-    def __init__(self, id_area=None):
-        super(CorAreasForet, self).__init__()
-        self.id_area = id_area
-
-
-@serializable
 class CorNomenclatureDeclarationEssenceSecondaire(CustomModel):
     """
     nomenclatures essences secondaires
@@ -229,59 +210,6 @@ class CorNomenclatureDeclarationEspece(CustomModel):
 
 
 @serializable
-class TProprietaire(CustomModel):
-    """
-    modeles proprietaires
-    """
-
-    __tablename__ = "t_proprietaires"
-    __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
-
-    id_proprietaire = DB.Column(DB.Integer, primary_key=True)
-
-    id_declarant = DB.Column(DB.Integer)
-
-    nom_proprietaire = DB.Column(DB.String(250))
-    telephone = DB.Column(DB.String(20))
-    email = DB.Column(DB.String(250))
-    adresse = DB.Column(DB.String(250))
-    s_code_postal = DB.Column(DB.String(10))
-    s_commune_proprietaire = DB.Column(DB.String(100))
-
-    id_nomenclature_proprietaire_type = DB.Column(DB.Integer)
-
-
-@serializable
-class TForet(CustomModel):
-    """
-    modele foret
-    """
-
-    __tablename__ = "t_forets"
-    __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
-
-    id_foret = DB.Column(DB.Integer, primary_key=True)
-
-    id_proprietaire = DB.Column(
-        DB.Integer, DB.ForeignKey("oeasc_forets.t_proprietaires.id_proprietaire")
-    )
-
-    b_statut_public = DB.Column(DB.Boolean)
-    b_document = DB.Column(DB.Boolean)
-
-    nom_foret = DB.Column(DB.String(250))
-    code_foret = DB.Column(DB.String(250))
-    label_foret = DB.Column(DB.String(250))
-
-    surface_calculee = DB.Column(DB.Float)
-    surface_renseignee = DB.Column(DB.Float)
-
-    areas_foret = DB.relationship(
-        CorAreasForet, cascade="save-update, merge, delete, delete-orphan"
-    )
-
-
-@serializable
 class TDegatEssence(CustomModel):
     """
     modele degat essence
@@ -403,3 +331,102 @@ class TDeclaration(CustomModel):
 
     meta_create_date = DB.Column(DB.DateTime)
     meta_update_date = DB.Column(DB.DateTime)
+
+
+
+
+
+################################################################
+############ TABLES DU SCHEMAS OEASC_FORETS ############
+################################################################
+
+
+@serializable
+class CorAreasForet(CustomModel):
+    """
+    areas foret
+    """
+
+    __tablename__ = "cor_areas_forets"
+    __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
+
+    id_area = DB.Column(DB.Integer, primary_key=True)
+    id_foret = DB.Column(
+        DB.Integer, DB.ForeignKey("oeasc_forets.t_forets.id_foret"), primary_key=True
+    )
+
+    def __init__(self, id_area=None):
+        super(CorAreasForet, self).__init__()
+        self.id_area = id_area
+
+
+
+# PROBLEME DE CLE PRIMAIRE et de DOUBLON dans la table
+# @serializable
+class CorDgdCadastre(CustomModel):
+    """
+    Dgd cadastre
+    """
+
+    __tablename__ = "cor_dgd_cadastre"
+    __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
+
+    area_code_dgd = DB.Column(DB.String(25), primary_key=True)
+    area_code_cadastre = DB.Column(DB.String(25), primary_key=True)
+
+
+
+
+@serializable
+class TProprietaire(CustomModel):
+    """
+    modeles proprietaires
+    """
+
+    __tablename__ = "t_proprietaires"
+    __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
+
+    id_proprietaire = DB.Column(DB.Integer, primary_key=True)
+
+    id_declarant = DB.Column(DB.Integer)
+
+    nom_proprietaire = DB.Column(DB.String(250))
+    telephone = DB.Column(DB.String(20))
+    email = DB.Column(DB.String(250))
+    adresse = DB.Column(DB.String(250))
+    s_code_postal = DB.Column(DB.String(10))
+    s_commune_proprietaire = DB.Column(DB.String(100))
+
+    id_nomenclature_proprietaire_type = DB.Column(DB.Integer)
+
+
+@serializable
+class TForet(CustomModel):
+    """
+    modele foret
+    """
+
+    __tablename__ = "t_forets"
+    __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
+
+    id_foret = DB.Column(DB.Integer, primary_key=True)
+
+    id_proprietaire = DB.Column(
+        DB.Integer, DB.ForeignKey("oeasc_forets.t_proprietaires.id_proprietaire")
+    )
+
+    b_statut_public = DB.Column(DB.Boolean)
+    b_document = DB.Column(DB.Boolean)
+
+    nom_foret = DB.Column(DB.String(250))
+    code_foret = DB.Column(DB.String(250))
+    label_foret = DB.Column(DB.String(250))
+
+    surface_calculee = DB.Column(DB.Float)
+    surface_renseignee = DB.Column(DB.Float)
+
+    areas_foret = DB.relationship(
+        CorAreasForet, cascade="save-update, merge, delete, delete-orphan"
+    )
+
+
