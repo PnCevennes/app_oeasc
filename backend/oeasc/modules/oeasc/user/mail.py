@@ -1,8 +1,9 @@
 from flask import Blueprint, render_template, current_app, url_for
 from flask_mail import Message
+from sqlalchemy import select
 
 from sqlalchemy import text
-from pypnusershub.db.models import Application, User
+from pypnusershub.db.models import Application, User, Organisme
 from pypnusershub.db.models_register import TempUser
 
 
@@ -21,11 +22,11 @@ def send_mail(recipients, subject, msg_html):
             "msg": "les paramètres d'envoi de mail ne sont pas correctement définis"
         }
 
-    application = (
-        DB.session.query(Application)
-        .filter(Application.id_application == config["ID_APP"])
-        .one()
-    )
+    stmt_application = select(Application).where(
+        Application.id_application == config["ID_APP"]
+    ).limit(1)
+    application = DB.session.execute(stmt_application).scalars().first()
+
 
     with MAIL.connect() as conn:
         msg = Message(
@@ -44,7 +45,9 @@ def send_mail(recipients, subject, msg_html):
 def create_temp_user(data):
     token = data.get("token", None)
 
-    role = DB.session.query(TempUser).filter(TempUser.token_role == token).first()
+    stmt_role = select(TempUser).where(TempUser.token_role == token).limit(1)
+    role = DB.session.execute(stmt_role).scalars().first()
+
 
     if not role:
         return {"msg": token + " : ce token n'est pas associé à un compte temporaire"}
@@ -62,20 +65,21 @@ def create_temp_user(data):
 
 def valid_temp_user(data):
     role = data
-    with DB.engine.begin() as conn:  # sqlalchemy 2.0
-        organisme = conn.execute(
-            text(
-                "SELECT nom_organisme FROM utilisateurs.bib_organismes WHERE id_organisme="
-                + str(role["id_organisme"])
-            )
-        ).first()
 
-    # organisme = DB.engine.execute(
+    stmt_organisme = (select(Organisme.nom_organisme)
+        .where(Organisme.id_organisme == str(role["id_organisme"]))
+        .limit(1)
+    )
+    organisme = DB.session.execute(stmt_organisme).scalars().first()    
+
+    # organisme = DB.session.execute(
     #     text(
     #         "SELECT nom_organisme FROM utilisateurs.bib_organismes WHERE id_organisme="
     #         + str(role["id_organisme"])
     #     )
     # ).first()
+
+
 
     if organisme:
         role["organisme"] = organisme[0]
@@ -123,7 +127,10 @@ def create_cor_role_token(data):
     token = data["token"]
     id_role = data["id_role"]
 
-    role = DB.session.query(User).filter(id_role == User.id_role).first()
+
+    stmt_role = select(User).where(User.id_role == id_role).limit(1)
+    role = DB.session.execute(stmt_role).scalars().first()
+
 
     # url_validation = config['URL_APPLICATION'] + url_for('user.change_password', token=token)
     recipients = [role.email]

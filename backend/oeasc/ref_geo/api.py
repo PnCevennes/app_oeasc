@@ -3,7 +3,7 @@ api pour la table ref_geo
 """
 
 from geojson import FeatureCollection
-from sqlalchemy import text
+from sqlalchemy import text, select
 
 from flask import Blueprint, request, current_app
 
@@ -36,9 +36,11 @@ def get_type_code_oeasc():
     """
     renvoie les element de bibareastype relatifs à l'OEASC
     """
-    data = DB.session.query(BibAreasType).filter(
-        BibAreasType.ref_name.in_(("OEASC", "ONF"))
+    stmt_data = (select(BibAreasType)
+                 .where(BibAreasType.ref_name.in_(("OEASC", "ONF")))
+                 .order_by(BibAreasType.type_code)
     )
+    data = DB.session.execute(stmt_data).scalars().all()
 
     return [d.as_dict() for d in data]
 
@@ -52,24 +54,31 @@ def get_id_type_api(type_code):
     return get_id_type(type_code)
 
 
-@bp.route("area/<string:data_type>/<int:id_area>")
-@json_resp
-def get_area(data_type, id_area):
-    """
-    get area from id
-    TODO with get params
-    """
-    if data_type == "l":
-        table = LA
-    else:
-        table = TA
+# @bp.route("area/<string:data_type>/<int:id_area>")
+# @json_resp
+# def get_area(data_type, id_area):
+#     """
+#     get area from id
+#     TODO with get params
+#     non utilisé
+#     """
+#     if data_type == "l":
+#         table = LA
+#     else:
+#         table = TA
 
-    data = DB.session.query(table).filter(id_area == table.id_area).all()
+#     stmt_area = (
+#         select(table)
+#         .where(table.id_area == id_area)
+#         .limit(1)
+#     )
+#     data = DB.session.execute(stmt_area).scalars().first()
 
-    if data_type == "l":
-        return FeatureCollection([d.get_geofeature() for d in data])
-    else:
-        return [d.as_dict() for d in data]
+
+#     if data_type == "l":
+#         return FeatureCollection([d.get_geofeature() for d in data])
+#     else:
+#         return [d.as_dict() for d in data]
 
 
 @bp.route("areas_post/<string:data_type>", methods=["POST"])
@@ -158,17 +167,21 @@ def get_areas_centroid_post(data_type):
         if len(v) == 1:
             t = str(t).replace(",", "")
 
-        sql_text = text(
-            "SELECT ST_X(c),ST_Y(c) \
+        # sql_text = text(
+        #     "SELECT ST_X(c),ST_Y(c) \
+        #     FROM (SELECT ST_CENTROID(ST_UNION(geom_4326)) as c \
+        #     FROM ref_geo.l_areas \
+        #     WHERE id_area in {} )a".format(
+        #         t
+        #     )
+        # )
+
+        sql_text = text("SELECT ST_X(c),ST_Y(c) \
             FROM (SELECT ST_CENTROID(ST_UNION(geom_4326)) as c \
             FROM ref_geo.l_areas \
-            WHERE id_area in {} )a".format(
-                t
-            )
-        )
-        with DB.engine.begin() as conn:  # sqlalchemy 2.0
-            result = conn.execute(sql_text).first()
-        # result = DB.engine.execute(sql_text).first()
+            WHERE id_area in :areas )a").bindparams(areas=t)
+        result = DB.session.execute(sql_text).first()
+
 
         v = [result[1], result[0]]
         d_out[key] = v

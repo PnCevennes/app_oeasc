@@ -89,14 +89,3 @@ class TEspeces(DB.Model):
     nom_espece = DB.Column(DB.Unicode)
     code_espece = DB.Column(DB.Unicode)
 
-
-# Assuming TNomenclatures is already defined in the imported module
-# Extend the existing TNomenclatures model to add the "type" property
-# class ExtendedTNomenclatures(TNomenclatures):
-#     @hybrid_property
-#     def type(self):
-#         return (
-#             DB.session.query(BibNomenclaturesTypes.mnemonique)
-#             .filter(BibNomenclaturesTypes.id_type == self.id_type)
-#             .scalar()
-#         )

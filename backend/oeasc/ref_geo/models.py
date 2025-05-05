@@ -190,3 +190,6 @@ class VLAreasSimples(DB.Model):
         ??? Use utilsSqlaGeo
         """
         return self.as_geofeature("geom_4326", "id_area", recursif)
+
+
+

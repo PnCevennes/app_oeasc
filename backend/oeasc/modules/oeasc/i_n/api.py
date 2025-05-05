@@ -2,7 +2,7 @@
 
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
-
+from sqlalchemy import select, update
 from oeasc.modules.oeasc.user.utils import check_auth_redirect_login
 
 from .repository import in_data
@@ -69,17 +69,15 @@ def in_valid_realisation():
     id_realisation = (data["id_realisation"],)
     id_tag = data["id_tag"]
 
-    # cor = (
-    #     DB.session.query(CorRealisationTag)
-    #     .filter_by(id_realisation=id_realisation, id_tag=id_tag)
-    #     .update(data, synchronize_session=False)
-    # )
-    cor = (
-        DB.session.query(CorRealisationTag)
-        .filter_by(id_realisation=id_realisation, id_tag=id_tag)
-        .update(data, synchronize_session="fetch")
-    )
+
+    stmt_cor = update(CorRealisationTag).where(
+        CorRealisationTag.id_realisation == id_realisation[0],
+        CorRealisationTag.id_tag == id_tag
+    ).values(**data)
+    
+    cor = DB.session.execute(stmt_cor)
 
     DB.session.commit()
+
 
     return cor

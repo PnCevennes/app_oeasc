@@ -13,6 +13,7 @@ from oeasc.modules.oeasc.nomenclature import (
 from oeasc.modules.oeasc.user.repository import get_user, get_id_organismes
 
 from .models import TDeclaration, TForet, TProprietaire
+from sqlalchemy import select
 
 config = current_app.config
 DB = config["DB"]
@@ -108,17 +109,24 @@ def get_foret(id_foret):
     """
     foret = proprietaire = None
 
-    foret = DB.session.query(TForet).filter(id_foret == TForet.id_foret).first()
+    stmt_foret = (
+        select(TForet)
+        .where(TForet.id_foret == id_foret)
+        .limit(1)
+    )
+    foret = DB.session.execute(stmt_foret).scalars().first()
 
     if foret:
         id_proprietaire = foret.id_proprietaire
 
         if id_proprietaire:
-            proprietaire = (
-                DB.session.query(TProprietaire)
-                .filter(id_proprietaire == TProprietaire.id_proprietaire)
-                .first()
+            stmt_poprietaire = (
+                select(TProprietaire)
+                .where(TProprietaire.id_proprietaire == id_proprietaire)
+                .limit(1)
             )
+            proprietaire = DB.session.execute(stmt_poprietaire).scalars().first()
+
     return foret, proprietaire
 
 
@@ -129,11 +137,12 @@ def get_dfpu(id_declaration):
 
     declaration = foret = proprietaire = declarant = None
 
-    declaration = (
-        DB.session.query(TDeclaration)
-        .filter(id_declaration == TDeclaration.id_declaration)
-        .first()
+    stmt_declaration = (
+        select(TDeclaration)
+        .where(TDeclaration.id_declaration == id_declaration)
+        .limit(1)
     )
+    declaration = DB.session.execute(stmt_declaration).scalars().first()
 
     if declaration:
         id_declarant = declaration.id_declarant
@@ -155,7 +164,13 @@ def create_or_modify(model, key, val, dict_in):
     elem = None
 
     if key:
-        elem = DB.session.query(model).filter(getattr(model, key) == val).first()
+        stmt_elem = (
+            select(model)
+            .where(getattr(model, key) == val)
+            .limit(1)
+        )
+        elem = DB.session.execute(stmt_elem).scalars().first()
+
 
     if elem is None:
         elem = model()
@@ -224,9 +239,9 @@ def patch_areas_declarations(id_declaration):
         id_declaration
     )
 
-    with DB.engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
-        conn.execute(txt)
 
+    DB.session.execute(txt)
+    DB.session.commit()
     # DB.engine.execution_options(autocommit=True).execute(txt)
 
 

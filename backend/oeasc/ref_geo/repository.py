@@ -2,7 +2,8 @@
 Fonctions pour récupérer les géometries
 """
 
-from sqlalchemy import and_, text
+from sqlalchemy import and_, text, select, func
+from sqlalchemy.orm import Session
 from flask import current_app
 from geojson import FeatureCollection
 
@@ -11,7 +12,12 @@ from .models import (
     VLAreas as VLA,
     VAreasSimples as VAS,
     VLAreasSimples as VLAS,
+    BibAreasType,
+
 )
+
+from ..modules.oeasc.declaration.models import CorDgdCadastre
+
 
 
 config = current_app.config
@@ -22,14 +28,10 @@ def get_id_type(type_code):
     """
     TODO
     """
-    # return DB.session.execute(
-    #     "SELECT ref_geo.get_id_type(:type_code);", {"type_code": type_code}
-    # ).first()[0]
+     
+    stmt = select(func.ref_geo.get_id_type(type_code))
+    res = DB.session.execute(stmt).first()[0]
 
-    with DB.engine.begin() as conn:  # sqlalchemy 2.0
-        res = conn.execute(
-            text("SELECT ref_geo.get_id_type(:type_code);"), {"type_code": type_code}
-        ).first()[0]
     return res
 
 
@@ -37,16 +39,13 @@ def get_type_code(id_type):
     """
     Récupère le type_code pour un id_type donné.
     """
-    with DB.engine.begin() as conn:  # SQLAlchemy 2.0
-        res = conn.execute(
-            text(
-                "SELECT type_code FROM ref_geo.bib_areas_types WHERE id_type = :id_type"
-            ),
-            {"id_type": id_type},
-        ).first()  # Récupère la première ligne
 
-    return res[0] if res else None  # Vérifie si un résultat existe
-
+    stmt = select(BibAreasType.type_code).where(
+        BibAreasType.id_type == id_type
+    ).limit(1)
+    res = DB.session.execute(stmt).scalars().one_or_none()
+    print("get_type_code", res)
+    return res
 
 # def get_type_code(id_type):
 #     """
@@ -98,12 +97,14 @@ def areas_from_type_code(b_simple, data_type, type_code):
 
     id_type = get_id_type(type_code)
 
-    data = (
-        DB.session.query(table)
-        .filter(and_(table.id_type == id_type, table.enable))
-        .order_by(table.label)
-        .all()
-    )
+
+    stmt = ((select(table)
+            .where(table.id_type == id_type)
+            .where(table.enable)
+            .order_by(table.label)))
+    data = DB.session.execute(stmt).scalars().all()
+        
+
 
     if data_type == "l":
         out = FeatureCollection([d.get_geofeature() for d in data])
@@ -143,30 +144,39 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
     out = []
 
+
     for id_area_container in v:
-        container = (
-            DB.session.query(table).filter(table.id_area == id_area_container).first()
+
+        stmt_container = (
+            select(table)
+                .where(table.id_area == id_area_container)
+                .order_by(table.label)
+                .limit(1) # ajout le limit pour optimiser la requete
         )
+        container = DB.session.execute(stmt_container).scalars().first()
+
 
         id_type_commune = get_id_type("OEASC_COMMUNE")
         id_type_dgd = get_id_type("OEASC_DGD")
 
         # cas des section de communes
         if container.id_type == id_type_commune:
-            sql_text = text(
-                "SELECT ref_geo.get_old_communes('{}')".format(container.area_code)
-            )
 
-            result = DB.engine.execute(sql_text)
+            # fonction de la base de données refgeo.
+            # sql_text = text(
+            #     "SELECT ref_geo.get_old_communes('{}')".format(container.area_code)
+            # )
+            stmt_old_communes = select(func.ref_geo.get_old_communes(container.area_code))
+            result = DB.session.execute(stmt_old_communes).scalars().all()
 
             data = []
 
             for r in result:
                 area_code = r[0]
 
-                data = (
-                    DB.session.query(table)
-                    .filter(
+                stmt = (
+                    select(table)
+                    .where(
                         and_(
                             table.id_type == id_type,
                             table.enable,
@@ -174,45 +184,35 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                         )
                     )
                     .order_by(table.label)
-                    .all()
-                    + data
                 )
+
+                data = DB.session.execute(stmt).scalars().all() + data
+
+
 
         # cas des dgd
         elif container.id_type == id_type_dgd:
 
-            with DB.engine.begin() as conn:  # sqlalchemy 2.0
-                res = conn.execute(
-                    text(
-                        "SELECT area_code_cadastre \
-                            FROM oeasc_forets.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(
-                            container.area_code
-                        )
-                    )
-                )
-            # res = DB.engine.execute(
-            #     text(
-            #         "SELECT area_code_cadastre \
-            #             FROM oeasc_forets.cor_dgd_cadastre WHERE area_code_dgd = '{}' ;".format(
-            #             container.area_code
-            #         )
-            #     )
-            # )
-
+            stmt_cadastre = (select(CorDgdCadastre).where(
+                CorDgdCadastre.area_code_dgd == container.area_code
+            ))
+            res = DB.session.execute(stmt_cadastre).scalars().all()
+            
             v = [r[0] for r in res]
 
-            data = (
-                DB.session.query(table)
-                .filter(table.area_code.in_(v))
+            stmt_by_area_code = (
+                select(table)
+                .where(table.area_code.in_(v))
                 .order_by(table.label)
-                .all()
             )
+            data = DB.session.execute(stmt_by_area_code).scalars().all()
+
 
         # autres cas ONF
         else:
-            data = (
-                DB.session.query(table)
-                .filter(
+
+            stmt = (select(table)
+                .where(
                     and_(
                         table.id_type == id_type,
                         table.enable,
@@ -220,8 +220,9 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                     )
                 )
                 .order_by(table.label)
-                .all()
             )
+            data = DB.session.execute(stmt).scalars().all()
+
 
         # output
         if data_type == "l":
@@ -246,8 +247,12 @@ def areas_post(b_simple, data_type, areas):
     out = []
 
     t_areas = areas
+    stmt_areas = (
+        select(table)
+        .where(table.id_area.in_(t_areas))
+    )
+    data = DB.session.execute(stmt_areas).scalars().all()
 
-    data = DB.session.query(table).filter(table.id_area.in_(t_areas)).all()
 
     if data_type == "l":
         out = FeatureCollection([d.get_geofeature() for d in data])

@@ -7,6 +7,7 @@ from ..declaration.models import TProprietaire, TForet, TDeclaration
 from ..declaration.repository import patch_areas_declarations
 from ..nomenclature import get_area_from_id, get_nomenclature_from_id
 from ..user.models import VUsers
+from sqlalchemy import select
 
 
 config = current_app.config
@@ -22,7 +23,12 @@ def create_or_modify(model, key, dict_in):
     if key:
         val = dict_in.get(key, None)
         if val:
-            elem = DB.session.query(model).filter(getattr(model, key) == val).first()
+            stmt_elem = (
+                select(model).where(getattr(model, key) == val)
+                .limit(1)
+            )
+            elem = DB.session.execute(stmt_elem).scalars().first()
+
 
     if elem is None:
         elem = model()
@@ -41,23 +47,27 @@ def get_declaration(id_declaration):
     """
 
     try:
-        declaration = (
-            DB.session.query(TDeclaration)
-            .filter(TDeclaration.id_declaration == id_declaration)
-            .one()
+        stmt_declaration = (
+            select(TDeclaration)
+            .where(TDeclaration.id_declaration == id_declaration)
+            .limit(1)
         )
+        declaration = DB.session.execute(stmt_declaration).scalars().first()
 
-        foret = (
-            DB.session.query(TForet)
-            .filter(TForet.id_foret == declaration.id_foret)
-            .one()
+        stmt_foret = (
+            select(TForet)
+            .where(TForet.id_foret == declaration.id_foret)
+            .limit(1)
         )
+        foret = DB.session.execute(stmt_foret).scalars().first()
 
-        proprietaire = (
-            DB.session.query(TProprietaire)
-            .filter(TProprietaire.id_proprietaire == foret.id_proprietaire)
-            .one()
+        stmt_proprietaire = (
+            select(TProprietaire)
+            .where(TProprietaire.id_proprietaire == foret.id_proprietaire)
+            .limit(1)
         )
+        proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
+
 
     except Exception:
         return (TDeclaration(), TForet(), TProprietaire())
@@ -131,7 +141,12 @@ def create_or_update_declaration(post_data):
 
         code_foret = get_area_from_id(id_area_foret)["area_code"]
 
-        foret = DB.session.query(TForet).filter(TForet.code_foret == code_foret).first()
+        stmt_foret = (select(TForet)
+        .where(TForet.code_foret == code_foret)
+        .limit(1)              
+        )
+        foret = DB.session.execute(stmt_foret).scalars().first()
+
 
         post_data["id_foret"] = foret.id_foret
 
@@ -168,34 +183,45 @@ def get_foret_from_code(code_foret):
     get_foret_from_code
     """
 
-    foret = DB.session.query(TForet).filter(TForet.code_foret == code_foret).first()
+    code_foret = code_foret.upper()
 
-    proprietaire = (
-        DB.session.query(TProprietaire)
-        .filter(TProprietaire.id_proprietaire == foret.id_proprietaire)
-        .first()
+    stmt_foret = (
+        select(TForet)
+        .where(TForet.code_foret == code_foret)
+        .limit(1)
     )
+    foret = DB.session.execute(stmt_foret).scalars().first()
+
+    stmt_proprietaire = (
+        select(TProprietaire)
+        .where(TProprietaire.id_proprietaire == foret.id_proprietaire)
+        .limit(1)
+    )
+    proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
 
     return (foret, proprietaire)
 
 
 def get_proprietaire_from_id_declarant(id_declarant):
-    proprietaire = (
-        DB.session.query(TProprietaire)
-        .filter(TProprietaire.id_declarant == id_declarant)
-        .first()
+
+    stmt_proprietaire = (
+        select(TProprietaire)
+        .where(TProprietaire.id_declarant == id_declarant)
+        .limit(1)
     )
+    proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
 
     return proprietaire or TProprietaire()
 
 
 def get_declarations():
-    declarations = (
-        DB.session.query(TDeclaration, TForet, VUsers)
+
+    stmt_declaration = (
+        select(TDeclaration, TForet, VUsers)
         .join(TForet, TForet.id_foret == TDeclaration.id_foret)
         .join(VUsers, VUsers.id_role == TDeclaration.id_declarant)
-        .all()
     )
+    declarations = DB.session.execute(stmt_declaration).all()
 
     out = []
     for declaration in declarations:

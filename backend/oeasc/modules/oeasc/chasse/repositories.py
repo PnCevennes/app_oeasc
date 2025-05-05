@@ -68,7 +68,7 @@ def get_attribution_result(params):
         "v_custom_result_attribution", "oeasc_chasse", DB.engine
     ).tableDef.columns
 
-    query = select(
+    stmt = select(
         func.count(columns.id_attribution),
         func.count(columns.id_attribution).filter(columns.id_realisation.is_not(None)),
         func.count(columns.transfert_zc).filter(columns.transfert_zc.is_(True)),
@@ -79,11 +79,11 @@ def get_attribution_result(params):
         if not hasattr(columns, filter_key) or filter_value in [None, []]:
             continue
         if isinstance(filter_value, list):
-            query = query.where(getattr(columns, filter_key).in_(filter_value))
+            stmt = stmt.where(getattr(columns, filter_key).in_(filter_value))
         else:
-            query = query.where(getattr(columns, filter_key) == filter_value)
+            stmt = stmt.where(getattr(columns, filter_key) == filter_value)
 
-    res = DB.session.execute(query).first()
+    res = DB.session.execute(stmt).first()
     # res = res[0]
 
     return {
@@ -196,26 +196,26 @@ def chasse_get_infos():
     }
 
 
-def build_chasse_bilan_filters(params, query, tableModel):
-    # filter query
+def build_chasse_bilan_filters(params, stmt, tableModel):
+
     if params["id_zone_indicative"]:
-        query = query.filter(
+        stmt = stmt.where(
             tableModel.id_zone_indicative.in_(params["id_zone_indicative"])
         )
     elif params["id_zone_cynegetique"]:
-        query = query.filter(
+        stmt = stmt.where(
             tableModel.id_zone_cynegetique.in_(params["id_zone_cynegetique"])
         )
     elif params["id_secteur"]:
-        query = query.join(
+        stmt = stmt.join(
             TZoneCynegetiques,
             TZoneCynegetiques.id_zone_cynegetique == tableModel.id_zone_cynegetique,
-        ).filter(TZoneCynegetiques.id_secteur.in_(params["id_secteur"]))
+        ).where(TZoneCynegetiques.id_secteur.in_(params["id_secteur"]))
 
     if params["id_espece"]:
-        query = query.filter(tableModel.id_espece == params["id_espece"])
+        stmt = stmt.where(tableModel.id_espece == params["id_espece"])
 
-    return query
+    return stmt
 
 
 def get_chasse_bilan_realisation(params):
@@ -226,7 +226,7 @@ def get_chasse_bilan_realisation(params):
 
     if params["id_zone_indicative"]:
 
-        query = (
+        stmt = (
             select(
                 TSaisons.nom_saison,
                 VPlanChasseRealisationBilan.id_espece,
@@ -249,9 +249,9 @@ def get_chasse_bilan_realisation(params):
                 TSaisons.id_saison == VPlanChasseRealisationBilan.id_saison,
             )
         )
-        query = build_chasse_bilan_filters(params, query, VPlanChasseRealisationBilan)
+        stmt = build_chasse_bilan_filters(params, stmt, VPlanChasseRealisationBilan)
         # group by
-        query = query.group_by(
+        stmt = stmt.group_by(
             VPlanChasseRealisationBilan.id_espece, TSaisons.nom_saison
         )
 
@@ -291,7 +291,7 @@ def get_chasse_bilan_realisation(params):
         ).subquery()
 
 
-        query = (
+        stmt = (
             select(
             TSaisons.nom_saison,
             attribution_subq.c.id_espece,
@@ -313,9 +313,9 @@ def get_chasse_bilan_realisation(params):
 
 
 
-    query = query.order_by(TSaisons.nom_saison)
+    stmt = stmt.order_by(TSaisons.nom_saison)
 
-    return query
+    return stmt
 
 
 def get_plain_text_data(params):
@@ -377,9 +377,9 @@ def get_plain_text_data(params):
 
 
 def get_chasse_bilan(params):
-    query = get_chasse_bilan_realisation(params)
-    res = DB.session.execute(query).all()
-    # res = query.all()
+    stmt = get_chasse_bilan_realisation(params)
+    res = DB.session.execute(stmt).all()
+    # res.all()
     # 0: nom_saison
     # 1: id_espece
     # 2: nb_affecte_min
@@ -754,11 +754,11 @@ def get_data_export_ods(nom_saison, nom_espece):
         .order_by(cast(columns.code_zone_indicative, Integer))
     )
 
-    query = DB.session.execute(stmt)
+    data_chasse = DB.session.execute(stmt)
 
     res = [
         {(str(col.key)): getattr(r, str(col.key)) for col in columns}
-        for r in query.all()
+        for r in data_chasse.all()
     ]
 
     zcs = []

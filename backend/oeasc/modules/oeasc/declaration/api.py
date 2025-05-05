@@ -12,6 +12,8 @@ from utils_flask_sqla.response import csv_resp
 from utils_flask_sqla_geo.generic import GenericTableGeo
 from oeasc.modules.oeasc.nomenclature import nomenclature_oeasc
 from utils_flask_sqla.response import json_resp
+from sqlalchemy import delete
+from sqlalchemy.orm import Session
 
 # from oeasc.utils.env import ROOT_DIR
 
@@ -155,13 +157,11 @@ def delete_declaration(id_declaration):
     """
     Supprime une déclaration (id_déclaration)
     """
-
-    (
-        DB.session.query(TDeclaration)
-        .filter(TDeclaration.id_declaration == id_declaration)
-        .delete()
+    
+    stmt = delete(TDeclaration).where(
+        TDeclaration.id_declaration == id_declaration,
     )
-
+    DB.session.execute(stmt)
     DB.session.commit()
 
     return "ok"

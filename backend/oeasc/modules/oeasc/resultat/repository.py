@@ -1,7 +1,11 @@
-from sqlalchemy import text, func
+from sqlalchemy import text, func, select
+
 from flask import current_app
 from ..nomenclature import nomenclature_oeasc
 from utils_flask_sqla.generic import GenericTable
+from ..declaration.models import TDeclaration, TDegat
+# from pypnnomenclature.models import TNomenclatures
+from ..commons.models import TNomenclatures_oeasc
 
 cache_generic_table = {}
 
@@ -39,61 +43,111 @@ def nb_declarations():
     """
     renvoie le nombre de déclarations
     """
-    r = """
-        SELECT COUNT(*) FROM oeasc_declarations.t_declarations
-    """
 
-    with DB.engine.begin() as conn:  # sqlalchemy 2.0
-        data = conn.execute(text(r)).first()
+    stmt_count = select(func.count()).select_from(TDeclaration)
+    nb_result = DB.session.execute(stmt_count).scalar()
 
-    # data = DB.engine.execute(text(r)).first()
-    out = data[0]
-    return out
+    return nb_result
 
 
 def req_degats(name, var_name="", id_nomenclature_degat_type="", multi=False):
-    r = """
-    SELECT
-        n.mnemonique as label,
-        a.nb as {}
 
-        FROM (SELECT
-            id_nomenclature_degat_type as id,
-            COUNT(*) as nb
-            FROM oeasc_declarations.t_degats d
-            JOIN ref_nomenclatures.t_nomenclatures
-                ON d.id_nomenclature_degat_type = id_nomenclature
-            """.format(
-        name
+    """semble ne pas être utilisé"""
+
+    if multi:
+        stmt = select(
+            TNomenclatures_oeasc.mnemonique.label('label'),
+            func.count().label(name)
+        ).select_from(
+            TDegat
+        ).join(
+            TNomenclatures_oeasc,
+            TDegat.id_nomenclature_degat_type == TNomenclatures_oeasc.id_nomenclature
+        )
+    else:
+        stmt = select(
+            TNomenclatures_oeasc.mnemonique.label('label'),
+            func.count().label(name)
+        ).select_from(
+            TDegat
+        ).join(
+            TNomenclatures_oeasc,
+            TDegat.id_nomenclature_degat_type == TNomenclatures_oeasc.id_nomenclature
+        )
+
+    stmt = stmt.group_by(
+        TNomenclatures_oeasc.mnemonique
+    ).order_by(
+        TNomenclatures_oeasc.mnemonique
     )
-
     if var_name and not multi:
-        r += """
-        JOIN oeasc_declarations.t_declarations dec ON d.id_declaration=dec.id_declaration
-        WHERE id_nomenclature_{} = {}
-        """.format(
-            var_name, id_nomenclature_degat_type
+        stmt = stmt.join(
+            TDeclaration,
+            TDegat.id_declaration == TDeclaration.id_declaration
+        ).where(
+            TDeclaration.id_nomenclature_degat_type == id_nomenclature_degat_type
         )
-
     if var_name and multi:
-        r += """
-        JOIN oeasc_declarations.cor_nomenclature_declarations_{} cor ON d.id_declaration=cor.id_declaration
-        WHERE cor.id_nomenclature = {}
-        """.format(
-            var_name, id
+        stmt = stmt.join(
+            "cor_nomenclature_declarations_" + var_name,
+            TDegat.id_declaration == "cor_nomenclature_declarations_" + var_name + ".id_declaration"
+        ).where(
+            "cor_nomenclature_declarations_" + var_name + ".id_nomenclature" == id_nomenclature_degat_type
+        )
+    if var_name:
+        stmt = stmt.where(
+            TNomenclatures_oeasc.mnemonique == var_name
+        )
+    else:
+        stmt = stmt.where(
+            TNomenclatures_oeasc.mnemonique == "total"
         )
 
-    r += """
-        GROUP BY id)a
-    JOIN ref_nomenclatures.t_nomenclatures n
-        ON id_nomenclature = a.id
-        ORDER BY label
-    """
-    # .format(name, type, id)
-    with DB.engine.begin() as conn:  # sqlalchemy 2.0
-        data = conn.execute(text(r))
-    # data = DB.engine.execute(text(r))
 
+    print(stmt)
+    data = DB.session.execute(stmt).all()
+
+    # r = """
+    # SELECT
+    #     n.mnemonique as label,
+    #     a.nb as :name
+
+    #     FROM (SELECT
+    #         id_nomenclature_degat_type as id,
+    #         COUNT(*) as nb
+    #         FROM oeasc_declarations.t_degats d
+    #         JOIN ref_nomenclatures.t_nomenclatures
+    #             ON d.id_nomenclature_degat_type = id_nomenclature
+    #         """
+
+    # if var_name and not multi:
+    #     r += """
+    #     JOIN oeasc_declarations.t_declarations dec ON d.id_declaration=dec.id_declaration
+    #     WHERE id_nomenclature_:varname = :id_nomenclature_degat_type
+    #     """
+    # if var_name and multi:
+    #     r += """
+    #     JOIN oeasc_declarations.cor_nomenclature_declarations_:varname cor ON d.id_declaration=cor.id_declaration
+    #     WHERE cor.id_nomenclature = :id_nomemclature
+    #     """
+
+    # r += """
+    #     GROUP BY id)a
+    # JOIN ref_nomenclatures.t_nomenclatures n
+    #     ON id_nomenclature = a.id
+    #     ORDER BY label
+    # """
+    # .format(name, type, id)
+
+    # text_stmt = text(r).bindparams(
+    #     name=name,
+    #     var_name=var_name,
+    #     id_nomenclature_degat_type=id_nomenclature_degat_type,
+    #     id_nomenclature=id,
+    # )
+
+    # data = DB.session.execute(text_stmt)
+    
     return data_to_dict(data)
 
 
@@ -159,8 +213,8 @@ SELECT
     ORDER BY 1
     """
 
-    with DB.engine.begin() as conn:  # sqlalchemy 2.0
-        data = conn.execute(text(r))
+
+    data = DB.session.execute(text(r))
 
     # data = DB.engine.execute(text(r))
 
@@ -187,16 +241,18 @@ def result_custom(params):
 
     view = cache_generic_table.get(params["view"])
 
-    query = DB.session.query(
-        getattr(view.tableDef.columns, params["field_name"]), func.count("*")
+    stmt_view = select(
+        getattr(view.tableDef.columns, params["field_name"]),
+        func.count("*").label("count"),
     )
 
     # filter
     for filter_key, filter_value in params.get("filters", {}).items():
-        query = query.filter(
+        stmt_view = stmt_view.where(
             getattr(view.tableDef.columns, filter_key).in_(filter_value)
         )
 
+    
     group_bys = [params["field_name"]]
     order_by = "COUNT(*) DESC"
 
@@ -208,6 +264,7 @@ def result_custom(params):
                 dir = "DESC"
             field_sort = field_sort[:-1]
 
+
         if field_sort != params["field_name"]:
             group_bys.append(field_sort)
 
@@ -216,7 +273,11 @@ def result_custom(params):
         if "-" == params["sort"][-1]:
             order_by += f" {dir}"
 
-    query = query.group_by(text(", ".join(group_bys)))
-    query = query.order_by(text(order_by))
-    res = query.all()
+
+
+    stmt_view = stmt_view.group_by(text(", ".join(group_bys)))
+    stmt_view = stmt_view.order_by(text(order_by))
+
+    res = DB.session.execute(stmt_view).all()
+
     return [{"text": r[0], "count": r[1]} for r in res]

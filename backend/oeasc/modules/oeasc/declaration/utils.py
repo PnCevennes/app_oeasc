@@ -9,6 +9,7 @@ from flask import current_app
 from sqlalchemy import func
 from .models import TForet, TProprietaire
 from pypnusershub.db.models import User
+from sqlalchemy import select
 
 
 config = current_app.config
@@ -51,11 +52,16 @@ def check_massif(declaration_dict):
         return
 
     id_areas = [area["id_area"] for area in areas]
-    area = (
-        DB.session.query(TAreas)
-        .filter(TAreas.id_area == func.ref_geo.get_massif(id_areas))
-        .first()
+
+
+    stmt_area = (
+        select(TAreas)
+        .where(TAreas.id_area.in_(id_areas))
+        .where(TAreas.type_code == "OEASC_MASSIF")
+        .limit(1)
     )
+    area = DB.session.execute(stmt_area).scalars().first()
+
 
     if not area:
         return
@@ -115,27 +121,34 @@ def check_proprietaire(declaration_dict):
     ]
 
     if id_declarant_proprietaire:
-        proprietaire = (
-            DB.session.query(TProprietaire)
-            .filter(id_declarant_proprietaire == TProprietaire.id_declarant)
-            .first()
+
+        stmt_proprietaire = (
+            select(TProprietaire)
+            .where(id_declarant_proprietaire == TProprietaire.id_declarant)
+            .limit(1)
         )
+        proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
+
+
         if proprietaire:
             declaration_dict["foret"]["proprietaire"] = proprietaire.as_dict()
             return 1
 
         # on retourne juste les infos contenues dans user
         else:
-            user = (
-                DB.session.query(User)
-                .filter(User.id_role == id_declarant_proprietaire)
-                .first()
+
+            stmt_user = (
+                select(User)
+                .where(id_declarant_proprietaire == User.id_role)
+                .limit(1)
             )
+            user = DB.session.execute(stmt_user).scalars().first()
+
 
             if not user:
                 return -1
 
-            user_dict = as_dict(user)
+            user_dict = user.as_dict()
 
             proprietaire_dict = TProprietaire().as_dict()
             proprietaire_dict["nom_proprietaire"] = (
@@ -241,7 +254,14 @@ def get_listes_essences(declaration):
 
 
 def get_foret_from_name(nom_foret):
-    data = DB.session.query(TForet).filter(TForet.nom_foret == nom_foret).first()
+
+    stmt_foret = (
+        select(TForet)
+        .where(func.lower(TForet.nom_foret) == func.lower(nom_foret))
+        .limit(1)
+    )
+    data = DB.session.execute(stmt_foret).scalars().first()
+
     if not data:
         return None
 
@@ -287,11 +307,13 @@ def check_foret(declaration_dict):
     if not id_proprietaire:
         return False
 
-    proprietaire = (
-        DB.session.query(TProprietaire)
-        .filter(id_proprietaire == TProprietaire.id_proprietaire)
-        .first()
+    stmt_proprietaire = (
+        select(TProprietaire)
+        .where(id_proprietaire == TProprietaire.id_proprietaire)
+        .limit(1)
     )
+    proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
+
 
     if not proprietaire:
         return False

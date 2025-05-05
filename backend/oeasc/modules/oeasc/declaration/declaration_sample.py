@@ -10,8 +10,9 @@ import random
 
 from datetime import timedelta, datetime
 from flask import current_app
-from sqlalchemy import text
+from sqlalchemy import text, select
 from sqlalchemy.sql import func
+from sqlalchemy.orm import Session
 
 from pypnusershub.db.models import User
 from oeasc.ref_geo.models import TAreas
@@ -21,7 +22,7 @@ from oeasc.modules.oeasc.nomenclature import (
     get_nomenclature_from_id,
     get_nomenclature,
 )
-from .models import TForet, TProprietaire
+from .models import TForet, TProprietaire, CorDgdCadastre
 
 config = current_app.config
 DB = config["DB"]
@@ -171,12 +172,15 @@ def get_random_area_commune():
     """
     get_random_area_commune
     """
-    area = (
-        DB.session.query(TAreas)
-        .filter(TAreas.id_type == get_id_type("OEASC_COMMUNE"))
+
+
+    stmt = (
+        select(TAreas)
+        .where(TAreas.id_type == get_id_type("OEASC_COMMUNE"))
         .order_by(func.random())
-        .first()
+        .limit(1)
     )
+    area = DB.session.execute(stmt).scalar_one_or_none()
     if area:
         return area.as_dict()
 
@@ -187,16 +191,18 @@ def get_random_area_section(area_code_commune):
     """
     get_random_area_section
     """
-    area = (
-        DB.session.query(TAreas)
-        .filter(TAreas.id_type == get_id_type("OEASC_SECTION"))
-        .filter(TAreas.area_code.like(area_code_commune + "-%"))
-        .order_by(func.random())
-        .first()
-    )
 
+    stmt = (
+        select(TAreas)
+        .where(TAreas.id_type == get_id_type("OEASC_SECTION"))
+        .where(TAreas.area_code.like(area_code_commune + "-%"))
+        .order_by(func.random())
+        .limit(1)
+    )
+    area = DB.session.execute(stmt).scalar_one_or_none()
     if area:
         return area.as_dict()
+
 
     return None
 
@@ -205,16 +211,18 @@ def get_random_area_onf_prf(area_code_onf_frt):
     """
     get_random_area_onf_prf
     """
-    area = (
-        DB.session.query(TAreas)
-        .filter(TAreas.id_type == get_id_type("OEASC_ONF_PRF"))
-        .filter(TAreas.area_code.like(area_code_onf_frt + "-%"))
-        .order_by(func.random())
-        .first()
+
+    stmt = (
+        select (TAreas)
+        .where (TAreas.id_type == get_id_type("OEASC_ONF_PRF"))
+        .where (TAreas.area_code.like (area_code_onf_frt + "-%"))
+        .order_by (func.random ())
+        .limit (1)
     )
+    area = DB.session.execute (stmt).scalar_one_or_none ()
 
     if area:
-        return area.as_dict()
+            return area.as_dict()
 
     return None
 
@@ -223,14 +231,15 @@ def get_random_area_onf_ug(area_code_onf_prf):
     """
     get_random_area_onf_ug
     """
-    area = (
-        DB.session.query(TAreas)
-        .filter(TAreas.id_type == get_id_type("OEASC_ONF_UG"))
-        .filter(TAreas.area_code.like(area_code_onf_prf + "-%"))
-        .order_by(func.random())
-        .first()
-    )
 
+    stmt_area = (
+        select (TAreas)
+        .where (TAreas.id_type == get_id_type("OEASC_ONF_UG"))
+        .where (TAreas.area_code.like (area_code_onf_prf + "-%"))
+        .order_by (func.random ())
+        .limit (1)
+    )
+    area = DB.session.execute (stmt_area).scalar_one_or_none ()
     if area:
         return area.as_dict()
 
@@ -241,38 +250,24 @@ def get_random_area_dgd_cadastre(area_code_dgd):
     """
     get_random_area_dgd_cadastre
     """
-    with DB.engine.begin() as conn:  # sqlalchemy 2.0
-        res = conn.execute(
-            text(
-                "SELECT area_code_cadastre \
-            FROM oeasc_forets.cor_dgd_cadastre \
-            WHERE area_code_dgd = '{}' \
-            ORDER BY RANDOM() \
-            LIMIT 1;".format(
-                    area_code_dgd
-                )
-            )
-        ).first()[0]
 
-    # res = DB.engine.execute(
-    #     text(
-    #         "SELECT area_code_cadastre \
-    #     FROM oeasc_forets.cor_dgd_cadastre \
-    #     WHERE area_code_dgd = '{}' \
-    #     ORDER BY RANDOM() \
-    #     LIMIT 1;".format(
-    #             area_code_dgd
-    #         )
-    #     )
-    # ).first()[0]
+    stmt_cadastre = (select(CorDgdCadastre)
+        .where(CorDgdCadastre.area_code_dgd == area_code_dgd)
+        .order_by(func.random())
+        .limit(1)
+    )
+    res = DB.session.execute(stmt_cadastre).scalars.one_or_none()
+
+
 
     area_code = res
-    area = (
-        DB.session.query(TAreas)
-        .filter(TAreas.id_type == get_id_type("OEASC_CADASTRE"))
-        .filter(TAreas.area_code == area_code)
-        .first()
+    stmt_area =(
+        select(TAreas)
+        .where(TAreas.id_type == get_id_type("OEASC_CADASTRE"))
+        .where(TAreas.area_code.like(area_code + "-%"))
+        .limit(1)
     )
+    area = DB.session.execute(stmt_area).scalars().one_or_none()
 
     if area:
         return area.as_dict()
@@ -284,13 +279,14 @@ def get_random_area_section_cadastre(area_code_section):
     """
     get_random_area_section_cadastre
     """
-    area = (
-        DB.session.query(TAreas)
-        .filter(TAreas.id_type == get_id_type("OEASC_CADASTRE"))
-        .filter(TAreas.area_code.like(area_code_section + "-%"))
+
+    stmt = (select(TAreas)
+        .where(TAreas.id_type == get_id_type("OEASC_CADASTRE"))
+        .where(TAreas.area_code.like(area_code_section + "-%"))
         .order_by(func.random())
-        .first()
+        .limit(1)
     )
+    area = DB.session.execute(stmt).scalar_one_or_none()
 
     if area:
         return area.as_dict()
@@ -308,20 +304,26 @@ def foret_dict_random_sample():
 
     # cas docmumenté : on récupère en base
     if b_document:
-        foret = (
-            DB.session.query(TForet)
-            .filter(TForet.b_statut_public == b_statut_public)
+
+
+        stmt_foret = (
+            select(TForet)
+            .where(TForet.b_statut_public == b_statut_public)
             .order_by(func.random())
-            .first()
+            .limit(1)
         )
+        foret = DB.session.execute(stmt_foret).scalar_one_or_none()
+
         if not foret:
             return None
-
-        proprietaire = (
-            DB.session.query(TProprietaire)
-            .filter(TProprietaire.id_proprietaire == foret.id_proprietaire)
-            .first()
+        
+        stmt_proprietaire = (
+            select(TProprietaire)
+            .where(TProprietaire.id_proprietaire == foret.id_proprietaire)
+            .limit(1)
         )
+        proprietaire = DB.session.execute(stmt_proprietaire).scalar_one_or_none()
+    
         if not proprietaire:
             return None
 
@@ -417,14 +419,15 @@ def get_random_id_declarant():
     """
     renvoie un id_declarant aléatoire
     """
+
     sql_text = text(
         "SELECT r.id_role FROM utilisateurs.t_roles r, utilisateurs.cor_role_droit_application c \
-        WHERE c.id_role = r.id_role AND c.id_application = "
-        + str(config["ID_APP"])
-        + ""
-    )
-    with DB.engine.begin() as conn:  # sqlalchemy 2.0
-        data = conn.execute(sql_text)
+        WHERE c.id_role = r.id_role AND c.id_application = :id_app").bindparams(id_app=config["ID_APP"])
+
+
+    data = DB.session.execute(sql_text)
+
+
     v = [d[0] for d in data]
     if v == []:
         return None
@@ -440,7 +443,15 @@ def get_random_areas_localisation(foret):
     """
 
     id_area = foret["areas_foret"][0]["id_area"]
-    area_foret = DB.session.query(TAreas).filter(id_area == TAreas.id_area).first()
+
+
+    stmt = (
+        select(TAreas)
+        .where(TAreas.id_area == id_area)
+        .limit(1)
+    )
+    area_foret = DB.session.execute(stmt).scalar_one_or_none()
+
     areas_localisation = []
 
     if area_foret.id_type == get_id_type("OEASC_ONF_FRT"):
@@ -472,9 +483,15 @@ def get_random_declarant():
     if not id_declarant:
         return None
 
-    declarant = DB.session.query(User).filter(id_declarant == User.id_role).first()
+    stmt = (
+        select(User)
+        .where(User.id_role == id_declarant)
+        .limit(1)
+    )
+    declarant = DB.session.execute(stmt).scalars().one_or_none()
 
-    return as_dict(declarant)
+
+    return declarant.as_dict() if (declarant) else None
 
 
 def get_random_date():

@@ -18,10 +18,11 @@ from sqlalchemy import (
     ForeignKey,
     func,
     exists,
+    
 )
 
-from ..commons.models import TEspeces, TSecteurs
-from pypnnomenclature.models import TNomenclatures
+from ..commons.models import TEspeces, TSecteurs, TNomenclatures_oeasc
+# from pypnnomenclature.models import TNomenclatures
 from sqlalchemy import select
 from sqlalchemy.ext.hybrid import hybrid_property
 from typing import Optional, List
@@ -136,7 +137,7 @@ class TSaisonDates(DB.Model):
         Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
     nomenclature_type_chasse: Mapped["TNomenclatures"] = relationship(
-        TNomenclatures, foreign_keys=id_nomenclature_type_chasse
+        TNomenclatures_oeasc, foreign_keys=id_nomenclature_type_chasse
     )
 
 
@@ -279,12 +280,12 @@ class TRealisationsChasse(DB.Model):
     id_nomenclature_sexe: Mapped[int] = Column(
         Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
-    nomenclature_sexe: Mapped["TNomenclatures"] = relationship(TNomenclatures, foreign_keys=id_nomenclature_sexe)
+    nomenclature_sexe: Mapped["TNomenclatures"] = relationship(TNomenclatures_oeasc, foreign_keys=id_nomenclature_sexe)
     id_nomenclature_classe_age: Mapped[int] = Column(
         Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
     nomenclature_classe_age: Mapped["TNomenclatures"] = relationship(
-        TNomenclatures, foreign_keys=id_nomenclature_classe_age
+        TNomenclatures_oeasc, foreign_keys=id_nomenclature_classe_age
     )
     poid_entier: Mapped[float] = Column(Float)
     poid_vide: Mapped[float] = Column(Float)
@@ -300,7 +301,7 @@ class TRealisationsChasse(DB.Model):
         Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
     nomenclature_mode_chasse: Mapped["TNomenclatures"] = relationship(
-        TNomenclatures, foreign_keys=id_nomenclature_mode_chasse
+        TNomenclatures_oeasc, foreign_keys=id_nomenclature_mode_chasse
     )
     commentaire: Mapped[str] = Column(Unicode)
 

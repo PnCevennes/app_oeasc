@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp_accept_empty_list, json_resp
-from sqlalchemy import text
+from sqlalchemy import text, select, func
 from sqlalchemy.orm import Session
 
 # from oeasc.utils.env import ROOT_DIR
@@ -17,8 +17,12 @@ from .models import (
     TTags,
     TSecteurs,
     TEspeces,
+    
 )
-from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
+
+from pypnnomenclature.models import BibNomenclaturesTypes
+from ..commons.models import TNomenclatures_oeasc, TCommunes
+
 from ..generic.definitions import GenericRouteDefinitions
 
 from ..nomenclature import nomenclature_oeasc_types
@@ -35,7 +39,7 @@ definitions = {
     "secteur": {"model": TSecteurs, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
     "espece": {"model": TEspeces, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
     "nomenclature": {
-        "model": TNomenclatures,
+        "model": TNomenclatures_oeasc,
         "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
         "pre_filters": {"type": nomenclature_oeasc_types},
     },
@@ -79,17 +83,18 @@ def api_communes(test):
         ]
     )
 
-    sql_text = """
-    SELECT
-        CONCAT(nom, ' ', cp) as nom_cp
-        FROM oeasc_commons.t_communes WHERE {0} ORDER BY population DESC, nom, cp LIMIT 20
-    """.format(
-        cond_text
-    )
-    with Session(DB.engine) as session:
-        result = session.execute(text(sql_text))
+    stmt_commune = (select(func.concat(TCommunes.nom, ' ', TCommunes.cp).label('nom_cp'))
+                    .where(text(cond_text))
+                    .order_by(TCommunes.population.desc(), TCommunes.nom, TCommunes.cp)
+                    .limit(20))
 
-    # result = DB.engine.execute(text(sql_text))
+    result = DB.session.execute(stmt_commune).all()
+    
+    
+    # sql_text = text("""SELECT
+    #     CONCAT(nom, ' ', cp) as nom_cp
+    #     FROM oeasc_commons.t_communes WHERE :cond ORDER BY population DESC, nom, cp LIMIT 20""").bindparams(cond=cond_text)
+    # result = DB.session.execute(sql_text)
 
     out = [{"nom_cp": res[0]} for res in result]
     return out
