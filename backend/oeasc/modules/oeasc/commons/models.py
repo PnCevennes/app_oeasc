@@ -164,7 +164,7 @@ class TNomenclatures_oeasc(TNomenclatures):
 # class BibNomenclaturesTypes(CustomModel):
 #     """
 #     Nomenclature type
-#     """
+#     """ 
 
 #     __tablename__ = "bib_nomenclatures_types"
 #     __table_args__ = {"schema": "ref_nomenclatures", "extend_existing": True}

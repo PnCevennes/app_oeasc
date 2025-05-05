@@ -57,7 +57,7 @@ def get_users():
 
     for user in v:
         if (
-            current_user["id_droit_max"] >= 5
+            current_user["max_level_profil"] >= 5
             or current_user["id_organisme"] == user.id_organisme
             and current_user["organisme"] == current_user["organisme"]
         ):

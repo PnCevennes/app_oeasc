@@ -367,18 +367,18 @@ def get_declarations(
     filters = {}
     if user:
         # administrateur et animateur >=5
-        if user["id_droit_max"] >= 5:
+        if user["max_level_profil"] >= 5:
             pass
 
         # les declarant de la meme structure (sauf les particuliers) >=)2
         elif (
-            user["id_droit_max"] >= 2
+            user["max_level_profil"] >= 2
             and user["id_organisme"] not in liste_id_organismes_solo
         ):
             filters = {"organisme": user["organisme"]}
 
         # les personnes de droit 1 (leurs alertes seulement)
-        elif user["id_droit_max"] >= 1:
+        elif user["max_level_profil"] >= 1:
             filters = {"id_declarant": user["id_role"]}
 
     # cas où on veut une seule declaration
