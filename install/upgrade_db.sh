@@ -63,8 +63,13 @@ else
     flask db upgrade f8c2c8482419
     flask db upgrade b820c66d8daa
 
-    # ajout de clé primaire pour les cadastres
+    
+    # ajout de clé primaire pour les cadastres. Retirer les doublons avant.
     flask db upgrade 437c188c6344
+    # ajout de clé primaire pour les communes. Retirer les doublons avant.
+    flask db upgrade 0a44db773490
+
+    # pour retirer les doublons copier les scripts sql dans le fichier docs/mise_en_production
 
 fi
 

@@ -12,6 +12,7 @@ from utils_flask_sqla.serializers import serializable
 
 from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 
+
 # pour sqlalchemy 2.0
 # from sqlalchemy.orm import Mapped
 # from sqlalchemy.orm import mapped_column
@@ -71,6 +72,17 @@ class TTags(CustomModel):
 #     nom_tag: Mapped[str] = mapped_column(String(30))
 #     code_tag: Mapped[str] = mapped_column(String(10))
 
+@serializable
+class TListeOrganismes(CustomModel):
+    """
+    Liste des organismes de l'oeasc
+    """
+    __tablename__ = "t_liste_organismes"
+    __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
+
+    id_organisme = DB.Column(DB.Integer, primary_key=True)
+
+
 
 @serializable
 class TContents(CustomModel):
@@ -115,15 +127,36 @@ class TEspeces(CustomModel):
     code_espece = DB.Column(DB.Unicode)
 
 
+class TCommunes(CustomModel):
+    """
+    communes
+    """
+
+    __tablename__ = "t_communes"
+    __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
+
+    code = DB.Column(DB.String(6), primary_key=True)
+    nom = DB.Column(DB.String(250))
+    cp = DB.Column(DB.String(5))
+    population = DB.Column(DB.Integer)
+
+
 # Rajoute la colonne type qui filtrera que les nomenclatures qui ont un type qui est en lien avec OEASC. la liste des types requis est
 # dans nomenclature.py -> nomenclature_oeasc_types. Le filtrage se fait dans la definition de route dans api.py
 # on le rajoute ici car c'est spécifique à oeasc et le modele est déclaré dans pypnnomenclature
-TNomenclatures.type = column_property(
+
+class TNomenclatures_oeasc(TNomenclatures):
+    """
+    Nomenclature
+    """
+
+    type = column_property(
     select(BibNomenclaturesTypes.mnemonique)
     .where(BibNomenclaturesTypes.id_type == TNomenclatures.id_type)
     .correlate_except(BibNomenclaturesTypes)
     .scalar_subquery()
 )
+
 
 
 # Supprimé car le modele est déja défini dans le module nomenclature. Surement il est apparue dans une mise à jour
