@@ -193,10 +193,11 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
         # cas des dgd
         elif container.id_type == id_type_dgd:
 
-            stmt_cadastre = (select(CorDgdCadastre).where(
+            stmt_cadastre = (select(CorDgdCadastre.area_code_cadastre).where(
                 CorDgdCadastre.area_code_dgd == container.area_code
             ))
-            res = DB.session.execute(stmt_cadastre).scalars().all()
+            res = DB.session.execute(stmt_cadastre).all()
+            
             
             v = [r[0] for r in res]
 

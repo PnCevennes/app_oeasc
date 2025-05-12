@@ -265,16 +265,19 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
             # Création d'un nouvel objet
             res = Model()
             # En 2.0, on préfère add() explicitement même si ce sera fait lors du commit
-            DB.session.add(res)
+            
 
         # Suppression de l'ID si sa valeur est None
         if id_field_name in post_data and post_data[id_field_name] is None:
             del post_data[id_field_name]
 
         # Application des données (méthode personnalisée)
-        res.from_dict(post_data, True)
+        res.from_dict(post_data, recusif=True)
 
         # Commit des changements
+        # if (not id_value):
+        DB.session.add(res)
+
         DB.session.commit()
         return res
 
@@ -305,10 +308,14 @@ def delete_object_type(module_name, object_type, id_value):
     if not res:
         return None
 
+    # ne retourne pas les relationship. A voir si c'est vraiment utile
     out = res.as_dict()
 
-    DB.session.delete(res)
+    try:
+        DB.session.delete(res)
+        DB.session.commit()
+    except Exception as e:
+        print ("Erreur lors de la suppression de l'objet : ", e)
 
-    DB.session.commit()
-
+     
     return out

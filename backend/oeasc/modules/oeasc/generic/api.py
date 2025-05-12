@@ -58,7 +58,7 @@ def get_all_generic(module_name, object_types):
     # si la clé "fields" est présente dans les arguments, on retourne seulement les champs demandés
     if "fields" in args:
         fields = args.get("fields").split(",")
-        items = [r.as_dict(fields=(fields)) for r in res.unique().all()]
+        items = [r.as_dict(fields=fields) for r in res.unique().all()]
     else:
         items = [r.as_dict() for r in res.all()]
 
@@ -97,23 +97,6 @@ def get_generic(module_name, object_type, value):
     return res.as_dict(fields=relat)
 
 
-# Cette fonction est une route Flask qui permet de mettre à jour un objet unique en fonction
-# d'une valeur donnée (généralement un identifiant). Si l'objet n'existe pas, il est créé.
-# <nom_module>/<nom_modele>/<valeur> ---- exemple: chasse/personne/1 -> met à jour l'objet de type personne avec l'id 1
-# <nom_module>/<nom_modele>/ ---- exemple: chasse/personne/ -> crée un nouvel objet de type personne
-# Exemple:
-
-# response = requests.patch(
-#     url="chasse/personne/1",
-#     data=json.dumps("nom": "Alice"),
-#     headers={"Content-Type": "application/json"},
-# )
-
-# Retourne un objet JSON de la forme :
-# {
-#   "id": 1,
-#   "name": "Alice"
-# }
 
 
 @bp.route("<string:module_name>/<string:object_type>/<int:id_value>", methods=["PATCH"])
@@ -128,13 +111,6 @@ def patch_generic(module_name, object_type, id_value):
     return res.as_dict()
 
 
-# Cette fonction est une route Flask qui permet de créer un nouvel objet d'un type donné.
-# <nom_module>/<nom_modele>/ ---- exemple: chasse/personne/ -> crée un nouvel objet de type personne
-# corp de la requete: {"nom": "Alice"}
-# {
-#   "id": 1,
-#   "name": "Alice",
-# }
 
 
 @bp.route("<string:module_name>/<string:object_type>/", methods=["POST"])
@@ -146,7 +122,7 @@ def post_generic(module_name, object_type):
     """
 
     post_data = request.get_json()
-
+    
     res = create_or_update_object_type(module_name, object_type, None, post_data)
 
     return res.as_dict()

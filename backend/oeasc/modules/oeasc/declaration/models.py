@@ -269,7 +269,7 @@ class TDeclaration(CustomModel):
 
     id_foret = DB.Column(DB.Integer, DB.ForeignKey("oeasc_forets.t_forets.id_foret"))
 
-    id_nomenclature_peuplement_origine = DB.Column(DB.Integer)
+    id_nomenclature_peuplement_origine = DB.Column(DB.Integer) 
     id_nomenclature_peuplement_type = DB.Column(DB.Integer)
     id_nomenclature_peuplement_paturage_frequence = DB.Column(DB.Integer)
     id_nomenclature_peuplement_paturage_statut = DB.Column(DB.Integer)
@@ -283,7 +283,7 @@ class TDeclaration(CustomModel):
 
     areas_localisation = DB.relationship(
         CorAreasDeclaration, cascade="save-update, merge, delete, delete-orphan"
-    )
+    ) 
 
     nomenclatures_peuplement_essence_secondaire = DB.relationship(
         CorNomenclatureDeclarationEssenceSecondaire,

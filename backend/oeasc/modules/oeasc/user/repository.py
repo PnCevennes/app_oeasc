@@ -57,7 +57,7 @@ def get_users():
 
     for user in v:
         if (
-            current_user["max_level_profil"] >= 5
+            current_user["id_droit_max"] >= 5
             or current_user["id_organisme"] == user.id_organisme
             and current_user["organisme"] == current_user["organisme"]
         ):
@@ -76,7 +76,7 @@ def get_user(id_declarant=None):
 
     if not id_declarant:
         # return as_dict(User())
-        return User().as_dict()
+        return User().as_dict(fields=["groups, providers"])
 
     stmt_vusers = (
         select(VUsers)

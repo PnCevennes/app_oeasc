@@ -13,7 +13,7 @@ from oeasc.modules.oeasc.nomenclature import (
 from oeasc.modules.oeasc.user.repository import get_user, get_id_organismes
 
 from .models import TDeclaration, TForet, TProprietaire
-from sqlalchemy import select
+from sqlalchemy import select, text
 
 config = current_app.config
 DB = config["DB"]
@@ -69,8 +69,20 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
     if not declarant:
         declarant = get_user()
 
-    declaration_dict = declaration.as_dict()
-    declaration_dict["foret"] = foret.as_dict()
+    declaration_dict = declaration.as_dict(fields=[
+        "areas_localisation",
+        "nomenclatures_peuplement_essence_secondaire",
+        "nomenclatures_peuplement_essence_complementaire",
+        "nomenclatures_peuplement_maturite",
+        "nomenclatures_peuplement_protection_type",
+        "nomenclatures_peuplement_paturage_type",
+        "nomenclatures_peuplement_paturage_saison",
+        "nomenclatures_peuplement_espece",
+        "nomenclatures_peuplement_origine2",
+        "degats",
+        "degats.degat_essences"
+    ])
+    declaration_dict["foret"] = foret.as_dict(fields=["areas_foret"])
     declaration_dict["declarant"] = declarant
     declaration_dict["foret"]["proprietaire"] = proprietaire.as_dict()
 
@@ -188,9 +200,8 @@ def patch_areas_declarations(id_declaration):
     Ajoute les aire des secteurs, communes forets, sections
     """
 
-    txt = """
-    -- set geom geom_4326 centroid
-
+    # -- set geom geom_4326 centroid
+    txt = text("""
     UPDATE oeasc_declarations.t_declarations e SET geom=d.geom, geom_4326=d.geom_4326, centroid=d.centroid
         FROM (SELECT id_declaration, geom, geom_4326, ARRAY[ST_Y(centroid), ST_X(centroid)] AS centroid
         FROM (SELECT id_declaration, geom, geom_4326, ST_CENTROID(geom_4326) AS centroid
@@ -198,9 +209,9 @@ def patch_areas_declarations(id_declaration):
         FROM (SELECT id_declaration, ST_MULTI(ST_UNION(l.geom)) AS geom
         FROM oeasc_declarations.cor_areas_declarations c
         JOIN ref_geo.l_areas l ON c.id_area = l.id_area AND l.id_type IN (ref_geo.get_id_type('OEASC_ONF_UG'), ref_geo.get_id_type('OEASC_CADASTRE'))
-        WHERE {0} = id_declaration
+        WHERE :id_declaration_param = id_declaration
         GROUP BY id_declaration)a)b)c)d
-        WHERE {0} = e.id_declaration
+        WHERE :id_declaration_param = e.id_declaration
         RETURNING e.id_declaration, e.centroid;
 
             -- set cor for areas in SECTEUR, COMMUNE, SECTION, ONF_FRT, DGD
@@ -214,7 +225,7 @@ def patch_areas_declarations(id_declaration):
             ref_geo.get_id_type('OEASC_ONF_FRT'),
             ref_geo.get_id_type('OEASC_DGD')
             )
-            AND c.id_declaration = {0}
+            AND c.id_declaration = :id_declaration_param
         ;
 
             INSERT INTO oeasc_declarations.cor_areas_declarations
@@ -229,16 +240,15 @@ def patch_areas_declarations(id_declaration):
                 ]) AS id_type)
 
                 SELECT
-                    {0},
+                    :id_declaration_param,
                     ref_geo.intersect_geom_type_tol(d.geom, selected_types.id_type, 0.05) as id_area
                     FROM selected_types
-                    JOIN oeasc_declarations.t_declarations d ON d.id_declaration = {0}
+                    JOIN oeasc_declarations.t_declarations d ON d.id_declaration = :id_declaration_param
                 RETURNING *;
 
-        """.format(
-        id_declaration
+        """).bindparams(
+        id_declaration_param=id_declaration
     )
-
 
     DB.session.execute(txt)
     DB.session.commit()
@@ -364,21 +374,22 @@ def get_declarations(
     view_name = view_names[view_key]
 
     # choix des filtrers selon les droits de l'utilisateur
+    
     filters = {}
     if user:
         # administrateur et animateur >=5
-        if user["max_level_profil"] >= 5:
+        if user["id_droit_max"] >= 5: # correspond au id_droit de la declaration et non de l'utilisateur connecté
             pass
 
         # les declarant de la meme structure (sauf les particuliers) >=)2
         elif (
-            user["max_level_profil"] >= 2
+            user["id_droit_max"] >= 2 # correspond au id_droit de la declaration et non de l'utilisateur connecté
             and user["id_organisme"] not in liste_id_organismes_solo
         ):
             filters = {"organisme": user["organisme"]}
 
         # les personnes de droit 1 (leurs alertes seulement)
-        elif user["max_level_profil"] >= 1:
+        elif user["id_droit_max"] >= 1: # correspond au id_droit de la declaration et non de l'utilisateur connecté
             filters = {"id_declarant": user["id_role"]}
 
     # cas où on veut une seule declaration

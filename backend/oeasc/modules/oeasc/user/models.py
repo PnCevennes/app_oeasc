@@ -6,7 +6,7 @@ from flask import current_app
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 from utils_flask_sqla.serializers import serializable
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, synonym
 
 config = current_app.config
 DB = config["DB"]
@@ -43,4 +43,5 @@ class VUsers(CustomModel):
     create_date = Column(String(250))
     nb_declarations = Column(Integer)
     id_droit_max = Column(Integer)
+    max_level_profil = synonym("id_droit_max") # id_droit_max a été changé en max_level_profil dans userhub authentification
     org_mnemo = Column(String(250))

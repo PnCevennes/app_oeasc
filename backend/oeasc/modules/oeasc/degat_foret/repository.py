@@ -34,9 +34,9 @@ def create_or_modify(model, key, dict_in):
         elem = model()
         DB.session.add(elem)
 
-    elem.from_dict(dict_in, True)
-
     DB.session.commit()
+
+    elem.from_dict(dict_in, True)
 
     return elem
 
@@ -133,7 +133,7 @@ def create_or_update_declaration(post_data):
 
         # foret
         foret = create_or_modify(TForet, "id_foret", post_data)
-        post_data["id_foret"] = foret.id_foret
+        post_data["id_foret"] = foret.id_foret 
 
     else:
         # get id_foret form id_areas
@@ -152,14 +152,28 @@ def create_or_update_declaration(post_data):
 
     # declaration
 
-    post_data["foret"] = foret.as_dict()
+    post_data["foret"] = foret.as_dict(fields=["areas_foret"])
 
     declaration = create_or_modify(TDeclaration, "id_declaration", post_data)
 
     patch_areas_declarations(declaration.id_declaration)
 
-    return declaration.as_dict()
+    returned_declaration = declaration.as_dict(fields=[
+        "areas_localisation",
+        "nomenclatures_peuplement_essence_secondaire",
+        "nomenclatures_peuplement_essence_complementaire",
+        "nomenclatures_peuplement_maturite",
+        "nomenclatures_peuplement_protection_type",
+        "nomenclatures_peuplement_paturage_type",
+        "nomenclatures_peuplement_paturage_saison",
+        "nomenclatures_peuplement_espece",
+        "nomenclatures_peuplement_origine2",
+        "degats",
+        "degats.degat_essences"
 
+    ])
+
+    return returned_declaration
 
 def get_id_areas(areas, type_list):
     """
@@ -224,10 +238,25 @@ def get_declarations():
     declarations = DB.session.execute(stmt_declaration).all()
 
     out = []
+
+    fields_declaration_foret_users = [
+        "t_declarations.areas_localisation",
+        "t_declarations.nomenclatures_peuplement_essence_secondaire",
+        "t_declarations.nomenclatures_peuplement_essence_complementaire",
+        "t_declarations.nomenclatures_peuplement_maturite",
+        "t_declarations.nomenclatures_peuplement_protection_type",
+        "t_declarations.nomenclatures_peuplement_paturage_type",
+        "t_declarations.nomenclatures_peuplement_paturage_saison",
+        "t_declarations.nomenclatures_peuplement_espece",
+        "t_declarations.nomenclatures_peuplement_origine2",
+        "t_declarations.degats",
+        "t_forets.areas_foret",
+        ]
+
     for declaration in declarations:
-        d = declaration[0].as_dict()
-        f = declaration[1].as_dict()
-        u = declaration[2].as_dict()
+        d = declaration[0].as_dict(fields=fields_declaration_foret_users)
+        f = declaration[1].as_dict(fields=fields_declaration_foret_users)
+        u = declaration[2].as_dict(fields=fields_declaration_foret_users)
         d.update(f)
         d.update(u)
         out.append(d)

@@ -162,14 +162,15 @@ def get_area_from_id(id_area):
     if not config["_areas"].get(str(id_area), None):
         print("get single area from db : " + str(id_area))
 
-        stmt = select(VA).where(VA.id_area == id_area).limit(1)
-        data = DB.session.execute(stmt).first()
+        # data = DB.session.query(VA).filter(id_area == VA.id_area).first()
+        stmt = select(VA).where(VA.id_area == id_area)
+        data = DB.session.execute(stmt).scalars().first()
 
         if not data:
             return None
-
-        out = data.as_dict(
-            columns=["id_area", "id_type", "area_name", "area_code", "label"]
+        
+        out = data.as_dict( 
+            fields=["id_area", "id_type", "area_name", "area_code", "label"]
         )
         # out = data._mapping  # Access row as a dictionary-like object
         # out = {
@@ -182,7 +183,6 @@ def get_area_from_id(id_area):
         config["_areas"][str(id_area)] = out
 
     return config["_areas"][str(id_area)]
-
 
 
 

@@ -36,7 +36,7 @@ def api_get_proprietaire_from_id_declarant(id_declarant):
 @check_auth_redirect_login(1)
 def api_get_foret_from_code(code_foret):
     (foret, proprietaire) = get_foret_from_code(code_foret)
-    out = foret.as_dict()
+    out = foret.as_dict(fields=["areas_foret"])
     out.update(proprietaire.as_dict())
 
     nomenclature = get_nomenclature_from_id(
@@ -69,10 +69,22 @@ def api_get_declaration(id_declaration):
     if not declaration:
         return
 
-    out = declaration.as_dict()
+    out = declaration.as_dict(fields=[
+                "areas_localisation",
+                "nomenclatures_peuplement_essence_secondaire",
+                "nomenclatures_peuplement_essence_complementaire",
+                "nomenclatures_peuplement_maturite",
+                "nomenclatures_peuplement_protection_type",
+                "nomenclatures_peuplement_paturage_type",
+                "nomenclatures_peuplement_paturage_saison",
+                "nomenclatures_peuplement_espece",
+                "nomenclatures_peuplement_origine2",
+                "degats",
+                "degats.degat_essences"
+                ])
 
     # flat data
-    out.update(foret.as_dict())
+    out.update(foret.as_dict(fields=["areas_foret"]))
 
     id_declarant = declaration.id_declarant
     out.update(proprietaire.as_dict())
@@ -133,9 +145,9 @@ def api_post_declaration():
     """
 
     post_data = request.get_json()
-    d = create_or_update_declaration(post_data)
-    send_mail_validation_declaration(d.as_dict(), False)
-    return d.as_dict()
+    result_declaration = create_or_update_declaration(post_data)
+    send_mail_validation_declaration(result_declaration, False)
+    return result_declaration
 
 
 @bp.route("declaration", methods=["POST"])

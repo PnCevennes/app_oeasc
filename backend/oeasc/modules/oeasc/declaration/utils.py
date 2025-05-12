@@ -131,7 +131,7 @@ def check_proprietaire(declaration_dict):
 
 
         if proprietaire:
-            declaration_dict["foret"]["proprietaire"] = proprietaire.as_dict()
+            declaration_dict["foret"]["proprietaire"] = proprietaire.as_dict() 
             return 1
 
         # on retourne juste les infos contenues dans user
@@ -148,7 +148,7 @@ def check_proprietaire(declaration_dict):
             if not user:
                 return -1
 
-            user_dict = user.as_dict()
+            user_dict = user.as_dict(fields=["groups", "providers"])
 
             proprietaire_dict = TProprietaire().as_dict()
             proprietaire_dict["nom_proprietaire"] = (
@@ -265,7 +265,7 @@ def get_foret_from_name(nom_foret):
     if not data:
         return None
 
-    return data.as_dict()
+    return data.as_dict(fields=["areas_foret"])
 
 
 def check_foret(declaration_dict):

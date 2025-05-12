@@ -182,7 +182,7 @@ def get_random_area_commune():
     )
     area = DB.session.execute(stmt).scalar_one_or_none()
     if area:
-        return area.as_dict()
+        return area.as_dict() 
 
     return None
 
@@ -327,7 +327,7 @@ def foret_dict_random_sample():
         if not proprietaire:
             return None
 
-        foret_dict = foret.as_dict()
+        foret_dict = foret.as_dict(fields=["areas_foret"])
         foret_dict["proprietaire"] = proprietaire.as_dict()
 
         return foret_dict
@@ -491,7 +491,7 @@ def get_random_declarant():
     declarant = DB.session.execute(stmt).scalars().one_or_none()
 
 
-    return declarant.as_dict() if (declarant) else None
+    return declarant.as_dict(fields=["groups", "providers"]) if (declarant) else None
 
 
 def get_random_date():
