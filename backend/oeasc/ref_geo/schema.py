@@ -15,6 +15,15 @@ from .models import *
 config = current_app.config
 DB = config["DB"]
 
+
+# SmartRelationshipsMixin retire les relationships de la serialisation. Il faudra donc les spécifier lors des load ou dump
+# via only=[]. Exemple:
+# FooSchema().dump() -> {"id": 1, "name": "toto" }
+# FooSchema(only=["+default_excluded_field"]).dump() -> {"id": 1, "name": "toto", default_excluded_field: "test" }
+# FooSchema(only=["relationship"]).dump() -> {"id": 1, "name": "toto",  relationship : {OtherSchema...} }
+# FooSchema(only=["id", "relationship"]).dump() -> {"id": 1, relationship : {OtherSchema...} }
+
+
 class BibAreasTypeSchema(SQLAlchemyAutoSchema):
 
     class Meta:
@@ -34,7 +43,7 @@ class TAreasSchema(SQLAlchemyAutoSchema):
         unknown = EXCLUDE
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
 
-class LAreasSchema(SmartRelationshipsMixin, GeoAlchemyAutoSchema):
+class LAreasSchema( GeoAlchemyAutoSchema):
     """Schema pour les zones l_area avec les champs géométriques"""
     geom_4326 = GeometryField()
 
@@ -65,7 +74,7 @@ class VAreasSimplesSchema(SQLAlchemyAutoSchema):
         exclude = ("geom_4326",)  # Exclut les champs géométriques
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
 
-class VLAreasSchema(SmartRelationshipsMixin, GeoAlchemyAutoSchema):
+class VLAreasSchema( GeoAlchemyAutoSchema):
     geom_4326 = GeometryField()
 
     class Meta:
@@ -75,7 +84,7 @@ class VLAreasSchema(SmartRelationshipsMixin, GeoAlchemyAutoSchema):
         unknown = EXCLUDE
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
 
-class VLAreasSimplesSchema(SmartRelationshipsMixin, GeoAlchemyAutoSchema):
+class VLAreasSimplesSchema( GeoAlchemyAutoSchema):
     geom_4326 = GeometryField()
 
     class Meta:

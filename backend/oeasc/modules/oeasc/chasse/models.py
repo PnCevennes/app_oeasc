@@ -64,7 +64,7 @@ class TZoneCynegetiques(CustomModel):
 class TZoneIndicatives(CustomModel):
     __tablename__ = "t_zone_indicatives"
     __table_args__ = (
-        UniqueConstraint("code_zone_indicative", "id_zone_cynegetique", name="unique_code_zone_indicative_id_zone_cynegetique"),
+        # UniqueConstraint("code_zone_indicative", "id_zone_cynegetique", name="unique_code_zone_indicative_id_zone_cynegetique"),
         {"schema": "oeasc_chasse", "extend_existing": True},
     )
 
@@ -87,7 +87,7 @@ class TLieuTirs(CustomModel):
     __table_args__ = {"schema": "oeasc_chasse", "extend_existing": True}
 
     id_lieu_tir: Mapped[int] = Column(Integer, primary_key=True)
-    code_lieu_tir: Mapped[str] = Column(Unicode)
+    code_lieu_tir: Mapped[str] = Column(Unicode) 
     nom_lieu_tir: Mapped[str] = Column(Unicode)
     geom: Mapped[object] = Column(Geometry("GEOMETRY", 4326))
 

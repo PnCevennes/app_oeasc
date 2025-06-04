@@ -9,13 +9,14 @@ from marshmallow_sqlalchemy.fields import Nested, fields
 from utils_flask_sqla.schema import SmartRelationshipsMixin
 from utils_flask_sqla_geo.schema import  GeometryField
 from utils_flask_sqla_geo.schema import GeoAlchemyAutoSchema
+from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
 from marshmallow import EXCLUDE
 from .models import *
 
 config = current_app.config
 DB = config["DB"]
 
-
+ 
 class TPersonnesSchema(SQLAlchemyAutoSchema):
     id_personne = fields.Integer(allow_none=True)
     class Meta:
@@ -47,7 +48,7 @@ class TZoneCynegetiquesSchema(SQLAlchemyAutoSchema):
 # FooSchema(only=["id", "relationship"]).dump() -> {"id": 1, relationship : {OtherSchema...} }
 
 
-class TZoneIndicativesSchema(SmartRelationshipsMixin, GeoAlchemyAutoSchema):
+class TZoneIndicativesSchema( GeoAlchemyAutoSchema):
     id_zone_indicative = fields.Integer(allow_none=True)
     class Meta:
         model = TZoneIndicatives
@@ -113,8 +114,10 @@ class TSaisonDatesSchema(SQLAlchemyAutoSchema):
         sqla_session = DB.session,
         unknown = EXCLUDE # retire du schema les champs inconnus ou superflus
     
+    saison = Nested("TSaisonsSchema", many=False)
+    espece = Nested("TEspecesSchema", many=False)
     nomenclature_type_chasse = Nested(
-        "TNomenclaturesSchema",
+        "NomenclatureSchema",
         many=False,
         # metadata={"load_instance": True},
     )

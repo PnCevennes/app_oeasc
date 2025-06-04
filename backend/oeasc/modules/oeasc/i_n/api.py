@@ -87,18 +87,17 @@ def in_valid_realisation():
 
     data = request.get_json()
 
-    id_realisation = (data["id_realisation"],)
+    id_realisation = data["id_realisation"]
     id_tag = data["id_tag"]
 
-
     stmt_cor = update(CorRealisationTag).where(
-        CorRealisationTag.id_realisation == id_realisation[0],
+        CorRealisationTag.id_realisation == id_realisation,
         CorRealisationTag.id_tag == id_tag
-    ).values(**data)
+    ).values(data)
+
     
     cor = DB.session.execute(stmt_cor)
-
     DB.session.commit()
 
 
-    return cor
+    return True

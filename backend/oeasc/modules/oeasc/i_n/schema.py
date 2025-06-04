@@ -119,9 +119,9 @@ class TRealisationsSchema(SQLAlchemyAutoSchema):
 
 
 class VResultSchema(SQLAlchemyAutoSchema):
-    id_observation = fields.Integer(allow_none=True)
+    # id_observation = fields.Integer(allow_none=True)
     class Meta:
         model = VResult
         load_instance = False  # On ne crée pas d'instances, juste lecture
         include_fk = True
-        dump_only = True  # Vue = lecture seule
+        # dump_only = True  # Vue = lecture seule

@@ -108,12 +108,3 @@ class TNomenclaturesOeascSchema(SQLAlchemyAutoSchema):
         unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
 
 
-# parce que les noms de schema sont différents dans pypnnomenclature et oeasc. Cela pose problème
-# Avec le formulaire générique qui trouve les noms de schema dynamiquement. Donc on créé une copie ici
-
-
-# class BibNomenclaturesTypesSchema(BibNomenclaturesTypesSchema):
-#     pass
-
-# class TNomenclaturesSchema(NomenclatureSchema):
-#     pass

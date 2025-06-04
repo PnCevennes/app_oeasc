@@ -6,6 +6,9 @@ import math
 from statsmodels.regression.linear_model import OLS
 from utils_flask_sqla.generic import GenericQuery
 from flask import current_app
+from sqlalchemy import select
+from .models import VResult
+from .schema import VResultSchema
 
 config = current_app.config
 DB = config["DB"]
@@ -80,11 +83,13 @@ def regroup_data(res):
 
 
 def in_data():
-    fields = []
+
     res = GenericQuery(DB, "v_result", "oeasc_in", limit=1e6).as_dict()["items"]
 
-    
-    # remettre 1e6 a après les tests
+    # stmt_vresult = select(VResult).limit(1e6)
+    # res_vresult = DB.session.execute(stmt_vresult).scalars().all()
+    # res = VResultSchema(many=True).dump(res_vresult)
+
 
     sort_data(res)
     out = regroup_data(res)
