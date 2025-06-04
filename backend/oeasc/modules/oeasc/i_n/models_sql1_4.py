@@ -95,7 +95,7 @@ class TObservations(CustomModel):
 
 
 @serializable
-class TTags(CustomModel):
+class TTagsIn(CustomModel):
     """
     Tags for circuits
     """
@@ -128,7 +128,7 @@ class CorRealisationTag(CustomModel):
     )
     valid = Column(Boolean)
 
-    tag = relationship(TTags, lazy="joined")
+    tag = relationship(TTagsIn, lazy="joined")
 
 
 @serializable
@@ -217,7 +217,7 @@ class TRealisations(CustomModel):
         select(
             func.string_agg(
                 func.concat(
-                    TTags.nom_tag,
+                    TTagsIn.nom_tag,
                     " : ",
                     case((CorRealisationTag.valid == True, "o"), else_="x"),
                 ),
@@ -227,7 +227,7 @@ class TRealisations(CustomModel):
         .where(
             and_(
                 CorRealisationTag.id_realisation == id_realisation,
-                CorRealisationTag.id_tag == TTags.id_tag,
+                CorRealisationTag.id_tag == TTagsIn.id_tag,
             )
         )
         .scalar_subquery()

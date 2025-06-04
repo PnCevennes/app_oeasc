@@ -8,7 +8,9 @@ from oeasc.ref_geo.models import TAreas
 from flask import current_app
 from sqlalchemy import func
 from .models import TForet, TProprietaire
+from .schema import TForetSchema, TProprietaireSchema
 from pypnusershub.db.models import User
+from pypnusershub.schemas import UserSchema
 from sqlalchemy import select
 
 
@@ -112,7 +114,6 @@ def check_proprietaire(declaration_dict):
 
     # si le declarant n'est pas le proprietaire
     if cd_nomenclature != "P_D_O_NP":
-        # declaration_dict['foret']['proprietaire'] = TProprietaire().as_dict()
         return -1
 
     # sinon  on recherche le proprietaire correspondant a l'id declarant
@@ -128,10 +129,11 @@ def check_proprietaire(declaration_dict):
             .limit(1)
         )
         proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
-
+        proprietaire_schema = TProprietaireSchema()
 
         if proprietaire:
-            declaration_dict["foret"]["proprietaire"] = proprietaire.as_dict() 
+
+            declaration_dict["foret"]["proprietaire"] = proprietaire_schema.dump(proprietaire)
             return 1
 
         # on retourne juste les infos contenues dans user
@@ -148,9 +150,10 @@ def check_proprietaire(declaration_dict):
             if not user:
                 return -1
 
-            user_dict = user.as_dict(fields=["groups", "providers"])
-
-            proprietaire_dict = TProprietaire().as_dict()
+            user_dict = UserSchema().dump(user)
+            # user_dict = user.as_dict(fields=["groups", "providers"])
+            # proprietaire_dict = TProprietaire().as_dict()
+            proprietaire_dict = proprietaire_schema.dump(TProprietaire)
             proprietaire_dict["nom_proprietaire"] = (
                 user_dict["nom_role"] + " " + (user_dict["prenom_role"] or "")
             )
@@ -265,7 +268,8 @@ def get_foret_from_name(nom_foret):
     if not data:
         return None
 
-    return data.as_dict(fields=["areas_foret"])
+    foret_dict = TForetSchema().dump(data)
+    return foret_dict
 
 
 def check_foret(declaration_dict):
@@ -318,7 +322,10 @@ def check_foret(declaration_dict):
     if not proprietaire:
         return False
 
-    foret["proprietaire"] = proprietaire.as_dict()
+    foret["proprietaire"] = TProprietaireSchema().dump(proprietaire)
+    # foret["proprietaire"] = proprietaire.as_dict()
+
+
     get_dict_nomenclature_areas(foret)
 
     declaration_dict["foret"] = foret

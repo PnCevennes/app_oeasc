@@ -82,6 +82,8 @@ def regroup_data(res):
 def in_data():
     fields = []
     res = GenericQuery(DB, "v_result", "oeasc_in", limit=1e6).as_dict()["items"]
+
+    
     # remettre 1e6 a après les tests
 
     sort_data(res)

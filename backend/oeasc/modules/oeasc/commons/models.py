@@ -4,13 +4,29 @@ pour mapper la vue user de oeasc_commons
 
 from flask import current_app
 
-from sqlalchemy.orm import column_property , relationship
-from sqlalchemy import select, String
+from sqlalchemy.orm import column_property , relationship, Mapped
+# from sqlalchemy import select, String
 from utils_flask_sqla.serializers import serializable
-
+from sqlalchemy import (
+    Column,
+    Table,
+    Integer,
+    Unicode,
+    Boolean,
+    Date,
+    DateTime,
+    Float,
+    ForeignKey,
+    func,
+    exists,
+    select,
+    String
+)
 # from sqlalchemy.ext.hybrid import hybrid_property
-
+# from ..i_n.models import TCircuits
 from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
+# from ..i_n.models import TCircuits
+
 
 
 # pour sqlalchemy 2.0
@@ -30,22 +46,25 @@ class CustomModel(DB.Model):
     __allow_unmapped__ = True
 
 
-cor_content_tag = DB.Table(
+
+
+cor_content_tag = Table(
     "cor_content_tag",
-    DB.Column(
+    DB.metadata,
+    Column(
         "id_content",
-        DB.Integer,
-        DB.ForeignKey("oeasc_commons.t_contents.id_content"),
+        Integer,
+        ForeignKey("oeasc_commons.t_contents.id_content"),
         primary_key=True,
     ),
-    DB.Column(
+    Column(
         "id_tag",
-        DB.Integer,
-        DB.ForeignKey("oeasc_commons.t_tags.id_tag"),
+        Integer,
+        ForeignKey("oeasc_commons.t_tags.id_tag"),
         primary_key=True,
     ),
-    extend_existing=True,
     schema="oeasc_commons",
+    extend_existing=True,
 )
 
 
@@ -57,9 +76,11 @@ class TTags(CustomModel):
 
     __tablename__ = "t_tags"
     __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
-    id_tag = DB.Column(DB.Integer, primary_key=True)
-    nom_tag = DB.Column(DB.Unicode)
-    code_tag = DB.Column(DB.Unicode)
+
+    id_tag: Mapped[int] = Column(Integer, primary_key=True)
+    nom_tag: Mapped[str] = Column(Unicode(30))
+    code_tag: Mapped[str] = Column(Unicode(10))
+
 
 
 # version sqlalchemy 2.0
@@ -80,7 +101,7 @@ class TListeOrganismes(CustomModel):
     __tablename__ = "t_liste_organismes"
     __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
 
-    id_organisme = DB.Column(DB.Integer, primary_key=True)
+    id_organisme: Mapped[int] = Column(Integer, primary_key=True)
 
 
 
@@ -93,13 +114,17 @@ class TContents(CustomModel):
     __tablename__ = "t_contents"
     __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
 
-    id_content = DB.Column(DB.Integer, primary_key=True)
-    code = DB.Column(DB.String(250))
-    md = DB.Column(DB.Text)
-    meta_create_date = DB.Column(DB.DateTime)
-    meta_update_date = DB.Column(DB.DateTime)
+    id_content: Mapped[int] = Column(Integer, primary_key=True)
+    code: Mapped[str] = Column(String(250))
+    md: Mapped[str] = Column(Unicode)
+    meta_create_date: Mapped[DateTime] = Column(DateTime, default=func.now())
+    meta_update_date: Mapped[DateTime] = Column(DateTime, default=func.now(), onupdate=func.now())
 
-    tags = DB.relationship(TTags, secondary=cor_content_tag)
+
+    tags: Mapped[list["TTags"]] = relationship(
+    "oeasc.modules.oeasc.commons.models.TTags",
+    secondary=cor_content_tag
+)
 
 
 @serializable
@@ -107,24 +132,28 @@ class TSecteurs(CustomModel):
     __tablename__ = "t_secteurs"
     __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
 
-    id_secteur = DB.Column(DB.Integer, primary_key=True)
-    code_secteur = DB.Column(DB.String(250))
-    nom_secteur = DB.Column(DB.Text)
-    circuits = relationship("TCircuits", back_populates="secteur", overlaps="circuits")
+    id_secteur: Mapped[int] = Column(Integer, primary_key=True)
+    code_secteur: Mapped[str] = Column(String(250))
+    nom_secteur: Mapped[str] = Column(Unicode)
+    # pour éviter une boucle d'importation avec le modele I_N, il faut déclarer cette relation après la définition des classe et depuis ce model
+    # circuits: Mapped[list["TCircuits"]] = relationship("TCircuits", back_populates="secteur", overlaps="secteur")
+
+
+
 
 
 @serializable
 class TEspeces(CustomModel):
-    """
+    """ 
     Especes
     """
 
     __tablename__ = "t_especes"
     __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
 
-    id_espece = DB.Column(DB.Integer, primary_key=True)
-    nom_espece = DB.Column(DB.Unicode)
-    code_espece = DB.Column(DB.Unicode)
+    id_espece: Mapped[int] = Column(Integer, primary_key=True)
+    nom_espece: Mapped[str] = Column(Unicode)
+    code_espece: Mapped[str] = Column(String(250))
 
 
 class TCommunes(CustomModel):
@@ -135,17 +164,18 @@ class TCommunes(CustomModel):
     __tablename__ = "t_communes"
     __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
 
-    code = DB.Column(DB.String(6), primary_key=True)
-    nom = DB.Column(DB.String(250))
-    cp = DB.Column(DB.String(5))
-    population = DB.Column(DB.Integer)
+    code: Mapped[str] = Column(String(6), primary_key=True)
+    nom: Mapped[str] = Column(Unicode)
+    cp: Mapped[str] = Column(String(5))
+    population: Mapped[int] = Column(Integer)
+
 
 
 # Rajoute la colonne type qui filtrera que les nomenclatures qui ont un type qui est en lien avec OEASC. la liste des types requis est
 # dans nomenclature.py -> nomenclature_oeasc_types. Le filtrage se fait dans la definition de route dans api.py
 # on le rajoute ici car c'est spécifique à oeasc et le modele est déclaré dans pypnnomenclature
 
-class TNomenclatures_oeasc(TNomenclatures):
+class TNomenclaturesOeasc(TNomenclatures):
     """
     Nomenclature
     """

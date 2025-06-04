@@ -17,7 +17,7 @@
 # )
 # from geonature.utils.errors import ConfigError
 # from geonature.utils.utilstoml import load_and_validate_toml
-# from geonature.utils.config_schema import GnGeneralSchemaConf
+# from geonature.utils.configSchema import GnGeneralSchemaConf
 
 # log = logging.getLogger(__name__)
 

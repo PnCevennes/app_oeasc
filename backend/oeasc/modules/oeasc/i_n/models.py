@@ -4,7 +4,7 @@ IN models
 
 from flask import current_app
 
-from sqlalchemy import Table, Column, Integer, Unicode, Boolean, Date, ForeignKey
+from sqlalchemy import Table, Column, Integer, Unicode, Boolean, Date, ForeignKey, Float, String
 from sqlalchemy import and_, select, func, case
 from sqlalchemy.orm import relationship, column_property, Mapped
 from utils_flask_sqla.serializers import serializable
@@ -22,18 +22,17 @@ class CustomModel(DB.Model):
     __abstract__ = True  # evite que la classe soit considérée comme une table
     __allow_unmapped__ = True
 
-
 @serializable
 class TObservers(CustomModel):
     """
-    Tags for circuits
+    Observers for IN
     """
-
     __tablename__ = "t_observers"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_observer = Column(Integer, primary_key=True)
-    nom_observer = Column(Unicode)
+    id_observer: Mapped[int] = Column(Integer, primary_key=True)
+    nom_observer: Mapped[str] = Column(Unicode)
+
 
 
 cor_realisation_observer = Table(
@@ -55,7 +54,6 @@ cor_realisation_observer = Table(
     schema="oeasc_in",
 )
 
-
 @serializable
 class TCircuits(CustomModel):
     """
@@ -65,15 +63,20 @@ class TCircuits(CustomModel):
     __tablename__ = "t_circuits"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_circuit = Column(Integer, primary_key=True)
-    nom_circuit = Column(Unicode)
-    numero_circuit = Column(Integer)
-    km = Column(Integer)
-    id_secteur = Column(Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur"))
-    actif = Column(Boolean, default=True)
-    secteur = relationship(
+    id_circuit: Mapped[int] = Column(Integer, primary_key=True)
+    nom_circuit: Mapped[str] = Column(Unicode)
+    numero_circuit: Mapped[int] = Column(Integer)
+    km: Mapped[int] = Column(Integer)
+    id_secteur: Mapped[int] = Column(Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur"))
+    actif: Mapped[bool] = Column(Boolean, default=True)
+    secteur: Mapped["TSecteurs"] = relationship(
         TSecteurs,
-        back_populates="circuits",)
+        back_populates="circuits",
+    )
+
+
+# pour éviter une boucle d'importation avec le modele I_N, il faut déclarer cette relation après la définition des classe et depuis ce model
+TSecteurs.circuits = relationship("TCircuits", back_populates="secteur", overlaps="secteur")
 
 
 @serializable
@@ -87,26 +90,26 @@ class TObservations(CustomModel):
     __tablename__ = "t_observations"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_observation = Column(Integer, primary_key=True)
-    id_realisation = Column(
+    id_observation: Mapped[int] = Column(Integer, primary_key=True)
+    id_realisation: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_in.t_realisations.id_realisation")
     )
-    id_espece = Column(Integer, ForeignKey("oeasc_commons.t_especes.id_espece"))
-    espece = relationship(TEspeces, lazy="joined")
-    nb = Column(Integer)
+    id_espece: Mapped[int] = Column(Integer, ForeignKey("oeasc_commons.t_especes.id_espece"))
+    espece: Mapped["TEspeces"] = relationship(TEspeces, lazy="joined")
+    nb: Mapped[int] = Column(Integer)
 
 
 @serializable
-class TTags(CustomModel):
+class TTagsIn(CustomModel):
     """
     Tags for circuits
     """
 
     __tablename__ = "t_tags"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
-    id_tag = Column(Integer, primary_key=True)
-    nom_tag = Column(Unicode)
-    code_tag = Column(Unicode)
+    id_tag: Mapped[int] = Column(Integer, primary_key=True)
+    nom_tag: Mapped[str] = Column(Unicode)
+    code_tag: Mapped[str] = Column(Unicode)
 
 
 @serializable
@@ -118,19 +121,18 @@ class CorRealisationTag(CustomModel):
     __tablename__ = "cor_realisation_tag"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_tag = Column(
+    id_tag: Mapped[int] = Column(
         Integer,
         ForeignKey("oeasc_in.t_tags.id_tag"),
         primary_key=True,
     )
-    id_realisation = Column(
+    id_realisation: Mapped[int] = Column(
         Integer,
         ForeignKey("oeasc_in.t_realisations.id_realisation"),
         primary_key=True,
     )
-    valid = Column(Boolean)
-
-    tag = relationship(TTags, lazy="joined")
+    valid: Mapped[bool] = Column(Boolean)
+    tag: Mapped["TTagsIn"] = relationship(TTagsIn, lazy="joined")
 
 
 @serializable
@@ -142,12 +144,12 @@ class CorRealisationObserver(CustomModel):
     __tablename__ = "cor_realisation_observer"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_observer = Column(
+    id_observer: Mapped[int] = Column(
         Integer,
         ForeignKey("oeasc_in.t_observers.id_observer"),
         primary_key=True,
     )
-    id_realisation = Column(
+    id_realisation: Mapped[int] = Column(
         Integer,
         ForeignKey("oeasc_in.t_realisations.id_realisation"),
         primary_key=True,
@@ -163,54 +165,47 @@ class TRealisations(CustomModel):
     __tablename__ = "t_realisations"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
-    id_realisation = Column(Integer, primary_key=True)
-    id_circuit = Column(Integer, ForeignKey("oeasc_in.t_circuits.id_circuit"))
-    serie = Column(Integer)
-    groupes = Column(Integer)
-
-    vent = Column(Unicode)
-    temps = Column(Unicode)
-    temperature = Column(Unicode)
-    date_realisation = Column(Date)
-
-
-    circuit = relationship(TCircuits, lazy="joined", overlaps="circuit, secteur")
-
-    observations = relationship(
+    id_realisation: Mapped[int] = Column(Integer, primary_key=True)
+    id_circuit: Mapped[int] = Column(Integer, ForeignKey("oeasc_in.t_circuits.id_circuit"))
+    serie: Mapped[int] = Column(Integer)
+    groupes: Mapped[int] = Column(Integer)
+    vent: Mapped[str] = Column(Unicode)
+    temps: Mapped[str] = Column(Unicode)
+    temperature: Mapped[str] = Column(Unicode)
+    date_realisation: Mapped[Date] = Column(Date)
+    circuit: Mapped["TCircuits"] = relationship(
+        TCircuits, lazy="joined", overlaps="circuit, secteur"
+    )
+    observations: Mapped[list["TObservations"]] = relationship(
         TObservations,
         cascade="save-update, merge, delete, delete-orphan",
         lazy="joined",
     )
-
-
-    observers = relationship(
+    observers: Mapped[list["TObservers"]] = relationship(
         TObservers,
         secondary=cor_realisation_observer,
         lazy="joined",
     )
-
-    tags = relationship(
+    tags: Mapped[list["CorRealisationTag"]] = relationship(
         CorRealisationTag,
         cascade="save-update, merge, delete, delete-orphan",
         lazy="joined",
     )
-
-    observers_table = column_property(
+    observers_table: Mapped[str] = column_property(
         select(func.string_agg(TObservers.nom_observer, ", "))
         .where(
             and_(
                 TObservers.id_observer == CorRealisationObserver.id_observer,
-                id_realisation == CorRealisationObserver.id_observer,
+                id_realisation == CorRealisationObserver.id_realisation,
             )
         )
         .scalar_subquery()
     )
-
-    tags_table = column_property(
+    tags_table: Mapped[str] = column_property(
         select(
             func.string_agg(
                 func.concat(
-                    TTags.nom_tag,
+                    TTagsIn.nom_tag,
                     " : ",
                     case((CorRealisationTag.valid == True, "o"), else_="x"),
                 ),
@@ -220,13 +215,12 @@ class TRealisations(CustomModel):
         .where(
             and_(
                 CorRealisationTag.id_realisation == id_realisation,
-                CorRealisationTag.id_tag == TTags.id_tag,
+                CorRealisationTag.id_tag == TTagsIn.id_tag,
             )
         )
         .scalar_subquery()
     )
-
-    cerfs = column_property(
+    cerfs: Mapped[int] = column_property(
         select(TObservations.nb)
         .where(
             and_(
@@ -237,8 +231,7 @@ class TRealisations(CustomModel):
         )
         .scalar_subquery()
     )
-
-    lievres = column_property(
+    lievres: Mapped[int] = column_property(
         select(TObservations.nb)
         .where(
             and_(
@@ -249,8 +242,7 @@ class TRealisations(CustomModel):
         )
         .scalar_subquery()
     )
-
-    chevreuils = column_property(
+    chevreuils: Mapped[int] = column_property(
         select(TObservations.nb)
         .where(
             and_(
@@ -261,8 +253,7 @@ class TRealisations(CustomModel):
         )
         .scalar_subquery()
     )
-
-    renards = column_property(
+    renards: Mapped[int] = column_property(
         select(TObservations.nb)
         .where(
             and_(
@@ -273,3 +264,33 @@ class TRealisations(CustomModel):
         )
         .scalar_subquery()
     )
+
+
+
+@serializable
+class VResult(DB.Model):
+    __tablename__ = "v_result"
+    __table_args__ = {"schema": "oeasc_in"}
+    # __mapper_args__ = {"primary_key": [Column("id_observation", Integer)]}
+
+    id_observation: Mapped[int] = Column(Integer, primary_key=True)
+    nb: Mapped[int] = Column(Integer)
+    groupes: Mapped[str] = Column(Unicode)
+    serie: Mapped[str] = Column(Unicode)
+    date: Mapped[str] = Column(Unicode)
+    # id_circuit: Mapped[int] = Column(Integer, ForeignKey("oeasc_in.t_circuits.id_circuit"))
+    id_circuit: Mapped[int] = Column(Integer)
+    nom_circuit: Mapped[str] = Column(Unicode)
+    numero_circuit: Mapped[str] = Column(Unicode)
+    nom_secteur: Mapped[str] = Column(Unicode)
+    km: Mapped[float] = Column(Float)
+    valid: Mapped[bool] = Column(Boolean)
+    nom_tag: Mapped[str] = Column(Unicode)
+    id_tag: Mapped[int] = Column(Integer)
+    # id_tag: Mapped[int] = Column(Integer, ForeignKey("oeasc_in.t_tags.id_tag"))
+    ug: Mapped[str] = Column(Unicode)
+    nom_espece: Mapped[str] = Column(Unicode)
+    # id_realisation: Mapped[int] = Column(Integer, ForeignKey("oeasc_in.t_realisations.id_realisation"))
+    id_realisation: Mapped[int] = Column(Integer)
+    nbkm: Mapped[float] = Column(Float)
+    annee: Mapped[str] = Column(Unicode)

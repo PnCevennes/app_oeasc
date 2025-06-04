@@ -5,7 +5,7 @@ from ..nomenclature import nomenclature_oeasc
 from utils_flask_sqla.generic import GenericTable
 from ..declaration.models import TDeclaration, TDegat
 # from pypnnomenclature.models import TNomenclatures
-from ..commons.models import TNomenclatures_oeasc
+from ..commons.models import TNomenclaturesOeasc
 
 cache_generic_table = {}
 
@@ -56,29 +56,29 @@ def req_degats(name, var_name="", id_nomenclature_degat_type="", multi=False):
 
     if multi:
         stmt = select(
-            TNomenclatures_oeasc.mnemonique.label('label'),
+            TNomenclaturesOeasc.mnemonique.label('label'),
             func.count().label(name)
         ).select_from(
             TDegat
         ).join(
-            TNomenclatures_oeasc,
-            TDegat.id_nomenclature_degat_type == TNomenclatures_oeasc.id_nomenclature
+            TNomenclaturesOeasc,
+            TDegat.id_nomenclature_degat_type == TNomenclaturesOeasc.id_nomenclature
         )
     else:
         stmt = select(
-            TNomenclatures_oeasc.mnemonique.label('label'),
+            TNomenclaturesOeasc.mnemonique.label('label'),
             func.count().label(name)
         ).select_from(
             TDegat
         ).join(
-            TNomenclatures_oeasc,
-            TDegat.id_nomenclature_degat_type == TNomenclatures_oeasc.id_nomenclature
+            TNomenclaturesOeasc,
+            TDegat.id_nomenclature_degat_type == TNomenclaturesOeasc.id_nomenclature
         )
 
     stmt = stmt.group_by(
-        TNomenclatures_oeasc.mnemonique
+        TNomenclaturesOeasc.mnemonique
     ).order_by(
-        TNomenclatures_oeasc.mnemonique
+        TNomenclaturesOeasc.mnemonique
     )
     if var_name and not multi:
         stmt = stmt.join(
@@ -96,11 +96,11 @@ def req_degats(name, var_name="", id_nomenclature_degat_type="", multi=False):
         )
     if var_name:
         stmt = stmt.where(
-            TNomenclatures_oeasc.mnemonique == var_name
+            TNomenclaturesOeasc.mnemonique == var_name
         )
     else:
         stmt = stmt.where(
-            TNomenclatures_oeasc.mnemonique == "total"
+            TNomenclaturesOeasc.mnemonique == "total"
         )
 
 

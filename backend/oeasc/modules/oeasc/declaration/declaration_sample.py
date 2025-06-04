@@ -15,7 +15,9 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import Session
 
 from pypnusershub.db.models import User
+from pypnusershub.schemas import UserSchema
 from oeasc.ref_geo.models import TAreas
+from oeasc.ref_geo.schema import TAreasSchema
 from oeasc.ref_geo.repository import get_id_type
 from oeasc.modules.oeasc.nomenclature import (
     nomenclature_oeasc,
@@ -23,6 +25,8 @@ from oeasc.modules.oeasc.nomenclature import (
     get_nomenclature,
 )
 from .models import TForet, TProprietaire, CorDgdCadastre
+from .schema import TForetSchema, TProprietaireSchema, CorDgdCadastreSchema
+
 
 config = current_app.config
 DB = config["DB"]
@@ -182,7 +186,7 @@ def get_random_area_commune():
     )
     area = DB.session.execute(stmt).scalar_one_or_none()
     if area:
-        return area.as_dict() 
+        return TAreasSchema().dump(area)
 
     return None
 
@@ -201,7 +205,8 @@ def get_random_area_section(area_code_commune):
     )
     area = DB.session.execute(stmt).scalar_one_or_none()
     if area:
-        return area.as_dict()
+        return TAreasSchema().dump(area)
+
 
 
     return None
@@ -222,7 +227,7 @@ def get_random_area_onf_prf(area_code_onf_frt):
     area = DB.session.execute (stmt).scalar_one_or_none ()
 
     if area:
-            return area.as_dict()
+            return TAreasSchema().dump(area)
 
     return None
 
@@ -241,7 +246,8 @@ def get_random_area_onf_ug(area_code_onf_prf):
     )
     area = DB.session.execute (stmt_area).scalar_one_or_none ()
     if area:
-        return area.as_dict()
+        return TAreasSchema().dump(area)
+
 
     return None
 
@@ -270,7 +276,8 @@ def get_random_area_dgd_cadastre(area_code_dgd):
     area = DB.session.execute(stmt_area).scalars().one_or_none()
 
     if area:
-        return area.as_dict()
+        return TAreasSchema().dump(area)
+
 
     return None
 
@@ -289,7 +296,7 @@ def get_random_area_section_cadastre(area_code_section):
     area = DB.session.execute(stmt).scalar_one_or_none()
 
     if area:
-        return area.as_dict()
+        return TAreasSchema().dump(area)
 
     return None
 
@@ -327,8 +334,8 @@ def foret_dict_random_sample():
         if not proprietaire:
             return None
 
-        foret_dict = foret.as_dict(fields=["areas_foret"])
-        foret_dict["proprietaire"] = proprietaire.as_dict()
+        foret_dict = TForetSchema().dump(foret)
+        foret_dict["proprietaire"] = TProprietaireSchema().dump(proprietaire)
 
         return foret_dict
 
@@ -489,9 +496,9 @@ def get_random_declarant():
         .limit(1)
     )
     declarant = DB.session.execute(stmt).scalars().one_or_none()
+    declarant_dict = UserSchema().dump(declarant)
 
-
-    return declarant.as_dict(fields=["groups", "providers"]) if (declarant) else None
+    return declarant_dict
 
 
 def get_random_date():

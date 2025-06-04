@@ -2,6 +2,7 @@ from flask import session, current_app
 from pypnnomenclature.repository import get_nomenclature_list
 from oeasc.ref_geo.repository import get_type_code
 from oeasc.ref_geo.models import VAreas as VA, TAreas
+from oeasc.ref_geo.schema import VAreasSchema, TAreasSchema
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
@@ -143,12 +144,13 @@ def get_areas_from_ids(id_areas):
 
 
         stmt = select(VA).where(VA.id_area.in_(id_areas_to_query))
-        data = DB.session.execute(stmt).all()  # Récupération des résultats complets
+        result_db = DB.session.execute(stmt).all()  # Récupération des résultats complets
+        all_area = VAreasSchema(many=True).dump(result_db)  # Convert to list of dictionaries using schema
 
-        for d in data:
-            d_dict = d.as_dict()
-            d_dict["type_code"] = get_type_code(d_dict["id_type"])
-            config["_areas"][str(d_dict["id_area"])] = d_dict
+
+        for area in all_area:
+            area["type_code"] = get_type_code(area["id_type"])
+            config["_areas"][str(area["id_area"])] = area
 
 
 def get_area_from_id(id_area):
@@ -169,18 +171,11 @@ def get_area_from_id(id_area):
         if not data:
             return None
         
-        out = data.as_dict( 
-            fields=["id_area", "id_type", "area_name", "area_code", "label"]
-        )
-        # out = data._mapping  # Access row as a dictionary-like object
-        # out = {
-        #     key: out[key]
-        #     for key in ["id_area", "id_type", "area_name", "area_code", "label"]
-        # }
+        area_dict = VAreasSchema().dump(data)  # Convert to dictionary using schema
 
 
-        out["type_code"] = get_type_code(out["id_type"])
-        config["_areas"][str(id_area)] = out
+        area_dict["type_code"] = get_type_code(area_dict["id_type"])
+        config["_areas"][str(id_area)] = area_dict
 
     return config["_areas"][str(id_area)]
 

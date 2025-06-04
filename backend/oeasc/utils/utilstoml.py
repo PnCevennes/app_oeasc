@@ -4,14 +4,14 @@
 # from geonature.utils.errors import ConfigError, GeoNatureError
 
 
-# def load_and_validate_toml(toml_file, config_schema):
+# def load_and_validate_toml(toml_file, configSchema):
 #     """
 #     Fonction qui charge un fichier toml
 #      et le valide avec un Schema marshmallow
 #     """
 #     if Path(toml_file).is_file():
 #         toml_config = load_toml(toml_file)
-#         configs_py, configerrors = config_schema().load(toml_config)
+#         configs_py, configerrors = configSchema().load(toml_config)
 #         if configerrors:
 #             raise ConfigError(toml_file, configerrors)
 #         return configs_py

@@ -5,6 +5,24 @@ Fonctions de traitement de données pour les déclarations
 from flask import session, current_app
 from utils_flask_sqla_geo.generic import GenericQueryGeo
 from utils_flask_sqla.generic import GenericQuery
+from .schema import (
+    CorAreasDeclarationSchema,
+    CorNomenclatureDeclarationEssenceSecondaireSchema,
+    CorNomenclatureDeclarationEssenceComplementaireSchema,
+    CorNomenclatureDeclarationMaturiteSchema,
+    CorNomenclatureDeclarationOrigineSchema,
+    CorNomenclatureDeclarationProtectionTypeSchema,
+    CorNomenclatureDeclarationPaturageTypeSchema,
+    CorNomenclatureDeclarationPaturageSaisonSchema,
+    CorNomenclatureDeclarationEspeceSchema,
+    TDegatEssenceSchema,
+    TDegatSchema,
+    TDeclarationSchema,
+    CorAreasForetSchema,
+    CorDgdCadastreSchema,
+    TProprietaireSchema,
+    TForetSchema,
+    )
 
 from oeasc.modules.oeasc.nomenclature import (
     get_nomenclature_from_id,
@@ -59,7 +77,7 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
     """
     if not declaration:
         declaration = TDeclaration()
-
+    
     if not foret:
         foret = TForet()
 
@@ -69,22 +87,30 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
     if not declarant:
         declarant = get_user()
 
-    declaration_dict = declaration.as_dict(fields=[
-        "areas_localisation",
-        "nomenclatures_peuplement_essence_secondaire",
-        "nomenclatures_peuplement_essence_complementaire",
-        "nomenclatures_peuplement_maturite",
-        "nomenclatures_peuplement_protection_type",
-        "nomenclatures_peuplement_paturage_type",
-        "nomenclatures_peuplement_paturage_saison",
-        "nomenclatures_peuplement_espece",
-        "nomenclatures_peuplement_origine2",
-        "degats",
-        "degats.degat_essences"
-    ])
-    declaration_dict["foret"] = foret.as_dict(fields=["areas_foret"])
+
+    declaration_schema = TDeclarationSchema()
+    declaration_dict = declaration_schema.dump(declaration)
+    # declaration_dict = declaration.as_dict(fields=[
+    #     "areas_localisation",
+    #     "nomenclatures_peuplement_essence_secondaire",
+    #     "nomenclatures_peuplement_essence_complementaire",
+    #     "nomenclatures_peuplement_maturite",
+    #     "nomenclatures_peuplement_protection_type",
+    #     "nomenclatures_peuplement_paturage_type",
+    #     "nomenclatures_peuplement_paturage_saison",
+    #     "nomenclatures_peuplement_espece",
+    #     "nomenclatures_peuplement_origine2",
+    #     "degats",
+    #     "degats.degat_essences"
+    # ])
+
+    foret_dict = TForetSchema().dump(foret)
+    proprietaire_dict = TProprietaireSchema().dump(proprietaire)
+
+
+    declaration_dict["foret"] = foret_dict
     declaration_dict["declarant"] = declarant
-    declaration_dict["foret"]["proprietaire"] = proprietaire.as_dict()
+    declaration_dict["foret"]["proprietaire"] = proprietaire_dict
 
     if b_resolve:
         get_dict_nomenclature_areas(declaration_dict)
@@ -169,29 +195,37 @@ def get_dfpu(id_declaration):
     return (declaration, foret, proprietaire, declarant)
 
 
-def create_or_modify(model, key, val, dict_in):
+
+
+
+def create_or_modify(model, key, val, dict_in, schema=None, session=None):
     """
-    fonction generique de creation ou modification
+    Fonction générique de création ou modification utilisant Marshmallow.
     """
     elem = None
+    if session is None:
+        session = DB.session
 
     if key:
-        stmt_elem = (
-            select(model)
-            .where(getattr(model, key) == val)
-            .limit(1)
-        )
-        elem = DB.session.execute(stmt_elem).scalars().first()
+        elem = session.get(model, val)
 
+    if schema is None:
+        # On tente de deviner le schéma si non fourni
+        schema_name = model.__name__ + "Schema"
+        schema = globals().get(schema_name)
+        if schema is None:
+            raise ValueError(f"Schema {schema_name} not found for model {model.__name__}")
 
-    if elem is None:
-        elem = model()
-        DB.session.add(elem)
+    if elem is not None:
+        # Mise à jour de l'existant
+        elem = schema.load(dict_in, instance=elem, session=session, partial=True)
+    else:
+        # Création d'un nouvel élément
+        dict_in.pop(key, None)
+        elem = schema.load(dict_in, session=session)
+        session.add(elem)
 
-    elem.from_dict(dict_in, True)
-
-    DB.session.commit()
-
+    session.commit()
     return elem
 
 
@@ -255,6 +289,45 @@ def patch_areas_declarations(id_declaration):
     # DB.engine.execution_options(autocommit=True).execute(txt)
 
 
+def update_or_insert(model, id_key, id_value, schema, data, session=None):
+    """
+    Met à jour ou insère une instance d'un modèle SQLAlchemy via marshmallow.
+    :param model: Le modèle SQLAlchemy à mettre à jour ou insérer.
+    :param id_key: La clé primaire du modèle.
+    :param id_value: La valeur de la clé primaire.
+    :param schema: Le schéma Marshmallow à utiliser pour la validation.
+    :param data: Les données à valider et à insérer ou mettre à jour.
+    :param session: La session SQLAlchemy à utiliser (facultatif).
+    :return: L'instance mise à jour ou insérée.
+    """
+    instance = None
+
+    if not session:
+        session = DB.session
+
+    # id_value n'est pas None, on vérifie si l'instance existe
+    if id_value: 
+        instance = session.get(model, id_value)
+
+    if instance: # une instance avec l'id = id_value existe
+        # Met à jour l'existant
+        instance = schema.load(data, instance=instance, session=session, partial=True)
+    else:
+        # l'instance n'existe pas, on le crée
+        # on retire l'id_proprietaire de data pour éviter les conflits
+        data.pop(id_key, None)
+        # chargement de l'instance dans le shema marshmallow
+        instance = schema.load(data, session=session)
+        session.add(instance)
+
+    # Enregistrement en base
+    session.commit()
+
+    return instance
+
+
+
+
 def f_create_or_update_declaration(declaration_dict):
     """
     creation ou modification de declaration
@@ -267,31 +340,61 @@ def f_create_or_update_declaration(declaration_dict):
     # on n'écrit la foret ou le proprietaire dans la base
     # que dans le cas d'une foret non documentée
     if not declaration_dict["foret"]["b_document"]:
+
         id_foret = declaration_dict["foret"].get("id_foret", None)
+
         id_proprietaire = declaration_dict["foret"]["proprietaire"].get(
             "id_proprietaire", None
         )
 
-        proprietaire = create_or_modify(
+        proprietaire = update_or_insert(
             TProprietaire,
             "id_proprietaire",
             id_proprietaire,
+            TProprietaireSchema,
             declaration_dict["foret"]["proprietaire"],
+            session=DB.session,
+        )
+        
+        foret = update_or_insert(
+            TForet,
+            "id_foret",
+            id_foret,
+            TForetSchema,
+            declaration_dict["foret"],
+            session=DB.session,
         )
 
         declaration_dict["foret"]["id_proprietaire"] = proprietaire.id_proprietaire
 
-        foret = create_or_modify(
-            TForet, "id_foret", id_foret, declaration_dict["foret"]
-        )
-
         declaration_dict["id_foret"] = foret.id_foret
 
     else:
-        proprietaire = TProprietaire().from_dict(
-            declaration_dict["foret"]["proprietaire"], True
+
+        id_proprietaire = declaration_dict["foret"]["proprietaire"].get(
+            "id_proprietaire", None
         )
-        foret = TForet().from_dict(declaration_dict["foret"], True)
+
+        proprietaire = update_or_insert(
+            TProprietaire,
+            "id_proprietaire",
+            id_proprietaire,
+            TProprietaireSchema,
+            declaration_dict["foret"]["proprietaire"],
+            session=DB.session,
+        )
+
+
+        id_foret = declaration_dict["foret"].get("id_foret", None)
+        foret = update_or_insert(
+            TForet,
+            "id_foret",
+            id_foret,
+            TForetSchema,
+            declaration_dict["foret"],
+            session=DB.session,
+        )
+
 
     # pour le cas ou on veut generer une create date en random :
     # - elle sera crée un fois avec la date courante

@@ -15,6 +15,12 @@ from .models import (
     BibAreasType,
 
 )
+from .schema import (
+    VAreasSchema,
+    VLAreasSchema,
+    VAreasSimplesSchema,
+    VLAreasSimplesSchema,
+)
 
 from ..modules.oeasc.declaration.models import CorDgdCadastre
 
@@ -58,7 +64,7 @@ def get_type_code(id_type):
 #     # ).first()[0]
 
 
-def set_table(b_simple, data_type):
+def set_table_and_schema(b_simple, data_type):
     """
     choisi la table qui correspond aux données demandées
     - b_simple : geometrie simplifée ou brute
@@ -67,19 +73,25 @@ def set_table(b_simple, data_type):
     """
     if b_simple:
         attributs = VAS
+        schema_attributs = VAreasSimplesSchema
         layers = VLAS
+        schema_layers = VLAreasSimplesSchema
 
     else:
         attributs = VA
+        schema_attributs = VAreasSchema
         layers = VLA
+        schema_layers = VLAreasSchema
 
     if data_type == "l":
         table = layers
+        schema = schema_layers
 
     else:
         table = attributs
+        schema = schema_attributs
 
-    return table
+    return table, schema
 
 
 def areas_from_type_code(b_simple, data_type, type_code):
@@ -93,7 +105,7 @@ def areas_from_type_code(b_simple, data_type, type_code):
                 l -> renvoie aussi la geometrie
     """
 
-    table = set_table(b_simple, data_type)
+    table, schema = set_table_and_schema(b_simple, data_type)
 
     id_type = get_id_type(type_code)
 
@@ -109,7 +121,8 @@ def areas_from_type_code(b_simple, data_type, type_code):
     if data_type == "l":
         out = FeatureCollection([d.get_geofeature() for d in data])
     else:
-        out = [d.as_dict() for d in data]
+        out = schema(many=True).dump(data)
+        # out = [d.as_dict() for d in data]
 
     if data_type == "l":
         for o in out["features"]:
@@ -137,7 +150,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                         géométrie d'origine sinon
 
     """
-    table = set_table(b_simple, data_type)
+    table, schema = set_table_and_schema(b_simple, data_type)
 
     id_type = get_id_type(type_code)
     v = ids_area_container.split("-")
@@ -151,7 +164,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
             select(table)
                 .where(table.id_area == id_area_container)
                 .order_by(table.label)
-                .limit(1) # ajout le limit pour optimiser la requete
+                # .limit(1) # ajout le limit pour optimiser la requete
         )
         container = DB.session.execute(stmt_container).scalars().first()
 
@@ -228,9 +241,11 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
         # output
         if data_type == "l":
             out = out + [d.get_geofeature() for d in data]
+            # out = out + schema(many=True).dump(data)
 
         else:
-            out = out + [d.as_dict() for d in data]
+            out = out + schema(many=True).dump(data)
+            # out = out + [d.as_dict() for d in data]
 
     # output final
     if data_type == "l":
@@ -243,7 +258,7 @@ def areas_post(b_simple, data_type, areas):
     """
     TODO
     """
-    table = set_table(b_simple, data_type)
+    table, schema = set_table_and_schema(b_simple, data_type)
 
     out = []
 
@@ -257,8 +272,10 @@ def areas_post(b_simple, data_type, areas):
 
     if data_type == "l":
         out = FeatureCollection([d.get_geofeature() for d in data])
+        # out = schema(many=True).dump(data)
 
     else:
-        out = [d.as_dict() for d in data]
+        # out = [d.as_dict() for d in data]
+        out = schema(many=True).dump(data)
 
     return out

@@ -20,7 +20,7 @@ from sqlalchemy import (
     exists,
 )
 
-from ..commons.models import TEspeces, TSecteurs, TNomenclatures_oeasc
+from ..commons.models import TEspeces, TSecteurs, TNomenclaturesOeasc
 # from pypnnomenclature.models import TNomenclatures
 
 config = current_app.config
@@ -133,7 +133,7 @@ class TSaisonDates(CustomModel):
         Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
     nomenclature_type_chasse = relationship(
-        TNomenclatures_oeasc, foreign_keys=id_nomenclature_type_chasse
+        TNomenclaturesOeasc, foreign_keys=id_nomenclature_type_chasse
     )
 
 
@@ -277,12 +277,12 @@ class TRealisationsChasse(CustomModel):
     id_nomenclature_sexe = Column(
         Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
-    nomenclature_sexe = relationship(TNomenclatures_oeasc, foreign_keys=id_nomenclature_sexe)
+    nomenclature_sexe = relationship(TNomenclaturesOeasc, foreign_keys=id_nomenclature_sexe)
     id_nomenclature_classe_age = Column(
         Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
     nomenclature_classe_age = relationship(
-        TNomenclatures_oeasc, foreign_keys=id_nomenclature_classe_age
+        TNomenclaturesOeasc, foreign_keys=id_nomenclature_classe_age
     )
     poid_entier = Column(Float)
     poid_vide = Column(Float)
@@ -298,7 +298,7 @@ class TRealisationsChasse(CustomModel):
         Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
     nomenclature_mode_chasse = relationship(
-        TNomenclatures_oeasc, foreign_keys=id_nomenclature_mode_chasse
+        TNomenclaturesOeasc, foreign_keys=id_nomenclature_mode_chasse
     )
     commentaire = Column(Unicode)
 

@@ -28,6 +28,7 @@ data_type_view_dict = {
 }
 
 
+# en comnmentaire pour voir si on en a besoin
 @bp.route("get_view/<string:schema>/<string:view>", methods=["GET"])
 @check_auth_redirect_login(1)
 @json_resp
@@ -36,10 +37,10 @@ def get_view(schema, view):
     retourne la vue schema.view
     TODO args pour filtres etc...
     """
+    print ('test pour voir si on arrive ici')
+    # data = GenericQuery(DB, view, schema).as_dict()
 
-    data = GenericQuery(DB, view, schema).as_dict()
-
-    return data["items"]
+    # return data["items"]
 
 
 @bp.route("get_views", methods=["GET"])

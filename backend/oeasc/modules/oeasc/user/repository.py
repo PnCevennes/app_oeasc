@@ -6,8 +6,12 @@ from flask import current_app, session
 from sqlalchemy import text, select, join
 from sqlalchemy.orm import Session
 from pypnusershub.db.models import User, Organisme
+from pypnusershub.schemas import UserSchema, OrganismeSchema
 from ..commons.models import TListeOrganismes
+from ..commons.schema import TListeOrganismesSchema
 from .models import VUsers
+from .schema import VUsersShema
+
 
 config = current_app.config
 DB = config["DB"]
@@ -61,7 +65,8 @@ def get_users():
             or current_user["id_organisme"] == user.id_organisme
             and current_user["organisme"] == current_user["organisme"]
         ):
-            user_dict = user.as_dict()
+            user_dict = VUsersShema().dump(user)
+            # user_dict = user.as_dict()
             v_out.append(user_dict)
 
     
@@ -76,7 +81,8 @@ def get_user(id_declarant=None):
 
     if not id_declarant:
         # return as_dict(User())
-        return User().as_dict(fields=["groups, providers"])
+        # return User().as_dict(fields=["groups, providers"])
+        return UserSchema().dump(User())
 
     stmt_vusers = (
         select(VUsers)
@@ -88,8 +94,8 @@ def get_user(id_declarant=None):
 
     if not data:
         return None
-
-    user_dict = data.as_dict()
+    user_dict = VUsersShema().dump(data)
+    # user_dict = data.as_dict()
 
     return user_dict
 

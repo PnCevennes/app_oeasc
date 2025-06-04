@@ -15,6 +15,11 @@ from .models import (
     LAreas as LA,
     BibAreasType,
 )
+from .schema import (
+    TAreasSchema,
+    LAreasSchema,
+    BibAreasTypeSchema,
+)
 
 from .repository import (
     get_id_type,
@@ -42,7 +47,10 @@ def get_type_code_oeasc():
     )
     data = DB.session.execute(stmt_data).scalars().all()
 
-    return [d.as_dict() for d in data]
+    areasType_dict = BibAreasTypeSchema(many=True).dump(data)
+    # areasType_dict = [d.as_dict() for d in data]
+
+    return areasType_dict
 
 
 @bp.route("get_id_type/<string:type_code>")
@@ -54,31 +62,35 @@ def get_id_type_api(type_code):
     return get_id_type(type_code)
 
 
-# @bp.route("area/<string:data_type>/<int:id_area>")
-# @json_resp
-# def get_area(data_type, id_area):
-#     """
-#     get area from id
-#     TODO with get params
-#     non utilisé
-#     """
-#     if data_type == "l":
-#         table = LA
-#     else:
-#         table = TA
+@bp.route("area/<string:data_type>/<int:id_area>")
+@json_resp
+def get_area(data_type, id_area):
+    """
+    get area from id
+    TODO with get params
+    non utilisé
+    """
+    if data_type == "l":
+        table = LA
+        schema = LAreasSchema()
+    else:
+        table = TA
+        schema = TAreasSchema()
 
-#     stmt_area = (
-#         select(table)
-#         .where(table.id_area == id_area)
-#         .limit(1)
-#     )
-#     data = DB.session.execute(stmt_area).scalars().first()
+    stmt_area = (
+        select(table)
+        .where(table.id_area == id_area)
+        .limit(1)
+    )
+    data = DB.session.execute(stmt_area).scalars().first()
 
 
-#     if data_type == "l":
-#         return FeatureCollection([d.get_geofeature() for d in data])
-#     else:
-#         return [d.as_dict() for d in data]
+    if data_type == "l":
+        # return FeatureCollection([d.get_geofeature() for d in data])
+        return schema.dump(data)
+    else:
+        # return [d.as_dict() for d in data]
+        return schema.dump(data)
 
 
 @bp.route("areas_post/<string:data_type>", methods=["POST"])

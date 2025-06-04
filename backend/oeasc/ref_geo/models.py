@@ -113,7 +113,7 @@ class VAreas(DB.Model):
 
 
 @serializable
-@geoserializable
+# @geoserializable
 class VAreasSimples(DB.Model):
     """
     ref_geo.vl_areas_simples sans geom

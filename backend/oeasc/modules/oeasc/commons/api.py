@@ -17,11 +17,23 @@ from .models import (
     TTags,
     TSecteurs,
     TEspeces,
-    
+    TCommunes,
+    TNomenclaturesOeasc,
+    TListeOrganismes
+)
+from .schema import(
+    TContentsSchema,
+    TTagsSchema,
+    TSecteursSchema,
+    TEspecesSchema,
+    TCommunesSchema,
+    TNomenclaturesOeascSchema,
+    TListeOrganismesSchema
 )
 
 from pypnnomenclature.models import BibNomenclaturesTypes
-from ..commons.models import TNomenclatures_oeasc, TCommunes
+from pypnnomenclature.schemas import BibNomenclaturesTypesSchema
+
 
 from ..generic.definitions import GenericRouteDefinitions
 
@@ -34,20 +46,25 @@ config = current_app.config
 DB = config["DB"]
 
 definitions = {
-    "content": {"model": TContents, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
-    "tag": {"model": TTags, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
-    "secteur": {"model": TSecteurs, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
-    "espece": {"model": TEspeces, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
+    "content": {"model": TContents, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TContentsSchema},
+    "tag": {"model": TTags, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TTagsSchema},
+    "secteur": {"model": TSecteurs, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TSecteursSchema},
+    "espece": {"model": TEspeces, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TEspecesSchema},
+    "commune": { "model": TCommunes, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TCommunesSchema},
+    "liste_organismes": { "model": TListeOrganismes, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TListeOrganismesSchema},
     "nomenclature": {
-        "model": TNomenclatures_oeasc,
+        "model": TNomenclaturesOeasc,
+        "schema": TNomenclaturesOeascSchema,
         "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
         "pre_filters": {"type": nomenclature_oeasc_types},
     },
     "nomenclature_type": {
         "model": BibNomenclaturesTypes,
+        "schema": BibNomenclaturesTypesSchema,
         "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
         "pre_filters": {"mnemonique": nomenclature_oeasc_types},
     },
+
 }
 
 grd.add_generic_routes("commons", definitions)
@@ -55,12 +72,36 @@ grd.add_generic_routes("commons", definitions)
 bp = Blueprint("commons_api", __name__)
 
 
+@bp.route("communes/", methods=["GET"])
+def api_all_communes():
+    """ recupèration de la liste de toutes les communes via le shema
+    pas utilisé poru l'instant, mais peut être utile pour des tests
+    """
+
+    
+    stmt_commune = (
+        select(TCommunes)
+        .where(
+            (TCommunes.cp.startswith("07")) |
+            (TCommunes.cp.startswith("48")) |
+            (TCommunes.cp.startswith("30"))
+        )
+        .order_by(TCommunes.population.desc(), TCommunes.nom, TCommunes.cp)
+    )
+    result = DB.session.execute(stmt_commune).scalars().all()
+    communeSchema= TCommunesSchema()
+    out = [communeSchema.dump(res) for res in result]
+    return out
+    
+
+
 @bp.route("communes/<string:test>", methods=["GET"])
-@bp.route("communes/", defaults={"test": None}, methods=["GET"])
 @json_resp_accept_empty_list
 def api_communes(test):
     """
-    api pour avoir la liste des communes de france pour les adresses
+    api qui retourne une liste de commune sous forme de liste de "nom code_postal".(pas en json)
+    prend en argument soit le code postal, soit le nom de la commune.
+    Utile pour l'autocomplétion des communes dans les formulaires.
     """
 
     if not test:
@@ -88,13 +129,8 @@ def api_communes(test):
                     .order_by(TCommunes.population.desc(), TCommunes.nom, TCommunes.cp)
                     .limit(20))
 
+
     result = DB.session.execute(stmt_commune).all()
-    
-    
-    # sql_text = text("""SELECT
-    #     CONCAT(nom, ' ', cp) as nom_cp
-    #     FROM oeasc_commons.t_communes WHERE :cond ORDER BY population DESC, nom, cp LIMIT 20""").bindparams(cond=cond_text)
-    # result = DB.session.execute(sql_text)
 
     out = [{"nom_cp": res[0]} for res in result]
     return out

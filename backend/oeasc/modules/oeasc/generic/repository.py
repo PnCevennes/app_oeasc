@@ -8,6 +8,11 @@ from .definitions import GenericRouteDefinitions
 from sqlalchemy import func, cast, select, orm, and_, delete
 import unidecode
 from sqlalchemy.sql.functions import ReturnTypeFromArgs
+from ..declaration.schema import *
+from ..chasse.schema import *
+from ..commons.schema import *
+from ..i_n.schema import *
+# from pypnnomenclature.schemas import *
 
 
 # s'assure de retourner le bon type de donnée da la requête sql
@@ -240,7 +245,7 @@ def get_object_type(module_name, object_type, value, field_name=None):
 
 def create_or_update_object_type(module_name, object_type, id_value, post_data):
     """
-    Crée ou met à jour un objet du type spécifié avec les données fournies.
+    Crée ou met à jour un objet du type spécifié avec les données fournies en utilisant un schéma Marshmallow.
 
     Args:
         module_name: Nom du module contenant le modèle
@@ -253,6 +258,14 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
     """
     (Model, id_field_name) = definitions.get_model(module_name, object_type)
 
+    # Recherche du schéma Marshmallow correspondant
+    schema_name = f"{Model.__name__}Schema"
+    schema = globals().get(schema_name)
+
+
+    if not schema:
+        raise ValueError(f"Schéma {schema_name} non trouvé pour le modèle {Model.__name__}")
+
     try:
         if id_value:
             # Récupération de l'objet existant
@@ -261,30 +274,20 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
                 raise ValueError(
                     f"Objet {object_type} avec {id_field_name}={id_value} non trouvé"
                 )
+            # Chargement des données dans l'objet existant
+            obj = schema().load(post_data, instance=res, session=DB.session, partial=True)
         else:
             # Création d'un nouvel objet
-            res = Model()
-            # En 2.0, on préfère add() explicitement même si ce sera fait lors du commit
-            
+            obj = schema().load(post_data, session=DB.session)
 
-        # Suppression de l'ID si sa valeur est None
-        if id_field_name in post_data and post_data[id_field_name] is None:
-            del post_data[id_field_name]
-
-        # Application des données (méthode personnalisée)
-        res.from_dict(post_data, recusif=True)
-
-        # Commit des changements
-        # if (not id_value):
-        DB.session.add(res)
-
+        DB.session.add(obj)
         DB.session.commit()
-        return res
+        return obj
 
     except Exception as e:
         DB.session.rollback()
-        # Considérez de logger l'erreur ici
         raise e
+
 
 
 def delete_object_type(module_name, object_type, id_value):
@@ -300,16 +303,19 @@ def delete_object_type(module_name, object_type, id_value):
     object_type : Nom du modèle SQLAlchemy.
     id_value : Identifiant de l'objet à supprimer.
     """
-
-    (Model, id_field_name) = definitions.get_model(module_name, object_type)
-
+    schema = definitions.get_schema_from_definition(module_name, object_type)
+    # (Model, id_field_name) = definitions.get_model(module_name, object_type)
+    # schema = definitions.get_schema(Model)
     res = get_object_type(module_name, object_type, id_value)
+
+
 
     if not res:
         return None
 
     # ne retourne pas les relationship. A voir si c'est vraiment utile
-    out = res.as_dict()
+    out = schema().dump(res)
+    # out = res.as_dict()
 
     try:
         DB.session.delete(res)

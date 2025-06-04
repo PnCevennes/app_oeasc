@@ -14,7 +14,26 @@ from .models import (
     TTypeBracelets,
     TAttributions,
     TRealisationsChasse,
+    VPlanChasseRealisationBilan,
+    VChasseBilan,
 )
+
+from .schema import (
+    TPersonnesSchema,
+    TZoneCynegetiquesSchema,
+    TZoneIndicativesSchema,
+    TLieuTirsSchema,
+    TLieuTirSynonymesSchema,
+    TSaisonsSchema,
+    TSaisonDatesSchema,
+    TAttributionMassifsSchema,
+    TTypeBraceletsSchema,
+    TAttributionsSchema,
+    TRealisationsChasseSchema,
+    VPlanChasseRealisationBilanSchema,
+    VChasseBilanSchema,
+)
+
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
 from flask import Blueprint, current_app, request, send_file, jsonify
@@ -55,18 +74,24 @@ droits = {"C": 4, "R": 0, "U": 4, "D": 4}
 # routes dynamiques pour accéder aux modèles de la base de données
 # la route est par exemple de la forme <blueprint>/chasse/personne/ pour accéder à la table TPersonnes
 definitions = {
-    "personne": {"model": TPersonnes, "droits": droits},
-    "zone_cynegetique": {"model": TZoneCynegetiques, "droits": droits},
-    "zone_cynegetique": {"model": TZoneCynegetiques, "droits": droits},
-    "zone_indicative": {"model": TZoneIndicatives, "droits": droits},
-    "lieu_tir": {"model": TLieuTirs, "droits": droits},
-    "lieu_tir_synonyme": {"model": TLieuTirSynonymes, "droits": droits},
-    "saison": {"model": TSaisons, "droits": droits},
-    "saison_date": {"model": TSaisonDates, "droits": droits},
-    "attribution_massif": {"model": TAttributionMassifs, "droits": droits},
-    "type_bracelet": {"model": TTypeBracelets, "droits": droits},
-    "attribution": {"model": TAttributions, "droits": droits},
-    "realisation": {"model": TRealisationsChasse, "droits": droits},
+    "personne": {"model": TPersonnes, "droits": droits, "schema": TPersonnesSchema},
+    "zone_cynegetique": {"model": TZoneCynegetiques, "droits": droits, "schema": TZoneCynegetiquesSchema},
+    "zone_cynegetique": {"model": TZoneCynegetiques, "droits": droits, "schema": TZoneCynegetiquesSchema},
+    "zone_indicative": {"model": TZoneIndicatives, "droits": droits, "schema": TZoneIndicativesSchema},
+    "lieu_tir": {"model": TLieuTirs, "droits": droits, "schema": TLieuTirsSchema},
+    "lieu_tir_synonyme": {"model": TLieuTirSynonymes, "droits": droits, "schema": TLieuTirSynonymesSchema},
+    "saison": {"model": TSaisons, "droits": droits, "schema": TSaisonsSchema},
+    "saison_date": {"model": TSaisonDates, "droits": droits, "schema": TSaisonDatesSchema},
+    "attribution_massif": {"model": TAttributionMassifs, "droits": droits, "schema": TAttributionMassifsSchema},
+    "type_bracelet": {"model": TTypeBracelets, "droits": droits, "schema": TTypeBraceletsSchema},
+    "attribution": {"model": TAttributions, "droits": droits, "schema": TAttributionsSchema},
+    "realisation": {"model": TRealisationsChasse, "droits": droits, "schema": TRealisationsChasseSchema},
+    "plan_chasse_realisation_bilan": {
+        "model": VPlanChasseRealisationBilan,
+        "droits": droits,
+        "schema": VPlanChasseRealisationBilanSchema,
+    },
+    "chasse_bilan": {"model": VChasseBilan, "droits": droits, "schema": VChasseBilanSchema},
 }
 # ajout des définition dans le singleton grd
 grd.add_generic_routes("chasse", definitions)

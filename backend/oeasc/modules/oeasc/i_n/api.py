@@ -10,9 +10,20 @@ from .repository import in_data
 from .models import (
     TRealisations,
     TCircuits,
-    TTags as TTags_in,
+    TTagsIn,
     TObservers,
     CorRealisationTag,
+    CorRealisationObserver
+)
+
+from .schema import (
+    TRealisationsSchema,
+    TCircuitsSchema,
+    TTagsInSchema,
+    TObserversSchema,
+    CorRealisationTagSchema,
+    CorRealisationObserverSchema,
+
 )
 
 from ..generic.definitions import GenericRouteDefinitions
@@ -26,10 +37,20 @@ config = current_app.config
 DB = config["DB"]
 
 definitions = {
-    "realisation": {"model": TRealisations, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
-    "circuit": {"model": TCircuits, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
-    "tag": {"model": TTags_in, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
-    "observer": {"model": TObservers, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}},
+    "realisation": {"model": TRealisations, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TRealisationsSchema},
+    "circuit": {"model": TCircuits, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TCircuitsSchema},
+    "tag": {"model": TTagsIn, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TTagsInSchema},
+    "observer": {"model": TObservers, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TObserversSchema},
+    "cor_realisation_tag": {
+        "model": CorRealisationTag,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": CorRealisationTagSchema,
+    },
+    "cor_realisation_observer": {
+        "model": CorRealisationObserver,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": CorRealisationObserverSchema,
+    },
 }
 
 grd.add_generic_routes("in", definitions)

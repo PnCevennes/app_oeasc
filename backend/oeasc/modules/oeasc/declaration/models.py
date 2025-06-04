@@ -218,23 +218,25 @@ class TDeclaration(CustomModel):
 
 
     id_declaration : Mapped[int] = Column(Integer, primary_key=True)
+    id_declarant: Mapped[int] = Column(Integer, ForeignKey(User.id_role), nullable=False)
 
-    id_declarant: Mapped[int] = Column(Integer, ForeignKey(User.id_role))
+    id_nomenclature_proprietaire_declarant: Mapped[int] = Column(Integer, nullable=True)
 
-    id_nomenclature_proprietaire_declarant: Mapped[int] = Column(Integer)
+    id_foret: Mapped[int] = Column(Integer, ForeignKey("oeasc_forets.t_forets.id_foret"), nullable=False)
+    id_nomenclature_peuplement_origine: Mapped[int] = Column(Integer, nullable=True)
+    id_nomenclature_foret_type: Mapped[int] = Column(Integer, nullable=True) # pas utilisé, il faudra le supprimer dans une migration
+    id_nomenclature_peuplement_type: Mapped[int] = Column(Integer, nullable=False)
+    id_nomenclature_peuplement_paturage_frequence: Mapped[int] = Column(Integer, nullable=True)
+    id_nomenclature_peuplement_paturage_statut: Mapped[int] = Column(Integer, nullable=True)
+    id_nomenclature_peuplement_acces: Mapped[int] = Column(Integer, nullable=False)
+    id_nomenclature_peuplement_essence_principale : Mapped[int] = Column(Integer, nullable=False)
+    peuplement_surface: Mapped[float] = Column(Float, nullable=True)
 
-    id_foret: Mapped[int] = Column(Integer, ForeignKey("oeasc_forets.t_forets.id_foret"))
-    id_nomenclature_peuplement_origine: Mapped[int] = Column(Integer)
-    id_nomenclature_peuplement_type: Mapped[int] = Column(Integer)
-    id_nomenclature_peuplement_paturage_frequence: Mapped[int] = Column(Integer)
-    id_nomenclature_peuplement_paturage_statut: Mapped[int] = Column(Integer)
-    id_nomenclature_peuplement_acces: Mapped[int] = Column(Integer)
-    id_nomenclature_peuplement_essence_principale : Mapped[int] = Column(Integer)
+    b_peuplement_protection_existence: Mapped[bool] = Column(Boolean, nullable=False, default=False)
+    b_peuplement_paturage_presence: Mapped[bool] = Column(Boolean, nullable=False, default=False)
+    b_autorisation: Mapped[bool] = Column(Boolean, nullable=True, default=False) # autorisation du partage d'informations
+    b_valid: Mapped[bool] = Column(Boolean, nullable=False, default=False) # validation de la déclaration
 
-    b_peuplement_protection_existence: Mapped[bool] = Column(Boolean)
-    b_peuplement_paturage_presence: Mapped[bool] = Column(Boolean)
-    b_autorisation: Mapped[bool] = Column(Boolean)
-    b_valid: Mapped[bool] = Column(Boolean)
 
     areas_localisation: Mapped[list[CorAreasDeclaration]] = relationship(
         "CorAreasDeclaration", cascade="save-update, merge, delete, delete-orphan"
@@ -280,17 +282,14 @@ class TDeclaration(CustomModel):
         cascade="save-update, merge, delete, delete-orphan",
     )
 
-    peuplement_surface: Mapped[float] = Column(Float)
-
-
     degats: Mapped[list[TDegat]] = relationship(
         "TDegat",
         cascade="save-update, merge, delete, delete-orphan",
     )
 
-    autre_protection: Mapped[str] = Column(Unicode(100))
-    precision_localisation: Mapped[str] = Column(Unicode(250))
-    commentaire: Mapped[str] = Column(Unicode(250))
+    autre_protection: Mapped[str] = Column(Unicode(100), nullable=True)
+    precision_localisation: Mapped[str] = Column(Unicode(250), nullable=True)
+    commentaire: Mapped[str] = Column(Unicode(250), nullable=True)
 
     meta_create_date: Mapped[DateTime] = Column(DateTime, default=func.now())
     meta_update_date: Mapped[DateTime] = Column(DateTime, default=func.now(), onupdate=func.now())

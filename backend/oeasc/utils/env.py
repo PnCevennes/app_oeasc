@@ -46,7 +46,7 @@ else:
 
 # # from flask_sqlalchemy import SQLAlchemy
 
-# # from geonature.utils.config_schema import (
+# # from geonature.utils.configSchema import (
 # #     GnGeneralSchemaConf, GnPySchemaConf,
 # #     GnModuleProdConf, ManifestSchemaProdConf
 # # )
@@ -217,7 +217,7 @@ else:
 # #                 # import du module dans le sys.path
 # #                 module_path = Path(GN_EXTERNAL_MODULE / module_name)
 # #                 module_parent_dir = str(module_path.parent)
-# #                 module_name = "{}.config.conf_schema_toml".format(module_path.name)
+# #                 module_name = "{}.config.confSchema_toml".format(module_path.name)
 # #                 sys.path.insert(0, module_parent_dir)
 # #                 module = __import__(module_name, globals=globals())
 # #                 module_name = "{}.backend.blueprint".format(module_path.name)
@@ -225,7 +225,7 @@ else:
 # #                 sys.path.pop(0)
 
 # #                 class GnModuleSchemaProdConf(
-# #                     module.config.conf_schema_toml.GnModuleSchemaConf,
+# #                     module.config.confSchema_toml.GnModuleSchemaConf,
 # #                     GnModuleProdConf
 # #                 ):
 # #                     pass

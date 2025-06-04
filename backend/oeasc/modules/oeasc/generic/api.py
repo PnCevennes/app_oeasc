@@ -45,22 +45,38 @@ bp = Blueprint("generic_api", __name__)
 def get_all_generic(module_name, object_types):
     """
     get_all_generic
+    retourne des dict de tous les objets d'une requete.
+    Si only_fields est présent dans les arguments, on retourne seulement les champs demandés
     """
     # on enleve le s à la fin. Juste pour la déco
     object_type = object_types[:-1]
 
     args = request.args
     res, count, count_filtered = get_objects_type(module_name, object_type, args)
-
+    class_schema = definitions.get_schema_from_definition(module_name, object_type)
+    
     # si count dans les arguments on retourne le nombre total
     if "count" in args:
         return count
+    
+
     # si la clé "fields" est présente dans les arguments, on retourne seulement les champs demandés
-    if "fields" in args:
-        fields = args.get("fields").split(",")
-        items = [r.as_dict(fields=fields) for r in res.unique().all()]
+
+    if "only_fields" in args:
+        only_fields = args.get("only_fields").split(",")
+
+        schema = class_schema(many=True, only_fields=only_fields)
+        res = res.unique().all()
+        items = schema.dump(res)
+        # items = [schema.dump(r) for r in res.unique().all()]
+        # items = [r.as_dict(fields=fields) for r in res.unique().all()]
     else:
-        items = [r.as_dict() for r in res.all()]
+        schema = class_schema(many=True)
+        res = res.unique().all()
+        items = schema.dump(res)
+        # items = [schema.dump(r) for r in res.all()]
+        # items = [r.as_dict() for r in res.all()]
+
 
     return {"total": count, "total_filtered": count_filtered, "items": items}
 
@@ -86,15 +102,17 @@ def get_generic(module_name, object_type, value):
     field_name = request.args.get("field_name")
     # in_relationship = request.args.get("in_relationship")
 
-    (Model, id_field_name) = definitions.get_model(module_name, object_type)
+    # (Model, id_field_name) = definitions.get_model(module_name, object_type)
+    schema_class = definitions.get_schema_from_definition(module_name, object_type)
     res = get_object_type(module_name, object_type, value, field_name)
 
     if not res:
         return None
 
-    relat = [db_rel.key for db_rel in Model.__mapper__.relationships]
+    # relat = [db_rel.key for db_rel in Model.__mapper__.relationships]
+    res_dict = schema_class(many=False).dump(res)
 
-    return res.as_dict(fields=relat)
+    return res_dict
 
 
 
@@ -108,7 +126,14 @@ def patch_generic(module_name, object_type, id_value):
 
     res = create_or_update_object_type(module_name, object_type, id_value, post_data)
 
-    return res.as_dict()
+    schema_class = definitions.get_schema_from_definition(module_name, object_type)
+    if not res:
+        return None
+    else:
+        # on utilise le schema pour retourner un dict
+        return schema_class(many=False).dump(res)
+
+
 
 
 
@@ -122,20 +147,18 @@ def post_generic(module_name, object_type):
     """
 
     post_data = request.get_json()
-    
+    schema_class = definitions.get_schema_from_definition(module_name, object_type)
     res = create_or_update_object_type(module_name, object_type, None, post_data)
 
-    return res.as_dict()
+    if not res:
+        return None
+    else:
+        return schema_class(many=False).dump(res)
 
 
-# Cette fonction est une route Flask qui permet de supprimer un objet unique en fonction
-# d'une valeur donnée (généralement un identifiant).
-# <nom_module>/<nom_modele>/<valeur> ---- exemple: chasse/personne/1 -> supprime l'objet de type personne avec l'id 1
-# Retourne un objet JSON de la forme :
-# {
-#   "id": 1,
-#   "name": "Alice"
-# }
+
+
+
 @bp.route(
     "<string:module_name>/<string:object_type>/<int:id_value>", methods=["DELETE"]
 )
