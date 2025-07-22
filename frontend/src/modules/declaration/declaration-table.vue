@@ -213,7 +213,7 @@
         </template>
       </tbody>
 
-      <tbody>
+      <tbody> 
         <tr>
           <th colspan="3">Dégâts</th>
         </tr>

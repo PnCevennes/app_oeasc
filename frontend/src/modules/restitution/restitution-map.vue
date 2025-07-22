@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import baseMap from "@/modules/map/base-map.vue";
+import baseMap from "@/components/map/base-map.vue";
 
 export default {
   name: "restitution-map",

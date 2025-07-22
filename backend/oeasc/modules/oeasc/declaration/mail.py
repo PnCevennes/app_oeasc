@@ -9,6 +9,7 @@ from .repository import (
     f_create_or_update_declaration,
 )
 
+
 from .declaration_sample import declaration_dict_random_sample
 
 

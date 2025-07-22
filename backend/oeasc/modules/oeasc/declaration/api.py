@@ -2,7 +2,7 @@
 liste des api pour les declarations
 """
 
-import copy
+# import copy
 import os
 import zipfile
 from datetime import date
@@ -10,33 +10,33 @@ from flask import Blueprint, render_template, request, current_app, session
 from flask.helpers import send_from_directory
 from utils_flask_sqla.response import csv_resp
 from utils_flask_sqla_geo.generic import GenericTableGeo
-from oeasc.modules.oeasc.nomenclature import nomenclature_oeasc
+# from oeasc.modules.oeasc.nomenclature import nomenclature_oeasc
 from utils_flask_sqla.response import json_resp
 from sqlalchemy import delete
-from sqlalchemy.orm import Session
+# from sqlalchemy.orm import Session
 
 # from oeasc.utils.env import ROOT_DIR
 
 from .repository import (
     get_user,
     get_declarations,
-    get_declaration,
-    f_create_or_update_declaration,
-    get_dict_nomenclature_areas,
-    get_declaration_table,
+    # get_declaration,
+    # f_create_or_update_declaration,
+    # get_dict_nomenclature_areas,
+    # get_declaration_table,
 )
 
-from .declaration_sample import declaration_dict_random_sample
+# from .declaration_sample import declaration_dict_random_sample
 
-from .utils import (
-    get_listes_essences,
-    check_foret,
-    check_proprietaire,
-    check_massif,
-)
+# from .utils import (
+#     get_listes_essences,
+#     check_foret,
+#     check_proprietaire,
+#     check_massif,
+# )
 
 from ..user.utils import check_auth_redirect_login
-from .mail import send_mail_validation_declaration
+# from .mail import send_mail_validation_declaration
 from .models import TDeclaration
 
 bp = Blueprint("declaration_api", __name__)
@@ -64,90 +64,90 @@ def declarations():
 
     user = (
         get_user(session["current_user"]["id_role"])
-        if session["current_user"]
+        if "current_user" in session and session["current_user"]
         else None
     )
 
     return get_declarations(user=user)
 
 
-@bp.route("declaration/<int:id_declaration>", methods=["GET"])
-@check_auth_redirect_login(1)
-@json_resp
-def route_declaration(id_declaration):
-    """
-    Retourne la declaration d'id id_declaration
-    """
+# @bp.route("declaration/<int:id_declaration>", methods=["GET"])
+# @check_auth_redirect_login(1)
+# @json_resp
+# def route_declaration(id_declaration):
+#     """
+#     Retourne la declaration d'id id_declaration
+#     """
 
-    declaration = get_declaration(id_declaration)
+#     declaration = get_declaration(id_declaration)
 
-    if not declaration:
-        return None
+#     if not declaration:
+#         return None
 
-    return declaration
-
-
-@bp.route("declaration_html/<int:id_declaration>", methods=["GET", "POST"])
-@check_auth_redirect_login(1)
-@json_resp
-def declaration_html(id_declaration):
-    """
-    Retourne la declaration en html d'id id_declaration
-    """
-
-    btn_action = request.args.get("btn_action", "")
-    map_display = request.args.get("map_display", "")
-
-    declaration = get_declaration(id_declaration)
-
-    if not declaration:
-        return None
-
-    return render_template(
-        "modules/oeasc/entity/declaration_table.html",
-        declaration_table=declaration,
-        id_declaration=id_declaration,
-        nomenclature=nomenclature_oeasc(),
-        btn_action=btn_action,
-        map_display=map_display,
-    )
+#     return declaration
 
 
-@bp.route("get_form_declaration", methods=["POST"])
-@check_auth_redirect_login(1)
-@json_resp
-def get_form_declaration():
-    """
-    Retourne le formulaire correspondant
-    à la déclaration envoyée en post dans data['declaration']
-    """
-    data = request.get_json()
+# @bp.route("declaration_html/<int:id_declaration>", methods=["GET", "POST"])
+# @check_auth_redirect_login(1)
+# @json_resp
+# def declaration_html(id_declaration):
+#     """
+#     Retourne la declaration en html d'id id_declaration
+#     """
 
-    nomenclature = nomenclature_oeasc()
-    declaration_dict = data["declaration"]
-    id_form = data["id_form"]
+#     btn_action = request.args.get("btn_action", "")
+#     map_display = request.args.get("map_display", "")
 
-    # recherche de la  foret le cas echeant (apres un choix de foret documentee)
-    get_dict_nomenclature_areas(declaration_dict)
+#     declaration = get_declaration(id_declaration)
 
-    check_foret(declaration_dict)
+#     if not declaration:
+#         return None
 
-    check_proprietaire(declaration_dict)
+#     return render_template(
+#         "modules/oeasc/entity/declaration_table.html",
+#         declaration_table=declaration,
+#         id_declaration=id_declaration,
+#         nomenclature=nomenclature_oeasc(),
+#         btn_action=btn_action,
+#         map_display=map_display,
+#     )
 
-    check_massif(declaration_dict)
 
-    listes_essences = get_listes_essences(declaration_dict)
+# @bp.route("get_form_declaration", methods=["POST"])
+# @check_auth_redirect_login(1)
+# @json_resp
+# def get_form_declaration():
+#     """
+#     Retourne le formulaire correspondant
+#     à la déclaration envoyée en post dans data['declaration']
+#     """
+#     data = request.get_json()
 
-    declaration_table = get_declaration_table(declaration_dict)
+#     nomenclature = nomenclature_oeasc()
+#     declaration_dict = data["declaration"]
+#     id_form = data["id_form"]
 
-    return render_template(
-        "modules/oeasc/form/form_declaration.html",
-        declaration=declaration_dict,
-        declaration_table=declaration_table,
-        nomenclature=nomenclature,
-        listes_essences=listes_essences,
-        id_form=id_form,
-    )
+#     # recherche de la  foret le cas echeant (apres un choix de foret documentee)
+#     get_dict_nomenclature_areas(declaration_dict)
+
+#     check_foret(declaration_dict)
+
+#     check_proprietaire(declaration_dict)
+
+#     check_massif(declaration_dict)
+
+#     listes_essences = get_listes_essences(declaration_dict)
+
+#     declaration_table = get_declaration_table(declaration_dict)
+
+#     return render_template(
+#         "modules/oeasc/form/form_declaration.html",
+#         declaration=declaration_dict,
+#         declaration_table=declaration_table,
+#         nomenclature=nomenclature,
+#         listes_essences=listes_essences,
+#         id_form=id_form,
+#     )
 
 
 @bp.route("delete_declaration/<int:id_declaration>", methods=["POST"])
@@ -167,67 +167,67 @@ def delete_declaration(id_declaration):
     return "ok"
 
 
-@bp.route("random_declaration", methods=["GET"])
-@check_auth_redirect_login(5)
-@json_resp
-def random_declaration():
-    """
-    Renvoie une déclaration crée aléatoirement
-    """
+# @bp.route("random_declaration", methods=["GET"])
+# @check_auth_redirect_login(5)
+# @json_resp
+# def random_declaration():
+#     """
+#     Renvoie une déclaration crée aléatoirement
+#     """
 
-    declaration_dict = declaration_dict_random_sample()
-    get_dict_nomenclature_areas(declaration_dict)
-    return declaration_dict
-
-
-@bp.route("random_populate", defaults={"nb": 1}, methods=["GET"])
-@bp.route("random_populate/<int:nb>", methods=["GET"])
-@check_auth_redirect_login(5)
-@json_resp
-def random_populate(nb):
-    """
-    Crée et ajoute en base nb déclarations
-    """
-
-    for i in range(nb):
-        declaration_dict = declaration_dict_random_sample()
-
-        if not declaration_dict:
-            continue
-
-        declaration_dict_2 = copy.deepcopy(declaration_dict)
-        get_dict_nomenclature_areas(declaration_dict_2)
-
-        id_area = check_massif(declaration_dict_2)
-        if not id_area:
-            continue
-
-        declaration_dict["areas_localisation"].append({"id_area": id_area})
-        # check_foret(declaration_dict, nomenclature)
-        # check_proprietaire(declaration_dict, nomenclature)
-        declaration_dict = f_create_or_update_declaration(declaration_dict)
-
-    return "ok"
+#     declaration_dict = declaration_dict_random_sample()
+#     get_dict_nomenclature_areas(declaration_dict)
+#     return declaration_dict
 
 
-@bp.route("create_or_update_declaration", methods=["POST"])
-@check_auth_redirect_login(1)
-@json_resp
-def create_or_update_declaration():
-    """
-    cree une nvlle déclaration quand id déclaration est renseigné
-    ou
-    update une declaration existante
-    """
+# @bp.route("random_populate", defaults={"nb": 1}, methods=["GET"])
+# @bp.route("random_populate/<int:nb>", methods=["GET"])
+# @check_auth_redirect_login(5)
+# @json_resp
+# def random_populate(nb):
+#     """
+#     Crée et ajoute en base nb déclarations
+#     """
 
-    data = request.get_json()
-    b_create = data["declaration"].get("id_declaration")
-    declaration_dict = data["declaration"]
-    d = f_create_or_update_declaration(declaration_dict)
+#     for i in range(nb):
+#         declaration_dict = declaration_dict_random_sample()
 
-    send_mail_validation_declaration(d, b_create)
+#         if not declaration_dict:
+#             continue
 
-    return d
+#         declaration_dict_2 = copy.deepcopy(declaration_dict)
+#         get_dict_nomenclature_areas(declaration_dict_2)
+
+#         id_area = check_massif(declaration_dict_2)
+#         if not id_area:
+#             continue
+
+#         declaration_dict["areas_localisation"].append({"id_area": id_area})
+#         # check_foret(declaration_dict, nomenclature)
+#         # check_proprietaire(declaration_dict, nomenclature)
+#         declaration_dict = f_create_or_update_declaration(declaration_dict)
+
+#     return "ok"
+
+
+# @bp.route("create_or_update_declaration", methods=["POST"])
+# @check_auth_redirect_login(1)
+# @json_resp
+# def create_or_update_declaration():
+#     """
+#     cree une nvlle déclaration quand id déclaration est renseigné
+#     ou
+#     update une declaration existante
+#     """
+
+#     data = request.get_json()
+#     b_create = data["declaration"].get("id_declaration")
+#     declaration_dict = data["declaration"]
+#     d = f_create_or_update_declaration(declaration_dict)
+
+#     send_mail_validation_declaration(d, b_create)
+
+#     return d
 
 
 def get_file_name(type_out):

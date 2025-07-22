@@ -1,18 +1,18 @@
-<!-- ##################################################################################################
-ancienne petite pastille d'aide avec le "?" qui ouvre une fenetre. Elle est maintenant à remplacer 
-par help_static.vue qui n'a plus besoin de chercher les contenus dans la base de données mais
-qui les charge directement depuis un fichier statique. On le garde le temps de tout changer
-################################################################################################## -->
-
+<!-- #############################################################################################$
+Pastille d'aide affichant un "?" qui ouvre une fenêtre de dialogue avec du contenu statique.
+on utilisera un fichier du type help_content.vue pour le contenu de la fenêtre. (voir les exemples existants)
+############################################################################################## -->
 
 
 <template>
-  <div class="help">
+  <span class="help">
     <v-row justify="center">
       <v-dialog v-model="dialog" max-width="1000" class="help-dialog">
         <v-card>
           <v-card-text>
-            <oeasc-content :code="code" :containerClassIn="'content-help'"></oeasc-content>
+            <div class="help-card-text">
+              <slot></slot>
+            </div>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -29,15 +29,14 @@ qui les charge directement depuis un fichier statique. On le garde le temps de t
     >
       <v-icon tabindex="-1">help</v-icon>
     </v-btn>
-  </div>
+  </span>
 </template>
 
 <script>
 export default {
   name: "help",
-  props: ["code"],
+  // props: ["code"],
   components: {
-    oeascContent: () => import("@/modules/content/content.vue"),
   },
   data: () => ({
     dialog: false,
@@ -45,18 +44,26 @@ export default {
 };
 </script>
 
-
 <style>
 .help-dialog {
+
   z-index: 10000;
 }
 .help {
-  display: inline-block;
+  display: inline-flex;
+  align-items: left;
+  justify-content: center;
+  position: relative;
+  vertical-align: middle;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 .help:not(:last-child) .btn {
+
   margin: 0 20px 0 0px;
 }
 .help-radio-item {
+
   top: -2px;
   /* left: 0px; */
   padding-left: 5px;
@@ -67,6 +74,7 @@ export default {
 }
 
 .help-degat-item {
+
   top: -3px;
   /* left: 0px; */
   padding-left: 5px;
@@ -75,4 +83,12 @@ export default {
   /* float: right; */
   color: red;
 }
+.help-card-text {
+  font-size: 15px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+
+}
+
+
 </style>

@@ -81,17 +81,6 @@ def get_all_generic(module_name, object_types):
     return {"total": count, "total_filtered": count_filtered, "items": items}
 
 
-# Cette fonction est une route Flask qui permet de récupérer un objet unique en fonction
-# d'une valeur donnée (généralement un identifiant). Elle permet aussi d'utiliser un champ
-#  spécifique autre que l'ID (si field_name est fourni).
-# <nom_module>/<nom_modele>/<valeur> ---- exemple: chasse/personne/1 -> récupère l'objet de type personne avec l'id 1
-# /chasse/personne/john doe?field_name=nom_personne
-# si field_name est présent dans les arguments, la fonction utilise ce champ pour la recherche
-# Retourne un objet JSON de la forme :
-# {
-#   "id": 1,
-#   "name": "Alice"
-# }
 
 
 @bp.route("<string:module_name>/<string:object_type>/<value>", methods=["GET"])

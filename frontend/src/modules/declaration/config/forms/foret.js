@@ -107,7 +107,7 @@ export default {
   b_statut_public: {
     label: "Statut de la forêt",
     type: "bool_radio",
-    labels: ["Public", "Privée"],
+    labels: ["Public", "Privée"], 
     change: changeForetStatut,
     required: true,
     help: true

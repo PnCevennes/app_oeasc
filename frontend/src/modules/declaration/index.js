@@ -1,4 +1,5 @@
 import declarationForm from "./declaration-form";
+import modifier_declaration from "./modifier-declaration.vue";
 import declarationList from "./declaration-list";
 import declaration from "./declaration.vue";
 import { apiRequest } from "@/core/js/data/api.js";
@@ -16,7 +17,8 @@ const ROUTE = [
     name: "post_declaration",
     hideTitle: true,
     parent: "declaration.systeme_alerte",
-    component: declarationForm
+    // component: declarationForm
+    component: modifier_declaration
   },
 
   {
@@ -26,8 +28,21 @@ const ROUTE = [
     hideTitle: true,
     parent: "declaration.liste_declarations",
     name: "patch_declaration",
-    component: declarationForm
+    // component: declarationForm
+    component: modifier_declaration
   },
+
+  {
+    path: "/declaration/modifier_declaration/:id",
+    label: "Modifier déclaration",
+    access: 1,
+    hideTitle: true,
+    parent: "declaration.liste_declarations",
+    name: "modifier_declaration",
+    component: modifier_declaration
+  },
+
+
 
   {
     path: "/declaration/liste",
@@ -147,6 +162,8 @@ const STORE = {
 
   actions: {
     
+
+    // récupère les données sur une déclaration et l'enregistre en cache dans le state _declarationForm
     declarationForm: ({ commit }, id) => {
       return new Promise((resolve, reject) => {
         apiRequest("GET", `api/degat_foret/declaration/${id || ""}`).then(
@@ -182,6 +199,7 @@ const STORE = {
       });
     },
 
+    
     // pb
     foretFromCode: ({ commit }, codeForet) => {
       return new Promise((resolve, reject) => {
@@ -214,7 +232,28 @@ const STORE = {
           }
         );
       });
+    },
+
+    proprietaireFromId: ({ commit }, idProprietaire) => {
+      return new Promise((resolve, reject) => {
+        apiRequest(
+          "GET",
+          `api/degat_foret/proprietaire_from_id/${idProprietaire}`
+        ).then(
+          apiData => {
+            commit;
+            resolve(apiData);
+          },
+          error => {
+            console.error(`subscribe proprietaire error: ${error}`);
+            reject(error);
+          }
+        );
+      });
     }
+
+
+
   }
 };
 

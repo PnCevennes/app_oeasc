@@ -27,7 +27,7 @@ import { ROUTE as page_routes } from "./page";
 
 
 import { STORE as data_store } from "./data";
-import { STORE as map_store } from "./map";
+import { STORE as map_store } from "@/components/map";
 
 
 

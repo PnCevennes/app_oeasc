@@ -93,3 +93,15 @@ class VLAreasSimplesSchema( GeoAlchemyAutoSchema):
         load_instance = False  # Empêche la modification lors du load
         unknown = EXCLUDE
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
+
+
+class CorHierarchieAreaSchema(SQLAlchemyAutoSchema):
+    """Schema pour la table de hiérarchie des aires"""
+    
+    class Meta:
+        model = CorHierarchieArea 
+        sqla_session = DB.session
+        load_instance = False
+        unknown = EXCLUDE
+        dump_only = "__all__"  # Toutes les propriétés sont en dump_only
+        include_fk = True  # Inclut les clés étrangères dans la sérialisation

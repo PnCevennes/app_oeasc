@@ -5,7 +5,7 @@ Fonctions pour récupérer les géometries
 from sqlalchemy import and_, text, select, func
 from sqlalchemy.orm import Session
 from flask import current_app
-from geojson import FeatureCollection
+# from geojson import FeatureCollection
 
 from .models import (
     VAreas as VA,
@@ -53,21 +53,12 @@ def get_type_code(id_type):
     print("get_type_code", res)
     return res
 
-# def get_type_code(id_type):
-#     """
-#     TODO
-#     """
-
-#     # return DB.session.execute(
-#     #     "SELECT type_code FROM ref_geo.bib_areas_types WHERE  id_type = :id_type;",
-#     #     {"id_type": id_type},
-#     # ).first()[0]
 
 
 def set_table_and_schema(b_simple, data_type):
     """
     choisi la table qui correspond aux données demandées
-    - b_simple : geometrie simplifée ou brute
+    - b_simple : geometrie simplifée (True) ou brute (False)
     - data_type : t -> attributs seul
                 l -> on ajoute la geometrie
     """
@@ -119,9 +110,10 @@ def areas_from_type_code(b_simple, data_type, type_code):
 
 
     if data_type == "l":
-        out = FeatureCollection([d.get_geofeature() for d in data])
+        # out = FeatureCollection([d.get_geofeature() for d in data])
+        out = schema(many=True, as_geojson=True).dump(data)
     else:
-        out = schema(many=True).dump(data)
+        out = schema(many=True, as_geojson=False).dump(data)
         # out = [d.as_dict() for d in data]
 
     if data_type == "l":
@@ -175,10 +167,6 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
         # cas des section de communes
         if container.id_type == id_type_commune:
 
-            # fonction de la base de données refgeo.
-            # sql_text = text(
-            #     "SELECT ref_geo.get_old_communes('{}')".format(container.area_code)
-            # )
             stmt_old_communes = select(func.ref_geo.get_old_communes(container.area_code))
             result = DB.session.execute(stmt_old_communes).scalars().all()
 
@@ -235,21 +223,17 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                 )
                 .order_by(table.label)
             )
+            print("stmt", stmt)
             data = DB.session.execute(stmt).scalars().all()
 
 
-        # output
-        if data_type == "l":
-            out = out + [d.get_geofeature() for d in data]
-            # out = out + schema(many=True).dump(data)
-
-        else:
-            out = out + schema(many=True).dump(data)
-            # out = out + [d.as_dict() for d in data]
-
     # output final
     if data_type == "l":
-        out = FeatureCollection(out)
+        # out = FeatureCollection(out)
+        out = schema(many=True, as_geojson=True).dump(data)
+    else:
+        # out = [d.as_dict() for d in data]
+        out = schema(many=True, as_geojson=False).dump(data)
 
     return out
 
@@ -271,11 +255,51 @@ def areas_post(b_simple, data_type, areas):
 
 
     if data_type == "l":
-        out = FeatureCollection([d.get_geofeature() for d in data])
-        # out = schema(many=True).dump(data)
+        # out = FeatureCollection([d.get_geofeature() for d in data])
+        out = schema(many=True, as_geojson=True).dump(data)
 
     else:
         # out = [d.as_dict() for d in data]
         out = schema(many=True).dump(data)
 
     return out
+
+
+def build_area_hierarchy(data, hierarchy_data):
+    """
+    Construit un json hiérarchique à partir des données d'aires et de la hiérarchie.
+    data ne contient que les aires de cadastre et DG_onf, donc celles qui n'ont pas d'enfants.
+    Cette fonction trouve donc les parents des aires de data et constuit la hiérarchie
+    en ajoutant les aires enfants à chaque parent.
+    En plus des informations sur les aires, chaque element contient aussi:
+    - id_parent : l'id du parent de l'aire
+    - areas_enfant : une liste des aires enfants de l'aire
+    """
+    # On construit la hiérarchie à partir des données récupérées
+    hierarchy = {}
+    
+    # on recherche dans hierachy_data les id_area_parent qui n'apparaissent pas dans les id_area_enfant
+    area_children = set([relation["id_area_enfant"] for relation in hierarchy_data])
+    area_parents = set([relation["id_area_parent"] for relation in hierarchy_data])
+    first_level_parents = area_parents - area_children
+
+    # Build a mapping from id_area to its data
+    data_map = {x["id_area"]: x for x in data}
+    # Build a mapping from parent to list of children
+    children_map = {}
+    for relation in hierarchy_data:
+        children_map.setdefault(relation["id_area_parent"], []).append(relation["id_area_enfant"])
+
+    def build_tree(id_area, parent_id=None):
+        node = data_map.get(id_area, {"id_area": id_area})
+        node["id_parent"] = parent_id
+        node["areas_enfant"] = [
+            build_tree(child_id, id_area) for child_id in children_map.get(id_area, [])
+        ]
+        return node
+
+    # Only build trees for top-level parents
+    result = [build_tree(id_area) for id_area in first_level_parents if id_area in data_map]
+
+    return result
+

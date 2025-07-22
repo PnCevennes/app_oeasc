@@ -1,3 +1,9 @@
+<!-- ################################################################################################
+// Ancien formulaire de degat. Il n'est plus utilisé et sera à supprimer lorsque le nouveau
+// degats_declaration_form.vue sera testé et validé.
+################################################################################################ -->
+
+
 <template>
   <div v-if="items">
     <v-container fluid>
@@ -23,6 +29,8 @@
             @change="updateDegats($event)"
           ></v-checkbox>
         </div>
+
+        
         <help
           class="help-degat-item"
           :code="`item-${item[config.valueFieldName]}`"
@@ -39,198 +47,214 @@
           "
           style="margin-left:50px;"
         >
-          <div v-if="item.cd_nomenclature != 'ABS'">
-            Indiquez les essences touchées <i>(3 maximum)</i>, et pour chacune
-            d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis
-            validez.
-          </div>
-          <div v-else>Indiquez les essences concernées <i>(3 maximum)</i>.</div>
+            <div v-if="item.cd_nomenclature != 'ABS'">
+              Indiquez les essences touchées <i>(3 maximum)</i>, et pour chacune
+              d’elle, l’étendue, la gravité et l’antériorité des dégâts, puis
+              validez.
+            </div>
+            <div v-else>Indiquez les essences concernées <i>(3 maximum)</i>.</div>
 
-          <div class="flex-container flex-row flex-5">
-            <div>
-              <b><span v-if="item.cd_nomenclature != 'ABS'">Essence</span></b>
-            </div>
-            <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'"
-                ><b>Gravité</b>
-                <span class="required"> *</span>
-                <help code="form-gravite"></help
-              ></span>
-            </div>
-            <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'"
-                ><b>Étendue</b>
-                <span class="required"> *</span>
-                <help code="form-etendue"></help
-              ></span>
-            </div>
-            <div>
-              <span v-if="item.cd_nomenclature !== 'ABS'"
-                ><b>Antériorité</b>
-                <span class="required"> *</span>
-              </span>
-            </div>
-            <div></div>
-          </div>
-          <div
-            class="flex-container flex-row flex-5"
-            v-for="degat_essence of baseModel.degats.find(
-              d => d.id_nomenclature_degat_type === item.id_nomenclature
-            ).degat_essences || []"
-            :key="degat_essence.id_nomenclature_degat_essence"
-          >
-            <div>
-              {{
-                $store.getters.nomenclature(
-                  degat_essence.id_nomenclature_degat_essence
-                ).label_fr
-              }}
-            </div>
 
-            <template v-if="item.cd_nomenclature !== 'ABS'">
-              <div>
-                {{
-                  $store.getters.nomenclature(
-                    degat_essence.id_nomenclature_degat_gravite
-                  ).label_fr
-                }}
-              </div>
-              <div>
-                {{
-                  $store.getters.nomenclature(
-                    degat_essence.id_nomenclature_degat_etendue
-                  ).label_fr
-                }}
-              </div>
-              <div>
-                {{
-                  $store.getters.nomenclature(
-                    degat_essence.id_nomenclature_degat_anteriorite
-                  ).label_fr
-                }}
-              </div>
-            </template>
-            <template v-else>
-              <div></div>
-              <div></div>
-              <div></div>
-            </template>
-
-            <div>
-              <v-btn
-                small
-                icon
-                color="error"
-                :disabled="baseModel.freeze"
-                @click="
-                  removeDegatEssence(
-                    item.id_nomenclature,
-                    degat_essence.id_nomenclature_degat_essence
-                  )
-                "
-                ><v-icon>mdi-close</v-icon></v-btn
-              >
-            </div>
-          </div>
-
-          <div
-            v-if="
-              baseModel.degats.find(
-                d =>
-                  d.id_nomenclature_degat_type === item.id_nomenclature &&
-                  item.cd_nomenclature !== 'P/C' &&
-                  ((d.degat_essences || []).length === 0 ||
-                    showDegatEssenceForm === d.id_nomenclature_degat_type)
-              )
-            "
-          >
+            <!-- ------------------------- entete du tableau des essences touchées ------------------------- -->
             <div class="flex-container flex-row flex-5">
               <div>
-                <essence-form
-                  :config="configDegatEssence(item.cd_nomenclature).essence"
-                  :baseModel="degatEssence"
-                ></essence-form>
+                <b><span v-if="item.cd_nomenclature != 'ABS'">Essence</span></b>
+              </div>
+              <div>
+                <span v-if="item.cd_nomenclature !== 'ABS'"
+                  ><b>Gravité</b>
+                  <span class="required"> *</span>
+                  <help code="form-gravite"></help
+                ></span>
+              </div>
+              <div>
+                <span v-if="item.cd_nomenclature !== 'ABS'"
+                  ><b>Étendue</b>
+                  <span class="required"> *</span>
+                  <help code="form-etendue"></help
+                ></span>
+              </div>
+              <div>
+                <span v-if="item.cd_nomenclature !== 'ABS'"
+                  ><b>Antériorité</b>
+                  <span class="required"> *</span>
+                </span>
+              </div>
+              <div></div>
+            </div>
+
+            <!-- ------------------------- liste des essences touchées ------------------------- -->
+            <div
+              class="flex-container flex-row flex-5"
+              v-for="degat_essence of baseModel.degats.find(
+                d => d.id_nomenclature_degat_type === item.id_nomenclature
+              ).degat_essences || []"
+              :key="degat_essence.id_nomenclature_degat_essence"
+            >
+              <div>
+                {{
+                  $store.getters.nomenclature(
+                    degat_essence.id_nomenclature_degat_essence
+                  ).label_fr
+                }}
               </div>
 
-              <div>
-                <nomenclature-form
-                  v-if="item.cd_nomenclature !== 'ABS'"
-                  :config="configDegatEssence(item.cd_nomenclature).gravite"
-                  :baseModel="degatEssence"
-                ></nomenclature-form>
-              </div>
-
-              <div>
-                <nomenclature-form
-                  v-if="item.cd_nomenclature !== 'ABS'"
-                  :config="configDegatEssence(item.cd_nomenclature).etendue"
-                  :baseModel="degatEssence"
-                ></nomenclature-form>
-              </div>
-
-              <div>
-                <nomenclature-form
-                  v-if="item.cd_nomenclature !== 'ABS'"
-                  :config="configDegatEssence(item.cd_nomenclature).anteriorite"
-                  :baseModel="degatEssence"
-                ></nomenclature-form>
-              </div>
-
-              <div>
+              <template v-if="item.cd_nomenclature !== 'ABS'">
                 <div>
+                  {{
+                    $store.getters.nomenclature(
+                      degat_essence.id_nomenclature_degat_gravite
+                    ).label_fr
+                  }}
+                </div>
+                <div>
+                  {{
+                    $store.getters.nomenclature(
+                      degat_essence.id_nomenclature_degat_etendue
+                    ).label_fr
+                  }}
+                </div>
+                <div>
+                  {{
+                    $store.getters.nomenclature(
+                      degat_essence.id_nomenclature_degat_anteriorite
+                    ).label_fr
+                  }}
+                </div>
+              </template>
+              <template v-else>
+                <div></div>
+                <div></div>
+                <div></div>
+              </template>
 
+              <div>
                 <v-btn
                   small
-                  color="success"
-                  :disabled="
-                    !degatEssence.essence ||
-                      (item.cd_nomenclature !== 'ABS' &&
-                        (!degatEssence.gravite ||
-                          !degatEssence.etendue ||
-                          !degatEssence.anteriorite))
-                  "
-                  @click="addDegatEssence(item.id_nomenclature)"
-                  ><v-icon>mdi-check</v-icon></v-btn
-                >
-                <v-btn
-                  small
+                  icon
                   color="error"
-                  @click="cancelDegatEssence(item.id_nomenclature)"
+                  :disabled="baseModel.freeze"
+                  @click="
+                    removeDegatEssence(
+                      item.id_nomenclature,
+                      degat_essence.id_nomenclature_degat_essence
+                    )
+                  "
                   ><v-icon>mdi-close</v-icon></v-btn
                 >
-                </div>
-                <div v-if="!(!degatEssence.essence ||
-                      (item.cd_nomenclature !== 'ABS' &&
-                        (!degatEssence.gravite ||
-                          !degatEssence.etendue ||
-                          !degatEssence.anteriorite)))">
-                  <span style='color:red'>Veuillez valider avant de continuer</span>
-                  </div>
               </div>
             </div>
-          </div>
-          <div>
-            <v-btn
+
+            <!-- ---------------------- Formulaire pour ajouter une essence touchée ---------------------- -->
+
+            <div
               v-if="
                 baseModel.degats.find(
                   d =>
-                    !baseModel.freeze &&
                     d.id_nomenclature_degat_type === item.id_nomenclature &&
                     item.cd_nomenclature !== 'P/C' &&
-                    (d.degat_essences || []).length > 0 &&
-                    (d.degat_essences || []).length < 3 &&
-                    (d.degat_essences || []).length <
-                      essenceSelected('degats').length &&
-                    showDegatEssenceForm !== d.id_nomenclature_degat_type
+                    ((d.degat_essences || []).length === 0 ||
+                      showDegatEssenceForm === d.id_nomenclature_degat_type)
                 )
               "
-              small
-              color="success"
-              @click="displayDegatEssence(item.id_nomenclature)"
-              ><v-icon>mdi-plus</v-icon> Ajouter une essence touchée</v-btn
             >
+              <div class="flex-container flex-row flex-5">
+                <div>
+                  <essence-form
+                    :config="configDegatEssence(item.cd_nomenclature).essence"
+                    :baseModel="degatEssence"
+                  ></essence-form>
+                </div>
+
+                <div>
+                  <nomenclature-form
+                    v-if="item.cd_nomenclature !== 'ABS'"
+                    :config="configDegatEssence(item.cd_nomenclature).gravite"
+                    :baseModel="degatEssence"
+                  ></nomenclature-form>
+                </div>
+
+                <div>
+                  <nomenclature-form
+                    v-if="item.cd_nomenclature !== 'ABS'"
+                    :config="configDegatEssence(item.cd_nomenclature).etendue"
+                    :baseModel="degatEssence"
+                  ></nomenclature-form>
+                </div>
+
+                <div>
+                  <nomenclature-form
+                    v-if="item.cd_nomenclature !== 'ABS'"
+                    :config="configDegatEssence(item.cd_nomenclature).anteriorite"
+                    :baseModel="degatEssence"
+                  ></nomenclature-form>
+                </div>
+
+                <div>
+                  <div>
+
+                  <v-btn
+                    small
+                    color="success"
+                    :disabled="
+                      !degatEssence.essence ||
+                        (item.cd_nomenclature !== 'ABS' &&
+                          (!degatEssence.gravite ||
+                            !degatEssence.etendue ||
+                            !degatEssence.anteriorite))
+                    "
+                    @click="addDegatEssence(item.id_nomenclature)"
+                    ><v-icon>mdi-check</v-icon></v-btn
+                  >
+                  <v-btn
+                    small
+                    color="error"
+                    @click="cancelDegatEssence(item.id_nomenclature)"
+                    ><v-icon>mdi-close</v-icon></v-btn
+                  >
+                  </div>
+                  <div v-if="!(!degatEssence.essence ||
+                        (item.cd_nomenclature !== 'ABS' &&
+                          (!degatEssence.gravite ||
+                            !degatEssence.etendue ||
+                            !degatEssence.anteriorite)))">
+                    <span style='color:red'>Veuillez valider avant de continuer</span>
+                    </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ---------------------- Bouton Ajouter une essence touchée ---------------------- -->
+            
+            <div>
+              <v-btn
+                v-if="
+                  baseModel.degats.find(
+                    d =>
+                      !baseModel.freeze &&
+                      d.id_nomenclature_degat_type === item.id_nomenclature &&
+                      item.cd_nomenclature !== 'P/C' &&
+                      (d.degat_essences || []).length > 0 &&
+                      (d.degat_essences || []).length < 3 &&
+                      (d.degat_essences || []).length <
+                        essenceSelected('degats').length &&
+                      showDegatEssenceForm !== d.id_nomenclature_degat_type
+                  )
+                "
+                small
+                color="success"
+                @click="displayDegatEssence(item.id_nomenclature)"
+                ><v-icon>mdi-plus</v-icon> Ajouter une essence touchée</v-btn
+              >
+            </div>
+
+
+
           </div>
-        </div>
+
+
+
+
       </div>
     </v-container>
   </div>
@@ -328,7 +352,7 @@ export default {
           required: true,
           nomenclatureType: "OEASC_DEGAT_GRAVITE",
           rules: [formFunctions.rules.requiredListSimple]
-        },
+        }, 
         etendue: {
           name: "etendue",
           type: "nomenclature",

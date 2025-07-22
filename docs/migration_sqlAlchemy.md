@@ -21,6 +21,7 @@ Dans App.py
         os.environ["SQLALCHEMY_WARN_20"] = "1"
         warnings.simplefilter("always", exc.SAWarning)
 
+Modifier les as_dict par marshmallow.dump
 
 
 
@@ -77,3 +78,5 @@ where idtmp in (select max from d);
 alter table oeasc_forets.cor_dgd_cadastre drop  idtmp;
 
 vacuum full;
+
+

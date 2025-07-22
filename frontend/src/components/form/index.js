@@ -1,6 +1,9 @@
- 
 
-// attendre que l'element soit créé pour l'action focus
+/**
+ * attendre que l'element soit créé pour l'action focus
+ * @param {*} selector 
+ * @returns 
+ */
 function waitForElm(selector) {
     return new Promise(resolve => {
         // si l'element existe deja, on le retourne tout simplement
@@ -24,8 +27,7 @@ function waitForElm(selector) {
 }
 
 
-// ajoute une fonction de temporisation sur les formulaire dynamique pour éviter 
-// surtout pour améliorier l'accessibilité
+
 const STORE = {
     actions: {
         // focus sur un élément du formulaire après son chargement
@@ -35,6 +37,12 @@ const STORE = {
                 elem.focus();
             }, 100));
         },
+
+        /**
+         * 
+         * @param {*} param0 
+         * @param {*} selector 
+         */
         setClearableTabIndex: ({state}, selector) => {
             state;
             // on attend que le formulaire soit chargé pour ajouter le tabindex
@@ -51,8 +59,8 @@ const STORE = {
                 // on ajoute un tabindex de -1 sur les boutons de suppression des champs
                 elem.querySelectorAll('.v-input__icon--clear, .mdi-close')
                     .forEach(elem =>  {
-                        elem.getElementsByTagName('button').
-                            forEach(b => {
+                        Array.from(elem.getElementsByTagName('button'))
+                            .forEach(b => {
                                 b.tabIndex = -1;
                             })
                         }   )

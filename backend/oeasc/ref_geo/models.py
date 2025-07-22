@@ -12,13 +12,18 @@ from geoalchemy2 import Geometry
 
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
+from sqlalchemy import ForeignKey, Column, Integer, String, Text, Boolean, DateTime, Float
+from  sqlalchemy.orm import Mapped
 
 config = current_app.config
 DB = config["DB"]
 
+class CustomModel(DB.Model):
+    __abstract__ = True  # evite que la classe soit considérée comme une table
+    __allow_unmapped__ = True
 
 @serializable
-class BibAreasType(DB.Model):
+class BibAreasType(CustomModel):
     """
     ref_geo.bib_areas_types
     """
@@ -36,7 +41,7 @@ class BibAreasType(DB.Model):
 
 
 @serializable
-class TAreas(DB.Model):
+class TAreas(CustomModel):
     """
     ref_geo.l_areas sans geom
     """
@@ -44,24 +49,25 @@ class TAreas(DB.Model):
     __tablename__ = "l_areas"
     __table_args__ = {"schema": "ref_geo", "extend_existing": True}
 
-    id_area = DB.Column(
-        DB.Integer,
+    id_area: Mapped[int] = Column(
+        Integer,
         primary_key=True,
         server_default=DB.text("nextval('ref_geo.l_areas_id_area_seq'::regclass)"),
     )
-    id_type = DB.Column(DB.Integer, nullable=False)
-    area_name = DB.Column(DB.String(250))
-    area_code = DB.Column(DB.String(25))
-    source = DB.Column(DB.String(250))
-    comment = DB.Column(DB.Text)
-    enable = DB.Column(DB.Boolean, nullable=False, server_default=DB.text("true"))
-    meta_create_date = DB.Column(DB.DateTime)
-    meta_update_date = DB.Column(DB.DateTime)
+    id_type: Mapped[int] = Column(Integer, nullable=False)
+    area_name: Mapped[str] = Column(String(250))
+    area_code: Mapped[str] = Column(String(25))
+    source: Mapped[str] = Column(String(250))
+    comment: Mapped[str] = Column(Text)
+    enable: Mapped[bool] = Column(Boolean, nullable=False, server_default=DB.text("true"))
+    meta_create_date: Mapped[DateTime] = Column(DateTime)
+    meta_update_date: Mapped[DateTime] = Column(DateTime)
+
 
 
 @serializable
 @geoserializable
-class LAreas(DB.Model):
+class LAreas(CustomModel):
     """
     ref_geo.l_areas avec geom
     """
@@ -69,21 +75,18 @@ class LAreas(DB.Model):
     __tablename__ = "l_areas"
     __table_args__ = {"schema": "ref_geo", "extend_existing": True}
 
-    id_area = DB.Column(
-        DB.Integer,
-        primary_key=True,
-        server_default=DB.text("nextval('ref_geo.l_areas_id_area_seq'::regclass)"),
-    )
-    id_type = DB.Column(DB.Integer, nullable=False)
-    area_name = DB.Column(DB.String(250))
-    area_code = DB.Column(DB.String(25))
-    source = DB.Column(DB.String(250))
-    comment = DB.Column(DB.Text)
-    enable = DB.Column(DB.Boolean, nullable=False, server_default=DB.text("true"))
-    meta_create_date = DB.Column(DB.DateTime)
-    meta_update_date = DB.Column(DB.DateTime)
+    id_area: Mapped[int] = Column( Integer, primary_key=True, server_default=DB.text("nextval('ref_geo.l_areas_id_area_seq'::regclass)"))
+    id_type: Mapped[int] = Column(Integer, nullable=False)
 
-    geom_4326 = DB.Column(Geometry("MULTIPOLYGON", 4326))
+    area_name: Mapped[str] = Column(String(250))
+    area_code: Mapped[str] = Column(String(25))
+    source: Mapped[str] = Column(String(250))
+    comment: Mapped[str] = Column(Text)
+    enable: Mapped[bool] = Column(Boolean, nullable=False, server_default=DB.text("true"))
+    meta_create_date: Mapped[DateTime] = Column(DateTime)
+    meta_update_date: Mapped[DateTime] = Column(DateTime)
+    geom_4326: Mapped[Geometry] = Column(Geometry("MULTIPOLYGON", 4326))
+
 
     def get_geofeature(self, recursif=False):
         """
@@ -93,7 +96,7 @@ class LAreas(DB.Model):
 
 
 @serializable
-class VAreas(DB.Model):
+class VAreas(CustomModel):
     """
     ref_geo.vl_areas sans geom
     """
@@ -101,20 +104,19 @@ class VAreas(DB.Model):
     __tablename__ = "vl_areas"
     __table_args__ = {"schema": "ref_geo", "extend_existing": True}
 
-    id_area = DB.Column(DB.Integer, primary_key=True)
-    id_type = DB.Column(DB.Integer, nullable=False)
-    area_name = DB.Column(DB.String(250))
-    label = DB.Column(DB.String(250))
-    area_code = DB.Column(DB.String(25))
-    source = DB.Column(DB.String(250))
-    enable = DB.Column(DB.Boolean, nullable=False, server_default=DB.text("true"))
-    surface_calculee = DB.Column(DB.Float)
-    surface_renseignee = DB.Column(DB.Float)
-
+    id_area: Mapped[int] = Column(Integer, primary_key=True)
+    id_type: Mapped[int] = Column(Integer, nullable=False)
+    area_name: Mapped[str] = Column(String(250))
+    label: Mapped[str] = Column(String(250))
+    area_code: Mapped[str] = Column(String(25))
+    source: Mapped[str] = Column(String(250))
+    enable: Mapped[bool] = Column(Boolean, nullable=False, server_default=DB.text("true"))
+    surface_calculee: Mapped[float] = Column(Float)
+    surface_renseignee: Mapped[float] = Column(Float)
 
 @serializable
 # @geoserializable
-class VAreasSimples(DB.Model):
+class VAreasSimples(CustomModel):
     """
     ref_geo.vl_areas_simples sans geom
     """
@@ -122,24 +124,25 @@ class VAreasSimples(DB.Model):
     __tablename__ = "vl_areas_simples"
     __table_args__ = {"schema": "ref_geo", "extend_existing": True}
 
-    id_area = DB.Column(
-        DB.Integer,
+    id_area: Mapped[int] = Column(
+        Integer,
         primary_key=True,
-        server_default=DB.text("nextval('ref_geo.l_areas_id_area_seq'::regclass)"),
+        server_default=DB.text("nextval('ref_geo.vl_areas_simples_id_area_seq'::regclass)"),
     )
-    id_type = DB.Column(DB.Integer, nullable=False)
-    area_name = DB.Column(DB.String(250))
-    label = DB.Column(DB.String(250))
-    area_code = DB.Column(DB.String(25))
-    source = DB.Column(DB.String(250))
-    enable = DB.Column(DB.Boolean, nullable=False, server_default=DB.text("true"))
-    surface_calculee = DB.Column(DB.Float)
-    surface_renseignee = DB.Column(DB.Float)
+    id_type: Mapped[int] = Column(Integer, nullable=False)
+    area_name: Mapped[str] = Column(String(250))
+    label: Mapped[str] = Column(String(250))
+    area_code: Mapped[str] = Column(String(25))
+    source: Mapped[str] = Column(String(250))
+    enable: Mapped[bool] = Column(Boolean, nullable=False, server_default=DB.text("true"))
+    surface_calculee: Mapped[float] = Column(Float)
+    surface_renseignee: Mapped[float] = Column(Float)
+
 
 
 @serializable
 @geoserializable
-class VLAreas(DB.Model):
+class VLAreas(CustomModel):
     """
     ref_geo.vl_areas avec geom
     """
@@ -147,15 +150,15 @@ class VLAreas(DB.Model):
     __tablename__ = "vl_areas"
     __table_args__ = {"schema": "ref_geo", "extend_existing": True}
 
-    id_area = DB.Column(DB.Integer, primary_key=True)
-    id_type = DB.Column(DB.Integer, nullable=False)
-    area_name = DB.Column(DB.String(250))
-    label = DB.Column(DB.String(250))
-    area_code = DB.Column(DB.String(25))
-    source = DB.Column(DB.String(250))
-    surface_calculee = DB.Column(DB.Float)
-    surface_renseignee = DB.Column(DB.Float)
-    geom_4326 = DB.Column(Geometry("MULTIPOLYGON", 4326))
+    id_area: Mapped[int] = Column(Integer, primary_key=True)
+    id_type: Mapped[int] = Column(Integer, nullable=False)
+    area_name: Mapped[str] = Column(String(250))
+    label: Mapped[str] = Column(String(250))
+    area_code: Mapped[str] = Column(String(25))
+    source: Mapped[str] = Column(String(250))
+    surface_calculee: Mapped[float] = Column(Float)
+    surface_renseignee: Mapped[float] = Column(Float)
+    geom_4326: Mapped[Geometry] = Column(Geometry("MULTIPOLYGON", 4326))
 
     def get_geofeature(self, recursif=False):
         """
@@ -167,7 +170,7 @@ class VLAreas(DB.Model):
 
 @serializable
 @geoserializable
-class VLAreasSimples(DB.Model):
+class VLAreasSimples(CustomModel):
     """
     ref_geo.vl_areas_simples avec geom
     """
@@ -175,15 +178,16 @@ class VLAreasSimples(DB.Model):
     __tablename__ = "vl_areas_simples"
     __table_args__ = {"schema": "ref_geo", "extend_existing": True}
 
-    id_area = DB.Column(DB.Integer, primary_key=True)
-    id_type = DB.Column(DB.Integer, nullable=False)
-    area_name = DB.Column(DB.String(250))
-    label = DB.Column(DB.String(250))
-    area_code = DB.Column(DB.String(25))
-    source = DB.Column(DB.String(250))
-    surface_calculee = DB.Column(DB.Float)
-    surface_renseignee = DB.Column(DB.Float)
-    geom_4326 = DB.Column(Geometry("MULTIPOLYGON", 4326))
+    id_area: Mapped[int] = Column(Integer, primary_key=True)
+    id_type: Mapped[int] = Column(Integer, nullable=False)
+    area_name: Mapped[str] = Column(String(250))
+    label: Mapped[str] = Column(String(250))
+    area_code: Mapped[str] = Column(String(25))
+    source: Mapped[str] = Column(String(250))
+    surface_calculee: Mapped[float] = Column(Float)
+    surface_renseignee: Mapped[float] = Column(Float)
+    geom_4326: Mapped[Geometry] = Column(Geometry("MULTIPOLYGON", 4326))
+
 
     def get_geofeature(self, recursif=False):
         """
@@ -191,5 +195,22 @@ class VLAreasSimples(DB.Model):
         """
         return self.as_geofeature("geom_4326", "id_area", recursif)
 
+
+class CorHierarchieArea(CustomModel):
+    """
+    ref_geo.cor_hierarchie_area
+    cette table indique quelle area se trouve à l'intérieur d'une area parent en fonction de son type.
+    par exemple, une commune (id_type=332) intègre un ensemble d'area.
+    les foret onf (id_type=328) sont aussi des aires qui intègrent des aires cadastre (id_type=25).
+    les forets dgd (id_type=327) intègrent des aires cadastre (id_type=25).
+    """
+
+    __tablename__ = "cor_hierarchie_area"
+    __table_args__ = {"schema": "ref_geo", "extend_existing": True}
+
+    id_area_enfant: Mapped[int] = Column(Integer, ForeignKey("ref_geo.l_areas.id_area"), primary_key=True)
+    id_type_enfant: Mapped[int] = Column(Integer, primary_key=True)
+    id_area_parent: Mapped[int] = Column(Integer, ForeignKey("ref_geo.l_areas.id_area"), primary_key=True)
+    id_type_parent: Mapped[int] = Column(Integer, primary_key=True)
 
 

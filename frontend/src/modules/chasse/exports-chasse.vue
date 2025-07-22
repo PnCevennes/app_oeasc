@@ -13,7 +13,7 @@
     </v-row>
         <v-row dense>
       <v-col>
-        <v-btn :href="UrlExportOds('realisation', 'csv')">
+        <v-btn :href="UrlExportOds()">
           ODS
         </v-btn>
         : Tableur 'Bilan' pour la saison en cours
@@ -30,10 +30,10 @@ export default {
   data: () => ({}),
   methods: {
     UrlExport(dataType, exportType) {
-      return url(`api/chasse/export/${exportType}`, { data_type: dataType });
+      return url(`api/chasse/export/${exportType}`, { data_type: dataType }).toString();
     },
     UrlExportOds() {
-      return url(`api/chasse/export/ods`);
+      return url(`api/chasse/export/ods`).toString();
     }
   }
 };

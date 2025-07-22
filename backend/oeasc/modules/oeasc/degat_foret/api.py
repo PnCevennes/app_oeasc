@@ -13,15 +13,26 @@ from .repository import (
     get_id_areas,
     get_foret_from_code,
     get_proprietaire_from_id_declarant,
+    get_proprietaire_from_id,
     get_declarations,
     hide_proprietaire,
 )
 from ..declaration.mail import send_mail_validation_declaration
-from ..declaration.repository import get_user
+# from ..declaration.repository import get_user
 from ..declaration.schema import TProprietaireSchema, TForetSchema, TDeclarationSchema
 
 
 bp = Blueprint("degat_foret_api", __name__)
+
+
+@bp.route("proprietaire_from_id/<int:id_declarant>", methods=["GET"])
+@check_auth_redirect_login(1)
+def api_get_proprietaire_from_id(id_declarant):
+    (proprietaire) = get_proprietaire_from_id(id_declarant)
+    proprietaire_dict = TProprietaireSchema().dump(proprietaire)
+
+    return proprietaire_dict
+
 
 
 @bp.route("proprietaire_from_id_declarant/<int:id_declarant>", methods=["GET"])
@@ -31,6 +42,8 @@ def api_get_proprietaire_from_id_declarant(id_declarant):
     proprietaire_dict = TProprietaireSchema().dump(proprietaire)
 
     return proprietaire_dict
+
+
 
 
 @bp.route("foret_from_code/<string:code_foret>", methods=["GET"])
@@ -61,6 +74,63 @@ def api_get_declarations():
     return get_declarations()
 
 
+
+# Récupèration de la décalaration simple, sans les areas
+@bp.route("declaration_simple/<int:id_declaration>", methods=["GET"])
+@bp.route("declaration_simple/", methods=["GET"], defaults={"id_declaration": None})
+@check_auth_redirect_login(1)
+@json_resp_accept_empty_list
+def api_get_declaration_simple(id_declaration):
+    """
+    api_get_declaraiton
+    """
+
+    (declaration, foret, proprietaire) = get_declaration(id_declaration)
+
+    if not declaration:
+        return
+
+    declaration_dict = TDeclarationSchema().dump(declaration)
+ 
+
+    foret_dict = TForetSchema().dump(foret) if foret else {}
+    declaration_dict.update(foret_dict)
+
+    proprietaire_dict = TProprietaireSchema().dump(proprietaire) if proprietaire else {}
+    declaration_dict.update(proprietaire_dict)
+
+
+    id_declarant = declaration.id_declarant
+    declaration_dict["id_declarant"] = id_declarant
+
+    # Retire les id_declaration des relationships et les retourne en liste plutot que dictionnaire
+    for key in declaration_dict:
+        if (
+            isinstance(declaration_dict[key], list)
+            and len(declaration_dict[key]) > 0
+            and "id_nomenclature" in declaration_dict[key][0]
+        ):
+            declaration_dict[key] = [e["id_nomenclature"] for e in declaration_dict[key]]
+
+    # declaration_dict["areas_localisation"] = [ e['id_area'] for e in declaration_dict.get("areas_localisation") ]
+
+
+    # # cache le nom du proprietaire si l'utilisateur n'est pas le declarant ou si ce n'est pas un admin
+    current_user = session.get("current_user", None)
+    if (current_user["max_level_profil"] < 4) and (
+        current_user["id_role"] != declaration_dict["id_declarant"]
+    ):
+        hide_proprietaire(declaration_dict)
+
+
+
+    return declaration_dict
+
+
+
+# Récupèration de toute la déclaration ainsi que que les données de la foret et du proprietaire
+# Retourne aussi toutes les areas de la foret et de la déclaration ce qui sera utile dans l'affichage des carte
+# dans voir_declaration.vue
 @bp.route("declaration/<int:id_declaration>", methods=["GET"])
 @bp.route("declaration/", methods=["GET"], defaults={"id_declaration": None})
 @check_auth_redirect_login(1)
@@ -76,35 +146,17 @@ def api_get_declaration(id_declaration):
         return
 
     declaration_dict = TDeclarationSchema().dump(declaration)
-    # out = declaration.as_dict(fields=[
-    #             "areas_localisation",
-    #             "nomenclatures_peuplement_essence_secondaire",
-    #             "nomenclatures_peuplement_essence_complementaire",
-    #             "nomenclatures_peuplement_maturite",
-    #             "nomenclatures_peuplement_protection_type",
-    #             "nomenclatures_peuplement_paturage_type",
-    #             "nomenclatures_peuplement_paturage_saison",
-    #             "nomenclatures_peuplement_espece",
-    #             "nomenclatures_peuplement_origine2",
-    #             "degats",
-    #             "degats.degat_essences"
-    #             ])
-
-    # flat data
 
     foret_dict = TForetSchema().dump(foret) if foret else {}
     declaration_dict.update(foret_dict)
 
-    
-
-
     proprietaire_dict = TProprietaireSchema().dump(proprietaire) if proprietaire else {}
-
     declaration_dict.update(proprietaire_dict)
-    # out.update(proprietaire.as_dict())
     
     id_declarant = declaration.id_declarant
     declaration_dict["id_declarant"] = id_declarant
+
+
 
     # nomenclature
     for key in declaration_dict:
@@ -143,10 +195,10 @@ def api_get_declaration(id_declaration):
 
     # hide proprietaire
     current_user = session.get("current_user", None)
-    
-    if (current_user["max_level_profil"] < 4) and (
+
+    if ((current_user is not None) and (current_user["max_level_profil"] < 4) and (
         current_user["id_role"] != declaration_dict["id_declarant"]
-    ):
+    )):
         hide_proprietaire(declaration_dict)
 
     return declaration_dict

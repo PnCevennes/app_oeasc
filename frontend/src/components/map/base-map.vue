@@ -10,28 +10,28 @@
         :config="config"
         :style="`height:${computedHeight}; z-index:0;`"
       >
-                  <div v-if="exportImg !== undefined" class='map-export'>
-      <v-btn icon @click="bExportMap = true">
-        <v-icon>
-          image
-        </v-icon>
-      </v-btn>
-      <v-dialog max-width="1400px" v-model="bExportMap">
-        <v-card v-if="bExportMap">
-          <generic-form
-            class="edit-dialog"
-            :config="configFormExportMap"
-          ></generic-form>
-        </v-card>
-      </v-dialog>
-    </div>
+        <div v-if="exportImg !== undefined" class='map-export'>
+          <v-btn icon @click="bExportMap = true">
+            <v-icon>
+              image
+            </v-icon>
+          </v-btn>
+          <v-dialog max-width="1400px" v-model="bExportMap">
+            <v-card v-if="bExportMap"> 
+              <generic-form
+                class="edit-dialog"
+                :config="configFormExportMap"
+              ></generic-form>
+            </v-card>
+          </v-dialog>
+        </div>
 
         <map-legend
           :config="(mapService && mapService._config) || {}"
         ></map-legend>
       </div>
 
-      <!-- aside   -->
+      <!-- colonne avec les select  -->
       <div>
         <div
           v-for="[key, configSelect] of Object.entries(configSelects)"
@@ -52,11 +52,18 @@
         </div>
       </div>
     </div>
+    <!-- <div>
+        ##################
+        <pre>{{ JSON.stringify(config, null, 2) }}</pre>
+        <br><br>
+        ##################
+        mapId: {{ mapId }} <br><br>
+      </div> -->
   </div>
 </template>
 
 <script>
-import { MapService } from "@/modules/map";
+import { MapService } from "@/components/map";
 import listForm from "@/components/form/list-form";
 import mapLegend from "./map-legend";
 import configFormExportMap from "./config/form-export-map";
@@ -92,6 +99,8 @@ export default {
     }
   },
   methods: {
+    // lorsque un layer est selectionné on le configure dans mapService/map-layer pour changer la couleur et le zoom
+    //  on l'ajoute à configSelects
     initSelect($event) {
       const key = $event.detail.key;
       this.configSelects[key] = this.mapService.configSelect(key);
@@ -146,7 +155,9 @@ export default {
     this.bInit = true;
 
     this.mapService = new MapService(this.mapId, this.config);
+    // définit cette map dans le store. Qui sera dans state._mapServices
     this.$store.commit("setMapService", this.mapService);
+    // intialise les layers, tuiles, couches et marqueurs
     this.mapService.init();
     document
       .getElementById(this.mapId)

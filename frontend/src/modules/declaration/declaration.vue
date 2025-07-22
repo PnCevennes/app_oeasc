@@ -38,7 +38,7 @@
 
 <script>
 import declarationTable from "./declaration-table";
-import baseMap from "@/modules/map/base-map";
+import baseMap from "@/components/map/base-map";
 import { exportPDF } from "@/modules/export";
 import "./declaration.css";
 
@@ -117,7 +117,7 @@ export default {
       const layerList = {
         secteur: {},
         foret: {
-          url: `api/ref_geo/areas/l?id_area=${this.declaration.areas_foret.join(
+          url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration.areas_foret.join(
             "&id_area="
           )}`,
           legend: "Forêt concernée par l'alerte",
@@ -125,7 +125,7 @@ export default {
           pane: "PANE_LAYER_1"
         },
         parcelles: {
-          url: `api/ref_geo/areas/l?id_area=${this.declaration.areas_localisation.join(
+          url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration.areas_localisation.join(
             "&id_area="
           )}`,
 

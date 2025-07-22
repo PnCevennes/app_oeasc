@@ -1,0 +1,6 @@
+
+
+Config.
+Les paramètres de config sont dans la variable config.map accessible via app.py
+Tous les paramètres sont modifiable dans le fichier frontend/config/config-map.js
+

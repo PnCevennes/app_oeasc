@@ -188,13 +188,14 @@
     </template>
 
     <!-- essence -->
-    <template v-else-if="configForm.type === 'essence'">
+    <!-- <template v-else-if="configForm.type === 'essence'">
       <essence-form :config="configForm" :baseModel="baseModel"></essence-form>
-    </template>
+    </template> -->
 
     <!-- select map -->
     <template v-else-if="configForm.type === 'select_map'">
       <select-map :config="configForm" :baseModel="baseModel"></select-map>
+      <!-- <div>##### ConfigForm {{ configForm }}</div> -->
     </template>
 
     <!-- list form -->
@@ -202,10 +203,6 @@
       <list-form :config="configForm" :baseModel="baseModel"></list-form>
     </template>
 
-    <!-- degats -->
-    <template v-else-if="configForm.type === 'degats'">
-      <degats-form :config="configForm" :baseModel="baseModel"></degats-form>
-    </template>
 
     <!-- content -->
     <template v-else-if="configForm.type === 'content'">
@@ -237,8 +234,8 @@
 import nomenclatureForm from "./nomenclature-form";
 import listForm from "./list-form";
 import selectMap from "./select-map.vue";
-import essenceForm from "./essence-form.vue";
-import degatsForm from "./degats-form.vue";
+// import essenceForm from "./essence-form.vue";
+// import degatsForm from "./degats-form.vue";
 import help from "./help";
 import list from "./list";
 import { copy } from "@/core/js/util/util";
@@ -251,9 +248,9 @@ export default {
   components: {
     nomenclatureForm,
     selectMap,
-    essenceForm,
+    // essenceForm,
     listForm,
-    degatsForm,
+    // degatsForm,
     oeascContent: () => import("@/modules/content/content.vue"),
     help,
     list

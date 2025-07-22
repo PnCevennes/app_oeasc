@@ -16,7 +16,7 @@
 
       <slot name="success"></slot>
     </div>
-    <div v-else-if="baseModel">
+    <div v-else-if="baseModel"> 
 
       <slot name="prependForm"></slot>
       <v-form v-model="bValidForm" ref="form" v-if="bInit">

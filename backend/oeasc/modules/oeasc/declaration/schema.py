@@ -245,11 +245,13 @@ class TForetSchema(SQLAlchemyAutoSchema):
         CorAreasForetSchema,
         many=True,
         metadata={"include_fk": True},
+        unknown = EXCLUDE
     )
 
     class Meta:
         model = TForet
         load_instance = True
+        include_fk = True
         sqla_session = DB.session,
         unknown = EXCLUDE
 

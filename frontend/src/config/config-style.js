@@ -20,7 +20,7 @@ const styles = {
     color: 'grey',
     fillColor: '#dfdfdf'
   },
-  po: {
+  po: { // perimetre oeasc
     weight: 2,
     opacity: 0.5,
     fillOpacity: 0.2,

@@ -4,7 +4,7 @@ from oeasc.ref_geo.repository import get_type_code
 from oeasc.ref_geo.models import VAreas as VA, TAreas
 from oeasc.ref_geo.schema import VAreasSchema, TAreasSchema
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+# from sqlalchemy.orm import Session
 
 config = current_app.config
 DB = config["DB"]
@@ -181,30 +181,6 @@ def get_area_from_id(id_area):
 
 
 
-def pre_get_dict_nomenclature_areas(declarations):
-    """
-    pre process pour recuperer les id_areas contenues dans un tableau de déclaration
-    et faire une seule requete en bdd
-    """
-    v_id_areas = []
-
-    for declaration in declarations:
-        for area in declaration.get("areas_localisation", []):
-            v_id_areas.append(area)
-
-        for area in declaration.get("areas_foret", []):
-            v_id_areas.append(area)
-
-        foret = declaration.get("foret", None)
-
-        if not foret:
-            continue
-
-        for area in foret.get("areas_foret", []):
-            v_id_areas.append(area)
-
-    get_areas_from_ids(v_id_areas)
-
 
 def get_dict_nomenclature_areas(dict_in):
     """
@@ -253,3 +229,31 @@ def get_dict_nomenclature_areas(dict_in):
             continue
 
     return dict_in
+
+
+
+
+
+# def pre_get_dict_nomenclature_areas(declarations):
+#     """
+#     pre process pour recuperer les id_areas contenues dans un tableau de déclaration
+#     et faire une seule requete en bdd
+#     """
+#     v_id_areas = []
+
+#     for declaration in declarations:
+#         for area in declaration.get("areas_localisation", []):
+#             v_id_areas.append(area)
+
+#         for area in declaration.get("areas_foret", []):
+#             v_id_areas.append(area)
+
+#         foret = declaration.get("foret", None)
+
+#         if not foret:
+#             continue
+
+#         for area in foret.get("areas_foret", []):
+#             v_id_areas.append(area)
+
+#     get_areas_from_ids(v_id_areas)

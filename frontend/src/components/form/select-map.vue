@@ -15,7 +15,8 @@
 
     <base-map v-if="mapConfig" :config="mapConfig" :mapId="config.name">
       <template v-slot:aside>
-        <div class="aside-select">
+
+        <div class="aside-select"> 
           <div
             class="btn-pre-select"
             v-if="
@@ -85,17 +86,20 @@
         </div>
       </template>
     </base-map>
+       <!-- <div>
+          #######BaseModel:  {{ baseModel }}
+        </div> -->
   </div>
 </template>
 
 <script>
-// import baseMap from "@/modules/map/base-map";
+
 import { selectMapMethods } from "./select-map.js";
 import help from "./help";
 
 export default {
   name: "selectMap",
-  components: { baseMap: () => import("@/modules/map/base-map"), help },
+  components: { baseMap: () => import("@/components/map/base-map"), help },
   data: () => ({
     dataSelect: null,
     mapService: null,
@@ -105,7 +109,7 @@ export default {
     description: null,
     name: null
   }),
-  methods: selectMapMethods,
+  methods: selectMapMethods, // intégre toutes les méthodes du fichier select-map.js
   props: ["config", "baseModel"],
   created: function() {
     // add event on map-data-loaded
@@ -133,6 +137,21 @@ export default {
         legend: "Sélection"
       };
     }, 300);
+
+
+    console.log (
+      "config ########################",
+      this.config,
+    );
+    console.log (
+      "select-map mapService ########################",
+      this.mapService,
+
+    );
+    console.log(
+      "mapConfig ########################",
+      this.mapConfig
+    );
   }
 };
 </script>

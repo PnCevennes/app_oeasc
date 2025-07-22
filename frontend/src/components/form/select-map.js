@@ -2,9 +2,20 @@ import { copy } from "@/core/js/util/util.js";
 import { config } from "@/config/config.js";
 import { formFunctions } from "./functions/form.js";
 
+// 
 const configBaseSelect = config.map.configBaseSelect;
 
 const selectMapMethods = {
+
+  /**
+
+    * Initialisation de la configuration de la carte
+    * @returns {void}
+    * 
+    * Cette fonction initialise la configuration de la carte en fonction du mode (container ou normal).
+    * Elle définit les règles de validation, les légendes, les URLs et les noms des couches.
+    * Elle met également à jour la configuration de la carte avec les couches appropriées.
+  */
   initMapConfig: function() {
     const selectRef = this.$refs[`select_map_${this.config.name}`];
     if (selectRef) {
@@ -13,13 +24,14 @@ const selectMapMethods = {
     const layerList = {
       po: {}
     };
-
+ 
     let legend = "",
       url = "";
 
-    if (this.selectContainer) {
-      legend = this.config.containerLegend;
+    if (this.selectContainer) { // mode container
+      legend = this.config.containerLegend; // legend du container
       this.description = this.config.containerDescription;
+
       const ruleContainer = v =>
         !(!v || (Array.isArray(v) && v.length != 0)) ||
         `Veuillez ${
@@ -30,14 +42,18 @@ const selectMapMethods = {
           ? [formFunctions.rules.requiredListMultiple, ruleContainer]
           : [formFunctions.rules.requiredListSimple, ruleContainer]
         : [];
+
+      // url de la requete api pour récupérer les areas des layers. C'est rarement une fonction
       url =
         typeof this.config.containerUrl === "function"
           ? this.config.containerUrl(this.baseModel)
           : this.config.containerUrl;
 
       this.name = this.config.containerName;
-    } else {
-      legend = this.config.legend;
+
+    
+    } else { // Si c'est en mode normal
+      legend = this.config.legend; // legend par défaut
       this.description = this.config.description;
       this.rules = this.config.rules;
       url =
@@ -51,6 +67,7 @@ const selectMapMethods = {
     }
 
     this.legend = legend;
+
     const selectLayerConfig = {
       ...configBaseSelect,
       ...{

@@ -17,7 +17,9 @@ const configMap = {
   INIT_VIEW: [44.323546, 3.593954],
   INIT_ZOOM: 8,
   INIT_TILE: 'IGN (Cartes)',
-  styles,
+  styles, // style des layers définis dans config-style.js
+
+  // Type de fonds de carte. Mapbox est par défaut
   baseTilesConfig: {
 
 
@@ -62,6 +64,7 @@ const configMap = {
     }
   },
 
+  // Liste des fonds de carte
   tileList: {
     'open_topo_map': {},
     'mapbox': {
@@ -72,6 +75,13 @@ const configMap = {
   },
 
 
+  // Liste des couches de la carte
+  // Chaque couche est définie par un objet contenant les propriétés suivantes :
+  // - legend : le nom de la couche à afficher dans la légende
+  // - url : l'URL de la couche à charger
+  // - type : type de couche à chargé. Le code est utilisé pour créer la requete API avec 
+  // - style : le style de la couche (défini dans config-style.js)
+  // - pane : le nom du pane dans lequel la couche sera ajoutée
   layers: {
     zc: {
       legend: 'Zone cœur du Parc national',

@@ -1,5 +1,13 @@
+<!-- ######################################################################################
+// N'est plus utilisé que pour voir les déclarations. Le formulaire de déclaration est maintenant
+// dans le composant modifier-declaration.vue
+// Il faudra la supprimer quand un component de vision de carte simple sera créé. Le résumé est déja fait
+###########################################################$$##########################  -->
+
+
 <template>
     <chained-form :config="configFormChainedDeclaration">
+      <!-- ce div apparait seulement après la validation d'un formulaire -->
       <div slot="success">
          <v-dialog value=true persistent max-width="600">
           <v-card>

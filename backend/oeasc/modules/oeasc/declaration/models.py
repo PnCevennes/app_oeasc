@@ -288,8 +288,8 @@ class TDeclaration(CustomModel):
     )
 
     autre_protection: Mapped[str] = Column(Unicode(100), nullable=True)
-    precision_localisation: Mapped[str] = Column(Unicode(250), nullable=True)
-    commentaire: Mapped[str] = Column(Unicode(250), nullable=True)
+    precision_localisation: Mapped[str] = Column(Unicode, nullable=True)
+    commentaire: Mapped[str] = Column(Unicode, nullable=True)
 
     meta_create_date: Mapped[DateTime] = Column(DateTime, default=func.now())
     meta_update_date: Mapped[DateTime] = Column(DateTime, default=func.now(), onupdate=func.now())

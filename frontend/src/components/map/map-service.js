@@ -89,10 +89,10 @@ class MapService {
     // scale
     L.control.scale().addTo(this._map);
 
-    // init panes
+    // Definition des différentes couches de la carte
     this.initPanes();
 
-    // init tiles
+    // initialisation des fonds de tuiles
     this.initTiles();
 
     // init layers
@@ -103,24 +103,25 @@ class MapService {
 
     // init succeed
 
-    // resize map in case oft                       bv
-    for (const t of [100, 1000, 2000, 5000, 10000]) {
+    // S'assure de redéfiner la taille de la carte après un certain temps. Essentiel pour éviter de bug d'affichage
+    // lorsqu'il y a des animations ou des requetes asynchrones
+    for (const delay of [100, 1000, 2000, 5000, 10000]) {
       setTimeout(() => {
         this._map.invalidateSize();
-      }, t);
+      }, delay);
     }
 
     return true;
   };
 }
 
-// ajout des methodes à la classe mapConfig
+// ajout des methodes des module Panes, Tiles, Layers, Markers à la classe mapConfig
 for (const methods of mapModules) {
   Object.assign(MapService.prototype, methods);
 }
 
 
-// ajout des méthodes statiques
+// ajout des méthodes situés dans map-config.js à la classe MapService
 for (const methods of staticMapModules) {
   Object.assign(MapService, methods);
 }

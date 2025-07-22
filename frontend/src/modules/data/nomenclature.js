@@ -22,7 +22,7 @@ const STORE = {
 
   mutations: {
     nomenclatures: (state, nomenclatures) => {
-      state._nomenclatures = nomenclatures;
+      state._nomenclatures = nomenclatures; 
     }
   },
 

@@ -76,6 +76,28 @@ var fail = msg => {
 // sinon elles sont envoyées sous forme de JSON
  
 
+export const fetchData = async (urlRelative, options = {}) => {
+  const url_ = url(urlRelative, options.params);
+  var fetchOptions = {
+    "method": "GET",
+    "headers": {
+      "Content-Type": "application/json",
+      ...options.headers,
+    },
+    credentials: "include"
+  };
+  try {
+    const response = await fetch(url_, fetchOptions);
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Erreur lors de la récupération des données:', error);
+  }
+};
+
+
+
+
 var apiRequest = (method, urlRelative, options = {}, $store = null) => {
 
   // on construit l'URL complète de l'API
@@ -98,17 +120,19 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
   // on crée une nouvelle promesse
   request =
     request ||
-    new Promise((resolve, reject = fail) => {
+    new Promise((resolve, reject) => {
       var fetchOptions = {
         method,
         credentials: "include"
       };
 
+
+      
       // on ajoute les headers
       if (["POST", "PATCH"].includes(method)) {
         const postOptions = {};
         // si les données contiennent un fichier
-        if (Object.values(options.postData).some(d => d instanceof File)) {
+        if (options.postData && Object.values(options.postData).some(d => d instanceof File)) {
           var data = new FormData();
           // on ajoute les données
           for (const [key, value] of Object.entries(options.postData || {})) {
@@ -127,6 +151,8 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
         // console.log(postOptions);
       }
 
+
+
       // on fait la requête, 
       fetch(url_, fetchOptions).then(
         response => {
@@ -134,7 +160,7 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
             $store.commit("removePending", url_.href);
           } // remove pending
 
-          const acceptedStatus = options.accpetedStatus || [200];
+          const acceptedStatus = options.acceptedStatus || [200];
           if (acceptedStatus.includes(response.status)) { // si la requête a réussi
             // on renvoie la réponse
             response.json().then(

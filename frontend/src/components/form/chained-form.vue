@@ -1,3 +1,10 @@
+<!-- ################################################################################################
+// Ce component sert encore pour l'affichage d'une déclaration mais pour le formulaire en lui-même
+// il faut utiliser le composant modifier-declaration.vue qui a été simplifié. 
+// On supprimera ce component lorsqu'on aura fait un affichage simple des carte. Le résumé est déja fait
+// avec le composanst resume-declaration.vue
+##################################################################################################### -->
+
 <template>
   <div class="chained-form">
     <div>
@@ -31,6 +38,8 @@
 </template>
 
 <script>
+
+
 import filArianne from "./fil-ariane";
 import help from "@/components/form/help";
 import genericForm from "@/components/form/generic-form";
@@ -45,7 +54,7 @@ export default {
     genericForm
   },
 
-  data: () => ({
+  data: () => ({ 
     declaration: null,
     validForms: {},
     initialized: false,
@@ -106,7 +115,7 @@ export default {
               });
             }
           };
-        }
+        } 
       }
       sessionDef.keySession = keySession;
       sessionDef.formDefs = this.config.formDefs;

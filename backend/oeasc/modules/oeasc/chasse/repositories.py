@@ -804,16 +804,25 @@ def get_data_export_ods(nom_saison, nom_espece):
             }
         )
 
+    if res:
+        last_r = res[-1]
+        mini = last_r["nb_attribution_min_espece"] or ""
+        maxi = last_r["nb_attribution_max_espece"] or ""
+        realisation = int(last_r["nb_realisation_espece"]) or ""
+        pourcent = (
+            round(last_r["nb_realisation_espece"] / last_r["nb_attribution_max_espece"] * 100)
+            if last_r["nb_attribution_max_espece"] else ""
+        )
+    else:
+        mini = maxi = realisation = pourcent = ""
+
     data = {
         "nom_saison": nom_saison,
         "nom_espece": nom_espece,
-        "mini": r["nb_attribution_min_espece"] or "",
-        "maxi": r["nb_attribution_max_espece"] or "",
-        "realisation": int(r["nb_realisation_espece"]) or "",
-        "pourcent": round(
-            r["nb_realisation_espece"] / r["nb_attribution_max_espece"] * 100
-        )
-        or "",
+        "mini": mini,
+        "maxi": maxi,
+        "realisation": realisation,
+        "pourcent": pourcent,
         "zcs": zcs,
         **get_details(nom_saison, nom_espece),
     }

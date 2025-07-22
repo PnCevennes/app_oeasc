@@ -52,7 +52,7 @@
 
 <script>
 // import genericTable from "@/components/table/generic-table";
-import formRealisation from "./form/formRealisation";
+// import formRealisation from "./form/formRealisation";
 import formAttribution from "./form/formAttribution";
 import tableChasse from "./table/table_chasse";
 

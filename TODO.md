@@ -25,4 +25,13 @@ TODO
 
 - Dans le module déclaration. Voir si il n'y a pas des fonctions inutiles sur l'ajout de déclaration. Des routes semblent inutiles
 
-- les fonction 
+
+
+
+BUG
+frontend: type bracelet affichage de l'espece dans la modification
+Chasse: saisie donnée chasse. Pas de id_attribution 
+tri donnée chasse saisons date espèces ne fonctionne pas
+
+
+remplacer les as_dict

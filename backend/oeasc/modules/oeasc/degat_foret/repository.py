@@ -28,7 +28,7 @@ from ..declaration.schema import (
     )
 
 
-import json
+# import json
 
 config = current_app.config
 DB = config["DB"]
@@ -115,6 +115,7 @@ def update_or_insert(model, id_key, id_value, schema, data, session=None):
 
 def get_declaration(id_declaration):
     """
+    Récupère en bdd une déclaration, sa foret et son proprietaire et retourne les données en tuple.
     """
 
     try:
@@ -147,7 +148,7 @@ def get_declaration(id_declaration):
 
 
 def create_or_update_declaration(post_data):
-    """
+    """ 
     create_or_update_declaration
     """
 
@@ -195,7 +196,7 @@ def create_or_update_declaration(post_data):
             ]
 
 
-    # regroupement des areas de localisation.
+    # gestion des zones
     post_data["areas_localisation"] = (
         []
         + post_data["areas_localisation_cadastre"]
@@ -203,6 +204,8 @@ def create_or_update_declaration(post_data):
         + post_data["areas_localisation_onf_ug"]
     )
 
+    # s'assure de retirer le id_declaration pour que Marshmallow puisse charger cette relationship. 
+    # Bidouille pour adapter l'ancien code avec Marshmallow
     arranged_post_data["areas_localisation"] = [
         {"id_area": id_area, 
         # "id_declaration": post_data.get("id_declaration")
@@ -251,16 +254,17 @@ def create_or_update_declaration(post_data):
                 partial=True, # Important pour ne mettre à jour que les champs fournis
                 session=DB.session
             )
-            # declaration.degats = arranged_post_data.get("degats", [])
+            DB.session.commit() # modification de l'instance
+
         else: 
             # Si c'est une création de déclaration. Juste on la load
             proprietaire = proprietaireSchema.load(
                 data_proprio, session=DB.session, partial=True
             )
-            DB.session.add(declaration)
-        DB.session.commit()
+            DB.session.add(proprietaire)
+            DB.session.commit() # ajout de l'instance
+            post_data["id_proprietaire"] = proprietaire.id_proprietaire
 
-        # post_data["id_proprietaire"] = proprietaire.id_proprietaire
 
 
         # creation d'une nouvelle foret si la zone est sans document de gestion
@@ -286,24 +290,20 @@ def create_or_update_declaration(post_data):
             post_data["areas_foret"].append(post_data["areas_foret_dgd"])
         
         data_foret["areas_foret"] = [
-            {"id_area": id_area, 
-            "id_declaration": post_data.get("id_declaration")
-            }
-            for id_area in post_data["areas_foret"]
+            {"id_area": id_area}
+            for id_area in post_data.get("areas_foret", []) if id_area is not None
         ]
 
-        data_foret["id_foret"] = post_data.get("id_foret")
         foretSchema = TForetSchema()
         new_foret = foretSchema.load(
             data_foret, session=DB.session, partial=True
         )
-        # foret
-        # foret = create_or_modify(TForet, "id_foret", post_data)
+        DB.session.add(new_foret)
+        DB.session.commit()
         arranged_post_data["id_foret"] = new_foret.id_foret 
 
     else: 
         # Si la parcelle à un document de gestion durable, c'est le cas le plus courant, les forets sont déja en base et n'ont pas besoin d'être modifié
-        
         # trouve le code_area qui correspond à la parcelle dans ref_geo
         id_area_foret = post_data["areas_foret_onf"] or post_data["areas_foret_dgd"]
         code_foret = get_area_from_id(id_area_foret)["area_code"]
@@ -313,7 +313,6 @@ def create_or_update_declaration(post_data):
         .limit(1)              
         )
         foret = DB.session.execute(stmt_foret).scalars().first()
-
         arranged_post_data["id_foret"] = foret.id_foret
 
 
@@ -333,6 +332,8 @@ def create_or_update_declaration(post_data):
         )
         # declaration.degats = arranged_post_data.get("degats", [])
     else: 
+
+        
         # Si c'est une création de déclaration. Juste on la load
         declaration = declarationSchema.load(
             arranged_post_data, session=DB.session, partial=True
@@ -343,119 +344,13 @@ def create_or_update_declaration(post_data):
 
     print("id_declaration", declaration.id_declaration)    
     
+
+    # cette fonction ajoute les aires des communes, secteurs et sections aux areas
     patch_areas_declarations(declaration.id_declaration)
 
 
     return arranged_post_data
 
-
-def create_or_update_declaration_ancien(post_data):
-    """
-    create_or_update_declaration
-    """
-
-    # Si des nomenclatures existent, on les remplace par leur id
-
-    for key in post_data:
-        if "nomenclatures_" in key:
-            post_data[key] = [
-                {
-                    "id_declaration": post_data.get("id_declaration"),
-                    "id_nomenclature": id_nomenclature,
-                }
-                for id_nomenclature in post_data[key]
-            ]
-
-    # 
-    post_data["areas_foret"] = (
-        [] + post_data["areas_foret_communes"] + post_data["areas_foret_sections"]
-    )
-    if post_data["areas_foret_onf"]:
-        post_data["areas_foret"].append(post_data["areas_foret_onf"])
-    if post_data["areas_foret_dgd"]:
-        post_data["areas_foret"].append(post_data["areas_foret_dgd"])
-
-
-    # regroupement des areas de localisation.
-    post_data["areas_localisation"] = (
-        []
-        + post_data["areas_localisation_cadastre"]
-        + post_data["areas_localisation_onf_prf"]
-        + post_data["areas_localisation_onf_ug"]
-    )
-
-    for key in ["areas_localisation", "areas_foret"]:
-        post_data[key] = [
-            {"id_area": id_area, "id_declaration": post_data.get("id_declaration")}
-            for id_area in post_data[key]
-        ]
-    # Si la parcelle n'a pas de document de gestion durable
-    if not post_data["b_document"]:
-        id_declarant = post_data["id_declarant"]
-
-        nomenclature = post_data[
-            "id_nomenclature_proprietaire_declarant"
-        ] and get_nomenclature_from_id(
-            post_data["id_nomenclature_proprietaire_declarant"]
-        )
-
-        if nomenclature and nomenclature["cd_nomenclature"] != "P_D_O_NP":
-            post_data["id_declarant"] = None
-        # proprietaire
-        proprietaire = create_or_modify(TProprietaire, "id_proprietaire", post_data)
-
-        post_data["id_proprietaire"] = proprietaire.id_proprietaire
-
-        post_data["id_declarant"] = id_declarant
-
-        # foret
-        foret = create_or_modify(TForet, "id_foret", post_data)
-        post_data["id_foret"] = foret.id_foret 
-
-    else: 
-        # Si la parcelle à un document de gestion durable
-        # get id_foret form id_areas
-        id_area_foret = post_data["areas_foret_onf"] or post_data["areas_foret_dgd"]
-
-        code_foret = get_area_from_id(id_area_foret)["area_code"]
-
-        stmt_foret = (select(TForet)
-        .where(TForet.code_foret == code_foret)
-        .limit(1)              
-        )
-        foret = DB.session.execute(stmt_foret).scalars().first()
-
-
-        post_data["id_foret"] = foret.id_foret
-
-    # declaration
-
-    foret_dict = TForetSchema().dump(foret) if foret else {}
-    post_data["foret"] = foret_dict
-
-
-    declaration = create_or_modify(TDeclaration, "id_declaration", post_data)
-
-    patch_areas_declarations(declaration.id_declaration)
-
-    declaration_dict = TDeclarationSchema().dump(declaration)
-
-    # returned_declaration = declaration.as_dict(fields=[
-    #     "areas_localisation",
-    #     "nomenclatures_peuplement_essence_secondaire",
-    #     "nomenclatures_peuplement_essence_complementaire",
-    #     "nomenclatures_peuplement_maturite",
-    #     "nomenclatures_peuplement_protection_type",
-    #     "nomenclatures_peuplement_paturage_type",
-    #     "nomenclatures_peuplement_paturage_saison",
-    #     "nomenclatures_peuplement_espece",
-    #     "nomenclatures_peuplement_origine2",
-    #     "degats",
-    #     "degats.degat_essences"
-
-    # ])
-
-    return declaration_dict
 
 def get_id_areas(areas, type_list):
     """
@@ -510,8 +405,21 @@ def get_proprietaire_from_id_declarant(id_declarant):
     return proprietaire or TProprietaire()
 
 
+
+def get_proprietaire_from_id(id_proprietaire):
+
+    stmt_proprietaire = (
+        select(TProprietaire)
+        .where(TProprietaire.id_proprietaire == id_proprietaire)
+        .limit(1)
+    )
+    proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
+
+    return proprietaire or TProprietaire()
+
+
 def get_declarations():
-    """ne semble pas être utilisé"""
+    """"""
     stmt_declaration = (
         select(TDeclaration, TForet, VUsers)
         .join(TForet, TForet.id_foret == TDeclaration.id_foret)
@@ -555,6 +463,8 @@ def get_declarations():
 
 
 def hide_proprietaire(proprietaire):
+    """Change l'affichage des informations concernant les proprietaires si l'utilisateur n'est pas le declarant
+    ou un admin"""
     for key in [
         "nom_proprietaire",
         "adresse",
@@ -565,3 +475,117 @@ def hide_proprietaire(proprietaire):
 
     proprietaire["telephone"] = "09 99 99 99 99"
     proprietaire["email"] = "prive@prive.prive"
+
+
+
+
+
+
+
+# def create_or_update_declaration_ancien(post_data):
+#     """
+#     create_or_update_declaration
+#     """
+
+#     # Si des nomenclatures existent, on les remplace par leur id
+
+#     for key in post_data:
+#         if "nomenclatures_" in key:
+#             post_data[key] = [
+#                 {
+#                     "id_declaration": post_data.get("id_declaration"),
+#                     "id_nomenclature": id_nomenclature,
+#                 }
+#                 for id_nomenclature in post_data[key]
+#             ]
+
+#     # 
+#     post_data["areas_foret"] = (
+#         [] + post_data["areas_foret_communes"] + post_data["areas_foret_sections"]
+#     )
+#     if post_data["areas_foret_onf"]:
+#         post_data["areas_foret"].append(post_data["areas_foret_onf"])
+#     if post_data["areas_foret_dgd"]:
+#         post_data["areas_foret"].append(post_data["areas_foret_dgd"])
+
+
+#     # regroupement des areas de localisation.
+#     post_data["areas_localisation"] = (
+#         []
+#         + post_data["areas_localisation_cadastre"]
+#         + post_data["areas_localisation_onf_prf"]
+#         + post_data["areas_localisation_onf_ug"]
+#     )
+
+#     for key in ["areas_localisation", "areas_foret"]:
+#         post_data[key] = [
+#             {"id_area": id_area, "id_declaration": post_data.get("id_declaration")}
+#             for id_area in post_data[key]
+#         ]
+#     # Si la parcelle n'a pas de document de gestion durable
+#     if not post_data["b_document"]:
+#         id_declarant = post_data["id_declarant"]
+
+#         nomenclature = post_data[
+#             "id_nomenclature_proprietaire_declarant"
+#         ] and get_nomenclature_from_id(
+#             post_data["id_nomenclature_proprietaire_declarant"]
+#         )
+
+#         if nomenclature and nomenclature["cd_nomenclature"] != "P_D_O_NP":
+#             post_data["id_declarant"] = None
+#         # proprietaire
+#         proprietaire = create_or_modify(TProprietaire, "id_proprietaire", post_data)
+
+#         post_data["id_proprietaire"] = proprietaire.id_proprietaire
+
+#         post_data["id_declarant"] = id_declarant
+
+#         # foret
+#         foret = create_or_modify(TForet, "id_foret", post_data)
+#         post_data["id_foret"] = foret.id_foret 
+
+#     else: 
+#         # Si la parcelle à un document de gestion durable
+#         # get id_foret form id_areas
+#         id_area_foret = post_data["areas_foret_onf"] or post_data["areas_foret_dgd"]
+
+#         code_foret = get_area_from_id(id_area_foret)["area_code"]
+
+#         stmt_foret = (select(TForet)
+#         .where(TForet.code_foret == code_foret)
+#         .limit(1)              
+#         )
+#         foret = DB.session.execute(stmt_foret).scalars().first()
+
+
+#         post_data["id_foret"] = foret.id_foret
+
+#     # declaration
+
+#     foret_dict = TForetSchema().dump(foret) if foret else {}
+#     post_data["foret"] = foret_dict
+
+
+#     declaration = create_or_modify(TDeclaration, "id_declaration", post_data)
+
+#     patch_areas_declarations(declaration.id_declaration)
+
+#     declaration_dict = TDeclarationSchema().dump(declaration)
+
+#     # returned_declaration = declaration.as_dict(fields=[
+#     #     "areas_localisation",
+#     #     "nomenclatures_peuplement_essence_secondaire",
+#     #     "nomenclatures_peuplement_essence_complementaire",
+#     #     "nomenclatures_peuplement_maturite",
+#     #     "nomenclatures_peuplement_protection_type",
+#     #     "nomenclatures_peuplement_paturage_type",
+#     #     "nomenclatures_peuplement_paturage_saison",
+#     #     "nomenclatures_peuplement_espece",
+#     #     "nomenclatures_peuplement_origine2",
+#     #     "degats",
+#     #     "degats.degat_essences"
+
+#     # ])
+
+#     return declaration_dict
