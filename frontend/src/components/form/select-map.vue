@@ -1,3 +1,27 @@
+<!--
+  Composant Vue.js : select-map.vue
+
+  Ce composant permet à l'utilisateur de sélectionner une localisation soit via une carte interactive, soit via une liste déroulante.
+  Il est principalement utilisé pour la sélection d'entités géographiques (ex : forêts, zones, etc.) dans un formulaire.
+
+  Structure du template :
+  - Affichage d'un titre et d'une légende dynamique liée à la localisation.
+  - Affichage d'une description et d'une aide contextuelle pour guider l'utilisateur dans la sélection.
+  - Utilisation du composant <base-map> pour afficher une carte interactive si la configuration de la carte (mapConfig) est présente.
+    - Un slot "aside" permet d'afficher des éléments complémentaires à côté de la carte :
+      - Bouton spécifique pour le cas où la forêt n'apparaît pas dans la liste, avec gestion de l'état du modèle.
+      - Champ d'autocomplétion (<v-autocomplete>) pour sélectionner un élément dans une liste, avec gestion des règles de validation, du mode multiple, des chips, et de l'aide contextuelle.
+      - Gestion de la validation ou de la réinitialisation de la sélection du conteneur via des boutons, selon la configuration.
+  - Les différentes conditions d'affichage permettent d'adapter l'interface selon le contexte et les données du modèle.
+
+  Points importants :
+  - Les props et variables utilisées (legend, config, baseModel, mapConfig, dataSelect, etc.) doivent être définies dans la partie script du composant.
+  - L'intégration de composants d'aide (<help>) permet d'améliorer l'expérience utilisateur en fournissant des explications contextuelles.
+  - La logique métier (ex : gestion du statut public, validation de la sélection) est directement liée à l'état du modèle (baseModel).
+
+  Ce composant est conçu pour être réutilisable et adaptable à différents types de sélections géographiques dans l'application.
+-->
+<!-- 
 <template>
   <div>
     <div>
@@ -86,72 +110,69 @@
         </div>
       </template>
     </base-map>
-       <!-- <div>
-          #######BaseModel:  {{ baseModel }}
-        </div> -->
   </div>
-</template>
+</template> -->
 
 <script>
 
-import { selectMapMethods } from "./select-map.js";
-import help from "./help";
+// import { selectMapMethods } from "./select-map.js";
+// import help from "./help.vue";
 
-export default {
-  name: "selectMap",
-  components: { baseMap: () => import("@/components/map/base-map"), help },
-  data: () => ({
-    dataSelect: null,
-    mapService: null,
-    mapConfig: null,
-    selectContainer: null,
-    legend: null,
-    description: null,
-    name: null
-  }),
-  methods: selectMapMethods, // intégre toutes les méthodes du fichier select-map.js
-  props: ["config", "baseModel"],
-  created: function() {
-    // add event on map-data-loaded
+// export default {
+//   name: "selectMap",
+//   components: { baseMap: () => import("@/components/map/base-map.vue"), help },
+//   data: () => ({
+//     dataSelect: null,
+//     mapService: null,
+//     mapConfig: null,
+//     selectContainer: null,
+//     legend: null,
+//     description: null,
+//     name: null
+//   }),
+//   methods: selectMapMethods, // intégre toutes les méthodes du fichier select-map.js
+//   props: ["config", "baseModel"],
+//   created: function() {
+//     // add event on map-data-loaded
 
-    this.selectContainer =
-      this.config.containerUrl &&
-      !(this.config.multiple
-        ? this.baseModel[this.config.name].length
-        : this.baseModel[this.config.name]);
-    this.initMapConfig();
-  },
-  mounted: function() {
-    setTimeout(() => {
-      document
-        .getElementById(this.config.name)
-        .addEventListener("layer-data", this.initSelect);
+//     this.selectContainer =
+//       this.config.containerUrl &&
+//       !(this.config.multiple
+//         ? this.baseModel[this.config.name].length
+//         : this.baseModel[this.config.name]);
+//     this.initMapConfig();
+//   },
+//   mounted: function() {
+//     setTimeout(() => {
+//       document
+//         .getElementById(this.config.name)
+//         .addEventListener("layer-data", this.initSelect);
 
-      document
-        .getElementById(this.config.name)
-        .addEventListener("select-map-click", this.clickOnLayer);
+//       document
+//         .getElementById(this.config.name)
+//         .addEventListener("select-map-click", this.clickOnLayer);
 
-      this.mapService = this.$store.getters.mapService(this.config.name);
-      this.mapService._config.layers["selection"] = {
-        style: this.mapConfig.styles.select,
-        legend: "Sélection"
-      };
-    }, 300);
+//       this.mapService = this.$store.getters.mapService(this.config.name);
+//       this.mapService._config.layers["selection"] = {
+//         style: this.mapConfig.styles.select,
+//         legend: "Sélection"
+//       };
+//     }, 300);
 
 
-    console.log (
-      "config ########################",
-      this.config,
-    );
-    console.log (
-      "select-map mapService ########################",
-      this.mapService,
+//     console.log (
+//       "config ########################",
+//       this.config,
+//     );
+//     console.log (
+//       "select-map mapService ########################",
+//       this.mapService,
 
-    );
-    console.log(
-      "mapConfig ########################",
-      this.mapConfig
-    );
-  }
-};
+//     );
+//     console.log(
+//       "mapConfig ########################",
+//       this.mapConfig
+//     );
+//   }
+// };
 </script>

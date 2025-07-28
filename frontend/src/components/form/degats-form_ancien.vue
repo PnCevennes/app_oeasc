@@ -3,7 +3,7 @@
 // degats_declaration_form.vue sera testé et validé.
 ################################################################################################ -->
 
-
+<!-- 
 <template>
   <div v-if="items">
     <v-container fluid>
@@ -258,198 +258,198 @@
       </div>
     </v-container>
   </div>
-</template>
+</template> -->
 
 <script>
-import { copy } from "@/core/js/util/util.js";
-import { formFunctions } from "@/components/form/functions/form";
-import essenceForm from "./essence-form.vue";
-import nomenclatureForm from "./nomenclature-form";
-import help from "./help";
+// import { copy } from "@/core/js/util/util.js";
+// import { formFunctions } from "@/components/form/functions/form";
+// import essenceForm from "./essence-form.vue";
+// import nomenclatureForm from "./nomenclature-form";
+// import help from "./help";
 
-export default {
-  name: "degatsForm",
-  components: {
-    essenceForm,
-    nomenclatureForm,
-    help
-  },
-  data() {
-    return {
-      items: null,
-      degatTypes: [],
-      degatEssence: {
-        essence: null,
-        gravite: null,
-        etendue: null,
-        anteriorite: null
-      },
-      rules: [formFunctions.rules.requiredListMultiple,
-      ],
-      displayMsgErrorValider: false,
-      showDegatEssenceForm: null,
-    };
-  },
-  watch: {
-    baseModel: function() {
-      this.degatTypes = this.getDegatTypes();
-    }
-  },
-  props: ["baseModel", "config"],
-  methods: {
-    getDegatTypes: function() {
-      return this.baseModel["degats"].map(d => d.id_nomenclature_degat_type);
-    },
-    essenceSelected: function(cd_nomenclature) {
-      const essenceSelected = formFunctions.getEssencesSelected({
-        baseModel: this.baseModel,
-        $store: this.$store
-      });
-      return essenceSelected[cd_nomenclature];
-    },
+// export default {
+//   name: "degatsForm",
+//   components: {
+//     essenceForm,
+//     nomenclatureForm,
+//     help
+//   },
+//   data() {
+//     return {
+//       items: null,
+//       degatTypes: [],
+//       degatEssence: {
+//         essence: null,
+//         gravite: null,
+//         etendue: null,
+//         anteriorite: null
+//       },
+//       rules: [formFunctions.rules.requiredListMultiple,
+//       ],
+//       displayMsgErrorValider: false,
+//       showDegatEssenceForm: null,
+//     };
+//   },
+//   watch: {
+//     baseModel: function() {
+//       this.degatTypes = this.getDegatTypes();
+//     }
+//   },
+//   props: ["baseModel", "config"],
+//   methods: {
+//     getDegatTypes: function() {
+//       return this.baseModel["degats"].map(d => d.id_nomenclature_degat_type);
+//     },
+//     essenceSelected: function(cd_nomenclature) {
+//       const essenceSelected = formFunctions.getEssencesSelected({
+//         baseModel: this.baseModel,
+//         $store: this.$store
+//       });
+//       return essenceSelected[cd_nomenclature];
+//     },
 
-    updateDegats: function() {
-      for (const degatType of this.degatTypes) {
-        const degat = this.baseModel.degats.find(
-          d => degatType === d.id_nomenclature_degat_type
-        );
-        if (!degat) {
-          this.baseModel.degats.push({
-            id_nomenclature_degat_type: degatType,
-            degat_essences: []
-          });
-          if (
-            this.$store.getters.nomenclature(degatType).cd_nomenclature != "P/C"
-          ) {
-            this.baseModel.freeze = true;
-          }
-        }
-      }
+//     updateDegats: function() {
+//       for (const degatType of this.degatTypes) {
+//         const degat = this.baseModel.degats.find(
+//           d => degatType === d.id_nomenclature_degat_type
+//         );
+//         if (!degat) {
+//           this.baseModel.degats.push({
+//             id_nomenclature_degat_type: degatType,
+//             degat_essences: []
+//           });
+//           if (
+//             this.$store.getters.nomenclature(degatType).cd_nomenclature != "P/C"
+//           ) {
+//             this.baseModel.freeze = true;
+//           }
+//         }
+//       }
 
-      for (const [index, degat] of this.baseModel.degats.entries()) {
-        if (
-          !this.degatTypes.find(d => d === degat.id_nomenclature_degat_type)
-        ) {
-          this.baseModel.degats.splice(index, 1);
-        }
-      }
-    },
+//       for (const [index, degat] of this.baseModel.degats.entries()) {
+//         if (
+//           !this.degatTypes.find(d => d === degat.id_nomenclature_degat_type)
+//         ) {
+//           this.baseModel.degats.splice(index, 1);
+//         }
+//       }
+//     },
 
-    configDegatEssence: function(degatType) {
-      return {
-        essence: {
-          name: "essence",
-          required: true,
-          type: "essence",
-          label: "Choisir une essence",
-          declaration: this.baseModel,
-          essenceType: degatType,
-          rules: [formFunctions.rules.requiredListSimple]
-        },
-        gravite: {
-          name: "gravite",
-          type: "nomenclature",
-          required: true,
-          nomenclatureType: "OEASC_DEGAT_GRAVITE",
-          rules: [formFunctions.rules.requiredListSimple]
-        }, 
-        etendue: {
-          name: "etendue",
-          type: "nomenclature",
-          required: true,
-          nomenclatureType: "OEASC_DEGAT_ETENDUE",
-          rules: [formFunctions.rules.requiredListSimple]
-        },
-        anteriorite: {
-          name: "anteriorite",
-          type: "nomenclature",
-          required: true,
-          nomenclatureType: "OEASC_DEGAT_ANTERIORITE",
-          rules: [formFunctions.rules.requiredListSimple]
-        }
-      };
-    },
+//     configDegatEssence: function(degatType) {
+//       return {
+//         essence: {
+//           name: "essence",
+//           required: true,
+//           type: "essence",
+//           label: "Choisir une essence",
+//           declaration: this.baseModel,
+//           essenceType: degatType,
+//           rules: [formFunctions.rules.requiredListSimple]
+//         },
+//         gravite: {
+//           name: "gravite",
+//           type: "nomenclature",
+//           required: true,
+//           nomenclatureType: "OEASC_DEGAT_GRAVITE",
+//           rules: [formFunctions.rules.requiredListSimple]
+//         }, 
+//         etendue: {
+//           name: "etendue",
+//           type: "nomenclature",
+//           required: true,
+//           nomenclatureType: "OEASC_DEGAT_ETENDUE",
+//           rules: [formFunctions.rules.requiredListSimple]
+//         },
+//         anteriorite: {
+//           name: "anteriorite",
+//           type: "nomenclature",
+//           required: true,
+//           nomenclatureType: "OEASC_DEGAT_ANTERIORITE",
+//           rules: [formFunctions.rules.requiredListSimple]
+//         }
+//       };
+//     },
 
-    getData: function() {
-      this.items = this.$store.getters.nomenclaturesOfType("OEASC_DEGAT_TYPE");
-    },
+//     getData: function() {
+//       this.items = this.$store.getters.nomenclaturesOfType("OEASC_DEGAT_TYPE");
+//     },
 
-    displayDegatEssence(id_nomenclature_degat_type) {
-      this.baseModel.freeze = true;
-      this.showDegatEssenceForm = id_nomenclature_degat_type;
-    },
+//     displayDegatEssence(id_nomenclature_degat_type) {
+//       this.baseModel.freeze = true;
+//       this.showDegatEssenceForm = id_nomenclature_degat_type;
+//     },
 
-    addDegatEssence(id_nomenclature_degat_type) {
-      const degat = this.baseModel.degats.find(
-        d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
-      );
-      degat.degat_essences = degat.degat_essences || [];
-      const degat_essence = {
-        id_nomenclature_degat_essence: this.degatEssence.essence,
-        id_nomenclature_degat_gravite: this.degatEssence.gravite,
-        id_nomenclature_degat_etendue: this.degatEssence.etendue,
-        id_nomenclature_degat_anteriorite: this.degatEssence.anteriorite
-      };
-      degat.degat_essences.push(degat_essence);
-      this.baseModel.degats = copy(this.baseModel.degats);
-      this.clearDegatEssenceForm();
-      this.baseModel.freeze = false;
-      this.showDegatEssenceForm = null;
-    },
+//     addDegatEssence(id_nomenclature_degat_type) {
+//       const degat = this.baseModel.degats.find(
+//         d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
+//       );
+//       degat.degat_essences = degat.degat_essences || [];
+//       const degat_essence = {
+//         id_nomenclature_degat_essence: this.degatEssence.essence,
+//         id_nomenclature_degat_gravite: this.degatEssence.gravite,
+//         id_nomenclature_degat_etendue: this.degatEssence.etendue,
+//         id_nomenclature_degat_anteriorite: this.degatEssence.anteriorite
+//       };
+//       degat.degat_essences.push(degat_essence);
+//       this.baseModel.degats = copy(this.baseModel.degats);
+//       this.clearDegatEssenceForm();
+//       this.baseModel.freeze = false;
+//       this.showDegatEssenceForm = null;
+//     },
 
-    cancelDegatEssence: function(id_nomenclature_degat_type) {
-      const degat = this.baseModel.degats.find(
-        d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
-      );
-      if (degat.degat_essences.length === 0) {
-        const index = this.baseModel.degats.indexOf(degat);
-        this.baseModel.degats.splice(index, 1);
-      } else {
-        this.showDegatEssenceForm = null;
-      }
-      this.degatTypes = this.baseModel.degats.map(
-        d => d.id_nomenclature_degat_type
-      );
-      this.baseModel.freeze = false;
-    },
+//     cancelDegatEssence: function(id_nomenclature_degat_type) {
+//       const degat = this.baseModel.degats.find(
+//         d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
+//       );
+//       if (degat.degat_essences.length === 0) {
+//         const index = this.baseModel.degats.indexOf(degat);
+//         this.baseModel.degats.splice(index, 1);
+//       } else {
+//         this.showDegatEssenceForm = null;
+//       }
+//       this.degatTypes = this.baseModel.degats.map(
+//         d => d.id_nomenclature_degat_type
+//       );
+//       this.baseModel.freeze = false;
+//     },
 
-    removeDegatEssence: function(
-      id_nomenclature_degat_type,
-      id_nomenclature_degat_essence
-    ) {
-      const degat = this.baseModel.degats.find(
-        d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
-      );
-      const degat_essence = degat.degat_essences.find(
-        de => de.id_nomenclature_degat_essence === id_nomenclature_degat_essence
-      );
-      const index = degat.degat_essences.indexOf(degat_essence);
-      degat.degat_essences.splice(index, 1);
+//     removeDegatEssence: function(
+//       id_nomenclature_degat_type,
+//       id_nomenclature_degat_essence
+//     ) {
+//       const degat = this.baseModel.degats.find(
+//         d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
+//       );
+//       const degat_essence = degat.degat_essences.find(
+//         de => de.id_nomenclature_degat_essence === id_nomenclature_degat_essence
+//       );
+//       const index = degat.degat_essences.indexOf(degat_essence);
+//       degat.degat_essences.splice(index, 1);
 
-      if (degat.degat_essences.length == 0) {
-        this.baseModel.freeze = true;
-      }
-    },
+//       if (degat.degat_essences.length == 0) {
+//         this.baseModel.freeze = true;
+//       }
+//     },
 
-    clearDegatEssenceForm: function() {
-      this.degatEssence.essence = null;
-      this.degatEssence.gravite = null;
-      this.degatEssence.etendue = null;
-      this.degatEssence.anteriorite = null;
-    }
-  },
+//     clearDegatEssenceForm: function() {
+//       this.degatEssence.essence = null;
+//       this.degatEssence.gravite = null;
+//       this.degatEssence.etendue = null;
+//       this.degatEssence.anteriorite = null;
+//     }
+//   },
 
-  created: function() {
-    this.getData();
-    this.degatTypes = this.getDegatTypes();
-  }
-};
+//   created: function() {
+//     this.getData();
+//     this.degatTypes = this.getDegatTypes();
+//   }
+// };
 </script>
 
 <style
 scoped
 >
-.degat {
+/* .degat {
   display: inline-block;
 }
 
@@ -473,7 +473,7 @@ scoped
 
 .flex-row {
   flex-direction: row;
-}
+} */
 
 
 

@@ -1,12 +1,18 @@
 import { config } from "@/config/config.js";
-import { isObject } from "@/core/js/util/util";
+import { isObject } from "@/core/js/util/util.js";
 
+/**
+ * @constant
+ * @type {Object}
+ * @description
+ * STORE est un objet utilisé comme espace de stockage centralisé pour l'application.
+ * Il permet de conserver et de partager des données entre différents composants Vue.js.
+ * Cet objet peut être enrichi avec des propriétés ou des méthodes selon les besoins de l'application.
+ */
 const STORE = {};
 
 
 // initialisation de l'objet STORE
-// si les clés 'state', 'mutations' et 'getters' n'existent pas
-// on les crée
 for (const key of ["state", "mutations", "getters"]) {
   STORE[key] = STORE[key] || {};
 }
@@ -14,17 +20,20 @@ for (const key of ["state", "mutations", "getters"]) {
 // on la crée
 if (STORE.state.pendings == undefined) {
   STORE.state.pendings = {};
-  // STORE.getters.pendings = state => api => state.pendings[api];
+  // on initialise l'objet pendings
+  // pour stocker les requêtes en attente
   STORE.getters.pendings = (state) => {
-      return (api) => {
-        return state.pendings[api]; 
-      }; 
-    }
+    return (api) => {
+      return state.pendings[api];
+    };
+  };
+  // on ajoute une mutation pour ajouter une requête en attente
   STORE.mutations.addPending = (state, { request, api }) => {
     state.pendings[api] = request;
   };
-
-
+  // on ajoute une mutation pour supprimer une requête en attente
+  // si elle existe
+  // (utile pour éviter les doublons dans les requêtes GET)
   STORE.mutations.removePending = (state, api) => {
     if (state.pendings[api]) {
       delete state.pendings[api];
@@ -32,26 +41,30 @@ if (STORE.state.pendings == undefined) {
   };
 }
 
-// fonction qui permet de construire une URL
-// à partir d'une URL relative et de paramètres
-// optionnels
-// les paramètres sont ajoutés à l'URL sous forme de query string
-// si le paramètre est un objet, il est converti en chaine de caractère
-// en utilisant JSON.stringify
-// exemple :
-// url('api/v1/users', {name: 'toto', age: 25})
-// -> http://localhost:8000/api/v1/users?name=toto&age=25
+/**
+ * Fonction permettant de construire une URL complète à partir d'une URL relative et de paramètres optionnels.
+ * url('api/v1/users', {name: 'toto', age: 25})
+ * -> http://localhost:8000/api/v1/users?name=toto&age=25
+ * @param {*} urlRelative - L'URL relative à laquelle on souhaite accéder (ex: 'api/v1/users').
+ * @param {*} params - Un objet contenant les paramètres à ajouter à la query string de l'URL.
+ * @returns {URL} - L'objet URL construit avec les paramètres.
+ */
 var url = (urlRelative, params = {}) => {
+  // Création de l'objet URL en utilisant l'URL de base de l'application et l'URL relative passée en paramètre
   const url = new URL(`${config.URL_APPLICATION}/${urlRelative}`);
+
+  // Parcours de chaque clé des paramètres
   Object.keys(params)
+    // On filtre les clés dont la valeur n'est ni null ni undefined
     .filter((key) => ![null, undefined].includes(params[key]))
     .forEach(
       key => isObject(params[key])
-        // si la clé est un 'objet' ou dictionnaire
-        // -> on le renvoie sous forme de chaine de caractère
+        // Si la valeur du paramètre est un objet (ex: un dictionnaire), on le convertit en chaîne JSON
         ? url.searchParams.append(key, JSON.stringify(params[key]))
-        // sinon on le traite de manière 'classique'
-        : url.searchParams.append(key, params[key]));
+        // Sinon, on ajoute la valeur telle quelle dans la query string
+        : url.searchParams.append(key, params[key])
+    );
+  // On retourne l'objet URL final avec tous les paramètres ajoutés
   return url;
 };
 
@@ -63,106 +76,113 @@ var fail = msg => {
   console.error(`apiRequest fail : ${msg}`);
 };
 
-// fonction qui permet de faire une requête à une API
-// elle prend en paramètre la méthode HTTP (GET, POST, PATCH, DELETE)
-// l'URL relative de l'API ex : 'api/v1/users'
-// les options de la requête (paramètres, données à envoyer)
-// et le store (pour gérer les requêtes en cours) 
-// elle renvoie une promesse qui sera résolue en cas de succès ou rejetée en cas d'erreur 
-// elle gère également les requêtes en cours pour éviter de faire
-// plusieurs requêtes identiques en même temps
-// elle gère également les requêtes POST qui envoient des fichiers
-// dans ce cas, les données sont envoyées sous forme de FormData
-// sinon elles sont envoyées sous forme de JSON
  
-
-export const fetchData = async (urlRelative, options = {}) => {
+/**
+ * Fonction asynchrone permettant de récupérer des données depuis une API via une requête GET.
+ * @param {*} urlRelative - L'URL relative de l'API à interroger.
+ * @param {*} options - Les options de la requête (params pour les paramètres de l'URL, headers pour les en-têtes HTTP).
+ * @returns {Promise} - Une promesse résolue avec les données récupérées ou undefined en cas d'erreur.
+ */
+const fetchData = async (urlRelative, options = {}) => {
+  // Construction de l'URL complète à partir de l'URL relative et des éventuels paramètres
   const url_ = url(urlRelative, options.params);
+
+  // Préparation des options pour la requête fetch
   var fetchOptions = {
-    "method": "GET",
+    "method": "GET", // Méthode HTTP utilisée : GET
     "headers": {
-      "Content-Type": "application/json",
-      ...options.headers,
+      "Content-Type": "application/json", // Type de contenu attendu en réponse
+      ...options.headers, // Fusion des éventuels headers supplémentaires passés en option
     },
-    credentials: "include"
+    credentials: "include" // Permet d'envoyer les cookies avec la requête (authentification, session, etc.)
   };
+
   try {
+    // Exécution de la requête fetch vers l'API
     const response = await fetch(url_, fetchOptions);
+
+    // Conversion de la réponse en JSON
     const data = await response.json();
+
+    // Renvoi des données récupérées
     return data;
   } catch (error) {
+    // Affichage d'une erreur dans la console en cas d'échec de la requête
     console.error('Erreur lors de la récupération des données:', error);
   }
 };
 
 
 
-
+/**
+ * Effectue une requête API.
+ * @param {*} method - La méthode HTTP à utiliser (GET, POST, etc.).
+ * @param {*} urlRelative - L'URL relative de l'API.
+ * @param {*} options - Les options de la requête (params, headers, etc.).
+ * @param {*} $store - Le store Vuex (si utilisé).
+ * @returns {Promise} - Une promesse qui se résout avec la réponse de l'API.
+ */
 var apiRequest = (method, urlRelative, options = {}, $store = null) => {
 
-  // on construit l'URL complète de l'API
+  // On construit l'URL complète de l'API à partir de l'URL relative et des paramètres éventuels
   const url_ = url(urlRelative, options.params);
 
-  
-  let request = null;
-  // on initialise commit à false
-  let commit;
-  // on vérifie si la requête est en cours
+  let request = null; // Variable qui va contenir la promesse de la requête
+  let commit; // Variable pour savoir si on doit enregistrer la requête dans le store
+
+  // Gestion des requêtes GET pour éviter les doublons si une requête identique est déjà en cours
   if (method == "GET" && $store) {
-    // on récupère la requête en cours
+    // On récupère la requête en cours depuis le store (si elle existe)
     request = $store.getters.pendings(url_.href);
-    // si la requête est en cours, on ne la refait pas
+    // Si aucune requête n'est en cours, on indique qu'il faudra l'enregistrer
     if (!request) {
       commit = true;
     }
   }
 
-  // on crée une nouvelle promesse
+  // Si aucune requête n'est en cours, on crée une nouvelle promesse pour la requête
   request =
     request ||
     new Promise((resolve, reject) => {
       var fetchOptions = {
-        method,
-        credentials: "include"
+        method, // Méthode HTTP (GET, POST, PATCH, etc.)
+        credentials: "include" // Permet d'envoyer les cookies avec la requête
       };
 
-
-      
-      // on ajoute les headers
+      // Gestion des requêtes POST et PATCH
       if (["POST", "PATCH"].includes(method)) {
         const postOptions = {};
-        // si les données contiennent un fichier
+        // Si les données à envoyer contiennent un fichier
         if (options.postData && Object.values(options.postData).some(d => d instanceof File)) {
           var data = new FormData();
-          // on ajoute les données
+          // On ajoute chaque donnée dans le FormData (pour l'envoi de fichiers)
           for (const [key, value] of Object.entries(options.postData || {})) {
             data.append(key, value);
           }
           postOptions.body = data;
-        } else { // si les données ne contiennent pas de fichier
+        } else { // Si les données ne contiennent pas de fichier
           postOptions.body = JSON.stringify(options.postData || {});
           postOptions.headers = {
             Accept: "application/json, text/plain, */*",
             "Content-Type": "application/json"
           };
         }
-        // on ajoute les options de la requête POST
+        // On fusionne les options spécifiques POST/PATCH avec les options de base
         fetchOptions = { ...fetchOptions, ...postOptions };
-        // console.log(postOptions);
       }
 
-
-
-      // on fait la requête, 
+      // Exécution de la requête fetch
       fetch(url_, fetchOptions).then(
         response => {
+          // Pour les requêtes GET, on retire la requête du store une fois terminée
           if (method == "GET" && $store) {
             $store.commit("removePending", url_.href);
-          } // remove pending
+          }
 
+          // Liste des statuts HTTP considérés comme acceptés (par défaut 200)
           const acceptedStatus = options.acceptedStatus || [200];
-          if (acceptedStatus.includes(response.status)) { // si la requête a réussi
-            // on renvoie la réponse
+          if (acceptedStatus.includes(response.status)) { // Si la requête a réussi
+            // On récupère la réponse au format JSON et on résout la promesse
             response.json().then(
               json => {
                 resolve(json);
@@ -171,8 +191,9 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
                 reject(error);
               }
             );
-          } else { // si la requête a échoué
+          } else { // Si la requête a échoué (statut non accepté)
             if (response.json) {
+              // On tente de récupérer le message d'erreur au format JSON
               response.json().then(
                 json => {
                   reject(json);
@@ -182,35 +203,35 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
                 }
               );
             } else {
+              // Si pas de JSON, on rejette la réponse brute
               reject(response);
             }
           }
         },
 
-        // en cas d'erreur
+        // Gestion des erreurs réseau ou d'exécution
         msg_fail => {
+          // Pour les requêtes GET, on retire la requête du store en cas d'échec
           if (method == "GET" && $store) {
-            // on supprime la requête en cours
             $store.commit("removePending", url_.href);
-          } 
-          // on affiche un message d'erreur
+          }
+          // Affichage d'un message d'erreur dans la console
           console.error(`Erreur dans apiRequest ${urlRelative} ${msg_fail}`);
+          // On rejette la promesse avec l'erreur
           reject(msg_fail);
         }
       );
-      
     });
 
+  // Si commit est vrai, on enregistre la requête en cours dans le store (pour éviter les doublons)
   if (commit) {
     $store.commit("addPending", {
       api: url_.href,
       request
     });
   }
-
-
-
+  // On retourne la promesse de la requête
   return request;
 };
 
-export { apiRequest, url,  STORE };
+export { apiRequest, url, fetchData, STORE };

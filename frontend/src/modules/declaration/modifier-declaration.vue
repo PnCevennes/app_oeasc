@@ -556,10 +556,10 @@
       </v-alert>
     </div>
 
-    <div style="width: 70%;">
+    <!-- <div style="width: 70%;">
       <br><br>
       <pre> declaration_data: {{ JSON.stringify(declaration_data, null, 2)}}</pre>
-    </div>
+    </div> -->
   
 
 

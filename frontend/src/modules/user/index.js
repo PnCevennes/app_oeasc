@@ -1,5 +1,5 @@
 
-import login from "./login";
+import login from "./login.vue";
 import {config} from '@/config/config.js';
 import userPage from "./user-page";
 import createUser from "./create-user";
@@ -34,15 +34,7 @@ const ROUTE = [
     component: logout,
     hidden: ({$store}) => !$store.getters.isAuth
   },
-  // {
-  //   path: "/user/espace_utilisateur",
-  //   access: 1,
-  //   name: "user.top",
-  //   component: userPage,
-  //   parent: 'page.accueil',
-  //   icon: ({$store}) => $store.getters.isAuth ? "mdi-account-check" : "mdi-account-cancel",
-  //   disabled: ({$store}) => !$store.getters.isAuth,
-  // },
+
   {
     path: "/user/espace_utilisateur",
     label: "Espace utilisateur",

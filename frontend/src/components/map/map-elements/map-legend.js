@@ -5,11 +5,15 @@ import chroma from "chroma-js";
 var L = window.L;
 
 const mapLegend = {
-  // renvoie la ligne de la légende pour un layer
+  
+  // Renvoie la ligne de la légende pour un layer (couche cartographique)
+  // Prend en paramètre la configuration du layer et retourne le HTML de la légende
   layerLegend(layerConfig) {
+    // Utilise chroma-js pour gérer la couleur de remplissage avec l'opacité
     const fillColor = chroma(layerConfig.style.fillColor || "black").alpha(
       layerConfig.style.fillOpacity
     );
+    // Génère le HTML de la légende pour le layer
     const legend = `
         <div class="${layerConfig.key}">
           <i style="
@@ -22,10 +26,13 @@ const mapLegend = {
         </div>
         `;
     return legend;
-    // return `<div><i style="background-color: ${layerConfig.style.fillColor};background-opacity: ${layerConfig.style.fillOpacity};border: ${layerConfig.style.weight}px solid ${layerConfig.style.color};"></i>${layerConfig.legend}</div>`;
+    // Ancienne version en commentaire : utilisait directement les propriétés sans chroma-js
   },
 
+  // Renvoie la ligne de la légende pour un marker (marqueur sur la carte)
+  // Prend en paramètre la configuration du marker et retourne le HTML de la légende
   markerLegend(markerLegend) {
+    // Génère le HTML de la légende pour le marker avec l'icône et la couleur
     const legend = `
         <div class='marker-legend'>
         <i 
@@ -43,52 +50,38 @@ const mapLegend = {
     return legend;
   },
 
-  // setLayerLegendText(key, text) {
-  //   const elements = document
-  //     .getElementById(this._id)
-  //     .getElementsByClassName(key);
-  //   if (elements.length) {
-  //     elements[0].getElementsByClassName("legendText")[0].innerHTML = text;
-  //   }
-  // },
-
-  // initialise les légendes
+  // Initialise les légendes sur la carte Leaflet
+  // Crée le contrôle de légende et ajoute les éléments de légende pour les markers et les layers
   initLegends: function() {
+    // Création du contrôle Leaflet pour la légende, positionné en bas à droite
     const legend = L.control({ position: "bottomright" });
 
+    // Fonction appelée lors de l'ajout du contrôle à la carte
     legend.onAdd = () => {
+      // Création des éléments HTML pour contenir la légende
       var div = L.DomUtil.create("div", "legend-container");
       var divLegend = L.DomUtil.create("div", "legend");
 
-
-      // legendes des markers
+      // Ajout des légendes des marqueurs
       for (const markerConfig of Object.values(this._config.markers || {})) {
-        for (const legendConfig of  markerConfig.legends || []) {
-        divLegend.innerHTML += this.markerLegend(legendConfig);
+          for (const legendConfig of  markerConfig.legends || []) {
+            divLegend.innerHTML += this.markerLegend(legendConfig);
+          }
+
+          // Ajout des légendes des couches
+          for (const layerConfig of Object.values(this._config.layers || {})) {
+            divLegend.innerHTML += this.layerLegend(layerConfig);
+          }
       }
 
-
-      // legendes des layers
-      for (const layerConfig of Object.values(this._config.layers || {})) {
-        divLegend.innerHTML += this.layerLegend(layerConfig);
-      }
-
-    }
-
-
+      // Ajout du contenu de la légende au conteneur principal
       div.appendChild(divLegend);
-
       return div;
     };
+    // Ajout du contrôle de légende à la carte
     legend.addTo(this._map);
   },
 
-  // addLayerLegend: function(layerConfig) {
-  //   const elemLegend = document
-  //     .getElementById(this._id)
-  //     .getElementsByClassName("legend")[0];
-  //   elemLegend.innerHTML += this.layerLegend(layerConfig);
-  // }
 };
 
 export { mapLegend };

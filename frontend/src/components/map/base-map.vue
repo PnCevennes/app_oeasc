@@ -1,7 +1,40 @@
+<!--
+  Composant VueJS : base-map.vue
+
+  Ce composant représente une carte interactive avec plusieurs fonctionnalités :
+  - Affichage de la carte principale dans un conteneur avec une hauteur dynamique.
+  - Si la variable 'test' est vraie, la carte est affichée avec des options supplémentaires :
+    - Bouton d'exportation d'image de la carte, affiché si 'exportImg' est défini.
+    - Ouverture d'un dialogue contenant un formulaire générique pour configurer l'exportation.
+    - Affichage de la légende de la carte via le composant 'map-legend', utilisant la configuration du service de carte.
+  - Affichage dynamique de formulaires de sélection associés à la carte :
+    - Pour chaque élément dans 'configSelects', si la configuration et le modèle de base existent, un formulaire de liste est affiché.
+  - Un slot nommé 'aside' permet d'insérer du contenu additionnel à côté de la carte.
+
+  Props et données utilisées :
+  - 'computedHeight' : hauteur calculée pour le conteneur de la carte.
+  - 'mapId' : identifiant unique pour la carte.
+  - 'config' : configuration de la carte.
+  - 'test' : condition d'affichage de la carte.
+  - 'exportImg' : contrôle la disponibilité de l'exportation d'image.
+  - 'bExportMap' : contrôle l'ouverture du dialogue d'exportation.
+  - 'configFormExportMap' : configuration du formulaire d'exportation.
+  - 'mapService' : service de gestion de la carte, utilisé pour la légende et les formulaires.
+  - 'configSelects' : configurations des formulaires de sélection associés à la carte.
+
+  Structure :
+  - <div class="map-container"> : conteneur principal de la carte.
+    - <div class="map"> : carte interactive et ses options.
+    - <map-legend> : composant affichant la légende de la carte.
+    - <list-form> : formulaires de sélection dynamiques.
+    - <slot name="aside"> : emplacement pour du contenu additionnel.
+-->
+
+
 <template>
   <div>
     <div class="map-container" :style="`height:${computedHeight}`">
-      <!-- map -->
+
       <div
         v-if="test"
         class="map"
@@ -31,7 +64,7 @@
         ></map-legend>
       </div>
 
-      <!-- colonne avec les select  -->
+
       <div>
         <div
           v-for="[key, configSelect] of Object.entries(configSelects)"
@@ -52,32 +85,27 @@
         </div>
       </div>
     </div>
-    <!-- <div>
-        ##################
-        <pre>{{ JSON.stringify(config, null, 2) }}</pre>
-        <br><br>
-        ##################
-        mapId: {{ mapId }} <br><br>
-      </div> -->
   </div>
 </template>
 
+
+
 <script>
-import { MapService } from "@/components/map";
-import listForm from "@/components/form/list-form";
-import mapLegend from "./map-legend";
-import configFormExportMap from "./config/form-export-map";
-import GenericForm from "../../components/form/generic-form.vue";
+import { MapService } from "@/components/map/index.js";
+import listForm from "@/components/form/list-form.vue";
+import mapLegend from "./map-legend.vue";
+import configFormExportMap from "./config/form-export-map.js";
+import GenericForm from "@/components/form/generic-form.vue";
 
 export default {
   name: "baseMap",
   components: { listForm, mapLegend, GenericForm },
   data: () => ({
-    bInit: false,
-    mapService: null,
-    configSelects: {},
-    bExportMap: false,
-    test: true
+    bInit: false, // Indique si la carte a été initialisée ou non (booléen) bInit: false, // true si la carte est initialisée, false sinon
+    mapService: null, // Référence au service de gestion de la carte mapService: null, // objet du service de la carte, initialisé plus tard
+    configSelects: {}, // Configuration des éléments de sélection sur la carte configSelects: {}, // objet contenant les configurations des sélections
+    bExportMap: false, // Indique si l'export de la carte est activé bExportMap: false, // true si l'export est activé, false sinon
+    test: true // Variable de test pour le développement test: true // utilisé pour les tests ou le débogage
   }),
   props: [
     "config",
@@ -99,15 +127,44 @@ export default {
     }
   },
   methods: {
-    // lorsque un layer est selectionné on le configure dans mapService/map-layer pour changer la couleur et le zoom
-    //  on l'ajoute à configSelects
+
+    /**
+     * Initialise la sélection d'un layer sur la carte.
+     * 
+     * Cette méthode est appelée lorsqu'un layer est sélectionné par l'utilisateur.
+     * Elle effectue les opérations suivantes :
+     * 1. Récupère la clé du layer sélectionné à partir de l'événement.
+     * 2. Configure le layer sélectionné via le service `mapService` en appelant la méthode `configSelect`.
+     * 3. Met à jour l'objet `configSelects` avec la nouvelle configuration du layer sélectionné.
+     * 4. Force la réactivité de l'objet `configSelects` en créant une nouvelle référence.
+     * 
+     * @param {Object} $event - L'événement contenant les détails de la sélection, notamment la clé du layer.
+     */
     initSelect($event) {
       const key = $event.detail.key;
       this.configSelects[key] = this.mapService.configSelect(key);
       this.configSelects = { ...this.configSelects };
     }
+
   },
   computed: {
+
+    /**
+     * Configure le formulaire d'exportation de la carte.
+     * 
+     * Cette méthode retourne un objet de configuration pour le formulaire d'export de la carte.
+     * - Elle fusionne la configuration existante `configFormExportMap` avec des propriétés spécifiques à l'export.
+     * - La propriété `action.process` définit la logique d'exportation :
+     *    - Récupère les données du formulaire (`postData`) pour le nom de fichier, la hauteur et la largeur.
+     *    - Détermine le format d'image à exporter (jpg ou png) selon l'extension du nom de fichier.
+     *    - Utilise le service `mapService.toImgFile` pour générer le fichier image de la carte.
+     *    - Ferme le dialogue d'exportation (`bExportMap = false`) une fois l'export terminé.
+     * - La propriété `value` initialise les valeurs du formulaire :
+     *    - `filename` : nom de fichier par défaut pour l'export.
+     *    - `width` et `height` : dimensions de la carte récupérées dynamiquement via les références du composant.
+     * 
+     * @returns {Object} Objet de configuration du formulaire d'exportation de la carte.
+     */
     configFormExportMap() {
       const out = {
         ...configFormExportMap,
@@ -137,6 +194,17 @@ export default {
       };
       return out;
     },
+
+
+    /**
+     * Calcule dynamiquement la hauteur du composant de la carte.
+     * - Si la propriété 'bInit' est fausse, retourne "0px" (la carte n'est pas initialisée).
+     * - Si la propriété 'height' est définie, retourne cette valeur (hauteur personnalisée).
+     * - Si la propriété 'fillHeight' existe dans les props et que l'élément est monté,
+     *   calcule la hauteur disponible dans la fenêtre en soustrayant la position verticale
+     *   du composant et une marge de 40px à la hauteur totale du document.
+     * - Sinon, retourne une hauteur par défaut de "600px".
+     */
     computedHeight() {
       const computedHeight = !this.bInit
         ? "0px"
@@ -147,21 +215,40 @@ export default {
         : "600px";
       return computedHeight;
     }
+
   },
+
+
+
   mounted: function() {
+    // Vérifie si la configuration de la carte est définie.
+    // Si elle ne l'est pas, récupère la configuration prédéfinie via le nom passé en prop.
     if (!this.config) {
       this.config = MapService.getPreConfigMap(this.preConfigName);
     }
+
+    // Indique que l'initialisation du composant est terminée.
     this.bInit = true;
 
+    // Instancie le service de gestion de la carte avec l'identifiant et la configuration.
     this.mapService = new MapService(this.mapId, this.config);
-    // définit cette map dans le store. Qui sera dans state._mapServices
+
+    // Enregistre ce service de carte dans le store Vuex pour qu'il soit accessible globalement.
+    // Le service sera stocké dans state._mapServices.
     this.$store.commit("setMapService", this.mapService);
-    // intialise les layers, tuiles, couches et marqueurs
+
+    // Initialise les couches, tuiles et marqueurs de la carte.
     this.mapService.init();
+
+    // Ajoute un écouteur d'événement sur l'élément DOM de la carte.
+    // Cet événement "layer-data" permet de gérer la sélection dynamique des couches.
     document
       .getElementById(this.mapId)
       .addEventListener("layer-data", this.initSelect);
   }
+
+
 };
+
+
 </script>

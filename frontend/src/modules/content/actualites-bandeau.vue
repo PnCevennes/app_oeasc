@@ -19,6 +19,7 @@
   </div>
 </template>
 
+
 <script>
 import "./content.css"
 import contentImg from "./content-img";

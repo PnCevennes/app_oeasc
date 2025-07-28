@@ -1,3 +1,36 @@
+<!--
+  Composant Vue.js : map-legend.vue
+
+  Ce composant affiche une légende pour une carte, basée sur une configuration passée en propriété.
+  Il gère deux types de légendes : les groupes de marqueurs et les couches de la carte.
+
+  Structure principale :
+  - La légende n'est affichée que si la propriété "config" est définie.
+  - Pour chaque groupe de légendes de marqueurs (config.markerLegendGroups) :
+    - Affiche le titre du groupe si présent.
+    - Pour chaque légende du groupe :
+      - Affiche une icône (utilise Material Design Icons) avec la couleur et l'icône spécifiées.
+      - Affiche le texte de la légende et éventuellement le nombre d'éléments si "count" est défini.
+  - Pour les couches de la carte (config.layers) :
+    - Ajoute un saut de ligne si des couches et des marqueurs sont présents.
+    - Pour chaque couche :
+      - Affiche un carré coloré représentant le style de la couche (couleur de fond, opacité, bordure).
+      - Affiche le texte de la légende associé à la couche.
+
+  Props attendues :
+  - config : objet contenant la configuration des groupes de légendes de marqueurs et des couches.
+
+  Méthodes utilisées :
+  - getColor(fillColor, fillOpacity) : retourne une couleur RGBA à partir d'une couleur et d'une opacité.
+
+  Classes CSS utilisées :
+  - legend-container : conteneur principal de la légende.
+  - legend : bloc de légende pour chaque groupe ou couche.
+  - legendText : style pour le texte de chaque légende.
+
+  Remarque :
+  - Ce composant est conçu pour être flexible et afficher dynamiquement les légendes selon la configuration fournie.
+-->
 <template>
   <div class="legend-container" v-if="config">
     <div
@@ -59,10 +92,11 @@
   </div>
 </template>
 
+
+
 <script>
 
 import chroma from "chroma-js";
-// import * as chroma from "chroma-js";
 
 export default {
   name: "mapLegend",

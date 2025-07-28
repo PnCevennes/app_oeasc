@@ -23,20 +23,6 @@ from oeasc.modules.oeasc.chasse.models import TLieuTirs
 bp = Blueprint("generic_api", __name__)
 
 
-# Cette fonction est une route Flask qui permet de récupérer tous les objets d'un type donné depuis
-# la base de données, avec prise en charge de filtres et de pagination.
-# <nom_module>/<nom_modele>s ---- exemple: chasse/personnes/ -> récupère tous les objets de type personne
-# les types d'objets prennent un s à la fin du nom du modèle (par principe de nommage)
-# si "count" est présent dans les arguments, la fonction retourne le nombre total d'objets sans les retourner
-# Retourne un objet JSON de la forme :
-# {
-#   "total": 150,
-#   "total_filtered": 10,
-#   "items": [
-#     {"id": 1, "name": "Alice"},
-#     {"id": 2, "name": "Bob"}
-#   ]
-# }
 @bp.route("<string:module_name>/<string:object_types>/", methods=["GET"])
 @check_object_type(
     droit_type="R"

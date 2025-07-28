@@ -143,28 +143,28 @@ const ROUTE = [
 
 
   // Route de test
-  {
-    name: "chasse.testForm",
-    path: "/chasse/testForm",
-    label: "Données chasse",
-    hideTitle: true,// True => cache le bandeau header pour plus de place
-    component: genericForm,
-    props: {
-      config: {
-        storeName: "chasseRealisation",
-        value: {
-          id_realisation: 89
-        },
-        debug: [
-          "id_attribution",
-          "id_lieu_tir_synonyme",
-          "attribution.id_attribution",
-          "id_zone_indicative_realisee"
-        ]
-      }
-    },
-    access: 4
-  },
+  // {
+  //   name: "chasse.testForm",
+  //   path: "/chasse/testForm",
+  //   label: "Données chasse",
+  //   hideTitle: true,// True => cache le bandeau header pour plus de place
+  //   component: genericForm,
+  //   props: {
+  //     config: {
+  //       storeName: "chasseRealisation",
+  //       value: {
+  //         id_realisation: 89
+  //       },
+  //       debug: [
+  //         "id_attribution",
+  //         "id_lieu_tir_synonyme",
+  //         "attribution.id_attribution",
+  //         "id_zone_indicative_realisee"
+  //       ]
+  //     }
+  //   },
+  //   access: 4
+  // },
 
 
 
@@ -228,6 +228,7 @@ const ROUTE = [
 
 const chasseAction = (actionType) => ({ getter }, { id_saison, id_espece, id_zone_cynegetique, id_zone_indicative, id_secteur, poids_ou_dagues }) => {
   getter;
+  
   return apiRequest(
     "GET",
     `api/chasse/results/${actionType}`,

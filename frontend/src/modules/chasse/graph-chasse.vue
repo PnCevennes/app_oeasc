@@ -1,5 +1,6 @@
 <template>
   <div>
+    
     <div
       v-if="chartOptions"
       :style="`height:${height || '400px'}; width: 100%`"
@@ -22,10 +23,10 @@
 import Highcharts from "highcharts";
 import exportingInit from "highcharts/modules/exporting";
 import offlineExporting from "highcharts/modules/offline-exporting";
-import processIce from "./config/graph-ice";
-import processIceData from "./config/graph-ice-data";
-import processBilan from "./config/graph-bilan";
-import processAttributionBracelet from "./config/graph-attribution-bracelet";
+import processIce from "./config/graph-ice.js";
+import processIceData from "./config/graph-ice-data.js";
+import processBilan from "./config/graph-bilan.js";
+import processAttributionBracelet from "./config/graph-attribution-bracelet.js";
 
 exportingInit(Highcharts);
 offlineExporting(Highcharts);
@@ -35,7 +36,7 @@ export default {
   props: [
     "id_espece",
     "id_zone_cynegetique",
-    "id_secteur",
+    "id_secteur", 
     "id_zone_indicative",
     "id_saison",
     "bracelet",
@@ -105,7 +106,18 @@ export default {
       }
 
       this.processing = true;
-
+      // console.log("process", this.type, this.$props);
+      // console.log(
+      //   "dispatch valeurs::",
+      //   this.actions[this.type],
+      //   "id_espece", this.id_espece,
+      //   "id_zone_cynegetique", this.id_zone_cynegetique,
+      //   "id_zone_indicative", this.id_zone_indicative,
+      //   "id_secteur", this.id_secteur,
+      //   "id_saison", this.id_saison,
+      //   "bracelet", this.bracelet,
+      //   "poids_ou_dagues", this.poids_ou_dagues
+      // );
       this.$store
         .dispatch(this.actions[this.type], {
           id_espece: this.id_espece,
@@ -118,10 +130,16 @@ export default {
         })
         .then(
           data => {
+            // console.log("process affichage::", this.type);
+            // console.log("data", data);
+            // console.log("prop", this.$props);
             this.chartOptions = this.processData[this.type](data, this.$props);
+            // console.log("chartOptions2", this.chartOptions);
             this.processing = false;
+            // console.log("chartOptions", this.chartOptions);
           },
           error => {
+            // console.log("chartOptions", this.chartOptions);
             console.log("error", error);
             this.msgError = `pas de données pour les valeurs suivantes id_espece ${this.id_espece} id_zone_cynegetique ${this.id_zone_cynegetique} id_zone_indicative ${this.id_zone_indicative}`;
             this.bError = true;
@@ -129,6 +147,11 @@ export default {
             this.chartOptions = null;
           }
         );
+      // console.log(
+      //   "dispatch",
+      //   this.chartOptions,
+      //   this.processing,
+      // );
     }
   },
   mounted() {

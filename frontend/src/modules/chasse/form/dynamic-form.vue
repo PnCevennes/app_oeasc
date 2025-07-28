@@ -192,10 +192,6 @@
       <essence-form :config="configForm" :baseModel="baseModel"></essence-form>
     </template>
 
-    <!-- select map -->
-    <template v-else-if="configForm.type === 'select_map'">
-      <select-map :config="configForm" :baseModel="baseModel"></select-map>
-    </template>
 
     <!-- list form -->
     <template v-else-if="configForm.type === 'list_form'">

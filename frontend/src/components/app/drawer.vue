@@ -1,3 +1,5 @@
+<!-- Menu sandwich en haut à gauche. Affiche un panneau latéral coulissant avec les menus de l'application. -->
+
 <template>
   <v-navigation-drawer
   fixed

@@ -1,3 +1,7 @@
+<!-- Page affichant le tableau avec la liste des declarations. Affiche aussi un bouton pour exporter les données 
+ un fenetre s'affichera pour proposer 4 type de format d'exportation
+ -->
+
 <template>
   <div>
     <div>
@@ -63,6 +67,9 @@ export default {
   },
   name: "declaration-list",
   methods: {
+    /**
+     * Charge les déclarations depuis le store et les trie par date de création.
+     */
     loadDeclarations() {
       this.$store.dispatch("declarations").then((declarations) => {
         declarations.sort((a, b) => {

@@ -1,3 +1,7 @@
+<!-- Affiche le formulaire en fonction de sa configuration.
+dynamic-form est un composant de dynamic-form-group qui lui meme est un composant de generic-form.vue.
+ -->
+
 <template>
   <div v-show="!configForm.hidden" :ref="config.name" class="dynamic-form">
     <template v-if="configForm.displayValue && configForm.displayLabel">
@@ -231,16 +235,13 @@
 </template>
 
 <script>
-import nomenclatureForm from "./nomenclature-form";
-import listForm from "./list-form";
+import nomenclatureForm from "./nomenclature-form.vue";
+import listForm from "./list-form.vue";
 import selectMap from "./select-map.vue";
-// import essenceForm from "./essence-form.vue";
-// import degatsForm from "./degats-form.vue";
-import help from "./help";
-import list from "./list";
-import { copy } from "@/core/js/util/util";
-
-import { formFunctions } from "@/components/form/functions/form";
+import help from "./help.vue"; // contenu d'aide inscrit dans la bdd. Remplacer après pas static help.vue pour un contenu statique
+import list from "./list.vue";
+import { copy } from "@/core/js/util/util.js";
+import { formFunctions } from "@/components/form/functions/form.js";
 
 export default {
   name: "dynamicForm",
@@ -248,37 +249,35 @@ export default {
   components: {
     nomenclatureForm,
     selectMap,
-    // essenceForm,
     listForm,
-    // degatsForm,
     oeascContent: () => import("@/modules/content/content.vue"),
     help,
     list
   },
 
   data: () => ({
-    show1: false,
-    configTypes: [
-      "input",
-      "bool_radio",
-      "bool_switch",
-      "text",
-      "email",
-      "date",
-      "text_area",
-      "nomenclature",
-      "number",
-      "select_map",
-      "essence",
-      "list_form",
-      "degats",
-      "content",
-      "password",
-      "list",
-      "button",
-      "file"
+    show1: false, // Indique si le mot de passe est visible (pour les champs password)
+    configTypes: [ // Liste des types de champs de formulaire pris en charge par le composant
+      "input", // Champ de saisie générique
+      "bool_radio", // Champ booléen sous forme de boutons radio
+      "bool_switch", // Champ booléen sous forme d'interrupteur
+      "text", // Champ texte simple
+      "email", // Champ de saisie d'email
+      "date", // Champ de sélection de date
+      "text_area", // Champ de saisie de texte multilignes
+      "nomenclature", // Champ de nomenclature (sélection dans une liste de valeurs)
+      "number", // Champ de saisie numérique
+      "select_map", // Champ de sélection sur une carte
+      "essence", // Champ spécifique pour l'essence (commenté dans le template)
+      "list_form", // Champ permettant d'afficher un formulaire sous forme de liste
+      "degats", // Champ spécifique pour les dégâts (non utilisé ici)
+      "content", // Champ affichant du contenu statique ou dynamique
+      "password", // Champ de saisie de mot de passe
+      "list", // Champ affichant une liste d'éléments
+      "button", // Champ affichant un bouton
+      "file" // Champ de sélection de fichier
     ],
-    configForm: null
+    configForm: null // Stocke la configuration résolue du champ de formulaire
   }),
 
   props: ["config", "baseModel"],
@@ -300,97 +299,102 @@ export default {
   },
 
   methods: {
+
+
+    /**
+     * Gère le changement de valeur d'un champ du formulaire.
+     * 
+     * @param {Event} event - L'événement déclenché lors du changement de valeur.
+     * 
+     * - Pour les champs de type 'number', si la valeur saisie est une chaîne vide,
+     *   on la remplace par null afin d'éviter une erreur lors de l'insertion SQL.
+     * - Si une fonction 'change' est définie dans la configuration du formulaire,
+     *   elle est appelée avec le modèle de base, la configuration et le store.
+     */
     inputChange(event) {
-      event;
-      // si on a '' pour number => erreur insert sql
-      if(this.configForm.type == 'number' && this.baseModel[this.config.name] == '') {
-        this.baseModel[this.config.name]=null
+      event; // L'événement n'est pas utilisé ici, mais peut servir pour des extensions futures.
+      // Vérifie si le champ est de type 'number' et si la valeur est vide
+      if (this.configForm.type == 'number' && this.baseModel[this.config.name] == '') {
+      // Remplace la valeur vide par null pour éviter les erreurs SQL
+      this.baseModel[this.config.name] = null;
       }
-      return this.configForm.change && this.configForm.change({ baseModel: this.baseModel, config : this.config, $store: this.$store })
+      // Appelle la fonction de changement si elle existe dans la configuration
+      return this.configForm.change && this.configForm.change({
+      baseModel: this.baseModel,
+      config: this.config,
+      $store: this.$store
+      });
     },
 
+
+    /**
+     * Résout et retourne la configuration finale du formulaire à partir de la configuration passée en props.
+     * Cette méthode permet de :
+     *  - Fusionner les paramètres de la configuration locale avec ceux du store si nécessaire.
+     *  - Résoudre dynamiquement les propriétés qui sont des fonctions (ex : condition, disabled, etc.).
+     *  - Copier les autres propriétés pour éviter les effets de bord.
+     *  - Vérifier la validité du type de champ.
+     *  - Appliquer automatiquement les règles de validation selon le type de champ.
+     *  - Initialiser la valeur par défaut si elle existe et n'est pas déjà attribuée.
+     * 
+     * @returns {Object} configResolved - La configuration complète et résolue du champ de formulaire.
+     */
     getConfigForm: function() {
+      // Initialisation de la configuration résolue avec des valeurs par défaut
       const configResolved = { condition: true, valid: true };
 
-      // if(this.config.multiple && !this.baseModel[this.config.name]) {
-      //   this.baseModel[this.config.name] = this.baseModel[this.config.name]||[];
-      // }
-
+      // Si la configuration possède un storeName, on récupère les paramètres du store
       if (this.config && this.config.storeName) {
-        const configStore = this.$store.getters.configStore(
-          this.config.storeName
-        );
+      const configStore = this.$store.getters.configStore(
+        this.config.storeName
+      );
 
-        // defaults
-        this.config.idFieldName =
-          this.config.idFieldName || configStore.idFieldName;
-          
-        this.config.displayFieldName =
-          this.config.displayFieldName || configStore.displayFieldName;
-        this.config.api = this.config.api || configStore.apis;
-
-        // select
-        // this.config.type = this.config.type || configStore.type || "list_form";
-        // this.config.list_type =
-        //   this.config.list_type || configStore.list_type || "select";
-
-        // si autocomplete => serverSide ??
-        // if (["autocomplete", "combobox"].includes(this.config.list_type)) {
-        //   this.config.dataReloadOnSearch = true;
-        //   this.config.params = {
-        //     sortBy: [this.config.displayFieldName],
-        //     sortDesc: [false],
-        //     itemsPerPage: 10,
-        //     ...(this.config.params || {})
-        //   };
-        // }
-        // this.config.returnObject = [null, undefined].includes(
-        //     this.config.returnObject
-        //   )
-        //     ? true
-        //     : this.config.returnObject;
-        // on passe en parametre
-        // this.config.url = ({ search, config }) => {
-        //   const url = `${config.api}?${config.displayFieldName}__ilike=${search}`;
-        //   return url;
-        // };
+      // On complète les propriétés manquantes avec celles du store
+      this.config.idFieldName =
+        this.config.idFieldName || configStore.idFieldName;
+        
+      this.config.displayFieldName =
+        this.config.displayFieldName || configStore.displayFieldName;
+      this.config.api = this.config.api || configStore.apis;
       }
 
+      // Parcours de chaque propriété de la configuration
       for (const key in this.config) {
-        if (
-          typeof this.config[key] === "function" &&
-          !["change", "processItems", "url"].includes(key) //TODO à voir pour URL
-        ) {
-          // on resout les fonctions
-          configResolved[key] = this.config[key]({
-            baseModel: this.baseModel,
-            $store: this.$store
-          });
-        } else {
-          configResolved[key] = copy(this.config[key]);
-        }
+      if (
+        typeof this.config[key] === "function" &&
+        !["change", "processItems", "url"].includes(key) // On exclut certaines fonctions spécifiques
+      ) {
+        // Si la propriété est une fonction, on l'exécute pour obtenir sa valeur dynamique
+        configResolved[key] = this.config[key]({
+        baseModel: this.baseModel,
+        $store: this.$store
+        });
+      } else {
+        // Sinon, on copie la valeur pour éviter les effets de bord
+        configResolved[key] = copy(this.config[key]);
+      }
       }
 
-      // configResolved.rules = (this.configResolved.rules || []).map(r => r);
-
-      //teste si type dans type autorisé
-      // console.log ("##########################################")
-      // console.log (this.config.type)
+      // Vérifie si le type du champ est valide parmi les types autorisés
       configResolved.valid = this.configTypes.includes(this.config.type);
 
-      // ajout automatique de regle selon le type
+      // Ajout automatique des règles de validation selon le type de champ
       formFunctions.rules.processRules(configResolved);
 
-      // si default et non attribué => on lui donne la valeur
+      // Si une valeur par défaut existe et n'est pas encore attribuée, on l'initialise
       if (configResolved.default && (configResolved.multiple ? this.baseModel[this.config.name].length : !this.baseModel[this.config.name])) {
-        // si promise ou non ??
-        Promise.resolve(configResolved.default).then(value => {
-          this.baseModel[this.config.name] = value;
-        });
+      // On gère le cas où la valeur par défaut peut être une Promise
+      Promise.resolve(configResolved.default).then(value => {
+        this.baseModel[this.config.name] = value;
+      });
       }
 
+      // Retourne la configuration résolue et complète du champ
       return configResolved;
     }
+
+
+
   },
 
   created: function() {

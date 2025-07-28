@@ -269,7 +269,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
 
 <script>
 import { copy } from "@/core/js/util/util.js";
-import { formFunctions } from "@/components/form/functions/form";
+import { formFunctions } from "@/components/form/functions/form.js";
 import help from "@/components/form/help_static.vue";
 import helpContent from "@/modules/declaration/help-content.vue";
 
@@ -282,34 +282,32 @@ export default {
   },
   data() {
     return {
-      rules: formFunctions.rules, // Règles de validation
-      items: null,
-      degatTypes: [],
-      liste_selection_essences: this.concateneEssencesPeuplement(),
-      degatEssence: {
-        essence: null,
-        gravite: null,
-        etendue: null,
-        anteriorite: null
+      rules: formFunctions.rules, // Règles de validation pour les champs du formulaire (utilisées dans les v-select)
+      items: null, // Variable inutilisée, peut servir à stocker des listes d'items pour des selects
+      degatTypes: [], // Tableau des types de dégâts sélectionnés (synchronisé avec le formulaire)
+      liste_selection_essences: this.concateneEssencesPeuplement(), // Liste des essences sélectionnées dans le peuplement, utilisée pour filtrer les essences proposées dans le formulaire de dégâts
+      degatEssence: { // Objet temporaire pour stocker les valeurs du mini-formulaire d'ajout d'une essence à un dégât
+        essence: null, // ID de l'essence sélectionnée
+        gravite: null, // ID de la gravité sélectionnée
+        etendue: null, // ID de l'étendue sélectionnée
+        anteriorite: null // ID de l'antériorité sélectionnée
       },
 
-
-      displayMsgErrorValider: false,
-      showDegatEssenceForm: null,
+      displayMsgErrorValider: false, // Booléen pour afficher un message d'erreur lors de la validation du formulaire
+      showDegatEssenceForm: null, // ID du type de dégât pour lequel le mini-formulaire d'ajout d'essence est affiché (null si aucun formulaire n'est affiché)
     };
   },
+
+
   watch: {
     'declaration_data.id_nomenclature_peuplement_essence_principale': function() {
       this.liste_selection_essences = this.concateneEssencesPeuplement();
-      // console.log("Liste des essences sélectionnées:", this.liste_selection_essences);
     },
     'declaration_data.nomenclatures_peuplement_essence_secondaire': function() {
       this.liste_selection_essences = this.concateneEssencesPeuplement();
-      // console.log("Liste des essences sélectionnées:", this.liste_selection_essences);
     },
     'declaration_data.nomenclatures_peuplement_essence_complementaire': function() {
       this.liste_selection_essences = this.concateneEssencesPeuplement();
-      // console.log("Liste des essences sélectionnées:", this.liste_selection_essences);
     }
   },
 
@@ -322,7 +320,7 @@ export default {
         handler(newVal) {
           this.degatTypes = this.SelecteddegatTypesComputed; // Met à jour degatTypes lorsque declaration_data change
           this.liste_selection_essences = this.concateneEssencesPeuplement(); // Met à jour la liste des essences sélectionnées
-          // console.log("created degats_declaration_form", this.degatTypes);
+         
         },
         deep: true // Permet de surveiller les changements profonds dans declaration_data
       }
@@ -366,7 +364,7 @@ export default {
               });
             }
           });
-          // console.log("SelecteddegatTypesComputed updated:", this.declaration_data.degats);
+
         }
         
     },
@@ -374,10 +372,6 @@ export default {
   },
   methods: { 
 
-
-    print_test(texte, variable) {
-      console.log(texte, variable);
-    },
 
 
     /**
@@ -485,10 +479,7 @@ export default {
       this.clearDegatEssenceForm();
       this.declaration_data.freeze = false;
       this.showDegatEssenceForm = null;
-      // console.log(
-      //   "Add degat essence: -> declaration_data.degats",
-      //   this.declaration_data.degats,
-      // );
+
     },
 
 
@@ -532,9 +523,9 @@ export default {
      * @param {number} id_nomenclature_degat_essence - L'ID de l'essence à supprimer.
      */
     removeDegatEssence(
-      id_nomenclature_degat_type,
-      id_nomenclature_degat_essence
-    ) {
+        id_nomenclature_degat_type,
+        id_nomenclature_degat_essence
+      ) {
       const degat = this.declaration_data.degats.find(
         d => d.id_nomenclature_degat_type === id_nomenclature_degat_type
       );
@@ -548,10 +539,6 @@ export default {
         this.declaration_data.freeze = true;
       }
 
-      console.log(
-        "remove degat essence: -> declaration_data.degats",
-        this.declaration_data.degats,
-      );
     },
 
 
@@ -631,10 +618,7 @@ export default {
             id_nomenclature_degat_type: degatType,
             degat_essences: []
           });
-          console.log(
-            "Add degat type: -> declaration_data.degats",
-            this.declaration_data.degats,
-          );
+
           if (
             this.$store.getters.nomenclature(degatType).cd_nomenclature != "P/C"
           ) {

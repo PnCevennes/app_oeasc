@@ -40,10 +40,10 @@
 <script>
 
 
-import filArianne from "./fil-ariane";
-import help from "@/components/form/help";
-import genericForm from "@/components/form/generic-form";
-import { sessionFunctions } from "@/components/form/functions/session";
+import filArianne from "./fil-ariane.vue";
+import help from "@/components/form/help.vue";
+import genericForm from "@/components/form/generic-form.vue";
+import { sessionFunctions } from "@/components/form/functions/session.js";
 
 export default {
   name: "declarationForm",

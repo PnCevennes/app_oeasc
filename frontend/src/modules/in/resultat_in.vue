@@ -1,5 +1,5 @@
 
-<template>
+<!-- <template>
 <div class="page" >
 
 
@@ -84,11 +84,10 @@
     <br>En 2018, les comptages n'ont pu être effectués que lors de deux sorties (et même une seule pour l'un des quatre circuits), ce qui affecte fortement la précision de la valeur (intervalle de confiance large).
     <br> 
     <br> Les valeurs observées en 2024, plus faibles que les années précédentes, peuvent s'expliquer par des conditions météorologiques défavorables lors des soirées de comptages.
-  <!-- </oeasc-content> -->
-   <!-- <pre>CONFIG:::{{ JSON.stringify(store_test, null, 2) }}</pre> -->
+
    <pre>espece:::{{ liste_especes}}</pre>
 </div>
-</template>
+</template> -->
 
 
 
@@ -96,66 +95,66 @@
 <script>
 
 
-import '@/modules/page/page.css';
-import inGraph from "@/modules/in/in-graph.vue";
-// import inTable from "@/modules/in/in-table.vue";
-import { apiRequest } from "@/core/js/data/api.js";
+// import '@/modules/page/page.css';
+// import inGraph from "@/modules/in/in-graph.vue";
+// // import inTable from "@/modules/in/in-table.vue";
+// import { apiRequest } from "@/core/js/data/api.js";
 
 
-const CONTENT = {
-    inGraph
-  }
-// const storeName = "in";
+// const CONTENT = {
+//     inGraph
+//   }
+// // const storeName = "in";
 
-export default {
-  name: "resultat_in",
-  props: ["large"],
-  components: { inGraph  },
-  data() {
-    return {
+// export default {
+//   name: "resultat_in",
+//   props: ["large"],
+//   components: { inGraph  },
+//   data() {
+//     return {
 
-      contentValues: {
-        espece: "Cerf"
-      },
-      liste_especes: [],
-      store_test: this.$store.state
-
-
-    };
-  },
+//       contentValues: {
+//         espece: "Cerf"
+//       },
+//       liste_especes: [],
+//       store_test: this.$store.state
 
 
-  methods: {
-    init_data() {
-      console.log("init_data");
-      fetch('http://localhost:5005/api/in/results/')
-        .then(response => response.text()) // lis comme texte brut
-        .then(text => {
-          console.log(text); // pour voir ce que Flask renvoie
-          const data = JSON.parse(text); // ici tu peux attraper l’erreur
-          console.log(data);
-        })
-        .catch(error => {
-          console.error("Erreur de parsing ou fetch :", error);
-        });
-      // this.liste_especes = this.$store.dispatch("getAllCommonsEspece")
-      // this.liste_especes =  apiRequest("GET", 'api/generic/commons/especes/',  {})
-      // .then((response) => {
-      //   console.log("response", response);
-      //   this.liste_especes = response.data;
-      //   console.log("liste_especes", this.liste_especes);
-      // })
-      // this.liste_especes = this.$store.dispatch(configStore.getEspeces, {});
-
-    },
+//     };
+//   },
 
 
-  },
+//   methods: {
+//     init_data() {
+//       console.log("init_data");
+//       // fetch('http://localhost:5005/api/in/results/')
+//       //   .then(response => response.text()) // lis comme texte brut
+//       //   .then(text => {
+//       //     console.log(text); // pour voir ce que Flask renvoie
+//       //     const data = JSON.parse(text); // ici tu peux attraper l’erreur
+//       //     console.log(data);
+//       //   })
+//       //   .catch(error => {
+//       //     console.error("Erreur de parsing ou fetch :", error);
+//       //   });
+//       // this.liste_especes = this.$store.dispatch("getAllCommonsEspece")
+//       // this.liste_especes =  apiRequest("GET", 'api/generic/commons/especes/',  {})
+//       // .then((response) => {
+//       //   console.log("response", response);
+//       //   this.liste_especes = response.data;
+//       //   console.log("liste_especes", this.liste_especes);
+//       // })
+//       // this.liste_especes = this.$store.dispatch(configStore.getEspeces, {});
 
-  mounted() {
-    this.init_data();
-  }
-};
+//     },
+
+
+//   },
+
+//   mounted() {
+//     this.init_data();
+//   }
+// };
 
 </script>
 

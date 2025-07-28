@@ -1,7 +1,37 @@
+<!--
+  Composant Vue.js : session.vue
+
+  Ce composant gère l'affichage et la soumission d'un formulaire dynamique pour la déclaration de session.
+  Il utilise Vuetify pour la mise en page et les composants d'interface utilisateur.
+
+  Structure principale :
+  - Affiche le titre du formulaire à partir de la configuration passée en props.
+  - Utilise <v-form> pour encapsuler le formulaire et gérer sa validation.
+  - Génère dynamiquement les groupes de champs du formulaire via <dynamic-form-group> en fonction de la configuration.
+  - Affiche un bouton d'action ("Suivant" ou personnalisé) pour soumettre le formulaire, désactivé si l'état 'freeze' est actif.
+  - Indique la présence de champs obligatoires avec une étoile rouge.
+  - Affiche un dialogue de progression (<v-dialog>) lors de l'envoi de la déclaration, informant l'utilisateur que le processus est en cours.
+  - Affiche un dialogue de succès (<v-dialog>) lorsque la déclaration a été enregistrée, proposant des liens pour poursuivre ou revenir à l'accueil.
+
+  Principales propriétés et variables utilisées :
+  - config : objet de configuration du formulaire (titre, groupes de champs, action, etc.).
+  - validForms : objet de suivi de la validité des différents formulaires.
+  - baseModel : modèle de données de base pour le formulaire.
+  - bModalPost : booléen contrôlant l'affichage du dialogue de progression.
+  - bModalSuccess : booléen contrôlant l'affichage du dialogue de succès.
+  - freeze : booléen indiquant si le formulaire est en état "gelé" (désactivé).
+  - keySession : clé de session utilisée pour déterminer l'affichage du bouton d'action.
+
+  Points d'attention :
+  - Les groupes de champs sont générés dynamiquement à partir de la configuration, permettant une grande flexibilité.
+  - Les dialogues modaux améliorent l'expérience utilisateur lors de la soumission et après le succès.
+  - Les liens proposés après la réussite permettent à l'utilisateur de poursuivre son parcours facilement.
+
+  Ce composant est conçu pour être réutilisable et adaptable à différents types de formulaires de session.
+-->
 <template>
   <div>
     <div>
-      <!-- {{ validForms[config.name] }} {{config.name}} -->
       <h3>{{ config.title }}</h3>
 
       <v-form
@@ -83,7 +113,7 @@
 </template>
 
 <script>
-import dynamicFormGroup from "@/components/form/dynamic-form-group";
+import dynamicFormGroup from "@/components/form/dynamic-form-group.vue";
 
 export default {
   name: "formSession",
@@ -91,10 +121,9 @@ export default {
     dynamicFormGroup
   },
   data: () => ({
-    // affichage modal quand la requete post est lancée
-    bModalPost: false,
-    bModalSuccess: false,
-    freeze: null,
+    bModalPost: false, // Indique si la fenêtre modale de publication est affichée ou non  // bModalPost: false
+    bModalSuccess: false, // Indique si la fenêtre modale de succès est affichée ou non  // bModalSuccess: false
+    freeze: false, // Détermine si le formulaire est gelé (désactivé) ou non  // freeze: false
   }),
   watch: {
     baseModel: {
@@ -106,40 +135,60 @@ export default {
   },
   props: ["config", "baseModel", "validForms", "keySession"],
   methods: {
+
+    /**
+     * Méthode principale d'action du formulaire.
+     * Elle gère la soumission du formulaire, la validation, l'affichage des dialogues de progression et de succès,
+     * et l'enchaînement vers la prochaine étape si nécessaire.
+     */
     action: function() {
-      // si le formulaire n'est pas valide on ne fait rien
-      // les erreurs seront affichées
+      // Vérifie la validité du formulaire via la méthode validate().
+      // Si le formulaire n'est pas valide, on arrête ici (les erreurs sont affichées automatiquement).
       if (!this.validate()) {
-        return;
+      return;
       }
 
-      // action definie dans la config (par exemple: envoyer un post du formulaire)
+      // Si une action personnalisée est définie dans la configuration (ex: envoi POST du formulaire)
       if (this.config.action) {
-        this.bModalPost = true;
-        this.config.action
-          .process({ baseModel: this.baseModel })
-          .then(response => {
-            setTimeout(() => {
-              this.bModalPost = false;
-              this.bModalSuccess = true;
-            }, 1000);
-          });
+      // Affiche le dialogue de progression (spinner) pendant le traitement.
+      this.bModalPost = true;
+      // Exécute la fonction process définie dans la config, généralement une requête asynchrone.
+      this.config.action
+        .process({ baseModel: this.baseModel })
+        .then(response => {
+        // Après la réussite, masque le dialogue de progression et affiche le dialogue de succès.
+        setTimeout(() => {
+          this.bModalPost = false;
+          this.bModalSuccess = true;
+        }, 1000); // délai pour laisser le spinner visible un court instant
+        });
 
-        // action par defaut aller à la section suivante
+      // Si aucune action personnalisée n'est définie, on passe à la session suivante (navigation interne)
       } else {
-        const nextSession = this.$store.getters.configDeclaration.nextSession(
-          this.config.name
-        );
-        if (nextSession) {
-          this.$router.push({ query: { keySession: nextSession } });
-        }
+      // Récupère la prochaine session à afficher via le store Vuex.
+      const nextSession = this.$store.getters.configDeclaration.nextSession(
+        this.config.name
+      );
+      // Si une prochaine session existe, on navigue vers celle-ci en modifiant la query de l'URL.
+      if (nextSession) {
+        this.$router.push({ query: { keySession: nextSession } });
+      }
       }
     },
 
+
+    /**
+     * Valide le formulaire référencé par le nom spécifié dans la configuration.
+     * Utilise la référence du formulaire (`$refs`) pour déclencher la validation.
+     * Retourne l'état de validité du formulaire correspondant depuis `validForms`.
+     * @returns {Boolean} - Indique si le formulaire est valide ou non.
+     */
     validate: function() {
       this.$refs[this.config.name].validate();
       return this.validForms[this.config.name];
     }
+
+
   },
 };
 </script>
