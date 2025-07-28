@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("ALTER TABLE oeasc_commons.t_communes ADD CONSTRAINT code_pkey PRIMARY KEY (code);")
+    op.execute("ALTER TABLE oeasc_commons.t_communes ADD CONSTRAINT code_pkey PRIMARY KEY (code, cp);")
 
 
 def downgrade():

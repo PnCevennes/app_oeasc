@@ -34,6 +34,8 @@ def chasse_process_args():
     id_espece = request.args.get("id_espece")
     id_saison = request.args.get("id_saison")
     poids_ou_dagues = request.args.get("poids_ou_dagues")
+    if poids_ou_dagues is None: # poids ou dagues est forcément un booléen
+        poids_ou_dagues = False
 
     # récupération des id dans les paramètres de la requête sous forme de liste car le formulaire est à choix multiple
     id_secteur = getlist(request.args, "id_secteur")

@@ -123,22 +123,28 @@ def api_result_ice():
     """
     API ICE
     """
-
     params = chasse_process_args()
-
-    req = func.oeasc_chasse.fct_calcul_ice_mc(
-        params["id_espece"],
-        params["id_zone_indicative"],
-        params["id_zone_cynegetique"],
-        params["id_secteur"],
-        params["poids_ou_dagues"],
-    )
-    # res = DB.engine.execute(req).first()[0]
-
-    res = DB.session.execute(req).first()[0]
-
-    # res = DB.session.execute(req).first()[0]
-    return res
+    
+    
+    try:
+        req = func.oeasc_chasse.fct_calcul_ice_mc(
+            params["id_espece"],
+            params["id_zone_indicative"],
+            params["id_zone_cynegetique"],
+            params["id_secteur"],
+            params["poids_ou_dagues"],
+        )
+        
+        res = DB.session.execute(req).first()
+        
+        if res is None or res[0] is None:
+            return {"error": "Aucun résultat calculé - données insuffisantes", "code": 204}
+            
+        return res[0]
+        
+    except Exception as e:
+        current_app.logger.error(f"Erreur calcul ICE: {str(e)}")
+        return {"error": "Erreur lors du calcul ICE", "details": str(e), "code": 500}
 
 
 # @bp.route('results/realisation', methods=['GET'])

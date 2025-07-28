@@ -21,25 +21,24 @@ import json
 import re
 from pathlib import Path
 from pkg_resources import iter_entry_points
-from flask import Flask, redirect, session, request, url_for, send_from_directory, current_app
+from flask import Flask, redirect, session, request, url_for, current_app
 from flask_migrate import Migrate
-#from jinja2 import evalcontextfilter, Markup, escape n'est plus supporté
-from jinja2 import pass_context
-from markupsafe import Markup, escape
 from oeasc.utils.env import db
-# import config
-# from ..config import config
 from flask_cors import CORS
 from pypnusershub.auth import auth_manager
-from flask_sqlalchemy import SQLAlchemy
 from flask_mail import Mail
-# from os import environ
-from importlib import import_module
-
 # permet de définir des actions apres l'enregistrement d'un utilisateur (envoi de mail, ...)
 from pypnusershub.env import REGISTER_POST_ACTION_FCT
 
-
+# from flask import send_from_directory
+#from jinja2 import evalcontextfilter, Markup, escape n'est plus supporté
+# from jinja2 import pass_context
+# from markupsafe import Markup, escape
+# import config
+# from ..config import config
+# from flask_sqlalchemy import SQLAlchemy
+# from os import environ
+# from importlib import import_module
 # import logging
 # for name in ['sqlalchemy.engine', 'sqlalchemy.pool', 'sqlalchemy.dialects']:
 #     logging.getLogger(name).setLevel(logging.WARNING)
@@ -266,44 +265,3 @@ with app.app_context():
 if __name__ == "__main__":
     app.run(debug=app.config["DEBUG"], port=app.config["PORT"])
 
-
-
-
-
-
-# filtre HTML. Modifie les retours à la ligne en BR et le met dans un paragraphe
-# utilisé dans les templates de mails
-# _paragraph_re = re.compile(r"(?:\r\n|\r|\n){2,}")
-# @app.template_filter()
-# @pass_context
-# def nl2br(eval_ctx, value):
-#     result = "\n\n".join(
-#         "<p>%s</p>" % p.replace("\n", "<br>\n")
-#         for p in _paragraph_re.split(escape(value))
-#     )
-#     if eval_ctx.autoescape:
-#         result = Markup(result)
-#     return result
-
-
-# @app.template_filter()
-# @pass_context
-# def nopar(eval_ctx, value):
-#     if not value:
-#         return ""
-
-#     s2 = re.sub(r"\(.*\)", "", value)
-#     s2 = s2.strip()
-#     return s2
-
-
-# @app.template_filter()
-# @pass_context
-# def cleanid(eval_ctx, value):
-#     if not value:
-#         return ""
-
-#     s2 = value.replace(" ", "")
-#     s2 = s2.replace(".", "")
-#     s2 = s2.strip()
-#     return s2
