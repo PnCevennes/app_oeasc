@@ -1,0 +1,11 @@
+/var/log/oeasc/oeasc.log {
+    su ${USER} ${USER}
+    daily
+    rotate 8
+    size 100M
+    create
+    compress
+    postrotate
+    systemctl reload oeasc || true
+    endscript
+}
