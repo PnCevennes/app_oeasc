@@ -1,45 +1,185 @@
-# Database settings
+############################################################################################################
+############# CONFIGURATION DE LA BASE DE DONNÉE ##########################################################
+############################################################################################################
+SQLALCHEMY_DATABASE_URI = "postgresql://login:mdp;@localhost:5432/oeasc"
 
-SQLALCHEMY_DATABASE_URI = "postgresql://monuser:monpassachanger@localhost/usershubdb"
-SQLALCHEMY_TRACK_MODIFICATIONS = False
-
-
-# Applications
-
-URL_APPLICATION = "localhost:5000"
-URL_USERSHUB="localhost:5001"
-
-MODE_TEST=0
-
-MODE_NEW = 0
-URL_FRONTEND = 'http://localhost:8080'
-
-
-
-ID_APP = 1
-CODE_APPLICATION = "OEASC"
-SECRET_KEY = 'super secret key'
-PASS_METHOD = 'hash'
-COOKIE_EXPIRATION = 43200
-COOKIE_AUTORENEW = True
-
-ENABLE_NOMENCLATURE_TAXONOMIC_FILTERS = True
+#SQLALCHEMY_TRACK_MODIFICATIONS = False # sql alchemy 2.0 n'a plus besoin de cette ligne
+SQLALCHEMY_ECHO = False
+# active l'enregistrement des requetes pour le débuggage
+# SQLALCHEMY_RECORD_QUERIES = False
+SQLALCHEMY_ENGINE_OPTIONS = {
+    'pool_recycle': 280, # nb de secondes avant de recycler une connexion
+    'pool_timeout': 10, # nb de secondes avant de timeout
+    'pool_size': 1, # nb de connexions max
+    'max_overflow': 10, # nb de connexions max en plus
+    'future': True # pour sqlalchemy 2.0
+}
 
 
-# Administrateur OEASC
+####################################################################################
+#############################    URL        ##########################################
+######################################################################################
+URL_APPLICATION = "localhost:5005" # url backend flask
+# URL_USERSHUB (appli de gestion des utilisateurs du parc). C'est un service différent de pypn_userhub_authentification
+# nécéssaire pour l'inscription de nouveaux utilisateurs
+# Il faut installer le dépot git https://github.com/PnX-SI/UsersHub et le lancer en local
+URL_USERSHUB = "http://localhost:5001/"
 
-ADMIN_APPLICATION_LOGIN=""
-ADMIN_APPLICATION_PASSWORD=""
-ADMIN_APPLICATION_MAIL=""
+URL_FRONTEND = "http://localhost:8080/" # url frontend vuejs
+PORT = 5005 # sur quel port le serveur flask échoute les connexions
+REDIRECT_ON_FORBIDDEN = "login" # page de redirection en cas d'interdiction d'accès
+
+######################################################################################
+#############################    AUTRES        #######################################
+######################################################################################
+
+#MODE_TEST = 0 # peu utilisé
+DEBUG = True # Si True, Flask recharge le serveur à chaque modification du code et affiche plus d'erreur
+#MODE_NEW = 0 # peu utilisé
+ID_APP = 500 # pour identifier l'application dans la base de données ou dans le certificat de contexte
+CODE_APPLICATION = "OEASC" # utilisé dans l'authentification
+SECRET_KEY = '****************************' # La clé utilisée pour des fonctionnalités de sécurité telles que la signature des cookies de session et la protection contre les attaques CSRF (Cross-Site Request Forgery). 
+PASS_METHOD = 'hash' # méthode de hashage des mots de passe
+COOKIE_EXPIRATION = 43200 # durée de vie des cookies en secondes 43200=12h
+COOKIE_AUTORENEW = True # renouvellement automatique des cookies apres expiration pour maintenir les sessions ouvertes
+ENABLE_NOMENCLATURE_TAXONOMIC_FILTERS = True # # Filtrer en fonction du groupe taxonomie utilisé par pypnnomenclature
+
+############################################################################################################
+################## COMPTE ADMINISTRATEUR ###################################################################
+############################################################################################################
+# utilisé dans userhub est userhub_authentification
+ADMIN_APPLICATION_LOGIN="un_login_admin" # login de l'administrateur
+ADMIN_APPLICATION_PASSWORD="un_mot_de_passe_complexe" # mot de passe complexe pour l'administrateur
+ADMIN_APPLICATION_MAIL="mail@nom_domaine.fr"
+
+############################################################################################################
+################## COMPTE ANIMATEUR ########################################################################
+############################################################################################################
+
+ANIMATEUR_APPLICATION_MAIL = "mail@domaine.fr"
+MAIL_SERVER = 'mail.domaine.fr'
+MAIL_USE_SSL = True
+MAIL_PORT = 465
+MAIL_USERNAME = 'adresse@domaine.fr'
+MAIL_PASSWORD = "mot_de_passe_complexe" # mot de passe complexe pour l'animateur
+CODE_APPLICATION_MAIL ="OEASC" # est ajouté dans le sujet du mail pour mieux identifier l'application
 
 
-# mail configuration
-ANIMATEUR_APPLICATION_MAIL=""
-MAIL_SERVER = 'smtp.gmail.com'
-MAIL_USE_SSL = ""
-MAIL_PORT = 587
-MAIL_USERNAME = ''
-MAIL_PASSWORD = ''
-
-# Sentry
+############################################################################################################
+################## CONFIGURATION SENTRY (appli de monitoring) #############################################
+############################################################################################################
 SENTRY_DSN="MA_CLE_SENTRY"
+
+
+
+
+# Gestion des demandes d'inscription
+
+# Activer l'affichage du lien vers le formulaire d'inscription
+# ENABLE_SIGN_UP = True
+
+# # Activer l'affichage de l'onglet de gestion des demandes de compte
+# # utilisateur
+# ENABLE_USER_MANAGEMENT = False
+
+# # Valider automatiquement la demande de création de compte (=true),
+# # sinon nécessite une validation (=false)
+# AUTO_ACCOUNT_CREATION = False
+
+# # Créer automatiquement (=true) un nouveau jeu de données pour chaque
+# # compte utilisateur
+# AUTO_DATASET_CREATION = True
+
+# Ajouter des liens sur la page de connexion de GeoNature,
+# peut être utile lors d'une externalisation des services de connexion
+# Chaque [[ACCOUNT_MANAGEMENT.EXTERNAL_LINKS]] correspond à un lien
+# supplémentaire ajouté sous le bouton "SE CONNECTER"
+
+# [[ACCOUNT_MANAGEMENT.EXTERNAL_LINKS]]
+# label = "Mot de passe oublié ?"
+# url = "https://mon.formulaire.de.motdepasse"
+
+# [[ACCOUNT_MANAGEMENT.EXTERNAL_LINKS]]
+# label = "Demande d'inscription"
+# url = "https://mon.formulaire.dinscription"
+
+# [[ACCOUNT_MANAGEMENT.EXTERNAL_LINKS]]
+# label = "Un autre lien"
+# url = "https://un.autre.lien"
+
+# Email du validateur si auto_account_creation = false.
+# Deux syntaxes alternatives sont autorisées pour ce paramètre :
+# - une chaine contenant un ou plusieurs emails séparés par des
+#   virgules (exemple ci-dessous).
+# - une liste de chaine contenant un email.
+# Un email encadré par des chevrons (<>) peut être précédé par un
+# libellé qui sera utilisé lors de l'envoi.
+# Les espaces présents en début et fin de chaine ainsi qu'avant et
+# après les virgules sont ignorés.
+# VALIDATOR_EMAIL = """
+#     Théo LECHEMIA <theo.lechemia@ecrins.fr>,
+#     Carl von LINNÉ <c.linnaeus@linnaeus.se>
+#     """
+
+# # Texte complémentaire ajouté à la fin des emails envoyés à l'utilisateur.
+# # Utiliser du HTML simple (compatible avec les email) ou du texte.
+# # Mettre une chaine vide pour ne rien ajouter.
+# # Par défaut, chaine vide.
+# ADDON_USER_EMAIL = """<p>
+#         Toute l'équipe de GeoNature vous remercie pour votre inscription.
+#     </p>"""
+
+# Configuration de la customisation du formulaire d'inscription
+# Chaque section [[ACCOUNT_MANAGEMENT.ACCOUNT_FORM]] correspond à un
+# champ (de type checkbox, select etc...)
+# [[ACCOUNT_MANAGEMENT.ACCOUNT_FORM]]
+#     type_widget = "checkbox"
+#     attribut_label = """
+#         <a target="_blank" href="https://docs.geonature.fr">
+#             J'ai lu et j'accepte la charte
+#         </a>"""
+#     attribut_name = "validate_charte"
+#     values = [true]
+#     required = true
+# [[ACCOUNT_MANAGEMENT.ACCOUNT_FORM]]
+#     type_widget = "text"
+#     attribut_label = "Remarque"
+#     attribut_name = "remarque"
+#     required = false
+# [[ACCOUNT_MANAGEMENT.ACCOUNT_FORM]]
+#     type_widget = "select"
+#     attribut_label = "Exemple select"
+#     attribut_name = "select_test"
+#     values = ["value1", "value2"]
+#     required = false
+# [[ACCOUNT_MANAGEMENT.ACCOUNT_FORM]]
+#     type_widget = "textarea"
+#     attribut_label = "Qui êtes vous ?"
+#     attribut_name = "comment_area"
+#     required = false
+# [[ACCOUNT_MANAGEMENT.ACCOUNT_FORM]]
+#     type_widget = "radio"
+#     attribut_label = "Type de structure"
+#     attribut_name = "structure_type"
+#     values = ["Privée", "Publique"]
+#     required = true
+# [[ACCOUNT_MANAGEMENT.ACCOUNT_FORM]]
+#     type_widget = "nomenclature"
+#     attribut_label = "Exemple nomenclature"
+#     attribut_name = "id_nomenclature_typ_grp"
+#     code_nomenclature_type = "TYP_GRP"
+#     required = false
+# [[ACCOUNT_MANAGEMENT.ACCOUNT_FORM]]
+#     # Le HTML fournit est inséré dans une balise DIV
+#     type_widget = "html"
+#     # Nom utilisé pour définir la partie fixe de l'attribut "id" de la balise DIV
+#     attribut_name = "conditions"
+#     # Classes CSS ajoutées à l'attribut "class" de la balise DIV
+#     class = "alert alert-primary"
+#     # Contenu HTML à insérer dans la balise DIV
+#     html = """
+#         <p>Merci pour votre demande d’inscription. Après
+#         <strong>validation de l’administrateur</strong>, vous
+#         pourrez accéder aux observations publiques avec leur
+#         précision de géolocalisation maximale.</p>"""
+

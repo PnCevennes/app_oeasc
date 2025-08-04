@@ -146,7 +146,7 @@ export default {
       if (!this.bilanParams.id_saison && this.bilanParams.id_espece) {
         return;
       }
-      console.log("getBilanParams");
+      // console.log("getBilanParams");
       this.$store
         .dispatch("getAnalyseBilanInfos", this.bilanParams)
         .then(infos => {

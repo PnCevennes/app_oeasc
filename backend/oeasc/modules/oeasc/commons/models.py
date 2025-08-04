@@ -5,28 +5,21 @@ pour mapper la vue user de oeasc_commons
 from flask import current_app
 
 from sqlalchemy.orm import column_property , relationship, Mapped
-# from sqlalchemy import select, String
+
 from utils_flask_sqla.serializers import serializable
 from sqlalchemy import (
     Column,
     Table,
     Integer,
     Unicode,
-    Boolean,
-    Date,
     DateTime,
-    Float,
     ForeignKey,
     func,
-    exists,
     select,
     String
 )
-# from sqlalchemy.ext.hybrid import hybrid_property
-# from ..i_n.models import TCircuits
-from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
-# from ..i_n.models import TCircuits
 
+from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 
 
 # pour sqlalchemy 2.0

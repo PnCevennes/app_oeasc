@@ -59,7 +59,7 @@ export default {
 
       // test pour ne pas lancer plusieurs requêtes en meme temps
       if (this.isProcessing && fde(this.$props, this.processedProps)) {
-        console.log('processing', this.$props, this.processedProps)
+        // console.log('processing', this.$props, this.processedProps)
           return
       }
 

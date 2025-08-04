@@ -22,12 +22,12 @@ import dynamicFormGroup from "@/components/form/dynamic-form-group.vue";
  * Propriétés :
  * - val : Composant principal pour la gestion des valeurs.
  * - faqDeclaration : Composant pour l'affichage de la FAQ concernant les déclarations.
- * - tableAide : Composant pour la gestion et l'affichage des tables d'aide.
+ * - tableAide : Petite fenetre avec les noms et les contacts des personnes référentes.
  * - declarationTable : Composant pour la gestion des tables de déclaration.
  * - baseMap : Composant pour l'affichage de la carte de base.
  * - contentImg : Composant pour l'affichage des images de contenu.
  * - listePartenaire : Composant pour la liste des partenaires.
- * - actualiteBandeau : Composant pour l'affichage du bandeau d'actualités.
+ * - actualiteBandeau : Affiche les 4 dernières actualités sur la page d'accueil.
  * - restitution : Composant pour la restitution des données.
  * - restitution2 : Variante du composant de restitution.
  * - dynamicForm : Composant pour la gestion des formulaires dynamiques.

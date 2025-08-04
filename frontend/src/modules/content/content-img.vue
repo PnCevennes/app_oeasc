@@ -1,3 +1,4 @@
+<!-- Affiche une vignette cliquable ou une image dans l'actualité -->
 <template>
   <div
     :class="classes"

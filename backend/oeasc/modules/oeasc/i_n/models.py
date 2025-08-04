@@ -4,7 +4,7 @@ IN models
 
 from flask import current_app
 
-from sqlalchemy import Table, Column, Integer, Unicode, Boolean, Date, ForeignKey, Float, String
+from sqlalchemy import Table, Column, Integer, Unicode, Boolean, Date, ForeignKey, Float
 from sqlalchemy import and_, select, func, case
 from sqlalchemy.orm import relationship, column_property, Mapped
 from utils_flask_sqla.serializers import serializable

@@ -1,3 +1,4 @@
+<!-- affiche une panneau "accordéon" pour le fonctionnement des déclarations -->
 <template>
   <div>
     <v-row justify="center">

@@ -28,20 +28,20 @@ const exportPDF = function(id, filename, $store) {
         .map(mapService => mapService.toImg());
 
       Promise.all(mapImgpromises).then(mapElems => {
-        console.log('html2pdf')
+        // console.log('html2pdf')
         html2pdf()
           .from(element)
           .set(opt)
           .save()
           .then(() => {
             //remap the map remove imgs
-            console.log('html2pdf end')
+            // console.log('html2pdf end')
 
             mapElems;
             element.classList.remove("pdf");
             resolve(true);
             for (const map of mapElems) {
-              console.log('map reset', map)
+              // console.log('map reset', map)
 
               resetMapStyle(map)
               // map.style.display = "block";
@@ -50,7 +50,7 @@ const exportPDF = function(id, filename, $store) {
               // map.classList.remove("map-img");
             }
 
-            console.log('resolve')
+            // console.log('resolve')
             resolve(true);
           });
       });

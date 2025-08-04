@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <h1>
       Indices nocturnes
@@ -111,4 +111,4 @@ export default {
     });
   }
 };
-</script>
+</script> -->

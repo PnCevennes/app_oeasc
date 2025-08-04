@@ -6,7 +6,7 @@ from flask import current_app
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 from utils_flask_sqla.serializers import serializable
-from sqlalchemy.orm import declarative_base, synonym
+from sqlalchemy.orm import synonym
 
 config = current_app.config
 DB = config["DB"]

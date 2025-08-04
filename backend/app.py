@@ -95,19 +95,19 @@ app.config["URL_REDIRECT"] = (
 
 
 ##################### CONFIGURATION DE SENTRY (appli de monitoring) ############################
-try:
-    sentry_config = app.config["SENTRY_DSN"]
-    if sentry_config:
-        import sentry_sdk
-        from sentry_sdk.integrations.flask import FlaskIntegration
+# try:
+#     sentry_config = app.config["SENTRY_DSN"]
+#     if sentry_config:
+#         import sentry_sdk
+#         from sentry_sdk.integrations.flask import FlaskIntegration
 
-        sentry_sdk.init(
-            sentry_config,
-            integrations=[FlaskIntegration()],
-            traces_sample_rate=1.0,
-        )
-except AttributeError:
-    pass
+#         sentry_sdk.init(
+#             sentry_config,
+#             integrations=[FlaskIntegration()],
+#             traces_sample_rate=1.0,
+#         )
+# except AttributeError:
+#     pass
 
 
 # initialisation de sqlalchemy pour Flask. Créé les engines et les sessions

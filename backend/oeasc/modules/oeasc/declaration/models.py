@@ -5,7 +5,7 @@ modeles alerte OEASC
 from flask import current_app
 from pypnusershub.db.models import User
 from utils_flask_sqla.serializers import serializable
-from sqlalchemy.orm import column_property, relationship, Mapped
+from sqlalchemy.orm import relationship, Mapped
 from sqlalchemy import (
     Column,
     Integer,
@@ -16,7 +16,6 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     func,
-    exists,
     
 )
 

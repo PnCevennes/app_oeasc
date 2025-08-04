@@ -8,22 +8,21 @@ module MODULES administration commands
 
 import click
 import json
-import time
 
-from flask.cli import AppGroup, with_appcontext
+from flask.cli import with_appcontext
 
 # from oeasc.utils.env import DB
 
-from oeasc.modules.oeasc.chasse.models import TRealisationsChasse
+# from oeasc.modules.oeasc.chasse.models import TRealisationsChasse
 
 from oeasc.modules.oeasc.generic.repository import (
-    get_objects_type,
-    get_object_type,
+    # get_objects_type,
+    # get_object_type,
     create_or_update_object_type,
-    delete_object_type,
+    # delete_object_type,
 )
 
-
+# Commande CLI pour tester la création ou mise à jour d'une réalisation de chasse
 @click.command("test_chasse_realisation")
 @click.option("-m", "--module_code", "module_code", default="test")
 @click.option("-s", "--schema_name", "schema_name", default="example")
@@ -31,8 +30,18 @@ from oeasc.modules.oeasc.generic.repository import (
 def cmd_test_chasse_realisation(module_code, schema_name):
     """
     Commande de test sur un schema
+
+    Utilisation :
+    Cette commande est utilisée pour tester la création ou la mise à jour d'un objet 'realisation' 
+    dans le module 'chasse'. Elle simule l'envoi de données JSON et appelle la fonction 
+    create_or_update_object_type pour effectuer l'opération en base de données.
+
+    Options :
+    -m / --module_code : code du module à utiliser (par défaut "test")
+    -s / --schema_name : nom du schéma à utiliser (par défaut "example")
     """
 
+    # Exemple de données JSON simulant une réalisation de chasse
     data_text = """
     {
         "id_realisation":null,
@@ -42,12 +51,14 @@ def cmd_test_chasse_realisation(module_code, schema_name):
     }
     """
 
+    # Chargement des données JSON en dictionnaire Python
     post_data = json.loads(data_text)
     print("test")
+    # Affichage des données formatées pour vérification
     print(json.dumps(post_data, indent=4))
+    # Appel de la fonction pour créer ou mettre à jour l'objet 'realisation' dans le module 'chasse'
     create_or_update_object_type("chasse", "realisation", None, post_data)
     print("test ok")
-
 
 # liste des commande pour export dans blueprint.py
 commands = [

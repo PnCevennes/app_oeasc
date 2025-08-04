@@ -34,7 +34,7 @@ export default {
   watch: {
     $props: {
       handler() {
-        console.log(this.field_name)
+        // console.log(this.field_name)
         this.process();
       },
       deep: true,
@@ -53,7 +53,7 @@ export default {
       }
 
       this.processing = true;
-      console.log(this.$props)
+      // console.log(this.$props)
       this.$store
         .dispatch(this.action, this.$props)
         .then(data => {

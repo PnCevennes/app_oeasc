@@ -1,9 +1,7 @@
+// toutes les pages d'information du site. Le contenu est cherché en base de données. Meriterait d'être passé en
+//statique.
 
-// import { apiRequest } from "@/core/js/data/api.js";
-// import storeUtils from "@/store/utils";
-//import { component } from "vue/types/umd";
 import page from "./page";
-// import accueil from "./content/accueil";
 
 const ROUTE = [
   {

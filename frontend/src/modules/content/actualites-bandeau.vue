@@ -1,3 +1,6 @@
+
+<!-- Affiche les 4 dernières actualités sur la page d'accueil. -->
+
 <template>
   <div>
     <v-row>

@@ -4,7 +4,7 @@ Schema marshmallow pour la sérialisation et désérialisation des données
 
 from flask import current_app
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from marshmallow_sqlalchemy.fields import Nested, fields
+from marshmallow_sqlalchemy.fields import fields
 
 from marshmallow import EXCLUDE
 from .models import *

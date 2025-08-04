@@ -4,9 +4,9 @@ Schema marshmallow pour la sérialisation et désérialisation des données
 
 from flask import current_app
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from pypnnomenclature.utils import NomenclaturesConverter
+# from pypnnomenclature.utils import NomenclaturesConverter
 from marshmallow_sqlalchemy.fields import Nested, fields
-from utils_flask_sqla_geo.schema import  GeometryField
+# from utils_flask_sqla_geo.schema import  GeometryField
 # from utils_flask_sqla_geo.schema import GeoAlchemyAutoSchema, GeoModelConverter
 from marshmallow import EXCLUDE
 from .models import *

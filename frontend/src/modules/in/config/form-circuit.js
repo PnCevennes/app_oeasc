@@ -31,32 +31,7 @@ export default {
       min: 0
     },
 
-    // ug_tags: {
-    //   type: "list_form",
-    //   list_type: "combobox",
-    //   label: "Tags",
-    //   maxLength: 4,
-    //   multiple: true,
-    //   url: "api/in/tags/",
-    //   valueFieldName: "tag",
-    //   displayFieldName: "tag"
-    // }
   },
-  //   groups: [
-  //     {
-  //       title: "Informations",
-  //       forms: ["date_realisation", "id_circuit", "serie", "observers"]
-  //     },
-  //     {
-  //       title: "Météo",
-  //       direction: "row",
-  //       forms: ["temperature", "temps", "vent"]
-  //     },
-  //     {
-  //       title: 'Observations',
-  //       forms: ["groupes", "observations"]
-  //     }
-  //   ],
 
   title: ({ id }) =>
     id ? `Modificiation du circuit ${id}` : "Création d'un circuit",

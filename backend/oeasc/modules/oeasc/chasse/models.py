@@ -6,7 +6,7 @@ from flask import current_app
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 from geoalchemy2 import Geometry
-from sqlalchemy.orm import column_property, relationship, Mapped, query_expression
+from sqlalchemy.orm import column_property, relationship, Mapped
 from sqlalchemy import (
     Column,
     Integer,
@@ -18,7 +18,6 @@ from sqlalchemy import (
     ForeignKey,
     func,
     exists,
-    UniqueConstraint
 )
 
 from ..commons.models import TEspeces, TSecteurs, TNomenclaturesOeasc

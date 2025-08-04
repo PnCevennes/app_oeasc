@@ -1,3 +1,5 @@
+<!-- Va chercher le contenu d'une page en bdd et l'affiche.
+A supprimé lorsque les pages sont repassées en statique. -->
 <template>
 
   <div>

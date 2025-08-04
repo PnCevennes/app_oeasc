@@ -293,7 +293,7 @@ export default {
         .then(
           data => {
             this.setContent(data);
-            console.log(data);
+            // console.log(data);
           },
           // si erreur => content vide (comportement prod != dev)
           error => {error; this.setContent({code: this.getCode()})}

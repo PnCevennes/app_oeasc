@@ -160,19 +160,4 @@
 //     }, 300);
 
 
-//     console.log (
-//       "config ########################",
-//       this.config,
-//     );
-//     console.log (
-//       "select-map mapService ########################",
-//       this.mapService,
-
-//     );
-//     console.log(
-//       "mapConfig ########################",
-//       this.mapConfig
-//     );
-//   }
-// };
 </script>

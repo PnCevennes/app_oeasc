@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
-from flask_mail import Mail
-from pathlib import Path
+# from flask_mail import Mail
+# from pathlib import Path
 
 # from config import config
 from os import environ
@@ -24,6 +24,8 @@ else:
     # db = DB
     # pour la migration sqlalchemy 2.0 il faut déclarer la Base
     Base = db.Model
+
+
 
 
 # db = DB # pour le module auth_authentification, il faut db et non DB

@@ -25,15 +25,27 @@ def print_date(s_date):
 
 def get_some_config(config_text):
     """
-    pour avoir des elements de config dans jinja
+    Récupère certains éléments de configuration à utiliser dans les templates Jinja.
+
+    Cette fonction est utile lorsque l'on souhaite exposer uniquement quelques paramètres
+    de configuration à la couche de présentation (par exemple dans un template HTML Jinja),
+    sans transmettre toute la configuration de l'application.
+
+    Args:
+        config_text (dict): Dictionnaire contenant la configuration complète de l'application.
+
+    Returns:
+        dict: Dictionnaire filtré contenant uniquement les clés d'intérêt.
     """
+    # Liste des clés de configuration à exposer dans Jinja
     keys = [
-        "ID_APP",
-        "MODE_TEST",
-        "URL_USERSHUB",
-        "URL_APPLICATION",
+        "ID_APP",         # Identifiant de l'application
+        "MODE_TEST",      # Mode test activé ou non
+        "URL_USERSHUB",   # URL du service UsersHub
+        "URL_APPLICATION" # URL principale de l'application
     ]
 
+    # On filtre le dictionnaire de configuration pour ne garder que les clés souhaitées
     return {k: v for k, v in config_text.items() if k in keys}
 
 

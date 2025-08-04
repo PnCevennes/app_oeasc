@@ -90,11 +90,7 @@ export default {
           !!this.id_secteur.length >
         1
       ) {
-        console.log(
-          !!this.id_zone_cynegetique.length +
-            !!this.id_zone_indicative.length +
-            !!this.id_secteur.length
-        );
+
         return;
       }
 
@@ -106,18 +102,7 @@ export default {
       }
 
       this.processing = true;
-      // console.log("process", this.type, this.$props);
-      // console.log(
-      //   "dispatch valeurs::",
-      //   this.actions[this.type],
-      //   "id_espece", this.id_espece,
-      //   "id_zone_cynegetique", this.id_zone_cynegetique,
-      //   "id_zone_indicative", this.id_zone_indicative,
-      //   "id_secteur", this.id_secteur,
-      //   "id_saison", this.id_saison,
-      //   "bracelet", this.bracelet,
-      //   "poids_ou_dagues", this.poids_ou_dagues
-      // );
+
       this.$store
         .dispatch(this.actions[this.type], {
           id_espece: this.id_espece,
@@ -130,28 +115,17 @@ export default {
         })
         .then(
           data => {
-            // console.log("process affichage::", this.type);
-            // console.log("data", data);
-            // console.log("prop", this.$props);
             this.chartOptions = this.processData[this.type](data, this.$props);
-            // console.log("chartOptions2", this.chartOptions);
             this.processing = false;
-            // console.log("chartOptions", this.chartOptions);
           },
           error => {
-            // console.log("chartOptions", this.chartOptions);
-            console.log("error", error);
             this.msgError = `pas de données pour les valeurs suivantes id_espece ${this.id_espece} id_zone_cynegetique ${this.id_zone_cynegetique} id_zone_indicative ${this.id_zone_indicative}`;
             this.bError = true;
             this.processing = false;
             this.chartOptions = null;
           }
         );
-      // console.log(
-      //   "dispatch",
-      //   this.chartOptions,
-      //   this.processing,
-      // );
+
     }
   },
   mounted() {

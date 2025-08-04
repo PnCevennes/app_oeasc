@@ -36,19 +36,18 @@ from .schema import (
 
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
-from flask import Blueprint, current_app, request, send_file, jsonify
+from flask import Blueprint, current_app, request, send_file
 from utils_flask_sqla.response import json_resp, csv_resp
-from utils_flask_sqla.generic import GenericQuery, GenericTable
+from utils_flask_sqla.generic import GenericQuery
 from .repositories import (
     get_chasse_bilan,
     get_attribution_result,
     chasse_process_args,
     chasse_get_infos,
-    get_data_export_ods,
+    # get_data_export_ods,
     get_data_all_especes_export_ods,
 )
-from sqlalchemy import column, select, func, table, distinct, over
-import json
+from sqlalchemy import  func
 import datetime
 
 # from oeasc.utils.env import ROOT_DIR
@@ -121,12 +120,16 @@ def chasse_bilan():
 @json_resp
 def api_result_ice():
     """
-    API ICE
+    Route pour le calcul ICE (Indice de Chasse Ecologique).
+    Utilisée pour retourner le résultat du calcul ICE en fonction des paramètres fournis dans la requête GET.
+    Les paramètres sont extraits via chasse_process_args() et transmis à la fonction SQL fct_calcul_ice_mc.
+    En cas d'erreur ou de données insuffisantes, un message d'erreur est retourné.
     """
+    # Récupère les paramètres de la requête (id_espece, id_zone_indicative, id_zone_cynegetique, id_secteur, poids_ou_dagues)
     params = chasse_process_args()
     
-    
     try:
+        # Appelle la fonction SQL pour calculer l'ICE avec les paramètres récupérés
         req = func.oeasc_chasse.fct_calcul_ice_mc(
             params["id_espece"],
             params["id_zone_indicative"],
@@ -135,14 +138,18 @@ def api_result_ice():
             params["poids_ou_dagues"],
         )
         
+        # Exécute la requête et récupère le premier résultat
         res = DB.session.execute(req).first()
         
+        # Si aucun résultat n'est retourné, renvoie une erreur avec code 204
         if res is None or res[0] is None:
             return {"error": "Aucun résultat calculé - données insuffisantes", "code": 204}
             
+        # Retourne le résultat du calcul ICE
         return res[0]
         
     except Exception as e:
+        # En cas d'erreur lors du calcul, log l'erreur et retourne un message d'erreur avec code 500
         current_app.logger.error(f"Erreur calcul ICE: {str(e)}")
         return {"error": "Erreur lors du calcul ICE", "details": str(e), "code": 500}
 
@@ -165,13 +172,18 @@ def api_chasse_result_info():
 @json_resp
 def api_result_custom():
     """
-    API CUSTOM
+    Route pour obtenir les résultats d'attribution des bracelets de chasse.
+    Utilisée pour retourner les résultats d'attribution pour chaque type de bracelet (CEM, CEFF, CEFFD).
+    Les paramètres de la requête sont traités par chasse_process_args().
+    Pour chaque type de bracelet, la fonction get_attribution_result est appelée avec les paramètres adaptés.
+    Retourne un dictionnaire contenant les résultats pour chaque type de bracelet.
     """
-
+    # Récupère les paramètres de la requête GET
     params = chasse_process_args()
 
     out = {}
 
+    # Pour chaque type de bracelet, calcule et stocke le résultat d'attribution
     for bracelet in ["CEM", "CEFF", "CEFFD"]:
         params["bracelet"] = bracelet
         data = get_attribution_result(params)
@@ -183,47 +195,67 @@ def api_result_custom():
 @csv_resp
 def api_result_export():
     """
-    API CUSTOM
+    Route pour exporter des données au format CSV.
+    Cette API permet d'exporter les réalisations de chasse sous forme de fichier CSV, selon les paramètres fournis dans la requête GET.
+    Utilisation typique : extraction des données pour analyse ou archivage.
     """
 
-    # gestion paramètres
+    # Récupère le type de données à exporter depuis les paramètres de la requête (ex: 'realisation')
     data_type = request.args.get("data_type")
+    # Récupère les filtres éventuels appliqués à l'export (ex: filtrer par saison, espèce, etc.)
     filters = getlist(request.args, "filters")
 
+    # Dictionnaire associant le type de données à la vue SQL correspondante
     views = {"realisation": "oeasc_chasse.v_export_realisation_csv"}
 
+    # Sélectionne la vue à utiliser selon le type de données demandé
     view = views.get(data_type)
+    # Extrait le nom du schéma et de la table (vue) à partir de la chaîne
     schema_name = view.split(".")[0]
     table_name = view.split(".")[1]
 
-    # view + filters
+    # Exécute la requête sur la vue SQL avec les filtres éventuels, limite à 1 million de lignes
     results = GenericQuery(
         DB, schemaName=schema_name, tableName=table_name, filters=filters, limit=1e6
     ).return_query()
 
+    # Récupère les données extraites
     data = results["items"]
+    # Génère le nom du fichier CSV en fonction du type de données et de la date/heure d'export
     file_name = "export_{}_{}".format(
         data_type, datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%s")
     )
+    # Retourne le fichier CSV : nom, données, entêtes de colonnes, séparateur
     return (file_name, data, data[0].keys(), ";")
 
 
 @bp.route("export/ods", methods=["GET"])
 def api_chasse_ods():
     """
-    test export ods
+    Route pour exporter le bilan de chasse au format ODS (OpenDocument Spreadsheet).
+    Cette API génère un fichier ODS à partir d'un template et des données de chasse pour une saison donnée.
+    Utilisation typique : extraction du bilan de chasse pour archivage ou diffusion sous format tableur.
     """
 
+    # Chemin du template ODS utilisé pour générer le fichier final
     template_path = config["ROOT_DIR"] / "backend/oeasc/templates/ods/template_bilan_chasse.ods"
+    # Chemin du fichier ODS généré (dans le dossier static/export)
     output_path = config["ROOT_DIR"] / "static/export/test.ods"
+    # Récupère le nom de la saison depuis les paramètres de la requête GET, "current" par défaut
     nom_saison = request.args.get("saison", "current")
 
+    # Récupère les données à exporter pour toutes les espèces et la saison demandée
+    # Fonction utilisée lors de l'export ODS pour préparer les données à injecter dans le template
     data = get_data_all_especes_export_ods(nom_saison)
 
+    # Crée le dossier de sortie s'il n'existe pas (pour éviter les erreurs d'écriture)
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Initialise le template ODS avec le chemin du template et du fichier de sortie
     t = Template(template_path, output_path)
+    # Injecte les données dans le template et génère le fichier ODS
     t.render(data)
 
+    # Retourne le fichier ODS généré en pièce jointe, avec un nom personnalisé selon la saison
     return send_file(
         output_path,
         as_attachment=True,

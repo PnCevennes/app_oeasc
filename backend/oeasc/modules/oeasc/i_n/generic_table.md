@@ -1,2 +1,0 @@
-# Les tables génériques
-

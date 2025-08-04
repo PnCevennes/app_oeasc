@@ -1,3 +1,6 @@
+<!-- Ancien tableau de résumé de déclaration. N'est pour l'instant affiché que pour visualiser les déclarations.
+A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
+
 <template>
   <div v-if="bInit">
     <table class="table-declaration" ref="dectable">

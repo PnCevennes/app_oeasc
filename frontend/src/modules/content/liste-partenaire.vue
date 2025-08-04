@@ -1,3 +1,4 @@
+<!-- S'affiche dans "en savoir plus" et dans les actus" -->
 <template>
   <div>
     <div v-for="[key, item] of Object.entries(setup)" :key="key">

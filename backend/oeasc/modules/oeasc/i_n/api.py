@@ -2,7 +2,7 @@
 
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
-from sqlalchemy import select, update
+from sqlalchemy import update
 from oeasc.modules.oeasc.user.utils import check_auth_redirect_login
 
 from .repository import in_data
@@ -82,22 +82,32 @@ def in_test_results():
 @json_resp
 def in_valid_realisation():
     """
-    valide ou invalide une realisation
+    Valide ou invalide une réalisation nocturne (IN) en base de données.
+
+    Cette fonction est appelée lors d'une requête PATCH sur l'endpoint
+    /valid_realisation/. Elle nécessite que l'utilisateur soit authentifié
+    avec un niveau de droit >= 5 (voir le décorateur check_auth_redirect_login).
+    Elle est typiquement utilisée depuis l'interface pour valider ou invalider
+    une réalisation (par exemple, après vérification ou correction).
     """
 
+    # Récupère les données JSON envoyées dans la requête HTTP
     data = request.get_json()
 
+    # Extraction des identifiants nécessaires pour cibler la bonne réalisation/tag
     id_realisation = data["id_realisation"]
     id_tag = data["id_tag"]
 
+    # Prépare la requête SQLAlchemy pour mettre à jour la table de correspondance
+    # entre réalisation et tag (CorRealisationTag) avec les nouvelles valeurs
     stmt_cor = update(CorRealisationTag).where(
         CorRealisationTag.id_realisation == id_realisation,
         CorRealisationTag.id_tag == id_tag
-    ).values(data)
+    ).values(data)  # Les champs à mettre à jour sont ceux présents dans 'data'
 
-    
+    # Exécute la requête de mise à jour sur la base de données
     cor = DB.session.execute(stmt_cor)
-    DB.session.commit()
+    DB.session.commit()  # Valide la transaction
 
-
+    # Retourne True pour indiquer le succès de l'opération (formaté en JSON par le décorateur)
     return True

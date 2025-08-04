@@ -12,7 +12,7 @@ from datetime import timedelta, datetime
 from flask import current_app
 from sqlalchemy import text, select
 from sqlalchemy.sql import func
-from sqlalchemy.orm import Session
+# from sqlalchemy.orm import Session
 
 from pypnusershub.db.models import User
 from pypnusershub.schemas import UserSchema
@@ -25,7 +25,7 @@ from oeasc.modules.oeasc.nomenclature import (
     get_nomenclature,
 )
 from .models import TForet, TProprietaire, CorDgdCadastre
-from .schema import TForetSchema, TProprietaireSchema, CorDgdCadastreSchema
+from .schema import TForetSchema, TProprietaireSchema
 
 
 config = current_app.config

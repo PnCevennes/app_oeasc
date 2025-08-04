@@ -7,7 +7,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow_sqlalchemy.fields import Nested, fields
 from marshmallow import EXCLUDE
 from .models import *
-from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
+# from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
 
 config = current_app.config
 DB = config["DB"]
@@ -19,9 +19,9 @@ pour mapper la vue user de oeasc_commons
 
 from flask import current_app
 
-from sqlalchemy.orm import column_property , relationship, Mapped
+# from sqlalchemy.orm import column_property , relationship, Mapped
 # from sqlalchemy import select, String
-from utils_flask_sqla.serializers import serializable
+# from utils_flask_sqla.serializers import serializable
 
 
 config = current_app.config

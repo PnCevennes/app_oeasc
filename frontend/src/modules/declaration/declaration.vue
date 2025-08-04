@@ -1,3 +1,5 @@
+<!-- Page de visualisation d'une déclaration. Est appelé dans form-chained
+Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -->
 <template>
   <div>
     <v-progress-linear
@@ -8,7 +10,6 @@
     <div class="declaration" id="declaration">
       <div v-if="declaration">
         <h1>Déclaration {{ declaration.id_declaration }}</h1>
-
         <v-btn
           class="ignorepdf"
           icon
@@ -75,7 +76,7 @@ export default {
         `declaration_${this.declaration.id_declaration}.pdf`,
         this.$store
       ).then(() => {
-        console.log('pdf end')
+        // console.log('pdf end')
         this.pdfProcessing = false;
       });
     },

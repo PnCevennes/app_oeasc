@@ -732,7 +732,7 @@ export default {
     this.nomenclature = await apiRequest("GET", `api/oeasc/nomenclatures`)
 
     this.information_declarant = this.$store.getters.user;
-    console.log("Information de l’utilisateur connecté:", this.information_declarant);
+    // console.log("Information de l’utilisateur connecté:", this.information_declarant);
     if (!this.information_declarant) {
       this.error = "Utilisateur non connecté ou informations manquantes.";
       // on redirige vers la page de connexion
@@ -805,14 +805,14 @@ export default {
       //------------------------------ preparation et envoi des données ------------------------------
 
       let options = { postData: { ...this.declaration_data } };
-      console.log("Données à soumettre:", options.postData);
+      // console.log("Données à soumettre:", options.postData);
 
       // Si il y a l'id c'est une modification  
       if (this.declaration_data.id_declaration){
         // Envoi de la déclaration via l'API
         await apiRequest("PATCH", `api/degat_foret/declaration`, options)
           .then(response => {
-            console.log("Déclaration mise à jour avec succès:", response);
+            // console.log("Déclaration mise à jour avec succès:", response);
             this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
           })
           .catch(error => {
@@ -824,7 +824,7 @@ export default {
       } else { // si il n'y a pas d'id, c'est une création
         apiRequest("POST", `/api/degat_foret/declaration`, options)
           .then(response => {
-            console.log("Déclaration créée avec succès:", response);
+            // console.log("Déclaration créée avec succès:", response);
             this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
           })
           .catch(error => {

@@ -42,16 +42,4 @@ class GenericRouteDefinitions:
         return schema
 
 
-    # def get_schema_from_model(self, Model):
-    #     """Retourne le schéma associé à l'objet"""
-    #     schema_name = f"{Model.__name__}Schema"
-    #     schema = globals().get(schema_name)
-    #     return schema if schema else None
-
-    # def get_schema_from_object_type(self, module_name, object_type):
-    #     """Retourne le schéma associé à l'objet type. Fonction appelé si on n'a pas récupéré le model avant. Sinon utiliser direc get_shema_from_model"""
-    #     Model, _ = self.get_model(module_name, object_type)
-    #     return self.get_schema_from_model(Model)
-
-
 

@@ -347,7 +347,7 @@ pypn-ref-geo==1.5.4
     # via
     #   oeasc (setup.py)
     #   taxhub
-pypnnomenclature @ https://github.com/PnX-SI/Nomenclature-api-module/archive/refs/heads/master.zip#sha256=87759fadd93970e20802a43c91fdd92ac2a4aaf4122d3810495a5df98accf7e0
+pypnnomenclature @ https://github.com/PnX-SI/Nomenclature-api-module/archive/refs/heads/master.zip
     # via oeasc (setup.py)
 pypnusershub>=3.0.2
     # via
@@ -477,7 +477,7 @@ urllib3==2.3.0
     #   requests
     #   sentry-sdk
     #   taxhub
-utils-flask-sqlalchemy==0.4.1
+utils-flask-sqlalchemy==0.4.2
     # via
     #   oeasc (setup.py)
     #   pypn-habref-api
@@ -486,7 +486,7 @@ utils-flask-sqlalchemy==0.4.1
     #   pypnusershub
     #   taxhub
     #   utils-flask-sqlalchemy-geo
-utils-flask-sqlalchemy-geo @ https://github.com/PnX-SI/Utils-Flask-SQLAlchemy-Geo/archive/refs/heads/master.zip#sha256=214f2635eac9dcc24ae5a4fcf7957254231843955075bed8c67e8160807225f6
+utils-flask-sqlalchemy-geo @ https://github.com/PnX-SI/Utils-Flask-SQLAlchemy-Geo/archive/refs/heads/master.zip
     # via
     #   oeasc (setup.py)
     #   pypn-ref-geo
