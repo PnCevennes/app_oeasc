@@ -8,9 +8,9 @@ from marshmallow_sqlalchemy.fields import Nested, fields
 # from utils_flask_sqla.schema import SmartRelationshipsMixin
 from utils_flask_sqla_geo.schema import  GeometryField
 from utils_flask_sqla_geo.schema import GeoAlchemyAutoSchema
-# from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
 from marshmallow import EXCLUDE
 from .models import *
+from marshmallow import pre_load
 
 config = current_app.config
 DB = config["DB"]
@@ -37,14 +37,6 @@ class TZoneCynegetiquesSchema(SQLAlchemyAutoSchema):
 
     secteur = Nested("TSecteursSchema", many=False)
 
-
-
-# SmartRelationshipsMixin retire les relationships de la serialisation. Il faudra donc les spécifier lors des load ou dump
-# via only=[]. Exemple:
-# FooSchema().dump() -> {"id": 1, "name": "toto" }
-# FooSchema(only=["+default_excluded_field"]).dump() -> {"id": 1, "name": "toto", default_excluded_field: "test" }
-# FooSchema(only=["relationship"]).dump() -> {"id": 1, "name": "toto",  relationship : {OtherSchema...} }
-# FooSchema(only=["id", "relationship"]).dump() -> {"id": 1, relationship : {OtherSchema...} }
 
 
 class TZoneIndicativesSchema( GeoAlchemyAutoSchema):
@@ -112,14 +104,18 @@ class TSaisonDatesSchema(SQLAlchemyAutoSchema):
         include_fk = True
         sqla_session = DB.session,
         unknown = EXCLUDE # retire du schema les champs inconnus ou superflus
-    
+
     saison = Nested("TSaisonsSchema", many=False)
     espece = Nested("TEspecesSchema", many=False)
     nomenclature_type_chasse = Nested(
-        "NomenclatureSchema",
+        "TNomenclaturesOeascSchema",
         many=False,
-        # metadata={"load_instance": True},
+        allow_none=True,
+        metadata={"load_instance": False},
+        unknown=EXCLUDE,  # retire du schema les champs inconnus ou superflus
     )
+
+    
 
 
 class TAttributionMassifsSchema(SQLAlchemyAutoSchema):

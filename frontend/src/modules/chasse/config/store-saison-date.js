@@ -1,3 +1,4 @@
+
 export default {
   group: "chasse",
   name: "saisonDate",
@@ -8,13 +9,12 @@ export default {
     page: 1, // on affiche la première page par défaut 
     sortBy: ["id_saison_date"], 
     sortDesc: [false], // tri en ordre décroissant
-    fields: [ //les des champs des modèles à intégrer à la requête get
-      "saison.id_saison", "saison.nom_saison",
-       "espece.id_espece", "espece.nom_espece", "espece.code_espece",
-       "nomenclature_type_chasse.id_nomenclature", "nomenclature_type_chasse.label_fr", 
-       "nomenclature_type_chasse.definition_fr"
-
-    ]
+    // fields: [ //les des champs des modèles à intégrer à la requête get
+    //   "saison.id_saison", "saison.nom_saison",
+    //    "espece.id_espece", "espece.nom_espece", "espece.code_espece",
+    //    "nomenclature_type_chasse.id_nomenclature", "nomenclature_type_chasse.label_fr", "nomenclature_type_chasse.id_type", 
+    //    "nomenclature_type_chasse.definition_fr"
+    // ]
   },
 
   defs: {

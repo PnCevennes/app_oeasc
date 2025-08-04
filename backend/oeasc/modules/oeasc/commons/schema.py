@@ -7,7 +7,6 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow_sqlalchemy.fields import Nested, fields
 from marshmallow import EXCLUDE
 from .models import *
-# from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
 
 config = current_app.config
 DB = config["DB"]

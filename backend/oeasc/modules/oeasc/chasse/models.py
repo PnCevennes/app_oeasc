@@ -138,8 +138,11 @@ class TSaisonDates(CustomModel):
     id_nomenclature_type_chasse: Mapped[int] = Column(
         Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
-    nomenclature_type_chasse: Mapped["TNomenclatures"] = relationship(
-        TNomenclaturesOeasc, foreign_keys=id_nomenclature_type_chasse
+    nomenclature_type_chasse: Mapped["TNomenclaturesOeasc"] = relationship(
+        TNomenclaturesOeasc,
+        foreign_keys=id_nomenclature_type_chasse,
+        # single_parent=True,
+        # primaryjoin="TSaisonDates.id_nomenclature_type_chasse == TNomenclaturesOeasc.id_nomenclature"
     )
 
 @serializable

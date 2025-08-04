@@ -3,32 +3,16 @@ export default {
     name: "nomenclature",
     label: "Nomenclature",
     serverSide: true,
-
-    options: { // Ajoute des param à la requête get pour filtrer les données
-      // page: 1, // on affiche la première page par défaut 
-      // sortBy: ["idl_nomenclature"], // tri par défaut
-      // sortDesc: [false], // tri en ordre décroissant
-      fields: [ //les des champs des modèles à intégrer à la requête get
-        "nomenclature_type.id_type", "nomenclature_type.mnemonique"
-      ]
-    },
-  
-
     defs: {
       id_nomenclature: {
         label: "Id",
         hidden: true,
         type: 'text',
       },
-      nomenclature_type: {
-        storeName: 'commonsNomenclatureType',
-        displayFieldName: 'mnemonique',
-        type: 'list_form',
-        list_type: 'autocomplete',
-        // returnObject: true,
+     type: {
         label: "Type",
-        // type: 'text',
-        // required: true,
+        type: 'text',
+        required: true,
       },
       cd_nomenclature: {
         label: "Code",
@@ -46,9 +30,9 @@ export default {
         required: true
       },
       definition_fr: {
-        label: "Definition",
+        label: "Description",
         type: 'text',
-        required: false
+        required: true
       },
     },
     displayFieldName: 'label_fr',

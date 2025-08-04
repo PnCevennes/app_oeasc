@@ -76,7 +76,7 @@ class TCircuits(CustomModel):
 
 
 # pour éviter une boucle d'importation avec le modele I_N, il faut déclarer cette relation après la définition des classe et depuis ce model
-TSecteurs.circuits = relationship("TCircuits", back_populates="secteur", overlaps="secteur")
+TSecteurs.circuits = relationship("TCircuits", back_populates="secteur", overlaps="secteur", cascade_backrefs=False)
 
 
 @serializable
