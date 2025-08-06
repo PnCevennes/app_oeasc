@@ -30,7 +30,7 @@
         {{ legend }}
       </h4>
       <!-- {{ config.containerName }} {{ baseModel[config.containerName] }} -->
-      <div>
+      <!-- <div>
         Sélectionnez sur la carte ou dans la liste
         {{ description }}.
         <help code="selection_carte"></help>
@@ -113,51 +113,51 @@
   </div>
 </template> -->
 
-<script>
+<!-- <script>
 
-// import { selectMapMethods } from "./select-map.js";
-// import help from "./help.vue";
+import { selectMapMethods } from "./select-map.js";
+import help from "./help.vue";
 
-// export default {
-//   name: "selectMap",
-//   components: { baseMap: () => import("@/components/map/base-map.vue"), help },
-//   data: () => ({
-//     dataSelect: null,
-//     mapService: null,
-//     mapConfig: null,
-//     selectContainer: null,
-//     legend: null,
-//     description: null,
-//     name: null
-//   }),
-//   methods: selectMapMethods, // intégre toutes les méthodes du fichier select-map.js
-//   props: ["config", "baseModel"],
-//   created: function() {
-//     // add event on map-data-loaded
+export default {
+  name: "selectMap",
+  components: { baseMap: () => import("@/components/map/base-map.vue"), help },
+  data: () => ({
+    dataSelect: null,
+    mapService: null,
+    mapConfig: null,
+    selectContainer: null,
+    legend: null,
+    description: null,
+    name: null
+  }),
+  methods: selectMapMethods, // intégre toutes les méthodes du fichier select-map.js
+  props: ["config", "baseModel"],
+  created: function() {
+    // add event on map-data-loaded
 
-//     this.selectContainer =
-//       this.config.containerUrl &&
-//       !(this.config.multiple
-//         ? this.baseModel[this.config.name].length
-//         : this.baseModel[this.config.name]);
-//     this.initMapConfig();
-//   },
-//   mounted: function() {
-//     setTimeout(() => {
-//       document
-//         .getElementById(this.config.name)
-//         .addEventListener("layer-data", this.initSelect);
+    this.selectContainer =
+      this.config.containerUrl &&
+      !(this.config.multiple
+        ? this.baseModel[this.config.name].length
+        : this.baseModel[this.config.name]);
+    this.initMapConfig();
+  },
+  mounted: function() {
+    setTimeout(() => {
+      document
+        .getElementById(this.config.name)
+        .addEventListener("layer-data", this.initSelect);
 
-//       document
-//         .getElementById(this.config.name)
-//         .addEventListener("select-map-click", this.clickOnLayer);
+      document
+        .getElementById(this.config.name)
+        .addEventListener("select-map-click", this.clickOnLayer);
 
-//       this.mapService = this.$store.getters.mapService(this.config.name);
-//       this.mapService._config.layers["selection"] = {
-//         style: this.mapConfig.styles.select,
-//         legend: "Sélection"
-//       };
-//     }, 300);
+      this.mapService = this.$store.getters.mapService(this.config.name);
+      this.mapService._config.layers["selection"] = {
+        style: this.mapConfig.styles.select,
+        legend: "Sélection"
+      };
+    }, 300);
 
 
-</script>
+</script> -->
