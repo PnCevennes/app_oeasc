@@ -7,7 +7,7 @@ export default {
     options: { // Ajoute des param à la requête get pour filtrer les données
       page: 1, // on affiche la première page par défaut 
       sortBy: ["id_personne"], 
-      sortDesc: [false], // tri en ordre décroissant
+      sortDesc: [true], // tri en ordre décroissant
       fields: [ //les des champs des modèles à intégrer à la requête get
         "id_personne", "nom_personne"
       ]

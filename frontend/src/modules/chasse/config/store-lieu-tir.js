@@ -7,12 +7,11 @@ export default {
     options: { // Ajoute des param à la requête get pour filtrer les données
       page: 1, // on affiche la première page par défaut 
       sortBy: ["id_lieu_tir"], 
-      sortDesc: [false], // tri en ordre décroissant
-      fields: [ //les des champs des modèles à intégrer à la requête get
-        
-        "zone_indicative.id_zone_indicative", "zone_indicative.nom_zone_indicative",
-        "zone_indicative.code_zone_indicative"
-      ]
+      sortDesc: [true], // tri en ordre décroissant
+      // fields: [ //les des champs des modèles à intégrer à la requête get
+      //   "zone_indicative.id_zone_indicative", "zone_indicative.nom_zone_indicative",
+      //   "zone_indicative.code_zone_indicative"
+      // ]
     },
 
 

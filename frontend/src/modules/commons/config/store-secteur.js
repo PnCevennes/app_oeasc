@@ -4,8 +4,12 @@ export default {
   label: "Secteur",
   serverSide: true,
 
+  options: { // Ajoute des param à la requête get pour filtrer les données
+    page: 1, // on affiche la première page par défaut
+    sortBy: ['nom_secteur'],
+    sortDesc: [false], // tri en ordre décroissant
+  },
 
-  
   defs: {
     id_secteur: {
       label: "ID",

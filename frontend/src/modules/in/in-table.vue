@@ -6,13 +6,7 @@
       <!-- Affichage des filtres de sélection (Espèce, Secteur) -->
       <v-row dense v-if="ready">
         <v-col
-          v-for="[type, config] of Object.entries(configChoix)
-          /**  .filter(
-            ([type, config]) => {
-              return graphOnly !== undefined ? type == 'nom_espece' : true;
-            }
-          ) */
-          "
+          v-for="[type, config] of Object.entries(configChoix)"
           :key="type"
         >
           <!-- listForm : composant pour afficher les boutons de sélection des filtres -->

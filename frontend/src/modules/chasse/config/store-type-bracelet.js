@@ -9,11 +9,11 @@ export default {
 
   options: { // Ajoute des param à la requête get pour filtrer les données
     page: 1, // on affiche la première page par défaut 
-    sortBy: ["id_type_bracelet"], 
-    sortDesc: [false], // tri en ordre décroissant
-    fields: [ //les des champs des modèles à intégrer à la requête get
-      "espece.id_espece", "espece.nom_espece", "espece.code_espece"
-    ]
+    sortBy: ["espece", "code_type_bracelet"], // tri par défaut
+    sortDesc: [false, false], // tri en ordre décroissant
+    // fields: [ //les des champs des modèles à intégrer à la requête get
+    //   "espece.id_espece", "espece.nom_espece", "espece.code_espece"
+    // ]
   },
 
 

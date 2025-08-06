@@ -9,11 +9,11 @@ export default {
 
   options: { // Ajoute des param à la requête get pour filtrer les données
     page: 1, // on affiche la première page par défaut 
-    // sortBy: ["id_realisation"], // tri par défaut
-    // sortDesc: [true], // tri en ordre décroissant
-    fields: [ //les des champs des modèles à intégrer à la requête get
-      "circuit.secteur.id_secteur", "circuit.secteur.nom_secteur", "circuit.secteur.code_secteur", "circuit.id_circuit", "circuit.nom_circuit", "circuit.numero_circuit",
-    ]
+    sortBy: ["id_realisation"], // tri par défaut
+    sortDesc: [true], // tri en ordre décroissant
+    // fields: [ //les des champs des modèles à intégrer à la requête get
+    //   "circuit.secteur.id_secteur", "circuit.secteur.nom_secteur", "circuit.secteur.code_secteur", "circuit.id_circuit", "circuit.nom_circuit", "circuit.numero_circuit",
+    // ]
   },
 
 

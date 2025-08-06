@@ -7,12 +7,15 @@ export default {
 
   options: { // paramètres ajoutés à la requête get
     page: 1,
-    sortBy: ["id_attribution_massif"],
-    sortDesc: [true],
+    itemsPerPage: 20,
+    itemsPerPageOptions: [20, 50, 100],
+    sortBy: ["saison", "id_attribution_massif"],
+    sortDesc: [true, true],
+
     // les champs des modèles liés
-    fields: [
-      "zone_cynegetique", "espece", "saison"
-      ]
+    // fields: [
+    //   "zone_cynegetique", "espece", "saison"
+    //   ]
   },
 
 

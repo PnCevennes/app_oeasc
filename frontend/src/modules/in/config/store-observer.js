@@ -3,6 +3,11 @@ export default {
   name: "observer",
   label: "Observateur",
   serverSide: true,
+  options: { // Ajoute des param à la requête get pour filtrer les données
+    page: 1, // on affiche la première page par défaut
+    sortBy: ['id_observer'], // tri par défaut
+    sortDesc: [true], // tri en ordre décroissant
+  },
   defs: {
     id_observer: {
       label: "ID",

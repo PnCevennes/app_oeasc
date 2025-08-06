@@ -2,7 +2,7 @@
 
 // Si un champ de localisation est modifié, on réinitialise les autres champs de localisation pour éviter les incohérences
 const changeLocalisation = ({baseModel, config}) => {
-    for (const name of['id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'].filter(n => n != config.name)) {
+    for (const name of ['id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'].filter(n => n != config.name)) {
         baseModel[name] = []
     }
 }

@@ -67,6 +67,7 @@
         :loading="!configTable.items"
         :server-items-length="configTable.serverSide && itemsServerCount"
         loading-text="Chargement en cours... merci de patienter"
+        :footer-props="{'items-per-page-options': [20, 50, 100]}"
       >
 
 

@@ -10,11 +10,11 @@ export default {
 
       page: 1, // on affiche la première page par défaut 
       sortBy: ["id_zone_indicative"], 
-      sortDesc: [false], // tri en ordre décroissant
-      fields: [ //les des champs des modèles à intégrer à la requête get
-        "zone_cynegetique.id_zone_cynegetique", "zone_cynegetique.code_zone_cynegetique",
-        "zone_cynegetique.nom_zone_cynegetique"
-      ]
+      sortDesc: [true], // tri en ordre décroissant
+      // fields: [ //les des champs des modèles à intégrer à la requête get
+      //   "zone_cynegetique.id_zone_cynegetique", "zone_cynegetique.code_zone_cynegetique",
+      //   "zone_cynegetique.nom_zone_cynegetique"
+      // ]
     },
 
 

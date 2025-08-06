@@ -7,8 +7,8 @@ export default {
 
   options: { // Ajoute des param à la requête get pour filtrer les données
     page: 1, // on affiche la première page par défaut 
-    sortBy: ["id_saison_date"], 
-    sortDesc: [false], // tri en ordre décroissant
+    sortBy: ["saison", "espece", "nomenclature_type_chasse"], // tri par défaut
+    sortDesc: [true, false, false], // tri en ordre décroissant
     // fields: [ //les des champs des modèles à intégrer à la requête get
     //   "saison.id_saison", "saison.nom_saison",
     //    "espece.id_espece", "espece.nom_espece", "espece.code_espece",

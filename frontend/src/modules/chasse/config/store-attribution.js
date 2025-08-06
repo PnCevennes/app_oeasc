@@ -10,15 +10,15 @@ export default {
 
   options: { // Ajoute des params à la requête get pour filtrer les données
     page: 1, // on affiche la première page par défaut 
-    sortBy: ["id_attribution"], 
-    sortDesc: [true], // tri en ordre décroissant
-    fields: [//les des champs des modèles à intégrer à la requête get
-      // 'numero_bracelet', 'id_attribution',
-      "saison.id_saison", "saison.nom_saison",
-      "type_bracelet.id_type_bracelet", "type_bracelet.code_type_bracelet",
-      "zone_cynegetique_affectee.id_zone_cynegetique", "zone_cynegetique_affectee.nom_zone_cynegetique",
-      'zone_indicative_affectee.id_zone_indicative', 'zone_indicative_affectee.nom_zone_indicative',
-    ], 
+    sortBy: ["saison", "id_attribution"], 
+    sortDesc: [true, true], // tri en ordre décroissant
+    // fields: [//les des champs des modèles à intégrer à la requête get
+    //   // 'numero_bracelet', 'id_attribution',
+    //   "saison.id_saison", "saison.nom_saison",
+    //   "type_bracelet.id_type_bracelet", "type_bracelet.code_type_bracelet",
+    //   "zone_cynegetique_affectee.id_zone_cynegetique", "zone_cynegetique_affectee.nom_zone_cynegetique",
+    //   'zone_indicative_affectee.id_zone_indicative', 'zone_indicative_affectee.nom_zone_indicative',
+    // ], 
 
   },
 
@@ -45,7 +45,7 @@ export default {
         type: 'list_form',
         list_type: 'autocomplete',
         returnObject: true,
-        dataReloadOnSearch: true
+        dataReloadOnSearch: true,
     },
     zone_cynegetique_affectee: {
         label: 'Zone cynégétique affectée',

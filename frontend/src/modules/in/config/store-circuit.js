@@ -9,9 +9,9 @@ export default {
       page: 1, // on affiche la première page par défaut 
       sortBy: ["id_circuit"], // tri par défaut
       sortDesc: [true], // tri en ordre décroissant
-      fields: [ //les des champs des modèles à intégrer à la requête get
-        "secteur.id_secteur", "secteur.nom_secteur", "secteur.code_secteur"
-      ]
+      // fields: [ //les des champs des modèles à intégrer à la requête get
+      //   "secteur.id_secteur", "secteur.nom_secteur", "secteur.code_secteur"
+      // ]
     },
 
 

@@ -2,7 +2,13 @@ export default {
     group: "commons",
     name: "nomenclature",
     label: "Nomenclature",
+    displayFieldName: 'label_fr',
     serverSide: true,
+    options: { // Ajoute des param à la requête get pour filtrer les données
+      page: 1, // on affiche la première page par défaut 
+      sortBy: ['id_nomenclature'], 
+      sortDesc: [true], // tri en ordre décroissant
+    },
     defs: {
       id_nomenclature: {
         label: "Id",
@@ -35,7 +41,7 @@ export default {
         required: true
       },
     },
-    displayFieldName: 'label_fr',
-    sortBy: ['type', 'cd_nomenclature']
+    // sortBy: ['meta_create_date', 'id_nomenclature']
+    
   };
   

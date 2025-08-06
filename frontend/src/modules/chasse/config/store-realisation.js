@@ -21,6 +21,7 @@ export default {
     "nomenclature_mode_chasse"
   ],
 
+
   form: {
 
     groups: [
@@ -158,17 +159,17 @@ export default {
     sortBy: ["saison", "date_exacte"],
     sortDesc: [true, true],
     // les champs des modèles liés
-    fields: [
-      "saison.id_saison", "saison.nom_saison",
-      "attribution.id_attribution", "attribution.numero_bracelet",
-      "auteur_tir.id_personne", "auteur_tir.nom_personne", "auteur_constat.id_personne", "auteur_constat.nom_personne",
-      "zone_cynegetique_realisee.id_zone_cynegetique", "zone_cynegetique_realisee.nom_zone_cynegetique",
-      "zone_indicative_realisee.id_zone_indicative", "zone_indicative_realisee.nom_zone_indicative",
-      "lieu_tir_synonyme.id_lieu_tir_synonyme", "lieu_tir_synonyme.lieu_tir_synonyme_display",
-      "nomenclature_sexe.id_nomenclature", "nomenclature_sexe.label_fr",
-      "nomenclature_classe_age.id_nomenclature", "nomenclature_classe_age.label_fr",
-      "nomenclature_mode_chasse.id_nomenclature", "nomenclature_mode_chasse.label_fr",
-      ]
+    // fields: [
+    //   "saison.id_saison", "saison.nom_saison",
+    //   "attribution.id_attribution", "attribution.numero_bracelet",
+    //   "auteur_tir.id_personne", "auteur_tir.nom_personne", "auteur_constat.id_personne", "auteur_constat.nom_personne",
+    //   "zone_cynegetique_realisee.id_zone_cynegetique", "zone_cynegetique_realisee.nom_zone_cynegetique",
+    //   "zone_indicative_realisee.id_zone_indicative", "zone_indicative_realisee.nom_zone_indicative",
+    //   "lieu_tir_synonyme.id_lieu_tir_synonyme", "lieu_tir_synonyme.lieu_tir_synonyme_display",
+    //   "nomenclature_sexe.id_nomenclature", "nomenclature_sexe.label_fr",
+    //   "nomenclature_classe_age.id_nomenclature", "nomenclature_classe_age.label_fr",
+    //   "nomenclature_mode_chasse.id_nomenclature", "nomenclature_mode_chasse.label_fr",
+    //   ]
   },
 
 
