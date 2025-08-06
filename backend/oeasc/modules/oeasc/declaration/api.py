@@ -391,10 +391,6 @@ def declarations_shape():
     # Définition du répertoire où seront stockés les fichiers shapefile
     dir_path = str(config["ROOT_DIR"] / "static/shapefiles")
 
-    # Affiche le chemin racine dans la console pour debug
-    print("########################$###")
-    print(config["ROOT_DIR"])
-
     # Détermine la vue SQL à utiliser selon le type de déclaration
     view_name = (
         "v_export_declaration_degats_shape"

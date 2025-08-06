@@ -215,7 +215,7 @@ def process_annees(ug):
 
         # On ne prend en compte que les années avec une moyenne calculée
         if not annee.get("moy"):
-            print("### annee sans moyenne")
+            # print("### annee sans moyenne")
             continue
 
         X.append([int(key_annee), 1])  # Année et constante pour la régression

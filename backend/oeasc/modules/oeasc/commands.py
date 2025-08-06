@@ -53,12 +53,10 @@ def cmd_test_chasse_realisation(module_code, schema_name):
 
     # Chargement des données JSON en dictionnaire Python
     post_data = json.loads(data_text)
-    print("test")
-    # Affichage des données formatées pour vérification
-    print(json.dumps(post_data, indent=4))
+
     # Appel de la fonction pour créer ou mettre à jour l'objet 'realisation' dans le module 'chasse'
     create_or_update_object_type("chasse", "realisation", None, post_data)
-    print("test ok")
+
 
 # liste des commande pour export dans blueprint.py
 commands = [

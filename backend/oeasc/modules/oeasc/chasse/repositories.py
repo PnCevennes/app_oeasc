@@ -150,9 +150,8 @@ def chasse_get_infos():
         stmt = select(TEspeces.nom_espece).where(TEspeces.id_espece == id_espece)
         # Exécution de la requête
         nom_espece = DB.session.scalar(stmt)
-        print(f"Nom de l'espèce : {nom_espece}")
-        if nom_espece is None:
-            print("Aucune espèce trouvée pour cet ID.")
+        # if nom_espece is None:
+        #     print("Aucune espèce trouvée pour cet ID.")
     except SQLAlchemyError as e:
         print(f"Erreur lors de l'exécution de la requête : {e}")
 

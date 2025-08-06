@@ -335,8 +335,6 @@ def create_or_update_declaration(post_data):
         DB.session.add(declaration)
 
     DB.session.commit()
-
-    print("id_declaration", declaration.id_declaration)    
     
     # Mise à jour des aires liées à la déclaration (communes, secteurs, sections)
     patch_areas_declarations(declaration.id_declaration)

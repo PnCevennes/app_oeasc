@@ -6,9 +6,9 @@ password = "1234"
 if __name__ == "__main__":
     password_hash = generate_password_hash(password.encode("utf-8")).decode("utf-8")
 
-    print(password.encode("utf-8"))
-    print(generate_password_hash(password.encode("utf-8")))
-    print(password_hash)
+    # print(password.encode("utf-8"))
+    # print(generate_password_hash(password.encode("utf-8")))
+    # print(password_hash)
 
     password_md5 = hashlib.md5(password.encode("utf-8")).hexdigest()
-    print(password_md5)
+    # print(password_md5)

@@ -38,7 +38,7 @@ def get_view(schema, view):
     retourne la vue schema.view
     TODO args pour filtres etc...
     """
-    print ('test pour voir si on arrive ici')
+    # print ('test pour voir si on arrive ici')
     # data = GenericQuery(DB, view, schema).as_dict()
 
     # return data["items"]

@@ -289,10 +289,8 @@ def api_patch_declaration():
 
     # Envoie un mail de notification pour informer de la création de la déclaration
     # (décommenter la ligne ci-dessous pour activer l'envoi de mail après les tests)
-    # send_mail_validation_declaration(post_data_arranged, b_create)
+    send_mail_validation_declaration(post_data_arranged, b_create)
 
-    # Affiche dans la console les données arrangées pour vérification lors des tests
-    print("post_data_arranged", post_data_arranged)
 
     # Retourne le résultat de la création au format JSON
     return post_data_arranged

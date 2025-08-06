@@ -50,7 +50,6 @@ def get_type_code(id_type):
         BibAreasType.id_type == id_type
     ).limit(1)
     res = DB.session.execute(stmt).scalars().one_or_none()
-    print("get_type_code", res)
     return res
 
 
@@ -223,7 +222,6 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                 )
                 .order_by(table.label)
             )
-            print("stmt", stmt)
             data = DB.session.execute(stmt).scalars().all()
 
 

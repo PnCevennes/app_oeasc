@@ -53,7 +53,6 @@ def nomenclature_oeasc():
     # (pour éviter de refaire la requête à chaque appel)
     if not config.get("_nomenclature"):
         # Si elles ne sont pas présentes, on les récupère depuis la base
-        print("get_nomenclature from db")
         list_data = nomenclature_oeasc_types  # Liste des types de nomenclature à charger
 
         data = {}
@@ -217,7 +216,6 @@ def get_areas_from_ids(id_areas):
 
     # Si des aires doivent être récupérées en base
     if id_areas_to_query:
-        print("get areas from db ", len(id_areas_to_query))
 
         # On construit la requête SQL pour récupérer toutes les aires d'un coup
         stmt = select(VA).where(VA.id_area.in_(id_areas_to_query))
@@ -254,7 +252,6 @@ def get_area_from_id(id_area):
 
     # Si l'aire n'est pas déjà présente dans le cache, on la récupère en base
     if not config["_areas"].get(str(id_area), None):
-        print("get single area from db : " + str(id_area))
 
         # On construit la requête SQL pour récupérer l'aire
         stmt = select(VA).where(VA.id_area == id_area)

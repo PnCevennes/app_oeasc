@@ -17,7 +17,6 @@ if db_path and db_path != f"{__name__}.db":
     # db = DB
 
 else:
-    print("module db connecté ###### => ", __name__)
     db = SQLAlchemy(engine_options={"future": True})  # future pour sqlalchemy 2.0
     # DB = SQLAlchemy( engine_options=app.config['SQLALCHEMY_ENGINE_OPTIONS']) # future pour sqlalchemy 2.0
     environ["FLASK_SQLALCHEMY_DB"] = f"{__name__}.db"
