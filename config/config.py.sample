@@ -9,10 +9,15 @@ SQLALCHEMY_ECHO = False
 # SQLALCHEMY_RECORD_QUERIES = False
 SQLALCHEMY_ENGINE_OPTIONS = {
     'pool_recycle': 280, # nb de secondes avant de recycler une connexion
+    'pool_pre_ping': True,  # Vérifie si la connexion est toujours valide avant de l'utiliser
     'pool_timeout': 10, # nb de secondes avant de timeout
     'pool_size': 1, # nb de connexions max
     'max_overflow': 10, # nb de connexions max en plus
     'future': True # pour sqlalchemy 2.0
+    'connect_args': {
+        'connect_timeout': 10,  # Timeout (en secondes) lors de la connexion à la base
+        'application_name': 'oeasc_app'  # Nom de l'application pour l'identification côté PostgreSQL
+    }
 }
 
 
