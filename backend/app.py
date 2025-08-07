@@ -2,15 +2,7 @@
 fichier server app oeasc
 """
 
-###########################
-# pour la migration vers sqlalchemy 2.0. affiche les warnings
-import os
-import warnings
-from sqlalchemy import exc
 
-os.environ["PYTHONWARNINGS"] = "always"
-os.environ["SQLALCHEMY_WARN_20"] = "1"
-warnings.simplefilter("always", exc.SAWarning)
 
 
 ##########################
@@ -26,8 +18,8 @@ from flask import Flask, redirect, session, request, url_for, current_app
 from flask_migrate import Migrate
 
 # from jinja2 import evalcontextfilter, Markup, escape n'est plus supporté
-from jinja2 import pass_context
-from markupsafe import Markup, escape
+# from jinja2 import pass_context
+# from markupsafe import Markup, escape
 from oeasc.utils.env import db
 from flask_cors import CORS
 from pypnusershub.auth import auth_manager
@@ -36,19 +28,38 @@ from flask_mail import Mail
 # permet de définir des actions apres l'enregistrement d'un utilisateur (envoi de mail, ...)
 from pypnusershub.env import REGISTER_POST_ACTION_FCT
 
-# from flask import send_from_directory
-# from jinja2 import evalcontextfilter, Markup, escape n'est plus supporté
-# from jinja2 import pass_context
-# from markupsafe import Markup, escape
-# import config
-# from ..config import config
-# from flask_sqlalchemy import SQLAlchemy
-# from os import environ
-# from importlib import import_module
-# import logging
+
+
+
+#######################################################################################
+############## AFFICHAGE DES MESSAGES D'ERREURS ET WARNING ############################
+#######################################################################################
+
+# import os
+# import warnings
+# from sqlalchemy import exc
+import logging
+
+
+######### A decommenter EN DEVELOPPEMENT pour afficher les warnings  ##########
+# pour la migration vers sqlalchemy 2.0. affiche les warnings
+# os.environ["PYTHONWARNINGS"] = "always"
+# os.environ["SQLALCHEMY_WARN_20"] = "1"
+# warnings.simplefilter("always", exc.SAWarning)
+
+#Pour n'afficher que les warnings de sqlalchemy. A decommenter en développement pour ne pas afficher les requetes SQL
 # for name in ['sqlalchemy.engine', 'sqlalchemy.pool', 'sqlalchemy.dialects']:
 #     logging.getLogger(name).setLevel(logging.WARNING)
 
+
+###### A decommenter EN PRODUCTION pour ne pas encombrer les logs #######
+# n'affiche que les message d'erreur. A décommenter en production
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
+# n'affiche que les message d'erreur de sqlalchemy. A décommenter en production
+logging.getLogger("sqlalchemy").setLevel(logging.ERROR)
+
+
+###########################################################################################
 
 class ReverseProxied(object):
     def __init__(self, app_in, script_name=None, scheme=None, server=None):
@@ -108,6 +119,8 @@ app.config["URL_REDIRECT"] = (
 #         )
 # except AttributeError:
 #     pass
+
+#################################################################################################
 
 
 # initialisation de sqlalchemy pour Flask. Créé les engines et les sessions
