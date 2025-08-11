@@ -4,16 +4,14 @@ export default {
   label: "Type de bracelet",
   labels: "Types de bracelet",
   displayFieldName: "code_type_bracelet",
-  serverSide: true,
+  serverSide: true, // si pagination et tri sont gérés côté serveur
 
 
   options: { // Ajoute des param à la requête get pour filtrer les données
     page: 1, // on affiche la première page par défaut 
     sortBy: ["espece", "code_type_bracelet"], // tri par défaut
     sortDesc: [false, false], // tri en ordre décroissant
-    // fields: [ //les des champs des modèles à intégrer à la requête get
-    //   "espece.id_espece", "espece.nom_espece", "espece.code_espece"
-    // ]
+
   },
 
 
@@ -29,7 +27,7 @@ export default {
         storeName: 'commonsEspece',
         type: 'list_form',
         list_type: 'select',
-        returnObject: true,
+        returnObject: true, // true si ca ne retourne pas qu'une valeur mais plusieurs dans un objet
     },
 
 

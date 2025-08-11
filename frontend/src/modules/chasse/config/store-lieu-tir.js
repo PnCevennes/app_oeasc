@@ -8,10 +8,6 @@ export default {
       page: 1, // on affiche la première page par défaut 
       sortBy: ["id_lieu_tir"], 
       sortDesc: [true], // tri en ordre décroissant
-      // fields: [ //les des champs des modèles à intégrer à la requête get
-      //   "zone_indicative.id_zone_indicative", "zone_indicative.nom_zone_indicative",
-      //   "zone_indicative.code_zone_indicative"
-      // ]
     },
 
 

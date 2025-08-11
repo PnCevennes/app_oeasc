@@ -1,3 +1,20 @@
+<!--
+  Ce composant Vue.js affiche un graphique Highcharts ou une barre de progression selon l'état des données.
+
+  Props attendues :
+    - height (optionnelle) : définit la hauteur du conteneur et du graphique (par défaut 400px).
+    - width (optionnelle) : définit la largeur du graphique (par défaut 100%).
+    - chartOptions : options de configuration du graphique Highcharts. Si cette prop est définie, le graphique s'affiche.
+    - hcInstance : instance de la librairie Highcharts à utiliser.
+
+  Fonctionnement :
+    - Si chartOptions est défini, le composant <highcharts> est affiché avec les options et l'instance fournies.
+    - Si chartOptions n'est pas encore disponible (par exemple, en attente de chargement des données), une barre de progression indéterminée (<v-progress-linear>) est affichée pour indiquer à l'utilisateur que le contenu est en cours de chargement.
+
+  Cas d'utilisation :
+    - Utilisé pour afficher dynamiquement un graphique Highcharts dans une interface utilisateur, tout en gérant l'état de chargement des données.
+    - Permet de personnaliser la taille du graphique via les props height et width.
+-->
 <!-- <template>
   <div :style="`height:${height || '400px'}; width: 100%`">
     <highcharts
@@ -8,9 +25,9 @@
     ></highcharts>
     <v-progress-linear v-else active indeterminate></v-progress-linear>
   </div>
-</template>
+</template> -->
 
-<script>
+<!-- <script>
 import Highcharts from "highcharts";
 import exportingInit from "highcharts/modules/exporting";
 import offlineExporting from "highcharts/modules/offline-exporting";

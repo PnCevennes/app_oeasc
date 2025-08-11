@@ -3,18 +3,12 @@ export default {
   group: "chasse",
   name: "saisonDate",
   label: "Saisons (date/espèce)",
-  serverSide: true,
+  serverSide: true, // si pagination et tri sont gérés côté serveur
 
   options: { // Ajoute des param à la requête get pour filtrer les données
     page: 1, // on affiche la première page par défaut 
     sortBy: ["saison", "espece", "nomenclature_type_chasse"], // tri par défaut
     sortDesc: [true, false, false], // tri en ordre décroissant
-    // fields: [ //les des champs des modèles à intégrer à la requête get
-    //   "saison.id_saison", "saison.nom_saison",
-    //    "espece.id_espece", "espece.nom_espece", "espece.code_espece",
-    //    "nomenclature_type_chasse.id_nomenclature", "nomenclature_type_chasse.label_fr", "nomenclature_type_chasse.id_type", 
-    //    "nomenclature_type_chasse.definition_fr"
-    // ]
   },
 
   defs: {
@@ -27,7 +21,7 @@ export default {
         storeName: 'chasseSaison',
         type: 'list_form',
         list_type: 'autocomplete',
-        returnObject: true,
+        returnObject: true, // true si ca ne retourne pas qu'une valeur mais plusieurs dans un objet
         dataReloadOnSearch: true,
     },
     espece: {

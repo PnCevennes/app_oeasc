@@ -9,11 +9,6 @@ export default {
     page: 1, // on affiche la première page par défaut
     sortBy: ["id_lieu_tir_synonyme"],
     sortDesc: [true], // tri en ordre décroissant
-    // fields: [
-    //   "lieu_tir.id_lieu_tir",
-    //   "lieu_tir.nom_lieu_tir",
-    //   "lieu_tir.code_lieu_tir"
-    // ]
   },
 
 

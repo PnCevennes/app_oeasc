@@ -8,9 +8,6 @@ export default {
       page: 1, // on affiche la première page par défaut 
       sortBy: ["id_personne"], 
       sortDesc: [true], // tri en ordre décroissant
-      fields: [ //les des champs des modèles à intégrer à la requête get
-        "id_personne", "nom_personne"
-      ]
     },
 
     defs: {

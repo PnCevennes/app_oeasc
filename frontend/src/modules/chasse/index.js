@@ -6,8 +6,9 @@ import { round } from "@/core/js/util/util.js";
 
 
 // Import des fichiers de configuration des stores
-import admin from "./admin.vue"; // la page d'administration avec le tableau de données
-import genericForm from "./form/generic-form.vue";
+// import admin from "./admin.vue"; // la page d'administration avec le tableau de données
+import admin from "@/components/admin";
+// import genericForm from "./form/generic-form.vue";
 import { generateConfigformDef } from './config/form-content-chasse.js';
 import configStorePersonne from "./config/store-personne.js";
 import configStoreZoneCynegetique from "./config/store-zone-cynegetique.js";
@@ -24,7 +25,7 @@ import configStoreRealisation from "./config/store-realisation.js";
 
 
 // Import des routes 
-import donneesChasse from "./donnees-chasse.vue";
+// import donneesChasse from "./donnees-chasse.vue";
 import graphChasse from "./graph-chasse.vue";
 import graphCustom from "./graph-custom.vue";
 import formRealisationChasse from "./form-realisation-chasse.vue";
@@ -35,7 +36,7 @@ import pageChasseBilanDetaille from "./page-chasse-bilan-detaille.vue";
 
 const ROUTE = [
   {
-    // admin
+    // Route vers les tableaux des données de chasse
     name: "chasse.admin",
     path: "/chasse/admin",
     label: "Données chasse",
@@ -89,86 +90,6 @@ const ROUTE = [
   },
 
   {
-    // Listing des données de chasse avec possibilité de les modifier, supprimer, ajouter
-    // C'est la version standard de la page admin pour ne plus passer par le formulaire dynamique
-    name: "chasse.donneesChasse",
-    path: "/chasse/donneesChasse",
-    label: "Données chasse",
-    hideTitle: true,// True => cache le bandeau header pour plus de place
-    component: donneesChasse,
-    props: {
-      config: {
-        title: "Données chasse",
-        tabs: { // les différents onglets du formulaire
-
-
-          realisation: {
-            storeName: "chasseRealisation"
-          },
-          attribution: {
-            storeName: "chasseAttribution"
-          },
-          typeBracelet: {
-            storeName: "chasseTypeBracelet"
-          },
-          affectationMassif: {
-            storeName: "chasseAttributionMassif"
-          },
-          saisonDate: {
-            storeName: "chasseSaisonDate"
-          },
-          saison: {
-            storeName: "chasseSaison"
-          },
-          lieuTir: {
-            storeName: "chasseLieuTir"
-          },
-          lieuTirSynonyme: {
-            storeName: "chasseLieuTirSynonyme"
-          },
-          zoneIndicative: {
-            storeName: "chasseZoneIndicative"
-          },
-          zoneCynegetique: {
-            storeName: "chasseZoneCynegetique"
-          },
-          personne: {
-            storeName: "chassePersonne"
-          }
-        }
-      }
-    },
-    access: 5
-  },
-
-
-  // Route de test
-  // {
-  //   name: "chasse.testForm",
-  //   path: "/chasse/testForm",
-  //   label: "Données chasse",
-  //   hideTitle: true,// True => cache le bandeau header pour plus de place
-  //   component: genericForm,
-  //   props: {
-  //     config: {
-  //       storeName: "chasseRealisation",
-  //       value: {
-  //         id_realisation: 89
-  //       },
-  //       debug: [
-  //         "id_attribution",
-  //         "id_lieu_tir_synonyme",
-  //         "attribution.id_attribution",
-  //         "id_zone_indicative_realisee"
-  //       ]
-  //     }
-  //   },
-  //   access: 4
-  // },
-
-
-
-  {
     name: "chasse.saisie",
     path: "/chasse/saisie",
     label: "Saisie données chasse",
@@ -185,7 +106,7 @@ const ROUTE = [
     component: exportsChasse,
     access: 4
   },
-  { //TODO rename component
+  { 
     name: "chasse.restitution_bilan_detaille",
     path: "/chasse/restitution_bilan_detaille",
     label: "Chasse : analyse détaillée",
@@ -194,9 +115,6 @@ const ROUTE = [
   },
 
 
-
-
-  // les type: page => il faut défénir content qui correspond à l'id du contenu dans la base de données dans la table content
   {
     name: "chasse.restitution_gd_public",
     path: "/chasse/restitution_gd_public",
@@ -226,6 +144,29 @@ const ROUTE = [
 
 ];
 
+/**
+ * Génère une fonction d'action pour effectuer une requête API liée à la chasse.
+ *
+ * @param {string} actionType - Le type d'action à effectuer (ex: 'list', 'details', etc.).
+ * @returns {Function} Une fonction prenant deux objets en paramètres :
+ *   - {Object} context - Contexte Vuex, contenant notamment le getter (non utilisé ici).
+ *   - {Object} params - Paramètres pour la requête API :
+ *     @param {number|string} params.id_saison - Identifiant de la saison de chasse.
+ *     @param {number|string} params.id_espece - Identifiant de l'espèce chassée.
+ *     @param {number|string} params.id_zone_cynegetique - Identifiant de la zone cynégétique.
+ *     @param {number|string} params.id_zone_indicative - Identifiant de la zone indicative.
+ *     @param {number|string} params.id_secteur - Identifiant du secteur de chasse.
+ *     @param {number|string} params.poids_ou_dagues - Poids ou nombre de dagues (selon le contexte).
+ * @returns {Promise} Résultat de la requête API, contenant les résultats de chasse selon les paramètres fournis.
+ *
+ * @example
+ * // Utilisation dans un module Vuex pour récupérer les résultats de chasse d'une saison et d'une espèce donnée :
+ * dispatch('chasseAction', { id_saison: 2023, id_espece: 5, ... })
+ *
+ * @remarks
+ * Cette fonction est utilisée dans le contexte d'un module Vuex pour centraliser les appels API relatifs aux résultats de chasse.
+ * Elle permet de factoriser la logique d'appel en fonction du type d'action souhaité (ex: récupération de liste, détails, etc.).
+ */
 const chasseAction = (actionType) => ({ getter }, { id_saison, id_espece, id_zone_cynegetique, id_zone_indicative, id_secteur, poids_ou_dagues }) => {
   getter;
   
@@ -247,11 +188,27 @@ const chasseAction = (actionType) => ({ getter }, { id_saison, id_espece, id_zon
 
 const STORE = {
   getters: {
-    // Usage configFormContentChasse(['id_saison', 'id_espece', 'id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'])
+    /**
+     * Génère la configuration d'un formulaire de chasse à partir d'une liste de champs.
+     * @param {Array<string>} fields - Liste des noms de champs à inclure dans le formulaire.
+     * @returns {Object} Configuration du formulaire générée.
+     * @example
+     * // Utilisé pour générer dynamiquement le contenu d'un formulaire de chasse
+     * configFormContentChasse(['id_saison', 'id_espece', 'id_secteur', 'id_zone_cynegetique', 'id_zone_indicative'])
+     */
     // eslint-disable-next-line no-unused-vars
     configFormContentChasse: (state) => (fields) => generateConfigformDef(fields)
   },
   actions: {
+    /**
+     * Récupère la dernière saison de chasse active.
+     * @param {Object} $store - Contexte du store Vuex.
+     * @param {Object} [options={returnObject: true}] - Options pour le retour (objet complet ou seulement l'id).
+     * @returns {Promise<Object|number|null>} La dernière saison (objet ou id), ou null si aucune trouvée.
+     * @example
+     * // Utilisé pour pré-remplir des formulaires ou afficher la saison courante
+     * dispatch('lastSaison')
+     */
     lastSaison: ($store, options = {returnObject: true}) => {
       return new Promise(resolve => {
         const configStore = $store.getters.configStore("chasseSaison");
@@ -268,6 +225,16 @@ const STORE = {
           });
       })
     },
+
+    /**
+     * Détermine l'échelle géographique de la chasse selon les paramètres fournis.
+     * @param {Object} $store - Contexte du store Vuex.
+     * @param {Object} params - Paramètres contenant potentiellement des identifiants de zones.
+     * @returns {Promise<string>} Libellé de l'échelle (ex: "Secteur : ...", "Zone cynegetique : ...", ou "Cœur").
+     * @example
+     * // Utilisé pour afficher le niveau géographique sélectionné dans un bilan ou une synthèse
+     * dispatch('chasseEchelle', { id_secteur: 1 })
+     */
     chasseEchelle: ($store, params) => {
       const testVar = (v) => Array.isArray(v) ? v.length : v;
       return new Promise((resolve) => {
@@ -285,18 +252,78 @@ const STORE = {
         resolve(`Cœur`);
       });
     },
+
+    /**
+     * Récupère des informations d'analyse pour le bilan de chasse.
+     * @param {Object} $store - Contexte du store Vuex.
+     * @param {Object} params - Paramètres pour la requête API.
+     * @returns {Promise<Object>} Résultat de l'appel API.
+     * @example
+     * // Utilisé pour afficher des informations complémentaires dans les bilans
+     * dispatch('getAnalyseBilanInfos', { id_saison: 2023 })
+     */
     getAnalyseBilanInfos: ($store, params) => {
       return apiRequest("GET", 'api/chasse/results/infos',  { params })
     },
+
+    /**
+     * Récupère le dernier taux de réalisation de chasse (en pourcentage, arrondi à 1 décimale).
+     * @param {Object} context - Contexte du store Vuex (doit contenir 'getter').
+     * @param {Object} params - Paramètres pour la récupération du bilan.
+     * @returns {Promise<number>} Dernier taux de réalisation en pourcentage.
+     * @example
+     * // Utilisé pour afficher un indicateur de performance dans un tableau de bord
+     * dispatch('chasseLastTauxRealisation', { id_saison: 2023 })
+     */
     chasseLastTauxRealisation: ({getter}, params) => {
       return new Promise((resolve) => chasseAction('bilan')({getter}, params).then((bilan) => {
         const last = bilan['taux_realisation'][bilan['taux_realisation'].length-1];
         resolve(round(last[1] * 100, 1));
       }))
     },
+
+    /**
+     * Action générique pour l'attribution de bracelets de chasse.
+     * @param {Object} context - Contexte du store Vuex.
+     * @param {Object} params - Paramètres pour l'attribution.
+     * @returns {Promise<Object>} Résultat de l'attribution.
+     * @example
+     * // Utilisé lors de la gestion des bracelets pour les chasseurs
+     * dispatch('chasseAttributionBracelet', { id_chasseur: 42 })
+     */
     chasseAttributionBracelet: chasseAction('attribution_bracelet'),
+
+    /**
+     * Action générique pour récupérer le bilan de chasse.
+     * @param {Object} context - Contexte du store Vuex.
+     * @param {Object} params - Paramètres pour le bilan.
+     * @returns {Promise<Object>} Résultat du bilan.
+     * @example
+     * // Utilisé pour afficher le bilan global ou détaillé d'une saison
+     * dispatch('chasseBilan', { id_saison: 2023 })
+     */
     chasseBilan: chasseAction('bilan'),
+
+    /**
+     * Action générique pour récupérer les données ICE (Indicateur de Chasse Efficace).
+     * @param {Object} context - Contexte du store Vuex.
+     * @param {Object} params - Paramètres pour la récupération.
+     * @returns {Promise<Object>} Résultat ICE.
+     * @example
+     * // Utilisé pour des analyses avancées sur l'efficacité de la chasse
+     * dispatch('chasseIce', { id_saison: 2023 })
+     */
     chasseIce: chasseAction('ice'),
+
+    /**
+     * Récupère des résultats personnalisés de chasse via une requête API.
+     * @param {Object} context - Contexte du store Vuex (doit contenir 'getter').
+     * @param {Object} params - Paramètres pour la requête personnalisée.
+     * @returns {Promise<Object>} Résultat de la requête personnalisée.
+     * @example
+     * // Utilisé pour des rapports ou exports personnalisés
+     * dispatch('chasseCustom', { filtre: 'spécifique' })
+     */
     chasseCustom: ({ getter }, params) => {
       getter;
       return apiRequest("GET", `api/chasse/results/custom/`, { params });

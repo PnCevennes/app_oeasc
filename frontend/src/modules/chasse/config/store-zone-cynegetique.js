@@ -3,18 +3,12 @@ export default {
   name: "zoneCynegetique",
   label: "Zone Cynegetique",
   labels: "Zones Cynegetiques",
-  serverSide: true,
+  serverSide: true, // si pagination et tri sont gérés côté serveur
 
   options: { // Ajoute des param à la requête get pour filtrer les données
     page: 1, // on affiche la première page par défaut 
     sortBy: ["nom_zone_cynegetique"], 
     sortDesc: [false], // tri en ordre décroissant
-    fields: [ //les des champs des modèles à intégrer à la requête get
-      "id_zone_cynegetique", "code_zone_cynegetique",
-      "nom_zone_cynegetique",
-      "secteur.id_secteur", "secteur.code_secteur",
-      "secteur.nom_secteur"
-    ]
   },
 
 
@@ -40,7 +34,7 @@ export default {
       required: true,
       type: 'list_form',
       list_type: "select",
-      returnObject: true,
+      returnObject: true, // true si ca ne retourne pas qu'une valeur mais plusieurs dans un objet
       storeName: "commonsSecteur",
       displayFieldName: 'code_secteur',
     }

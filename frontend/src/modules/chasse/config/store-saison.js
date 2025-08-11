@@ -3,21 +3,13 @@ export default {
   name: "saison",
   label: "Saison",
   genre : "M",
-  serverSide: true,
+  serverSide: true, // si pagination et tri sont gérés côté serveur
 
 
   options: {
     page: 1, // on affiche la première page par défaut 
     sortBy: ['nom_saison'], // tri par défaut
     sortDesc: [true],
-    // fields: [ //les des champs des modèles à intégrer à la requête get
-    //   "id_saison",
-    //   "nom_saison",
-    //   "date_debut",
-    //   "date_fin",
-    //   "current",
-    //   "commentaire"     
-    // ] // ici il n'est pas nécéssaire de lister les champs mais pour plus de lisibilité on les met
   },
 
   

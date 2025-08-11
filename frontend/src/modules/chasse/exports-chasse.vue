@@ -1,3 +1,19 @@
+<!-- // Composant Vue.js pour l'export des données liées à la chasse.
+// Affiche deux boutons permettant de télécharger les données sous différents formats (CSV et ODS).
+// Utilisé dans le module "chasse" de l'application pour permettre aux utilisateurs d'exporter les réalisations de chasse.
+
+// Méthode UrlExport :
+//   - Génère une URL d'export pour un type de données et un format d'export donnés.
+//   - Utilisée pour le bouton d'export CSV des réalisations de chasse.
+//   - Paramètres :
+//       - dataType (string) : le type de données à exporter (ex : 'realisation').
+//       - exportType (string) : le format d'export souhaité (ex : 'csv').
+//   - Retourne : une URL complète pour lancer l'export.
+
+// Méthode UrlExportOds :
+//   - Génère une URL d'export pour le format ODS (tableur).
+//   - Utilisée pour le bouton d'export du bilan de la saison en cours au format ODS.
+//   - Retourne : une URL complète pour lancer l'export ODS. -->
 <template>
   <div>
     <h1>Exports des données Chasse</h1>

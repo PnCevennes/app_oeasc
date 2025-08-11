@@ -1,12 +1,24 @@
-import { formFunctions } from "@/components/form/functions/form";
+import { formFunctions } from "@/components/form/functions/form.js";
 
+// Configuration du module "realisation" pour la gestion des réalisations de chasse.
+// Ce module définit la structure des colonnes, des groupes de formulaires, des options de requête,
+// ainsi que les définitions de champs (defs) utilisés dans les formulaires et les tables.
+
+
+// Objet principal d'export : configuration du module "realisation"
 export default {
+  // Groupe fonctionnel du module (ici "chasse")
   group: "chasse",
+  // Nom technique du module
   name: "realisation",
+  // Libellé affiché pour le module
   label: "Réalisation",
+  // Indique si la pagination/tri est côté serveur
   serverSide: true,
+  // Genre grammatical utilisé pour le module
   genre: "F",
 
+  // Liste des champs affichés dans le tableau principal
   columns: [
     "saison",
     "attribution",
@@ -21,15 +33,16 @@ export default {
     "nomenclature_mode_chasse"
   ],
 
-
+  // Définition des groupes et sous-groupes de champs pour le formulaire de saisie
   form: {
-
     groups: [
+      // Groupe "Bracelet" : sélection de la saison et de l'attribution
       {
         title: "Bracelet",
         forms: ["saison", "attribution"],
         direction: "row"
       },
+      // Groupe "Localisation" : affiché si une attribution est sélectionnée
       {
         title: "Localisation",
         condition: ({ baseModel }) =>
@@ -69,6 +82,7 @@ export default {
           }
         ]
       },
+      // Groupe "Informations" : affiché si une attribution est sélectionnée
       {
         title: "Informations",
         condition: ({ baseModel }) =>
@@ -94,6 +108,7 @@ export default {
           }
         ]
       },
+      // Groupe "Information animal" : affiché si une attribution est sélectionnée
       {
         title: "Information animal",
         condition: ({ baseModel }) =>
@@ -110,6 +125,7 @@ export default {
           }
         ]
       },
+      // Groupe "Description avancée (cerf)" : affiché pour les mâles adultes/sub-adultes
       {
         title: "Description avancée (cerf)",
         condition: ({ baseModel }) =>
@@ -123,16 +139,13 @@ export default {
         groups: [
           {
             groups: [
-              // {
-              //   title: "Mandibules",
-              //   forms: ["long_mandibules_gauche", "long_mandibules_droite"],
-              //   direction: "row"
-              // },
+              // Groupe "Dagues" : longueurs des dagues
               {
                 title: "Dagues",
                 forms: ["long_dagues_gauche", "long_dagues_droite"],
                 direction: "row"
               },
+              // Groupe "Cors" : nombre de cors
               {
                 title: "Cors",
                 forms: ["cors_nb"]
@@ -144,6 +157,7 @@ export default {
           }
         ]
       },
+      // Groupe "Commentaires" : affiché si une attribution est sélectionnée
       {
         condition: ({ baseModel }) =>
           baseModel.attribution && baseModel.attribution.id_attribution,
@@ -153,34 +167,22 @@ export default {
     ]
   },
 
-
-  options: { // paramètres ajoutés à la requête get
+  // Paramètres par défaut pour les requêtes (pagination, tri, etc.)
+  options: {
     page: 1,
     sortBy: ["saison", "date_exacte"],
     sortDesc: [true, true],
-    // les champs des modèles liés
-    // fields: [
-    //   "saison.id_saison", "saison.nom_saison",
-    //   "attribution.id_attribution", "attribution.numero_bracelet",
-    //   "auteur_tir.id_personne", "auteur_tir.nom_personne", "auteur_constat.id_personne", "auteur_constat.nom_personne",
-    //   "zone_cynegetique_realisee.id_zone_cynegetique", "zone_cynegetique_realisee.nom_zone_cynegetique",
-    //   "zone_indicative_realisee.id_zone_indicative", "zone_indicative_realisee.nom_zone_indicative",
-    //   "lieu_tir_synonyme.id_lieu_tir_synonyme", "lieu_tir_synonyme.lieu_tir_synonyme_display",
-    //   "nomenclature_sexe.id_nomenclature", "nomenclature_sexe.label_fr",
-    //   "nomenclature_classe_age.id_nomenclature", "nomenclature_classe_age.label_fr",
-    //   "nomenclature_mode_chasse.id_nomenclature", "nomenclature_mode_chasse.label_fr",
-    //   ]
   },
 
-
+  // Définitions détaillées de chaque champ utilisé dans le module
   defs: {
-    // // table
+    // Champ technique caché (ID)
     id_realisation: {
       label: "ID",
       hidden: true
     },
 
-    // form
+    // Champ "Saison" : sélection de la saison de chasse
     saison: {
       label: "Saison",
       storeName: "chasseSaison",
@@ -188,12 +190,13 @@ export default {
       list_type: "select",
       returnObject: true,
       required: true,
-      // on ne change pas la saison pour un update
+      // On ne change pas la saison pour un update
       disabled: ({ baseModel }) => !!baseModel.id_realisation,
+      // Valeur par défaut : dernière saison connue
       default: ({ $store, config }) => $store._actions.lastSaison[0](config)
     },
 
-    
+    // Champ "Attribution" : sélection du bracelet/attribution
     attribution: {
       label: "Attribution",
       storeName: "chasseAttribution",
@@ -202,26 +205,23 @@ export default {
       dataReloadOnSearch: true,
       returnObject: true,
       displayFieldName: "numero_bracelet",
+      // Filtre les attributions selon la saison et si une réalisation existe déjà
       params: ({ baseModel }) => {
         const params = {
           id_saison: baseModel.saison && baseModel.saison.id_saison
         };
-        // si on crée une nouvelle réalisation :
-        //   - on choisit parmi des attributions sans réalisation
+        // Si on crée une nouvelle réalisation, on choisit parmi les attributions sans réalisation
         if (!baseModel.id_realisation) {
           params.has_realisation = false;
         }
-
         return params;
       },
       required: true,
+      // Lors du changement d'attribution, met à jour les zones associées si non déjà renseignées
       change: ({ baseModel, $store }) => {
         if (!baseModel.attribution) {
           return;
         }
-
-        // on n'affecte que si ce n'est pas déja fait
-
         baseModel.zone_cynegetique_affectee =
           baseModel.zone_cynegetique_affectee ||
           baseModel.attribution.zone_cynegetique_affectee;
@@ -242,7 +242,7 @@ export default {
       }
     },
 
-
+    // Champ "Auteur tir" : personne ayant tiré
     auteur_tir: {
       label: "Auteur tir",
       type: "list_form",
@@ -252,7 +252,7 @@ export default {
       storeName: "chassePersonne"
     },
 
-
+    // Champ "Auteur constat" : personne ayant constaté
     auteur_constat: {
       label: "Auteur constat",
       type: "list_form",
@@ -262,7 +262,7 @@ export default {
       storeName: "chassePersonne"
     },
 
-
+    // Champ "Zone cynégétique affectée" : zone attribuée (lecture seule)
     zone_cynegetique_affectee: {
       label: "Zone cynégétique affectee",
       storeName: "chasseZoneCynegetique",
@@ -272,7 +272,7 @@ export default {
       disabled: true
     },
 
-
+    // Champ "Zone cynégétique réalisée" : zone réellement utilisée
     zone_cynegetique_realisee: {
       label: "Zone cynégétique réalisée",
       storeName: "chasseZoneCynegetique",
@@ -280,10 +280,9 @@ export default {
       list_type: "select",
       returnObject: true,
       required: true
-      // changed: ({baseModel}) => {}
     },
 
-
+    // Champ "Zone indicative affectée" : zone indicative attribuée (lecture seule)
     zone_indicative_affectee: {
       label: "Zone indicative affectée",
       storeName: "chasseZoneIndicative",
@@ -294,39 +293,34 @@ export default {
       disabled: true
     },
 
-
+    // Champ "Zone indicative réalisée" : zone indicative réellement utilisée
     zone_indicative_realisee: {
       label: "Zone indicative réalisée",
       storeName: "chasseZoneIndicative",
       type: "list_form",
       list_type: "autocomplete",
       returnObject: true,
-      // params: ({baseModel}) => ({
-      //   "id_zone_cynegetique": baseModel.id_zone_cynegetique_affectee
-      // }),
       dataReloadOnSearch: true,
       required: true
     },
 
-
+    // Champ "Lieu de tir (Syn)" : lieu du tir (synonyme)
     lieu_tir_synonyme: {
       label: "Lieu de tir (Syn)",
       storeName: "chasseLieuTirSynonyme",
       displayFieldName: "lieu_tir_synonyme_display",
       list_type: "autocomplete",
       type: "list_form",
-      // params: ({ baseModel }) => ({
-      //   "lieu_tir.id_zone_indicative": baseModel.id_zone_indicative_affectee
-      // }),
       returnObject: true,
       dataReloadOnSearch: true,
       required: true
     },
 
-
+    // Champ "Date du tir" (saisie rapide JJMM)
     date_exacte_fast: {
       label: "Date du tir",
       type: "text",
+      // Lors du changement, convertit JJMM en date complète et met à jour les champs date
       change: ({ baseModel, $store }) => {
         const d = formFunctions.getDateFromMMJJ(
           baseModel.date_exacte_fast,
@@ -341,6 +335,7 @@ export default {
       },
       required: ({ baseModel }) => !baseModel.date_exacte,
       condition: ({ baseModel }) => !baseModel.date_exacte,
+      // Règles de validation : format JJMM et cohérence avec la saison
       rules: ({ baseModel }) =>
         baseModel.saison && [
           v =>
@@ -359,11 +354,12 @@ export default {
           }
         ]
     },
-    
 
+    // Champ "Date du constat" (saisie rapide JJMM)
     date_enreg_fast: {
       label: "Date du constat",
       type: "text",
+      // Lors du changement, convertit JJMM en date complète
       change: ({ baseModel }) => {
         const d = formFunctions.getDateFromMMJJ(
           baseModel.date_enreg_fast,
@@ -375,6 +371,7 @@ export default {
         }
       },
       condition: ({ baseModel }) => !baseModel.date_enreg,
+      // Règles de validation : format JJMM et cohérence avec la saison
       rules: ({ baseModel }) =>
         baseModel.saison && [
           v =>
@@ -398,14 +395,13 @@ export default {
         ]
     },
 
-
+    // Champ "Date du tir" (date complète)
     date_exacte: {
       label: "Date du tir",
       type: "date",
       required: true,
       condition: ({ baseModel }) => {return !baseModel || !!baseModel.date_exacte},
-
-      // la date exacte doit être comprise entre la date de debut de saison et la date de fin de saison
+      // La date exacte doit être comprise entre la date de début et de fin de saison
       rules: ({ baseModel }) =>
         baseModel.saison
           ? [
@@ -413,17 +409,9 @@ export default {
               formFunctions.rules.dateMax(baseModel.saison.date_fin)
             ]
           : null,
-
-      // change: ({ baseModel }) => {
-      //   // par défaut la date d'enregistrement (ou date de constat), est égale à la date de tir
-      //   // cf. max (c'est le cas très souvent)
-      //   if (baseModel.date_exacte && !baseModel.date_enreg) {
-      //     baseModel.date_enreg = baseModel.date_exacte;
-      //   }
-      // }
     },
 
-
+    // Champ "Date du constat" (date complète)
     date_enreg: {
       label: "Date du constat",
       type: "date",
@@ -431,17 +419,19 @@ export default {
       condition: ({ baseModel }) => !!baseModel.date_enreg
     },
 
-
+    // Champ booléen "Hors PNC"
     mortalite_hors_pc: {
       label: "Hors PNC",
       type: "bool_switch"
     },
 
+    // Champ booléen "Parcelle ONF"
     parcelle_onf: {
       label: "Parcelle ONF",
       type: "bool_switch"
     },
 
+    // Champ "Sexe" : nomenclature sexe
     nomenclature_sexe: {
       label: "Sexe",
       type: "nomenclature",
@@ -450,14 +440,9 @@ export default {
       storeName: "commonsNomenclature",
       codes: ["3", "2", "1"],
       nomenclatureType: "SEXE",
-      // required: true,
-      // change: ({baseModel, $store}) => {
-      //   if(baseModel.nomenclature_sexe && !baseModel.nomenclature_classe_age) {
-      //     $store.dispatch('focus', '#form-nomenclature_classe_age');
-      //   }
-      // }
     },
 
+    // Champ "Classe d'âge" : nomenclature stade de vie
     nomenclature_classe_age: {
       label: "Classe d'age",
       type: "nomenclature",
@@ -469,7 +454,7 @@ export default {
       required: true,
     },
 
-
+    // Champ "Mode de chasse" : nomenclature mode de chasse
     nomenclature_mode_chasse: {
       label: "Mode de chasse",
       type: "nomenclature",
@@ -478,76 +463,71 @@ export default {
       storeName: "commonsNomenclature",
       nomenclatureType: "OEASC_MOD_CHASSE",
       required: true,
-      // change: ({baseModel, $store}) => {
-      //   if(baseModel.nomenclature_mode_chasse && !baseModel.nomenclature_sexe) {
-      //     $store.dispatch('focus', '#form-nomenclature_sexe');
-      //   }
-      // }
     },
 
-
+    // Champ "Poids entier" (kg)
     poid_entier: {
       label: "Poid entier (kg)",
       type: "number",
       min: 0
     },
 
-
+    // Champ "Poids vide" (kg)
     poid_vide: {
       label: "Poid vide  (kg)",
       type: "number",
       min: 0
     },
 
-
+    // Champ "Poids CFP" (kg)
     poid_c_f_p: {
       label: "Poid CFP (kg)",
       type: "number",
       min: 0
     },
 
-
+    // Champ "Longueur mandibules droite" (mm)
     long_mandibules_droite: {
       label: "Longueur mandibules droite (mm)",
       type: "number",
       min: 0
     },
 
-
+    // Champ "Longueur mandibules gauche" (mm)
     long_mandibules_gauche: {
       label: "Longueur mandibules gauche (mm)",
       type: "number",
       min: 0
     },
 
-
+    // Champ "Longueur dagues droite" (mm)
     long_dagues_droite: {
       label: "Longueur dagues droite (mm)",
       type: "number",
       min: 0
     },
 
-
+    // Champ "Longueur dagues gauche" (mm)
     long_dagues_gauche: {
       label: "Longueur dagues gauche (mm)",
       type: "number",
       min: 0
     },
 
-
+    // Champ "Nombre de cors"
     cors_nb: {
       label: "Nombre de cors",
       type: "number",
       min: 0
     },
 
-
+    // Champ "Commentaires (cors)"
     cors_commentaires: {
       label: "Commentaires (cors)",
       type: "text_area"
     },
 
-
+    // Champ booléen "gestation" (désactivé si sexe non femelle)
     gestation: {
       label: "gestation",
       type: "bool_switch",
@@ -556,12 +536,10 @@ export default {
         baseModel.nomenclature_sexe.label_fr != "Femelle"
     },
 
-
+    // Champ "Commentaires (général)"
     commentaire: {
       label: "Commentaires (général)",
       type: "text_area"
     }
   }
-
-
 };

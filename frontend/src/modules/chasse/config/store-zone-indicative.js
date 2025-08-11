@@ -3,7 +3,7 @@ export default {
     name: "zoneIndicative",
     label: "Zone indicatives",
     labels: "Zones indicatives",
-    serverSide: true,
+    serverSide: true, // si pagination et tri sont gérés côté serveur
     
 
     options: { // Ajoute des param à la requête get pour filtrer les données
@@ -11,10 +11,6 @@ export default {
       page: 1, // on affiche la première page par défaut 
       sortBy: ["id_zone_indicative"], 
       sortDesc: [true], // tri en ordre décroissant
-      // fields: [ //les des champs des modèles à intégrer à la requête get
-      //   "zone_cynegetique.id_zone_cynegetique", "zone_cynegetique.code_zone_cynegetique",
-      //   "zone_cynegetique.nom_zone_cynegetique"
-      // ]
     },
 
 
@@ -38,7 +34,7 @@ export default {
           label: "Zone cinégétique",
           type: 'list_form',
           list_type: "select",
-          returnObject: true,
+          returnObject: true, // true si ca ne retourne pas qu'une valeur mais plusieurs dans un objet
           displayFieldName: 'code_zone_cynegetique',
           storeName: 'chasseZoneCynegetique',
           required: true,
