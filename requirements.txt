@@ -46,8 +46,15 @@ py3o.template==0.10.0
 pycparser==2.22
 pyjon.utils==0.7
 pypn-ref-geo==1.5.5
-pypnnomenclature @ https://github.com/PnX-SI/Nomenclature-api-module/archive/refs/heads/master.zip#sha256=48fd5506069c3fe5980863d692d6587d9c7026ac5633e53c2ae64d29e4bde888
--e git+ssh://git@github.com/Fargo48/UsersHub-authentification-oeasc-module.git@56fcab1cea3a2881e31d4f27f612ce04698150c9#egg=pypnusershub
+
+# pypnnomenclature @ https://github.com/PnX-SI/Nomenclature-api-module/archive/refs/heads/master.zip#sha256=48fd5506069c3fe5980863d692d6587d9c7026ac5633e53c2ae64d29e4bde888
+# pypnnomenclature @ https://github.com/PnX-SI/Nomenclature-api-module.git@2f30b07c901428ee8f0921a79f9be897263714ab
+git+https://github.com/PnX-SI/Nomenclature-api-module.git@2f30b07c901428ee8f0921a79f9be897263714ab#egg=pypnnomenclature
+
+# pypnusershub @ https://github.com/ThibautMn/UsersHub-authentification-oeasc-module.git@ae86dbdc6c8344aba25132a40b233f63426860f5
+git+https://git@github.com/ThibautMn/UsersHub-authentification-oeasc-module.git@ae86dbdc6c8344aba25132a40b233f63426860f5#egg=pypnusershub
+# -e git+ssh://git@github.com/ThibautMn/UsersHub-authentification-oeasc-module.git@ae86dbdc6c8344aba25132a40b233f63426860f5#egg=pypnusershub
+
 python-dateutil==2.9.0.post0
 python-dotenv==1.1.1
 pytz==2025.2
@@ -57,13 +64,25 @@ shapely==2.1.1
 six==1.17.0
 SQLAlchemy==1.4.54
 statsmodels==0.14.4
--e git+ssh://git@github.com/Fargo48/TaxHub.git@e99d875373e4b33bd93fc83a2ea5f948aa203821#egg=taxhub
+
+# taxhub @ https://github.com/ThibautMn/TaxHub.git@e99d875373e4b33bd93fc83a2ea5f948aa203821
+git+https://git@github.com/ThibautMn/TaxHub.git@e99d875373e4b33bd93fc83a2ea5f948aa203821#egg=taxhub
+# -e git+ssh://git@github.com/ThibautMn/TaxHub.git@e99d875373e4b33bd93fc83a2ea5f948aa203821#egg=taxhub
+
 toml==0.10.2
 typing_extensions==4.14.1
 tzdata==2025.2
 urllib3==2.5.0
--e git+ssh://git@github.com/Fargo48/Utils-Flask-SQLAlchemy.git@5fb6eb678b185e49ce5be98ec778653c799992cc#egg=utils_flask_sqlalchemy
--e git+ssh://git@github.com/Fargo48/Utils-Flask-SQLAlchemy-Geo.git@70b1bb666ac8fd963cda2b0ad1217bf67e1329ce#egg=utils_flask_sqlalchemy_geo
+
+utils_flask_sqlalchemy @ https://github.com/ThibautMn/Utils-Flask-SQLAlchemy.git@5fb6eb678b185e49ce5be98ec778653c799992cc
+git+https://git@github.com/ThibautMn/Utils-Flask-SQLAlchemy.git@5fb6eb678b185e49ce5be98ec778653c799992cc#egg=utils_flask_sqlalchemy
+# -e git+ssh://git@github.com/ThibautMn/Utils-Flask-SQLAlchemy.git@5fb6eb678b185e49ce5be98ec778653c799992cc#egg=utils_flask_sqlalchemy
+
+
+# utils-flask-sqlalchemy-geo @ https://github.com/ThibautMn/Utils-Flask-SQLAlchemy-Geo.git@70b1bb666ac8fd963cda2b0ad1217bf67e1329ce
+# -e git+ssh://git@github.com/ThibautMn/Utils-Flask-SQLAlchemy-Geo.git@70b1bb666ac8fd963cda2b0ad1217bf67e1329ce#egg=utils_flask_sqlalchemy_geo
+git+https://git@github.com/ThibautMn/Utils-Flask-SQLAlchemy-Geo.git@70b1bb666ac8fd963cda2b0ad1217bf67e1329ce#egg=utils_flask_sqlalchemy_geo
+
 Werkzeug==3.1.3
 WTForms==3.1.2
 xmltodict==0.14.2

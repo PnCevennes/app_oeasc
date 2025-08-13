@@ -13,6 +13,9 @@
     git clone https://github.com/PnCevennes/app_oeasc.git
     pip install -r requirements.txt
 
+    ## si il y a un problème de clonage des lib du pnx git avec le ssh
+    remplacher git+ssh: par git+https: dans requirement.txt
+
     ## A noter:
         la librairie UserHub-authentification est un fork. Il faut se mettre sur la branche fix/register_user
         la librairie TaxeHub  est un fork. Il faut se mettre sur la branche feat/sqlalchemy2
@@ -79,7 +82,8 @@
 
 
 # Paramétrage du Frontend
-
+    ### en cas d'erreur de segmentation:
+        nvm use v10.15.3
     - mettre la bonne adresse du server dans
     frontend/config/config.js
     - Dans le repertoire frontend
