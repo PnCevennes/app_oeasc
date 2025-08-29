@@ -10,12 +10,15 @@ fichier server app oeasc
 # base_path = os.path.abspath(os.path.join(os.getcwd(), '..'))
 # sys.path.append(os.path.join(base_path, 'config'))
 
+
+
 import json
-import re
+# import re
 from pathlib import Path
 from pkg_resources import iter_entry_points
 from flask import Flask, redirect, session, request, url_for, current_app
 from flask_migrate import Migrate
+import logging
 
 # from jinja2 import evalcontextfilter, Markup, escape n'est plus supporté
 # from jinja2 import pass_context
@@ -27,7 +30,7 @@ from flask_mail import Mail
 
 # permet de définir des actions apres l'enregistrement d'un utilisateur (envoi de mail, ...)
 from pypnusershub.env import REGISTER_POST_ACTION_FCT
-
+import config.config as cfg
 
 
 
@@ -35,28 +38,26 @@ from pypnusershub.env import REGISTER_POST_ACTION_FCT
 ############## AFFICHAGE DES MESSAGES D'ERREURS ET WARNING ############################
 #######################################################################################
 
-# import os
-# import warnings
-# from sqlalchemy import exc
-import logging
 
+if (cfg.MODE_DEVELOPPEMENT): # pour le mode développement, affiche les erreurs et les warnings
+    import os
+    import warnings
+    from sqlalchemy import exc
+    print("MODE DEVELOPPEMENT ACTIVÉ")
+    # pour la migration vers sqlalchemy 2.0. affiche les warnings
+    os.environ["PYTHONWARNINGS"] = "always"
+    os.environ["SQLALCHEMY_WARN_20"] = "1"
+    warnings.simplefilter("always", exc.SAWarning)
 
-######### A decommenter EN DEVELOPPEMENT pour afficher les warnings  ##########
-# pour la migration vers sqlalchemy 2.0. affiche les warnings
-# os.environ["PYTHONWARNINGS"] = "always"
-# os.environ["SQLALCHEMY_WARN_20"] = "1"
-# warnings.simplefilter("always", exc.SAWarning)
+    #Pour n'afficher que les warnings de sqlalchemy. A decommenter en développement pour ne pas afficher les requetes SQL
+    for name in ['sqlalchemy.engine', 'sqlalchemy.pool', 'sqlalchemy.dialects']:
+        logging.getLogger(name).setLevel(logging.WARNING)
 
-#Pour n'afficher que les warnings de sqlalchemy. A decommenter en développement pour ne pas afficher les requetes SQL
-# for name in ['sqlalchemy.engine', 'sqlalchemy.pool', 'sqlalchemy.dialects']:
-#     logging.getLogger(name).setLevel(logging.WARNING)
-
-
-###### A decommenter EN PRODUCTION pour ne pas encombrer les logs #######
-# n'affiche que les message d'erreur. A décommenter en production
-logging.getLogger("werkzeug").setLevel(logging.ERROR)
-# n'affiche que les message d'erreur de sqlalchemy. A décommenter en production
-logging.getLogger("sqlalchemy").setLevel(logging.ERROR)
+else: # Pour le mode production, n'affiche que les erreurs
+    # n'affiche que les message d'erreur.
+    logging.getLogger("werkzeug").setLevel(logging.ERROR)
+    # n'affiche que les message d'erreur de sqlalchemy.
+    logging.getLogger("sqlalchemy").setLevel(logging.ERROR)
 
 
 ###########################################################################################
@@ -94,7 +95,10 @@ cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 # intégration des données de configuration dans l'application. Mettre silent=True en production
-app.config.from_pyfile("../config/config.py", silent=False)
+if (cfg.MODE_DEVELOPPEMENT): # pour le mode développement, affiche les erreurs et les warnings
+    app.config.from_pyfile("../config/config.py", silent=False)
+else:
+    app.config.from_pyfile("../config/config.py", silent=True)
 
 ROOT_DIR = Path(__file__).absolute().parent.parent
 app.config["ROOT_DIR"] = ROOT_DIR
