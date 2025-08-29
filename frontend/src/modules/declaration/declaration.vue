@@ -70,15 +70,22 @@ export default {
   components: { declarationTable, baseMap },
   methods: {
     exportPdf() {
+      if (!this.declaration) return;
       this.pdfProcessing = true;
       exportPDF(
         "declaration",
         `declaration_${this.declaration.id_declaration}.pdf`,
         this.$store
-      ).then(() => {
-        // console.log('pdf end')
-        this.pdfProcessing = false;
-      });
+      )
+        .then(() => {
+          console.log('pdf end')
+        })
+        .catch((err) => {
+          console.error('PDF export error:', err);
+        })
+        .finally(() => {
+          this.pdfProcessing = false;
+        });
     },
     initDeclaration() {
       this.$store.dispatch("declarations").then(declarations => {

@@ -1,4 +1,6 @@
 import domtoimage from "dom-to-image";
+import html2pdf from "html2pdf.js";
+import html2canvas from "html2canvas";
 
 const mapExport = {
 
@@ -23,15 +25,10 @@ const mapExport = {
    * - Cache l'élément source après l'export.
    */
   toImg(options = {}) {
-    const methods = {
-      png: "toPng",
-      jpg: "toJpeg"
-    };
-    const method = methods[options.format] || "toPng";
     return new Promise(resolve => {
       let elem = document.getElementById(this._id);
 
-      // preporcess
+      // Preprocess
       elem.classList.add("map-img");
 
       this.heightSave = Math.floor(elem.clientHeight);
@@ -46,20 +43,23 @@ const mapExport = {
       this._map.invalidateSize();
       this.reinitZoom();
 
-      // on laisse temps à la carte de se redessiner 500ms ??
+      // Wait for redraw
       setTimeout(() => {
         elem = document.getElementById(this._id);
-        domtoimage[method](elem, {
+        html2canvas(elem, {
           height,
-          width
-        }).then(dataUrl => {
-          var img = new Image();
-          img.src = dataUrl;
+          width,
+          useCORS: true
+        }).then(canvas => {
+          let img = new Image();
+          img.src = options.format === "jpg"
+            ? canvas.toDataURL("image/jpeg")
+            : canvas.toDataURL("image/png");
           img.style.height = elem.style.height;
           img.style.width = elem.style.width;
           elem.after(img);
 
-          // hide elem
+          // Hide elem
           elem.style.display = "none";
 
           resolve(elem);

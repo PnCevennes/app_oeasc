@@ -134,7 +134,7 @@
           </td>
         </tr>
 
-        <tr v-if="declaration_data.nomenclatures_peuplement_espece.length > 0">
+        <tr v-if="declaration_data.nomenclatures_peuplement_espece && declaration_data.nomenclatures_peuplement_espece.length > 0">
           <td class="gauche">Espèces présentes</td>
           <td class="droite">
             {{ get_nomenclature_to_string("OEASC_PEUPLEMENT_ESPECE", declaration_data.nomenclatures_peuplement_espece)}}
@@ -157,12 +157,12 @@
             <td class="gauche">Commune(s)</td>
             <td class="droite">
             <v-chip
-              v-for="area in areas_commune_computed"
-              :key="area.id_area"
+              v-for="area_commune in areas_commune_computed"
+              :key="area_commune.id_area"
               small
               class="ma-1" 
               >
-              {{ area }}
+              {{ area_commune }}
             </v-chip>
 
             </td>
@@ -171,40 +171,57 @@
             <td class="gauche">Section(s)</td>
             <td class="droite">
               <v-chip
-              v-for="area in areas_section_computed"
-              :key="area.id_area"
+              v-for="area_section in areas_section_computed"
+              :key="area_section.id_area"
               small
               class="ma-1" 
               >
-              
-              {{ area }}
+              {{ area_section }}
             </v-chip>
             </td>
           </tr>
+
+
+
           <tr v-if="areas_cadastre_computed.length > 0">
             <td class="gauche">Parcelle(s) cadastrale(s)</td>
             <td class="droite">
               <v-chip
-              v-for="area in areas_cadastre_computed"
-              :key="area.id_area"
+              v-for="area_cadastre in areas_cadastre_computed"
+              :key="area_cadastre.id_area"
               small
               class="ma-1" 
               >
-              {{ area }}
+              {{ area_cadastre }}
             </v-chip>
             </td>
           </tr>
+          
+          <!-- <tr v-if="declaration_data.areas_localisation_cadastre.length > 0">
+
+            <td class="gauche">Parcelle(s) cadastrale(s) (id)</td>
+            <td class="droite">
+              <v-chip
+              v-for="area_cadastre in declaration_data.areas_localisation_cadastre"
+              :key="area_cadastre"
+              small
+              class="ma-1" 
+              >
+              {{ area_cadastre }}
+            </v-chip>
+            </td>
+          </tr> -->
 
           <tr v-if="areas_ug_computed.length > 0">
             <td class="gauche">Unités de gestion ONF</td>
             <td class="droite">
               <v-chip
-              v-for="area in areas_ug_computed"
-              :key="area.id_area"
+              v-for="area_ug in areas_ug_computed"
+              :key="area_ug.id_area"
               small
               class="ma-1" 
               >
-              {{ area }}
+              {{ area_ug }}
             </v-chip>
               
             </td>
@@ -480,30 +497,42 @@ export default {
 
   computed: {
     areas_cadastre_computed() {
+      if (!this.declaration_data.areas_localisation_cadastre) {
+        return [];
+      }
       return this.declaration_data.areas_localisation_cadastre.map(area => {
         const found = this.declaration_data.areas_localisation.find(a => a.id_area === area);
         return found ? found.label : null;
-      }).filter(label => label !== null);
+      }).filter(label => label !== null && label !== undefined);
     },
     areas_section_computed() {
+      if (!this.declaration_data.areas_foret_sections) {
+        return [];
+      }
       return this.declaration_data.areas_foret_sections.map(area => {
         const found = this.declaration_data.areas_localisation.find(a => a.id_area === area);
         return found ? found.label : null;
-      }).filter(label => label !== null);
+      }).filter(label => label !== null && label !== undefined);
     },
     areas_commune_computed() {
+      if (!this.declaration_data.areas_foret_communes) {
+        return [];
+      }
       return this.declaration_data.areas_foret_communes
         .map(area => {
           const found = this.declaration_data.areas_localisation.find(a => a.id_area === area);
-          return found ? found.label : null;
+          return found ? found.label : undefined;
         })
-        .filter(label => label !== null);
+        .filter(label => label !== null && label !== undefined);
     },
     areas_ug_computed() {
+      if (!this.declaration_data.areas_localisation_onf_ug) {
+        return [];
+      }
       return this.declaration_data.areas_localisation_onf_ug.map(area => {
         const found = this.declaration_data.areas_localisation.find(a => a.id_area === area);
         return found ? found.area_code : null;
-      }).filter(area_code => area_code !== null);
+      }).filter(area_code => area_code !== null && area_code !== undefined);
     },
 
   },
@@ -515,6 +544,7 @@ export default {
     if(this.declaration_data && this.nomenclature) {
       this.bInit = true;
     }
+    console.log("areas_commune_computed", this.areas_commune_computed);
   }
 };
 </script>

@@ -102,20 +102,25 @@ def declarations():
     return get_declarations(user=user)
 
 
-# @bp.route("declaration/<int:id_declaration>", methods=["GET"])
-# @check_auth_redirect_login(1)
-# @json_resp
-# def route_declaration(id_declaration):
-#     """
-#     Retourne la declaration d'id id_declaration
-#     """
+@bp.route("declaration/<int:id_declaration>", methods=["GET"])
+@check_auth_redirect_login(1)
+@json_resp
+def route_declaration(id_declaration):
+    """
+    Retourne la declaration d'id id_declaration
+    """
+    # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur
+    user = (
+        get_user(session["current_user"]["id_role"])
+        if "current_user" in session and session["current_user"]
+        else None
+    )
+    declaration = get_declarations(id_declaration=id_declaration, user=user)[0]
 
-#     declaration = get_declaration(id_declaration)
+    if not declaration:
+        return None
 
-#     if not declaration:
-#         return None
-
-#     return declaration
+    return declaration
 
 
 # @bp.route("declaration_html/<int:id_declaration>", methods=["GET", "POST"])
