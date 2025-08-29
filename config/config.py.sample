@@ -13,7 +13,7 @@ SQLALCHEMY_ENGINE_OPTIONS = {
     'pool_timeout': 10, # nb de secondes avant de timeout
     'pool_size': 1, # nb de connexions max
     'max_overflow': 10, # nb de connexions max en plus
-    'future': True # pour sqlalchemy 2.0
+    'future': True, # pour sqlalchemy 2.0
     'connect_args': {
         'connect_timeout': 10,  # Timeout (en secondes) lors de la connexion à la base
         'application_name': 'oeasc_app'  # Nom de l'application pour l'identification côté PostgreSQL
@@ -40,6 +40,7 @@ REDIRECT_ON_FORBIDDEN = "login" # page de redirection en cas d'interdiction d'ac
 
 #MODE_TEST = 0 # peu utilisé
 DEBUG = True # Si True, Flask recharge le serveur à chaque modification du code et affiche plus d'erreur
+MODE_DEVELOPPEMENT = True # pour le mode développement, affiche les erreurs et les warnings
 #MODE_NEW = 0 # peu utilisé
 ID_APP = 500 # pour identifier l'application dans la base de données ou dans le certificat de contexte
 CODE_APPLICATION = "OEASC" # utilisé dans l'authentification
