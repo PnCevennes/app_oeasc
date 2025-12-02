@@ -83,6 +83,6 @@ git+https://git@github.com/ThibautMn/Utils-Flask-SQLAlchemy.git@5fb6eb678b185e49
 # -e git+ssh://git@github.com/ThibautMn/Utils-Flask-SQLAlchemy-Geo.git@70b1bb666ac8fd963cda2b0ad1217bf67e1329ce#egg=utils_flask_sqlalchemy_geo
 git+https://git@github.com/ThibautMn/Utils-Flask-SQLAlchemy-Geo.git@70b1bb666ac8fd963cda2b0ad1217bf67e1329ce#egg=utils_flask_sqlalchemy_geo
 
-Werkzeug==3.1.3
+Werkzeug==3.1.4
 WTForms==3.1.2
 xmltodict==0.14.2
