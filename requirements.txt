@@ -72,7 +72,7 @@ git+https://git@github.com/ThibautMn/TaxHub.git@e99d875373e4b33bd93fc83a2ea5f948
 toml==0.10.2
 typing_extensions==4.14.1
 tzdata==2025.2
-urllib3==2.5.0
+urllib3==2.6.3
 
 utils_flask_sqlalchemy @ https://github.com/ThibautMn/Utils-Flask-SQLAlchemy.git@5fb6eb678b185e49ce5be98ec778653c799992cc
 git+https://git@github.com/ThibautMn/Utils-Flask-SQLAlchemy.git@5fb6eb678b185e49ce5be98ec778653c799992cc#egg=utils_flask_sqlalchemy
