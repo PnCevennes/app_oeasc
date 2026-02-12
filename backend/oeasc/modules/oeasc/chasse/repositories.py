@@ -13,7 +13,6 @@ from .models import (
     VPlanChasseRealisationBilan,
 )
 
-
 config = current_app.config
 DB = config["DB"]
 
@@ -29,7 +28,7 @@ def chasse_process_args():
     id_espece = request.args.get("id_espece")
     id_saison = request.args.get("id_saison")
     poids_ou_dagues = request.args.get("poids_ou_dagues")
-    if poids_ou_dagues is None: # poids ou dagues est forcément un booléen
+    if poids_ou_dagues is None:  # poids ou dagues est forcément un booléen
         poids_ou_dagues = False
 
     # récupération des id dans les paramètres de la requête sous forme de liste car le formulaire est à choix multiple
@@ -219,22 +218,22 @@ def chasse_get_infos():
 
     # Retourne toutes les informations utiles pour l'affichage en haut de page et pour les graphiques
     return {
-        "nom_saison": nom_saison,              # Nom de la saison sélectionnée
-        "nom_espece": nom_espece,              # Nom de l'espèce sélectionnée
-        "echelle": echelle,                    # Texte décrivant l'échelle de la zone
-        "last_5_id_saison": last_5_id_saisons, # Liste des 5 dernières saisons (id)
-        "nom_saison": nom_saison,              # (doublon, peut être nettoyé)
-        **get_attribution_result(args),        # Statistiques d'attribution/réalisation
+        "nom_saison": nom_saison,  # Nom de la saison sélectionnée
+        "nom_espece": nom_espece,  # Nom de l'espèce sélectionnée
+        "echelle": echelle,  # Texte décrivant l'échelle de la zone
+        "last_5_id_saison": last_5_id_saisons,  # Liste des 5 dernières saisons (id)
+        "nom_saison": nom_saison,  # (doublon, peut être nettoyé)
+        **get_attribution_result(args),  # Statistiques d'attribution/réalisation
     }
 
 
 def build_chasse_bilan_filters(params, stmt, tableModel):
     """
-    Construit dynamiquement des filtres SQLAlchemy pour une requête sur le bilan de chasse, 
+    Construit dynamiquement des filtres SQLAlchemy pour une requête sur le bilan de chasse,
     en fonction des paramètres fournis.
 
-    Cette fonction est typiquement utilisée lors de la génération de rapports ou de bilans 
-    sur les activités de chasse, où il est nécessaire de filtrer les résultats selon 
+    Cette fonction est typiquement utilisée lors de la génération de rapports ou de bilans
+    sur les activités de chasse, où il est nécessaire de filtrer les résultats selon
     différentes zones (indicative, cynégétique, secteur) et espèces.
 
     Args:
@@ -323,9 +322,7 @@ def get_chasse_bilan_realisation(params):
         # Application des filtres dynamiques selon les paramètres
         stmt = build_chasse_bilan_filters(params, stmt, VPlanChasseRealisationBilan)
         # Groupement par espèce et saison
-        stmt = stmt.group_by(
-            VPlanChasseRealisationBilan.id_espece, TSaisons.nom_saison
-        )
+        stmt = stmt.group_by(VPlanChasseRealisationBilan.id_espece, TSaisons.nom_saison)
 
     else:
         # Cas où on ne filtre pas par zone indicative (ZI)
@@ -333,16 +330,17 @@ def get_chasse_bilan_realisation(params):
 
         # Sous-requête pour la réalisation :
         # On agrège les réalisations par espèce et saison.
-        realisation_subq = (
-            select(
-                VPlanChasseRealisationBilan.id_espece,
-                VPlanChasseRealisationBilan.id_saison,
-                func.sum(VPlanChasseRealisationBilan.nb_realisation).label("nb_realisation"),
-                func.sum(VPlanChasseRealisationBilan.nb_realisation_avant_11).label("nb_realisation_avant_11"),
-            )
-            .group_by(
-                VPlanChasseRealisationBilan.id_espece, VPlanChasseRealisationBilan.id_saison
-            )
+        realisation_subq = select(
+            VPlanChasseRealisationBilan.id_espece,
+            VPlanChasseRealisationBilan.id_saison,
+            func.sum(VPlanChasseRealisationBilan.nb_realisation).label(
+                "nb_realisation"
+            ),
+            func.sum(VPlanChasseRealisationBilan.nb_realisation_avant_11).label(
+                "nb_realisation_avant_11"
+            ),
+        ).group_by(
+            VPlanChasseRealisationBilan.id_espece, VPlanChasseRealisationBilan.id_saison
         )
         # Application des filtres sur la sous-requête de réalisation
         realisation_subq = build_chasse_bilan_filters(
@@ -351,17 +349,12 @@ def get_chasse_bilan_realisation(params):
 
         # Sous-requête pour l'attribution :
         # On agrège les attributions par espèce et saison.
-        attribution_subq = (
-            select(
-                TAttributionMassifs.id_espece,
-                TAttributionMassifs.id_saison,
-                func.sum(TAttributionMassifs.nb_affecte_min).label("nb_attribution_min"),
-                func.sum(TAttributionMassifs.nb_affecte_max).label("nb_attribution_max"),
-            )
-            .group_by(
-                TAttributionMassifs.id_espece, TAttributionMassifs.id_saison
-            )
-        )
+        attribution_subq = select(
+            TAttributionMassifs.id_espece,
+            TAttributionMassifs.id_saison,
+            func.sum(TAttributionMassifs.nb_affecte_min).label("nb_attribution_min"),
+            func.sum(TAttributionMassifs.nb_affecte_max).label("nb_attribution_max"),
+        ).group_by(TAttributionMassifs.id_espece, TAttributionMassifs.id_saison)
         # Application des filtres sur la sous-requête d'attribution
         attribution_subq = build_chasse_bilan_filters(
             params, attribution_subq, TAttributionMassifs
@@ -379,13 +372,10 @@ def get_chasse_bilan_realisation(params):
                 realisation_subq.c.nb_realisation_avant_11,
             )
             .select_from(TSaisons)
-            .join(
-                realisation_subq,
-                TSaisons.id_saison == realisation_subq.c.id_saison
-            )
+            .join(realisation_subq, TSaisons.id_saison == realisation_subq.c.id_saison)
             .join(
                 attribution_subq,
-                attribution_subq.c.id_saison == realisation_subq.c.id_saison
+                attribution_subq.c.id_saison == realisation_subq.c.id_saison,
             )
         )
 
@@ -458,9 +448,7 @@ def get_plain_text_data(params):
     elif params["id_secteur"]:
         # Sinon, on regarde les secteurs
         zones = DB.session.scalars(
-            select(TSecteurs).where(
-                TSecteurs.id_secteur.in_(params["id_secteur"])
-            )
+            select(TSecteurs).where(TSecteurs.id_secteur.in_(params["id_secteur"]))
         ).all()
         column_name = "nom_secteur"
 
@@ -469,6 +457,7 @@ def get_plain_text_data(params):
         out[column_name] = ", ".join([getattr(z, column_name) for z in zones])
 
     return out
+
 
 # Cette fonction est typiquement utilisée dans les fonctions de génération de bilans ou d'exports
 # (ex : get_chasse_bilan, get_data_export_ods) pour afficher les noms des entités sélectionnées
@@ -885,6 +874,7 @@ def get_details(nom_saison, nom_espece, filter={}):
     )
     return out
 
+
 def get_data_export_ods(nom_saison, nom_espece):
     """
     Récupère et structure les données de bilan de chasse pour une espèce et une saison données,
@@ -985,27 +975,31 @@ def get_data_export_ods(nom_saison, nom_espece):
         maxi = last_r["nb_attribution_max_espece"] or ""
         realisation = int(last_r["nb_realisation_espece"]) or ""
         pourcent = (
-            round(last_r["nb_realisation_espece"] / last_r["nb_attribution_max_espece"] * 100)
-            if last_r["nb_attribution_max_espece"] else ""
+            round(
+                last_r["nb_realisation_espece"]
+                / last_r["nb_attribution_max_espece"]
+                * 100
+            )
+            if last_r["nb_attribution_max_espece"]
+            else ""
         )
     else:
         mini = maxi = realisation = pourcent = ""
 
     # Construction du dictionnaire final à retourner
     data = {
-        "nom_saison": nom_saison,      # Nom de la saison
-        "nom_espece": nom_espece,      # Nom de l'espèce
-        "mini": mini,                  # Attribution minimale globale
-        "maxi": maxi,                  # Attribution maximale globale
-        "realisation": realisation,    # Réalisation globale
-        "pourcent": pourcent,          # Pourcentage de réalisation global
-        "zcs": zcs,                    # Liste des ZC et leurs ZI
+        "nom_saison": nom_saison,  # Nom de la saison
+        "nom_espece": nom_espece,  # Nom de l'espèce
+        "mini": mini,  # Attribution minimale globale
+        "maxi": maxi,  # Attribution maximale globale
+        "realisation": realisation,  # Réalisation globale
+        "pourcent": pourcent,  # Pourcentage de réalisation global
+        "zcs": zcs,  # Liste des ZC et leurs ZI
         # Ajout des statistiques détaillées globales pour l'espèce/saison
         **get_details(nom_saison, nom_espece),
     }
 
     return data
-
 
 
 def get_data_all_especes_export_ods(nom_saison):

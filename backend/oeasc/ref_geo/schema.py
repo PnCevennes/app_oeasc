@@ -7,7 +7,7 @@ from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
 from marshmallow_sqlalchemy.fields import Nested, fields
 from utils_flask_sqla.schema import SmartRelationshipsMixin
-from utils_flask_sqla_geo.schema import  GeometryField
+from utils_flask_sqla_geo.schema import GeometryField
 from utils_flask_sqla_geo.schema import GeoAlchemyAutoSchema
 from marshmallow import EXCLUDE
 from .models import *
@@ -32,10 +32,12 @@ class BibAreasTypeSchema(SQLAlchemyAutoSchema):
         load_instance = False
         unknown = EXCLUDE
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
-                
+
+
 class TAreasSchema(SQLAlchemyAutoSchema):
     """Schema pour les zones l_area mais sans les champs géométriques"""
-    class Meta: 
+
+    class Meta:
         model = TAreas
         sqla_session = DB.session
         load_instance = False
@@ -43,8 +45,10 @@ class TAreasSchema(SQLAlchemyAutoSchema):
         unknown = EXCLUDE
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
 
-class LAreasSchema( GeoAlchemyAutoSchema):
+
+class LAreasSchema(GeoAlchemyAutoSchema):
     """Schema pour les zones l_area avec les champs géométriques"""
+
     geom_4326 = GeometryField()
 
     class Meta:
@@ -54,9 +58,10 @@ class LAreasSchema( GeoAlchemyAutoSchema):
         unknown = EXCLUDE
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
 
+
 class VAreasSchema(SQLAlchemyAutoSchema):
     """Schema pour les vues VAreas sans les champs géométriques"""
-    
+
     class Meta:
         model = VAreas
         sqla_session = DB.session
@@ -64,8 +69,10 @@ class VAreasSchema(SQLAlchemyAutoSchema):
         unknown = EXCLUDE
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
 
+
 class VAreasSimplesSchema(SQLAlchemyAutoSchema):
     """Schema pour les vues VAreasSimples avec les champs géométriques"""
+
     class Meta:
         model = VAreasSimples
         sqla_session = DB.session
@@ -74,7 +81,8 @@ class VAreasSimplesSchema(SQLAlchemyAutoSchema):
         exclude = ("geom_4326",)  # Exclut les champs géométriques
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
 
-class VLAreasSchema( GeoAlchemyAutoSchema):
+
+class VLAreasSchema(GeoAlchemyAutoSchema):
     geom_4326 = GeometryField()
 
     class Meta:
@@ -84,7 +92,8 @@ class VLAreasSchema( GeoAlchemyAutoSchema):
         unknown = EXCLUDE
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
 
-class VLAreasSimplesSchema( GeoAlchemyAutoSchema):
+
+class VLAreasSimplesSchema(GeoAlchemyAutoSchema):
     geom_4326 = GeometryField()
 
     class Meta:
@@ -97,9 +106,9 @@ class VLAreasSimplesSchema( GeoAlchemyAutoSchema):
 
 class CorHierarchieAreaSchema(SQLAlchemyAutoSchema):
     """Schema pour la table de hiérarchie des aires"""
-    
+
     class Meta:
-        model = CorHierarchieArea 
+        model = CorHierarchieArea
         sqla_session = DB.session
         load_instance = False
         unknown = EXCLUDE

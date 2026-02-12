@@ -160,8 +160,10 @@ def get_objects_type(module_name, object_type, args={}):
 
     # Application des filtres dynamiques (reçus via args)
     for key in args:
-        params_filter = key.split("__")  # Permet de gérer les filtres avancés (ex: name__ilike)
-        key_filter = params_filter[0]    # Nom du champ à filtrer
+        params_filter = key.split(
+            "__"
+        )  # Permet de gérer les filtres avancés (ex: name__ilike)
+        key_filter = params_filter[0]  # Nom du champ à filtrer
 
         type_filter = None
         if len(params_filter) > 1:
@@ -211,7 +213,7 @@ def get_objects_type(module_name, object_type, args={}):
                 )
 
     # Gestion du tri (sortBy et sortDesc)
-    sort_by = getlist(args, "sortBy")      # Liste des champs à trier
+    sort_by = getlist(args, "sortBy")  # Liste des champs à trier
     sort_desc = getlist(args, "sortDesc")  # Liste des directions (asc/desc)
 
     order_bys = []
@@ -271,7 +273,7 @@ def get_object_type(module_name, object_type, value, field_name=None):
     """
 
     # Récupère le modèle SQLAlchemy et le nom du champ id par défaut
-    (Model, id_field_name) = definitions.get_model(module_name, object_type)
+    Model, id_field_name = definitions.get_model(module_name, object_type)
 
     # Si aucun nom de champ n'est fourni, utilise la clé primaire du modèle
     if not field_name:
@@ -306,7 +308,7 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
     """
 
     # Récupère le modèle SQLAlchemy et le nom du champ id
-    (Model, id_field_name) = definitions.get_model(module_name, object_type)
+    Model, id_field_name = definitions.get_model(module_name, object_type)
 
     # Recherche du schéma Marshmallow correspondant au modèle (ex: UserSchema pour User)
     schema_name = f"{Model.__name__}Schema"
@@ -314,7 +316,9 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
 
     # Vérifie que le schéma existe bien dans le contexte global
     if not schema:
-        raise ValueError(f"Schéma {schema_name} non trouvé pour le modèle {Model.__name__}")
+        raise ValueError(
+            f"Schéma {schema_name} non trouvé pour le modèle {Model.__name__}"
+        )
 
     try:
         if id_value:
@@ -326,7 +330,9 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
                     f"Objet {object_type} avec {id_field_name}={id_value} non trouvé"
                 )
             # Charge les nouvelles données dans l'objet existant (mise à jour partielle possible)
-            obj = schema().load(post_data, instance=res, session=DB.session, partial=True)
+            obj = schema().load(
+                post_data, instance=res, session=DB.session, partial=True
+            )
         else:
             # Cas d'une création : on instancie un nouvel objet avec les données fournies
             obj = schema().load(post_data, session=DB.session)

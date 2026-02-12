@@ -12,7 +12,6 @@ from .repository import (
 
 from .declaration_sample import declaration_dict_random_sample
 
-
 config = current_app.config
 mail = config["MAIL"]
 
@@ -68,9 +67,13 @@ def send_mail_test():
     """
     declaration = declaration_dict_random_sample()  # Génère une déclaration aléatoire
 
-    declaration = f_create_or_update_declaration(declaration)  # Sauvegarde ou met à jour la déclaration
+    declaration = f_create_or_update_declaration(
+        declaration
+    )  # Sauvegarde ou met à jour la déclaration
 
-    return send_mail_validation_declaration(declaration, True)  # Envoie l'email comme pour une création
+    return send_mail_validation_declaration(
+        declaration, True
+    )  # Envoie l'email comme pour une création
 
 
 def send_mail_validation_declaration(declaration, b_create):

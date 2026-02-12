@@ -39,10 +39,10 @@ def get_some_config(config_text):
     """
     # Liste des clés de configuration à exposer dans Jinja
     keys = [
-        "ID_APP",         # Identifiant de l'application
-        "MODE_TEST",      # Mode test activé ou non
-        "URL_USERSHUB",   # URL du service UsersHub
-        "URL_APPLICATION" # URL principale de l'application
+        "ID_APP",  # Identifiant de l'application
+        "MODE_TEST",  # Mode test activé ou non
+        "URL_USERSHUB",  # URL du service UsersHub
+        "URL_APPLICATION",  # URL principale de l'application
     ]
 
     # On filtre le dictionnaire de configuration pour ne garder que les clés souhaitées

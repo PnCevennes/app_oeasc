@@ -9,4 +9,3 @@
 # from .utils import get_listes_essences
 
 # bp = Blueprint("declaration", __name__)
-

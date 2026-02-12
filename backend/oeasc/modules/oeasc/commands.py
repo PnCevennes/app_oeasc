@@ -22,6 +22,7 @@ from oeasc.modules.oeasc.generic.repository import (
     # delete_object_type,
 )
 
+
 # Commande CLI pour tester la création ou mise à jour d'une réalisation de chasse
 @click.command("test_chasse_realisation")
 @click.option("-m", "--module_code", "module_code", default="test")
@@ -32,8 +33,8 @@ def cmd_test_chasse_realisation(module_code, schema_name):
     Commande de test sur un schema
 
     Utilisation :
-    Cette commande est utilisée pour tester la création ou la mise à jour d'un objet 'realisation' 
-    dans le module 'chasse'. Elle simule l'envoi de données JSON et appelle la fonction 
+    Cette commande est utilisée pour tester la création ou la mise à jour d'un objet 'realisation'
+    dans le module 'chasse'. Elle simule l'envoi de données JSON et appelle la fonction
     create_or_update_object_type pour effectuer l'opération en base de données.
 
     Options :

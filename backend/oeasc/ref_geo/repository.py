@@ -5,6 +5,7 @@ Fonctions pour récupérer les géometries
 from sqlalchemy import and_, text, select, func
 from sqlalchemy.orm import Session
 from flask import current_app
+
 # from geojson import FeatureCollection
 
 from .models import (
@@ -13,7 +14,6 @@ from .models import (
     VAreasSimples as VAS,
     VLAreasSimples as VLAS,
     BibAreasType,
-
 )
 from .schema import (
     VAreasSchema,
@@ -24,8 +24,6 @@ from .schema import (
 
 from ..modules.oeasc.declaration.models import CorDgdCadastre
 
-
-
 config = current_app.config
 DB = config["DB"]
 
@@ -34,7 +32,7 @@ def get_id_type(type_code):
     """
     TODO
     """
-     
+
     stmt = select(func.ref_geo.get_id_type(type_code))
     res = DB.session.execute(stmt).first()[0]
 
@@ -46,12 +44,11 @@ def get_type_code(id_type):
     Récupère le type_code pour un id_type donné.
     """
 
-    stmt = select(BibAreasType.type_code).where(
-        BibAreasType.id_type == id_type
-    ).limit(1)
+    stmt = (
+        select(BibAreasType.type_code).where(BibAreasType.id_type == id_type).limit(1)
+    )
     res = DB.session.execute(stmt).scalars().one_or_none()
     return res
-
 
 
 def set_table_and_schema(b_simple, data_type):
@@ -99,14 +96,13 @@ def areas_from_type_code(b_simple, data_type, type_code):
 
     id_type = get_id_type(type_code)
 
-
-    stmt = ((select(table)
-            .where(table.id_type == id_type)
-            .where(table.enable)
-            .order_by(table.label)))
+    stmt = (
+        select(table)
+        .where(table.id_type == id_type)
+        .where(table.enable)
+        .order_by(table.label)
+    )
     data = DB.session.execute(stmt).scalars().all()
-        
-
 
     if data_type == "l":
         # out = FeatureCollection([d.get_geofeature() for d in data])
@@ -148,17 +144,15 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
     out = []
 
-
     for id_area_container in v:
 
         stmt_container = (
             select(table)
-                .where(table.id_area == id_area_container)
-                .order_by(table.label)
-                # .limit(1) # ajout le limit pour optimiser la requete
+            .where(table.id_area == id_area_container)
+            .order_by(table.label)
+            # .limit(1) # ajout le limit pour optimiser la requete
         )
         container = DB.session.execute(stmt_container).scalars().first()
-
 
         id_type_commune = get_id_type("OEASC_COMMUNE")
         id_type_dgd = get_id_type("OEASC_DGD")
@@ -166,7 +160,9 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
         # cas des section de communes
         if container.id_type == id_type_commune:
 
-            stmt_old_communes = select(func.ref_geo.get_old_communes(container.area_code))
+            stmt_old_communes = select(
+                func.ref_geo.get_old_communes(container.area_code)
+            )
             result = DB.session.execute(stmt_old_communes).scalars().all()
 
             data = []
@@ -188,31 +184,26 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
 
                 data = DB.session.execute(stmt).scalars().all() + data
 
-
-
         # cas des dgd
         elif container.id_type == id_type_dgd:
 
-            stmt_cadastre = (select(CorDgdCadastre.area_code_cadastre).where(
+            stmt_cadastre = select(CorDgdCadastre.area_code_cadastre).where(
                 CorDgdCadastre.area_code_dgd == container.area_code
-            ))
+            )
             res = DB.session.execute(stmt_cadastre).all()
-            
-            
+
             v = [r[0] for r in res]
 
             stmt_by_area_code = (
-                select(table)
-                .where(table.area_code.in_(v))
-                .order_by(table.label)
+                select(table).where(table.area_code.in_(v)).order_by(table.label)
             )
             data = DB.session.execute(stmt_by_area_code).scalars().all()
-
 
         # autres cas ONF
         else:
 
-            stmt = (select(table)
+            stmt = (
+                select(table)
                 .where(
                     and_(
                         table.id_type == id_type,
@@ -223,7 +214,6 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                 .order_by(table.label)
             )
             data = DB.session.execute(stmt).scalars().all()
-
 
     # output final
     if data_type == "l":
@@ -245,12 +235,8 @@ def areas_post(b_simple, data_type, areas):
     out = []
 
     t_areas = areas
-    stmt_areas = (
-        select(table)
-        .where(table.id_area.in_(t_areas))
-    )
+    stmt_areas = select(table).where(table.id_area.in_(t_areas))
     data = DB.session.execute(stmt_areas).scalars().all()
-
 
     if data_type == "l":
         # out = FeatureCollection([d.get_geofeature() for d in data])
@@ -275,7 +261,7 @@ def build_area_hierarchy(data, hierarchy_data):
     """
     # On construit la hiérarchie à partir des données récupérées
     hierarchy = {}
-    
+
     # on recherche dans hierachy_data les id_area_parent qui n'apparaissent pas dans les id_area_enfant
     area_children = set([relation["id_area_enfant"] for relation in hierarchy_data])
     area_parents = set([relation["id_area_parent"] for relation in hierarchy_data])
@@ -286,7 +272,9 @@ def build_area_hierarchy(data, hierarchy_data):
     # Build a mapping from parent to list of children
     children_map = {}
     for relation in hierarchy_data:
-        children_map.setdefault(relation["id_area_parent"], []).append(relation["id_area_enfant"])
+        children_map.setdefault(relation["id_area_parent"], []).append(
+            relation["id_area_enfant"]
+        )
 
     def build_tree(id_area, parent_id=None):
         node = data_map.get(id_area, {"id_area": id_area})
@@ -297,7 +285,8 @@ def build_area_hierarchy(data, hierarchy_data):
         return node
 
     # Only build trees for top-level parents
-    result = [build_tree(id_area) for id_area in first_level_parents if id_area in data_map]
+    result = [
+        build_tree(id_area) for id_area in first_level_parents if id_area in data_map
+    ]
 
     return result
-

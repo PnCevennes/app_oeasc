@@ -2,17 +2,14 @@
 fichier server app oeasc
 """
 
-
-
-
 ##########################
 # import sys
 # base_path = os.path.abspath(os.path.join(os.getcwd(), '..'))
 # sys.path.append(os.path.join(base_path, 'config'))
 
 
-
 import json
+
 # import re
 from pathlib import Path
 from pkg_resources import iter_entry_points
@@ -32,28 +29,29 @@ from flask_mail import Mail
 from pypnusershub.env import REGISTER_POST_ACTION_FCT
 import config.config as cfg
 
-
-
 #######################################################################################
 ############## AFFICHAGE DES MESSAGES D'ERREURS ET WARNING ############################
 #######################################################################################
 
 
-if (cfg.MODE_DEVELOPPEMENT): # pour le mode développement, affiche les erreurs et les warnings
+if (
+    cfg.MODE_DEVELOPPEMENT
+):  # pour le mode développement, affiche les erreurs et les warnings
     import os
     import warnings
     from sqlalchemy import exc
+
     print("MODE DEVELOPPEMENT ACTIVÉ")
     # pour la migration vers sqlalchemy 2.0. affiche les warnings
     os.environ["PYTHONWARNINGS"] = "always"
     os.environ["SQLALCHEMY_WARN_20"] = "1"
     warnings.simplefilter("always", exc.SAWarning)
 
-    #Pour n'afficher que les warnings de sqlalchemy. A decommenter en développement pour ne pas afficher les requetes SQL
-    for name in ['sqlalchemy.engine', 'sqlalchemy.pool', 'sqlalchemy.dialects']:
+    # Pour n'afficher que les warnings de sqlalchemy. A decommenter en développement pour ne pas afficher les requetes SQL
+    for name in ["sqlalchemy.engine", "sqlalchemy.pool", "sqlalchemy.dialects"]:
         logging.getLogger(name).setLevel(logging.WARNING)
 
-else: # Pour le mode production, n'affiche que les erreurs
+else:  # Pour le mode production, n'affiche que les erreurs
     # n'affiche que les message d'erreur.
     logging.getLogger("werkzeug").setLevel(logging.ERROR)
     # n'affiche que les message d'erreur de sqlalchemy.
@@ -61,6 +59,7 @@ else: # Pour le mode production, n'affiche que les erreurs
 
 
 ###########################################################################################
+
 
 class ReverseProxied(object):
     def __init__(self, app_in, script_name=None, scheme=None, server=None):
@@ -95,7 +94,9 @@ cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 # app.wsgi_app = ReverseProxied(app.wsgi_app)
 
 # intégration des données de configuration dans l'application. Mettre silent=True en production
-if (cfg.MODE_DEVELOPPEMENT): # pour le mode développement, affiche les erreurs et les warnings
+if (
+    cfg.MODE_DEVELOPPEMENT
+):  # pour le mode développement, affiche les erreurs et les warnings
     app.config.from_pyfile("../config/config.py", silent=False)
 else:
     app.config.from_pyfile("../config/config.py", silent=True)

@@ -13,13 +13,13 @@ from .models import (
     VLAreasSimples as VLAS,
     LAreas as LA,
     BibAreasType,
-    CorHierarchieArea
+    CorHierarchieArea,
 )
 from .schema import (
     VAreasSchema,
     VLAreasSimplesSchema,
     BibAreasTypeSchema,
-    CorHierarchieAreaSchema
+    CorHierarchieAreaSchema,
 )
 
 from .repository import (
@@ -28,7 +28,7 @@ from .repository import (
     areas_from_type_code_container,
     areas_post,
     set_table_and_schema,
-    build_area_hierarchy
+    build_area_hierarchy,
 )
 
 bp = Blueprint("ref_geo", __name__)
@@ -95,7 +95,7 @@ def get_area(data_type, id_area):
     """
     Récupère une aire spécifique en fonction de son identifiant.
 
-    data_type : 
+    data_type :
         t -> renvoie seulement les attributs (sans géométrie)
         l -> renvoie aussi la géométrie (format GeoJSON)
 
@@ -128,11 +128,12 @@ def get_area(data_type, id_area):
         # Sinon, on retourne les attributs sous forme de dictionnaire classique
         return schema().dump(data)
 
+
 @bp.route("areas/<string:data_type>/<string:id_areas>", methods=["GET"])
 @json_resp
 def get_areas_liste(data_type, id_areas):
     """
-    data_type : 
+    data_type :
         t -> renvoie seulement les attributs (sans géométrie)
         l -> renvoie aussi la géométrie (format GeoJSON)
     Cette fonction est utilisée pour récupérer des aires spécifiques en fonction de leurs identifiants.
@@ -152,10 +153,7 @@ def get_areas_liste(data_type, id_areas):
     table, schema = set_table_and_schema(b_simple=True, data_type=data_type)
 
     # On prépare la requête SQLAlchemy pour sélectionner toutes les aires dont l'id_area est dans la liste.
-    stmt_area = (
-        select(table)
-        .where(table.id_area.in_(liste_areas))
-    )
+    stmt_area = select(table).where(table.id_area.in_(liste_areas))
 
     # On exécute la requête sur la base de données et on récupère tous les résultats.
     data = DB.session.execute(stmt_area).scalars().all()
@@ -487,7 +485,7 @@ def get_areas_child_of(id_type, id_area):
         select(CorHierarchieArea)
         .where(CorHierarchieArea.id_area_parent == id_area)
         .where(CorHierarchieArea.id_type_parent == id_type)
-    ) 
+    )
     all_child_areas = DB.session.execute(stmt).scalars().all()
 
     # On extrait la liste des identifiants des aires enfants à partir des résultats précédents.
@@ -496,10 +494,7 @@ def get_areas_child_of(id_type, id_area):
 
     # On prépare une requête pour récupérer les données des aires enfants
     # à partir de la vue simplifiée VLAreasSimples (VLAS), qui contient les attributs et la géométrie simplifiée.
-    stmt_areas = (
-        select(VLAS)
-        .where(VLAS.id_area.in_(child_ids))
-    )
+    stmt_areas = select(VLAS).where(VLAS.id_area.in_(child_ids))
     data = DB.session.execute(stmt_areas).scalars().all()
 
     # On utilise le schéma VLAreasSimplesSchema pour sérialiser les données au format GeoJSON,
@@ -532,10 +527,7 @@ def get_areas_hierarchy(id_areas):
 
     # On prépare la requête SQLAlchemy pour récupérer les informations des aires
     # à partir de la vue VAreas, qui contient les attributs détaillés des aires.
-    stmt_area = (
-        select(VAreas)
-        .where(VAreas.id_area.in_(liste_areas))
-    )
+    stmt_area = select(VAreas).where(VAreas.id_area.in_(liste_areas))
     # On exécute la requête et on récupère tous les résultats.
     data = DB.session.execute(stmt_area).scalars().all()
     # On sérialise les objets VAreas en dictionnaires JSON grâce au schéma VAreasSchema.
@@ -544,12 +536,9 @@ def get_areas_hierarchy(id_areas):
     # On prépare une requête SQLAlchemy pour récupérer les relations de hiérarchie
     # où l'aire enfant correspond à l'un des identifiants transmis.
     # Cela permet d'obtenir les liens parent/enfant pour les aires sélectionnées.
-    stmt_hierarchy = (
-        select(CorHierarchieArea)
-        .where(
-            # On sélectionne les relations où l'id_area_enfant est dans la liste des identifiants.
-            (CorHierarchieArea.id_area_enfant.in_(liste_areas))
-        )
+    stmt_hierarchy = select(CorHierarchieArea).where(
+        # On sélectionne les relations où l'id_area_enfant est dans la liste des identifiants.
+        (CorHierarchieArea.id_area_enfant.in_(liste_areas))
     )
     # On exécute la requête et on récupère tous les résultats.
     hierarchy_data = DB.session.execute(stmt_hierarchy).scalars().all()
@@ -564,6 +553,3 @@ def get_areas_hierarchy(id_areas):
 
     # On retourne la hiérarchie construite au format JSON.
     return hierarchy
-
-
-

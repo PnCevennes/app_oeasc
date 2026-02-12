@@ -4,6 +4,7 @@ from oeasc.ref_geo.repository import get_type_code
 from oeasc.ref_geo.models import VAreas as VA
 from oeasc.ref_geo.schema import VAreasSchema
 from sqlalchemy import select
+
 # from sqlalchemy.orm import Session
 
 config = current_app.config
@@ -53,7 +54,9 @@ def nomenclature_oeasc():
     # (pour éviter de refaire la requête à chaque appel)
     if not config.get("_nomenclature"):
         # Si elles ne sont pas présentes, on les récupère depuis la base
-        list_data = nomenclature_oeasc_types  # Liste des types de nomenclature à charger
+        list_data = (
+            nomenclature_oeasc_types  # Liste des types de nomenclature à charger
+        )
 
         data = {}
 
@@ -74,7 +77,9 @@ def nomenclature_oeasc():
                 for key in cols:
                     d_new[key] = d.get(key, None)
                 values.append(d_new)
-            data[type_code]["values"] = values  # On remplace la liste par la version filtrée
+            data[type_code][
+                "values"
+            ] = values  # On remplace la liste par la version filtrée
 
         # On stocke le résultat dans la config Flask pour le réutiliser plus tard
         config["_nomenclature"] = data
@@ -219,7 +224,9 @@ def get_areas_from_ids(id_areas):
 
         # On construit la requête SQL pour récupérer toutes les aires d'un coup
         stmt = select(VA).where(VA.id_area.in_(id_areas_to_query))
-        result_db = DB.session.execute(stmt).all()  # Exécution de la requête, récupération des résultats
+        result_db = DB.session.execute(
+            stmt
+        ).all()  # Exécution de la requête, récupération des résultats
 
         # On convertit les résultats en liste de dictionnaires via le schéma Marshmallow
         all_area = VAreasSchema(many=True).dump(result_db)
@@ -338,4 +345,3 @@ def get_dict_nomenclature_areas(dict_in):
             continue
 
     return dict_in
-

@@ -8,6 +8,7 @@ from pathlib import Path
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp_accept_empty_list, json_resp
 from sqlalchemy import text, select, func
+
 # from sqlalchemy.orm import Session
 
 # from oeasc.utils.env import ROOT_DIR
@@ -19,16 +20,16 @@ from .models import (
     TEspeces,
     TCommunes,
     TNomenclaturesOeasc,
-    TListeOrganismes
+    TListeOrganismes,
 )
-from .schema import(
+from .schema import (
     TContentsSchema,
     TTagsSchema,
     TSecteursSchema,
     TEspecesSchema,
     TCommunesSchema,
     TNomenclaturesOeascSchema,
-    TListeOrganismesSchema
+    TListeOrganismesSchema,
 )
 
 from pypnnomenclature.models import BibNomenclaturesTypes
@@ -39,19 +40,42 @@ from ..generic.definitions import GenericRouteDefinitions
 
 from ..nomenclature import nomenclature_oeasc_types
 
-
 grd = GenericRouteDefinitions()
 
 config = current_app.config
 DB = config["DB"]
 
 definitions = {
-    "content": {"model": TContents, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TContentsSchema},
-    "tag": {"model": TTags, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TTagsSchema},
-    "secteur": {"model": TSecteurs, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TSecteursSchema},
-    "espece": {"model": TEspeces, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TEspecesSchema},
-    "commune": { "model": TCommunes, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TCommunesSchema},
-    "liste_organismes": { "model": TListeOrganismes, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TListeOrganismesSchema},
+    "content": {
+        "model": TContents,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TContentsSchema,
+    },
+    "tag": {
+        "model": TTags,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TTagsSchema,
+    },
+    "secteur": {
+        "model": TSecteurs,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TSecteursSchema,
+    },
+    "espece": {
+        "model": TEspeces,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TEspecesSchema,
+    },
+    "commune": {
+        "model": TCommunes,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TCommunesSchema,
+    },
+    "liste_organismes": {
+        "model": TListeOrganismes,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TListeOrganismesSchema,
+    },
     "nomenclature": {
         "model": TNomenclaturesOeasc,
         "schema": TNomenclaturesOeascSchema,
@@ -73,25 +97,23 @@ bp = Blueprint("commons_api", __name__)
 
 @bp.route("communes/", methods=["GET"])
 def api_all_communes():
-    """ recupèration de la liste de toutes les communes via le shema
+    """recupèration de la liste de toutes les communes via le shema
     pas utilisé poru l'instant, mais peut être utile pour des tests
     """
 
-    
     stmt_commune = (
         select(TCommunes)
         .where(
-            (TCommunes.cp.startswith("07")) |
-            (TCommunes.cp.startswith("48")) |
-            (TCommunes.cp.startswith("30"))
+            (TCommunes.cp.startswith("07"))
+            | (TCommunes.cp.startswith("48"))
+            | (TCommunes.cp.startswith("30"))
         )
         .order_by(TCommunes.population.desc(), TCommunes.nom, TCommunes.cp)
     )
     result = DB.session.execute(stmt_commune).scalars().all()
-    communeSchema= TCommunesSchema()
+    communeSchema = TCommunesSchema()
     out = [communeSchema.dump(res) for res in result]
     return out
-    
 
 
 @bp.route("communes/<string:test>", methods=["GET"])
@@ -133,10 +155,12 @@ def api_communes(test):
     )
 
     # Création de la requête SQL pour récupérer les communes correspondantes
-    stmt_commune = (select(func.concat(TCommunes.nom, ' ', TCommunes.cp).label('nom_cp'))
-                    .where(text(cond_text))
-                    .order_by(TCommunes.population.desc(), TCommunes.nom, TCommunes.cp)
-                    .limit(20))
+    stmt_commune = (
+        select(func.concat(TCommunes.nom, " ", TCommunes.cp).label("nom_cp"))
+        .where(text(cond_text))
+        .order_by(TCommunes.population.desc(), TCommunes.nom, TCommunes.cp)
+        .limit(20)
+    )
 
     # Exécution de la requête et récupération des résultats
     result = DB.session.execute(stmt_commune).all()

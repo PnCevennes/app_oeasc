@@ -10,7 +10,6 @@ from alembic import op
 import sqlalchemy as sa
 import subprocess
 
-
 # revision identifiers, used by Alembic.
 revision = "3fc01cbe83a2"
 down_revision = "8857f2169f96"

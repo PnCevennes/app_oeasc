@@ -47,7 +47,7 @@ def get_all_generic(module_name, object_types):
 
     # Récupération de la classe de schéma pour sérialiser les objets
     class_schema = definitions.get_schema_from_definition(module_name, object_type)
-    
+
     # Si l'argument 'count' est présent, on retourne uniquement le nombre total d'objets
     if "count" in args:
         return count
@@ -69,8 +69,6 @@ def get_all_generic(module_name, object_types):
 
     # On retourne un dictionnaire avec le nombre total, le nombre filtré et la liste des objets
     return {"total": count, "total_filtered": count_filtered, "items": items}
-
-
 
 
 @bp.route("<string:module_name>/<string:object_type>/<value>", methods=["GET"])
@@ -122,8 +120,6 @@ def get_generic(module_name, object_type, value):
     return res_dict
 
 
-
-
 @bp.route("<string:module_name>/<string:object_type>/<int:id_value>", methods=["PATCH"])
 @check_object_type("U")  # Vérifie les droits en modification (Update)
 @json_resp
@@ -166,8 +162,6 @@ def patch_generic(module_name, object_type, id_value):
         return schema_class(many=False).dump(res)
 
 
-
-
 @bp.route("<string:module_name>/<string:object_type>/", methods=["POST"])
 @check_object_type("C")  # Vérifie les droits en création (Create)
 @json_resp
@@ -207,7 +201,6 @@ def post_generic(module_name, object_type):
     else:
         # Sérialise l'objet créé et retourne le dictionnaire correspondant
         return schema_class(many=False).dump(res)
-
 
 
 @bp.route(

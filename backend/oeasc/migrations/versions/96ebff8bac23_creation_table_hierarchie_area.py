@@ -1,6 +1,6 @@
 """creation table hierarchie area
 
-Cette table permet de connaitre quelles areas sont enfants d'une autre area. Par exemple quelles areas 
+Cette table permet de connaitre quelles areas sont enfants d'une autre area. Par exemple quelles areas
 sont contenues dans telle commune ou dans tel foret. Elle permet donc de retrouver le parents d'une area
 Utilisés pour naviguer dans les cartes de creations et modifications de declarations
 
@@ -9,13 +9,13 @@ Revises: 0a44db773490
 Create Date: 2025-06-13 14:50:07.758374
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
-revision = '96ebff8bac23'
-down_revision = '0a44db773490'
+revision = "96ebff8bac23"
+down_revision = "0a44db773490"
 branch_labels = None
 depends_on = None
 
@@ -61,8 +61,6 @@ def upgrade():
     """
     op.execute(sql_insertions_communes)
 
-
-
     sql_insertion_sections_cadastre = """
     with
         section as (
@@ -96,7 +94,6 @@ def upgrade():
     on lac.area_code  = cdc.area_code_cadastre """
     op.execute(sql_insertion_dgd)
 
-
     sql_insertion_onf = """
     INSERT INTO ref_geo.cor_hierarchie_area (id_area_enfant, id_type_enfant, id_area_parent, id_type_parent)
     with foret_onf as (
@@ -111,7 +108,6 @@ def upgrade():
     and la.id_type = 329"""
     op.execute(sql_insertion_onf)
 
-
     sql_insertion_unite_gestion_onf = """
     INSERT INTO ref_geo.cor_hierarchie_area (id_area_enfant, id_type_enfant, id_area_parent, id_type_parent)
     with parcelle_onf as (
@@ -125,7 +121,6 @@ def upgrade():
         on la.area_code ilike f.area_code || '-%'
         and la.id_type = 330"""
     op.execute(sql_insertion_unite_gestion_onf)
-
 
 
 def downgrade():

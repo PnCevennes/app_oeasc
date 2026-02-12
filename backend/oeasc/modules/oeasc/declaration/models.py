@@ -16,12 +16,10 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     func,
-    
 )
 
-
 config = current_app.config
-DB = config["DB"] 
+DB = config["DB"]
 
 
 # les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0
@@ -30,6 +28,8 @@ DB = config["DB"]
 class CustomModel(DB.Model):
     __abstract__ = True  # evite que la classe soit considérée comme une table
     __allow_unmapped__ = True
+
+
 @serializable
 class CorAreasDeclaration(CustomModel):
     """
@@ -39,12 +39,18 @@ class CorAreasDeclaration(CustomModel):
     __tablename__ = "cor_areas_declarations"
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"), primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
+        primary_key=True,
+    )
     id_area: Mapped[int] = Column(Integer, primary_key=True)
 
     def __init__(self, id_area=None):
         super(CorAreasDeclaration, self).__init__()
         self.id_area = id_area
+
+
 @serializable
 class CorNomenclatureDeclarationEssenceSecondaire(CustomModel):
     """
@@ -55,11 +61,17 @@ class CorNomenclatureDeclarationEssenceSecondaire(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(Integer, primary_key=True)
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"), primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
+        primary_key=True,
+    )
 
     def __init__(self, id_nomenclature=None):
         super(CorNomenclatureDeclarationEssenceSecondaire, self).__init__()
         self.id_nomenclature = id_nomenclature
+
+
 @serializable
 class CorNomenclatureDeclarationEssenceComplementaire(CustomModel):
     """
@@ -70,11 +82,17 @@ class CorNomenclatureDeclarationEssenceComplementaire(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(Integer, primary_key=True)
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"), primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
+        primary_key=True,
+    )
 
     def __init__(self, id_nomenclature=None):
         super(CorNomenclatureDeclarationEssenceComplementaire, self).__init__()
         self.id_nomenclature = id_nomenclature
+
+
 @serializable
 class CorNomenclatureDeclarationMaturite(CustomModel):
     """
@@ -85,11 +103,17 @@ class CorNomenclatureDeclarationMaturite(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(Integer, primary_key=True)
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"), primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
+        primary_key=True,
+    )
 
     def __init__(self, id_nomenclature=None):
         super(CorNomenclatureDeclarationMaturite, self).__init__()
         self.id_nomenclature = id_nomenclature
+
+
 @serializable
 class CorNomenclatureDeclarationOrigine(CustomModel):
     """
@@ -100,11 +124,17 @@ class CorNomenclatureDeclarationOrigine(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(Integer, primary_key=True)
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"), primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
+        primary_key=True,
+    )
 
     def __init__(self, id_nomenclature=None):
         super(CorNomenclatureDeclarationOrigine, self).__init__()
         self.id_nomenclature = id_nomenclature
+
+
 @serializable
 class CorNomenclatureDeclarationProtectionType(CustomModel):
     """
@@ -115,11 +145,17 @@ class CorNomenclatureDeclarationProtectionType(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(Integer, primary_key=True)
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"), primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
+        primary_key=True,
+    )
 
     def __init__(self, id_nomenclature=None):
         super(CorNomenclatureDeclarationProtectionType, self).__init__()
         self.id_nomenclature = id_nomenclature
+
+
 @serializable
 class CorNomenclatureDeclarationPaturageType(CustomModel):
     """
@@ -130,11 +166,16 @@ class CorNomenclatureDeclarationPaturageType(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(Integer, primary_key=True)
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"), primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
+        primary_key=True,
+    )
 
     def __init__(self, id_nomenclature=None):
         super(CorNomenclatureDeclarationPaturageType, self).__init__()
         self.id_nomenclature = id_nomenclature
+
 
 @serializable
 class CorNomenclatureDeclarationPaturageSaison(CustomModel):
@@ -146,11 +187,16 @@ class CorNomenclatureDeclarationPaturageSaison(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(Integer, primary_key=True)
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"), primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
+        primary_key=True,
+    )
 
     def __init__(self, id_nomenclature=None):
         super(CorNomenclatureDeclarationPaturageSaison, self).__init__()
         self.id_nomenclature = id_nomenclature
+
 
 @serializable
 class CorNomenclatureDeclarationEspece(CustomModel):
@@ -162,11 +208,16 @@ class CorNomenclatureDeclarationEspece(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(Integer, primary_key=True)
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"), primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
+        primary_key=True,
+    )
 
     def __init__(self, id_nomenclature=None):
         super(CorNomenclatureDeclarationEspece, self).__init__()
         self.id_nomenclature = id_nomenclature
+
 
 @serializable
 class TDegatEssence(CustomModel):
@@ -177,14 +228,16 @@ class TDegatEssence(CustomModel):
     __tablename__ = "t_degat_essences"
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
-
     id_degat_essence: Mapped[int] = Column(Integer, primary_key=True)
     id_nomenclature_degat_essence: Mapped[int] = Column(Integer)
     id_nomenclature_degat_etendue: Mapped[int] = Column(Integer)
     id_nomenclature_degat_gravite: Mapped[int] = Column(Integer)
     id_nomenclature_degat_anteriorite: Mapped[int] = Column(Integer)
 
-    id_degat: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_degats.id_degat"))
+    id_degat: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_declarations.t_degats.id_degat")
+    )
+
 
 @serializable
 class TDegat(CustomModel):
@@ -199,12 +252,15 @@ class TDegat(CustomModel):
 
     id_nomenclature_degat_type: Mapped[int] = Column(Integer)
 
-    id_declaration: Mapped[int] = Column(Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration"))
+    id_declaration: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration")
+    )
 
     degat_essences: Mapped[list["TDegatEssence"]] = relationship(
         "TDegatEssence",
         cascade="save-update, merge, delete, delete-orphan",
     )
+
 
 @serializable
 class TDeclaration(CustomModel):
@@ -215,68 +271,102 @@ class TDeclaration(CustomModel):
     __tablename__ = "t_declarations"
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
-
-    id_declaration : Mapped[int] = Column(Integer, primary_key=True)
-    id_declarant: Mapped[int] = Column(Integer, ForeignKey(User.id_role), nullable=False)
+    id_declaration: Mapped[int] = Column(Integer, primary_key=True)
+    id_declarant: Mapped[int] = Column(
+        Integer, ForeignKey(User.id_role), nullable=False
+    )
 
     id_nomenclature_proprietaire_declarant: Mapped[int] = Column(Integer, nullable=True)
 
-    id_foret: Mapped[int] = Column(Integer, ForeignKey("oeasc_forets.t_forets.id_foret"), nullable=False)
+    id_foret: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_forets.t_forets.id_foret"), nullable=False
+    )
     id_nomenclature_peuplement_origine: Mapped[int] = Column(Integer, nullable=True)
-    id_nomenclature_foret_type: Mapped[int] = Column(Integer, nullable=True) # pas utilisé, il faudra le supprimer dans une migration
+    id_nomenclature_foret_type: Mapped[int] = Column(
+        Integer, nullable=True
+    )  # pas utilisé, il faudra le supprimer dans une migration
     id_nomenclature_peuplement_type: Mapped[int] = Column(Integer, nullable=False)
-    id_nomenclature_peuplement_paturage_frequence: Mapped[int] = Column(Integer, nullable=True)
-    id_nomenclature_peuplement_paturage_statut: Mapped[int] = Column(Integer, nullable=True)
+    id_nomenclature_peuplement_paturage_frequence: Mapped[int] = Column(
+        Integer, nullable=True
+    )
+    id_nomenclature_peuplement_paturage_statut: Mapped[int] = Column(
+        Integer, nullable=True
+    )
     id_nomenclature_peuplement_acces: Mapped[int] = Column(Integer, nullable=False)
-    id_nomenclature_peuplement_essence_principale : Mapped[int] = Column(Integer, nullable=False)
+    id_nomenclature_peuplement_essence_principale: Mapped[int] = Column(
+        Integer, nullable=False
+    )
     peuplement_surface: Mapped[float] = Column(Float, nullable=True)
 
-    b_peuplement_protection_existence: Mapped[bool] = Column(Boolean, nullable=False, default=False)
-    b_peuplement_paturage_presence: Mapped[bool] = Column(Boolean, nullable=False, default=False)
-    b_autorisation: Mapped[bool] = Column(Boolean, nullable=True, default=False) # autorisation du partage d'informations
-    b_valid: Mapped[bool] = Column(Boolean, nullable=False, default=False) # validation de la déclaration
-
+    b_peuplement_protection_existence: Mapped[bool] = Column(
+        Boolean, nullable=False, default=False
+    )
+    b_peuplement_paturage_presence: Mapped[bool] = Column(
+        Boolean, nullable=False, default=False
+    )
+    b_autorisation: Mapped[bool] = Column(
+        Boolean, nullable=True, default=False
+    )  # autorisation du partage d'informations
+    b_valid: Mapped[bool] = Column(
+        Boolean, nullable=False, default=False
+    )  # validation de la déclaration
 
     areas_localisation: Mapped[list[CorAreasDeclaration]] = relationship(
         "CorAreasDeclaration", cascade="save-update, merge, delete, delete-orphan"
     )
 
-    nomenclatures_peuplement_essence_secondaire: Mapped[list[CorNomenclatureDeclarationEssenceSecondaire]] = relationship(
+    nomenclatures_peuplement_essence_secondaire: Mapped[
+        list[CorNomenclatureDeclarationEssenceSecondaire]
+    ] = relationship(
         "CorNomenclatureDeclarationEssenceSecondaire",
         cascade="save-update, merge, delete, delete-orphan",
     )
 
-    nomenclatures_peuplement_essence_complementaire: Mapped[list[CorNomenclatureDeclarationEssenceComplementaire]] = relationship(
+    nomenclatures_peuplement_essence_complementaire: Mapped[
+        list[CorNomenclatureDeclarationEssenceComplementaire]
+    ] = relationship(
         "CorNomenclatureDeclarationEssenceComplementaire",
         cascade="save-update, merge, delete, delete-orphan",
     )
 
-    nomenclatures_peuplement_maturite: Mapped[list[CorNomenclatureDeclarationMaturite]] = relationship(
+    nomenclatures_peuplement_maturite: Mapped[
+        list[CorNomenclatureDeclarationMaturite]
+    ] = relationship(
         "CorNomenclatureDeclarationMaturite",
         cascade="save-update, merge, delete, delete-orphan",
     )
 
-    nomenclatures_peuplement_protection_type: Mapped[list[CorNomenclatureDeclarationProtectionType]] = relationship(
+    nomenclatures_peuplement_protection_type: Mapped[
+        list[CorNomenclatureDeclarationProtectionType]
+    ] = relationship(
         "CorNomenclatureDeclarationProtectionType",
         cascade="save-update, merge, delete, delete-orphan",
     )
 
-    nomenclatures_peuplement_paturage_type: Mapped[list[CorNomenclatureDeclarationPaturageType]] = relationship(
+    nomenclatures_peuplement_paturage_type: Mapped[
+        list[CorNomenclatureDeclarationPaturageType]
+    ] = relationship(
         "CorNomenclatureDeclarationPaturageType",
         cascade="save-update, merge, delete, delete-orphan",
     )
 
-    nomenclatures_peuplement_paturage_saison: Mapped[list[CorNomenclatureDeclarationPaturageSaison]] = relationship(
+    nomenclatures_peuplement_paturage_saison: Mapped[
+        list[CorNomenclatureDeclarationPaturageSaison]
+    ] = relationship(
         "CorNomenclatureDeclarationPaturageSaison",
         cascade="save-update, merge, delete, delete-orphan",
     )
 
-    nomenclatures_peuplement_espece: Mapped[list[CorNomenclatureDeclarationEspece]] = relationship(
-        "CorNomenclatureDeclarationEspece",
-        cascade="save-update, merge, delete, delete-orphan",
+    nomenclatures_peuplement_espece: Mapped[list[CorNomenclatureDeclarationEspece]] = (
+        relationship(
+            "CorNomenclatureDeclarationEspece",
+            cascade="save-update, merge, delete, delete-orphan",
+        )
     )
 
-    nomenclatures_peuplement_origine2: Mapped[list[CorNomenclatureDeclarationOrigine]] = relationship(
+    nomenclatures_peuplement_origine2: Mapped[
+        list[CorNomenclatureDeclarationOrigine]
+    ] = relationship(
         "CorNomenclatureDeclarationOrigine",
         cascade="save-update, merge, delete, delete-orphan",
     )
@@ -291,13 +381,15 @@ class TDeclaration(CustomModel):
     commentaire: Mapped[str] = Column(Unicode, nullable=True)
 
     meta_create_date: Mapped[DateTime] = Column(DateTime, default=func.now())
-    meta_update_date: Mapped[DateTime] = Column(DateTime, default=func.now(), onupdate=func.now())
-
+    meta_update_date: Mapped[DateTime] = Column(
+        DateTime, default=func.now(), onupdate=func.now()
+    )
 
 
 ################################################################
 ############ TABLES DU SCHEMAS OEASC_FORETS ############
 ################################################################
+
 
 @serializable
 class CorAreasForet(CustomModel):
@@ -309,7 +401,9 @@ class CorAreasForet(CustomModel):
     __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
 
     id_area: Mapped[int] = Column(Integer, primary_key=True)
-    id_foret: Mapped[int] = Column(Integer, ForeignKey("oeasc_forets.t_forets.id_foret"), primary_key=True)
+    id_foret: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_forets.t_forets.id_foret"), primary_key=True
+    )
 
     def __init__(self, id_area=None):
         super(CorAreasForet, self).__init__()
@@ -328,6 +422,7 @@ class CorDgdCadastre(CustomModel):
 
     area_code_dgd: Mapped[str] = Column(Unicode, primary_key=True)
     area_code_cadastre: Mapped[str] = Column(Unicode, primary_key=True)
+
 
 @serializable
 class TProprietaire(CustomModel):
@@ -350,6 +445,7 @@ class TProprietaire(CustomModel):
 
     id_nomenclature_proprietaire_type: Mapped[int] = Column(Integer)
 
+
 @serializable
 class TForet(CustomModel):
     """
@@ -361,7 +457,9 @@ class TForet(CustomModel):
 
     id_foret: Mapped[int] = Column(Integer, primary_key=True)
 
-    id_proprietaire: Mapped[int] = Column(Integer, ForeignKey("oeasc_forets.t_proprietaires.id_proprietaire"))
+    id_proprietaire: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_forets.t_proprietaires.id_proprietaire")
+    )
 
     b_statut_public: Mapped[bool] = Column(Boolean)
     b_document: Mapped[bool] = Column(Boolean)
@@ -374,9 +472,5 @@ class TForet(CustomModel):
     surface_renseignee: Mapped[float] = Column(Float)
 
     areas_foret: Mapped[list[CorAreasForet]] = relationship(
-        "CorAreasForet",
-        cascade="save-update, merge, delete, delete-orphan"
+        "CorAreasForet", cascade="save-update, merge, delete, delete-orphan"
     )
-
-
-

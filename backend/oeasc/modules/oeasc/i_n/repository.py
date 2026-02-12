@@ -6,6 +6,7 @@ import math
 from statsmodels.regression.linear_model import OLS
 from utils_flask_sqla.generic import GenericQuery
 from flask import current_app
+
 # from sqlalchemy import select
 # from .models import VResult
 # from .schema import VResultSchema
@@ -38,10 +39,10 @@ def sort_data(res):
     res.sort(
         key=(
             lambda x: (
-                x.get("nom_espece"),      # Tri par espèce
-                x.get("ug"),              # puis par UG
-                x.get("annee"),           # puis par année
-                x.get("serie"),           # puis par série
+                x.get("nom_espece"),  # Tri par espèce
+                x.get("ug"),  # puis par UG
+                x.get("annee"),  # puis par année
+                x.get("serie"),  # puis par série
                 x.get("numero_circuit"),  # enfin par numéro de circuit
             )
         )
@@ -173,7 +174,9 @@ def process_ugs(nom_espece):
     Returns:
         None: Les traitements sont effectués en place sur la structure passée en argument.
     """
-    ugs = nom_espece["ugs"]  # Récupère le dictionnaire des unités de gestion pour l'espèce
+    ugs = nom_espece[
+        "ugs"
+    ]  # Récupère le dictionnaire des unités de gestion pour l'espèce
 
     for key_ug in ugs:  # Parcourt chaque unité de gestion
         ug = ugs.get(key_ug)
@@ -219,7 +222,7 @@ def process_annees(ug):
             continue
 
         X.append([int(key_annee), 1])  # Année et constante pour la régression
-        Y.append([annee["moy"]])       # Moyenne annuelle
+        Y.append([annee["moy"]])  # Moyenne annuelle
 
     # Si pas assez de points, on ne fait pas la régression
     if not len(X) or len(X) <= 1:
@@ -236,8 +239,14 @@ def process_annees(ug):
     # Ajout des résultats de la régression dans la structure de l'UG
     ug["reg_lin"] = {
         "R2": results.rsquared,  # Coefficient de détermination
-        "params": [results.params[0], results.params[1]],  # Coefficients de la régression
-        "pvalues": [pvalues[0] or None, pvalues[1] or None],  # Valeurs p pour les coefficients
+        "params": [
+            results.params[0],
+            results.params[1],
+        ],  # Coefficients de la régression
+        "pvalues": [
+            pvalues[0] or None,
+            pvalues[1] or None,
+        ],  # Valeurs p pour les coefficients
     }
 
 
@@ -344,7 +353,9 @@ def process_circuits(serie):
     Returns:
         None: Les traitements sont effectués en place sur la structure passée en argument.
     """
-    circuits = serie["id_circuits"]  # Récupère le dictionnaire des circuits pour la série
+    circuits = serie[
+        "id_circuits"
+    ]  # Récupère le dictionnaire des circuits pour la série
 
     # Initialisation des variables pour le calcul de la moyenne par série
     somme_circuit = 0

@@ -10,7 +10,6 @@ from sqlalchemy.orm import relationship, column_property, Mapped
 from utils_flask_sqla.serializers import serializable
 from ..commons.models import TSecteurs, TEspeces
 
-
 config = current_app.config
 DB = config["DB"]
 
@@ -22,17 +21,18 @@ class CustomModel(DB.Model):
     __abstract__ = True  # evite que la classe soit considérée comme une table
     __allow_unmapped__ = True
 
+
 @serializable
 class TObservers(CustomModel):
     """
     Observers for IN
     """
+
     __tablename__ = "t_observers"
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
     id_observer: Mapped[int] = Column(Integer, primary_key=True)
     nom_observer: Mapped[str] = Column(Unicode)
-
 
 
 cor_realisation_observer = Table(
@@ -54,6 +54,7 @@ cor_realisation_observer = Table(
     schema="oeasc_in",
 )
 
+
 @serializable
 class TCircuits(CustomModel):
     """
@@ -67,7 +68,9 @@ class TCircuits(CustomModel):
     nom_circuit: Mapped[str] = Column(Unicode)
     numero_circuit: Mapped[int] = Column(Integer)
     km: Mapped[int] = Column(Integer)
-    id_secteur: Mapped[int] = Column(Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur"))
+    id_secteur: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur")
+    )
     actif: Mapped[bool] = Column(Boolean, default=True)
     secteur: Mapped["TSecteurs"] = relationship(
         TSecteurs,
@@ -76,7 +79,9 @@ class TCircuits(CustomModel):
 
 
 # pour éviter une boucle d'importation avec le modele I_N, il faut déclarer cette relation après la définition des classe et depuis ce model
-TSecteurs.circuits = relationship("TCircuits", back_populates="secteur", overlaps="secteur", cascade_backrefs=False)
+TSecteurs.circuits = relationship(
+    "TCircuits", back_populates="secteur", overlaps="secteur", cascade_backrefs=False
+)
 
 
 @serializable
@@ -94,7 +99,9 @@ class TObservations(CustomModel):
     id_realisation: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_in.t_realisations.id_realisation")
     )
-    id_espece: Mapped[int] = Column(Integer, ForeignKey("oeasc_commons.t_especes.id_espece"))
+    id_espece: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_commons.t_especes.id_espece")
+    )
     espece: Mapped["TEspeces"] = relationship(TEspeces, lazy="joined")
     nb: Mapped[int] = Column(Integer)
 
@@ -166,7 +173,9 @@ class TRealisations(CustomModel):
     __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
 
     id_realisation: Mapped[int] = Column(Integer, primary_key=True)
-    id_circuit: Mapped[int] = Column(Integer, ForeignKey("oeasc_in.t_circuits.id_circuit"))
+    id_circuit: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_in.t_circuits.id_circuit")
+    )
     serie: Mapped[int] = Column(Integer)
     groupes: Mapped[int] = Column(Integer)
     vent: Mapped[str] = Column(Unicode)
@@ -264,7 +273,6 @@ class TRealisations(CustomModel):
         )
         .scalar_subquery()
     )
-
 
 
 @serializable

@@ -10,9 +10,11 @@ from flask import Blueprint, request, current_app, session
 from flask.helpers import send_from_directory
 from utils_flask_sqla.response import csv_resp
 from utils_flask_sqla_geo.generic import GenericTableGeo
+
 # from oeasc.modules.oeasc.nomenclature import nomenclature_oeasc
 from utils_flask_sqla.response import json_resp
 from sqlalchemy import delete
+
 # from sqlalchemy.orm import Session
 
 # from oeasc.utils.env import ROOT_DIR
@@ -36,6 +38,7 @@ from .repository import (
 # )
 
 from ..user.utils import check_auth_redirect_login
+
 # from .mail import send_mail_validation_declaration
 from .models import TDeclaration
 
@@ -43,6 +46,7 @@ bp = Blueprint("declaration_api", __name__)
 
 config = current_app.config
 DB = config["DB"]
+
 
 @bp.route("degats/", methods=["GET"])
 @json_resp

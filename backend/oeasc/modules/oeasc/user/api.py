@@ -10,11 +10,9 @@ from .repository import get_user_form_email, get_users, get_liste_organismes_oea
 from ..user.utils import check_auth_redirect_login
 from utils_flask_sqla.response import csv_resp
 
-
 config = current_app.config
 
 bp = Blueprint("user_api", __name__)
-
 
 
 @bp.route("test", methods=["GET"])
@@ -77,10 +75,14 @@ def logout():
     Retourne :
         Une réponse HTTP de redirection vers l'URL spécifiée ou la racine.
     """
-    params = request.args  # Récupère les paramètres de la requête (ex: ?redirect=/autre_page)
+    params = (
+        request.args
+    )  # Récupère les paramètres de la requête (ex: ?redirect=/autre_page)
     resp.delete_cookie("token")  # Supprime le cookie d'authentification "token"
     if "redirect" in params:
-        resp = redirect(params["redirect"], code=302)  # Redirige vers l'URL passée en paramètre
+        resp = redirect(
+            params["redirect"], code=302
+        )  # Redirige vers l'URL passée en paramètre
     else:
         resp = redirect("/", code=302)  # Redirige vers la page d'accueil par défaut
     return resp  # Retourne la réponse de redirection
@@ -175,6 +177,13 @@ def api_export_user():
 
     data = get_users()  # Récupère la liste des utilisateurs
 
-    columns = list(data[0].keys())  # Définit les colonnes du CSV à partir des clés du premier utilisateur
+    columns = list(
+        data[0].keys()
+    )  # Définit les colonnes du CSV à partir des clés du premier utilisateur
 
-    return (file_name, data, columns, separator)  # Retourne les informations nécessaires à l'export CSV
+    return (
+        file_name,
+        data,
+        columns,
+        separator,
+    )  # Retourne les informations nécessaires à l'export CSV

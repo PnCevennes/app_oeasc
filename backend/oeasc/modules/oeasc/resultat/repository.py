@@ -43,7 +43,9 @@ def data_to_dict(data):
     ind = 0
     v = [d for d in data]  # On convertit les résultats en liste pour itérer facilement
     for key in data.keys():  # Pour chaque colonne du résultat
-        out[key] = [e[ind] for e in v]  # On récupère toutes les valeurs de cette colonne
+        out[key] = [
+            e[ind] for e in v
+        ]  # On récupère toutes les valeurs de cette colonne
         ind += 1
 
     return out
@@ -100,60 +102,57 @@ def req_degats(name, var_name="", id_nomenclature_degat_type="", multi=False):
 
     # Cas multi-nomenclature : jointure avec la table de correspondance spécifique
     if multi:
-        stmt = select(
-            TNomenclaturesOeasc.mnemonique.label('label'),
-            func.count().label(name)
-        ).select_from(
-            TDegat
-        ).join(
-            TNomenclaturesOeasc,
-            TDegat.id_nomenclature_degat_type == TNomenclaturesOeasc.id_nomenclature
+        stmt = (
+            select(
+                TNomenclaturesOeasc.mnemonique.label("label"), func.count().label(name)
+            )
+            .select_from(TDegat)
+            .join(
+                TNomenclaturesOeasc,
+                TDegat.id_nomenclature_degat_type
+                == TNomenclaturesOeasc.id_nomenclature,
+            )
         )
     else:
         # Cas classique : jointure simple avec la table des nomenclatures
-        stmt = select(
-            TNomenclaturesOeasc.mnemonique.label('label'),
-            func.count().label(name)
-        ).select_from(
-            TDegat
-        ).join(
-            TNomenclaturesOeasc,
-            TDegat.id_nomenclature_degat_type == TNomenclaturesOeasc.id_nomenclature
+        stmt = (
+            select(
+                TNomenclaturesOeasc.mnemonique.label("label"), func.count().label(name)
+            )
+            .select_from(TDegat)
+            .join(
+                TNomenclaturesOeasc,
+                TDegat.id_nomenclature_degat_type
+                == TNomenclaturesOeasc.id_nomenclature,
+            )
         )
 
     # Groupement et tri par mnemonique
-    stmt = stmt.group_by(
-        TNomenclaturesOeasc.mnemonique
-    ).order_by(
+    stmt = stmt.group_by(TNomenclaturesOeasc.mnemonique).order_by(
         TNomenclaturesOeasc.mnemonique
     )
 
     # Si var_name est précisé et multi=False : jointure avec TDeclaration et filtre sur la nomenclature
     if var_name and not multi:
         stmt = stmt.join(
-            TDeclaration,
-            TDegat.id_declaration == TDeclaration.id_declaration
-        ).where(
-            TDeclaration.id_nomenclature_degat_type == id_nomenclature_degat_type
-        )
+            TDeclaration, TDegat.id_declaration == TDeclaration.id_declaration
+        ).where(TDeclaration.id_nomenclature_degat_type == id_nomenclature_degat_type)
     # Si var_name est précisé et multi=True : jointure avec la table de correspondance multi-nomenclature et filtre
     if var_name and multi:
         stmt = stmt.join(
             "cor_nomenclature_declarations_" + var_name,
-            TDegat.id_declaration == "cor_nomenclature_declarations_" + var_name + ".id_declaration"
+            TDegat.id_declaration
+            == "cor_nomenclature_declarations_" + var_name + ".id_declaration",
         ).where(
-            "cor_nomenclature_declarations_" + var_name + ".id_nomenclature" == id_nomenclature_degat_type
+            "cor_nomenclature_declarations_" + var_name + ".id_nomenclature"
+            == id_nomenclature_degat_type
         )
     # Filtre sur le mnemonique si var_name est précisé
     if var_name:
-        stmt = stmt.where(
-            TNomenclaturesOeasc.mnemonique == var_name
-        )
+        stmt = stmt.where(TNomenclaturesOeasc.mnemonique == var_name)
     else:
         # Sinon, filtre sur le mnemonique "total"
-        stmt = stmt.where(
-            TNomenclaturesOeasc.mnemonique == "total"
-        )
+        stmt = stmt.where(TNomenclaturesOeasc.mnemonique == "total")
 
     # Exécution de la requête
     data = DB.session.execute(stmt).all()
@@ -192,7 +191,9 @@ def req_degats_type(type_degat=""):
         dict : Dictionnaire avec les clés "data" (données formatées pour le graphique) et "title" (liste de titres à afficher).
     """
     nb = nb_declarations()  # Récupère le nombre total de déclarations
-    title = ["Répartition des types de dégâts pour " + str(nb) + " déclarations"]  # Titre principal du graphique
+    title = [
+        "Répartition des types de dégâts pour " + str(nb) + " déclarations"
+    ]  # Titre principal du graphique
 
     data = req_degats("total")  # Récupère la distribution globale des dégâts
 
@@ -219,7 +220,9 @@ def req_degats_type(type_degat=""):
     ]:
         multi = True
 
-    title.append(d.get(type_degat, ""))  # Ajoute le sous-titre correspondant au type_degat
+    title.append(
+        d.get(type_degat, "")
+    )  # Ajoute le sous-titre correspondant au type_degat
 
     if type_degat:
         # Calcule le nom de la variable à utiliser pour les jointures/filtrages
@@ -280,7 +283,7 @@ def req_timeline():
     data_array = [
         {
             "x": d.date,  # Date au format 'YYYY-MM-01'
-            "y": d.nb,    # Nombre de déclarations pour ce mois
+            "y": d.nb,  # Nombre de déclarations pour ce mois
         }
         for d in data
     ]
@@ -311,7 +314,7 @@ def result_custom(params):
     # Prépare la requête SQLAlchemy pour sélectionner la colonne d'intérêt et compter les occurrences
     stmt_view = select(
         getattr(view.tableDef.columns, params["field_name"]),  # Colonne à analyser
-        func.count("*").label("count"),                        # Nombre d'occurrences
+        func.count("*").label("count"),  # Nombre d'occurrences
     )
 
     # Applique les filtres éventuels transmis dans params["filters"]
