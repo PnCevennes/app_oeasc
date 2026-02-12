@@ -9,6 +9,7 @@ from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
+from sqlalchemy import select
 
 # from .repository import result_custom, cache_generic_table
 from .repository import result_custom
@@ -83,7 +84,7 @@ def api_result_custom():
 
     Les arguments de route :
     - data_type : type de données -> permet de définir la vue utilisée
-    - field_name : champ de la vue servant pour l'analyse principale
+    - field_name : champ de la vue servant pour l'analyse principale. Sont des pseudo-champs de la vue SQL
     - field_name_2 : champ secondaire pour une analyse croisée (optionnel)
     - filters : filtres à appliquer sur les données
     - sort : ordre de tri
@@ -104,7 +105,9 @@ def api_result_custom():
     # Gestion des filtres : récupérés en JSON, transformés en dict Python
     args["filters"] = request.args.get("filters", {})
     args["filters"] = args["filters"] and json.loads(args["filters"])
+
     # On retire les filtres vides (valeur [])
+    # et on enveloppe les valeurs uniques en liste
     # Cela évite des erreurs lors de l'appel de la fonction SQL
     args["filters"] = {
         k: (v if isinstance(v, list) else [v])

@@ -39,24 +39,19 @@
 
       <!-- Graphiques complémentaires -->
 
-
       <!--
         Graphiques circulaires pour la répartition par sexe, classe d'âge et mode de chasse.
         Utilisés pour analyser la structure des prélèvements.
       -->
-      <v-row style="min-height: 400px;">
-        <!-- <v-col>
+      <v-row>
+        <v-col>
           <restitution2 display="graph" fieldName="label_sexe" dataType="chasse" typeGraph="pie"
             title="Part des sexes" :filters="{ ...bilanParams }"></restitution2>
-        </v-col> -->
-        <!-- <v-col>
+        </v-col>
+        <v-col>
           <restitution2 display="graph" fieldName="label_classe_age" dataType="chasse"
             typeGraph="pie" title="Part des classes d'âge" :filters="{ ...bilanParams }">
           </restitution2>
-        </v-col> -->
-        <v-col style="width: 70%">
-          <camembert :data_db="data_cam_sexe_age" fieldName="text" fieldValue="count"
-            title="Répartition par sexe et âge"></camembert>
         </v-col>
         <v-col>
           <restitution2 display="graph" fieldName="label_mode_chasse" dataType="chasse"
@@ -146,23 +141,13 @@
 </template>
 
 <script>
-import Highcharts from "highcharts";
-import exportingInit from "highcharts/modules/exporting";
-import offlineExporting from "highcharts/modules/offline-exporting";
 import genericForm from "@/components/form/generic-form.vue";
 import graphChasse from "./graph-chasse.vue";
 import restitution2 from "@/modules/restitution2/restitution.vue";
-import camembert from "../../components/graph/camembert.vue";
-import { apiRequest } from "@/core/js/data/api.js";
-
-
-// Modification de highcharts pour permettre l'export des graphiques
-exportingInit(Highcharts); // initialise le module export, doit être fait après l'import de highcharts
-offlineExporting(Highcharts); // initialise l'export coté client, doit être fait après l'import de highcharts
 
 export default {
   name: "pageChasseBilanDetaille",
-  components: { genericForm, graphChasse, restitution2, camembert },
+  components: { genericForm, graphChasse, restitution2 },
 
   // Déclaration des données réactives du composant
   data: () => ({
@@ -176,19 +161,19 @@ export default {
       id_saison: null              // Identifiant de la saison sélectionnée
     },
     // Informations détaillées du bilan, récupérées depuis l'API après sélection des filtres
-    infos: {},
-    data_cam_sexe_age: null
+    infos: {}
   }),
 
   watch: {
     bilanParams: {
       deep: true,
       handler() {
-        this.recuperation_data(this.bilanParams);
+        this.processBilanParams();
       }
     }
   },
   methods: {
+
     /**
      * Traite les paramètres du bilan pour récupérer les informations associées.
      *
@@ -204,32 +189,18 @@ export default {
      *   d'un bilan de chasse, en fonction des paramètres sélectionnés (saison, espèce, etc.).
      * - Elle permet de s'assurer que seules les requêtes valides sont envoyées au store.
      */
-    recuperation_data(bilanParams) {
-      // this.infos = {};
-      // si il manque la saison et l'espece on annule.
-      if (!bilanParams.id_saison && bilanParams.id_espece) {
+    processBilanParams() {
+      this.infos = {};
+      if (!this.bilanParams.id_saison && this.bilanParams.id_espece) {
         return;
       }
-
-      // console.log("bilanParams", bilanParams);
-      // this.graph_categories = apiRequest("GET", 'api/chasse/results/infos',  { params });
-
-      apiRequest("GET", 'api/chasse/results/infos',  { params: bilanParams }).then(infos => {
+      // console.log("getBilanParams");
+      this.$store
+        .dispatch("getAnalyseBilanInfos", this.bilanParams)
+        .then(infos => {
           this.infos = infos;
-          // console.log("infos", this.infos);
         });
-
-      apiRequest("GET", 'api/chasse/count_categorie_realisations/',  { params: bilanParams }) 
-        .then(result => {
-          this.data_cam_sexe_age = result;
-          // console.log("data_cam_sexe_age", this.data_cam_sexe_age);
-        });
-      
-      
-
     }
   }
-
-  
 };
 </script>

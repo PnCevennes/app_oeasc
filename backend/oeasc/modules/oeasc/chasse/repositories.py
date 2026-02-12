@@ -11,6 +11,7 @@ from .models import (
     TZoneIndicatives,
     TAttributionMassifs,
     VPlanChasseRealisationBilan,
+    TRealisationsChasse
 )
 
 config = current_app.config
@@ -1029,3 +1030,26 @@ def get_data_all_especes_export_ods(nom_saison):
         data["especes"].append(get_data_export_ods(nom_saison, nom_espece))
 
     return data
+
+
+
+def filtrage_stmt_secteur_zi_zc (stmt, list_id_zi=None, list_id_zc=None, list_id_secteur=None):
+    """
+    Fonction pour ajouter un filtrage à une requêtre sqlalchemy en fonction d'une liste d'identifiants de zones indicatives, de zones cynégétiques ou de secteurs.
+    La fonction applique les filtres selon la priorité suivante : zones indicatives prioritaire sur zones cynégétiques
+    et zone cynégétique prioritaire sur secteurs. 
+    Si un secteur est sélectionné, la fonction récupère d'abord les zones cynégétiques associées à ce secteur, puis applique le filtre sur ces zones cynégétiques.
+    
+    """
+    if list_id_zi:
+        stmt = stmt.where(TRealisationsChasse.id_zone_indicative_realisee.in_(list_id_zi))
+    elif list_id_zc:
+        stmt = stmt.where(TRealisationsChasse.id_zone_cynegetique_realisee.in_(list_id_zc))
+    elif list_id_secteur:
+        # pour le cas des secteurs, il faut récupérer avant toutes les zonnes cynégétiques associées aux secteurs sélectionnés
+        stmt_cynegetique_secteur = select(TZoneCynegetiques.id_zone_cynegetique).where(TZoneCynegetiques.id_secteur.in_(list_id_secteur))
+        list_id_zc = [row[0] for row in DB.session.execute(stmt_cynegetique_secteur).all()]
+        # ensuite on récupères les réalisations pour ces zones cynégétiques
+        stmt = stmt.where(TRealisationsChasse.id_zone_cynegetique_realisee.in_(list_id_zc))
+
+    return stmt

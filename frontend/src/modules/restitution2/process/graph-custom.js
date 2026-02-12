@@ -124,6 +124,7 @@ const seriesRamifiees = (data, typeGraph) => {
  *    - restitution : TODO
  *      - seulement besoin de text pour graphe simple
  */
+
 export default (data, options, text) => {
   // pour savoir si on a affaire à un graph 'simple' ou un graphe 'ramifié
   // sert pour le calcul des series

@@ -3,7 +3,6 @@ api chasse
 """
 
 from .models import (
-    TPersonnes,
     TZoneCynegetiques,
     TZoneIndicatives,
     TLieuTirs,
@@ -19,7 +18,6 @@ from .models import (
 )
 
 from .schema import (
-    TPersonnesSchema,
     TZoneCynegetiquesSchema,
     TZoneIndicativesSchema,
     TLieuTirsSchema,
@@ -34,6 +32,9 @@ from .schema import (
     VChasseBilanSchema,
 )
 
+from pypnnomenclature.models import TNomenclatures
+from pypnnomenclature.schemas import NomenclatureSchema
+
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
 from flask import Blueprint, current_app, request, send_file
@@ -46,12 +47,15 @@ from .repositories import (
     chasse_get_infos,
     # get_data_export_ods,
     get_data_all_especes_export_ods,
+    filtrage_stmt_secteur_zi_zc
 )
-from sqlalchemy import func
+from sqlalchemy import  func, select
+from sqlalchemy.orm import aliased
 import datetime
 
 # from oeasc.utils.env import ROOT_DIR
 from py3o.template import Template
+from .importation_csv import api_import_traitement_csv
 
 config = current_app.config
 DB = config["DB"]
@@ -70,7 +74,7 @@ grd = GenericRouteDefinitions()
 droits = {"C": 4, "R": 0, "U": 4, "D": 4}
 
 # routes dynamiques pour accéder aux modèles de la base de données
-# la route est par exemple de la forme <blueprint>/chasse/personne/ pour accéder à la table TPersonnes
+# la route est par exemple de la forme <blueprint>/chasse/saison/ pour accéder à la table TSaisons
 definitions = {
     "personne": {"model": TPersonnes, "droits": droits, "schema": TPersonnesSchema},
     "zone_cynegetique": {
@@ -305,3 +309,81 @@ def api_chasse_ods():
         as_attachment=True,
         download_name=f"bilan_chasse_{nom_saison}.ods",
     )
+
+
+
+@bp.route("count_categorie_realisations/", methods=["GET"])
+@json_resp
+def api_count_categorie_realisations():
+    """
+    pour l'affichage des camemberts dans chasse -> analyse detaillée
+    Retourne le nombre de realisation par classe d'age et sexe pour une espece donnee
+    """
+
+    # récupère les paramètres de la requête et les traite
+    args = chasse_process_args()
+
+    id_espece = args.get('id_espece')
+    id_saison = args.get('id_saison')
+    list_id_secteur = args.get('id_secteur')
+    list_id_zc = args.get('id_zone_cynegetique')
+    list_id_zi = args.get('id_zone_indicative')
+
+    
+
+
+    # create a single alias instance for the 'sexe' nomenclature and reuse it in the join
+    sexe = aliased(TNomenclatures, name="sexe")
+    classe_age = aliased(TNomenclatures, name="classe_age")
+
+    stmt = select(
+        classe_age.label_fr,
+        sexe.label_fr,
+        func.count().label("count")
+    ).select_from(
+        TRealisationsChasse
+    ).join(
+        TAttributions, TRealisationsChasse.id_attribution == TAttributions.id_attribution
+    ).join(
+        TTypeBracelets, TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet
+    ).join(
+        TNomenclatures, TNomenclatures.id_nomenclature == TRealisationsChasse.id_nomenclature_classe_age
+    ).join(
+        sexe, sexe.id_nomenclature == TRealisationsChasse.id_nomenclature_sexe
+    ).join(
+        classe_age, classe_age.id_nomenclature == TRealisationsChasse.id_nomenclature_classe_age
+    )
+    
+
+    if id_espece:
+        stmt = stmt.where(TTypeBracelets.id_espece == id_espece)
+
+
+    if id_saison:
+        stmt = stmt.where(TAttributions.id_saison == id_saison)
+    
+    # Filtrage par zones. Les zones indicatives ont la priorité sur les zones cynégétiques, qui ont elles même la priorité sur les secteurs
+    stmt = filtrage_stmt_secteur_zi_zc(stmt, list_id_secteur, list_id_zc, list_id_zi)
+
+    stmt = stmt.group_by(
+        classe_age.label_fr,
+        sexe.label_fr
+    )
+
+
+    res = DB.session.execute(stmt).all()
+
+    res = sorted(res, key=lambda x: (x[1], x[0]))  # trier par sexe puis par classe d'age
+    
+    # formatage des données avec les clés text et count pour s'adapter au camembert highcharts
+    data = [
+        {
+            "text": row[1]+" - "+row[0],
+            "count": row[2],
+        }
+        for row in res
+    ]
+
+
+
+    return data

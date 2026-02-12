@@ -8,7 +8,7 @@
 
     <!-- graphique highchart -->
     <highcharts
-      v-if="!isProcessing && chartOptions"
+      v-if="!isProcessing && chartOptions" 
       :style="`width:${width || '100%'}; height:${height || '400px'}`"
       :options="chartOptions"
       :highcharts="hcInstance"
@@ -24,14 +24,17 @@
 import Highcharts from "highcharts";
 import exportingInit from "highcharts/modules/exporting";
 import offlineExporting from "highcharts/modules/offline-exporting";
-import processData from "./process/graph-custom";
-import restitutions from "./config/restitutions";
-import props from './config/props';
-import { jsoncopy, fde }  from '../../core/js/util/util'
+import processData from "./process/graph-custom.js";
+import restitutions from "./config/restitutions.js";
+import props from './config/props.js';
+import { jsoncopy, fde }  from '../../core/js/util/util.js'
 
 
-exportingInit(Highcharts);
-offlineExporting(Highcharts);
+// Modification de highcharts pour permettre l'export des graphiques
+exportingInit(Highcharts); // initialise le module export, doit être fait après l'import de highcharts
+offlineExporting(Highcharts); // initialise l'export coté client, doit être fait après l'import de highcharts
+
+
 
 export default {
   name: "restitution-graph",
@@ -88,7 +91,9 @@ export default {
 
           // calcul des options du graph
           this.chartOptions = processData(data, this.$props, restitution.items[params.fieldName].text);
-
+          // console.log("data", data);
+          // console.log("params", params);
+          // console.log("props", this.$props);
           // process terminé
           this.isProcessing = false;
           this.processedProps = null;
