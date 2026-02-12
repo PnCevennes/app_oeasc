@@ -39,7 +39,6 @@ class CustomModel(DB.Model):
     __allow_unmapped__ = True
 
 
-
 @serializable
 class TZoneCynegetiques(CustomModel):
     __tablename__ = "t_zone_cynegetiques"
@@ -151,7 +150,7 @@ class TSaisonDates(CustomModel):
         TNomenclaturesOeasc,
         foreign_keys=id_nomenclature_type_chasse,
         # single_parent=True,
-        primaryjoin="TSaisonDates.id_nomenclature_type_chasse == TNomenclaturesOeasc.id_nomenclature"
+        primaryjoin="TSaisonDates.id_nomenclature_type_chasse == TNomenclaturesOeasc.id_nomenclature",
     )
 
 
@@ -242,11 +241,9 @@ class TAttributions(CustomModel):
     id_zone_indicative_affectee: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_chasse.t_zone_indicatives.id_zone_indicative")
     )
-    
-    realisations:Mapped["TRealisationsChasse"] = relationship(
-        'TRealisationsChasse',
-        back_populates='attribution',
-        lazy='select' 
+
+    realisations: Mapped["TRealisationsChasse"] = relationship(
+        "TRealisationsChasse", back_populates="attribution", lazy="select"
     )
 
     saison: Mapped["TSaisons"] = relationship(TSaisons)
@@ -273,10 +270,9 @@ class TRealisationsChasse(CustomModel):
     )
     # attribution: Mapped["TAttributions"] = relationship(TAttributions)
     attribution: Mapped["TAttributions"] = relationship(
-        'TAttributions',
-        back_populates='realisations'
+        "TAttributions", back_populates="realisations"
     )
-    
+
     saison: Mapped["TSaisons"] = relationship(
         TSaisons,
         secondary="oeasc_chasse.t_attributions",
@@ -286,11 +282,13 @@ class TRealisationsChasse(CustomModel):
         viewonly=True,
     )
 
-   
-    auteur_tir_str: Mapped[str] = Column(Unicode) # champ texte libre pour l'auteur du tir
-    auteur_constat_str: Mapped[str] = Column(Unicode) # champ texte libre pour l'auteur du constat
+    auteur_tir_str: Mapped[str] = Column(
+        Unicode
+    )  # champ texte libre pour l'auteur du tir
+    auteur_constat_str: Mapped[str] = Column(
+        Unicode
+    )  # champ texte libre pour l'auteur du constat
 
-    
     id_zone_cynegetique_realisee: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique")
     )

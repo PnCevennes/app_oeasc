@@ -5,13 +5,13 @@ Revises: 96ebff8bac23
 Create Date: 2026-02-11 16:05:15.991220
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
-revision = '136abe8be18e'
-down_revision = '96ebff8bac23'
+revision = "136abe8be18e"
+down_revision = "96ebff8bac23"
 branch_labels = None
 depends_on = None
 
@@ -40,6 +40,7 @@ def upgrade():
         FROM oeasc_chasse.t_personnes p
         WHERE r.id_auteur_constat = p.id_personne;"""
     op.execute(sql)
+
 
 def downgrade():
 

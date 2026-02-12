@@ -5,19 +5,19 @@ Revises: 136abe8be18e
 Create Date: 2026-02-11 16:20:39.926129
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
-revision = 'e70bfbc2094b'
-down_revision = '136abe8be18e'
+revision = "e70bfbc2094b"
+down_revision = "136abe8be18e"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    
+
     # suppression de la clé étrangère id_auteur_tir dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
         DROP CONSTRAINT IF EXISTS fk_t_realisations_t_personne_tirs CASCADE;"""
