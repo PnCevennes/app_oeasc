@@ -55,7 +55,6 @@ import datetime
 
 # from oeasc.utils.env import ROOT_DIR
 from py3o.template import Template
-from .importation_csv import api_import_traitement_csv
 
 config = current_app.config
 DB = config["DB"]
@@ -76,7 +75,6 @@ droits = {"C": 4, "R": 0, "U": 4, "D": 4}
 # routes dynamiques pour accéder aux modèles de la base de données
 # la route est par exemple de la forme <blueprint>/chasse/saison/ pour accéder à la table TSaisons
 definitions = {
-    "personne": {"model": TPersonnes, "droits": droits, "schema": TPersonnesSchema},
     "zone_cynegetique": {
         "model": TZoneCynegetiques,
         "droits": droits,
