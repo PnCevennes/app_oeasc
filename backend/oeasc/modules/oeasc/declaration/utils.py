@@ -13,7 +13,6 @@ from pypnusershub.db.models import User
 from pypnusershub.schemas import UserSchema
 from sqlalchemy import select
 
-
 config = current_app.config
 DB = config["DB"]
 
@@ -47,19 +46,19 @@ def get_areas_from_type_code(areas, type_code):
 
 # def check_massif(declaration_dict):
 #     """
-#     Cette fonction renseigne automatiquement le massif dans declaration_dict['areas_localisation'] 
+#     Cette fonction renseigne automatiquement le massif dans declaration_dict['areas_localisation']
 #     si celui-ci n'est pas déjà renseigné.
 
 #     Args:
-#         declaration_dict (dict): Dictionnaire contenant les informations de la déclaration, 
+#         declaration_dict (dict): Dictionnaire contenant les informations de la déclaration,
 #         notamment la clé 'areas_localisation' qui liste les aires géographiques associées.
 
 #     Returns:
 #         int ou None: Retourne l'id du massif ajouté si trouvé, sinon None.
 
 #     Utilisation :
-#         Cette fonction est utilisée lors de la création ou de la modification d'une déclaration 
-#         pour s'assurer que le massif est bien renseigné lorsque certaines aires (cadastre, UG, PRF) 
+#         Cette fonction est utilisée lors de la création ou de la modification d'une déclaration
+#         pour s'assurer que le massif est bien renseigné lorsque certaines aires (cadastre, UG, PRF)
 #         sont présentes mais que le massif ne l'est pas encore.
 #     """
 
@@ -117,15 +116,15 @@ def get_areas_from_type_code(areas, type_code):
 #     Vérifie et renseigne le propriétaire dans le cas où le propriétaire est le déclarant.
 
 #     Args:
-#         declaration_dict (dict): Dictionnaire contenant les informations de la déclaration, 
+#         declaration_dict (dict): Dictionnaire contenant les informations de la déclaration,
 #         notamment la clé 'foret' qui contient les informations sur la forêt et le propriétaire.
 
 #     Returns:
 #         int: Retourne 1 si le propriétaire est renseigné, -1 sinon.
 
 #     Utilisation :
-#         Cette fonction est utilisée lors de la création ou modification d'une déclaration pour 
-#         compléter automatiquement les informations du propriétaire lorsque le déclarant est aussi 
+#         Cette fonction est utilisée lors de la création ou modification d'une déclaration pour
+#         compléter automatiquement les informations du propriétaire lorsque le déclarant est aussi
 #         le propriétaire, et que certains champs ne sont pas encore renseignés.
 #     """
 
@@ -311,8 +310,8 @@ def get_areas_from_type_code(areas, type_code):
 #     """
 #     Recherche une forêt dans la base de données à partir de son nom.
 
-#     Cette fonction effectue une requête sur la table TForet pour trouver une forêt dont le nom correspond 
-#     (sans tenir compte de la casse) à celui passé en paramètre. Si aucune forêt n'est trouvée, la fonction 
+#     Cette fonction effectue une requête sur la table TForet pour trouver une forêt dont le nom correspond
+#     (sans tenir compte de la casse) à celui passé en paramètre. Si aucune forêt n'est trouvée, la fonction
 #     retourne None. Sinon, elle retourne un dictionnaire représentant la forêt, sérialisé via le schéma TForetSchema.
 
 #     Args:
@@ -322,8 +321,8 @@ def get_areas_from_type_code(areas, type_code):
 #         dict | None: Un dictionnaire contenant les informations de la forêt si elle existe, sinon None.
 
 #     Utilisation:
-#         Cette fonction est généralement utilisée lors de la déclaration ou de la consultation d'une forêt 
-#         dans le système, par exemple pour vérifier l'existence d'une forêt avant d'effectuer une opération 
+#         Cette fonction est généralement utilisée lors de la déclaration ou de la consultation d'une forêt
+#         dans le système, par exemple pour vérifier l'existence d'une forêt avant d'effectuer une opération
 #         ou pour récupérer ses informations détaillées.
 #     """
 

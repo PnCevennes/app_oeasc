@@ -12,15 +12,26 @@ from geoalchemy2 import Geometry
 
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
-from sqlalchemy import ForeignKey, Column, Integer, String, Text, Boolean, DateTime, Float
-from  sqlalchemy.orm import Mapped
+from sqlalchemy import (
+    ForeignKey,
+    Column,
+    Integer,
+    String,
+    Text,
+    Boolean,
+    DateTime,
+    Float,
+)
+from sqlalchemy.orm import Mapped
 
 config = current_app.config
 DB = config["DB"]
 
+
 class CustomModel(DB.Model):
     __abstract__ = True  # evite que la classe soit considérée comme une table
     __allow_unmapped__ = True
+
 
 @serializable
 class BibAreasType(CustomModel):
@@ -95,7 +106,9 @@ class TAreas(CustomModel):
     comment: Mapped[str] = Column(Text)
 
     # Indique si l'aire est active ou non (true = active)
-    enable: Mapped[bool] = Column(Boolean, nullable=False, server_default=DB.text("true"))
+    enable: Mapped[bool] = Column(
+        Boolean, nullable=False, server_default=DB.text("true")
+    )
 
     # Date de création de l'enregistrement (utile pour l'audit et le suivi)
     meta_create_date: Mapped[DateTime] = Column(DateTime)
@@ -107,7 +120,6 @@ class TAreas(CustomModel):
     # - Pour afficher ou manipuler les aires sans géométrie (listes, exports CSV, formulaires)
     # - Lorsque la géométrie n'est pas nécessaire (optimisation des requêtes)
     # - Pour des traitements attributaires ou des synchronisations de données non spatiales
-
 
 
 @serializable
@@ -129,7 +141,7 @@ class LAreas(CustomModel):
     id_area: Mapped[int] = Column(
         Integer,
         primary_key=True,
-        server_default=DB.text("nextval('ref_geo.l_areas_id_area_seq'::regclass)")
+        server_default=DB.text("nextval('ref_geo.l_areas_id_area_seq'::regclass)"),
     )
 
     # Identifiant du type d'aire (clé étrangère vers bib_areas_types)
@@ -148,7 +160,9 @@ class LAreas(CustomModel):
     comment: Mapped[str] = Column(Text)
 
     # Indique si l'aire est active ou non (true = active)
-    enable: Mapped[bool] = Column(Boolean, nullable=False, server_default=DB.text("true"))
+    enable: Mapped[bool] = Column(
+        Boolean, nullable=False, server_default=DB.text("true")
+    )
 
     # Date de création de l'enregistrement (utile pour l'audit et le suivi)
     meta_create_date: Mapped[DateTime] = Column(DateTime)
@@ -215,7 +229,9 @@ class VAreas(CustomModel):
     source: Mapped[str] = Column(String(250))
 
     # Indique si l'aire est active ou non (true = active)
-    enable: Mapped[bool] = Column(Boolean, nullable=False, server_default=DB.text("true"))
+    enable: Mapped[bool] = Column(
+        Boolean, nullable=False, server_default=DB.text("true")
+    )
 
     # Surface calculée automatiquement (ex : via la géométrie)
     surface_calculee: Mapped[float] = Column(Float)
@@ -227,6 +243,7 @@ class VAreas(CustomModel):
     # - Pour afficher ou manipuler les aires sans géométrie (listes, exports non spatiaux)
     # - Pour des traitements attributaires ou des synchronisations de données non spatiales
     # - Optimisation des requêtes lorsque la géométrie n'est pas requise
+
 
 @serializable
 # @geoserializable
@@ -253,7 +270,9 @@ class VAreasSimples(CustomModel):
     id_area: Mapped[int] = Column(
         Integer,
         primary_key=True,
-        server_default=DB.text("nextval('ref_geo.vl_areas_simples_id_area_seq'::regclass)"),
+        server_default=DB.text(
+            "nextval('ref_geo.vl_areas_simples_id_area_seq'::regclass)"
+        ),
     )
 
     # Identifiant du type d'aire (clé étrangère vers bib_areas_types)
@@ -272,14 +291,15 @@ class VAreasSimples(CustomModel):
     source: Mapped[str] = Column(String(250))
 
     # Indique si l'aire est active ou non (true = active)
-    enable: Mapped[bool] = Column(Boolean, nullable=False, server_default=DB.text("true"))
+    enable: Mapped[bool] = Column(
+        Boolean, nullable=False, server_default=DB.text("true")
+    )
 
     # Surface calculée automatiquement (ex : via la géométrie, mais non présente ici)
     surface_calculee: Mapped[float] = Column(Float)
 
     # Surface renseignée manuellement (ex : donnée officielle ou saisie)
     surface_renseignee: Mapped[float] = Column(Float)
-
 
 
 @serializable
@@ -424,9 +444,11 @@ class CorHierarchieArea(CustomModel):
     __tablename__ = "cor_hierarchie_area"
     __table_args__ = {"schema": "ref_geo", "extend_existing": True}
 
-    id_area_enfant: Mapped[int] = Column(Integer, ForeignKey("ref_geo.l_areas.id_area"), primary_key=True)
+    id_area_enfant: Mapped[int] = Column(
+        Integer, ForeignKey("ref_geo.l_areas.id_area"), primary_key=True
+    )
     id_type_enfant: Mapped[int] = Column(Integer, primary_key=True)
-    id_area_parent: Mapped[int] = Column(Integer, ForeignKey("ref_geo.l_areas.id_area"), primary_key=True)
+    id_area_parent: Mapped[int] = Column(
+        Integer, ForeignKey("ref_geo.l_areas.id_area"), primary_key=True
+    )
     id_type_parent: Mapped[int] = Column(Integer, primary_key=True)
-
-

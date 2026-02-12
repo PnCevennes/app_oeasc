@@ -7,7 +7,6 @@ from flask import Blueprint, current_app
 from oeasc.modules.oeasc.nomenclature import nomenclature_oeasc
 from utils_flask_sqla.response import json_resp
 
-
 # from .repository import get_db
 
 config = current_app.config
@@ -54,5 +53,3 @@ def get_nomenclature(nomenclature_type):
     # On récupère toutes les nomenclatures, puis on sélectionne celle correspondant au type demandé
     # et on retourne uniquement ses valeurs.
     return nomenclature_oeasc().get(nomenclature_type).get("values")
-
-

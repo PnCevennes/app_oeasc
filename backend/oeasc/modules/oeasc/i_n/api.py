@@ -13,7 +13,7 @@ from .models import (
     TTagsIn,
     TObservers,
     CorRealisationTag,
-    CorRealisationObserver
+    CorRealisationObserver,
 )
 
 from .schema import (
@@ -23,7 +23,6 @@ from .schema import (
     TObserversSchema,
     CorRealisationTagSchema,
     CorRealisationObserverSchema,
-
 )
 
 from ..generic.definitions import GenericRouteDefinitions
@@ -37,10 +36,26 @@ config = current_app.config
 DB = config["DB"]
 
 definitions = {
-    "realisation": {"model": TRealisations, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TRealisationsSchema},
-    "circuit": {"model": TCircuits, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TCircuitsSchema},
-    "tag": {"model": TTagsIn, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TTagsInSchema},
-    "observer": {"model": TObservers, "droits": {"C": 5, "R": 0, "U": 5, "D": 5}, "schema": TObserversSchema},
+    "realisation": {
+        "model": TRealisations,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TRealisationsSchema,
+    },
+    "circuit": {
+        "model": TCircuits,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TCircuitsSchema,
+    },
+    "tag": {
+        "model": TTagsIn,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TTagsInSchema,
+    },
+    "observer": {
+        "model": TObservers,
+        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "schema": TObserversSchema,
+    },
     "cor_realisation_tag": {
         "model": CorRealisationTag,
         "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
@@ -100,10 +115,14 @@ def in_valid_realisation():
 
     # Prépare la requête SQLAlchemy pour mettre à jour la table de correspondance
     # entre réalisation et tag (CorRealisationTag) avec les nouvelles valeurs
-    stmt_cor = update(CorRealisationTag).where(
-        CorRealisationTag.id_realisation == id_realisation,
-        CorRealisationTag.id_tag == id_tag
-    ).values(data)  # Les champs à mettre à jour sont ceux présents dans 'data'
+    stmt_cor = (
+        update(CorRealisationTag)
+        .where(
+            CorRealisationTag.id_realisation == id_realisation,
+            CorRealisationTag.id_tag == id_tag,
+        )
+        .values(data)
+    )  # Les champs à mettre à jour sont ceux présents dans 'data'
 
     # Exécute la requête de mise à jour sur la base de données
     cor = DB.session.execute(stmt_cor)

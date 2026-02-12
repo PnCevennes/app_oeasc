@@ -4,14 +4,15 @@ fonction acces DB pour la partie user
 
 from flask import current_app, session
 from sqlalchemy import select
+
 # from sqlalchemy.orm import Session
 from pypnusershub.db.models import User, Organisme
 from pypnusershub.schemas import UserSchema
 from ..commons.models import TListeOrganismes
+
 # from ..commons.schema import TListeOrganismesSchema
 from .models import VUsers
 from .schema import VUsersShema
-
 
 config = current_app.config
 DB = config["DB"]
@@ -67,9 +68,7 @@ def get_users():
     current_user = get_user(session.get("current_user", {}).get("id_role"))
 
     # Prépare la requête pour récupérer tous les utilisateurs de la vue VUsers
-    stmt_v = (
-        select(VUsers)
-    )
+    stmt_v = select(VUsers)
     # Exécute la requête et récupère tous les utilisateurs
     v = DB.session.execute(stmt_v).scalars().all()
 
@@ -106,11 +105,7 @@ def get_user(id_declarant=None):
         return UserSchema().dump(User())
 
     # Prépare la requête pour récupérer l'utilisateur dans la vue VUsers selon son id_role.
-    stmt_vusers = (
-        select(VUsers)
-        .where(VUsers.id_role == id_declarant)
-        .limit(1)
-    )
+    stmt_vusers = select(VUsers).where(VUsers.id_role == id_declarant).limit(1)
     # Exécute la requête et récupère le premier résultat.
     data = DB.session.execute(stmt_vusers).scalars().first()
 
@@ -168,9 +163,8 @@ def get_id_organismes(liste_nom):
     liste_nom_ = [nom.replace("'", "''") for nom in liste_nom]
 
     # Prépare la requête SQL pour sélectionner les id_organisme dont le nom figure dans la liste
-    stmt_organisme = (
-        select(Organisme.id_organisme)
-        .where(Organisme.nom_organisme.in_(liste_nom_))
+    stmt_organisme = select(Organisme.id_organisme).where(
+        Organisme.nom_organisme.in_(liste_nom_)
     )
 
     # Exécute la requête et récupère tous les identifiants correspondants

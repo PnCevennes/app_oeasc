@@ -5,7 +5,6 @@ from sqlalchemy import select
 from pypnusershub.db.models import Application, User, Organisme
 from pypnusershub.db.models_register import TempUser
 
-
 config = current_app.config
 DB = config["DB"]
 
@@ -25,9 +24,11 @@ def send_mail(recipients, subject, msg_html):
         }
 
     # Récupère les informations de l'application pour personnaliser le sujet du mail
-    stmt_application = select(Application).where(
-        Application.id_application == config["ID_APP"]
-    ).limit(1)
+    stmt_application = (
+        select(Application)
+        .where(Application.id_application == config["ID_APP"])
+        .limit(1)
+    )
     application = DB.session.execute(stmt_application).scalars().first()
 
     # Envoi du mail
@@ -47,16 +48,16 @@ def create_temp_user(data):
     """
     Crée un utilisateur temporaire à partir des données fournies.
 
-    Cette fonction est utilisée lors de la demande de création d'un compte temporaire. 
+    Cette fonction est utilisée lors de la demande de création d'un compte temporaire.
     Elle vérifie si le token fourni dans les données correspond à un utilisateur temporaire existant.
-    Si le token est valide, elle envoie un email à l'adresse associée à cet utilisateur temporaire 
+    Si le token est valide, elle envoie un email à l'adresse associée à cet utilisateur temporaire
     pour poursuivre la procédure de création de compte.
 
     Args:
         data (dict): Dictionnaire contenant les informations nécessaires, notamment le token sous la clé "token".
 
     Returns:
-        dict or bool: 
+        dict or bool:
             - Si le token n'est pas associé à un utilisateur temporaire, retourne un dictionnaire contenant un message d'erreur.
             - Sinon, retourne le résultat de la fonction send_mail (généralement un booléen indiquant le succès de l'envoi).
 
@@ -67,7 +68,6 @@ def create_temp_user(data):
 
     stmt_role = select(TempUser).where(TempUser.token_role == token).limit(1)
     role = DB.session.execute(stmt_role).scalars().first()
-
 
     if not role:
         return {"msg": token + " : ce token n'est pas associé à un compte temporaire"}
@@ -88,7 +88,7 @@ def valid_temp_user(data):
     Fonction permettant de valider la création d'un utilisateur temporaire et d'envoyer un mail de notification.
 
     Args:
-        data (dict): Dictionnaire contenant les informations de l'utilisateur temporaire à valider. 
+        data (dict): Dictionnaire contenant les informations de l'utilisateur temporaire à valider.
             Doit inclure les clés suivantes :
                 - "id_organisme" : identifiant de l'organisme auquel l'utilisateur est rattaché
                 - "identifiant" : identifiant de l'utilisateur
@@ -115,12 +115,12 @@ def valid_temp_user(data):
     """
     role = data
 
-    stmt_organisme = (select(Organisme.nom_organisme)
+    stmt_organisme = (
+        select(Organisme.nom_organisme)
         .where(Organisme.id_organisme == str(role["id_organisme"]))
         .limit(1)
     )
-    organisme = DB.session.execute(stmt_organisme).scalars().first()    
-
+    organisme = DB.session.execute(stmt_organisme).scalars().first()
 
     if organisme:
         role["organisme"] = organisme[0]
@@ -202,8 +202,8 @@ def create_cor_role_token(data):
         bool: Retourne True si l'email a été envoyé avec succès, False sinon.
 
     Utilisation :
-        Cette fonction est utilisée lorsqu'un utilisateur demande à changer son mot de passe. 
-        Elle récupère l'utilisateur associé au rôle spécifié, prépare le contenu de l'email avec le jeton de validation, 
+        Cette fonction est utilisée lorsqu'un utilisateur demande à changer son mot de passe.
+        Elle récupère l'utilisateur associé au rôle spécifié, prépare le contenu de l'email avec le jeton de validation,
         puis envoie l'email à l'adresse de l'utilisateur.
 
     Commentaires détaillés :
@@ -216,10 +216,8 @@ def create_cor_role_token(data):
     token = data["token"]
     id_role = data["id_role"]
 
-
     stmt_role = select(User).where(User.id_role == id_role).limit(1)
     role = DB.session.execute(stmt_role).scalars().first()
-
 
     # url_validation = config['URL_APPLICATION'] + url_for('user.change_password', token=token)
     recipients = [role.email]

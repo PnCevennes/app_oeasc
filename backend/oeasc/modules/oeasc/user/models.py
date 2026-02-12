@@ -43,5 +43,7 @@ class VUsers(CustomModel):
     create_date = Column(String(250))
     nb_declarations = Column(Integer)
     id_droit_max = Column(Integer)
-    max_level_profil = synonym("id_droit_max") # id_droit_max a été changé en max_level_profil dans userhub authentification
+    max_level_profil = synonym(
+        "id_droit_max"
+    )  # id_droit_max a été changé en max_level_profil dans userhub authentification
     org_mnemo = Column(String(250))

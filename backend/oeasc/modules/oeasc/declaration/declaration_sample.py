@@ -12,6 +12,7 @@ from datetime import timedelta, datetime
 from flask import current_app
 from sqlalchemy import text, select
 from sqlalchemy.sql import func
+
 # from sqlalchemy.orm import Session
 
 from pypnusershub.db.models import User
@@ -26,7 +27,6 @@ from oeasc.modules.oeasc.nomenclature import (
 )
 from .models import TForet, TProprietaire, CorDgdCadastre
 from .schema import TForetSchema, TProprietaireSchema
-
 
 config = current_app.config
 DB = config["DB"]
@@ -177,7 +177,6 @@ def get_random_area_commune():
     get_random_area_commune
     """
 
-
     stmt = (
         select(TAreas)
         .where(TAreas.id_type == get_id_type("OEASC_COMMUNE"))
@@ -207,8 +206,6 @@ def get_random_area_section(area_code_commune):
     if area:
         return TAreasSchema().dump(area)
 
-
-
     return None
 
 
@@ -218,16 +215,16 @@ def get_random_area_onf_prf(area_code_onf_frt):
     """
 
     stmt = (
-        select (TAreas)
-        .where (TAreas.id_type == get_id_type("OEASC_ONF_PRF"))
-        .where (TAreas.area_code.like (area_code_onf_frt + "-%"))
-        .order_by (func.random ())
-        .limit (1)
+        select(TAreas)
+        .where(TAreas.id_type == get_id_type("OEASC_ONF_PRF"))
+        .where(TAreas.area_code.like(area_code_onf_frt + "-%"))
+        .order_by(func.random())
+        .limit(1)
     )
-    area = DB.session.execute (stmt).scalar_one_or_none ()
+    area = DB.session.execute(stmt).scalar_one_or_none()
 
     if area:
-            return TAreasSchema().dump(area)
+        return TAreasSchema().dump(area)
 
     return None
 
@@ -238,16 +235,15 @@ def get_random_area_onf_ug(area_code_onf_prf):
     """
 
     stmt_area = (
-        select (TAreas)
-        .where (TAreas.id_type == get_id_type("OEASC_ONF_UG"))
-        .where (TAreas.area_code.like (area_code_onf_prf + "-%"))
-        .order_by (func.random ())
-        .limit (1)
+        select(TAreas)
+        .where(TAreas.id_type == get_id_type("OEASC_ONF_UG"))
+        .where(TAreas.area_code.like(area_code_onf_prf + "-%"))
+        .order_by(func.random())
+        .limit(1)
     )
-    area = DB.session.execute (stmt_area).scalar_one_or_none ()
+    area = DB.session.execute(stmt_area).scalar_one_or_none()
     if area:
         return TAreasSchema().dump(area)
-
 
     return None
 
@@ -257,17 +253,16 @@ def get_random_area_dgd_cadastre(area_code_dgd):
     get_random_area_dgd_cadastre
     """
 
-    stmt_cadastre = (select(CorDgdCadastre)
+    stmt_cadastre = (
+        select(CorDgdCadastre)
         .where(CorDgdCadastre.area_code_dgd == area_code_dgd)
         .order_by(func.random())
         .limit(1)
     )
     res = DB.session.execute(stmt_cadastre).scalars.one_or_none()
 
-
-
     area_code = res
-    stmt_area =(
+    stmt_area = (
         select(TAreas)
         .where(TAreas.id_type == get_id_type("OEASC_CADASTRE"))
         .where(TAreas.area_code.like(area_code + "-%"))
@@ -278,7 +273,6 @@ def get_random_area_dgd_cadastre(area_code_dgd):
     if area:
         return TAreasSchema().dump(area)
 
-
     return None
 
 
@@ -287,7 +281,8 @@ def get_random_area_section_cadastre(area_code_section):
     get_random_area_section_cadastre
     """
 
-    stmt = (select(TAreas)
+    stmt = (
+        select(TAreas)
         .where(TAreas.id_type == get_id_type("OEASC_CADASTRE"))
         .where(TAreas.area_code.like(area_code_section + "-%"))
         .order_by(func.random())
@@ -312,7 +307,6 @@ def foret_dict_random_sample():
     # cas docmumenté : on récupère en base
     if b_document:
 
-
         stmt_foret = (
             select(TForet)
             .where(TForet.b_statut_public == b_statut_public)
@@ -323,14 +317,14 @@ def foret_dict_random_sample():
 
         if not foret:
             return None
-        
+
         stmt_proprietaire = (
             select(TProprietaire)
             .where(TProprietaire.id_proprietaire == foret.id_proprietaire)
             .limit(1)
         )
         proprietaire = DB.session.execute(stmt_proprietaire).scalar_one_or_none()
-    
+
         if not proprietaire:
             return None
 
@@ -429,11 +423,10 @@ def get_random_id_declarant():
 
     sql_text = text(
         "SELECT r.id_role FROM utilisateurs.t_roles r, utilisateurs.cor_role_droit_application c \
-        WHERE c.id_role = r.id_role AND c.id_application = :id_app").bindparams(id_app=config["ID_APP"])
-
+        WHERE c.id_role = r.id_role AND c.id_application = :id_app"
+    ).bindparams(id_app=config["ID_APP"])
 
     data = DB.session.execute(sql_text)
-
 
     v = [d[0] for d in data]
     if v == []:
@@ -451,12 +444,7 @@ def get_random_areas_localisation(foret):
 
     id_area = foret["areas_foret"][0]["id_area"]
 
-
-    stmt = (
-        select(TAreas)
-        .where(TAreas.id_area == id_area)
-        .limit(1)
-    )
+    stmt = select(TAreas).where(TAreas.id_area == id_area).limit(1)
     area_foret = DB.session.execute(stmt).scalar_one_or_none()
 
     areas_localisation = []
@@ -490,11 +478,7 @@ def get_random_declarant():
     if not id_declarant:
         return None
 
-    stmt = (
-        select(User)
-        .where(User.id_role == id_declarant)
-        .limit(1)
-    )
+    stmt = select(User).where(User.id_role == id_declarant).limit(1)
     declarant = DB.session.execute(stmt).scalars().one_or_none()
     declarant_dict = UserSchema().dump(declarant)
 

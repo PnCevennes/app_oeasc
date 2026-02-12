@@ -13,15 +13,12 @@ config = current_app.config
 DB = config["DB"]
 
 
-
 class VUsersShema(SQLAlchemyAutoSchema):
     id_role = fields.Integer(allow_none=True)
+
     class Meta:
         model = VUsers
         load_instance = False
         sqla_session = DB.session
         include_fk = True
         unknown = EXCLUDE
-        
-        
-

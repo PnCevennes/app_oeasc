@@ -9,7 +9,7 @@ from .schema import (
     TDeclarationSchema,
     TProprietaireSchema,
     TForetSchema,
-    )
+)
 
 from oeasc.modules.oeasc.nomenclature import (
     get_nomenclature_from_id,
@@ -84,7 +84,7 @@ def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
     # Si la déclaration n'est pas fournie, on crée une instance vide
     if not declaration:
         declaration = TDeclaration()
-    
+
     # Si la forêt n'est pas fournie, on crée une instance vide
     if not foret:
         foret = TForet()
@@ -157,11 +157,7 @@ def get_foret(id_foret):
     foret = proprietaire = None
 
     # On récupère la forêt correspondant à l'id fourni
-    stmt_foret = (
-        select(TForet)
-        .where(TForet.id_foret == id_foret)
-        .limit(1)
-    )
+    stmt_foret = select(TForet).where(TForet.id_foret == id_foret).limit(1)
     foret = DB.session.execute(stmt_foret).scalars().first()
 
     # Si la forêt existe, on récupère son propriétaire
@@ -240,7 +236,9 @@ def create_or_modify(model, key, val, dict_in, schema=None, session=None):
         schema = globals().get(schema_name)
         if schema is None:
             # Si le schéma n'existe pas, on lève une erreur explicite
-            raise ValueError(f"Schema {schema_name} not found for model {model.__name__}")
+            raise ValueError(
+                f"Schema {schema_name} not found for model {model.__name__}"
+            )
 
     if elem is not None:
         # Si l'instance existe déjà, on la met à jour avec les nouvelles données
@@ -322,9 +320,7 @@ def patch_areas_declarations(id_declaration):
                     JOIN oeasc_declarations.t_declarations d ON d.id_declaration = :id_declaration_param
                 RETURNING *;
 
-        """).bindparams(
-        id_declaration_param=id_declaration
-    )
+        """).bindparams(id_declaration_param=id_declaration)
 
     # Exécution de la requête SQL pour mettre à jour les aires de la déclaration
     DB.session.execute(txt)
@@ -354,7 +350,7 @@ def update_or_insert(model, id_key, id_value, schema, data, session=None):
         session = DB.session
 
     # Si une valeur de clé primaire est fournie, on tente de récupérer l'instance existante
-    if id_value: 
+    if id_value:
         instance = session.get(model, id_value)
 
     if instance:
@@ -410,7 +406,7 @@ def f_create_or_update_declaration(declaration_dict):
             declaration_dict["foret"]["proprietaire"],
             session=DB.session,
         )
-        
+
         # Création ou mise à jour de la forêt
         foret = update_or_insert(
             TForet,
@@ -692,7 +688,9 @@ def resume_gravite(declaration_dict):
                 continue
 
             # Si le code nomenclature de gravité est absent, on passe
-            if not degat_essence["id_nomenclature_degat_gravite"].get("cd_nomenclature"):
+            if not degat_essence["id_nomenclature_degat_gravite"].get(
+                "cd_nomenclature"
+            ):
                 continue
 
             gravite_ = degat_essence["id_nomenclature_degat_gravite"]
@@ -704,12 +702,9 @@ def resume_gravite(declaration_dict):
             # Logique pour déterminer la gravité maximale :
             # Si on trouve une gravité "DG_IMPT" (importante), on la sélectionne en priorité
             # Sinon, si la gravité courante est "DG_FLB" (faible) et la nouvelle "DG_MOY" (moyenne), on la remplace
-            if (
-                gravite_["cd_nomenclature"] == "DG_IMPT"
-                or (
-                    gravite["cd_nomenclature"] == "DG_FLB"
-                    and gravite_["cd_nomenclature"] == "DG_MOY"
-                )
+            if gravite_["cd_nomenclature"] == "DG_IMPT" or (
+                gravite["cd_nomenclature"] == "DG_FLB"
+                and gravite_["cd_nomenclature"] == "DG_MOY"
             ):
                 gravite = gravite_
 

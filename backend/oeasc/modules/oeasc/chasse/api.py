@@ -47,12 +47,11 @@ from .repositories import (
     # get_data_export_ods,
     get_data_all_especes_export_ods,
 )
-from sqlalchemy import  func
+from sqlalchemy import func
 import datetime
 
 # from oeasc.utils.env import ROOT_DIR
 from py3o.template import Template
-
 
 config = current_app.config
 DB = config["DB"]
@@ -74,23 +73,63 @@ droits = {"C": 4, "R": 0, "U": 4, "D": 4}
 # la route est par exemple de la forme <blueprint>/chasse/personne/ pour accéder à la table TPersonnes
 definitions = {
     "personne": {"model": TPersonnes, "droits": droits, "schema": TPersonnesSchema},
-    "zone_cynegetique": {"model": TZoneCynegetiques, "droits": droits, "schema": TZoneCynegetiquesSchema},
-    "zone_cynegetique": {"model": TZoneCynegetiques, "droits": droits, "schema": TZoneCynegetiquesSchema},
-    "zone_indicative": {"model": TZoneIndicatives, "droits": droits, "schema": TZoneIndicativesSchema},
+    "zone_cynegetique": {
+        "model": TZoneCynegetiques,
+        "droits": droits,
+        "schema": TZoneCynegetiquesSchema,
+    },
+    "zone_cynegetique": {
+        "model": TZoneCynegetiques,
+        "droits": droits,
+        "schema": TZoneCynegetiquesSchema,
+    },
+    "zone_indicative": {
+        "model": TZoneIndicatives,
+        "droits": droits,
+        "schema": TZoneIndicativesSchema,
+    },
     "lieu_tir": {"model": TLieuTirs, "droits": droits, "schema": TLieuTirsSchema},
-    "lieu_tir_synonyme": {"model": TLieuTirSynonymes, "droits": droits, "schema": TLieuTirSynonymesSchema},
+    "lieu_tir_synonyme": {
+        "model": TLieuTirSynonymes,
+        "droits": droits,
+        "schema": TLieuTirSynonymesSchema,
+    },
     "saison": {"model": TSaisons, "droits": droits, "schema": TSaisonsSchema},
-    "saison_date": {"model": TSaisonDates, "droits": droits, "schema": TSaisonDatesSchema},
-    "attribution_massif": {"model": TAttributionMassifs, "droits": droits, "schema": TAttributionMassifsSchema},
-    "type_bracelet": {"model": TTypeBracelets, "droits": droits, "schema": TTypeBraceletsSchema},
-    "attribution": {"model": TAttributions, "droits": droits, "schema": TAttributionsSchema},
-    "realisation": {"model": TRealisationsChasse, "droits": droits, "schema": TRealisationsChasseSchema},
+    "saison_date": {
+        "model": TSaisonDates,
+        "droits": droits,
+        "schema": TSaisonDatesSchema,
+    },
+    "attribution_massif": {
+        "model": TAttributionMassifs,
+        "droits": droits,
+        "schema": TAttributionMassifsSchema,
+    },
+    "type_bracelet": {
+        "model": TTypeBracelets,
+        "droits": droits,
+        "schema": TTypeBraceletsSchema,
+    },
+    "attribution": {
+        "model": TAttributions,
+        "droits": droits,
+        "schema": TAttributionsSchema,
+    },
+    "realisation": {
+        "model": TRealisationsChasse,
+        "droits": droits,
+        "schema": TRealisationsChasseSchema,
+    },
     "plan_chasse_realisation_bilan": {
         "model": VPlanChasseRealisationBilan,
         "droits": droits,
         "schema": VPlanChasseRealisationBilanSchema,
     },
-    "chasse_bilan": {"model": VChasseBilan, "droits": droits, "schema": VChasseBilanSchema},
+    "chasse_bilan": {
+        "model": VChasseBilan,
+        "droits": droits,
+        "schema": VChasseBilanSchema,
+    },
 }
 # ajout des définition dans le singleton grd
 grd.add_generic_routes("chasse", definitions)
@@ -127,7 +166,7 @@ def api_result_ice():
     """
     # Récupère les paramètres de la requête (id_espece, id_zone_indicative, id_zone_cynegetique, id_secteur, poids_ou_dagues)
     params = chasse_process_args()
-    
+
     try:
         # Appelle la fonction SQL pour calculer l'ICE avec les paramètres récupérés
         req = func.oeasc_chasse.fct_calcul_ice_mc(
@@ -137,17 +176,20 @@ def api_result_ice():
             params["id_secteur"],
             params["poids_ou_dagues"],
         )
-        
+
         # Exécute la requête et récupère le premier résultat
         res = DB.session.execute(req).first()
-        
+
         # Si aucun résultat n'est retourné, renvoie une erreur avec code 204
         if res is None or res[0] is None:
-            return {"error": "Aucun résultat calculé - données insuffisantes", "code": 204}
-            
+            return {
+                "error": "Aucun résultat calculé - données insuffisantes",
+                "code": 204,
+            }
+
         # Retourne le résultat du calcul ICE
         return res[0]
-        
+
     except Exception as e:
         # En cas d'erreur lors du calcul, log l'erreur et retourne un message d'erreur avec code 500
         current_app.logger.error(f"Erreur calcul ICE: {str(e)}")
@@ -238,7 +280,9 @@ def api_chasse_ods():
     """
 
     # Chemin du template ODS utilisé pour générer le fichier final
-    template_path = config["ROOT_DIR"] / "backend/oeasc/templates/ods/template_bilan_chasse.ods"
+    template_path = (
+        config["ROOT_DIR"] / "backend/oeasc/templates/ods/template_bilan_chasse.ods"
+    )
     # Chemin du fichier ODS généré (dans le dossier static/export)
     output_path = config["ROOT_DIR"] / "static/export/test.ods"
     # Récupère le nom de la saison depuis les paramètres de la requête GET, "current" par défaut

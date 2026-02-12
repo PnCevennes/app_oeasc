@@ -88,4 +88,3 @@
 #     id_espece = DB.Column(DB.Integer, primary_key=True)
 #     nom_espece = DB.Column(DB.Unicode)
 #     code_espece = DB.Column(DB.Unicode)
-
