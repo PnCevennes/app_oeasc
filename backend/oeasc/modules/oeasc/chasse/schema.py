@@ -17,17 +17,6 @@ config = current_app.config
 DB = config["DB"]
 
 
-class TPersonnesSchema(SQLAlchemyAutoSchema):
-    id_personne = fields.Integer(allow_none=True)
-
-    class Meta:
-        model = TPersonnes
-        load_instance = True
-        include_fk = True
-        sqla_session = (DB.session,)
-        unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
-
-
 class TZoneCynegetiquesSchema(SQLAlchemyAutoSchema):
     id_zone_cynegetique = fields.Integer(allow_none=True)
 
@@ -225,18 +214,7 @@ class TRealisationsChasseSchema(GeoAlchemyAutoSchema):
         many=False,
         metadata={"load_instance": True},
     )
-    auteur_tir = Nested(
-        "TPersonnesSchema",
-        many=False,
-        allow_none=True,
-        metadata={"load_instance": True},
-    )
-    auteur_constat = Nested(
-        "TPersonnesSchema",
-        many=False,
-        allow_none=True,
-        metadata={"load_instance": True},
-    )
+
     zone_cynegetique_realisee = Nested(
         "TZoneCynegetiquesSchema",
         many=False,

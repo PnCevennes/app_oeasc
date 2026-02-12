@@ -39,14 +39,6 @@ class CustomModel(DB.Model):
     __allow_unmapped__ = True
 
 
-@serializable
-class TPersonnes(CustomModel):
-    __tablename__ = "t_personnes"
-    __table_args__ = {"schema": "oeasc_chasse", "extend_existing": True}
-
-    id_personne: Mapped[int] = Column(Integer, primary_key=True)
-    nom_personne: Mapped[str] = Column(Unicode)
-
 
 @serializable
 class TZoneCynegetiques(CustomModel):
@@ -159,7 +151,7 @@ class TSaisonDates(CustomModel):
         TNomenclaturesOeasc,
         foreign_keys=id_nomenclature_type_chasse,
         # single_parent=True,
-        # primaryjoin="TSaisonDates.id_nomenclature_type_chasse == TNomenclaturesOeasc.id_nomenclature"
+        primaryjoin="TSaisonDates.id_nomenclature_type_chasse == TNomenclaturesOeasc.id_nomenclature"
     )
 
 
@@ -250,6 +242,12 @@ class TAttributions(CustomModel):
     id_zone_indicative_affectee: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_chasse.t_zone_indicatives.id_zone_indicative")
     )
+    
+    realisations:Mapped["TRealisationsChasse"] = relationship(
+        'TRealisationsChasse',
+        back_populates='attribution',
+        lazy='select' 
+    )
 
     saison: Mapped["TSaisons"] = relationship(TSaisons)
     zone_cynegetique_affectee: Mapped["TZoneCynegetiques"] = relationship(
@@ -273,7 +271,12 @@ class TRealisationsChasse(CustomModel):
     id_attribution: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_chasse.t_attributions.id_attribution")
     )
-    attribution: Mapped["TAttributions"] = relationship(TAttributions)
+    # attribution: Mapped["TAttributions"] = relationship(TAttributions)
+    attribution: Mapped["TAttributions"] = relationship(
+        'TAttributions',
+        back_populates='realisations'
+    )
+    
     saison: Mapped["TSaisons"] = relationship(
         TSaisons,
         secondary="oeasc_chasse.t_attributions",
@@ -282,19 +285,12 @@ class TRealisationsChasse(CustomModel):
         uselist=False,
         viewonly=True,
     )
-    id_auteur_tir: Mapped[int] = Column(
-        Integer, ForeignKey("oeasc_chasse.t_personnes.id_personne")
-    )
-    auteur_tir: Mapped["TPersonnes"] = relationship(
-        TPersonnes, foreign_keys=id_auteur_tir
-    )
-    id_auteur_constat: Mapped[int] = Column(
-        Integer, ForeignKey("oeasc_chasse.t_personnes.id_personne")
-    )
-    auteur_constat: Mapped["TPersonnes"] = relationship(
-        TPersonnes, foreign_keys=id_auteur_constat
-    )
 
+   
+    auteur_tir_str: Mapped[str] = Column(Unicode) # champ texte libre pour l'auteur du tir
+    auteur_constat_str: Mapped[str] = Column(Unicode) # champ texte libre pour l'auteur du constat
+
+    
     id_zone_cynegetique_realisee: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique")
     )
