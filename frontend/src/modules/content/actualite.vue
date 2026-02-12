@@ -50,7 +50,7 @@ export default {
   props: ["tagNames"],
   components: { oeascContent },
   data: () => ({
-    contents: null
+    contents: []
   }),
   methods: {
     getContents() {
@@ -58,12 +58,24 @@ export default {
       const configStore = this.$store.getters.configStore(storeName);
       const options = {
         ...configStore.options,
+        sortBy: ["meta_create_date"],
+        sortDesc: [true],
         "tags.nom_tag": this.tagNames
       }
 
       this.$store.dispatch(configStore.getAll, options).then(contents => {
-        this.contents = contents.sort((c1, c2)  => c1.meta_create_date < c2.meta_create_date);
-      });
+        if (!Array.isArray(contents)) {
+          this.contents = [];
+          return;
+        }
+        this.contents = contents.sort((a, b) => {
+          const tA = new Date(a.meta_create_date).getTime() || 0;
+          const tB = new Date(b.meta_create_date).getTime() || 0;
+          return tB - tA;
+        });
+      }).catch(() => {
+        this.contents = [];
+      }); 
     }
   },
   mounted() {

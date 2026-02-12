@@ -40,17 +40,19 @@ export default {
     getContents() {
       const storeName = "commonsContent";
       const configStore = this.$store.getters.configStore(storeName);
+
+
       this.$store.dispatch(configStore.getAll).then(contents => {
         this.contents = contents
           .filter(content =>
             this.tagNames && this.tagNames.length
               ? this.tagNames.every(nom_tag => {
-                  return content.tags.map(t => t.nom_tag).includes(nom_tag);
-                })
+            return content.tags.map(t => t.nom_tag).includes(nom_tag);
+          })
               : true
           )
-          .sort((c1, c2) => c1.meta_create_date < c2.meta_create_date)
-          .filter((content, i) => {return i < (this.nb || 3)})
+          .sort((c1, c2) => new Date(c2.meta_create_date) - new Date(c1.meta_create_date))
+          .filter((_, i) => i < (this.nb || 3))
           .map(content => {
             const elem = document.createElement("div");
             let html = marked(content.md || "");
@@ -59,13 +61,15 @@ export default {
               const img = elem.querySelector(":is(content-img)");
               const imgSrc=img && img.attributes.src.nodeValue;
               return {
-                src: imgSrc || "pages_degats_agricole_b_algoet.jpg",
-                title: (title && title.innerHTML) || "Pas de titre",
-                to: `actualite/${content.code}`,
-                date: UtilsContent.displayDateFr(content.meta_create_date),
+          src: imgSrc || "pages_degats_agricole_b_algoet.jpg",
+          title: (title && title.innerHTML) || "Pas de titre",
+          to: `actualite/${content.code}`,
+          date: UtilsContent.displayDateFr(content.meta_create_date),
               };
             });
-      });
+            });
+
+
     }
   },
   mounted() {
