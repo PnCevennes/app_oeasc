@@ -17,7 +17,7 @@
         <!-- fil d'ariane -->
         <breadcrump></breadcrump>
 
-        <div class="main-container" id="scrolling-techniques">
+        <div class="main-container" id="scrolling-techniques" style="margin-top:50px">
           <!-- contenu de la page, router gére automatiquement les routes inscrites dans router/index.js -->
           <!-- mais dans cette appli on récupère aussi les roude dans modules/index.js et pages/index.js -->
           <router-view></router-view>
