@@ -3,7 +3,6 @@ api chasse
 """
 
 from .models import (
-    TPersonnes,
     TZoneCynegetiques,
     TZoneIndicatives,
     TLieuTirs,
@@ -19,7 +18,6 @@ from .models import (
 )
 
 from .schema import (
-    TPersonnesSchema,
     TZoneCynegetiquesSchema,
     TZoneIndicativesSchema,
     TLieuTirsSchema,
@@ -52,6 +50,7 @@ import datetime
 
 # from oeasc.utils.env import ROOT_DIR
 from py3o.template import Template
+from .importation_csv import api_import_traitement_csv
 
 config = current_app.config
 DB = config["DB"]
@@ -72,7 +71,7 @@ droits = {"C": 4, "R": 0, "U": 4, "D": 4}
 # routes dynamiques pour accéder aux modèles de la base de données
 # la route est par exemple de la forme <blueprint>/chasse/personne/ pour accéder à la table TPersonnes
 definitions = {
-    "personne": {"model": TPersonnes, "droits": droits, "schema": TPersonnesSchema},
+    # "personne": {"model": TPersonnes, "droits": droits, "schema": TPersonnesSchema},
     "zone_cynegetique": {
         "model": TZoneCynegetiques,
         "droits": droits,
@@ -305,3 +304,8 @@ def api_chasse_ods():
         as_attachment=True,
         download_name=f"bilan_chasse_{nom_saison}.ods",
     )
+
+
+@bp.route("import/traitement-csv", methods=["POST"]) 
+def traitement_csv():
+    return api_import_traitement_csv()
