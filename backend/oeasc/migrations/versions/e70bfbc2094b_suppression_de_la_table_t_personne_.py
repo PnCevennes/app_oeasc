@@ -30,12 +30,12 @@ def upgrade():
 
     # suppression de la clé étrangère id_auteur_constat dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
-        DROP CONSTRAINT IF EXISTS fk_t_realisations_t_personne_constats CASCADE;"""
+        DROP CONSTRAINT IF EXISTS id_auteur_tir CASCADE;"""
     op.execute(sql)
 
     # suppression de la clé étrangère id_auteur_constat dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
-        DROP CONSTRAINT IF EXISTS fk_t_realisations_t_personne_constats;"""
+        DROP CONSTRAINT IF EXISTS id_auteur_constat CASCADE;"""
     op.execute(sql)
 
     # suppression de la table oeasc_chasse.t_personnes
@@ -50,6 +50,17 @@ def downgrade():
         id_personne SERIAL PRIMARY KEY,
         nom_personne VARCHAR(255) NOT NULL
     );"""
+    op.execute(sql)
+
+
+    # creation de la colonne id_auteur_tir dans la table oeasc_chasse.t_realisations
+    sql = """ALTER TABLE oeasc_chasse.t_realisations
+        ADD COLUMN id_auteur_tir INTEGER;"""
+    op.execute(sql)
+
+    # creation de la colonne id_auteur_constat dans la table oeasc_chasse.t_realisations
+    sql = """ALTER TABLE oeasc_chasse.t_realisations
+        ADD COLUMN id_auteur_constat INTEGER;"""
     op.execute(sql)
 
     # création de la clé étrangère id_auteur_tir dans la table oeasc_chasse.t_realisations
