@@ -30,12 +30,12 @@ def upgrade():
 
     # suppression de la clé étrangère id_auteur_constat dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
-        DROP CONSTRAINT IF EXISTS id_auteur_tir CASCADE;"""
+        DROP COLUMN IF EXISTS id_auteur_tir CASCADE;"""
     op.execute(sql)
 
     # suppression de la clé étrangère id_auteur_constat dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
-        DROP CONSTRAINT IF EXISTS id_auteur_constat CASCADE;"""
+        DROP COLUMN IF EXISTS id_auteur_constat CASCADE;"""
     op.execute(sql)
 
     # suppression de la table oeasc_chasse.t_personnes
@@ -55,12 +55,12 @@ def downgrade():
 
     # creation de la colonne id_auteur_tir dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
-        ADD COLUMN id_auteur_tir INTEGER;"""
+        ADD COLUMN IF NOT EXISTS id_auteur_tir INTEGER;"""
     op.execute(sql)
 
     # creation de la colonne id_auteur_constat dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
-        ADD COLUMN id_auteur_constat INTEGER;"""
+        ADD COLUMN IF NOT EXISTS id_auteur_constat INTEGER;"""
     op.execute(sql)
 
     # création de la clé étrangère id_auteur_tir dans la table oeasc_chasse.t_realisations
