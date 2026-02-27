@@ -2,6 +2,8 @@
 api chasse
 """
 
+
+
 from .models import (
     TZoneCynegetiques,
     TZoneIndicatives,
@@ -34,9 +36,10 @@ from .schema import (
 
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
-from flask import Blueprint, current_app, request, send_file
+from flask import Blueprint, current_app, request, session, send_file, jsonify
 from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery
+from ..user.utils import check_auth_redirect_login
 from .repositories import (
     get_chasse_bilan,
     get_attribution_result,
@@ -45,15 +48,18 @@ from .repositories import (
     # get_data_export_ods,
     get_data_all_especes_export_ods,
 )
+from .importation_csv import traitement_import_realisation_chasse
 from sqlalchemy import func
 import datetime
+import os
 
 # from oeasc.utils.env import ROOT_DIR
 from py3o.template import Template
-from .importation_csv import api_import_traitement_csv
+
 
 config = current_app.config
 DB = config["DB"]
+
 
 bp = Blueprint("chasse_api", __name__)
 
@@ -307,5 +313,35 @@ def api_chasse_ods():
 
 
 @bp.route("import/traitement-csv", methods=["POST"]) 
+@check_auth_redirect_login(4)
 def traitement_csv():
-    return api_import_traitement_csv()
+    # print("Requête reçue pour l'import CSV de réalisations de chasse")
+    saison = request.form.get('saison')
+    update = request.form.get('update') # sera une string "true" ou "false"
+    file = request.files.get('file')
+    apiResponse = traitement_import_realisation_chasse(file, saison, update)
+
+    # apiResponse.print_all()
+
+    return apiResponse.response_to_frontend()
+
+
+
+
+@bp.route("import/download-erreurs-csv/<file_name>", methods=["GET"])
+def download_erreurs_csv(file_name):
+
+    file_name = request.view_args.get("file_name")
+
+    # Chemin du fichier ODS généré (dans le dossier static/export)
+    output_path = config["ROOT_DIR"] / "static/erreurs_import_chasse" / file_name
+    print (f"Chemin du fichier à télécharger: {output_path}")
+    # Retourne le fichier ODS généré en pièce jointe, avec un nom personnalisé selon la saison
+    return send_file(
+        output_path,
+        as_attachment=True,
+        download_name=f"{file_name}",
+        mimetype='text/csv'
+    )
+
+

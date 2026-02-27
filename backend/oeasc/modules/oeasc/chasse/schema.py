@@ -176,7 +176,8 @@ class TAttributionsSchema(SQLAlchemyAutoSchema):
     zone_cynegetique_affectee = Nested("TZoneCynegetiquesSchema", many=False)
     zone_indicative_affectee = Nested("TZoneIndicativesSchema", many=False)
     type_bracelet = Nested("TTypeBraceletsSchema", many=False)
-    has_realisation = fields.Boolean(attribute="has_realisation")
+    # has_realisation = fields.Boolean(attribute="has_realisation")
+    id_realisation = fields.Integer(attribute="id_realisation", dump_only=True)
 
 
 class TRealisationsChasseSchema(GeoAlchemyAutoSchema):

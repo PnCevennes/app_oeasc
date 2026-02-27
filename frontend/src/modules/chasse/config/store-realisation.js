@@ -308,7 +308,7 @@ export default {
       type: "list_form",
       returnObject: true,
       dataReloadOnSearch: true,
-      required: true
+      required: false
     },
 
     // Champ "Date du tir" (saisie rapide JJMM)

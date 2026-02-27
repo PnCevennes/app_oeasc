@@ -4,13 +4,12 @@
     <h1>Importation des données Chasse</h1>
     <br></br>
 
-    <v-row>
+    <div :disabled="uploading">
+      <div style="max-width: 500px;">
 
-      <!-- formulaire select pour la saison, affiche la saison en cours par défaut avec un computed -->
-      <v-col cols="12" sm="6">
+        <!-- formulaire select pour la saison, affiche la saison en cours par défaut -->
         <v-select
-          :value="selectedSaison"
-          @input="saison = $event"
+          v-model="saison"
           :items="saisons"
           item-text="nom_saison"
           item-value="id_saison"
@@ -19,59 +18,79 @@
           outlined
           clearable
         ></v-select>
-      </v-col>
 
-      <!-- checkbox pour demander la confirmation de la mise à jour des données existantes (doUpdate) avant l'import, qui affiche une popup de confirmation si cochée. Si la personne confirme dans la popup, alors doUpdate est mis à true et l'import peut se faire, sinon doUpdate reste à false et l'import se fait sans mise à jour des données existantes. -->
-      <v-col cols="12" sm="6" class="d-flex align-center">
+
+        <!-- input pour sélectionner le fichier CSV à importer -->
+        <v-file-input
+          v-model="file"
+          label="Sélectionner un fichier CSV"
+          accept=".csv"
+          outlined
+          dense
+          hide-details
+        ></v-file-input>
+
+        <!-- checkbox pour demander la confirmation de la mise à jour des données existantes (affiche_popup_update) avant l'import, qui affiche une popup de confirmation si cochée. Si la personne confirme dans la popup. -->
         <v-checkbox
-          :input-value="update_data_bdd ? true : doUpdate"
-          @change="val => { if (val) { update_data_bdd = true } else { doUpdate = false; update_data_bdd = false } }"
+          :input-value="doUpdate"
+          @change="afficherPopup"
+          v-model="doUpdate"
           label="Mettre à jour les données existantes"
           hide-details
         ></v-checkbox>
-      </v-col>
 
-    </v-row>
 
-    <!-- input pour sélectionner le fichier CSV à importer -->
-    <v-file-input
-      v-model="file"
-      label="Sélectionner un fichier CSV"
-      accept=".csv"
-      outlined
-      dense
-      hide-details
-    ></v-file-input>
+      </div>
+      
+      <div style="margin-top: 1rem; align-items: center; margin: auto;">
+        <div class="mt-2">
+          <v-btn :disabled="!file || uploading" color="primary" @click="upload">
+            <v-icon left>mdi-upload</v-icon>
+            Importer
+          </v-btn>
+          <v-btn text @click="clear" :disabled="uploading">Annuler</v-btn>
+        </div>
+      </div>
 
-    <div class="mt-2">
-      <v-btn :disabled="!file || uploading" color="primary" @click="validateUpload">
-        <v-icon left>mdi-upload</v-icon>
-        Importer
-      </v-btn>
-      <v-btn text @click="clear" :disabled="uploading">Annuler</v-btn>
     </div>
 
     <v-progress-linear v-if="uploading" indeterminate color="primary" class="mt-3"></v-progress-linear>
 
     <!-- affichage des messages de succès ou d'erreur après l'import -->
-    <div v-if="message" class="mt-3">
+    <!-- <div v-if="message" class="mt-3">
       <div v-if="error" style="color:crimson">{{ message }}</div>
       <div v-else style="color:green">{{ message }}</div>
-    </div>
+    </div> -->
 
     <!-- affichage de json_data_bdd sous forme du tableau -->
-    <div>
-      <pre>{{ json_data_bdd }}</pre>
+    <div style="margin-top: 1rem; max-width: 70%;" v-if="reponse_affichee.length > 0">
       <table>
         <thead>
           <tr>
-            <th>id</th>
-            <th>BRACELET</th>
-            <th>ESPECE</th>
-            <th>AGE</th>
-            <th>DATE</th>
+            <th>JOURNAL</th>
           </tr>
         </thead>
+        <tbody>
+          <tr v-for="value in reponse_affichee" :key="value.message">
+            <td>
+              <v-icon v-if="value.type === 'error'" color="error" left>mdi-close-circle</v-icon>
+              <v-icon v-else-if="value.type === 'info'" color="green" left>mdi-check-circle</v-icon>
+              <v-icon v-else-if="value.type === 'file'" color="blue" left>mdi-file</v-icon>
+              {{ value.message }}
+            </td>
+
+
+          </tr>
+
+          <tr v-if="url_fichier_erreur">
+            <td>
+                <v-btn color="error" text :href="url_fichier_erreur" target="_blank">
+                  <v-icon left >mdi-file-download</v-icon>
+                  Télécharger le fichier d'erreur
+                </v-btn>
+            </td>
+          </tr>
+        </tbody>
 
       </table>
       
@@ -80,22 +99,23 @@
 
 
     <!-- popup qui demande la confirmation pour la mise à jour des données existantes si l'utilisateur a coché la checkbox -->
-    <v-dialog v-model="update_data_bdd" max-width="500">
+    <v-dialog v-model="affiche_popup_update" max-width="500">
       <v-card>
         <v-card-title class="headline">Confirmer la mise à jour</v-card-title>
         <v-card-text>Vous avez demandé une mise à jour des données existantes. Les données seront écrasées et aucun retour en arrière ne sera possible. Confirmez-vous l'opération ?</v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn color="red" text @click="update_data_bdd = false">NON Annuler</v-btn>
+          <v-btn color="red" text @click="close_popup_update">NON Annuler</v-btn>
           <v-btn color="green" text @click="confirmUpdate_action">Confirmer</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
   </div>
+
 </template>
 
 <script>
-import { apiRequest } from "@/core/js/data/api.js";
+import { apiRequest, simple_fetch, url } from "@/core/js/data/api.js";
 
 export default {
   name: "imports-chasse",
@@ -104,12 +124,15 @@ export default {
       file: null,
       uploading: false,
       message: '',
-      json_data_bdd: null,
+      // json_data_bdd: null,
+      reponse_affichee: [],
       error: false,
       saisons: [],
       saison: null,
       doUpdate: false,
-      update_data_bdd: false // etat de la checkbox 
+      affiche_popup_update: false, // etat de la checkbox
+      nom_fichier_erreur: null, // si il est différent de null, on propose un bouton de téléchargement du fichier d'erreur généré par le backend
+      url_fichier_erreur: null
     };
   },
   methods: {
@@ -119,81 +142,134 @@ export default {
       this.message = '';
       this.error = false;
       this.doUpdate = false;
+      this.affiche_popup_update = false;
+      this.reponse_affichee = [];
+      this.nom_fichier_erreur = null;
+      this.url_fichier_erreur = null;
+      this.response
     },
 
-    validateUpload() {
-      // action finale, une fois que l'utilisateur a cliqué sur le bouton IMPORTER. 
-      if (this.doUpdate) {
-        this.update_data_bdd = true;
-        return;
+
+    close_popup_update() {
+      // ferme la popup de confirmation pour la mise à jour des données existantes et décoche la checkbox
+      this.doUpdate = false;
+      this.affiche_popup_update = false;
+    },
+
+    afficherPopup() {
+      // affiche la popup de confirmation pour la mise à jour des données existantes
+      if (this.doUpdate == true){
+        this.affiche_popup_update = true;
       }
-      this.upload();
     },
 
     confirmUpdate_action() {
       // Si la personne confirme la mise à jour dans la popup, on passe doUpdate à true
-      this.update_data_bdd = false;
+      this.affiche_popup_update = false;
       this.doUpdate = true;
 
     },
 
     async upload() {
-      // action finale. Envoie le fichier à l'API pour traitement et attend la réponse pour afficher le message de succès ou d'erreur
-
       if (!this.file) {
         this.message = 'Aucun fichier sélectionné.';
         this.error = true;
         return;
       }
 
-      this.uploading = true;
       this.message = '';
       this.error = false;
+      this.reponse_affichee = [];
+      this.nom_fichier_erreur = null;
+      this.url_fichier_erreur = null;
 
       try {
-        // apiRequest supports File in postData and builds FormData
-        const postData = { file: this.file };
-        if (this.saison) postData.saison = this.saison;
-        postData.update = this.doUpdate ? true : false;
+        this.uploading = true;
+        const formData = new FormData();
+        formData.append('file', this.file);
+        formData.append('update', this.doUpdate.toString());
+        
+        if (this.saison) {
+          formData.append('saison', this.saison);
+        }
+        formData.append('id_role', this.$store.getters.user.id_role); // à remplacer par le rôle de l'utilisateur connecté, ici on met 1 pour les tests
+        formData.append('nom_complet', this.$store.getters.user.nom_complet); // à remplacer par le nom complet de l'utilisateur connecté, ici on met "Test User" pour les tests
 
-        const res = await apiRequest('POST', 'api/chasse/import/traitement-csv', { postData }).then(res => {
-          console.log('API response for import:', res);
-          this.message = res.message || 'Importation réussie.';
-          this.json_data_bdd = res.json_data_bdd || null; // afficher les données retournées par l'API
-          return res;
-        }).catch(err => {
-          console.error('API error during import', err);
-          throw err; // rethrow pour être catché par le catch externe
-        });
-
+        // console.log('Envoi du FormData...');
+        
+        const response = await simple_fetch('POST', 'api/chasse/import/traitement-csv', formData);
+        console.log('Réponse brute de l\'API:', response);
+        this.traitement_journal(response);
+        // this.message = response.journal || 'Importation réussie.';
+        console.log('Réponse API:', response.journal);
+        this.uploading = false;
 
       } catch (err) {
-        console.error('Import CSV failed', err);
-        this.message = (err && err.message) ? err.message : 'Erreur lors de l\'import.';
+        console.error('Erreur lors de l\'import:', err);
+        this.message = err.message || 'Erreur lors de l\'import.';
         this.error = true;
+        this.uploading = false;
       } finally {
         this.uploading = false;
       }
+    },
+
+    traitement_journal(response) {
+      // parcours les lignes du journal pour remplir le dic reponse_affichee qui aura logo et message à chaque lignes.
+      // si la ligne contient [ERROR] on met un icone de croix rouge
+      // si la ligne contient [INFO] on met un icone de check vert
+      // si la ligne contient [FILE] on créé icone de fichier et nom_fichier_erreur prendra la valeur du nom du fichier d'erreur à télécharger
+      // message contiendra le message sans les tags [ERROR], [INFO] ou [FILE]
+
+      for (let log of response.journal) {
+        if (log.includes('[ERROR]')) {
+          this.reponse_affichee.push({ type: 'error', message: log.replace('[ERROR] ', '') });
+        } else if (log.includes('[INFO]')) {
+          this.reponse_affichee.push({ type: 'info', message: log.replace('[INFO] ', '') });
+        } else if (log.includes('[FILE]')) {
+          const fileName = log.replace('[FILE] ', '');
+          this.nom_fichier_erreur = fileName; // stocke le nom du fichier d'erreur pour afficher le bouton de téléchargement
+          this.reponse_affichee.push({ type: 'file', message: "Un fichier d'erreur a été généré." });
+          this.urlCSV(); // génère l'URL du fichier d'erreur à partir du nom du fichier fourni par le backend
+        }
+        
+      }
+      return this.reponse_affichee;
+
+    },
+
+
+
+    urlCSV() {
+      if (!this.nom_fichier_erreur) {
+        console.error('Aucun fichier d\'erreur disponible pour le téléchargement.');
+        return null;
+      }
+      this.url_fichier_erreur = url(`api/chasse/import/download-erreurs-csv/${this.nom_fichier_erreur}`).toString();
+      return this.url_fichier_erreur;
+    
     }
+
+
+
+
   },
 
-  computed: {
-    selectedSaison() {
-      // retourne la saison dont current=true pour mettre par défaut la saison en cours
-      if (this.saison) return this.saison;
-      const cur = this.saisons.find(s => s.current);
-      return cur ? cur.id_saison : null;
-    }
-  },
+  computed: {},
 
   mounted() {
       // récupérer les saisons disponibles via l'API
       apiRequest('GET', 'api/generic/chasse/saisons/').then(res => {
-        console.log('API response for saisons:', res);
+        // console.log('API response for saisons:', res);
         this.saisons = res.items || [];
-        // tri this saison par ordre décroissant d'id (du plus récent au plus ancien)
+        // tri des saisons par ordre décroissant d'id (du plus récent au plus ancien)
         this.saisons.sort((a, b) => b.id_saison - a.id_saison);
-        console.log('Saisons chargées', this.saisons);
+        // si aucune saison sélectionnée, définir la saison courante par défaut
+        if (!this.saison) {
+          const cur = this.saisons.find(s => s.current);
+          this.saison = cur ? cur.id_saison : (this.saisons.length ? this.saisons[0].id_saison : null);
+        }
+        // console.log('Saisons chargées', this.saisons);
       }).catch(err => {
         console.error('Failed to fetch saisons', err);
         this.saisons = [];

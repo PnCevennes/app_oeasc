@@ -245,8 +245,13 @@ pyjon-utils==0.7
     # via
     #   oeasc (setup.py)
     #   py3o-template
-pypn-ref-geo==1.5.5
+
+pyproj==3.7.2 # pour la transformation des coordonnées géographiques ws84 en lambert 93 (utilisé dans l'import de chasse)
     # via
+    #   oeasc (setup.py)
+
+pypn-ref-geo==1.5.5
+        # via
     #   oeasc (setup.py)
     #   taxhub
 pypnnomenclature==1.6.5
@@ -271,6 +276,9 @@ pytz==2025.2
     #   flask-babel
     #   oeasc (setup.py)
     #   pandas
+RapidFuzz==3.14.3 # pour reconnaitre les erreurs de saisies (utilsé dans l'import de chasse)
+    # via
+    #   oeasc (setup.py)
 requests==2.32.4
     # via
     #   oeasc (setup.py)

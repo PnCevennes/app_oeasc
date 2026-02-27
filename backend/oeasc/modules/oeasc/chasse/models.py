@@ -18,6 +18,7 @@ from sqlalchemy import (
     ForeignKey,
     func,
     exists,
+    select
 )
 
 from ..commons.models import TEspeces, TSecteurs, TNomenclaturesOeasc
@@ -282,6 +283,9 @@ class TRealisationsChasse(CustomModel):
         viewonly=True,
     )
 
+    cors_indetermine: Mapped[bool] = Column(Boolean)
+    long_mandibule_indetermine: Mapped[bool] = Column(Boolean)
+
     auteur_tir_str: Mapped[str] = Column(
         Unicode
     )  # champ texte libre pour l'auteur du tir
@@ -339,9 +343,11 @@ class TRealisationsChasse(CustomModel):
     nomenclature_classe_age: Mapped["TNomenclaturesOeasc"] = relationship(
         TNomenclaturesOeasc, foreign_keys=id_nomenclature_classe_age
     )
+    poid_indique: Mapped[bool] = Column(Boolean)
     poid_entier: Mapped[float] = Column(Float)
     poid_vide: Mapped[float] = Column(Float)
     poid_c_f_p: Mapped[float] = Column(Float)
+    parcelle_onf: Mapped[bool] = Column(Boolean)
     long_dagues_droite: Mapped[int] = Column(Integer)
     long_dagues_gauche: Mapped[int] = Column(Integer)
     long_mandibules_droite: Mapped[int] = Column(Integer)
@@ -357,12 +363,28 @@ class TRealisationsChasse(CustomModel):
     )
     commentaire: Mapped[str] = Column(Unicode)
 
+    id_numerisateur: Mapped[int] = Column(Integer) # id_role récupéré dans les sessions flask
+
+    meta_create_date: Mapped[DateTime] = Column(DateTime)
+    meta_update_date: Mapped[DateTime] = Column(DateTime)
+
 
 # Définition de la propriété de colonne après les définitions de classes pour éviter les références circulaires
-TAttributions.has_realisation = column_property(
-    exists().where(TRealisationsChasse.id_attribution == TAttributions.id_attribution)
-)
+# TAttributions.has_realisation = column_property(
+#     exists().where(TRealisationsChasse.id_attribution == TAttributions.id_attribution)
+# )
 
+# Colonne calculée renvoyant une seule valeur : la plus grande id_realisation pour l'attribution.
+# On utilise une sous-requête ordonnée + .limit(1) pour garantir une seule valeur retournée
+# (évite l'erreur SQL si plusieurs réalisations existent).
+TAttributions.id_realisation = column_property(
+    select(TRealisationsChasse.id_realisation)
+    .where(TRealisationsChasse.id_attribution == TAttributions.id_attribution) 
+    .order_by(TRealisationsChasse.id_realisation.desc())
+    .limit(1)
+    .correlate_except(TRealisationsChasse)
+    .scalar_subquery()
+)
 
 @serializable
 class VChasseBilan(CustomModel):

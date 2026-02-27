@@ -1,0 +1,2 @@
+espece,age,sexe,poids,pesee,type_chasse,date,commune,departement,longitude,latitude,commentaire,long_mandibules_droite,long_mandibules_gauche,cors_nb,long_dagues_gauche,long_dagues_droite,auteur_tir_str,lieu_tir_txt,numero,commentaires_erreurs
+CHEVREUIL,Adulte,Male,24.0,Vidé,Individuel,2025-11-30,ISPAGNAC,48.0,,,,,,,,,,,CHI001832,Le numéro de bracelet n'existe pas dans les attributions de la saison. Espèce du tir ne correspond pas à l'espèce du bracelet. 

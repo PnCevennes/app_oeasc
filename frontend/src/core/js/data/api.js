@@ -10,7 +10,7 @@ import { isObject } from "@/core/js/util/util.js";
  * Cet objet peut être enrichi avec des propriétés ou des méthodes selon les besoins de l'application.
  */
 const STORE = {};
-
+const BASE_URL = config.URL_APPLICATION;
 
 // initialisation de l'objet STORE
 for (const key of ["state", "mutations", "getters"]) {
@@ -234,4 +234,63 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
   return request;
 };
 
-export { apiRequest, url, fetchData, STORE };
+
+
+
+/**
+ * 
+ * @param {*} method => "GET", "POST", "PATCH", etc.
+ * @param {*} urlRelative => "api/v1/users", etc. 
+ * @param {*} body => Données à envoyer dans le corps de la requête (JSON ou FormData)
+ * @param {*} options => Options supplémentaires pour fetch (headers, etc.): ex: { headers: { Authorization: 'Bearer token' } }
+ * @returns => Promesse résolue avec les données JSON de la réponse
+ */
+
+
+const simple_fetch = async (method, urlRelative, body = null, options = {}) => {
+  const url = `${BASE_URL}${urlRelative}`;
+
+  const configRequest = {
+    method: method.toUpperCase(),
+    // Indispensable pour que Flask puisse lire/écrire le cookie de session
+    credentials: 'include', 
+    ...options,
+    headers: {
+      'Accept': 'application/json',
+      ...options.headers,
+    },
+  };
+
+  if (body) {
+    if (body instanceof FormData) {
+      configRequest.body = body;
+    } else {
+      configRequest.body = JSON.stringify(body);
+      configRequest.headers['Content-Type'] = 'application/json';
+    }
+  }
+
+  try {
+    const response = await fetch(url, configRequest);
+
+    if (response.status === 401) {
+      // Rediriger vers login si la session Flask a expiré
+      window.location.href = '/login';
+      return;
+    }
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || `Erreur: ${response.status}`);
+    }
+
+    return await response.json();
+
+  } catch (error) {
+    console.error('Erreur API:', error.message);
+    throw error;
+  }
+};
+
+
+export { apiRequest, url, fetchData, STORE, simple_fetch };
