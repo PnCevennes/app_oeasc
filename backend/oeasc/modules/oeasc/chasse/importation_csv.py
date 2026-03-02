@@ -1,65 +1,65 @@
+########################################################################################################
+################# TRAITEMENT DE L'IMPORTATION CSV DE GEOCHASSE AVEC PYTHON ET PANDAS  ##################
+########################################################################################################
+# fait un clean du csv exporté par geochasse, ( certaines colonnes sont décalées et d'autres sont inutiles)
+# récupère les attributions de la saison sélectionnée par l'utilisateur
+# fusionne le csv avec les attributions grâce au numéro de bracelet,
+# vérifie que les données sont cohérentes et complètes,
+# Cherche des correspondances pour les lieux de tir. 
+#   Les correspondances sont validées si elles sont dans la même Zi ou même commune
+#   Si une correspondance est trouvée dans la même ZC on ne la propose qu'en commentaire
+# Insert les nouvelles données puis fait une mise à jour des données existante
+# Créé un csv des lignes en erreur pour que l'utilisateur puisse les corriger.
+# retourne une apiResponse qui affichera toutes les étapes réussies ou échouées au frontend.
+
+
+##########################################################################################################
+################# POUR AMÉLIORER LA GESTION DES LIEUX DIT ################################################
+# Pour les lieux dits qui ont des correspondances dans la même commune, il faudrait faire une  buffer zone autour de la geometrie de la zi et vérifier si ça croise la geometrie des lieux dits trouvés en correspondance. Si ça croise, on peut considérer que c'est une correspondance valide, même si le nom n'est pas exactement le même.
+# Pour les lieux dits trouvés dans la même ZC, il faudrait vérifier que la geometrie de chaques correspondance se trouve proche autour de la geometrie de la ZI
+# Une fois traité, il faudrait enregistrer tous les nouveaux synonymes des lieux de tir
+
+
 import sys
 # ensure project root is on sys.path so `import config.config` works
 sys.path.append('/home/thibaut/appli/app_oeasc')
 sys.path.append('/home/thibaut/appli/app_oeasc/backend')
 from pathlib import Path
-import marshmallow
 
 from app import app
 
 # from utils_flask_sqla.generic import GenericTable
 # from flask import request, current_app, jsonify
 
-# from sqlalchemy.exc import SQLAlchemyError
 import numpy as np
 import pandas as pd
 import json
-import io
-import os
 import rapidfuzz as fuzz
 from pyproj import Transformer
 
 from marshmallow.exceptions import ValidationError
 
-from sqlalchemy import func, cast, select, Integer, join, exists
-from flask import request, current_app, session, jsonify
-# import models only inside application context
+from sqlalchemy import func, select
+from flask import request, current_app, session
 
 from oeasc.utils.apiResponse import ApiResponse
 
-from oeasc.modules.oeasc.commons.models import TEspeces, TSecteurs
-from oeasc.modules.oeasc.commons.schema import TEspecesSchema, TSecteursSchema
 from oeasc.ref_geo.models import BibAreasType, LAreas
-from oeasc.ref_geo.schema import BibAreasTypeSchema, LAreasSchema
-
 from oeasc.modules.oeasc.chasse.models import (
-    TSaisons,
     TAttributions,
-    TTypeBracelets,
-    TZoneCynegetiques,
     TZoneIndicatives,
-    TAttributionMassifs,
-    VPlanChasseRealisationBilan,
     TRealisationsChasse,
-    TLieuTirs,
-    TLieuTirSynonymes,
-    
+    TLieuTirSynonymes,  
 )
 from oeasc.modules.oeasc.chasse.schema import (
     TAttributionsSchema,
     TRealisationsChasseSchema,
-    TSaisonsSchema,
-    TTypeBraceletsSchema,
-    TLieuTirsSchema,
-    TZoneCynegetiquesSchema,
     TZoneIndicativesSchema,
-    TAttributionMassifsSchema,
-    VPlanChasseRealisationBilanSchema,
     TLieuTirSynonymesSchema
 )
 
-from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
-from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
+# from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
+# from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
 
 # Initialisation de l'ApiResponse pour stocker les messages, le journal de l'opération et les données à retourner à l'utilisateur.
 apiResponse = ApiResponse()
@@ -89,7 +89,6 @@ ERREUR_NOMS_COLONNES_GEOCHASSE = {
 }
 # Pour les mouflons l'age est un entier
 ERREUR_AGE = { "1" : "Adulte"}
-
 
 # On définit les id de nomenclatures et le lien entre les codes de bracelet et les especes en dur
 # Si il y a des changements majeurs dans la bdd , il faudra peut être les récupérer dynamiquement
@@ -140,8 +139,6 @@ COLUMNS_REALISATION = [
     'gestation', 'id_nomenclature_mode_chasse', 'commentaire', 'parcelle_onf', 'poid_indique', 'cors_indetermine',
     'long_mandibule_indetermine', 'id_numerisateur', 'meta_create_date', 'meta_update_date', 'id_nomenclature_categorie',
     'auteur_tir_str', 'auteur_constat_str'] 
-
-
 
 
 ####################################################################################
@@ -840,7 +837,6 @@ def etape__integration_zones_dans_df(df, apiResponse):
         apiResponse.add_error(system_error=str(e), user_message=user_message)
         return pd.DataFrame(), apiResponse
 
-
 def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
     """Retrouve les id_lieu_tir_synonyme correspondant au lieu dit de tir saisi dans le csv d'importation en comparant avec les lieux de tir synonymes de la base de données.
      La comparaison se fait en vérifiant que le nom du lieu dit saisi dans le csv correspond au nom_lieu_tir_synonyme dans la base de données
@@ -977,107 +973,112 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                 'nom_lieu_tir': df_lts.loc[(df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme), 'nom_lieu_tir'].values[0],
                                 'lattitude': row['latitude'],
                                 'longitude': row['longitude']}
+                            
                         else:
-                            # rien n'a été trouvé dans la même zone indicative, on élargit la recherche aux zones cynégétiques.
-                            # On recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même zone cynégétique que le tir réalisé
-                            id_zone_cynegetique_realisee = row['id_zone_cynegetique_realisee']
-                            df_result = df_lts.loc[((df_lts['id_zc_lieu_tir'] == id_zone_cynegetique_realisee) & (df_lts['nom_lieu_tir_synonyme'] == nom_parc_lieu_dit))]
+
+                            # rien n'a été trouvé dans la même zone indicative, on élargit la recherche à la commune.
+                            # on recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même commune que le lieu de tir réalisé
+                            id_commune = row['commune_id_area']
+                            df_result = df_lts.loc[((df_lts['id_area_commune_lieu_tir'] == id_commune) & (df_lts['nom_lieu_tir_synonyme'] == nom_parc_lieu_dit))]
                             if (df_result.shape[0] >= 1):
                                 # des nom exactes ont été trouvés on garde le premier résultat et on indique en commentaire les raisons.
                                 df.at[index, 'id_lieu_tir_synonyme'] = df_result.iloc[0]['id_lieu_tir_synonyme']
                                 df.at[index, 'nom_lieu_tir_synonyme'] = df_result.iloc[0]['nom_lieu_tir_synonyme_origin']
-                                df.at[index, 'commentaires_erreurs'] = f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la même ZC mais pas dans la ZI."
+                                df.at[index, 'commentaires_erreurs'] = f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la commune mais pas dans la ZI."
                                 # enregistrement de ce cas dans le dict de bilan de synonymes
                                 dict_bilan_synonymes[row['numero_bracelet']] = {
                                     'nom_lieu_csv': df.at[index, 'save_lieu_dit'],
                                     'correspondance': df_result.iloc[0]['nom_lieu_tir_synonyme_origin'],
                                     'id_correspondance': df_result.iloc[0]['id_lieu_tir_synonyme'],
-                                    'type_correspondance': "EXACTE_ZC",
-                                    'raison': "Nom exact retrouvé dans la ZC",
+                                    'type_correspondance': "EXACTE_COMMUNE",
+                                    'raison': "Nom exact retrouvé dans la commune",
                                     'id_zone_indicative_realisee': id_zone_indicative_realisee,
                                     'id_zone_cynegetique_realisee': id_zone_cynegetique_realisee,
-                                    'id_commune': row['commune_id_area'],
+                                    'id_commune': id_commune,
                                     'id_lieu_tir': df_result.iloc[0]['id_lieu_tir'],
                                     'nom_lieu_tir': df_result.iloc[0]['nom_lieu_tir'],
                                     'lattitude': row['latitude'],
                                     'longitude': row['longitude']}
-
                             else:
-                                # Pas de nom exact retrouvé dans la même zone cynégétique, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires dans la même zone cynégétique
-                                liste_nom_lieu_tir_synonyme_in_zc = df_lts.loc[df_lts['id_zc_lieu_tir'] == id_zone_cynegetique_realisee]['nom_lieu_tir_synonyme'].tolist()
-                                if liste_nom_lieu_tir_synonyme_in_zc:
-                                    resultat = fuzz.process.extractOne(nom_parc_lieu_dit, liste_nom_lieu_tir_synonyme_in_zc, scorer=fuzz.fuzz.ratio)
+                                # pas de nom exact retrouvé dans la même commune, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires dans la même commune
+                                liste_nom_lieu_tir_synonyme_in_commune = df_lts.loc[df_lts['id_area_commune_lieu_tir'] == id_commune]['nom_lieu_tir_synonyme'].tolist()
+                                if liste_nom_lieu_tir_synonyme_in_commune:
+                                    resultat = fuzz.process.extractOne(nom_parc_lieu_dit, liste_nom_lieu_tir_synonyme_in_commune, scorer=fuzz.fuzz.ratio)
                                     if resultat[1] >= SCORE_MINIMUM_RAPIDFUZZ:
-                                        # si un resultat a été trouvé avec un score de similarité suffisant, On le prend
+                                        # des résultats similaires ont été trouvés, on les prend.
                                         meilleur_match = resultat[0]
-                                        id_new_lieu_tir_synonyme = df_lts.loc[((df_lts['nom_lieu_tir_synonyme'] == meilleur_match) & (df_lts['id_zc_lieu_tir'] == id_zone_cynegetique_realisee)), 'id_lieu_tir_synonyme'].values[0]
+                                        id_new_lieu_tir_synonyme = df_lts.loc[((df_lts['nom_lieu_tir_synonyme'] == meilleur_match) & (df_lts['id_area_commune_lieu_tir'] == id_commune)), 'id_lieu_tir_synonyme'].values[0]
                                         df.at[index, 'id_lieu_tir_synonyme'] = id_new_lieu_tir_synonyme
-                                        df.at[index, 'nom_lieu_tir_synonyme'] = df_lts.loc[(df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme), 'nom_lieu_tir_synonyme_origin'].values[0]
-                                        df.at[index, 'commentaires_erreurs'] += f"Lieu tir {nom_save_lieu_dit}: Nom similaire trouvé dans la ZC: {meilleur_match}  mais pas dans la ZI."
+                                        df.at[index, 'nom_lieu_tir_synonyme'] = df_lts.loc[df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme, 'nom_lieu_tir_synonyme_origin'].values[0]
+                                        df.at[index, 'commentaires_erreurs'] += f" Lieu tir {nom_save_lieu_dit}: Nom similaire trouvé dans la commune: {meilleur_match}  mais pas dans la ZI. "
                                         # enregistrement de ce cas dans le dict de bilan de synonymes
                                         dict_bilan_synonymes[row['numero_bracelet']] = {
                                             'nom_lieu_csv': df.at[index, 'save_lieu_dit'],
                                             'correspondance': df.at[index, 'nom_lieu_tir_synonyme'],
                                             'id_correspondance': df.at[index, 'id_lieu_tir_synonyme'],
-                                            'type_correspondance': "SIMILAIRE_ZC",
-                                            'raison': "Nom similaire retrouvé dans la ZC",
+                                            'type_correspondance': "SIMILAIRE_COMMUNE",
+                                            'raison': "Nom similaire retrouvé dans la commune",
                                             'id_zone_indicative_realisee': id_zone_indicative_realisee,
                                             'id_zone_cynegetique_realisee': id_zone_cynegetique_realisee,
-                                            'id_commune': row['commune_id_area'],
-                                            'id_lieu_tir': df_lts.loc[(df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme), 'id_lieu_tir'].values[0],
-                                            'nom_lieu_tir': df_lts.loc[(df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme), 'nom_lieu_tir'].values[0],
+                                            'id_commune': id_commune,
+                                            'id_lieu_tir': df_lts.loc[df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme, 'id_lieu_tir'].values[0],
+                                            'nom_lieu_tir': df_lts.loc[df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme, 'nom_lieu_tir'].values[0],
                                             'lattitude': row['latitude'],
                                             'longitude': row['longitude']}
+
                                     else:
-                                        # rien n'a été trouvé dans la même zone cynégétique, on élargit la recherche à la commune.
-                                        # on recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même commune que le lieu de tir réalisé
-                                        id_commune = row['commune_id_area']
-                                        df_result = df_lts.loc[((df_lts['id_area_commune_lieu_tir'] == id_commune) & (df_lts['nom_lieu_tir_synonyme'] == nom_parc_lieu_dit))]
+
+                                        # rien n'a été trouvé dans la même commune, on élargit la recherche aux zones cynégétiques.
+                                        # On recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même zone cynégétique que le tir réalisé
+                                        id_zone_cynegetique_realisee = row['id_zone_cynegetique_realisee']
+                                        df_result = df_lts.loc[((df_lts['id_zc_lieu_tir'] == id_zone_cynegetique_realisee) & (df_lts['nom_lieu_tir_synonyme'] == nom_parc_lieu_dit))]
                                         if (df_result.shape[0] >= 1):
                                             # des nom exactes ont été trouvés on garde le premier résultat et on indique en commentaire les raisons.
-                                            df.at[index, 'id_lieu_tir_synonyme'] = df_result.iloc[0]['id_lieu_tir_synonyme']
-                                            df.at[index, 'nom_lieu_tir_synonyme'] = df_result.iloc[0]['nom_lieu_tir_synonyme_origin']
-                                            df.at[index, 'commentaires_erreurs'] = f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la commune mais pas dans la ZI."
+                                            df.at[index, 'id_lieu_tir_synonyme'] = None
+                                            df.at[index, 'nom_lieu_tir_synonyme'] = None
+                                            df.at[index, 'commentaires_erreurs'] = f"Lieu tir {nom_save_lieu_dit} déclaré: Un même lieu dit a été trouvé dans la même ZC mais pas dans la ZI."
                                             # enregistrement de ce cas dans le dict de bilan de synonymes
                                             dict_bilan_synonymes[row['numero_bracelet']] = {
                                                 'nom_lieu_csv': df.at[index, 'save_lieu_dit'],
                                                 'correspondance': df_result.iloc[0]['nom_lieu_tir_synonyme_origin'],
                                                 'id_correspondance': df_result.iloc[0]['id_lieu_tir_synonyme'],
-                                                'type_correspondance': "EXACTE_COMMUNE",
-                                                'raison': "Nom exact retrouvé dans la commune",
+                                                'type_correspondance': "EXACTE_ZC",
+                                                'raison': "Nom exact retrouvé dans la ZC",
                                                 'id_zone_indicative_realisee': id_zone_indicative_realisee,
                                                 'id_zone_cynegetique_realisee': id_zone_cynegetique_realisee,
-                                                'id_commune': id_commune,
+                                                'id_commune': row['commune_id_area'],
                                                 'id_lieu_tir': df_result.iloc[0]['id_lieu_tir'],
                                                 'nom_lieu_tir': df_result.iloc[0]['nom_lieu_tir'],
                                                 'lattitude': row['latitude'],
                                                 'longitude': row['longitude']}
+
                                         else:
-                                            # pas de nom exact retrouvé dans la même commune, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires dans la même commune
-                                            liste_nom_lieu_tir_synonyme_in_commune = df_lts.loc[df_lts['id_area_commune_lieu_tir'] == id_commune]['nom_lieu_tir_synonyme'].tolist()
-                                            if liste_nom_lieu_tir_synonyme_in_commune:
-                                                resultat = fuzz.process.extractOne(nom_parc_lieu_dit, liste_nom_lieu_tir_synonyme_in_commune, scorer=fuzz.fuzz.ratio)
+                                            # Pas de nom exact retrouvé dans la même zone cynégétique, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires dans la même zone cynégétique
+                                            liste_nom_lieu_tir_synonyme_in_zc = df_lts.loc[df_lts['id_zc_lieu_tir'] == id_zone_cynegetique_realisee]['nom_lieu_tir_synonyme'].tolist()
+                                            if liste_nom_lieu_tir_synonyme_in_zc:
+                                                resultat = fuzz.process.extractOne(nom_parc_lieu_dit, liste_nom_lieu_tir_synonyme_in_zc, scorer=fuzz.fuzz.ratio)
                                                 if resultat[1] >= SCORE_MINIMUM_RAPIDFUZZ:
-                                                    # des résultats similaires ont été trouvés, on les prend.
+                                                    # si un resultat a été trouvé avec un score de similarité suffisant, On le prend
                                                     meilleur_match = resultat[0]
-                                                    id_new_lieu_tir_synonyme = df_lts.loc[((df_lts['nom_lieu_tir_synonyme'] == meilleur_match) & (df_lts['id_area_commune_lieu_tir'] == id_commune)), 'id_lieu_tir_synonyme'].values[0]
-                                                    df.at[index, 'id_lieu_tir_synonyme'] = id_new_lieu_tir_synonyme
-                                                    df.at[index, 'nom_lieu_tir_synonyme'] = df_lts.loc[df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme, 'nom_lieu_tir_synonyme_origin'].values[0]
-                                                    df.at[index, 'commentaires_erreurs'] += f" Lieu tir {nom_save_lieu_dit}: Nom similaire trouvé dans la commune: {meilleur_match}  mais pas dans la ZI. "
+                                                    id_new_lieu_tir_synonyme = df_lts.loc[((df_lts['nom_lieu_tir_synonyme'] == meilleur_match) & (df_lts['id_zc_lieu_tir'] == id_zone_cynegetique_realisee)), 'id_lieu_tir_synonyme'].values[0]
+                                                    df.at[index, 'id_lieu_tir_synonyme'] = None # trop de risque de se tromper.
+                                                    df.at[index, 'nom_lieu_tir_synonyme'] = None # trop de risque de se tromper, on laisse la valeur à None mais on indique dans le commentaire
+                                                    df.at[index, 'commentaires_erreurs'] += f"Lieu tir {nom_save_lieu_dit} déclaré: Nom similaire trouvé dans la ZC: {meilleur_match}  mais pas dans la ZI."
                                                     # enregistrement de ce cas dans le dict de bilan de synonymes
                                                     dict_bilan_synonymes[row['numero_bracelet']] = {
                                                         'nom_lieu_csv': df.at[index, 'save_lieu_dit'],
-                                                        'correspondance': df.at[index, 'nom_lieu_tir_synonyme'],
-                                                        'id_correspondance': df.at[index, 'id_lieu_tir_synonyme'],
-                                                        'type_correspondance': "SIMILAIRE_COMMUNE",
-                                                        'raison': "Nom similaire retrouvé dans la commune",
+                                                        'correspondance': df_lts.loc[(df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme), 'nom_lieu_tir_synonyme_origin'].values[0],
+                                                        'id_correspondance': id_new_lieu_tir_synonyme,
+                                                        'type_correspondance': "SIMILAIRE_ZC",
+                                                        'raison': "Nom similaire retrouvé dans la ZC",
                                                         'id_zone_indicative_realisee': id_zone_indicative_realisee,
                                                         'id_zone_cynegetique_realisee': id_zone_cynegetique_realisee,
-                                                        'id_commune': id_commune,
-                                                        'id_lieu_tir': df_lts.loc[df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme, 'id_lieu_tir'].values[0],
-                                                        'nom_lieu_tir': df_lts.loc[df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme, 'nom_lieu_tir'].values[0],
+                                                        'id_commune': row['commune_id_area'],
+                                                        'id_lieu_tir': df_lts.loc[(df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme), 'id_lieu_tir'].values[0],
+                                                        'nom_lieu_tir': df_lts.loc[(df_lts['id_lieu_tir_synonyme'] == id_new_lieu_tir_synonyme), 'nom_lieu_tir'].values[0],
                                                         'lattitude': row['latitude'],
                                                         'longitude': row['longitude']}
+                                                
                                                 else:
                                                     # Aucune similarité suffisante n'a été trouvée même dans la même commune, on considère que le lieu de tir n'a pas été retrouvé et on ajoute un commentaire d'erreur pour indiquer qu'aucun lieu de tir synonyme n'a été trouvé pour ce lieu dit de tir saisi dans le csv. On enregistre aussi ce cas dans le dict de bilan des synonymes pour pouvoir ajouter ce lieu dit comme synonyme à l'avenir dans la base de données des lieux de tir synonymes en indiquant les zones et la commune associées pour faciliter le travail de l'équipe technique.
                                                     # C'est soit une erreur de saisie soit un lieu dit qui n'existe pas dans la base de données et qui pourrait être ajouté comme synonyme à l'avenir si c'est un lieu dit qui existe mais qui a été mal saisi.
@@ -1105,9 +1106,6 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
         apiResponse.add_log(message=user_message, type_log="ERROR")
         apiResponse.add_error(system_error=str(e), user_message=user_message)
         return pd.DataFrame(), apiResponse, {}
-
-
-
 
 def etape__insert_new_realisations(df, apiResponse):
     """ Vérifie la validité de chaque ligne avant de les insérer dans la base de données. On enregistre en bdd les lignes valides.
@@ -1148,7 +1146,7 @@ def etape__insert_new_realisations(df, apiResponse):
                 DB.session.commit()
                 apiResponse.add_log( message=f"{len(lignes_valides)} lignes insérées avec succès.", type_log="INFO")
             else:
-                apiResponse.add_log( message="0 ligne insérée. ", type_log="WARNING")
+                apiResponse.add_log( message="0 ligne insérée. ", type_log="INFO")
 
             # 3. DataFrame des lignes invalides. Seulement celles qui viennent d'être mise à False.
             df_invalides = df_insert.loc[(df_insert['valide'] == False)].copy()
@@ -1156,13 +1154,13 @@ def etape__insert_new_realisations(df, apiResponse):
             if df_invalides.shape[0] > 0:
                 # Si des erreurs de validation ont été trouvées, on les ajoute au dataframe des erreurs d'insertion.
                 df_insert_erreurs = pd.concat([df_insert_erreurs, df_invalides], ignore_index=True)
-                apiResponse.add_log( message=f" {df_invalides.shape[0]} lignes invalides.", type_log="WARNING")
+                apiResponse.add_log( message=f" {df_invalides.shape[0]} lignes invalides.", type_log="ERROR")
 
         else:
             apiResponse.add_log( message="0 nouvelle réalisation à insérer.", type_log="INFO" )
         
         if nb_erreurs > 0:
-            apiResponse.add_log( message=f" {nb_erreurs} erreur(s) dans le csv pour l'insertion", type_log="WARNING")
+            apiResponse.add_log( message=f" {nb_erreurs} erreur(s) dans le csv pour l'insertion", type_log="ERROR")
         else:
             apiResponse.add_log( message="Aucune erreur dans le csv pour l'insertion", type_log="INFO")
 
@@ -1226,7 +1224,10 @@ def etape__update_realisations(df, apiResponse):
                 DB.session.commit()
 
         apiResponse.add_log(message=f"{nb_updates} réalisations mises à jour avec succès.", type_log="INFO")
-        apiResponse.add_log(message=f"{nb_erreurs} erreur(s) venant du csv", type_log="INFO")
+        if nb_erreurs > 0:   
+            apiResponse.add_log(message=f"{nb_erreurs} erreur(s) venant du csv", type_log="ERROR")
+        else:
+            apiResponse.add_log(message="Aucune erreur venant du csv pour la mise à jour", type_log="INFO")
 
 
         if len(liste_id_erreurs) > 0:
@@ -1242,8 +1243,6 @@ def etape__update_realisations(df, apiResponse):
         apiResponse.add_error(system_error=str(e), user_message=user_message)
         apiResponse.add_log(message=user_message, type_log="ERROR")
         return apiResponse, pd.DataFrame()
-
-
 
 def etape__creation_dataframe_erreurs(df_original, df_insert_erreurs, df_update_erreurs, apiResponse):
     try:
@@ -1283,7 +1282,6 @@ def etape__creation_dataframe_erreurs(df_original, df_insert_erreurs, df_update_
         apiResponse.add_error(system_error=str(e), user_message=user_message)
         return pd.DataFrame(), apiResponse
     
-
 def etape__remplissage_commentaires(df, apiResponse):
     """ On ajoute aux commentaires des lignes valides les commentaires d'erreurs."""
     try:
@@ -1297,30 +1295,7 @@ def etape__remplissage_commentaires(df, apiResponse):
         apiResponse.add_log(message=user_message, type_log="ERROR")
         apiResponse.add_error(system_error=str(e), user_message=user_message)
         return pd.DataFrame(), apiResponse
-
-
-
-def traitement_bilan_correspondances_lieux_dits_synonymes(dict_bilan_synonymes, apiResponse):
-    """Traite le dict de bilan des correspondances entre les lieux dits saisis dans le csv et les lieux de tir synonymes de la base de données pour préparer un bilan à l'utilisateur et pour préparer les données à ajouter à la base de données des lieux de tir synonymes à l'avenir.
-    Le dict de bilan des correspondances contient pour chaque numéro de bracelet: nom_lieu_csv, correspondance, id_correspondance, raison, id_zone_indicative_realisee, id_zone_cynegetique_realisee, id_commune, id_lieu_tir, nom_lieu_tir, latitude, longitude
-    On prépare un dataframe à partir de ce dict qui contiendra les mêmes informations et qui pourra être utilisé pour faire un bilan à l'utilisateur et pour préparer les données à ajouter à la base de données des lieux de tir synonymes à l'avenir.
-    """
     
-    # il faudrait enregistrer en bdd tous les nouveaux synonymes trouvé.
-    try:
-        df_bilan = pd.DataFrame.from_dict(dict_bilan_synonymes, orient='index')
-        df_bilan = df_bilan.reset_index().rename(columns={'index': 'numero_bracelet'})
-        return df_bilan, apiResponse
-    
-    
-    except Exception as e:
-        user_message = "Une erreur est survenue lors du traitement du bilan des correspondances entre les lieux dits saisis dans le csv et les lieux de tir synonymes de la base de données. Veuillez vérifier que le fichier est au bon format et réessayer."
-        apiResponse.add_log(message=user_message, type_log="ERROR")
-        apiResponse.add_error(system_error=str(e), user_message=user_message)
-        return pd.DataFrame(), apiResponse
-    
-
-
 
 ################################################################################################
 ####################      FONCTION PRINCIPALE DE TRAITEMENT DE L'IMPORT CSV     ################
@@ -1334,8 +1309,6 @@ def traitement_import_realisation_chasse(path_csv, id_saison, update):
         update = True
     elif (update == "false"):
         update = False
-
-
 
     apiResponse = initialisation_apiResponse()
     if apiResponse.success == False:
@@ -1391,7 +1364,7 @@ def traitement_import_realisation_chasse(path_csv, id_saison, update):
     # enregiste les logs dans un fichier
     apiResponse.write_in_log_file()
     
-    apiResponse.print_all()
+    # apiResponse.print_all()
     # print (df)
     
     return apiResponse

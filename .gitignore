@@ -7,6 +7,7 @@ data/csv/ref_geo
 remove/
 *.pyc
 venv/
+venv2/
 var/log/error*
 settings.ini
 config/settings.ini_*

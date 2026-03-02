@@ -1,0 +1,15 @@
+[2026-02-27T17:19:05.132903] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-02-27 17:19:05.
+[2026-03-02T09:30:46.928287] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-02 09:30:46.
+[2026-03-02T10:23:58.779218] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-02 10:23:58.
+[2026-03-02T11:21:32.318371] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-02 11:21:32.
+[INFO] 0 nouvelle réalisation à insérer.
+[WARNING]  1 erreur(s) dans le csv pour l'insertion
+[INFO] 570 réalisations mises à jour avec succès.
+[INFO] 0 erreur(s) venant du csv
+[FILE] 2026-03-02_11-21-40_erreurs_import_geochasse.csv
+[2026-03-02T11:26:46.853898] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-02 11:26:46.
+[INFO] 0 nouvelle réalisation à insérer.
+[ERROR]  1 erreur(s) dans le csv pour l'insertion
+[INFO] 570 réalisations mises à jour avec succès.
+[INFO] Aucune erreur venant du csv pour la mise à jour
+[FILE] 2026-03-02_11-26-54_erreurs_import_geochasse.csv

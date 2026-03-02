@@ -54,6 +54,7 @@ class TZoneCynegetiques(CustomModel):
     secteur: Mapped["TSecteurs"] = relationship(TSecteurs, foreign_keys=id_secteur)
 
 
+
 @serializable
 @geoserializable  # pour serialiser geom
 class TZoneIndicatives(CustomModel):
