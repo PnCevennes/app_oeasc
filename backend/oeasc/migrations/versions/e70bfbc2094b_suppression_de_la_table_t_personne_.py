@@ -52,7 +52,6 @@ def downgrade():
     );"""
     op.execute(sql)
 
-
     # creation de la colonne id_auteur_tir dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
         ADD COLUMN IF NOT EXISTS id_auteur_tir INTEGER;"""

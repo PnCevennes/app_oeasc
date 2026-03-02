@@ -5,19 +5,19 @@ Revises: e70bfbc2094b
 Create Date: 2026-02-13 17:01:31.369981
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
-
 # revision identifiers, used by Alembic.
-revision = '42abbaaa4dbb'
-down_revision = 'e70bfbc2094b'
+revision = "42abbaaa4dbb"
+down_revision = "e70bfbc2094b"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    
+
     # ajout du champ lieu_tir_txt dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
         ADD COLUMN IF NOT EXISTS lieu_tir_txt VARCHAR(255);"""

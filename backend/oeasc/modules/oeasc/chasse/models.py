@@ -18,7 +18,7 @@ from sqlalchemy import (
     ForeignKey,
     func,
     exists,
-    select
+    select,
 )
 
 from ..commons.models import TEspeces, TSecteurs, TNomenclaturesOeasc
@@ -52,7 +52,6 @@ class TZoneCynegetiques(CustomModel):
         Integer, ForeignKey("oeasc_commons.t_secteurs.id_secteur")
     )
     secteur: Mapped["TSecteurs"] = relationship(TSecteurs, foreign_keys=id_secteur)
-
 
 
 @serializable
@@ -364,7 +363,9 @@ class TRealisationsChasse(CustomModel):
     )
     commentaire: Mapped[str] = Column(Unicode)
 
-    id_numerisateur: Mapped[int] = Column(Integer) # id_role récupéré dans les sessions flask
+    id_numerisateur: Mapped[int] = Column(
+        Integer
+    )  # id_role récupéré dans les sessions flask
 
     meta_create_date: Mapped[DateTime] = Column(DateTime)
     meta_update_date: Mapped[DateTime] = Column(DateTime)
@@ -380,12 +381,13 @@ class TRealisationsChasse(CustomModel):
 # (évite l'erreur SQL si plusieurs réalisations existent).
 TAttributions.id_realisation = column_property(
     select(TRealisationsChasse.id_realisation)
-    .where(TRealisationsChasse.id_attribution == TAttributions.id_attribution) 
+    .where(TRealisationsChasse.id_attribution == TAttributions.id_attribution)
     .order_by(TRealisationsChasse.id_realisation.desc())
     .limit(1)
     .correlate_except(TRealisationsChasse)
     .scalar_subquery()
 )
+
 
 @serializable
 class VChasseBilan(CustomModel):

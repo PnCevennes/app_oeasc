@@ -5,7 +5,8 @@ fichier server app oeasc
 ##########################
 import sys
 import os
-base_path = os.path.abspath(os.path.join(os.getcwd(), '..'))
+
+base_path = os.path.abspath(os.path.join(os.getcwd(), ".."))
 # sys.path.append(os.path.join(base_path, 'config'))
 sys.path.append(base_path)
 # sys.path.append(os.path.join(base_path, 'backend'))
@@ -31,9 +32,9 @@ from flask_mail import Mail
 
 # permet de définir des actions apres l'enregistrement d'un utilisateur (envoi de mail, ...)
 from pypnusershub.env import REGISTER_POST_ACTION_FCT
-# import config.config as cfg
-import config.config as cfg #en prod 
 
+# import config.config as cfg
+import config.config as cfg  # en prod
 
 #######################################################################################
 ############## AFFICHAGE DES MESSAGES D'ERREURS ET WARNING ############################
