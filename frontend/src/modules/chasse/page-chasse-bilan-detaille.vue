@@ -35,7 +35,11 @@
         Graphique principal du bilan de chasse.
         Utilise les paramètres sélectionnés dans bilanParams.
       -->
-      <graph-chasse v-bind="bilanParams" type="bilan"> </graph-chasse>
+      <!-- <graph-chasse v-bind="bilanParams" type="bilan"> </graph-chasse> -->
+      <graph_bilan_evolution :bilanParams="bilanParams"> </graph_bilan_evolution>
+
+
+
 
       <!-- Graphiques complémentaires -->
 
@@ -45,24 +49,16 @@
         Utilisés pour analyser la structure des prélèvements.
       -->
       <v-row style="min-height: 400px;">
-        <!-- <v-col>
-          <restitution2 display="graph" fieldName="label_sexe" dataType="chasse" typeGraph="pie"
-            title="Part des sexes" :filters="{ ...bilanParams }"></restitution2>
-        </v-col> -->
-        <!-- <v-col>
-          <restitution2 display="graph" fieldName="label_classe_age" dataType="chasse"
-            typeGraph="pie" title="Part des classes d'âge" :filters="{ ...bilanParams }">
-          </restitution2>
-        </v-col> -->
+
         <v-col style="width: 70%">
-          <camembert :data_db="data_cam_sexe_age" fieldName="text" fieldValue="count"
+          <camembert :data_db="data_cam_sexe_age" fieldName="text" fieldValue="count" :code_couleurs="code_couleurs_repartition_sexe_age"
             title="Répartition par sexe et âge"></camembert>
         </v-col>
-        <v-col>
-          <restitution2 display="graph" fieldName="label_mode_chasse" dataType="chasse"
-            typeGraph="pie" title="Part des modes de chasse" :filters="{ ...bilanParams }">
-          </restitution2>
+        <v-col style="width: 70%">
+          <camembert :data_db="data_part_mode_chasse" fieldName="text" fieldValue="count"
+            title="Répartition par mode de chasse"></camembert>
         </v-col>
+
       </v-row>
 
       <!--
@@ -70,17 +66,16 @@
         Premier graphique : chronologie pour la saison sélectionnée.
         Deuxième graphique : chronologie sur les 5 dernières saisons.
       -->
+
       <v-row>
         <v-col>
-          <restitution2 display="graph" fieldName="mois_txt" dataType="chasse" typeGraph="line"
-            :title="`Chronologie des prélèvements (Saison ${infos.nom_saison})`"
-            :filters="{ ...bilanParams }"></restitution2>
+          <graph_lignes_multiples :data_db="data_chronologie_prelevement" field_x="mois" field_y="nb_realisations" fields_line="nom_saison" 
+            :title="`Chronologie des prélèvements (${nb_saison_chronologie} dernières saisons)`"
+            ></graph_lignes_multiples>
         </v-col>
-        <v-col>
-          <restitution2 display="graph" fieldName2="nom_saison" fieldName="mois_txt"
-            dataType="chasse" typeGraph="line"
-            :title="`Chronologie des prélèvements (5 dernières saisons)`"
-            :filters="{ ...bilanParams, id_saison: infos.last_5_id_saison }"></restitution2>
+        <!-- ajout d'un mini formulaire pour modifier nb_saison_chronologie  -->
+        <v-col style="max-width: 300px; min-width: 200px;">
+          <v-text-field v-model="nb_saison_chronologie" label="Nombre de saisons à afficher" type="number" min="1" max="10"></v-text-field>
         </v-col>
       </v-row>
 
@@ -88,13 +83,20 @@
         Section spécifique pour l'espèce "Cerf".
         Affiche des graphiques supplémentaires par catégorie de bracelet.
       -->
-      <div v-if="infos.nom_espece == 'Cerf'">
-        <h2>Résultats par catégories</h2>
+      <!-- <div v-if="infos.nom_espece == 'Cerf'"> -->
+      <div>
+        <!-- <h2>Résultats par catégories</h2> -->
         <v-row>
+          
+          <v-col style="width: 70%">
+            <camembert :data_db="data_count_realisations_par_type_de_bracelet" fieldName="type_bracelet" fieldValue="nb_bracelet"
+              title="Prélèvements par type de bracelet"></camembert>
+          </v-col>
           <v-col>
-            <restitution2 display="graph" fieldName="bracelet" dataType="chasse" typeGraph="pie"
-              :title="`Prélèvements par type de bracelet`" :filters="{ ...bilanParams }">
-            </restitution2>
+            <histogramme_comparatif :data_db="data_nbRealisations_vs_nbAttributions" 
+              fieldGroup="type_bracelet" :listfieldValues="['nb_attributions', 'nb_realisations']"
+              nameGroup=" Type de bracelets" :listNameValues="['nb Attributions', 'nb Réalisations']"
+              title="Comparatif des prélèvements par type de bracelet"></histogramme_comparatif>
           </v-col>
         </v-row>
         <v-row>
@@ -107,7 +109,9 @@
             </graph-chasse>
           </v-col>
         </v-row>
-        <v-row>
+
+
+        <!-- <v-row>
           <v-col>
             <restitution2 display="graph" fieldName2="bracelet" fieldName="mois_txt"
               dataType="chasse" typeGraph="column" :stacking="true"
@@ -121,14 +125,14 @@
               :title="`Répartition par mode de chasse  et par catégorie`"
               :filters="{ ...bilanParams }"></restitution2>
           </v-col>
-        </v-row>
+        </v-row> -->
 
         <v-row>
           <!--
             Graphiques circulaires pour la répartition par classe d'âge,
             séparés pour chaque type de bracelet (CEM et CEFF).
           -->
-          <v-col>
+          <!-- <v-col>
             <restitution2 display="graph" fieldName="label_classe_age" dataType="chasse"
               typeGraph="pie" :title="`Part des classes d'âge (CEM)`"
               :filters="{ ...bilanParams, bracelet: ['CEM'] }"></restitution2>
@@ -137,7 +141,7 @@
             <restitution2 display="graph" fieldName="label_classe_age" dataType="chasse"
               typeGraph="pie" :title="`Part des classes d'âge (CEFF)`"
               :filters="{ ...bilanParams, bracelet: ['CEFF'] }"></restitution2>
-          </v-col>
+          </v-col> -->
         </v-row>
 
       </div>
@@ -153,20 +157,26 @@ import genericForm from "@/components/form/generic-form.vue";
 import graphChasse from "./graph-chasse.vue";
 import restitution2 from "@/modules/restitution2/restitution.vue";
 import camembert from "../../components/graph/camembert.vue";
+import graph_lignes_multiples from "../../components/graph/graph_lignes_multiples.vue";
+import graph_bilan_evolution from "./graph/graph_bilan_evolution.vue";
 import { apiRequest } from "@/core/js/data/api.js";
+import histogramme_comparatif from "../../components/graph/histogramme_comparatif.vue";
 
 
 // Modification de highcharts pour permettre l'export des graphiques
 exportingInit(Highcharts); // initialise le module export, doit être fait après l'import de highcharts
 offlineExporting(Highcharts); // initialise l'export coté client, doit être fait après l'import de highcharts
 
+
+
+
 export default {
   name: "pageChasseBilanDetaille",
-  components: { genericForm, graphChasse, restitution2, camembert },
+  components: { genericForm, graphChasse, restitution2, camembert, graph_bilan_evolution, graph_lignes_multiples, histogramme_comparatif },
 
   // Déclaration des données réactives du composant
   data: () => ({
-    // Paramètres de filtre pour le bilan, liés au formulaire générique
+    // Paramètres de filtre pour les requêtes. Correspond au formulaire en haut de page (saison, espèce, secteur, zone, etc.)
     bilanParams: {
       id_espece: null,             // Identifiant de l'espèce sélectionnée
       espece: null,                // Nom de l'espèce (optionnel, parfois utilisé pour affichage)
@@ -175,9 +185,38 @@ export default {
       id_secteur: [],              // Liste des secteurs sélectionnés
       id_saison: null              // Identifiant de la saison sélectionnée
     },
+    nb_saison_chronologie: 5, // Nombre de saisons à afficher dans le graphique de chronologie des prélèvements
     // Informations détaillées du bilan, récupérées depuis l'API après sélection des filtres
     infos: {},
-    data_cam_sexe_age: null
+    data_bilan_principal: null, // histogramme bilan principal
+    data_cam_sexe_age: null, // camembert sexe/age
+    data_part_mode_chasse: null, // camembert part mode de chasse
+    data_chronologie_prelevement: null, // graph multi-lignes chronologie des prélèvements
+    data_count_realisations_par_type_de_bracelet: null, // graph multi-lignes chronologie des prélèvements par type de bracelet
+    data_nbRealisations_vs_nbAttributions: null, // histogramme comparatif nb réalisations vs nb attributions
+
+    code_couleurs_repartition_sexe_age: {
+      // Mâles (tons bleus) — plus jeune = ton plus clair
+      "Mâle - Adulte": "#528adf",        // bleu foncé
+      "Mâle - Sub-adulte": "#5cabeb",    // bleu moyen
+      "Mâle - Juvénile": "#90CAF9",        // bleu clair
+      "Mâle - Inconnu": "#a9cdeb",   // cas particulier, ton intermédiaire
+
+      // Femelles (tons rose) — plus jeune = ton plus clair
+      "Femelle - Adulte": "#e470a2",     // rose foncé
+      "Femelle - Sub-adulte": "#d86d91", // rose moyen
+      "Femelle - Juvénile": "#F8BBD0",   // rose clair
+      "Femelle - Inconnu": "#e6cad5",// ton intermédiaire
+
+      // Indéterminés (tons gris) — plus jeune = ton plus clair
+      "Indéterminé - Adulte": "#424242",      // gris foncé
+      "Indéterminé - Sub-adulte": "#9E9E9E",  // gris moyen
+      "Indéterminé - Juvénile": "#E0E0E0",    // gris clair
+      "Indéterminé - Indéterminé": "#9E9E9E", // ton intermédiaire
+    }
+
+  
+  
   }),
 
   watch: {
@@ -186,7 +225,14 @@ export default {
       handler() {
         this.recuperation_data(this.bilanParams);
       }
-    }
+    },
+      nb_saison_chronologie() {
+        apiRequest("GET", 'api/chasse/realisations_par_mois_sur_dernieres_saisons/',  { params: { ...this.bilanParams, nb_saison: this.nb_saison_chronologie } }) 
+        .then(result => {
+          this.data_chronologie_prelevement = result;
+        });
+      
+      }
   },
   methods: {
     /**
@@ -207,7 +253,7 @@ export default {
     recuperation_data(bilanParams) {
       // this.infos = {};
       // si il manque la saison et l'espece on annule.
-      if (!bilanParams.id_saison && bilanParams.id_espece) {
+      if (!this.bilanParams.id_saison && this.bilanParams.id_espece) {
         return;
       }
 
@@ -216,16 +262,32 @@ export default {
 
       apiRequest("GET", 'api/chasse/results/infos',  { params: bilanParams }).then(infos => {
           this.infos = infos;
-          // console.log("infos", this.infos);
         });
 
       apiRequest("GET", 'api/chasse/count_categorie_realisations/',  { params: bilanParams }) 
         .then(result => {
           this.data_cam_sexe_age = result;
-          // console.log("data_cam_sexe_age", this.data_cam_sexe_age);
+        });
+      apiRequest("GET", 'api/chasse/count_mode_chasse_realisations/',  { params: bilanParams }) 
+        .then(result => {
+          this.data_part_mode_chasse = result;
+        });
+      apiRequest("GET", 'api/chasse/realisations_par_mois_sur_dernieres_saisons/',  { params: { ...bilanParams, nb_saison: this.nb_saison_chronologie } }) 
+        .then(result => {
+          this.data_chronologie_prelevement = result;
         });
       
-      
+      apiRequest("GET", 'api/chasse/count_realisations_par_type_de_bracelet/',  { params: { ...bilanParams, nb_saison: this.nb_saison_chronologie } }) 
+        .then(result => {
+          this.data_count_realisations_par_type_de_bracelet = result;
+          // console.log("data_count_realisations_par_type_de_bracelet", this.data_count_realisations_par_type_de_bracelet);
+        });
+      apiRequest("GET", 'api/chasse/difference_nbRealisations_nbAttributions/',  { params: { ...bilanParams, nb_saison: this.nb_saison_chronologie } }) 
+        .then(result => {
+          this.data_nbRealisations_vs_nbAttributions = result;
+          // console.log("data_nbRealisations_vs_nbAttributions", this.data_nbRealisations_vs_nbAttributions);
+        });
+
 
     }
   }

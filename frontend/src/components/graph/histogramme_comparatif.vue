@@ -24,17 +24,21 @@ import Highcharts from "highcharts";
 import exportingInit from "highcharts/modules/exporting";
 import offlineExporting from "highcharts/modules/offline-exporting";
 
+
+
 // Modification de highcharts pour permettre l'export des graphiques
 exportingInit(Highcharts); // initialise le module export, doit être fait après l'import de highcharts
 offlineExporting(Highcharts); // initialise l'export coté client, doit être fait après l'import de highcharts
 
 
 export default {
-  name: "camembert",
+  name: "histogramme_comparatif",
   props: {
     data_db: { default: null },
-    fieldName: { default: null },
-    fieldValue: { default: null },
+    fieldGroup: { default: null }, // nom du champ retourné par l'API qui contient les noms des groupes (ex: "type_espece" qui contiendra "cerf", "sanglier", etc.)
+    listfieldValues: { default: null }, // liste des noms de champs retournés par l'API qui contiennent les valeurs à comparer (ex: ["nb_attributions", "nb_realisations"])
+    nameGroup: { default: '' }, // nom à afficher pour le groupe dans la légende (ex: "Type de bracelet")
+    listNameValues: { default: null }, // liste des noms à afficher pour les valeurs dans la légende (ex: ["Nombre d'attributions
     title: { default: '' },
     width: { default: '100%' },
     height: { default: '400px' },
@@ -49,8 +53,9 @@ export default {
 
       chartOptions: {
         title: { text: this.$props.title || '' },
-        chart: { type: 'pie' },
+        chart: { type: 'bar' },
         // animation: true, // active l'animation à chaque mise à jour de la série
+
         stacking: false,
         xAxis: { categories: [] },
         yAxis: {
@@ -59,24 +64,26 @@ export default {
         },
 
         tooltip: {
-          pointFormat: '<b>{point.y}</b>: {point.percentage:.1f} %',
+          shared: true, 
+          pointFormat: '<span style="color:{point.color}">●</span> {series.name} : <b>{point.y}</b> : {point.percentage:.1f} %<br/>'
+
         },
 
         plotOptions: {
-          pie: {
+
+          bar: {
             allowPointSelect: false, // fige la sélection d'une part du camembert (sinon elle est désactivée par défaut)
             cursor: 'pointer',
+            grouping: true,
             dataLabels: {
-              enabled: true, 
-              format: '<b>{point.name}:</b> <br> <b style="text-align:center">{point.y}</b> ({point.percentage:.1f} %)',
+              enabled: true,
+              format: ' <br> <b style="text-align:center">{point.y}</b> ({point.percentage:.1f} %)',
               style: {
                 fontSize: "1em",
                 fontWeight: 1,
                 color: 'black'
               },
-            },
-            showInLegend: false, // affiche les catégories dans la légende à côté du camembert (sinon elles sont
-
+            }
           }
         },
 
@@ -87,9 +94,8 @@ export default {
             layout: 'vertical'
         },
 
-
         series: [],
-        colorByPoint: true,
+        // colorByPoint: true,
 
         height: this.$props.height || "600px",
         width: "600px"
@@ -113,36 +119,42 @@ export default {
 
     creation_serie_highcharts: (data, props) => {
         /**
-         * transformation de data_db en serie bien formatée pour highcharts
-         * sous la forme :
+         * 
          */
-        const total = data.reduce((p,c) => {return p + c[props.fieldValue]}, 0);
-        let serie = {
-            name: props.title || '',
-            animation: true,
-            data: data.map(d => {
-              return {
-                name: `<b>${d[props.fieldName]}</b>`,
-                useHTML: true,
-                y: d[props.fieldValue],
-                color: props.code_couleurs ? props.code_couleurs[d[props.fieldName]] : undefined
-              };
-            })
-        };
-        
-        return serie;
+        if (!Array.isArray(data) || data.length === 0) {
+          console.log("creation_serie_highcharts: data is not an array or is empty", data);
+          return { categories: [], series: [] };
+        }
+
+        const categories = data.map(item => item[props.fieldGroup]);
+        console.log("creation_serie_highcharts: categories", categories);
+
+
+        const series = props.listfieldValues.map((name_field, index ) => {
+          console.log("index:", index, ", name_field:", name_field);
+          return {
+            name: props.listNameValues && props.listNameValues[index] ? props.listNameValues[index] : name_field,
+            data: data.map(item2 => {
+              return item2[name_field]
+            }
+
+            ),
+            color: props.code_couleurs && props.code_couleurs[name_field] ? props.code_couleurs[name_field] : undefined
+          };
+        });
+        console.log("creation_serie_highcharts: series", series);
+
+        return { categories, series };
     },
 
     actualisation_propriete() {
-      // test sur les champs requis
       this.isProcessing = true;
-      const requiredProps = ['fieldName', 'fieldValue', 'data_db'];
+      // test sur les champs requis
+      // const requiredProps = ['fieldName', 'fieldValue', 'data_db'];
 
-      if (requiredProps.some(p => !this.$props[p])) {
-        return;
-      }
-
-      const newSeries = [this.creation_serie_highcharts(this.$props.data_db, this.$props)];
+      // if (requiredProps.some(p => !this.$props[p])) {
+      //   return;
+      // }
 
       // si le chart existe déjà, on utilise l'API update pour forcer l'animation
       // try {
@@ -157,7 +169,10 @@ export default {
       // }
 
       // premier affichage ou fallback
-      this.chartOptions.series = newSeries;
+      const result = this.creation_serie_highcharts(this.$props.data_db, this.$props);
+      console.log("creation_serie_highcharts result", result);
+      this.chartOptions.series = Array.isArray(result.series) ? result.series : [];
+      this.chartOptions.xAxis.categories = Array.isArray(result.categories) ? result.categories : [];
       this.isProcessing = false;
     }
   },

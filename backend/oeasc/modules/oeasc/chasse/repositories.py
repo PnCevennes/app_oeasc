@@ -1043,24 +1043,28 @@ def filtrage_stmt_secteur_zi_zc(
 
     """
     if list_id_zi:
+        # print(f"filtrage par ZI: {list_id_zi}")
         stmt = stmt.where(
             TRealisationsChasse.id_zone_indicative_realisee.in_(list_id_zi)
         )
     elif list_id_zc:
+        # print(f"filtrage par ZC: {list_id_zc}")
         stmt = stmt.where(
             TRealisationsChasse.id_zone_cynegetique_realisee.in_(list_id_zc)
         )
     elif list_id_secteur:
+        # print(f"filtrage par secteur: {list_id_secteur}")
         # pour le cas des secteurs, il faut récupérer avant toutes les zonnes cynégétiques associées aux secteurs sélectionnés
-        stmt_cynegetique_secteur = select(TZoneCynegetiques.id_zone_cynegetique).where(
-            TZoneCynegetiques.id_secteur.in_(list_id_secteur)
-        )
-        list_id_zc = [
-            row[0] for row in DB.session.execute(stmt_cynegetique_secteur).all()
-        ]
-        # ensuite on récupères les réalisations pour ces zones cynégétiques
-        stmt = stmt.where(
-            TRealisationsChasse.id_zone_cynegetique_realisee.in_(list_id_zc)
-        )
+        # stmt_cynegetique_secteur = select(TZoneCynegetiques.id_zone_cynegetique).where(
+        #     TZoneCynegetiques.id_secteur.in_(list_id_secteur)
+        # )
+        # list_id_zc = [
+        #     row[0] for row in DB.session.execute(stmt_cynegetique_secteur).all()
+        # ]
+        # # ensuite on récupères les réalisations pour ces zones cynégétiques
+        # stmt = stmt.where(
+        #     TRealisationsChasse.id_zone_cynegetique_realisee.in_(list_id_zc)
+        # )
+        stmt = stmt.where( TZoneCynegetiques.id_secteur.in_(list_id_secteur) )
 
     return stmt
