@@ -71,6 +71,12 @@ DB = config["DB"]
 SESSION = session
 # chemin du dossier où seront stockés les rapports d'erreurs à la fin du traitement. Si le dossier n'existe pas, il sera créé.
 DOSSIER_RAPPORTS = Path(config["ROOT_DIR"]) / "static/erreurs_import_chasse/"
+# création du dossier s'il n'existe pas
+DOSSIER_RAPPORTS.mkdir(parents=True, exist_ok=True)
+
+DOSSIER_ARCHIVES_LIEUX_DITS = Path(config["ROOT_DIR"]) / "data/archives_lieux_dits/"
+# création du dossier s'il n'existe pas
+DOSSIER_ARCHIVES_LIEUX_DITS.mkdir(parents=True, exist_ok=True)
 
 #  rapidfuzz permet de reperer les erreurs de saisie dans les noms de lieux dits et communes.
 #  Si le score de similarité est inférieur à ce seuil, on considère que les chaînes ne correspondent pas.
@@ -1732,6 +1738,31 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
         return pd.DataFrame(), apiResponse, {}
 
 
+def etape_save_bilan_synonymes_in_csv(dict_bilan_synonymes, apiResponse):
+    """Sauvegarde du bilan synonymes dans un fichier csv. Pour garder ces informations
+    en vue de créer plus tard une meilleure géolocalisation.
+    Si la procédure plante on ne créé pas d'erreur qui stop l'importation."""
+
+    try:
+        if dict_bilan_synonymes:
+            df_bilan_synonymes = pd.DataFrame.from_dict(
+                dict_bilan_synonymes, orient="index"
+            )
+            nom_fichier = f"{pd.Timestamp.now().strftime('%Y-%m-%d_%H-%M-%S')}_bilan_synonymes_import_geochasse.csv"
+            chemin_fichier = Path(DOSSIER_ARCHIVES_LIEUX_DITS) / nom_fichier
+            df_bilan_synonymes.to_csv(chemin_fichier, index=False)
+            # apiResponse.add_log(message=f"Bilan des synonymes sauvegardé: {nom_fichier}", type_log="INFO")
+
+        return apiResponse
+
+    except Exception as e:
+        user_message = (
+            "Une erreur est survenue lors de la sauvegarde du bilan des synonymes."
+        )
+        apiResponse.add_log(message=user_message, type_log="ERROR")
+        return apiResponse
+
+
 def etape__insert_new_realisations(df, apiResponse):
     """Vérifie la validité de chaque ligne avant de les insérer dans la base de données. On enregistre en bdd les lignes valides.
     Les lignes invalides sont retournées dans un dataframe pour être corrigé par l'utilisateur.
@@ -2036,22 +2067,24 @@ def traitement_import_realisation_chasse(path_csv, id_saison, update):
     )
     if apiResponse.success == False:
         return apiResponse
+
+    apiResponse = etape_save_bilan_synonymes_in_csv(dict_bilan_synonymes, apiResponse)
+
     df, apiResponse = etape__remplissage_commentaires(df, apiResponse)
     if apiResponse.success == False:
         return apiResponse
 
+    # insertion puis mise à jour, on fait les 2 avant de vérifier si il y a des erreurs.
     apiResponse, df_erreurs_insert = etape__insert_new_realisations(df, apiResponse)
-    if apiResponse.success == False:
-        return apiResponse, {}
-
     if update == True:
         apiResponse, df_erreurs_update = etape__update_realisations(df, apiResponse)
-        # if apiResponse.success == False:
-        #     return  apiResponse, {}
     else:
         df_erreurs_update = (
             pd.DataFrame()
         )  # si ce n'est pas une mise à jour, il n'y a pas d'erreurs de mise à jour.
+
+    if apiResponse.success == False:
+        return apiResponse, {}
 
     apiResponse = etape__creation_dataframe_erreurs(
         df_original, df_erreurs_insert, df_erreurs_update, apiResponse
@@ -2060,7 +2093,7 @@ def traitement_import_realisation_chasse(path_csv, id_saison, update):
     # enregiste les logs dans un fichier
     apiResponse.write_in_log_file()
 
-    # apiResponse.print_all()
+    # apiResponse.print_all() # pour le débug
     # print (df)
 
     return apiResponse

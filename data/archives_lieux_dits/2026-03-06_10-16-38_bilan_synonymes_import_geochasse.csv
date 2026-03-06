@@ -1,0 +1,524 @@
+nom_lieu_csv,correspondance,id_correspondance,type_correspondance,raison,id_zone_indicative_realisee,id_zone_cynegetique_realisee,id_commune,id_lieu_tir,nom_lieu_tir,lattitude,longitude
+Chalet martin,Chalet Martin,655.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,29.0,4.0,277383,275.0,Forêt de Malmontet,,
+Chalet martin,Chalet Martin,655.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,29.0,4.0,277383,275.0,Forêt de Malmontet,,
+Chalet martin,Chalet Martin,655.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,29.0,4.0,277383,275.0,Forêt de Malmontet,,
+Croix de L'Hermite,,,AUCUNE,Aucun nom similaire retrouvé,29.0,4.0,277380,,,,
+minier,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277420,,,,
+minier,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277420,,,,
+montais,Montals,1312.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277421,598.0,Montals,,
+la dauphine,La Dauphine,1349.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,6.0,2.0,277413,616.0,Valat de la Dauphine,,
+les lairettes,Les Airettes,1320.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277424,602.0,L'Airette,,
+Camprieu la baraque,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277413,,,,
+Hort de dieu,L'Hort de Dieu,1363.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277413,623.0,L'Hort de Dieu,,
+Massif de l’Aigoual,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277413,,,,
+Casalis,Casalis,1334.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277413,609.0,Casalis,,
+Camprieu le devois,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277413,,,6334041.8774769865,750572.8605206691
+Pradinas,Le Pradinas,1241.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,563.0,Le Pradinas,6329230.63436848,738927.8328305695
+Pradinas,Le Pradinas,1241.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,563.0,Le Pradinas,6329889.546985522,738569.6766923259
+coste raste,Coste Raste,1238.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,561.0,Coste Raste,6328974.822856742,739245.9012050669
+pradinas,Le Pradinas,1241.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,563.0,Le Pradinas,6329735.7307724515,738672.3611496966
+pradinas,Le Pradinas,1241.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,563.0,Le Pradinas,6329764.927093483,738722.6551581067
+pradinas,Le Pradinas,1241.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,563.0,Le Pradinas,6329503.950357639,738744.2822811318
+les issards,Les Issarts,1266.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277424,578.0,Les Issarts,,
+la tune,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277424,,,6326833.77252408,737233.7385710442
+Tedounes,Tédounès,1251.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277427,569.0,Tédounès,,
+Sogne,Les Sognes,45.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277427,26.0,Bois de Camprieu,6694704.848239328,628348.6234106898
+le pas du Loup,Pas du Loup,1293.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277420,590.0,Pas de Loup,,
+les moliere,Les Molières,1433.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277419,658.0,Les Molières,,
+cialbe,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277419,,,6322528.736168281,742283.2253104381
+La bertrande,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277419,,,,
+bonels,Bonnels,1285.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277425,588.0,Col des Airettes,,
+saplas,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277425,,,,
+trois quilles,Les Trois Quilles,92.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277425,43.0,Les Trois Quilles,,
+st peyre,St Peyre,28.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277425,20.0,St Peyre,,
+saplas,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277425,,,,
+Saint flour,,,AUCUNE,Aucun nom similaire retrouvé,22.0,2.0,277427,,,,
+Vallée du bonheur,Vallée du Bonheur,1233.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,22.0,2.0,277413,557.0,Le Bonheur Riv,6334553.895160991,741718.6061150416
+Vallée du bonheur,Vallée du Bonheur,1233.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,22.0,2.0,277413,557.0,Le Bonheur Riv,6334728.32328255,741378.832079882
+Vallée du bonheur,Vallée du Bonheur,1233.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,22.0,2.0,277413,557.0,Le Bonheur Riv,6334347.955739392,742494.1221665881
+Serre de saint flour,Serre de St Sauveur,1228.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,22.0,2.0,277413,554.0,Serre de St Sauveur,6333852.48741541,741161.9884772619
+La caumette,La Caumette,1358.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,22.0,2.0,277413,620.0,Col de la Caumette,6335057.820950874,741810.5379966972
+La caumette,La Caumette,1358.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,22.0,2.0,277413,620.0,Col de la Caumette,6335515.080760225,742732.0079526707
+parelongue,Parelongue ZIC,1791.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,9.0,2.0,277424,845.0,Indéterminé,6331275.407830628,742602.0823545681
+parelongue,Parelongue ZIC,1791.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,9.0,2.0,277424,845.0,Indéterminé,6330579.6807523705,741063.1405309653
+parelongue,Parelongue ZIC,1791.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,9.0,2.0,277424,845.0,Indéterminé,6329354.910679152,740494.2236374936
+parelongue,Parelongue ZIC,1791.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,9.0,2.0,277424,845.0,Indéterminé,6329518.659848255,740211.1585261319
+parelongue,Parelongue ZIC,1791.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,9.0,2.0,277424,845.0,Indéterminé,6329227.554376924,740559.9377986684
+Lingas,Le Lingas,1237.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,9.0,2.0,277424,560.0,Le Lingas,6328175.385230472,742265.5590509695
+Lingas,Le Lingas,1237.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,9.0,2.0,277424,560.0,Le Lingas,6328394.152496537,741913.1152899091
+Fabret parcelle 654 FDA,,,AUCUNE,Aucun nom similaire retrouvé,9.0,2.0,277424,,,6328897.758161304,742453.8390188448
+Fabret,La Fabrié,1277.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,9.0,2.0,277424,584.0,La Fabrié,6330132.7298444165,742532.8730737317
+Fabret,La Fabrié,1277.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,9.0,2.0,277424,584.0,La Fabrié,6330147.266196865,742711.4225710556
+Touringarié,la Touringarié,1411.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,9.0,2.0,277424,645.0,la Touringarié,6329392.039959143,741929.7399185894
+plaine du Lingas,Pont du Lingas,40.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,9.0,2.0,277419,25.0,Pradals (Maison Familiale),6326826.280423523,742067.7763529255
+Touringarié,la Touringarié,1411.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,9.0,2.0,277424,645.0,la Touringarié,6329360.919684124,741928.3437673578
+FABRET,La Fabrié,1277.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,9.0,2.0,277424,584.0,La Fabrié,6329819.800414945,742592.6600337075
+Pont du Lingas,Pont du Lingas,40.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,9.0,2.0,277424,25.0,Pradals (Maison Familiale),6328298.393423078,741714.2155961836
+plaine du Lingas,Pont du Lingas,40.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,9.0,2.0,277419,25.0,Pradals (Maison Familiale),6326585.556528296,742458.9341982851
+plaine du Lingas,Pont du Lingas,40.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,9.0,2.0,277419,25.0,Pradals (Maison Familiale),6326875.428808719,742106.7242453502
+parcelle 419,,,AUCUNE,Aucun nom similaire retrouvé,9.0,2.0,277424,,,6328066.5174750425,740571.3883230246
+ZT ST SAUVEUR,St Sauveur,1438.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,27.0,2.0,277427,661.0,La Can,,
+Crête Saint sauveur,Serre de St Sauveur,1228.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,27.0,2.0,277427,554.0,Serre de St Sauveur,6336583.747882035,737261.2073056393
+Saint sauveur des pourcils,,,AUCUNE,Aucun nom similaire retrouvé,27.0,2.0,277427,,,6335710.542688652,736128.9953342448
+Crête saint sauveur,Serre de St Sauveur,1228.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,27.0,2.0,277427,554.0,Serre de St Sauveur,6336601.7792423535,737304.316250465
+vareille,Vareilles,1668.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,36.0,5.0,277393,764.0,Vareilles,,
+croix de fer,La Croix de Fer Nord,180.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,31.0,5.0,277392,90.0,La Croix de Fer Nord,,
+Servies,Serviès,1718.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277378,785.0,Serviès,,
+Bourrassade,Bourrassade,1677.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277378,770.0,Rau de Bourrassade,,
+Crussinas,Crussinas,106.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277378,52.0,Crussinas,,
+Le mouniau,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277385,,,6366278.222381658,771549.9882147707
+Combe fer,Combefer,229.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,31.0,5.0,277390,111.0,Combos Ferros,6369616.634945905,774324.120271316
+Costeillades,Les Costeilades,621.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,31.0,5.0,277385,264.0,Les Costeilades,6368807.964080317,769877.6932548961
+Costeillades,Les Costeilades,621.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,31.0,5.0,277385,264.0,Les Costeilades,6368653.758593686,769496.3900237038
+Fegnos,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277385,,,6371237.361869688,772020.5047441606
+Chareylasses,Chareylasse,190.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,31.0,5.0,277382,94.0,Chareylasse,6371350.625266943,765197.9222914879
+Le peyrounnet,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277382,,,6370617.839553446,770684.6688835684
+Pin de l’almeras,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277382,,,6372578.230523623,766995.6011468059
+Le grand clapier,Le Grand Clapier,79.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277382,36.0,L'Usclade,6368322.019205909,766768.6407058962
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6366966.110637598,767030.7513335607
+mt lo ouest,,,AUCUNE,Aucun nom similaire retrouvé,2.0,6.0,277401,,,6371451.989899035,763926.5737111021
+finiels,Finiels,451.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,2.0,6.0,277400,183.0,Finiels,6368941.928371442,762108.017437893
+finiels,Finiels,451.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,2.0,6.0,277400,183.0,Finiels,6368827.260629515,762308.2132166673
+bellecoste,Bellecoste,608.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277400,261.0,Bois de Bellecoste,6366045.427207893,768502.3600117391
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6365865.616598296,767178.7068764615
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6366572.135089557,767381.4501277144
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6365720.050665548,766967.5539618471
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6366786.125336752,767961.4168319271
+mejarie,Le Jarlié,515.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,2.0,6.0,277387,218.0,Les Taillades,6364678.19060239,767921.25005309
+mejarie,Le Jarlié,515.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,2.0,6.0,277387,218.0,Les Taillades,6364743.935351885,768859.1530546735
+mt lo ouest,,,AUCUNE,Aucun nom similaire retrouvé,2.0,6.0,277392,,,6371210.169653289,763193.5726860922
+commandeur,Le Commandeur,490.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277400,203.0,Bois du Commandeur,6364099.473505872,766263.6479978063
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6366939.352412212,765759.0233844087
+finiels,Finiels,451.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,2.0,6.0,277400,183.0,Finiels,6369032.206914667,762025.114326136
+mejarie,Le Jarlié,515.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,2.0,6.0,277387,218.0,Les Taillades,6364706.264435684,768359.1809893921
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277382,199.0,Le Pic Cassini,6366463.038623258,766630.6629369872
+finiel,Finiels,451.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,2.0,6.0,277400,183.0,Finiels,6369268.868158117,762365.1435560375
+bellecoste,Bellecoste,608.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277400,261.0,Bois de Bellecoste,6365626.269822433,768472.6682680576
+bellecoste,Bellecoste,608.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277400,261.0,Bois de Bellecoste,6366055.311934697,768491.8963017891
+finiels,Finiels,451.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,2.0,6.0,277400,183.0,Finiels,6369639.818177058,761452.2623166725
+chalet de l'aigle,Chalet de l'Aigle,57.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277382,30.0,Rocher de l'Aigle,6370183.074326763,765735.4537825122
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6365944.694175745,766989.0610909121
+finiel,Finiels,451.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,2.0,6.0,277392,183.0,Finiels,6369183.328624461,764997.4675989393
+mejarie,Le Jarlié,515.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,2.0,6.0,277387,218.0,Les Taillades,,
+Les bouzedes,Les Bouzèdes,509.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,212.0,Les Bouzèdes,,
+Les bouzede,Les Bouzèdes,509.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,212.0,Les Bouzèdes,,
+Chalet albaric,Chalet Albaric,575.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,247.0,Rau de la Pudissine,,
+Peyralte,Peyralte,583.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,250.0,Rocher de Peyralte,,
+La borie,La Borie (Rnes),531.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,225.0,La Borie (Rnes),,
+Masmejean haut,Masméjean,430.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,167.0,Masméjean,,
+Troubat,Troubat,505.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,210.0,Troubat,,
+Montcuq,Montcuq,380.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,161.0,Montcuq,,
+Montcuq,Montcuq,380.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277389,161.0,Montcuq,,
+Paroissiens,Paroissien,376.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,160.0,Puech Rouchien,,
+Masmin,Le Masmin,937.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,396.0,Le Masmin,,
+Piste de ski,Piste de ski,610.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,7.0,6.0,277387,261.0,Bois de Bellecoste,,
+Montcuq,Montcuq,380.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277389,161.0,Montcuq,,
+Masmejean,Masméjean,430.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,167.0,Masméjean,,
+Le coffre,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Les pradels,Les Pradels,571.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,244.0,Les Pradels,,
+La vialasse,La Vialasse,502.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,208.0,La Vialasse,,
+Bayard,Bayard,592.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,255.0,Rau de Bayard,,
+Pierre froide,Pierre Froide,511.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,214.0,Pierre Froide,,
+Les pradels,Les Pradels,571.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,244.0,Les Pradels,,
+Le coffre,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Gourdouse,Gourdouse,574.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,246.0,Gourdouse,,
+Les Vernet,Les Vernets,387.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277400,162.0,Les Vernets,,
+Montcuq,Montcuq,380.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,161.0,Montcuq,,
+Bois du bossu,Bois du Bossu,572.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,245.0,Bois du Bossus,,
+Le jario,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277400,,,,
+Bois du bossu,Bois du Bossu,572.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,245.0,Bois du Bossus,,
+La borie,La Borie (Rnes),531.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,225.0,La Borie (Rnes),,
+Bois de l'hermet,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277400,,,,
+cepedelle,La Cépedelle,321.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,148.0,La Cépedelle,,
+Salariale,Salarial,443.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,18.0,6.0,277400,175.0,Salarial,,
+L'Hermet,L'Hermet,311.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,143.0,L'Hermet,,
+Max,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277378,,,,
+finiels,Finiels,451.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,183.0,Finiels,6363105.952142567,759094.1414285735
+felgerolles,Felgérolles,437.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,171.0,Felgérolles,,
+Max,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277378,,,,
+Le Martinet. Le Bougès .,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277400,,,,
+Max,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277378,,,6291473.525211014,857073.5381390904
+Max,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277378,,,6361497.4962412175,755455.8253212243
+villeneuve,Villeneuve,460.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,186.0,Le Masel,,
+Bouchibarbes,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277400,,,,
+cepedelle,La Cépedelle,321.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,148.0,La Cépedelle,6363081.293583845,759189.2126556255
+villaret,Le Villaret,274.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,129.0,Le Villaret (Le Pont-de-Montvert),,
+cepedelle,La Cépedelle,321.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,148.0,La Cépedelle,,
+bonne louche,Bonne Louche,1757.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,42.0,6.0,277399,817.0,Indéterminé,,
+Terre de fondpadelle,,,AUCUNE,Aucun nom similaire retrouvé,42.0,6.0,277399,,,,
+Pracariat,,,AUCUNE,Aucun nom similaire retrouvé,42.0,6.0,277399,,,,
+Brice,La Borie (Rnes),531.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,42.0,6.0,277399,225.0,La Borie (Rnes),,
+Alexandre,Pin d'Alexandre,149.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,42.0,6.0,277399,74.0,L'Amourous,,
+Les Laubies,Les Laubies,144.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,42.0,6.0,277399,72.0,Les Laubies,,
+Les laubies,Les Laubies,144.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,42.0,6.0,277399,72.0,Les Laubies,,
+Les Laubies,Les Laubies,144.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,32.0,6.0,277393,72.0,Les Laubies,6372326.02063792,750886.4999507566
+font bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,6370933.289903276,753731.404888157
+Les Laubies,Les Laubies,144.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,32.0,6.0,277393,72.0,Les Laubies,6371423.408890547,752307.3259976524
+Font Bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,,
+font Bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,6370190.303344702,753886.6202477927
+les Laubies,Les Laubies,144.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,32.0,6.0,277393,72.0,Les Laubies,6371558.566927525,752128.719114554
+Fond Bernard,Font Bernard,478.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,32.0,6.0,277393,196.0,Rau de Font Bernard,6370409.11895219,753492.3007276934
+font bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,6369870.992858088,752650.6280560383
+font bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,6369842.17765017,752658.8304292985
+TCA D'ALTEFAGE,Altefage,289.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,24.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,,
+TCA D'ALTEFAGE,Altefage,289.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,1.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,6361315.978495802,763631.0803156345
+Bouges la goudéche,,,AUCUNE,Aucun nom similaire retrouvé,8.0,6.0,277400,,,,
+La cham,,,AUCUNE,Aucun nom similaire retrouvé,8.0,6.0,277400,,,6361481.401968785,760116.2306809379
+la tour,La Tour,352.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,8.0,6.0,277400,156.0,ZIC IV Bartabelle,6358569.437031995,762949.0234032598
+la tourrete,La Tourette,796.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,37.0,7.0,277391,339.0,La Tourette Est,,
+bajer,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+col des tours,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+le rouve haut,Le Rouve Haut,1486.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,37.0,7.0,277391,691.0,Le Rouve Haut,,
+col des tours,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+col des tours,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+solperan,Solpéran,861.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,37.0,7.0,277391,362.0,Solpéran,,
+le rond des baumes,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+la planete,La Planette,1526.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,37.0,7.0,277391,712.0,Col de la Planette ZOC,,
+les cambous,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+soibrelargues,Soubrelargues,922.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,37.0,7.0,277391,390.0,L'Oultre,,
+le pin de pivert,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+soubrelargues,Soubrelargues,922.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,37.0,7.0,277391,390.0,L'Oultre,,
+mas neuf,Le Mas Neuf,811.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,37.0,7.0,277391,344.0,Le Mas Neuf,,
+la tourrete,La Tourette,796.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,37.0,7.0,277391,339.0,La Tourette Est,,
+le caylar,Le Cayla,869.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,37.0,7.0,277391,367.0,Le Cayla,,
+rocher des fées,Rocher des Fées,888.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,20.0,7.0,277395,374.0,Fournel,6348827.406460864,763325.9859783238
+Roulisse,,,AUCUNE,Aucun nom similaire retrouvé,20.0,7.0,277398,,,6346765.585119154,764558.8472050716
+Mazade,La Mazade,905.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,20.0,7.0,277398,385.0,Le Comte,,
+la vergnasse,La Vergnasse,871.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,20.0,7.0,277398,368.0,La Vergnasse,6348245.841504581,764808.9225809448
+rocher des fees,Rocher des Fées,888.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,20.0,7.0,277395,374.0,Fournel,,
+malhautier,Malhautier,765.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,322.0,Maillautier,,
+vergougnoux,Le Vergougnous,784.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,25.0,7.0,277396,334.0,Le Vergougnous,,
+La Cure,La Cure,773.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,327.0,La Cure,,
+Le castanet,Le Castanet,771.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,326.0,Le Castanet,,
+L'hermet du barrabon,,,AUCUNE,Aucun nom similaire retrouvé,25.0,7.0,277396,,,,
+Malhautier,Malhautier,765.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,322.0,Maillautier,,
+Majistavols,Le Magistavol,1521.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,25.0,7.0,277404,711.0,Le Magistavol,,
+Montgros,Montgros,1024.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277409,444.0,Montgros,,
+La Cure,La Cure,773.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,327.0,La Cure,,
+temelac,Temelac,1391.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277410,635.0,La Fumade,,
+temelac,Temelac,1391.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277410,635.0,La Fumade,,
+castelviel,Castelviel,998.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277407,428.0,Castelviel,,
+le mazel,Le Mazel,1449.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277410,669.0,Le Mazel,,
+le mazel,Le Mazel,1449.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277410,669.0,Le Mazel,,
+ZT 2 Fontmort,Fontmort,839.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,33.0,7.0,277403,350.0,Fontmort,,
+ZT Fontmort Roc Pointu,,,AUCUNE,Aucun nom similaire retrouvé,33.0,7.0,277404,,,,
+zone 3,,,AUCUNE,Aucun nom similaire retrouvé,33.0,7.0,277404,,,6352263.727765958,759555.216879794
+ZT 2,,,AUCUNE,Aucun nom similaire retrouvé,33.0,7.0,277403,,,6349608.066260594,759638.6116439783
+segala,Le Segala,1617.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,35.0,3.0,277431,735.0,Le Segala,,
+tunnes,Les Tunes,1149.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,28.0,1.0,277406,510.0,Les Tunes,,
+aire de cote,Aire de Côte,1186.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,28.0,1.0,277406,531.0,Forêt d'Aire de Côte,,
+Les tunnes,Les Tunes,1149.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,28.0,1.0,277406,510.0,Les Tunes,,
+Le tunnel,Le tunnel,1152.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,28.0,1.0,277406,511.0,Tunnel du Marquairès,,
+rousse,Les Rousses,1067.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,5.0,7.0,277428,470.0,Rousses,,
+campredon,Campredon,1063.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,467.0,Campredon,,
+Campredon,Campredon,1063.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,467.0,Campredon,,
+les oubrets,Les Oubrets,1213.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,545.0,Les Oubrets,,
+les oubrets,Les Oubrets,1213.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,545.0,Les Oubrets,,
+les oubrets,Les Oubrets,1213.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,545.0,Les Oubrets,,
+montrefus,Montrefu,1072.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,41.0,1.0,277428,472.0,Montrefu,,
+montrefus,Montrefu,1072.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,41.0,1.0,277428,472.0,Montrefu,,
+croix de fer,,,AUCUNE,Aucun nom similaire retrouvé,41.0,1.0,277428,,,,
+Ferussac,Ferrussac,1083.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,4.0,1.0,277428,478.0,Ferrussac,,
+Ferussac,Ferrussac,1083.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,4.0,1.0,277428,478.0,Ferrussac,,
+Gralies,Graliès,1058.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,4.0,1.0,277428,463.0,Rau de Graliès,,
+Muraillasse,,,AUCUNE,Aucun nom similaire retrouvé,4.0,1.0,277429,,,,
+Serre de combe calde,Serre de Combe-Calde,1117.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,4.0,1.0,277429,491.0,Serre de Combe-Calde,6345161.906547882,746143.3483457954
+la coustête,,,AUCUNE,Aucun nom similaire retrouvé,4.0,1.0,277431,,,,
+sext,Sext,1173.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,4.0,1.0,277406,523.0,Sext,,
+sext,Sext,1173.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,4.0,1.0,277406,523.0,Sext,,
+les cabanes,Les Cabanes,1171.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,4.0,1.0,277406,522.0,Les Cabanes,,
+sext,Sext,1173.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,4.0,1.0,277406,523.0,Sext,,
+l'hom,,,AUCUNE,Aucun nom similaire retrouvé,4.0,1.0,277406,,,,
+Ferrussac,Ferrussac,1083.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,26.0,1.0,277428,478.0,Ferrussac,,
+Pré de la dame,Pré de la Dame,605.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,29.0,4.0,277383,259.0,Col du Pré de la Dame,,
+COL DE MIREMONT,,,AUCUNE,Aucun nom similaire retrouvé,29.0,4.0,277383,,,,
+toureves,Tourevès,688.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,29.0,4.0,277379,284.0,Tourevès,,
+Croix de L'Hermite,,,AUCUNE,Aucun nom similaire retrouvé,29.0,4.0,277380,,,,
+hort de dieux,L'Hort de Dieu,1363.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277413,623.0,L'Hort de Dieu,6332830.786716467,743719.0888519025
+pueylong,Pueylong,1324.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,604.0,Pueylong,6332612.194022179,743921.6007741649
+Camprieu la baraque,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277413,,,,
+malpertus,Malpertus,1242.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,564.0,Malpertus,6331591.214289014,740958.86086719
+suquet,Le Suquet,1255.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,571.0,Le Suquet,6331582.742734165,735117.0083887877
+Sogne,Les Sognes,45.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277427,26.0,Bois de Camprieu,,
+Le Camping,Le Camping,90.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,42.0,Le Camping,,
+Quiers,Le Quier,1290.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277420,589.0,Rochers du Quier,6319593.669926747,750556.0409507622
+Le quiers,Le Quier,1290.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277420,589.0,Rochers du Quier,,
+Le quiers,Le Quier,1290.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277420,589.0,Rochers du Quier,,
+travers du raynal,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277425,,,,
+travers du raynal,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277425,,,,
+P254,,,AUCUNE,Aucun nom similaire retrouvé,22.0,2.0,277413,,,6332051.932478284,740206.2681293845
+Abbaye du bonheur,Abbaye du bonheur ZIC,1231.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,22.0,2.0,277413,557.0,Le Bonheur Riv,6334526.198647324,741730.7972001593
+Vallée du bonheur,Vallée du Bonheur,1233.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,22.0,2.0,277413,557.0,Le Bonheur Riv,6334538.697274443,741604.2276323901
+parelongue,Parelongue ZIC,1791.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,9.0,2.0,277424,845.0,Indéterminé,6330912.239287986,741115.4501362732
+Fabret,La Fabrié,1277.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,9.0,2.0,277420,584.0,La Fabrié,6329614.6420020005,742815.9672343002
+Mas Ramel,Le Mas Ramel,1436.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,9.0,2.0,277424,660.0,Le Mas Ramel,6328431.755530333,740521.7684377246
+Parelongue,Parelongue ZIC,1791.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,9.0,2.0,277424,845.0,Indéterminé,6329895.588976977,740600.5185533079
+La boissiere,,,AUCUNE,Aucun nom similaire retrouvé,27.0,2.0,277427,,,6335247.14057136,736500.6532516541
+vareille,Vareilles,1668.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,16.0,5.0,277397,764.0,Vareilles,,
+plamounja,Plamonial,165.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,31.0,5.0,277392,85.0,Rnes de Plomonial,,
+croix de fer,La Croix de Fer Nord,180.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,31.0,5.0,277392,90.0,La Croix de Fer Nord,,
+baraque du bouchet,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277401,,,,
+point P,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277392,,,,
+Servies,Serviès,1718.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277378,785.0,Serviès,,
+Servies,Serviès,1718.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277378,785.0,Serviès,6375214.796716691,752558.1420456313
+Charbonnel,Charbonnel,1684.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277378,773.0,La Grand Combe,,
+Les sagnes,Les Sagnes,1461.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277378,677.0,Croix du Peyrou,,
+Serviés,Serviès,1718.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277378,785.0,Serviès,,
+Costeillades,Les Costeilades,621.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,31.0,5.0,277385,264.0,Les Costeilades,6368722.601854941,769593.5720175968
+La lance,La Lance,618.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277382,263.0,Rav de la Lance,6369409.683900811,768629.7345624281
+Tas de bois,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277382,,,6370341.961544907,768443.6234730035
+Baraque en tôle,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277382,,,6370736.5652402565,769375.4549800013
+chalet de l'aigle,Chalet de l'Aigle,57.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277382,30.0,Rocher de l'Aigle,6369969.626591289,767399.981358486
+chalet de l aigle,Chalet de l'Aigle,57.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277382,30.0,Rocher de l'Aigle,6380493.417315368,738958.1060254188
+finiel,Finiels,451.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,2.0,5.0,277400,183.0,Finiels,6368759.211833104,762949.0818392531
+commandeur,Le Commandeur,490.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277387,203.0,Bois du Commandeur,6364221.140112799,766738.0837293136
+bellecoste,Bellecoste,608.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277400,261.0,Bois de Bellecoste,6365614.25151411,768389.1482253625
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6366624.991474424,766921.2782152722
+finiel,Finiels,451.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,2.0,5.0,277400,183.0,Finiels,6368823.126652775,762786.0060681221
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6367190.586370858,766197.6399772663
+commandeur,Le Commandeur,490.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277387,203.0,Bois du Commandeur,6364376.508927625,766407.3461873262
+cassini,Le Pic Cassini,483.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,2.0,6.0,277400,199.0,Le Pic Cassini,6366966.742158026,767194.0271281508
+Piste de ski,Piste de ski,610.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,7.0,6.0,277387,261.0,Bois de Bellecoste,,
+Les bouzedes,Les Bouzèdes,509.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,212.0,Les Bouzèdes,,
+Ambarquadere,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Pluviomètre,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Pont du tarn,La Plaine du Tarn,492.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277389,204.0,La Plaine du Tarn,,
+Montcuq,Montcuq,380.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,161.0,Montcuq,,
+Vernet,Les Vernets,387.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,162.0,Les Vernets,,
+Malfreset,Malfrésès,529.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,224.0,Malfrésès (Rnes),,
+Les courierres,Tourières,518.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,219.0,Les Tourrières,,
+La pudicine,La Pudissine,576.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277400,247.0,Rau de la Pudissine,,
+La marmite,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Pont du tarn,La Plaine du Tarn,492.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,204.0,La Plaine du Tarn,,
+Pont de l’aubaret,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Castagnols,Castagnols,557.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277400,238.0,Castagnols,,
+Pluviomètre,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Masmin,Le Masmin,937.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,396.0,Le Masmin,,
+Urfruit,Les Urfruits,499.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,206.0,Les Urfruits,,
+La borie,La Borie (Rnes),531.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,225.0,La Borie (Rnes),,
+Les bouzedes,Les Bouzèdes,509.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,212.0,Les Bouzèdes,,
+Espizio,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Salariales,Salarial,443.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,18.0,6.0,277400,175.0,Salarial,6302633.887856831,856517.9328374276
+Font-Bernard,Font Bernard,478.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,196.0,Rau de Font Bernard,,
+plan fedio la brousse.,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277400,,,6363088.279796118,758986.7163411031
+mallevriere,Mallevrière,348.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,155.0,Rau de Mallevrière,6366804.297875016,744997.4697238165
+Finiels,Finiels,451.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,183.0,Finiels,6361499.7039479455,755454.2115423715
+chazettes,Les Chazettes,282.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,134.0,Les Chazettes,,
+felgerolle,Felgérolles,437.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,18.0,6.0,277400,171.0,Felgérolles,,
+l'hopital,L'Hôpital,436.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,18.0,6.0,277400,170.0,L'Hôpital,,
+l'Angerio,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277400,,,6361489.713083779,755455.0967316993
+Louis,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277378,,,,
+Finiels,Finiels,451.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,183.0,Finiels,6361491.991023463,755461.4539787835
+La bastide,La Bastide,158.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,42.0,6.0,277393,82.0,La Bastide,,
+Croix de maître Vidal.les Laubies,,,AUCUNE,Aucun nom similaire retrouvé,42.0,6.0,277399,,,,
+La Bastide,La Bastide,158.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,42.0,6.0,277399,82.0,La Bastide,,
+Les Laubies,Les Laubies,144.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,42.0,6.0,277399,72.0,Les Laubies,,
+ZT les Laubies,Les Laubies,144.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,72.0,Les Laubies,,
+Font Bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,6370537.10567105,754167.8247566504
+les Laubies,Les Laubies,144.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,32.0,6.0,277393,72.0,Les Laubies,6371791.057516821,751763.0857649585
+TCA D'ALTEFAGE,Altefage,289.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,24.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,6361477.619873491,755469.5522768148
+TCA d'Altefage,Altefage,289.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,24.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,,
+La Tour,La Tour,352.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,8.0,6.0,277400,156.0,ZIC IV Bartabelle,6357882.428153304,762236.4210707326
+St Maurice,,,AUCUNE,Aucun nom similaire retrouvé,8.0,6.0,277400,,,6358023.085496592,763307.0340811787
+la Rouvière,La Rouvière,1578.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,8.0,6.0,277404,723.0,ZIC BS La Rouvière,6356307.437061321,760567.7556658855
+Le Col du Bougès,Col du Bonnet,513.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,8.0,6.0,277400,216.0,Col du Bonnet,6358276.130604746,760569.5638738321
+la tour,La Tour,352.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,8.0,6.0,277400,156.0,ZIC IV Bartabelle,6357959.586533531,761836.047185898
+la rouviere,La Rouvière,1578.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,8.0,6.0,277404,723.0,ZIC BS La Rouvière,6356318.154931139,760526.9631976197
+La Rouvière,La Rouvière,1578.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,8.0,6.0,277404,723.0,ZIC BS La Rouvière,6356812.512651923,759708.489745672
+cannaries,Canarilles,930.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,37.0,7.0,277391,394.0,Rav des Canarilles,6354100.504439081,765623.5093966074
+le rouve haut,Le Rouve Haut,1486.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,37.0,7.0,277391,691.0,Le Rouve Haut,,
+la planete,La Planette,1526.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,37.0,7.0,277391,712.0,Col de la Planette ZOC,,
+mas gistavols,Le Magistavol,1521.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,37.0,7.0,277391,711.0,Le Magistavol,,
+mas neuf,Le Mas Neuf,811.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,37.0,7.0,277391,344.0,Le Mas Neuf,,
+col des tours,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+canarie haut,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+Mazade,La Mazade,905.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,20.0,7.0,277398,385.0,Le Comte,,
+La cure,La Cure,773.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,327.0,La Cure,6349745.454647347,752204.2463752358
+Montgros,Montgros,1024.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277409,444.0,Montgros,,
+Longue Lune,Longue Lune,1502.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277404,701.0,Longue Lune,,
+Le Malhautier,Malhautier,765.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,322.0,Maillautier,,
+castelviel,Castelviel,998.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277407,428.0,Castelviel,,
+Le rey,,,AUCUNE,Aucun nom similaire retrouvé,25.0,7.0,277405,,,,
+Cassagnas,,,AUCUNE,Aucun nom similaire retrouvé,33.0,7.0,277404,,,6351524.171562533,759004.8962190412
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277409,414.0,Fretma,,
+begude,La Bégude,791.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277409,337.0,La Bégude Blanche,,
+volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+tabilloux,Tabilloux,1379.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,28.0,1.0,277431,629.0,Forêt de Tabilloux,,
+quilles,Les Quilles,1151.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,28.0,1.0,277406,511.0,Tunnel du Marquairès,,
+Aire deCote,Aire de Côte,1186.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,28.0,1.0,277406,531.0,Forêt d'Aire de Côte,,
+Aire de Côte,Aire de Côte,1186.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,28.0,1.0,277406,531.0,Forêt d'Aire de Côte,,
+les oubrets,Les Oubrets,1213.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,545.0,Les Oubrets,,
+les oubrets,Les Oubrets,1213.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,545.0,Les Oubrets,,
+Les oubrets,Les Oubrets,1213.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,545.0,Les Oubrets,,
+Campredon,Campredon,1063.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,467.0,Campredon,,
+Campal,Campal,15.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,41.0,7.0,277428,15.0,Campal,,
+campals,Campals,16.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,41.0,7.0,277428,15.0,Campal,,
+la tempête breze,,,AUCUNE,Aucun nom similaire retrouvé,41.0,1.0,277428,,,,
+les bouzelles,Les Bouzelles,1212.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,41.0,1.0,277428,545.0,Les Oubrets,,
+Le villaret,Le Villaret,1377.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,4.0,1.0,277428,628.0,Le Villaret,,
+Jontanel,Jontanels,1622.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,4.0,1.0,277428,738.0,Jontanels,,
+Les oubrets,Les Oubrets,1213.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,4.0,1.0,277428,545.0,Les Oubrets,,
+les cabanes,Les Cabanes,1171.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,4.0,1.0,277406,522.0,Les Cabanes,,
+fons,Fons,1218.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,4.0,1.0,277406,548.0,Les Fons,,
+La fageole,La Fageole,1095.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,26.0,1.0,277428,484.0,La Fageole,,
+Perce neige,Perce Neige,607.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,29.0,4.0,277383,260.0,Chalets de Perce Neige,,
+borne 3,Borne 3,673.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,29.0,4.0,277380,279.0,Forêt de Malmontet,,
+Borne trois,,,AUCUNE,Aucun nom similaire retrouvé,29.0,4.0,277380,,,,
+montals,Montals,1312.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277421,598.0,Montals,,
+montals,Montals,1312.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277421,598.0,Montals,,
+la dauphine,La Dauphine,1349.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,6.0,2.0,277413,616.0,Valat de la Dauphine,6333046.870071747,744115.5643797882
+montals,Montals,1312.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277421,598.0,Montals,6333054.591462311,744107.5030727943
+l'étoile,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277413,,,,
+les bartes,Barette,1307.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277424,597.0,Pic de Barette,,
+suquet,Le Suquet,1255.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,571.0,Le Suquet,,
+malpertus,Malpertus,1242.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,564.0,Malpertus,6331610.528150185,741365.603619535
+aubespi,L'Aubespi,1267.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277424,579.0,L'Aubespi,6326837.541649427,736546.0133389344
+Les hubertes,Les Hubertes,1248.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277427,567.0,Col des Ubertes Nord,,
+Minier,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277420,,,6322348.164959634,745256.2053024551
+le bois de l'homme,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277420,,,,
+Les plos,Les Plos,1281.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277423,585.0,Les Lauzières,,
+La fabrie,La Fabrié,1277.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277423,584.0,La Fabrié,,
+Le bleu,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277423,,,,
+campatour,Campatour,35.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277419,23.0,Campatour,,
+3 quiles,Les 3 quilles,91.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277425,43.0,Les Trois Quilles,,
+3quilles,Les 3 quilles,91.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277425,43.0,Les Trois Quilles,,
+parc à mouflon,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277425,,,6322614.973684619,742218.484585396
+trois quilles,Les Trois Quilles,92.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277425,43.0,Les Trois Quilles,,
+trois quille,Les Trois Quilles,92.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,6.0,2.0,277425,43.0,Les Trois Quilles,,
+parc à mouflon,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277425,,,,
+ZT St Sauveur,St Sauveur,1438.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,27.0,2.0,277427,661.0,La Can,6335348.655118016,738260.2381130932
+Saint sauveur P33,St Sauveur,1438.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,27.0,2.0,277427,661.0,La Can,6336049.396047264,737084.2788736329
+la fage,La Fage,134.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,16.0,5.0,277393,67.0,La Fage,,
+grand bois,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277401,,,,
+Bourrassade,Bourrassade,1677.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,31.0,5.0,277378,770.0,Rau de Bourrassade,,
+Lassognes,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277378,,,,
+Rond de la belle,,,AUCUNE,Aucun nom similaire retrouvé,31.0,5.0,277382,,,6370659.531232471,770638.0295375669
+chalet de l'aigle,Chalet de l'Aigle,57.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277382,30.0,Rocher de l'Aigle,6369001.832168501,766969.2404490054
+chalet de l'aigle,Chalet de l'Aigle,57.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277382,30.0,Rocher de l'Aigle,6369584.699223027,768378.6218618097
+commandeur,Le Commandeur,490.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277387,203.0,Bois du Commandeur,6364578.625804034,766083.3054556088
+chalet de l'aigle,Chalet de l'Aigle,57.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277382,30.0,Rocher de l'Aigle,6369447.568418739,767821.1891022519
+bellecoste,Bellecoste,608.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277400,261.0,Bois de Bellecoste,6365470.21458959,768526.9488481069
+finiel,Finiels,451.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,2.0,5.0,277400,183.0,Finiels,,
+finiel,Finiels,451.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,2.0,6.0,277392,183.0,Finiels,6369461.966939653,763674.525517387
+bellecoste,Bellecoste,608.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277387,261.0,Bois de Bellecoste,6366008.9613204505,768622.2509828253
+finiel,Finiels,451.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,2.0,6.0,277392,183.0,Finiels,6369389.73097194,763672.0724827739
+mt lozere ouest,,,AUCUNE,Aucun nom similaire retrouvé,2.0,6.0,277392,,,6371155.355725894,763815.7688186724
+mejarié,Le Jarlié,515.0,SIMILAIRE_ZC,Nom similaire retrouvé dans la ZC,2.0,6.0,277400,218.0,Les Taillades,6364627.813398904,768296.2894965417
+chalet de l'aigle,Chalet de l'Aigle,57.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277382,30.0,Rocher de l'Aigle,6368764.013372464,766648.4875353192
+commandeur,Le Commandeur,490.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277387,203.0,Bois du Commandeur,6364292.153363122,766098.2672074634
+chalet de l aigle,Chalet de l'Aigle,57.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277382,30.0,Rocher de l'Aigle,6368097.897619365,767212.9986863782
+mont Lozère ouest,,,AUCUNE,Aucun nom similaire retrouvé,2.0,6.0,277392,,,6370727.795765683,763281.2086805981
+finiels,Finiels,451.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,2.0,6.0,277400,183.0,Finiels,6368791.83240695,762095.9639321069
+commandeur,Le Commandeur,490.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,2.0,6.0,277400,203.0,Bois du Commandeur,6296173.753729436,617079.5474496784
+Castagnol,Castagnols,557.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,238.0,Castagnols,,
+Marmite,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Gourdouse,Gourdouse,574.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,246.0,Gourdouse,,
+Masmejean,Masméjean,430.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277387,167.0,Masméjean,,
+Les bastides,Les Bastides,525.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277389,222.0,Les Bastides,,
+Paroissiens,Paroissien,376.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,160.0,Puech Rouchien,,
+Malfraiset,Malfraise,528.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,7.0,6.0,277387,224.0,Malfrésès (Rnes),,
+Espizio,,,AUCUNE,Aucun nom similaire retrouvé,7.0,6.0,277387,,,,
+Les Vernets,Les Vernets,387.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,7.0,6.0,277400,162.0,Les Vernets,,
+montgros,Montgros,449.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,181.0,Montgros,,
+finiels,Finiels,451.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,183.0,Finiels,,
+mallevriere,Mallevrière,348.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,155.0,Rau de Mallevrière,,
+mouracou,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277400,,,,
+La Brousse,La Brousse,470.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,193.0,La Brousse,,
+montgros,Montgros,449.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,181.0,Montgros,,
+le villaret,Le Villaret,274.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277394,129.0,Le Villaret (Le Pont-de-Montvert),,
+Le Villaret,Le Villaret,274.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,129.0,Le Villaret (Le Pont-de-Montvert),,
+chazette,Les Chazettes,282.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,18.0,6.0,277400,134.0,Les Chazettes,,
+Mouracou. Mt Lozère,,,AUCUNE,Aucun nom similaire retrouvé,18.0,6.0,277400,,,,
+mallevriere,Mallevrière,348.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,18.0,6.0,277400,155.0,Rau de Mallevrière,6363381.79402973,758534.4947438266
+chaumette,La Chaumette,116.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,14.0,6.0,277375,59.0,La Chaumette,,
+empezou,Lempézou,240.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,14.0,6.0,277394,115.0,Mont de Lempézou,,
+bonne louche,Bonne Louche,1757.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,42.0,6.0,277399,817.0,Indéterminé,,
+terre des Laubies,,,AUCUNE,Aucun nom similaire retrouvé,42.0,6.0,277394,,,,
+Les Laubies,Les Laubies,144.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,32.0,6.0,277393,72.0,Les Laubies,6372267.616970837,751490.1824620097
+les laubies,Les Laubies,144.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,32.0,6.0,277393,72.0,Les Laubies,6371032.190632514,751614.1270044674
+Les Laubies,Les Laubies,144.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,32.0,6.0,277393,72.0,Les Laubies,6374452.405333423,743988.940195374
+les laubies,Les Laubies,144.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,32.0,6.0,277393,72.0,Les Laubies,6371188.895692964,751214.8760200137
+font bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,6370255.572164949,753202.2531430764
+Font Bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,6372185.115167296,751724.8243974722
+les Laubies,Les Laubies,144.0,EXACTE_COMMUNE,Nom exact retrouvé dans la commune,32.0,6.0,277393,72.0,Les Laubies,6371491.755243532,751841.1608650074
+font bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,6370265.197778329,754069.8658008802
+font bernard,Font Bernard,478.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,32.0,6.0,277399,196.0,Rau de Font Bernard,6370303.522790892,754005.0564088514
+TCA D'ALTEFAGE,Altefage,289.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,24.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,,
+TCA d'Altefage,Altefage,289.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,24.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,6361475.306806781,755459.2094936405
+TCA D'ALTEFAGE,Altefage,289.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,24.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,,
+TCA D'ALTEFAGE,Altefage,289.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,24.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,,
+TCA D'ALTEFAGE,Altefage,289.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,24.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,,
+TCA D'ALTEFAGE,Altefage,289.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,24.0,6.0,277400,137.0,ZIC II Altefage Les Trois Fayards,,
+la tour,La Tour,352.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,8.0,6.0,277400,156.0,ZIC IV Bartabelle,6358065.863915386,761684.254734294
+La tour,La Tour,352.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,8.0,6.0,277400,156.0,ZIC IV Bartabelle,6358264.974555114,761368.0549532882
+la tour,La Tour,352.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,8.0,6.0,277400,156.0,ZIC IV Bartabelle,6358455.152094571,762963.7245042624
+St Maurice,,,AUCUNE,Aucun nom similaire retrouvé,8.0,6.0,277400,,,6358554.179771753,762978.6854420053
+sant maurice,,,AUCUNE,Aucun nom similaire retrouvé,8.0,6.0,277400,,,6358038.681413996,764839.90804725
+St Maurice,,,AUCUNE,Aucun nom similaire retrouvé,8.0,6.0,277400,,,6357888.441452138,764054.9792702998
+La tour,La Tour,352.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,8.0,6.0,277400,156.0,ZIC IV Bartabelle,6358195.509245933,762774.0990763503
+La tour,La Tour,352.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,8.0,6.0,277400,156.0,ZIC IV Bartabelle,6358749.715090098,761289.9587621704
+la cham privée,La Cham privée,333.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,8.0,6.0,277400,151.0,ZIC VI La Cham Privée,6360959.505333664,760951.9435671119
+Ronc Pourrit,,,AUCUNE,Aucun nom similaire retrouvé,8.0,6.0,277404,,,6357615.5322378175,758620.0428411796
+le col du bougès,Col du Bonnet,513.0,SIMILAIRE_COMMUNE,Nom similaire retrouvé dans la commune,8.0,6.0,277400,216.0,Col du Bonnet,6359213.7909444,759871.5361159192
+La Tour,La Tour,352.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,8.0,6.0,277400,156.0,ZIC IV Bartabelle,6358051.0705316635,762325.6827704083
+cannarie bas,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,6354101.881329067,765649.0350654757
+le rond des baumes,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+pin de pivert,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+pin de pivert,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+Canaries bas,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+Canaries bas,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+bartavelle,Bartavelle,1557.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,37.0,7.0,277391,719.0,Font Bonne,,
+solperan,Solpéran,861.0,EXACTE_ZC,Nom exact retrouvé dans la ZC,37.0,7.0,277391,362.0,Solpéran,,
+Canaries haut,,,AUCUNE,Aucun nom similaire retrouvé,37.0,7.0,277391,,,,
+mas neuf,Le Mas Neuf,811.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,37.0,7.0,277391,344.0,Le Mas Neuf,,
+signal de ventalon,Signal de Ventalon,943.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,37.0,7.0,277391,398.0,Signal de Ventalon Ouest,,
+Le malhautier,Malhautier,765.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,322.0,Maillautier,,
+castanet,Le Castanet,771.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,326.0,Le Castanet,,
+bois de malzac,Bois de Malzac,1013.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277396,437.0,Bois de Malzac,6337821.4465871835,770285.3234873638
+Vergougnoux,Le Vergougnous,784.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,25.0,7.0,277396,334.0,Le Vergougnous,6349756.504533091,752196.9671035311
+castelviel,Castelviel,998.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,25.0,7.0,277407,428.0,Castelviel,,
+Ferrus,Ferrus (ZIC de Fontmort),1612.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,33.0,7.0,277404,731.0,Ferrus (ZIC de Fontmort),6351649.551614812,761430.127403012
+Fontmort zone 3,,,AUCUNE,Aucun nom similaire retrouvé,33.0,7.0,277395,,,6351356.534897606,761002.6119447025
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277409,414.0,Fretma,,
+Volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+Fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277409,414.0,Fretma,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,414.0,Fretma,,
+volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,414.0,Fretma,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,414.0,Fretma,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,414.0,Fretma,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,414.0,Fretma,,
+Volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+Fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277409,414.0,Fretma,,
+Volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,6355936.434075941,744761.6772769119
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,414.0,Fretma,,
+volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277409,414.0,Fretma,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,414.0,Fretma,,
+Volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,414.0,Fretma,,
+Fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277409,414.0,Fretma,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277409,414.0,Fretma,,
+fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,414.0,Fretma,,
+Fretma,Fretma,974.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277409,414.0,Fretma,,
+volpilloux,Volpilloux,1030.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,13.0,3.0,277394,449.0,Volpilloux,,
+mas de la font,Mas de la Font,347.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,39.0,3.0,277428,154.0,Mas de la Font,,
+mas de la font,Mas de la Font,347.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,39.0,3.0,277428,154.0,Mas de la Font,,
+Aire de côte,Aire de Côte,1186.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,28.0,1.0,277406,531.0,Forêt d'Aire de Côte,6368520.516671972,752566.3877062653
+Tabilloux,Tabilloux,1379.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,28.0,1.0,277431,629.0,Forêt de Tabilloux,,
+Aire de Côte,Aire de Côte,1186.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,28.0,1.0,277406,531.0,Forêt d'Aire de Côte,,
+tabilloux,Tabilloux,1379.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,28.0,1.0,277431,629.0,Forêt de Tabilloux,,
+Aire de Côte,Aire de Côte,1186.0,EXACTE_MULTIPLE_ZI,Plusieurs noms exacts retrouvés dans la ZI,28.0,1.0,277406,531.0,Forêt d'Aire de Côte,,
+campredon,Campredon,1063.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,5.0,1.0,277428,467.0,Campredon,,
+Campis,Campis,1061.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,4.0,1.0,277428,465.0,Campis,,
+fournique,,,AUCUNE,Aucun nom similaire retrouvé,4.0,1.0,277406,,,,
+Radalesse,,,AUCUNE,Aucun nom similaire retrouvé,4.0,1.0,277429,,,,
+Col de Portes,Col des Portes,1123.0,SIMILAIRE_ZI,Nom similaire retrouvé dans la ZI,4.0,1.0,277429,494.0,Col de Porte,,
+Peyremoula,Peyremoula,1056.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,4.0,1.0,277428,462.0,Peyremoula,,
+saut d'herault,Saut l'Hérault,1348.0,EXACTE_ZI,Nom exact retrouvé dans la ZI,6.0,2.0,277413,615.0,Cascades de l'Hérault,6333045.753448521,744114.7714267619
+la sereyrede,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277413,,,,
+sambuguet,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277413,,,6333045.753448521,744114.7714267619
+sambuguet,,,AUCUNE,Aucun nom similaire retrouvé,6.0,2.0,277413,,,,
