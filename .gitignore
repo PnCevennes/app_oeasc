@@ -4,14 +4,18 @@ data/donnees_gestion_foret
 data/limites_pnc
 data/Zonage_OEASC
 data/csv/ref_geo
+data/archives_lieux_dits/*.csv
 remove/
 *.pyc
+*.ipynb
 venv/
 venv2/
 var/log/error*
 settings.ini
 config/settings.ini_*
 config/config.py
+
+logs/*.log
 
 install/scripts_db/SQL/ref_geo_import.sql
 install/scripts_db/SQL/ref_geo_process.sql
@@ -30,6 +34,7 @@ static/export
 static/node_modules
 static/documents
 static/shapefiles/*
+ static/erreurs_import_chasse/*.csv
 
 static/dist/*
 static/src/js/config/config*.js
@@ -39,6 +44,8 @@ procedure_install_server.sh
 var/log/*.log
 .vscode/*
 *.save
+
+
 
 
 # frontend

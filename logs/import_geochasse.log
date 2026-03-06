@@ -13,3 +13,9 @@
 [INFO] 570 réalisations mises à jour avec succès.
 [INFO] Aucune erreur venant du csv pour la mise à jour
 [FILE] 2026-03-02_11-26-54_erreurs_import_geochasse.csv
+[2026-03-06T10:16:33.088898] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-06 10:16:33.
+[INFO] 0 nouvelle réalisation à insérer.
+[ERROR]  1 erreur(s) dans le csv pour l'insertion
+[INFO] 570 réalisations mises à jour avec succès.
+[INFO] Aucune erreur venant du csv pour la mise à jour
+[FILE] 2026-03-06_10-16-40_erreurs_import_geochasse.csv
