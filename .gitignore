@@ -34,7 +34,7 @@ static/export
 static/node_modules
 static/documents
 static/shapefiles/*
- static/erreurs_import_chasse/*.csv
+static/erreurs_import_chasse/*.log
 
 static/dist/*
 static/src/js/config/config*.js
