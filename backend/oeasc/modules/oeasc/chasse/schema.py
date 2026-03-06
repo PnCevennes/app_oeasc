@@ -249,6 +249,7 @@ class TRealisationsChasseSchema(GeoAlchemyAutoSchema):
     lieu_tir_synonyme = Nested(
         "TLieuTirSynonymesSchema",
         many=False,
+        allow_none=True,
         metadata={"load_instance": True},
     )
     nomenclature_sexe = Nested(

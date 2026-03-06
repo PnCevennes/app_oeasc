@@ -34,7 +34,7 @@ from .schema import (
 
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
-from flask import Blueprint, current_app, request, session, send_file, jsonify
+from flask import Blueprint, current_app, request, send_file
 from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
@@ -43,15 +43,15 @@ from .repositories import (
     get_attribution_result,
     chasse_process_args,
     chasse_get_infos,
-    # get_data_export_ods,
+)
+from .export_chasse import (
+    exportation_attributions_realises_chasse,
     get_data_all_especes_export_ods,
 )
 from .importation_csv import traitement_import_realisation_chasse
 from sqlalchemy import func
 import datetime
-import os
 
-# from oeasc.utils.env import ROOT_DIR
 from py3o.template import Template
 
 config = current_app.config
@@ -235,42 +235,7 @@ def api_result_custom():
     return out
 
 
-@bp.route("export/csv/", methods=["GET"])
-@csv_resp
-def api_result_export():
-    """
-    Route pour exporter des données au format CSV.
-    Cette API permet d'exporter les réalisations de chasse sous forme de fichier CSV, selon les paramètres fournis dans la requête GET.
-    Utilisation typique : extraction des données pour analyse ou archivage.
-    """
-
-    # Récupère le type de données à exporter depuis les paramètres de la requête (ex: 'realisation')
-    data_type = request.args.get("data_type")
-    # Récupère les filtres éventuels appliqués à l'export (ex: filtrer par saison, espèce, etc.)
-    filters = getlist(request.args, "filters")
-
-    # Dictionnaire associant le type de données à la vue SQL correspondante
-    views = {"realisation": "oeasc_chasse.v_export_realisation_csv"}
-
-    # Sélectionne la vue à utiliser selon le type de données demandé
-    view = views.get(data_type)
-    # Extrait le nom du schéma et de la table (vue) à partir de la chaîne
-    schema_name = view.split(".")[0]
-    table_name = view.split(".")[1]
-
-    # Exécute la requête sur la vue SQL avec les filtres éventuels, limite à 1 million de lignes
-    results = GenericQuery(
-        DB, schemaName=schema_name, tableName=table_name, filters=filters, limit=1e6
-    ).return_query()
-
-    # Récupère les données extraites
-    data = results["items"]
-    # Génère le nom du fichier CSV en fonction du type de données et de la date/heure d'export
-    file_name = "export_{}_{}".format(
-        data_type, datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%s")
-    )
-    # Retourne le fichier CSV : nom, données, entêtes de colonnes, séparateur
-    return (file_name, data, data[0].keys(), ";")
+##########################    EXPORT    ###########################
 
 
 @bp.route("export/ods", methods=["GET"])
@@ -309,29 +274,55 @@ def api_chasse_ods():
     )
 
 
+@bp.route("export/csv/", methods=["GET"])
+@csv_resp
+def api_result_export():
+    """
+    Route pour exporter des données au format CSV.
+    Cette API permet d'exporter les réalisations de chasse sous forme de fichier CSV, selon les paramètres fournis dans la requête GET.
+    Utilisation typique : extraction des données pour analyse ou archivage.
+    """
+    print("Requête reçue pour l'export CSV des réalisations de chasse")
+    df = exportation_attributions_realises_chasse()
+
+    # Retourne un tuple attendu par csv_resp (filename, data, columns, separator)
+    data = df.to_dict(orient="records")
+    columns = list(df.columns)
+    file_name = "export_realisation_chasse_{}".format(
+        datetime.datetime.now().strftime("%Y-%m-%d_%H_%M_%s")
+    )
+    return (file_name, data, columns, ";")
+
+
+############################    IMPORT    ###########################
+
+
 @bp.route("import/traitement-csv", methods=["POST"])
 @check_auth_redirect_login(4)
 def traitement_csv():
-    # print("Requête reçue pour l'import CSV de réalisations de chasse")
+    """Route pour traiter l'importation d'un fichier CSV contenant les réalisations de chasse.
+    Les paramètres de la requête POST doivent inclure :
+    - saison : la saison pour laquelle les données sont importées
+    - update : indique si les données existantes doivent être mises à jour ("true" ou "false")
+    - file : le fichier CSV à importer
+    """
     saison = request.form.get("saison")
     update = request.form.get("update")  # sera une string "true" ou "false"
     file = request.files.get("file")
     apiResponse = traitement_import_realisation_chasse(file, saison, update)
-
-    # apiResponse.print_all()
 
     return apiResponse.response_to_frontend()
 
 
 @bp.route("import/download-erreurs-csv/<file_name>", methods=["GET"])
 def download_erreurs_csv(file_name):
-
+    """Route pour télécharger le fichier CSV contenant les erreurs d'importation des réalisations de chasse.
+    Le nom du fichier est passé en paramètre dans l'URL. Le fichier doit être situé dans le dossier static/erreurs_import_chasse.
+    """
     file_name = request.view_args.get("file_name")
-
-    # Chemin du fichier ODS généré (dans le dossier static/export)
+    # Chemin du fichier CSV généré (dans le dossier static/erreurs_import_chasse)
     output_path = config["ROOT_DIR"] / "static/erreurs_import_chasse" / file_name
-    print(f"Chemin du fichier à télécharger: {output_path}")
-    # Retourne le fichier ODS généré en pièce jointe, avec un nom personnalisé selon la saison
+    # Retourne le fichier CSV généré en pièce jointe, avec un nom personnalisé selon la saison
     return send_file(
         output_path,
         as_attachment=True,

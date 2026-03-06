@@ -141,6 +141,7 @@ class TEspeces(CustomModel):
     id_espece: Mapped[int] = Column(Integer, primary_key=True)
     nom_espece: Mapped[str] = Column(Unicode)
     code_espece: Mapped[str] = Column(String(250))
+    cd_nom: Mapped[str] = Column(String(250))
 
 
 class TCommunes(CustomModel):
