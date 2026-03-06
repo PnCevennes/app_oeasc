@@ -775,7 +775,19 @@ def api_difference_nbRealisations_nbAttributions():
     if id_saison:
         stmt_attribution = stmt_attribution.where(TAttributions.id_saison == id_saison)
     # Filtrage par zones. Les zones indicatives ont la priorité sur les zones cynégétiques, qui ont elles même la priorité sur les secteurs
-    stmt_attribution = filtrage_stmt_secteur_zi_zc(stmt_attribution, list_id_zi, list_id_zc, list_id_secteur)
+    # stmt_attribution = filtrage_stmt_secteur_zi_zc(stmt_attribution, list_id_zi, list_id_zc, list_id_secteur)
+    if list_id_zi:
+        stmt_attribution = stmt_attribution.where(
+            TAttributions.id_zone_indicative_affectee.in_(list_id_zi)
+        )
+    elif list_id_zc:
+        stmt_attribution = stmt_attribution.where(
+            TAttributions.id_zone_cynegetique_affectee.in_(list_id_zc)
+        )
+    elif list_id_secteur:
+        stmt_attribution = stmt_attribution.where( TZoneCynegetiques.id_secteur.in_(list_id_secteur) )
+    
+    
     stmt_attribution = stmt_attribution.group_by(TTypeBracelets.code_type_bracelet)
     res_attribution = DB.session.execute(stmt_attribution).all()
 
@@ -830,4 +842,98 @@ def api_difference_nbRealisations_nbAttributions():
             "nb_realisations": nb_realisations,
         })
 
+    return data
+
+
+@bp.route("count_realisations_par_par_mois_par_type_bracelet/", methods=["GET"])
+@json_resp
+def api_count_realisations_par_par_mois_par_type_bracelet():
+    """
+    pour l'affichage des graphiques dans chasse -> analyse detaillée
+    Retourne le nombre de realisations par mois et par type de bracelet pour une saison pour une espece donnée
+    """
+
+    # récupère les paramètres de la requête et les traite
+    args = chasse_process_args()
+
+    id_espece = args.get("id_espece")
+    id_saison = args.get("id_saison")
+    list_id_secteur = args.get("id_secteur")
+    list_id_zc = args.get("id_zone_cynegetique")
+    list_id_zi = args.get("id_zone_indicative")
+
+    mois = func.to_char(TRealisationsChasse.date_exacte, "MM").label("mois")
+
+    stmt = (
+        select(
+            mois,
+            TTypeBracelets.code_type_bracelet,
+            func.count().label("nb_realisations"),
+        )
+        .select_from(TRealisationsChasse)
+        .join(
+            TAttributions,
+            TRealisationsChasse.id_attribution == TAttributions.id_attribution,
+        )
+        .join(
+            TTypeBracelets,
+            TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet,
+        )
+        .join(TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == TAttributions.id_zone_cynegetique_affectee)
+        .join(
+            TZoneIndicatives,
+            TZoneIndicatives.id_zone_indicative == TAttributions.id_zone_indicative_affectee,
+        )
+        .where(TTypeBracelets.id_espece == id_espece)
+    )
+
+    if id_saison:
+        stmt = stmt.where(TAttributions.id_saison == id_saison)
+
+    # Filtrage par zones. Les zones indicatives ont la priorité sur les zones cynégétiques, qui ont elles même la priorité sur les secteurs
+    stmt = filtrage_stmt_secteur_zi_zc(stmt, list_id_zi, list_id_zc, list_id_secteur)
+
+    stmt = stmt.group_by(mois, TTypeBracelets.code_type_bracelet)
+
+    res = DB.session.execute(stmt).all()
+
+    # on regroupe les résultats par mois puis par type de bracelet. On commence par le mois de septembre (début de la saison de chasse)
+    #  pour finir par mars (fin de la saison de chasse) pour que les saisons soient regroupées de septembre à aout
+    # le résultat final sera de la forme
+    # [
+    #     {
+    #       "text": "Sep.",
+    #       "data": [
+    #         {
+    #           "type_bracelet": "CEM",
+    #           "nb_realisations": 50,
+    #         },
+    #         {
+    #           "type_bracelet": "CEFF",
+    #           "nb_realisations": 100,
+    #         },
+    #       ]
+    #     }, ...
+    #     ...
+    # ]
+    data = []
+    for mois, type_bracelet, nb_realisations in res:
+        mois_txt = mois_mapping.get(mois, mois)
+        bracelet_data = {
+            "type de bracelet": type_bracelet,
+            "réalisations": nb_realisations,
+        }
+        mois_entry = next((item for item in data if item["mois"] == mois_txt), None)
+        if mois_entry:
+            mois_entry["data"].append(bracelet_data)
+            mois_entry["réalisations_totale"] += nb_realisations
+        else:
+            data.append({
+                "mois": mois_txt,
+                "réalisations_totale": nb_realisations,
+                "data": [bracelet_data],
+            })
+    # on trie les mois pour que l'affichage soit de septembre à aout
+    mois_order = ["Sep.", "Oct.", "Nov.", "Déc.", "Jan.", "Fév.", "Mar.", "Avr.", "Mai", "Juin", "Juil.", "Aou."]
+    data = sorted(data, key=lambda x: mois_order.index(x["mois"]))
     return data

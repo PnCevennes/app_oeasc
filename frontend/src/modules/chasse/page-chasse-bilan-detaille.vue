@@ -93,9 +93,11 @@
               title="Prélèvements par type de bracelet"></camembert>
           </v-col>
           <v-col>
-            <histogramme_comparatif :data_db="data_nbRealisations_vs_nbAttributions" 
-              fieldGroup="type_bracelet" :listfieldValues="['nb_attributions', 'nb_realisations']"
-              nameGroup=" Type de bracelets" :listNameValues="['nb Attributions', 'nb Réalisations']"
+            <histogramme_comparatif :data_db="data_nbRealisations_vs_nbAttributions"
+              fieldReference="nb_attributions"
+              nameReference="attributions"
+              fieldGroup="type_bracelet" :listfieldValues="['nb_realisations']"
+              nameGroup=" Type de bracelets" :listNameValues="['nb Réalisations']"
               title="Comparatif des prélèvements par type de bracelet"></histogramme_comparatif>
           </v-col>
         </v-row>
@@ -104,14 +106,14 @@
             Affiche un graphique pour chaque type de bracelet (CEM, CEFF, CEFFD).
             Permet d'analyser les attributions par catégorie.
           -->
-          <v-col v-for="bracelet in ['CEM', 'CEFF', 'CEFFD']" :key="bracelet">
+          <!-- <v-col v-for="bracelet in ['CEM', 'CEFF', 'CEFFD']" :key="bracelet">
             <graph-chasse v-bind="bilanParams" :bracelet="bracelet" type="attribution_bracelet">
             </graph-chasse>
-          </v-col>
+          </v-col> -->
         </v-row>
 
 
-        <!-- <v-row>
+        <v-row>
           <v-col>
             <restitution2 display="graph" fieldName2="bracelet" fieldName="mois_txt"
               dataType="chasse" typeGraph="column" :stacking="true"
@@ -125,7 +127,7 @@
               :title="`Répartition par mode de chasse  et par catégorie`"
               :filters="{ ...bilanParams }"></restitution2>
           </v-col>
-        </v-row> -->
+        </v-row>
 
         <v-row>
           <!--
