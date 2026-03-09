@@ -74,7 +74,6 @@ droits = {"C": 4, "R": 0, "U": 4, "D": 4}
 # routes dynamiques pour accéder aux modèles de la base de données
 # la route est par exemple de la forme <blueprint>/chasse/personne/ pour accéder à la table TPersonnes
 definitions = {
-    # "personne": {"model": TPersonnes, "droits": droits, "schema": TPersonnesSchema},
     "zone_cynegetique": {
         "model": TZoneCynegetiques,
         "droits": droits,
