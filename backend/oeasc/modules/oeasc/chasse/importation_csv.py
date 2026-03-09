@@ -268,6 +268,9 @@ COLUMNS_REALISATION = [
     "id_nomenclature_categorie",
     "auteur_tir_str",
     "auteur_constat_str",
+    "lieu_tir_txt",
+    "latitude",
+    "longitude"
 ]
 
 
@@ -1994,7 +1997,7 @@ def etape__creation_dataframe_erreurs(
         user_message = f"Une erreur est survenue lors de la création du rapport CSV des erreurs. {e}"
         apiResponse.add_log(message=user_message, type_log="ERROR")
         apiResponse.add_error(system_error=str(e), user_message=user_message)
-        return pd.DataFrame(), apiResponse
+        return apiResponse
 
 
 def etape__remplissage_commentaires(df, apiResponse):
@@ -2033,7 +2036,6 @@ def traitement_import_realisation_chasse(path_csv, id_saison, update):
         apiResponse.print_all()
         return apiResponse
 
-    print("UPDATE: ", update)
 
     df, apiResponse = etape__récuperation_csv(apiResponse)
     if apiResponse.success == False:
@@ -2084,7 +2086,7 @@ def traitement_import_realisation_chasse(path_csv, id_saison, update):
         )  # si ce n'est pas une mise à jour, il n'y a pas d'erreurs de mise à jour.
 
     if apiResponse.success == False:
-        return apiResponse, {}
+        return apiResponse
 
     apiResponse = etape__creation_dataframe_erreurs(
         df_original, df_erreurs_insert, df_erreurs_update, apiResponse

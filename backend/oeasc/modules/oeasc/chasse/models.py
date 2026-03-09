@@ -327,6 +327,9 @@ class TRealisationsChasse(CustomModel):
         Integer, ForeignKey("oeasc_chasse.t_lieu_tir_synonymes.id_lieu_tir_synonyme")
     )
     lieu_tir_synonyme: Mapped["TLieuTirSynonymes"] = relationship(TLieuTirSynonymes)
+    lieu_tir_txt: Mapped[str] = Column(Unicode)  # champ texte libre pour le lieu de tir
+    latitude: Mapped[float] = Column(Float)
+    longitude: Mapped[float] = Column(Float)
     date_exacte: Mapped[Date] = Column(Date)
     date_enreg: Mapped[Date] = Column(Date)
     mortalite_hors_pc: Mapped[bool] = Column(Boolean)

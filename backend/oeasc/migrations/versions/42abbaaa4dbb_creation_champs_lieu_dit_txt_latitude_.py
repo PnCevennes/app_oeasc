@@ -31,19 +31,14 @@ def upgrade():
         AND lts.id_lieu_tir = lt.id_lieu_tir;"""
     op.execute(sql)
 
-    # creation du champ id_commune_realisation dans la table oeasc_chasse.t_realisations
-    sql = """ALTER TABLE oeasc_chasse.t_realisations
-        ADD COLUMN IF NOT EXISTS id_commune_realisation INTEGER;"""
-    op.execute(sql)
-
     # ajout du champ latitude dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
-        ADD COLUMN IF NOT EXISTS latitude NUMERIC(10, 7);"""
+        ADD COLUMN IF NOT EXISTS latitude DOUBLE PRECISION;"""
     op.execute(sql)
 
     # ajout du champ longitude dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
-        ADD COLUMN IF NOT EXISTS longitude NUMERIC(10, 7);"""
+        ADD COLUMN IF NOT EXISTS longitude DOUBLE PRECISION;"""
     op.execute(sql)
 
 
@@ -56,11 +51,6 @@ def downgrade():
     # suppression du champ latitude dans la table oeasc_chasse.t_realisations
     sql = """ALTER TABLE oeasc_chasse.t_realisations
         DROP COLUMN IF EXISTS latitude;"""
-    op.execute(sql)
-
-    # suppression du champ id_commune_realisation dans la table oeasc_chasse.t_realisations
-    sql = """ALTER TABLE oeasc_chasse.t_realisations
-        DROP COLUMN IF EXISTS id_commune_realisation;"""
     op.execute(sql)
 
     # suppression du champ longitude dans la table oeasc_chasse.t_realisations

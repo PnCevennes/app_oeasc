@@ -76,8 +76,9 @@ export default {
             title: "Lieu de tir",
             groups: [
               {
-                forms: ["lieu_tir_synonyme"]
+                forms: ["lieu_tir_synonyme", "lieu_tir_txt"]
               }
+
             ]
           }
         ]
@@ -309,6 +310,12 @@ export default {
       returnObject: true,
       dataReloadOnSearch: true,
       required: false
+    },
+
+    lieu_tir_txt: {
+      label: "Lieu de tir txt",
+      type: "text",
+      returnObject: true,
     },
 
     // Champ "Date du tir" (saisie rapide JJMM)
