@@ -6,7 +6,9 @@ data/Zonage_OEASC
 data/csv/ref_geo
 remove/
 *.pyc
+*.ipynb
 venv/
+venv2/
 var/log/error*
 settings.ini
 config/settings.ini_*

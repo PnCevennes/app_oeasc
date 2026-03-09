@@ -1051,6 +1051,6 @@ def filtrage_stmt_secteur_zi_zc(
             TRealisationsChasse.id_zone_cynegetique_realisee.in_(list_id_zc)
         )
     elif list_id_secteur:
-        stmt = stmt.where( TZoneCynegetiques.id_secteur.in_(list_id_secteur) )
+        stmt = stmt.where(TZoneCynegetiques.id_secteur.in_(list_id_secteur))
 
     return stmt

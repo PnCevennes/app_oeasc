@@ -74,19 +74,19 @@ droits = {"C": 4, "R": 0, "U": 4, "D": 4}
 
 # pour certains graphiques on modifiera le numéro de mois par son nom.
 mois_mapping = {
-        "01": "Jan.",
-        "02": "Fév.",
-        "03": "Mar.",
-        "04": "Avr.",
-        "05": "Mai",
-        "06": "Juin",
-        "07": "Juil.",
-        "08": "Aou.",
-        "09": "Sep.",
-        "10": "Oct.",
-        "11": "Nov.",
-        "12": "Déc."
-    }
+    "01": "Jan.",
+    "02": "Fév.",
+    "03": "Mar.",
+    "04": "Avr.",
+    "05": "Mai",
+    "06": "Juin",
+    "07": "Juil.",
+    "08": "Aou.",
+    "09": "Sep.",
+    "10": "Oct.",
+    "11": "Nov.",
+    "12": "Déc.",
+}
 
 
 # routes dynamiques pour accéder aux modèles de la base de données
@@ -326,11 +326,10 @@ def api_chasse_ods():
     )
 
 
-
-
 ###################################################################################################
 ########### REQUETES POUR LES GRAPHIQUES D'ANALYSE DETAILLEE DANS LE BILAN DE CHASSE ##############
 ####################################################################################################
+
 
 @bp.route("count_categorie_realisations/", methods=["GET"])
 @json_resp
@@ -369,7 +368,11 @@ def api_count_categorie_realisations():
             TNomenclatures.id_nomenclature
             == TRealisationsChasse.id_nomenclature_classe_age,
         )
-        .join(TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == TAttributions.id_zone_cynegetique_affectee)
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
+        )
         .join(sexe, sexe.id_nomenclature == TRealisationsChasse.id_nomenclature_sexe)
         .join(
             classe_age,
@@ -418,7 +421,6 @@ def api_count_mode_chasse_realisations():
     list_id_zc = args.get("id_zone_cynegetique")
     list_id_zi = args.get("id_zone_indicative")
 
-
     stmt = (
         select(TNomenclatures.label_fr, func.count().label("count"))
         .select_from(TRealisationsChasse)
@@ -432,11 +434,15 @@ def api_count_mode_chasse_realisations():
         )
         .join(
             TNomenclatures,
-            TNomenclatures.id_nomenclature == TRealisationsChasse.id_nomenclature_mode_chasse,
-        ).join(TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == TAttributions.id_zone_cynegetique_affectee)
-        .where(
-            TRealisationsChasse.id_nomenclature_mode_chasse != None
+            TNomenclatures.id_nomenclature
+            == TRealisationsChasse.id_nomenclature_mode_chasse,
         )
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
+        )
+        .where(TRealisationsChasse.id_nomenclature_mode_chasse != None)
     )
 
     if id_espece:
@@ -452,22 +458,20 @@ def api_count_mode_chasse_realisations():
 
     res = DB.session.execute(stmt).all()
     data = [
-            {
-                "text": row[0],
-                "count": row[1],
-            }
-            for row in res
-        ]
+        {
+            "text": row[0],
+            "count": row[1],
+        }
+        for row in res
+    ]
     return data
-
 
 
 # pas utlisé, c'était la requête initiale pour le graph mulitiligne mais je l'ai simplifiée
 @bp.route("realisations_par_mois_sur_dernieres_saisons_par_mois/", methods=["GET"])
 @json_resp
 def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
-    """
-    """
+    """ """
     args = chasse_process_args()
 
     id_espece = args.get("id_espece")
@@ -477,7 +481,7 @@ def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
     # nb_saison = int(args.get("nb_saison", 5))
 
     nb_saison = request.args.get("nb_saison")
-    print ("nombre de saison : ", nb_saison)
+    print("nombre de saison : ", nb_saison)
 
     mois = func.to_char(TRealisationsChasse.date_exacte, "MM").label("mois")
 
@@ -499,16 +503,20 @@ def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
         )
         .join(
             TZoneCynegetiques,
-            TZoneCynegetiques.id_zone_cynegetique == TAttributions.id_zone_cynegetique_affectee,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
         )
         .join(
             TZoneIndicatives,
-            TZoneIndicatives.id_zone_indicative == TAttributions.id_zone_indicative_affectee,
+            TZoneIndicatives.id_zone_indicative
+            == TAttributions.id_zone_indicative_affectee,
         )
         .join(TSaisons, TSaisons.id_saison == TAttributions.id_saison)
         .where(
             TSaisons.id_saison.in_(
-                select(TSaisons.id_saison).order_by(TSaisons.nom_saison.desc()).limit(nb_saison)
+                select(TSaisons.id_saison)
+                .order_by(TSaisons.nom_saison.desc())
+                .limit(nb_saison)
             )
         )
         .group_by(mois, TSaisons.nom_saison, TSaisons.id_saison)
@@ -522,7 +530,7 @@ def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
     stmt = filtrage_stmt_secteur_zi_zc(stmt, list_id_zi, list_id_zc, list_id_secteur)
 
     res = DB.session.execute(stmt).all()
-    
+
     # on regroupe  les resutat par mois puis par saison. On commence par le mois de septembre (début de la saison de chasse)
     #  pour finir par mars (fin de la saison de chasse) pour que les saisons soient regroupées de septembre à aout
     # le resuttat final sera de la forme
@@ -556,23 +564,37 @@ def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
             mois_entry["data"].append(saison_data)
             mois_entry["nb_realisations_totale"] += nb_realisations
         else:
-            data.append({
-                "mois": mois_txt,
-                "nb_realisations_totale": nb_realisations,
-                "data": [saison_data],
-            })
+            data.append(
+                {
+                    "mois": mois_txt,
+                    "nb_realisations_totale": nb_realisations,
+                    "data": [saison_data],
+                }
+            )
     # on trie les mois pour que l'affichage soit de septembre à aout
-    mois_order = ["Sep.", "Oct.", "Nov.", "Déc.", "Jan.", "Fév.", "Mar.", "Avr.", "Mai", "Juin", "Juil.", "Aou."]
+    mois_order = [
+        "Sep.",
+        "Oct.",
+        "Nov.",
+        "Déc.",
+        "Jan.",
+        "Fév.",
+        "Mar.",
+        "Avr.",
+        "Mai",
+        "Juin",
+        "Juil.",
+        "Aou.",
+    ]
     data = sorted(data, key=lambda x: mois_order.index(x["mois"]))
     return data
-    
+
 
 # pour le graph multilignes sur la chronologie des prélevements sur n nombre de saisons
 @bp.route("realisations_par_mois_sur_dernieres_saisons/", methods=["GET"])
 @json_resp
 def api_realisations_par_mois_sur_dernieres_saisons():
-    """
-    """
+    """ """
     args = chasse_process_args()
 
     id_espece = args.get("id_espece")
@@ -582,7 +604,7 @@ def api_realisations_par_mois_sur_dernieres_saisons():
     # nb_saison = int(args.get("nb_saison", 5))
 
     nb_saison = request.args.get("nb_saison")
-    print ("nombre de saison : ", nb_saison)
+    print("nombre de saison : ", nb_saison)
 
     mois = func.to_char(TRealisationsChasse.date_exacte, "MM").label("mois")
 
@@ -604,21 +626,24 @@ def api_realisations_par_mois_sur_dernieres_saisons():
         )
         .join(
             TZoneCynegetiques,
-            TZoneCynegetiques.id_zone_cynegetique == TAttributions.id_zone_cynegetique_affectee,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
         )
         .join(
             TZoneIndicatives,
-            TZoneIndicatives.id_zone_indicative == TAttributions.id_zone_indicative_affectee,
+            TZoneIndicatives.id_zone_indicative
+            == TAttributions.id_zone_indicative_affectee,
         )
         .join(TSaisons, TSaisons.id_saison == TAttributions.id_saison)
         .where(
             TSaisons.id_saison.in_(
-                select(TSaisons.id_saison).order_by(TSaisons.nom_saison.desc()).limit(nb_saison)
+                select(TSaisons.id_saison)
+                .order_by(TSaisons.nom_saison.desc())
+                .limit(nb_saison)
             )
         )
-        .group_by(TSaisons.id_saison,TSaisons.nom_saison, mois)
+        .group_by(TSaisons.id_saison, TSaisons.nom_saison, mois)
         .order_by(TSaisons.nom_saison.desc(), mois)
-
     )
 
     if id_espece:
@@ -628,8 +653,6 @@ def api_realisations_par_mois_sur_dernieres_saisons():
     stmt = filtrage_stmt_secteur_zi_zc(stmt, list_id_zi, list_id_zc, list_id_secteur)
 
     res = DB.session.execute(stmt).all()
-    
-
 
     # on regroupe  les resutat par saison puis par mois. On commence par le mois de septembre (début de la saison de chasse)
     #  pour finir par mars (fin de la saison de chasse) pour que les saisons soient regroupées de septembre à aout
@@ -660,26 +683,49 @@ def api_realisations_par_mois_sur_dernieres_saisons():
         #     "nom_saison": nom_saison,
         #     "nb_realisations": nb_realisations,
         # }
-        saison_entry = next((item for item in data if item["nom_saison"] == nom_saison), None)
+        saison_entry = next(
+            (item for item in data if item["nom_saison"] == nom_saison), None
+        )
         if saison_entry:
-            saison_entry["data"].append({
-                "mois": mois_txt,
-                "nb_realisations": nb_realisations,
-            })
-            # saison_entry["nb_realisations_totale"] += nb_realisations
-        else:
-            data.append({
-                "nom_saison": nom_saison,
-                # "nb_realisations_totale": nb_realisations,
-                "data": [{
+            saison_entry["data"].append(
+                {
                     "mois": mois_txt,
                     "nb_realisations": nb_realisations,
-                }],
-            })
+                }
+            )
+            # saison_entry["nb_realisations_totale"] += nb_realisations
+        else:
+            data.append(
+                {
+                    "nom_saison": nom_saison,
+                    # "nb_realisations_totale": nb_realisations,
+                    "data": [
+                        {
+                            "mois": mois_txt,
+                            "nb_realisations": nb_realisations,
+                        }
+                    ],
+                }
+            )
     # on trie les mois en commençant par septembre pour que les saisons soient regroupées de septembre à aout
-    mois_order = ["Sep.", "Oct.", "Nov.", "Déc.", "Jan.", "Fév.", "Mar.", "Avr.", "Mai", "Juin", "Juil.", "Aou."]
+    mois_order = [
+        "Sep.",
+        "Oct.",
+        "Nov.",
+        "Déc.",
+        "Jan.",
+        "Fév.",
+        "Mar.",
+        "Avr.",
+        "Mai",
+        "Juin",
+        "Juil.",
+        "Aou.",
+    ]
     for saison in data:
-        saison["data"] = sorted(saison["data"], key=lambda x: mois_order.index(x["mois"]))
+        saison["data"] = sorted(
+            saison["data"], key=lambda x: mois_order.index(x["mois"])
+        )
     return data
 
 
@@ -711,10 +757,15 @@ def api_count_realisations_par_type_de_bracelet():
             TTypeBracelets,
             TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet,
         )
-        .join(TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == TAttributions.id_zone_cynegetique_affectee)
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
+        )
         .join(
             TZoneIndicatives,
-            TZoneIndicatives.id_zone_indicative == TAttributions.id_zone_indicative_affectee,
+            TZoneIndicatives.id_zone_indicative
+            == TAttributions.id_zone_indicative_affectee,
         )
         .where(TTypeBracelets.id_espece == id_espece)
     )
@@ -739,6 +790,7 @@ def api_count_realisations_par_type_de_bracelet():
     ]
 
     return data
+
 
 @bp.route("difference_nbRealisations_nbAttributions/", methods=["GET"])
 @json_resp
@@ -765,10 +817,15 @@ def api_difference_nbRealisations_nbAttributions():
             TTypeBracelets,
             TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet,
         )
-        .join(TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == TAttributions.id_zone_cynegetique_affectee)
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
+        )
         .join(
             TZoneIndicatives,
-            TZoneIndicatives.id_zone_indicative == TAttributions.id_zone_indicative_affectee,
+            TZoneIndicatives.id_zone_indicative
+            == TAttributions.id_zone_indicative_affectee,
         )
         .where(TTypeBracelets.id_espece == id_espece)
     )
@@ -785,9 +842,10 @@ def api_difference_nbRealisations_nbAttributions():
             TAttributions.id_zone_cynegetique_affectee.in_(list_id_zc)
         )
     elif list_id_secteur:
-        stmt_attribution = stmt_attribution.where( TZoneCynegetiques.id_secteur.in_(list_id_secteur) )
-    
-    
+        stmt_attribution = stmt_attribution.where(
+            TZoneCynegetiques.id_secteur.in_(list_id_secteur)
+        )
+
     stmt_attribution = stmt_attribution.group_by(TTypeBracelets.code_type_bracelet)
     res_attribution = DB.session.execute(stmt_attribution).all()
 
@@ -803,17 +861,24 @@ def api_difference_nbRealisations_nbAttributions():
             TTypeBracelets,
             TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet,
         )
-        .join(TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == TAttributions.id_zone_cynegetique_affectee)
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
+        )
         .join(
             TZoneIndicatives,
-            TZoneIndicatives.id_zone_indicative == TAttributions.id_zone_indicative_affectee,
+            TZoneIndicatives.id_zone_indicative
+            == TAttributions.id_zone_indicative_affectee,
         )
         .where(TTypeBracelets.id_espece == id_espece)
     )
     if id_saison:
         stmt_realisation = stmt_realisation.where(TAttributions.id_saison == id_saison)
     # Filtrage par zones. Les zones indicatives ont la priorité sur les zones cynégétiques, qui ont elles même la priorité sur les secteurs
-    stmt_realisation = filtrage_stmt_secteur_zi_zc(stmt_realisation, list_id_zi, list_id_zc, list_id_secteur)
+    stmt_realisation = filtrage_stmt_secteur_zi_zc(
+        stmt_realisation, list_id_zi, list_id_zc, list_id_secteur
+    )
     stmt_realisation = stmt_realisation.group_by(TTypeBracelets.code_type_bracelet)
     res_realisation = DB.session.execute(stmt_realisation).all()
 
@@ -836,11 +901,13 @@ def api_difference_nbRealisations_nbAttributions():
             if row_realisation[0] == type_bracelet:
                 nb_realisations = row_realisation[1]
                 break
-        data.append({
-            "type_bracelet": type_bracelet,
-            "nb_attributions": nb_attributions,
-            "nb_realisations": nb_realisations,
-        })
+        data.append(
+            {
+                "type_bracelet": type_bracelet,
+                "nb_attributions": nb_attributions,
+                "nb_realisations": nb_realisations,
+            }
+        )
 
     return data
 
@@ -879,10 +946,15 @@ def api_count_realisations_par_par_mois_par_type_bracelet():
             TTypeBracelets,
             TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet,
         )
-        .join(TZoneCynegetiques, TZoneCynegetiques.id_zone_cynegetique == TAttributions.id_zone_cynegetique_affectee)
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
+        )
         .join(
             TZoneIndicatives,
-            TZoneIndicatives.id_zone_indicative == TAttributions.id_zone_indicative_affectee,
+            TZoneIndicatives.id_zone_indicative
+            == TAttributions.id_zone_indicative_affectee,
         )
         .where(TTypeBracelets.id_espece == id_espece)
     )
@@ -928,12 +1000,27 @@ def api_count_realisations_par_par_mois_par_type_bracelet():
             mois_entry["data"].append(bracelet_data)
             mois_entry["réalisations_totale"] += nb_realisations
         else:
-            data.append({
-                "mois": mois_txt,
-                "réalisations_totale": nb_realisations,
-                "data": [bracelet_data],
-            })
+            data.append(
+                {
+                    "mois": mois_txt,
+                    "réalisations_totale": nb_realisations,
+                    "data": [bracelet_data],
+                }
+            )
     # on trie les mois pour que l'affichage soit de septembre à aout
-    mois_order = ["Sep.", "Oct.", "Nov.", "Déc.", "Jan.", "Fév.", "Mar.", "Avr.", "Mai", "Juin", "Juil.", "Aou."]
+    mois_order = [
+        "Sep.",
+        "Oct.",
+        "Nov.",
+        "Déc.",
+        "Jan.",
+        "Fév.",
+        "Mar.",
+        "Avr.",
+        "Mai",
+        "Juin",
+        "Juil.",
+        "Aou.",
+    ]
     data = sorted(data, key=lambda x: mois_order.index(x["mois"]))
     return data
