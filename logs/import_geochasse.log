@@ -19,3 +19,47 @@
 [INFO] 570 réalisations mises à jour avec succès.
 [INFO] Aucune erreur venant du csv pour la mise à jour
 [FILE] 2026-03-06_10-16-40_erreurs_import_geochasse.csv
+[2026-03-06T17:14:44.654388] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-06 17:14:44.
+[ERROR] Une erreur est survenue lors de la vérification des données du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer.
+[2026-03-06T17:14:46.561350] [ERROR] '<' not supported between instances of 'float' and 'str'
+[2026-03-06T17:15:23.010408] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-06 17:15:23.
+[INFO] 0 nouvelle réalisation à insérer.
+[ERROR]  1 erreur(s) dans le csv pour l'insertion
+[INFO] 570 réalisations mises à jour avec succès.
+[INFO] Aucune erreur venant du csv pour la mise à jour
+[FILE] 2026-03-06_17-15-31_erreurs_import_geochasse.csv
+[2026-03-06T17:39:08.715681] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-06 17:39:08.
+[INFO] 0 nouvelle réalisation à insérer.
+[ERROR]  1 erreur(s) dans le csv pour l'insertion
+[INFO] 570 réalisations mises à jour avec succès.
+[INFO] Aucune erreur venant du csv pour la mise à jour
+[FILE] 2026-03-06_17-39-16_erreurs_import_geochasse.csv
+[2026-03-09T09:39:30.092914] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-09 09:39:30.
+[ERROR] Une erreur est survenue lors de la vérification des données du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer.
+[2026-03-09T09:39:30.799576] [ERROR] '<' not supported between instances of 'float' and 'str'
+[2026-03-09T09:59:02.128800] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-09 09:59:02.
+[2026-03-09T10:29:25.773232] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-09 10:29:25.
+[ERROR] Une erreur est survenue lors de la vérification des données du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer.
+[2026-03-09T10:29:26.447618] [ERROR] 'long_dagues_gauche'
+[2026-03-09T10:39:36.023801] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-09 10:39:36.
+[ERROR] Une erreur est survenue lors de la vérification des données du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer.
+[2026-03-09T10:39:37.917596] [ERROR] 'long_dagues_gauche'
+[2026-03-09T10:40:40.379900] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-09 10:40:40.
+[ERROR] Une erreur est survenue lors de la vérification des données du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer.
+[2026-03-09T10:40:42.289094] [ERROR] 'long_dagues_gauche'
+[2026-03-09T10:41:29.638668] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-09 10:41:29.
+[ERROR] Une erreur est survenue lors de la vérification des données du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer.
+[2026-03-09T10:41:31.523084] [ERROR] 'long_dagues_gauche'
+[2026-03-09T10:48:46.841988] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-09 10:48:46.
+[2026-03-09T12:23:50.246657] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-09 12:23:50.
+[INFO] 0 nouvelle réalisation à insérer.
+[ERROR]  3 erreur(s) dans le csv pour l'insertion
+[INFO] 1047 réalisations mises à jour avec succès.
+[INFO] Aucune erreur venant du csv pour la mise à jour
+[FILE] 2026-03-09_12-24-00_erreurs_import_geochasse.csv
+[2026-03-09T13:50:58.298078] Utilisateur Admin_OEASC admin (id_role: 10) a lancé l'import des données de chasse depuis Geochasse à 2026-03-09 13:50:58.
+[INFO] 0 nouvelle réalisation à insérer.
+[ERROR]  4 erreur(s) dans le csv pour l'insertion
+[INFO] 1044 réalisations mises à jour avec succès.
+[INFO] Aucune erreur venant du csv pour la mise à jour
+[FILE] 2026-03-09_13-51-09_erreurs_import_geochasse.csv

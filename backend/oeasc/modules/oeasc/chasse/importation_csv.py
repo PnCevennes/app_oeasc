@@ -85,15 +85,14 @@ SCORE_MINIMUM_RAPIDFUZZ = 76
 # L'export geochasse provoque des décalages dans les noms de colonnes. La variable suivante les renomme correctement
 # Mais il faudra la modifier le jour où geochasse corrigera le problème.
 ERREUR_NOMS_COLONNES_GEOCHASSE = {
-    "parc_nom_tireur2": "auteur_tir_str",
-    "parc_lieu_dit2": "lieu_tir_txt",
+    "parc_nom_tireur": "auteur_tir_str",
+    "parc_lieu_dit": "lieu_tir_txt",
     "long_cornes_G_isard": "cors_nb",
-    "parc_nom_tireur": "long_dagues_gauche",
-    "parc_lieu_dit": "long_dagues_droite",
     "long_machoire_1": "long_mandibules_droite",
     "long_machoire_2": "long_mandibules_gauche",
     "commentaires": "commentaire",
 }
+
 # Pour les mouflons l'age est un entier
 ERREUR_AGE = {"1": "Adulte"}
 
@@ -116,7 +115,7 @@ LISTE_ESPECE = {
     "MOM": ["MOUFLON", ["Male"], ["Adulte"]],
     "MOM1": ["MOUFLON", ["Male"], ["Subadulte"]],
     "MOI": ["MOUFLON", ["Indéterminé"], ["Jeune"]],
-    "MOIJ": ["MOUFLON", ["Femelle"], ["Jeune"]],
+    "MOIJ": ["MOUFLON", ["Femelle", "Male"], ["Jeune"]],
     "CHI": [
         "CHEVREUIL",
         ["Male", "Indéterminé", "Femelle"],
@@ -155,6 +154,7 @@ COLUMNS_NAME = [
     "ref_battue",
     "numero_battue",
     "ref_ug",
+    "origine_bracelet",
     "ref_detenteur",
     "nom_detenteur",
     "ref_equipe",
@@ -162,6 +162,7 @@ COLUMNS_NAME = [
     "ref_membre",
     "date",
     "heure",
+    "date_saisie",
     "commune",
     "insee_commune",
     "lieu_dit",
@@ -192,11 +193,14 @@ COLUMNS_NAME = [
     "long_corne_mouflon",
     "diam_corne_mouflon",
     "age_mouflon",
+    "long_dagues_gauche",
+    "long_dagues_droite",
     "parc_nom_tireur",
     "parc_lieu_dit",
-    "parc_nom_tireur2",
     "parc_lieu_dit2",
 ]
+
+
 # noms des colonnes de geochasses inutiles. On les supprimera au début du traitement
 COLUMNS_INUTILES = [
     "risque_sanitaire",
@@ -209,7 +213,6 @@ COLUMNS_INUTILES = [
     "nom_equipe",
     "ref_membre",
     "insee_commune",
-    "lieu_dit",
     "territoire",
     "photos",
     "nom_tireur",
@@ -227,8 +230,6 @@ COLUMNS_INUTILES = [
     "long_corne_mouflon",
     "diam_corne_mouflon",
     "age_mouflon",
-    "parc_nom_tireur",
-    "parc_lieu_dit",
     "nb_cors",
     "long_cornes_D_isard",
     "hauteur_cornes_isard",
@@ -268,11 +269,7 @@ COLUMNS_REALISATION = [
     "id_nomenclature_categorie",
     "auteur_tir_str",
     "auteur_constat_str",
-    "lieu_tir_txt",
-    "latitude",
-    "longitude"
 ]
-
 
 ####################################################################################
 #################        FONCTIONS DIVERSES             ############################
@@ -405,6 +402,20 @@ def check_caracteres_invisibles(df):
             lambda x: None if isinstance(x, str) and x.strip() == "" else x
         )
     return df
+
+
+def uniformise_date(serie):
+    """Repère les dates sous différents formats souvent utilisées et les uniformise au format aaaa-mm-jj.
+    Si une date ne peut pas être convertie, elle est remplacée par None.
+    Fonction créée car geochasse à changé ses formats de date à plusieurs reprises."""
+    formats = ["%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%Y-%m-%d", "%Y/%m/%d", "%Y.%m.%d"]
+    for fmt in formats:
+        serie = pd.to_datetime(serie, format=fmt, errors="coerce")
+        if serie.notna().all():
+            break
+    serie = serie.dt.strftime("%Y-%m-%d")
+    serie = serie.where(serie.notna(), None)
+    return serie
 
 
 ##################################################################################
@@ -809,12 +820,11 @@ def etape__verification_donnees_geochasse(df, apiResponse):
 
         # on verifie que la date est un string au format aaaa-mm-jj. Si ce n'est pas le cas, on met valide à False et on ajoute un commentaire d'erreur
 
-        df["date2"] = pd.to_datetime(df["date"], format="%Y-%m-%d", errors="coerce")
-        df.loc[df["date2"].isnull(), "valide"] = False
+        df["date"] = uniformise_date(df["date"])
+        df.loc[df["date"].isnull(), "valide"] = False
         df.loc[
-            df["date2"].isnull(), "commentaires_erreurs"
+            df["date"].isnull(), "commentaires_erreurs"
         ] += "Date du tir au format incorrect ou manquante. "
-        df.drop(columns=["date2"], inplace=True)
 
         df["date_exacte"] = df["date"]
         df["date_enreg"] = df["date_exacte"]
@@ -1410,9 +1420,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                 ),
                                 "nom_lieu_tir_synonyme_origin",
                             ].values[0]
-                            df.at[index, "commentaires_erreurs"] = (
-                                f"Lieu tir {nom_save_lieu_dit}: nom similaire trouvé dans la même ZI: {meilleur_match} "
-                            )
+                            df.at[
+                                index, "commentaires_erreurs"
+                            ] += f"Lieu tir {nom_save_lieu_dit}: nom similaire trouvé dans la même ZI: {meilleur_match} "
                             # enregistrement de ce cas dans le dict de bilan de synonymes
                             dict_bilan_synonymes[row["numero_bracelet"]] = {
                                 "nom_lieu_csv": df.at[index, "save_lieu_dit"],
@@ -1467,9 +1477,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                 df.at[index, "nom_lieu_tir_synonyme"] = df_result.iloc[
                                     0
                                 ]["nom_lieu_tir_synonyme_origin"]
-                                df.at[index, "commentaires_erreurs"] = (
-                                    f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la commune mais pas dans la ZI."
-                                )
+                                df.at[
+                                    index, "commentaires_erreurs"
+                                ] += f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la commune mais pas dans la ZI."
                                 # enregistrement de ce cas dans le dict de bilan de synonymes
                                 dict_bilan_synonymes[row["numero_bracelet"]] = {
                                     "nom_lieu_csv": df.at[index, "save_lieu_dit"],
@@ -1582,9 +1592,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                             # des nom exactes ont été trouvés on garde le premier résultat et on indique en commentaire les raisons.
                                             df.at[index, "id_lieu_tir_synonyme"] = None
                                             df.at[index, "nom_lieu_tir_synonyme"] = None
-                                            df.at[index, "commentaires_erreurs"] = (
-                                                f"Lieu tir {nom_save_lieu_dit} déclaré: Un même lieu dit a été trouvé dans la même ZC mais pas dans la ZI."
-                                            )
+                                            df.at[
+                                                index, "commentaires_erreurs"
+                                            ] += f"Lieu tir {nom_save_lieu_dit} déclaré: Un même lieu dit a été trouvé dans la même ZC mais pas dans la ZI."
                                             # enregistrement de ce cas dans le dict de bilan de synonymes
                                             dict_bilan_synonymes[
                                                 row["numero_bracelet"]
@@ -1867,6 +1877,7 @@ def etape__update_realisations(df, apiResponse):
         nb_updates = df_update.shape[0]
         nb_total_updates = df.loc[df["id_realisation"].notna()].shape[0]
         nb_erreurs = nb_total_updates - nb_updates
+        liste_id_erreurs = []
 
         if nb_updates > 0:
             df_update = df_update[COLUMNS_REALISATION].copy()
@@ -1891,7 +1902,6 @@ def etape__update_realisations(df, apiResponse):
 
                 # 3. Boucle de mise à jour
                 schema = TRealisationsChasseSchema()
-                liste_id_erreurs = []
 
                 for index_realisation, row in df_update.iterrows():
                     data = row.to_dict()
@@ -2035,7 +2045,6 @@ def traitement_import_realisation_chasse(path_csv, id_saison, update):
     if apiResponse.success == False:
         apiResponse.print_all()
         return apiResponse
-
 
     df, apiResponse = etape__récuperation_csv(apiResponse)
     if apiResponse.success == False:
