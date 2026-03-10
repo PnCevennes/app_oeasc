@@ -5,9 +5,11 @@
 // Pour définir une variable d'environnement, on peut utiliser la commande export NODE_ENV=production
 // Pour vérifier la valeur de NODE_ENV, on peut utiliser la commande echo $NODE_ENV
 
+
+
 module.exports = {
     runtimeCompiler: true,
-    publicPath: process.env.NODE_ENV === 'production'? '/' : '/',
+    publicPath: process.env.NODE_ENV === 'production'? '/front' : '/',
 
     
   };
