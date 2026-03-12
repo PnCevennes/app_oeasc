@@ -73,7 +73,7 @@ grd = GenericRouteDefinitions()
 droits = {"C": 4, "R": 0, "U": 4, "D": 4}
 
 # pour certains graphiques on modifiera le numéro de mois par son nom.
-mois_mapping = {
+MOIS_MAPPING = {
     "01": "Jan.",
     "02": "Fév.",
     "03": "Mar.",
@@ -88,6 +88,21 @@ mois_mapping = {
     "12": "Déc.",
 }
 
+# pour trier les mois dans l'ordre de la saison de chasse (de septembre à aout)
+MOIS_ORDER = [
+    "Sep.",
+    "Oct.",
+    "Nov.",
+    "Déc.",
+    "Jan.",
+    "Fév.",
+    "Mar.",
+    "Avr.",
+    "Mai",
+    "Juin",
+    "Juil.",
+    "Aou.",
+]
 
 # routes dynamiques pour accéder aux modèles de la base de données
 # la route est par exemple de la forme <blueprint>/chasse/saison/ pour accéder à la table TSaisons
@@ -554,7 +569,7 @@ def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
 
     data = []
     for mois, nb_realisations, nom_saison, id_saison in res:
-        mois_txt = mois_mapping.get(mois, mois)
+        mois_txt = MOIS_MAPPING.get(mois, mois)
         saison_data = {
             "nom_saison": nom_saison,
             "nb_realisations": nb_realisations,
@@ -572,7 +587,7 @@ def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
                 }
             )
     # on trie les mois pour que l'affichage soit de septembre à aout
-    mois_order = [
+    MOIS_ORDER = [
         "Sep.",
         "Oct.",
         "Nov.",
@@ -586,7 +601,7 @@ def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
         "Juil.",
         "Aou.",
     ]
-    data = sorted(data, key=lambda x: mois_order.index(x["mois"]))
+    data = sorted(data, key=lambda x: MOIS_ORDER.index(x["mois"]))
     return data
 
 
@@ -601,10 +616,8 @@ def api_realisations_par_mois_sur_dernieres_saisons():
     list_id_secteur = args.get("id_secteur")
     list_id_zc = args.get("id_zone_cynegetique")
     list_id_zi = args.get("id_zone_indicative")
-    # nb_saison = int(args.get("nb_saison", 5))
 
     nb_saison = request.args.get("nb_saison")
-    print("nombre de saison : ", nb_saison)
 
     mois = func.to_char(TRealisationsChasse.date_exacte, "MM").label("mois")
 
@@ -678,7 +691,7 @@ def api_realisations_par_mois_sur_dernieres_saisons():
     data = []
 
     for mois, nb_realisations, nom_saison, id_saison in res:
-        mois_txt = mois_mapping.get(mois)
+        mois_txt = MOIS_MAPPING.get(mois, mois)
         # saison_data = {
         #     "nom_saison": nom_saison,
         #     "nb_realisations": nb_realisations,
@@ -708,23 +721,10 @@ def api_realisations_par_mois_sur_dernieres_saisons():
                 }
             )
     # on trie les mois en commençant par septembre pour que les saisons soient regroupées de septembre à aout
-    mois_order = [
-        "Sep.",
-        "Oct.",
-        "Nov.",
-        "Déc.",
-        "Jan.",
-        "Fév.",
-        "Mar.",
-        "Avr.",
-        "Mai",
-        "Juin",
-        "Juil.",
-        "Aou.",
-    ]
+
     for saison in data:
         saison["data"] = sorted(
-            saison["data"], key=lambda x: mois_order.index(x["mois"])
+            saison["data"], key=lambda x: MOIS_ORDER.index(x["mois"])
         )
     return data
 
@@ -990,7 +990,7 @@ def api_count_realisations_par_par_mois_par_type_bracelet():
     # ]
     data = []
     for mois, type_bracelet, nb_realisations in res:
-        mois_txt = mois_mapping.get(mois, mois)
+        mois_txt = MOIS_MAPPING.get(mois, mois)
         bracelet_data = {
             "type de bracelet": type_bracelet,
             "réalisations": nb_realisations,
@@ -1008,19 +1008,217 @@ def api_count_realisations_par_par_mois_par_type_bracelet():
                 }
             )
     # on trie les mois pour que l'affichage soit de septembre à aout
-    mois_order = [
-        "Sep.",
-        "Oct.",
-        "Nov.",
-        "Déc.",
-        "Jan.",
-        "Fév.",
-        "Mar.",
-        "Avr.",
-        "Mai",
-        "Juin",
-        "Juil.",
-        "Aou.",
-    ]
-    data = sorted(data, key=lambda x: mois_order.index(x["mois"]))
+
+    data = sorted(data, key=lambda x: MOIS_ORDER.index(x["mois"]))
+    return data
+
+
+@bp.route("count_mode_chasse_par_type_bracelet/", methods=["GET"])
+@json_resp
+def api_count_mode_chasse_par_type_bracelet():
+    """
+    pour l'affichage des graphiques dans chasse -> analyse detaillée
+    Retourne le nombre de realisations par mode de chasse et par type de bracelet pour une saison pour une espece donnée
+    """
+
+    # récupère les paramètres de la requête et les traite
+    args = chasse_process_args()
+
+    id_espece = args.get("id_espece")
+    id_saison = args.get("id_saison")
+    list_id_secteur = args.get("id_secteur")
+    list_id_zc = args.get("id_zone_cynegetique")
+    list_id_zi = args.get("id_zone_indicative")
+
+    stmt = (
+        select(
+            TNomenclatures.label_fr,
+            TTypeBracelets.code_type_bracelet,
+            func.count().label("nb_realisations"),
+        )
+        .select_from(TRealisationsChasse)
+        .join(
+            TAttributions,
+            TRealisationsChasse.id_attribution == TAttributions.id_attribution,
+        )
+        .join(
+            TTypeBracelets,
+            TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet,
+        )
+        .join(
+            TNomenclatures,
+            TNomenclatures.id_nomenclature
+            == TRealisationsChasse.id_nomenclature_mode_chasse,
+        )
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
+        )
+        .join(
+            TZoneIndicatives,
+            TZoneIndicatives.id_zone_indicative
+            == TAttributions.id_zone_indicative_affectee,
+        )
+        .where(TTypeBracelets.id_espece == id_espece)
+        .where(TRealisationsChasse.id_nomenclature_mode_chasse != None)
+    )
+
+    if id_saison:
+        stmt = stmt.where(TAttributions.id_saison == id_saison)
+
+    # Filtrage par zones. Les zones indicatives ont la priorité sur les zones cynégétiques, qui ont elles même la priorité sur les secteurs
+    stmt = filtrage_stmt_secteur_zi_zc(stmt, list_id_zi, list_id_zc, list_id_secteur)
+
+    stmt = stmt.group_by(TNomenclatures.label_fr, TTypeBracelets.code_type_bracelet)
+    stmt = stmt.order_by(func.count().desc())
+    res = DB.session.execute(stmt).all()
+    # on regroupe les résultats par mode de chasse puis par type de bracelet
+    # le résultat final sera de la forme
+    # [
+    #     {
+    #       "text": "Battue",
+    #       "data": [
+    #         {
+    #           "type_bracelet": "CEM",
+    #           "nb_realisations": 50,
+    #         },
+    #         {
+    #           "type_bracelet": "CEFF",
+    #           "nb_realisations": 100,
+    #         },
+    #       ]
+    #     }, ...
+    #     ...
+    # ]
+    data = []
+    for mode_chasse, type_bracelet, nb_realisations in res:
+        mode_chasse_data = {
+            "type de bracelet": type_bracelet,
+            "réalisations": nb_realisations,
+        }
+        mode_chasse_entry = next(
+            (item for item in data if item["mode_chasse"] == mode_chasse), None
+        )
+        if mode_chasse_entry:
+            mode_chasse_entry["data"].append(mode_chasse_data)
+            mode_chasse_entry["réalisations_totale"] += nb_realisations
+        else:
+            data.append(
+                {
+                    "mode_chasse": mode_chasse,
+                    "réalisations_totale": nb_realisations,
+                    "data": [mode_chasse_data],
+                }
+            )
+
+    return data
+
+
+@bp.route("count_realisations_par_age_par_type_bracelet/", methods=["GET"])
+@json_resp
+def api_count_realisations_par_age_par_type_bracelet():
+    """
+    pour l'affichage des graphiques dans chasse -> analyse detaillée
+    Retourne le nombre de realisations par classe d'age et par type de bracelet pour une saison pour une espece donnée
+    """
+
+    # récupère les paramètres de la requête et les traite
+    args = chasse_process_args()
+
+    id_espece = args.get("id_espece")
+    id_saison = args.get("id_saison")
+    list_id_secteur = args.get("id_secteur")
+    list_id_zc = args.get("id_zone_cynegetique")
+    list_id_zi = args.get("id_zone_indicative")
+
+    # create a single alias instance for the 'classe_age' nomenclature and reuse it in the join
+    classe_age = aliased(TNomenclatures, name="classe_age")
+
+    stmt = (
+        select(
+            classe_age.label_fr,
+            TTypeBracelets.code_type_bracelet,
+            func.count().label("nb_realisations"),
+        )
+        .select_from(TRealisationsChasse)
+        .join(
+            TAttributions,
+            TRealisationsChasse.id_attribution == TAttributions.id_attribution,
+        )
+        .join(
+            TTypeBracelets,
+            TAttributions.id_type_bracelet == TTypeBracelets.id_type_bracelet,
+        )
+        .join(
+            TNomenclatures,
+            TNomenclatures.id_nomenclature
+            == TRealisationsChasse.id_nomenclature_classe_age,
+        )
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
+        )
+        .join(
+            TZoneIndicatives,
+            TZoneIndicatives.id_zone_indicative
+            == TAttributions.id_zone_indicative_affectee,
+        )
+        .join(
+            classe_age,
+            classe_age.id_nomenclature
+            == TRealisationsChasse.id_nomenclature_classe_age,
+        )
+        .where(TTypeBracelets.id_espece == id_espece)
+    )
+
+    if id_saison:
+        stmt = stmt.where(TAttributions.id_saison == id_saison)
+
+    # Filtrage par zones. Les zones indicatives ont la priorité sur les zones cynégétiques, qui ont elles même la priorité sur les secteurs
+    stmt = filtrage_stmt_secteur_zi_zc(stmt, list_id_zi, list_id_zc, list_id_secteur)
+
+    stmt = stmt.group_by(classe_age.label_fr, TTypeBracelets.code_type_bracelet)
+    stmt = stmt.order_by(func.count().desc())
+    res = DB.session.execute(stmt).all()
+    # on regroupe les résultats par classe d'age puis par type de bracelet
+    # le résultat final sera de la forme
+    # [
+    #     {
+    #       "type_bracelet": "CEM",
+    #       "data": [
+    #         {
+    #           "classe_age": "Juvenile",
+    #           "nb_realisations": 50,
+    #         },
+    #         {
+    #           "classe_age": "Adulte",
+    #           "nb_realisations": 100,
+    #         },
+    #       ]
+    #     }, ...
+    #     ...
+    # ]
+    data = []
+    for classe_age, type_bracelet, nb_realisations in res:
+        classe_age_data = {
+            "classe_age": classe_age,
+            "réalisations": nb_realisations,
+        }
+        classe_age_entry = next(
+            (item for item in data if item["type_bracelet"] == type_bracelet), None
+        )
+        if classe_age_entry:
+            classe_age_entry["data"].append(classe_age_data)
+            classe_age_entry["réalisations_totale"] += nb_realisations
+        else:
+            data.append(
+                {
+                    "type_bracelet": type_bracelet,
+                    "réalisations_totale": nb_realisations,
+                    "data": [classe_age_data],
+                }
+            )
+
     return data

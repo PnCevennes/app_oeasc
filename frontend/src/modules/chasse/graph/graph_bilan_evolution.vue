@@ -9,8 +9,8 @@
 
 
     <div
-      v-if="chartOptions"
-      :style="`height:${height || '400px'}; width: ${width || '100%'}`"
+      v-if="chartOptions && chartOptions.series && chartOptions.series.length > 0"
+      :style="`height:${$props.height || '400px'}; width: ${$props.width || '100%'}`"
     >
       <!-- 
         Composant Highcharts affiché si le traitement n'est pas en cours.
@@ -18,7 +18,7 @@
       -->
       <highcharts
         v-if="!processing && data_bilan && chartOptions"
-        :style="`width:${width || '100%'}; height:${height || '400px'}`"
+        :style="`width:${$props.width || '100%'}; height:${$props.height || '400px'}`"
         :options="chartOptions"
         :highcharts="hcInstance"
       ></highcharts>
@@ -53,7 +53,9 @@ export default {
   name: "graph_bilan_evolution",
   props: {
     bilanParams: { type: Object, default: () => ({}) }, // Paramètres de filtrage pour récupérer les données du bilan d'évolution
-    },
+    height: { type: String, default: "400px" }, // Hauteur du graphique
+    width: { type: String, default: "100%" } // Largeur du graphique
+  },
 
   data: () => ({ // Déclaration de la fonction data qui retourne un objet d'état local du composant
     msgError: null, // Message d'erreur à afficher dans le snackbar en cas de problème lors du chargement des données
@@ -61,8 +63,6 @@ export default {
     hcInstance: Highcharts, // Instance de Highcharts utilisée par le composant <highcharts>
     data_bilan: null, // Données du bilan d'évolution des plans de chasse récupérées depuis l'API
     processing: false, // Booléen indiquant si un traitement (chargement des données) est en cours
-    height: "400px", // Hauteur par défaut du graphique
-    width: "100%", // Largeur par défaut du graphique
     chartOptions: null // Options de configuration du graphique Highcharts, générées dynamiquement en fonction des données récupérées
   }),
   
@@ -145,8 +145,8 @@ export default {
                 }
                 }
             ],
-            height: "600px",
-            width: "600px"
+            height: this.$props.height,
+            width: this.$props.width
         }
     },
 
@@ -154,14 +154,12 @@ export default {
         // 
 
         this.processing = true;
-        // console.log("Récupération des données du bilan d'évolution avec les paramètres suivants : ", this.bilanParams);
         if (!this.bilanParams.id_espece){
             this.bilanParams.id_espece = 1; // om met les CERFS par défaut
         }
         apiRequest("GET", 'api/chasse/results/bilan',  { params: this.bilanParams }) 
             .then(result => {
                 this.data_bilan = result;
-                // console.log("data_bilan_evolution", this.data_bilan);
                 this.maj_chartOptions();
                 this.processing = false;
             });

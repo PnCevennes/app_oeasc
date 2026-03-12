@@ -1,36 +1,40 @@
 <template>
-    <!--
+  <!--
       Graphique pour afficher les resultats de type custom
     -->
 
-    <!-- par defaut hauteur à 400px et largeur à 100% -->
-  <div :style="`height:${height || '400px'}; width: ${width || '100%'}`">
-
+  <!-- par defaut hauteur à 400px et largeur à 100% -->
+  <div
+    v-if="chartOptions && chartOptions.series && chartOptions.series.length > 0"
+    :style="`height:${$props.height || '400px'}; width: ${$props.width || '100%'}`"
+  >
     <!-- graphique highchart -->
     <highcharts
-      v-if="!isProcessing && chartOptions" 
+      v-if="!isProcessing && chartOptions"
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
 
     <!-- chargement en cours (en attendant les données) -->
-    <v-progress-linear v-else active indeterminate></v-progress-linear>
+    <v-progress-linear
+      v-else
+      active
+      indeterminate
+    ></v-progress-linear>
   </div>
 </template>
 
 <script>
-
-import Highcharts from "highcharts";
-import exportingInit from "highcharts/modules/exporting";
-import offlineExporting from "highcharts/modules/offline-exporting";
+import Highcharts from 'highcharts';
+import exportingInit from 'highcharts/modules/exporting';
+import offlineExporting from 'highcharts/modules/offline-exporting';
 
 // Modification de highcharts pour permettre l'export des graphiques
 exportingInit(Highcharts); // initialise le module export, doit être fait après l'import de highcharts
 offlineExporting(Highcharts); // initialise l'export coté client, doit être fait après l'import de highcharts
 
-
 export default {
-  name: "camembert",
+  name: 'camembert',
   props: {
     data_db: { default: null },
     fieldName: { default: null },
@@ -38,14 +42,12 @@ export default {
     title: { default: '' },
     width: { default: '100%' },
     height: { default: '400px' },
-    code_couleurs: { default: null } // objet de la forme { 'nom_categorie': 'couleur1', 'nom_categorie2': 'couleur2', ... } pour colorer les points en fonction de la valeur d'un champ
+    code_couleurs: { default: null }, // objet de la forme { 'nom_categorie': 'couleur1', 'nom_categorie2': 'couleur2', ... } pour colorer les points en fonction de la valeur d'un champ
   },
   data() {
     return {
       hcInstance: Highcharts, // instance de highcharts à passer au composant highcharts pour éviter les problèmes d'import
       isProcessing: true, // test pour ne pas lancer plusieurs requêtes en même temps
-
-      // width/height are props with defaults (see props definition)
 
       chartOptions: {
         title: { text: this.$props.title || '' },
@@ -55,7 +57,7 @@ export default {
         xAxis: { categories: [] },
         yAxis: {
           min: 0,
-          title: { text: "nb" }
+          title: { text: 'nb' },
         },
 
         tooltip: {
@@ -67,33 +69,32 @@ export default {
             allowPointSelect: false, // fige la sélection d'une part du camembert (sinon elle est désactivée par défaut)
             cursor: 'pointer',
             dataLabels: {
-              enabled: true, 
-              format: '<b>{point.name}:</b> <br> <b style="text-align:center">{point.y}</b> ({point.percentage:.1f} %)',
+              enabled: true,
+              format:
+                '<b>{point.name}:</b> <br> <b style="text-align:center">{point.y}</b> ({point.percentage:.1f} %)',
               style: {
-                fontSize: "1em",
+                fontSize: '1em',
                 fontWeight: 1,
-                color: 'black'
+                color: 'black',
               },
             },
             showInLegend: false, // affiche les catégories dans la légende à côté du camembert (sinon elles sont
-
-          }
+          },
         },
 
         legend: {
-            enabled: false,
-            align: 'right',
-            verticalAlign: 'middle',
-            layout: 'vertical'
+          enabled: false,
+          align: 'right',
+          verticalAlign: 'middle',
+          layout: 'vertical',
         },
-
 
         series: [],
         colorByPoint: true,
 
-        height: this.$props.height || "600px",
-        width: "600px"
-      }
+        height: this.$props.height || '600px',
+        width: this.$props.width || '600px',
+      },
     };
   },
 
@@ -104,33 +105,33 @@ export default {
         this.actualisation_propriete();
       },
       deep: true, // verifie les changements en profondeur des listes/objets de manière récursive
-      immediate: true // lance le handler au montage du composant
-    }
+      immediate: true, // lance le handler au montage du composant
+    },
   },
 
   methods: {
-
-
     creation_serie_highcharts: (data, props) => {
-        /**
-         * transformation de data_db en serie bien formatée pour highcharts
-         * sous la forme :
-         */
-        const total = data.reduce((p,c) => {return p + c[props.fieldValue]}, 0);
-        let serie = {
-            name: props.title || '',
-            animation: true,
-            data: data.map(d => {
-              return {
-                name: `<b>${d[props.fieldName]}</b>`,
-                useHTML: true,
-                y: d[props.fieldValue],
-                color: props.code_couleurs ? props.code_couleurs[d[props.fieldName]] : undefined
-              };
-            })
-        };
-        
-        return serie;
+      /**
+       * transformation de data_db en serie bien formatée pour highcharts
+       * sous la forme :
+       */
+      const total = data.reduce((p, c) => {
+        return p + c[props.fieldValue];
+      }, 0);
+      let serie = {
+        name: props.title || '',
+        animation: true,
+        data: data.map((d) => {
+          return {
+            name: `<b>${d[props.fieldName]}</b>`,
+            useHTML: true,
+            y: d[props.fieldValue],
+            color: props.code_couleurs ? props.code_couleurs[d[props.fieldName]] : undefined,
+          };
+        }),
+      };
+
+      return serie;
     },
 
     actualisation_propriete() {
@@ -138,7 +139,8 @@ export default {
       this.isProcessing = true;
       const requiredProps = ['fieldName', 'fieldValue', 'data_db'];
 
-      if (requiredProps.some(p => !this.$props[p])) {
+      if (requiredProps.some((p) => !this.$props[p])) {
+        this.isProcessing = false;
         return;
       }
 
@@ -159,13 +161,11 @@ export default {
       // premier affichage ou fallback
       this.chartOptions.series = newSeries;
       this.isProcessing = false;
-    }
+    },
   },
 
   mounted() {
-    // console.log("props", this.$props);
-    // console.log("codes couleurs", this.$props.code_couleurs);
     this.actualisation_propriete();
-  }
+  },
 };
 </script>

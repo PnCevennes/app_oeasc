@@ -1,38 +1,37 @@
 <template>
-    <!--
+  <!--
       Graphique pour afficher les resultats de type custom
     -->
 
-    <!-- par defaut hauteur à 400px et largeur à 100% -->
+  <!-- par defaut hauteur à 400px et largeur à 100% -->
   <div :style="`height:${height || '400px'}; width: ${width || '100%'}`">
-
     <!-- graphique highchart -->
     <highcharts
-      v-if="!isProcessing && chartOptions" 
+      v-if="!isProcessing && chartOptions"
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
 
     <!-- chargement en cours (en attendant les données) -->
-    <v-progress-linear v-else active indeterminate></v-progress-linear>
+    <v-progress-linear
+      v-else
+      active
+      indeterminate
+    ></v-progress-linear>
   </div>
 </template>
 
 <script>
-
-import Highcharts from "highcharts";
-import exportingInit from "highcharts/modules/exporting";
-import offlineExporting from "highcharts/modules/offline-exporting";
-
-
+import Highcharts from 'highcharts';
+import exportingInit from 'highcharts/modules/exporting';
+import offlineExporting from 'highcharts/modules/offline-exporting';
 
 // Modification de highcharts pour permettre l'export des graphiques
 exportingInit(Highcharts); // initialise le module export, doit être fait après l'import de highcharts
 offlineExporting(Highcharts); // initialise l'export coté client, doit être fait après l'import de highcharts
 
-
 export default {
-  name: "histogramme_comparatif",
+  name: 'histogramme_comparatif',
   props: {
     data_db: { default: null },
     fieldGroup: { default: null }, // nom du champ retourné par l'API qui contient les noms des groupes (ex: "type_espece" qui contiendra "cerf", "sanglier", etc.)
@@ -42,7 +41,7 @@ export default {
     title: { default: '' },
     width: { default: '100%' },
     height: { default: '400px' },
-    code_couleurs: { default: null } // objet de la forme { 'nom_categorie': 'couleur1', 'nom_categorie2': 'couleur2', ... } pour colorer les points en fonction de la valeur d'un champ
+    code_couleurs: { default: null }, // objet de la forme { 'nom_categorie': 'couleur1', 'nom_categorie2': 'couleur2', ... } pour colorer les points en fonction de la valeur d'un champ
   },
   data() {
     return {
@@ -60,17 +59,16 @@ export default {
         xAxis: { categories: [] },
         yAxis: {
           min: 0,
-          title: { text: "nb" }
+          title: { text: 'nb' },
         },
 
         tooltip: {
-          shared: true, 
-          pointFormat: '<span style="color:{point.color}">●</span> {series.name} : <b>{point.y}</b> : {point.percentage:.1f} %<br/>'
-
+          shared: true,
+          pointFormat:
+            '<span style="color:{point.color}">●</span> {series.name} : <b>{point.y}</b> : {point.percentage:.1f} %<br/>',
         },
 
         plotOptions: {
-
           bar: {
             allowPointSelect: false, // fige la sélection d'une part du camembert (sinon elle est désactivée par défaut)
             cursor: 'pointer',
@@ -79,27 +77,27 @@ export default {
               enabled: true,
               format: ' <br> <b style="text-align:center">{point.y}</b> ({point.percentage:.1f} %)',
               style: {
-                fontSize: "1em",
+                fontSize: '1em',
                 fontWeight: 1,
-                color: 'black'
+                color: 'black',
               },
-            }
-          }
+            },
+          },
         },
 
         legend: {
-            enabled: false,
-            align: 'right',
-            verticalAlign: 'middle',
-            layout: 'vertical'
+          enabled: false,
+          align: 'right',
+          verticalAlign: 'middle',
+          layout: 'vertical',
         },
 
         series: [],
         // colorByPoint: true,
 
-        height: this.$props.height || "600px",
-        width: "600px"
-      }
+        height: this.$props.height || '600px',
+        width: '600px',
+      },
     };
   },
 
@@ -110,51 +108,49 @@ export default {
         this.actualisation_propriete();
       },
       deep: true, // verifie les changements en profondeur des listes/objets de manière récursive
-      immediate: true // lance le handler au montage du composant
-    }
+      immediate: true, // lance le handler au montage du composant
+    },
   },
 
   methods: {
-
-
     creation_serie_highcharts: (data, props) => {
-        /**
-         * 
-         */
-        if (!Array.isArray(data) || data.length === 0) {
-          console.log("creation_serie_highcharts: data is not an array or is empty", data);
-          return { categories: [], series: [] };
-        }
+      /**
+       * Traite les données brutes pour générer les options du graphique.
+       * data : données brutes récupérées depuis l'API pour ce graphique, à traiter pour générer les options du graphique
+       * props : propriétés du composant, utilisées pour configurer le graphique (ex: props.fieldGroup pour indiquer le champ à utiliser pour les catégories,
+       */
+      if (!Array.isArray(data) || data.length === 0) {
+        return { categories: [], series: [] };
+      }
 
-        const categories = data.map(item => item[props.fieldGroup]);
-        console.log("creation_serie_highcharts: categories", categories);
+      const categories = data.map((item) => item[props.fieldGroup]);
 
+      const series = props.listfieldValues.map((name_field, index) => {
+        return {
+          name:
+            props.listNameValues && props.listNameValues[index]
+              ? props.listNameValues[index]
+              : name_field,
+          data: data.map((item2) => {
+            return item2[name_field];
+          }),
+          color:
+            props.code_couleurs && props.code_couleurs[name_field]
+              ? props.code_couleurs[name_field]
+              : undefined,
+        };
+      });
 
-        const series = props.listfieldValues.map((name_field, index ) => {
-          console.log("index:", index, ", name_field:", name_field);
-          return {
-            name: props.listNameValues && props.listNameValues[index] ? props.listNameValues[index] : name_field,
-            data: data.map(item2 => {
-              return item2[name_field]
-            }
-
-            ),
-            color: props.code_couleurs && props.code_couleurs[name_field] ? props.code_couleurs[name_field] : undefined
-          };
-        });
-        console.log("creation_serie_highcharts: series", series);
-
-        return { categories, series };
+      return { categories, series };
     },
 
     actualisation_propriete() {
       this.isProcessing = true;
-      // test sur les champs requis
-      // const requiredProps = ['fieldName', 'fieldValue', 'data_db'];
-
-      // if (requiredProps.some(p => !this.$props[p])) {
-      //   return;
-      // }
+      const requiredProps = ['data_db'];
+      if (requiredProps.some((p) => !this.$props[p])) {
+        this.isProcessing = false;
+        return;
+      }
 
       // si le chart existe déjà, on utilise l'API update pour forcer l'animation
       // try {
@@ -170,17 +166,17 @@ export default {
 
       // premier affichage ou fallback
       const result = this.creation_serie_highcharts(this.$props.data_db, this.$props);
-      console.log("creation_serie_highcharts result", result);
       this.chartOptions.series = Array.isArray(result.series) ? result.series : [];
-      this.chartOptions.xAxis.categories = Array.isArray(result.categories) ? result.categories : [];
+      this.chartOptions.xAxis.categories = Array.isArray(result.categories)
+        ? result.categories
+        : [];
       this.isProcessing = false;
-    }
+    },
   },
 
   mounted() {
-
     // finalement pas besoin de lancer actualisation_propriete au montage, car le watch sur $props avec immediate: true s'en charge déjà et évite un double appel à la fonction de création de la série
     // this.actualisation_propriete();
-  }
+  },
 };
 </script>
