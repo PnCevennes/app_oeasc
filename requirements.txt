@@ -76,7 +76,7 @@ fiona==1.10.1
     # via
     #   oeasc (setup.py)
     #   utils-flask-sqlalchemy-geo
-flask==3.1.1
+flask==3.1.3
     # via
     #   flask-admin
     #   flask-babel
