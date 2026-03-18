@@ -29,9 +29,7 @@ from pathlib import Path
 
 from app import app
 
-# from utils_flask_sqla.generic import GenericTable
-# from flask import request, current_app, jsonify
-
+import math
 import numpy as np
 import pandas as pd
 import json
@@ -59,16 +57,19 @@ from oeasc.modules.oeasc.chasse.schema import (
     TLieuTirSynonymesSchema,
 )
 
+config = current_app.config
+DB = config["DB"]
+
+
 # from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
 # from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
+#####################################################################################################
+####################              VARIABLES GLOBALES                            #####################
+#####################################################################################################
 
 # Initialisation de l'ApiResponse pour stocker les messages, le journal de l'opération et les données à retourner à l'utilisateur.
 apiResponse = ApiResponse()
 
-
-config = current_app.config
-DB = config["DB"]
-SESSION = session
 # chemin du dossier où seront stockés les rapports d'erreurs à la fin du traitement. Si le dossier n'existe pas, il sera créé.
 DOSSIER_RAPPORTS = Path(config["ROOT_DIR"]) / "static/erreurs_import_chasse/"
 # création du dossier s'il n'existe pas
@@ -82,6 +83,45 @@ DOSSIER_ARCHIVES_LIEUX_DITS.mkdir(parents=True, exist_ok=True)
 #  Si le score de similarité est inférieur à ce seuil, on considère que les chaînes ne correspondent pas.
 SCORE_MINIMUM_RAPIDFUZZ = 76
 
+# Fourchettes de valeurs pour repérer les données aberrantes. Si une valeur est en dehors de ces fourchettes, on considère que c'est une erreur de saisie et on remplace par null.
+NB_CORS_MINIMUM = 1  # en dessous de ce nombre, on considère que c'est une erreur de saisie et on remplace par null
+NB_CORS_MAXIMUM = 24  # au dessus de ce nombre, on considère que c'est une erreur de saisie et on remplace par null
+
+TAILLE_MINIMUM_DAGUES = {
+    "CERF": {"Adulte": 10, "Subadulte": 10, "Indéterminé": 5, "Jeune": 2, "Faon": 2},
+    "CHEVREUIL": {"Adulte": 10, "Subadulte": 1, "Indéterminé": 1, "Jeune": 1},
+}
+TAILLE_MAXIMUM_DAGUES = {
+    "CERF": {
+        "Adulte": 650,
+        "Subadulte": 500,
+        "Indéterminé": 600,
+        "Jeune": 200,
+        "Faon": 200,
+    },
+    "CHEVREUIL": {"Adulte": 200, "Subadulte": 150, "Indéterminé": 200, "Jeune": 100},
+}
+
+POIDS_VIDE_MINIMUM = {
+    "CERF": {"Adulte": 40, "Subadulte": 20, "Indéterminé": 18, "Jeune": 18, "Faon": 18},
+    "CHEVREUIL": {"Adulte": 7, "Subadulte": 7, "Indéterminé": 7, "Jeune": 7},
+    "MOUFLON": {"Adulte": 18, "Subadulte": 10, "Indéterminé": 5, "Jeune": 5},
+}
+POIDS_VIDE_MAXIMUM = {
+    "CERF": {
+        "Adulte": 250,
+        "Subadulte": 150,
+        "Indéterminé": 300,
+        "Jeune": 120,
+        "Faon": 120,
+    },
+    "CHEVREUIL": {"Adulte": 70, "Subadulte": 50, "Indéterminé": 50, "Jeune": 26},
+    "MOUFLON": {"Adulte": 55, "Subadulte": 30, "Indéterminé": 35, "Jeune": 35},
+}
+
+TAILLE_MINIMUM_MANDIBULES = 5
+TAILLE_MAXIMUM_MANDIBULES = 300
+
 # L'export geochasse provoque des décalages dans les noms de colonnes. La variable suivante les renomme correctement
 # Mais il faudra la modifier le jour où geochasse corrigera le problème.
 ERREUR_NOMS_COLONNES_GEOCHASSE = {
@@ -92,9 +132,9 @@ ERREUR_NOMS_COLONNES_GEOCHASSE = {
     "long_machoire_2": "long_mandibules_gauche",
     "commentaires": "commentaire",
 }
-
 # Pour les mouflons l'age est un entier
 ERREUR_AGE = {"1": "Adulte"}
+
 
 # On définit les id de nomenclatures et le lien entre les codes de bracelet et les especes en dur
 # Si il y a des changements majeurs dans la bdd , il faudra peut être les récupérer dynamiquement
@@ -271,9 +311,8 @@ COLUMNS_REALISATION = [
     "auteur_constat_str",
 ]
 
-####################################################################################
-#################        FONCTIONS DIVERSES             ############################
-####################################################################################
+###################################################################################################
+###################################################################################################
 
 
 def uniformise_communes(serie):
@@ -418,6 +457,55 @@ def uniformise_date(serie):
     return serie
 
 
+def poid_vide_cerf(poids_entier_in):
+    """
+    Calcule le poids vide d'un cerf (CF) à partir de son poids entier.
+
+    Args:
+        poids_entier_in (float): Poids entier du cerf
+
+    Returns:
+        int: Poids vide calculé
+
+    Raises:
+        ValueError: Si le poids entier n'est pas fourni
+    """
+    try:
+        if poids_entier_in is None:
+            return None
+        pe_exp = -0.3948
+        pe_puis = 1.0247
+        result = round((math.exp(pe_exp) * (poids_entier_in**pe_puis)), 2)
+        return result
+    except Exception:
+        return None
+
+
+def poid_vide_chevreuil(poids_entier_in):
+    """
+    Calcule le poids vide d'un chevreuil (CH) à partir de son poids entier.
+
+    Args:
+        poids_entier_in (float): Poids entier du chevreuil
+
+    Returns:
+        int: Poids vide calculé
+
+    Raises:
+        ValueError: Si le poids entier n'est pas fourni
+    """
+    try:
+        if poids_entier_in is None:
+            return None
+
+        pe_exp = -0.3572
+        pe_puis = 1.023
+        result = round((math.exp(pe_exp) * (poids_entier_in**pe_puis)), 2)
+        return result
+    except Exception:
+        return None
+
+
 ##################################################################################
 ################ FONCTIONS ETAPES DE TRAITEMENT DE L'IMPORT CSV  ################
 ##################################################################################
@@ -537,6 +625,10 @@ def etape__récuperation_csv(apiResponse):
         return pd.DataFrame(), apiResponse
 
 
+#################################################################################
+#################################################################################
+
+
 def etape__clean_csv(df, apiResponse):
     """Nettoie le dataframe en supprimant les colonnes inutiles et en renommant les colonnes avec les bons noms."""
     try:
@@ -628,7 +720,7 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
                 "zone_indicative_affectee.id_zone_indicative"
             ]
             df_attributions["id_secteur_realisee"] = df_attributions[
-                "zone_indicative_affectee.zone_cynegetique.secteur.id_secteur"
+                "zone_cynegetique_affectee.id_secteur"
             ]
             df_attributions["code_type_bracelet"] = df_attributions[
                 "type_bracelet.code_type_bracelet"
@@ -682,15 +774,18 @@ def etape__verification_donnees_geochasse(df, apiResponse):
 
         # on peut faire une première validation : vérifier que l'espèce du bracelet correspond à l'espèce du tir
         df["valide"] = True
+        df["a_verifier"] = False
         df["commentaires_erreurs"] = ""
 
         ################################### VERIF DES BRACELETS EXISTANTS ##########################################
         # on vérifie que les bracelets du csv existent dans les attributions de la saison.
         # Met valide à False et ajoute un commentaire d'erreur si un bracelet du csv n'existe pas dans les attributions de la saison.
-        df.loc[df["id_attribution"].isnull(), "valide"] = False
+        idx_erreur = df[df["id_attribution"].isnull()].index
+        df.loc[idx_erreur, "valide"] = False
         df.loc[
-            df["id_attribution"].isnull(), "commentaires_erreurs"
+            idx_erreur, "commentaires_erreurs"
         ] += "Le numéro de bracelet n'existe pas dans les attributions de la saison. "
+        del idx_erreur
 
         ########################################   TRAITEMENT DE L'ESPÈCE  ############################################
         # on créé id_nomenclature_espece en fonction de la colonne espece pour retrouver la catégorie de l'éspece (FAON, BICHETTE, DAGUET etc..)
@@ -702,11 +797,13 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df["espece_theorique"] = df["code_type_bracelet"].map(
             lambda k: LISTE_ESPECE.get(k)[0] if k in LISTE_ESPECE else None
         )
-        df.loc[df["espece"] != df["espece_theorique"], "valide"] = False
+        idx_erreur = df[df["espece"] != df["espece_theorique"]].index
+        df.loc[idx_erreur, "valide"] = False
         df.loc[
-            df["espece"] != df["espece_theorique"], "commentaires_erreurs"
+            idx_erreur, "commentaires_erreurs"
         ] += "Espèce du tir ne correspond pas à l'espèce du bracelet. "
         df.drop(columns=["espece_theorique"], inplace=True)
+        del idx_erreur
 
         ############################# TRAITEMENT DU SEXE  ############################################
         # verification que le sexe du tir se trouve dans la liste des sexes du code du bracelet dans LISTE_ESPECE.
@@ -714,7 +811,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df["sexe_theorique"] = df["code_type_bracelet"].map(
             lambda k: LISTE_ESPECE.get(k)[1] if k in LISTE_ESPECE else None
         )
-        df.loc[
+        idx_erreur = df[
             ~df.apply(
                 lambda row: (
                     row["sexe"] in row["sexe_theorique"]
@@ -722,27 +819,23 @@ def etape__verification_donnees_geochasse(df, apiResponse):
                     else True
                 ),
                 axis=1,
-            ),
-            "valide",
-        ] = False
+            )
+        ].index
+        df.loc[idx_erreur, "valide"] = False
         df.loc[
-            ~df.apply(
-                lambda row: (
-                    row["sexe"] in row["sexe_theorique"]
-                    if row["sexe_theorique"] is not None
-                    else True
-                ),
-                axis=1,
-            ),
-            "commentaires_erreurs",
+            idx_erreur, "commentaires_erreurs"
         ] += "Sexe du tir ne correspond pas au sexe du bracelet. "
+        del idx_erreur
+
         # Changement de la colonne sexe en id_nomenclature_sexe en fonction de la table LISTE_NOMENCLATURE_SEXE.
         # Met valide à False et ajoute un commentaire d'erreur si le sexe du tir ne correspond à aucun sexe de la nomenclature
         df["id_nomenclature_sexe"] = df["sexe"].map(LISTE_NOMENCLATURE_SEXE)
-        df.loc[df["id_nomenclature_sexe"].isnull(), "valide"] = False
+        idx_erreur = df[df["id_nomenclature_sexe"].isnull()].index
+        df.loc[idx_erreur, "valide"] = False
         df.loc[
-            df["id_nomenclature_sexe"].isnull(), "commentaires_erreurs"
+            idx_erreur, "commentaires_erreurs"
         ] += "Sexe du tir ne correspond à aucun sexe de la nomenclature. "
+        del idx_erreur
 
         ###########################   TRAITEMENT DE L'ÂGE  ############################################
         # verification que l'âge du tir se trouve dans la liste des âges du code du bracelet dans LISTE_ESPECE.
@@ -755,6 +848,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df["age_theorique"] = df["code_type_bracelet"].map(
             lambda k: LISTE_ESPECE.get(k)[2] if k in LISTE_ESPECE else None
         )
+
         idx_espece_age_incoherente = df[
             ~df.apply(
                 lambda row: (
@@ -769,19 +863,20 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df.loc[
             idx_espece_age_incoherente, "commentaires_erreurs"
         ] += "Âge du tir ne correspond pas à l'âge du bracelet. "
+        del idx_espece_age_incoherente
 
         # Changement de la colonne age en id_nomenclature_classe_age en fonction de la table LISTE_NOMENCLATURE_AGE.
         # Met valide à False et ajoute un commentaire d'erreur si l'âge du tir ne correspond à aucun âge de la nomenclature
         df["id_nomenclature_classe_age"] = df["age"].map(LISTE_NOMENCLATURE_AGE)
-        df.loc[df["id_nomenclature_classe_age"].isnull(), "valide"] = False
+        idx_erreur = df[df["id_nomenclature_classe_age"].isnull()].index
+        df.loc[idx_erreur, "valide"] = False
         df.loc[
-            df["id_nomenclature_classe_age"].isnull(), "commentaires_erreurs"
+            idx_erreur, "commentaires_erreurs"
         ] += "Âge du tir ne correspond à aucun âge dans les nomenclatures de la bdd. "
-        df.drop(columns=["age", "age_theorique"], inplace=True)
+        del idx_erreur
 
         ##########################  TRAITEMENT DU POIDS ET DE LA PESÉE  #####################################
-        df["poid_entier"] = None
-        df["poid_vide"] = None
+
         df["poid_c_f_p"] = None
         df["poid_indique"] = False
 
@@ -796,9 +891,63 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df.loc[
             idx_erreur_poids, "commentaires_erreurs"
         ] += "Poids du tir n'est pas un nombre ou est négatif. "
-        df.loc[df["pesee"] == "Plein", "poid_entier"] = df["poids"]
-        df.loc[df["pesee"] == "Vidé", "poid_vide"] = df["poids"]
-        df.loc[((df["pesee"].isin(["Plein", "Vidé"])) == True), "poid_indique"] = True
+        del idx_erreur_poids
+
+        df.loc[
+            ((df["pesee"] == "Plein") & (df["poids"] > 0) & (df["poids"].notnull())),
+            "poid_entier",
+        ] = df["poids"]
+        df.loc[
+            ((df["pesee"] == "Vidé") & (df["poids"] > 0) & (df["poids"].notnull())),
+            "poid_vide",
+        ] = df["poids"]
+        df.loc[((df["poids"].notnull()) & (df["poids"] > 0)), "poid_indique"] = True
+        df.loc[
+            (df["espece"] == "CERF")
+            & (df["poid_entier"].notnull())
+            & (df["poid_vide"].isnull()),
+            "poid_vide",
+        ] = df.apply(lambda row: poid_vide_cerf(row["poid_entier"]), axis=1)
+        df.loc[
+            (df["espece"] == "CHEVREUIL")
+            & (df["poid_entier"].notnull())
+            & (df["poid_vide"].isnull()),
+            "poid_vide",
+        ] = df.apply(lambda row: poid_vide_chevreuil(row["poid_entier"]), axis=1)
+
+        # on cherche les poids inférieurs a la valeur dans POIDS_VIDE_MINIMUM pour chaque espèce en fonction de l'age. Si le poids est inférieur à cette valeur, on considère que c'est une erreur. On ajoute un commentaire d'erreur dans ce cas.
+        idx_poids_minimum_aberrant = df[
+            df.apply(
+                lambda row: (
+                    row["poid_vide"] is not None
+                    and row["age"] in POIDS_VIDE_MINIMUM.get(row["espece"], {})
+                    and row["poid_vide"] < POIDS_VIDE_MINIMUM[row["espece"]][row["age"]]
+                ),
+                axis=1,
+            )
+        ].index
+        df.loc[
+            idx_poids_minimum_aberrant, "commentaires_erreurs"
+        ] += "Poids vide inférieur au poids vide minimum pour l'espèce et l'âge. "
+        df.loc[idx_poids_minimum_aberrant, "a_verifier"] = True
+        del idx_poids_minimum_aberrant
+
+        idx_poids_maximum_aberrant = df[
+            df.apply(
+                lambda row: (
+                    row["poid_vide"] is not None
+                    and row["age"] in POIDS_VIDE_MAXIMUM.get(row["espece"], {})
+                    and row["poid_vide"] > POIDS_VIDE_MAXIMUM[row["espece"]][row["age"]]
+                ),
+                axis=1,
+            )
+        ].index
+        df.loc[
+            idx_poids_maximum_aberrant, "commentaires_erreurs"
+        ] += "Poids vide supérieur au poids vide maximum pour l'espèce et l'âge. "
+        df.loc[idx_poids_maximum_aberrant, "a_verifier"] = True
+        del idx_poids_maximum_aberrant
+
         df.drop(columns=["poids", "pesee"], inplace=True)
 
         ##########################  TRAITEMENT DU MODE DE CHASSE  ###########################################
@@ -821,39 +970,38 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         # on verifie que la date est un string au format aaaa-mm-jj. Si ce n'est pas le cas, on met valide à False et on ajoute un commentaire d'erreur
 
         df["date"] = uniformise_date(df["date"])
-        df.loc[df["date"].isnull(), "valide"] = False
+        idx_erreur = df[df["date"].isnull()].index
+        df.loc[idx_erreur, "valide"] = False
         df.loc[
-            df["date"].isnull(), "commentaires_erreurs"
+            idx_erreur, "commentaires_erreurs"
         ] += "Date du tir au format incorrect ou manquante. "
-
+        del idx_erreur
         df["date_exacte"] = df["date"]
         df["date_enreg"] = df["date_exacte"]
 
         # Traitement des dates: on vérifie si la date d'enregistrement du tir se trouve entre la date de début et la date de fin de la saison. Met valide à False et ajoute un commentaire d'erreur si ce n'est pas le cas
         # Si la saison n'a pas de date de début ou de fin, on ne fait pas la vérification et on considère que la date est valide (on ne met pas valide à False)
         # date_exacte et date_enreg ne sont plus différentiées dans les dernières versions oeasc, on les mets à l'identique
-        df.loc[
+        idx_erreur_date_debut = df[
             (
                 (df["date"] < df["saison.date_debut"])
                 & (df["saison.date_debut"].notnull())
-            ),
-            "valide",
-        ] = False
+            )
+        ].index
+        df.loc[idx_erreur_date_debut, "valide"] = False
         df.loc[
-            (
-                (df["date"] < df["saison.date_debut"])
-                & (df["saison.date_debut"].notnull())
-            ),
-            "commentaires_erreurs",
+            idx_erreur_date_debut, "commentaires_erreurs"
         ] += "Date du tir avant le début de la saison. "
+        del idx_erreur_date_debut
+
+        idx_erreur_date_fin = df[
+            ((df["date"] > df["saison.date_fin"]) & (df["saison.date_fin"].notnull()))
+        ].index
+        df.loc[idx_erreur_date_fin, "valide"] = False
         df.loc[
-            ((df["date"] > df["saison.date_fin"]) & (df["saison.date_fin"].notnull())),
-            "valide",
-        ] = False
-        df.loc[
-            ((df["date"] > df["saison.date_fin"]) & (df["saison.date_fin"].notnull())),
-            "commentaires_erreurs",
+            idx_erreur_date_fin, "commentaires_erreurs"
         ] += "Date du tir après la fin de la saison. "
+        del idx_erreur_date_fin
 
         # suppression des colonnes désormais inutiles
         df.drop(columns=["date"], inplace=True)
@@ -872,59 +1020,123 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df.loc[
             idx_erreur_cors, "commentaires_erreurs"
         ] += "Nombre de cors n'est pas un nombre entier positif ou est différent de null. "
+        del idx_erreur_cors
 
         # si le nb de cors est différent de null pour les mouflons on retourne une erreur
-        df.loc[((df["espece"] == "MOUFLON") & (df["cors_nb"].notnull())), "valide"] = (
-            False
-        )
+        idx_erreur_cors_mouflon = df[
+            (df["espece"] == "MOUFLON") & (df["cors_nb"].notnull())
+        ].index
+        df.loc[idx_erreur_cors_mouflon, "valide"] = False
         df.loc[
-            ((df["espece"] == "MOUFLON") & (df["cors_nb"].notnull())),
-            "commentaires_erreurs",
+            idx_erreur_cors_mouflon, "commentaires_erreurs"
         ] += "Nombre de cors renseigné pour un mouflon. "
+        del idx_erreur_cors_mouflon
 
+        # Si le nb de cors est aberrant
+        idx_erreur_nb_cors = df[
+            (df["cors_nb"] < NB_CORS_MINIMUM) | (df["cors_nb"] > NB_CORS_MAXIMUM)
+        ].index
+        df.loc[
+            idx_erreur_nb_cors, "commentaires_erreurs"
+        ] += f"Nombre de cors aberrant (inférieur à {NB_CORS_MINIMUM} ou supérieur à {NB_CORS_MAXIMUM}). "
+        df.loc[idx_erreur_nb_cors, "a_verifier"] = True
+        del idx_erreur_nb_cors
+
+        # création du champs cor_indetermine
         df["cors_indetermine"] = True
         df.loc[df["cors_nb"] >= 0, "cors_indetermine"] = False
 
         ######################### TRAITEMENT DES DAGUES  #############################################
         # remplacement des 0 par null pour les longueurs de dagues
-        df.loc[df["long_dagues_droite"] == 0, "long_dagues_droite"] = None
-        df.loc[df["long_dagues_gauche"] == 0, "long_dagues_gauche"] = None
+
+        df.loc[(df["long_dagues_droite"] == 0), "long_dagues_droite"] = None
+        df.loc[(df["long_dagues_gauche"] == 0), "long_dagues_gauche"] = None
 
         # si la longueur de dagues n'est pas None et ce n'est pas un float dont la valeur est positive, alors on considère que c'est une erreur. On met valide à False et on ajoute un commentaire d'erreur dans ce cas.
-        idx_erreur_dagues = df[
+        idx_erreur_dagues_droite = df[
             ~df["long_dagues_droite"].apply(
                 lambda x: (isinstance(x, (int, float)) and x >= 0) or pd.isnull(x)
             )
         ].index
-        df.loc[idx_erreur_dagues, "valide"] = False
+        df.loc[idx_erreur_dagues_droite, "valide"] = False
         df.loc[
-            idx_erreur_dagues, "commentaires_erreurs"
+            idx_erreur_dagues_droite, "commentaires_erreurs"
         ] += "La longueur de dague droite n'est pas un nombre entier positif ou est différent de null. "
-        idx_erreur_dagues = df[
+        del idx_erreur_dagues_droite
+
+        idx_erreur_dagues_gauche = df[
             ~df["long_dagues_gauche"].apply(
                 lambda x: (isinstance(x, (int, float)) and x >= 0) or pd.isnull(x)
             )
         ].index
-        df.loc[idx_erreur_dagues, "valide"] = False
+        df.loc[idx_erreur_dagues_gauche, "valide"] = False
         df.loc[
-            idx_erreur_dagues, "commentaires_erreurs"
+            idx_erreur_dagues_gauche, "commentaires_erreurs"
         ] += "La longueur de dague gauche n'est pas un nombre entier positif ou est différent de null. "
+        del idx_erreur_dagues_gauche
 
         # si le sexe est Femelle et que les longueurs de dagues sont renseignées, on retourne une erreur
+        idx_erreur_dagues_femelle = df[
+            (df["sexe"] == "Femelle")
+            & (df["long_dagues_droite"].notnull() | df["long_dagues_gauche"].notnull())
+        ].index
+        df.loc[idx_erreur_dagues_femelle, "valide"] = False
         df.loc[
-            ((df["sexe"] == "Femelle") & (df["long_dagues_droite"].notnull())), "valide"
-        ] = False
-        df.loc[
-            ((df["sexe"] == "Femelle") & (df["long_dagues_droite"].notnull())),
-            "commentaires_erreurs",
+            idx_erreur_dagues_femelle, "commentaires_erreurs"
         ] += "Longueur de dague renseignée pour une femelle. "
+        del idx_erreur_dagues_femelle
+
+        # met la valeur des dagues en commentaire d'erreur si la longueur est aberrante
+        idx_erreur_dagues_aberrantes_gauche = df[
+            df.apply(
+                lambda row: (
+                    (
+                        row["long_dagues_gauche"] is not None
+                        and row["age"] in TAILLE_MINIMUM_DAGUES.get(row["espece"], {})
+                        and row["long_dagues_gauche"]
+                        < TAILLE_MINIMUM_DAGUES[row["espece"]][row["age"]]
+                    )
+                    or (
+                        row["long_dagues_gauche"] is not None
+                        and row["age"] in TAILLE_MAXIMUM_DAGUES.get(row["espece"], {})
+                        and row["long_dagues_gauche"]
+                        > TAILLE_MAXIMUM_DAGUES[row["espece"]][row["age"]]
+                    )
+                ),
+                axis=1,
+            )
+        ].index
         df.loc[
-            ((df["sexe"] == "Femelle") & (df["long_dagues_gauche"].notnull())), "valide"
-        ] = False
+            idx_erreur_dagues_aberrantes_gauche, "commentaires_erreurs"
+        ] += f"Longueur de dague gauche aberrante. "
+        df.loc[idx_erreur_dagues_aberrantes_gauche, "a_verifier"] = True
+        del idx_erreur_dagues_aberrantes_gauche
+
+        idx_erreur_dagues_aberrantes_droite = df[
+            df.apply(
+                lambda row: (
+                    (
+                        row["long_dagues_droite"] is not None
+                        and row["age"] in TAILLE_MINIMUM_DAGUES.get(row["espece"], {})
+                        and row["long_dagues_droite"]
+                        < TAILLE_MINIMUM_DAGUES[row["espece"]][row["age"]]
+                    )
+                    or (
+                        row["long_dagues_droite"] is not None
+                        and row["age"] in TAILLE_MAXIMUM_DAGUES.get(row["espece"], {})
+                        and row["long_dagues_droite"]
+                        > TAILLE_MAXIMUM_DAGUES[row["espece"]][row["age"]]
+                    )
+                ),
+                axis=1,
+            )
+        ].index
         df.loc[
-            ((df["sexe"] == "Femelle") & (df["long_dagues_gauche"].notnull())),
-            "commentaires_erreurs",
-        ] += "Longueur de dague renseignée pour une femelle. "
+            idx_erreur_dagues_aberrantes_droite, "commentaires_erreurs"
+        ] += f"Longueur de dague droite aberrante. "
+        df.loc[idx_erreur_dagues_aberrantes_droite, "a_verifier"] = True
+        del idx_erreur_dagues_aberrantes_droite
+
         df.drop(columns=["sexe", "sexe_theorique"], inplace=True)
 
         ######################## TRAITEMENT DES MANDIBULES  #############################################
@@ -942,6 +1154,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df.loc[
             idx_erreur_mandibules, "commentaires_erreurs"
         ] += "La longueur de mandibule droite n'est pas un nombre entier positif ou est différent de null. "
+        del idx_erreur_mandibules
         idx_erreur_mandibules = df[
             ~df["long_mandibules_gauche"].apply(
                 lambda x: (isinstance(x, (int, float)) and x >= 0) or pd.isnull(x)
@@ -951,6 +1164,20 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df.loc[
             idx_erreur_mandibules, "commentaires_erreurs"
         ] += "La longueur de mandibule gauche n'est pas un nombre entier positif ou est différent de null. "
+        del idx_erreur_mandibules
+
+        # si la longueur de mandibules est aberrante (inférieure à la valeur dans TAILLE_MINIMUM_MANDIBULES ou supérieure à la valeur dans TAILLE_MAXIMUM_MANDIBULES), on ajoute un commentaire d'erreur et on met a_verifier à True pour que l'utilisateur puisse vérifier la valeur. Les valeurs de taille minimum et maximum sont définies en fonction de l'espèce et de l'âge dans les dictionnaires TAILLE_MINIMUM_MANDIBULES et TAILLE_MAXIMUM_MANDIBULES.
+        index_erreur_taille_mandibules = df[
+            (df["long_mandibules_droite"] > TAILLE_MAXIMUM_MANDIBULES)
+            | (df["long_mandibules_droite"] < TAILLE_MINIMUM_MANDIBULES)
+            | (df["long_mandibules_gauche"] < TAILLE_MINIMUM_MANDIBULES)
+            | (df["long_mandibules_gauche"] > TAILLE_MAXIMUM_MANDIBULES)
+        ].index
+        df.loc[
+            index_erreur_taille_mandibules, "commentaires_erreurs"
+        ] += "Longueur de mandibules aberrante. "
+        df.loc[index_erreur_taille_mandibules, "a_verifier"] = True
+        del index_erreur_taille_mandibules
 
         ######################## TRAITEMENT LATITUDE ET LONGITUDE  #############################################
         # verification que les latitude et longitude sont des floats si elles ne sont pas nulles. Met valide à False et ajoute un commentaire d'erreur si ce n'est pas le cas.
@@ -961,6 +1188,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df.loc[
             idx_erreur_latitude, "commentaires_erreurs"
         ] += "Latitude n'est pas un nombre ou est différent de null. "
+        del idx_erreur_latitude
         idx_erreur_longitude = df[
             ~df["longitude"].apply(
                 lambda x: isinstance(x, (int, float)) or pd.isnull(x)
@@ -970,6 +1198,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df.loc[
             idx_erreur_longitude, "commentaires_erreurs"
         ] += "Longitude n'est pas un nombre ou est différent de null. "
+        del idx_erreur_longitude
 
         # transformation des latitude et longitude qui sont en ws84 en coordonnée lambert 93 pour pouvoir les comparer aux coordonnées des zones de chasse.
         # pour la transformation on utilise la bibliothèque pyproj
@@ -990,6 +1219,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df.loc[
             idx_erreur_auteur_tir, "commentaires_erreurs"
         ] += "L'auteur du tir ne peut pas être un nombre. "
+        del idx_erreur_auteur_tir
 
         ####################### TRAITEMENT DES LIEUX DE TIR #############################################
         # Si le lieu de tir n'est pas None et est un nombre, on considère que que c'est une erreur
@@ -1002,6 +1232,9 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df.loc[
             idx_erreur_lieu_tir, "commentaires_erreurs"
         ] += "Le lieu de tir ne peut pas être un nombre. "
+        del idx_erreur_lieu_tir
+
+        df.drop(columns=["age", "age_theorique"], inplace=True)
 
         ####################### ID NUMERISATEUR  #############################################
         # on ajoute la colonne id_numerisateur qui correspond à l'id_role de l'utilisateur connecté
@@ -1270,7 +1503,6 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                     "lieu_tir.nom_lieu_tir",
                     "lieu_tir.zone_indicative.id_zone_indicative",
                     "lieu_tir.zone_indicative.zone_cynegetique.id_zone_cynegetique",
-                    "lieu_tir.zone_indicative.zone_cynegetique.secteur.id_secteur",
                     "lieu_tir.id_area_commune",
                 ]
             ]
@@ -1280,7 +1512,6 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                     "lieu_tir.nom_lieu_tir": "nom_lieu_tir",
                     "lieu_tir.zone_indicative.id_zone_indicative": "id_zi_lieu_tir",
                     "lieu_tir.zone_indicative.zone_cynegetique.id_zone_cynegetique": "id_zc_lieu_tir",
-                    "lieu_tir.zone_indicative.zone_cynegetique.secteur.id_secteur": "id_secteur_lieu_tir",
                     "lieu_tir.id_area_commune": "id_area_commune_lieu_tir",
                 }
             )
@@ -1776,6 +2007,23 @@ def etape_save_bilan_synonymes_in_csv(dict_bilan_synonymes, apiResponse):
         return apiResponse
 
 
+def etape__remplissage_commentaires(df, apiResponse):
+    """On ajoute aux commentaires des lignes valides les commentaires d'erreurs."""
+    try:
+        for index, row in df.iterrows():
+            if row["valide"] == True and pd.notna(row["commentaires_erreurs"]):
+                commentaire = row["commentaire"] if pd.notna(row["commentaire"]) else ""
+                df.at[index, "commentaire"] = (
+                    f"{commentaire} \n {row['commentaires_erreurs']}"
+                )
+        return df, apiResponse
+    except Exception as e:
+        user_message = f"Une erreur est survenue lors du remplissage des commentaires d'erreurs. {e}"
+        apiResponse.add_log(message=user_message, type_log="ERROR")
+        apiResponse.add_error(system_error=str(e), user_message=user_message)
+        return pd.DataFrame(), apiResponse
+
+
 def etape__insert_new_realisations(df, apiResponse):
     """Vérifie la validité de chaque ligne avant de les insérer dans la base de données. On enregistre en bdd les lignes valides.
     Les lignes invalides sont retournées dans un dataframe pour être corrigé par l'utilisateur.
@@ -1985,46 +2233,67 @@ def etape__creation_dataframe_erreurs(
             df_erreurs = df_erreurs["commentaires_erreurs"]
 
             # on sort le numéro de bracelet de l'index pour le remplacre par id_geochasse
-            df_original["numero"] = df_original.index
-            df_original.set_index("id_geochasse", inplace=True)
+            df_origin = df_original.copy()
+            df_origin["numero"] = df_origin.index
+            df_origin.set_index("id_geochasse", inplace=True)
 
             # on ajoute la colonne commentaires_erreurs au dataframe d'origine en ne gardant que les lignes en erreur.
-            df_original = df_original.join(df_erreurs, how="inner")
+            df_origin = df_origin.join(df_erreurs, how="inner")
 
             # creation d'un nom de fichier csv sous forme AAAA-MM-JJ_HH-MM-SS_erreurs_import_geochasse.csv
             nom_fichier = f"{pd.Timestamp.now().strftime('%Y-%m-%d_%H-%M-%S')}_erreurs_import_geochasse.csv"
             chemin_fichier = Path(DOSSIER_RAPPORTS) / nom_fichier
-            df_original.to_csv(chemin_fichier, index=False)
+            df_origin.to_csv(chemin_fichier, index=False)
 
             # apiResponse.add_log(message=f"Un fichier d'erreur enregistré: {chemin_fichier}", type_log="INFO")
             # type_log FILE permettra d'indiquer au frontend que c'est le nom d'un fichier à télécharger
             if df_erreurs.shape[0] > 0:
                 apiResponse.add_log(message=f"{nom_fichier}", type_log="FILE")
 
-        return apiResponse
+        return df_erreurs, apiResponse
 
     except Exception as e:
         user_message = f"Une erreur est survenue lors de la création du rapport CSV des erreurs. {e}"
         apiResponse.add_log(message=user_message, type_log="ERROR")
         apiResponse.add_error(system_error=str(e), user_message=user_message)
-        return apiResponse
+        return df_erreurs, apiResponse
 
 
-def etape__remplissage_commentaires(df, apiResponse):
-    """On ajoute aux commentaires des lignes valides les commentaires d'erreurs."""
+def etape__creation_csv_a_verifier(df, df_original, apiResponse):
     try:
-        for index, row in df.iterrows():
-            if row["valide"] == True and pd.notna(row["commentaires_erreurs"]):
-                commentaire = row["commentaire"] if pd.notna(row["commentaire"]) else ""
-                df.at[index, "commentaire"] = (
-                    f"{commentaire} \n {row['commentaires_erreurs']}"
-                )
-        return df, apiResponse
+        df_verif = df.loc[df["a_verifier"] == True].copy()
+        if df_verif.shape[0] > 0:  # si il existe des erreurs
+            df_verif.set_index("id_geochasse", inplace=True)
+            df_verif = df_verif["commentaires_erreurs"]
+
+            # on sort le numéro de bracelet de l'index pour le remplacre par id_geochasse
+            df_origin = df_original.copy()
+            df_origin["numero"] = df_origin.index
+            df_origin.set_index("id_geochasse", inplace=True)
+
+            # on ajoute la colonne commentaires_erreurs au dataframe d'origine en ne gardant que les lignes en erreur.
+            df_origin = df_origin.join(df_verif, how="inner")
+            # creation d'un nom de fichier csv sous forme AAAA-MM-JJ_HH-MM-SS_a_verifier.csv
+            nom_fichier = (
+                f"{pd.Timestamp.now().strftime('%Y-%m-%d_%H-%M-%S')}_a_verifier.csv"
+            )
+            chemin_fichier = Path(DOSSIER_RAPPORTS) / nom_fichier
+            df_origin.to_csv(chemin_fichier, index=False)
+        # apiResponse.add_log(message=f"Un fichier d'erreur enregistré: {chemin_fichier}", type_log="INFO")
+        # type_log FILE permettra d'indiquer au frontend que c'est le nom d'un fichier à télécharger
+        if df_verif.shape[0] > 0:
+            apiResponse.add_log(
+                message=f"{df_verif.shape[0]} lignes avec des données aberrantes: à vérifier",
+                type_log="INFO",
+            )
+            apiResponse.add_log(message=f"{nom_fichier}", type_log="FILE")
+
+        return df_verif, apiResponse
     except Exception as e:
-        user_message = f"Une erreur est survenue lors du remplissage des commentaires d'erreurs. {e}"
+        user_message = f"Une erreur est survenue lors de la création du rapport CSV des erreurs. {e}"
         apiResponse.add_log(message=user_message, type_log="ERROR")
         apiResponse.add_error(system_error=str(e), user_message=user_message)
-        return pd.DataFrame(), apiResponse
+        return df_verif, apiResponse
 
 
 ################################################################################################
@@ -2097,9 +2366,11 @@ def traitement_import_realisation_chasse(path_csv, id_saison, update):
     if apiResponse.success == False:
         return apiResponse
 
-    apiResponse = etape__creation_dataframe_erreurs(
+    _, apiResponse = etape__creation_dataframe_erreurs(
         df_original, df_erreurs_insert, df_erreurs_update, apiResponse
     )
+
+    _, apiResponse = etape__creation_csv_a_verifier(df, df_original, apiResponse)
 
     # enregiste les logs dans un fichier
     apiResponse.write_in_log_file()

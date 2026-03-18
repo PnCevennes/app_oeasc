@@ -27,7 +27,7 @@ class TZoneCynegetiquesSchema(SQLAlchemyAutoSchema):
         sqla_session = (DB.session,)
         unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
 
-    secteur = Nested("TSecteursSchema", many=False)
+    secteur = Nested("TSecteursSchema", many=False, exclude=("circuits",))
 
 
 class TZoneIndicativesSchema(GeoAlchemyAutoSchema):
@@ -44,7 +44,9 @@ class TZoneIndicativesSchema(GeoAlchemyAutoSchema):
 
     geom = GeometryField(dump_only=True)
 
-    zone_cynegetique = Nested("TZoneCynegetiquesSchema", many=False)
+    zone_cynegetique = Nested(
+        "TZoneCynegetiquesSchema", many=False, exclude=("secteur",)
+    )
 
 
 class TLieuTirsSchema(GeoAlchemyAutoSchema):
@@ -108,6 +110,14 @@ class TSaisonDatesSchema(SQLAlchemyAutoSchema):
     nomenclature_type_chasse = Nested(
         "TNomenclaturesOeascSchema",
         many=False,
+        only=(
+            "id_nomenclature",
+            "id_type",
+            "cd_nomenclature",
+            "mnemonique",
+            "label_fr",
+            "definition_default",
+        ),
         allow_none=True,
         metadata={"load_instance": False},
         unknown=EXCLUDE,  # retire du schema les champs inconnus ou superflus
@@ -159,7 +169,10 @@ class TTypeBraceletsSchema(SQLAlchemyAutoSchema):
         sqla_session = (DB.session,)
         unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
 
-    espece = Nested("TEspecesSchema", many=False)
+    espece = Nested(
+        "TEspecesSchema",
+        many=False,
+    )
 
 
 class TAttributionsSchema(SQLAlchemyAutoSchema):
@@ -169,12 +182,32 @@ class TAttributionsSchema(SQLAlchemyAutoSchema):
         model = TAttributions
         load_instance = True
         include_fk = True
+        include_relationships = False
         sqla_session = (DB.session,)
         unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
 
-    saison = Nested("TSaisonsSchema", many=False)
-    zone_cynegetique_affectee = Nested("TZoneCynegetiquesSchema", many=False)
-    zone_indicative_affectee = Nested("TZoneIndicativesSchema", many=False)
+    realisation = Nested(
+        "TRealisationsChasseSchema",
+        many=False,
+        allow_none=True,
+        exclude=(
+            "attribution",
+            "saison",
+            "zone_cynegetique_affectee",
+            "zone_indicative_affectee",
+        ),
+        metadata={
+            "load_instance": True,
+        },
+    )
+
+    saison = Nested("TSaisonsSchema", many=False, exclude=("commentaire",))
+    zone_cynegetique_affectee = Nested(
+        "TZoneCynegetiquesSchema", many=False, exclude=("secteur",)
+    )
+    zone_indicative_affectee = Nested(
+        "TZoneIndicativesSchema", many=False, exclude=("zone_cynegetique",)
+    )
     type_bracelet = Nested("TTypeBraceletsSchema", many=False)
     # has_realisation = fields.Boolean(attribute="has_realisation")
     id_realisation = fields.Integer(attribute="id_realisation", dump_only=True)
@@ -187,6 +220,7 @@ class TRealisationsChasseSchema(GeoAlchemyAutoSchema):
         model = TRealisationsChasse
         load_instance = True
         include_fk = True
+        include_relationships = False
         sqla_session = (DB.session,)
         unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
 
@@ -208,6 +242,12 @@ class TRealisationsChasseSchema(GeoAlchemyAutoSchema):
     attribution = Nested(
         "TAttributionsSchema",
         many=False,
+        exclude=(
+            "realisation",
+            "zone_cynegetique_affectee",
+            "zone_indicative_affectee",
+            "saison",
+        ),
         metadata={"load_instance": True},
     )
     saison = Nested(
@@ -220,12 +260,14 @@ class TRealisationsChasseSchema(GeoAlchemyAutoSchema):
         "TZoneCynegetiquesSchema",
         many=False,
         metadata={"load_instance": True},
+        exclude=("secteur",),
         # dump_only=True,  # Empêche la désérialisation, donc pas de création lors du load
     )
     zone_cynegetique_affectee = Nested(
         "TZoneCynegetiquesSchema",
         many=False,
         metadata={"load_instance": True},
+        exclude=("secteur",),
         # dump_only=True,  # Empêche la désérialisation, donc pas de création lors du load
     )
     id_zone_indicative_realisee = fields.Integer()
@@ -237,6 +279,7 @@ class TRealisationsChasseSchema(GeoAlchemyAutoSchema):
         "TZoneIndicativesSchema",
         many=False,
         metadata={"load_instance": True},
+        exclude=("zone_cynegetique",),
         # dump_only=True,  # Empêche la désérialisation, donc pas de création lors du load
     )
 
@@ -244,6 +287,7 @@ class TRealisationsChasseSchema(GeoAlchemyAutoSchema):
         "TZoneIndicativesSchema",
         many=False,
         metadata={"load_instance": True},
+        exclude=("zone_cynegetique",),
         # dump_only=True,  # Empêche la désérialisation, donc pas de création lors du load
     )
     lieu_tir_synonyme = Nested(
@@ -256,16 +300,40 @@ class TRealisationsChasseSchema(GeoAlchemyAutoSchema):
         "TNomenclaturesOeascSchema",
         many=False,
         allow_none=True,
+        only=(
+            "id_nomenclature",
+            "id_type",
+            "cd_nomenclature",
+            "mnemonique",
+            "label_fr",
+            "definition_default",
+        ),
         metadata={"load_instance": True},
     )
     nomenclature_classe_age = Nested(
         "TNomenclaturesOeascSchema",
         many=False,
+        only=(
+            "id_nomenclature",
+            "id_type",
+            "cd_nomenclature",
+            "mnemonique",
+            "label_fr",
+            "definition_default",
+        ),
         metadata={"load_instance": True},
     )
     nomenclature_mode_chasse = Nested(
         "TNomenclaturesOeascSchema",
         many=False,
+        only=(
+            "id_nomenclature",
+            "id_type",
+            "cd_nomenclature",
+            "mnemonique",
+            "label_fr",
+            "definition_default",
+        ),
         metadata={"load_instance": True},
     )
 

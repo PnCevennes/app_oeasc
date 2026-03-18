@@ -309,7 +309,7 @@ def traitement_csv():
     update = request.form.get("update")  # sera une string "true" ou "false"
     file = request.files.get("file")
     apiResponse = traitement_import_realisation_chasse(file, saison, update)
-    apiResponse.print_all()
+    # apiResponse.print_all()
 
     return apiResponse.response_to_frontend()
 

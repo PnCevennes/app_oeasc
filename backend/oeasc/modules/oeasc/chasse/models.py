@@ -243,8 +243,12 @@ class TAttributions(CustomModel):
         Integer, ForeignKey("oeasc_chasse.t_zone_indicatives.id_zone_indicative")
     )
 
-    realisations: Mapped["TRealisationsChasse"] = relationship(
-        "TRealisationsChasse", back_populates="attribution", lazy="select"
+    # Relation one-to-one : une seule réalisation par attribution
+    realisation: Mapped["TRealisationsChasse"] = relationship(
+        "TRealisationsChasse",
+        back_populates="attribution",
+        lazy="select",
+        uselist=False,
     )
 
     saison: Mapped["TSaisons"] = relationship(TSaisons)
@@ -271,7 +275,7 @@ class TRealisationsChasse(CustomModel):
     )
     # attribution: Mapped["TAttributions"] = relationship(TAttributions)
     attribution: Mapped["TAttributions"] = relationship(
-        "TAttributions", back_populates="realisations"
+        "TAttributions", back_populates="realisation", lazy="select", uselist=False
     )
 
     saison: Mapped["TSaisons"] = relationship(

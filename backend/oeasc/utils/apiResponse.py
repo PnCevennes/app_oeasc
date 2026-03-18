@@ -101,6 +101,11 @@ class ApiResponse:
             else:  # Si un fichier est défini, on créé un chemin et on utilise ce fichier pour le log
                 filename = os.path.join(path_log, filename)
 
+            # si le fichier de log n'existe pas, on le créé
+            if not os.path.exists(filename):
+                with open(filename, "w"):
+                    pass
+
             handler = logging.FileHandler(filename)
             if with_timestamp:
                 formatter = logging.Formatter(
