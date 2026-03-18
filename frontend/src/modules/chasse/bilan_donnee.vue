@@ -72,32 +72,26 @@
         Graphiques circulaires pour la répartition par sexe, classe d'âge et mode de chasse.
         Utilisés pour analyser la structure des prélèvements.
       -->
-      <v-row style="min-height: 400px">
-        <v-col>
-          <graphChasseIcePoints
-            :data_db="data_ice_masse_corporelle"
-            :filterParams="bilanParams"
-          ></graphChasseIcePoints>
-        </v-col>
-      </v-row>
-      <v-row style="min-height: 400px">
+        <v-row style="min-height: 400px">
         <v-col>
           <graphChasseIce
             :data_db="data_ice_masse_corporelle"
             :filterParams="bilanParams"
             poids_ou_dagues="true"
+            height="450px"
           ></graphChasseIce>
         </v-col>
       </v-row>
-
       <v-row style="min-height: 400px">
         <v-col>
           <graphChasseIcePoints
-            :data_db="data_ice_dagues"
+            :data_db="data_ice_masse_corporelle"
             :filterParams="bilanParams"
           ></graphChasseIcePoints>
         </v-col>
       </v-row>
+      
+
       <v-row style="min-height: 400px">
         <v-col>
           <graphChasseIce
@@ -107,6 +101,15 @@
           ></graphChasseIce>
         </v-col>
       </v-row>
+      <v-row style="min-height: 400px">
+        <v-col>
+          <graphChasseIcePoints
+            :data_db="data_ice_dagues"
+            :filterParams="bilanParams"
+          ></graphChasseIcePoints>
+        </v-col>
+      </v-row>
+      
     </div>
   </div>
 </template>
