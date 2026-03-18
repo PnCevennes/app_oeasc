@@ -2284,7 +2284,7 @@ def etape__creation_csv_a_verifier(df, df_original, apiResponse):
         if df_verif.shape[0] > 0:
             apiResponse.add_log(
                 message=f"{df_verif.shape[0]} lignes avec des données aberrantes: à vérifier",
-                type_log="INFO",
+                type_log="WARNING",
             )
             apiResponse.add_log(message=f"{nom_fichier}", type_log="FILE")
 

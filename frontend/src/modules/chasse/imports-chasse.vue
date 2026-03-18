@@ -85,8 +85,8 @@
         </thead>
         <tbody>
           <tr
-            v-for="value in reponse_affichee"
-            :key="value.message"
+            v-for="(value, idx) in reponse_affichee"
+            :key="idx"
           >
             <td>
               <v-icon
@@ -109,6 +109,13 @@
                 left
               >
                 mdi-file
+              </v-icon>
+              <v-icon
+                v-else-if="value.type === 'warning'"
+                color="orange"
+                left
+              >
+                mdi-alert
               </v-icon>
               <span v-if="value.type === 'file'">
                 Un fichier à été généré:
@@ -240,41 +247,74 @@ export default {
 
         // console.log('Envoi du FormData...');
 
+        // console.log('upload(): envoi du FormData, attente réponse...');
         const response = await simple_fetch('POST', 'api/chasse/import/traitement-csv', formData);
-        console.log("Réponse brute de l'API:", response);
-        this.traitement_journal(response);
+        // console.log("Réponse brute de l'API:", response);
+
+        // simple_fetch redirige vers /login et retourne undefined en cas de 401
+        if (!response) {
+          console.warn(
+            'upload(): pas de réponse (probable 401/redirection), annulation et reset uploading.'
+          );
+          this.uploading = false;
+          return;
+        }
+
+        await this.traitement_journal(response);
         // this.message = response.journal || 'Importation réussie.';
-        console.log('Réponse API:', response.journal);
+        // console.log('Réponse API:', response.journal);
         this.uploading = false;
       } catch (err) {
         console.error("Erreur lors de l'import:", err);
         this.message = err.message || "Erreur lors de l'import.";
         this.error = true;
-        this.uploading = false;
       } finally {
+        // always ensure uploading flag is cleared
         this.uploading = false;
       }
     },
 
-    traitement_journal(response) {
+    async traitement_journal(response) {
       // parcours les lignes du journal pour remplir le dic reponse_affichee qui aura logo et message à chaque lignes.
       // si la ligne contient [ERROR] on met un icone de croix rouge
       // si la ligne contient [INFO] on met un icone de check vert
       // si la ligne contient [FILE] on créé icone de fichier et nom_fichier_erreur prendra la valeur du nom du fichier d'erreur à télécharger
       // message contiendra le message sans les tags [ERROR], [INFO] ou [FILE]
 
-      for (let log of response.journal) {
-        if (log.includes('[ERROR]')) {
-          this.reponse_affichee.push({ type: 'error', message: log.replace('[ERROR] ', '') });
-        } else if (log.includes('[INFO]')) {
-          this.reponse_affichee.push({ type: 'info', message: log.replace('[INFO] ', '') });
-        } else if (log.includes('[FILE]')) {
-          const fileName = log.replace('[FILE] ', '');
-          this.nom_fichier_erreur = fileName; // stocke le nom du fichier d'erreur pour afficher le bouton de téléchargement
-          this.reponse_affichee.push({ type: 'file', message: fileName });
-          // this.urlCSV(); // génère l'URL du fichier d'erreur à partir du nom du fichier fourni par le backend
+      // Process logs in chunks to avoid blocking the main thread and hitting script-timeout
+      const lines = response && response.journal ? response.journal : [];
+      const chunkSize = 100; // adjust as needed
+      const maxDisplay = 1000; // keep at most this many lines in the DOM
+
+      for (let i = 0; i < lines.length; i += chunkSize) {
+        const chunk = lines.slice(i, i + chunkSize);
+        for (let log of chunk) {
+          if (log.includes('[ERROR]')) {
+            this.reponse_affichee.push({ type: 'error', message: log.replace('[ERROR] ', '') });
+          } else if (log.includes('[INFO]')) {
+            this.reponse_affichee.push({ type: 'info', message: log.replace('[INFO] ', '') });
+          } else if (log.includes('[WARNING]')) {
+            this.reponse_affichee.push({ type: 'warning', message: log.replace('[WARNING] ', '') });
+          } else if (log.includes('[FILE]')) {
+            const fileName = log.replace('[FILE] ', '');
+            this.nom_fichier_erreur = fileName;
+            this.reponse_affichee.push({ type: 'file', message: fileName });
+          }
         }
+
+        // trim to last maxDisplay entries to avoid memory/DOM bloat
+        if (this.reponse_affichee.length > maxDisplay) {
+          this.reponse_affichee = this.reponse_affichee.slice(-maxDisplay);
+        }
+
+        // yield to the event loop so the browser can render and avoid script timeout
+        // use nextTick + small timeout for maximum compatibility
+        // eslint-disable-next-line no-await-in-loop
+        await this.$nextTick();
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((r) => setTimeout(r, 0));
       }
+
       return this.reponse_affichee;
     },
 
@@ -283,21 +323,15 @@ export default {
         console.error("Aucun fichier d'erreur disponible pour le téléchargement.");
         return null;
       }
-      this.url_fichier_erreur = url(
-        `api/chasse/import/download-erreurs-csv/${nom_fichier}`
-      ).toString();
-      return this.url_fichier_erreur;
+      try {
+        // Ne pas muter de propriété réactive depuis une fonction appelée en rendu
+        // (évite boucle de rendu infinie). Retourner simplement l'URL.
+        return url(`api/chasse/import/download-erreurs-csv/${nom_fichier}`).toString();
+      } catch (e) {
+        console.error('Erreur création URL fichier erreur:', e);
+        return null;
+      }
     },
-
-    // urlCSV() {
-    //   if (!this.nom_fichier_erreur) {
-    //     console.error('Aucun fichier d\'erreur disponible pour le téléchargement.');
-    //     return null;
-    //   }
-    //   this.url_fichier_erreur = url(`api/chasse/import/download-erreurs-csv/${this.nom_fichier_erreur}`).toString();
-    //   return this.url_fichier_erreur;
-
-    // }
   },
 
   computed: {},
