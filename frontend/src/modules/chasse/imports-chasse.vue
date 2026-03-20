@@ -67,9 +67,22 @@
     ></v-progress-linear>
 
     <!-- affichage des messages de succès ou d'erreur après l'import -->
-    <div v-if="message" class="mt-3">
-      <div v-if="error" style="color:crimson">{{ message }}</div>
-      <div v-else style="color:green">{{ message }}</div>
+    <div
+      v-if="message"
+      class="mt-3"
+    >
+      <div
+        v-if="error"
+        style="color: crimson"
+      >
+        {{ message }}
+      </div>
+      <div
+        v-else
+        style="color: green"
+      >
+        {{ message }}
+      </div>
     </div>
 
     <!-- affichage de json_data_bdd sous forme du tableau -->
@@ -163,7 +176,6 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
-  
   </div>
 </template>
 
@@ -265,7 +277,7 @@ export default {
 
         if (response.success === false || response.user_message) {
           console.error('upload(): réponse API avec erreur:', response.error);
-          this.message = response.user_message || 'Erreur lors de l\'import.';
+          this.message = response.user_message || "Erreur lors de l'import.";
           this.error = true;
           this.uploading = false;
           return;
