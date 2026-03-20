@@ -33,7 +33,7 @@ import math
 import numpy as np
 import pandas as pd
 import json
-import rapidfuzz as fuzz
+import rapidfuzz as rpfz
 from pyproj import Transformer
 
 from marshmallow.exceptions import ValidationError
@@ -87,37 +87,23 @@ SCORE_MINIMUM_RAPIDFUZZ = 76
 NB_CORS_MINIMUM = 1  # en dessous de ce nombre, on considère que c'est une erreur de saisie et on remplace par null
 NB_CORS_MAXIMUM = 24  # au dessus de ce nombre, on considère que c'est une erreur de saisie et on remplace par null
 
-TAILLE_MINIMUM_DAGUES = {
-    "CERF": {"Adulte": 10, "Subadulte": 10, "Indéterminé": 5, "Jeune": 2, "Faon": 2},
-    "CHEVREUIL": {"Adulte": 10, "Subadulte": 1, "Indéterminé": 1, "Jeune": 1},
+TAILLE_MINIMUM_DAGUES ={
+    "CERF": {"ADULTE": 10, "SUBADULTE": 10, "INDÉTERMINÉ": 5, "JEUNE": 2, "FAON": 2},
+    "CHEVREUIL": {"ADULTE": 10, "SUBADULTE": 1, "INDÉTERMINÉ": 1, "JEUNE": 1},
 }
-TAILLE_MAXIMUM_DAGUES = {
-    "CERF": {
-        "Adulte": 650,
-        "Subadulte": 500,
-        "Indéterminé": 600,
-        "Jeune": 200,
-        "Faon": 200,
-    },
-    "CHEVREUIL": {"Adulte": 200, "Subadulte": 150, "Indéterminé": 200, "Jeune": 100},
+TAILLE_MAXIMUM_DAGUES ={
+    "CERF": {"ADULTE": 650, "SUBADULTE": 500, "INDÉTERMINÉ": 600, "JEUNE": 200, "FAON": 200},
+    "CHEVREUIL": {"ADULTE": 200, "SUBADULTE": 150, "INDÉTERMINÉ": 200, "JEUNE": 100},
 }
 
-POIDS_VIDE_MINIMUM = {
-    "CERF": {"Adulte": 40, "Subadulte": 20, "Indéterminé": 18, "Jeune": 18, "Faon": 18},
-    "CHEVREUIL": {"Adulte": 7, "Subadulte": 7, "Indéterminé": 7, "Jeune": 7},
-    "MOUFLON": {"Adulte": 18, "Subadulte": 10, "Indéterminé": 5, "Jeune": 5},
-}
-POIDS_VIDE_MAXIMUM = {
-    "CERF": {
-        "Adulte": 250,
-        "Subadulte": 150,
-        "Indéterminé": 300,
-        "Jeune": 120,
-        "Faon": 120,
-    },
-    "CHEVREUIL": {"Adulte": 70, "Subadulte": 50, "Indéterminé": 50, "Jeune": 26},
-    "MOUFLON": {"Adulte": 55, "Subadulte": 30, "Indéterminé": 35, "Jeune": 35},
-}
+POIDS_VIDE_MINIMUM = {"CERF": {"ADULTE": 40, "SUBADULTE": 20, "INDÉTERMINÉ": 18, "JEUNE": 18, "FAON": 18},
+                "CHEVREUIL": {"ADULTE": 7, "SUBADULTE": 7, "INDÉTERMINÉ": 7, "JEUNE": 7},
+                "MOUFLON": {"ADULTE": 18, "SUBADULTE": 10, "INDÉTERMINÉ": 5, "JEUNE": 5}
+                }
+POIDS_VIDE_MAXIMUM = {"CERF": {"ADULTE": 250, "SUBADULTE": 150, "INDÉTERMINÉ": 300, "JEUNE": 120, "FAON": 120},
+                "CHEVREUIL": {"ADULTE": 70, "SUBADULTE": 50, "INDÉTERMINÉ": 50, "JEUNE": 26},
+                "MOUFLON": {"ADULTE": 55, "SUBADULTE": 30, "INDÉTERMINÉ": 35, "JEUNE": 35}
+                }
 
 TAILLE_MINIMUM_MANDIBULES = 5
 TAILLE_MAXIMUM_MANDIBULES = 300
@@ -133,203 +119,181 @@ ERREUR_NOMS_COLONNES_GEOCHASSE = {
     "commentaires": "commentaire",
 }
 # Pour les mouflons l'age est un entier
-ERREUR_AGE = {"1": "Adulte"}
+ERREUR_AGE = { "1" : "ADULTE"}
 
 
 # On définit les id de nomenclatures et le lien entre les codes de bracelet et les especes en dur
 # Si il y a des changements majeurs dans la bdd , il faudra peut être les récupérer dynamiquement
-LISTE_ESPECE = {
-    "CEFF": [
-        "CERF",
-        ["Femelle", "Indéterminé", "Male"],
-        ["Adulte", "Subadulte", "Indéterminé", "Faon"],
-    ],
-    "CEFFD": [
-        "CERF",
-        ["Femelle", "Indéterminé", "Male"],
-        ["Adulte", "Subadulte", "Faon"],
-    ],
-    "CEM": ["CERF", ["Male"], ["Adulte", "Subadulte", "Indéterminé", "Faon"]],
-    "CEMD": ["CERF", ["Male"], ["Jeune"]],
-    "MOF": ["MOUFLON", ["Femelle"], ["Adulte"]],
-    "MOM": ["MOUFLON", ["Male"], ["Adulte"]],
-    "MOM1": ["MOUFLON", ["Male"], ["Subadulte"]],
-    "MOI": ["MOUFLON", ["Indéterminé"], ["Jeune"]],
-    "MOIJ": ["MOUFLON", ["Femelle", "Male"], ["Jeune"]],
-    "CHI": [
-        "CHEVREUIL",
-        ["Male", "Indéterminé", "Femelle"],
-        ["Adulte", "Subadulte", "Indéterminé", "Jeune"],
-    ],
-}
-LISTE_NOMENCLATURE_SEXE = {"Femelle": 168, "Male": 169, "Indéterminé": 167}
-LISTE_NOMENCLATURE_AGE = {
-    "Adulte": 3,
-    "Subadulte": 6,
-    "Indéterminé": 2,
-    "Jeune": 4,
-    "Faon": 4,
-}
-LISTE_NOMENCLATURE_MODE_CHASSE = {
-    "Battue": 575,
-    "Individuel": 588,
-    "Collective": 575,
-    "Affût": 573,
-    "Approche": 574,
-}
+LISTE_ESPECE = {"CEFF": ["CERF", ["FEMELLE","INDÉTERMINÉ", "MALE"], ["ADULTE", "SUBADULTE", "INDÉTERMINÉ", "FAON"]],
+                "CEFFD": ["CERF", ["FEMELLE", "INDÉTERMINÉ", "MALE"], ["ADULTE", "SUBADULTE", "FAON"]],
+                "CEM": ["CERF", ["MALE"], ["ADULTE", "SUBADULTE", "INDÉTERMINÉ", "FAON"]],
+                "CEMD": ["CERF", ["MALE"], ["JEUNE"]],
+
+                "MOF": ["MOUFLON", ["FEMELLE"], ["ADULTE"]],
+                "MOM": ["MOUFLON", ["MALE"], ["ADULTE"]],
+                "MOM1": ["MOUFLON", ["MALE"], ["SUBADULTE"]],
+                "MOI": ["MOUFLON", ["INDÉTERMINÉ"], ["JEUNE"]],
+                "MOIJ": ["MOUFLON", ["FEMELLE", "MALE"], ["JEUNE"]],
+                "CHI": ["CHEVREUIL", ["MALE", "INDÉTERMINÉ", "FEMELLE"], ["ADULTE", "SUBADULTE", "INDÉTERMINÉ", "JEUNE"]],
+                }
+LISTE_NOMENCLATURE_SEXE = {"FEMELLE": 168, "MALE": 169, "INDÉTERMINÉ": 167}
+LISTE_NOMENCLATURE_AGE = {"ADULTE": 3, "SUBADULTE": 6, "INDÉTERMINÉ": 2, "JEUNE": 4, "FAON": 4}
+LISTE_NOMENCLATURE_MODE_CHASSE = {"BATTUE": 575, "INDIVIDUEL": 588, "COLLECTIVE": 575, "AFFÛT": 573, "APPROCHE": 574}
 LISTE_NOMENCLATURE_ESPECE = {"CERF": 1, "MOUFLON": 9, "CHEVREUIL": 2}
 
 
 # nom des colonnes du csv exporté par geochasse. Si geochasse change les noms de colonnes, il faudra les modifier ici.
-COLUMNS_NAME = [
-    "id_geochasse",
-    "numero",
-    "espece",
-    "age",
-    "sexe",
-    "poids",
-    "pesee",
-    "risque_sanitaire",
-    "type_chasse",
-    "ref_battue",
-    "numero_battue",
-    "ref_ug",
-    "origine_bracelet",
-    "ref_detenteur",
-    "nom_detenteur",
-    "ref_equipe",
-    "nom_equipe",
-    "ref_membre",
-    "date",
-    "heure",
-    "date_saisie",
-    "commune",
-    "insee_commune",
-    "lieu_dit",
-    "territoire",
-    "departement",
-    "longitude",
-    "latitude",
-    "photos",
-    "commentaires",
-    "nom_tireur",
-    "matin/apres_midi",
-    "tir_plomb",
-    "serotheque",
-    "metatarse",
-    "long_pattes",
-    "long_machoire_1",
-    "long_machoire_2",
-    "nb_cors",
-    "nb_tetines",
-    "nb_embryons",
-    "long_cornes_G_isard",
-    "long_cornes_D_isard",
-    "circonf_corne_G_isard",
-    "circonf_corne_D_isard",
-    "hauteur_cornes_isard",
-    "ecart_cornes_isard",
-    "age_isard",
-    "long_corne_mouflon",
-    "diam_corne_mouflon",
-    "age_mouflon",
-    "long_dagues_gauche",
-    "long_dagues_droite",
-    "parc_nom_tireur",
-    "parc_lieu_dit",
-    "parc_lieu_dit2",
-]
+COLUMNS_NAME = {
+        "id_geochasse": ["ID"],
+        "numero": ["NUMERO"],
+        "espece": ["ESPECE"],
+        "age": ["AGE"],
+        "sexe": ["SEXE"],
+        "poids": ["POIDS"],
+        "pesee": ["PESEE"],
+        "risque_sanitaire": ["RISQUE SANITAIRE"],
+        "type_chasse": ["TYPE CHASSE"],
+        "ref_battue": ["REF_BATTUE"],
+        "numero_battue": ["NUMERO_BATTUE"],
+        "origine_bracelet": ["ORIGINE_BRACELET"],
+        "ref_ug": ["REF_UG"],
+        "ref_detenteur": ["REF_DETENTEUR"],
+        "nom_detenteur": ["NOM_DETENTEUR"],
+        "ref_equipe": ["REF_EQUIPE"],
+        "nom_equipe": ["NOM_EQUIPE"],
+        "ref_membre": ["REF_MEMBRE"],
+        "date": ["DATE"],
+        "heure": ["HEURE"],
+        "date_saisie": ["DATE_SAISIE"],
+        "commune": ["COMMUNE"],
+        "insee_commune": ["INSEE_COMMUNE"],
+        "lieu_dit": ["LIEU_DIT"],
+        "territoire": ["TERRITOIRE"],
+        "departement": ["DEPT"],
+        "longitude": ["LON"],
+        "latitude": ["LAT"],
+        "photos": ["PHOTOS"],
+        "commentaires": ["COMMENTAIRE"],
+        "nom_tireur": ["NOM TIREUR"],
+        "matin/apres_midi": ["MATIN/APRES-MIDI"],
+        "tir_plomb": ["TIR PLOMB"],
+        "serotheque": ["SEROTHEQUE"],
+        "metatarse": ["METATARSE"],
+        "long_pattes": ["LONG.PATTES"],
+        "long_machoire_1": ["LONG.MACHOIRE 1"],
+        "long_machoire_2": ["LONG.MACHOIRE 2"],
+        "nb_cors": ["NB CORS"],
+        "nb_tetines": ["NB TETINES"],
+        "nb_embryons": ["NB EMBRYONS"],
+        "long_cornes_G_isard": ["LONG CORNE G (ISARD)"],
+        "long_cornes_D_isard": ["LONG CORNE D (ISARD)"],
+        "circonf_corne_G_isard": ["CIRCONF CORNE G (ISARD)"],
+        "circonf_corne_D_isard": ["CIRCONF CORNE D (ISARD)"],
+        "hauteur_cornes_isard": ["HAUTEUR CORNES (ISARD)"],
+        "ecart_cornes_isard": ["ECART CORNES (ISARD)"],
+        "age_isard": ["AGE (ISARD)"],
+        "long_corne_mouflon": ["LONG CORNES (MOUFLON)"],
+        "diam_corne_mouflon": ["DIAM. CORNES (MOUFLON)"],
+        "age_mouflon": ["AGE (MOUFLON)"],
+        "long_dagues_gauche": ["LONG_DAGUE (1)", "LONG_DAGUE G"],
+        "long_dagues_droite": ["LONG_DAGUE (2)", "LONG_DAGUE D"],
+        "parc_nom_tireur": ["PARC_NOM_TIREUR"],
+        "parc_lieu_dit": ["PARC_LIEU_DIT"],
+        "parc_lieu_dit2": ["PARC_LIEU_DIT2"]
+}
 
 
 # noms des colonnes de geochasses inutiles. On les supprimera au début du traitement
-COLUMNS_INUTILES = [
-    "risque_sanitaire",
-    "numero_battue",
-    "ref_battue",
-    "ref_ug",
-    "ref_detenteur",
-    "nom_detenteur",
-    "ref_equipe",
-    "nom_equipe",
-    "ref_membre",
-    "insee_commune",
-    "territoire",
-    "photos",
-    "nom_tireur",
-    "matin/apres_midi",
-    "tir_plomb",
-    "serotheque",
-    "metatarse",
-    "long_pattes",
-    "nb_tetines",
-    "nb_embryons",
-    "circonf_corne_G_isard",
-    "circonf_corne_D_isard",
-    "ecart_cornes_isard",
-    "age_isard",
-    "long_corne_mouflon",
-    "diam_corne_mouflon",
-    "age_mouflon",
-    "nb_cors",
-    "long_cornes_D_isard",
-    "hauteur_cornes_isard",
-    "heure",
-]
+COLUMNS_INUTILES = ['risque_sanitaire', 'numero_battue', 'ref_battue', 'ref_ug', 'ref_detenteur', 'nom_detenteur', 'ref_equipe',
+    'nom_equipe', 'ref_membre', 'insee_commune', 'territoire', 'photos', 'nom_tireur', 'matin/apres_midi', 'tir_plomb',
+    'serotheque', 'metatarse', 'long_pattes', 'nb_tetines', 'nb_embryons', 'circonf_corne_G_isard', 'circonf_corne_D_isard',
+    'ecart_cornes_isard', 'age_isard', 'long_corne_mouflon', 'diam_corne_mouflon', 'age_mouflon', 
+    'nb_cors', 'long_cornes_D_isard', 'hauteur_cornes_isard', 'heure'
+    ]
 
 # noms des colonnes de la table realisations_chasse. Utilisé à la toute fin pour faire un clean du dataframe
 COLUMNS_REALISATION = [
-    "id_attribution",
-    "id_zone_cynegetique_realisee",
-    "id_zone_indicative_realisee",
-    "id_lieu_tir_synonyme",
-    "date_exacte",
-    "date_enreg",
-    "mortalite_hors_pc",
-    "id_nomenclature_sexe",
-    "id_nomenclature_classe_age",
-    "poid_entier",
-    "poid_vide",
-    "poid_c_f_p",
-    "long_dagues_droite",
-    "long_dagues_gauche",
-    "long_mandibules_droite",
-    "long_mandibules_gauche",
-    "cors_nb",
-    "cors_commentaires",
-    "gestation",
-    "id_nomenclature_mode_chasse",
-    "commentaire",
-    "parcelle_onf",
-    "poid_indique",
-    "cors_indetermine",
-    "long_mandibule_indetermine",
-    "id_numerisateur",
-    "meta_create_date",
-    "meta_update_date",
-    "id_nomenclature_categorie",
-    "auteur_tir_str",
-    "auteur_constat_str",
-]
+    'id_attribution', 'id_zone_cynegetique_realisee', 'id_zone_indicative_realisee',
+    'id_lieu_tir_synonyme', 'date_exacte', 'date_enreg', 'mortalite_hors_pc', 'id_nomenclature_sexe',
+    'id_nomenclature_classe_age', 'poid_entier', 'poid_vide', 'poid_c_f_p', 'long_dagues_droite',
+    'long_dagues_gauche', 'long_mandibules_droite', 'long_mandibules_gauche', 'cors_nb', 'cors_commentaires',
+    'gestation', 'id_nomenclature_mode_chasse', 'commentaire', 'parcelle_onf', 'poid_indique', 'cors_indetermine',
+    'long_mandibule_indetermine', 'id_numerisateur', 'meta_create_date', 'meta_update_date', 'id_nomenclature_categorie',
+    'auteur_tir_str', 'auteur_constat_str'] 
+
 
 ###################################################################################################
 ###################################################################################################
 
+
+def get_columns_mapping(
+    colonnes_csv: list[str],
+    columns_name: dict = COLUMNS_NAME,
+    seuil_similarite: int = 85,
+) -> list[str]:
+    """
+    Permet de reperer les noms de colonnes du csv de geochasse en fonction de plusieurs synonymes.
+    Geochasse à tendance à changer ses noms de colonnes. Cette fonction essaye de limiter les errreurs de correspondance.
+    Utilise rapidfuzz pour reperer les similarités entre les noms de colonnes.
+
+    Args:
+        colonnes_csv      : Liste des colonnes lues dans le CSV (dans l'ordre)
+        columns_name      : Dictionnaire {nom_souhaité: [synonymes_possibles]}
+        seuil_similarite  : Score minimum RapidFuzz pour valider une correspondance
+
+    Returns:
+        liste_columns_result : Liste ordonnée des noms normalisés
+                               (None si colonne non reconnue)
+    """
+
+    # ── Étape 1 : construire un dict inversé {synonyme → nom_souhaité} ──────
+    # Un synonyme peut matcher plusieurs clés, on garde la relation directe
+    synonymes_vers_nom = {}
+    for nom_souhaite, synonymes in columns_name.items():
+        for synonyme in synonymes:
+            synonymes_vers_nom[synonyme] = nom_souhaite
+
+    tous_les_synonymes = list(synonymes_vers_nom.keys())
+
+    # ── Étape 2 : pour chaque colonne CSV, trouver le meilleur synonyme ─────
+    liste_columns_result = []
+
+    for col_csv in colonnes_csv:
+        resultat = rpfz.process.extractOne(
+            query=col_csv,
+            choices=tous_les_synonymes,
+            scorer=rpfz.fuzz.WRatio,
+            score_cutoff=seuil_similarite,
+        )
+
+        if resultat:
+            synonyme_trouve, score, _ = resultat
+            nom_normalise = synonymes_vers_nom[synonyme_trouve]
+            liste_columns_result.append(nom_normalise)
+            # print(f"'{col_csv}' → '{synonyme_trouve}' → '{nom_normalise}' (score: {score:.0f})")
+        else:
+            # Colonne non reconnue : on conserve None pour ne pas la perdre
+            liste_columns_result.append(None)
+            print(f" '{col_csv}' → non reconnue (score sous le seuil {seuil_similarite})")
+
+    return liste_columns_result
 
 def uniformise_communes(serie):
-    """Retire les accents, les tirets et met en majuscules une série de pandas.
-    Utilisée pour comparer des champs texte entre l'import csv et la base de données."""
-    serie = serie.str.upper()
+    """ Retire les accents, les tirets et met en majuscules une série de pandas.
+     Utilisée pour comparer des champs texte entre l'import csv et la base de données. """
+    serie= serie.str.upper()
     serie = serie.str.replace("-", " ")
     serie = serie.str.replace("É", "E")
     serie = serie.str.replace("Ç", "C")
     serie = serie.str.replace("È", "E")
     serie = serie.str.replace("Ê", "E")
     serie = serie.str.replace("À", "A")
-    serie = serie.str.replace(r"\bST\b", "SAINT", regex=True)
-    serie = serie.str.replace(r"\bSTE\b", "SAINTE", regex=True)
-    serie = serie.str.replace(r"\bMT\b", "MONT", regex=True)
+    serie = serie.str.replace(r'\bST\b', 'SAINT', regex=True)
+    serie = serie.str.replace(r'\bSTE\b', 'SAINTE', regex=True)
+    serie = serie.str.replace(r'\bMT\b', 'MONT', regex=True)
     # retrait du mot 30
-    serie = serie.str.replace(r"\s*\b30\b\s*", " ", regex=True)
+    serie = serie.str.replace(r'\s*\b30\b\s*', ' ', regex=True)
+
 
     # retrait des mots entres parenthèses
     # serie = serie.str.replace(r'\s*\(.*\)\s*', ' ', regex=True)
@@ -337,62 +301,53 @@ def uniformise_communes(serie):
     serie = serie.str.replace("   ", " ")
     # retrait des espaces en début et fin de chaîne
     serie = serie.str.strip()
-
+    
     return serie
 
-
 def uniformise_lieu_dit(serie):
-    """Retire les accents, les tirets et met en majuscules une série de pandas.
-    Utilisée pour comparer des champs texte entre l'import csv et la base de données."""
-    serie = serie.str.upper()
+    """ Retire les accents, les tirets et met en majuscules une série de pandas.
+     Utilisée pour comparer des champs texte entre l'import csv et la base de données. """
+    serie= serie.str.upper()
     serie = serie.str.replace("-", " ")
     serie = serie.str.replace("É", "E")
     serie = serie.str.replace("È", "E")
     serie = serie.str.replace("Ê", "E")
     serie = serie.str.replace("À", "A")
     # retrait des mots ZIC
-    serie = serie.str.replace(r"\s*ZIC\s*", " ", regex=True)
+    serie = serie.str.replace(r'\s*ZIC\s*', ' ', regex=True)
     # retrait des mots BS
-    serie = serie.str.replace(r"\s*BS\s*", " ", regex=True)
+    serie = serie.str.replace(r'\s*BS\s*', ' ', regex=True)
     # retrait des mots TCA
-    serie = serie.str.replace(r"\s*TCA\s*", " ", regex=True)
+    serie = serie.str.replace(r'\s*TCA\s*', ' ', regex=True)
     # retrait des mots ZT
-    serie = serie.str.replace(r"\s*ZT\s*", " ", regex=True)
-    serie = serie.str.replace(r"\bST\b", "SAINT", regex=True)
-    serie = serie.str.replace(r"\bSTE\b", "SAINTE", regex=True)
-    serie = serie.str.replace(r"\bMT\b", "MONT", regex=True)
+    serie = serie.str.replace(r'\s*ZT\s*', ' ', regex=True)
+    serie = serie.str.replace(r'\bST\b', 'SAINT', regex=True)
+    serie = serie.str.replace(r'\bSTE\b', 'SAINTE', regex=True)
+    serie = serie.str.replace(r'\bMT\b', 'MONT', regex=True)
 
     # retrait des mots entres parenthèses
-    serie = serie.str.replace(r"\s*\(.*\)\s*", " ", regex=True)
+    serie = serie.str.replace(r'\s*\(.*\)\s*', ' ', regex=True)
 
     # retrait des mot "L'"
-    serie = (
-        serie.str.replace(r"\bL'", " ", regex=True)
-        .str.replace(r"\s+", " ", regex=True)
-        .str.strip()
-    )
+    serie = serie.str.replace(r"\bL'", " ", regex=True).str.replace(r"\s+", " ", regex=True).str.strip()
     # retrait des mot "D'"
-    serie = (
-        serie.str.replace(r"\bD'", " ", regex=True)
-        .str.replace(r"\s+", " ", regex=True)
-        .str.strip()
-    )
+    serie = serie.str.replace(r"\bD'", " ", regex=True).str.replace(r"\s+", " ", regex=True).str.strip()
     # retrait des mot "LA"
-    serie = serie.str.replace(r"\s*\bLA\b\s*", " ", regex=True)
+    serie = serie.str.replace(r'\s*\bLA\b\s*', ' ', regex=True)
     # retrait des mot "LES"
-    serie = serie.str.replace(r"\s*\bLES\b\s*", " ", regex=True)
+    serie = serie.str.replace(r'\s*\bLES\b\s*', ' ', regex=True)
     # retrait des mot "LE"
-    serie = serie.str.replace(r"\s*\bLE\b\s*", " ", regex=True)
+    serie = serie.str.replace(r'\s*\bLE\b\s*', ' ', regex=True)
+
 
     # retrait des  mot en chiffres romains
-    serie = serie.str.replace(r"\s*\b[IVXLCDM]+\b\s*", " ", regex=True)
+    serie = serie.str.replace(r'\s*\b[IVXLCDM]+\b\s*', ' ', regex=True)
 
     serie = serie.str.replace("   ", " ")
     # retrait des espaces en début et fin de chaîne
     serie = serie.str.strip()
-
+    
     return serie
-
 
 def corrections_communes(serie_commune):
     """Corrige les cas particuliers de noms de communes qui sont différents entre geochasse et la base de données."""
@@ -401,61 +356,58 @@ def corrections_communes(serie_commune):
 
     corrections = {
         # 'ST ANDRE DE CAPCEZE': 'SAINT ANDRE CAPCEZE',
-        "FRAISSINET DE FOURQUE": "FRAISSINET DE FOURQUES",
-        "PONT DE MONTVERT SUD MONT LOZERE": "PONT DE MONTVERT SUD MONT LOZERE",
-        "LE PONT DE MONTVERT SUD MONT LOZERE": "PONT DE MONTVERT SUD MONT LOZERE",
-        "LE PONT DE MONTVERT": "PONT DE MONTVERT SUD MONT LOZERE",
-        "FRAISSINET DE LOZERE": "PONT DE MONTVERT SUD MONT LOZERE",
-        "PONT DE MONTVERT": "PONT DE MONTVERT SUD MONT LOZERE",
-        "QUEZAC": "GORGES DU TARN CAUSSES",
-        "FLORAC": "FLORAC TROIS RIVIERES",
-        "BEDOUES": "BEDOUES COCURES",
-        "VAL D AIGOUAL": "VAL D'AIGOUAL",
-        "SAINT ANDRE DE CAPCEZE": "SAINT ANDRE CAPCEZE",
-        "TREVES": "TRÈVES",
+        'FRAISSINET DE FOURQUE': 'FRAISSINET DE FOURQUES',
+        'PONT DE MONTVERT SUD MONT LOZERE': 'PONT DE MONTVERT SUD MONT LOZERE',
+        'LE PONT DE MONTVERT SUD MONT LOZORE': 'PONT DE MONTVERT SUD MONT LOZORE',
+        'LE PONT DE MONTVERT': 'PONT DE MONTVERT SUD MONT LOZORE',
+        'FRAISSINET DE LOZERE': 'PONT DE MONTVERT SUD MONT LOZORE',
+        'PONT DE MONTVERT': 'PONT DE MONTVERT SUD MONT LOZORE',
+        'QUEZAC': 'GORGES DU TARN CAUSSES',
+        'FLORAC': 'FLORAC TROIS RIVIERES',
+        'BEDOUES': 'BEDOUES COCURES',
+        'VAL D AIGOUAL': "VAL D'AIGOUAL",
+        'SAINT ANDRE DE CAPCEZE': 'SAINT ANDRE CAPCEZE',
+        'TREVES': 'TRÈVES',
     }
     serie_commune = serie_commune.replace(corrections)
 
     return serie_commune
 
-
 def clean_colonne_str(serie):
-    """Retire les espaces en début et fin de chaîne et les espaces multiples d'une série de pandas."""
+    """ Retire les espaces en début et fin de chaîne et les espaces multiples d'une série de pandas.
+    """
     mask_null = serie.isna()
-
+    
     # Convertir en string
     serie = serie.astype(str)
     # Remplacer les espaces multiples par un seul espace
-    serie = serie.str.replace(r"\s+", " ", regex=True)
+    serie = serie.str.replace(r'\s+', ' ', regex=True)
     serie = serie.str.strip()
 
     # Remettre NaN aux positions originalement nulles
     serie = serie.where(~mask_null, other=None)
     return serie
 
-
 def check_caracteres_invisibles(df):
     """Remplace par None toutes les valeurs du dataframe qui ne contiennent que des caractères invisibles (espaces, tabulations, retours à la ligne, etc.)."""
-    for col in df.select_dtypes(include=["object"]).columns:
-        df[col] = df[col].apply(
-            lambda x: None if isinstance(x, str) and x.strip() == "" else x
-        )
+    for col in df.select_dtypes(include=['object']).columns:
+        df[col] = df[col].apply(lambda x: None if isinstance(x, str) and x.strip() == '' else x)
     return df
 
-
 def uniformise_date(serie):
-    """Repère les dates sous différents formats souvent utilisées et les uniformise au format aaaa-mm-jj.
-    Si une date ne peut pas être convertie, elle est remplacée par None.
-    Fonction créée car geochasse à changé ses formats de date à plusieurs reprises."""
-    formats = ["%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%Y-%m-%d", "%Y/%m/%d", "%Y.%m.%d"]
+    """Repère si la date est sous un format indiqué dans "formats" et les uniformise au format aaaa-mm-jj.
+      Si une date ne peut pas être convertie, elle est remplacée par None.
+      Fonction créée car geochasse à changé ses formats de date à plusieurs reprises."""
+    formats = ["%d/%m/%Y", "%d-%m-%Y", "%d.%m.%Y", "%Y-%m-%d", "%Y/%m/%d", "%Y.%m.%d",
+               "%d/%m/%Y %H:%M", "%d-%m-%Y %H:%M", "%d.%m.%Y %H:%M", "%Y-%m-%d %H:%M", "%Y/%m/%d %H:%M", "%Y.%m.%d %H:%M",
+               ]
     for fmt in formats:
-        serie = pd.to_datetime(serie, format=fmt, errors="coerce")
-        if serie.notna().all():
-            break
-    serie = serie.dt.strftime("%Y-%m-%d")
-    serie = serie.where(serie.notna(), None)
-    return serie
-
+        try:
+            return pd.to_datetime(serie, format=fmt).dt.strftime("%Y-%m-%d")
+        except (ValueError, TypeError):
+            continue
+    print(f"Impossible de convertir la date '{serie}' avec les formats connus.")
+    return None
 
 def poid_vide_cerf(poids_entier_in):
     """
@@ -475,11 +427,10 @@ def poid_vide_cerf(poids_entier_in):
             return None
         pe_exp = -0.3948
         pe_puis = 1.0247
-        result = round((math.exp(pe_exp) * (poids_entier_in**pe_puis)), 2)
+        result = round((math.exp(pe_exp) * (poids_entier_in ** pe_puis)), 2)
         return result
     except Exception:
         return None
-
 
 def poid_vide_chevreuil(poids_entier_in):
     """
@@ -500,15 +451,128 @@ def poid_vide_chevreuil(poids_entier_in):
 
         pe_exp = -0.3572
         pe_puis = 1.023
-        result = round((math.exp(pe_exp) * (poids_entier_in**pe_puis)), 2)
+        result = round((math.exp(pe_exp) * (poids_entier_in ** pe_puis)), 2)
         return result
     except Exception:
         return None
+
+def convert_str_to_float(serie):
+    """Convertit une série de pandas de chaînes de caractères en nombres à virgule flottante.
+    Si une valeur ne peut pas être convertie, elle est remplacée par None."""
+    def convert_value(value):
+        if pd.isna(value):
+            return None
+        if isinstance(value, str):
+            value = value.replace(",", ".").replace(" ", "")
+            try:
+                return float(value)
+            except ValueError:
+                # print(f"Impossible de convertir la valeur '{value}' en float.")
+                return None
+        elif isinstance(value, (int, float)):
+            return float(value)
+        else:
+            return None
+    return serie.apply(convert_value)
+
+def convert_to_int(serie):
+    """Convertit une série de pandas en nombres entiers. Valeurs non convertibles -> None."""
+    # conserver positions NA initiales
+    mask_na = serie.isna()
+
+    # normaliser en chaîne pour homogénéiser les formats (virgule décimale, espaces)
+    cleaned = serie.astype(str).str.replace(",", ".", regex=False).str.replace(" ", "", regex=False).str.strip()
+
+    # traiter les chaînes vides / littérales 'nan' / 'None' comme NA
+    cleaned = cleaned.replace({'': pd.NA, 'nan': pd.NA, 'None': pd.NA})
+
+    # convertir en numérique (coerce transforme les valeurs invalides en NaN)
+    numeric = pd.to_numeric(cleaned, errors='coerce')
+
+    # convertir en int par troncature (comme int(float(x))) et garder None pour les NaN
+    result = numeric.apply(lambda x: int(x) if pd.notna(x) else None)
+
+    # remettre None aux positions initialement NA
+    result = result.where(~mask_na, other=None)
+
+    return result
 
 
 ##################################################################################
 ################ FONCTIONS ETAPES DE TRAITEMENT DE L'IMPORT CSV  ################
 ##################################################################################
+
+def etape__récuperation_csv(apiResponse):
+    """Check si les informations nécessaires à l'import sont présentes et récupère le csv exporté par geochasse.
+     retourne un dataframe pandas et une ApiResponse avec les messages d'erreur et le journal de l'opération.
+     Si une erreur est détectée, le dataframe retourné est vide et la ApiResponse contient les messages d'erreur et le journal de l'opération.
+    Si aucune erreur n'est détectée, le dataframe retourné contient les données du csv et la ApiResponse contient le journal de l'opération.
+    """
+
+    try:
+        df = pd.DataFrame()
+
+        if "file" not in request.files:
+            apiResponse.add_log(
+                "Aucun fichier trouvé dans la requête", type_log="ERROR"
+            )
+            apiResponse.add_error(
+                user_message="Aucun fichier trouvé dans la requête",
+                system_error="Aucun fichier trouvé dans la requête",
+            )
+            return apiResponse
+
+        file = request.files["file"]
+
+        if file.filename == "":
+            apiResponse.add_log("Nom de fichier vide", type_log="ERROR")
+            apiResponse.add_error(
+                user_message="Nom de fichier vide", system_error="Nom de fichier vide"
+            )
+            return apiResponse
+
+        # repère le caratère de séparation utilisé dans le csv ("," ou ";") et utilise le bon séparateur pour lire le csv. Par défaut geochasse utilise ";" mais il arrive que le csv soit exporté avec "," comme séparateur.
+        # On lit les 5 premières lignes du csv pour repérer le séparateur utilisé. Si le csv contient moins de 5 lignes, on lit toutes les lignes.
+        sample = file.read(1024).decode(
+            "utf-8-sig"
+        )  # Lire les premiers 1024 octets du fichier pour détecter le séparateur
+        file.seek(0)  # Revenir au début du fichier après la lecture de l'échantillon
+        if sample.count(";") > sample.count(","):
+            sep = ";"
+        else:
+            sep = ","
+
+        colonnes_csv = pd.read_csv(file, nrows=0, sep=sep).columns.tolist()
+        liste_mapping = get_columns_mapping(colonnes_csv=colonnes_csv, columns_name=COLUMNS_NAME, seuil_similarite=SCORE_MINIMUM_RAPIDFUZZ)
+
+
+        df = pd.read_csv(
+            file,
+            sep=sep,
+            encoding="utf-8-sig",
+            skiprows=1,
+            names=liste_mapping,
+            index_col=False,
+        )
+
+        if df.shape[0] == 0:
+            apiResponse.add_log("Le fichier CSV est vide", type_log="ERROR")
+            apiResponse.add_error(
+                user_message="Le fichier CSV est vide",
+                system_error="Le fichier CSV est vide",
+            )
+            return apiResponse
+
+        return df, apiResponse
+    except Exception as e:
+        user_message = "Une erreur est survenue lors de la récupération du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer."
+        apiResponse.add_error(system_error=str(e), user_message=user_message)
+        apiResponse.add_log(message=user_message, type_log="ERROR")
+        return pd.DataFrame(), apiResponse
+
+#################################################################################
+#################################################################################
+
 
 
 def initialisation_apiResponse():
@@ -560,85 +624,21 @@ def initialisation_apiResponse():
     return apiResponse
 
 
-def etape__récuperation_csv(apiResponse):
-    """Check si les informations nécessaires à l'import sont présentes et récupère le csv exporté par geochasse.
-     retourne un dataframe pandas et une ApiResponse avec les messages d'erreur et le journal de l'opération.
-     Si une erreur est détectée, le dataframe retourné est vide et la ApiResponse contient les messages d'erreur et le journal de l'opération.
-    Si aucune erreur n'est détectée, le dataframe retourné contient les données du csv et la ApiResponse contient le journal de l'opération.
-    """
-
-    try:
-        df = pd.DataFrame()
-
-        if "file" not in request.files:
-            apiResponse.add_log(
-                "Aucun fichier trouvé dans la requête", type_log="ERROR"
-            )
-            apiResponse.add_error(
-                user_message="Aucun fichier trouvé dans la requête",
-                system_error="Aucun fichier trouvé dans la requête",
-            )
-            return apiResponse
-
-        file = request.files["file"]
-
-        if file.filename == "":
-            apiResponse.add_log("Nom de fichier vide", type_log="ERROR")
-            apiResponse.add_error(
-                user_message="Nom de fichier vide", system_error="Nom de fichier vide"
-            )
-            return apiResponse
-
-        # repère le caratère de séparation utilisé dans le csv ("," ou ";") et utilise le bon séparateur pour lire le csv. Par défaut geochasse utilise ";" mais il arrive que le csv soit exporté avec "," comme séparateur.
-        # On lit les 5 premières lignes du csv pour repérer le séparateur utilisé. Si le csv contient moins de 5 lignes, on lit toutes les lignes.
-        sample = file.read(1024).decode(
-            "utf-8-sig"
-        )  # Lire les premiers 1024 octets du fichier pour détecter le séparateur
-        file.seek(0)  # Revenir au début du fichier après la lecture de l'échantillon
-        if sample.count(";") > sample.count(","):
-            sep = ";"
-        else:
-            sep = ","
-
-        df = pd.read_csv(
-            file,
-            sep=sep,
-            encoding="utf-8-sig",
-            skiprows=1,
-            names=COLUMNS_NAME,
-            index_col=False,
-        )
-
-        if df.shape[0] == 0:
-            apiResponse.add_log("Le fichier CSV est vide", type_log="ERROR")
-            apiResponse.add_error(
-                user_message="Le fichier CSV est vide",
-                system_error="Le fichier CSV est vide",
-            )
-            return apiResponse
-
-        return df, apiResponse
-    except Exception as e:
-        user_message = "Une erreur est survenue lors de la récupération du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer."
-        apiResponse.add_error(system_error=str(e), user_message=user_message)
-        apiResponse.add_log(message=user_message, type_log="ERROR")
-        return pd.DataFrame(), apiResponse
-
-
-#################################################################################
-#################################################################################
-
-
 def etape__clean_csv(df, apiResponse):
-    """Nettoie le dataframe en supprimant les colonnes inutiles et en renommant les colonnes avec les bons noms."""
-    try:
+    # """Nettoie le dataframe en supprimant les colonnes inutiles et en renommant les colonnes avec les bons noms."""
+    # try:
+        
+        # parcours COLUMNS_NAME. si un nom de colonne n'existe pas dans df_trie, on l'ajoute avec des valeurs None. Cela permet de s'assurer que toutes les colonnes nécessaires sont présentes dans le dataframe, même si elles ne sont pas toutes présentes dans le csv de geochasse.
+        for col in COLUMNS_NAME.keys():
+            if col not in df.columns:
+                df[col] = None
         # On supprime les lignes où "id_geochasse" n'est pas un integer. Il arrive qu'un caractère invisible se glisse dans cette colonne
         df = df.loc[df["id_geochasse"].notna()]
         df = df[df["id_geochasse"].apply(lambda x: str(x).isdigit())]
         df["id_geochasse"] = df["id_geochasse"].astype(int)
         # Correction des bugs et autres particularités bizarre de l'export geochasse.
         df.rename(columns=ERREUR_NOMS_COLONNES_GEOCHASSE, inplace=True)
-        df["age"] = df["age"].replace(ERREUR_AGE)
+        
         # PREMIER TRI DES DONNÉES: on retire les sangliers et on ne garde que les colonnes qui nous intéressent
         df_trie = df.loc[(df["espece"] != "SANGLIER")]
         df_trie = df_trie.set_index("numero")
@@ -655,17 +655,47 @@ def etape__clean_csv(df, apiResponse):
         df_trie["commune"] = clean_colonne_str(df_trie["commune"])
         df_trie["commentaire"] = clean_colonne_str(df_trie["commentaire"])
         df_trie["espece"] = clean_colonne_str(df_trie["espece"])
+        df_trie['espece'] = df_trie['espece'].str.upper()
         df_trie["age"] = clean_colonne_str(df_trie["age"])
+        df_trie["age"] = df_trie["age"].str.upper()
+        df_trie["age"] = df_trie["age"].replace(ERREUR_AGE) # Surtout pour le cas des mouflons
         df_trie["sexe"] = clean_colonne_str(df_trie["sexe"])
+        df_trie["sexe"] = df_trie["sexe"].str.upper()
         df_trie["type_chasse"] = clean_colonne_str(df_trie["type_chasse"])
+        df_trie["type_chasse"] = df_trie["type_chasse"].str.upper()
         df_trie["pesee"] = clean_colonne_str(df_trie["pesee"])
+        df_trie["pesee"] = df_trie["pesee"].str.upper()
+
+        df_trie["poids"] = convert_str_to_float(df_trie["poids"])
+        df_trie["latitude"] = convert_str_to_float(df_trie["latitude"])
+        df_trie["longitude"] = convert_str_to_float(df_trie["longitude"])
+
+        df_trie["cors_nb"] = convert_str_to_float(df_trie["cors_nb"])
+        
+        df_trie["long_mandibules_gauche"] = convert_str_to_float(df_trie["long_mandibules_gauche"])
+        df_trie["long_mandibules_droite"] = convert_str_to_float(df_trie["long_mandibules_droite"])
+
+        df_trie["long_dagues_gauche"] = convert_str_to_float(df_trie["long_dagues_gauche"])
+        df_trie["long_dagues_droite"] = convert_str_to_float(df_trie["long_dagues_droite"])
+
+        df_trie["date"] = uniformise_date(df_trie["date"])
+        df_trie["date_saisie"] = uniformise_date(df_trie["date_saisie"])
+
+        df_trie["commune"] = clean_colonne_str(df_trie["commune"])
+        df_trie["lieu_dit"] = clean_colonne_str(df_trie["lieu_dit"])
+        df_trie["departement"] = clean_colonne_str(df_trie["departement"])
+        df_trie["parc_lieu_dit2"] = clean_colonne_str(df_trie["parc_lieu_dit2"])
+
+        df_trie['id_geochasse'] = convert_to_int(df_trie['id_geochasse'])
+        df_trie['origine_bracelet'] = convert_to_int(df_trie['origine_bracelet'])
+
 
         return df_trie, apiResponse
-    except Exception as e:
-        user_message = "Une erreur est survenue lors du nettoyage du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer."
-        apiResponse.add_error(system_error=str(e), user_message=user_message)
-        apiResponse.add_log(message=user_message, type_log="ERROR")
-        return pd.DataFrame(), apiResponse
+    # except Exception as e:
+    #     user_message = "Une erreur est survenue lors du nettoyage du fichier CSV. Veuillez vérifier que le fichier est au bon format et réessayer."
+    #     apiResponse.add_error(system_error=str(e), user_message=user_message)
+    #     apiResponse.add_log(message=user_message, type_log="ERROR")
+    #     return pd.DataFrame(), apiResponse
 
 
 def etape__recupération_attributions(df, id_saison, update, apiResponse):
@@ -686,21 +716,12 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
 
         # on fait une requete à la base de données pour trouver toutes les attributions de la saison id_saison qui n'ont pas de réalisations
         with app.app_context():
-            if update == False:
-                # requête anti-existence : garder les attributions sans réalisation
-                stmt_attributions = (
-                    select(TAttributions)
-                    .where(
-                        TAttributions.id_saison == id_saison,
-                        # ~exists().where(TRealisationsChasse.id_attribution == TAttributions.id_attribution),
-                    )
-                    .where(TAttributions.id_realisation == None)
-                )
-            else:
-                # récupération de toutes les attributions de la saison ainsi que les réalisations associées (s'il y en a)
-                stmt_attributions = select(TAttributions).where(
+
+            stmt_attributions = select(TAttributions).where(
                     TAttributions.id_saison == id_saison,
                 )
+            
+
             attributions_result = DB.session.execute(stmt_attributions).scalars().all()
             attributions_dict = TAttributionsSchema().dump(
                 attributions_result, many=True
@@ -750,10 +771,14 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
             df_attributions = df_attributions.reset_index()
             df_attributions.index = df_attributions["numero_bracelet"]
 
+
             # fusion de df_trie et df_attributions_non_realisees sur l'index (numero_bracelet)
             # on utilise outer pour pouvoir repérer les bracelets existant dans le csv mais pas dans les attributions de la bdd.
             df_fusion = df.join(df_attributions, how="outer")
-            df_fusion = df_fusion.loc[df_fusion["id_geochasse"].notna()].copy()
+            if update == True:
+                df_fusion = df_fusion.loc[df_fusion["id_geochasse"].notna()].copy()
+            else:
+                df_fusion = df_fusion.loc[(df_fusion["id_geochasse"].notna()) & (df_fusion['id_realisation'].isna())].copy()
 
             return df_fusion, apiResponse
 
@@ -774,7 +799,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
 
         # on peut faire une première validation : vérifier que l'espèce du bracelet correspond à l'espèce du tir
         df["valide"] = True
-        df["a_verifier"] = False
+        df['a_verifier'] = False
         df["commentaires_erreurs"] = ""
 
         ################################### VERIF DES BRACELETS EXISTANTS ##########################################
@@ -782,9 +807,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         # Met valide à False et ajoute un commentaire d'erreur si un bracelet du csv n'existe pas dans les attributions de la saison.
         idx_erreur = df[df["id_attribution"].isnull()].index
         df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Le numéro de bracelet n'existe pas dans les attributions de la saison. "
+        df.loc[idx_erreur, "commentaires_erreurs"] += "Le numéro de bracelet n'existe pas dans les attributions de la saison. "
         del idx_erreur
 
         ########################################   TRAITEMENT DE L'ESPÈCE  ############################################
@@ -797,11 +820,11 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df["espece_theorique"] = df["code_type_bracelet"].map(
             lambda k: LISTE_ESPECE.get(k)[0] if k in LISTE_ESPECE else None
         )
-        idx_erreur = df[df["espece"] != df["espece_theorique"]].index
+        idx_erreur = df[
+            df["espece"] != df["espece_theorique"]
+        ].index
         df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Espèce du tir ne correspond pas à l'espèce du bracelet. "
+        df.loc[idx_erreur, "commentaires_erreurs"] += "Espèce du tir ne correspond pas à l'espèce du bracelet. "
         df.drop(columns=["espece_theorique"], inplace=True)
         del idx_erreur
 
@@ -822,9 +845,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Sexe du tir ne correspond pas au sexe du bracelet. "
+        df.loc[idx_erreur, "commentaires_erreurs"] += "Sexe du tir ne correspond pas au sexe du bracelet. "
         del idx_erreur
 
         # Changement de la colonne sexe en id_nomenclature_sexe en fonction de la table LISTE_NOMENCLATURE_SEXE.
@@ -832,9 +853,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df["id_nomenclature_sexe"] = df["sexe"].map(LISTE_NOMENCLATURE_SEXE)
         idx_erreur = df[df["id_nomenclature_sexe"].isnull()].index
         df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Sexe du tir ne correspond à aucun sexe de la nomenclature. "
+        df.loc[idx_erreur, "commentaires_erreurs"] += "Sexe du tir ne correspond à aucun sexe de la nomenclature. "
         del idx_erreur
 
         ###########################   TRAITEMENT DE L'ÂGE  ############################################
@@ -860,9 +879,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_espece_age_incoherente, "valide"] = False
-        df.loc[
-            idx_espece_age_incoherente, "commentaires_erreurs"
-        ] += "Âge du tir ne correspond pas à l'âge du bracelet. "
+        df.loc[idx_espece_age_incoherente, "commentaires_erreurs"] += "Âge du tir ne correspond pas à l'âge du bracelet. "
         del idx_espece_age_incoherente
 
         # Changement de la colonne age en id_nomenclature_classe_age en fonction de la table LISTE_NOMENCLATURE_AGE.
@@ -870,10 +887,9 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         df["id_nomenclature_classe_age"] = df["age"].map(LISTE_NOMENCLATURE_AGE)
         idx_erreur = df[df["id_nomenclature_classe_age"].isnull()].index
         df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Âge du tir ne correspond à aucun âge dans les nomenclatures de la bdd. "
+        df.loc[idx_erreur, "commentaires_erreurs"] += "Âge du tir ne correspond à aucun âge dans les nomenclatures de la bdd. "
         del idx_erreur
+        
 
         ##########################  TRAITEMENT DU POIDS ET DE LA PESÉE  #####################################
 
@@ -888,80 +904,52 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur_poids, "valide"] = False
-        df.loc[
-            idx_erreur_poids, "commentaires_erreurs"
-        ] += "Poids du tir n'est pas un nombre ou est négatif. "
+        df.loc[idx_erreur_poids, "commentaires_erreurs"] += "Poids du tir n'est pas un nombre ou est négatif. "
         del idx_erreur_poids
 
-        df.loc[
-            ((df["pesee"] == "Plein") & (df["poids"] > 0) & (df["poids"].notnull())),
-            "poid_entier",
-        ] = df["poids"]
-        df.loc[
-            ((df["pesee"] == "Vidé") & (df["poids"] > 0) & (df["poids"].notnull())),
-            "poid_vide",
-        ] = df["poids"]
-        df.loc[((df["poids"].notnull()) & (df["poids"] > 0)), "poid_indique"] = True
-        df.loc[
-            (df["espece"] == "CERF")
-            & (df["poid_entier"].notnull())
-            & (df["poid_vide"].isnull()),
-            "poid_vide",
-        ] = df.apply(lambda row: poid_vide_cerf(row["poid_entier"]), axis=1)
-        df.loc[
-            (df["espece"] == "CHEVREUIL")
-            & (df["poid_entier"].notnull())
-            & (df["poid_vide"].isnull()),
-            "poid_vide",
-        ] = df.apply(lambda row: poid_vide_chevreuil(row["poid_entier"]), axis=1)
-
+        df.loc[((df["pesee"] == "PLEIN") & (df["poids"] > 0) & (df["poids"].notnull())), "poid_entier"] = df["poids"]
+        df.loc[((df["pesee"] == "VIDÉ") & (df["poids"] > 0) & (df["poids"].notnull())), "poid_vide"] = df["poids"]
+        df.loc[((df['poids'].notnull()) & (df['poids'] > 0)), "poid_indique"] = True
+        df.loc[(df['espece'] == 'CERF') & (df['poid_entier'].notnull()) & (df['poid_vide'].isnull()), 'poid_vide'] = df.apply(lambda row: poid_vide_cerf(row['poid_entier']), axis=1)
+        df.loc[(df['espece'] == 'CHEVREUIL') & (df['poid_entier'].notnull()) & (df['poid_vide'].isnull()), 'poid_vide'] = df.apply(lambda row: poid_vide_chevreuil(row['poid_entier']), axis=1)
+        
         # on cherche les poids inférieurs a la valeur dans POIDS_VIDE_MINIMUM pour chaque espèce en fonction de l'age. Si le poids est inférieur à cette valeur, on considère que c'est une erreur. On ajoute un commentaire d'erreur dans ce cas.
         idx_poids_minimum_aberrant = df[
             df.apply(
                 lambda row: (
-                    row["poid_vide"] is not None
-                    and row["age"] in POIDS_VIDE_MINIMUM.get(row["espece"], {})
-                    and row["poid_vide"] < POIDS_VIDE_MINIMUM[row["espece"]][row["age"]]
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[
-            idx_poids_minimum_aberrant, "commentaires_erreurs"
-        ] += "Poids vide inférieur au poids vide minimum pour l'espèce et l'âge. "
+                    row["poid_vide"] is not None and row["age"] in POIDS_VIDE_MINIMUM.get(row["espece"], {}) and row["poid_vide"] < POIDS_VIDE_MINIMUM[row["espece"]][row["age"]]
+                ), axis=1,
+            )].index
+        df.loc[idx_poids_minimum_aberrant, "commentaires_erreurs"] += "Poids vide inférieur au poids vide minimum pour l'espèce et l'âge. "
         df.loc[idx_poids_minimum_aberrant, "a_verifier"] = True
         del idx_poids_minimum_aberrant
 
         idx_poids_maximum_aberrant = df[
             df.apply(
                 lambda row: (
-                    row["poid_vide"] is not None
-                    and row["age"] in POIDS_VIDE_MAXIMUM.get(row["espece"], {})
-                    and row["poid_vide"] > POIDS_VIDE_MAXIMUM[row["espece"]][row["age"]]
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[
-            idx_poids_maximum_aberrant, "commentaires_erreurs"
-        ] += "Poids vide supérieur au poids vide maximum pour l'espèce et l'âge. "
+                    row["poid_vide"] is not None and row["age"] in POIDS_VIDE_MAXIMUM.get(row["espece"], {}) and row["poid_vide"] > POIDS_VIDE_MAXIMUM[row["espece"]][row["age"]]
+                ), axis=1,
+            )].index
+        df.loc[idx_poids_maximum_aberrant, "commentaires_erreurs"] += "Poids vide supérieur au poids vide maximum pour l'espèce et l'âge. "
         df.loc[idx_poids_maximum_aberrant, "a_verifier"] = True
         del idx_poids_maximum_aberrant
 
         df.drop(columns=["poids", "pesee"], inplace=True)
 
+
+
         ##########################  TRAITEMENT DU MODE DE CHASSE  ###########################################
         # on indique l'id_nomenclature_mode_chasse en fonction de la colonne type_chasse. L'id correspondant est trouvé dans la table LISTE_NOMENCLATURE_MODE_CHASSE
-        # type_chasse est égale à "Individuel", "Collective" ou "Battue "
+        # type_chasse est égale à "INDIVIDUEL", "COLLECTIVE" ou "BATTUE "
         df["id_nomenclature_mode_chasse"] = None
-        df.loc[df["type_chasse"] == "Individuel", "id_nomenclature_mode_chasse"] = (
-            LISTE_NOMENCLATURE_MODE_CHASSE.get("Individuel")
+        df.loc[df["type_chasse"] == "INDIVIDUEL", "id_nomenclature_mode_chasse"] = (
+            LISTE_NOMENCLATURE_MODE_CHASSE.get("INDIVIDUEL")
         )
-        df.loc[df["type_chasse"] == "Collective", "id_nomenclature_mode_chasse"] = (
-            LISTE_NOMENCLATURE_MODE_CHASSE.get("Collective")
+        df.loc[df["type_chasse"] == "COLLECTIVE", "id_nomenclature_mode_chasse"] = (
+            LISTE_NOMENCLATURE_MODE_CHASSE.get("COLLECTIVE")
         )
-        df.loc[df["type_chasse"] == "Battue", "id_nomenclature_mode_chasse"] = (
-            LISTE_NOMENCLATURE_MODE_CHASSE.get("Battue")
+        df.loc[df["type_chasse"] == "BATTUE", "id_nomenclature_mode_chasse"] = (
+            LISTE_NOMENCLATURE_MODE_CHASSE.get("BATTUE")
         )
         df.drop(columns=["type_chasse"], inplace=True)
 
@@ -969,12 +957,9 @@ def etape__verification_donnees_geochasse(df, apiResponse):
 
         # on verifie que la date est un string au format aaaa-mm-jj. Si ce n'est pas le cas, on met valide à False et on ajoute un commentaire d'erreur
 
-        df["date"] = uniformise_date(df["date"])
         idx_erreur = df[df["date"].isnull()].index
         df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Date du tir au format incorrect ou manquante. "
+        df.loc[idx_erreur, "commentaires_erreurs"] += "Date du tir au format incorrect ou manquante. "
         del idx_erreur
         df["date_exacte"] = df["date"]
         df["date_enreg"] = df["date_exacte"]
@@ -983,24 +968,18 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         # Si la saison n'a pas de date de début ou de fin, on ne fait pas la vérification et on considère que la date est valide (on ne met pas valide à False)
         # date_exacte et date_enreg ne sont plus différentiées dans les dernières versions oeasc, on les mets à l'identique
         idx_erreur_date_debut = df[
-            (
-                (df["date"] < df["saison.date_debut"])
-                & (df["saison.date_debut"].notnull())
-            )
+            ((df["date"] < df["saison.date_debut"]) & (df["saison.date_debut"].notnull()))
         ].index
         df.loc[idx_erreur_date_debut, "valide"] = False
-        df.loc[
-            idx_erreur_date_debut, "commentaires_erreurs"
-        ] += "Date du tir avant le début de la saison. "
+        df.loc[idx_erreur_date_debut, "commentaires_erreurs"] += "Date du tir avant le début de la saison. "
         del idx_erreur_date_debut
+
 
         idx_erreur_date_fin = df[
             ((df["date"] > df["saison.date_fin"]) & (df["saison.date_fin"].notnull()))
         ].index
         df.loc[idx_erreur_date_fin, "valide"] = False
-        df.loc[
-            idx_erreur_date_fin, "commentaires_erreurs"
-        ] += "Date du tir après la fin de la saison. "
+        df.loc[idx_erreur_date_fin, "commentaires_erreurs"] += "Date du tir après la fin de la saison. "
         del idx_erreur_date_fin
 
         # suppression des colonnes désormais inutiles
@@ -1017,28 +996,21 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur_cors, "valide"] = False
-        df.loc[
-            idx_erreur_cors, "commentaires_erreurs"
-        ] += "Nombre de cors n'est pas un nombre entier positif ou est différent de null. "
+        df.loc[idx_erreur_cors, "commentaires_erreurs"] += "Nombre de cors n'est pas un nombre entier positif ou est différent de null. "
         del idx_erreur_cors
 
         # si le nb de cors est différent de null pour les mouflons on retourne une erreur
-        idx_erreur_cors_mouflon = df[
-            (df["espece"] == "MOUFLON") & (df["cors_nb"].notnull())
-        ].index
+        idx_erreur_cors_mouflon = df[(df["espece"] == "MOUFLON") & (df["cors_nb"].notnull())].index
         df.loc[idx_erreur_cors_mouflon, "valide"] = False
-        df.loc[
-            idx_erreur_cors_mouflon, "commentaires_erreurs"
-        ] += "Nombre de cors renseigné pour un mouflon. "
+        df.loc[idx_erreur_cors_mouflon, "commentaires_erreurs"] += "Nombre de cors renseigné pour un mouflon. "
         del idx_erreur_cors_mouflon
 
         # Si le nb de cors est aberrant
         idx_erreur_nb_cors = df[
-            (df["cors_nb"] < NB_CORS_MINIMUM) | (df["cors_nb"] > NB_CORS_MAXIMUM)
+            (df["cors_nb"] < NB_CORS_MINIMUM) |
+            (df["cors_nb"] > NB_CORS_MAXIMUM)
         ].index
-        df.loc[
-            idx_erreur_nb_cors, "commentaires_erreurs"
-        ] += f"Nombre de cors aberrant (inférieur à {NB_CORS_MINIMUM} ou supérieur à {NB_CORS_MAXIMUM}). "
+        df.loc[idx_erreur_nb_cors, "commentaires_erreurs"] += f"Nombre de cors aberrant (inférieur à {NB_CORS_MINIMUM} ou supérieur à {NB_CORS_MAXIMUM}). "
         df.loc[idx_erreur_nb_cors, "a_verifier"] = True
         del idx_erreur_nb_cors
 
@@ -1048,7 +1020,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
 
         ######################### TRAITEMENT DES DAGUES  #############################################
         # remplacement des 0 par null pour les longueurs de dagues
-
+        
         df.loc[(df["long_dagues_droite"] == 0), "long_dagues_droite"] = None
         df.loc[(df["long_dagues_gauche"] == 0), "long_dagues_gauche"] = None
 
@@ -1059,9 +1031,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur_dagues_droite, "valide"] = False
-        df.loc[
-            idx_erreur_dagues_droite, "commentaires_erreurs"
-        ] += "La longueur de dague droite n'est pas un nombre entier positif ou est différent de null. "
+        df.loc[idx_erreur_dagues_droite, "commentaires_erreurs"] += "La longueur de dague droite n'est pas un nombre entier positif ou est différent de null. "
         del idx_erreur_dagues_droite
 
         idx_erreur_dagues_gauche = df[
@@ -1070,74 +1040,44 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur_dagues_gauche, "valide"] = False
-        df.loc[
-            idx_erreur_dagues_gauche, "commentaires_erreurs"
-        ] += "La longueur de dague gauche n'est pas un nombre entier positif ou est différent de null. "
+        df.loc[idx_erreur_dagues_gauche, "commentaires_erreurs"] += "La longueur de dague gauche n'est pas un nombre entier positif ou est différent de null. "
         del idx_erreur_dagues_gauche
 
-        # si le sexe est Femelle et que les longueurs de dagues sont renseignées, on retourne une erreur
+        # si le sexe est FEMELLE et que les longueurs de dagues sont renseignées, on retourne une erreur
         idx_erreur_dagues_femelle = df[
-            (df["sexe"] == "Femelle")
+            (df["sexe"] == "FEMELLE")
             & (df["long_dagues_droite"].notnull() | df["long_dagues_gauche"].notnull())
         ].index
         df.loc[idx_erreur_dagues_femelle, "valide"] = False
-        df.loc[
-            idx_erreur_dagues_femelle, "commentaires_erreurs"
-        ] += "Longueur de dague renseignée pour une femelle. "
+        df.loc[idx_erreur_dagues_femelle, "commentaires_erreurs"] += "Longueur de dague renseignée pour une femelle. "
         del idx_erreur_dagues_femelle
 
         # met la valeur des dagues en commentaire d'erreur si la longueur est aberrante
         idx_erreur_dagues_aberrantes_gauche = df[
             df.apply(
                 lambda row: (
-                    (
-                        row["long_dagues_gauche"] is not None
-                        and row["age"] in TAILLE_MINIMUM_DAGUES.get(row["espece"], {})
-                        and row["long_dagues_gauche"]
-                        < TAILLE_MINIMUM_DAGUES[row["espece"]][row["age"]]
-                    )
-                    or (
-                        row["long_dagues_gauche"] is not None
-                        and row["age"] in TAILLE_MAXIMUM_DAGUES.get(row["espece"], {})
-                        and row["long_dagues_gauche"]
-                        > TAILLE_MAXIMUM_DAGUES[row["espece"]][row["age"]]
-                    )
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[
-            idx_erreur_dagues_aberrantes_gauche, "commentaires_erreurs"
-        ] += f"Longueur de dague gauche aberrante. "
+                    (row["long_dagues_gauche"] is not None and row["age"] in TAILLE_MINIMUM_DAGUES.get(row["espece"], {}) and row["long_dagues_gauche"] < TAILLE_MINIMUM_DAGUES[row["espece"]][row["age"]])
+                    or (row["long_dagues_gauche"] is not None and row["age"] in TAILLE_MAXIMUM_DAGUES.get(row["espece"], {}) and row["long_dagues_gauche"] > TAILLE_MAXIMUM_DAGUES[row["espece"]][row["age"]])
+                ), axis=1,
+            )].index
+        df.loc[idx_erreur_dagues_aberrantes_gauche, "commentaires_erreurs"] += f"Longueur de dague gauche aberrante. "   
         df.loc[idx_erreur_dagues_aberrantes_gauche, "a_verifier"] = True
         del idx_erreur_dagues_aberrantes_gauche
 
         idx_erreur_dagues_aberrantes_droite = df[
             df.apply(
                 lambda row: (
-                    (
-                        row["long_dagues_droite"] is not None
-                        and row["age"] in TAILLE_MINIMUM_DAGUES.get(row["espece"], {})
-                        and row["long_dagues_droite"]
-                        < TAILLE_MINIMUM_DAGUES[row["espece"]][row["age"]]
-                    )
-                    or (
-                        row["long_dagues_droite"] is not None
-                        and row["age"] in TAILLE_MAXIMUM_DAGUES.get(row["espece"], {})
-                        and row["long_dagues_droite"]
-                        > TAILLE_MAXIMUM_DAGUES[row["espece"]][row["age"]]
-                    )
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[
-            idx_erreur_dagues_aberrantes_droite, "commentaires_erreurs"
-        ] += f"Longueur de dague droite aberrante. "
+                    (row["long_dagues_droite"] is not None and row["age"] in TAILLE_MINIMUM_DAGUES.get(row["espece"], {}) and row["long_dagues_droite"] < TAILLE_MINIMUM_DAGUES[row["espece"]][row["age"]])
+                    or (row["long_dagues_droite"] is not None and row["age"] in TAILLE_MAXIMUM_DAGUES.get(row["espece"], {}) and row["long_dagues_droite"] > TAILLE_MAXIMUM_DAGUES[row["espece"]][row["age"]])
+                ), axis=1,
+            )].index
+        df.loc[idx_erreur_dagues_aberrantes_droite, "commentaires_erreurs"] += f"Longueur de dague droite aberrante. "  
         df.loc[idx_erreur_dagues_aberrantes_droite, "a_verifier"] = True
         del idx_erreur_dagues_aberrantes_droite
+ 
 
         df.drop(columns=["sexe", "sexe_theorique"], inplace=True)
+
 
         ######################## TRAITEMENT DES MANDIBULES  #############################################
         # remplacement des 0 par null pour les longueurs de mandibules
@@ -1151,9 +1091,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur_mandibules, "valide"] = False
-        df.loc[
-            idx_erreur_mandibules, "commentaires_erreurs"
-        ] += "La longueur de mandibule droite n'est pas un nombre entier positif ou est différent de null. "
+        df.loc[idx_erreur_mandibules, "commentaires_erreurs"] += "La longueur de mandibule droite n'est pas un nombre entier positif ou est différent de null. "
         del idx_erreur_mandibules
         idx_erreur_mandibules = df[
             ~df["long_mandibules_gauche"].apply(
@@ -1161,23 +1099,20 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur_mandibules, "valide"] = False
-        df.loc[
-            idx_erreur_mandibules, "commentaires_erreurs"
-        ] += "La longueur de mandibule gauche n'est pas un nombre entier positif ou est différent de null. "
+        df.loc[idx_erreur_mandibules, "commentaires_erreurs"] += "La longueur de mandibule gauche n'est pas un nombre entier positif ou est différent de null. "
         del idx_erreur_mandibules
 
         # si la longueur de mandibules est aberrante (inférieure à la valeur dans TAILLE_MINIMUM_MANDIBULES ou supérieure à la valeur dans TAILLE_MAXIMUM_MANDIBULES), on ajoute un commentaire d'erreur et on met a_verifier à True pour que l'utilisateur puisse vérifier la valeur. Les valeurs de taille minimum et maximum sont définies en fonction de l'espèce et de l'âge dans les dictionnaires TAILLE_MINIMUM_MANDIBULES et TAILLE_MAXIMUM_MANDIBULES.
         index_erreur_taille_mandibules = df[
-            (df["long_mandibules_droite"] > TAILLE_MAXIMUM_MANDIBULES)
-            | (df["long_mandibules_droite"] < TAILLE_MINIMUM_MANDIBULES)
-            | (df["long_mandibules_gauche"] < TAILLE_MINIMUM_MANDIBULES)
-            | (df["long_mandibules_gauche"] > TAILLE_MAXIMUM_MANDIBULES)
-        ].index
-        df.loc[
-            index_erreur_taille_mandibules, "commentaires_erreurs"
-        ] += "Longueur de mandibules aberrante. "
+                (df["long_mandibules_droite"] > TAILLE_MAXIMUM_MANDIBULES) |
+                (df["long_mandibules_droite"] < TAILLE_MINIMUM_MANDIBULES) |
+                (df["long_mandibules_gauche"] < TAILLE_MINIMUM_MANDIBULES) |
+                (df["long_mandibules_gauche"] > TAILLE_MAXIMUM_MANDIBULES)
+            ].index
+        df.loc[index_erreur_taille_mandibules, "commentaires_erreurs"] += "Longueur de mandibules aberrante. "
         df.loc[index_erreur_taille_mandibules, "a_verifier"] = True
         del index_erreur_taille_mandibules
+
 
         ######################## TRAITEMENT LATITUDE ET LONGITUDE  #############################################
         # verification que les latitude et longitude sont des floats si elles ne sont pas nulles. Met valide à False et ajoute un commentaire d'erreur si ce n'est pas le cas.
@@ -1185,9 +1120,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             ~df["latitude"].apply(lambda x: isinstance(x, (int, float)) or pd.isnull(x))
         ].index
         df.loc[idx_erreur_latitude, "valide"] = False
-        df.loc[
-            idx_erreur_latitude, "commentaires_erreurs"
-        ] += "Latitude n'est pas un nombre ou est différent de null. "
+        df.loc[idx_erreur_latitude, "commentaires_erreurs"] += "Latitude n'est pas un nombre ou est différent de null. "
         del idx_erreur_latitude
         idx_erreur_longitude = df[
             ~df["longitude"].apply(
@@ -1195,9 +1128,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur_longitude, "valide"] = False
-        df.loc[
-            idx_erreur_longitude, "commentaires_erreurs"
-        ] += "Longitude n'est pas un nombre ou est différent de null. "
+        df.loc[idx_erreur_longitude, "commentaires_erreurs"] += "Longitude n'est pas un nombre ou est différent de null. "
         del idx_erreur_longitude
 
         # transformation des latitude et longitude qui sont en ws84 en coordonnée lambert 93 pour pouvoir les comparer aux coordonnées des zones de chasse.
@@ -1216,9 +1147,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur_auteur_tir, "valide"] = False
-        df.loc[
-            idx_erreur_auteur_tir, "commentaires_erreurs"
-        ] += "L'auteur du tir ne peut pas être un nombre. "
+        df.loc[idx_erreur_auteur_tir, "commentaires_erreurs"] += "L'auteur du tir ne peut pas être un nombre. "
         del idx_erreur_auteur_tir
 
         ####################### TRAITEMENT DES LIEUX DE TIR #############################################
@@ -1229,10 +1158,9 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             )
         ].index
         df.loc[idx_erreur_lieu_tir, "valide"] = False
-        df.loc[
-            idx_erreur_lieu_tir, "commentaires_erreurs"
-        ] += "Le lieu de tir ne peut pas être un nombre. "
+        df.loc[idx_erreur_lieu_tir, "commentaires_erreurs"] += "Le lieu de tir ne peut pas être un nombre. "
         del idx_erreur_lieu_tir
+
 
         df.drop(columns=["age", "age_theorique"], inplace=True)
 
@@ -1374,8 +1302,8 @@ def etape__integration_communes_dans_df(df, apiResponse):
             Utilise rapidfuzz pour le calcul du score de similarité."""
             if pd.isna(nom_commune):
                 return nom_commune
-            resultat = fuzz.process.extractOne(
-                nom_commune, liste_nom_communes, scorer=fuzz.fuzz.ratio
+            resultat = rpfz.process.extractOne(
+                nom_commune, liste_nom_communes, scorer=rpfz.fuzz.ratio
             )
             # si le score de similarité est supérieur au seuil, on remplace par le nom de la commune de la base de données. Sinon on garde le nom de commune du csv (même s'il est potentiellement mal orthographié) pour ne pas perdre l'information et permettre à l'utilisateur de corriger le nom de la commune dans le csv pour maximiser les correspondances avec la base de données.
             if resultat[1] >= seuil:
@@ -1620,10 +1548,10 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                         df_lts["id_zi_lieu_tir"] == id_zone_indicative_realisee
                     ]["nom_lieu_tir_synonyme"].tolist()
                     if liste_nom_lieu_tir_synonyme_in_zi:
-                        resultat = fuzz.process.extractOne(
+                        resultat = rpfz.process.extractOne(
                             nom_parc_lieu_dit,
                             liste_nom_lieu_tir_synonyme_in_zi,
-                            scorer=fuzz.fuzz.ratio,
+                            scorer=rpfz.fuzz.ratio,
                         )
                         # si le score de similarité contenu dans resultat[1] est supérieur à 80, on considère que c'est une correspondance et on prend le meilleur match
                         if resultat[1] >= SCORE_MINIMUM_RAPIDFUZZ:
@@ -1651,9 +1579,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                 ),
                                 "nom_lieu_tir_synonyme_origin",
                             ].values[0]
-                            df.at[
-                                index, "commentaires_erreurs"
-                            ] += f"Lieu tir {nom_save_lieu_dit}: nom similaire trouvé dans la même ZI: {meilleur_match} "
+                            df.at[index, "commentaires_erreurs"] += (
+                                f"Lieu tir {nom_save_lieu_dit}: nom similaire trouvé dans la même ZI: {meilleur_match} "
+                            )
                             # enregistrement de ce cas dans le dict de bilan de synonymes
                             dict_bilan_synonymes[row["numero_bracelet"]] = {
                                 "nom_lieu_csv": df.at[index, "save_lieu_dit"],
@@ -1708,9 +1636,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                 df.at[index, "nom_lieu_tir_synonyme"] = df_result.iloc[
                                     0
                                 ]["nom_lieu_tir_synonyme_origin"]
-                                df.at[
-                                    index, "commentaires_erreurs"
-                                ] += f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la commune mais pas dans la ZI."
+                                df.at[index, "commentaires_erreurs"] += (
+                                    f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la commune mais pas dans la ZI."
+                                )
                                 # enregistrement de ce cas dans le dict de bilan de synonymes
                                 dict_bilan_synonymes[row["numero_bracelet"]] = {
                                     "nom_lieu_csv": df.at[index, "save_lieu_dit"],
@@ -1736,10 +1664,10 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                     df_lts["id_area_commune_lieu_tir"] == id_commune
                                 ]["nom_lieu_tir_synonyme"].tolist()
                                 if liste_nom_lieu_tir_synonyme_in_commune:
-                                    resultat = fuzz.process.extractOne(
+                                    resultat = rpfz.process.extractOne(
                                         nom_parc_lieu_dit,
                                         liste_nom_lieu_tir_synonyme_in_commune,
-                                        scorer=fuzz.fuzz.ratio,
+                                        scorer=rpfz.fuzz.ratio,
                                     )
                                     if resultat[1] >= SCORE_MINIMUM_RAPIDFUZZ:
                                         # des résultats similaires ont été trouvés, on les prend.
@@ -1823,9 +1751,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                             # des nom exactes ont été trouvés on garde le premier résultat et on indique en commentaire les raisons.
                                             df.at[index, "id_lieu_tir_synonyme"] = None
                                             df.at[index, "nom_lieu_tir_synonyme"] = None
-                                            df.at[
-                                                index, "commentaires_erreurs"
-                                            ] += f"Lieu tir {nom_save_lieu_dit} déclaré: Un même lieu dit a été trouvé dans la même ZC mais pas dans la ZI."
+                                            df.at[index, "commentaires_erreurs"] += (
+                                                f"Lieu tir {nom_save_lieu_dit} déclaré: Un même lieu dit a été trouvé dans la même ZC mais pas dans la ZI."
+                                            )
                                             # enregistrement de ce cas dans le dict de bilan de synonymes
                                             dict_bilan_synonymes[
                                                 row["numero_bracelet"]
@@ -1863,10 +1791,10 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                                 ]["nom_lieu_tir_synonyme"].tolist()
                                             )
                                             if liste_nom_lieu_tir_synonyme_in_zc:
-                                                resultat = fuzz.process.extractOne(
+                                                resultat = rpfz.process.extractOne(
                                                     nom_parc_lieu_dit,
                                                     liste_nom_lieu_tir_synonyme_in_zc,
-                                                    scorer=fuzz.fuzz.ratio,
+                                                    scorer=rpfz.fuzz.ratio,
                                                 )
                                                 if (
                                                     resultat[1]
@@ -2133,6 +2061,8 @@ def etape__update_realisations(df, apiResponse):
 
             list_id_realisations = df_update.index.tolist()
 
+            
+
             with app.app_context():
                 # 1. Récupérer toutes les instances
                 instances = (
@@ -2150,7 +2080,7 @@ def etape__update_realisations(df, apiResponse):
 
                 # 3. Boucle de mise à jour
                 schema = TRealisationsChasseSchema()
-
+                
                 for index_realisation, row in df_update.iterrows():
                     data = row.to_dict()
                     # reconvertis certaines valeurs en string pour s'adapter à marshmallow
@@ -2215,9 +2145,7 @@ def etape__update_realisations(df, apiResponse):
         return apiResponse, pd.DataFrame()
 
 
-def etape__creation_dataframe_erreurs(
-    df_original, df_insert_erreurs, df_update_erreurs, apiResponse
-):
+def etape__creation_dataframe_erreurs( df_original, df_insert_erreurs, df_update_erreurs, apiResponse):
     try:
 
         if df_update_erreurs.shape[0] > 0:
@@ -2294,6 +2222,7 @@ def etape__creation_csv_a_verifier(df, df_original, apiResponse):
         apiResponse.add_log(message=user_message, type_log="ERROR")
         apiResponse.add_error(system_error=str(e), user_message=user_message)
         return df_verif, apiResponse
+
 
 
 ################################################################################################

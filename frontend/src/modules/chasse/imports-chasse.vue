@@ -5,7 +5,7 @@
     <br />
 
     <div :disabled="uploading">
-      <div style="max-width: 500px">
+      <div style="max-width: 650px">
         <!-- formulaire select pour la saison, affiche la saison en cours par défaut -->
         <v-select
           v-model="saison"
@@ -67,14 +67,14 @@
     ></v-progress-linear>
 
     <!-- affichage des messages de succès ou d'erreur après l'import -->
-    <!-- <div v-if="message" class="mt-3">
+    <div v-if="message" class="mt-3">
       <div v-if="error" style="color:crimson">{{ message }}</div>
       <div v-else style="color:green">{{ message }}</div>
-    </div> -->
+    </div>
 
     <!-- affichage de json_data_bdd sous forme du tableau -->
     <div
-      style="margin-top: 1rem; max-width: 70%"
+      style="margin-top: 1rem; max-width: 100%"
       v-if="reponse_affichee.length > 0"
     >
       <table>
@@ -163,6 +163,7 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+  
   </div>
 </template>
 
@@ -256,6 +257,16 @@ export default {
           console.warn(
             'upload(): pas de réponse (probable 401/redirection), annulation et reset uploading.'
           );
+          this.message = 'Vous devez être connecté pour importer un fichier.';
+          this.error = true;
+          this.uploading = false;
+          return;
+        }
+
+        if (response.success === false || response.user_message) {
+          console.error('upload(): réponse API avec erreur:', response.error);
+          this.message = response.user_message || 'Erreur lors de l\'import.';
+          this.error = true;
           this.uploading = false;
           return;
         }
@@ -321,6 +332,8 @@ export default {
     create_url_fichier_erreur(nom_fichier) {
       if (!nom_fichier) {
         console.error("Aucun fichier d'erreur disponible pour le téléchargement.");
+        this.message = "Aucun fichier d'erreur disponible pour le téléchargement.";
+        this.error = true;
         return null;
       }
       try {
@@ -329,6 +342,8 @@ export default {
         return url(`api/chasse/import/download-erreurs-csv/${nom_fichier}`).toString();
       } catch (e) {
         console.error('Erreur création URL fichier erreur:', e);
+        this.message = "Erreur lors de la création du lien de téléchargement du fichier d'erreur.";
+        this.error = true;
         return null;
       }
     },
