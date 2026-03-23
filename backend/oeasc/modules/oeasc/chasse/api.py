@@ -46,11 +46,11 @@ from .repositories import (
     get_attribution_result,
     chasse_process_args,
     chasse_get_infos,
+    filtrage_stmt_secteur_zi_zc,
 )
 from .export_chasse import (
     exportation_attributions_realises_chasse,
     get_data_all_especes_export_ods,
-    filtrage_stmt_secteur_zi_zc,
 )
 from .importation_csv import traitement_import_realisation_chasse
 from sqlalchemy import func, select
