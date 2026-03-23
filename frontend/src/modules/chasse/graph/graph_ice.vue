@@ -1,9 +1,9 @@
 <template>
   <div>
     <!-- 
-      Affiche le graphique si les options du graphique sont définies.
-      La hauteur est définie par la prop 'height' ou 400px par défaut.
-    -->
+      Affiche le graphique des ICE sous forme de barres avec intervalle de confiance. Visible dans bilan de donnée ou indice de performance.
+      graphique spécifique a la chasse. Il est fait pour traiter un certain format de données (res_lm_moy et res_lm_data) qui contient les moyennes par jour et toutes les valeurs des points.
+      -->
     <div
       v-if="chartOptions && chartOptions.series && chartOptions.series.length > 0"
       :style="`height:${$props.height || '400px'}; width: ${$props.width || '100%'}`"
@@ -59,10 +59,11 @@ export default {
   props: {
     width: { default: '100%' },
     height: { default: '500px' },
-    poids_ou_dagues: { default: true },
-    data_db: { default: null },
-    filterParams: { default: null },
-    do_api_request: { default: false },
+    poids_ou_dagues: { default: true }, // indique quel type de donnée on souhaite. Le type de requête api dépend de cette valeur.
+    data_db: { default: null }, // les donnée brutes récupérées depuis l'api.
+    filterParams: { default: null }, // les paramètres de recherches pour la requête api (espèce, saison, secteur, ZI ou ZC)
+    do_api_request: { default: false }, // indique si on doit faire la requête depuis ce composant. Mettre à true si on peut ajouter le graph dans une page dynamique.
+    //  Comme dans indice de performance. Sinon mettre false pour éviter qu'il y ai plusieurs requêtes inutiles lorsqu'il y a plusieurs graph ice sur la même page.
   },
   data: () => ({
     // Déclaration de la fonction data qui retourne un objet d'état local du composant
@@ -78,12 +79,14 @@ export default {
     $props: {
       handler() {
         if (this.$props.do_api_request) {
+          // si on doit faire la requête on interne.
           this.do_request();
         } else if (this.$props.data_db) {
+          // si les données viennent de l'extérieur, on les traite directement.
           this.data_api = this.$props.data_db;
         }
         if (this.data_api) {
-          this.process();
+          this.process(); // on traite les données pour créer le chartOptions de highcharts.
         }
       },
       deep: true,
@@ -192,6 +195,7 @@ export default {
     },
   },
   mounted() {
+    // Pas besoin de faire la requête ici, elle est déclenchée par le watch sur les props.
     // if (this.$props.do_api_request) {
     //   this.do_request();
     // }

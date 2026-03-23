@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div>
     <br></br>
     <h1>Importation des données Chasse</h1>
@@ -6,7 +6,6 @@
 
     <v-row>
 
-      <!-- formulaire select pour la saison, affiche la saison en cours par défaut avec un computed -->
       <v-col cols="12" sm="6">
         <v-select
           :value="selectedSaison"
@@ -21,7 +20,6 @@
         ></v-select>
       </v-col>
 
-      <!-- checkbox pour demander la confirmation de la mise à jour des données existantes (doUpdate) avant l'import, qui affiche une popup de confirmation si cochée. Si la personne confirme dans la popup, alors doUpdate est mis à true et l'import peut se faire, sinon doUpdate reste à false et l'import se fait sans mise à jour des données existantes. -->
       <v-col cols="12" sm="6" class="d-flex align-center">
         <v-checkbox
           :input-value="update_data_bdd ? true : doUpdate"
@@ -33,7 +31,6 @@
 
     </v-row>
 
-    <!-- input pour sélectionner le fichier CSV à importer -->
     <v-file-input
       v-model="file"
       label="Sélectionner un fichier CSV"
@@ -53,13 +50,11 @@
 
     <v-progress-linear v-if="uploading" indeterminate color="primary" class="mt-3"></v-progress-linear>
 
-    <!-- affichage des messages de succès ou d'erreur après l'import -->
     <div v-if="message" class="mt-3">
       <div v-if="error" style="color:crimson">{{ message }}</div>
       <div v-else style="color:green">{{ message }}</div>
     </div>
 
-    <!-- affichage de json_data_bdd sous forme du tableau -->
     <div>
       <pre>{{ json_data_bdd }}</pre>
       <table>
@@ -79,7 +74,6 @@
 
 
 
-    <!-- popup qui demande la confirmation pour la mise à jour des données existantes si l'utilisateur a coché la checkbox -->
     <v-dialog v-model="update_data_bdd" max-width="500">
       <v-card>
         <v-card-title class="headline">Confirmer la mise à jour</v-card-title>
@@ -92,9 +86,9 @@
       </v-card>
     </v-dialog>
   </div>
-</template>
+</template> -->
 
-<script>
+<!-- <script>
 import { apiRequest } from "@/core/js/data/api.js";
 
 export default {
@@ -203,10 +197,9 @@ export default {
 
   };
 
-</script>
+</script> -->
 
-<style scoped>
+<!-- <style scoped>
 .mt-2 { margin-top: 0.5rem; }
 .mt-3 { margin-top: 1rem; }
-</style>
-
+</style> -->

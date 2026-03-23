@@ -1,8 +1,8 @@
 <template>
   <div>
     <!-- 
-      Affiche le graphique si les options du graphique sont définies.
-      La hauteur est définie par la prop 'height' ou 400px par défaut.
+      Graphique spécifique à la chasse, qui affiche toutes les valeurs des ICE sous forme de points. Il sera affiché les poids ou la longeur 
+      des dagues.Visible dans bilan de donnée ou indice de performance.
     -->
     <div
       v-if="chartOptions && chartOptions.series && chartOptions.series.length > 0"
@@ -95,7 +95,8 @@ export default {
      * Traite les données brutes pour générer les options du graphique.
      */
     process() {
-      this.processing = true;
+      // recréé le chartOptions à chaque fois que la requête api à été faite.
+      this.processing = true; // début du traitement, le graphique est remplacé par une barre de progression
 
       // res_lm_data contient toutes les valeures des points (res_lm_moy ne contient que les moyennes par jour)
       const dataGraph = this.data_api.res_lm_data;
@@ -132,6 +133,7 @@ export default {
         },
 
         series: [
+          // traitement des données à afficher.
           {
             id: 'pv',
             name: dataTypeSerie,
@@ -167,7 +169,7 @@ export default {
         width: this.$props.width,
       };
 
-      this.processing = false;
+      this.processing = false; // Fin du traitement, le graphique peut être affiché
     },
 
     do_request() {
