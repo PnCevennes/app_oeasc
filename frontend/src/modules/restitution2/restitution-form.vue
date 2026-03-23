@@ -8,7 +8,6 @@
 <template>
   <div>
     <div v-if="configFormRestition">
-
       <!-- choix des paramètres -->
       <dynamic-form-group
         :config="configFormRestition"
@@ -16,7 +15,11 @@
       ></dynamic-form-group>
 
       <!-- choix des filtres -->
-      <div class="filters" v-for="filter of filterForms" :key="filter.name">
+      <div
+        class="filters"
+        v-for="filter of filterForms"
+        :key="filter.name"
+      >
         <dynamic-form
           :config="filter"
           :baseModel="settings.filters"
@@ -27,31 +30,29 @@
 </template>
 
 <script>
-
-import dynamicFormGroup from "@/components/form/dynamic-form-group";
-import dynamicForm from "@/components/form/dynamic-form";
-import configFormRestition from "./config/form-restitution.js"; // definition du formulaire
-import restitutions from "./config/restitutions"; // dictionaires contenant les options des restituions pour chaque type de donnée (dataType)
-
+import dynamicFormGroup from '@/components/form/dynamic-form-group';
+import dynamicForm from '@/components/form/dynamic-form';
+import configFormRestition from './config/form-restitution.js'; // definition du formulaire
+import restitutions from './config/restitutions'; // dictionaires contenant les options des restituions pour chaque type de donnée (dataType)
 
 export default {
-  name: "restitution-form",
+  name: 'restitution-form',
   components: { dynamicFormGroup, dynamicForm },
-  props: ["dataType"],
+  props: ['dataType'],
   watch: {
     settings: {
       deep: true,
       handler() {
         this.emitSettings();
-      }
-    }
+      },
+    },
   },
   data: () => ({
     filterForms: [],
     settings: {},
     configFormRestition: null,
     restitution: null,
-    n: 0
+    n: 0,
   }),
   mounted() {
     this.initConfig();
@@ -61,12 +62,11 @@ export default {
      * gère la configuration du formulaire
      */
     initConfig() {
-
       // configuration de la restitution en fonction du type de données
       this.restitution = restitutions[this.dataType];
 
       // on donne à settings des valeurs par defaut (si définies)
-      this.settings = this.restitution.default || {dataType: this.dataType};
+      this.settings = this.restitution.default || { dataType: this.dataType };
 
       // on initialise settings.filters (si non défini dans default)
       this.settings.filters = this.settings.filters || {};
@@ -74,19 +74,17 @@ export default {
       // chaque changement dans le formulaire entraine un emmitSettings
       for (const formDef of Object.values(configFormRestition.formDefs)) {
         formDef.change = () => {
-          this.emitSettings()
+          this.emitSettings();
         }; // ideal newChange
       }
 
-
       // les listes des composant fieldName, fieldName2 et filterList
       // sont données par restitution.items
-      const items = Object.keys(this.restitution.items)
-      .map(name => ({
+      const items = Object.keys(this.restitution.items).map((name) => ({
         text: this.restitution.items[name].text,
-        value: name
+        value: name,
       }));
-      for (const keyForm of ["fieldName", "fieldName2", "filterList"]) {
+      for (const keyForm of ['fieldName', 'fieldName2', 'filterList']) {
         configFormRestition.formDefs[keyForm].items = items;
       }
 
@@ -105,22 +103,21 @@ export default {
      * gère la liste des definitions des composants filtres
      */
     processFilterForms() {
-        this.filterForms = (this.settings.filterList || [])
-        .map(name => {
-            return {
-              type: "list_form",
-              name,
-              label: `Filtre : ${this.restitution.items[name].text}`,
-              list_type: "autocomplete",
-              multiple: true,
-              url: 'api/resultat/custom/',
-              params: {
-                fieldName: name,
-                dataType: this.settings.dataType,
-              },
-              change: () => {
-                  this.filterFormsChange();
-              }
+      this.filterForms = (this.settings.filterList || []).map((name) => {
+        return {
+          type: 'list_form',
+          name,
+          label: `Filtre : ${this.restitution.items[name].text}`,
+          list_type: 'autocomplete',
+          multiple: true,
+          url: 'api/resultat/custom/',
+          params: {
+            fieldName: name,
+            dataType: this.settings.dataType,
+          },
+          change: () => {
+            this.filterFormsChange();
+          },
         };
       });
     },
@@ -137,7 +134,6 @@ export default {
      * action effectuée quand on ajoute ou l'on retire un filtre de la liste
      */
     filterSelectChange() {
-
       this.processFilterForms();
       this.n = this.n + 1;
 
@@ -162,8 +158,8 @@ export default {
     emitSettings() {
       const settings = this.options();
       settings.n = this.n;
-      this.$emit("updateSettings", settings);
-    }
-  }
+      this.$emit('updateSettings', settings);
+    },
+  },
 };
 </script>

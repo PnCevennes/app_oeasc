@@ -4,7 +4,6 @@
 import fastDeepEqual from 'fast-deep-equal';
 /** Functions utiles */
 
-
 /**
  * Fonction de comparaison d'objets en profondeur.
  * Utilise la bibliothèque fast-deep-equal pour vérifier si deux objets sont identiques,
@@ -15,8 +14,8 @@ import fastDeepEqual from 'fast-deep-equal';
  * @returns {boolean} - Retourne true si les deux objets sont strictement égaux en profondeur, false sinon.
  */
 const fde = (obj1, obj2) => {
-  return fastDeepEqual(obj1, obj2)
-}
+  return fastDeepEqual(obj1, obj2);
+};
 
 /**
  * Fonction de copie d'objet.
@@ -28,12 +27,9 @@ const fde = (obj1, obj2) => {
  * @param {*} obj - L'objet à copier (peut être de n'importe quel type).
  * @returns {*} - Retourne une copie profonde de l'objet, ou null si l'objet est falsy (null, undefined, etc.).
  */
-const jsoncopy = obj => {
-  return obj
-    ? JSON.parse(JSON.stringify(obj))
-    : null;
-}
-
+const jsoncopy = (obj) => {
+  return obj ? JSON.parse(JSON.stringify(obj)) : null;
+};
 
 /**
  * Fonction de copie d'objet profonde, récursive.
@@ -43,12 +39,12 @@ const jsoncopy = obj => {
  * @param {*} obj - L'objet ou le tableau à copier (peut être de n'importe quel type).
  * @returns {*} - Retourne une copie profonde de l'objet ou du tableau, ou la valeur elle-même si ce n'est ni un objet ni un tableau.
  */
-const copy = obj => {
+const copy = (obj) => {
   // Si l'objet est un tableau, on crée un nouveau tableau en copiant récursivement chaque élément
   if (Array.isArray(obj)) {
-    return obj.map(item => copy(item));
-  // Si c'est un objet (et non null), on crée un nouvel objet et on copie chaque propriété récursivement
-  } else if (typeof obj === "object" && obj) {
+    return obj.map((item) => copy(item));
+    // Si c'est un objet (et non null), on crée un nouvel objet et on copie chaque propriété récursivement
+  } else if (typeof obj === 'object' && obj) {
     const out = {};
     for (const key in obj) {
       // Copie profonde de chaque propriété
@@ -61,7 +57,6 @@ const copy = obj => {
   }
 };
 
-
 /**
  * Fonction de tri de dates.
  * Cette fonction compare deux dates, qui peuvent être sous forme de chaînes au format "JJ/MM/AAAA"
@@ -70,23 +65,23 @@ const copy = obj => {
  *   - 0 si les deux dates sont égales,
  *   - -1 si la première date (a) est antérieure à la seconde (b),
  *   - 1 si la première date (a) est postérieure à la seconde (b).
- * 
+ *
  * @param {*} a - La première date à comparer. Peut être une chaîne "JJ/MM/AAAA" ou une autre valeur comparable.
  * @param {*} b - La deuxième date à comparer. Même format que a.
  * @returns {number} - 0 si égalité, -1 si a < b, 1 si a > b.
  */
 const sortDate = (a, b) => {
   // Si l'une des deux valeurs est falsy (null, undefined, etc.), retourne 0 (égalité)
-  if(!(a && b)) return 0
+  if (!(a && b)) return 0;
   // Si a est falsy mais b est défini, a est considéré plus petit
-  if(!a) return -1;
+  if (!a) return -1;
   // Si b est falsy mais a est défini, a est considéré plus grand
-  if(!b) return 1
+  if (!b) return 1;
   // Si la date est au format "JJ/MM/AAAA"
-  if (a.includes("/")) {
+  if (a.includes('/')) {
     // On découpe les chaînes pour extraire jour, mois, année
-    const date_a = a.split("/");
-    const date_b = b.split("/");
+    const date_a = a.split('/');
+    const date_b = b.split('/');
     // On compare d'abord l'année, puis le mois, puis le jour
     return date_a[2] == date_b[2]
       ? date_a[1] == date_b[1]
@@ -101,37 +96,30 @@ const sortDate = (a, b) => {
   }
 };
 
-
-
-
 /**
  * Met la première lettre en majuscule pour le nommage des stores
- * @param {*} s 
- * @returns 
+ * @param {*} s
+ * @returns
  */
-const upFirstLetter = s => {
+const upFirstLetter = (s) => {
   return s.charAt(0).toUpperCase() + s.slice(1);
 };
-
-
 
 /**
  * Vérifie si une valeur est un objet (et non un tableau).
  * @param {*} obj - La valeur à tester.
  * @returns {boolean} - Retourne true si c'est un objet, false sinon.
  */
-const isObject = obj => {
+const isObject = (obj) => {
   return Object(obj) === obj && !Array.isArray(obj);
-}
-
+};
 
 /**
  * Convertit une chaîne en snake_case.
  * @param {*} str - La chaîne à convertir.
  * @returns {string} - La chaîne convertie en snake_case.
  */
-const camelToSnakeCase = str =>
-  str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+const camelToSnakeCase = (str) => str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
 /**
  * Arrondit un nombre à un certain nombre de décimales.
@@ -139,19 +127,9 @@ const camelToSnakeCase = str =>
  * @param {number} dec - Le nombre de décimales à conserver.
  * @returns {number} - Le nombre arrondi.
  */
-const round = function(x, dec) {
+const round = function (x, dec) {
   if (x == 0) return 0;
   return Math.floor(x * 10 ** dec) / 10 ** dec;
 };
 
-
-export {
-  copy,
-  sortDate,
-  upFirstLetter,
-  camelToSnakeCase,
-  round,
-  isObject,
-  jsoncopy,
-  fde
-};
+export { copy, sortDate, upFirstLetter, camelToSnakeCase, round, isObject, jsoncopy, fde };

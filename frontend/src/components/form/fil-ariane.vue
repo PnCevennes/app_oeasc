@@ -4,41 +4,38 @@
 
 <template>
   <div v-if="keySession != 'all'">
-    <v-row dense class="fil-arianne-container">
+    <v-row
+      dense
+      class="fil-arianne-container"
+    >
       <v-col
         v-for="([keySessionGroup, sessionGroup], indexGroup) in Object.entries(
           config.sessionGroups
         )"
         :key="keySessionGroup"
-        @click="
-          condValidSessionGroup(keySessionGroup) &&
-            onSessionGroupClick(keySessionGroup)
-        "
+        @click="condValidSessionGroup(keySessionGroup) && onSessionGroupClick(keySessionGroup)"
         :class="{
           'current-group': condCurrentGroup(keySessionGroup),
-          'valid-group': condValidSessionGroup(keySessionGroup)
+          'valid-group': condValidSessionGroup(keySessionGroup),
         }"
-      >{{ indexGroup + 1 }}. {{ sessionGroup.title }}</v-col>
+      >
+        {{ indexGroup + 1 }}. {{ sessionGroup.title }}
+      </v-col>
     </v-row>
     <v-row
       dense
-      v-for="([keySessionGroup, sessionGroup], indexGroup) in Object.entries(
-        config.sessionGroups
-      )"
+      v-for="([keySessionGroup, sessionGroup], indexGroup) in Object.entries(config.sessionGroups)"
       :key="keySessionGroup"
       class="fil-arianne-container"
     >
-    
       <template v-if="condSessions(keySessionGroup)">
         <v-col
-          v-for="(keySession, indexSession) in 
-            sessionGroup.sessions
-          "
+          v-for="(keySession, indexSession) in sessionGroup.sessions"
           :key="keySession"
           @click="condValidSession(keySession) && onSessionClick(keySession)"
           :class="{
             'current-session': condCurrentSession(keySession),
-            'valid-session': condValidSession(keySession)
+            'valid-session': condValidSession(keySession),
           }"
         >
           {{ indexGroup + 1 }}.{{ indexSession + 1 }} -
@@ -49,16 +46,16 @@
   </div>
 </template>
 <script>
-import { sessionFunctions } from "@/components/form/functions/session.js";
+import { sessionFunctions } from '@/components/form/functions/session.js';
 // import "./declaration.css";
 export default {
-  name: "fil-arianne",
-  props: ["config", "keySession", "baseModel"],
+  name: 'fil-arianne',
+  props: ['config', 'keySession', 'baseModel'],
   data: () => ({}),
   watch: {
     baseModel: {
-      handler() {
-    }},
+      handler() {},
+    },
     deep: true,
   },
   computed: {
@@ -67,7 +64,6 @@ export default {
     },
   },
   methods: {
-
     /**
      * Gère le clic sur un groupe de sessions dans le fil d'Ariane.
      *
@@ -90,7 +86,6 @@ export default {
       this.onSessionClick(keySession);
     },
 
-
     /**
      * Gère le clic sur une session dans le fil d'Ariane.
      *
@@ -112,7 +107,6 @@ export default {
       this.$router.push({ query: { keySession } });
     },
 
-    
     /**
      * Vérifie si le groupe de sessions courant doit afficher ses sessions.
      *
@@ -132,9 +126,7 @@ export default {
      * améliorant ainsi la lisibilité et la navigation dans le fil d'Ariane.
      */
     condSessions(keySessionGroup) {
-      return (
-      keySessionGroup == sessionFunctions.group(this.config, this.keySession)
-      );
+      return keySessionGroup == sessionFunctions.group(this.config, this.keySession);
     },
 
     /**
@@ -156,34 +148,31 @@ export default {
      */
     condValidSession(keySession) {
       return (
-      sessionFunctions.condValidSession(
-        {
-        config: this.config,
-        $store: this.$store,
-        baseModel: this.baseModel,
-        },
-        keySession
-      ) && !this.baseModel.freeze
+        sessionFunctions.condValidSession(
+          {
+            config: this.config,
+            $store: this.$store,
+            baseModel: this.baseModel,
+          },
+          keySession
+        ) && !this.baseModel.freeze
       );
     },
 
     /**
      * Vérifie si un groupe de sessions est valide.
-     * 
+     *
      * Cette méthode prend en paramètre la clé d'un groupe de sessions,
      * récupère la première session associée à ce groupe via la fonction
      * `sessionFunctions.firstSession`, puis vérifie si cette session est valide
      * en appelant `condValidSession`. Elle s'assure également que le modèle
      * de base n'est pas figé (`freeze` doit être faux).
-     * 
+     *
      * @param {string} keySessionGroup - La clé identifiant le groupe de sessions à valider.
      * @returns {boolean} Retourne vrai si la première session du groupe est valide et que le modèle n'est pas figé, sinon faux.
      */
     condValidSessionGroup(keySessionGroup) {
-      const keySession = sessionFunctions.firstSession(
-        this.config,
-        keySessionGroup
-      );
+      const keySession = sessionFunctions.firstSession(this.config, keySessionGroup);
       return this.condValidSession(keySession) && !this.baseModel.freeze;
     },
 
@@ -201,26 +190,22 @@ export default {
       return this.keySession == keySession;
     },
 
-
     /**
-   * Vérifie si le groupe de session courant satisfait une condition spécifique.
-   *
-   * @param {string} keySessionGroup - La clé identifiant le groupe de sessions à vérifier.
-   * @returns {boolean} - Retourne le résultat de la condition sur la session courante du groupe.
-   *
-   * Étapes :
-   * 1. Récupère la première session du groupe via la fonction utilitaire 'firstSession'.
-   * 2. Passe la clé de cette session à la méthode 'condCurrentSession' pour vérifier la condition.
-   * 3. Retourne le résultat de cette vérification.
-   *
-   * Remarque : Cette méthode permet d'abstraire la logique de vérification sur un groupe de sessions,
-   * en se basant sur la première session du groupe.
-   */
+     * Vérifie si le groupe de session courant satisfait une condition spécifique.
+     *
+     * @param {string} keySessionGroup - La clé identifiant le groupe de sessions à vérifier.
+     * @returns {boolean} - Retourne le résultat de la condition sur la session courante du groupe.
+     *
+     * Étapes :
+     * 1. Récupère la première session du groupe via la fonction utilitaire 'firstSession'.
+     * 2. Passe la clé de cette session à la méthode 'condCurrentSession' pour vérifier la condition.
+     * 3. Retourne le résultat de cette vérification.
+     *
+     * Remarque : Cette méthode permet d'abstraire la logique de vérification sur un groupe de sessions,
+     * en se basant sur la première session du groupe.
+     */
     condCurrentGroup(keySessionGroup) {
-      const keySession = sessionFunctions.firstSession(
-        this.config,
-        keySessionGroup
-      );
+      const keySession = sessionFunctions.firstSession(this.config, keySessionGroup);
       return this.condCurrentSession(keySession);
     },
   },

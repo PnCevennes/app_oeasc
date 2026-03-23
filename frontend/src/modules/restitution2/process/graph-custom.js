@@ -1,37 +1,36 @@
-
 /**
  * Methodes pour calculer la configuration du graphe highchart pour le rendu générique
  */
-
 
 /**
  * configuration des series pour les cas 'simple'
  */
 const seriesSimple = (data, typeGraph, text) => {
-  const total = data.reduce((p,c) => {return p + c.count}, 0);
+  const total = data.reduce((p, c) => {
+    return p + c.count;
+  }, 0);
   return [
     {
       type: typeGraph,
       name: text,
 
       colorByPoint: true,
-      data: data.map(d => ({
-        name: `<b>${d.text}</b><br> ${d.count} (${Math.round(100.0*d.count/total)}%)`,
+      data: data.map((d) => ({
+        name: `<b>${d.text}</b><br> ${d.count} (${Math.round((100.0 * d.count) / total)}%)`,
         // name: `${d.text}: ${d.count}<br>(${Math.round(100.0*d.count/total)}%)`,
         useHTML: true,
         y: d.count,
-        color: null
+        color: null,
       })),
       dataLabels: {
         style: {
-          fontSize: "1em",
+          fontSize: '1em',
           fontWeight: 1,
-          color: 'black'
+          color: 'black',
         },
       },
-    }
+    },
   ];
-
 };
 
 /**
@@ -68,7 +67,6 @@ const seriesSimple = (data, typeGraph, text) => {
  * pour que ce soit plus simple en frontend??
  */
 const seriesRamifiees = (data, typeGraph) => {
-
   /**
    * counts dictionnaire: {
    *  <fieldName2>: <count_fieldName2>
@@ -81,21 +79,19 @@ const seriesRamifiees = (data, typeGraph) => {
       if (counts[d2.text] == undefined) {
         counts[d2.text] = 0;
       }
-      counts[d2.text] += d2.count
+      counts[d2.text] += d2.count;
     }
   }
 
   /**
    * series tableau avec une ligne par entrée de counts
    */
-  const series = Object.entries(counts)
-    .map(([key, value]) => ({
-      name :`${key} (${value})`,
-      data: [],
-      color: null,
-      type: typeGraph,
-    })
-  );
+  const series = Object.entries(counts).map(([key, value]) => ({
+    name: `${key} (${value})`,
+    data: [],
+    color: null,
+    type: typeGraph,
+  }));
 
   /**
    * data pour les series:
@@ -103,13 +99,12 @@ const seriesRamifiees = (data, typeGraph) => {
   for (const d of data) {
     for (const d2 of d.data) {
       const name = `${d2.text} (${counts[d2.text]})`;
-      series.find(s => s.name == name).data.push(d2.count)
+      series.find((s) => s.name == name).data.push(d2.count);
     }
   }
 
   return series;
-
-}
+};
 
 /**
  * function qui calcule les options d'un graphe highchart en fonction de
@@ -131,35 +126,36 @@ export default (data, options, text) => {
   const condDoubleGraph = options.fieldName2 && options.fieldName2 != options.fieldName;
 
   // pour les graph de type pie on ne traite pas les series ramifiées
-  const series = condDoubleGraph && (options.typeGraph != 'pie')
-  ? seriesRamifiees(data, options.typeGraph)
-  : seriesSimple(data, options.typeGraph, text);
+  const series =
+    condDoubleGraph && options.typeGraph != 'pie'
+      ? seriesRamifiees(data, options.typeGraph)
+      : seriesSimple(data, options.typeGraph, text);
   const chartOptions = {
     pie: {
-      size: 50
+      size: 50,
     },
     title: {
-      text: options.title
+      text: options.title,
     },
     xAxis: {
-      categories: data.map(d => `${d.text} (${d.count})`)
+      categories: data.map((d) => `${d.text} (${d.count})`),
     },
     yAxis: {
       min: 0,
       // endOnTick: false,
       // startOnTick: false,
       title: {
-        text: "nb"
-      }
+        text: 'nb',
+      },
     },
     plotOptions: {
       series: {
-        stacking: options.stacking
-      }
+        stacking: options.stacking,
+      },
     },
     series,
-    height: "600px",
-    width: "600px"
+    height: '600px',
+    width: '600px',
   };
   return chartOptions;
 };

@@ -2,14 +2,28 @@
   <div>
     <h1>Gestion des utilisateurs</h1>
     <div>
-      <v-btn class="btn-spaced" color="primary" :href="pathExportUser">Export CSV</v-btn>
-      <v-btn class="btn-spaced" color="primary" @click="mailingListClipboard()">
+      <v-btn
+        class="btn-spaced"
+        color="primary"
+        :href="pathExportUser"
+      >
+        Export CSV
+      </v-btn>
+      <v-btn
+        class="btn-spaced"
+        color="primary"
+        @click="mailingListClipboard()"
+      >
         Mailing list
         <v-icon>mdi-clipboard-text-play-outline</v-icon>
       </v-btn>
-      <v-snackbar color="success" v-model="bShowMailList" :timeout="3000">
-        La mailling list ({{ mailingList.split(",").length }} adresses) a été
-        copiée dans le presse papier
+      <v-snackbar
+        color="success"
+        v-model="bShowMailList"
+        :timeout="3000"
+      >
+        La mailling list ({{ mailingList.split(',').length }} adresses) a été copiée dans le presse
+        papier
       </v-snackbar>
     </div>
 
@@ -20,16 +34,15 @@
 </template>
 
 <script>
-
 // PAGE : gestion  administration des utilisateurs
 // Liste les utilisateurs, modification de leur niveau d'accès, creation de mailing list et export CSV de la liste de mailling
 // Utilise les valeurs dans le store._users
-import { config } from "@/config/config";
-import genericTable from "@/components/table/generic-table";
-import configUserTable from "./config/table-user.js"
+import { config } from '@/config/config';
+import genericTable from '@/components/table/generic-table';
+import configUserTable from './config/table-user.js';
 
 export default {
-  name: "manage-user",
+  name: 'manage-user',
   components: { genericTable },
   data: () => ({
     users: [],
@@ -42,7 +55,7 @@ export default {
       return this.users
         .filter((user) => user.accept_email)
         .map((user) => user.email)
-        .join(", ");
+        .join(', ');
     },
   },
   methods: {
@@ -53,7 +66,7 @@ export default {
     },
   },
   mounted() {
-    this.$store.dispatch("users").then((users) => {
+    this.$store.dispatch('users').then((users) => {
       this.users = users;
       this.configTable = { ...this.configTable, items: users };
     });

@@ -2,9 +2,7 @@
   <div>
     <highcharts
       v-if="chartOptions"
-      :style="
-        `width:${results.options.width || '100%'}; height:${results.options.height || '600px'}`
-      "
+      :style="`width:${results.options.width || '100%'}; height:${results.options.height || '600px'}`"
       :options="chartOptions"
       :highcharts="hcInstance"
     ></highcharts>
@@ -12,10 +10,10 @@
 </template>
 
 <script>
-import Highcharts from "highcharts";
+import Highcharts from 'highcharts';
 export default {
-  name: "restitution-graph",
-  props: ["results"],
+  name: 'restitution-graph',
+  props: ['results'],
   data: () => ({
     chartOptions: null,
     hcInstance: Highcharts,
@@ -36,7 +34,7 @@ export default {
       const series =
         !this.results.condSame &&
         this.results.choix.choix2 &&
-        ["column", "bar"].includes(this.results.options.typeGraph)
+        ['column', 'bar'].includes(this.results.options.typeGraph)
           ? this.results.choix.choix2.dataList.map((res2) => ({
               name: `${res2.text} (${res2.count})`,
               data: this.results.choix.choix1.dataList.map((res1) => {
@@ -57,7 +55,7 @@ export default {
                 })),
                 dataLabels: {
                   style: {
-                    fontSize: "1.15em",
+                    fontSize: '1.15em',
                     fontWeight: 1,
                   },
                 },
@@ -70,7 +68,7 @@ export default {
         title: {
           text: this.results.options.typeGraph == 'pie' ? this.results.yTitle : null,
           verticalAlign: 'bottom',
-          style: {fontSize: '1em'}  
+          style: { fontSize: '1em' },
         },
         xAxis: {
           categories,
@@ -83,8 +81,11 @@ export default {
         },
         plotOptions: {
           series: {
-            stacking: this.results.options.typeGraph != 'pie' && this.results.options.stacking ? "normal" : null
-          }
+            stacking:
+              this.results.options.typeGraph != 'pie' && this.results.options.stacking
+                ? 'normal'
+                : null,
+          },
         },
         series,
       };

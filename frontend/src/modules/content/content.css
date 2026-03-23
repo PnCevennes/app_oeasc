@@ -1,6 +1,6 @@
 .no-link a {
-  color:inherit !important;
-  cursor:inherit !important;
+  color: inherit !important;
+  cursor: inherit !important;
   /* pointer: inherit; */
 }
 
@@ -60,19 +60,17 @@ div.img-content.center {
   flex-direction: column;
 }
 
-div.img-content img{
+div.img-content img {
   width: 100%;
 }
-
 
 div.img-content.float {
   width: 50%;
 }
 
-div.img-content.float img{
+div.img-content.float img {
   width: 100%;
 }
-
 
 div.img-content.float.left {
   float: left;
@@ -90,14 +88,12 @@ div.img-content.float.right {
 
 .img-content figure {
   display: inline-block;
-
 }
 
 .img-content img {
-margin-left: auto;  
-margin-right: auto;  
+  margin-left: auto;
+  margin-right: auto;
 }
-
 
 .img-content .source {
   font-size: 0.9em;
@@ -144,7 +140,9 @@ margin-right: auto;
   color: white;
   text-align: center;
   font-size: 0.8rem;
-  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  box-shadow:
+    0 4px 8px 0 rgba(0, 0, 0, 0.2),
+    0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 .card-title {
@@ -157,10 +155,9 @@ margin-right: auto;
 .list-actu {
   margin: 0 !important;
   object-fit: cover;
-  padding:20px !important;
+  padding: 20px !important;
 }
 
 .list-actu img {
   object-fit: cover;
 }
-

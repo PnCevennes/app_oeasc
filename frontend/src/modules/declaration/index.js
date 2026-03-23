@@ -1,112 +1,108 @@
 // import declarationForm from "./declaration-form.vue";
-import modifier_declaration from "./modifier-declaration.vue";
-import declarationList from "./declaration-list";
-import declaration from "./declaration.vue";
-import { apiRequest } from "@/core/js/data/api.js";
-import storeUtils from "@/store/utils";
-import configResitutionDeclaration from "./config/restitution-declaration";
-import configStoreDegat from './config/store-degat'
-import voir_declaration from "./voir_declaration.vue";
+import modifier_declaration from './modifier-declaration.vue';
+import declarationList from './declaration-list';
+import declaration from './declaration.vue';
+import { apiRequest } from '@/core/js/data/api.js';
+import storeUtils from '@/store/utils';
+import configResitutionDeclaration from './config/restitution-declaration';
+import configStoreDegat from './config/store-degat';
+import voir_declaration from './voir_declaration.vue';
 
 const ROUTE = [
-
-
   {
-    path: "/declaration/declarer_en_ligne",
-    label: "Créér déclaration",
+    path: '/declaration/declarer_en_ligne',
+    label: 'Créér déclaration',
     access: 1,
-    name: "post_declaration",
+    name: 'post_declaration',
     hideTitle: true,
-    parent: "declaration.systeme_alerte",
+    parent: 'declaration.systeme_alerte',
     // component: declarationForm
-    component: modifier_declaration
+    component: modifier_declaration,
   },
 
   {
-    path: "/declaration/declarer_en_ligne/:id",
-    label: "Modifier déclaration",
+    path: '/declaration/declarer_en_ligne/:id',
+    label: 'Modifier déclaration',
     access: 1,
     hideTitle: true,
-    parent: "declaration.liste_declarations",
-    name: "patch_declaration",
+    parent: 'declaration.liste_declarations',
+    name: 'patch_declaration',
     // component: declarationForm
-    component: modifier_declaration
+    component: modifier_declaration,
   },
 
   {
-    path: "/declaration/modifier_declaration/:id",
-    label: "Modifier déclaration",
+    path: '/declaration/modifier_declaration/:id',
+    label: 'Modifier déclaration',
     access: 1,
     hideTitle: true,
-    parent: "declaration.liste_declarations",
-    name: "modifier_declaration",
-    component: modifier_declaration
+    parent: 'declaration.liste_declarations',
+    name: 'modifier_declaration',
+    component: modifier_declaration,
   },
 
-
-
   {
-    path: "/declaration/liste",
-    label: "Alerte signalées",
+    path: '/declaration/liste',
+    label: 'Alerte signalées',
     access: 1,
-    name: "declaration.liste_declarations",
-    parent: "declaration.systeme_alerte",
-    component: declarationList
+    name: 'declaration.liste_declarations',
+    parent: 'declaration.systeme_alerte',
+    component: declarationList,
   },
 
   {
-    path: "/declaration/voir_declaration/:id", // ancienne version. A supprimer quand celle d'en dessous sera fonctionnelle
-    label: "Déclaration",
+    path: '/declaration/voir_declaration/:id', // ancienne version. A supprimer quand celle d'en dessous sera fonctionnelle
+    label: 'Déclaration',
     access: 1,
-    name: "voir_declaration",
-    parent: "declaration.liste_declarations",
-    component: declaration
+    name: 'voir_declaration',
+    parent: 'declaration.liste_declarations',
+    component: declaration,
   },
 
   {
-    path: "/declaration/voir_declaration2/:id", // nouvelle vertion de voir_declaration. Supprimer l'anctienne quand c'est finit
-    label: "Déclaration2",
+    path: '/declaration/voir_declaration2/:id', // nouvelle vertion de voir_declaration. Supprimer l'anctienne quand c'est finit
+    label: 'Déclaration2',
     access: 1,
-    name: "voir_declaration2",
-    parent: "declaration.liste_declarations",
-    component: voir_declaration
+    name: 'voir_declaration2',
+    parent: 'declaration.liste_declarations',
+    component: voir_declaration,
   },
 
   {
-    path: "/declaration/degat_grand_gibier",
-    name: "declaration.degat_grand_gibier",
-    content: "degat_grand_gibier",
-    label: "Les dégâts de grand gibier",
-    parent: "declaration.systeme_alerte",
-    type: "page"
+    path: '/declaration/degat_grand_gibier',
+    name: 'declaration.degat_grand_gibier',
+    content: 'degat_grand_gibier',
+    label: 'Les dégâts de grand gibier',
+    parent: 'declaration.systeme_alerte',
+    type: 'page',
   },
 
   {
-    path: "/declaration/systeme_alerte",
-    name: "declaration.systeme_alerte",
-    content: "systeme_alerte",
+    path: '/declaration/systeme_alerte',
+    name: 'declaration.systeme_alerte',
+    content: 'systeme_alerte',
     label: "Le système d'alerte",
-    parent: "page.accueil",
-    type: "page"
+    parent: 'page.accueil',
+    type: 'page',
   },
 
   {
-    path: "/declaration/signaler_degat_explication",
-    name: "declaration.signaler_degat_explication",
-    label: "Je signale des dégâts en forêt",
-    content: "signaler_degat_explication",
-    parent: "declaration.systeme_alerte",
+    path: '/declaration/signaler_degat_explication',
+    name: 'declaration.signaler_degat_explication',
+    label: 'Je signale des dégâts en forêt',
+    content: 'signaler_degat_explication',
+    parent: 'declaration.systeme_alerte',
     access: 1,
-    type: "page"
+    type: 'page',
   },
   {
-    path: "/resultats/declarations",
-    name: "resultats.declarations",
+    path: '/resultats/declarations',
+    name: 'resultats.declarations',
     label: "Système d'alerte",
-    content: "resultats.declarations",
-    parent: "resultats.index",
-    type: "page"
-  }
+    content: 'resultats.declarations',
+    parent: 'resultats.index',
+    type: 'page',
+  },
 ];
 
 const STORE = {
@@ -115,36 +111,45 @@ const STORE = {
     _declarationForm: {},
     _declarations: [],
     _foret: {},
-    _declarationTableHeight: null
+    _declarationTableHeight: null,
   },
 
   getters: {
-    declarationTableHeight: state => state._declarationTableHeight,
+    declarationTableHeight: (state) => state._declarationTableHeight,
 
-    configDeclaration: state => {
+    configDeclaration: (state) => {
       return state._configDeclaration;
     },
 
-    declarationForm: state => {
+    declarationForm: (state) => {
       return state._declarationForm;
     },
 
-    declarations: state => {
+    declarations: (state) => {
       return state._declarations;
     },
 
-    foret: state => id_foret => {
+    foret: (state) => (id_foret) => {
       return state._foret[id_foret];
     },
     nbDeclarationsValid: (state) => {
       // depuis degats et remove doublons
-      return state.declarationDegats && state.declarationDegats.filter(d => d.valide=='Validé')
-        .map(d => d.id_declaration)
-        .filter((id, index, self) => self.indexOf(id) == index).length || '(...chargement en cours)';
+      return (
+        (state.declarationDegats &&
+          state.declarationDegats
+            .filter((d) => d.valide == 'Validé')
+            .map((d) => d.id_declaration)
+            .filter((id, index, self) => self.indexOf(id) == index).length) ||
+        '(...chargement en cours)'
+      );
     },
-    nbDegatsValid: state => {
-      return state.declarationDegats && state.declarationDegats.filter(d => d.valide=='Validé').length || '(...chargement en cours)';
-    }
+    nbDegatsValid: (state) => {
+      return (
+        (state.declarationDegats &&
+          state.declarationDegats.filter((d) => d.valide == 'Validé').length) ||
+        '(...chargement en cours)'
+      );
+    },
   },
 
   mutations: {
@@ -167,58 +172,54 @@ const STORE = {
 
     foret: (state, foret) => {
       state._foret[foret.id_foret] = foret;
-    }
+    },
   },
 
   actions: {
-    
-
     // récupère les données sur une déclaration et l'enregistre en cache dans le state _declarationForm
     declarationForm: ({ commit }, id) => {
       return new Promise((resolve, reject) => {
-        apiRequest("GET", `api/degat_foret/declaration/${id || ""}`).then(
-          apiData => {
-            commit("declarationForm", apiData);
+        apiRequest('GET', `api/degat_foret/declaration/${id || ''}`).then(
+          (apiData) => {
+            commit('declarationForm', apiData);
             resolve(apiData);
           },
-          error => {
-            commit("declarationForm", {});
+          (error) => {
+            commit('declarationForm', {});
             reject(error);
           }
         );
       });
     },
 
-    
     declarations: ({ state, commit }) => {
       return new Promise((resolve, reject) => {
         if (state._declarations.length) {
           resolve(state._declarations);
           return;
         }
-        apiRequest("GET", `api/declaration/declarations`).then(
-          apiData => {
-            commit("declarations", apiData);
+        apiRequest('GET', `api/declaration/declarations`).then(
+          (apiData) => {
+            commit('declarations', apiData);
             resolve(apiData);
           },
-          error => {
-            commit("declarations", []);
+          (error) => {
+            commit('declarations', []);
             reject(error);
           }
         );
       });
     },
 
-    
     // pb
     foretFromCode: ({ commit }, codeForet) => {
       return new Promise((resolve, reject) => {
-        apiRequest("GET", `api/degat_foret/foret_from_code/${codeForet}`).then(
-          apiData => {
-            commit("foret", apiData);
+        apiRequest('GET', `api/degat_foret/foret_from_code/${codeForet}`).then(
+          (apiData) => {
+            commit('foret', apiData);
             resolve(apiData);
           },
-          error => {
+          (error) => {
             console.error(`subscribe foret error: ${error}`);
             reject(error);
           }
@@ -228,15 +229,12 @@ const STORE = {
 
     proprietaireFromIdDeclarant: ({ commit }, idDeclarant) => {
       return new Promise((resolve, reject) => {
-        apiRequest(
-          "GET",
-          `api/degat_foret/proprietaire_from_id_declarant/${idDeclarant}`
-        ).then(
-          apiData => {
+        apiRequest('GET', `api/degat_foret/proprietaire_from_id_declarant/${idDeclarant}`).then(
+          (apiData) => {
             commit;
             resolve(apiData);
           },
-          error => {
+          (error) => {
             console.error(`subscribe proprietaire error: ${error}`);
             reject(error);
           }
@@ -246,33 +244,27 @@ const STORE = {
 
     proprietaireFromId: ({ commit }, idProprietaire) => {
       return new Promise((resolve, reject) => {
-        apiRequest(
-          "GET",
-          `api/degat_foret/proprietaire_from_id/${idProprietaire}`
-        ).then(
-          apiData => {
+        apiRequest('GET', `api/degat_foret/proprietaire_from_id/${idProprietaire}`).then(
+          (apiData) => {
             commit;
             resolve(apiData);
           },
-          error => {
+          (error) => {
             console.error(`subscribe proprietaire error: ${error}`);
             reject(error);
           }
         );
       });
-    }
-
-
-
-  }
+    },
+  },
 };
 
 storeUtils.addStore(STORE, configStoreDegat);
 
 storeUtils.addStoreRestitution(
   STORE,
-  "declaration",
-  "getAllDeclarationDegat",
+  'declaration',
+  'getAllDeclarationDegat',
   configResitutionDeclaration
 );
 

@@ -9,18 +9,16 @@ import { round } from '@/core/js/util/util.js';
 import admin from '@/components/admin';
 // import genericForm from "./form/generic-form.vue";
 import { generateConfigformDef } from './config/form-content-chasse.js';
-import configStoreZoneCynegetique from "./config/store-zone-cynegetique.js";
-import configStoreZoneIndicative from "./config/store-zone-indicative.js";
-import configStoreLieuTir from "./config/store-lieu-tir.js";
-import configStoreLieuTirSynonyme from "./config/store-lieu-tir-synonyme.js";
-import configStoreSaison from "./config/store-saison.js";
-import configStoreSaisonDate from "./config/store-saison-date.js";
-import configStoreAttributionMassif from "./config/store-attribution-massif.js";
-import configStoreTypeBracelet from "./config/store-type-bracelet.js";
-import configStoreAttribution from "./config/store-attribution.js";
-import configStoreRealisation from "./config/store-realisation.js";
-
-
+import configStoreZoneCynegetique from './config/store-zone-cynegetique.js';
+import configStoreZoneIndicative from './config/store-zone-indicative.js';
+import configStoreLieuTir from './config/store-lieu-tir.js';
+import configStoreLieuTirSynonyme from './config/store-lieu-tir-synonyme.js';
+import configStoreSaison from './config/store-saison.js';
+import configStoreSaisonDate from './config/store-saison-date.js';
+import configStoreAttributionMassif from './config/store-attribution-massif.js';
+import configStoreTypeBracelet from './config/store-type-bracelet.js';
+import configStoreAttribution from './config/store-attribution.js';
+import configStoreRealisation from './config/store-realisation.js';
 
 // Import des routes
 import formRealisationChasse from './form-realisation-chasse.vue';
@@ -29,7 +27,7 @@ import pageChasseBilanDetaille from './page-chasse-bilan-detaille.vue';
 import pageBilanDonneeChasse from './bilan_donnee.vue';
 import Graph_bilan_evolution from './graph/graph_bilan_evolution.vue';
 import graphChasseIce from './graph/graph_ice.vue';
-import importsChasse from "./imports-chasse.vue";
+import importsChasse from './imports-chasse.vue';
 import graphChasseIcePoints from './graph/graph_ice_points.vue';
 
 const ROUTE = [
@@ -78,8 +76,8 @@ const ROUTE = [
           zoneCynegetique_tab: {
             storeName: 'chasseZoneCynegetique',
           },
-        }
-      }
+        },
+      },
     },
     access: 5, // droit d'accès minimum
   },
@@ -101,14 +99,14 @@ const ROUTE = [
     component: exportsChasse,
     access: 4,
   },
-  
+
   {
-    name: "chasse.imports",
-    path: "/chasse/imports",
-    label: "Imports données chasse", // titre dans le menu (mais pas dans la page)
-    hideTitle: true,// True => cache le bandeau header pour plus de place
+    name: 'chasse.imports',
+    path: '/chasse/imports',
+    label: 'Imports données chasse', // titre dans le menu (mais pas dans la page)
+    hideTitle: true, // True => cache le bandeau header pour plus de place
     component: importsChasse,
-    access: 4
+    access: 4,
   },
 
   {

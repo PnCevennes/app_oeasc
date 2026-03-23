@@ -3,11 +3,14 @@ Pastille d'aide affichant un "?" qui ouvre une fenêtre de dialogue avec du cont
 on utilisera un fichier du type help_content.vue pour le contenu de la fenêtre. (voir les exemples existants)
 ############################################################################################## -->
 
-
 <template>
   <span class="help">
     <v-row justify="center">
-      <v-dialog v-model="dialog" max-width="1000" class="help-dialog">
+      <v-dialog
+        v-model="dialog"
+        max-width="1000"
+        class="help-dialog"
+      >
         <v-card>
           <v-card-text>
             <div class="help-card-text">
@@ -32,26 +35,19 @@ on utilisera un fichier du type help_content.vue pour le contenu de la fenêtre.
   </span>
 </template>
 
-
-
 <script>
 export default {
-  name: "help",
+  name: 'help',
   // props: ["code"],
-  components: {
-  },
+  components: {},
   data: () => ({
     dialog: false,
   }),
 };
 </script>
 
-
-
-
 <style>
 .help-dialog {
-
   z-index: 10000;
 }
 .help {
@@ -64,11 +60,9 @@ export default {
   margin-right: 10px;
 }
 .help:not(:last-child) .btn {
-
   margin: 0 20px 0 0px;
 }
 .help-radio-item {
-
   top: -2px;
   /* left: 0px; */
   padding-left: 5px;
@@ -79,7 +73,6 @@ export default {
 }
 
 .help-degat-item {
-
   top: -3px;
   /* left: 0px; */
   padding-left: 5px;
@@ -92,8 +85,5 @@ export default {
   font-size: 15px;
   padding-top: 15px;
   padding-bottom: 15px;
-
 }
-
-
 </style>

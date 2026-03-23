@@ -20,4 +20,3 @@ L’article L425-4 du Code de l’environnement précise que l’équilibre agro
 L’atteinte de cet équilibre, tel que défini par la règlementation nationale, constitue l’un des objectifs du Parc national des Cévennes. Le choix des mesures de gestion appropriées (règlementation de la chasse, dispositifs de prévention, pratiques de gestion adaptées) nécessite pour cela de disposer de données fiables et objectives permettant d’apprécier l’état d’équilibre et de suivre son évolution dans le temps.
 
 C’est pour répondre à ce défi complexe que l’établissement public du Parc national des Cévennes s’est engagé avec ses partenaires dans la création et la mise en œuvre d’un Observatoire partagé de l’équilibre agro‑sylvo‑cynégétique.
-

@@ -3,20 +3,28 @@
 <!-- est appelé dans content/content.vue -->
 
 <template>
-  <div v-if="config" class="form-container">
-    <div class="debug" v-if="debug && Object.keys(debug).length">
+  <div
+    v-if="config"
+    class="form-container"
+  >
+    <div
+      class="debug"
+      v-if="debug && Object.keys(debug).length"
+    >
       <h3>Debug</h3>
-      <pre>{{debug}}</pre>
+      <pre>{{ debug }}</pre>
     </div>
     <h2 v-if="title">{{ title }}</h2>
     <div v-if="bRequestSuccess">
-
       <slot name="success"></slot>
     </div>
-    <div v-else-if="baseModel"> 
-
+    <div v-else-if="baseModel">
       <slot name="prependForm"></slot>
-      <v-form v-model="bValidForm" ref="form" v-if="bInit">
+      <v-form
+        v-model="bValidForm"
+        ref="form"
+        v-if="bInit"
+      >
         <div>
           <dynamic-form-group
             :config="configDynamicGroupForm"
@@ -29,7 +37,6 @@
         </div>
 
         <template v-if="!displayValue">
-
           <v-btn
             v-if="config.action"
             absolute
@@ -38,24 +45,29 @@
             color="success"
             @click="processAction()"
             :disabled="bSending || baseModel.freeze"
-            >{{ config.action.label || "Valider" }}</v-btn
           >
+            {{ config.action.label || 'Valider' }}
+          </v-btn>
         </template>
 
         <v-btn
           v-if="switchDisplay"
           color="primary"
           @click="processAnnulerModifier()"
-          >{{ displayValue ? "Modifier" : "Annuler" }}</v-btn>
+        >
+          {{ displayValue ? 'Modifier' : 'Annuler' }}
+        </v-btn>
 
         <v-btn
           v-if="config.cancel"
           color="primary"
           @click="config.cancel.action({ baseModel })"
-          >Annuler</v-btn >
+        >
+          Annuler
+        </v-btn>
 
         <v-progress-linear
-          indeterminate 
+          indeterminate
           color="green"
           v-if="bSending"
         ></v-progress-linear>
@@ -63,31 +75,36 @@
         <slot name="appendForm"></slot>
       </v-form>
     </div>
-    <v-snackbar color="error" v-model="bError" :timeout="5000">
+    <v-snackbar
+      color="error"
+      v-model="bError"
+      :timeout="5000"
+    >
       {{ msgError }}
     </v-snackbar>
-    <v-snackbar color="success" v-model="bSuccess" :timeout="2000">
+    <v-snackbar
+      color="success"
+      v-model="bSuccess"
+      :timeout="2000"
+    >
       {{ msgSuccess }}
     </v-snackbar>
   </div>
 </template>
 
-
-
 <script>
-import { apiRequest } from "@/core/js/data/api.js";
-import dynamicFormGroup from "@/components/form/dynamic-form-group.vue";
-import { config as globalConfig } from "@/config/config.js";
-import { copy } from "@/core/js/util/util.js";
+import { apiRequest } from '@/core/js/data/api.js';
+import dynamicFormGroup from '@/components/form/dynamic-form-group.vue';
+import { config as globalConfig } from '@/config/config.js';
+import { copy } from '@/core/js/util/util.js';
 
 export default {
-  name: "generic-form",
+  name: 'generic-form',
   components: {
-    dynamicFormGroup
+    dynamicFormGroup,
   },
-  props: ["config"],
+  props: ['config'],
   computed: {
-
     idModel() {
       return (
         (this.baseModel && this.baseModel[this.config.idFieldName]) ||
@@ -101,17 +118,17 @@ export default {
         forms: this.config.forms,
         formDefs: this.config.formDefs,
         displayValue: this.displayValue,
-        displayLabel: this.config.displayLabel
+        displayLabel: this.config.displayLabel,
       };
     },
     method() {
-      return typeof this.config.action.request.method === "function"
+      return typeof this.config.action.request.method === 'function'
         ? this.config.action.request.method({ id: this.idModel })
         : this.config.action.request.method;
     },
     debug() {
-      const debug = {}
-      for (const key of (this.config.debug || [])) {
+      const debug = {};
+      for (const key of this.config.debug || []) {
         let val;
         for (const subkey of key.split('.')) {
           val = val == undefined ? (this.baseModel || {})[subkey] : val[subkey];
@@ -121,34 +138,31 @@ export default {
       return debug;
     },
     url() {
-      return typeof this.config.action.request.url === "function"
+      return typeof this.config.action.request.url === 'function'
         ? this.config.action.request.url({ id: this.idModel })
         : this.config.action.request.url;
     },
     switchDisplay() {
-      return typeof this.config.switchDisplay == "function"
+      return typeof this.config.switchDisplay == 'function'
         ? this.config.switchDisplay({ id: this.idModel })
         : this.config.switchDisplay;
     },
     title() {
-      return typeof this.config.title == "function"
+      return typeof this.config.title == 'function'
         ? this.config.title({ id: this.idModel })
         : this.config.title;
-    }
+    },
   },
   watch: {
     config() {
       this.initConfig();
     },
-
   },
   mounted() {
     this.initConfig();
   },
 
   methods: {
-
-
     /**
      * Gère le clic sur le bouton "Annuler/Modifier".
      *
@@ -167,15 +181,14 @@ export default {
      */
     processAnnulerModifier() {
       setTimeout(() => {
-      // Si on annule la modification, on restaure le modèle initial
-      if (!this.displayValue) {
-        this.baseModel = copy(this.baseModelSave);
-      }
-      // On inverse le mode d'affichage/édition
-      this.displayValue = !this.displayValue;
+        // Si on annule la modification, on restaure le modèle initial
+        if (!this.displayValue) {
+          this.baseModel = copy(this.baseModelSave);
+        }
+        // On inverse le mode d'affichage/édition
+        this.displayValue = !this.displayValue;
       }, 100);
     },
-
 
     /**
      * Initialise la configuration du formulaire générique.
@@ -196,9 +209,9 @@ export default {
     initConfig() {
       // Détermine le mode d'affichage (lecture ou édition)
       this.displayValue =
-      typeof this.config.displayValue == "function"
-        ? this.config.displayValue({ id: this.idModel })
-        : this.config.displayValue;
+        typeof this.config.displayValue == 'function'
+          ? this.config.displayValue({ id: this.idModel })
+          : this.config.displayValue;
 
       if (!this.config) return;
 
@@ -208,77 +221,75 @@ export default {
       // Si un store est associé au formulaire
       const storeName = this.config.storeName;
       if (storeName) {
-      // Récupère la configuration du store
-      const configStore = this.$store.getters.configStore(storeName);
+        // Récupère la configuration du store
+        const configStore = this.$store.getters.configStore(storeName);
 
-      // Si les définitions de formulaire ne sont pas présentes, les récupère depuis le store
-      if(!this.config.formDefs) {
-        for( const [key,value] of Object.entries(configStore.configForm)) {
-        this.config[key] = value;
+        // Si les définitions de formulaire ne sont pas présentes, les récupère depuis le store
+        if (!this.config.formDefs) {
+          for (const [key, value] of Object.entries(configStore.configForm)) {
+            this.config[key] = value;
+          }
         }
-      }
 
-      // Prépare la méthode de préchargement des données (pour édition d'un objet existant)
-      this.config.preloadData = ({ $store, id, config }) => {
-        return new Promise(resolve => {
-        if (!id) {
-          // Si pas d'id, rien à précharger
-          resolve();
-        } else {
-          // Récupère les données depuis le store
-          $store.dispatch(configStore.get, { value: id }).then(data => {
-          config.value = data;
-          this.baseModel = null;
-          resolve();
+        // Prépare la méthode de préchargement des données (pour édition d'un objet existant)
+        this.config.preloadData = ({ $store, id, config }) => {
+          return new Promise((resolve) => {
+            if (!id) {
+              // Si pas d'id, rien à précharger
+              resolve();
+            } else {
+              // Récupère les données depuis le store
+              $store.dispatch(configStore.get, { value: id }).then((data) => {
+                config.value = data;
+                this.baseModel = null;
+                resolve();
+              });
+            }
           });
-        }
-        });
-      };
+        };
 
-      // Définit le nom du champ identifiant si absent
-      this.config.idFieldName = this.config.idFieldName || configStore.idFieldName;
+        // Définit le nom du champ identifiant si absent
+        this.config.idFieldName = this.config.idFieldName || configStore.idFieldName;
 
-      // Prépare l'action d'envoi (process) selon si on crée ou modifie (post/patch)
-      this.config.action = this.config.action || {};
-      this.config.action.process = ({ id, $store, postData }) => {
-        return $store.dispatch(id ? configStore.patch : configStore.post, {
-        value: id,
-        postData
-        });
-      };
+        // Prépare l'action d'envoi (process) selon si on crée ou modifie (post/patch)
+        this.config.action = this.config.action || {};
+        this.config.action.process = ({ id, $store, postData }) => {
+          return $store.dispatch(id ? configStore.patch : configStore.post, {
+            value: id,
+            postData,
+          });
+        };
 
-      // Prépare la méthode de prétraitement des données avant envoi
-      this.config.action.preProcess = configStore.preProcess;
+        // Prépare la méthode de prétraitement des données avant envoi
+        this.config.action.preProcess = configStore.preProcess;
       }
 
       // Si une méthode de préchargement existe, la lance pour récupérer les données
       if (
-      this.config.preloadData
-      //  && !this.config.value
+        this.config.preloadData
+        //  && !this.config.value
       ) {
-      this.config
-        .preloadData({
-        $store: this.$store,
-        config: this.config,
-        id: this.idModel
-        })
-        .then(() => {
-        // Réinitialise le modèle de base
-        this.baseModel = null;
+        this.config
+          .preloadData({
+            $store: this.$store,
+            config: this.config,
+            id: this.idModel,
+          })
+          .then(() => {
+            // Réinitialise le modèle de base
+            this.baseModel = null;
 
-        // Initialise le modèle de base à partir des données récupérées
-        this.initBaseModel();
-        // Active le formulaire
-        this.bInit = true;
-        });
+            // Initialise le modèle de base à partir des données récupérées
+            this.initBaseModel();
+            // Active le formulaire
+            this.bInit = true;
+          });
       } else {
-      // Si pas de préchargement, initialise directement le modèle de base
-      this.initBaseModel();
-      this.bInit = true;
+        // Si pas de préchargement, initialise directement le modèle de base
+        this.initBaseModel();
+        this.bInit = true;
       }
     },
-
-
 
     /**
      * Initialise le modèle de base du formulaire.
@@ -286,25 +297,17 @@ export default {
      * en tenant compte de la configuration (`config.formDefs`) et des valeurs existantes (`config.value`).
      */
     initBaseModel() {
-
       const baseModel = this.config.value || {};
       const value = this.config.value || {};
 
       for (const [keyForm, formDef] of Object.entries(this.config.formDefs)) {
         baseModel[keyForm] =
-          value[keyForm] != undefined
-            ? value[keyForm]
-            : formDef.multiple
-            ? []
-            : null;
+          value[keyForm] != undefined ? value[keyForm] : formDef.multiple ? [] : null;
       }
       baseModel.freeze = false;
       this.baseModel = baseModel;
       this.baseModelSave = copy(baseModel);
-
     },
-
-
 
     /**
      * Prépare les données à envoyer lors de la soumission du formulaire.
@@ -316,15 +319,13 @@ export default {
      */
     postData() {
       return this.config.action.preProcess
-      ? this.config.action.preProcess({
-        baseModel: this.baseModel,
-        globalConfig,
-        config: this.config
-        })
-      : this.baseModel;
+        ? this.config.action.preProcess({
+            baseModel: this.baseModel,
+            globalConfig,
+            config: this.config,
+          })
+        : this.baseModel;
     },
-
-
 
     /**
      * Gère la soumission du formulaire lors du clic sur le bouton d'action principal.
@@ -354,105 +355,98 @@ export default {
      */
     processAction() {
       setTimeout(() => {
-      // Validation du formulaire
-      this.bValidForm = this.$refs.form.validate();
-      if (!this.bValidForm) {
-        return;
-      }
+        // Validation du formulaire
+        this.bValidForm = this.$refs.form.validate();
+        if (!this.bValidForm) {
+          return;
+        }
 
-      // Préparation de la promesse selon la config
-      let promise = this.config.action.request
-        ? this.request()
-        : this.config.action.process &&
-        this.config.action.process({
-          postData: this.postData(),
-          $store: this.$store,
-          $router: this.$router,
-          config: this.config,
-          id: this.idModel
-        });
+        // Préparation de la promesse selon la config
+        let promise = this.config.action.request
+          ? this.request()
+          : this.config.action.process &&
+            this.config.action.process({
+              postData: this.postData(),
+              $store: this.$store,
+              $router: this.$router,
+              config: this.config,
+              id: this.idModel,
+            });
 
-      // Si aucune promesse, on déclenche l'événement de succès et on quitte
-      if (!promise) {
-        this.$emit("onSuccess", this.postData());
-        return;
-      }
+        // Si aucune promesse, on déclenche l'événement de succès et on quitte
+        if (!promise) {
+          this.$emit('onSuccess', this.postData());
+          return;
+        }
 
-      this.bSending = true;
+        this.bSending = true;
 
-      // Vérification des stores à mettre à jour (cas des combobox avec returnObject)
-      const updateStores = [];
-      for (const [key, formDef] of Object.entries(this.config.formDefs)) {
-        if (
-        formDef.storeName &&
-        formDef.returnObject &&
-        formDef.list_type == "combobox" // uniquement pour les combobox avec returnObject
-        ) {
-        let values = this.baseModel[key];
-        values = formDef.multiple ? values : [values];
-        const configStore = this.$store.getters.configStore(
-          formDef.storeName
+        // Vérification des stores à mettre à jour (cas des combobox avec returnObject)
+        const updateStores = [];
+        for (const [key, formDef] of Object.entries(this.config.formDefs)) {
+          if (
+            formDef.storeName &&
+            formDef.returnObject &&
+            formDef.list_type == 'combobox' // uniquement pour les combobox avec returnObject
+          ) {
+            let values = this.baseModel[key];
+            values = formDef.multiple ? values : [values];
+            const configStore = this.$store.getters.configStore(formDef.storeName);
+            const idFieldName = configStore.idFieldName;
+            const condReload = values.some((v) => v && !v[idFieldName]);
+            if (condReload) {
+              updateStores.push({ storeName: formDef.storeName, key });
+            }
+          }
+        }
+
+        // Exécution de la promesse (requête ou action store)
+        promise.then(
+          (data) => {
+            this.bSending = false;
+            this.$emit('onSuccess', data);
+
+            // Affichage du message de succès si le formulaire n'est pas enchaîné
+            if (!this.config.bChained) {
+              this.bSuccess = true;
+              this.msgSuccess = 'La requête à été effectuée avec succès';
+            }
+
+            // Exécution de la fonction personnalisée onSuccess si définie
+            if (this.config.action.onSuccess) {
+              this.config.action.onSuccess({
+                data,
+                $session: this.$session,
+                $store: this.$store,
+                $router: this.$router,
+                $route: this.$route,
+                id: this.idModel,
+              });
+            }
+
+            // Mise à jour des stores concernés
+            for (const updateStore of updateStores) {
+              let values = this.baseModel[updateStore.key];
+              values = this.config.formDefs[updateStore.key].multiple ? values : [values];
+              const configStore = this.$store.getters.configStore(updateStore.storeName);
+              this.$store.commit(configStore.storeNames, values);
+            }
+
+            // Gestion du mode d'affichage après succès
+            if (this.switchDisplay) {
+              this.displayValue = true;
+            } else if (!this.config.bChained) {
+              this.bRequestSuccess = true;
+            }
+          },
+          (error) => {
+            this.bSending = false;
+            this.bError = true;
+            this.msgError = `Erreur avec la requête : ${error.msg}`;
+          }
         );
-        const idFieldName = configStore.idFieldName;
-        const condReload = values.some(v => v && !v[idFieldName]);
-        if (condReload) {
-          updateStores.push({ storeName: formDef.storeName, key });
-        }
-        }
-      }
-
-      // Exécution de la promesse (requête ou action store)
-      promise.then(
-        data => {
-        this.bSending = false;
-        this.$emit("onSuccess", data);
-
-        // Affichage du message de succès si le formulaire n'est pas enchaîné
-        if (!this.config.bChained) {
-          this.bSuccess = true;
-          this.msgSuccess = "La requête à été effectuée avec succès";
-        }
-
-        // Exécution de la fonction personnalisée onSuccess si définie
-        if (this.config.action.onSuccess) {
-          this.config.action.onSuccess({
-          data,
-          $session: this.$session,
-          $store: this.$store,
-          $router: this.$router,
-          $route: this.$route,
-          id: this.idModel
-          });
-        }
-
-        // Mise à jour des stores concernés
-        for (const updateStore of updateStores) {
-          let values = this.baseModel[updateStore.key];
-          values = this.config.formDefs[updateStore.key].multiple
-          ? values
-          : [values];
-          const configStore = this.$store.getters.configStore(
-          updateStore.storeName
-          );
-          this.$store.commit(configStore.storeNames, values);
-        }
-
-        // Gestion du mode d'affichage après succès
-        if (this.switchDisplay) {
-          this.displayValue = true;
-        } else if (!this.config.bChained) {
-          this.bRequestSuccess = true;
-        }
-        },
-        error => {
-        this.bSending = false;
-        this.bError = true;
-        this.msgError = `Erreur avec la requête : ${error.msg}`;
-        }
-      );
       }, 100);
     },
-
 
     /**
      * Met à jour le modèle de base du formulaire (`baseModel`) avec de nouvelles valeurs.
@@ -473,13 +467,13 @@ export default {
     updateBaseModel(baseModel) {
       setTimeout(() => {
         this.$nextTick(() => {
-        if (this.baseModel) {
-          for (const [key, value] of Object.entries(baseModel || {})) {
-          this.baseModel[key] = value;
+          if (this.baseModel) {
+            for (const [key, value] of Object.entries(baseModel || {})) {
+              this.baseModel[key] = value;
+            }
           }
-        }
         });
-      }, 100)
+      }, 100);
     },
 
     /**
@@ -503,15 +497,17 @@ export default {
      * @returns {Promise} La promesse de la requête API.
      */
     request() {
-      return apiRequest(this.method, this.url, {
-        postData: this.postData()
-      }, this.$store);
-    }
-
-
+      return apiRequest(
+        this.method,
+        this.url,
+        {
+          postData: this.postData(),
+        },
+        this.$store
+      );
+    },
   },
   data: () => ({
-
     bValidForm: null, // Indique si le formulaire est valide (utilisé par Vuetify)
     bInit: false, // Indique si le formulaire est initialisé et prêt à être affiché
     baseModel: null, // Modèle de base contenant les valeurs des champs du formulaire
@@ -523,8 +519,8 @@ export default {
     bRequestSuccess: false, // Indique si la requête a été effectuée avec succès (affiche le slot de succès)
     bSending: false, // Indique si une requête est en cours d'envoi (affiche le loader)
     recompConfig: true, // Permet de forcer la recompilation de la config si besoin
-    displayValue: null // Indique si le formulaire est en mode affichage des valeurs (lecture) ou édition
-  })
+    displayValue: null, // Indique si le formulaire est en mode affichage des valeurs (lecture) ou édition
+  }),
 };
 </script>
 

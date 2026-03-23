@@ -1,5 +1,5 @@
-import { copy } from "@/core/js/util/util";
-import formDefsUser from "./form-defs-user";
+import { copy } from '@/core/js/util/util';
+import formDefsUser from './form-defs-user';
 
 const formDefsUserCopy = copy(formDefsUser);
 formDefsUserCopy.email.disabled = true;
@@ -7,20 +7,13 @@ formDefsUserCopy.id_organisme.disabled = true;
 
 export default {
   formDefs: formDefsUserCopy,
-  forms: [
-    "nom_role",
-    "prenom_role",
-    "email",
-    "id_organisme",
-    "desc_role",
-    "accept_email"
-  ],
+  forms: ['nom_role', 'prenom_role', 'email', 'id_organisme', 'desc_role', 'accept_email'],
   preloadData: ({ $store, config }) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       Promise.all([
-        $store.dispatch("userInfo", $store.getters.user.id_role),
-        $store.dispatch("organismes")
-      ]).then(data => {
+        $store.dispatch('userInfo', $store.getters.user.id_role),
+        $store.dispatch('organismes'),
+      ]).then((data) => {
         const value = data[0];
         config.value = value;
         resolve();
@@ -30,7 +23,7 @@ export default {
   switchDisplay: true,
   displayValue: true,
   displayLabel: true,
-  title: "Informations",
+  title: 'Informations',
   action: {
     preProcess: ({ baseModel, globalConfig }) => {
       baseModel.groupe = false;
@@ -49,8 +42,8 @@ export default {
       return baseModel;
     },
     request: {
-      url: "register/post_usershub/update_user",
-      method: "POST",
-    }
-  }
+      url: 'register/post_usershub/update_user',
+      method: 'POST',
+    },
+  },
 };

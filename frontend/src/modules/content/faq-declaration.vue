@@ -3,9 +3,17 @@
   <div>
     <v-row justify="center">
       <v-expansion-panels>
-        <v-expansion-panel v-for="(item, index) in faq" :key="index">
+        <v-expansion-panel
+          v-for="(item, index) in faq"
+          :key="index"
+        >
           <v-expansion-panel-header>
-            <span style="line-height:23px" v-html="item.question">{{ item.question }}</span>
+            <span
+              style="line-height: 23px"
+              v-html="item.question"
+            >
+              {{ item.question }}
+            </span>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
             <div v-html="item.response"></div>
@@ -18,41 +26,40 @@
 
 <script>
 export default {
-  name: "faqDeclaration",
+  name: 'faqDeclaration',
   data: () => ({
     faq: [
       {
-        question: "<b>Quels types de dégâts puis-je puis signaler ?</b>",
-        response:
-          `Vous pouvez signaler des dégâts d’abroutissement, de frottis et d’écorçage, ou signaler une absence de régénération qui vous semble anormale et pourrait être liée à la présence de cervidés.
+        question: '<b>Quels types de dégâts puis-je puis signaler ?</b>',
+        response: `Vous pouvez signaler des dégâts d’abroutissement, de frottis et d’écorçage, ou signaler une absence de régénération qui vous semble anormale et pourrait être liée à la présence de cervidés.
           <br><br> Vous pouvez également signaler des dégâts de sanglier ou des dommages provoqués sur vos pistes, clôtures ou murets.
-          <br><br> Les différents types de dégâts sont décrits et présentés <a href="#/declaration/degat_grand_gibier">ici</a>.`
-      },
-{
-  question: "<b>Comment signaler des dégâts ?</b>",
-        response:
-          `Rien de plus simple !
-          <br><br> Connectez à votre compte « utilisateur » (si vous ne l’avez pas encore fait, <a href="#/user/creer_utilisateur">vous pouvez vous inscrire ici</a>), et suivez les étapes du formulaire en ligne.`
+          <br><br> Les différents types de dégâts sont décrits et présentés <a href="#/declaration/degat_grand_gibier">ici</a>.`,
       },
       {
-        question: "<b>Combien de temps cela va-t-il me prendre ?</b>",
+        question: '<b>Comment signaler des dégâts ?</b>',
+        response: `Rien de plus simple !
+          <br><br> Connectez à votre compte « utilisateur » (si vous ne l’avez pas encore fait, <a href="#/user/creer_utilisateur">vous pouvez vous inscrire ici</a>), et suivez les étapes du formulaire en ligne.`,
+      },
+      {
+        question: '<b>Combien de temps cela va-t-il me prendre ?</b>',
         response:
-          "Le renseignement du formulaire d’alerte en ligne se veut relativement rapide et ne vous prendra en moyenne qu'entre 10 et 20 minutes."
+          "Le renseignement du formulaire d’alerte en ligne se veut relativement rapide et ne vous prendra en moyenne qu'entre 10 et 20 minutes.",
       },
       {
         question: "<b>Ma forêt est-elle incluse dans le périmètre de l'Observatoire ?</b>",
         response: `Le périmètre de l'Observatoire est constitué de l'ensemble des communes en partie incluses ou frontalières au coeur du Parc national des Cévennes.
-                  <br><br> Pour vérifier si votre forêt est située dans ce périmètre, consultez <a href='#/observatoire/perimetre'>la carte présentée ici</a>.`
+                  <br><br> Pour vérifier si votre forêt est située dans ce périmètre, consultez <a href='#/observatoire/perimetre'>la carte présentée ici</a>.`,
       },
       {
-        question: "<b>Ai-je besoin d'aller collecter des informations en forêt pour déclarer des dégâts ?</b>",
-        response:  `Pas nécessairement, si vous connaissez suffisamment votre forêt et le peuplement touché.
+        question:
+          "<b>Ai-je besoin d'aller collecter des informations en forêt pour déclarer des dégâts ?</b>",
+        response: `Pas nécessairement, si vous connaissez suffisamment votre forêt et le peuplement touché.
         <br><br> Le formulaire contient des questions simples.
         Il a été conçu afin de pouvoir être renseigné sur la base des connaissances élémentaires que vous avez de votre forêt.
-        <br><br> À partir des simples observations effectuées lorsque vous avez constaté les dégâts, vous devriez donc pouvoir remplir le formulaire directement depuis chez vous, devant votre ordinateur.`
+        <br><br> À partir des simples observations effectuées lorsque vous avez constaté les dégâts, vous devriez donc pouvoir remplir le formulaire directement depuis chez vous, devant votre ordinateur.`,
       },
       {
-        question: "<b>Quel est mon intérêt à déclarer des dégâts ?</b>",
+        question: '<b>Quel est mon intérêt à déclarer des dégâts ?</b>',
         response: `En renseignant un formulaire d’alerte, vous :
 <ul>
   <li>
@@ -71,14 +78,16 @@ export default {
       ouvrez la possibilité à votre forêt de bénéficier d’un diagnostic sylvicole qui permettra d’évaluer précisément et objectivement les dégâts subis au regard de vos objectifs sylvicoles.
   </li>
 </ul>
-`
+`,
       },
       {
-        question: "<b>Les informations fournies resteront-elles confidentielles ?</b>",
-        response: "<b>Oui !</b> Soyez rassuré(e), toutes les informations fournies restent strictement confidentielles et ne seront pas utilisées à des fins commerciales ou publicitaires. Les données issues du système d’alerte seront traitées de façon globale, et non nominative."
+        question: '<b>Les informations fournies resteront-elles confidentielles ?</b>',
+        response:
+          '<b>Oui !</b> Soyez rassuré(e), toutes les informations fournies restent strictement confidentielles et ne seront pas utilisées à des fins commerciales ou publicitaires. Les données issues du système d’alerte seront traitées de façon globale, et non nominative.',
       },
       {
-        question: "<b>J’ai déjà déclaré des dégâts, à l’époque, par l’intermédiaire du syndicat de propriétaires forestiers, et rien n’a été fait : quelle différence cette fois-ci ?</b>",
+        question:
+          '<b>J’ai déjà déclaré des dégâts, à l’époque, par l’intermédiaire du syndicat de propriétaires forestiers, et rien n’a été fait : quelle différence cette fois-ci ?</b>',
         response: `
 <p>
 Vous avez déjà, par le passé, pris la peine de renseigner une déclaration de dégâts de gibier, et vous avez peut-être été déçu de voir que rien n’avait été fait ensuite, ou vous avez l’impression que cela n’a servi à rien ?
@@ -95,10 +104,9 @@ Ce système d’alerte permettra également de suivre l’évolution de la situa
 <p>
 Enfin, certains peuplements feront l’objet d’un diagnostic approfondi qui évaluera précisément et objectivement les dégâts subis au regard de vos objectifs sylvicoles.
 </p>
-        `
+        `,
       },
-    ]
+    ],
   }),
 };
 </script>
-

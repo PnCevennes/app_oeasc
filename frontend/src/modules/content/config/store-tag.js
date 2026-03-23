@@ -1,23 +1,23 @@
 export default {
-  group: "commons",
-  name: "tag",
-  label: "Tag",
+  group: 'commons',
+  name: 'tag',
+  label: 'Tag',
   serverSide: true,
   defs: {
     id_tag: {
-      label: "ID",
-      type: "text",
-      hidden: true
+      label: 'ID',
+      type: 'text',
+      hidden: true,
     },
     nom_tag: {
-      label: "Nom",
-      type: "text",
-      required: true
+      label: 'Nom',
+      type: 'text',
+      required: true,
     },
     code_tag: {
-      label: "Code",
-      type: "text",
-      required: true
-    }
-  }
+      label: 'Code',
+      type: 'text',
+      required: true,
+    },
+  },
 };

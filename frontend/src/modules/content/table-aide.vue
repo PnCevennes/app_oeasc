@@ -1,29 +1,34 @@
 <template>
-    <div>
+  <div>
     <div class="small-table"></div>
-    <v-simple-table dense class="small-table"  id="contacts">
-      <col width="30%">
-      <col width="20%">
-      <col width="15%">
-      <col width="25%">
+    <v-simple-table
+      dense
+      class="small-table"
+      id="contacts"
+    >
+      <col width="30%" />
+      <col width="20%" />
+      <col width="15%" />
+      <col width="25%" />
       <thead class="thead-light">
-
         <tr>
           <th scope="col">Structure</th>
           <th scope="col">Nom</th>
           <th scope="col">Téléphone</th>
           <th scope="col">E-mail</th>
         </tr>
-
       </thead>
 
       <tbody>
-
         <tr>
           <td>Établissement public du Parc national des Cévennes</td>
           <td>ALGOËT Baptiste</td>
           <td>04 66 49 53 60</td>
-          <td><a href="mailto:baptiste.algoet@cevennes-parcnational.fr">baptiste.algoet@cevennes-parcnational.fr</a></td>
+          <td>
+            <a href="mailto:baptiste.algoet@cevennes-parcnational.fr">
+              baptiste.algoet@cevennes-parcnational.fr
+            </a>
+          </td>
         </tr>
 
         <tr>
@@ -58,24 +63,25 @@
           <td>Chambre d'agriculture de la Lozère</td>
           <td>JAUVERT Frédéric</td>
           <td>04 66 65 62 00</td>
-          <td><a href="mailto:frederic.jauvert@lozere.chambagri.fr">frederic.jauvert@lozere.chambagri.fr</a></td>
+          <td>
+            <a href="mailto:frederic.jauvert@lozere.chambagri.fr">
+              frederic.jauvert@lozere.chambagri.fr
+            </a>
+          </td>
         </tr>
-
       </tbody>
-
     </v-simple-table>
-</div>
-
+  </div>
 </template>
 
 <script>
 export default {
-    name: "tableAide",  
-}
+  name: 'tableAide',
+};
 </script>
 
 <style scoped>
-    .small-table td{
-        font-size: 0.9em;
-    }
+.small-table td {
+  font-size: 0.9em;
+}
 </style>

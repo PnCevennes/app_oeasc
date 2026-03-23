@@ -1,8 +1,6 @@
 // Fonctions de permettant de traiter les données du fichier `config/menu.js`
 
-import { menus } from '@/config/menu.js'
-
-
+import { menus } from '@/config/menu.js';
 
 /**
  * Traite le nom d'une route et retourne les informations associées à cette route.
@@ -20,7 +18,7 @@ import { menus } from '@/config/menu.js'
  * - Pour la propriété 'path', si le dernier segment est un paramètre dynamique (commence par ':'), il est remplacé par une chaîne vide.
  * - Retourne un objet contenant les propriétés traitées de la route, ou un objet vide si la route n'existe pas.
  */
-const processRouteName = function(routeName, { $store, $router }) {
+const processRouteName = function (routeName, { $store, $router }) {
   // Fonction qui premet de retourner les données relatives à une route
   //    à partir de son nom
 
@@ -30,29 +28,27 @@ const processRouteName = function(routeName, { $store, $router }) {
   }
 
   // Récupération de la définition de la route à partir de son nom
-  const route = $router.options.routes.find(route => route.name == routeName);
+  const route = $router.options.routes.find((route) => route.name == routeName);
 
   // Object qui condiendra les information de la route
   const processRoute = {};
 
   if (!route) {
     // console.error(`route ${routeName} non définie`)
-    return {}
+    return {};
   }
 
   for (const key of Object.keys(route)) {
-    if (key == "component") {
+    if (key == 'component') {
       continue;
     }
     // Si c'est une fonction, passage du store à la fonction
-    processRoute[key] =
-      typeof route[key] == "function" ? route[key]({ $store }) : route[key];
+    processRoute[key] = typeof route[key] == 'function' ? route[key]({ $store }) : route[key];
     // ? pourquoi traiter path
     if (key == 'path') {
       const paths = route[key].split('/');
-      if (paths[paths.length -1 ][0]==':') {
-        paths[paths.length -1 ] = "";
-
+      if (paths[paths.length - 1][0] == ':') {
+        paths[paths.length - 1] = '';
       }
       route[key] = paths.join('/');
     }
@@ -61,7 +57,6 @@ const processRouteName = function(routeName, { $store, $router }) {
   return processRoute;
 };
 
-
 /**
  * Traite les données d'un menu et enrichit ses propriétés.
  *
@@ -69,7 +64,7 @@ const processRouteName = function(routeName, { $store, $router }) {
  * @param {*} param1 - Un objet contenant le store et le router de l'application.
  * @returns {Object} Un nouvel objet menu enrichi avec les propriétés de la route et les valeurs calculées.
  */
-const processMenu = function(menu, { $store, $router }) {
+const processMenu = function (menu, { $store, $router }) {
   // On crée une copie superficielle du menu pour éviter de modifier l'original
   let menuOut = { ...menu };
 
@@ -83,21 +78,18 @@ const processMenu = function(menu, { $store, $router }) {
   for (const key of Object.keys(menuOut)) {
     // Si la propriété est une fonction, on l'exécute en lui passant le store
     // Cela permet d'obtenir la valeur dynamique de la propriété
-    menuOut[key] =
-      typeof menuOut[key] === "function" ? menuOut[key]({ $store }) : menuOut[key];
+    menuOut[key] = typeof menuOut[key] === 'function' ? menuOut[key]({ $store }) : menuOut[key];
   }
 
   // On retourne l'objet menu enrichi et prêt à être utilisé dans l'application
   return menuOut;
 };
 
-
-
 /**
- * 
- * @param {*} menuName 
- * @param {*} param1 
- * @returns 
+ *
+ * @param {*} menuName
+ * @param {*} param1
+ * @returns
  */
 /**
  * Configure et traite une entrée de menu à partir du fichier `config/menu.js`.
@@ -113,16 +105,14 @@ const processMenu = function(menu, { $store, $router }) {
  * @param {Object} context.$router - L'instance du routeur (navigation de l'application).
  * @returns {Object} Un objet représentant le menu configuré, incluant ses sous-menus filtrés (non cachés).
  */
-const configMenu = function(menuName, { $store, $router }) {
-
+const configMenu = function (menuName, { $store, $router }) {
   const menu = processMenu(menus[menuName], { $store, $router });
-
 
   return {
     ...menu,
     menus: (menu.names || []) // Si menu à des sous éléments => traitement de ces derniers
-      .map(name => processRouteName(name, { $store, $router }))
-      .filter(menu => !menu.hidden)
+      .map((name) => processRouteName(name, { $store, $router }))
+      .filter((menu) => !menu.hidden),
   };
 };
 

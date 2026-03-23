@@ -1,9 +1,8 @@
-import domtoimage from "dom-to-image";
-import html2pdf from "html2pdf.js";
-import html2canvas from "html2canvas";
+import domtoimage from 'dom-to-image';
+import html2pdf from 'html2pdf.js';
+import html2canvas from 'html2canvas';
 
 const mapExport = {
-
   /**
    * Génère une image à partir d'un élément de carte et l'ajoute au DOM.
    *
@@ -25,11 +24,11 @@ const mapExport = {
    * - Cache l'élément source après l'export.
    */
   toImg(options = {}) {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       let elem = document.getElementById(this._id);
 
       // Preprocess
-      elem.classList.add("map-img");
+      elem.classList.add('map-img');
 
       this.heightSave = Math.floor(elem.clientHeight);
       this.widthSave = Math.floor(elem.clientWidth);
@@ -49,26 +48,25 @@ const mapExport = {
         html2canvas(elem, {
           height,
           width,
-          useCORS: true
-        }).then(canvas => {
+          useCORS: true,
+        }).then((canvas) => {
           let img = new Image();
-          img.src = options.format === "jpg"
-            ? canvas.toDataURL("image/jpeg")
-            : canvas.toDataURL("image/png");
+          img.src =
+            options.format === 'jpg'
+              ? canvas.toDataURL('image/jpeg')
+              : canvas.toDataURL('image/png');
           img.style.height = elem.style.height;
           img.style.width = elem.style.width;
           elem.after(img);
 
           // Hide elem
-          elem.style.display = "none";
+          elem.style.display = 'none';
 
           resolve(elem);
         });
       }, 2000);
     });
   },
-
-
 
   /**
    * Génère et télécharge une image du composant de carte au format spécifié.
@@ -84,15 +82,15 @@ const mapExport = {
    * - Crée dynamiquement un lien de téléchargement et déclenche le téléchargement du fichier image.
    * - Réinitialise le style de la carte après l'exportation.
    */
-  toImgFile(options = { format: "png", filename: "map" }) {
-    return new Promise(resolve => {
-      this.toImg(options).then(mapElem => {
+  toImgFile(options = { format: 'png', filename: 'map' }) {
+    return new Promise((resolve) => {
+      this.toImg(options).then((mapElem) => {
         const img = mapElem.nextElementSibling;
         const base64 = img.src;
-        var link = document.createElement("a");
+        var link = document.createElement('a');
         document.body.appendChild(link); // for Firefox
-        link.setAttribute("href", base64);
-        link.setAttribute("download", options.filename);
+        link.setAttribute('href', base64);
+        link.setAttribute('download', options.filename);
         link.click();
         this.resetMapStyle(mapElem);
         resolve(mapElem);
@@ -100,13 +98,11 @@ const mapExport = {
     });
   },
 
-
-
   /**
    * Réinitialise le style de la carte après une exportation ou une modification.
-   * 
+   *
    * @param {HTMLElement} elem - L'élément DOM représentant la carte à réinitialiser.
-   * 
+   *
    * Cette méthode effectue les opérations suivantes :
    * - Supprime l'image exportée qui suit immédiatement l'élément de la carte.
    * - Retire la classe CSS "map-img" de l'élément pour restaurer son style original.
@@ -118,15 +114,13 @@ const mapExport = {
   resetMapStyle(elem) {
     const img = elem.nextElementSibling;
     img.remove();
-    elem.classList.remove("map-img");
-    elem.style.display = "block";
-    elem.style.width = this.widthSave + "px";
-    elem.style.height = this.heightSave + "px";
+    elem.classList.remove('map-img');
+    elem.style.display = 'block';
+    elem.style.width = this.widthSave + 'px';
+    elem.style.height = this.heightSave + 'px';
     this._map.invalidateSize();
     this.reinitZoom();
-  }
-
-
+  },
 };
 
 export { mapExport };

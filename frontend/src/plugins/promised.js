@@ -1,6 +1,5 @@
 // code non utilisé
 
-
 // import Vue from 'vue'
 // import { Promised, usePromise } from 'vue-promised'
 
@@ -13,5 +12,5 @@
 //     return {
 //       ...promised,
 //     }
-//   }, 
+//   },
 // }

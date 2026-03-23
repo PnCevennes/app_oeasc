@@ -1,5 +1,5 @@
-import { config } from "@/config/config.js";
-import { isObject } from "@/core/js/util/util.js";
+import { config } from '@/config/config.js';
+import { isObject } from '@/core/js/util/util.js';
 
 /**
  * @constant
@@ -13,7 +13,7 @@ const STORE = {};
 const BASE_URL = config.URL_APPLICATION;
 
 // initialisation de l'objet STORE
-for (const key of ["state", "mutations", "getters"]) {
+for (const key of ['state', 'mutations', 'getters']) {
   STORE[key] = STORE[key] || {};
 }
 // si la clé 'pendings' n'existe pas
@@ -57,12 +57,12 @@ var url = (urlRelative, params = {}) => {
   Object.keys(params)
     // On filtre les clés dont la valeur n'est ni null ni undefined
     .filter((key) => ![null, undefined].includes(params[key]))
-    .forEach(
-      key => isObject(params[key])
-        // Si la valeur du paramètre est un objet (ex: un dictionnaire), on le convertit en chaîne JSON
-        ? url.searchParams.append(key, JSON.stringify(params[key]))
-        // Sinon, on ajoute la valeur telle quelle dans la query string
-        : url.searchParams.append(key, params[key])
+    .forEach((key) =>
+      isObject(params[key])
+        ? // Si la valeur du paramètre est un objet (ex: un dictionnaire), on le convertit en chaîne JSON
+          url.searchParams.append(key, JSON.stringify(params[key]))
+        : // Sinon, on ajoute la valeur telle quelle dans la query string
+          url.searchParams.append(key, params[key])
     );
   // On retourne l'objet URL final avec tous les paramètres ajoutés
   return url;
@@ -72,11 +72,10 @@ var url = (urlRelative, params = {}) => {
 // lors de l'appel à une API
 // elle affiche un message d'erreur dans la console
 // et renvoie une erreur
-var fail = msg => {
+var fail = (msg) => {
   console.error(`apiRequest fail : ${msg}`);
 };
 
- 
 /**
  * Fonction asynchrone permettant de récupérer des données depuis une API via une requête GET.
  * @param {*} urlRelative - L'URL relative de l'API à interroger.
@@ -89,12 +88,12 @@ const fetchData = async (urlRelative, options = {}) => {
 
   // Préparation des options pour la requête fetch
   var fetchOptions = {
-    "method": "GET", // Méthode HTTP utilisée : GET
-    "headers": {
-      "Content-Type": "application/json", // Type de contenu attendu en réponse
+    method: 'GET', // Méthode HTTP utilisée : GET
+    headers: {
+      'Content-Type': 'application/json', // Type de contenu attendu en réponse
       ...options.headers, // Fusion des éventuels headers supplémentaires passés en option
     },
-    credentials: "include" // Permet d'envoyer les cookies avec la requête (authentification, session, etc.)
+    credentials: 'include', // Permet d'envoyer les cookies avec la requête (authentification, session, etc.)
   };
 
   try {
@@ -112,8 +111,6 @@ const fetchData = async (urlRelative, options = {}) => {
   }
 };
 
-
-
 /**
  * Effectue une requête API.
  * @param {*} method - La méthode HTTP à utiliser (GET, POST, etc.).
@@ -123,7 +120,6 @@ const fetchData = async (urlRelative, options = {}) => {
  * @returns {Promise} - Une promesse qui se résout avec la réponse de l'API.
  */
 var apiRequest = (method, urlRelative, options = {}, $store = null) => {
-
   // On construit l'URL complète de l'API à partir de l'URL relative et des paramètres éventuels
   const url_ = url(urlRelative, options.params);
 
@@ -131,7 +127,7 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
   let commit; // Variable pour savoir si on doit enregistrer la requête dans le store
 
   // Gestion des requêtes GET pour éviter les doublons si une requête identique est déjà en cours
-  if (method == "GET" && $store) {
+  if (method == 'GET' && $store) {
     // On récupère la requête en cours depuis le store (si elle existe)
     request = $store.getters.pendings(url_.href);
     // Si aucune requête n'est en cours, on indique qu'il faudra l'enregistrer
@@ -146,25 +142,26 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
     new Promise((resolve, reject) => {
       var fetchOptions = {
         method, // Méthode HTTP (GET, POST, PATCH, etc.)
-        credentials: "include" // Permet d'envoyer les cookies avec la requête
+        credentials: 'include', // Permet d'envoyer les cookies avec la requête
       };
 
       // Gestion des requêtes POST et PATCH
-      if (["POST", "PATCH"].includes(method)) {
+      if (['POST', 'PATCH'].includes(method)) {
         const postOptions = {};
         // Si les données à envoyer contiennent un fichier
-        if (options.postData && Object.values(options.postData).some(d => d instanceof File)) {
+        if (options.postData && Object.values(options.postData).some((d) => d instanceof File)) {
           var data = new FormData();
           // On ajoute chaque donnée dans le FormData (pour l'envoi de fichiers)
           for (const [key, value] of Object.entries(options.postData || {})) {
             data.append(key, value);
           }
           postOptions.body = data;
-        } else { // Si les données ne contiennent pas de fichier
+        } else {
+          // Si les données ne contiennent pas de fichier
           postOptions.body = JSON.stringify(options.postData || {});
           postOptions.headers = {
-            Accept: "application/json, text/plain, */*",
-            "Content-Type": "application/json"
+            Accept: 'application/json, text/plain, */*',
+            'Content-Type': 'application/json',
           };
         }
         // On fusionne les options spécifiques POST/PATCH avec les options de base
@@ -173,32 +170,34 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
 
       // Exécution de la requête fetch
       fetch(url_, fetchOptions).then(
-        response => {
+        (response) => {
           // Pour les requêtes GET, on retire la requête du store une fois terminée
-          if (method == "GET" && $store) {
-            $store.commit("removePending", url_.href);
+          if (method == 'GET' && $store) {
+            $store.commit('removePending', url_.href);
           }
 
           // Liste des statuts HTTP considérés comme acceptés (par défaut 200)
           const acceptedStatus = options.acceptedStatus || [200];
-          if (acceptedStatus.includes(response.status)) { // Si la requête a réussi
+          if (acceptedStatus.includes(response.status)) {
+            // Si la requête a réussi
             // On récupère la réponse au format JSON et on résout la promesse
             response.json().then(
-              json => {
+              (json) => {
                 resolve(json);
               },
-              error => {
+              (error) => {
                 reject(error);
               }
             );
-          } else { // Si la requête a échoué (statut non accepté)
+          } else {
+            // Si la requête a échoué (statut non accepté)
             if (response.json) {
               // On tente de récupérer le message d'erreur au format JSON
               response.json().then(
-                json => {
+                (json) => {
                   reject(json);
                 },
-                error => {
+                (error) => {
                   reject(error);
                 }
               );
@@ -210,10 +209,10 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
         },
 
         // Gestion des erreurs réseau ou d'exécution
-        msg_fail => {
+        (msg_fail) => {
           // Pour les requêtes GET, on retire la requête du store en cas d'échec
-          if (method == "GET" && $store) {
-            $store.commit("removePending", url_.href);
+          if (method == 'GET' && $store) {
+            $store.commit('removePending', url_.href);
           }
           // Affichage d'un message d'erreur dans la console
           console.error(`Erreur dans apiRequest ${urlRelative} ${msg_fail}`);
@@ -225,27 +224,23 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
 
   // Si commit est vrai, on enregistre la requête en cours dans le store (pour éviter les doublons)
   if (commit) {
-    $store.commit("addPending", {
+    $store.commit('addPending', {
       api: url_.href,
-      request
+      request,
     });
   }
   // On retourne la promesse de la requête
   return request;
 };
 
-
-
-
 /**
- * 
+ *
  * @param {*} method => "GET", "POST", "PATCH", etc.
- * @param {*} urlRelative => "api/v1/users", etc. 
+ * @param {*} urlRelative => "api/v1/users", etc.
  * @param {*} body => Données à envoyer dans le corps de la requête (JSON ou FormData)
  * @param {*} options => Options supplémentaires pour fetch (headers, etc.): ex: { headers: { Authorization: 'Bearer token' } }
  * @returns => Promesse résolue avec les données JSON de la réponse
  */
-
 
 const simple_fetch = async (method, urlRelative, body = null, options = {}) => {
   const url = `${BASE_URL}${urlRelative}`;
@@ -253,10 +248,10 @@ const simple_fetch = async (method, urlRelative, body = null, options = {}) => {
   const configRequest = {
     method: method.toUpperCase(),
     // Indispensable pour que Flask puisse lire/écrire le cookie de session
-    credentials: 'include', 
+    credentials: 'include',
     ...options,
     headers: {
-      'Accept': 'application/json',
+      Accept: 'application/json',
       ...options.headers,
     },
   };
@@ -285,12 +280,10 @@ const simple_fetch = async (method, urlRelative, body = null, options = {}) => {
     }
 
     return await response.json();
-
   } catch (error) {
     console.error('Erreur API:', error.message);
     throw error;
   }
 };
-
 
 export { apiRequest, url, fetchData, STORE, simple_fetch };

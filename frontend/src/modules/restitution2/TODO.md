@@ -1,9 +1,9 @@
 # TODO
 
-- changer fonction sql `oeasc_chasse.fct_custom_results_t` en fonction python qui construit la requete *a la main*
+- changer fonction sql `oeasc_chasse.fct_custom_results_t` en fonction python qui construit la requete _a la main_
 
 - changer la sortie de l'api `api/resultat/custom/`
-  - dans le cas des données *ramifiées* avec le champs `field_name_2`
+  - dans le cas des données _ramifiées_ avec le champs `field_name_2`
   - pour simplifie le code de process des données en frontend du fichier `frontend/src/modules/restitution2/process/graph-custom.js`
 
 - ajouter un choix de palette de couleur

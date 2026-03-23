@@ -1,6 +1,5 @@
 <template>
-<div>
-</div>
+  <div></div>
 </template>
 
 <script>
@@ -10,27 +9,27 @@ export default {
   name: 'logout',
   data: () => ({
     msg: '',
-    bMsg: false
+    bMsg: false,
   }),
-  created: function() {
+  created: function () {
     apiRequest('GET', 'auth/logout?redirect=/api/user/logout_external', {
-      acceptedStatus: [200, 302]
+      acceptedStatus: [200, 302],
     }).then(
       () => {
         this.msg = "Déconnexion réussie, redirection vers la page d'accueil";
-        this.$session.set('user', null)
-        this.$store.commit('user', null)
+        this.$session.set('user', null);
+        this.$store.commit('user', null);
         this.bMsg = true;
         setTimeout(() => {
           this.$router.push('observatoire/presentation');
         }, 1000);
       },
-      error => {
+      (error) => {
         this.msg = `Error logout : ${error}`;
         this.bMsg = true;
       }
     );
-  }
+  },
 };
 </script>
 

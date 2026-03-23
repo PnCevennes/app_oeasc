@@ -1,18 +1,18 @@
 export default {
   degats_caracterisation: {
-    title: "Caratérisation des dégâts",
+    title: 'Caratérisation des dégâts',
     groups: [
       {
-        forms: ["degats"]
-      }
-    ]
+        forms: ['degats'],
+      },
+    ],
   },
   degats_precision_localisation: {
-    title: "Précisions sur la localisation des dégâts",
+    title: 'Précisions sur la localisation des dégâts',
     groups: [
       {
-        forms: ["precision_localisation"]
-      }
-    ]
-  }
+        forms: ['precision_localisation'],
+      },
+    ],
+  },
 };

@@ -1,23 +1,23 @@
-import configTagForm from "./form-tag";
+import configTagForm from './form-tag';
 
 export default {
-  storeName: "commonsTag",
+  storeName: 'commonsTag',
   dense: true,
   striped: true,
   small: true,
   configForm: configTagForm,
   headerDefs: {
     id_tag: {
-      text: "Id"
+      text: 'Id',
     },
     nom_tag: {
-      text: "Nom"
+      text: 'Nom',
     },
     code_tag: {
-      text: "Code"
+      text: 'Code',
     },
   },
-  sortBy: ["nom_tag"],
+  sortBy: ['nom_tag'],
   sortDesc: [true],
   label: 'nom_tag',
 };

@@ -54,8 +54,6 @@
             </div>
             <div v-else>Indiquez les essences concernées <i>(3 maximum)</i>.</div>
 
-
-            <!-- ------------------------- entete du tableau des essences touchées ------------------------- -->
             <div class="flex-container flex-row flex-5">
               <div>
                 <b><span v-if="item.cd_nomenclature != 'ABS'">Essence</span></b>
@@ -83,7 +81,6 @@
               <div></div>
             </div>
 
-            <!-- ------------------------- liste des essences touchées ------------------------- -->
             <div
               class="flex-container flex-row flex-5"
               v-for="degat_essence of baseModel.degats.find(
@@ -145,7 +142,6 @@
               </div>
             </div>
 
-            <!-- ---------------------- Formulaire pour ajouter une essence touchée ---------------------- -->
 
             <div
               v-if="
@@ -224,7 +220,6 @@
               </div>
             </div>
 
-            <!-- ---------------------- Bouton Ajouter une essence touchée ---------------------- -->
             
             <div>
               <v-btn
@@ -352,7 +347,7 @@
 //           required: true,
 //           nomenclatureType: "OEASC_DEGAT_GRAVITE",
 //           rules: [formFunctions.rules.requiredListSimple]
-//         }, 
+//         },
 //         etendue: {
 //           name: "etendue",
 //           type: "nomenclature",
@@ -446,9 +441,7 @@
 // };
 </script>
 
-<style
-scoped
->
+<style scoped>
 /* .degat {
   display: inline-block;
 }
@@ -474,7 +467,4 @@ scoped
 .flex-row {
   flex-direction: row;
 } */
-
-
-
 </style>

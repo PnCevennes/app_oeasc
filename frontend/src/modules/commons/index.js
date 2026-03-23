@@ -1,17 +1,16 @@
-import storeUtils from "@/store/utils.js";
-import admin from "@/components/admin.vue";
+import storeUtils from '@/store/utils.js';
+import admin from '@/components/admin.vue';
 import configStoreSecteur from './config/store-secteur.js';
-import configStoreEspece from "./config/store-espece.js";
-import configStoreNomenclature from "./config/store-nomenclature.js";
-import configStoreNomenclatureType from "./config/store-nomenclature-type.js";
-
+import configStoreEspece from './config/store-espece.js';
+import configStoreNomenclature from './config/store-nomenclature.js';
+import configStoreNomenclatureType from './config/store-nomenclature-type.js';
 
 /**
  * @constant {Array<Object>} ROUTE
  * @description
  * Tableau contenant la configuration des routes pour le module "commons".
  * Chaque objet représente une route spécifique avec ses propriétés :
- * 
+ *
  * - name : Nom unique de la route, utilisé pour l'identification interne.
  * - path : Chemin URL associé à la route.
  * - label : Libellé affiché pour la route dans l'interface utilisateur.
@@ -27,32 +26,32 @@ import configStoreNomenclatureType from "./config/store-nomenclature-type.js";
 const ROUTE = [
   {
     // admin
-    name: "commons.admin",
-    path: "/commons/admin",
-    label: "Données commons",
+    name: 'commons.admin',
+    path: '/commons/admin',
+    label: 'Données commons',
     hideTitle: true,
     component: admin,
     props: {
       config: {
-        title: "Commons",
+        title: 'Commons',
         tabs: {
           nomenclature: {
-            storeName: "commonsNomenclature"
+            storeName: 'commonsNomenclature',
           },
           nomenclatureType: {
-            storeName: "commonsNomenclatureType"
+            storeName: 'commonsNomenclatureType',
           },
           secteur: {
-            storeName: "commonsSecteur"
+            storeName: 'commonsSecteur',
           },
           espece: {
-            storeName: "commonsEspece"
+            storeName: 'commonsEspece',
           },
-        }
-      }
+        },
+      },
     },
-    access: 5
-  }
+    access: 5,
+  },
 ];
 
 const STORE = {};
@@ -60,6 +59,5 @@ storeUtils.addStore(STORE, configStoreEspece);
 storeUtils.addStore(STORE, configStoreSecteur);
 storeUtils.addStore(STORE, configStoreNomenclature);
 storeUtils.addStore(STORE, configStoreNomenclatureType);
-
 
 export { ROUTE, STORE };

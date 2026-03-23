@@ -1,69 +1,68 @@
 export default {
   nom_role: {
-    type: "text",
+    type: 'text',
     required: true,
-    label: "Nom"
+    label: 'Nom',
   },
   prenom_role: {
-    type: "text",
+    type: 'text',
     required: true,
-    label: "Prenom"
+    label: 'Prenom',
   },
   email: {
     required: true,
-    type: "email",
-    label: "E-mail"
+    type: 'email',
+    label: 'E-mail',
   },
   id_organisme: {
-    type: "list_form",
+    type: 'list_form',
     required: true,
-    label: "Organisme",
-    list_type: "select",
-    url: "api/user/organismes",
-    displayFieldName: "nom_organisme",
-    valueFieldName: "id_organisme"
+    label: 'Organisme',
+    list_type: 'select',
+    url: 'api/user/organismes',
+    displayFieldName: 'nom_organisme',
+    valueFieldName: 'id_organisme',
   },
   autre_organisme: {
-    type: "text",
+    type: 'text',
     required: true,
-    label: "Préciser organisme",
+    label: 'Préciser organisme',
     condition: ({ baseModel, $store }) => {
       const organisme = $store.getters.organismes.find(
-        o => o.id_organisme == baseModel.id_organisme
+        (o) => o.id_organisme == baseModel.id_organisme
       );
-      return !!(organisme && organisme.nom_organisme == "Autre (préciser)");
-    }
+      return !!(organisme && organisme.nom_organisme == 'Autre (préciser)');
+    },
   },
   desc_role: {
-    type: "list_form",
+    type: 'list_form',
     required: true,
-    label: "Rôle",
-    list_type: "select",
+    label: 'Rôle',
+    list_type: 'select',
     items: [
-      "Propriétaire forestier privé",
-      "Salarié, agent, fonctionnaire",
-      "Expert forestier indépendant"
-    ]
+      'Propriétaire forestier privé',
+      'Salarié, agent, fonctionnaire',
+      'Expert forestier indépendant',
+    ],
   },
   accept_email: {
-    type: "bool_switch",
-    label:
-      "Rester informé des principales évolutions du dispositif (envoi ponctuel d’e-mails)",
-    required: true
+    type: 'bool_switch',
+    label: 'Rester informé des principales évolutions du dispositif (envoi ponctuel d’e-mails)',
+    required: true,
   },
   password: {
-    type: "password",
-    label: "Mot de passe",
+    type: 'password',
+    label: 'Mot de passe',
     required: true,
-    counter: true
+    counter: true,
   },
   password_confirmation: {
-    type: "password",
-    label: "Mot de passe (confirmation)",
+    type: 'password',
+    label: 'Mot de passe (confirmation)',
     required: true,
     counter: true,
     rules: ({ baseModel }) => [
-      v => v == baseModel.password || "Les mots de passe doivent être identique"
-    ]
-  }
+      (v) => v == baseModel.password || 'Les mots de passe doivent être identique',
+    ],
+  },
 };

@@ -7,7 +7,7 @@ Le périmètre de l’Observatoire de l’équilibre agro‑sylvo‑cynégétiqu
 
 Le périmètre a été découpé en quatre secteurs d’étude, correspondant aux quatre grandes entités biogéographiques du territoire : le Mont Lozère au nord, les Vallées cévenoles à l’est, les Causses et les gorges à l’ouest, et le Mont Aigoual au sud. Le découpage en secteurs d’étude a également tenu compte des habitudes de chasse et des territoires utilisés pour la définition des plans de chasse.
 
---- 
+---
 
 <div>
   <div id="map" class="map" config="perimetre" style="height: 400px"></div>

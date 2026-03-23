@@ -4,15 +4,20 @@ par help_static.vue qui n'a plus besoin de chercher les contenus dans la base de
 qui les charge directement depuis un fichier statique. On le garde le temps de tout changer
 ################################################################################################## -->
 
-
-
 <template>
   <div class="help">
     <v-row justify="center">
-      <v-dialog v-model="dialog" max-width="1000" class="help-dialog">
+      <v-dialog
+        v-model="dialog"
+        max-width="1000"
+        class="help-dialog"
+      >
         <v-card>
           <v-card-text>
-            <oeasc-content :code="code" :containerClassIn="'content-help'"></oeasc-content>
+            <oeasc-content
+              :code="code"
+              :containerClassIn="'content-help'"
+            ></oeasc-content>
           </v-card-text>
         </v-card>
       </v-dialog>
@@ -34,17 +39,16 @@ qui les charge directement depuis un fichier statique. On le garde le temps de t
 
 <script>
 export default {
-  name: "help",
-  props: ["code"],
+  name: 'help',
+  props: ['code'],
   components: {
-    oeascContent: () => import("@/modules/content/content.vue"),
+    oeascContent: () => import('@/modules/content/content.vue'),
   },
   data: () => ({
     dialog: false,
   }),
 };
 </script>
-
 
 <style>
 .help-dialog {

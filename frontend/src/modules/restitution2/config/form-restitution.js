@@ -5,119 +5,120 @@
  * TODO faire le ménage
  */
 
-import { copy } from "@/core/js/util/util";
+import { copy } from '@/core/js/util/util';
 
 const configChoix = {
-  type: "list_form",
-  list_type: "autocomplete",
+  type: 'list_form',
+  list_type: 'autocomplete',
 };
 
 export default {
   groups: [
     {
-      forms: ["dataType"]
+      forms: ['dataType'],
     },
     {
-      direction: "row",
-      forms: ["typeGraph", "stacking"]
+      direction: 'row',
+      forms: ['typeGraph', 'stacking'],
     },
     {
-      forms: ["width", "height"]
+      forms: ['width', 'height'],
     },
     {
-      forms: ["fieldName"],
+      forms: ['fieldName'],
     },
     {
-      forms: ["fieldName2"],
+      forms: ['fieldName2'],
     },
     {
-      forms: ["filterList"]
-    }
+      forms: ['filterList'],
+    },
   ],
   formDefs: {
     height: {
-      type: "text",
-      label: "hauteur"
+      type: 'text',
+      label: 'hauteur',
     },
     width: {
-      type: "text",
-      label: "largeur"
+      type: 'text',
+      label: 'largeur',
     },
 
     display: {
-      type: "list_form",
-      list_type: "button",
-      label: "Affichage",
+      type: 'list_form',
+      list_type: 'button',
+      label: 'Affichage',
       items: [
-        { value: "table", text: "Tableau" },
-        { value: "map", text: "Carte" },
-        { value: "graph", text: "Graphique" }
-      ]
+        { value: 'table', text: 'Tableau' },
+        { value: 'map', text: 'Carte' },
+        { value: 'graph', text: 'Graphique' },
+      ],
     },
     dataType: {
-      type: "list_form",
-      list_type: "button",
-      label: "Type de donnée",
-      items: [
-        { value: "chasse", text: "Chasse" },
-      ],
+      type: 'list_form',
+      list_type: 'button',
+      label: 'Type de donnée',
+      items: [{ value: 'chasse', text: 'Chasse' }],
     },
     typeGraph: {
-      type: "list_form",
-      list_type: "button",
-      label: "Type de graphique",
+      type: 'list_form',
+      list_type: 'button',
+      label: 'Type de graphique',
       items: [
-        { value: "pie", text: "Camenbert" },
-        { value: "column", text: "Barre |" },
-        { value: "bar", text: "Barre -" },
-        { value: "line", text: "Ligne" }
+        { value: 'pie', text: 'Camenbert' },
+        { value: 'column', text: 'Barre |' },
+        { value: 'bar', text: 'Barre -' },
+        { value: 'line', text: 'Ligne' },
       ],
-      condition: ({ baseModel }) => baseModel.display == "graph"
+      condition: ({ baseModel }) => baseModel.display == 'graph',
     },
     fieldName: {
       ...configChoix,
-      label: "Choix 1",
+      label: 'Choix 1',
     },
     switch: {
-      type: "button",
-      icon: "mdi-swap-vertical-bold",
-      tooltip: "Inverser fieldName et choix2",
-      click: () => ({ baseModel }) => {
-        const temp = { choix: baseModel.fieldName, nbMax: baseModel.nbMax1 };
-        baseModel.fieldName = baseModel.choix2;
-        baseModel.nbMax1 = baseModel.nbMax2;
-        baseModel.choix2 = temp.choix;
-        baseModel.nbMax2 = temp.nbMax;
-        baseModel = copy(baseModel);
-      }
+      type: 'button',
+      icon: 'mdi-swap-vertical-bold',
+      tooltip: 'Inverser fieldName et choix2',
+      click:
+        () =>
+        ({ baseModel }) => {
+          const temp = { choix: baseModel.fieldName, nbMax: baseModel.nbMax1 };
+          baseModel.fieldName = baseModel.choix2;
+          baseModel.nbMax1 = baseModel.nbMax2;
+          baseModel.choix2 = temp.choix;
+          baseModel.nbMax2 = temp.nbMax;
+          baseModel = copy(baseModel);
+        },
     },
     nbMax1: {
-      type: "number",
-      label: "Nb max 1"
+      type: 'number',
+      label: 'Nb max 1',
     },
     fieldName2: {
       ...configChoix,
-      label: "Choix 2"
+      label: 'Choix 2',
     },
     nbMax2: {
-      type: "number",
-      label: "Nb max 2"
+      type: 'number',
+      label: 'Nb max 2',
     },
     stacking: {
-      type: "bool_switch",
-      label: "Empilé",
-      condition: ({ baseModel }) => baseModel.display == "graph" && ['bar', 'column', 'line'].includes(baseModel.typeGraph)
+      type: 'bool_switch',
+      label: 'Empilé',
+      condition: ({ baseModel }) =>
+        baseModel.display == 'graph' && ['bar', 'column', 'line'].includes(baseModel.typeGraph),
     },
     filterList: {
-      type: "list_form",
-      list_type: "autocomplete",
-      label: "Filtres",
-      multiple: true
+      type: 'list_form',
+      list_type: 'autocomplete',
+      label: 'Filtres',
+      multiple: true,
     },
     groupByKey: {
-      type: "list_form",
-      list_type: "select",
-      label: "Type de donneés",
-    }
-  }
+      type: 'list_form',
+      list_type: 'select',
+      label: 'Type de donneés',
+    },
+  },
 };

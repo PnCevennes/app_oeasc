@@ -1,10 +1,10 @@
-import { apiRequest } from "@/core/js/data/api.js";
+import { apiRequest } from '@/core/js/data/api.js';
 
 // Définition de l'objet STORE utilisé comme module Vuex pour la gestion du cache des données API
 const STORE = {
   state: {
     // _cache : objet utilisé pour stocker les données mises en cache
-    _cache: {}
+    _cache: {},
   },
   mutations: {
     /**
@@ -25,7 +25,7 @@ const STORE = {
         // Sinon, on descend dans l'objet, ou on crée un nouvel objet si nécessaire
         cur = cur[key] || {};
       }
-    }
+    },
   },
   getters: {
     /**
@@ -34,7 +34,7 @@ const STORE = {
      * cacheKeys : tableau de clés pour accéder à la donnée
      * Utilisé pour vérifier si une donnée est déjà présente dans le cache avant de faire une requête API.
      */
-    getFromCache: state => cacheKeys => {
+    getFromCache: (state) => (cacheKeys) => {
       let cur = state._cache;
       for (const key of cacheKeys) {
         cur = cur[key];
@@ -44,8 +44,7 @@ const STORE = {
         }
         return cur;
       }
-    }
-    
+    },
   },
 
   actions: {
@@ -55,14 +54,14 @@ const STORE = {
      * - Si la donnée est présente dans le cache, elle est retournée immédiatement.
      * - Sinon, une requête API est effectuée, la donnée est mise en cache puis retournée.
      * Utilisée lors de l'accès à des données qui peuvent être mises en cache pour éviter des appels API inutiles.
-     * 
+     *
      * @param {Object} context - contexte Vuex (commit, getters)
      * @param {Object} params - paramètres de la requête (url, method, postData, cacheKeys, dataKeys)
      * @returns {Promise} - résout avec la donnée demandée
      */
     cacheOrRequest: (
       { commit, getters },
-      { url, method = "GET", postData = null, cacheKeys, dataKeys = [] }
+      { url, method = 'GET', postData = null, cacheKeys, dataKeys = [] }
     ) => {
       // Vérifie si la donnée est déjà présente dans le cache
       return new Promise((resolve, reject) => {
@@ -73,23 +72,23 @@ const STORE = {
         }
 
         // Si non présente, effectue la requête API et stocke le résultat dans le cache
-        apiRequest(method, url, { postData }, {commit, getters}).then(
-          apiData => {
+        apiRequest(method, url, { postData }, { commit, getters }).then(
+          (apiData) => {
             let curData = apiData;
             // Permet d'extraire une sous-partie de la réponse API si dataKeys est renseigné
             for (const key of dataKeys) {
               curData = curData[key];
             }
-            commit("setCache", cacheKeys, curData);
+            commit('setCache', cacheKeys, curData);
             resolve(curData);
           },
-          error => {
+          (error) => {
             reject(error);
           }
         );
       });
-    }
-  }
+    },
+  },
 };
 
 export { STORE };

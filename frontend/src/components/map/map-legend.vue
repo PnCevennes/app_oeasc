@@ -32,7 +32,10 @@
   - Ce composant est conçu pour être flexible et afficher dynamiquement les légendes selon la configuration fournie.
 -->
 <template>
-  <div class="legend-container" v-if="config">
+  <div
+    class="legend-container"
+    v-if="config"
+  >
     <div
       class="legend"
       v-for="(markerLegendGroup, index1) of config.markerLegendGroups || []"
@@ -46,19 +49,15 @@
         :key="index"
       >
         <i
-          :style="
-            `
+          :style="`
             font-size: 1.8em;
             color:${legend.color};
-          `
-          "
+          `"
           :class="`mdi mdi-${legend.icon}`"
         ></i>
         <span class="legendText">
           {{ legend.text }}
-          <span v-if="legend.count">
-            ({{ legend.count }})</span
-          >
+          <span v-if="legend.count">({{ legend.count }})</span>
         </span>
       </div>
     </div>
@@ -72,17 +71,13 @@
       >
         <i
           v-if="layerConfig.style"
-          :style="
-            `
+          :style="`
             background-color: ${getColor(
               layerConfig.style.fillColor,
               layerConfig.style.fillOpacity
             )};
-            border: ${layerConfig.style.weight}px solid ${
-              layerConfig.style.color
-            };
-          `
-          "
+            border: ${layerConfig.style.weight}px solid ${layerConfig.style.color};
+          `"
         ></i>
         <span class="legendText">
           {{ layerConfig.legend }}
@@ -92,19 +87,16 @@
   </div>
 </template>
 
-
-
 <script>
-
-import chroma from "chroma-js";
+import chroma from 'chroma-js';
 
 export default {
-  name: "mapLegend",
-  props: ["config"],
+  name: 'mapLegend',
+  props: ['config'],
   methods: {
     getColor(color, opacity) {
-      return chroma(color || "black").alpha(opacity);
-    }
-  }
+      return chroma(color || 'black').alpha(opacity);
+    },
+  },
 };
 </script>

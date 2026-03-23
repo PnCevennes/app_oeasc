@@ -12,16 +12,25 @@
 <template>
   <div style="width: 100%">
     <h1>{{ config.title }} - Page d'administation</h1>
-    <v-tabs v-model="tab" fixed>
+    <v-tabs
+      v-model="tab"
+      fixed
+    >
       <v-tabs-slider color="yellow"></v-tabs-slider>
 
-      <v-tab v-for="[key, tab] of Object.entries(config.tabs)" :key="key">
-        {{ tab.labels }} {{ nbElems[key] ? `(${nbElems[key]})` : "" }}
+      <v-tab
+        v-for="[key, tab] of Object.entries(config.tabs)"
+        :key="key"
+      >
+        {{ tab.labels }} {{ nbElems[key] ? `(${nbElems[key]})` : '' }}
       </v-tab>
     </v-tabs>
 
     <v-tabs-items v-model="tab">
-      <v-tab-item v-for="[key, tab] of Object.entries(config.tabs)" :key="key">
+      <v-tab-item
+        v-for="[key, tab] of Object.entries(config.tabs)"
+        :key="key"
+      >
         <generic-table
           v-if="['generic-table', undefined].includes(tab.type) && configStores[key]"
           :config="configStores[key].configTable"
@@ -29,24 +38,22 @@
         ></generic-table>
         <!-- affiche les tables des indices nocturnes -->
         <in-table v-if="tab.type == 'in-table'"></in-table>
-      
       </v-tab-item>
     </v-tabs-items>
   </div>
 </template>
 
-
 <script>
-import genericTable from "@/components/table/generic-table.vue";
-import inTable from "@/modules/in/in-table.vue";
+import genericTable from '@/components/table/generic-table.vue';
+import inTable from '@/modules/in/in-table.vue';
 
 export default {
-  name: "generic-admin",
+  name: 'generic-admin',
   components: {
     genericTable,
     inTable,
   },
-  props: ["config"],
+  props: ['config'],
   data: () => ({
     // La variable 'tab' est initialisée à null et sert probablement à stocker l'onglet actuellement sélectionné dans l'interface utilisateur.
     // 'configStores' est un objet vide destiné à contenir la configuration des différents magasins ou modules utilisés dans l'application.
@@ -63,7 +70,6 @@ export default {
     },
   },
   methods: {
-
     /**
      * Initialise les onglets de configuration dans le composant admin.
      * Pour chaque onglet défini dans la configuration :
@@ -91,8 +97,6 @@ export default {
         });
       }
     },
-
-
   },
   mounted() {
     this.init();

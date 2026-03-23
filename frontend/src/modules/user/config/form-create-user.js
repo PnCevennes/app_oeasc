@@ -1,10 +1,10 @@
-import formDefsUser from "./form-defs-user";
+import formDefsUser from './form-defs-user';
 
 export default {
   preloadData: ({ $store }) => {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       // peut être pas utile....
-      $store.dispatch("organismes").then(() => {
+      $store.dispatch('organismes').then(() => {
         resolve();
       });
     });
@@ -27,29 +27,29 @@ export default {
       return baseModel;
     },
     request: {
-      method: "POST",
-      url: "register/post_usershub/create_temp_user",
-    }
+      method: 'POST',
+      url: 'register/post_usershub/create_temp_user',
+    },
   },
   formDefs: formDefsUser,
   groups: [
     {
-      forms: ["nom_role", "prenom_role"],
-      direction: "row"
+      forms: ['nom_role', 'prenom_role'],
+      direction: 'row',
     },
     {
-      forms: ["email"]
+      forms: ['email'],
     },
     {
-      forms: ["id_organisme", "autre_organisme"],
-      direction: "row"
+      forms: ['id_organisme', 'autre_organisme'],
+      direction: 'row',
     },
     {
-      forms: ["desc_role", "accept_email"]
+      forms: ['desc_role', 'accept_email'],
     },
     {
-      forms: ["password", "password_confirmation"],
-      direction: "row"
-    }
-  ]
+      forms: ['password', 'password_confirmation'],
+      direction: 'row',
+    },
+  ],
 };

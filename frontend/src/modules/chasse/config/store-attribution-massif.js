@@ -30,56 +30,55 @@
  * // - Gérer les filtres et tris côté serveur pour de grandes volumétries de données
  */
 export default {
-  group: "chasse",
-  name: "attributionMassif",
-  label: "Attribution Massif",
+  group: 'chasse',
+  name: 'attributionMassif',
+  label: 'Attribution Massif',
   serverSide: true, // si pagination et tri sont gérés côté serveur
 
-
-  options: { // paramètres ajoutés à la requête get
+  options: {
+    // paramètres ajoutés à la requête get
     page: 1,
     itemsPerPage: 20,
     itemsPerPageOptions: [20, 50, 100],
-    sortBy: ["saison", "id_attribution_massif"],
+    sortBy: ['saison', 'id_attribution_massif'],
     sortDesc: [true, true],
   },
 
-
   defs: {
     id_attribution_massif: {
-      label: "ID",
-      hidden: true
+      label: 'ID',
+      hidden: true,
     },
     saison: {
-        label: 'saison',
-        storeName: 'chasseSaison',
-        type: 'list_form',
-        list_type: 'select',
-        returnObject: true, // true si ca ne retourne pas qu'une valeur mais plusieurs dans un objet
+      label: 'saison',
+      storeName: 'chasseSaison',
+      type: 'list_form',
+      list_type: 'select',
+      returnObject: true, // true si ca ne retourne pas qu'une valeur mais plusieurs dans un objet
     },
     espece: {
-        label: 'Espèce',
-        storeName: 'commonsEspece',
-        type: 'list_form',
-        list_type: 'select',
-        returnObject: true, // true si ca ne retourne pas qu'une valeur mais plusieurs dans un objet
+      label: 'Espèce',
+      storeName: 'commonsEspece',
+      type: 'list_form',
+      list_type: 'select',
+      returnObject: true, // true si ca ne retourne pas qu'une valeur mais plusieurs dans un objet
     },
     zone_cynegetique: {
-        label: 'Zone Cinégétique',
-        storeName: 'chasseZoneCynegetique',
-        type: 'list_form',
-        list_type: 'select',
-        returnObject: true,
+      label: 'Zone Cinégétique',
+      storeName: 'chasseZoneCynegetique',
+      type: 'list_form',
+      list_type: 'select',
+      returnObject: true,
     },
     nb_affecte_min: {
-        label: 'nb affecté min',
-        type: 'number',
-        min: 0
+      label: 'nb affecté min',
+      type: 'number',
+      min: 0,
     },
     nb_affecte_max: {
-        label: 'nb affecté max',
-        type: 'number',
-        min: 0
-    }
+      label: 'nb affecté max',
+      type: 'number',
+      min: 0,
+    },
   },
 };

@@ -38,7 +38,6 @@
   padding: 40px;
   background-color: white;
 }
-  
 
 .v-input--selection-controls {
   margin-top: 0px;
@@ -80,7 +79,6 @@
   padding-left: 5px;
   background-color: rgba(10,10,10, 0.1);
 } */
-
 
 /* .flex-5 > div {
   width: 20%;
@@ -126,7 +124,6 @@
 }
 */
 
-
 /* Patch meme taille input text et select */
 
 /* .v-text-field__slot {
@@ -167,8 +164,6 @@
 /* .v-input--selection-controls:not(:nth-child(2)) {
   margin-top: 100px;
 } */
-
-
 
 /* .form-declaration {
   margin: 10px 100px;

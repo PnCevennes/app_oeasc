@@ -3,7 +3,7 @@
   flex-direction: row;
 }
 
-.map-img .leaflet-top, 
+.map-img .leaflet-top,
 .map-img .map-export {
   display: none;
 }
@@ -18,8 +18,8 @@
 }
 
 .map-select {
-    width: 400px;
-    margin: 10px;
+  width: 400px;
+  margin: 10px;
 }
 
 .map-aside {

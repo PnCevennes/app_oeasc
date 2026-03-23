@@ -5,14 +5,11 @@
   Si il faut en rajouter en lien avec des modules, i
 */
 
-
 import Vue from 'vue';
 import Vuex from 'vuex';
 import { MODULES_STORE } from '@/modules';
-import { STORE as API_STORE } from "@/core/js/data/api.js"
-import { STORE as FORM_STORE } from "@/components/form"
-
-
+import { STORE as API_STORE } from '@/core/js/data/api.js';
+import { STORE as FORM_STORE } from '@/components/form';
 
 Vue.use(Vuex);
 
@@ -20,20 +17,14 @@ const storeDefinition = {
   getters: {},
   mutations: {},
   actions: {},
-  state: {}
-}
+  state: {},
+};
 
-
-
-const stores = [
-  MODULES_STORE,
-  API_STORE,
-  FORM_STORE
-];
+const stores = [MODULES_STORE, API_STORE, FORM_STORE];
 
 for (const store of stores) {
   for (const key of Object.keys(storeDefinition)) {
-    storeDefinition[key] = { ...storeDefinition[key], ... store[key] }
+    storeDefinition[key] = { ...storeDefinition[key], ...store[key] };
   }
 }
 

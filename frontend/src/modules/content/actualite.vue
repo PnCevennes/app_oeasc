@@ -1,5 +1,3 @@
-
-
 <!--
   Composant Vue.js pour la gestion et l'affichage des actualités.
 
@@ -18,19 +16,21 @@
 -->
 <template>
   <div>
-    <div v-if="$store.getters.droitMax>=5">
-      <v-btn 
+    <div v-if="$store.getters.droitMax >= 5">
+      <v-btn
         color="success"
         to="/actualite/"
       >
-        <v-icon>
-          fa-plus
-        </v-icon>
+        <v-icon>fa-plus</v-icon>
         Ajouter une actualité
       </v-btn>
     </div>
 
-    <div v-for="content of contents" :key="content.code"  class="page">
+    <div
+      v-for="content of contents"
+      :key="content.code"
+      class="page"
+    >
       <oeasc-content
         :key="content.code"
         displayContentDate="true"
@@ -41,49 +41,48 @@
   </div>
 </template>
 
-
-
 <script>
-import oeascContent from "./content.vue";
+import oeascContent from './content.vue';
 export default {
-  name: "actualites",
-  props: ["tagNames"],
+  name: 'actualites',
+  props: ['tagNames'],
   components: { oeascContent },
   data: () => ({
-    contents: []
+    contents: [],
   }),
   methods: {
     getContents() {
-      const storeName = "commonsContent";
+      const storeName = 'commonsContent';
       const configStore = this.$store.getters.configStore(storeName);
       const options = {
         ...configStore.options,
-        sortBy: ["meta_create_date"],
+        sortBy: ['meta_create_date'],
         sortDesc: [true],
-        "tags.nom_tag": this.tagNames
-      }
+        'tags.nom_tag': this.tagNames,
+      };
 
-      this.$store.dispatch(configStore.getAll, options).then(contents => {
-        if (!Array.isArray(contents)) {
+      this.$store
+        .dispatch(configStore.getAll, options)
+        .then((contents) => {
+          if (!Array.isArray(contents)) {
+            this.contents = [];
+            return;
+          }
+          this.contents = contents.sort((a, b) => {
+            const tA = new Date(a.meta_create_date).getTime() || 0;
+            const tB = new Date(b.meta_create_date).getTime() || 0;
+            return tB - tA;
+          });
+        })
+        .catch(() => {
           this.contents = [];
-          return;
-        }
-        this.contents = contents.sort((a, b) => {
-          const tA = new Date(a.meta_create_date).getTime() || 0;
-          const tB = new Date(b.meta_create_date).getTime() || 0;
-          return tB - tA;
         });
-      }).catch(() => {
-        this.contents = [];
-      }); 
-    }
+    },
   },
   mounted() {
     this.getContents();
-  }
+  },
 };
 </script>
-
-
 
 <style></style>

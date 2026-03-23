@@ -1,12 +1,11 @@
 // /**
-//  * fonction concernant l'ancien formulaire de declararation 
+//  * fonction concernant l'ancien formulaire de declararation
 //  * permet de selectionner des zones sur une carte. Sera a supprimer lorsque le dynamic form sera supprimé
 //  */
 
 // import { copy } from "@/core/js/util/util.js";
 // import { config } from "@/config/config.js";
 // import { formFunctions } from "./functions/form.js";
-
 
 // const configBaseSelect = config.map.configBaseSelect;
 
@@ -110,7 +109,7 @@
 //      * Fonction appelée lors de l'initialisation de la sélection.
 //      * Elle est déclenchée par un événement personnalisé et
 //      * initialise les données de sélection à partir des couches de la carte.
-//      * @param {*} event 
+//      * @param {*} event
 //      */
 //     initSelect: function(event) {
 //       if (event.detail.key === this.config.name) {
@@ -130,12 +129,11 @@
 //       this.updateLayers(false);
 //     },
 
-
 //     /**
 //      * Fonction appelée lors de l'initialisation de la sélection.
 //      * Elle est déclenchée par un événement personnalisé et
 //      * initialise les données de sélection à partir des couches de la carte.
-//      * @param {*} event 
+//      * @param {*} event
 //      */
 //     selectChange: function(event) {
 //       this.updateLayers();
@@ -147,7 +145,7 @@
 //      * et gère l'ajout ou la suppression de valeurs dans le modèle.
 //      * Si le mode de sélection est multiple, elle ajoute ou supprime la valeur sélectionnée
 //      * de la liste des valeurs sélectionnées. Sinon, elle remplace la valeur actuelle.
-//      * @param {*} event 
+//      * @param {*} event
 //      */
 //     clickOnLayer: function(event) {
 //       const value = event.detail.id_area;
@@ -170,7 +168,7 @@
 //      * Fonction appelée lors de l'initialisation de la sélection.
 //      * Elle est déclenchée par un événement personnalisé et
 //      * met à jour les couches de la carte en fonction de la sélection.
-//      * @param {*} bChange 
+//      * @param {*} bChange
 //      */
 //     updateLayers: function(bChange = true) {
 //       // bChange pour ne pas executer la function change à l'initialisation du composant
@@ -214,7 +212,6 @@
 //       }
 //     },
 
-
 //     /**
 //      * Réinitialise le conteneur de sélection.
 //      * Cette fonction remet à zéro le modèle de base pour le conteneur,
@@ -241,7 +238,6 @@
 //         key: this.config.name
 //       });
 //     },
-
 
 //     /**
 //      * Valide le conteneur de sélection.
@@ -271,7 +267,6 @@
 //       });
 //     }
 
-  
 // };
 
 // export { selectMapMethods };

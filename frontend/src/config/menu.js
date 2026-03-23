@@ -12,133 +12,119 @@
 
 const menus = {
   accueil: {
-    name: "page.accueil"
+    name: 'page.accueil',
   },
   actualite: {
-    name: "actualite.index"
+    name: 'actualite.index',
   },
   observatoire: {
     label: "L'Observatoire",
-    icon: "fa-tree",
+    icon: 'fa-tree',
     names: [
-      "observatoire.presentation",
-      "observatoire.justification",
-      "observatoire.objectifs",
-      "observatoire.perimetre",
-      "observatoire.contenu"
-    ]
+      'observatoire.presentation',
+      'observatoire.justification',
+      'observatoire.objectifs',
+      'observatoire.perimetre',
+      'observatoire.contenu',
+    ],
   },
   systeme_alerte: {
     label: "Le système d'alerte",
-    icon: "report_problem",
+    icon: 'report_problem',
     names: [
-      "declaration.systeme_alerte",
-      "declaration.degat_grand_gibier",
-      "declaration.signaler_degat_explication",
-      "declaration.liste_declarations"
-    ]
+      'declaration.systeme_alerte',
+      'declaration.degat_grand_gibier',
+      'declaration.signaler_degat_explication',
+      'declaration.liste_declarations',
+    ],
   },
   informations: {
-    icon: "not_listed_location",
-    label: "En savoir plus ...",
-    names: ["page.documentation", "page.contact", "page.partenaires"]
+    icon: 'not_listed_location',
+    label: 'En savoir plus ...',
+    names: ['page.documentation', 'page.contact', 'page.partenaires'],
   },
 
   user: {
-    label: ({ $store }) =>
-      $store.getters.isAuth ? $store.getters.nomComplet : "Utilisateur",
-    icon: ({ $store }) =>
-      $store.getters.isAuth ? "mdi-account-check" : "mdi-account-cancel",
+    label: ({ $store }) => ($store.getters.isAuth ? $store.getters.nomComplet : 'Utilisateur'),
+    icon: ({ $store }) => ($store.getters.isAuth ? 'mdi-account-check' : 'mdi-account-cancel'),
     disabled: ({ $store }) => !$store.getters.isAuth,
-    names: [
-      "user.login",
-      "user.logout",
-      "user.creer_utilisateur",
-      "user.espace_utilisateur"
-    ]
+    names: ['user.login', 'user.logout', 'user.creer_utilisateur', 'user.espace_utilisateur'],
   },
 
   admin: {
-    label: "Administration",
-    icon: "fa-cog",
+    label: 'Administration',
+    icon: 'fa-cog',
     hidden: ({ $store }) => $store.getters.droitMax < 5,
-    names: ["user.admin", "commons.admin", "in.admin", "chasse.admin"]
+    names: ['user.admin', 'commons.admin', 'in.admin', 'chasse.admin'],
   },
 
   dev: {
-    icon: "engineering",
-    label: "DEV",
-    names: ["restitution.test", "restitution2.test"],
-    hidden: ({ $store }) => $store.getters.droitMax < 5
+    icon: 'engineering',
+    label: 'DEV',
+    names: ['restitution.test', 'restitution2.test'],
+    hidden: ({ $store }) => $store.getters.droitMax < 5,
   },
 
   resultats: {
-    icon: "show_chart",
-    label: "Résultats des suivis",
+    icon: 'show_chart',
+    label: 'Résultats des suivis',
     names: [
-      "resultats.index",
-      "-",
-      "chasse.restitution_gd_public",
-      "chasse.restitution_bilan_detaille",
-      "resultats.declarations",
-      "resultats.in",
-      "chasse.restitution_indices_performances",
-      "icia.restitution_gd_public",
-      "degats_agricoles.restitution_gd_public",
-      "sylviculture.restitution_diagnostics_sylvicoles",
-      "sylviculture.restitution_suivi_peuplements_sensibles"
-    ]
+      'resultats.index',
+      '-',
+      'chasse.restitution_gd_public',
+      'chasse.restitution_bilan_detaille',
+      'resultats.declarations',
+      'resultats.in',
+      'chasse.restitution_indices_performances',
+      'icia.restitution_gd_public',
+      'degats_agricoles.restitution_gd_public',
+      'sylviculture.restitution_diagnostics_sylvicoles',
+      'sylviculture.restitution_suivi_peuplements_sensibles',
+    ],
   },
 
   chasse: {
-    icon: "fa-cog",
+    icon: 'fa-cog',
     label: 'Chasse',
     names: [
-      "chasse.saisie",
-      "chasse.admin",
-      "chasse.bilan",
-      "chasse.restitution_bilan_detaille",
-      "chasse.exports",
-      "chasse.imports"
+      'chasse.saisie',
+      'chasse.admin',
+      'chasse.bilan',
+      'chasse.restitution_bilan_detaille',
+      'chasse.exports',
+      'chasse.imports',
     ],
-    hidden: ({ $store }) => $store.getters.droitMax < 5
+    hidden: ({ $store }) => $store.getters.droitMax < 5,
   },
 
   documentation: {
-    name: "page.documentation"
+    name: 'page.documentation',
   },
   contact: {
-    name: "page.contact"
+    name: 'page.contact',
   },
   partenaires: {
-    name: "page.partenaires"
-  }
+    name: 'page.partenaires',
+  },
 };
 
 // Configuration de l'affichage des menus sur la bare du haut
 // rightMenus => menus alignés à droite
 // leftMenus => menus alignés à gauche
 const configAppBar = {
-  rightMenus: ["informations", "user"],
-  leftMenus: [
-    "accueil",
-    "actualite",
-    "observatoire",
-    "systeme_alerte",
-    "resultats",
-    "chasse"
-  ],
+  rightMenus: ['informations', 'user'],
+  leftMenus: ['accueil', 'actualite', 'observatoire', 'systeme_alerte', 'resultats', 'chasse'],
 };
 
 // Configuration de l'affichage des menus sur le paneau latéral
 const configDrawerMenus = [
-  "accueil",
-  "actualite",
-  "observatoire",
-  "systeme_alerte",
-  "informations",
-  "admin",
-  "dev"
-]
+  'accueil',
+  'actualite',
+  'observatoire',
+  'systeme_alerte',
+  'informations',
+  'admin',
+  'dev',
+];
 
-export { menus, configAppBar, configDrawerMenus }
+export { menus, configAppBar, configDrawerMenus };

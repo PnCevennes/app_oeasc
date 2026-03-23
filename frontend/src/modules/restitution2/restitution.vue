@@ -23,16 +23,14 @@ peut être utilisé dans les contenus
 </template>
 
 <script>
-
-import restitutionGraph from "./restitution-graph";
+import restitutionGraph from './restitution-graph';
 import props from './config/props';
 
 export default {
-  name: "restitution2",
+  name: 'restitution2',
   components: {
     restitutionGraph,
   },
-  props: [...props, 'display']
-}
-
+  props: [...props, 'display'],
+};
 </script>

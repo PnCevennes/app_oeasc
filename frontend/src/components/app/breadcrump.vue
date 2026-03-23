@@ -25,11 +25,13 @@
  * - .breadcrumbs : Ajoute un padding autour du fil d'Ariane pour l'intégration visuelle.
  */ -->
 
-
 <template>
   <div class="breadcrumbs">
     <span>
-      <v-breadcrumbs :items="getBreadcrumpList" class="pa-0"></v-breadcrumbs>
+      <v-breadcrumbs
+        :items="getBreadcrumpList"
+        class="pa-0"
+      ></v-breadcrumbs>
     </span>
   </div>
 </template>
@@ -37,12 +39,12 @@
 <script>
 export default {
   // Création d'un fil d'ariane
-  name: "breadcrump",
+  name: 'breadcrump',
   computed: {
     getBreadcrumpList() {
       const name = this.$route.name;
       return this.breadcrumpList(name, []);
-    }
+    },
   },
   methods: {
     breadcrumpList(name, list) {
@@ -50,16 +52,14 @@ export default {
         return list;
       }
 
-      const route = this.$router.options.routes.find(
-        route => route.name == name
-      );
+      const route = this.$router.options.routes.find((route) => route.name == name);
       list.unshift({
         text: route.label || this.$route.params.code,
         to: route.path,
       });
       return this.breadcrumpList(route.parent, list);
-    }
-  }
+    },
+  },
 };
 </script>
 

@@ -26,9 +26,8 @@ const paneDefinions = {
   PANE_LAYER_4: 454,
   PANE_LAYER_5: 455,
   PANE_MARKER_1: 601,
-  PANE_TOOLTIP: 652
+  PANE_TOOLTIP: 652,
 };
-
 
 const mapPane = {
   /**
@@ -37,7 +36,7 @@ const mapPane = {
    * avec un nom correspondant à la clé et un z-index correspondant à la valeur.
    * Cela permet de gérer l'ordre d'affichage des éléments cartographiques (tuiles, fonds, couches, marqueurs, tooltips).
    */
-  initPanes: function() {
+  initPanes: function () {
     // Parcourt chaque entrée de l'objet 'paneDefinions'
     for (const [key, value] of Object.entries(paneDefinions)) {
       const paneName = key; // Nom du pane (ex: 'PANE_TILE', 'PANE_LAYER_1', etc.)
@@ -45,7 +44,7 @@ const mapPane = {
       // Définit le z-index du pane pour gérer la superposition des couches
       this._map.getPane(paneName).style.zIndex = value;
     }
-  }
+  },
 };
 
 export { mapPane };

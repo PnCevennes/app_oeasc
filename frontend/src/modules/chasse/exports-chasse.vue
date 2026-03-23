@@ -21,17 +21,13 @@
     <h2>Réalisations</h2>
     <v-row dense>
       <v-col>
-        <v-btn :href="UrlExport('realisation', 'csv')">
-          CSV
-        </v-btn>
+        <v-btn :href="UrlExport('realisation', 'csv')">CSV</v-btn>
         : Export CSV des données chasses
       </v-col>
     </v-row>
-        <v-row dense>
+    <v-row dense>
       <v-col>
-        <v-btn :href="UrlExportOds()">
-          ODS
-        </v-btn>
+        <v-btn :href="UrlExportOds()">ODS</v-btn>
         : Tableur 'Bilan' pour la saison en cours
       </v-col>
     </v-row>
@@ -39,10 +35,10 @@
 </template>
 
 <script>
-import { url } from "@/core/js/data/api.js";
+import { url } from '@/core/js/data/api.js';
 
 export default {
-  name: "exports-chasse",
+  name: 'exports-chasse',
   data: () => ({}),
   methods: {
     UrlExport(dataType, exportType) {
@@ -50,7 +46,7 @@ export default {
     },
     UrlExportOds() {
       return url(`api/chasse/export/ods`).toString();
-    }
-  }
+    },
+  },
 };
 </script>

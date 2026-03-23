@@ -1,55 +1,54 @@
 export default {
-  group: "in",
-  name: "circuit",
-  label: "Circuit",
+  group: 'in',
+  name: 'circuit',
+  label: 'Circuit',
   serverSide: true,
 
-
-  options: { // Ajoute des param à la requête get pour filtrer les données
-      page: 1, // on affiche la première page par défaut 
-      sortBy: ["id_circuit"], // tri par défaut
-      sortDesc: [true], // tri en ordre décroissant
-      // fields: [ //les des champs des modèles à intégrer à la requête get
-      //   "secteur.id_secteur", "secteur.nom_secteur", "secteur.code_secteur"
-      // ]
-    },
-
+  options: {
+    // Ajoute des param à la requête get pour filtrer les données
+    page: 1, // on affiche la première page par défaut
+    sortBy: ['id_circuit'], // tri par défaut
+    sortDesc: [true], // tri en ordre décroissant
+    // fields: [ //les des champs des modèles à intégrer à la requête get
+    //   "secteur.id_secteur", "secteur.nom_secteur", "secteur.code_secteur"
+    // ]
+  },
 
   defs: {
     id_circuit: {
-      label: "ID",
-      hidden: true
+      label: 'ID',
+      hidden: true,
     },
     secteur: {
-      label: "Secteur",
-      type: "list_form",
-      list_type: "select",
-      storeName: "commonsSecteur",
+      label: 'Secteur',
+      type: 'list_form',
+      list_type: 'select',
+      storeName: 'commonsSecteur',
       returnObject: true,
-      required: true
+      required: true,
     },
     nom_circuit: {
-      label: "Nom",
-      type: "text",
-      required: true
+      label: 'Nom',
+      type: 'text',
+      required: true,
     },
     numero_circuit: {
-      label: "Numéro",
-      type: "number",
+      label: 'Numéro',
+      type: 'number',
       required: true,
-      min: 0
+      min: 0,
     },
     km: {
-      label: "Distance (km)",
-      type: "number",
+      label: 'Distance (km)',
+      type: 'number',
       required: true,
-      min: 0
+      min: 0,
     },
     actif: {
-      label: "Actif",
-      type: "bool_switch",
+      label: 'Actif',
+      type: 'bool_switch',
       required: true,
-      min: 0
-    }
-  }
+      min: 0,
+    },
+  },
 };

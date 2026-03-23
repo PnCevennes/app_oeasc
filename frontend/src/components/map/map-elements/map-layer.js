@@ -2,15 +2,14 @@
  * Gestion des layers
  */
 
-import { apiRequest } from "@/core/js/data/api.js";
+import { apiRequest } from '@/core/js/data/api.js';
 
 const L = window.L;
 
-
 const mapLayer = {
-/**
- * Pour garder en mémoire les layers déjà charger et ne pas faire plusieurs appels aux api 
- */
+  /**
+   * Pour garder en mémoire les layers déjà charger et ne pas faire plusieurs appels aux api
+   */
   _layersData: {},
 
   /**
@@ -21,34 +20,33 @@ const mapLayer = {
    * - url est une fonction qui sera appelée avec le parametre urlParams
    *
    *  */
-  getUrl: function(layerConfig) {
-    return typeof layerConfig.url == "function"
+  getUrl: function (layerConfig) {
+    return typeof layerConfig.url == 'function'
       ? layerConfig.url(layerConfig.urlParams)
       : layerConfig.url;
   },
 
-
   /**
    * Ajoute un layer à partir de sa configuration
    */
-  addLayer: function(layerConfig) {
+  addLayer: function (layerConfig) {
     // url
     const url = this.getUrl(layerConfig);
 
     // requete
-    if(this._layersData[url]) {
+    if (this._layersData[url]) {
       const layerData = this._layersData[url];
-      setTimeout(()=> {
-        this.processLayer(layerConfig, layerData)
+      setTimeout(() => {
+        this.processLayer(layerConfig, layerData);
       });
     } else {
-      apiRequest("GET", url).then(
-        layerData => {
-          this._layersData[url] = layerData;          
+      apiRequest('GET', url).then(
+        (layerData) => {
+          this._layersData[url] = layerData;
           this.processLayer(layerConfig, layerData);
         },
-        error => {
-          console.error(`MapLayer Error : ${error}`)        
+        (error) => {
+          console.error(`MapLayer Error : ${error}`);
         }
       );
     }
@@ -57,13 +55,13 @@ const mapLayer = {
   /**
    * process layer
    */
-  processLayer: function(layerConfig, layerData) {
+  processLayer: function (layerConfig, layerData) {
     // select
 
     const layer = L.geoJSON(layerData, {
       style: layerConfig.style,
       pane: layerConfig.pane,
-      onEachFeature: this.onEachFeature(layerConfig).bind(this)
+      onEachFeature: this.onEachFeature(layerConfig).bind(this),
     });
     layer.addTo(this._map);
 
@@ -76,18 +74,16 @@ const mapLayer = {
 
     // dispatch layer-data
     const detail = {
-      key: layerConfig.key
+      key: layerConfig.key,
     };
-    document
-      .getElementById(this._id)
-      .dispatchEvent(new CustomEvent("layer-data", { detail }));
+    document.getElementById(this._id).dispatchEvent(new CustomEvent('layer-data', { detail }));
   },
 
   /**
    * onEachFeature
    */
-  onEachFeature: function(layerConfig) {
-    return function(feature, layer) {
+  onEachFeature: function (layerConfig) {
+    return function (feature, layer) {
       // set key
       feature.properties.key = layerConfig.key;
 
@@ -103,20 +99,20 @@ const mapLayer = {
       // hover
       if (layerConfig.hover && layerConfig.hover.style) {
         layer.on({
-          mouseover: function() {
+          mouseover: function () {
             layer.setStyle(layerConfig.hover.style);
           },
-          mouseout: function() {
+          mouseout: function () {
             layer.setStyle(layer.curStyle);
-          }
+          },
         });
       }
 
       // click
       if (layerConfig.click) {
         layer.on(
-          "click",
-          function() {
+          'click',
+          function () {
             if (layerConfig.click.dispatch) {
               const name = layerConfig.click.dispatch.name;
               const detail = { key: layerConfig.key };
@@ -135,14 +131,14 @@ const mapLayer = {
   /**
    * zoom on layer
    */
-  zoomOnLayer: function(layer) {
+  zoomOnLayer: function (layer) {
     this._map.fitBounds(layer.getBounds());
   },
 
   reinitZoom() {
     for (const [key, layerConfig] of Object.entries(this._config.layers)) {
       if (layerConfig.zoom) {
-        const layers = this.findLayers("key", key);
+        const layers = this.findLayers('key', key);
         this.zoomOnLayers(layers);
       }
     }
@@ -151,7 +147,7 @@ const mapLayer = {
   /**
    * zoom on layer
    */
-  zoomOnLayers: function(layers) {
+  zoomOnLayers: function (layers) {
     if (!(layers && layers.length)) {
       return;
     }
@@ -161,27 +157,27 @@ const mapLayer = {
     return true;
   },
 
-  removeLayers: function(layers) {
+  removeLayers: function (layers) {
     for (const layer of layers) {
       this.removeLayer(layer);
     }
   },
 
-  removeLayer: function(layer) {
+  removeLayer: function (layer) {
     this._map.removeLayer(layer);
   },
 
   /**
    * Initialise tous les layers
    * */
-  initLayers: function() {
+  initLayers: function () {
     for (const [key, layerConfig] of Object.entries(this._config.layers)) {
       layerConfig.key = key;
       this.addLayer(layerConfig);
     }
   },
 
-  testLayer: function(properties, fieldName, value) {
+  testLayer: function (properties, fieldName, value) {
     return (
       properties &&
       (Array.isArray(value)
@@ -190,26 +186,18 @@ const mapLayer = {
     );
   },
 
-  findLayer: function(fieldName, value, layersIn = null) {
+  findLayer: function (fieldName, value, layersIn = null) {
     const layers = layersIn || Object.values(this._map._layers);
-    const layer = layers.find(layer =>
-      this.testLayer(
-        layer.feature && layer.feature.properties,
-        fieldName,
-        value
-      )
+    const layer = layers.find((layer) =>
+      this.testLayer(layer.feature && layer.feature.properties, fieldName, value)
     );
     return layer;
   },
 
-  findLayers: function(fieldName, value, layersIn = null) {
+  findLayers: function (fieldName, value, layersIn = null) {
     const layers = layersIn || Object.values(this._map._layers);
-    return layers.filter(layer =>
-      this.testLayer(
-        layer.feature && layer.feature.properties,
-        fieldName,
-        value
-      )
+    return layers.filter((layer) =>
+      this.testLayer(layer.feature && layer.feature.properties, fieldName, value)
     );
   },
 
@@ -222,9 +210,7 @@ const mapLayer = {
     if (!(layerConfig.select && layerConfig.select.build)) {
       return;
     }
-    const items = this.findLayers("key", key).map(
-      layer => layer.feature.properties
-    );
+    const items = this.findLayers('key', key).map((layer) => layer.feature.properties);
 
     const change = () => {
       if (layerConfig.select.markerFilter) {
@@ -236,9 +222,7 @@ const mapLayer = {
         const value = this.baseModel[key];
 
         if (
-          Array.isArray(value)
-            ? value.length
-            : value && value[layerConfig.select.valueFieldName]
+          Array.isArray(value) ? value.length : value && value[layerConfig.select.valueFieldName]
         ) {
           const layers = this.findLayers(
             layerConfig.select.valueFieldName,
@@ -256,10 +240,10 @@ const mapLayer = {
       label: layerConfig.legend,
       items,
       ...layerConfig.select,
-      change
+      change,
     };
     return configSelects;
-  }
+  },
 };
 
 export { mapLayer };

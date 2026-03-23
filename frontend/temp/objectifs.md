@@ -8,8 +8,8 @@ La notion d’équilibre agro‑sylvo‑cynégétique étant étroitement liée 
 
 ---
 
-L’Observatoire constituera par ailleurs un outil d’**information**, de **communication** et de **sensibilisation** de l’ensemble des acteurs du territoire, *via*  la diffusion des résultats issus des données collectées et le partage des informations relatives à l’équilibre agro‑sylvo‑cynégétique.
+L’Observatoire constituera par ailleurs un outil d’**information**, de **communication** et de **sensibilisation** de l’ensemble des acteurs du territoire, _via_ la diffusion des résultats issus des données collectées et le partage des informations relatives à l’équilibre agro‑sylvo‑cynégétique.
 
----  
+---
 
 L’Observatoire de l’équilibre agro‑sylvo‑cynégétique a donc vocation à constituer un **outil d’aide à la gestion et à la décision**. Les données, collectées selon des méthodologies validées par l’ensemble des partenaires, et les résultats qui en sont issus, sont destinés à être utilisés par les gestionnaires lors de la détermination des modalités de gestion des populations d’ongulés sauvages et des milieux forestiers et agricoles.

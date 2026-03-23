@@ -7,7 +7,10 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
       active
       indeterminate
     ></v-progress-linear>
-    <div class="declaration" id="declaration">
+    <div
+      class="declaration"
+      id="declaration"
+    >
       <div v-if="declaration">
         <h1>Déclaration {{ declaration.id_declaration }}</h1>
         <v-btn
@@ -16,15 +19,19 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
           color="red"
           @click="exportPdf()"
           title="Exporter la déclaration au format pdf"
-          ><v-icon>mdi-file-pdf</v-icon></v-btn
         >
+          <v-icon>mdi-file-pdf</v-icon>
+        </v-btn>
         <div>
           <declaration-table :declaration="declaration"></declaration-table>
         </div>
       </div>
       <div class="html2pdf__page-break"></div>
       <template v-for="type in mapList">
-        <div v-if="configMaps[type]" :key="type">
+        <div
+          v-if="configMaps[type]"
+          :key="type"
+        >
           <div small>{{ configMaps[type].title }}</div>
           <base-map
             :mapId="`map_${type}`"
@@ -38,47 +45,43 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
 </template>
 
 <script>
-import declarationTable from "./declaration-table";
-import baseMap from "@/components/map/base-map";
-import { exportPDF } from "@/modules/export";
-import "./declaration.css";
+import declarationTable from './declaration-table';
+import baseMap from '@/components/map/base-map';
+import { exportPDF } from '@/modules/export';
+import './declaration.css';
 
 const styles = {
   foret: {
-    color: "purple",
-    fillColor: "purple",
+    color: 'purple',
+    fillColor: 'purple',
     weight: 2,
     opacity: 1,
-    fillOpacity: 0.5
+    fillOpacity: 0.5,
   },
   parcelles: {
-    color: "black",
-    fillColor: "green",
+    color: 'black',
+    fillColor: 'green',
     weight: 2,
     opacity: 1,
-    fillOpacity: 0.5
-  }
+    fillOpacity: 0.5,
+  },
 };
 
 export default {
-  name: "declaration",
+  name: 'declaration',
   data: () => ({
     pdfProcessing: false,
     declaration: null,
-    mapList: ["secteur", "foret", "parcelles"]
+    mapList: ['secteur', 'foret', 'parcelles'],
   }),
   components: { declarationTable, baseMap },
   methods: {
     exportPdf() {
       if (!this.declaration) return;
       this.pdfProcessing = true;
-      exportPDF(
-        "declaration",
-        `declaration_${this.declaration.id_declaration}.pdf`,
-        this.$store
-      )
+      exportPDF('declaration', `declaration_${this.declaration.id_declaration}.pdf`, this.$store)
         .then(() => {
-          console.log('pdf end')
+          console.log('pdf end');
         })
         .catch((err) => {
           console.error('PDF export error:', err);
@@ -88,8 +91,8 @@ export default {
         });
     },
     initDeclaration() {
-      this.$store.dispatch("declarations").then(declarations => {
-        this.declaration = declarations.find(d => this.id == d.id_declaration);
+      this.$store.dispatch('declarations').then((declarations) => {
+        this.declaration = declarations.find((d) => this.id == d.id_declaration);
       });
     },
     configMap(type) {
@@ -99,64 +102,64 @@ export default {
       const markers = [
         {
           coords: this.declaration.centroid,
-          type: "marker",
+          type: 'marker',
           style: {
-            color: "blue",
-            icon: "map-marker"
-          }
-        }
+            color: 'blue',
+            icon: 'map-marker',
+          },
+        },
       ];
       const markerLegendGroups = [
         {
           legends: [
             {
-              icon: "map-marker",
-              text: "Localisation des alertes",
-              color: "#3689CE"
-            }
-          ]
-        }
+              icon: 'map-marker',
+              text: 'Localisation des alertes',
+              color: '#3689CE',
+            },
+          ],
+        },
       ];
       const titles = {
         secteur: "Localisation de l'alerte dans le périmètre de l'observatoire",
-        foret: "Localisation des parcelles",
-        parcelles: "Carte des parcelles"
+        foret: 'Localisation des parcelles',
+        parcelles: 'Carte des parcelles',
       };
       const layerList = {
         secteur: {},
         foret: {
           url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration.areas_foret.join(
-            "&id_area="
+            '&id_area='
           )}`,
           legend: "Forêt concernée par l'alerte",
           style: styles.foret,
-          pane: "PANE_LAYER_1"
+          pane: 'PANE_LAYER_1',
         },
         parcelles: {
           url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration.areas_localisation.join(
-            "&id_area="
+            '&id_area='
           )}`,
 
           legend: "Parcelle(s) concernée(s) par l'alerte",
           style: styles.parcelles,
-          pane: "PANE_LAYER_2"
-        }
+          pane: 'PANE_LAYER_2',
+        },
       };
 
       layerList[type] = {
         ...layerList[type],
         tooltip: {
           permanent: true,
-          className: "tooltip-label",
-          label: "label"
+          className: 'tooltip-label',
+          label: 'label',
         },
-        zoom: true
+        zoom: true,
       };
-      if (type != "") {
+      if (type != '') {
         delete layerList.secteur;
       }
       return { layerList, title: titles[type], markers, markerLegendGroups };
-    }
+    },
   },
   computed: {
     id() {
@@ -168,16 +171,16 @@ export default {
         configMaps[type] = this.configMap(type);
       }
       return configMaps;
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.initDeclaration();
   },
   watch: {
     $route() {
       this.initDeclaration();
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped></style>

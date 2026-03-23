@@ -12,13 +12,13 @@ div.settings {
   border-top: 1px solid black;
 }
 
-.flex-list, .flex-list2 {
+.flex-list,
+.flex-list2 {
   display: flex;
 }
 .flex-list2 > div:last-child {
   width: 70%;
 }
-
 
 .flex-list > div {
   flex-grow: 1;
@@ -29,5 +29,3 @@ div.settings {
   margin-bottom: 20px;
   opacity: 1;
 }
-
-

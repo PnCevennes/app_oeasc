@@ -5,7 +5,11 @@
         :config="configFormRestition"
         :baseModel="settings"
       ></dynamic-form-group>
-      <div class="filters" v-for="filter of filterForms" :key="filter.name">
+      <div
+        class="filters"
+        v-for="filter of filterForms"
+        :key="filter.name"
+      >
         <dynamic-form
           :config="filter"
           :baseModel="settings.filters"
@@ -16,46 +20,43 @@
 </template>
 
 <script>
-import { Restitution } from "./restitution.js";
-import dynamicFormGroup from "@/components/form/dynamic-form-group";
-import dynamicForm from "@/components/form/dynamic-form";
-import configFormRestition from "./config/form-restitution.js";
+import { Restitution } from './restitution.js';
+import dynamicFormGroup from '@/components/form/dynamic-form-group';
+import dynamicForm from '@/components/form/dynamic-form';
+import configFormRestition from './config/form-restitution.js';
 
 export default {
-  name: "restitution-settings",
+  name: 'restitution-settings',
   components: { dynamicFormGroup, dynamicForm },
-  props: ["dataType"],
+  props: ['dataType'],
   watch: {
     settings: {
       deep: true,
       handler() {
         this.emitSettings();
-      }
-    }
+      },
+    },
   },
   data: () => ({
     filterForms: [],
     settings: {},
     configFormRestition: null,
     restitution: null,
-    n: 0
+    n: 0,
   }),
   mounted() {
     this.initConfig();
   },
   methods: {
     initRestitution() {
-      this.restitution = new Restitution(
-        this.settings.dataType || this.dataType,
-        this.$store
-      );
+      this.restitution = new Restitution(this.settings.dataType || this.dataType, this.$store);
       this.restitution.getConfig();
       this.restitution.getData().then(() => {
         this.settings = this.restitution.options();
         if (!this.filters) {
           this.filters = {
             ...this.settings.filters,
-            ...(this.restitution.options.filters || {})
+            ...(this.restitution.options.filters || {}),
           };
           this.settings.filterList = Object.keys(this.filters);
         }
@@ -73,18 +74,18 @@ export default {
       configFormRestition.formDefs.groupByKey.items = this.restitution.options().groupByKeyItems;
       for (const formDef of Object.values(configFormRestition.formDefs)) {
         formDef.change = () => {
-          this.emitSettings()
+          this.emitSettings();
         }; // ideal newChange
       }
 
       const items = Object.keys(this.restitution.items)
-      .filter(name => this.restitution.items[name].text)
-      .map(name => ({
-        text: this.restitution.items[name].text,
-        value: name
-      }));
+        .filter((name) => this.restitution.items[name].text)
+        .map((name) => ({
+          text: this.restitution.items[name].text,
+          value: name,
+        }));
 
-      for (const keyForm of ["choix1", "choix2", "filterList"]) {
+      for (const keyForm of ['choix1', 'choix2', 'filterList']) {
         configFormRestition.formDefs[keyForm].items = items;
       }
 
@@ -96,19 +97,19 @@ export default {
     },
 
     getFilterForms() {
-      return this.settings.filterList.map(name => {
+      return this.settings.filterList.map((name) => {
         const item = this.restitution.item(name);
         const dataList = this.restitution.dataList(name, {});
         return {
-          type: "list_form",
+          type: 'list_form',
           name: item.key,
           label: `Filtre : ${item.text}`,
-          list_type: "autocomplete",
+          list_type: 'autocomplete',
           multiple: true,
-          items: dataList.map(d => d.text),
+          items: dataList.map((d) => d.text),
           change: () => {
             this.filterFormsChange();
-          }
+          },
         };
       });
     },
@@ -134,15 +135,14 @@ export default {
       return JSON.parse(JSON.stringify(this.settings));
     },
     emitSettings() {
-      
       // this.n = this.n+1;
-  
+
       const settings = this.options();
       settings.n = this.n;
       settings.default = this.restitution.default;
 
-      this.$emit("updateSettings", settings);
-    }
-  }
+      this.$emit('updateSettings', settings);
+    },
+  },
 };
 </script>

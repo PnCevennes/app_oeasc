@@ -1,89 +1,88 @@
 // toutes les pages d'information du site. Le contenu est cherché en base de données. Meriterait d'être passé en
 //statique.
 
-import page from "./page";
+import page from './page';
 
 const ROUTE = [
   {
-    name: "page.accueil",
-    path: "/",
-    icon: "home",
-    label: "Accueil",
-    type: "page",
+    name: 'page.accueil',
+    path: '/',
+    icon: 'home',
+    label: 'Accueil',
+    type: 'page',
     content: 'accueil',
   },
 
-
   {
-    name: "observatoire.presentation",
-    path: "/observatoire/presentation",
-    label: "Présentation",
+    name: 'observatoire.presentation',
+    path: '/observatoire/presentation',
+    label: 'Présentation',
     content: 'presentation',
-    parent: "page.accueil",
-    type: "page"
+    parent: 'page.accueil',
+    type: 'page',
   },
 
   {
-    name: "observatoire.justification",
-    path: "/observatoire/justification",
-    label: "Justification",
+    name: 'observatoire.justification',
+    path: '/observatoire/justification',
+    label: 'Justification',
     content: 'justification',
-    parent: "observatoire.presentation",
-    type: "page"
+    parent: 'observatoire.presentation',
+    type: 'page',
   },
 
   {
-    name: "observatoire.objectifs",
-    path: "/observatoire/objectifs",
-    label: "Objectifs",
+    name: 'observatoire.objectifs',
+    path: '/observatoire/objectifs',
+    label: 'Objectifs',
     content: 'objectifs',
-    parent: "observatoire.presentation",
-    type: "page"
+    parent: 'observatoire.presentation',
+    type: 'page',
   },
 
   {
-    name: "observatoire.perimetre",
-    path: "/observatoire/perimetre",
+    name: 'observatoire.perimetre',
+    path: '/observatoire/perimetre',
     content: 'perimetre',
-    label: "Périmètre et zonage",
-    parent: "observatoire.presentation",
-    type: "page"
+    label: 'Périmètre et zonage',
+    parent: 'observatoire.presentation',
+    type: 'page',
   },
 
   {
-    name: "observatoire.contenu",
-    path: "/observatoire/contenu",
-    label: "Contenu",
+    name: 'observatoire.contenu',
+    path: '/observatoire/contenu',
+    label: 'Contenu',
     content: 'contenu',
-    parent: "observatoire.presentation",
-    type: "page"
+    parent: 'observatoire.presentation',
+    type: 'page',
   },
 
   {
     name: 'page.documentation',
     path: '/page/documentation',
-    label: "Documentation",
+    label: 'Documentation',
     content: 'documentation',
-    parent: "page.accueil",
-    type: "page"
+    parent: 'page.accueil',
+    type: 'page',
   },
 
   {
     name: 'page.contact',
     path: '/page/contact',
-    label: "Contact",
+    label: 'Contact',
     content: 'contact',
-    parent: "page.accueil",
-    type: "page"
+    parent: 'page.accueil',
+    type: 'page',
   },
 
   {
     path: '/page/partenaires',
     name: 'page.partenaires',
-    label: "Partenaires",
+    label: 'Partenaires',
     content: 'partenaires',
-    parent: "page.accueil",
-    type: "page"
+    parent: 'page.accueil',
+    type: 'page',
   },
 
   {
@@ -92,9 +91,8 @@ const ROUTE = [
     label: "Présentation des résultats de l'Observatoire",
     content: 'resultats',
     parent: 'page.accueil',
-    type: 'page'
-  }
-
+    type: 'page',
+  },
 ];
 
 export { ROUTE, page };

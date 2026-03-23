@@ -1,5 +1,5 @@
-import { copy } from "@/core/js/util/util.js";
-import { formFunctions } from "@/components/form/functions/form";
+import { copy } from '@/core/js/util/util.js';
+import { formFunctions } from '@/components/form/functions/form';
 
 export default class ConfigDeclaration {
   _forms;
@@ -16,19 +16,14 @@ export default class ConfigDeclaration {
   initModel(model) {
     // const model = {};
     for (const [keyForm, form] of Object.entries(this._forms)) {
-      model[keyForm] =
-        model[keyForm] !== undefined
-          ? model[keyForm]
-          : form.multiple
-          ? []
-          : null;
+      model[keyForm] = model[keyForm] !== undefined ? model[keyForm] : form.multiple ? [] : null;
       if (form.containerName) {
         model[form.containerName] =
           model[form.containerName] !== undefined
             ? model[form.containerName]
             : form.containerMultiple
-            ? []
-            : null;
+              ? []
+              : null;
       }
     }
 
@@ -37,15 +32,14 @@ export default class ConfigDeclaration {
 
   initValidForms({ $store, baseModel }, validForms) {
     {
-      $store, baseModel;
+      ($store, baseModel);
     }
     validForms;
     for (const configSessionGroups of Object.values(this._config.groups)) {
       for (const session of Object.values(configSessionGroups.sessions)) {
         let validSession = true;
         for (const form of this.sessionFormList(session)) {
-          validSession =
-            validSession && this.isValidForm({ $store, baseModel }, form);
+          validSession = validSession && this.isValidForm({ $store, baseModel }, form);
         }
         validForms[session.name] = validSession;
       }
@@ -75,7 +69,7 @@ export default class ConfigDeclaration {
     let condRules = true;
 
     form.required =
-      typeof this._forms[keyForm].required === "function"
+      typeof this._forms[keyForm].required === 'function'
         ? this._forms[keyForm].required({ $store, baseModel })
         : this._forms[keyForm].required;
 
@@ -106,7 +100,7 @@ export default class ConfigDeclaration {
       for (const sessionKey of sessionList) {
         const configSession = (config.sessions[sessionKey] = {
           ...this._sessions[sessionKey],
-          name: sessionKey
+          name: sessionKey,
         });
         this.initConfig(configSession);
       }
@@ -160,9 +154,7 @@ export default class ConfigDeclaration {
   }
 
   group(keySession) {
-    for (const [keySessionGroup, configSessionGroups] of Object.entries(
-      this._config.groups
-    )) {
+    for (const [keySessionGroup, configSessionGroups] of Object.entries(this._config.groups)) {
       if (keySession in configSessionGroups.sessions) {
         return keySessionGroup;
       }

@@ -7,31 +7,23 @@
 
 */
 
-
-
 // récupération des routes il fauda ensuite ajouter les nom à MODULES_ROUTES
-import { ROUTE as user_routes, STORE as user_store } from "./user";
-import { ROUTE as commons_routes, STORE as commons_store } from "./commons";
-import { ROUTE as in_routes, STORE as in_store } from "./in";
-import { ROUTE as chasse_routes, STORE as chasse_store } from "./chasse";
-import { ROUTE as icia_routes } from "./icia";
-import { ROUTE as degats_agricoles_routes } from "./degats_agricoles";
-import { ROUTE as sylviculture_routes } from "./sylviculture";
-import { ROUTE as content_routes, STORE as content_store } from "./content";
-import { ROUTE as declaration_routes, STORE as declaration_store} from "./declaration";
-import { ROUTE as test_routes } from "./test";
-import { ROUTE as restitution_routes, STORE as restitution_store } from "./restitution";
-import { ROUTE as restitution2_routes, STORE as restitution2_store } from "./restitution2";
-import { ROUTE as page_routes } from "./page";
+import { ROUTE as user_routes, STORE as user_store } from './user';
+import { ROUTE as commons_routes, STORE as commons_store } from './commons';
+import { ROUTE as in_routes, STORE as in_store } from './in';
+import { ROUTE as chasse_routes, STORE as chasse_store } from './chasse';
+import { ROUTE as icia_routes } from './icia';
+import { ROUTE as degats_agricoles_routes } from './degats_agricoles';
+import { ROUTE as sylviculture_routes } from './sylviculture';
+import { ROUTE as content_routes, STORE as content_store } from './content';
+import { ROUTE as declaration_routes, STORE as declaration_store } from './declaration';
+import { ROUTE as test_routes } from './test';
+import { ROUTE as restitution_routes, STORE as restitution_store } from './restitution';
+import { ROUTE as restitution2_routes, STORE as restitution2_store } from './restitution2';
+import { ROUTE as page_routes } from './page';
 
-
-
-import { STORE as data_store } from "./data";
-import { STORE as map_store } from "@/components/map";
-
-
-
-
+import { STORE as data_store } from './data';
+import { STORE as map_store } from '@/components/map';
 
 // centralise toutes les routes récupérée dans les import dans une seule liste
 const MODULES_ROUTES = [
@@ -47,10 +39,8 @@ const MODULES_ROUTES = [
   ...restitution2_routes,
   ...icia_routes,
   ...degats_agricoles_routes,
-  ...sylviculture_routes
+  ...sylviculture_routes,
 ];
-
-
 
 // Centralise toutes les stores récupérées dans les import dans une seule liste
 const stores = [
@@ -71,7 +61,7 @@ const MODULES_STORE = {
   getters: {},
   mutations: {},
   actions: {},
-  state: {}
+  state: {},
 };
 
 // Pour chaque module, on ajoute ses store dans MODULES_STORE

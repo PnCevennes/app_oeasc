@@ -21,22 +21,22 @@
  *     - nb_max (comment le gérer en sql)
  *     - fieldName2 (pour les graphique en cascade)
  *
-*/
+ */
 
 import RestitutionDashboard from './restitution-dashboard.vue';
 
-import { apiRequest } from "@/core/js/data/api.js";
+import { apiRequest } from '@/core/js/data/api.js';
 
 const ROUTE = [
-    {
-      path: '/restitution2/test',
-      label: 'Restitution (nouvelle version) - tableau de bord',
-      name: 'restitution2.test',
-      access: 1,
-      hideTitle: true,
-      component: RestitutionDashboard,
-    }
-  ]
+  {
+    path: '/restitution2/test',
+    label: 'Restitution (nouvelle version) - tableau de bord',
+    name: 'restitution2.test',
+    access: 1,
+    hideTitle: true,
+    component: RestitutionDashboard,
+  },
+];
 
 const STORE = {
   actions: {
@@ -45,9 +45,9 @@ const STORE = {
      */
     restitutionCustom: ({ getter }, params) => {
       getter;
-      return apiRequest("GET", `api/resultat/custom/`, { params });
-    }
-  }
-}
+      return apiRequest('GET', `api/resultat/custom/`, { params });
+    },
+  },
+};
 
-export { ROUTE, STORE }
+export { ROUTE, STORE };

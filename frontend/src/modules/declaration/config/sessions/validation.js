@@ -1,21 +1,21 @@
 export default {
   validation: {
-    title: "Validation",
+    title: 'Validation',
     groups: [
       {
-        class: ["no-border"],
-        forms: ["content_validation"]
+        class: ['no-border'],
+        forms: ['content_validation'],
       },
       {
-        forms: ["b_autorisation"]
+        forms: ['b_autorisation'],
       },
       {
-        class: ["no-border"],
-        forms: ["content_resume"]
+        class: ['no-border'],
+        forms: ['content_resume'],
       },
       {
-        forms: ["b_valid"]
-      }
+        forms: ['b_valid'],
+      },
     ],
-  }
+  },
 };

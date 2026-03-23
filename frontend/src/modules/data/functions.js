@@ -13,19 +13,19 @@
  * à partir d'une collection d'objets stockés dans le STORE, en fonction d'un ou plusieurs identifiants.
  * Elle est utile dans les cas où l'on souhaite présenter une synthèse textuelle de plusieurs éléments sélectionnés.
  */
-const dataString = function(STORE, state, getterKey, n, dataKey) {
+const dataString = function (STORE, state, getterKey, n, dataKey) {
   if (!n || (Array.isArray(n) && !n.length)) {
-    return "";
+    return '';
   }
 
   let nArray = Array.isArray(n) ? n : [n];
   return nArray
-    .map(id => {
+    .map((id) => {
       const data = STORE.getters[getterKey](state)(id);
-      return ((data && data[dataKey]) || "");
+      return (data && data[dataKey]) || '';
       // return ((data && data[dataKey]) || "").toLowerCase();
     })
-    .join(", ");
+    .join(', ');
 };
 
 export { dataString };

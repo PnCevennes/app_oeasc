@@ -1,24 +1,23 @@
-
-import val from "../val.vue"
-import faqDeclaration from "../faq-declaration.vue";
-import tableAide from "../table-aide.vue";
-import listePartenaire from "../liste-partenaire.vue";
-import declarationTable from "@/modules/declaration/declaration-table.vue";
-import baseMap from "@/components/map/base-map.vue";
-import contentImg from "../content-img.vue";
-import restitution from "@/modules/restitution/restitution.vue";
-import restitution2 from "@/modules/restitution2/restitution.vue";
-import actualiteBandeau from "../actualites-bandeau.vue"
-import { CONTENT as CHASSE_CONTENT } from "@/modules/chasse/index.js";
-import { CONTENT as IN_CONTENT } from "@/modules/in/index.js";
-import dynamicForm from "@/components/form/dynamic-form.vue";
-import dynamicFormGroup from "@/components/form/dynamic-form-group.vue";
+import val from '../val.vue';
+import faqDeclaration from '../faq-declaration.vue';
+import tableAide from '../table-aide.vue';
+import listePartenaire from '../liste-partenaire.vue';
+import declarationTable from '@/modules/declaration/declaration-table.vue';
+import baseMap from '@/components/map/base-map.vue';
+import contentImg from '../content-img.vue';
+import restitution from '@/modules/restitution/restitution.vue';
+import restitution2 from '@/modules/restitution2/restitution.vue';
+import actualiteBandeau from '../actualites-bandeau.vue';
+import { CONTENT as CHASSE_CONTENT } from '@/modules/chasse/index.js';
+import { CONTENT as IN_CONTENT } from '@/modules/in/index.js';
+import dynamicForm from '@/components/form/dynamic-form.vue';
+import dynamicFormGroup from '@/components/form/dynamic-form-group.vue';
 
 /**
  * @module components
  * @description
  * Ce module exporte un objet contenant différents composants utilisés dans l'application Vue.js.
- * 
+ *
  * Propriétés :
  * - val : Composant principal pour la gestion des valeurs.
  * - faqDeclaration : Composant pour l'affichage de la FAQ concernant les déclarations.
@@ -34,22 +33,22 @@ import dynamicFormGroup from "@/components/form/dynamic-form-group.vue";
  * - dynamicFormGroup : Composant pour la gestion des groupes de formulaires dynamiques.
  * - ...CHASSE_CONTENT : Inclusion des composants spécifiques à la chasse.
  * - ...IN_CONTENT : Inclusion des composants spécifiques à l'inventaire.
- * 
+ *
  * Ces composants sont utilisés pour construire dynamiquement les différentes parties de l'interface utilisateur.
  */
 export default {
-    val,
-    faqDeclaration,
-    tableAide,
-    declarationTable,
-    baseMap,
-    contentImg,
-    listePartenaire,
-    actualiteBandeau,
-    restitution,
-    restitution2,
-    dynamicForm,
-    dynamicFormGroup,
-    ...CHASSE_CONTENT,
-    ...IN_CONTENT,
-  }
+  val,
+  faqDeclaration,
+  tableAide,
+  declarationTable,
+  baseMap,
+  contentImg,
+  listePartenaire,
+  actualiteBandeau,
+  restitution,
+  restitution2,
+  dynamicForm,
+  dynamicFormGroup,
+  ...CHASSE_CONTENT,
+  ...IN_CONTENT,
+};

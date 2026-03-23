@@ -3,7 +3,10 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
 
 <template>
   <div v-if="bInit">
-    <table class="table-declaration" ref="dectable">
+    <table
+      class="table-declaration"
+      ref="dectable"
+    >
       <tbody>
         <tr>
           <th colspan="3">Informations</th>
@@ -14,12 +17,8 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
         </tr>
         <tr>
           <th>Partage d'information</th>
-          <td v-if="declarationDisplay.b_autorisation">
-            Autorisé
-          </td>
-          <td v-else>
-            Non autorisé
-          </td>
+          <td v-if="declarationDisplay.b_autorisation">Autorisé</td>
+          <td v-else>Non autorisé</td>
         </tr>
         <tr v-if="declarationDisplay.declaration_date">
           <th>Date</th>
@@ -59,25 +58,15 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
         </tr>
         <tr>
           <th>Document de gestion durable</th>
-          <td
-            v-if="
-              declarationDisplay.b_document &&
-                declarationDisplay.b_statut_public
-            "
-          >
-            oui <i>(régime forestier)</i>
+          <td v-if="declarationDisplay.b_document && declarationDisplay.b_statut_public">
+            oui
+            <i>(régime forestier)</i>
           </td>
-          <td
-            v-else-if="
-              declarationDisplay.b_document &&
-                !declarationDisplay.b_statut_public
-            "
-          >
-            oui <i>(document de gestion durable)</i>
+          <td v-else-if="declarationDisplay.b_document && !declarationDisplay.b_statut_public">
+            oui
+            <i>(document de gestion durable)</i>
           </td>
-          <td v-else>
-            non
-          </td>
+          <td v-else>non</td>
         </tr>
         <tr v-if="declarationDisplay.foret_type_label">
           <th>Type</th>
@@ -91,7 +80,10 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
 
       <tbody>
         <tr>
-          <th colspan="3">Peuplement - <i>localisation</i></th>
+          <th colspan="3">
+            Peuplement -
+            <i>localisation</i>
+          </th>
         </tr>
         <tr v-if="declarationDisplay.secteur">
           <th>Secteur</th>
@@ -114,7 +106,10 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
 
       <tbody>
         <tr>
-          <th colspan="3">Peuplement - <i>essence(s)</i></th>
+          <th colspan="3">
+            Peuplement -
+            <i>essence(s)</i>
+          </th>
         </tr>
         <tr>
           <th>Principale</th>
@@ -132,12 +127,15 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
 
       <tbody>
         <tr>
-          <th colspan="3">Peuplement - <i>description</i></th>
+          <th colspan="3">
+            Peuplement -
+            <i>description</i>
+          </th>
         </tr>
         <tr>
           <th>Superficie (ha)</th>
           <td>
-            {{ declarationDisplay.peuplement_surface || "Non renseignée" }}
+            {{ declarationDisplay.peuplement_surface || 'Non renseignée' }}
           </td>
         </tr>
         <tr v-if="$store.getters.droitMax > 5">
@@ -161,13 +159,14 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
 
       <tbody>
         <tr>
-          <th colspan="3">Peuplement - <i>protection</i></th>
+          <th colspan="3">
+            Peuplement -
+            <i>protection</i>
+          </th>
         </tr>
         <tr>
           <th>Existence</th>
-          <td v-if="declarationDisplay.b_peuplement_protection_existence">
-            oui
-          </td>
+          <td v-if="declarationDisplay.b_peuplement_protection_existence">oui</td>
           <td v-else>non</td>
         </tr>
         <template v-if="declarationDisplay.b_peuplement_protection_existence">
@@ -182,13 +181,14 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
 
       <tbody>
         <tr>
-          <th colspan="3">Peuplement - <i>pâturage</i></th>
+          <th colspan="3">
+            Peuplement -
+            <i>pâturage</i>
+          </th>
         </tr>
         <tr>
           <th>Présence</th>
-          <td v-if="declarationDisplay.b_peuplement_paturage_presence">
-            oui
-          </td>
+          <td v-if="declarationDisplay.b_peuplement_paturage_presence">oui</td>
           <td v-else>non</td>
         </tr>
         <template v-if="declarationDisplay.b_peuplement_paturage_presence">
@@ -216,7 +216,7 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
         </template>
       </tbody>
 
-      <tbody> 
+      <tbody>
         <tr>
           <th colspan="3">Dégâts</th>
         </tr>
@@ -236,8 +236,7 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
                 {{ degatEssence.degat_essence_label }}
                 <template v-if="degat.degat_type_mnemo != 'ABS'">
                   :
-                  {{ degatEssence.degat_etendue_label }},
-                  {{ degatEssence.degat_gravite_label }},
+                  {{ degatEssence.degat_etendue_label }}, {{ degatEssence.degat_gravite_label }},
                   {{ noPar(degatEssence.degat_anteriorite_label) }}
                 </template>
               </td>
@@ -272,53 +271,53 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
 </template>
 
 <script>
-import { rawToDisplay, getDeclarationData, displayParcelles } from "./declaration.js";
+import { rawToDisplay, getDeclarationData, displayParcelles } from './declaration.js';
 export default {
-  name: "declarationTable",
-  props: ["declaration", "type"],
+  name: 'declarationTable',
+  props: ['declaration', 'type'],
   data: () => ({
-    bInit: false
+    bInit: false,
   }),
   methods: {
     displayParcelles(parcelles) {
-      return displayParcelles(parcelles)
+      return displayParcelles(parcelles);
     },
     noPar(s) {
-      return s.split("(")[0].trim();
+      return s.split('(')[0].trim();
     },
     foretType(s) {
       const foretTypes = {
-        État: "Domaniale",
-        "Centre hospitalier": "Autre forêt publique",
-        "EP PNC": "Autre forêt publique",
-        Commune: "Communale",
-        "Groupement forestier": "Groupement forestier",
-        "Section / hameau": "Sectionale",
-        Privé: "Privée"
+        État: 'Domaniale',
+        'Centre hospitalier': 'Autre forêt publique',
+        'EP PNC': 'Autre forêt publique',
+        Commune: 'Communale',
+        'Groupement forestier': 'Groupement forestier',
+        'Section / hameau': 'Sectionale',
+        Privé: 'Privée',
       };
       return foretTypes[s];
-    }
+    },
   },
   computed: {
     declarationDisplay() {
-      if (this.type === "raw") {
+      if (this.type === 'raw') {
         return rawToDisplay(this);
       }
 
       return this.declaration;
-    }
+    },
   },
   mounted() {
-    if (this.type === "raw") {
+    if (this.type === 'raw') {
       getDeclarationData(this).then(() => {
         this.bInit = true;
         setTimeout(() => {
-          this.$store.commit("declarationTableHeight", this.$el.clientHeight);
+          this.$store.commit('declarationTableHeight', this.$el.clientHeight);
         }, 10);
       });
     } else {
       this.bInit = true;
     }
-  }
+  },
 };
 </script>

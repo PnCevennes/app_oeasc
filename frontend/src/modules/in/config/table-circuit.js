@@ -1,7 +1,6 @@
 // import configCircuitForm from "./form-circuit";
 // // import { sessionFunctions } from "@/components/form/functions/session.js";
 
-
 // export default {
 //   storeName: "inCircuit",
 //   dense: true,

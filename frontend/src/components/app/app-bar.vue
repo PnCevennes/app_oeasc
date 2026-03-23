@@ -16,10 +16,12 @@
 // Utilise Vuetify pour la structure visuelle (v-card, v-app-bar, v-app-bar-nav-icon, v-spacer).
 // Le composant est conçu pour être réutilisable et configurable selon les besoins de l'application. -->
 
-
 <template>
   <v-card>
-    <v-app-bar dense fixed>
+    <v-app-bar
+      dense
+      fixed
+    >
       <v-app-bar-nav-icon @click="drawnerClick()"></v-app-bar-nav-icon>
       <app-bar-menu :config="configMenus.leftMenus"></app-bar-menu>
 
@@ -30,13 +32,13 @@
 </template>
 
 <script>
-import { configMenu } from "./menu.js";
-import appBarMenu from "./app-bar-menu.vue";
+import { configMenu } from './menu.js';
+import appBarMenu from './app-bar-menu.vue';
 
 export default {
-  name: "oeasc-app-bar",
+  name: 'oeasc-app-bar',
   components: { appBarMenu },
-  props: ["config", "value"],
+  props: ['config', 'value'],
   computed: {
     configMenus() {
       return {
@@ -51,7 +53,7 @@ export default {
   },
   methods: {
     drawnerClick() {
-      this.$emit("input", !this.value);
+      this.$emit('input', !this.value);
     },
   },
 };

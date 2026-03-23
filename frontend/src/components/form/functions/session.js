@@ -1,8 +1,6 @@
-import { formFunctions } from "@/components/form/functions/form.js";
+import { formFunctions } from '@/components/form/functions/form.js';
 
 const sessionFunctions = {
-
-
   /**
    * Vérifie la validité des formulaires pour chaque session définie dans la configuration.
    *
@@ -33,7 +31,6 @@ const sessionFunctions = {
     return validForms;
   },
 
-
   /**
    * Renvoie la liste des formulaires associés à une configuration de session.
    *
@@ -63,8 +60,6 @@ const sessionFunctions = {
     return Object.keys(config.formDefs);
   },
 
-
-
   /**
    * Génère une liste de toutes les sessions à partir de la configuration fournie.
    *
@@ -86,8 +81,6 @@ const sessionFunctions = {
     return sessionList;
   },
 
-
-
   /**
    * Retourne la dernière session à partir de la liste des sessions générée par la fonction sessionList.
    *
@@ -96,9 +89,8 @@ const sessionFunctions = {
    */
   lastSession(config) {
     const sessionList = sessionFunctions.sessionList(config);
-    return sessionList[sessionList.length -1];
+    return sessionList[sessionList.length - 1];
   },
-
 
   /**
    * Retourne la première session d'un groupe de sessions spécifique ou, si aucun groupe n'est spécifié,
@@ -109,12 +101,11 @@ const sessionFunctions = {
    * @returns {Object} La première session du groupe spécifié ou la première session globale si aucun groupe n'est fourni.
    */
   firstSession(config, keySessionGroup) {
-    if (! keySessionGroup) {
+    if (!keySessionGroup) {
       return sessionFunctions.sessionList(config)[0];
     }
-    return config.sessionGroups[keySessionGroup].sessions[0]; 
+    return config.sessionGroups[keySessionGroup].sessions[0];
   },
-
 
   /**
    * Retourne la session suivante dans la liste des sessions, basée sur la clé de session actuelle.
@@ -143,7 +134,6 @@ const sessionFunctions = {
     return sessionList[index + 1];
   },
 
-
   /**
    * Retourne la liste des sessions associées à un groupe de session spécifique dans la configuration.
    *
@@ -155,7 +145,6 @@ const sessionFunctions = {
     return config.groups[keySessionGroup].sessions;
   },
 
-
   /**
    * Retourne la clé du groupe de session dont fait partie la session spécifiée.
    *
@@ -164,9 +153,7 @@ const sessionFunctions = {
    * @returns {string|undefined} La clé du groupe de session si elle existe, sinon `undefined`.
    */
   group(config, keySession) {
-    for (const [keySessionGroup, configSessionGroups] of Object.entries(
-      config.sessionGroups
-    )) {
+    for (const [keySessionGroup, configSessionGroups] of Object.entries(config.sessionGroups)) {
       if (configSessionGroups.sessions.includes(keySession)) {
         return keySessionGroup;
       }
@@ -183,7 +170,7 @@ const sessionFunctions = {
   groups(config) {
     const groups = [];
     for (const configSessionGroups of Object.values(config.sessionGroups)) {
-      const subGroups = []
+      const subGroups = [];
       for (const keySession of configSessionGroups.sessions) {
         const sessionDef = config.sessionDefs[keySession];
         if (sessionDef) {
@@ -193,11 +180,10 @@ const sessionFunctions = {
       groups.push({
         groups: subGroups,
         title: configSessionGroups.title,
-      })
+      });
     }
     return groups;
   },
-
 
   /**
    * Vérifie la validité d'une session spécifique en fonction de la configuration et des formulaires valides.
@@ -214,8 +200,8 @@ const sessionFunctions = {
    * Si c'est le cas, elle retourne la condition de validité courante.
    * Sinon, elle met à jour la condition en fonction de la validité du formulaire associé à la session.
    */
-  condValidSession({config, baseModel, $store}, keySessionTest) {
-    const validForms = sessionFunctions.validForms({$store, baseModel, config})
+  condValidSession({ config, baseModel, $store }, keySessionTest) {
+    const validForms = sessionFunctions.validForms({ $store, baseModel, config });
     let cond = true;
     for (const configSessionGroups of Object.values(config.sessionGroups)) {
       for (const keySession of configSessionGroups.sessions) {
@@ -225,9 +211,7 @@ const sessionFunctions = {
         cond = cond && validForms[keySession];
       }
     }
-  }
-
-
+  },
 };
 
-export { sessionFunctions }
+export { sessionFunctions };

@@ -30,7 +30,7 @@
         {{ legend }}
       </h4>
       <!-- {{ config.containerName }} {{ baseModel[config.containerName] }} -->
-      <!-- <div>
+<!-- <div>
         Sélectionnez sur la carte ou dans la liste
         {{ description }}.
         <help code="selection_carte"></help>

@@ -1,6 +1,6 @@
 // import * as chroma from "chroma-js";
-import restitutionUtils from "./utils.js";
-import chroma from "chroma-js";
+import restitutionUtils from './utils.js';
+import chroma from 'chroma-js';
 
 class Restitution {
   $store;
@@ -9,20 +9,20 @@ class Restitution {
   _rawData;
   _defaultTypes = {
     icons: [
-      "circle",
-      "square",
-      "star",
-      "cards-diamond",
-      "cloud",
-      "pentagon",
-      "triangle",
-      "wifi-strength-4"
+      'circle',
+      'square',
+      'star',
+      'cards-diamond',
+      'cloud',
+      'pentagon',
+      'triangle',
+      'wifi-strength-4',
     ],
-    // colors: ["#1b9e77", "#d95f02", "#7570b3"], 
+    // colors: ["#1b9e77", "#d95f02", "#7570b3"],
     colors: chroma.brewer.Dark2,
-    
-    icon: "circle",
-    color: "rgb(150,150,150)"
+
+    icon: 'circle',
+    color: 'rgb(150,150,150)',
   };
 
   constructor(dataType, $store) {
@@ -47,13 +47,16 @@ class Restitution {
     for (const key of Object.keys(options)) {
       this._options[key] = options[key];
     }
-    this.setDefaultOptions()
+    this.setDefaultOptions();
   }
 
   setDefaultOptions() {
     if (this.default) {
       for (const key of Object.keys(this.default)) {
-        this._options[key] = this._options[key] !== undefined ? this._options[key] : JSON.parse(JSON.stringify(this.default[key]));
+        this._options[key] =
+          this._options[key] !== undefined
+            ? this._options[key]
+            : JSON.parse(JSON.stringify(this.default[key]));
       }
       // this._options = this.default;
     }
@@ -65,7 +68,7 @@ class Restitution {
     if (this._options.groupByKey) {
       keys.push(this._options.groupByKey);
     }
-    return data.map(d => {
+    return data.map((d) => {
       const d_ = {};
       for (const key of keys) {
         // for (const key of Object.keys(d)) {
@@ -78,11 +81,9 @@ class Restitution {
   filterData(data, filters) {
     let filteredData = data;
 
-    for (const [key, filter] of Object.entries(
-      filters || this._options.filters || {}
-    )) {
-      filteredData = filteredData.filter(d =>
-        d[key].some(v => !(filter && filter.length && !filter.includes(v)))
+    for (const [key, filter] of Object.entries(filters || this._options.filters || {})) {
+      filteredData = filteredData.filter((d) =>
+        d[key].some((v) => !(filter && filter.length && !filter.includes(v)))
       );
     }
     return filteredData;
@@ -94,13 +95,11 @@ class Restitution {
     const value = item.process ? item.process(d, item) : d[name];
 
     // toujours renvoyer un Array
-    return !value ||
-      value == [] ||
-      (Array.isArray(value) && value.some(v => !v))
-      ? ["Indéfini"]
+    return !value || value == [] || (Array.isArray(value) && value.some((v) => !v))
+      ? ['Indéfini']
       : Array.isArray(value)
-      ? value
-      : [value];
+        ? value
+        : [value];
   }
 
   /** list de {key, value, count, ect..} pour les resultats */
@@ -112,7 +111,7 @@ class Restitution {
       this.filteredData(filters),
       this._options.groupByKey,
       [key],
-      "concat"
+      'concat'
     );
 
     for (const d of dataToProcess) {
@@ -122,29 +121,31 @@ class Restitution {
 
       for (const v of value) {
         // test si déjà dans la liste
-        let elem = dataList.find(d => d.text == v);
+        let elem = dataList.find((d) => d.text == v);
         /// si non on le rajoute
         if (!elem) {
           elem = { text: v, count: 0, key };
 
           dataList.push(elem);
         }
-        const elemTextSave = elemTextSaves.find(text => text == elem.text);
+        const elemTextSave = elemTextSaves.find((text) => text == elem.text);
         if (!elemTextSave) {
           elemTextSaves.push(elem.text);
           elem.count += 1;
         }
       }
     }
-    if (item.type == "date") {
+    if (item.type == 'date') {
       // on rempli les mois pour ne pas avoir de trous
       dataList = restitutionUtils.fillDates(dataList);
       for (const data of dataList) {
         data.icon = this.icon(data.text, dataList);
-        data.color = "grey";
+        data.color = 'grey';
       }
     } else {
-      dataList = item.order ? dataList.sort((a, b) => item.order.indexOf(b.text) - item.order.indexOf(a.text)) : dataList.sort((a, b) => b.count - a.count);
+      dataList = item.order
+        ? dataList.sort((a, b) => item.order.indexOf(b.text) - item.order.indexOf(a.text))
+        : dataList.sort((a, b) => b.count - a.count);
       dataList = this.cutDataList(dataList);
 
       for (const data of dataList) {
@@ -164,7 +165,7 @@ class Restitution {
    */
   patchMaxDegat(d) {
     const key_item_patch = [this._options.choix1, this.options.choix2].find(
-      key => this.item(key) && this.item(key).patch
+      (key) => this.item(key) && this.item(key).patch
     );
     if (key_item_patch) {
       const item = this.item(key_item_patch);
@@ -184,7 +185,7 @@ class Restitution {
           keep[r[key_item_patch]] = r;
         }
       }
-      d.res = Object.keys(keep).map(key => keep[key]);
+      d.res = Object.keys(keep).map((key) => keep[key]);
     }
   }
 
@@ -192,7 +193,6 @@ class Restitution {
    * out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
    */
   groupBy(data, groupByKey = null, keys = [], action = null) {
-
     // si pas de groupByKey on renvoie data
     if (!groupByKey) {
       return data;
@@ -206,13 +206,11 @@ class Restitution {
       }
     }
 
-
     // out: [...{ groupByKey: grouByValue, res: process(dataGroup, processArgs) }...]
     const out = Object.entries(dataDict).map(([groupByValue, dataGroup]) => {
       const d = {};
 
       d[groupByKey] = groupByValue;
-
 
       if (!keys.length) {
         return d;
@@ -220,37 +218,34 @@ class Restitution {
 
       const listGroup = this._options.markersGroupByReduceKeys || [];
 
-      for (const key of keys.filter(key => !listGroup.includes(key) && !!key)) {
+      for (const key of keys.filter((key) => !listGroup.includes(key) && !!key)) {
         const order = this.item(key).order;
-        if(order) {
+        if (order) {
           dataGroup = dataGroup.sort((a, b) => order.indexOf(a[key]) - order.indexOf(b[key]));
         }
         d[key] = dataGroup[0][key];
       }
 
-      const condReduce = keys.some(choix => listGroup.includes(choix));
+      const condReduce = keys.some((choix) => listGroup.includes(choix));
       const dataProcessed = condReduce ? dataGroup : [dataGroup[0]];
 
-      d.res = dataProcessed.map(data => {
+      d.res = dataProcessed.map((data) => {
         const res = {};
-        for (const key of keys.filter(key => !!key)) {
+        for (const key of keys.filter((key) => !!key)) {
           res[key] = data[key];
         }
         return res;
       });
 
-      if (action == "concat") {
+      if (action == 'concat') {
         for (const r of d.res) {
-          for (const key of Object.keys(r).filter(key =>
-            listGroup.includes(key)
-          )) {
+          for (const key of Object.keys(r).filter((key) => listGroup.includes(key))) {
             d[key] = (d[key] || []).concat(r[key]);
           }
         }
       }
 
-
-      if (action == "max") {
+      if (action == 'max') {
         this.patchMaxDegat(d);
       }
 
@@ -266,14 +261,11 @@ class Restitution {
       data1.subDataList = [];
       for (const data2 of dataList2) {
         const filters = {};
-        filters[data1.key] =
-          data1.text != "Autres" ? [data1.text] : data1.autres;
-        filters[data2.key] =
-          data2.text != "Autres" ? [data2.text] : data2.autres;
+        filters[data1.key] = data1.text != 'Autres' ? [data1.text] : data1.autres;
+        filters[data2.key] = data2.text != 'Autres' ? [data2.text] : data2.autres;
         const dataCur = this.filterData(filteredData, filters);
 
-        const countData2 = this.groupBy(dataCur, this.options.groupByKey)
-          .length;
+        const countData2 = this.groupBy(dataCur, this.options.groupByKey).length;
         data1.subDataList.push({ ...data2, count: countData2 });
       }
       data1.subDataList.sort((a, b) => b.count - a.count);
@@ -284,12 +276,12 @@ class Restitution {
   filtersDisplay() {
     let out = [];
     for (const [key, filter] of Object.entries(this._options.filters || {})) {
-      const filterText = filter && filter.length ? filter.join(", ") : "";
+      const filterText = filter && filter.length ? filter.join(', ') : '';
       if (filterText) {
         out.push(`${this.item(key).text} : ${filterText}`);
       }
     }
-    return out.join("; ");
+    return out.join('; ');
   }
 
   markers(dataList1, dataList2) {
@@ -302,38 +294,34 @@ class Restitution {
       dataMarkers = this.groupBy(
         dataMarkers,
         this._options.markersGroupByKey,
-        [
-          this._options.choix1,
-          this._options.choix2,
-          this._options.coordsFieldName
-        ],
-        "max"
+        [this._options.choix1, this._options.choix2, this._options.coordsFieldName],
+        'max'
       );
     }
 
-    const markers = dataMarkers.map(d => {
+    const markers = dataMarkers.map((d) => {
       const defs = [];
 
       for (const res of d.res) {
         const d1 = res[this._options.choix1];
         const d2 = res[this._options.choix2];
-        d1, d2;
+        (d1, d2);
         for (const v1 of d1) {
           if (!d2) {
             defs.push({
               color: this.color(v1, dataList1),
-              icon: this.icon(null, dataList1)
+              icon: this.icon(null, dataList1),
             });
           } else if (d2 && condSame) {
             defs.push({
               icon: this.icon(v1, dataList1),
-              color: this.color(v1, dataList1)
+              color: this.color(v1, dataList1),
             });
           } else {
             for (const v2 of d2) {
               defs.push({
                 icon: this.icon(v2, dataList2),
-                color: this.color(v1, dataList1)
+                color: this.color(v1, dataList1),
               });
             }
           }
@@ -341,9 +329,9 @@ class Restitution {
       }
       return {
         coords: d[this._options.coordsFieldName],
-        type: "label",
+        type: 'label',
         condSame,
-        defs
+        defs,
       };
     });
     markers;
@@ -358,19 +346,17 @@ class Restitution {
     const markerLegendGroups = [{ title: this.yTitle() }];
     const condSame = this.condSame();
     let index = 0;
-    for (const dataList of [dataList1, dataList2].filter(r => !!r)) {
+    for (const dataList of [dataList1, dataList2].filter((r) => !!r)) {
       const key = dataList[0].key;
       const item = this.item(key);
       const markerLegends = {
         title: item.text,
-        legends: dataList.map(data => ({
+        legends: dataList.map((data) => ({
           text: data.text,
           count: data.count,
-          icon:
-            ((condSame || index == 1) && data.icon) || this._defaultTypes.icon,
-          color:
-            ((condSame || index == 0) && data.color) || this._defaultTypes.color
-        }))
+          icon: ((condSame || index == 1) && data.icon) || this._defaultTypes.icon,
+          color: ((condSame || index == 0) && data.color) || this._defaultTypes.color,
+        })),
       };
       index += 1;
 
@@ -385,17 +371,14 @@ class Restitution {
     if (this._data && this._data.length) {
       return this._data;
     }
-    
+
     this._data =
       this._rawData && this._rawData.length
-        ? this.filterData(
-            this.processData(this._rawData),
-            this._options.preFilters || {}
-          )
+        ? this.filterData(this.processData(this._rawData), this._options.preFilters || {})
         : [];
-    this.$store.commit("restitutionDataCount", {
+    this.$store.commit('restitutionDataCount', {
       dataType: this._options.dataType,
-      count: this._data.length
+      count: this._data.length,
     });
     return this._data;
   }
@@ -417,8 +400,7 @@ class Restitution {
     this.resetData();
     let dataList1 = this.dataList(this._options.choix1);
     const item1 = this.item(this._options.choix1);
-    const dataList2 =
-      this._options.choix2 && this.dataList(this._options.choix2);
+    const dataList2 = this._options.choix2 && this.dataList(this._options.choix2);
     const item2 = this.item(this._options.choix2);
 
     if (dataList1 && dataList2) {
@@ -431,8 +413,8 @@ class Restitution {
       choix: {
         choix1: {
           text: item1.text,
-          dataList: dataList1
-        }
+          dataList: dataList1,
+        },
       },
       markers: this.markers(dataList1, dataList2),
       markerLegendGroups: this.markerLegendGroups(dataList1, dataList2),
@@ -440,13 +422,13 @@ class Restitution {
       items: this.items,
       nbDataFiltered: this.filteredData().length,
       nbData: this.data().length,
-      filtersDisplay: this.filtersDisplay()
+      filtersDisplay: this.filtersDisplay(),
     };
 
     if (dataList2) {
       out.choix.choix2 = {
         dataList: dataList2,
-        text: item2.text
+        text: item2.text,
       };
     }
 
@@ -454,9 +436,7 @@ class Restitution {
   }
 
   yTitle() {
-    return this._options.groupByKeyItems.find(
-      i => i.value == this._options.groupByKey
-    ).text;
+    return this._options.groupByKeyItems.find((i) => i.value == this._options.groupByKey).text;
   }
 
   item(key) {
@@ -479,9 +459,9 @@ class Restitution {
       out = types[value];
     } else {
       // sinon types est un array
-      let index = dataList.findIndex(e => e.text == value);
+      let index = dataList.findIndex((e) => e.text == value);
       if (index == -1) {
-        index = dataList.findIndex(e => e.text == "Autres");
+        index = dataList.findIndex((e) => e.text == 'Autres');
       }
 
       out = types[index];
@@ -490,11 +470,11 @@ class Restitution {
   }
 
   icon(value, dataList) {
-    return this.valueOfType("icon", value, dataList);
+    return this.valueOfType('icon', value, dataList);
   }
 
   color(value, dataList) {
-    return this.valueOfType("color", value, dataList);
+    return this.valueOfType('color', value, dataList);
   }
 
   cutDataList(dataList) {
@@ -502,17 +482,17 @@ class Restitution {
       this._options.choix1 == dataList[0].key
         ? this._options.nbMax1
         : this._options.choix2 == dataList[0].key
-        ? this._options.nbMax2
-        : null;
+          ? this._options.nbMax2
+          : null;
 
     if (!nbMax) {
       return dataList;
     }
     const elemAutres = {
-      text: "Autres",
+      text: 'Autres',
       count: 0,
       autres: [],
-      key: dataList[0].key
+      key: dataList[0].key,
     };
     const out = [];
     for (let i = 0; i < dataList.length; i++) {
@@ -533,9 +513,7 @@ class Restitution {
     if (!this._options.dataType) {
       return;
     }
-    const configRestitution = this.$store.getters.configRestitution(
-      this._options.dataType
-    );
+    const configRestitution = this.$store.getters.configRestitution(this._options.dataType);
     if (!configRestitution) {
       return;
     }
@@ -551,12 +529,12 @@ class Restitution {
         resolve([]);
       }
       this.$store.dispatch(this.getDataAction).then(
-        rawData => {
+        (rawData) => {
           this._rawData = rawData;
           resolve(this._rawData);
           return;
         },
-        error => {
+        (error) => {
           reject(error);
           return;
         }

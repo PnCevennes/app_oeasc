@@ -1,16 +1,23 @@
 <template>
   <div v-if="config">
-    <base-map exportImg ref="map" :mapId="mapId" :config="config" fillHeight :height="results.options.height"></base-map>
+    <base-map
+      exportImg
+      ref="map"
+      :mapId="mapId"
+      :config="config"
+      fillHeight
+      :height="results.options.height"
+    ></base-map>
   </div>
 </template>
 
 <script>
-import baseMap from "@/components/map/base-map.vue";
+import baseMap from '@/components/map/base-map.vue';
 
 export default {
-  name: "restitution-map",
+  name: 'restitution-map',
   components: { baseMap },
-  props: ["results"],
+  props: ['results'],
   data: () => ({
     config: null,
     mapId: `map_${Math.ceil(Math.random() * 1e10)}`,
@@ -22,15 +29,13 @@ export default {
   },
   methods: {
     zoomOnFilter(zoomOnFilterKey, fieldName) {
-      if(! ( this.$refs.map && this.$refs.map.mapService)) { return; }
-      let layers = this.$refs.map.mapService.findLayers("key", zoomOnFilterKey);
+      if (!(this.$refs.map && this.$refs.map.mapService)) {
+        return;
+      }
+      let layers = this.$refs.map.mapService.findLayers('key', zoomOnFilterKey);
       const filters = this.results.options.filters[zoomOnFilterKey] || [];
       if (filters && filters.length) {
-        layers = this.$refs.map.mapService.findLayers(
-          fieldName,
-          filters,
-          layers
-        );
+        layers = this.$refs.map.mapService.findLayers(fieldName, filters, layers);
       }
       setTimeout(() => {
         this.$refs.map.mapService.zoomOnLayers(layers);
@@ -47,17 +52,14 @@ export default {
         },
       };
       if (this.results) {
-
         config.markers = this.results && this.results.markers;
-        
-        config.markerLegendGroups =
-          this.results && this.results.markerLegendGroups;
+
+        config.markerLegendGroups = this.results && this.results.markerLegendGroups;
       }
       this.config = config;
       if (this.$refs.map && this.$refs.map.mapService) {
         this.$refs.map.mapService._config.markers = config.markers;
-        this.$refs.map.mapService._config.markerLegendGroups =
-          config.markerLegendGroups;
+        this.$refs.map.mapService._config.markerLegendGroups = config.markerLegendGroups;
         this.$refs.map.mapService.initMarkers();
       }
 
@@ -66,23 +68,15 @@ export default {
       );
       if (zoomOnFilterKey) {
         setTimeout(() => {
-          document
-            .getElementById(this.mapId)
-            .addEventListener("layer-data", ($event) => {
-              const key = $event.detail.key;
-              if (key != zoomOnFilterKey) {
-                return;
-              }
-              this.zoomOnFilter(
-                key,
-                this.results.items[zoomOnFilterKey].zoomOnFilter
-              );
-            });
+          document.getElementById(this.mapId).addEventListener('layer-data', ($event) => {
+            const key = $event.detail.key;
+            if (key != zoomOnFilterKey) {
+              return;
+            }
+            this.zoomOnFilter(key, this.results.items[zoomOnFilterKey].zoomOnFilter);
+          });
         }, 100);
-        this.zoomOnFilter(
-          zoomOnFilterKey,
-          this.results.items[zoomOnFilterKey].zoomOnFilter
-        );
+        this.zoomOnFilter(zoomOnFilterKey, this.results.items[zoomOnFilterKey].zoomOnFilter);
       }
     },
   },

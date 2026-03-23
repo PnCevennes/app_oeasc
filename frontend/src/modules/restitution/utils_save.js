@@ -1,29 +1,29 @@
 // import * as chroma from "chroma-js";
-import chroma from "chroma-js";
+import chroma from 'chroma-js';
 
 const defaults = {
   icon: [
-    "circle",
-    "square",
-    "star",
-    "cards-diamond",
-    "cloud",
-    "pentagon",
-    "triangle",
-    "wifi-strength-4"
+    'circle',
+    'square',
+    'star',
+    'cards-diamond',
+    'cloud',
+    'pentagon',
+    'triangle',
+    'wifi-strength-4',
   ],
-  color: chroma.brewer.Dark2
+  color: chroma.brewer.Dark2,
 };
 
 const defaultValue = {
-  color: "lightgrey",
-  icon: "stop_circle"
+  color: 'lightgrey',
+  icon: 'stop_circle',
 };
 
 const restitution = {
   condFilter(v, options) {
     if (Array.isArray(v)) {
-      return v.some(e => this.condFilter(e, options));
+      return v.some((e) => this.condFilter(e, options));
     }
     const name = options.name;
     return !(
@@ -36,7 +36,7 @@ const restitution = {
 
   valueOfType(type, d, dataList, options = {}) {
     const types = options[type] || defaults[type];
-    const indexElemAutres = dataList.findIndex(e => e.text == "Autres");
+    const indexElemAutres = dataList.findIndex((e) => e.text == 'Autres');
     const value = this.getValue(d, options);
     let index;
     let arrayOut = [];
@@ -46,13 +46,8 @@ const restitution = {
       }
       let out;
       if (Array.isArray(types)) {
-        index = dataList.findIndex(e => e.text == v);
-        out =
-          index != -1
-            ? types[index]
-            : indexElemAutres != -1
-            ? types[indexElemAutres]
-            : null;
+        index = dataList.findIndex((e) => e.text == v);
+        out = index != -1 ? types[index] : indexElemAutres != -1 ? types[indexElemAutres] : null;
       } else {
         out = types[v];
       }
@@ -65,11 +60,11 @@ const restitution = {
   },
 
   color(d, dataList, options = {}) {
-    return this.valueOfType("color", d, dataList, options);
+    return this.valueOfType('color', d, dataList, options);
   },
 
   icon(d, dataList, options = {}) {
-    return this.valueOfType("icon", d, dataList, options);
+    return this.valueOfType('icon', d, dataList, options);
   },
 
   getValue(d, options) {
@@ -90,10 +85,10 @@ const restitution = {
     value = !value
       ? []
       : Array.isArray(value)
-      ? value
-      : options.split
-      ? value.split(options.split)
-      : [value];
+        ? value
+        : options.split
+          ? value.split(options.split)
+          : [value];
 
     return value;
   },
@@ -107,7 +102,7 @@ const restitution = {
         if (!this.condFilter(v, options)) {
           continue;
         }
-        let elem = dataList.find(d => d.text == v);
+        let elem = dataList.find((d) => d.text == v);
         if (!elem) {
           elem = { text: v, count: 0, value: d[options.name] || v };
           dataList.push(elem);
@@ -116,41 +111,34 @@ const restitution = {
       }
     }
 
-    if (options.type == "date") {
+    if (options.type == 'date') {
       dataList = dataList.sort(
         (a, b) =>
-          a.text.split("/")[1] - b.text.split("/")[1] ||
-          a.text.split("/")[0] - b.text.split("/")[0]
+          a.text.split('/')[1] - b.text.split('/')[1] || a.text.split('/')[0] - b.text.split('/')[0]
       );
       const dMin = dataList[0].text;
       const dMax = dataList[dataList.length - 1].text;
       let d = dMin;
-      while (
-        !(
-          d.split("/")[1] >= dMax.split("/")[1] &&
-          d.split("/")[0] >= dMax.split("/")[0]
-        )
-      ) {
-        let y = parseInt(d.split("/")[1]);
-        let m = parseInt(d.split("/")[0]) + 1;
+      while (!(d.split('/')[1] >= dMax.split('/')[1] && d.split('/')[0] >= dMax.split('/')[0])) {
+        let y = parseInt(d.split('/')[1]);
+        let m = parseInt(d.split('/')[0]) + 1;
         if (m == 13) {
           m = 1;
           y += 1;
         }
-        d = `${m < 10 ? "0" : ""}${m}/${y}`;
-        if (!dataList.find(data => data.text == d)) {
+        d = `${m < 10 ? '0' : ''}${m}/${y}`;
+        if (!dataList.find((data) => data.text == d)) {
           dataList.push({ text: d, count: 0 });
         }
       }
       dataList = dataList.sort(
         (a, b) =>
-          a.text.split("/")[1] - b.text.split("/")[1] ||
-          a.text.split("/")[0] - b.text.split("/")[0]
+          a.text.split('/')[1] - b.text.split('/')[1] || a.text.split('/')[0] - b.text.split('/')[0]
       );
     } else {
       dataList = dataList.sort((a, b) => b.count - a.count);
     }
-    if (options.nMax && options.type != "date") {
+    if (options.nMax && options.type != 'date') {
       dataList = this.cutDataList(dataList, options.nMax);
     }
 
@@ -158,20 +146,20 @@ const restitution = {
     for (const data of dataList) {
       data.icon = this.icon(data, dataList, {
         ...options,
-        name: "text",
-        process: null
+        name: 'text',
+        process: null,
       })[0];
       data.color = this.color(data, dataList, {
         ...options,
-        name: "text",
-        process: null
+        name: 'text',
+        process: null,
       })[0];
     }
 
-    if(options.order) {
-      dataList = dataList.sort( (a, b) => {
-        const indexA = options.order.findIndex(e => e == a.text);
-        const indexB = options.order.findIndex(e => e == b.text);
+    if (options.order) {
+      dataList = dataList.sort((a, b) => {
+        const indexA = options.order.findIndex((e) => e == a.text);
+        const indexB = options.order.findIndex((e) => e == b.text);
         return indexB - indexA;
       });
     }
@@ -189,14 +177,12 @@ const restitution = {
         for (const d of data) {
           const value1 = this.getValue(d, options1);
           const value2 = this.getValue(d, options2);
-          const cond1 = data1.text != "Autres" && value1.includes(data1.text);
-          const cond2 = data2.text != "Autres" && value2.includes(data2.text);
+          const cond1 = data1.text != 'Autres' && value1.includes(data1.text);
+          const cond2 = data2.text != 'Autres' && value2.includes(data2.text);
           const cond1_autre =
-            data1.text == "Autres" &&
-            data1.autres.some(textAutre => value1.includes(textAutre));
+            data1.text == 'Autres' && data1.autres.some((textAutre) => value1.includes(textAutre));
           const cond2_autre =
-            data2.text == "Autres" &&
-            data2.autres.some(textAutre => value2.includes(textAutre));
+            data2.text == 'Autres' && data2.autres.some((textAutre) => value2.includes(textAutre));
           if ((cond1 || cond1_autre) && (cond2 || cond2_autre)) {
             countData2++;
           }
@@ -208,7 +194,7 @@ const restitution = {
   },
 
   cutDataList(dataList, nMax) {
-    const elemAutres = { text: "Autres", count: 0, autres: [] };
+    const elemAutres = { text: 'Autres', count: 0, autres: [] };
     const out = [];
     for (let i = 0; i < dataList.length; i++) {
       if (i < nMax) {
@@ -235,61 +221,51 @@ const restitution = {
               dataFiltered,
               {
                 ...itemChoix1,
-                nMax: options.nbMax1
+                nMax: options.nbMax1,
               },
               {
                 ...itemChoix2,
-                nMax: options.nbMax2
+                nMax: options.nbMax2,
               }
             )
           : options.choix1 &&
             restitution.dataList(dataFiltered, {
               ...itemChoix1,
-              nMax: options.nbMax1
+              nMax: options.nbMax1,
             }),
-      ...itemChoix1
+      ...itemChoix1,
     };
 
     const resultChoix2 = itemChoix2 && {
       dataList: restitution.dataList(dataFiltered, {
         ...itemChoix2,
-        nMax: options.nbMax2
+        nMax: options.nbMax2,
       }),
-      ...itemChoix2
+      ...itemChoix2,
     };
-    const markers = restitution.markers(
-      dataFiltered,
-      options,
-      resultChoix1,
-      resultChoix2
-    );
-    const markerLegendGroups = restitution.markerLegendGroups(
-      options,
-      resultChoix1,
-      resultChoix2
-    );
+    const markers = restitution.markers(dataFiltered, options, resultChoix1, resultChoix2);
+    const markerLegendGroups = restitution.markerLegendGroups(options, resultChoix1, resultChoix2);
     return {
       choix: {
         choix1: resultChoix1,
-        choix2: resultChoix2
+        choix2: resultChoix2,
       },
       markers,
       markerLegendGroups,
       ...options,
-      condSame:
-        resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name,
+      condSame: resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name,
       nbData: data.length,
       nbDataFiltered: dataFiltered.length,
-      filtersDisplay: restitution.filtersDisplay(options)
+      filtersDisplay: restitution.filtersDisplay(options),
     };
   },
 
   filtersDisplay(options) {
     let out = [];
     for (const [key, filter] of Object.entries(options.filters || {})) {
-      const filterText = filter && filter.length ? filter.join(", ") : "";
+      const filterText = filter && filter.length ? filter.join(', ') : '';
       if (filterText) {
-        out.push(`${options.items[key].text} : ${filterText}`)
+        out.push(`${options.items[key].text} : ${filterText}`);
       }
     }
     return out.join('; ');
@@ -299,7 +275,7 @@ const restitution = {
     return (
       name in options.items && {
         ...options.items[name],
-        name
+        name,
       }
     );
   },
@@ -308,18 +284,17 @@ const restitution = {
     if (!Object.keys(options.filters || {}).length) {
       return data;
     }
-    const dataFiltered = data.filter(d => {
+    const dataFiltered = data.filter((d) => {
       let cond = true;
       for (const [filterName, filterValue] of Object.entries(options.filters)) {
         const item = restitution.getItem(filterName, options) || {
-          name: filterName
+          name: filterName,
         };
 
         const value = restitution.getValue(d, item);
         const test = filterValue;
         if (!filterValue) continue;
-        const condFilter =
-          !(test && test.length) || test.some(v => value.includes(v));
+        const condFilter = !(test && test.length) || test.some((v) => value.includes(v));
         cond = cond && condFilter;
       }
       return cond;
@@ -328,51 +303,49 @@ const restitution = {
   },
 
   markers(dataFiltered, options, resultChoix1, resultChoix2) {
-    const condSame =
-      resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name;
+    const condSame = resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name;
 
-    return dataFiltered.map(d => {
+    return dataFiltered.map((d) => {
       const icon =
         resultChoix2 &&
-        restitution.valueOfType("icon", d, resultChoix2.dataList, {
+        restitution.valueOfType('icon', d, resultChoix2.dataList, {
           ...resultChoix2,
-          filters: options.filters
+          filters: options.filters,
         });
       const color =
         resultChoix1 &&
-        restitution.valueOfType("color", d, resultChoix1.dataList, {
+        restitution.valueOfType('color', d, resultChoix1.dataList, {
           ...resultChoix1,
-          ...options
+          ...options,
         });
       const defs =
         resultChoix1.processMarkerDefs &&
         resultChoix1.processMarkerDefs(d, { ...resultChoix1, ...options });
       return {
         coords: d[options.coordsFieldName],
-        type: "label",
+        type: 'label',
         condSame,
         defs,
         style: {
           icon,
-          color
-        }
+          color,
+        },
       };
     });
   },
 
   markerLegendGroups(options, resultChoix1, resultChoix2) {
-    const icon_default = "circle";
-    const color_default = "rgb(150,150,150)";
+    const icon_default = 'circle';
+    const color_default = 'rgb(150,150,150)';
     const markerLegendGroups = [];
-    const condSame =
-      resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name;
+    const condSame = resultChoix1 && resultChoix2 && resultChoix2.name == resultChoix1.name;
     let index = 0;
-    for (const res of [resultChoix1, resultChoix2].filter(r => !!r)) {
+    for (const res of [resultChoix1, resultChoix2].filter((r) => !!r)) {
       const markerLegends = {
         title: res.text,
         legends: res.dataList
           .filter(
-            data =>
+            (data) =>
               !(
                 options.filters &&
                 options.filters[res.name] &&
@@ -380,12 +353,12 @@ const restitution = {
                 !options.filters[res.name].includes(data.text)
               )
           )
-          .map(data => ({
+          .map((data) => ({
             text: data.text,
             count: data.count,
             icon: ((condSame || index == 1) && data.icon) || icon_default,
-            color: ((condSame || index == 0) && data.color) || color_default
-          }))
+            color: ((condSame || index == 0) && data.color) || color_default,
+          })),
       };
       index += 1;
 
@@ -399,22 +372,22 @@ const restitution = {
   getData: (config, $store) => {
     return new Promise((resolve, reject) => {
       $store.dispatch(config.getData).then(
-        data => {
+        (data) => {
           resolve(
             restitution.filterData(data, {
               ...config,
-              filters: config.preFilters
+              filters: config.preFilters,
             })
           );
           return;
         },
-        error => {
+        (error) => {
           reject(error);
           return;
         }
       );
     });
-  }
+  },
 };
 
 export { restitution };

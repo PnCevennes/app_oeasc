@@ -1,13 +1,13 @@
-import formDefs from "./form-defs-user";
+import formDefs from './form-defs-user';
 
 export default {
   formDefs,
   action: {
-    label: "Modifier votre mot de passe",
+    label: 'Modifier votre mot de passe',
     request: {
-      url: "register/post_usershub/create_cor_role_token",
-      method: "POST",
+      url: 'register/post_usershub/create_cor_role_token',
+      method: 'POST',
     },
   },
-  forms: ["email"]
+  forms: ['email'],
 };

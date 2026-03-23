@@ -1,29 +1,34 @@
-
-
 <template>
   <!-- formulaire de modification de page
   dynamic-form est un composant de dynamic-form-group qui lui meme est un composant de generic-form.vue.
   -->
 
   <div v-if="displayGroup">
-
     <div>
       <!-- titre -->
-       
+
       <h2 v-if="depth == 0">
         {{ config.title }}
-        <help :code="`${config.help}`" v-if="config.help"></help>
+        <help
+          :code="`${config.help}`"
+          v-if="config.help"
+        ></help>
       </h2>
 
       <h3 v-if="depth == 1">
         {{ config.title }}
-        <help :code="`${config.help}`" v-if="config.help"></help>
+        <help
+          :code="`${config.help}`"
+          v-if="config.help"
+        ></help>
       </h3>
 
       <h4 v-if="depth >= 2">
         {{ config.title }}
-        <help :code="`${config.help}`" v-if="config.help"></help>
-        
+        <help
+          :code="`${config.help}`"
+          v-if="config.help"
+        ></help>
       </h4>
 
       <div>
@@ -32,9 +37,11 @@
         <!-- represente une ligne -->
         <div v-if="formList && formList.length">
           <template v-if="config.direction === 'row'">
-
             <v-row dense>
-              <v-col v-for="(configForm, index) of formList" :key="index">
+              <v-col
+                v-for="(configForm, index) of formList"
+                :key="index"
+              >
                 <dynamic-form
                   :config="configForm"
                   :baseModel="baseModel"
@@ -45,8 +52,11 @@
 
           <!--represente une colonne -->
           <template v-else>
-
-            <v-row dense v-for="(configForm, index) of formList" :key="index">
+            <v-row
+              dense
+              v-for="(configForm, index) of formList"
+              :key="index"
+            >
               <v-col>
                 <dynamic-form
                   :config="configForm"
@@ -61,7 +71,10 @@
         <div v-else-if="groupList && groupList.length">
           <template v-if="config.direction === 'row'">
             <v-row dense>
-              <v-col v-for="(configGroup, index) of groupList" :key="index">
+              <v-col
+                v-for="(configGroup, index) of groupList"
+                :key="index"
+              >
                 <dynamic-form-group
                   :baseModel="baseModel"
                   :depthIn="depth + 1"
@@ -71,7 +84,11 @@
             </v-row>
           </template>
           <template v-else>
-            <v-row dense v-for="(configGroup, index) of groupList" :key="index">
+            <v-row
+              dense
+              v-for="(configGroup, index) of groupList"
+              :key="index"
+            >
               <v-col>
                 <!-- <h3>retest retest</h3> -->
                 <dynamic-form-group
@@ -89,17 +106,17 @@
 </template>
 
 <script>
-import dynamicForm from "@/components/form/dynamic-form.vue";
-import help from "./help.vue"; // contenu d'aide inscrit dans la bdd. A remplacer par static help.vue pour un contenu statique
+import dynamicForm from '@/components/form/dynamic-form.vue';
+import help from './help.vue'; // contenu d'aide inscrit dans la bdd. A remplacer par static help.vue pour un contenu statique
 
 export default {
-  name: "dynamic-form-group",
+  name: 'dynamic-form-group',
   components: {
     dynamicForm,
-    help
+    help,
   },
   data: () => ({}),
-  props: ["config", "baseModel", "depthIn"],
+  props: ['config', 'baseModel', 'depthIn'],
   computed: {
     depth() {
       return this.depthIn || 0;
@@ -115,11 +132,9 @@ export default {
     },
     groupList() {
       return this.computeGroupList(this.config);
-    }
+    },
   },
   methods: {
-
-
     /**
      * Détermine si le groupe doit être affiché en fonction de la présence ou non d'une condition.
      *
@@ -134,12 +149,9 @@ export default {
      */
     computeDisplayGroup(config) {
       return (
-        !config.condition ||
-        config.condition({ baseModel: this.baseModel, $store: this.$store })
+        !config.condition || config.condition({ baseModel: this.baseModel, $store: this.$store })
       );
     },
-
-
 
     /**
      * Génère la liste des formulaires à afficher pour un groupe donné.
@@ -156,37 +168,33 @@ export default {
      */
     computeFormList(config) {
       // Détermine la liste des formulaires à afficher
-      const forms =
-      config.forms ||
-      (!config.groups && Object.keys(config.formDefs || {})) ||
-      [];
+      const forms = config.forms || (!config.groups && Object.keys(config.formDefs || {})) || [];
 
       // Filtre les formulaires selon leur condition et enrichit leur configuration
       return forms
-      .filter(keyForm => {
-        const formDef = config.formDefs[keyForm];
-        // Affiche le formulaire si aucune condition ou si la condition est satisfaite
-        return (
-        !formDef.condition ||
-        formDef.condition({
-          baseModel: this.baseModel,
-          $store: this.$store
+        .filter((keyForm) => {
+          const formDef = config.formDefs[keyForm];
+          // Affiche le formulaire si aucune condition ou si la condition est satisfaite
+          return (
+            !formDef.condition ||
+            formDef.condition({
+              baseModel: this.baseModel,
+              $store: this.$store,
+            })
+          );
         })
-        );
-      })
-      .map(keyForm => {
-        const formDef = config.formDefs[keyForm];
-        // Enrichit la configuration du formulaire avec des propriétés utiles
-        return {
-        ...formDef,
-        formDefs: config.formDefs,
-        name: keyForm,
-        displayValue: this.config.displayValue,
-        displayLabel: this.config.displayLabel
-        };
-      });
+        .map((keyForm) => {
+          const formDef = config.formDefs[keyForm];
+          // Enrichit la configuration du formulaire avec des propriétés utiles
+          return {
+            ...formDef,
+            formDefs: config.formDefs,
+            name: keyForm,
+            displayValue: this.config.displayValue,
+            displayLabel: this.config.displayLabel,
+          };
+        });
     },
-
 
     /**
      * Génère la liste des groupes à afficher pour une configuration donnée.
@@ -201,14 +209,13 @@ export default {
      * - Si aucune propriété "groups" n'est présente, on retourne un tableau vide.
      */
     computeGroupList(config) {
-      return (config.groups || []).map(group => ({
+      return (config.groups || []).map((group) => ({
         ...group,
         formDefs: config.formDefs,
         displayLabel: this.config.displayLabel,
-        displayValue: this.config.displayValue
+        displayValue: this.config.displayValue,
       }));
     },
-
 
     /**
      * Vérifie récursivement si la configuration ou l'un de ses groupes contient au moins un formulaire affichable.
@@ -234,16 +241,12 @@ export default {
       // Vérifie si la configuration contient des groupes
       if (this.config.groups) {
         // Parcourt chaque groupe et vérifie récursivement s'il possède au moins un formulaire affichable
-        return this.config.groups.some(group => this.computeHasForms(group));
+        return this.config.groups.some((group) => this.computeHasForms(group));
       }
       // Si aucun formulaire ni groupe, retourne undefined
-    }
-
-
-  }
+    },
+  },
 };
-
-
 </script>
 
 <style scoped>

@@ -1,5 +1,5 @@
 // import moment from "moment";
-import { copy } from "@/core/js/util/util";
+import { copy } from '@/core/js/util/util';
 
 /**
  * Retourne les zones de localisation associées à une déclaration selon son statut public et la présence d'un document.
@@ -18,7 +18,7 @@ import { copy } from "@/core/js/util/util";
  * @param {Array|Object} d.areas_localisation_cadastre - Zones de localisation cadastrales.
  * @returns {Array|Object} Les zones de localisation pertinentes selon le statut et le document de la déclaration.
  */
-const declarationLocalisationAreas = function(d) {
+const declarationLocalisationAreas = function (d) {
   return d.b_statut_public === true && d.b_document == true
     ? d.areas_localisation_onf_ug
     : d.areas_localisation_cadastre;
@@ -42,12 +42,12 @@ const declarationLocalisationAreas = function(d) {
  * @param {Object} d.areas_foret_dgd - Zone de forêt DGD.
  * @returns {Array|Object} Les zones de forêt pertinentes selon le statut du document.
  */
-const declarationForetAreas = function(d) {
+const declarationForetAreas = function (d) {
   return d.b_document == false
     ? d.areas_foret_section
     : d.b_statut_public
-    ? [d.areas_foret_onf]
-    : [d.areas_foret_dgd];
+      ? [d.areas_foret_onf]
+      : [d.areas_foret_dgd];
 };
 
 /**
@@ -62,16 +62,13 @@ const declarationForetAreas = function(d) {
  * Cette fonction est généralement utilisée lors de l'initialisation ou de la mise à jour des données de déclaration,
  * afin de charger les zones de localisation associées à une déclaration spécifique dans le store.
  */
-const getDeclarationData = function({ declaration, $store }) {
-  return new Promise(resolve => {
-    $store
-      .dispatch("areas", declarationLocalisationAreas(declaration))
-      .then(() => {
-        resolve();
-      });
+const getDeclarationData = function ({ declaration, $store }) {
+  return new Promise((resolve) => {
+    $store.dispatch('areas', declarationLocalisationAreas(declaration)).then(() => {
+      resolve();
+    });
   });
 };
-
 
 /**
  * Transforme un objet de déclaration brute en un objet prêt à être affiché dans l'interface utilisateur.
@@ -93,38 +90,28 @@ const getDeclarationData = function({ declaration, $store }) {
  * @param {Object} params.$store - L'instance du store Vuex pour accéder aux getters de nomenclature.
  * @returns {Object} Un nouvel objet déclaration enrichi et formaté pour l'affichage.
  */
-const rawToDisplay = function({ declaration, $store }) {
+const rawToDisplay = function ({ declaration, $store }) {
   const d = copy(declaration);
 
   d.valide =
     declaration.b_valid === true
-      ? "Validé"
+      ? 'Validé'
       : declaration.b_valid === false
-      ? "Non validé"
-      : "En attente";
+        ? 'Non validé'
+        : 'En attente';
 
   if (d.meta_create_date) {
     d.declaration_date = new Date(d.meta_create_date).toLocaleDateString();
   }
 
-  d.peuplement_acces_label = $store.getters.nomenclatureString(
-    d.id_nomenclature_peuplement_acces
-  );
+  d.peuplement_acces_label = $store.getters.nomenclatureString(d.id_nomenclature_peuplement_acces);
 
-  d.espece_label = $store.getters.nomenclatureString(
-    d.nomenclatures_peuplement_espece
-  );
+  d.espece_label = $store.getters.nomenclatureString(d.nomenclatures_peuplement_espece);
 
   d.statut_public =
-    d.b_statut_public === true
-      ? "Public"
-      : d.b_statut_public === false
-      ? "Privé"
-      : "Indéfini";
+    d.b_statut_public === true ? 'Public' : d.b_statut_public === false ? 'Privé' : 'Indéfini';
 
-  d.foret_type_label = $store.getters.nomenclatureString(
-    d.id_nomenclature_proprietaire_type
-  );
+  d.foret_type_label = $store.getters.nomenclatureString(d.id_nomenclature_proprietaire_type);
 
   d.peuplement_ess_1_label = $store.getters.nomenclatureString(
     d.id_nomenclature_peuplement_essence_principale
@@ -144,9 +131,7 @@ const rawToDisplay = function({ declaration, $store }) {
     d.nomenclatures_peuplement_origine2
   );
 
-  d.peuplement_type_label = $store.getters.nomenclatureString(
-    d.id_nomenclature_peuplement_type
-  );
+  d.peuplement_type_label = $store.getters.nomenclatureString(d.id_nomenclature_peuplement_type);
   d.peuplement_maturite_label = $store.getters.nomenclatureString(
     d.nomenclatures_peuplement_maturite
   );
@@ -156,7 +141,7 @@ const rawToDisplay = function({ declaration, $store }) {
   );
   if (d.autre_protection) {
     d.peuplement_protection_type_label = d.peuplement_protection_type_label.replace(
-      "Autre (préciser)",
+      'Autre (préciser)',
       d.autre_protection
     );
   }
@@ -177,16 +162,14 @@ const rawToDisplay = function({ declaration, $store }) {
     d.nomenclatures_peuplement_paturage_saison
   );
 
-  for (const degat of (d.degats||[])) {
-    degat.degat_type_label = $store.getters.nomenclatureString(
-      degat.id_nomenclature_degat_type
-    );
+  for (const degat of d.degats || []) {
+    degat.degat_type_label = $store.getters.nomenclatureString(degat.id_nomenclature_degat_type);
     degat.degat_type_mnemo = $store.getters.nomenclatureString(
       degat.id_nomenclature_degat_type,
-      "mnemonique"
+      'mnemonique'
     );
 
-    for (const degatEssence of (degat.degat_essences || [])) {
+    for (const degatEssence of degat.degat_essences || []) {
       degatEssence.degat_essence_label = $store.getters.nomenclatureString(
         degatEssence.id_nomenclature_degat_essence
       );
@@ -209,7 +192,6 @@ const rawToDisplay = function({ declaration, $store }) {
   return d;
 };
 
-
 /**
  * Formate et regroupe une liste de parcelles agricoles sous forme de chaîne de caractères.
  *
@@ -230,29 +212,28 @@ const rawToDisplay = function({ declaration, $store }) {
  * Cette fonction est utilisée lors de l'affichage des parcelles dans l'interface utilisateur,
  * afin de présenter les informations de manière plus lisible et synthétique.
  */
-const displayParcelles = function(parcelles) {
-  
-  const parcellesArray = parcelles.split(", ");
-  if ((parcellesArray[0].split("-").length != 3)) {
+const displayParcelles = function (parcelles) {
+  const parcellesArray = parcelles.split(', ');
+  if (parcellesArray[0].split('-').length != 3) {
     return parcelles;
   }
 
-
-
-const groups = {};
-for (const parcelle of parcellesArray) {
-  const parcelleArray = parcelle.split("-");
-  const group_key = parcelleArray[0] + '-' + parcelleArray[1];
-  if (!Object.keys(groups).includes(group_key)) {
-    groups[group_key] = [];
+  const groups = {};
+  for (const parcelle of parcellesArray) {
+    const parcelleArray = parcelle.split('-');
+    const group_key = parcelleArray[0] + '-' + parcelleArray[1];
+    if (!Object.keys(groups).includes(group_key)) {
+      groups[group_key] = [];
+    }
+    groups[group_key].push(parcelleArray[2]);
   }
-  groups[group_key].push(parcelleArray[2]);
-}
-return Object.keys(groups).map((group_key) => {
-  const group = groups[group_key];
-  return group.length == 1 ? `${group_key}-${group[0]}` : `${group_key}-(${group.join(', ')})`;
-}).join(', ');
-}
+  return Object.keys(groups)
+    .map((group_key) => {
+      const group = groups[group_key];
+      return group.length == 1 ? `${group_key}-${group[0]}` : `${group_key}-(${group.join(', ')})`;
+    })
+    .join(', ');
+};
 
 export {
   displayParcelles,

@@ -5,9 +5,8 @@
   >
     <!-- @mouseover="onMouseOver()" @mouseout="onMouseOut()" -->
     <div>
-      
       <!-- si on n'est pas en mode édition et que le contenu est défini -->
-      <div v-if="!bEditContents && content"> 
+      <div v-if="!bEditContents && content">
         <div>
           <!-- bouton pour éditer le contenu -->
           <v-btn
@@ -15,23 +14,23 @@
             v-if="!bEditContents && $store.getters.droitMax >= 5"
             @click="bEditContents = true"
             :ref="`btn-edit-content_${getCode()}`"
-          > 
+          >
             <v-icon>edit</v-icon>
           </v-btn>
         </div>
 
         <!-- affichage de la date de création et de modification pour les actu -->
         <div v-if="displayContentDate">
-
           <i>Le {{ displayDate(content.meta_create_date) }}</i>
 
           <i
             v-if="
-              displayDate(content.meta_create_date) !=
-                displayDate(content.meta_update_date) && false
+              displayDate(content.meta_create_date) != displayDate(content.meta_update_date) &&
+              false
             "
-            >, modifié le {{ displayDate(content.meta_create_date) }}</i
           >
+            , modifié le {{ displayDate(content.meta_create_date) }}
+          </i>
         </div>
 
         <!-- affichage du contenu -->
@@ -40,24 +39,28 @@
           class="content"
           @keydown="$event.stopPropagation()"
           @keyup="$event.stopPropagation()"
-          :template="content.html">
-        </v-runtime-template>
-        
+          :template="content.html"
+        ></v-runtime-template>
       </div>
       <div>
-
-
         <!-- si on est en mode édition -->
-        <div v-if="bEditContents && content" class="edit-content">
+        <div
+          v-if="bEditContents && content"
+          class="edit-content"
+        >
           <div>
-            <v-btn icon v-if="bEditContents" @click="bEditContents = false">
+            <v-btn
+              icon
+              v-if="bEditContents"
+              @click="bEditContents = false"
+            >
               <v-icon>cancel</v-icon>
             </v-btn>
             <v-btn
               icon
               v-if="bEditContents"
               @click="
-                configImgForm.value = {position: 'center'};
+                configImgForm.value = { position: 'center' };
                 dialogImg = true;
               "
             >
@@ -80,16 +83,17 @@
             >
               <v-icon>fa-check</v-icon>
             </v-btn>
-
           </div>
           <generic-form
             :ref="`content-form_${getCode()}`"
             :config="configForm"
             @onSuccess="setContent($event)"
-          >
-          </generic-form>
+          ></generic-form>
 
-          <v-dialog max-width="1400px" v-model="dialogImg">
+          <v-dialog
+            max-width="1400px"
+            v-model="dialogImg"
+          >
             <v-card v-if="dialogImg">
               <genericForm
                 class="edit-dialog"
@@ -99,7 +103,10 @@
             </v-card>
           </v-dialog>
 
-          <v-dialog max-width="1400px" v-model="dialogDoc">
+          <v-dialog
+            max-width="1400px"
+            v-model="dialogDoc"
+          >
             <v-card v-if="dialogDoc">
               <genericForm
                 class="edit-dialog"
@@ -108,7 +115,11 @@
               ></genericForm>
             </v-card>
           </v-dialog>
-          <v-snackbar color="success" v-model="bSnack" :timeout="2000">
+          <v-snackbar
+            color="success"
+            v-model="bSnack"
+            :timeout="2000"
+          >
             {{ msgSnack }}
           </v-snackbar>
         </div>
@@ -116,44 +127,42 @@
         <!-- fin -->
       </div>
     </div>
-    <val/>
+    <val />
   </div>
 </template>
 
 <script>
 // Chargement des contenu pour les type = "page" défini dans le index.js
 
+import { config } from '@/config/config.js';
+import components from './config/components';
 
-
-import { config } from "@/config/config.js";
-import components from "./config/components"
-
-import "./content.css";
+import './content.css';
 // import Vue from "vue";
-import configContentForm from "./config/form-content";
-import configImgForm from "./config/form-img";
-import configDocForm from "./config/form-doc";
-import marked from "marked";
+import configContentForm from './config/form-content';
+import configImgForm from './config/form-img';
+import configDocForm from './config/form-doc';
+import marked from 'marked';
 
-import genericForm from "@/components/form/generic-form"; // formulaire de modification de page
-import VRuntimeTemplate from "v-runtime-template"; // pour l'affichage du contenu markdown dynamique
+import genericForm from '@/components/form/generic-form'; // formulaire de modification de page
+import VRuntimeTemplate from 'v-runtime-template'; // pour l'affichage du contenu markdown dynamique
 
 export default {
-  name: "oeasc-content",
+  name: 'oeasc-content',
   components: {
     ...components,
     VRuntimeTemplate,
-    genericForm
+    genericForm,
   },
   props: [
-    "code",
-    "containerClassIn",
-    "meta",
-    "nbLines",
-    "displayContentDate",
-    "link",
-    "page",
-    "tagNames"
+    'code',
+    'containerClassIn',
+    'meta',
+    'nbLines',
+    'displayContentDate',
+    'link',
+    'page',
+    'tagNames',
   ],
   watch: {
     $route() {
@@ -161,16 +170,15 @@ export default {
       this.initContent();
     },
     content: {
-      handler() {
-      },
-      deep: true
-    }
+      handler() {},
+      deep: true,
+    },
   },
   computed: {
     configForm() {
       const configForm = {
         ...this.configContentForm,
-        value: this.content
+        value: this.content,
       };
       return configForm;
     },
@@ -178,8 +186,8 @@ export default {
       return this.$store.getters.mediaDocPath;
     },
     isPage() {
-      return this.page !== "undefined";
-    }
+      return this.page !== 'undefined';
+    },
   },
   data: () => ({
     mouseIn: true,
@@ -199,11 +207,11 @@ export default {
     bInitialized: false,
     contentValues: {
       id_espece: null,
-      espece:null,
+      espece: null,
       id_zone_indicative: [],
       id_zone_cynegetique: [],
       id_secteur: [],
-      id_saison:null
+      id_saison: null,
     },
   }),
   methods: {
@@ -215,22 +223,26 @@ export default {
     // },
 
     displayDate(date) {
-      if (!date) return "";
+      if (!date) return '';
       const d = new Date(date);
-      const day = String(d.getDate()).padStart(2, "0");
-      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, '0');
+      const month = String(d.getMonth() + 1).padStart(2, '0');
       const year = d.getFullYear();
       return `${day}/${month}/${year}`;
     },
     getImg(event) {
-      let str_img = '<content-img '
-     str_img += !event.position ? '' : event.position=='center' ? " center" : ` float=${event.position}`;
-     str_img += !event.src ? '' : ` src=${event.src}`;
-     str_img += !event.source ? '' : ` source=${event.source}`;
-     str_img += !event.author ? '' : ` author=${event.author}`;
-     str_img += !event.title ? '' : ` title=${event.title}`;
-     str_img += !event.height ? '' : ` height=${event.height}`;
-     str_img += !event.width ? '' : ` width=${event.width}`;
+      let str_img = '<content-img ';
+      str_img += !event.position
+        ? ''
+        : event.position == 'center'
+          ? ' center'
+          : ` float=${event.position}`;
+      str_img += !event.src ? '' : ` src=${event.src}`;
+      str_img += !event.source ? '' : ` source=${event.source}`;
+      str_img += !event.author ? '' : ` author=${event.author}`;
+      str_img += !event.title ? '' : ` title=${event.title}`;
+      str_img += !event.height ? '' : ` height=${event.height}`;
+      str_img += !event.width ? '' : ` width=${event.width}`;
       str_img += ' ></content-img>';
       navigator.clipboard.writeText(str_img).then(() => {
         this.dialogImg = false;
@@ -264,12 +276,12 @@ export default {
     //   }, 1000)
     // },
 
-    setContent(data) { 
+    setContent(data) {
       // recupère le contenu est le transforme en html. Place ce contenu dans content.html qui sera ensuite intégré au template
       this.content = data;
 
       this.configContentForm.value = this.content;
-      let html = marked(data.md || "");
+      let html = marked(data.md || '');
       this.content.html = `<div>${html}</div>`;
       this.bEditContents = !this.content.code;
     },
@@ -282,60 +294,55 @@ export default {
       if (!this.getCode()) {
         const content = {};
         if (this.tagNames) {
-          const configStoreTag = this.$store.getters.configStore("commonsTag");
-          content.tags = this.$store.getters[configStoreTag.storeNames].filter(t => {
-            return this.tagNames.includes(t.nom_tag)
-          }
-          );
+          const configStoreTag = this.$store.getters.configStore('commonsTag');
+          content.tags = this.$store.getters[configStoreTag.storeNames].filter((t) => {
+            return this.tagNames.includes(t.nom_tag);
+          });
         }
         this.setContent(content);
         return;
       }
 
-      const configStore = this.$store.getters.configStore("commonsContent");
-      this.$store
-        .dispatch(configStore.get, { value: this.getCode(), fieldName: "code" })
-        .then(
-          data => {
-            this.setContent(data);
-            // console.log(data);
-          },
-          // si erreur => content vide (comportement prod != dev)
-          error => {error; this.setContent({code: this.getCode()})}
-        );
+      const configStore = this.$store.getters.configStore('commonsContent');
+      this.$store.dispatch(configStore.get, { value: this.getCode(), fieldName: 'code' }).then(
+        (data) => {
+          this.setContent(data);
+          // console.log(data);
+        },
+        // si erreur => content vide (comportement prod != dev)
+        (error) => {
+          error;
+          this.setContent({ code: this.getCode() });
+        }
+      );
     },
 
     // Non utilisé. Permet des raccourcis clavier dans les formulaires
     manageKeys() {
-      if (
-        ["Control", " "].every(key =>
-          Object.keys(this.keysPressed).includes(key)
-        )
-      ) {
+      if (['Control', ' '].every((key) => Object.keys(this.keysPressed).includes(key))) {
         const elem = document.querySelector(
-          ".content :is(h1, h2, h3, h4, h5, h6):hover, .content p:hover, .content li:hover"
+          '.content :is(h1, h2, h3, h4, h5, h6):hover, .content p:hover, .content li:hover'
         );
 
         if (elem && elem.innerHTML) {
           const preText =
-            elem.tagName[0].toLowerCase() == "h"
-              ? "# "
-              : elem.tagName.toLowerCase() == "li"
-              ? "* "
-              : "";
+            elem.tagName[0].toLowerCase() == 'h'
+              ? '# '
+              : elem.tagName.toLowerCase() == 'li'
+                ? '* '
+                : '';
           const text = preText + elem.innerHTML;
 
           let index = this.content.md
-            .replace(this.$store.getters.mediaDocPath, "")
-            .replace(this.$store.getters.mediaImgPath, "")
+            .replace(this.$store.getters.mediaDocPath, '')
+            .replace(this.$store.getters.mediaImgPath, '')
             .indexOf(text);
           for (let s = text.length; s >= 5 || index == -1; s--) {
             index = this.content.md.indexOf(text.substring(0, s));
           }
           setTimeout(() => {
-            const textAreaContent = this.$refs[
-              `content-form_${this.getCode()}`
-            ].$el.querySelector("textarea");
+            const textAreaContent =
+              this.$refs[`content-form_${this.getCode()}`].$el.querySelector('textarea');
             textAreaContent.focus();
             if (index != -1) {
               textAreaContent.setSelectionRange(index, index);
@@ -357,15 +364,13 @@ export default {
       }
     },
 
-
-
     triggerValidForm() {
-        const btnValidFormContent =
-          this.$refs[`content-form_${this.getCode()}`] &&
-          this.$refs[`content-form_${this.getCode()}`].$refs[`btn-valid-form`];
-        if (btnValidFormContent) {
-          btnValidFormContent.click({});
-        }
+      const btnValidFormContent =
+        this.$refs[`content-form_${this.getCode()}`] &&
+        this.$refs[`content-form_${this.getCode()}`].$refs[`btn-valid-form`];
+      if (btnValidFormContent) {
+        btnValidFormContent.click({});
+      }
     },
     // onKeyUp(event) {
     //   if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
@@ -392,7 +397,7 @@ export default {
   mounted() {
     // load Tags
 
-    const configStoreTag = this.$store.getters.configStore("commonsTag");
+    const configStoreTag = this.$store.getters.configStore('commonsTag');
 
     this.$store.dispatch(configStoreTag.getAll).then(() => {
       this.bInitialized = true;
@@ -404,9 +409,7 @@ export default {
 
     // document.removeEventListener("keydown", this.onKeyDown);
     // document.addEventListener("keydown", this.onKeyDown);
-
   },
-  created() {
-  }
+  created() {},
 };
 </script>

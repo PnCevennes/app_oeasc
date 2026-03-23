@@ -4,48 +4,49 @@ const styles = {
     opacity: 1,
     fillOpacity: 0.4,
     color: 'grey',
-    fillColor: '#feb24c'
+    fillColor: '#feb24c',
   },
   aa: {
     weight: 1,
     opacity: 0.8,
     fillOpacity: 0.4,
     color: 'grey',
-    fillColor: '#ffeda0'
+    fillColor: '#ffeda0',
   },
   secteur: {
     weight: 2,
     opacity: 0.8,
     fillOpacity: 0.1,
     color: 'grey',
-    fillColor: '#dfdfdf'
+    fillColor: '#dfdfdf',
   },
-  po: { // perimetre oeasc
+  po: {
+    // perimetre oeasc
     weight: 2,
     opacity: 0.5,
     fillOpacity: 0.2,
-    color: 'black'
+    color: 'black',
   },
   normal: {
     weight: 2,
     opacity: 0.7,
     fillOpacity: 0.3,
     color: 'blue',
-    fillColor: 'blue'
+    fillColor: 'blue',
   },
   select: {
     weight: 2,
     opacity: 0.7,
     fillOpacity: 0.3,
     color: 'orange',
-    fillColor: 'orange'
+    fillColor: 'orange',
   },
   hover: {
     color: 'white',
     weight: 3,
     opacity: 1,
     fillOpacity: 0.4,
-    transition: 'color 1s'
+    transition: 'color 1s',
   },
   foret: {
     color: 'purple',
@@ -53,8 +54,7 @@ const styles = {
     weight: 3,
     opacity: 1,
     fillOpacity: 0.5,
-  }
-
+  },
 };
 
 export { styles };

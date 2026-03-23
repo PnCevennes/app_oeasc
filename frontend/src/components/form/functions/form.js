@@ -1,5 +1,4 @@
-import { copy } from "@/core/js/util/util.js";
-
+import { copy } from '@/core/js/util/util.js';
 
 /**
  * Convertit une chaîne au format "JJMM" en une date valide comprise dans un intervalle donné.
@@ -24,33 +23,33 @@ import { copy } from "@/core/js/util/util.js";
  * obtenue est valide et comprise dans l'intervalle spécifié. Si la date n'est pas valide ou hors intervalle, un message
  * d'erreur explicite est retourné.
  */
-const getDateFromMMJJ =(v, dateMin, dateMax) => {
+const getDateFromMMJJ = (v, dateMin, dateMax) => {
   if (!v || (v && v.length != 4)) {
-    return { err: `${v} doit être au format "JJMM" (4 caractères)`}
+    return { err: `${v} doit être au format "JJMM" (4 caractères)` };
   }
 
-  const jj = v.substring(0,2)
-  const mm = v.substring(2,4)
+  const jj = v.substring(0, 2);
+  const mm = v.substring(2, 4);
 
   // if (new Date(`${2000}-${jj}-${mm}`))
-  let condDate = false
-  for (const aa of [dateMin, dateMax].map(d => d.split('-')[0])) {
+  let condDate = false;
+  for (const aa of [dateMin, dateMax].map((d) => d.split('-')[0])) {
     const dateCur = `${aa}-${mm}-${jj}`;
-    const testDate = (new Date(dateCur)) != 'Invalid Date';
-    condDate = condDate || testDate
-    if(testDate && dateCur >= dateMin && dateCur <= dateMax) {
-      return dateCur
+    const testDate = new Date(dateCur) != 'Invalid Date';
+    condDate = condDate || testDate;
+    if (testDate && dateCur >= dateMin && dateCur <= dateMax) {
+      return dateCur;
     }
   }
 
   if (condDate) {
-    return {err: `La date ne convient pas à l'intervalle ${dateMin.split('-').reverse().join('/')} - ${dateMax.split('-').reverse().join('/')}`}
+    return {
+      err: `La date ne convient pas à l'intervalle ${dateMin.split('-').reverse().join('/')} - ${dateMax.split('-').reverse().join('/')}`,
+    };
   } else {
-    return {err: `La valeur de JJMM : ${v} n'est pas valide`}
+    return { err: `La valeur de JJMM : ${v} n'est pas valide` };
   }
-}
-
-
+};
 
 /**
  * Traite et normalise le label français d'une essence pour le tri.
@@ -59,14 +58,12 @@ const getDateFromMMJJ =(v, dateMin, dateMax) => {
  * @param {Object} a - Objet représentant une essence, contenant la propriété 'label_fr'.
  * @returns {string} Le label français normalisé, prêt pour le tri.
  */
-const processEssenceSort = a => {
+const processEssenceSort = (a) => {
   const b = a.label_fr.toLowerCase();
-  b.replace("é", "e");
-  b.replace("ê", "e");
+  b.replace('é', 'e');
+  b.replace('ê', 'e');
   return b;
 };
-
-
 
 /**
  * Trie deux objets selon leur propriété `label_fr` et une fonction de traitement personnalisée.
@@ -81,13 +78,13 @@ const processEssenceSort = a => {
  * @returns {number} Un nombre négatif si `a` doit précéder `b`, positif si `a` doit suivre `b`, ou zéro s'ils sont équivalents.
  */
 const sortEssence = (a, b) => {
-  if (a.label_fr.includes("Autre") && b.label_fr.includes("Autre")) {
+  if (a.label_fr.includes('Autre') && b.label_fr.includes('Autre')) {
     return 1 - 2 * (aa - bb);
   }
-  if (a.label_fr.includes("Autre")) {
+  if (a.label_fr.includes('Autre')) {
     return 1;
   }
-  if (b.label_fr.includes("Autre")) {
+  if (b.label_fr.includes('Autre')) {
     return -1;
   }
 
@@ -95,8 +92,6 @@ const sortEssence = (a, b) => {
   const bb = processEssenceSort(b);
   return 1 - 2 * (aa - bb);
 };
-
-
 
 /**
  * Récupère les essences sélectionnées dans le modèle de base et les organise par type.
@@ -122,34 +117,26 @@ const getEssencesSelected = ({ baseModel, $store }) => {
   const essencesSelected = {};
 
   // Ajoute toutes les essences secondaires et complémentaires dans "all"
-  essencesSelected["all"] = [
+  essencesSelected['all'] = [
     ...baseModel.nomenclatures_peuplement_essence_secondaire,
-    ...baseModel.nomenclatures_peuplement_essence_complementaire
+    ...baseModel.nomenclatures_peuplement_essence_complementaire,
   ];
   // Ajoute l'essence principale si elle existe
   if (baseModel.id_nomenclature_peuplement_essence_principale) {
-    essencesSelected["all"].push(
-      baseModel.id_nomenclature_peuplement_essence_principale
-    );
+    essencesSelected['all'].push(baseModel.id_nomenclature_peuplement_essence_principale);
   }
 
   // Ajoute les essences secondaires et principale dans "degats"
-  essencesSelected["degats"] = [
-    ...baseModel.nomenclatures_peuplement_essence_secondaire
-  ];
+  essencesSelected['degats'] = [...baseModel.nomenclatures_peuplement_essence_secondaire];
   if (baseModel.id_nomenclature_peuplement_essence_principale) {
-    essencesSelected["degats"].push(
-      baseModel.id_nomenclature_peuplement_essence_principale
-    );
+    essencesSelected['degats'].push(baseModel.id_nomenclature_peuplement_essence_principale);
   }
 
   // Pour chaque dégât, ajoute les essences associées sous la clé du code nomenclature du dégât (sauf "P/C")
   for (const degat of baseModel.degats || []) {
-    const nomenclature = $store.getters.nomenclature(
-      degat.id_nomenclature_degat_type
-    );
+    const nomenclature = $store.getters.nomenclature(degat.id_nomenclature_degat_type);
     const cd = nomenclature.cd_nomenclature;
-    if (cd !== "P/C") {
+    if (cd !== 'P/C') {
       essencesSelected[cd] = [];
       for (const degat_essence of degat.degat_essences || []) {
         essencesSelected[cd].push(degat_essence.id_nomenclature_degat_essence);
@@ -158,8 +145,6 @@ const getEssencesSelected = ({ baseModel, $store }) => {
   }
   return essencesSelected;
 };
-
-
 
 /**
  * Traite une ou plusieurs zones et les convertit en une chaîne de caractères séparée par des tirets.
@@ -175,10 +160,9 @@ const getEssencesSelected = ({ baseModel, $store }) => {
  * // Pour plusieurs zones
  * processAreas(["zone1", "zone2"]); // Retourne "zone1-zone2"
  */
-const processAreas = function(areas) {
-  return (Array.isArray(areas) ? areas : [areas]).join("-");
+const processAreas = function (areas) {
+  return (Array.isArray(areas) ? areas : [areas]).join('-');
 };
-
 
 /**
  * Filtre et trie les éléments selon la configuration et le modèle de base pour le type "essence".
@@ -199,7 +183,7 @@ const processAreas = function(areas) {
  */
 const processItems = {
   essence: ({ config, dataItems, baseModel }) => {
-    const items = dataItems.filter(item => {
+    const items = dataItems.filter((item) => {
       const modelArray = Array.isArray(baseModel[config.name])
         ? baseModel[config.name]
         : [baseModel[config.name]];
@@ -207,28 +191,20 @@ const processItems = {
       const selected = config.essencesSelected[config.essenceType] || [];
 
       const condData =
-        config.essenceType === "all" ||
-        !!config.essencesSelected["degats"].find(
-          i => i === item.id_nomenclature
-        );
-      const condAlreadySelected = !!selected.find(
-        i => i === item.id_nomenclature
-      );
-      const condCurrentFormSelected = !!modelArray.find(
-        i => i === item.id_nomenclature
-      );
+        config.essenceType === 'all' ||
+        !!config.essencesSelected['degats'].find((i) => i === item.id_nomenclature);
+      const condAlreadySelected = !!selected.find((i) => i === item.id_nomenclature);
+      const condCurrentFormSelected = !!modelArray.find((i) => i === item.id_nomenclature);
 
       return (condData && !condAlreadySelected) || condCurrentFormSelected;
     });
     items.sort(sortEssence);
 
     return items;
-  }
+  },
 };
 
-
 const change = {};
-
 
 /**
  * Ensemble de règles de validation pour les champs de formulaire.
@@ -240,29 +216,29 @@ const rules = {
    * @param {*} v - Valeur à tester.
    * @returns {true|string} - true si valide, sinon message d'erreur.
    */
-  requiredBool: v => [true, false].includes(v) || "Ce champs est obligatoire.",
+  requiredBool: (v) => [true, false].includes(v) || 'Ce champs est obligatoire.',
 
   /**
    * Vérifie que la valeur n'est pas nulle, indéfinie ou vide.
    * @param {*} v - Valeur à tester.
    * @returns {true|string} - true si valide, sinon message d'erreur.
    */
-  required: v => ![null, undefined, ''].includes(v) || "Ce champs est obligatoire.",
+  required: (v) => ![null, undefined, ''].includes(v) || 'Ce champs est obligatoire.',
 
   /**
    * Vérifie qu'une valeur (simple) a été sélectionnée dans une liste.
    * @param {*} v - Valeur à tester.
    * @returns {true|string} - true si valide, sinon message d'erreur.
    */
-  requiredListSimple: v => !!v || "Veuillez choisir un élément dans la liste.",
+  requiredListSimple: (v) => !!v || 'Veuillez choisir un élément dans la liste.',
 
   /**
    * Vérifie qu'au moins une valeur a été sélectionnée dans une liste multiple.
    * @param {Array} v - Valeur à tester.
    * @returns {true|string} - true si valide, sinon message d'erreur.
    */
-  requiredListMultiple: v =>
-    v && v.length > 0 || "Veuillez choisir un ou plusieurs éléments dans la liste.",
+  requiredListMultiple: (v) =>
+    (v && v.length > 0) || 'Veuillez choisir un ou plusieurs éléments dans la liste.',
 
   /**
    * Vérifie que la valeur est un nombre valide.
@@ -270,9 +246,12 @@ const rules = {
    * @param {*} v - Valeur à tester.
    * @returns {true|string} - true si valide, sinon message d'erreur.
    */
-  number: v => { 
+  number: (v) => {
     return (
-      "" == v || Number(v) == 0 || !!Number(v) || `Veuillez entrer un nombre ${v && v.includes(',') ? "(utiliser un point à la place de la virgule pour les décimales)" : ''}`
+      '' == v ||
+      Number(v) == 0 ||
+      !!Number(v) ||
+      `Veuillez entrer un nombre ${v && v.includes(',') ? '(utiliser un point à la place de la virgule pour les décimales)' : ''}`
     );
   },
 
@@ -281,56 +260,52 @@ const rules = {
    * @param {string} v - Valeur à tester.
    * @returns {true|string} - true si valide, sinon message d'erreur.
    */
-  telephone: v => !v ||
+  telephone: (v) =>
+    !v ||
     /^0[1-9]([ -]?[0-9][0-9]){4}$/.test(v) ||
-    "Le numéro de téléphone doit être valide (10 chiffres)."
-  ,
-
+    'Le numéro de téléphone doit être valide (10 chiffres).',
   /**
    * Vérifie que l'adresse e-mail est valide.
    * @param {string} v - Valeur à tester.
    * @returns {true|string} - true si valide, sinon message d'erreur.
    */
-  email: v => !v || /.+@.+\..+/.test(v) || "L'e-mail doit être valide.",
+  email: (v) => !v || /.+@.+\..+/.test(v) || "L'e-mail doit être valide.",
 
   /**
    * Vérifie que la longueur de la valeur ne dépasse pas un maximum.
    * @param {number} max - Longueur maximale autorisée.
    * @returns {function} - Fonction de validation.
    */
-  maxLength: max => v =>
-    v.length <= max || `Choisir un maximum de ${max} éléments.`,
+  maxLength: (max) => (v) => v.length <= max || `Choisir un maximum de ${max} éléments.`,
 
   /**
    * Vérifie que le nombre d'essences sélectionnées ne dépasse pas un maximum.
    * @param {number} max - Nombre maximum d'essences.
    * @returns {function} - Fonction de validation.
    */
-  maxLengthEssence: max => v =>
-    v && ( v.length <= max ) || `${max} essence${max > 1 ? "s" : ""} maximum.`,
+  maxLengthEssence: (max) => (v) =>
+    (v && v.length <= max) || `${max} essence${max > 1 ? 's' : ''} maximum.`,
 
   /**
    * Vérifie que la valeur est supérieure ou égale à un minimum.
    * @param {number} min - Valeur minimale.
    * @returns {function} - Fonction de validation.
    */
-  min: min => v =>
-    v >= min || `La valeur doit être supérieure ou égale à ${min}.`,
+  min: (min) => (v) => v >= min || `La valeur doit être supérieure ou égale à ${min}.`,
 
   /**
    * Vérifie que la valeur est inférieure ou égale à un maximum.
    * @param {number} max - Valeur maximale.
    * @returns {function} - Fonction de validation.
    */
-  max: max => v =>
-    v >= max || `La valeur doit être inférieure ou égale à ${max}.`,
+  max: (max) => (v) => v >= max || `La valeur doit être inférieure ou égale à ${max}.`,
 
   /**
    * Vérifie que la date saisie est supérieure ou égale à la date minimale.
    * @param {string} dateMin - Date minimale au format AAAA-MM-JJ.
    * @returns {function} - Fonction de validation.
    */
-  dateMin: dateMin => v => {
+  dateMin: (dateMin) => (v) => {
     const dateMinFr = dateMin.split('-').reverse().join('/');
     return v >= dateMin || `La date saisie est inférieure à la date minimale : ${dateMinFr}`;
   },
@@ -340,7 +315,7 @@ const rules = {
    * @param {string} dateMax - Date maximale au format AAAA-MM-JJ.
    * @returns {function} - Fonction de validation.
    */
-  dateMax: dateMax => v => {
+  dateMax: (dateMax) => (v) => {
     const dateMaxFr = dateMax.split('-').reverse().join('/');
     return v <= dateMax || `La date saisie est supérieure à la date maximale : ${dateMaxFr}`;
   },
@@ -350,44 +325,38 @@ const rules = {
    * Ajoute dynamiquement les règles selon le type et les propriétés du champ.
    * @param {Object} config - Configuration du champ de formulaire.
    */
-  processRules: function(config) {
+  processRules: function (config) {
     config.rules = config.rules || [];
 
     // Ajout de la règle "required" selon le type de champ
     if (config.required) {
       let ruleRequired = rules.required;
-      if (["list-form", "nomenclature", "select_map", 'essence'].includes(config.type)) {
-        ruleRequired = config.multiple
-          ? rules.requiredListMultiple
-          : rules.requiredListSimple;
-      } else if (["bool_radio", "bool_switch"].includes(config.type)) {
+      if (['list-form', 'nomenclature', 'select_map', 'essence'].includes(config.type)) {
+        ruleRequired = config.multiple ? rules.requiredListMultiple : rules.requiredListSimple;
+      } else if (['bool_radio', 'bool_switch'].includes(config.type)) {
         ruleRequired = rules.requiredBool;
       }
       config.rules.push(ruleRequired);
     }
 
     // Ajout de la règle "number" pour les champs numériques
-    if (config.type == "number") {
+    if (config.type == 'number') {
       config.rules.push(rules.number);
     }
 
     // Ajout de la règle "email" pour les champs email
-    if(config.type == 'email') {
-      config.rules.push(rules.email)
+    if (config.type == 'email') {
+      config.rules.push(rules.email);
     }
 
     // Ajout des règles de longueur et de valeur minimale/maximale si présentes dans la config
-    for (const key of ["maxLength", "maxLengthEssence", "min", "max"]) {
+    for (const key of ['maxLength', 'maxLengthEssence', 'min', 'max']) {
       if (key in config) {
         config.rules.push(rules[key](config[key]));
       }
     }
   },
-
 };
-
-
-
 
 /**
  * Vérifie si un formulaire est valide selon sa définition et les règles associées.
@@ -405,13 +374,13 @@ const rules = {
  * applique les règles de validation, puis vérifie la condition associée au formulaire.
  * La validation est considérée comme réussie si toutes les règles sont respectées ou si la condition du formulaire n'est pas remplie.
  */
-const isValidForm = function({ $store, baseModel, config }, keyForm) {
+const isValidForm = function ({ $store, baseModel, config }, keyForm) {
   const formDef = copy(config.formDefs[keyForm]);
 
   let condRules = true;
 
   formDef.required =
-    typeof formDef.required === "function"
+    typeof formDef.required === 'function'
       ? formDef.required({ $store, baseModel })
       : formDef.required;
 
@@ -421,14 +390,10 @@ const isValidForm = function({ $store, baseModel, config }, keyForm) {
     condRules = condRules && rule(baseModel[keyForm]) === true;
   }
 
-  let condCondition =
-    !formDef.condition ||
-    formDef.condition({ baseModel, $store });
+  let condCondition = !formDef.condition || formDef.condition({ baseModel, $store });
 
   return condRules || !condCondition;
-}
-
-
+};
 
 const formFunctions = {
   processItems,
@@ -437,7 +402,7 @@ const formFunctions = {
   getEssencesSelected,
   processAreas,
   isValidForm,
-  getDateFromMMJJ
+  getDateFromMMJJ,
   // processFormGroupConfig
 };
 

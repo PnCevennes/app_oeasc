@@ -1,21 +1,20 @@
 <template>
   <div v-if="configRealisationForm">
-    <generic-form :config="configRealisationForm">
-    </generic-form>
+    <generic-form :config="configRealisationForm"></generic-form>
   </div>
 </template>
 
 <script>
-import genericForm from "@/components/form/generic-form";
-import configRealisationForm from "./config/form-realisation";
+import genericForm from '@/components/form/generic-form';
+import configRealisationForm from './config/form-realisation';
 
 export default {
-  name: "in-form",
+  name: 'in-form',
   data: () => ({
-    configRealisationForm
+    configRealisationForm,
   }),
   components: {
-    genericForm
-  }
+    genericForm,
+  },
 };
 </script>

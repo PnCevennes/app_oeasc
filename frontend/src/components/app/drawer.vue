@@ -2,18 +2,24 @@
 
 <template>
   <v-navigation-drawer
-  fixed
+    fixed
     v-model="config.show"
     temporary
     width="500"
   >
-    <v-list dense nav class="py-0">
+    <v-list
+      dense
+      nav
+      class="py-0"
+    >
       <template v-for="(item, index) of configMenus">
-        <v-list-group v-if="item.menus.length" :key="`item.${index}`" :prepend-icon="item.icon">
+        <v-list-group
+          v-if="item.menus.length"
+          :key="`item.${index}`"
+          :prepend-icon="item.icon"
+        >
           <template v-slot:activator>
-            <v-list-item-title>{{
-              item.label
-            }}</v-list-item-title>
+            <v-list-item-title>{{ item.label }}</v-list-item-title>
           </template>
           <v-list-item
             v-for="(subItem, indexSub) of item.menus"
@@ -21,7 +27,7 @@
             :to="subItem.path"
             @click="drawer = false"
           >
-          <v-list-item-icon>
+            <v-list-item-icon>
               <v-icon>blougi</v-icon>
             </v-list-item-icon>
             <v-list-item-content>
@@ -33,12 +39,14 @@
           </v-list-item>
         </v-list-group>
 
-        <v-list-item v-else :key="index" :to="item.path">
-          <v-list-item-icon> </v-list-item-icon>
+        <v-list-item
+          v-else
+          :key="index"
+          :to="item.path"
+        >
+          <v-list-item-icon></v-list-item-icon>
           <v-list-item-content>
-            <v-list-item-title>{{
-              item.label
-            }}</v-list-item-title>
+            <v-list-item-title>{{ item.label }}</v-list-item-title>
           </v-list-item-content>
           <v-list-item-icon>
             <v-icon>{{ item.icon }}</v-icon>
@@ -50,20 +58,21 @@
 </template>
 
 <script>
-
-import { configMenu } from "./menu.js";
+import { configMenu } from './menu.js';
 
 // Création d'un menu latéral coulissant contenu dans menu.js
 // temporary : Le drawer est temporaire, ce qui signifie qu'il se superpose au contenu principal et disparaît lorsqu'il est fermé.
 // fixed : Le drawer est fixé à sa position et ne défile pas avec le contenu principal.
 
 export default {
-  name: "oeasc-drawer",
-  props: ["config"],
+  name: 'oeasc-drawer',
+  props: ['config'],
   computed: {
     configMenus() {
-      return this.config.menus.map(menuName => configMenu(menuName, this)).filter(m => !m.hidden);
-    }
-  }
+      return this.config.menus
+        .map((menuName) => configMenu(menuName, this))
+        .filter((m) => !m.hidden);
+    },
+  },
 };
 </script>

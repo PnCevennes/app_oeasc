@@ -2,30 +2,29 @@
  * class pour gérer les cartes de l'application oeasc
  */
 
-import { copy } from "@/core/js/util/util.js";
-import "leaflet/dist/leaflet.css";
-import "./map.css";
-import "leaflet/dist/leaflet";
-import * as L from "leaflet";
-import "leaflet-easyprint";
-import icon from "leaflet/dist/images/marker-icon.png";
-import iconRetina from "leaflet/dist/images/marker-icon-2x.png";
-import iconShadow from "leaflet/dist/images/marker-shadow.png";
-import { mapConfig, staticMapConfig } from "./map-elements/map-config.js";
-import { mapPane } from "./map-elements/map-pane.js";
-import { mapTile } from "./map-elements/map-tile.js";
-import { mapTooltip } from "./map-elements/map-tooltip.js";
-import { mapLayer } from "./map-elements/map-layer.js";
-import { mapLegend } from "./map-elements/map-legend.js";
-import { mapExport } from "./map-elements/map-export.js";
-import { mapMarker } from "./map-elements/map-marker.js";
-
+import { copy } from '@/core/js/util/util.js';
+import 'leaflet/dist/leaflet.css';
+import './map.css';
+import 'leaflet/dist/leaflet';
+import * as L from 'leaflet';
+import 'leaflet-easyprint';
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+import { mapConfig, staticMapConfig } from './map-elements/map-config.js';
+import { mapPane } from './map-elements/map-pane.js';
+import { mapTile } from './map-elements/map-tile.js';
+import { mapTooltip } from './map-elements/map-tooltip.js';
+import { mapLayer } from './map-elements/map-layer.js';
+import { mapLegend } from './map-elements/map-legend.js';
+import { mapExport } from './map-elements/map-export.js';
+import { mapMarker } from './map-elements/map-marker.js';
 
 /**
  * @constant {L.Icon} DefaultIcon
  * @description
  * Icône par défaut utilisée pour les marqueurs sur la carte Leaflet.
- * 
+ *
  * Propriétés :
  * - iconAnchor : [12, 41] — Position de l'ancre de l'icône (point de référence sur l'image).
  * - iconSize : [25, 41] — Taille de l'icône en pixels.
@@ -42,11 +41,9 @@ let DefaultIcon = L.icon({
   tooltipAnchor: [16, -28],
   iconUrl: icon,
   iconRetinaUrl: iconRetina,
-  shadowUrl: iconShadow
+  shadowUrl: iconShadow,
 });
 L.Marker.prototype.options.icon = DefaultIcon;
-
-
 
 /**
  * @constant {Array} mapModules
@@ -70,11 +67,10 @@ const mapModules = [
   mapLayer,
   mapLegend,
   mapExport,
-  mapMarker
+  mapMarker,
 ];
 
 const staticMapModules = [staticMapConfig];
-
 
 class MapService {
   _id; // map id
@@ -88,7 +84,7 @@ class MapService {
     this._config = config;
   }
 
-  map = function() {
+  map = function () {
     return this._map;
   };
 
@@ -98,7 +94,7 @@ class MapService {
 
   /**
    * Initialise la carte Leaflet avec la configuration spécifiée.
-   * 
+   *
    * Étapes principales :
    * 1. Vérifie et traite la configuration de la carte.
    * 2. Crée l'objet carte Leaflet et définit les options de zoom.
@@ -109,10 +105,10 @@ class MapService {
    * 7. Initialise les couches supplémentaires (layers).
    * 8. Initialise les marqueurs sur la carte.
    * 9. Corrige la taille de la carte à différents intervalles pour éviter les bugs d'affichage liés aux animations ou aux requêtes asynchrones.
-   * 
+   *
    * @returns {boolean} true si l'initialisation a réussi, false sinon.
    */
-  init = function() {
+  init = function () {
     // 1. Traite la configuration de la carte ; si elle est invalide, arrête l'initialisation.
     if (!this.processConfig()) {
       return;
@@ -120,8 +116,8 @@ class MapService {
 
     // 2. Crée l'objet carte Leaflet avec des options de zoom personnalisées.
     this._map = L.map(this._id, {
-      zoomSnap: 0.1,   // Précision du zoom (fraction de niveau de zoom)
-      zoomDelta: 0.5   // Incrément de zoom lors des actions utilisateur
+      zoomSnap: 0.1, // Précision du zoom (fraction de niveau de zoom)
+      zoomDelta: 0.5, // Incrément de zoom lors des actions utilisateur
     });
 
     // 3. Centre la carte sur la vue initiale et le niveau de zoom définis dans la configuration.
@@ -153,15 +149,12 @@ class MapService {
     // Retourne true si l'initialisation s'est déroulée correctement.
     return true;
   };
-
-  
 }
 
 // ajout des methodes des module Panes, Tiles, Layers, Markers à la classe mapConfig
 for (const methods of mapModules) {
   Object.assign(MapService.prototype, methods);
 }
-
 
 // ajout des méthodes situés dans map-config.js à la classe MapService
 for (const methods of staticMapModules) {

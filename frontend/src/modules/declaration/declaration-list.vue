@@ -6,16 +6,34 @@
   <div>
     <div>
       <div>
-        <v-btn v-if="$store.getters.isAuth" @click="bDialogExport = true" color="primary">Exporter les données</v-btn>
+        <v-btn
+          v-if="$store.getters.isAuth"
+          @click="bDialogExport = true"
+          color="primary"
+        >
+          Exporter les données
+        </v-btn>
         <v-spacer></v-spacer>
 
-        <v-dialog v-model="bDialogExport" max-width="500">
+        <v-dialog
+          v-model="bDialogExport"
+          max-width="500"
+        >
           <v-card>
             <v-card-title class="headline">Exporter les données</v-card-title>
 
             <v-card-text>
-              <div v-for="(item, index) of exports" :key="index">
-                <v-btn :href="item.href" color="success" class="btn-spaced">{{ item.label }}</v-btn>
+              <div
+                v-for="(item, index) of exports"
+                :key="index"
+              >
+                <v-btn
+                  :href="item.href"
+                  color="success"
+                  class="btn-spaced"
+                >
+                  {{ item.label }}
+                </v-btn>
                 <i>{{ item.subLabel }}</i>
               </div>
             </v-card-text>
@@ -28,11 +46,10 @@
 </template>
 
 <script>
-import { config } from "@/config/config.js";
-import genericTable from "@/components/table/generic-table";
-import "@/core/css/main.scss";
-import configDeclarationTable from "./config/table-declaration"
-
+import { config } from '@/config/config.js';
+import genericTable from '@/components/table/generic-table';
+import '@/core/css/main.scss';
+import configDeclarationTable from './config/table-declaration';
 
 export default {
   components: { genericTable },
@@ -41,23 +58,23 @@ export default {
       exports: [
         {
           href: `${config.URL_APPLICATION}/api/declaration/declarations_csv`,
-          label: "Export CSV",
-          subLabel: "une ligne par décaration",
+          label: 'Export CSV',
+          subLabel: 'une ligne par décaration',
         },
         {
           href: `${config.URL_APPLICATION}/api/declaration/declarations_csv?type_out=degat`,
-          label: "Export CSV",
-          subLabel: "une ligne par dégât",
+          label: 'Export CSV',
+          subLabel: 'une ligne par dégât',
         },
         {
           href: `${config.URL_APPLICATION}/api/declaration/declarations_shape`,
-          label: "Export SHAPE",
-          subLabel: "une ligne par décaration",
+          label: 'Export SHAPE',
+          subLabel: 'une ligne par décaration',
         },
         {
           href: `${config.URL_APPLICATION}/api/declaration/declarations_shape?type_out=degat`,
-          label: "Export SHAPE",
-          subLabel: "une ligne par dégât",
+          label: 'Export SHAPE',
+          subLabel: 'une ligne par dégât',
         },
       ],
       bDialogExport: false,
@@ -65,13 +82,13 @@ export default {
       declarations: [],
     };
   },
-  name: "declaration-list",
+  name: 'declaration-list',
   methods: {
     /**
      * Charge les déclarations depuis le store et les trie par date de création.
      */
     loadDeclarations() {
-      this.$store.dispatch("declarations").then((declarations) => {
+      this.$store.dispatch('declarations').then((declarations) => {
         declarations.sort((a, b) => {
           return b.id_declaration - a.id_declaration;
         });

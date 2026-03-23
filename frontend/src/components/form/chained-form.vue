@@ -21,7 +21,7 @@
           :keySession="keySession"
           :baseModel="config.value"
         ></fil-arianne>
-  
+
         <generic-form :config="configSession(keySession)">
           <div slot="success">
             <slot name="success"></slot>
@@ -31,34 +31,35 @@
 
       <div v-else>
         Chargement en cours
-        <v-progress-linear active indeterminate></v-progress-linear>
+        <v-progress-linear
+          active
+          indeterminate
+        ></v-progress-linear>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-
-
-import filArianne from "./fil-ariane.vue";
-import help from "@/components/form/help.vue";
-import genericForm from "@/components/form/generic-form.vue";
-import { sessionFunctions } from "@/components/form/functions/session.js";
+import filArianne from './fil-ariane.vue';
+import help from '@/components/form/help.vue';
+import genericForm from '@/components/form/generic-form.vue';
+import { sessionFunctions } from '@/components/form/functions/session.js';
 
 export default {
-  name: "declarationForm",
-  props: ["config"],
+  name: 'declarationForm',
+  props: ['config'],
   components: {
     filArianne,
     help,
-    genericForm
+    genericForm,
   },
 
-  data: () => ({ 
+  data: () => ({
     declaration: null,
     validForms: {},
     initialized: false,
-    freeze: null
+    freeze: null,
   }),
 
   computed: {
@@ -66,7 +67,7 @@ export default {
       return this.$route.params.id;
     },
     title() {
-      return typeof this.config.title == "function"
+      return typeof this.config.title == 'function'
         ? this.config.title({ id: this.id, $store: this.$store })
         : this.config.title;
     },
@@ -77,13 +78,13 @@ export default {
     // retourne la clé de session courrante
     keySession() {
       return this.$route.query.keySession || this.firstSession;
-    }
+    },
   },
 
   methods: {
     configSession(keySession) {
       let sessionDef = {};
-      if (keySession == "all") {
+      if (keySession == 'all') {
         // on renvoie toutes les sessions
         sessionDef.groups = sessionFunctions.groups(this.config);
         sessionDef.action = this.config.action;
@@ -98,13 +99,10 @@ export default {
         } else {
           sessionDef.bChained = true;
           sessionDef.action = {
-            label: "Suivant",
+            label: 'Suivant',
             process: ({ $router, config }) => {
-              return new Promise(resolve => {
-                const nextSession = sessionFunctions.nextSession(
-                  config,
-                  config.keySession
-                );
+              return new Promise((resolve) => {
+                const nextSession = sessionFunctions.nextSession(config, config.keySession);
                 if (nextSession) {
                   // ici indispensable sinon bug et valide à l'avant dernière !!!!!
                   setTimeout(() => {
@@ -113,9 +111,9 @@ export default {
                 }
                 resolve();
               });
-            }
+            },
           };
-        } 
+        }
       }
       sessionDef.keySession = keySession;
       sessionDef.formDefs = this.config.formDefs;
@@ -130,7 +128,7 @@ export default {
           .preloadData({
             $store: this.$store,
             id: this.id,
-            config: this.config
+            config: this.config,
           })
           .then(() => {
             this.initialized = true;
@@ -140,20 +138,20 @@ export default {
       }
     },
 
-    showSession: function(keySession) {
-      return this.keySession === "all" || this.keySession == keySession;
+    showSession: function (keySession) {
+      return this.keySession === 'all' || this.keySession == keySession;
     },
 
-    showGroupSession: function(keySessionGroup) {
+    showGroupSession: function (keySessionGroup) {
       return (
-        this.keySession === "all" ||
+        this.keySession === 'all' ||
         this.keySession in this.config.sessionGroups[keySessionGroup].sessions
       );
-    }
+    },
   },
-  created: function() {
+  created: function () {
     this.initChainedForm();
-  }
+  },
 };
 </script>
 

@@ -1,15 +1,15 @@
 // importé dans le main.js
 // configuration de vutify qui est un framework css pour vuejs
 
-import Vue from 'vue'
-import Vuetify from 'vuetify'
-import 'vuetify/dist/vuetify.min.css'
+import Vue from 'vue';
+import Vuetify from 'vuetify';
+import 'vuetify/dist/vuetify.min.css';
 import fr from 'vuetify/src/locale/fr.ts';
 
-Vue.use(Vuetify)
+Vue.use(Vuetify);
 
 const opts = {
-    lang: { locales: { fr }, current: 'fr' }
-}
+  lang: { locales: { fr }, current: 'fr' },
+};
 
-export default new Vuetify(opts)
+export default new Vuetify(opts);

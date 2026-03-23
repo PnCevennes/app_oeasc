@@ -1,40 +1,39 @@
 export default {
-  group: "chasse",
-  name: "lieuTirSynonyme",
-  label: "Lieu de tir (synonyme)",
+  group: 'chasse',
+  name: 'lieuTirSynonyme',
+  label: 'Lieu de tir (synonyme)',
   serverSide: true,
 
   options: {
     // Ajoute des param à la requête get pour filtrer les données
     page: 1, // on affiche la première page par défaut
-    sortBy: ["id_lieu_tir_synonyme"],
+    sortBy: ['id_lieu_tir_synonyme'],
     sortDesc: [true], // tri en ordre décroissant
   },
 
-
   defs: {
     id_lieu_tir_synonyme: {
-      label: "ID synonyme",
-      type: "text",
-      hidden: true
+      label: 'ID synonyme',
+      type: 'text',
+      hidden: true,
     },
     nom_lieu_tir_synonyme: {
-      label: "Nom",
-      type: "text",
-      required: true
+      label: 'Nom',
+      type: 'text',
+      required: true,
     },
     lieu_tir: {
-      label: "Lieu tir",
-      type: "list_form",
-      list_type: "autocomplete",
+      label: 'Lieu tir',
+      type: 'list_form',
+      list_type: 'autocomplete',
       dataReloadOnSearch: true,
       returnObject: true,
-      storeName: "chasseLieuTir"
+      storeName: 'chasseLieuTir',
     },
     id_lieu_tir: {
-      label: "ID lieu tir",
-      type: "text",
-      hidden: true
-    }
-  }
+      label: 'ID lieu tir',
+      type: 'text',
+      hidden: true,
+    },
+  },
 };

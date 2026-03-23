@@ -1,35 +1,47 @@
 <template>
-  <div v-if="results" class="restitution-table">
+  <div
+    v-if="results"
+    class="restitution-table"
+  >
     <v-simple-table dense>
       <thead>
         <tr>
           <th>Texte</th>
-          <th>{{results.yTitle}}</th>
+          <th>{{ results.yTitle }}</th>
           <th>Couleur</th>
           <th>Icône</th>
         </tr>
       </thead>
       <template
-        v-for="(result, index) of [
-          results.choix.choix1,
-          results.choix.choix2
-        ].filter(c => !!c)"
+        v-for="(result, index) of [results.choix.choix1, results.choix.choix2].filter((c) => !!c)"
       >
-        <tbody v-if="!(results.condSame && index)" :key="`${index}`">
+        <tbody
+          v-if="!(results.condSame && index)"
+          :key="`${index}`"
+        >
           <tr v-if="index">
-            <td colspan="4">
-            </td>
+            <td colspan="4"></td>
           </tr>
 
           <tr>
-            <td class="title" colspan="4">{{ result.text }}</td>
+            <td
+              class="title"
+              colspan="4"
+            >
+              {{ result.text }}
+            </td>
           </tr>
           <template v-for="(result, index1) of result.dataList">
             <tr :key="`${index}_${index1}`">
               <td>{{ result.text }}</td>
               <td>{{ result.count }}</td>
               <td>
-                <v-icon v-if="result.color" :style="`color: ${result.color}`">stop_circle</v-icon>
+                <v-icon
+                  v-if="result.color"
+                  :style="`color: ${result.color}`"
+                >
+                  stop_circle
+                </v-icon>
                 <span v-else>Non</span>
               </td>
               <td>
@@ -46,11 +58,21 @@
                 <td>- {{ result2.text }}</td>
                 <td>{{ result2.count }}</td>
                 <td>
-                  <v-icon v-if="result2.color" :style="`color: ${result2.color}`">stop_circle</v-icon>
+                  <v-icon
+                    v-if="result2.color"
+                    :style="`color: ${result2.color}`"
+                  >
+                    stop_circle
+                  </v-icon>
                   <span v-else>Non</span>
                 </td>
                 <td>
-                  <v-icon v-if="result2.icon" style>mdi-{{ result2.icon }}</v-icon>
+                  <v-icon
+                    v-if="result2.icon"
+                    style
+                  >
+                    mdi-{{ result2.icon }}
+                  </v-icon>
                   <span v-else>Non</span>
                 </td>
               </tr>
@@ -64,8 +86,8 @@
 
 <script>
 export default {
-  name: "restitution-table",
-  props: ["results"],
+  name: 'restitution-table',
+  props: ['results'],
 };
 </script>
 
