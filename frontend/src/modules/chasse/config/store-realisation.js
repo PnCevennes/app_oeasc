@@ -23,8 +23,8 @@ export default {
     "saison",
     "attribution",
     "date_exacte",
-    "auteur_tir",
-    "auteur_constat",
+    "auteur_tir_str",
+    "auteur_constat_str",
     "zone_cynegetique_realisee",
     "zone_indicative_realisee",
     "lieu_tir_synonyme",
@@ -76,8 +76,9 @@ export default {
             title: "Lieu de tir",
             groups: [
               {
-                forms: ["lieu_tir_synonyme"]
+                forms: ["lieu_tir_synonyme", "lieu_tir_txt"]
               }
+
             ]
           }
         ]
@@ -91,7 +92,7 @@ export default {
         groups: [
           {
             title: "Auteurs",
-            forms: ["auteur_tir", "auteur_constat"]
+            forms: ["auteur_tir_str", "auteur_constat_str"]
           },
           {
             title: "Dates",
@@ -242,24 +243,19 @@ export default {
       }
     },
 
-    // Champ "Auteur tir" : personne ayant tiré
-    auteur_tir: {
+
+
+    auteur_tir_str: {
       label: "Auteur tir",
-      type: "list_form",
-      list_type: "combobox",
+      type: "text",
       returnObject: true,
-      dataReloadOnSearch: true,
-      storeName: "chassePersonne"
     },
 
     // Champ "Auteur constat" : personne ayant constaté
-    auteur_constat: {
+    auteur_constat_str: {
       label: "Auteur constat",
-      type: "list_form",
-      list_type: "combobox",
+      type: "text",
       returnObject: true,
-      dataReloadOnSearch: true,
-      storeName: "chassePersonne"
     },
 
     // Champ "Zone cynégétique affectée" : zone attribuée (lecture seule)
@@ -313,7 +309,13 @@ export default {
       type: "list_form",
       returnObject: true,
       dataReloadOnSearch: true,
-      required: true
+      required: false
+    },
+
+    lieu_tir_txt: {
+      label: "Lieu de tir txt",
+      type: "text",
+      returnObject: true,
     },
 
     // Champ "Date du tir" (saisie rapide JJMM)

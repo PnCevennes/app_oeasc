@@ -18,6 +18,7 @@ from sqlalchemy import (
     ForeignKey,
     func,
     exists,
+    select,
 )
 
 from ..commons.models import TEspeces, TSecteurs, TNomenclaturesOeasc
@@ -37,15 +38,6 @@ DB = config["DB"]
 class CustomModel(DB.Model):
     __abstract__ = True  # evite que la classe soit considérée comme une table
     __allow_unmapped__ = True
-
-
-@serializable
-class TPersonnes(CustomModel):
-    __tablename__ = "t_personnes"
-    __table_args__ = {"schema": "oeasc_chasse", "extend_existing": True}
-
-    id_personne: Mapped[int] = Column(Integer, primary_key=True)
-    nom_personne: Mapped[str] = Column(Unicode)
 
 
 @serializable
@@ -159,7 +151,7 @@ class TSaisonDates(CustomModel):
         TNomenclaturesOeasc,
         foreign_keys=id_nomenclature_type_chasse,
         # single_parent=True,
-        # primaryjoin="TSaisonDates.id_nomenclature_type_chasse == TNomenclaturesOeasc.id_nomenclature"
+        primaryjoin="TSaisonDates.id_nomenclature_type_chasse == TNomenclaturesOeasc.id_nomenclature",
     )
 
 
@@ -251,6 +243,14 @@ class TAttributions(CustomModel):
         Integer, ForeignKey("oeasc_chasse.t_zone_indicatives.id_zone_indicative")
     )
 
+    # Relation one-to-one : une seule réalisation par attribution
+    realisation: Mapped["TRealisationsChasse"] = relationship(
+        "TRealisationsChasse",
+        back_populates="attribution",
+        lazy="select",
+        uselist=False,
+    )
+
     saison: Mapped["TSaisons"] = relationship(TSaisons)
     zone_cynegetique_affectee: Mapped["TZoneCynegetiques"] = relationship(
         TZoneCynegetiques
@@ -273,7 +273,11 @@ class TRealisationsChasse(CustomModel):
     id_attribution: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_chasse.t_attributions.id_attribution")
     )
-    attribution: Mapped["TAttributions"] = relationship(TAttributions)
+    # attribution: Mapped["TAttributions"] = relationship(TAttributions)
+    attribution: Mapped["TAttributions"] = relationship(
+        "TAttributions", back_populates="realisation", lazy="select", uselist=False
+    )
+
     saison: Mapped["TSaisons"] = relationship(
         TSaisons,
         secondary="oeasc_chasse.t_attributions",
@@ -282,18 +286,16 @@ class TRealisationsChasse(CustomModel):
         uselist=False,
         viewonly=True,
     )
-    id_auteur_tir: Mapped[int] = Column(
-        Integer, ForeignKey("oeasc_chasse.t_personnes.id_personne")
-    )
-    auteur_tir: Mapped["TPersonnes"] = relationship(
-        TPersonnes, foreign_keys=id_auteur_tir
-    )
-    id_auteur_constat: Mapped[int] = Column(
-        Integer, ForeignKey("oeasc_chasse.t_personnes.id_personne")
-    )
-    auteur_constat: Mapped["TPersonnes"] = relationship(
-        TPersonnes, foreign_keys=id_auteur_constat
-    )
+
+    cors_indetermine: Mapped[bool] = Column(Boolean)
+    long_mandibule_indetermine: Mapped[bool] = Column(Boolean)
+
+    auteur_tir_str: Mapped[str] = Column(
+        Unicode
+    )  # champ texte libre pour l'auteur du tir
+    auteur_constat_str: Mapped[str] = Column(
+        Unicode
+    )  # champ texte libre pour l'auteur du constat
 
     id_zone_cynegetique_realisee: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_chasse.t_zone_cynegetiques.id_zone_cynegetique")
@@ -329,6 +331,9 @@ class TRealisationsChasse(CustomModel):
         Integer, ForeignKey("oeasc_chasse.t_lieu_tir_synonymes.id_lieu_tir_synonyme")
     )
     lieu_tir_synonyme: Mapped["TLieuTirSynonymes"] = relationship(TLieuTirSynonymes)
+    lieu_tir_txt: Mapped[str] = Column(Unicode)  # champ texte libre pour le lieu de tir
+    latitude: Mapped[float] = Column(Float)
+    longitude: Mapped[float] = Column(Float)
     date_exacte: Mapped[Date] = Column(Date)
     date_enreg: Mapped[Date] = Column(Date)
     mortalite_hors_pc: Mapped[bool] = Column(Boolean)
@@ -345,9 +350,11 @@ class TRealisationsChasse(CustomModel):
     nomenclature_classe_age: Mapped["TNomenclaturesOeasc"] = relationship(
         TNomenclaturesOeasc, foreign_keys=id_nomenclature_classe_age
     )
+    poid_indique: Mapped[bool] = Column(Boolean)
     poid_entier: Mapped[float] = Column(Float)
     poid_vide: Mapped[float] = Column(Float)
     poid_c_f_p: Mapped[float] = Column(Float)
+    parcelle_onf: Mapped[bool] = Column(Boolean)
     long_dagues_droite: Mapped[int] = Column(Integer)
     long_dagues_gauche: Mapped[int] = Column(Integer)
     long_mandibules_droite: Mapped[int] = Column(Integer)
@@ -363,10 +370,29 @@ class TRealisationsChasse(CustomModel):
     )
     commentaire: Mapped[str] = Column(Unicode)
 
+    id_numerisateur: Mapped[int] = Column(
+        Integer
+    )  # id_role récupéré dans les sessions flask
+
+    meta_create_date: Mapped[DateTime] = Column(DateTime)
+    meta_update_date: Mapped[DateTime] = Column(DateTime)
+
 
 # Définition de la propriété de colonne après les définitions de classes pour éviter les références circulaires
-TAttributions.has_realisation = column_property(
-    exists().where(TRealisationsChasse.id_attribution == TAttributions.id_attribution)
+# TAttributions.has_realisation = column_property(
+#     exists().where(TRealisationsChasse.id_attribution == TAttributions.id_attribution)
+# )
+
+# Colonne calculée renvoyant une seule valeur : la plus grande id_realisation pour l'attribution.
+# On utilise une sous-requête ordonnée + .limit(1) pour garantir une seule valeur retournée
+# (évite l'erreur SQL si plusieurs réalisations existent).
+TAttributions.id_realisation = column_property(
+    select(TRealisationsChasse.id_realisation)
+    .where(TRealisationsChasse.id_attribution == TAttributions.id_attribution)
+    .order_by(TRealisationsChasse.id_realisation.desc())
+    .limit(1)
+    .correlate_except(TRealisationsChasse)
+    .scalar_subquery()
 )
 
 
