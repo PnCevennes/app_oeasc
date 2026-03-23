@@ -4,9 +4,9 @@
 // Il faudra la supprimer quand un component de vision de carte simple sera créé. Le résumé est déja fait
 ###########################################################$$##########################  -->
 
-<template>
+<!-- <template>
   <chained-form :config="configFormChainedDeclaration">
-    <!-- ce div apparait seulement après la validation d'un formulaire -->
+    
     <div slot="success">
       <v-dialog
         value="true"
@@ -36,9 +36,9 @@
       </v-dialog>
     </div>
   </chained-form>
-</template>
+</template> -->
 
-<script>
+<!-- <script>
 import configFormChainedDeclaration from './config/form-chained-declaration';
 import chainedForm from '@/components/form/chained-form';
 
@@ -50,4 +50,4 @@ export default {
   }),
 };
 </script>
-<style></style>
+<style></style> -->

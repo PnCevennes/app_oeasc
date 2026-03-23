@@ -1,7 +1,7 @@
 <!-- Page de visualisation d'une déclaration. Est appelé dans form-chained
 Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -->
 <template>
-  <div style="min-width: 1000px">
+  <div style="min-width:900px; max-width: 1000px; margin: auto">
     <v-progress-linear
       v-if="pdfProcessing"
       active
@@ -89,26 +89,6 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     <td class="droite">{{ declaration_data.organisme }}</td>
                     <!-- <td class="droite">{{declaration_data.org_mnemo || "Non renseigné"}}</td> -->
                   </tr>
-                  <!-- <tr v-if="declaration_data.email">
-                  <td class="gauche">Email</td>
-                  <td class="droite">{{declaration_data.email || "Non renseigné"}}</td>
-                </tr> -->
-                  <!-- <tr v-if="declaration_data.telephone">
-                  <td class="gauche">Téléphone</td>
-                  <td class="droite">{{declaration_data.telephone || "Non renseigné"}}</td>
-                </tr> -->
-                  <!-- <tr v-if="declaration_data.adresse">
-                  <td class="gauche">Adresse</td>
-                  <td class="droite">{{declaration_data.adresse || "Non renseigné"}}</td>
-                </tr>
-                <tr v-if="declaration_data.s_code_postal">
-                  <td class="gauche">Code postal</td>
-                  <td class="droite">{{declaration_data.s_code_postal || "Non renseigné"}}</td>
-                </tr>-->
-                  <tr v-if="declaration_data.communes">
-                    <td class="gauche">Commune</td>
-                    <td class="droite">{{ declaration_data.communes || 'Non renseigné' }}</td>
-                  </tr>
                 </tbody>
 
                 <!-- ------------------------------- FORET -------------------------------- -->
@@ -124,7 +104,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
 
                   <tr v-if="declaration_data.areas_foret_names">
                     <td class="gauche">Nom</td>
-                    <td class="droite">{{ declaration_data.areas_foret_names }}</td>
+                    <td class="droite">{{ declaration_data.label_foret }}</td>
                   </tr>
 
                   <tr>
@@ -285,16 +265,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                       {{ declaration_data.peuplement_ess_3_label }}
                     </td>
                   </tr>
-                  <tr v-if="declaration_data.peuplement_surface">
-                    <td class="gauche">Superficie du peuplement (ha)</td>
-                    <td class="droite">
-                      {{
-                        declaration_data.peuplement_surface
-                          ? declaration_data.peuplement_surface
-                          : 'Non renseignée'
-                      }}
-                    </td>
-                  </tr>
+                  
                 </tbody>
 
                 <!-- --------------------------- PEUPLEMENT - DESCRIPTION --------------------------- -->
@@ -306,6 +277,16 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     >
                       Peuplement - description
                     </th>
+                  </tr>
+                  <tr v-if="declaration_data.peuplement_surface">
+                    <td class="gauche">Superficie du peuplement (ha)</td>
+                    <td class="droite">
+                      {{
+                        declaration_data.peuplement_surface
+                          ? declaration_data.peuplement_surface
+                          : 'Non renseignée'
+                      }}
+                    </td>
                   </tr>
                   <tr v-if="declaration_data.peuplement_origine_label">
                     <td class="gauche">Origine</td>
@@ -498,7 +479,9 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
         </div>
       </div>
     </div>
+    <!-- <pre>{{ declaration_data }}</pre> -->
   </div>
+  
 </template>
 
 <script>

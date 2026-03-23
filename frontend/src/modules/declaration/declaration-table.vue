@@ -1,7 +1,7 @@
 <!-- Ancien tableau de résumé de déclaration. N'est pour l'instant affiché que pour visualiser les déclarations.
 A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
 
-<template>
+<!-- <template>
   <div v-if="bInit">
     <table
       class="table-declaration"
@@ -36,9 +36,9 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
         </tr>
         <tr>
           <th>Organisme</th>
-          <td>{{ declarationDisplay.org_mnemo }}</td>
+          <td>{{ declarationDisplay.org_mnemo }}</td> -->
           <!-- <td>{{ declarationDisplay.organisme }}</td> -->
-        </tr>
+        <!-- </tr>
       </tbody>
 
       <tbody>
@@ -268,9 +268,9 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
       </tbody>
     </table>
   </div>
-</template>
+</template> -->
 
-<script>
+<!-- <script>
 import { rawToDisplay, getDeclarationData, displayParcelles } from './declaration.js';
 export default {
   name: 'declarationTable',
@@ -320,4 +320,4 @@ export default {
     }
   },
 };
-</script>
+</script> -->

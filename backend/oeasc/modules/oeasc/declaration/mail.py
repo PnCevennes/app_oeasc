@@ -151,3 +151,44 @@ def send_mail_validation_declaration(declaration, b_create):
         )
 
         conn.send(msg)  # Envoie le mail à l'animateur et à l'administrateur
+
+
+from itsdangerous import URLSafeTimedSerializer
+from flask import current_app
+
+def generate_token(user_id, declaration_id):
+    s = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    return s.dumps({
+        "user_id": user_id,
+        "declaration_id": declaration_id
+    })
+
+
+def send_mail_actualisation_declaration(user, declaration):
+    """
+    
+    """
+    token = generate_token(user.id, declaration.id)
+
+    base_url = "https://ton-domaine.com/action-declaration"
+
+    url_oui = f"{base_url}/{token}?action=oui"
+    url_non = f"{base_url}/{token}?action=non"
+    url_modifier = f"{base_url}/{token}?action=modifier"
+
+    html = render_template(
+        "modules/oeasc/mail/actualisation_declaration.html",
+        user=user,
+        declaration=declaration,
+        url_oui=url_oui,
+        url_non=url_non,
+        url_modifier=url_modifier
+    )
+
+    msg = Message(
+        subject="Actualisation de votre déclaration",
+        recipients=[user.email],
+        html=html
+    )
+
+    mail.send(msg)

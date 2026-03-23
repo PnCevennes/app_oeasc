@@ -1,6 +1,6 @@
 <!-- Page de visualisation d'une déclaration. Est appelé dans form-chained
 Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -->
-<template>
+<!-- <template>
   <div>
     <v-progress-linear
       v-if="pdfProcessing"
@@ -42,9 +42,9 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
       </template>
     </div>
   </div>
-</template>
+</template> -->
 
-<script>
+<!-- <script>
 import declarationTable from './declaration-table';
 import baseMap from '@/components/map/base-map';
 import { exportPDF } from '@/modules/export';
@@ -182,5 +182,5 @@ export default {
     },
   },
 };
-</script>
-<style scoped></style>
+</script> -->
+<!-- <style scoped></style> -->

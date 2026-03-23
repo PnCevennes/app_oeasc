@@ -2,7 +2,7 @@ import val from '../val.vue';
 import faqDeclaration from '../faq-declaration.vue';
 import tableAide from '../table-aide.vue';
 import listePartenaire from '../liste-partenaire.vue';
-import declarationTable from '@/modules/declaration/declaration-table.vue';
+// import declarationTable from '@/modules/declaration/declaration-table.vue';
 import baseMap from '@/components/map/base-map.vue';
 import contentImg from '../content-img.vue';
 import restitution from '@/modules/restitution/restitution.vue';
@@ -40,7 +40,7 @@ export default {
   val,
   faqDeclaration,
   tableAide,
-  declarationTable,
+  // declarationTable,
   baseMap,
   contentImg,
   listePartenaire,

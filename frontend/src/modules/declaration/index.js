@@ -1,7 +1,7 @@
 // import declarationForm from "./declaration-form.vue";
 import modifier_declaration from './modifier-declaration.vue';
 import declarationList from './declaration-list';
-import declaration from './declaration.vue';
+// import declaration from './declaration.vue';
 import { apiRequest } from '@/core/js/data/api.js';
 import storeUtils from '@/store/utils';
 import configResitutionDeclaration from './config/restitution-declaration';
@@ -50,20 +50,20 @@ const ROUTE = [
     component: declarationList,
   },
 
+  // {
+  //   path: '/declaration/voir_declaration/:id', // ancienne version. A supprimer quand celle d'en dessous sera fonctionnelle
+  //   label: 'Déclaration',
+  //   access: 1,
+  //   name: 'voir_declaration',
+  //   parent: 'declaration.liste_declarations',
+  //   component: declaration,
+  // },
+
   {
-    path: '/declaration/voir_declaration/:id', // ancienne version. A supprimer quand celle d'en dessous sera fonctionnelle
+    path: '/declaration/voir_declaration/:id', // nouvelle vertion de voir_declaration. Supprimer l'anctienne quand c'est finit
     label: 'Déclaration',
     access: 1,
     name: 'voir_declaration',
-    parent: 'declaration.liste_declarations',
-    component: declaration,
-  },
-
-  {
-    path: '/declaration/voir_declaration2/:id', // nouvelle vertion de voir_declaration. Supprimer l'anctienne quand c'est finit
-    label: 'Déclaration2',
-    access: 1,
-    name: 'voir_declaration2',
     parent: 'declaration.liste_declarations',
     component: voir_declaration,
   },
