@@ -164,12 +164,14 @@ def generate_token(user_id, declaration_id):
     })
 
 
-def send_mail_actualisation_declaration(user, declaration):
+def send_mail_actualisation_declaration(declaration):
     """
     
     """
-    token = generate_token(user.id, declaration.id)
 
+    user = get_user(declaration["id_declarant"])
+    email_user = user["email"]
+    token = generate_token(user.id, declaration.id)
     base_url = "https://ton-domaine.com/action-declaration"
 
     url_oui = f"{base_url}/{token}?action=oui"
@@ -187,7 +189,7 @@ def send_mail_actualisation_declaration(user, declaration):
 
     msg = Message(
         subject="Actualisation de votre déclaration",
-        recipients=[user.email],
+        recipients=[email_user],
         html=html
     )
 
