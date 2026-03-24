@@ -122,11 +122,11 @@ class TRealisationsSchema(SQLAlchemyAutoSchema):
     observers_table = fields.String(
         attribute="observers_table", allow_none=True, dump_only=False
     )
-    tags_table = fields.String(attribute="tags_table", dump_only=False)
-    cerfs = fields.Integer(attribute="cerfs", dump_only=False)
-    lievres = fields.Integer(attribute="lievres", dump_only=False)
-    renards = fields.Integer(attribute="renards", dump_only=False)
-    chevreuils = fields.Integer(attribute="chevreuils", dump_only=False)
+    tags_table = fields.String(attribute="tags_table", dump_only=True)
+    cerfs = fields.Integer(attribute="cerfs", dump_only=True)
+    lievres = fields.Integer(attribute="lievres", dump_only=True)
+    renards = fields.Integer(attribute="renards", dump_only=True)
+    chevreuils = fields.Integer(attribute="chevreuils", dump_only=True)
 
 
 class VResultSchema(SQLAlchemyAutoSchema):
