@@ -36,6 +36,7 @@ const menus = {
       'declaration.degat_grand_gibier',
       'declaration.signaler_degat_explication',
       'declaration.liste_declarations',
+      'declaration.liste_declarations2',
     ],
   },
   informations: {

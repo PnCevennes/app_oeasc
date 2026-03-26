@@ -8,6 +8,8 @@ import configResitutionDeclaration from './config/restitution-declaration';
 import configStoreDegat from './config/store-degat';
 import voir_declaration from './voir_declaration.vue';
 
+import declarationListe from './declaration-liste.vue';
+
 const ROUTE = [
   {
     path: '/declaration/declarer_en_ligne',
@@ -48,6 +50,16 @@ const ROUTE = [
     name: 'declaration.liste_declarations',
     parent: 'declaration.systeme_alerte',
     component: declarationList,
+  },
+
+  // remplacera la version au dessus lorsque ce sera terminé.
+  {
+    path: '/declaration/liste2',
+    label: 'Alerte signalées2',
+    access: 1,
+    name: 'declaration.liste_declarations2',
+    parent: 'declaration.systeme_alerte',
+    component: declarationListe,
   },
 
   // {
@@ -200,6 +212,7 @@ const STORE = {
         }
         apiRequest('GET', `api/declaration/declarations`).then(
           (apiData) => {
+            console.log('Données des déclarations reçues :', apiData);
             commit('declarations', apiData);
             resolve(apiData);
           },
@@ -268,4 +281,11 @@ storeUtils.addStoreRestitution(
   configResitutionDeclaration
 );
 
-export { ROUTE, STORE };
+
+// mettre ici les composants spécifiques aux déclarations qui pourraient être utilisés dans les pages dynamiques.
+const CONTENT = {
+  
+};
+
+
+export { ROUTE, STORE, CONTENT };

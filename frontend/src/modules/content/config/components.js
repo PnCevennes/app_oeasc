@@ -10,6 +10,7 @@ import restitution2 from '@/modules/restitution2/restitution.vue';
 import actualiteBandeau from '../actualites-bandeau.vue';
 import { CONTENT as CHASSE_CONTENT } from '@/modules/chasse/index.js';
 import { CONTENT as IN_CONTENT } from '@/modules/in/index.js';
+import { CONTENT as DECLARATIONS_CONTENT } from '@/modules/declaration/index.js';
 import dynamicForm from '@/components/form/dynamic-form.vue';
 import dynamicFormGroup from '@/components/form/dynamic-form-group.vue';
 
@@ -33,6 +34,7 @@ import dynamicFormGroup from '@/components/form/dynamic-form-group.vue';
  * - dynamicFormGroup : Composant pour la gestion des groupes de formulaires dynamiques.
  * - ...CHASSE_CONTENT : Inclusion des composants spécifiques à la chasse.
  * - ...IN_CONTENT : Inclusion des composants spécifiques à l'inventaire.
+ * - ...DECLARATIONS_CONTENT : Inclusion des composants spécifiques aux déclarations.
  *
  * Ces composants sont utilisés pour construire dynamiquement les différentes parties de l'interface utilisateur.
  */
@@ -40,7 +42,6 @@ export default {
   val,
   faqDeclaration,
   tableAide,
-  // declarationTable,
   baseMap,
   contentImg,
   listePartenaire,
@@ -51,4 +52,5 @@ export default {
   dynamicFormGroup,
   ...CHASSE_CONTENT,
   ...IN_CONTENT,
+  ...DECLARATIONS_CONTENT
 };

@@ -97,5 +97,8 @@ export default {
         },
       },
     },
+    status: {
+      text: 'Status',
+    },
   },
 };
