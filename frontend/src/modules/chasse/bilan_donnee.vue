@@ -162,7 +162,7 @@ export default {
       },
     },
     nb_saison_chronologie() {
-      apiRequest('GET', 'api/chasse/realisations_par_mois_sur_dernieres_saisons/', {
+      apiRequest('GET', 'api/chasse/realisations_par_mois_sur_dernieres_saisons', {
         params: { ...this.bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_chronologie_prelevement = result;
@@ -185,7 +185,7 @@ export default {
         this.infos = infos;
       });
 
-      apiRequest('GET', 'api/chasse/count_categorie_realisations/', { params: bilanParams }).then(
+      apiRequest('GET', 'api/chasse/count_categorie_realisations', { params: bilanParams }).then(
         (result) => {
           this.data_cam_sexe_age = result;
         }

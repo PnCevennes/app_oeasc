@@ -270,7 +270,7 @@ export default {
       },
     },
     nb_saison_chronologie() {
-      apiRequest('GET', 'api/chasse/realisations_par_mois_sur_dernieres_saisons/', {
+      apiRequest('GET', 'api/chasse/realisations_par_mois_sur_dernieres_saisons', {
         params: { ...this.bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_chronologie_prelevement = result;
@@ -307,46 +307,46 @@ export default {
         this.infos = infos;
       });
 
-      apiRequest('GET', 'api/chasse/count_categorie_realisations/', { params: bilanParams }).then(
+      apiRequest('GET', 'api/chasse/count_categorie_realisations', { params: bilanParams }).then(
         (result) => {
           this.data_cam_sexe_age = result;
         }
       );
-      apiRequest('GET', 'api/chasse/count_mode_chasse_realisations/', { params: bilanParams }).then(
+      apiRequest('GET', 'api/chasse/count_mode_chasse_realisations', { params: bilanParams }).then(
         (result) => {
           this.data_part_mode_chasse = result;
         }
       );
-      apiRequest('GET', 'api/chasse/realisations_par_mois_sur_dernieres_saisons/', {
+      apiRequest('GET', 'api/chasse/realisations_par_mois_sur_dernieres_saisons', {
         params: { ...bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_chronologie_prelevement = result;
       });
 
-      apiRequest('GET', 'api/chasse/count_realisations_par_type_de_bracelet/', {
+      apiRequest('GET', 'api/chasse/count_realisations_par_type_de_bracelet', {
         params: { ...bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_count_realisations_par_type_de_bracelet = result;
         // console.log("data_count_realisations_par_type_de_bracelet", this.data_count_realisations_par_type_de_bracelet);
       });
-      apiRequest('GET', 'api/chasse/difference_nbRealisations_nbAttributions/', {
+      apiRequest('GET', 'api/chasse/difference_nbRealisations_nbAttributions', {
         params: { ...bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_nbRealisations_vs_nbAttributions = result;
         // console.log("data_nbRealisations_vs_nbAttributions", this.data_nbRealisations_vs_nbAttributions);
       });
-      apiRequest('GET', 'api/chasse/count_realisations_par_par_mois_par_type_bracelet/', {
+      apiRequest('GET', 'api/chasse/count_realisations_par_par_mois_par_type_bracelet', {
         params: { ...bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_nb_type_bracelet_par_mois = result;
       });
 
-      apiRequest('GET', 'api/chasse/count_mode_chasse_par_type_bracelet/', {
+      apiRequest('GET', 'api/chasse/count_mode_chasse_par_type_bracelet', {
         params: { ...bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_repartition_mode_chasse_par_type_bracelet = result;
       });
-      apiRequest('GET', 'api/chasse/count_realisations_par_age_par_type_bracelet/', {
+      apiRequest('GET', 'api/chasse/count_realisations_par_age_par_type_bracelet', {
         params: { ...bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_nbrealisation_par_age_par_type_bracelet = result;

@@ -95,7 +95,7 @@ grd.add_generic_routes("commons", definitions)
 bp = Blueprint("commons_api", __name__)
 
 
-@bp.route("communes/", methods=["GET"])
+@bp.route("communes", methods=["GET"])
 def api_all_communes():
     """recupèration de la liste de toutes les communes via le shema
     pas utilisé poru l'instant, mais peut être utile pour des tests

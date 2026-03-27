@@ -71,7 +71,7 @@ definitions = {
 grd.add_generic_routes("in", definitions)
 
 
-@bp.route("results/", methods=["GET"])
+@bp.route("results", methods=["GET"])
 @json_resp
 def in_results():
     """
@@ -82,7 +82,7 @@ def in_results():
     return out
 
 
-@bp.route("test/results/", methods=["GET"])
+@bp.route("test/results", methods=["GET"])
 @json_resp
 def in_test_results():
     """
@@ -92,7 +92,7 @@ def in_test_results():
     return in_data()
 
 
-@bp.route("valid_realisation/", methods=["PATCH"])
+@bp.route("valid_realisation", methods=["PATCH"])
 @check_auth_redirect_login(5)
 @json_resp
 def in_valid_realisation():

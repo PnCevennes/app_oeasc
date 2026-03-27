@@ -20,10 +20,10 @@ from .repository import (
 
 # from oeasc.modules.oeasc.chasse.models import TLieuTirs
 
-bp = Blueprint("generic_api", __name__)
+bp = Blueprint("generic", __name__)
 
 
-@bp.route("<string:module_name>/<string:object_types>/", methods=["GET"])
+@bp.route("<string:module_name>/<string:object_types>", methods=["GET"])
 @check_object_type(
     droit_type="R"
 )  # Vérifie les droits en lecture et si le module existe

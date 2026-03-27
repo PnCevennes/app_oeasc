@@ -71,7 +71,7 @@ def get_views():
     return data
 
 
-@bp.route("custom/", methods=["GET"])
+@bp.route("custom", methods=["GET"])
 @json_resp
 def api_result_custom():
     """

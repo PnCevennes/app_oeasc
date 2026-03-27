@@ -18,7 +18,7 @@ exporting(Highcharts);
 
 Vue.config.productionTip = false;
 // port d'ecoute du serveur backend 5000. Mettre le meme dans config/config.py
-Vue.config.devServer = { port: 8080, proxy: 'http://localhost:5005' };
+// Vue.config.devServer = { port: 8080, proxy: 'http://localhost:5005' };
 
 // VueSession est une librairie pour gérer les utilisateurs
 // persist: true permet de garder les données en mémoire même après un rafraichissement de la page ou fermeture du navigateur

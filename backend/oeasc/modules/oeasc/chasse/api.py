@@ -109,7 +109,7 @@ MOIS_ORDER = [
 ]
 
 # routes dynamiques pour accéder aux modèles de la base de données
-# la route est par exemple de la forme <blueprint>/chasse/saison/ pour accéder à la table TSaisons
+# la route est par exemple de la forme <blueprint>/chasse/saison pour accéder à la table TSaisons
 definitions = {
     "zone_cynegetique": {
         "model": TZoneCynegetiques,
@@ -310,7 +310,7 @@ def api_chasse_ods():
     )
 
 
-@bp.route("export/csv/", methods=["GET"])
+@bp.route("export/csv", methods=["GET"])
 @csv_resp
 def api_result_export():
     """
@@ -374,7 +374,7 @@ def download_erreurs_csv(file_name):
 ####################################################################################################
 
 
-@bp.route("count_categorie_realisations/", methods=["GET"])
+@bp.route("count_categorie_realisations", methods=["GET"])
 @json_resp
 def api_count_categorie_realisations():
     """
@@ -453,7 +453,7 @@ def api_count_categorie_realisations():
     return data
 
 
-@bp.route("count_mode_chasse_realisations/", methods=["GET"])
+@bp.route("count_mode_chasse_realisations", methods=["GET"])
 @json_resp
 def api_count_mode_chasse_realisations():
     args = chasse_process_args()
@@ -511,7 +511,7 @@ def api_count_mode_chasse_realisations():
 
 
 # pas utlisé, c'était la requête initiale pour le graph mulitiligne mais je l'ai simplifiée
-@bp.route("realisations_par_mois_sur_dernieres_saisons_par_mois/", methods=["GET"])
+@bp.route("realisations_par_mois_sur_dernieres_saisons_par_mois", methods=["GET"])
 @json_resp
 def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
     """ """
@@ -634,7 +634,7 @@ def api_realisations_par_mois_sur_dernieres_saisons_par_mois():
 
 
 # pour le graph multilignes sur la chronologie des prélevements sur n nombre de saisons
-@bp.route("realisations_par_mois_sur_dernieres_saisons/", methods=["GET"])
+@bp.route("realisations_par_mois_sur_dernieres_saisons", methods=["GET"])
 @json_resp
 def api_realisations_par_mois_sur_dernieres_saisons():
     """ """
@@ -757,7 +757,7 @@ def api_realisations_par_mois_sur_dernieres_saisons():
     return data
 
 
-@bp.route("count_realisations_par_type_de_bracelet/", methods=["GET"])
+@bp.route("count_realisations_par_type_de_bracelet", methods=["GET"])
 @json_resp
 def api_count_realisations_par_type_de_bracelet():
     """
@@ -820,7 +820,7 @@ def api_count_realisations_par_type_de_bracelet():
     return data
 
 
-@bp.route("difference_nbRealisations_nbAttributions/", methods=["GET"])
+@bp.route("difference_nbRealisations_nbAttributions", methods=["GET"])
 @json_resp
 def api_difference_nbRealisations_nbAttributions():
     """
@@ -940,7 +940,7 @@ def api_difference_nbRealisations_nbAttributions():
     return data
 
 
-@bp.route("count_realisations_par_par_mois_par_type_bracelet/", methods=["GET"])
+@bp.route("count_realisations_par_par_mois_par_type_bracelet", methods=["GET"])
 @json_resp
 def api_count_realisations_par_par_mois_par_type_bracelet():
     """
@@ -1041,7 +1041,7 @@ def api_count_realisations_par_par_mois_par_type_bracelet():
     return data
 
 
-@bp.route("count_mode_chasse_par_type_bracelet/", methods=["GET"])
+@bp.route("count_mode_chasse_par_type_bracelet", methods=["GET"])
 @json_resp
 def api_count_mode_chasse_par_type_bracelet():
     """
@@ -1143,7 +1143,7 @@ def api_count_mode_chasse_par_type_bracelet():
     return data
 
 
-@bp.route("count_realisations_par_age_par_type_bracelet/", methods=["GET"])
+@bp.route("count_realisations_par_age_par_type_bracelet", methods=["GET"])
 @json_resp
 def api_count_realisations_par_age_par_type_bracelet():
     """

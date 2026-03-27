@@ -153,8 +153,15 @@ export default {
 
     //créé un url pour la requête api à partir du nom typeBracelet => type_bracelet
     const snakeName = camelToSnakeCase(configIn.name);
+
+    // si configIn.api finit par un / on le supprime
+    if (configIn.api && configIn.api.endsWith('/')) {
+      configIn.api = configIn.api.slice(0, -1);
+    }
+
+    // console.log(`Adding store ${configIn.group}/${configIn.name} with api ${configIn.api || `api/generic/${configIn.group}/${snakeName}`}`);
     const api = configIn.api || `api/generic/${configIn.group}/${snakeName}`;
-    const apis = `${api}s/`;
+    const apis = `${api}s`;
 
     // Créé un nom de store à partir de la config : typeBracelet => chasseTypeBracelet
     const storeName = configIn.group + upFirstLetter(configIn.name);
@@ -328,7 +335,7 @@ export default {
     actions[configStore.count] = ({ getters, commit }) => {
       return new Promise((resolve) => {
         getters;
-        apiRequest('GET', `${api}s/`, { params: { count: true } }).then((count) => {
+        apiRequest('GET', `${api}s`, { params: { count: true } }).then((count) => {
           commit(configStore.count, count);
           resolve(count);
         });
@@ -355,7 +362,12 @@ export default {
           resolve(objList); // on retourne les données du cache
           return;
         }
-        apiRequest('GET', `${apis}`, { params: options }, { commit, getters }).then(
+        // si apis finit par un / on le supprime pour éviter les doublons
+        let apis_final = apis;
+        if (apis_final.endsWith('/')) {
+          apis_final = apis_final.slice(0, -1);
+        }
+        apiRequest('GET', `${apis_final}`, { params: options }, { commit, getters }).then(
           (data) => {
             const items = data.items || data;
 
@@ -452,9 +464,10 @@ export default {
             }
           }
 
-          const apiUrl = requestType === 'POST' ? `${api}/` : `${api}/${value}`;
-
-          apiRequest(requestType, apiUrl, {
+          const apiUrl = requestType === 'POST' ? `${api}` : `${api}/${value}`;
+          // si apiUrl finit par un / on le supprime
+          const finalApiUrl = apiUrl.endsWith('/') ? apiUrl.slice(0, -1) : apiUrl;
+          apiRequest(requestType, finalApiUrl, {
             postData,
             params: { field_name: fieldName },
           }).then(
@@ -566,6 +579,10 @@ export default {
         }
 
         if (!getters.pendings(api)) {
+          // id api finie par / on la supprime pour éviter les doublons
+          if (api.endsWith('/')) {
+            api = api.slice(0, -1);
+          }
           commit('addPending', { api, request: apiRequest('GET', `${api}`) });
         }
         const request = getters.pendings(api);

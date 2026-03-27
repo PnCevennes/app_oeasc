@@ -48,7 +48,7 @@ config = current_app.config
 DB = config["DB"]
 
 
-@bp.route("degats/", methods=["GET"])
+@bp.route("degats", methods=["GET"])
 @json_resp
 def degats():
     """
@@ -71,7 +71,7 @@ def degats():
     return get_declarations(type_out="degat", restrict=True)
 
 
-@bp.route("declarations/", methods=["GET"])
+@bp.route("declarations", methods=["GET"])
 @json_resp
 def declarations():
     """
@@ -94,6 +94,7 @@ def declarations():
     Retour :
     - La liste des déclarations accessibles à l'utilisateur courant, au format JSON.
     """
+    print ("route declarations - session : ")  # Debug : affiche le contenu de la session
 
     # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur
     user = (
@@ -317,7 +318,7 @@ def get_file_name(type_out):
     return file_name
 
 
-@bp.route("declarations_csv/", methods=["GET"])
+@bp.route("declarations_csv", methods=["GET"])
 @check_auth_redirect_login(1)
 @csv_resp
 def declarations_csv():
@@ -366,7 +367,7 @@ def declarations_csv():
     return (file_name, data, columns, separator)
 
 
-@bp.route("declarations_shape/", methods=["GET"])
+@bp.route("declarations_shape", methods=["GET"])
 @check_auth_redirect_login(1)
 def declarations_shape():
     """

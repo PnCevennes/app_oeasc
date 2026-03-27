@@ -344,7 +344,7 @@ const STORE = {
      */
     chasseCustom: ({ getter }, params) => {
       getter;
-      return apiRequest('GET', `api/chasse/results/custom/`, { params });
+      return apiRequest('GET', `api/chasse/results/custom`, { params });
     },
   },
 };

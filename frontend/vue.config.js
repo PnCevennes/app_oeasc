@@ -7,4 +7,8 @@
 module.exports = {
   runtimeCompiler: true,
   publicPath: process.env.NODE_ENV === 'production' ? '/front' : '/',
+  devServer: {
+    port: 8080,
+    proxy: 'http://localhost:5005'
+  }
 };

@@ -365,7 +365,7 @@ export default {
 
   mounted() {
     // récupérer les saisons disponibles via l'API
-    apiRequest('GET', 'api/generic/chasse/saisons/')
+    apiRequest('GET', 'api/generic/chasse/saisons')
       .then((res) => {
         // console.log('API response for saisons:', res);
         this.saisons = res.items || [];

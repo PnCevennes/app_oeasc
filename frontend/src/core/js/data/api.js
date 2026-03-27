@@ -64,6 +64,12 @@ var url = (urlRelative, params = {}) => {
         : // Sinon, on ajoute la valeur telle quelle dans la query string
           url.searchParams.append(key, params[key])
     );
+  
+  // si url finit par un / on le supprime pour éviter les doublons
+  if (url.href.endsWith('/')) {
+    url = new URL(url.href.slice(0, -1));
+  }
+  
   // On retourne l'objet URL final avec tous les paramètres ajoutés
   return url;
 };
@@ -95,6 +101,11 @@ const fetchData = async (urlRelative, options = {}) => {
     },
     credentials: 'include', // Permet d'envoyer les cookies avec la requête (authentification, session, etc.)
   };
+
+  // si url_ finit par un / on le supprime pour éviter les doublons
+  if (url_.href.endsWith('/')) {
+    url_ = new URL(url_.href.slice(0, -1));
+  }
 
   try {
     // Exécution de la requête fetch vers l'API

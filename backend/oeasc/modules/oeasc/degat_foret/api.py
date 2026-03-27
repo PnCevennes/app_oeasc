@@ -86,7 +86,7 @@ def api_get_foret_from_code(code_foret):
 # Elle est généralement utilisée lors de l'affichage d'une liste globale des déclarations,
 # par exemple dans une page d'administration ou pour un utilisateur ayant les droits nécessaires.
 # Elle est appelée à l'initialisation du serveur ou lors de la consultation de l'ensemble des déclarations.
-@bp.route("declarations/", methods=["GET"])
+@bp.route("declarations", methods=["GET"])
 @check_auth_redirect_login(
     1
 )  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
