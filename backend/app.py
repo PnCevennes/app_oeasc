@@ -15,6 +15,8 @@ sys.path.append(base_path)
 
 import json
 
+from werkzeug.middleware.proxy_fix import ProxyFix
+
 # import re
 from pathlib import Path
 from pkg_resources import iter_entry_points
@@ -67,38 +69,15 @@ else:  # Pour le mode production, n'affiche que les erreurs
 
 ###########################################################################################
 
-
-class ReverseProxied(object):
-    def __init__(self, app_in, script_name=None, scheme=None, server=None):
-        self.app = app_in
-        self.script_name = script_name
-        self.scheme = scheme
-        self.server = server
-
-    def __call__(self, environ, start_response):
-        script_name = environ.get("HTTP_X_SCRIPT_NAME", "") or self.script_name
-        if script_name:
-            environ["SCRIPT_NAME"] = script_name
-            path_info = environ["PATH_INFO"]
-            if path_info.startswith(script_name):
-                environ["PATH_INFO"] = path_info[len(script_name) :]
-        scheme = environ.get("HTTP_X_SCHEME", "") or self.scheme
-        if scheme:
-            environ["wsgi.url_scheme"] = scheme
-        server = environ.get("HTTP_X_FORWARDED_SERVER", "") or self.server
-        if server:
-            environ["HTTP_HOST"] = server
-        return self.app(environ, start_response)
-
-
 # initiation du framework flask
 app = Flask(__name__, template_folder="oeasc/templates", static_folder="../static")
-
 
 # cors permet de gérer les requetes venant d'autres domaines. * signifie que tout le monde peut se connecter
 cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
 
-# app.wsgi_app = ReverseProxied(app.wsgi_app)
+
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_prefix=1)
+
 
 # intégration des données de configuration dans l'application. Mettre silent=True en production
 if (
@@ -148,8 +127,6 @@ mail = Mail()
 app.config["MAIL"] = mail
 # initialisation des parametres de mails. Récupère les paramètres dans config.py via app.config
 mail.init_app(app)
-# ajoute l'instance mail à la configuration de l'application pour y acceder facilement
-app.config["MAIL"] = mail
 
 # pour signer les cookies de session et proteger contre les attaques CSRF
 # inutile c'est déja déclaré dans app.config.from_pyfile("../config/config.py", silent=True)
