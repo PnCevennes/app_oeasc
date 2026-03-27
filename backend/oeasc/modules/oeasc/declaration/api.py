@@ -22,6 +22,7 @@ from sqlalchemy import delete
 from .repository import (
     get_user,
     get_declarations,
+    get_liste_declarations,
     # get_declaration,
     # f_create_or_update_declaration,
     # get_dict_nomenclature_areas,
@@ -105,6 +106,21 @@ def declarations():
 
     # Retourne la liste des déclarations accessibles à cet utilisateur
     return get_declarations(user=user)
+
+
+@bp.route("declarations_all/", methods=["GET"])
+@json_resp
+def declarations_all():
+    # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur
+    user = (
+        get_user(session["current_user"]["id_role"])
+        if "current_user" in session and session["current_user"]
+        else None
+    )
+    result  = get_liste_declarations(user=user)
+    print ("result", result)
+    return result
+
 
 
 @bp.route("declaration/<int:id_declaration>", methods=["GET"])

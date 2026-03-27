@@ -384,7 +384,12 @@ class TDeclaration(CustomModel):
     meta_update_date: Mapped[DateTime] = Column(
         DateTime, default=func.now(), onupdate=func.now()
     )
-
+    
+    centroid: Mapped[float] = Column(Float, nullable=True)
+    date_fin: Mapped[Date] = Column(Date, nullable=True)
+    status: Mapped[int] = Column(Integer, nullable=True, default=0)  # 0 : en attente de validation, 1 : validée, 2 : refusée
+    token_renouvellement: Mapped[str] = Column(Unicode(255), nullable=True)
+    id_declaration_duplique: Mapped[int] = Column(Integer, nullable=True)
 
 ################################################################
 ############ TABLES DU SCHEMAS OEASC_FORETS ############
