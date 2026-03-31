@@ -52,5 +52,5 @@ export default {
   dynamicFormGroup,
   ...CHASSE_CONTENT,
   ...IN_CONTENT,
-  ...DECLARATIONS_CONTENT
+  ...DECLARATIONS_CONTENT,
 };
