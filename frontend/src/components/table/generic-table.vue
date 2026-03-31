@@ -229,6 +229,7 @@
 
 <script>
 import { copy, sortDate } from '@/core/js/util/util.js';
+// import { sortDateTable } from './util';
 import genericForm from '@/components/form/generic-form.vue';
 import './table.css';
 
@@ -541,13 +542,14 @@ export default {
       for (const [value, header] of Object.entries(config.headerDefs)) {
         header.value = value;
 
-        if (header.type == 'date') {
-          sortDate; // apparemment inutilisé
-          header.display = (a) =>
-            a && a[header.value] && a[header.value].includes('-')
-              ? a[header.value].split('-').reverse().join('/')
-              : a[header.value];
-        }
+        // le tri ne fonctionne pas correctement à cause du format de la date. On récupère maintenant le bon format en bdd et on modifie l'affiche avec la fonction display dans le fichier de config de la table
+        //  if (header.type == 'date') {
+        //   sortDate; // apparemment inutilisé
+        //   header.display = (a) =>
+        //     a && a[header.value] && a[header.value].includes('-')
+        //       ? a[header.value].split('-').reverse().join('/')
+        //       : a[header.value];
+        // }
 
         if (header.storeName) {
           const configStore = this.$store.getters.configStore(header.storeName);
