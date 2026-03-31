@@ -8,94 +8,51 @@ import zipfile
 from datetime import date
 from flask import Blueprint, request, current_app, session
 from flask.helpers import send_from_directory
-from utils_flask_sqla.response import csv_resp
+from utils_flask_sqla.response import csv_resp, json_resp_accept_empty_list
 from utils_flask_sqla_geo.generic import GenericTableGeo
+
+from ..declaration.mail import send_mail_validation_declaration
 
 # from oeasc.modules.oeasc.nomenclature import nomenclature_oeasc
 from utils_flask_sqla.response import json_resp
 from sqlalchemy import delete
 
-# from sqlalchemy.orm import Session
-
 # from oeasc.utils.env import ROOT_DIR
-
+from ..nomenclature import get_area_from_id, get_nomenclature_from_id
 from .repository import (
     get_user,
-    get_declarations,
+    get_fiche_declaration,
     get_liste_declarations,
-    # get_declaration,
-    # f_create_or_update_declaration,
-    # get_dict_nomenclature_areas,
-    # get_declaration_table,
+    create_or_update_declaration,
+    get_declaration,
+    get_id_area,
+    get_id_areas,
+    get_foret_from_code,
+    get_proprietaire_from_id,
+    get_declarations_view,
+    hide_proprietaire,
 )
-
-# from .declaration_sample import declaration_dict_random_sample
-
-# from .utils import (
-#     get_listes_essences,
-#     check_foret,
-#     check_proprietaire,
-#     check_massif,
-# )
 
 from ..user.utils import check_auth_redirect_login
 
 # from .mail import send_mail_validation_declaration
 from .models import TDeclaration
-
-bp = Blueprint("declaration_api", __name__)
+from ..declaration.schema import TProprietaireSchema, TForetSchema, TDeclarationSchema
 
 config = current_app.config
 DB = config["DB"]
-
-
-@bp.route("degats", methods=["GET"])
-@json_resp
-def degats():
-    """
-    Route Flask permettant de récupérer la liste des déclarations de type 'dégât' accessibles pour le déclarant.
-
-    Utilisation :
-    - Cette route est appelée lorsqu'un utilisateur souhaite consulter uniquement les déclarations
-      de type 'dégât' qui lui sont accessibles, généralement dans l'interface dédiée aux déclarants.
-    - Elle est utilisée pour filtrer les déclarations selon le rôle et les droits du déclarant.
-
-    Fonctionnement :
-    - La fonction appelle get_declarations avec les paramètres type_out="degat" pour ne récupérer
-      que les déclarations de type 'dégât', et restrict=True pour limiter l'accès selon le déclarant.
-    - Le filtrage des données dépend de l'implémentation de get_declarations et des droits de l'utilisateur.
-
-    Retour :
-    - La liste des déclarations de type 'dégât' accessibles au déclarant, au format JSON.
-    """
-
-    return get_declarations(type_out="degat", restrict=True)
+bp = Blueprint("declaration_api", __name__)
 
 
 @bp.route("declarations", methods=["GET"])
 @json_resp
 def declarations():
     """
-    Route Flask permettant de récupérer la liste des déclarations accessibles pour l'utilisateur courant.
-
-    Utilisation :
-    - Cette route est appelée lorsqu'un utilisateur authentifié souhaite consulter les déclarations
-      auxquelles il a accès, selon son rôle et ses droits.
-    - Elle est utilisée dans l'interface principale pour afficher la liste des déclarations
-      (dégâts ou alertes) filtrées selon l'utilisateur connecté.
-
-    Fonctionnement :
-    - La fonction vérifie si un utilisateur est présent dans la session (clé 'current_user').
-    - Si oui, elle récupère l'objet utilisateur via la fonction get_user en utilisant l'id_role.
-    - Elle appelle ensuite la fonction get_declarations, qui retourne la liste des déclarations
-      accessibles à cet utilisateur.
-    - Si aucun utilisateur n'est connecté, elle passe None à get_declarations, ce qui peut
-      limiter ou empêcher l'accès aux données selon l'implémentation de get_declarations.
-
-    Retour :
-    - La liste des déclarations accessibles à l'utilisateur courant, au format JSON.
+    Liste des déclarations pour la page "alertes signalées". Utilise une vue PostgreSQL qui transforme les données
+    en interne pour être directement affichées.
+    Retourne aussi beaucoup de données uniquement intégrées dans l'export.
+    Ne retourne que les déclarations de l'utilisateur.
     """
-    print ("route declarations - session : ")  # Debug : affiche le contenu de la session
 
     # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur
     user = (
@@ -105,30 +62,17 @@ def declarations():
     )
 
     # Retourne la liste des déclarations accessibles à cet utilisateur
-    return get_declarations(user=user)
+    return get_liste_declarations(user=user)
 
 
-@bp.route("declarations_all/", methods=["GET"])
-@json_resp
-def declarations_all():
-    # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur
-    user = (
-        get_user(session["current_user"]["id_role"])
-        if "current_user" in session and session["current_user"]
-        else None
-    )
-    result  = get_liste_declarations(user=user)
-    print ("result", result)
-    return result
-
-
-
-@bp.route("declaration/<int:id_declaration>", methods=["GET"])
+@bp.route("voir_declaration/<int:id_declaration>", methods=["GET"])
 @check_auth_redirect_login(1)
 @json_resp
 def route_declaration(id_declaration):
     """
     Retourne la declaration d'id id_declaration
+    utilisée pour la page "voir_declaration.vue" qui donne les informations détaillées et les géométries.
+
     """
     # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur
     user = (
@@ -136,7 +80,7 @@ def route_declaration(id_declaration):
         if "current_user" in session and session["current_user"]
         else None
     )
-    declaration = get_declarations(id_declaration=id_declaration, user=user)[0]
+    declaration = get_fiche_declaration(id_declaration=id_declaration, user=user)[0]
 
     if not declaration:
         return None
@@ -144,67 +88,273 @@ def route_declaration(id_declaration):
     return declaration
 
 
-# @bp.route("declaration_html/<int:id_declaration>", methods=["GET", "POST"])
-# @check_auth_redirect_login(1)
-# @json_resp
-# def declaration_html(id_declaration):
-#     """
-#     Retourne la declaration en html d'id id_declaration
-#     """
+@bp.route("validate_declaration", methods=["POST"])
+@check_auth_redirect_login(4)
+@json_resp
+def validate_declaration():
+    """
+    Valide une déclaration (id_déclaration) en la mettant à jour dans la base de données.
 
-#     btn_action = request.args.get("btn_action", "")
-#     map_display = request.args.get("map_display", "")
+    Utilisation :
+    - Cette route est appelée lorsqu'un utilisateur authentifié (niveau d'accès 4 ou plus)
+      souhaite valider une déclaration spécifique identifiée par son id.
+    Elle est utilisée principalement dans le tableau des listes de déclarations.
+    """
+    data = request.get_json()
+    # print ("data validate_declaration", data)  # Debug : affiche les données reçues dans la requête
+    id_declaration = data.get("id_declaration")
+    b_valid = data.get(
+        "b_valid"
+    )  # Par défaut, on considère que la validation est pour valider (True)
+    dict_update = {"id_declaration": id_declaration, "b_valid": b_valid}
+    print("dict_update", dict_update)  # Debug : affiche le dictionnaire de mise à jour
 
-#     declaration = get_declaration(id_declaration)
+    stmt = (
+        TDeclaration.__table__.update()
+        .where(TDeclaration.id_declaration == id_declaration)
+        .values(b_valid=b_valid)
+    )
+    DB.session.execute(stmt)
+    DB.session.commit()
 
-#     if not declaration:
-#         return None
+    # if not id_declaration:
+    #     return {"error": "ID de déclaration manquant"}, 400
 
-#     return render_template(
-#         "modules/oeasc/entity/declaration_table.html",
-#         declaration_table=declaration,
-#         id_declaration=id_declaration,
-#         nomenclature=nomenclature_oeasc(),
-#         btn_action=btn_action,
-#         map_display=map_display,
-#     )
+    # # Récupère la déclaration à valider
+    # declaration = get_declaration(id_declaration)
+    # if not declaration:
+    #     return {"error": "Déclaration non trouvée"}, 404
+
+    # # Met à jour le statut de la déclaration
+    # declaration.b_valid = True
+    # DB.session.commit()
+
+    return dict_update
 
 
-# @bp.route("get_form_declaration", methods=["POST"])
-# @check_auth_redirect_login(1)
-# @json_resp
-# def get_form_declaration():
-#     """
-#     Retourne le formulaire correspondant
-#     à la déclaration envoyée en post dans data['declaration']
-#     """
-#     data = request.get_json()
+######################################################################################
+######################################################################################
+######################################################################################
 
-#     nomenclature = nomenclature_oeasc()
-#     declaration_dict = data["declaration"]
-#     id_form = data["id_form"]
 
-#     # recherche de la  foret le cas echeant (apres un choix de foret documentee)
-#     get_dict_nomenclature_areas(declaration_dict)
+# Cette route permet de récupérer les informations du propriétaire à partir de l'identifiant du déclarant.
+# Elle est utilisée lorsqu'on souhaite afficher ou utiliser les données du propriétaire liées à un déclarant spécifique.
+@bp.route("proprietaire_from_id/<int:id_declarant>", methods=["GET"])
+@check_auth_redirect_login(1)
+def api_get_proprietaire_from_id(id_declarant):
+    # Appel de la fonction pour obtenir le propriétaire selon l'id du déclarant
+    proprietaire = get_proprietaire_from_id(
+        id_declarant, type_proprietaire="proprietaire"
+    )
+    # Sérialisation de l'objet propriétaire en dictionnaire
+    proprietaire_dict = TProprietaireSchema().dump(proprietaire)
 
-#     check_foret(declaration_dict)
+    # Retourne les informations du propriétaire au format JSON
+    return proprietaire_dict
 
-#     check_proprietaire(declaration_dict)
 
-#     check_massif(declaration_dict)
+# Cette route permet de récupérer les informations du propriétaire à partir de l'identifiant du déclarant.
+# Elle est utilisée lorsqu'on souhaite afficher ou utiliser les données du propriétaire liées à un déclarant spécifique,
+# mais en passant par la fonction get_proprietaire_from_id qui peut différer de get_proprietaire_from_id selon la logique métier.
+@bp.route("proprietaire_from_id_declarant/<int:id_declarant>", methods=["GET"])
+@check_auth_redirect_login(1)
+def api_get_proprietaire_from_id_declarant(id_declarant):
+    # Appel de la fonction pour obtenir le propriétaire selon l'id du déclarant
+    proprietaire = get_proprietaire_from_id(id_declarant, type_proprietaire="declarant")
+    # Sérialisation de l'objet propriétaire en dictionnaire
+    proprietaire_dict = TProprietaireSchema().dump(proprietaire)
 
-#     listes_essences = get_listes_essences(declaration_dict)
+    # Retourne les informations du propriétaire au format JSON
+    return proprietaire_dict
 
-#     declaration_table = get_declaration_table(declaration_dict)
 
-#     return render_template(
-#         "modules/oeasc/form/form_declaration.html",
-#         declaration=declaration_dict,
-#         declaration_table=declaration_table,
-#         nomenclature=nomenclature,
-#         listes_essences=listes_essences,
-#         id_form=id_form,
-#     )
+# Cette route permet de récupérer les informations de la forêt à partir de son code.
+# Elle est utilisée lorsqu'on souhaite afficher ou utiliser les données d'une forêt spécifique,
+# ainsi que celles de son propriétaire. Elle cache le nom du propriétaire si celui-ci est privé.
+@bp.route("foret_from_code/<string:code_foret>", methods=["GET"])
+@check_auth_redirect_login(1)
+def api_get_foret_from_code(code_foret):
+    # Récupère la forêt et son propriétaire à partir du code de la forêt
+    foret, proprietaire = get_foret_from_code(code_foret)
+    # Sérialise l'objet forêt en dictionnaire
+    foret_dict = TForetSchema().dump(foret)
+    # Sérialise l'objet propriétaire en dictionnaire
+    proprietaire_dict = TProprietaireSchema().dump(proprietaire)
+
+    # Fusionne les informations du propriétaire dans le dictionnaire de la forêt
+    foret_dict.update(proprietaire_dict)
+
+    # Récupère la nomenclature du type de propriétaire
+    nomenclature = get_nomenclature_from_id(
+        proprietaire.id_nomenclature_proprietaire_type
+    )
+    # Si le propriétaire est privé, on cache ses informations personnelles
+    if nomenclature["cd_nomenclature"] == "PT_PRI":
+        hide_proprietaire(foret_dict)
+
+    # Retourne les informations de la forêt (et du propriétaire) au format JSON
+    return foret_dict
+
+
+# Cette route permet de récupérer une déclaration complète, incluant les données de la forêt, du propriétaire,
+# ainsi que toutes les zones ("areas") associées à la forêt et à la déclaration.
+# Elle est utilisée notamment pour l'affichage détaillé d'une déclaration, par exemple dans le composant "voir_declaration.vue".
+@bp.route("declaration/<int:id_declaration>", methods=["GET"])
+# @bp.route("declaration", methods=["GET"], defaults={"id_declaration": None})
+@check_auth_redirect_login(
+    1
+)  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
+@json_resp_accept_empty_list  # Retourne une liste vide si aucune déclaration n'est trouvée
+def api_get_declaration(id_declaration):
+    """
+    Récupère une déclaration complète avec toutes les informations nécessaires à l'affichage détaillé.
+    Utilisée pour consulter ou afficher une déclaration avec ses zones géographiques.
+    """
+
+    # Récupère la déclaration, la forêt et le propriétaire associés à l'identifiant donné
+    declaration, foret, proprietaire = get_declaration(id_declaration)
+
+    # Si aucune déclaration n'est trouvée, retourne une réponse vide
+    if not declaration:
+        return
+
+    # Sérialise l'objet déclaration en dictionnaire
+    declaration_dict = TDeclarationSchema().dump(declaration)
+    # print ("declaration_dict après sérialisation:", declaration_dict)
+
+    # Sérialise l'objet forêt en dictionnaire et fusionne avec la déclaration
+    foret_dict = TForetSchema().dump(foret) if foret else {}
+    declaration_dict.update(foret_dict)
+
+    # Sérialise l'objet propriétaire en dictionnaire et fusionne avec la déclaration
+    proprietaire_dict = TProprietaireSchema().dump(proprietaire) if proprietaire else {}
+    declaration_dict.update(proprietaire_dict)
+
+    # Ajoute l'identifiant du déclarant dans le dictionnaire de la déclaration
+    id_declarant = declaration.id_declarant
+    declaration_dict["id_declarant"] = id_declarant
+
+    # Pour chaque clé du dictionnaire, si la valeur est une liste d'objets contenant "id_nomenclature",
+    # on transforme cette liste en une liste d'identifiants de nomenclature uniquement.
+    # Cela permet de simplifier la structure des données retournées.
+    # print ("declaration_dict avant transformation des nomenclatures:", declaration_dict)
+    for key in declaration_dict:
+        if key == "centroid":  # les centroid sont en array et non en list
+            declaration_dict[key] = {
+                "x": declaration_dict[key][0],
+                "y": declaration_dict[key][1],
+            }
+        else:  # pour les list on applatit les nomenclatures
+            if (
+                isinstance(declaration_dict[key], list)
+                and len(declaration_dict[key]) > 0
+                and "id_nomenclature" in declaration_dict[key][0]
+            ):
+                # regroupe les id_nomenclature dans une liste simple.
+                declaration_dict[key] = [
+                    e["id_nomenclature"] for e in declaration_dict[key]
+                ]
+
+    # Récupère et classe les zones ("areas") de la forêt selon leur type
+    areas_foret = [
+        get_area_from_id(area["id_area"])
+        for area in declaration_dict.get("areas_foret", [])
+    ]
+    declaration_dict["areas_foret_onf"] = get_id_area(areas_foret, ["OEASC_ONF_FRT"])
+    declaration_dict["areas_foret_dgd"] = get_id_area(areas_foret, ["OEASC_DGD"])
+    declaration_dict["areas_foret_communes"] = get_id_areas(
+        areas_foret, ["OEASC_COMMUNE"]
+    )
+    declaration_dict["areas_foret_sections"] = get_id_areas(
+        areas_foret, ["OEASC_SECTION"]
+    )
+
+    # Récupère et classe les zones ("areas") de la déclaration selon leur type
+    areas_localisation = [
+        get_area_from_id(area["id_area"])
+        for area in declaration_dict.get("areas_localisation", [])
+    ]
+    declaration_dict["areas_localisation_cadastre"] = get_id_areas(
+        areas_localisation, ["OEASC_CADASTRE"]
+    )
+    declaration_dict["areas_localisation_onf_prf"] = get_id_areas(
+        areas_localisation, ["OEASC_ONF_PRF"]
+    )
+    declaration_dict["areas_localisation_onf_ug"] = get_id_areas(
+        areas_localisation, ["OEASC_ONF_UG"]
+    )
+
+    # Cache les informations personnelles du propriétaire si l'utilisateur n'est pas le déclarant
+    # ou si son niveau d'accès est inférieur à 4 (donc pas administrateur).
+    # Ceci permet de protéger la vie privée du propriétaire.
+    current_user = session.get("current_user", None)
+    if (
+        (current_user is not None)
+        and (current_user["max_level_profil"] < 4)
+        and (current_user["id_role"] != declaration_dict["id_declarant"])
+    ):
+        hide_proprietaire(declaration_dict)
+
+    # Retourne le dictionnaire de la déclaration complète au format JSON
+    return declaration_dict
+
+
+# Cette route permet de modifier une déclaration existante via une requête PATCH.
+# Elle est utilisée lorsqu'un utilisateur souhaite mettre à jour les informations d'une déclaration
+# déjà enregistrée dans la base de données, par exemple pour corriger une erreur ou ajouter des précisions.
+@bp.route("declaration", methods=["PATCH"])
+@check_auth_redirect_login(
+    1
+)  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
+@json_resp  # Retourne la réponse au format JSON
+def api_post_declaration():
+    """
+    Met à jour une déclaration existante.
+    Utilisée lors de la modification d'une déclaration par un utilisateur autorisé.
+    """
+
+    # Récupère les données envoyées dans la requête PATCH (au format JSON)
+    post_data = request.get_json()
+    # Appelle la fonction qui crée ou met à jour la déclaration dans la base de données
+    # Ici, on suppose que l'identifiant de la déclaration existe déjà dans post_data
+    result_declaration = create_or_update_declaration(post_data)
+    # Envoie un mail de notification pour informer de la modification de la déclaration
+    # (le second paramètre "False" indique qu'il ne s'agit pas d'une création mais d'une modification)
+    send_mail_validation_declaration(result_declaration, False)
+    # Retourne le résultat de la modification au format JSON
+    return result_declaration
+
+
+# Cette route permet de créer une nouvelle déclaration de dégât en forêt via une requête POST.
+# Elle est utilisée lorsqu'un utilisateur souhaite enregistrer une nouvelle déclaration dans la base de données.
+# Typiquement, cette route est appelée lors de la soumission d'un formulaire de déclaration par un utilisateur.
+@bp.route("declaration", methods=["POST"])
+@check_auth_redirect_login(
+    1
+)  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
+@json_resp  # Retourne la réponse au format JSON
+def api_patch_declaration():
+    """
+    Crée une nouvelle déclaration de dégât en forêt.
+    Utilisée lors de la soumission d'une déclaration par un utilisateur.
+    """
+
+    # Récupère les données envoyées dans la requête POST (au format JSON)
+    post_data = request.get_json()
+
+    # Détermine s'il s'agit d'une création (True si aucun id_declaration n'est présent)
+    b_create = not (post_data.get("id_declaration"))
+
+    # Appelle la fonction qui crée ou met à jour la déclaration dans la base de données
+    # Ici, on suppose que l'identifiant de la déclaration n'existe pas encore (création)
+    post_data_arranged = create_or_update_declaration(post_data)
+
+    # Envoie un mail de notification pour informer de la création de la déclaration
+    # (décommenter la ligne ci-dessous pour activer l'envoi de mail après les tests)
+    send_mail_validation_declaration(post_data_arranged, b_create)
+
+    # Retourne le résultat de la création au format JSON
+    return post_data_arranged
 
 
 @bp.route("delete_declaration/<int:id_declaration>", methods=["POST"])
@@ -213,19 +363,7 @@ def route_declaration(id_declaration):
 def delete_declaration(id_declaration):
     """
     Supprime une déclaration (id_déclaration) de la base de données.
-
-    Utilisation :
-    - Cette route est appelée lorsqu'un utilisateur authentifié (niveau d'accès 4 ou plus)
-      souhaite supprimer une déclaration spécifique identifiée par son id.
-    - Elle est utilisée principalement dans l'interface d'administration ou par les gestionnaires
-      habilités à effectuer des suppressions de données sensibles.
-
-    Fonctionnement :
-    - La fonction reçoit l'identifiant de la déclaration à supprimer via l'URL.
-    - Elle construit une requête SQLAlchemy pour supprimer la déclaration correspondante
-      dans la table TDeclaration.
-    - La suppression est exécutée et validée en base via commit().
-    - La réponse "ok" est retournée au format JSON pour indiquer le succès de l'opération.
+    Non utilisé pour le moment.
     """
 
     # Création de la requête de suppression pour la déclaration d'id donné
@@ -241,67 +379,9 @@ def delete_declaration(id_declaration):
     return "ok"
 
 
-# @bp.route("random_declaration", methods=["GET"])
-# @check_auth_redirect_login(5)
-# @json_resp
-# def random_declaration():
-#     """
-#     Renvoie une déclaration crée aléatoirement
-#     """
-
-#     declaration_dict = declaration_dict_random_sample()
-#     get_dict_nomenclature_areas(declaration_dict)
-#     return declaration_dict
-
-
-# @bp.route("random_populate", defaults={"nb": 1}, methods=["GET"])
-# @bp.route("random_populate/<int:nb>", methods=["GET"])
-# @check_auth_redirect_login(5)
-# @json_resp
-# def random_populate(nb):
-#     """
-#     Crée et ajoute en base nb déclarations
-#     """
-
-#     for i in range(nb):
-#         declaration_dict = declaration_dict_random_sample()
-
-#         if not declaration_dict:
-#             continue
-
-#         declaration_dict_2 = copy.deepcopy(declaration_dict)
-#         get_dict_nomenclature_areas(declaration_dict_2)
-
-#         id_area = check_massif(declaration_dict_2)
-#         if not id_area:
-#             continue
-
-#         declaration_dict["areas_localisation"].append({"id_area": id_area})
-#         # check_foret(declaration_dict, nomenclature)
-#         # check_proprietaire(declaration_dict, nomenclature)
-#         declaration_dict = f_create_or_update_declaration(declaration_dict)
-
-#     return "ok"
-
-
-# @bp.route("create_or_update_declaration", methods=["POST"])
-# @check_auth_redirect_login(1)
-# @json_resp
-# def create_or_update_declaration():
-#     """
-#     cree une nvlle déclaration quand id déclaration est renseigné
-#     ou
-#     update une declaration existante
-#     """
-
-#     data = request.get_json()
-#     b_create = data["declaration"].get("id_declaration")
-#     declaration_dict = data["declaration"]
-#     d = f_create_or_update_declaration(declaration_dict)
-
-#     send_mail_validation_declaration(d, b_create)
-
-#     return d
+##################################################################################
+###################    EXPORT CSV / SHAPE  ########################################
+###################################################################################
 
 
 def get_file_name(type_out):
@@ -311,8 +391,6 @@ def get_file_name(type_out):
     Utilisation :
     - Cette fonction est utilisée lors de l'export des déclarations au format CSV ou SHAPE,
       notamment dans les routes 'declarations_csv' et 'declarations_shape'.
-    - Elle permet de nommer dynamiquement le fichier exporté selon le type de déclaration
-      ('degat' ou autre) et la date du jour.
 
     Arguments :
     - type_out (str) : Type de déclaration à exporter. Peut être 'degat' pour les dégâts,
@@ -370,7 +448,7 @@ def declarations_csv():
     file_name = get_file_name(type_out)
 
     # Récupère les données à exporter selon l'utilisateur courant et le type d'export
-    data = get_declarations(
+    data = get_declarations_view(
         user=get_user(session["current_user"]["id_role"]),
         type_export="csv",
         type_out=type_out,
@@ -387,8 +465,6 @@ def declarations_csv():
 @check_auth_redirect_login(1)
 def declarations_shape():
     """
-    Route Flask permettant d'exporter la liste des déclarations au format Shapefile (SHP).
-
     Utilisation :
     - Cette route est appelée lorsqu'un utilisateur authentifié souhaite télécharger
       les déclarations (dégâts ou alertes) sous forme de fichier Shapefile pour une utilisation SIG.
@@ -433,7 +509,7 @@ def declarations_shape():
     )
 
     # Récupère les données à exporter selon l'utilisateur courant et le type d'export
-    data = get_declarations(
+    data = get_declarations_view(
         user=get_user(session["current_user"]["id_role"]),
         type_export="shape",
         type_out=type_out,
@@ -467,3 +543,26 @@ def declarations_shape():
 
     # Retourne le fichier ZIP final en téléchargement à l'utilisateur
     return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
+
+
+@bp.route("degats", methods=["GET"])
+@json_resp
+def degats():
+    """
+    Route Flask permettant de récupérer la liste des déclarations de type 'dégât' accessibles pour le déclarant.
+
+    Utilisation :
+    - Cette route est appelée lorsqu'un utilisateur souhaite consulter uniquement les déclarations
+      de type 'dégât' qui lui sont accessibles, généralement dans l'interface dédiée aux déclarants.
+    - Elle est utilisée pour filtrer les déclarations selon le rôle et les droits du déclarant.
+
+    Fonctionnement :
+    - La fonction appelle get_declarations avec les paramètres type_out="degat" pour ne récupérer
+      que les déclarations de type 'dégât', et restrict=True pour limiter l'accès selon le déclarant.
+    - Le filtrage des données dépend de l'implémentation de get_declarations et des droits de l'utilisateur.
+
+    Retour :
+    - La liste des déclarations de type 'dégât' accessibles au déclarant, au format JSON.
+    """
+
+    return get_declarations_view(type_out="degat", restrict=True)

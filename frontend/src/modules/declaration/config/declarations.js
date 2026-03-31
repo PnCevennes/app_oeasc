@@ -9,7 +9,7 @@ const postDeclaration = function ({ baseModel }) {
   const postData = formToPost(baseModel);
 
   // post data
-  return apiRequest('POST', 'api/degat_foret/declaration', { postData });
+  return apiRequest('POST', 'api/declaration/declaration', { postData });
 };
 
 const config = {

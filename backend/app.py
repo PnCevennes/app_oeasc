@@ -248,11 +248,6 @@ with app.app_context():
 
     app.register_blueprint(declaration_api.bp, url_prefix="/api/declaration")
 
-    # routes concernant la déclaration des dégats en forêt. Fait appels aux models contenues dans declaration
-    from oeasc.modules.oeasc.degat_foret import api as degat_foret_api
-
-    app.register_blueprint(degat_foret_api.bp, url_prefix="/api/degat_foret")
-
     # route pour les résultat d'indices nocturnes et resultats du système d'alertes
     from oeasc.modules.oeasc.resultat import api as resultats_api
 

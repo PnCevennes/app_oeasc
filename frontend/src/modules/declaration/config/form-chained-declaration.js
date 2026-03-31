@@ -31,7 +31,7 @@ export default {
   action: {
     request: {
       method: 'POST',
-      url: 'api/degat_foret/declaration',
+      url: 'api/declaration/declaration',
     },
   },
   preloadData: ({ $store, id, config }) => {

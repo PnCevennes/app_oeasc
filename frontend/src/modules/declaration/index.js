@@ -191,7 +191,7 @@ const STORE = {
     // récupère les données sur une déclaration et l'enregistre en cache dans le state _declarationForm
     declarationForm: ({ commit }, id) => {
       return new Promise((resolve, reject) => {
-        apiRequest('GET', `api/degat_foret/declaration/${id || ''}`).then(
+        apiRequest('GET', `api/declaration/declaration/${id || ''}`).then(
           (apiData) => {
             commit('declarationForm', apiData);
             resolve(apiData);
@@ -227,7 +227,7 @@ const STORE = {
     // pb
     foretFromCode: ({ commit }, codeForet) => {
       return new Promise((resolve, reject) => {
-        apiRequest('GET', `api/degat_foret/foret_from_code/${codeForet}`).then(
+        apiRequest('GET', `api/declaration/foret_from_code/${codeForet}`).then(
           (apiData) => {
             commit('foret', apiData);
             resolve(apiData);
@@ -242,7 +242,7 @@ const STORE = {
 
     proprietaireFromIdDeclarant: ({ commit }, idDeclarant) => {
       return new Promise((resolve, reject) => {
-        apiRequest('GET', `api/degat_foret/proprietaire_from_id_declarant/${idDeclarant}`).then(
+        apiRequest('GET', `api/declaration/proprietaire_from_id_declarant/${idDeclarant}`).then(
           (apiData) => {
             commit;
             resolve(apiData);
@@ -257,7 +257,7 @@ const STORE = {
 
     proprietaireFromId: ({ commit }, idProprietaire) => {
       return new Promise((resolve, reject) => {
-        apiRequest('GET', `api/degat_foret/proprietaire_from_id/${idProprietaire}`).then(
+        apiRequest('GET', `api/declaration/proprietaire_from_id/${idProprietaire}`).then(
           (apiData) => {
             commit;
             resolve(apiData);
@@ -281,11 +281,7 @@ storeUtils.addStoreRestitution(
   configResitutionDeclaration
 );
 
-
 // mettre ici les composants spécifiques aux déclarations qui pourraient être utilisés dans les pages dynamiques.
-const CONTENT = {
-  
-};
-
+const CONTENT = {};
 
 export { ROUTE, STORE, CONTENT };

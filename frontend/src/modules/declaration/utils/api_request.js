@@ -18,8 +18,8 @@ const CODE_AREA = {
 export async function fetch_declaration_by_id(id) {
   try {
     // const response = await fetch(`/api/declarations/${id}`);
-    const response = await apiRequest('GET', `api/degat_foret/declaration/${id || ''}`);
-
+    const response = await apiRequest('GET', `api/declaration/declaration${id ? `/${id}` : ''}`);
+    console.log('Réponse de l’API pour la déclaration:', response);
     return response;
   } catch (error) {
     console.error('Erreur lors de la récupération des données', error);
@@ -54,7 +54,7 @@ export async function fetch_forets_from_code(codeForet) {
   // codeForet est de la forme "48-BOUGES" (departement-code de la forêt) pour les forêts ONF
   // ou "48474-48-1419-1" pour les forêts DGD (document de gestion durable)
   try {
-    const response = await apiRequest('GET', `api/degat_foret/foret_from_code/${codeForet}`);
+    const response = await apiRequest('GET', `api/declaration/foret_from_code/${codeForet}`);
     return response;
   } catch (error) {
     console.error('Erreur lors de la récupération des forêts par code', error);
@@ -92,7 +92,7 @@ export async function fetch_proprietaires_from_id_declarant(idDeclarant) {
   try {
     const response = await apiRequest(
       'GET',
-      `api/degat_foret/proprietaire_from_id_declarant/${idDeclarant}`
+      `api/declaration/proprietaire_from_id_declarant/${idDeclarant}`
     );
     return response;
   } catch (error) {
@@ -105,7 +105,7 @@ export async function fetch_proprietaires_from_id(id_proprietaire) {
   try {
     const response = await apiRequest(
       'GET',
-      `api/degat_foret/proprietaire_from_id/${id_proprietaire}`
+      `api/declaration/proprietaire_from_id/${id_proprietaire}`
     );
     return response;
   } catch (error) {

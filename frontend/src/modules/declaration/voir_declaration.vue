@@ -1,7 +1,7 @@
 <!-- Page de visualisation d'une déclaration. Est appelé dans form-chained
 Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -->
 <template>
-  <div style="min-width:900px; max-width: 1000px; margin: auto">
+  <div style="min-width: 900px; max-width: 1000px; margin: auto">
     <v-progress-linear
       v-if="pdfProcessing"
       active
@@ -265,7 +265,6 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                       {{ declaration_data.peuplement_ess_3_label }}
                     </td>
                   </tr>
-                  
                 </tbody>
 
                 <!-- --------------------------- PEUPLEMENT - DESCRIPTION --------------------------- -->
@@ -481,7 +480,6 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
     </div>
     <!-- <pre>{{ declaration_data }}</pre> -->
   </div>
-  
 </template>
 
 <script>
@@ -663,7 +661,7 @@ export default {
     this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
     this.declaration_data = await apiRequest(
       'GET',
-      `api/declaration/declaration/${this.id_declaration}`
+      `api/declaration/voir_declaration/${this.id_declaration}`
     );
     this.bInit = true;
   },

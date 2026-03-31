@@ -235,10 +235,38 @@ const displayParcelles = function (parcelles) {
     .join(', ');
 };
 
+const displayDate = function (date) {
+  // retourne unet date au format jj/mm/aaaa
+  if (!date) {
+    return '';
+  }
+  const d = new Date(date);
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const year = d.getFullYear();
+  return `${day}/${month}/${year}`;
+};
+
+const displayStatut = function (statut) {
+  if (statut === 1) {
+    return 'Active';
+  } else if (statut === 2) {
+    return 'A renouveler';
+  } else if (statut === 3) {
+    return 'Archivée';
+  } else if (statut === 4) {
+    return 'Dupliquée';
+  } else {
+    return statut;
+  }
+};
+
 export {
   displayParcelles,
   rawToDisplay,
   getDeclarationData,
+  displayDate,
+  displayStatut,
   // declarationForetAreas,
   // declarationLocalisationAreas
 };

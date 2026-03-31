@@ -794,7 +794,7 @@ import tableAide from '@/modules/content/table-aide.vue';
 import { formFunctions } from '@/components/form/functions/form.js';
 import { apiRequest } from '@/core/js/data/api';
 import {
-  fetch_declaration_by_id,
+  // fetch_declaration_by_id,
   fetch_forets_from_code,
   fetch_proprietaires_from_id_declarant,
   fetch_proprietaires_from_id,
@@ -921,7 +921,12 @@ export default {
   created() {},
 
   async mounted() {
-    this.declaration_data = await fetch_declaration_by_id(this.declarationId);
+    this.declaration_data = await apiRequest(
+      'GET',
+      `api/declaration/declaration${this.declarationId ? `/${this.declarationId}` : ''}`
+    );
+    // this.declaration_data = await fetch_declaration_by_id(this.declarationId);
+    console.log('Données de la déclaration chargées:', this.declaration_data);
     this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
 
     this.information_declarant = this.$store.getters.user;
@@ -934,7 +939,6 @@ export default {
     }
 
     if (!this.declaration_data.id_declarant) {
-      // console.log("utilisateur dans store", this.$store.getters.user);
       this.declaration_data.id_declarant = this.information_declarant.id_role;
       this.declaration_data.email = this.information_declarant.email;
       this.declaration_data.nom_proprietaire = this.information_declarant.nom_complet;
@@ -996,7 +1000,7 @@ export default {
       // Si il y a l'id c'est une modification
       if (this.declaration_data.id_declaration) {
         // Envoi de la déclaration via l'API
-        await apiRequest('PATCH', `api/degat_foret/declaration`, options)
+        await apiRequest('PATCH', `api/declaration/declaration`, options)
           .then((response) => {
             // console.log("Déclaration mise à jour avec succès:", response);
             this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
@@ -1007,7 +1011,7 @@ export default {
           });
       } else {
         // si il n'y a pas d'id, c'est une création
-        apiRequest('POST', `/api/degat_foret/declaration`, options)
+        apiRequest('POST', `/api/declaration/declaration`, options)
           .then((response) => {
             // console.log("Déclaration créée avec succès:", response);
             this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès

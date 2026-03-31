@@ -37,8 +37,8 @@ A supprimé lorsqu'il sera remplacé par resume_declaration.vue. -->
         <tr>
           <th>Organisme</th>
           <td>{{ declarationDisplay.org_mnemo }}</td> -->
-          <!-- <td>{{ declarationDisplay.organisme }}</td> -->
-        <!-- </tr>
+<!-- <td>{{ declarationDisplay.organisme }}</td> -->
+<!-- </tr>
       </tbody>
 
       <tbody>

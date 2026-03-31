@@ -1,4 +1,5 @@
-import { displayParcelles } from '../declaration.js';
+import { apiRequest } from '../../../core/js/data/api.js';
+import { displayParcelles, displayDate, displayStatut } from '../declaration.js';
 
 export default {
   idFieldName: 'id_declaration',
@@ -46,26 +47,33 @@ export default {
       text: 'Secteur',
     },
     declaration_date: {
-      text: 'Date',
-      type: 'date',
+      text: 'Date déclaration',
+      display: (val) => {
+        return displayDate(val.declaration_date);
+      },
+    },
+    date_fin: {
+      text: 'Date fin validité',
+      display: (val) => displayDate(val.date_fin),
     },
     label_foret: {
       text: 'Nom forêt',
     },
-    peuplement_ess_1_mnemo: {
-      text: 'Ess. objectif',
-    },
+    // peuplement_ess_1_mnemo: {
+    //   text: 'Ess. objectif',
+    // },
     parcelles: {
       text: 'Parcelle(s)',
       display: (val) => displayParcelles(val.parcelles),
     },
-    peuplement_type_mnemo: {
-      text: 'Type peupl.',
-    },
-    peuplement_origine2_mnemo: {
-      text: 'Origine plants touchés',
-    },
+    // peuplement_type_mnemo: {
+    //   text: 'Type peupl.',
+    // },
+    // peuplement_origine2_mnemo: {
+    //   text: 'Origine plants touchés',
+    // },
     degat_type_mnemos: {
+      // si besoin d'un peu de place on peut éventuellement retirer cette colonne
       text: 'Type dégâts',
     },
     b_valid: {
@@ -75,17 +83,28 @@ export default {
       condition: ({ $store }) => $store.getters.droitMax >= 5,
       edit: {
         preloadData: ({ config, $store, id }) => {
-          return new Promise((resolve) => {
-            $store.dispatch('declarationForm', id).then((declaration) => {
-              config.value = declaration;
-              resolve(declaration);
-            });
+          return apiRequest('get', `api/declaration/declaration/${id}`).then((declaration) => {
+            config.value = declaration;
+            return declaration;
           });
         },
         action: {
           request: {
-            url: 'api/degat_foret/declaration',
+            url: 'api/declaration/validate_declaration',
             method: 'POST',
+          },
+          onsuccess: ({ data }) => {
+            // Met à jour la déclaration dans le tableau pour que le changement soit visible en temps réel
+            const index = config.value.tableData.value.findIndex(
+              (d) => d.id_declaration === data.id_declaration
+            );
+            // Si la déclaration est trouvée, on met à jour son statut de validation
+            if (index !== -1) {
+              config.value.tableData.value[index] = {
+                ...config.value.tableData.value[index],
+                b_valid: data.b_valid,
+              };
+            }
           },
         },
         formDefs: {
@@ -99,6 +118,7 @@ export default {
     },
     status: {
       text: 'Status',
+      display: (val) => displayStatut(val.status),
     },
   },
 };
