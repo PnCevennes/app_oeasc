@@ -63,25 +63,31 @@ def upgrade():
         SET date_fin = meta_create_date + INTERVAL '3 years'
     """)
 
-    # pour toutes les déclarations qui n'ont pas de date_fin et b_valid == true, on met le status à "Active" (1)
+    # On met tous les status à 1 (code: Active) pour les déclarations. Le premier changement de status se fera au premier mail de relance.
     op.execute(f"""
         UPDATE oeasc_declarations.t_declarations
         SET status = 1
-        WHERE date_fin IS NULL AND b_valid = true
+        WHERE b_valid = true
     """)
-
-    # pour toutes les déclarations qui ont une date_fin et b_valid == true, on met le status à "A renouveler" (2)
+    # les déclarations non valides sont considérées comme non validées (code: 0)
     op.execute(f"""
         UPDATE oeasc_declarations.t_declarations
-        SET status = 2
-        WHERE date_fin <= NOW() AND b_valid = true
+        SET status = 0
+        WHERE b_valid = false
     """)
+    
+    # # pour toutes les déclarations qui ont une date_fin et b_valid == true, on met le status à "A renouveler 1" (code: 10)
+    # op.execute(f"""
+    #     UPDATE oeasc_declarations.t_declarations
+    #     SET status = 10
+    #     WHERE date_fin <= NOW() AND b_valid = true
+    # """)
 
-    op.execute(f"""
-        UPDATE oeasc_declarations.t_declarations
-        SET status = 1
-        WHERE date_fin > NOW() AND b_valid = true
-    """)
+    # op.execute(f"""
+    #     UPDATE oeasc_declarations.t_declarations
+    #     SET status = 1
+    #     WHERE date_fin > NOW() AND b_valid = true
+    # """)
 
 
 def downgrade():
