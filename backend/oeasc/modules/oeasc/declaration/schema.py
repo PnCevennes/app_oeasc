@@ -8,6 +8,10 @@ from marshmallow_sqlalchemy.fields import Nested, fields
 from marshmallow import EXCLUDE
 from .models import *
 
+from utils_flask_sqla_geo.schema import GeometryField
+from utils_flask_sqla_geo.schema import GeoAlchemyAutoSchema
+
+
 config = current_app.config
 DB = config["DB"]
 
@@ -147,7 +151,7 @@ class TDegatSchema(SQLAlchemyAutoSchema):
         unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
 
 
-class TDeclarationSchema(SQLAlchemyAutoSchema):
+class TDeclarationSchema(GeoAlchemyAutoSchema):
     id_declaration = fields.Integer(allow_none=True)
     areas_localisation = Nested(
         CorAreasDeclarationSchema,
@@ -204,6 +208,8 @@ class TDeclarationSchema(SQLAlchemyAutoSchema):
         # exclude=("id_declaration",),
     )
     degats = Nested(TDegatSchema, many=True, metadata={"load_instance": True})
+
+    geom = GeometryField(dump_only=True)
 
     class Meta:
         model = TDeclaration

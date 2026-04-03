@@ -5,6 +5,7 @@ modeles alerte OEASC
 from flask import current_app
 from pypnusershub.db.models import User
 from utils_flask_sqla.serializers import serializable
+from utils_flask_sqla_geo.serializers import geoserializable
 from sqlalchemy.orm import relationship, Mapped
 from sqlalchemy import (
     Column,
@@ -19,6 +20,7 @@ from sqlalchemy import (
     func,
 )
 
+from geoalchemy2 import Geometry
 config = current_app.config
 DB = config["DB"]
 
@@ -263,7 +265,8 @@ class TDegat(CustomModel):
     )
 
 
-@serializable
+# @serializable
+@geoserializable
 class TDeclaration(CustomModel):
     """
     modele declaration
@@ -394,6 +397,8 @@ class TDeclaration(CustomModel):
     token_renouvellement: Mapped[str] = Column(Unicode(255), nullable=True)
     date_fin_token: Mapped[DateTime] = Column(DateTime, nullable=True)
     id_declaration_duplique: Mapped[int] = Column(Integer, nullable=True)
+
+    geom: Mapped[object] = Column(Geometry("GEOMETRY", 4326))
 
 
 ################################################################
