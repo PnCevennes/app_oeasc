@@ -45,7 +45,9 @@ from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
 
 
 from flask import current_app
+
 config = current_app.config
+
 
 # Fonctions PostgreSQL custom (appelées via func)
 def get_nomenclature_label(arg):
@@ -71,13 +73,20 @@ def get_nomenclature_mnemoniques(arg):
 def get_nomenclature_codes(arg):
     return func.coalesce(func.ref_nomenclatures.get_nomenclature_codes(arg), "")
 
+
 def get_area_names(id_declaration, area_type):
-    return func.coalesce(func.oeasc_declarations.get_area_names(id_declaration, area_type), "")
+    return func.coalesce(
+        func.oeasc_declarations.get_area_names(id_declaration, area_type), ""
+    )
+
 
 def get_id_areas(id_declaration, area_type):
-    return func.coalesce(func.oeasc_declarations.get_area_ids(id_declaration, area_type), "")
-# get_id_areas = func.oeasc_declarations.get_id_areas
+    return func.coalesce(
+        func.oeasc_declarations.get_area_ids(id_declaration, area_type), ""
+    )
 
+
+# get_id_areas = func.oeasc_declarations.get_id_areas
 
 
 ###############################################################################$
@@ -86,85 +95,88 @@ def get_id_areas(id_declaration, area_type):
 
 
 def get_stmt_for_resultats_degats():
-    """ Récupère les dégats pour l'affichage des résultats (page: résultats de suivis/système d'alerte)"""
+    """Récupère les dégats pour l'affichage des résultats (page: résultats de suivis/système d'alerte)"""
 
     stmt_all_degats = (
-    select(
-        TDeclaration.b_peuplement_paturage_presence,
-        TDeclaration.b_peuplement_protection_existence,
-        TDeclaration.centroid,
-        get_area_names(TDeclaration.id_declaration, "OEASC_COMMUNE").label("communes"),
-        VUsers.nom_complet.label("declarant"),
-        func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label("declaration_date"),
-        get_nomenclature_label(
-            TDegatEssence.id_nomenclature_degat_anteriorite
-        ).label("degat_anteriorite_label"),
-        get_nomenclature_label(
-            TDegatEssence.id_nomenclature_degat_essence
-        ).label("degat_essence_label"),
-        get_nomenclature_label(
-            TDegatEssence.id_nomenclature_degat_etendue
-        ).label("degat_etendue_label"),
-        get_nomenclature_label(
-            TDegatEssence.id_nomenclature_degat_gravite
-        ).label("degat_gravite_label"),
-        get_nomenclature_label(TDegat.id_nomenclature_degat_type).label(
+        select(
+            TDeclaration.b_peuplement_paturage_presence,
+            TDeclaration.b_peuplement_protection_existence,
+            TDeclaration.centroid,
+            get_area_names(TDeclaration.id_declaration, "OEASC_COMMUNE").label(
+                "communes"
+            ),
+            VUsers.nom_complet.label("declarant"),
+            func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label(
+                "declaration_date"
+            ),
+            get_nomenclature_label(
+                TDegatEssence.id_nomenclature_degat_anteriorite
+            ).label("degat_anteriorite_label"),
+            get_nomenclature_label(TDegatEssence.id_nomenclature_degat_essence).label(
+                "degat_essence_label"
+            ),
+            get_nomenclature_label(TDegatEssence.id_nomenclature_degat_etendue).label(
+                "degat_etendue_label"
+            ),
+            get_nomenclature_label(TDegatEssence.id_nomenclature_degat_gravite).label(
+                "degat_gravite_label"
+            ),
+            get_nomenclature_label(TDegat.id_nomenclature_degat_type).label(
                 "degat_type_label"
-        ),
-        TDeclaration.id_declaration,
-        VUsers.organisme.label("organisme"),
-        get_nomenclature_label(TDeclaration.id_nomenclature_peuplement_acces).label(
+            ),
+            TDeclaration.id_declaration,
+            VUsers.organisme.label("organisme"),
+            get_nomenclature_label(TDeclaration.id_nomenclature_peuplement_acces).label(
                 "peuplement_acces_label"
-        ),
-        get_nomenclature_label(
+            ),
+            get_nomenclature_label(
                 TDeclaration.id_nomenclature_peuplement_essence_principale
-        ).label("peuplement_ess_1_label"),
-        get_nomenclature_label(TDeclaration.id_nomenclature_peuplement_type).label(
+            ).label("peuplement_ess_1_label"),
+            get_nomenclature_label(TDeclaration.id_nomenclature_peuplement_type).label(
                 "peuplement_type_label"
-        ),  
-        get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label("secteur"),
-
-        case(
-            (
-                and_(TForet.b_statut_public == True, TForet.b_document == True),
-                "Public (avec DGD)",
             ),
-            (
-                and_(TForet.b_statut_public == True, TForet.b_document == False),
-                "Public (sans DGD)",
+            get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label(
+                "secteur"
             ),
-            (
-                and_(TForet.b_statut_public == False, TForet.b_document == True),
-                "Privé (avec DGD)",
-            ),
-            (
-                and_(TForet.b_statut_public == False, TForet.b_document == False),
-                "Privé (sans DGD)",
-            ),
-            else_="",
-        ).label("type_foret"),
-        case(
-            (TDeclaration.b_valid == True, "Validé"),
-            (TDeclaration.b_valid == False, "Non validé"),
-            else_="En attente",
-        ).label("valide"),
-
-        # TDegat.id_degat,
-        # TDegatEssence.id_degat_essence,
-        
+            case(
+                (
+                    and_(TForet.b_statut_public == True, TForet.b_document == True),
+                    "Public (avec DGD)",
+                ),
+                (
+                    and_(TForet.b_statut_public == True, TForet.b_document == False),
+                    "Public (sans DGD)",
+                ),
+                (
+                    and_(TForet.b_statut_public == False, TForet.b_document == True),
+                    "Privé (avec DGD)",
+                ),
+                (
+                    and_(TForet.b_statut_public == False, TForet.b_document == False),
+                    "Privé (sans DGD)",
+                ),
+                else_="",
+            ).label("type_foret"),
+            case(
+                (TDeclaration.b_valid == True, "Validé"),
+                (TDeclaration.b_valid == False, "Non validé"),
+                else_="En attente",
+            ).label("valide"),
+            # TDegat.id_degat,
+            # TDegatEssence.id_degat_essence,
+        )
+        .outerjoin(TDegatEssence, TDegat.id_degat == TDegatEssence.id_degat)
+        .join(TDeclaration, TDegat.id_declaration == TDeclaration.id_declaration)
+        .join(VUsers, TDeclaration.id_declarant == VUsers.id_role)
+        .join(TForet, TDeclaration.id_foret == TForet.id_foret)
+        .order_by(TDegat.id_declaration)
     )
-    .outerjoin(TDegatEssence, TDegat.id_degat == TDegatEssence.id_degat)
-    .join(TDeclaration, TDegat.id_declaration == TDeclaration.id_declaration)
-    .join(VUsers, TDeclaration.id_declarant == VUsers.id_role)
-    .join(TForet, TDeclaration.id_foret == TForet.id_foret)
-    .order_by(TDegat.id_declaration)
-    )  
 
     return stmt_all_degats
 
 
 def get_stmt_for_declarations_export(type_file="csv", type_out="degat"):
-    """ Récupère les informations sur les déclarations, les dégats et les forêts pour l'export des données (csv ou shape)
+    """Récupère les informations sur les déclarations, les dégats et les forêts pour l'export des données (csv ou shape)
     type_file: "csv" ou "shape"
     type_out: "degat" ou "declaration"
     Si type_out == "degat", alors on récupère une ligne par dégât, avec les infos de la déclaration et du dégât.
@@ -173,165 +185,176 @@ def get_stmt_for_declarations_export(type_file="csv", type_out="degat"):
 
     """
 
-    stmt= (
-        select(
-            TDeclaration.id_declaration.label("id"),
-            case(
-                (TDeclaration.b_valid == True, "Validé"),
-                (TDeclaration.b_valid == False, "Non validé"),
-                else_="En attente",
-            ).label("Valide"),
-            func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label("Date"),
-            VUsers.nom_complet.label("Déclarant"),
-            VUsers.organisme.label("Organisme"),
-
-            # TDeclaration.b_peuplement_paturage_presence,
-            # TDeclaration.b_peuplement_protection_existence,
-            case((TForet.b_statut_public == True, "Public"), else_="Privé").label(
-                    "Statut forêt"
-                ),
-            case((TForet.b_document == True, "Oui"), else_="Non").label("Documentée"),
-            TForet.label_foret.label("Nom forêt"),
-            get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label("Secteur"),
-            get_nomenclature_mnemonique(TDeclaration.id_nomenclature_peuplement_type).label(
-                    "Peu. type"
-            ),
-            TDeclaration.precision_localisation.label("Précision localisation"),
-            TDeclaration.commentaire.label("Commentaire"),
-            get_nomenclature_mnemonique(TDeclaration.id_nomenclature_peuplement_origine).label(
-                    "Origine peuplement"
-            ),  
-
-            ( # liste des origines des plants touchés
-                select(
-                    func.string_agg(cast(TNomenclatures.mnemonique, String), ", ")
-                )
-                .select_from(CorNomenclatureDeclarationOrigine)
-                .where(CorNomenclatureDeclarationOrigine.id_declaration == TDeclaration.id_declaration)
-                .where(TNomenclatures.id_nomenclature == CorNomenclatureDeclarationOrigine.id_nomenclature)
-                .group_by(CorNomenclatureDeclarationOrigine.id_declaration)
-                .correlate(TDeclaration)
-            ).label("Origine plants touchés"),
-
-            ( # liste des maturités
-                select(
-                    func.string_agg(cast(TNomenclatures.mnemonique, String), ", ")
-                )
-                .select_from(CorNomenclatureDeclarationMaturite)
-                .where(CorNomenclatureDeclarationMaturite.id_declaration == TDeclaration.id_declaration)
-                .where(TNomenclatures.id_nomenclature == CorNomenclatureDeclarationMaturite.id_nomenclature)
-                .group_by(CorNomenclatureDeclarationMaturite.id_declaration)
-                .correlate(TDeclaration)
-            ).label("Peu. mat."),
-
-            get_nomenclature_mnemonique(TDeclaration.id_nomenclature_peuplement_essence_principale).label(
-                    "Ess. 1"
-            ), 
-            ( # liste des essences secondaires
-                select(
-                    func.string_agg(cast(TNomenclatures.mnemonique, String), ", ")
-                )
-                .select_from(CorNomenclatureDeclarationEssenceSecondaire)
-                .where(CorNomenclatureDeclarationEssenceSecondaire.id_declaration == TDeclaration.id_declaration)
-                .where(TNomenclatures.id_nomenclature == CorNomenclatureDeclarationEssenceSecondaire.id_nomenclature)
-                .group_by(CorNomenclatureDeclarationEssenceSecondaire.id_declaration)
-                .correlate(TDeclaration)
-            ).label("Ess. 2"),
-            ( # liste des essences complémentaires
-                select(
-                    func.string_agg(cast(TNomenclatures.mnemonique, String), ", ")
-                )
-                .select_from(CorNomenclatureDeclarationEssenceComplementaire)
-                .where(CorNomenclatureDeclarationEssenceComplementaire.id_declaration == TDeclaration.id_declaration)
-                .where(TNomenclatures.id_nomenclature == CorNomenclatureDeclarationEssenceComplementaire.id_nomenclature)
-                .group_by(CorNomenclatureDeclarationEssenceComplementaire.id_declaration)
-                .correlate(TDeclaration)
-            ).label("Ess. 3"),
-
-
-            get_nomenclature_mnemonique(TDeclaration.id_nomenclature_peuplement_paturage_statut).label(
-                    "Pât. stat."
-            ), 
-            get_nomenclature_mnemonique(TDeclaration.id_nomenclature_peuplement_paturage_frequence).label(
-                    "Pât. freq."
-            ), 
-
-            ( # liste des types de pâturage
-                select(
-                    func.string_agg(cast(TNomenclatures.mnemonique, String), ", ")
-                )
-                .select_from(CorNomenclatureDeclarationPaturageType)
-                .where(CorNomenclatureDeclarationPaturageType.id_declaration == TDeclaration.id_declaration)
-                .where(TNomenclatures.id_nomenclature == CorNomenclatureDeclarationPaturageType.id_nomenclature)
-                .group_by(CorNomenclatureDeclarationPaturageType.id_declaration)
-                .correlate(TDeclaration)
-            ).label("Pât. type"),
-
-            ( # liste des types de protection
-                select(
-                    func.string_agg(cast(TNomenclatures.mnemonique, String), ", ")
-                )
-                .select_from(CorNomenclatureDeclarationProtectionType)
-                .where(CorNomenclatureDeclarationProtectionType.id_declaration == TDeclaration.id_declaration)
-                .where(TNomenclatures.id_nomenclature == CorNomenclatureDeclarationProtectionType.id_nomenclature)
-                .group_by(CorNomenclatureDeclarationProtectionType.id_declaration)
-                .correlate(TDeclaration)
-            ).label("Pro. type"),
-
-            ( # liste des saisons de pâturage
-                select(
-                    func.string_agg(cast(TNomenclatures.mnemonique, String), ", ")
-                )
-                .select_from(CorNomenclatureDeclarationPaturageSaison)
-                .where(CorNomenclatureDeclarationPaturageSaison.id_declaration == TDeclaration.id_declaration)
-                .where(TNomenclatures.id_nomenclature == CorNomenclatureDeclarationPaturageSaison.id_nomenclature)
-                .group_by(CorNomenclatureDeclarationPaturageSaison.id_declaration)
-                .correlate(TDeclaration)
-            ).label("Pât. sais."),
-
-        )
+    stmt = select(
+        TDeclaration.id_declaration.label("id"),
+        case(
+            (TDeclaration.b_valid == True, "Validé"),
+            (TDeclaration.b_valid == False, "Non validé"),
+            else_="En attente",
+        ).label("Valide"),
+        func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label("Date"),
+        VUsers.nom_complet.label("Déclarant"),
+        VUsers.organisme.label("Organisme"),
+        # TDeclaration.b_peuplement_paturage_presence,
+        # TDeclaration.b_peuplement_protection_existence,
+        case((TForet.b_statut_public == True, "Public"), else_="Privé").label(
+            "Statut forêt"
+        ),
+        case((TForet.b_document == True, "Oui"), else_="Non").label("Documentée"),
+        TForet.label_foret.label("Nom forêt"),
+        get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label("Secteur"),
+        get_nomenclature_mnemonique(TDeclaration.id_nomenclature_peuplement_type).label(
+            "Peu. type"
+        ),
+        TDeclaration.precision_localisation.label("Précision localisation"),
+        TDeclaration.commentaire.label("Commentaire"),
+        get_nomenclature_mnemonique(
+            TDeclaration.id_nomenclature_peuplement_origine
+        ).label("Origine peuplement"),
+        (  # liste des origines des plants touchés
+            select(func.string_agg(cast(TNomenclatures.mnemonique, String), ", "))
+            .select_from(CorNomenclatureDeclarationOrigine)
+            .where(
+                CorNomenclatureDeclarationOrigine.id_declaration
+                == TDeclaration.id_declaration
+            )
+            .where(
+                TNomenclatures.id_nomenclature
+                == CorNomenclatureDeclarationOrigine.id_nomenclature
+            )
+            .group_by(CorNomenclatureDeclarationOrigine.id_declaration)
+            .correlate(TDeclaration)
+        ).label("Origine plants touchés"),
+        (  # liste des maturités
+            select(func.string_agg(cast(TNomenclatures.mnemonique, String), ", "))
+            .select_from(CorNomenclatureDeclarationMaturite)
+            .where(
+                CorNomenclatureDeclarationMaturite.id_declaration
+                == TDeclaration.id_declaration
+            )
+            .where(
+                TNomenclatures.id_nomenclature
+                == CorNomenclatureDeclarationMaturite.id_nomenclature
+            )
+            .group_by(CorNomenclatureDeclarationMaturite.id_declaration)
+            .correlate(TDeclaration)
+        ).label("Peu. mat."),
+        get_nomenclature_mnemonique(
+            TDeclaration.id_nomenclature_peuplement_essence_principale
+        ).label("Ess. 1"),
+        (  # liste des essences secondaires
+            select(func.string_agg(cast(TNomenclatures.mnemonique, String), ", "))
+            .select_from(CorNomenclatureDeclarationEssenceSecondaire)
+            .where(
+                CorNomenclatureDeclarationEssenceSecondaire.id_declaration
+                == TDeclaration.id_declaration
+            )
+            .where(
+                TNomenclatures.id_nomenclature
+                == CorNomenclatureDeclarationEssenceSecondaire.id_nomenclature
+            )
+            .group_by(CorNomenclatureDeclarationEssenceSecondaire.id_declaration)
+            .correlate(TDeclaration)
+        ).label("Ess. 2"),
+        (  # liste des essences complémentaires
+            select(func.string_agg(cast(TNomenclatures.mnemonique, String), ", "))
+            .select_from(CorNomenclatureDeclarationEssenceComplementaire)
+            .where(
+                CorNomenclatureDeclarationEssenceComplementaire.id_declaration
+                == TDeclaration.id_declaration
+            )
+            .where(
+                TNomenclatures.id_nomenclature
+                == CorNomenclatureDeclarationEssenceComplementaire.id_nomenclature
+            )
+            .group_by(CorNomenclatureDeclarationEssenceComplementaire.id_declaration)
+            .correlate(TDeclaration)
+        ).label("Ess. 3"),
+        get_nomenclature_mnemonique(
+            TDeclaration.id_nomenclature_peuplement_paturage_statut
+        ).label("Pât. stat."),
+        get_nomenclature_mnemonique(
+            TDeclaration.id_nomenclature_peuplement_paturage_frequence
+        ).label("Pât. freq."),
+        (  # liste des types de pâturage
+            select(func.string_agg(cast(TNomenclatures.mnemonique, String), ", "))
+            .select_from(CorNomenclatureDeclarationPaturageType)
+            .where(
+                CorNomenclatureDeclarationPaturageType.id_declaration
+                == TDeclaration.id_declaration
+            )
+            .where(
+                TNomenclatures.id_nomenclature
+                == CorNomenclatureDeclarationPaturageType.id_nomenclature
+            )
+            .group_by(CorNomenclatureDeclarationPaturageType.id_declaration)
+            .correlate(TDeclaration)
+        ).label("Pât. type"),
+        (  # liste des types de protection
+            select(func.string_agg(cast(TNomenclatures.mnemonique, String), ", "))
+            .select_from(CorNomenclatureDeclarationProtectionType)
+            .where(
+                CorNomenclatureDeclarationProtectionType.id_declaration
+                == TDeclaration.id_declaration
+            )
+            .where(
+                TNomenclatures.id_nomenclature
+                == CorNomenclatureDeclarationProtectionType.id_nomenclature
+            )
+            .group_by(CorNomenclatureDeclarationProtectionType.id_declaration)
+            .correlate(TDeclaration)
+        ).label("Pro. type"),
+        (  # liste des saisons de pâturage
+            select(func.string_agg(cast(TNomenclatures.mnemonique, String), ", "))
+            .select_from(CorNomenclatureDeclarationPaturageSaison)
+            .where(
+                CorNomenclatureDeclarationPaturageSaison.id_declaration
+                == TDeclaration.id_declaration
+            )
+            .where(
+                TNomenclatures.id_nomenclature
+                == CorNomenclatureDeclarationPaturageSaison.id_nomenclature
+            )
+            .group_by(CorNomenclatureDeclarationPaturageSaison.id_declaration)
+            .correlate(TDeclaration)
+        ).label("Pât. sais."),
     )
 
     if type_out == "degat":
-        stmt = stmt.add_columns(   
+        stmt = stmt.add_columns(
             get_nomenclature_mnemonique(TDegat.id_nomenclature_degat_type).label(
-                    "Dég. type"
-            ), 
-
-            get_nomenclature_mnemonique(TDegatEssence.id_nomenclature_degat_essence).label(
-                    "Dég. ess."
-            ), 
-
-            get_nomenclature_mnemonique(TDegatEssence.id_nomenclature_degat_gravite).label(
-                    "Dég. grâ."
-            ), 
-            get_nomenclature_mnemonique(TDegatEssence.id_nomenclature_degat_etendue).label(
-                    "Dég. éten."
-            ), 
-            get_nomenclature_mnemonique(TDegatEssence.id_nomenclature_degat_anteriorite).label(
-                    "Dég. ant."
-            ), 
+                "Dég. type"
+            ),
+            get_nomenclature_mnemonique(
+                TDegatEssence.id_nomenclature_degat_essence
+            ).label("Dég. ess."),
+            get_nomenclature_mnemonique(
+                TDegatEssence.id_nomenclature_degat_gravite
+            ).label("Dég. grâ."),
+            get_nomenclature_mnemonique(
+                TDegatEssence.id_nomenclature_degat_etendue
+            ).label("Dég. éten."),
+            get_nomenclature_mnemonique(
+                TDegatEssence.id_nomenclature_degat_anteriorite
+            ).label("Dég. ant."),
         )
     elif type_out == "declaration":
-        # Ajout d'une colonne degat Type avec la liste de tous les types de dégats en chaine de caractères 
+        # Ajout d'une colonne degat Type avec la liste de tous les types de dégats en chaine de caractères
         stmt = stmt.add_columns(
             (
-                select(
-                    func.string_agg(cast(TNomenclatures.mnemonique, String), ", ")
-                )
+                select(func.string_agg(cast(TNomenclatures.mnemonique, String), ", "))
                 .select_from(TDegat)
                 .where(TDegat.id_declaration == TDeclaration.id_declaration)
-                .where(TNomenclatures.id_nomenclature == TDegat.id_nomenclature_degat_type)
+                .where(
+                    TNomenclatures.id_nomenclature == TDegat.id_nomenclature_degat_type
+                )
                 .group_by(TDegat.id_declaration)
                 .correlate(TDeclaration)
             ).label("Deg. type"),
         )
 
-
-    if type_file == "shape":
-        stmt = stmt.add_columns(
-            TDeclaration.geom.label("geom")
-        )
+    if type_file == "gpkg":
+        stmt = stmt.add_columns(TDeclaration.geom.label("geom"))
     elif type_file == "csv":
         stmt = stmt.add_columns(
             case(
@@ -355,15 +378,15 @@ def get_stmt_for_declarations_export(type_file="csv", type_out="degat"):
         )
 
     if type_out == "declaration":
-        stmt = (stmt
-            .select_from(TDeclaration)
+        stmt = (
+            stmt.select_from(TDeclaration)
             .join(VUsers, TDeclaration.id_declarant == VUsers.id_role)
             .join(TForet, TDeclaration.id_foret == TForet.id_foret)
             .order_by(TDeclaration.meta_create_date.desc())
         )
     elif type_out == "degat":
-        stmt = (stmt
-            .outerjoin(TDegatEssence, TDegat.id_degat == TDegatEssence.id_degat)
+        stmt = (
+            stmt.outerjoin(TDegatEssence, TDegat.id_degat == TDegatEssence.id_degat)
             .join(TDeclaration, TDegat.id_declaration == TDeclaration.id_declaration)
             .join(VUsers, TDeclaration.id_declarant == VUsers.id_role)
             .join(TForet, TDeclaration.id_foret == TForet.id_foret)
@@ -373,10 +396,11 @@ def get_stmt_for_declarations_export(type_file="csv", type_out="degat"):
     return stmt
 
 
-
 ##################################################################################
 ################# ANCIENS STMT: retransciptions des vues sql #####################
 ##################################################################################
+# sera a supprimer à la fin de la simplication des stmt
+
 
 # creation d'une requête pour la liste des déclarations.
 def get_stmt_liste_declaration():
@@ -508,11 +532,9 @@ def get_stmt_liste_declaration():
 
     return query
 
-def get_v_declarations_query():
-    """
-    
-    """
 
+def get_v_declarations_query():
+    """ """
 
     # # -------------------------
     # # CTE : foret
@@ -947,45 +969,45 @@ def get_v_degats_query():
             get_nomenclature_mnemonique(TDegat.id_nomenclature_degat_type).label(
                 "degat_type_mnemo"
             ),
-            get_nomenclature_mnemonique(TDegatEssence.id_nomenclature_degat_essence).label(
-                "degat_essence_mnemo"
-            ),
-            get_nomenclature_mnemonique(TDegatEssence.id_nomenclature_degat_gravite).label(
-                "degat_gravite_mnemo"
-            ),
-            get_nomenclature_mnemonique(TDegatEssence.id_nomenclature_degat_etendue).label(
-                "degat_etendue_mnemo"
-            ),
+            get_nomenclature_mnemonique(
+                TDegatEssence.id_nomenclature_degat_essence
+            ).label("degat_essence_mnemo"),
+            get_nomenclature_mnemonique(
+                TDegatEssence.id_nomenclature_degat_gravite
+            ).label("degat_gravite_mnemo"),
+            get_nomenclature_mnemonique(
+                TDegatEssence.id_nomenclature_degat_etendue
+            ).label("degat_etendue_mnemo"),
             get_nomenclature_mnemonique(
                 TDegatEssence.id_nomenclature_degat_anteriorite
             ).label("degat_anteriorite_mnemo"),
             get_nomenclature_label(TDegat.id_nomenclature_degat_type).label(
                 "degat_type_label"
             ),
-            get_nomenclature_label(
-                TDegatEssence.id_nomenclature_degat_essence
-            ).label("degat_essence_label"),
-            get_nomenclature_label(
-                TDegatEssence.id_nomenclature_degat_gravite
-            ).label("degat_gravite_label"),
-            get_nomenclature_label(
-                TDegatEssence.id_nomenclature_degat_etendue
-            ).label("degat_etendue_label"),
+            get_nomenclature_label(TDegatEssence.id_nomenclature_degat_essence).label(
+                "degat_essence_label"
+            ),
+            get_nomenclature_label(TDegatEssence.id_nomenclature_degat_gravite).label(
+                "degat_gravite_label"
+            ),
+            get_nomenclature_label(TDegatEssence.id_nomenclature_degat_etendue).label(
+                "degat_etendue_label"
+            ),
             get_nomenclature_label(
                 TDegatEssence.id_nomenclature_degat_anteriorite
             ).label("degat_anteriorite_label"),
             get_nomenclature_code(TDegat.id_nomenclature_degat_type).label(
                 "degat_type_code"
             ),
-            get_nomenclature_code(
-                TDegatEssence.id_nomenclature_degat_essence
-            ).label("degat_essence_code"),
-            get_nomenclature_code(
-                TDegatEssence.id_nomenclature_degat_gravite
-            ).label("degat_gravite_code"),
-            get_nomenclature_code(
-                TDegatEssence.id_nomenclature_degat_etendue
-            ).label("degat_etendue_code"),
+            get_nomenclature_code(TDegatEssence.id_nomenclature_degat_essence).label(
+                "degat_essence_code"
+            ),
+            get_nomenclature_code(TDegatEssence.id_nomenclature_degat_gravite).label(
+                "degat_gravite_code"
+            ),
+            get_nomenclature_code(TDegatEssence.id_nomenclature_degat_etendue).label(
+                "degat_etendue_code"
+            ),
             get_nomenclature_code(
                 TDegatEssence.id_nomenclature_degat_anteriorite
             ).label("degat_anteriorite_code"),
@@ -1003,9 +1025,7 @@ def get_v_degats_query():
 
 
 def get_v_export_vl_declaration_query():
-    """
-
-    """
+    """ """
 
     vd_query = get_v_declarations_query()
     v = vd_query.subquery("v")
@@ -1099,9 +1119,7 @@ def get_v_export_vl_declaration_query():
 
 
 def get_v_declaration_degat_query():
-    """
-
-    """
+    """ """
 
     vd_query = get_v_declarations_query()
     v = vd_query.subquery("vd")
@@ -1210,9 +1228,7 @@ def get_v_declaration_degat_query():
 
 
 def get_v_export_declaration_csv_query():
-    """
-   
-    """
+    """ """
 
     # Récupère la requête v_declarations et l'utilise comme sous-requête
     vd_query = get_v_declarations_query()
@@ -1268,8 +1284,7 @@ def get_v_export_declaration_csv_query():
 
 
 def get_v_export_declaration_degats_csv_query():
-    """
-    """
+    """ """
 
     ved_query = get_v_export_declaration_csv_query()
     ved = ved_query.subquery("ved")
@@ -1283,23 +1298,23 @@ def get_v_export_declaration_degats_csv_query():
         ved.c.Date.label("Date"),
         ved.c.Déclarant.label("Déclarant"),
         ved.c.Organisme.label("Organisme"),
-        ved.c['Nom forêt'].label("Nom forêt"),
-        ved.c['Statut forêt'].label("Statut forêt"),
-        ved.c['Documentée'].label("Documentée"),
+        ved.c["Nom forêt"].label("Nom forêt"),
+        ved.c["Statut forêt"].label("Statut forêt"),
+        ved.c["Documentée"].label("Documentée"),
         ved.c.Secteur.label("Secteur"),
-        ved.c['Peu. type'].label("Peu. type"),
-        ved.c['Précision localisation'].label("Précision localisation"),
+        ved.c["Peu. type"].label("Peu. type"),
+        ved.c["Précision localisation"].label("Précision localisation"),
         ved.c.Commentaires.label("Commentaires"),
-        ved.c['Origine peuplement'].label("Origine peuplement"),
-        ved.c['Origine plants touchés'].label("Origine plants touchés"),
-        ved.c['Peu. mat.'].label("Peu. mat."),
-        ved.c['Ess. 1'].label("Ess. 1"),
-        ved.c['Ess. 2'].label("Ess. 2"),
-        ved.c['Pât. stat.'].label("Pât. stat."),
-        ved.c['Pât. freq.'].label("Pât. freq."),
-        ved.c['Pât. type'].label("Pât. type"),
-        ved.c['Pât. sais.'].label("Pât. sais."),
-        ved.c['Pro. type'].label("Pro. type"),
+        ved.c["Origine peuplement"].label("Origine peuplement"),
+        ved.c["Origine plants touchés"].label("Origine plants touchés"),
+        ved.c["Peu. mat."].label("Peu. mat."),
+        ved.c["Ess. 1"].label("Ess. 1"),
+        ved.c["Ess. 2"].label("Ess. 2"),
+        ved.c["Pât. stat."].label("Pât. stat."),
+        ved.c["Pât. freq."].label("Pât. freq."),
+        ved.c["Pât. type"].label("Pât. type"),
+        ved.c["Pât. sais."].label("Pât. sais."),
+        ved.c["Pro. type"].label("Pro. type"),
         vdeg.c.degat_type_mnemo.label("Dég. type"),
         vdeg.c.degat_essence_mnemo.label("Dég. ess."),
         vdeg.c.degat_gravite_mnemo.label("Dég. grâ."),
@@ -1311,8 +1326,7 @@ def get_v_export_declaration_degats_csv_query():
 
 
 def get_v_export_declaration_shape_query():
-    """
-    """
+    """ """
 
     ved_query = get_v_export_declaration_csv_query()
     ved = ved_query.subquery("ved")
@@ -1326,21 +1340,21 @@ def get_v_export_declaration_shape_query():
         ved.c.Date.label("Date"),
         ved.c.Déclarant.label("Déclarant"),
         ved.c.Organisme.label("Organisme"),
-        ved.c['Nom forêt'].label("Nom forêt"),
-        ved.c['Statut forêt'].label("Statut forêt"),
-        ved.c['Documentée'].label("Documentée"),
+        ved.c["Nom forêt"].label("Nom forêt"),
+        ved.c["Statut forêt"].label("Statut forêt"),
+        ved.c["Documentée"].label("Documentée"),
         ved.c.Secteur.label("Secteur"),
-        ved.c['Peu. type'].label("Peu. type"),
-        ved.c['Origine peuplement'].label("Origine peuplement"),
-        ved.c['Origine plants touchés'].label("Origine plants touchés"),
-        ved.c['Peu. mat.'].label("Peu. mat."),
-        ved.c['Ess. 1'].label("Ess. 1"),
-        ved.c['Ess. 2'].label("Ess. 2"),
-        ved.c['Pât. stat.'].label("Pât. stat."),
-        ved.c['Pât. freq.'].label("Pât. freq."),
-        ved.c['Pât. type'].label("Pât. type"),
-        ved.c['Pât. sais.'].label("Pât. sais."),
-        ved.c['Pro. type'].label("Pro. type"),
+        ved.c["Peu. type"].label("Peu. type"),
+        ved.c["Origine peuplement"].label("Origine peuplement"),
+        ved.c["Origine plants touchés"].label("Origine plants touchés"),
+        ved.c["Peu. mat."].label("Peu. mat."),
+        ved.c["Ess. 1"].label("Ess. 1"),
+        ved.c["Ess. 2"].label("Ess. 2"),
+        ved.c["Pât. stat."].label("Pât. stat."),
+        ved.c["Pât. freq."].label("Pât. freq."),
+        ved.c["Pât. type"].label("Pât. type"),
+        ved.c["Pât. sais."].label("Pât. sais."),
+        ved.c["Pro. type"].label("Pro. type"),
         vl.c.geom.label("geom"),
     ).select_from(ved.join(vl, vl.c.id_declaration == ved.c.id))
 
@@ -1348,8 +1362,7 @@ def get_v_export_declaration_shape_query():
 
 
 def get_v_export_declaration_degats_shape_query():
-    """
-    """
+    """ """
 
     ved_query = get_v_export_declaration_degats_csv_query()
     ved = ved_query.subquery("ved")
@@ -1363,26 +1376,26 @@ def get_v_export_declaration_degats_shape_query():
         ved.c.Date.label("Date"),
         ved.c.Déclarant.label("Déclarant"),
         ved.c.Organisme.label("Organisme"),
-        ved.c['Nom forêt'].label("Nom forêt"),
-        ved.c['Statut forêt'].label("Statut forêt"),
-        ved.c['Documentée'].label("Documentée"),
+        ved.c["Nom forêt"].label("Nom forêt"),
+        ved.c["Statut forêt"].label("Statut forêt"),
+        ved.c["Documentée"].label("Documentée"),
         ved.c.Secteur.label("Secteur"),
-        ved.c['Peu. type'].label("Peu. type"),
-        ved.c['Origine peuplement'].label("Origine peuplement"),
-        ved.c['Origine plants touchés'].label("Origine plants touchés"),
-        ved.c['Peu. mat.'].label("Peu. mat."),
-        ved.c['Ess. 1'].label("Ess. 1"),
-        ved.c['Ess. 2'].label("Ess. 2"),
-        ved.c['Pât. stat.'].label("Pât. stat."),
-        ved.c['Pât. freq.'].label("Pât. freq."),
-        ved.c['Pât. type'].label("Pât. type"),
-        ved.c['Pât. sais.'].label("Pât. sais."),
-        ved.c['Pro. type'].label("Pro. type"),
-        ved.c['Dég. type'].label("Dég. type"),
-        ved.c['Dég. ess.'].label("Dég. ess."),
-        ved.c['Dég. grâ.'].label("Dég. grâ."),
-        ved.c['Dég. éten.'].label("Dég. éten."),
-        ved.c['Dég. ant.'].label("Dég. ant."),
+        ved.c["Peu. type"].label("Peu. type"),
+        ved.c["Origine peuplement"].label("Origine peuplement"),
+        ved.c["Origine plants touchés"].label("Origine plants touchés"),
+        ved.c["Peu. mat."].label("Peu. mat."),
+        ved.c["Ess. 1"].label("Ess. 1"),
+        ved.c["Ess. 2"].label("Ess. 2"),
+        ved.c["Pât. stat."].label("Pât. stat."),
+        ved.c["Pât. freq."].label("Pât. freq."),
+        ved.c["Pât. type"].label("Pât. type"),
+        ved.c["Pât. sais."].label("Pât. sais."),
+        ved.c["Pro. type"].label("Pro. type"),
+        ved.c["Dég. type"].label("Dég. type"),
+        ved.c["Dég. ess."].label("Dég. ess."),
+        ved.c["Dég. grâ."].label("Dég. grâ."),
+        ved.c["Dég. éten."].label("Dég. éten."),
+        ved.c["Dég. ant."].label("Dég. ant."),
         vl.c.geom.label("geom"),
     ).select_from(ved.join(vl, vl.c.id_declaration == ved.c.id))
 
@@ -1390,8 +1403,7 @@ def get_v_export_declaration_degats_shape_query():
 
 
 def get_v_declaration_degats_restrict_query():
-    """
-    """
+    """ """
 
     vd_query = get_v_declarations_query()
     vd = vd_query.subquery("vd")
@@ -1422,4 +1434,3 @@ def get_v_declaration_degats_restrict_query():
     ).select_from(vd.join(vdeg, vdeg.c.id_declaration_degat == vd.c.id_declaration))
 
     return stmt
-

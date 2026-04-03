@@ -11,7 +11,6 @@ from .models import *
 from utils_flask_sqla_geo.schema import GeometryField
 from utils_flask_sqla_geo.schema import GeoAlchemyAutoSchema
 
-
 config = current_app.config
 DB = config["DB"]
 

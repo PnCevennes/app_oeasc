@@ -1,6 +1,6 @@
 // import declarationForm from "./declaration-form.vue";
 import modifier_declaration from './modifier-declaration.vue';
-import declarationList from './declaration-list';
+// import declarationList from './declaration-list';
 // import declaration from './declaration.vue';
 import { apiRequest } from '@/core/js/data/api.js';
 import storeUtils from '@/store/utils';
@@ -43,21 +43,21 @@ const ROUTE = [
     component: modifier_declaration,
   },
 
+  // {
+  //   path: '/declaration/liste',
+  //   label: 'Alerte signalées',
+  //   access: 1,
+  //   name: 'declaration.liste_declarations',
+  //   parent: 'declaration.systeme_alerte',
+  //   component: declarationList,
+  // },
+
+  // remplacera la version au dessus lorsque ce sera terminé.
   {
     path: '/declaration/liste',
     label: 'Alerte signalées',
     access: 1,
     name: 'declaration.liste_declarations',
-    parent: 'declaration.systeme_alerte',
-    component: declarationList,
-  },
-
-  // remplacera la version au dessus lorsque ce sera terminé.
-  {
-    path: '/declaration/liste2',
-    label: 'Alerte signalées2',
-    access: 1,
-    name: 'declaration.liste_declarations2',
     parent: 'declaration.systeme_alerte',
     component: declarationListe,
   },

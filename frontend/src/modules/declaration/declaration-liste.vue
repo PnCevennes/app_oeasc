@@ -59,23 +59,23 @@ export default {
     return {
       exports: [
         {
-          href: `${config.URL_APPLICATION}/api/declaration/declarations_csv`,
+          href: `${config.URL_APPLICATION}/api/declaration/export_liste_declarations?type_out=declaration&type_file=csv`,
           label: 'Export CSV',
           subLabel: 'une ligne par décaration',
         },
         {
-          href: `${config.URL_APPLICATION}/api/declaration/declarations_csv?type_out=degat`,
+          href: `${config.URL_APPLICATION}/api/declaration/export_liste_declarations?type_out=degat&type_file=csv`,
           label: 'Export CSV',
           subLabel: 'une ligne par dégât',
         },
         {
-          href: `${config.URL_APPLICATION}/api/declaration/declarations_shape`,
-          label: 'Export SHAPE',
+          href: `${config.URL_APPLICATION}/api/declaration/export_liste_declarations?type_out=declaration&type_file=gpkg`,
+          label: 'Export GPKG',
           subLabel: 'une ligne par décaration',
         },
         {
-          href: `${config.URL_APPLICATION}/api/declaration/declarations_shape?type_out=degat`,
-          label: 'Export SHAPE',
+          href: `${config.URL_APPLICATION}/api/declaration/export_liste_declarations?type_out=degat&type_file=gpkg`,
+          label: 'Export GPKG',
           subLabel: 'une ligne par dégât',
         },
       ],

@@ -10,6 +10,9 @@ from flask import Blueprint, request, current_app, session
 from flask.helpers import send_from_directory
 from utils_flask_sqla.response import csv_resp, json_resp_accept_empty_list
 from utils_flask_sqla_geo.generic import GenericTableGeo
+import geopandas as gpd  # pour l'export en gpkg
+from shapely import wkb, wkt  # pour l'export en gpkg (verification de la géométrie)
+import pandas as pd  # pour l'export en csv
 
 from ..declaration.mail import send_mail_validation_declaration
 
@@ -31,11 +34,11 @@ from .repository import (
     get_proprietaire_from_id,
     get_declarations_view,
     hide_proprietaire,
+    get_degats_for_resultats_suivi,
 )
-
 from ..user.utils import check_auth_redirect_login
 
-# from .mail import send_mail_validation_declaration
+from .all_stmt import get_stmt_for_declarations_export
 from .models import TDeclaration
 from ..declaration.schema import TProprietaireSchema, TForetSchema, TDeclarationSchema
 
@@ -412,157 +415,92 @@ def get_file_name(type_out):
     return file_name
 
 
-@bp.route("declarations_csv", methods=["GET"])
+@bp.route("export_liste_declarations", methods=["GET"])
 @check_auth_redirect_login(1)
-@csv_resp
-def declarations_csv():
+def export_declarations():
     """
-    Route Flask permettant d'exporter la liste des déclarations au format CSV.
-
-    Utilisation :
-    - Cette route est appelée lorsqu'un utilisateur authentifié souhaite télécharger
-      les déclarations (dégâts ou alertes) sous forme de fichier CSV.
-    - Elle est utilisée notamment dans l'interface d'administration ou de suivi
-      pour faciliter l'analyse ou l'archivage des données.
-
-    Fonctionnement :
-    - Le paramètre 'type_out' dans la requête GET permet de filtrer le type de déclaration
-      à exporter : 'degat' pour les dégâts, ou autre pour les alertes.
-    - Le nom du fichier exporté est généré dynamiquement via la fonction get_file_name(type_out).
-    - Les données sont récupérées via la fonction get_declarations, qui prend en compte
-      l'utilisateur courant et le type d'export.
-    - Les colonnes du CSV sont déterminées à partir des clés du premier élément des données.
-    - Le séparateur utilisé dans le CSV est le point-virgule (';').
-    - Le décorateur @csv_resp gère la conversion du retour en fichier CSV téléchargeable.
-
-    Retour :
-    - Un tuple (file_name, data, columns, separator) utilisé par @csv_resp pour générer le fichier.
+    Exporte les déclarations au format CSV ou GeoPackage selon les paramètres de la requête.
+     - type_out : 'degat' pour les dégâts, 'declaration' pour les alertes (toutes les déclarations)
+     - type_file : 'gpkg' pour GeoPackage, 'csv' pour CSV
+     Utilise la fonction get_stmt_for_declarations_export pour récupérer les données à exporter selon le type de déclaration et le format de fichier souhaité.
+     Les fichiers exportés sont stockés dans des répertoires spécifiques selon leur format, et sont ensuite envoyés en téléchargement à l'utilisateur.
     """
-
-    separator = ";"  # Définition du séparateur pour le CSV
 
     # Récupère le type de déclaration à exporter depuis les paramètres de la requête
-    type_out = request.args.get("type_out")  # 'degat', ''
+    type_out = request.args.get("type_out")  # 'degat', 'declaration'
+    type_file = request.args.get("type_file")  # 'gpkg', 'csv'
+    if type_file not in ["gpkg", "csv"]:
+        return {"error": "type_file doit être 'gpkg' ou 'csv'"}, 400
+    if type_out not in ["degat", "declaration"]:
+        return {"error": "type_out doit être 'degat' ou 'declaration'"}, 400
 
-    # Génère le nom du fichier exporté en fonction du type et de la date
     file_name = get_file_name(type_out)
-
-    # Récupère les données à exporter selon l'utilisateur courant et le type d'export
-    data = get_declarations_view(
-        user=get_user(session["current_user"]["id_role"]),
-        type_export="csv",
-        type_out=type_out,
-    )
-
-    # Détermine les colonnes du CSV à partir des clés du premier élément des données
-    columns = list(data[0].keys())
-
-    # Retourne les informations nécessaires à la génération du CSV
-    return (file_name, data, columns, separator)
-
-
-@bp.route("declarations_shape", methods=["GET"])
-@check_auth_redirect_login(1)
-def declarations_shape():
-    """
-    Utilisation :
-    - Cette route est appelée lorsqu'un utilisateur authentifié souhaite télécharger
-      les déclarations (dégâts ou alertes) sous forme de fichier Shapefile pour une utilisation SIG.
-    - Elle est utilisée notamment pour l'analyse spatiale ou l'intégration dans des outils cartographiques.
-
-    Fonctionnement :
-    - Le paramètre 'type_out' dans la requête GET permet de filtrer le type de déclaration
-      à exporter : 'degat' pour les dégâts, ou autre pour les alertes.
-    - Le nom du fichier exporté est généré dynamiquement via la fonction get_file_name(type_out).
-    - Les données sont récupérées via la fonction get_declarations, qui prend en compte
-      l'utilisateur courant et le type d'export.
-    - La classe GenericTableGeo est utilisée pour générer le Shapefile à partir des données.
-    - Le fichier ZIP généré est nettoyé et renommé pour supprimer le préfixe "POLYGON_" des fichiers.
-    - Le fichier ZIP final est envoyé en téléchargement à l'utilisateur.
-
-    Retour :
-    - Un fichier ZIP contenant le Shapefile des déclarations, prêt à être téléchargé.
-    """
-
-    # Récupère le type de déclaration à exporter depuis les paramètres de la requête
-    type_out = request.args.get("type_out")  # 'degat', ''
-
-    # Définition du nom de fichier initial (sera modifié plus bas)
-    file_name = "export_declarations_shape"
 
     # Définition du répertoire où seront stockés les fichiers shapefile
-    dir_path = str(config["ROOT_DIR"] / "static/shapefiles")
+    if type_file == "gpkg":
+        dir_path = str(config["ROOT_DIR"] / "static/shapefiles")
+        output_filename = f"{dir_path}/{file_name}.gpkg"
+    elif type_file == "csv":
+        dir_path = str(config["ROOT_DIR"] / "static/data")
+        output_filename = f"{dir_path}/{file_name}.csv"
 
-    # Détermine la vue SQL à utiliser selon le type de déclaration
-    view_name = (
-        "v_export_declaration_degats_shape"
-        if type_out == "degat"
-        else "v_export_declarations_shape"
+    print(
+        f"Export des déclarations : type_out={type_out}, type_file={type_file}, output_filename={output_filename}"
     )
-
-    # Génère le nom du fichier exporté en fonction du type et de la date
-    file_name = get_file_name(type_out)
-
-    # Instancie la classe GenericTableGeo pour gérer l'export spatial
-    export_view = GenericTableGeo(
-        view_name, "oeasc_declarations", DB.engine, geometry_field="geom", srid=4326
-    )
-
     # Récupère les données à exporter selon l'utilisateur courant et le type d'export
-    data = get_declarations_view(
-        user=get_user(session["current_user"]["id_role"]),
-        type_export="shape",
-        type_out=type_out,
+    stmt_data = get_stmt_for_declarations_export(type_file=type_file, type_out=type_out)
+    result_data = DB.session.execute(stmt_data)
+
+    # Exécution de la requête
+    rows = result_data.fetchall()
+    keys = result_data.keys()
+
+    if not rows:
+        print("Aucun résultat trouvé.")
+        return
+
+    # Conversion en DataFrame
+    df = pd.DataFrame(rows, columns=keys)
+
+    if type_file == "gpkg":
+        # Conversion de la colonne geom en géométrie Shapely
+        # Selon le format de votre colonne geom (WKB ou WKT)
+
+        # Si la géométrie est en WKB (format binaire)
+        if isinstance(df["geom"].iloc[0], bytes):
+            df["geometry"] = df["geom"].apply(lambda x: wkb.loads(x) if x else None)
+
+        # Si la géométrie est en WKT (format texte)
+        elif isinstance(df["geom"].iloc[0], str):
+            df["geometry"] = df["geom"].apply(lambda x: wkt.loads(x) if x else None)
+
+        # Si la géométrie est déjà un objet Shapely ou autre
+        else:
+            df["geometry"] = df["geom"].apply(
+                lambda x: wkb.loads(str(x), hex=True) if x else None
+            )
+
+        # Suppression de la colonne geom originale
+        df = df.drop(columns=["geom"])
+
+        # Création du GeoDataFrame
+        gdf = gpd.GeoDataFrame(df, geometry="geometry", crs="EPSG:4326")
+
+        # Export en GeoPackage
+        gdf.to_file(output_filename, layer="ma_couche", driver="GPKG")
+
+    else:  # export en CSV
+        df.to_csv(output_filename, index=False, encoding="utf-8-sig")
+
+    # print(f"Export réussi : {output_filename} (layer: ma_couche)")
+    return send_from_directory(
+        dir_path, file_name + f".{type_file}", as_attachment=True
     )
-
-    # Exporte les données au format Shapefile dans le répertoire spécifié
-    export_view.as_shape(
-        export_view.db_cols, data=data, dir_path=dir_path, file_name=file_name
-    )
-
-    # Chemin du fichier ZIP généré par l'export
-    zip_file_name = dir_path + "/" + file_name + ".zip"
-
-    # Ouvre le fichier ZIP pour traiter les fichiers internes
-    z = zipfile.ZipFile(zip_file_name)
-    file_names = []
-    # Parcourt les fichiers du ZIP pour supprimer le préfixe "POLYGON_" dans les noms
-    for _, f in enumerate(z.filelist):
-        f.filename = f.filename.replace("POLYGON_", "")
-        file_names.append(f.filename)
-        z.extract(f, dir_path)  # Extrait le fichier dans le répertoire cible
-
-    # Supprime le ZIP original
-    os.remove(zip_file_name)
-    # Crée un nouveau ZIP avec les fichiers renommés
-    z = zipfile.ZipFile(zip_file_name, "w")
-    for sfile_name in file_names:
-        z.write(dir_path + "/" + sfile_name, sfile_name)
-
-    z.close()
-
-    # Retourne le fichier ZIP final en téléchargement à l'utilisateur
-    return send_from_directory(dir_path, file_name + ".zip", as_attachment=True)
 
 
 @bp.route("degats", methods=["GET"])
 @json_resp
 def degats():
-    """
-    Route Flask permettant de récupérer la liste des déclarations de type 'dégât' accessibles pour le déclarant.
-
-    Utilisation :
-    - Cette route est appelée lorsqu'un utilisateur souhaite consulter uniquement les déclarations
-      de type 'dégât' qui lui sont accessibles, généralement dans l'interface dédiée aux déclarants.
-    - Elle est utilisée pour filtrer les déclarations selon le rôle et les droits du déclarant.
-
-    Fonctionnement :
-    - La fonction appelle get_declarations avec les paramètres type_out="degat" pour ne récupérer
-      que les déclarations de type 'dégât', et restrict=True pour limiter l'accès selon le déclarant.
-    - Le filtrage des données dépend de l'implémentation de get_declarations et des droits de l'utilisateur.
-
-    Retour :
-    - La liste des déclarations de type 'dégât' accessibles au déclarant, au format JSON.
-    """
-
-    return get_declarations_view(type_out="degat", restrict=True)
+    """ """
+    result = get_degats_for_resultats_suivi()
+    return result

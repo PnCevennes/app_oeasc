@@ -49,6 +49,19 @@ from .schema import (
     TProprietaireSchema,
     TForetSchema,
 )
+from .all_stmt import (
+    get_stmt_liste_declaration,
+    get_v_declarations_query,
+    get_v_degats_query,
+    get_v_export_vl_declaration_query,
+    get_v_declaration_degat_query,
+    get_v_export_declaration_csv_query,
+    get_v_export_declaration_degats_csv_query,
+    get_v_export_declaration_shape_query,
+    get_v_export_declaration_degats_shape_query,
+    get_v_declaration_degats_restrict_query,
+    get_stmt_for_resultats_degats,
+)
 
 from oeasc.modules.oeasc.nomenclature import (
     get_area_from_id,
@@ -470,583 +483,6 @@ def create_or_update_declaration(post_data):
 ######################################################################################
 
 
-def get_v_declarations_query():
-    # """
-    # Reconstruit la vue v_declarations en SQLAlchemy.
-    # Retourne une query SQLAlchemy.
-    # """
-
-    # Fonctions PostgreSQL custom (appelées via func)
-    get_nomenclature_label = func.ref_nomenclatures.get_nomenclature_label
-    get_nomenclature_mnemonique = func.ref_nomenclatures.get_nomenclature_mnemonique
-    get_nomenclature_code = func.ref_nomenclatures.get_nomenclature_code
-    get_nomenclature_labels = func.ref_nomenclatures.get_nomenclature_labels
-    get_nomenclature_mnemoniques = func.ref_nomenclatures.get_nomenclature_mnemoniques
-    get_nomenclature_codes = func.ref_nomenclatures.get_nomenclature_codes
-    get_area_names = func.oeasc_declarations.get_area_names
-    get_id_areas = func.oeasc_declarations.get_id_areas
-
-    # # -------------------------
-    # # CTE : foret
-    # # -------------------------
-    # with app.app_context():
-    foret_cte = (
-        select(
-            TForet.id_foret,
-            TForet.label_foret,
-            TForet.b_document,
-            TForet.b_statut_public,
-            case((TForet.b_statut_public == True, "Public"), else_="Privé").label(
-                "statut_public"
-            ),
-            case((TForet.b_document == True, "Oui"), else_="Non").label("document"),
-            case(
-                (
-                    and_(TForet.b_statut_public == True, TForet.b_document == True),
-                    "Public (avec DGD)",
-                ),
-                (
-                    and_(TForet.b_statut_public == True, TForet.b_document == False),
-                    "Public (sans DGD)",
-                ),
-                (
-                    and_(TForet.b_statut_public == False, TForet.b_document == True),
-                    "Privé (avec DGD)",
-                ),
-                (
-                    and_(TForet.b_statut_public == False, TForet.b_document == False),
-                    "Privé (sans DGD)",
-                ),
-                else_="",
-            ).label("type_foret"),
-            get_nomenclature_label(
-                TProprietaire.id_nomenclature_proprietaire_type
-            ).label("foret_type_label"),
-        )
-        .join(TProprietaire, TProprietaire.id_proprietaire == TForet.id_proprietaire)
-        .cte("foret")
-    )
-
-    # -------------------------
-    # CTE : peuplement
-    # -------------------------
-    d1 = aliased(TDeclaration, name="d1")
-
-    peuplement_cte = (
-        select(
-            d1.id_declaration,
-            d1.peuplement_surface,
-            get_nomenclature_mnemonique(d1.id_nomenclature_peuplement_type).label(
-                "peuplement_type_mnemo"
-            ),
-            get_nomenclature_mnemonique(d1.id_nomenclature_peuplement_origine).label(
-                "peuplement_origine_mnemo"
-            ),
-            get_nomenclature_mnemonique(
-                d1.id_nomenclature_peuplement_essence_principale
-            ).label("peuplement_ess_1_mnemo"),
-            get_nomenclature_mnemonique(
-                d1.id_nomenclature_peuplement_paturage_statut
-            ).label("peuplement_paturage_statut_mnemo"),
-            get_nomenclature_mnemonique(
-                d1.id_nomenclature_peuplement_paturage_frequence
-            ).label("peuplement_paturage_frequence_mnemo"),
-            get_nomenclature_mnemonique(d1.id_nomenclature_peuplement_acces).label(
-                "peuplement_acces_mnemo"
-            ),
-            get_nomenclature_label(d1.id_nomenclature_peuplement_type).label(
-                "peuplement_type_label"
-            ),
-            get_nomenclature_label(d1.id_nomenclature_peuplement_origine).label(
-                "peuplement_origine_label"
-            ),
-            get_nomenclature_label(
-                d1.id_nomenclature_peuplement_essence_principale
-            ).label("peuplement_ess_1_label"),
-            get_nomenclature_label(d1.id_nomenclature_peuplement_paturage_statut).label(
-                "peuplement_paturage_statut_label"
-            ),
-            get_nomenclature_label(
-                d1.id_nomenclature_peuplement_paturage_frequence
-            ).label("peuplement_paturage_frequence_label"),
-            get_nomenclature_label(d1.id_nomenclature_peuplement_acces).label(
-                "peuplement_acces_label"
-            ),
-            get_nomenclature_code(d1.id_nomenclature_peuplement_type).label(
-                "peuplement_type_code"
-            ),
-            get_nomenclature_code(d1.id_nomenclature_peuplement_origine).label(
-                "peuplement_origine_code"
-            ),
-            get_nomenclature_code(
-                d1.id_nomenclature_peuplement_essence_principale
-            ).label("peuplement_ess_1_code"),
-            get_nomenclature_code(d1.id_nomenclature_peuplement_paturage_statut).label(
-                "peuplement_paturage_statut_code"
-            ),
-            get_nomenclature_code(
-                d1.id_nomenclature_peuplement_paturage_frequence
-            ).label("peuplement_paturage_frequence_code"),
-            get_nomenclature_code(d1.id_nomenclature_peuplement_acces).label(
-                "peuplement_acces_code"
-            ),
-        )
-        .select_from(d1)
-        .cte("peuplement")
-    )
-
-    # -------------------------
-    # CTE : peuplement_nomenclatures
-    # -------------------------
-    d2 = aliased(TDeclaration, name="d2")
-    c_ess_2 = aliased(CorNomenclatureDeclarationEssenceSecondaire, name="c_ess_2")
-    c_ess_3 = aliased(CorNomenclatureDeclarationEssenceComplementaire, name="c_ess_3")
-    c_maturite = aliased(CorNomenclatureDeclarationMaturite, name="c_maturite")
-    c_paturage_type = aliased(
-        CorNomenclatureDeclarationPaturageType, name="c_paturage_type"
-    )
-    c_paturage_saison = aliased(
-        CorNomenclatureDeclarationPaturageSaison, name="c_paturage_saison"
-    )
-    c_protection_type = aliased(
-        CorNomenclatureDeclarationProtectionType, name="c_protection_type"
-    )
-    c_espece = aliased(CorNomenclatureDeclarationEspece, name="c_espece")
-    c_origine = aliased(CorNomenclatureDeclarationOrigine, name="c_origine")
-
-    peuplement_nomenclatures_cte = (
-        select(
-            d2.id_declaration,
-            # mnemo
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_maturite.id_nomenclature.distinct())
-            ).label("peuplement_maturite_mnemo"),
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_origine.id_nomenclature.distinct())
-            ).label("peuplement_origine2_mnemo"),
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_ess_2.id_nomenclature.distinct())
-            ).label("peuplement_ess_2_mnemo"),
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_ess_3.id_nomenclature.distinct())
-            ).label("peuplement_ess_3_mnemo"),
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_paturage_type.id_nomenclature.distinct())
-            ).label("peuplement_paturage_type_mnemo"),
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_paturage_saison.id_nomenclature.distinct())
-            ).label("peuplement_paturage_saison_mnemo"),
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_protection_type.id_nomenclature.distinct())
-            ).label("peuplement_protection_type_mnemo"),
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_espece.id_nomenclature.distinct())
-            ).label("espece_mnemo"),
-            # label
-            get_nomenclature_labels(
-                func.array_agg(c_maturite.id_nomenclature.distinct())
-            ).label("peuplement_maturite_label"),
-            get_nomenclature_labels(
-                func.array_agg(c_origine.id_nomenclature.distinct())
-            ).label("peuplement_origine2_label"),
-            get_nomenclature_labels(
-                func.array_agg(c_ess_2.id_nomenclature.distinct())
-            ).label("peuplement_ess_2_label"),
-            get_nomenclature_labels(
-                func.array_agg(c_ess_3.id_nomenclature.distinct())
-            ).label("peuplement_ess_3_label"),
-            get_nomenclature_labels(
-                func.array_agg(c_paturage_type.id_nomenclature.distinct())
-            ).label("peuplement_paturage_type_label"),
-            get_nomenclature_labels(
-                func.array_agg(c_paturage_saison.id_nomenclature.distinct())
-            ).label("peuplement_paturage_saison_label"),
-            get_nomenclature_labels(
-                func.array_agg(c_protection_type.id_nomenclature.distinct())
-            ).label("peuplement_protection_type_label"),
-            get_nomenclature_labels(
-                func.array_agg(c_espece.id_nomenclature.distinct())
-            ).label("espece_label"),
-            # code
-            get_nomenclature_codes(
-                func.array_agg(c_maturite.id_nomenclature.distinct())
-            ).label("peuplement_maturite_code"),
-            get_nomenclature_codes(
-                func.array_agg(c_origine.id_nomenclature.distinct())
-            ).label("peuplement_origine2_code"),
-            get_nomenclature_codes(
-                func.array_agg(c_ess_2.id_nomenclature.distinct())
-            ).label("peuplement_ess_2_code"),
-            get_nomenclature_codes(
-                func.array_agg(c_ess_3.id_nomenclature.distinct())
-            ).label("peuplement_ess_3_code"),
-            get_nomenclature_codes(
-                func.array_agg(c_paturage_type.id_nomenclature.distinct())
-            ).label("peuplement_paturage_type_code"),
-            get_nomenclature_codes(
-                func.array_agg(c_paturage_saison.id_nomenclature.distinct())
-            ).label("peuplement_paturage_saison_code"),
-            get_nomenclature_codes(
-                func.array_agg(c_protection_type.id_nomenclature.distinct())
-            ).label("peuplement_protection_type_code"),
-            get_nomenclature_codes(
-                func.array_agg(c_espece.id_nomenclature.distinct())
-            ).label("espece_code"),
-        )
-        .select_from(d2)
-        .outerjoin(c_ess_2, d2.id_declaration == c_ess_2.id_declaration)
-        .outerjoin(c_ess_3, d2.id_declaration == c_ess_3.id_declaration)
-        .outerjoin(c_maturite, d2.id_declaration == c_maturite.id_declaration)
-        .outerjoin(c_paturage_type, d2.id_declaration == c_paturage_type.id_declaration)
-        .outerjoin(
-            c_paturage_saison, d2.id_declaration == c_paturage_saison.id_declaration
-        )
-        .outerjoin(
-            c_protection_type, d2.id_declaration == c_protection_type.id_declaration
-        )
-        .outerjoin(c_espece, d2.id_declaration == c_espece.id_declaration)
-        .outerjoin(c_origine, d2.id_declaration == c_origine.id_declaration)
-        .group_by(d2.id_declaration)
-        .cte("peuplement_nomenclatures")
-    )
-
-    # -------------------------
-    # CTE : degat_type
-    # (à adapter selon votre modèle TDegats)
-    # -------------------------
-
-    deg_1 = aliased(TDegat, name="deg_1")
-
-    degat_type_cte = (
-        select(
-            deg_1.id_declaration,
-            get_nomenclature_mnemoniques(
-                func.array_agg(deg_1.id_nomenclature_degat_type.distinct())
-            ).label("degat_type_mnemos"),
-            get_nomenclature_labels(
-                func.array_agg(deg_1.id_nomenclature_degat_type.distinct())
-            ).label("degat_type_labels"),
-            get_nomenclature_codes(
-                func.array_agg(deg_1.id_nomenclature_degat_type.distinct())
-            ).label("degat_type_codes"),
-        )
-        .select_from(deg_1)
-        .group_by(deg_1.id_declaration)
-        .cte("degat_type")
-    )
-
-    # -------------------------
-    # Sous-requête : areas_localisation_raw
-    # -------------------------
-    cad_sub = aliased(CorAreasDeclaration, name="cad")
-    areas_localisation_raw_subq = (
-        select(func.array_agg(cad_sub.id_area))
-        .where(cad_sub.id_declaration == TDeclaration.id_declaration)
-        .correlate(TDeclaration)
-        .scalar_subquery()
-    )
-
-    # -------------------------
-    # Requête principale
-    # -------------------------
-    d = TDeclaration
-    f = foret_cte
-    p = peuplement_cte
-    pn = peuplement_nomenclatures_cte
-    deg = degat_type_cte
-    vu = VUsers
-
-    query = (
-        select(
-            d.id_declaration,
-            func.to_char(d.meta_create_date, "DD/MM/YYYY").label("declaration_date"),
-            d.meta_create_date,
-            d.commentaire,
-            d.b_peuplement_protection_existence,
-            d.b_peuplement_paturage_presence,
-            d.b_autorisation,
-            vu.id_role.label("id_declarant"),
-            vu.nom_complet.label("declarant"),
-            vu.organisme,
-            # vu.organisme_group,
-            vu.id_droit_max,
-            vu.org_mnemo,
-            f.c.id_foret,
-            f.c.label_foret,
-            f.c.statut_public,
-            f.c.document,
-            f.c.b_statut_public,
-            f.c.b_document,
-            f.c.type_foret,
-            f.c.foret_type_label,
-            # Zones géographiques
-            get_area_names(d.id_declaration, "OEASC_COMMUNE").label("communes"),
-            get_area_names(d.id_declaration, "OEASC_SECTEUR").label("secteur"),
-            case(
-                (
-                    and_(f.c.b_statut_public == True, f.c.b_document == True),
-                    get_area_names(d.id_declaration, "OEASC_ONF_UG"),
-                ),
-                else_=get_area_names(d.id_declaration, "OEASC_CADASTRE"),
-            ).label("parcelles"),
-            # Peuplement simple
-            p.c.peuplement_surface,
-            p.c.peuplement_type_mnemo,
-            p.c.peuplement_origine_mnemo,
-            pn.c.peuplement_origine2_mnemo,
-            pn.c.peuplement_maturite_mnemo,
-            p.c.peuplement_ess_1_mnemo,
-            pn.c.peuplement_ess_2_mnemo,
-            pn.c.peuplement_ess_3_mnemo,
-            p.c.peuplement_paturage_statut_mnemo,
-            p.c.peuplement_paturage_frequence_mnemo,
-            pn.c.peuplement_paturage_type_mnemo,
-            pn.c.peuplement_paturage_saison_mnemo,
-            pn.c.peuplement_protection_type_mnemo,
-            pn.c.espece_mnemo,
-            p.c.peuplement_acces_mnemo,
-            deg.c.degat_type_mnemos,
-            # Labels
-            p.c.peuplement_type_label,
-            p.c.peuplement_origine_label,
-            pn.c.peuplement_origine2_label,
-            pn.c.peuplement_maturite_label,
-            p.c.peuplement_ess_1_label,
-            pn.c.peuplement_ess_2_label,
-            pn.c.peuplement_ess_3_label,
-            p.c.peuplement_paturage_statut_label,
-            p.c.peuplement_paturage_frequence_label,
-            pn.c.peuplement_paturage_type_label,
-            pn.c.peuplement_paturage_saison_label,
-            # Gestion du "autre_protection"
-            case(
-                (
-                    d.autre_protection != None,
-                    func.replace(
-                        cast(pn.c.peuplement_protection_type_label, Text),
-                        "Autre (préciser)",
-                        d.autre_protection,
-                    ),
-                ),
-                else_=cast(pn.c.peuplement_protection_type_label, Text),
-            ).label("peuplement_protection_type_label"),
-            pn.c.espece_label,
-            p.c.peuplement_acces_label,
-            deg.c.degat_type_labels,
-            # Codes
-            p.c.peuplement_type_code,
-            p.c.peuplement_origine_code,
-            pn.c.peuplement_origine2_code,
-            pn.c.peuplement_maturite_code,
-            p.c.peuplement_ess_1_code,
-            pn.c.peuplement_ess_2_code,
-            pn.c.peuplement_ess_3_code,
-            p.c.peuplement_paturage_statut_code,
-            p.c.peuplement_paturage_frequence_code,
-            pn.c.peuplement_paturage_type_code,
-            pn.c.peuplement_paturage_saison_code,
-            pn.c.peuplement_protection_type_code,
-            pn.c.espece_code,
-            p.c.peuplement_acces_code,
-            deg.c.degat_type_codes,
-            d.precision_localisation,
-            d.centroid,
-            d.date_fin,
-            d.status,
-            d.token_renouvellement,
-            # Areas foret (id)
-            case(
-                (
-                    and_(f.c.b_statut_public == True, f.c.b_document == True),
-                    get_id_areas(d.id_declaration, "OEASC_ONF_FRT"),
-                ),
-                (
-                    and_(f.c.b_statut_public == False, f.c.b_document == True),
-                    get_id_areas(d.id_declaration, "OEASC_DGD"),
-                ),
-                else_=get_id_areas(d.id_declaration, "OEASC_SECTION"),
-            ).label("areas_foret"),
-            # Areas foret (noms)
-            case(
-                (
-                    and_(f.c.b_statut_public == True, f.c.b_document == True),
-                    get_area_names(d.id_declaration, "OEASC_ONF_FRT"),
-                ),
-                (
-                    and_(f.c.b_statut_public == False, f.c.b_document == True),
-                    get_area_names(d.id_declaration, "OEASC_DGD"),
-                ),
-                else_=get_area_names(d.id_declaration, "OEASC_SECTION"),
-            ).label("areas_foret_names"),
-            # Validation
-            case(
-                (d.b_valid == True, "Validé"),
-                (d.b_valid == False, "Non validé"),
-                else_="En attente",
-            ).label("valide"),
-            d.b_valid,
-            areas_localisation_raw_subq.label("areas_localisation_raw"),
-            # Areas localisation
-            case(
-                (
-                    and_(f.c.b_statut_public == True, f.c.b_document == True),
-                    get_id_areas(d.id_declaration, "OEASC_ONF_UG"),
-                ),
-                else_=get_id_areas(d.id_declaration, "OEASC_CADASTRE"),
-            ).label("areas_localisation"),
-        )
-        .select_from(d)
-        .join(vu, vu.id_role == d.id_declarant)
-        .join(f, f.c.id_foret == d.id_foret)
-        .join(p, p.c.id_declaration == d.id_declaration)
-        .join(pn, pn.c.id_declaration == d.id_declaration)
-        .join(deg, deg.c.id_declaration == d.id_declaration)
-    )
-
-    return query
-
-
-# creation d'une requête pour la liste des déclarations.
-def get_stmt_liste_declaration():
-    """
-    Crée une requête SQLAlchemy pour récupérer la liste des déclarations avec les informations nécessaires
-    pour l'affichage de la liste.
-
-    """
-
-    # Fonctions PostgreSQL custom (appelées via func)
-    get_nomenclature_label = func.ref_nomenclatures.get_nomenclature_label
-    get_nomenclature_mnemonique = func.ref_nomenclatures.get_nomenclature_mnemonique
-    get_nomenclature_code = func.ref_nomenclatures.get_nomenclature_code
-    get_nomenclature_labels = func.ref_nomenclatures.get_nomenclature_labels
-    get_nomenclature_mnemoniques = func.ref_nomenclatures.get_nomenclature_mnemoniques
-    get_nomenclature_codes = func.ref_nomenclatures.get_nomenclature_codes
-    get_area_names = func.oeasc_declarations.get_area_names
-    get_id_areas = func.oeasc_declarations.get_id_areas
-
-    # -------------------------
-    # CTE : foret
-    # Nécessaire : id_foret, label_foret, b_statut_public, b_document
-    # -------------------------
-    foret_cte = select(
-        TForet.id_foret,
-        TForet.label_foret,
-        TForet.b_document,
-        TForet.b_statut_public,
-    ).cte("foret")
-
-    # -------------------------
-    # CTE : peuplement
-    # Nécessaire : id_declaration, peuplement_type_mnemo, peuplement_ess_1_mnemo
-    # -------------------------
-    d1 = aliased(TDeclaration, name="d1")
-
-    peuplement_cte = (
-        select(
-            d1.id_declaration,
-            get_nomenclature_mnemonique(d1.id_nomenclature_peuplement_type).label(
-                "peuplement_type_mnemo"
-            ),
-            get_nomenclature_mnemonique(
-                d1.id_nomenclature_peuplement_essence_principale
-            ).label("peuplement_ess_1_mnemo"),
-        )
-        .select_from(d1)
-        .cte("peuplement")
-    )
-
-    # -------------------------
-    # CTE : peuplement_nomenclatures
-    # Nécessaire : id_declaration, peuplement_origine2_mnemo
-    # -------------------------
-    d2 = aliased(TDeclaration, name="d2")
-    c_origine = aliased(CorNomenclatureDeclarationOrigine, name="c_origine")
-
-    peuplement_nomenclatures_cte = (
-        select(
-            d2.id_declaration,
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_origine.id_nomenclature.distinct())
-            ).label("peuplement_origine2_mnemo"),
-        )
-        .select_from(d2)
-        .outerjoin(c_origine, d2.id_declaration == c_origine.id_declaration)
-        .group_by(d2.id_declaration)
-        .cte("peuplement_nomenclatures")
-    )
-
-    # -------------------------
-    # CTE : degat_type
-    # Nécessaire : id_declaration, degat_type_mnemos
-    # -------------------------
-    deg_1 = aliased(TDegat, name="deg_1")
-
-    degat_type_cte = (
-        select(
-            deg_1.id_declaration,
-            get_nomenclature_mnemoniques(
-                func.array_agg(deg_1.id_nomenclature_degat_type.distinct())
-            ).label("degat_type_mnemos"),
-        )
-        .select_from(deg_1)
-        .group_by(deg_1.id_declaration)
-        .cte("degat_type")
-    )
-
-    # -------------------------
-    # Requête principale
-    # -------------------------
-    # d = TDeclaration
-    f = foret_cte
-    p = peuplement_cte
-    pn = peuplement_nomenclatures_cte
-    deg = degat_type_cte
-    # vu = VUsers
-
-    query = (
-        select(
-            TDeclaration.id_declaration,
-            # func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label("declaration_date"),
-            func.to_char(TDeclaration.meta_create_date, "YYYY/MM/DD").label(
-                "declaration_date"
-            ),
-            VUsers.id_role.label("id_declarant"),
-            VUsers.nom_complet.label("declarant"),
-            VUsers.organisme,
-            VUsers.id_droit_max,
-            VUsers.org_mnemo,
-            f.c.label_foret,
-            get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label(
-                "secteur"
-            ),
-            case(
-                (
-                    and_(f.c.b_statut_public == True, f.c.b_document == True),
-                    get_area_names(TDeclaration.id_declaration, "OEASC_ONF_UG"),
-                ),
-                else_=get_area_names(TDeclaration.id_declaration, "OEASC_CADASTRE"),
-            ).label("parcelles"),
-            p.c.peuplement_type_mnemo,
-            pn.c.peuplement_origine2_mnemo,
-            p.c.peuplement_ess_1_mnemo,
-            deg.c.degat_type_mnemos,
-            func.to_char(TDeclaration.date_fin, "YYYY/MM/DD").label("date_fin"),
-            # TDeclaration.date_fin,
-            TDeclaration.status,
-            TDeclaration.token_renouvellement,
-            TDeclaration.b_valid,
-        )
-        .select_from(TDeclaration)
-        .join(VUsers, VUsers.id_role == TDeclaration.id_declarant)
-        .join(f, f.c.id_foret == TDeclaration.id_foret)
-        .join(p, p.c.id_declaration == TDeclaration.id_declaration)
-        .join(pn, pn.c.id_declaration == TDeclaration.id_declaration)
-        .join(deg, deg.c.id_declaration == TDeclaration.id_declaration)
-    )
-
-    return query
-
-
 # Pour la liste des déclarations (page système d'alertes => alertes signalées)
 def get_liste_declarations(filters=None, user=None, id_declaration=None):
     """
@@ -1145,7 +581,8 @@ def get_declaration(id_declaration):
 
 
 # pour les export et les résultat de suivis => système d'alertes
-def get_declarations_view(
+# sera a supprimé lorsqu'on aura tout passé en sqlalchemy
+def get_declarations_view_ancien(
     user=None, type_export=None, type_out=None, id_declaration=None, restrict=False
 ):
     """
@@ -1158,10 +595,6 @@ def get_declarations_view(
     - id_declaration : pour filtrer sur une déclaration précise
     - restrict : pour restreindre la vue (utilisé principalement pour les vues de dégâts)
 
-    Elle est utilisée dans :
-    - Les endpoints d'API pour l'affichage ou l'export des déclarations
-    - Les exports CSV ou shapefile
-    - Les interfaces d'administration ou d'animation pour filtrer selon les droits utilisateur
     """
 
     # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
@@ -1266,6 +699,228 @@ def get_declarations_view(
     # declarations = [resolve_declaration(d) for d in declarations]
 
     return declarations
+
+
+# pour les export et les résultat de suivis => système d'alertes
+# sera a supprimé lorsqu'on aura tout passé en sqlalchemy
+def get_declarations_view(
+    user=None, type_export=None, type_out=None, id_declaration=None, restrict=False
+):
+    """
+    Retourne des donées de déclarations a partir des vues.
+
+    Cette fonction permet de récupérer les déclarations forestières selon différents paramètres :
+    - type_export : format d'export souhaité ("csv", "shape", ou None pour le format par défaut)
+    - type_out : "degat" pour une ligne par dégât, None pour une ligne par déclaration
+    - user : dictionnaire contenant les informations sur l'utilisateur (droits, organisme, etc.)
+    - id_declaration : pour filtrer sur une déclaration précise
+    - restrict : pour restreindre la vue (utilisé principalement pour les vues de dégâts)
+
+    """
+
+    # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
+    liste_id_organismes_solo = get_id_organismes(
+        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
+    )
+
+    # Dictionnaire de correspondance entre les paramètres et les vues SQL à utiliser
+    view_names = {
+        "csv": "v_export_declarations_csv",
+        "csv_deg": "v_export_declaration_degats_csv",
+        "shape": "v_export_declarations_shape",
+        "shape_deg": "v_export_declaration_degats_shape",
+        "default": "v_declarations",
+        "default_deg": "v_declaration_degats",
+        "default_deg_restrict": "v_declaration_degats_restrict",
+    }
+
+    stmt_function_names = {
+        "csv": get_v_export_declaration_csv_query,
+        "csv_deg": get_v_export_declaration_degats_csv_query,
+        "shape": get_v_export_declaration_shape_query,
+        "shape_deg": get_v_export_declaration_degats_shape_query,
+        "default": get_v_declarations_query,
+        "default_deg": get_v_declaration_degat_query,
+        "default_deg_restrict": get_v_declaration_degats_restrict_query,
+    }
+
+    # Choix de la vue selon les paramètres d'export et de sortie
+    if type_export in ["csv", "shape"]:
+        view_key = type_export
+    else:
+        view_key = "default"
+
+    if type_out == "degat":
+        view_key += "_deg"
+
+    if restrict:
+        # Restriction supplémentaire, principalement pour les vues de dégâts
+        view_key += "_restrict"
+
+    view_name = view_names[view_key]
+
+    stmt_function = stmt_function_names[view_key]
+    stmt = stmt_function()
+
+    # Définition des filtres selon les droits de l'utilisateur
+    filters = {}
+    if user:
+        # Cas administrateur ou animateur (droit >= 5) : accès à toutes les déclarations
+        if user["id_droit_max"] >= 5:
+            pass  # Pas de filtre
+
+        # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
+        elif (
+            user["id_droit_max"] >= 2
+            and user["id_organisme"] not in liste_id_organismes_solo
+        ):
+            stmt = stmt.where(VUsers.organisme == user["organisme"])
+            # filters = {"organisme": user["organisme"]}
+
+        # Cas droit 1 : accès uniquement à ses propres alertes
+        elif user["id_droit_max"] >= 1:
+            stmt = stmt.where(TDeclaration.id_declarant == user["id_role"])
+            # filters = {"id_declarant": user["id_role"]}
+
+    # Cas où on souhaite une seule déclaration (filtre par identifiant)
+    if id_declaration:
+        stmt = stmt.where(TDeclaration.id_declaration == id_declaration)
+        # filters["id_declaration"] = id_declaration
+
+    # Définition du champ géométrique pour l'export shapefile
+    geometry_field = None
+    if type_export == "shape":
+        geometry_field = "geom"
+        stmt = stmt.add_columns(
+            func.ST_AsBinary(
+                func.ST_Transform(func.ST_Centroid(TDeclaration.geom), 4326)
+            ).label("geom")
+        )
+
+    # Création de la requête via GenericQueryGeo (utilise la vue SQL et les filtres)
+    data = None
+    # gq = GenericQueryGeo(
+    #     DB,
+    #     view_name,
+    #     "oeasc_declarations",
+    #     geometry_field=geometry_field,
+    #     filters=filters,
+    #     limit=1e6,
+    # )
+
+    gq = DB.session.execute(stmt).mappings().all()
+
+    # Cas d'export shapefile : on retourne directement le résultat de la requête
+    if type_export == "shape":
+        return gq.query()[0]
+
+    # Exécution de la requête et récupération des données
+    data = gq.return_query()
+
+    # Si aucune donnée n'est trouvée, on retourne une liste vide
+    if not (data and data.get("items")):
+        return []
+
+    declarations = data.get("items")
+
+    # Remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
+    for d in declarations:
+        for e in d:
+            if d[e] is None:
+                d[e] = ""
+
+    # Si on utilise une vue d'export ou de dégâts, on retourne directement les déclarations
+    if view_key != "default":
+        return declarations
+
+    # Cas par défaut : enrichissement des déclarations avec les objets "dégats"
+    # (utilisé pour l'affichage détaillé ou l'export complet)
+    add_degats(declarations)
+
+    # Pré-traitement des nomenclatures géographiques (désactivé ici)
+    # pre_get_dict_nomenclature_areas(declarations)
+    # Résolution complète des déclarations (désactivé ici)
+    # declarations = [resolve_declaration(d) for d in declarations]
+
+    return declarations
+
+
+def add_filters_declarations(query, user=None, id_declaration=None):
+    """
+    Ajoute des filtres à une requête de déclaration en fonction des droits de l'utilisateur et d'un éventuel identifiant de déclaration.
+
+    Utilisation :
+    - Cette fonction est utilisée pour appliquer les restrictions d'accès aux déclarations selon les droits de l'utilisateur.
+    - Elle peut être utilisée dans différentes fonctions de récupération de déclarations pour centraliser la logique de filtrage.
+
+    :param query: Requête SQLAlchemy à laquelle ajouter les filtres
+    :param user: Dictionnaire contenant les informations sur l'utilisateur (droits, organisme, etc.)
+    :param id_declaration: Identifiant de déclaration pour filtrer sur une déclaration précise (optionnel)
+    :return: Requête SQLAlchemy avec les filtres appliqués
+    """
+
+    # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
+    liste_id_organismes_solo = get_id_organismes(
+        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
+    )
+
+    if user:
+        if (
+            user["id_droit_max"] >= 5
+        ):  # Cas admin ou animateur (droit >= 5) : accès à toutes les déclarations
+            pass  # Pas de filtre
+        elif (  # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
+            user["id_droit_max"] >= 2
+            and user["id_organisme"] not in liste_id_organismes_solo
+        ):
+            query = query.where(VUsers.organisme == user["organisme"])
+        elif (
+            user["id_droit_max"] >= 1
+        ):  # Cas droit 1 : accès uniquement à ses propres alertes
+            query = query.where(TDeclaration.id_declarant == user["id_role"])
+
+    # Cas où on souhaite une seule déclaration (filtre par identifiant)
+    if id_declaration:
+        query = query.where(TDeclaration.id_declaration == id_declaration)
+
+    return query
+
+
+def replace_none_by_empty_string(data):
+    """
+    Remplace les valeurs None par des chaînes vides dans une liste de dictionnaires.
+    """
+
+    for row in data:
+        for e in row:
+            if row[e] is None:
+                row[e] = ""
+    return data
+
+
+# def get_degats_for_resultats_suivi(user=None, id_declaration=None):
+#     """
+#     Récupère les dégâts associés à une déclaration pour l'affichage dans les résultats de suivi.
+
+#     Utilisation :
+#     - Cette fonction est utilisée pour obtenir les informations détaillées des dégâts (type, essence, gravité, etc.)
+#       associées à une déclaration spécifique, notamment dans le contexte des résultats de suivi ou d'affichage détaillé.
+
+#     :param id_declaration: Identifiant de la déclaration pour laquelle récupérer les dégâts
+#     :return: Liste des dégâts structurés associés à la déclaration
+#     """
+
+#     # Récupération des dégâts via la vue SQL 'v_degats' filtrée par id_declaration
+#     stmt = get_v_declaration_degats_restrict_query()
+#     stmt = add_filters_declarations(stmt, user=user, id_declaration=id_declaration)
+#     data_degats = DB.session.execute(stmt).mappings().all()
+#     # si aucune doée n'est trouvée, on retourne une liste vide
+#     if not data_degats:
+#         return []
+#     # remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
+#     data_degats = replace_none_by_empty_string(data_degats)
+
+#     data_degats = [dict(row) for row in data_degats]
 
 
 #############################################################################
@@ -1617,6 +1272,21 @@ def hide_proprietaire(proprietaire):
     proprietaire["email"] = "prive@prive.prive"
 
 
+####################################################################################
+#############################$ NOUVEAUX ##########################################
+
+
+def get_degats_for_resultats_suivi():
+    stmt = get_stmt_for_resultats_degats()
+    result = DB.session.execute(stmt).mappings().all()
+    if not result:
+        return []
+    data = [dict(row) for row in result]
+
+    return data
+
+
+####################################################################################
 # non utilisé actuellement
 def resume_gravite(declaration_dict):
     """

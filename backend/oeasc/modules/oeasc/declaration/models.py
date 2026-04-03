@@ -21,6 +21,7 @@ from sqlalchemy import (
 )
 
 from geoalchemy2 import Geometry
+
 config = current_app.config
 DB = config["DB"]
 
