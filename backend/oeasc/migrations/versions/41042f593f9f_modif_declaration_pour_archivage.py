@@ -26,7 +26,7 @@ def upgrade():
     )
     op.add_column(
         "t_declarations",
-        sa.Column("status", sa.Integer(), nullable=True),
+        sa.Column("statut", sa.Integer(), nullable=True),
         schema="oeasc_declarations",
     )
     op.add_column(
@@ -63,29 +63,29 @@ def upgrade():
         SET date_fin = meta_create_date + INTERVAL '3 years'
     """)
 
-    # On met tous les status à 1 (code: Active) pour les déclarations. Le premier changement de status se fera au premier mail de relance.
+    # On met tous les statut à 1 (code: Active) pour les déclarations. Le premier changement de statut se fera au premier mail de relance.
     op.execute(f"""
         UPDATE oeasc_declarations.t_declarations
-        SET status = 1
+        SET statut = 1
         WHERE b_valid = true
     """)
     # les déclarations non valides sont considérées comme non validées (code: 0)
     op.execute(f"""
         UPDATE oeasc_declarations.t_declarations
-        SET status = 0
+        SET statut = 0
         WHERE b_valid = false
     """)
     
-    # # pour toutes les déclarations qui ont une date_fin et b_valid == true, on met le status à "A renouveler 1" (code: 10)
+    # # pour toutes les déclarations qui ont une date_fin et b_valid == true, on met le statut à "A renouveler 1" (code: 10)
     # op.execute(f"""
     #     UPDATE oeasc_declarations.t_declarations
-    #     SET status = 10
+    #     SET statut = 10
     #     WHERE date_fin <= NOW() AND b_valid = true
     # """)
 
     # op.execute(f"""
     #     UPDATE oeasc_declarations.t_declarations
-    #     SET status = 1
+    #     SET statut = 1
     #     WHERE date_fin > NOW() AND b_valid = true
     # """)
 
@@ -108,5 +108,5 @@ def downgrade():
         "t_declarations", "token_renouvellement", schema="oeasc_declarations"
     )
     op.drop_column("t_declarations", "date_fin_token", schema="oeasc_declarations")
-    op.drop_column("t_declarations", "status", schema="oeasc_declarations")
+    op.drop_column("t_declarations", "statut", schema="oeasc_declarations")
     op.drop_column("t_declarations", "date_fin", schema="oeasc_declarations")
