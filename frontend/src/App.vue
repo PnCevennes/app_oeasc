@@ -33,6 +33,26 @@
           <!-- contenu de la page, router gére automatiquement les routes inscrites dans router/index.js -->
           <!-- mais dans cette appli on récupère aussi les roude dans modules/index.js et pages/index.js -->
           <router-view></router-view>
+              <!-- Le Snackbar Global -->
+        <!-- Le Snackbar qui affichera les messages d'erreur ou de succès-->
+        <v-snackbar
+          v-model="snackbarState.show"
+          :color="snackbarState.color"
+          :timeout="snackbarState.timeout"
+          min-height="100px"
+          elevation="2"
+          bottom
+          center
+        >
+          <span :style="{ whiteSpace: 'pre-line', fontSize: snackbarState.fontSize, fontWeight: snackbarState.fontWeight, lineHeight: snackbarState.lineHeight, color: snackbarState.textColor }">
+          {{ snackbarState.message }}
+          </span>
+          <template v-slot:action="{ attrs }">
+            <v-btn text v-bind="attrs" @click="snackbarState.show = false" :style="{ color: snackbarState.textColor, fontSize: '1rem', fontWeight: 400 }">
+              Fermer
+            </v-btn>
+          </template>
+        </v-snackbar>
         </div>
       </div>
     </div>
@@ -46,7 +66,7 @@
 
 <script>
 import { config } from '@/config/config.js'; // rassemble les config (map, style, menu)
-
+import { snackbarStore } from '@/store/snackbar.js'; // store pour le snackbar global
 import { configAppBar, configDrawerMenus } from '@/config/menu.js'; // config du menu, liste, position et droits
 import '@/core/css/main.scss';
 import oeascAppBar from '@/components/app/app-bar'; // template de la barre de menu
@@ -68,6 +88,9 @@ export default {
       const { ...rest } = this.$store.state;
       return rest;
     },
+    snackbarState() {
+      return snackbarStore.state;
+    }
   },
 
   data() {
@@ -79,6 +102,11 @@ export default {
       configDrawer: {
         menus: configDrawerMenus,
         show: false,
+      },
+      snackbar: {
+        show: false,
+        message: '',
+        color: 'error' // 'success', 'info', etc.
       },
       drawerShow: false,
       test_affichage_session: this.$session, // a retirer. C'est pour voir le contenu de la session
