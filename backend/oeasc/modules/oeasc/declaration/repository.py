@@ -73,13 +73,14 @@ from oeasc.modules.oeasc.user.repository import get_user, get_id_organismes
 config = current_app.config
 DB = config["DB"]
 
-status_declaration = {
-    "Active": 1,
-    "A renouveler": 2,
-    "Archivée": 3,
-    "Dupliquée": 4,
-}
-
+# status_declaration = { # c'est maintenant dans un json
+#     "Non validée": 0,
+#     "Active": 1,
+#     "Archivée": 2,
+#     "Renouvellement 1": 10, # on passe a 10 pour laisser de la place à d'éventuels statuts intermédiaires
+#     "Renouvellement 2": 11, # La 2ème relance a été envoyée, on attend le retour du déclarant
+#     "Renouvellement 3": 12 # La 3ème relance a été envoyée
+# }
 
 # add_degats uniquement utilsé dans get_fiche_declaration
 def add_degats(declarations):

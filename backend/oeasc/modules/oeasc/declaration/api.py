@@ -5,7 +5,7 @@ liste des api pour les declarations
 # import copy
 import os
 import zipfile
-from datetime import date
+from datetime import date, datetime
 from flask import Blueprint, request, current_app, session
 from flask.helpers import send_from_directory
 from utils_flask_sqla.response import csv_resp, json_resp_accept_empty_list
@@ -38,7 +38,10 @@ from .repository import (
 )
 from ..user.utils import check_auth_redirect_login
 
-from .all_stmt import get_stmt_for_declarations_export
+from .all_stmt import (
+    get_stmt_for_declarations_export,
+    stmt_one_declaration_a_renouveler
+)
 from .models import TDeclaration
 from ..declaration.schema import TProprietaireSchema, TForetSchema, TDeclarationSchema
 
@@ -202,17 +205,22 @@ def api_get_foret_from_code(code_foret):
 # Cette route permet de récupérer une déclaration complète, incluant les données de la forêt, du propriétaire,
 # ainsi que toutes les zones ("areas") associées à la forêt et à la déclaration.
 # Elle est utilisée notamment pour l'affichage détaillé d'une déclaration, par exemple dans le composant "voir_declaration.vue".
-@bp.route("declaration/<int:id_declaration>", methods=["GET"])
+@bp.route("declaration", methods=["GET"])
 # @bp.route("declaration", methods=["GET"], defaults={"id_declaration": None})
 @check_auth_redirect_login(
     1
 )  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
 @json_resp_accept_empty_list  # Retourne une liste vide si aucune déclaration n'est trouvée
-def api_get_declaration(id_declaration):
+def api_get_declaration():
     """
     Récupère une déclaration complète avec toutes les informations nécessaires à l'affichage détaillé.
     Utilisée pour consulter ou afficher une déclaration avec ses zones géographiques.
     """
+    id_declaration = request.args.get("id", type=int)
+    if not id_declaration:
+        schemaDeclaration = TDeclarationSchema()
+        return schemaDeclaration.dump(TDeclaration())
+
 
     # Récupère la déclaration, la forêt et le propriétaire associés à l'identifiant donné
     declaration, foret, proprietaire = get_declaration(id_declaration)
@@ -380,6 +388,39 @@ def delete_declaration(id_declaration):
 
     # Retourne "ok" pour confirmer la suppression
     return "ok"
+
+
+@bp.route("check_token_declaration", methods=["GET"])
+@json_resp
+def check_token_declaration():
+    """
+    Vérifie la validité d'un token de déclaration.
+    Utilisée pour sécuriser l'accès à certaines fonctionnalités liées aux déclarations,
+    par exemple lors de la consultation ou de la modification d'une déclaration spécifique.
+    """
+
+    # Récupère le token de déclaration depuis les paramètres de la requête
+    token = request.args.get("token")
+    if not token:
+        return {"error": "Token manquant"}, 400
+    id_declaration = request.args.get("id")
+    if not id_declaration:
+        return {"error": "ID de déclaration manquant"}, 400
+
+    stmt = stmt_one_declaration_a_renouveler(id_declaration)
+    result = DB.session.execute(stmt).fetchone()
+    if not result:
+        return {"error": "Déclaration non trouvée"}, 404
+    now = datetime.now()
+
+    if now > result["date_fin_token"]:
+        return {"error": "Le lien a expiré"}, 404
+    
+    if token != result["token_renouvellement"]:
+        return {"error": "Token invalide"}, 404
+    else:
+        return {"message": "Token valide"}, 200
+    
 
 
 ##################################################################################

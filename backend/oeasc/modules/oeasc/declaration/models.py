@@ -392,7 +392,7 @@ class TDeclaration(CustomModel):
 
     centroid: Mapped[list[float]] = Column(ARRAY(Float), nullable=True)
     date_fin: Mapped[Date] = Column(Date, nullable=True)
-    status: Mapped[int] = Column(
+    statut: Mapped[int] = Column(
         Integer, nullable=True, default=0
     )  # 0 : en attente de validation, 1 : validée, 2 : refusée
     token_renouvellement: Mapped[str] = Column(Unicode(255), nullable=True)

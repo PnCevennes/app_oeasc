@@ -94,6 +94,153 @@ def get_id_areas(id_declaration, area_type):
 ###############################################################################$
 
 
+def filter_declarations_a_renouveler(stmt):
+    """Ajoute un filtre à une requête de déclarations pour ne récupérer que celles à renouveler, c'est à dire celles dont la date de fin est dépassée et qui ne sont pas archivées."""
+
+    # Import local pour éviter un import circulaire avec repository
+    import json
+    
+    statut_declaration = json.load(open(str(config['ROOT_DIR']) + "/config/variables/declaration.json"))["STATUT_DECLARATION"]
+
+    stmt = stmt.where(
+        TDeclaration.date_fin <= func.now(), # date de fin dépassée
+        or_(TDeclaration.statut == statut_declaration["Active"], TDeclaration.statut >= statut_declaration["Relance"]), # statut "Active" ou "Relance"
+        TDeclaration.b_valid == True,
+        # VUsers.accept_email == True
+    )
+
+    return stmt
+
+# creation d'une requête pour la liste des déclarations.
+def get_stmt_liste_declaration():
+    """
+    Crée une requête SQLAlchemy pour récupérer la liste des déclarations avec les informations nécessaires
+    pour l'affichage de la liste.
+
+    """
+
+    # -------------------------
+    # CTE : foret
+    # Nécessaire : id_foret, label_foret, b_statut_public, b_document
+    # -------------------------
+    foret_cte = select(
+        TForet.id_foret,
+        TForet.label_foret,
+        TForet.b_document,
+        TForet.b_statut_public,
+    ).cte("foret")
+
+    # -------------------------
+    # CTE : peuplement
+    # Nécessaire : id_declaration, peuplement_type_mnemo, peuplement_ess_1_mnemo
+    # -------------------------
+    d1 = aliased(TDeclaration, name="d1")
+
+    peuplement_cte = (
+        select(
+            d1.id_declaration,
+            get_nomenclature_mnemonique(d1.id_nomenclature_peuplement_type).label(
+                "peuplement_type_mnemo"
+            ),
+            get_nomenclature_mnemonique(
+                d1.id_nomenclature_peuplement_essence_principale
+            ).label("peuplement_ess_1_mnemo"),
+        )
+        .select_from(d1)
+        .cte("peuplement")
+    )
+
+    # -------------------------
+    # CTE : peuplement_nomenclatures
+    # Nécessaire : id_declaration, peuplement_origine2_mnemo
+    # -------------------------
+    d2 = aliased(TDeclaration, name="d2")
+    c_origine = aliased(CorNomenclatureDeclarationOrigine, name="c_origine")
+
+    peuplement_nomenclatures_cte = (
+        select(
+            d2.id_declaration,
+            get_nomenclature_mnemoniques(
+                func.array_agg(c_origine.id_nomenclature.distinct())
+            ).label("peuplement_origine2_mnemo"),
+        )
+        .select_from(d2)
+        .outerjoin(c_origine, d2.id_declaration == c_origine.id_declaration)
+        .group_by(d2.id_declaration)
+        .cte("peuplement_nomenclatures")
+    )
+
+    # -------------------------
+    # CTE : degat_type
+    # Nécessaire : id_declaration, degat_type_mnemos
+    # -------------------------
+    deg_1 = aliased(TDegat, name="deg_1")
+
+    degat_type_cte = (
+        select(
+            deg_1.id_declaration,
+            get_nomenclature_mnemoniques(
+                func.array_agg(deg_1.id_nomenclature_degat_type.distinct())
+            ).label("degat_type_mnemos"),
+        )
+        .select_from(deg_1)
+        .group_by(deg_1.id_declaration)
+        .cte("degat_type")
+    )
+
+    # -------------------------
+    # Requête principale
+    # -------------------------
+    # d = TDeclaration
+    f = foret_cte
+    p = peuplement_cte
+    pn = peuplement_nomenclatures_cte
+    deg = degat_type_cte
+    # vu = VUsers
+
+    query = (
+        select(
+            TDeclaration.id_declaration,
+            # func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label("declaration_date"),
+            func.to_char(TDeclaration.meta_create_date, "YYYY/MM/DD").label(
+                "declaration_date"
+            ),
+            VUsers.id_role.label("id_declarant"),
+            VUsers.nom_complet.label("declarant"),
+            VUsers.organisme,
+            VUsers.id_droit_max,
+            VUsers.org_mnemo,
+            f.c.label_foret,
+            get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label(
+                "secteur"
+            ),
+            case(
+                (
+                    and_(f.c.b_statut_public == True, f.c.b_document == True),
+                    get_area_names(TDeclaration.id_declaration, "OEASC_ONF_UG"),
+                ),
+                else_=get_area_names(TDeclaration.id_declaration, "OEASC_CADASTRE"),
+            ).label("parcelles"),
+            p.c.peuplement_type_mnemo,
+            pn.c.peuplement_origine2_mnemo,
+            p.c.peuplement_ess_1_mnemo,
+            deg.c.degat_type_mnemos,
+            func.to_char(TDeclaration.date_fin, "YYYY/MM/DD").label("date_fin"),
+            # TDeclaration.date_fin,
+            TDeclaration.statut,
+            TDeclaration.b_valid,
+        )
+        .select_from(TDeclaration)
+        .join(VUsers, VUsers.id_role == TDeclaration.id_declarant)
+        .join(f, f.c.id_foret == TDeclaration.id_foret)
+        .join(p, p.c.id_declaration == TDeclaration.id_declaration)
+        .join(pn, pn.c.id_declaration == TDeclaration.id_declaration)
+        .join(deg, deg.c.id_declaration == TDeclaration.id_declaration)
+    )
+
+    return query
+
+
 def get_stmt_for_resultats_degats():
     """Récupère les dégats pour l'affichage des résultats (page: résultats de suivis/système d'alerte)"""
 
@@ -396,141 +543,47 @@ def get_stmt_for_declarations_export(type_file="csv", type_out="degat"):
     return stmt
 
 
+def stmt_liste_declarations_a_renouveler():
+    """
+    Requête pour avoir la liste des déclarations à renouveler, c'est à dire celles dont la date de fin est dépassée et qui ne sont pas archivées.
+    Les colonnes récupérées sont les mêmes que celles de la page "alertes signalées" pour pouvoir afficher un tableau similaire, 
+    avec en plus les colonnes nécessaires à l'envoi des emails de relance.
+    """
+    # On récupère les informations concernant le déclarants des déclarations à renouveler
+
+    # on récupère les mêmes colonnes que la page "alertes signalées" pour pouvoir afficher un tableau similaire.
+    stmt_renew = get_stmt_liste_declaration()
+    # On ajoute les quelques colonnes nécéssaires à l'envoi des emails.
+    stmt_renew = stmt_renew.add_columns(
+        VUsers.email,
+        VUsers.nom_role,
+        VUsers.prenom_role,
+        VUsers.accept_email.label("accept_email"),
+        TDeclaration.date_fin_token
+    )
+    # on ajoute un filtre pour ne récupérer que les déclarations à renouveler. C'est à dire celles dont la date de fin est dépassée et qui ne sont pas archivées.
+    stmt_renew = filter_declarations_a_renouveler(stmt_renew)
+
+    return stmt_renew
+
+def stmt_one_declaration_a_renouveler(id_declaration):
+    """Requête pour récupérer les informations d'une déclaration à partir de son id, pour l'affichage de la page de détail d'une déclaration"""
+
+    stmt = (select(
+        TDeclaration.id_declaration,
+        TDeclaration.token_renouvellement,
+        TDeclaration.date_fin_token,
+        TDeclaration.date_fin,
+        ))
+    stmt = filter_declarations_a_renouveler(stmt)
+    stmt = stmt.where(TDeclaration.id_declaration == id_declaration)
+
+    return stmt
+
 ##################################################################################
 ################# ANCIENS STMT: retransciptions des vues sql #####################
 ##################################################################################
 # sera a supprimer à la fin de la simplication des stmt
-
-
-# creation d'une requête pour la liste des déclarations.
-def get_stmt_liste_declaration():
-    """
-    Crée une requête SQLAlchemy pour récupérer la liste des déclarations avec les informations nécessaires
-    pour l'affichage de la liste.
-
-    """
-
-    # -------------------------
-    # CTE : foret
-    # Nécessaire : id_foret, label_foret, b_statut_public, b_document
-    # -------------------------
-    foret_cte = select(
-        TForet.id_foret,
-        TForet.label_foret,
-        TForet.b_document,
-        TForet.b_statut_public,
-    ).cte("foret")
-
-    # -------------------------
-    # CTE : peuplement
-    # Nécessaire : id_declaration, peuplement_type_mnemo, peuplement_ess_1_mnemo
-    # -------------------------
-    d1 = aliased(TDeclaration, name="d1")
-
-    peuplement_cte = (
-        select(
-            d1.id_declaration,
-            get_nomenclature_mnemonique(d1.id_nomenclature_peuplement_type).label(
-                "peuplement_type_mnemo"
-            ),
-            get_nomenclature_mnemonique(
-                d1.id_nomenclature_peuplement_essence_principale
-            ).label("peuplement_ess_1_mnemo"),
-        )
-        .select_from(d1)
-        .cte("peuplement")
-    )
-
-    # -------------------------
-    # CTE : peuplement_nomenclatures
-    # Nécessaire : id_declaration, peuplement_origine2_mnemo
-    # -------------------------
-    d2 = aliased(TDeclaration, name="d2")
-    c_origine = aliased(CorNomenclatureDeclarationOrigine, name="c_origine")
-
-    peuplement_nomenclatures_cte = (
-        select(
-            d2.id_declaration,
-            get_nomenclature_mnemoniques(
-                func.array_agg(c_origine.id_nomenclature.distinct())
-            ).label("peuplement_origine2_mnemo"),
-        )
-        .select_from(d2)
-        .outerjoin(c_origine, d2.id_declaration == c_origine.id_declaration)
-        .group_by(d2.id_declaration)
-        .cte("peuplement_nomenclatures")
-    )
-
-    # -------------------------
-    # CTE : degat_type
-    # Nécessaire : id_declaration, degat_type_mnemos
-    # -------------------------
-    deg_1 = aliased(TDegat, name="deg_1")
-
-    degat_type_cte = (
-        select(
-            deg_1.id_declaration,
-            get_nomenclature_mnemoniques(
-                func.array_agg(deg_1.id_nomenclature_degat_type.distinct())
-            ).label("degat_type_mnemos"),
-        )
-        .select_from(deg_1)
-        .group_by(deg_1.id_declaration)
-        .cte("degat_type")
-    )
-
-    # -------------------------
-    # Requête principale
-    # -------------------------
-    # d = TDeclaration
-    f = foret_cte
-    p = peuplement_cte
-    pn = peuplement_nomenclatures_cte
-    deg = degat_type_cte
-    # vu = VUsers
-
-    query = (
-        select(
-            TDeclaration.id_declaration,
-            # func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label("declaration_date"),
-            func.to_char(TDeclaration.meta_create_date, "YYYY/MM/DD").label(
-                "declaration_date"
-            ),
-            VUsers.id_role.label("id_declarant"),
-            VUsers.nom_complet.label("declarant"),
-            VUsers.organisme,
-            VUsers.id_droit_max,
-            VUsers.org_mnemo,
-            f.c.label_foret,
-            get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label(
-                "secteur"
-            ),
-            case(
-                (
-                    and_(f.c.b_statut_public == True, f.c.b_document == True),
-                    get_area_names(TDeclaration.id_declaration, "OEASC_ONF_UG"),
-                ),
-                else_=get_area_names(TDeclaration.id_declaration, "OEASC_CADASTRE"),
-            ).label("parcelles"),
-            p.c.peuplement_type_mnemo,
-            pn.c.peuplement_origine2_mnemo,
-            p.c.peuplement_ess_1_mnemo,
-            deg.c.degat_type_mnemos,
-            func.to_char(TDeclaration.date_fin, "YYYY/MM/DD").label("date_fin"),
-            # TDeclaration.date_fin,
-            TDeclaration.status,
-            TDeclaration.token_renouvellement,
-            TDeclaration.b_valid,
-        )
-        .select_from(TDeclaration)
-        .join(VUsers, VUsers.id_role == TDeclaration.id_declarant)
-        .join(f, f.c.id_foret == TDeclaration.id_foret)
-        .join(p, p.c.id_declaration == TDeclaration.id_declaration)
-        .join(pn, pn.c.id_declaration == TDeclaration.id_declaration)
-        .join(deg, deg.c.id_declaration == TDeclaration.id_declaration)
-    )
-
-    return query
 
 
 def get_v_declarations_query():
@@ -902,7 +955,7 @@ def get_v_declarations_query():
             d.precision_localisation,
             d.centroid,
             d.date_fin,
-            d.status,
+            d.statut,
             d.token_renouvellement,
             # Areas foret (id)
             case(

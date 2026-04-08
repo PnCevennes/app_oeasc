@@ -1,25 +1,32 @@
-<p>Bonjour,</p>
+<p>Bonjour, {{info_declaration.prenom_role}} {{info_declaration.nom_role}}</p>
 
-<p>Votre declaration de dégat date de plus de 3 ans. Afin qu'elle soit toujours valide, veuillez l'actualiser. </p>
+<p>Vous avez fait une déclaration de dêgat sur les parcelles {{info_declaration.parcelles}} dans la foret "{{info_declaration.label_foret}}". <br>
+   Cette déclaration date de plus de 3 ans. <br>
+   Afin qu'elle soit toujours valide, veuillez l'actualiser. </p>
 
+<p>
+   Le renouvellement ne prend que quelques minutes. <br>
+   Clôturer votre déclaration ne prend que quelques secondes et vous évitera de recevoir d'autres mails.
+</p>
 
-<p>Souhaitez-vous actualiser votre déclaration ?</p>
+<p>Que souhaitez-vous faire ?</p>
 
 <div style="text-align:center; margin-top:20px;">
-
   <a href="{{ url_oui }}" 
      style="background-color:#4CAF50;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;">
-     ✅ OUI
+     ✅ OUI JE RENOUVELLE MA DÉCLARATION
   </a>
-
-  <a href="{{ url_non }}" 
+</div>
+<div style="text-align:center; margin-top:20px;">
+     <a href="{{ url_non }}" 
      style="background-color:#f44336;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;">
-     ❌ NON
+     ❌ NON JE CLOTURE MA DÉCLARATION
   </a>
+</div>
 
+<!-- <div style="text-align:center; margin-top:20px;">
   <a href="{{ url_modifier }}" 
      style="background-color:#2196F3;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;">
      ✏️ MODIFIER
   </a>
-
-</div>
+</div> -->
