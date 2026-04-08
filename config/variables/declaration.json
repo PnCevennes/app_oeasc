@@ -1,0 +1,17 @@
+{
+    "_comment_STATUT_DECLARATION":" Relance est à 100 mais on incrémente de 1 à chaque relance. Par exemple la 3eme relance aura le statut 102. Cela permet de différencier les déclarations en relance des déclarations archivées.",
+    "STATUT_DECLARATION" : {
+        "Non validée": 0,
+        "Active": 1,
+        "Archivée": 2,
+        "Archivée sans réponse": 3,
+        "Relance": 100
+    },
+    "_comment_NB_JOURS_RELANCE_MAIL": "Nombre de jours après la date de fin de la déclaration pour envoyer la première relance. Ensuite, on envoie une relance tous les NB_JOURS_RELANCE_MAIL jours tant que la déclaration n'est pas renouvelée, jusqu'à un maximum de NB_RELANCES_MAX relances.",
+    "NB_JOURS_RELANCE_MAIL": 30,
+    "_comment_NB_RELANCES_MAX": "Nombre maximum de relances à envoyer. Au delà, la déclaration sera archivée sans réponse.",
+    "NB_RELANCES_MAX": 12,
+    "_comment_LISTE_MAILS_ANIMATEURS": "Liste des mails des animateurs qui recevront les relances en copie. Pour leur permettre de répondre aussi avec des mails personnalisés",
+    "LISTE_MAILS_ANIMATEURS": [
+    ]
+}
