@@ -1,27 +1,27 @@
 ###### CREATION D'UNE CLASSE apiRpesponse POUR UN FORMAT DE REPONSE UNIFORME AUX APPELS API ######
 
-
+from app import app
 import logging
 from flask import jsonify
 from datetime import datetime
 import os
-from app import app
+
 
 path_log = os.path.join(app.config["ROOT_DIR"], "logs/")
 os.makedirs(path_log, exist_ok=True)
-
 
 class ApiResponse:
     def __init__(
         self,
         success=True,
         message="",
-        data=None,
+        data={},
         system_error="",
         status_code=200,
         id_role=None,
         nom_complet=None,
         log_file="all_logs_files.log",
+        session=None,
     ):
         self.debug_mode = app.config[
             "DEBUG"
@@ -35,11 +35,24 @@ class ApiResponse:
             []
         )  # liste de chaine de caractères qui sera retournée dans le journal de l'application. Elle peut être utilisée pour stocker des messages de debug ou des informations sur l'exécution de l'opération. Ces messages ne sont pas destinés à être retournés à l'utilisateur, mais peuvent être utiles pour le développement et la maintenance de l'application.
         self.return_journal = False  # si return_journal est à True, le journal sera retourné dans la réponse de l'API. Si return_journal est à False, le journal ne sera pas retourné dans la réponse de l'API.
-        self.id_role = id_role  # id_role de l'utilisateur connecté, à utiliser pour les opérations qui nécessitent une identification de l'utilisateur (ex: enregistrement d'une action dans le journal de l'application, attribution d'une ressource à un utilisateur, etc.). Cet attribut doit être défini manuellement après l'initialisation de l'objet ApiResponse, en fonction de l'utilisateur connecté.
-        self.nom_complet = nom_complet  # nom complet de l'utilisateur connecté, à utiliser pour les opérations qui nécessitent une identification de l'utilisateur (ex: enregistrement d'une action dans le journal de l'application, attribution d'une ressource à un utilisateur, etc.). Cet attribut doit être défini manuellement après l'initialisation de l'objet ApiResponse, en fonction de l'utilisateur connecté.
+        
+        print (f"session dans ApiResponse => {session}")
+        if id_role is not None:
+            self.id_role = id_role  # id_role de l'utilisateur connecté, à utiliser pour les opérations qui nécessitent une identification de l'utilisateur (ex: enregistrement d'une action dans le journal de l'application, attribution d'une ressource à un utilisateur, etc.). Cet attribut doit être défini manuellement après l'initialisation de l'objet ApiResponse, en fonction de l'utilisateur connecté.
+        else:
+            if ((session is not None) and (session.get("current_user", {}))):
+                self.id_role = session.get("current_user", {}).get("id_role", None)
+
+        if nom_complet is not None:
+            self.nom_complet = nom_complet  # nom complet de l'utilisateur connecté, à utiliser pour les opérations qui nécessitent une identification de l'utilisateur (ex: enregistrement d'une action dans le journal de l'application, attribution d'une ressource à un utilisateur, etc.). Cet attribut doit être défini manuellement après l'initialisation de l'objet ApiResponse, en fonction de l'utilisateur connecté.
+        else:
+            if ((session is not None) and (session.get("current_user", {}))):
+                self.nom_complet = session.get("current_user", {}).get("nom_complet", "Utilisateur non connecté")
+
         self.log_file = os.path.join(
             path_log, log_file
         )  # chemin du fichier de log où les entrées du journal seront écrites. Par défaut, il est défini sur "all_logs_files.log" dans le dossier de logs de l'application, mais il peut être modifié en fonction des besoins de l'application (ex: "error_logs.log" pour les erreurs, "debug_logs.log" pour les messages de debug, etc.).
+
 
     def print_all(self):
         """Affiche tous les attributs de l'objet ApiResponse pour le debug."""
@@ -129,7 +142,7 @@ class ApiResponse:
     # -------------------------
     def add_error(
         self,
-        system_error: str,
+        system_error: str="",
         user_message: str = "",
         with_timestamp: bool = True,
         status_code: int = 400,
@@ -143,9 +156,14 @@ class ApiResponse:
         self.success = False
         self.system_error = system_error
         self.status_code = status_code
-
-        if user_message:
+        if system_error != "":
+            self.system_error = system_error
+        
+        if user_message != "":
             self.message = user_message
+        else:
+            if system_error == "":
+                self.system_error = user_message
         # toujours journaliser l'erreur système
         self.add_log(system_error, type_log="ERROR", with_timestamp=with_timestamp)
 
