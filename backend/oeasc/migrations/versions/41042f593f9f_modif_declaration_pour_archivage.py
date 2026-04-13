@@ -17,7 +17,7 @@ depends_on = None
 
 
 def upgrade():
-    # creation du champ date_fin, statut, token_renouvellement et id_declaration_duplique
+    # creation du champ date_fin, statut, token_renouvellement et id_declaration_originale
     # création des champs (table `t_declarations` dans le schema `oeasc_declarations`)
     op.add_column(
         "t_declarations",
@@ -41,16 +41,16 @@ def upgrade():
     )
     op.add_column(
         "t_declarations",
-        sa.Column("id_declaration_duplique", sa.Integer(), nullable=True),
+        sa.Column("id_declaration_originale", sa.Integer(), nullable=True),
         schema="oeasc_declarations",
     )
 
-    # ajout d'une contrainte de clé étrangère pour id_declaration_duplique
+    # ajout d'une contrainte de clé étrangère pour id_declaration_originale qui référence id_declaration dans la même table t_declarations
     op.create_foreign_key(
-        "fk_declaration_id_declaration_duplique",
+        "fk_declaration_id_declaration_origine",
         "t_declarations",
         "t_declarations",
-        ["id_declaration_duplique"],
+        ["id_declaration_originale"],
         ["id_declaration"],
         source_schema="oeasc_declarations",
         referent_schema="oeasc_declarations",
@@ -92,17 +92,17 @@ def upgrade():
 
 def downgrade():
 
-    # suppression de la contrainte de clé étrangère pour id_declaration_duplique
+    # suppression de la contrainte de clé étrangère pour id_declaration_originale
     op.drop_constraint(
-        "fk_declaration_id_declaration_duplique",
+        "fk_declaration_id_declaration_originale",
         "t_declarations",
         type_="foreignkey",
         schema="oeasc_declarations",
     )
 
-    # suppression des champs date_fin, statut, token_renouvellement et id_declaration_duplique
+    # suppression des champs date_fin, statut, token_renouvellement et id_declaration_originale
     op.drop_column(
-        "t_declarations", "id_declaration_duplique", schema="oeasc_declarations"
+        "t_declarations", "id_declaration_originale", schema="oeasc_declarations"
     )
     op.drop_column(
         "t_declarations", "token_renouvellement", schema="oeasc_declarations"
