@@ -36,7 +36,7 @@ class ApiResponse:
         )  # liste de chaine de caractères qui sera retournée dans le journal de l'application. Elle peut être utilisée pour stocker des messages de debug ou des informations sur l'exécution de l'opération. Ces messages ne sont pas destinés à être retournés à l'utilisateur, mais peuvent être utiles pour le développement et la maintenance de l'application.
         self.return_journal = False  # si return_journal est à True, le journal sera retourné dans la réponse de l'API. Si return_journal est à False, le journal ne sera pas retourné dans la réponse de l'API.
         
-        print (f"session dans ApiResponse => {session}")
+        # print (f"session dans ApiResponse => {session}")
         if id_role is not None:
             self.id_role = id_role  # id_role de l'utilisateur connecté, à utiliser pour les opérations qui nécessitent une identification de l'utilisateur (ex: enregistrement d'une action dans le journal de l'application, attribution d'une ressource à un utilisateur, etc.). Cet attribut doit être défini manuellement après l'initialisation de l'objet ApiResponse, en fonction de l'utilisateur connecté.
         else:
