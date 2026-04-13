@@ -5,7 +5,11 @@ et redirige vers la page requise apres authentification
 
 from functools import wraps
 from pypnusershub import routes as fnauth
-from flask import current_app
+from flask import current_app, session, redirect
+from flask_login import current_user
+
+
+from oeasc.modules.oeasc.declaration.repository import check_token_renouvellement_declaration
 
 config = current_app.config
 
@@ -40,7 +44,31 @@ def check_auth_redirect_login(level):
             # Appel de la fonction d'authentification du module fnauth.
             # Si l'utilisateur est authentifié avec le bon niveau, la route est exécutée.
             # Sinon, l'utilisateur est redirigé selon la configuration de fnauth.
-            return fnauth.check_auth(level)(f)(*args, **kwargs)
+            print ("session in check_auth_redirect_login:", session)
+            #si il existe un temp_user dans la session, on verifie si le token est valide
+            if ((session.get("temp_user", None)) and (session['current_user'] == None)):
+                print ("temp_user in session:", session["temp_user"])
+                token = session["temp_user"].get("token", None)
+                id_verification = session["temp_user"].get("id_verification", None)
+                mode = session["temp_user"].get("mode", None)
+                if token and id_verification and mode:
+                    if mode == "renouvellement_declaration":
+                        response = check_token_renouvellement_declaration(id_declaration=id_verification, token=token, session=session)
+                    
+                    # si le check a reussi et que la reponse (apiResponse) est un succès
+                    if ((response) and (response.success == True)):
+                        # Si le token est valide, on connecte l'utilisateur temporaire pour cette requête
+                        # print ("Token de renouvellement de déclaration valide. Utilisateur temporaire connecté pour cette requête.")
+                        return f(*args, **kwargs)
+                    else:
+                       return redirect(current_app.config["REDIRECT_ON_FORBIDDEN"]) 
+                else:
+                    # print ("Token de renouvellement de déclaration invalide ou informations manquantes. Redirection vers la page de login.")
+                    #redirection vers la page de login avec un message d'erreur
+                    return redirect(current_app.config["REDIRECT_ON_FORBIDDEN"])
+
+            else: # mode normal. On vérifie si l'utilisateur est connecté et a le niveau requis
+                return fnauth.check_auth(level)(f)(*args, **kwargs)
 
         return __check_auth_redirect_login
 
