@@ -1,8 +1,13 @@
 <template>
   <v-app>
+    <v-overlay :value="loading" absolute>
+      <v-progress-circular indeterminate size="64" width="6" color="primary"></v-progress-circular>
+    </v-overlay>
+
     <div
       id="app"
       ref="app"
+      v-if="!loading"
     >
       <div class="page-container">
         <!-- menu -->
@@ -95,6 +100,7 @@ export default {
 
   data() {
     return {
+      loading: true,
       drawer: false,
       menus: config.menus,
       userIcon: 'person',
@@ -127,26 +133,28 @@ export default {
 
   methods: {
     process() {
-      this.$store.dispatch('testConnexion', {}).then(
+      this.loading = true;
+      return this.$store.dispatch('testConnexion', {}).then(
         // verifie si l'utilisateur est connecté
         (user) => {
           this.$store.commit('user', user); // met à jour les données de l'utilisateur
-          // this.$session.set("user", user); // met à jour la session avec les données de l'utilisateur inutilisé apparemment
           this.checkRigths(); //
           // titre
           this.setTitle();
+          return user;
         },
         (error) => {
           // si erreur on déconnecte l'utilisateur
-          error;
           this.$store.commit('user', {});
-          // this.$session.set("user", {}); inutilisé apparemment
-
           this.checkRigths();
           // titre
           this.setTitle();
+          // rethrow to allow callers to handle the error if needed
+          throw error;
         }
-      );
+      ).finally(() => {
+        this.loading = false;
+      });
     },
     setTitle() {
       // modifie le titre de la page
@@ -177,6 +185,7 @@ export default {
     // a la creation de la page on lance la fonction process.
     this.process();
   },
+
 };
 </script>
 

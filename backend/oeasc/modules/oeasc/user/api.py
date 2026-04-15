@@ -10,8 +10,6 @@ from .repository import get_user_form_email, get_users, get_liste_organismes_oea
 from ..user.utils import check_auth_redirect_login
 from utils_flask_sqla.response import csv_resp
 
-config = current_app.config
-
 bp = Blueprint("user_api", __name__)
 
 
@@ -25,7 +23,11 @@ def api_test():
     Elle retourne le contenu de la session sous la clé "current_user".
     Utile pour les tests d'intégration ou pour vérifier l'état de connexion côté frontend.
     """
-    return session.get("current_user")
+    res = session.get("current_user", {})  # Récupère l'utilisateur courant de la session
+    if (res is None) or (res == ""):
+        res = {}  # Si aucun utilisateur n'est trouvé, retourne un dictionnaire vide
+    # print ("api_test session:", res)  # Affiche le contenu de la session pour le debug
+    return res
 
 
 @bp.route("login_error", methods=["GET"])
@@ -75,16 +77,12 @@ def logout():
     Retourne :
         Une réponse HTTP de redirection vers l'URL spécifiée ou la racine.
     """
-    params = (
-        request.args
-    )  # Récupère les paramètres de la requête (ex: ?redirect=/autre_page)
-    resp.delete_cookie("token")  # Supprime le cookie d'authentification "token"
+    params = request.args  # Récupère les paramètres de la requête (ex: ?redirect=/autre_page)
     if "redirect" in params:
-        resp = redirect(
-            params["redirect"], code=302
-        )  # Redirige vers l'URL passée en paramètre
+        resp = redirect(params["redirect"], code=302)  # Redirige vers l'URL passée en paramètre
     else:
         resp = redirect("/", code=302)  # Redirige vers la page d'accueil par défaut
+    resp.delete_cookie("token")  # Supprime le cookie d'authentification "token"
     return resp  # Retourne la réponse de redirection
 
 

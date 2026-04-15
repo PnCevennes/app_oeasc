@@ -46,7 +46,8 @@ def check_auth_redirect_login(level):
             # Sinon, l'utilisateur est redirigé selon la configuration de fnauth.
             print ("session in check_auth_redirect_login:", session)
             #si il existe un temp_user dans la session, on verifie si le token est valide
-            if ((session.get("temp_user", None)) and (session['current_user'] == None)):
+
+            if ((session.get("temp_user", None)) and ((session['current_user'] == "") or (session['current_user'] is None))):
                 print ("temp_user in session:", session["temp_user"])
                 token = session["temp_user"].get("token", None)
                 id_verification = session["temp_user"].get("id_verification", None)
@@ -68,6 +69,10 @@ def check_auth_redirect_login(level):
                     return redirect(current_app.config["REDIRECT_ON_FORBIDDEN"])
 
             else: # mode normal. On vérifie si l'utilisateur est connecté et a le niveau requis
+                # si il existe un temp_user on le supprime
+                if session.get("temp_user", None):
+                    print ("Suppression de temp_user de la session:", session["temp_user"])
+                    session.pop("temp_user", None)
                 return fnauth.check_auth(level)(f)(*args, **kwargs)
 
         return __check_auth_redirect_login
