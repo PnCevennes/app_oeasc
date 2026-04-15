@@ -21,6 +21,9 @@ from oeasc.modules.oeasc.generic.repository import (
     create_or_update_object_type,
     # delete_object_type,
 )
+from oeasc.modules.oeasc.declaration.relance_renouvellement import (
+    relance_toutes_declarations,
+)
 
 
 # Commande CLI pour tester la création ou mise à jour d'une réalisation de chasse
@@ -59,7 +62,15 @@ def cmd_test_chasse_realisation(module_code, schema_name):
     create_or_update_object_type("chasse", "realisation", None, post_data)
 
 
+@click.command("send-relance")
+@with_appcontext
+def send_relance_command():
+    """Envoie les emails de relance aux déclarations concernées"""
+    return relance_toutes_declarations()
+
+
 # liste des commande pour export dans blueprint.py
 commands = [
     cmd_test_chasse_realisation,
+    send_relance_command,
 ]
