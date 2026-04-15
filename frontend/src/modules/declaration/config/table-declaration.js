@@ -1,5 +1,6 @@
 import { apiRequest } from '../../../core/js/data/api.js';
 import { displayParcelles, displayDate, displayStatut } from '../declaration.js';
+import config_variables from '@/../../config/variables/declaration.json';
 
 export default {
   idFieldName: 'id_declaration',
@@ -9,7 +10,7 @@ export default {
   headerDefs: {
     actions: {
       noSearch: true,
-      width: '90px',
+      width: '120px',
       text: 'Actions',
       list: [
         {
@@ -20,11 +21,24 @@ export default {
         {
           title: 'Éditer la déclaration',
           icon: 'mdi-pencil',
-          to: ({ item }) => `/declaration/declarer_en_ligne/${item.id_declaration}?keySession=all`,
+          to: ({ item }) => `/declaration/modifier_declaration?id=${item.id_declaration}&keySession=all`,
           condition: ({ item, $store }) => {
             return (
               $store.getters.droitMax > item.id_droit_max ||
               $store.getters.user.id_role == item.id_declarant
+            );
+          },
+        },
+        {
+          title: 'Renouveler la déclaration',
+          icon: 'mdi-refresh',
+          to: ({ item }) => `/declaration/actualisation_declaration?id=${item.id_declaration}&action=oui&keySession=all`,
+          condition: ({ item, $store }) => {
+            return (
+              item.date_fin && new Date(item.date_fin) < new Date() && // La déclaration est expirée
+              item.b_valid === true && // La déclaration est validée
+              item.statut !== config_variables['STATUT_DECLARATION']['Archivée'] && // La déclaration n'est pas déjà archivée
+              ($store.getters.droitMax > item.id_droit_max || $store.getters.user.id_role == item.id_declarant) // L'utilisateur a les droits pour éditer la déclaration
             );
           },
         },
@@ -83,9 +97,9 @@ export default {
       condition: ({ $store }) => $store.getters.droitMax >= 5,
       edit: {
         preloadData: ({ config, $store, id }) => {
-          return apiRequest('get', `api/declaration/declaration/${id}`).then((declaration) => {
-            config.value = declaration;
-            return declaration;
+          return apiRequest('get', `api/declaration/declaration?id=${id}`).then((response) => {
+            config.value = response.data;
+            return response.data;
           });
         },
         action: {
@@ -116,9 +130,9 @@ export default {
         },
       },
     },
-    status: {
-      text: 'Status',
-      display: (val) => displayStatut(val.status),
+    statut: {
+      text: 'Statut',
+      display: (val) => displayStatut(val.statut),
     },
   },
 };

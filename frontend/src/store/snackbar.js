@@ -31,12 +31,16 @@ export const snackbarStore = {
     state.message = message;
     if (color === 'success') {
       // vert très clair
-      state.color = '#6fd186';
-      state.textColor = 'white';
+      state.color = '#d4f3db';
+      state.textColor = '#363636';
     }else if (color === 'error') {
       // rouge très clair
       state.color = '#f05d69';
       state.textColor = 'white';
+    }else if (color === 'info') {
+      // bleu très clair
+      state.color = '#b4d9e4';
+      state.textColor = '#363636';
     } else {
       //gris très clair
       state.color = color; // Utiliser la couleur personnalisée si fournie

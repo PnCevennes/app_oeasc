@@ -15,6 +15,7 @@ from sqlalchemy import (
     and_,
     or_,
     literal_column,
+    update,
 )
 from sqlalchemy.orm import aliased
 
@@ -46,7 +47,7 @@ from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
 
 from flask import current_app
 
-config = current_app.config
+# Use current_app.config at runtime (inside functions) to avoid requiring an application context at import time
 
 
 # Fonctions PostgreSQL custom (appelées via func)
@@ -99,8 +100,11 @@ def filter_declarations_a_renouveler(stmt):
 
     # Import local pour éviter un import circulaire avec repository
     import json
-    
-    statut_declaration = json.load(open(str(config['ROOT_DIR']) + "/config/variables/declaration.json"))["STATUT_DECLARATION"]
+    import os
+
+    # read declaration status using current_app.config at runtime
+    with open(os.path.join(current_app.config['ROOT_DIR'], "config", "variables", "declaration.json"), "r") as _f:
+        statut_declaration = json.load(_f)["STATUT_DECLARATION"]
 
     stmt = stmt.where(
         TDeclaration.date_fin <= func.now(), # date de fin dépassée
@@ -577,6 +581,17 @@ def stmt_one_declaration_a_renouveler(id_declaration):
         ))
     stmt = filter_declarations_a_renouveler(stmt)
     stmt = stmt.where(TDeclaration.id_declaration == id_declaration)
+
+    return stmt
+
+def stmt_change_statut_declaration(id_declaration, new_statut):
+    """Requête pour changer le statut d'une déclaration à partir de son id"""
+
+    stmt = (
+        update(TDeclaration)
+        .where(TDeclaration.id_declaration == id_declaration)
+        .values(statut=new_statut)
+    )
 
     return stmt
 

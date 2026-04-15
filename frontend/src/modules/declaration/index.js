@@ -15,31 +15,41 @@ const ROUTE = [
     path: '/declaration/declarer_en_ligne',
     label: 'Créér déclaration',
     access: 1,
-    name: 'post_declaration',
+    name: 'nouvelle_declaration',
     hideTitle: true,
     parent: 'declaration.systeme_alerte',
     // component: declarationForm
     component: modifier_declaration,
   },
 
-  {
-    path: '/declaration/declarer_en_ligne/:id',
-    label: 'Modifier déclaration',
-    access: 1,
-    hideTitle: true,
-    parent: 'declaration.liste_declarations',
-    name: 'patch_declaration',
-    // component: declarationForm
-    component: modifier_declaration,
-  },
+  // {
+  //   path: '/declaration/declarer_en_ligne/:id',
+  //   label: 'Modifier déclaration',
+  //   access: 1,
+  //   hideTitle: true,
+  //   parent: 'declaration.liste_declarations',
+  //   name: 'patch_declaration',
+  //   // component: declarationForm
+  //   component: modifier_declaration,
+  // },
 
   {
-    path: '/declaration/modifier_declaration/:id',
+    path: '/declaration/modifier_declaration',
     label: 'Modifier déclaration',
     access: 1,
     hideTitle: true,
     parent: 'declaration.liste_declarations',
     name: 'modifier_declaration',
+    component: modifier_declaration,
+  },
+
+  // pas de access ici car l'identification se fait via un token
+  {
+    path: '/declaration/actualisation_declaration',
+    label: 'Actualisation déclaration',
+    hideTitle: true,
+    parent: 'declaration.liste_declarations',
+    name: 'actualisation_declaration',
     component: modifier_declaration,
   },
 

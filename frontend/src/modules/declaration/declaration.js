@@ -1,6 +1,9 @@
 // import moment from "moment";
 import { copy } from '@/core/js/util/util';
 
+import config_variables from '@/../../config/variables/declaration.json';
+
+
 /**
  * Retourne les zones de localisation associées à une déclaration selon son statut public et la présence d'un document.
  *
@@ -247,17 +250,25 @@ const displayDate = function (date) {
   return `${day}/${month}/${year}`;
 };
 
+
+/**
+ * Affiche le statut d'une déclaration à partir de son code. Calcule le numéro de relance
+ * la première relance correspond normalement a 100, la deuxième a 101 etc
+ * 
+ * @param {*} statut 
+ * @returns 
+ */
 const displayStatut = function (statut) {
-  if (statut === 1) {
+  if (statut == config_variables['STATUT_DECLARATION']['Active']) {
     return 'Active';
-  } else if (statut === 2) {
-    return 'A renouveler';
-  } else if (statut === 3) {
+  }else if (statut == config_variables['STATUT_DECLARATION']['Archivée']) {
     return 'Archivée';
-  } else if (statut === 4) {
-    return 'Dupliquée';
+  }else if (statut == config_variables['STATUT_DECLARATION']['Archivée sans réponse']) {
+    return 'Archivée ss réponse';
+  } else if (statut >= config_variables['STATUT_DECLARATION']['Relance']) {
+    return 'Relance no ' + (statut - config_variables['STATUT_DECLARATION']['Relance'] + 1);
   } else {
-    return statut;
+    return "Inconnu";
   }
 };
 

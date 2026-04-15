@@ -5,7 +5,7 @@ liste des api pour les declarations
 # import copy
 import os
 import zipfile
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from flask import Blueprint, request, current_app, session
 from flask.helpers import send_from_directory
 from utils_flask_sqla.response import csv_resp, json_resp_accept_empty_list
@@ -13,8 +13,11 @@ from utils_flask_sqla_geo.generic import GenericTableGeo
 import geopandas as gpd  # pour l'export en gpkg
 from shapely import wkb, wkt  # pour l'export en gpkg (verification de la géométrie)
 import pandas as pd  # pour l'export en csv
-
+from oeasc.utils.apiResponse import ApiResponse
 from ..declaration.mail import send_mail_validation_declaration
+
+import json
+from pathlib import Path
 
 # from oeasc.modules.oeasc.nomenclature import nomenclature_oeasc
 from utils_flask_sqla.response import json_resp
@@ -35,19 +38,30 @@ from .repository import (
     get_declarations_view,
     hide_proprietaire,
     get_degats_for_resultats_suivi,
+    get_form_declaration,
+    check_token_renouvellement_declaration,
 )
 from ..user.utils import check_auth_redirect_login
 
 from .all_stmt import (
     get_stmt_for_declarations_export,
-    stmt_one_declaration_a_renouveler
+    stmt_one_declaration_a_renouveler,
+    stmt_change_statut_declaration,
 )
 from .models import TDeclaration
 from ..declaration.schema import TProprietaireSchema, TForetSchema, TDeclarationSchema
 
-config = current_app.config
-DB = config["DB"]
+
+    
+    
+
 bp = Blueprint("declaration_api", __name__)
+
+def get_config():
+    return current_app.config
+
+def get_db():
+    return get_config()["DB"]
 
 
 @bp.route("declarations", methods=["GET"])
@@ -107,7 +121,8 @@ def validate_declaration():
     Elle est utilisée principalement dans le tableau des listes de déclarations.
     """
     data = request.get_json()
-    # print ("data validate_declaration", data)  # Debug : affiche les données reçues dans la requête
+
+    print ("data validate_declaration", data)  # Debug : affiche les données reçues dans la requête
     id_declaration = data.get("id_declaration")
     b_valid = data.get(
         "b_valid"
@@ -120,8 +135,8 @@ def validate_declaration():
         .where(TDeclaration.id_declaration == id_declaration)
         .values(b_valid=b_valid)
     )
-    DB.session.execute(stmt)
-    DB.session.commit()
+    get_db().session.execute(stmt)
+    get_db().session.commit()
 
     # if not id_declaration:
     #     return {"error": "ID de déclaration manquant"}, 400
@@ -210,115 +225,85 @@ def api_get_foret_from_code(code_foret):
 @check_auth_redirect_login(
     1
 )  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
-@json_resp_accept_empty_list  # Retourne une liste vide si aucune déclaration n'est trouvée
+# @json_resp_accept_empty_list  # Retourne une liste vide si aucune déclaration n'est trouvée
 def api_get_declaration():
     """
     Récupère une déclaration complète avec toutes les informations nécessaires à l'affichage détaillé.
     Utilisée pour consulter ou afficher une déclaration avec ses zones géographiques.
     """
     id_declaration = request.args.get("id", type=int)
-    if not id_declaration:
-        schemaDeclaration = TDeclarationSchema()
-        return schemaDeclaration.dump(TDeclaration())
+    apiResponse = get_form_declaration(id_declaration=id_declaration, session=session)
+    # Retourne le dictionnaire de la déclaration complète au format JSON
+    return apiResponse.response_to_frontend()
 
 
-    # Récupère la déclaration, la forêt et le propriétaire associés à l'identifiant donné
-    declaration, foret, proprietaire = get_declaration(id_declaration)
+# pas d'authentification check_auth ici car on passe par un token
+@bp.route("declaration_renouvellement", methods=["GET"])
+# @json_resp_accept_empty_list
+def api_get_declaration_renouvellement():
+    """
+    Récupère une déclaration complète pour le renouvellement, incluant les données de la forêt, du propriétaire,
+    ainsi que toutes les zones ("areas") associées à la forêt et à la déclaration.
+    Utilisée notamment pour l'affichage détaillé d'une déclaration lors du renouvellement, par exemple dans le composant "voir_declaration.vue".
+    La sécurité de cette route est assurée par la vérification du token de renouvellement et de sa date d'expiration dans la fonction check_token_declaration.
+    """
+    id_declaration = request.args.get("id", type=int)
+    token = request.args.get("token", type=str)
+    
+    response = check_token_renouvellement_declaration(id_declaration, token)
+    if response.success == False:
+        print ("Token de renouvellement invalide ou expiré. Accès refusé à la déclaration pour le renouvellement.")
+        return response.response_to_frontend()
+    else:
 
-    # Si aucune déclaration n'est trouvée, retourne une réponse vide
-    if not declaration:
-        return
-
-    # Sérialise l'objet déclaration en dictionnaire
-    declaration_dict = TDeclarationSchema().dump(declaration)
-    # print ("declaration_dict après sérialisation:", declaration_dict)
-
-    # Sérialise l'objet forêt en dictionnaire et fusionne avec la déclaration
-    foret_dict = TForetSchema().dump(foret) if foret else {}
-    declaration_dict.update(foret_dict)
-
-    # Sérialise l'objet propriétaire en dictionnaire et fusionne avec la déclaration
-    proprietaire_dict = TProprietaireSchema().dump(proprietaire) if proprietaire else {}
-    declaration_dict.update(proprietaire_dict)
-
-    # Ajoute l'identifiant du déclarant dans le dictionnaire de la déclaration
-    id_declarant = declaration.id_declarant
-    declaration_dict["id_declarant"] = id_declarant
-
-    # Pour chaque clé du dictionnaire, si la valeur est une liste d'objets contenant "id_nomenclature",
-    # on transforme cette liste en une liste d'identifiants de nomenclature uniquement.
-    # Cela permet de simplifier la structure des données retournées.
-    # print ("declaration_dict avant transformation des nomenclatures:", declaration_dict)
-    for key in declaration_dict:
-        if key == "centroid":  # les centroid sont en array et non en list
-            declaration_dict[key] = {
-                "x": declaration_dict[key][0],
-                "y": declaration_dict[key][1],
-            }
-        else:  # pour les list on applatit les nomenclatures
-            if (
-                isinstance(declaration_dict[key], list)
-                and len(declaration_dict[key]) > 0
-                and "id_nomenclature" in declaration_dict[key][0]
-            ):
-                # regroupe les id_nomenclature dans une liste simple.
-                declaration_dict[key] = [
-                    e["id_nomenclature"] for e in declaration_dict[key]
-                ]
-
-    # Récupère et classe les zones ("areas") de la forêt selon leur type
-    areas_foret = [
-        get_area_from_id(area["id_area"])
-        for area in declaration_dict.get("areas_foret", [])
-    ]
-    declaration_dict["areas_foret_onf"] = get_id_area(areas_foret, ["OEASC_ONF_FRT"])
-    declaration_dict["areas_foret_dgd"] = get_id_area(areas_foret, ["OEASC_DGD"])
-    declaration_dict["areas_foret_communes"] = get_id_areas(
-        areas_foret, ["OEASC_COMMUNE"]
-    )
-    declaration_dict["areas_foret_sections"] = get_id_areas(
-        areas_foret, ["OEASC_SECTION"]
-    )
-
-    # Récupère et classe les zones ("areas") de la déclaration selon leur type
-    areas_localisation = [
-        get_area_from_id(area["id_area"])
-        for area in declaration_dict.get("areas_localisation", [])
-    ]
-    declaration_dict["areas_localisation_cadastre"] = get_id_areas(
-        areas_localisation, ["OEASC_CADASTRE"]
-    )
-    declaration_dict["areas_localisation_onf_prf"] = get_id_areas(
-        areas_localisation, ["OEASC_ONF_PRF"]
-    )
-    declaration_dict["areas_localisation_onf_ug"] = get_id_areas(
-        areas_localisation, ["OEASC_ONF_UG"]
-    )
-
-    # Cache les informations personnelles du propriétaire si l'utilisateur n'est pas le déclarant
-    # ou si son niveau d'accès est inférieur à 4 (donc pas administrateur).
-    # Ceci permet de protéger la vie privée du propriétaire.
-    current_user = session.get("current_user", None)
-    if (
-        (current_user is not None)
-        and (current_user["max_level_profil"] < 4)
-        and (current_user["id_role"] != declaration_dict["id_declarant"])
-    ):
-        hide_proprietaire(declaration_dict)
+        # Création d'un utilisateur provisoire en session
+        session['temp_user'] = {
+            'token': token,
+            'id_verification': id_declaration,
+            'mode': "renouvellement_declaration"
+        }
+        print ("temp_user créé. Session mise à jour:", session)  # Debug : affiche le contenu de la session après la création de temp_user
+    
+    response = get_form_declaration(id_declaration=id_declaration, session=session)
 
     # Retourne le dictionnaire de la déclaration complète au format JSON
-    return declaration_dict
+    # response.data = declaration_dict
+    return response.response_to_frontend()
+
+
+def clean_declaration_data(declaration_data):
+    """
+    Nettoie la déclaration avant l'enregistrement en base de données.
+    en retirant les champs liés au pâturage, à la protection ou à la maturité du peuplement dans certains cas particuliers
+    """
+    if not declaration_data:
+        return
+
+    # si il n'y a pas de presence de paturage, on s'assure de retirer les champs liés au pâturage qui auraient pu être remplis
+    if declaration_data.get("b_peuplement_paturage_presence") is False:
+        declaration_data["nomenclatures_peuplement_paturage_type"] = []
+        declaration_data["id_nomenclature_peuplement_paturage_statut"] = None
+        declaration_data["id_nomenclature_peuplement_paturage_frequence"] = None
+        declaration_data["nomenclatures_peuplement_paturage_saison"] = []
+
+    # si il n'y a pas de protection, on s'assure de retirer les champs liés à la protection qui auraient pu être remplis
+    if declaration_data.get("b_peuplement_protection_existence") is False:
+        declaration_data["nomenclatures_peuplement_protection_type"] = []
+
+    # si le type de peuplement est "futaie irrégulière", on retire les champs liés à la maturité du peuplement
+    if declaration_data.get("id_nomenclature_peuplement_type") == 525:
+        declaration_data["nomenclatures_peuplement_maturite"] = []
+
+    return declaration_data
 
 
 # Cette route permet de modifier une déclaration existante via une requête PATCH.
 # Elle est utilisée lorsqu'un utilisateur souhaite mettre à jour les informations d'une déclaration
 # déjà enregistrée dans la base de données, par exemple pour corriger une erreur ou ajouter des précisions.
 @bp.route("declaration", methods=["PATCH"])
-@check_auth_redirect_login(
-    1
-)  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
-@json_resp  # Retourne la réponse au format JSON
-def api_post_declaration():
+# @check_auth_redirect_login(1)  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
+# @json_resp  # Retourne la réponse au format JSON
+def api_patch_declaration():
     """
     Met à jour une déclaration existante.
     Utilisée lors de la modification d'une déclaration par un utilisateur autorisé.
@@ -326,14 +311,19 @@ def api_post_declaration():
 
     # Récupère les données envoyées dans la requête PATCH (au format JSON)
     post_data = request.get_json()
+
+    post_data = clean_declaration_data(post_data)
+
     # Appelle la fonction qui crée ou met à jour la déclaration dans la base de données
     # Ici, on suppose que l'identifiant de la déclaration existe déjà dans post_data
-    result_declaration = create_or_update_declaration(post_data)
+    result_declaration, response = create_or_update_declaration(post_data)
+    # response.print_all()
     # Envoie un mail de notification pour informer de la modification de la déclaration
     # (le second paramètre "False" indique qu'il ne s'agit pas d'une création mais d'une modification)
     send_mail_validation_declaration(result_declaration, False)
     # Retourne le résultat de la modification au format JSON
-    return result_declaration
+    response.data = result_declaration
+    return response.response_to_frontend()
 
 
 # Cette route permet de créer une nouvelle déclaration de dégât en forêt via une requête POST.
@@ -343,8 +333,8 @@ def api_post_declaration():
 @check_auth_redirect_login(
     1
 )  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
-@json_resp  # Retourne la réponse au format JSON
-def api_patch_declaration():
+# @json_resp  # Retourne la réponse au format JSON
+def api_post_declaration():
     """
     Crée une nouvelle déclaration de dégât en forêt.
     Utilisée lors de la soumission d'une déclaration par un utilisateur.
@@ -352,20 +342,143 @@ def api_patch_declaration():
 
     # Récupère les données envoyées dans la requête POST (au format JSON)
     post_data = request.get_json()
-
+    post_data = clean_declaration_data(post_data)
     # Détermine s'il s'agit d'une création (True si aucun id_declaration n'est présent)
     b_create = not (post_data.get("id_declaration"))
 
     # Appelle la fonction qui crée ou met à jour la déclaration dans la base de données
     # Ici, on suppose que l'identifiant de la déclaration n'existe pas encore (création)
-    post_data_arranged = create_or_update_declaration(post_data)
+    post_data_arranged, response = create_or_update_declaration(post_data)
 
     # Envoie un mail de notification pour informer de la création de la déclaration
     # (décommenter la ligne ci-dessous pour activer l'envoi de mail après les tests)
     send_mail_validation_declaration(post_data_arranged, b_create)
 
     # Retourne le résultat de la création au format JSON
-    return post_data_arranged
+    response.data = post_data_arranged
+    return response.response_to_frontend()
+
+
+# renouvellement de déclaration. Ne pas utilser check_auth_redirect_login car cette route est appelée via un lien de renouvellement qui peut être utilisé par des utilisateurs non connectés ou avec des droits limités. La sécurité de cette route est assurée par la vérification du token de renouvellement et de sa date d'expiration dans la fonction check_token_declaration.
+@bp.route("duplicate_declaration", methods=["POST"])
+# @json_resp
+@check_auth_redirect_login(1)
+def duplicate_declaration():
+    """
+    Duplique une déclaration existante.
+    Utilisée lorsqu'un utilisateur souhaite créer une nouvelle déclaration basée sur une déclaration existante.
+    """
+    
+
+    apiResponse = ApiResponse(log_file="declarations.log", session=session)
+
+    variables_path = Path(get_config()["ROOT_DIR"]) / "config" / "variables" / "declaration.json"
+    with open(variables_path, "r", encoding="utf-8") as f:
+        variables_declaration = json.load(f)
+
+    statut_declaration = variables_declaration.get("STATUT_DECLARATION")
+    nb_jours_validite_declaration = variables_declaration.get("NB_JOURS_VALIDITE_DECLARATION")
+
+    post_data = request.get_json()
+    post_data = clean_declaration_data(post_data)
+    id_declaration = post_data.get("id_declaration")
+    if not id_declaration:
+        apiResponse.add_error(user_message="ID de déclaration manquant", system_error="ID de déclaration manquant dans la requête", status_code=200)
+        return apiResponse.response_to_frontend()
+    post_data["id_declaration_originale"] = id_declaration
+    post_data["id_declaration"] = None  # Assurez-vous que l'ID de la déclaration est nul pour une nouvelle création
+    post_data["b_valid"] = False  # La déclaration renouvelée doit être à nouveau validée par un admin
+    post_data["token_renouvellement"] = None  # Le token de renouvellement doit être généré à nouveau pour la nouvelle déclaration
+    post_data["date_fin_token"] = None  # La date de fin du token doit être réinitialisée pour la nouvelle déclaration
+    post_data['meta_create_date'] = str(datetime.now())  # Met à jour la date de création pour la nouvelle déclaration
+    post_data['meta_update_date'] = str(datetime.now())  # Met à jour la date de mise à jour pour la nouvelle déclaration
+    date_fin = datetime.now().date() + timedelta(days=nb_jours_validite_declaration) 
+    post_data['date_fin'] = str(date_fin)  # Met à jour la date de fin en fonction de la durée de validité définie dans les variables
+    post_data['statut'] = statut_declaration.get("Active")  # Met à jour le statut de la déclaration renouvelée à "Active"
+
+    # met la toutes les valeurs "id_declaration". "id_degat" et "id_degat_essence" à null dans post_data pour éviter les conflits avec la déclaration originale lors de la création de la nouvelle déclaration
+    for degat in post_data['degats']:
+        degat['id_declaration'] = None
+        degat['id_degat'] = None
+        if ('degats_essences' in degat):  # Si la clé 'degats_essences' existe, on retire les id_degat et id_degat_essence pour éviter les conflits lors de la création de la nouvelle déclaration
+            for degat_essence in degat['degats_essences']:
+                if ('id_degat' in degat_essence):
+                    degat_essence['id_degat'] = None
+                if ('id_degat_essence' in degat_essence):
+                    degat_essence['id_degat_essence'] = None
+
+    # print ("post_data duplicate_declaration", post_data)  # Debug : affiche les données reçues dans la requête
+
+    _, response = create_or_update_declaration(post_data)
+    if (response.success == False):
+        return response.response_to_frontend()
+    
+    try:
+        # archivage de la déclaration original
+        stmt_update_statut = stmt_change_statut_declaration(id_declaration, statut_declaration.get("Archivée"))
+        get_db().session.execute(stmt_update_statut)
+        get_db().session.commit()
+    except Exception as e:
+        get_db().session.rollback()
+        response.add_error(user_message="Erreur lors de l'archivage de la déclaration originale", system_error=str(e), status_code=500)
+        return response.response_to_frontend()
+
+    # send_mail_validation_declaration(post_data_arranged, True)
+    return response.response_to_frontend()
+
+
+@bp.route("cloture_declaration", methods=["POST"])
+@check_auth_redirect_login(1)
+def cloture_declaration():
+    """
+    Clôture une déclaration existante.
+    Utilisée lorsqu'un utilisateur souhaite clôturer une déclaration.
+    """
+    import json
+    from datetime import timedelta
+    from sqlalchemy import update
+    from pathlib import Path
+
+    variables_path = Path(get_config()["ROOT_DIR"]) / "config" / "variables" / "declaration.json"
+    with open(variables_path, "r", encoding="utf-8") as f:
+        variables_declaration = json.load(f)
+    statut_declaration = variables_declaration.get("STATUT_DECLARATION")
+
+    post_data = request.get_json()
+    print ("post_data cloture_declaration", post_data)  # Debug : affiche les données reçues dans la requête
+    id_declaration = post_data.get("id_declaration", int)
+    token = post_data.get("token_renouvellement", str)
+    print (f"Requête de clôture de la déclaration {id_declaration} avec le token {token}")
+    
+    response = check_token_renouvellement_declaration(id_declaration, token)
+    if response.success == False:
+        response.add_error(user_message="Token de renouvellement invalide ou expiré. Seule la personne ayant effectué le dernier renouvellement peut clôturer la déclaration.", system_error="Token de renouvellement invalide ou expiré pour la clôture de la déclaration", status_code=200)
+        response.print_all()
+        return response.response_to_frontend()
+
+
+    if not id_declaration:
+        response.add_error(user_message="ID de déclaration manquant", system_error="ID de déclaration manquant dans la requête", status_code=200)
+        response.print_all()
+        return response.response_to_frontend()
+
+    try:
+        print(f"Clôture de la déclaration {id_declaration} avec le statut '{statut_declaration.get('Archivée')}'")
+        stmt = update(TDeclaration).where(
+            TDeclaration.id_declaration == id_declaration
+        ).values(
+            b_valid=True,
+            statut=statut_declaration.get("Archivée"),
+        )
+        get_db().session.execute(stmt)
+        get_db().session.commit()
+        response.message = "Déclaration clôturée avec succès"
+    except Exception as e:
+        get_db().session.rollback()
+        response.add_error(user_message="Erreur lors de la clôture de la déclaration", system_error=str(e), status_code=500)
+        return response.response_to_frontend()
+
+    return response.response_to_frontend()
 
 
 @bp.route("delete_declaration/<int:id_declaration>", methods=["POST"])
@@ -382,9 +495,9 @@ def delete_declaration(id_declaration):
         TDeclaration.id_declaration == id_declaration,
     )
     # Exécution de la requête sur la session de base de données
-    DB.session.execute(stmt)
+    get_db().session.execute(stmt)
     # Validation de la suppression en base
-    DB.session.commit()
+    get_db().session.commit()
 
     # Retourne "ok" pour confirmer la suppression
     return "ok"
@@ -402,27 +515,39 @@ def check_token_declaration():
     # Récupère le token de déclaration depuis les paramètres de la requête
     token = request.args.get("token")
     if not token:
-        return {"error": "Token manquant"}, 400
+        return {"valid": False, "error": "Token manquant dans la requête"}, 400
     id_declaration = request.args.get("id")
     if not id_declaration:
-        return {"error": "ID de déclaration manquant"}, 400
+        return {"valid": False, "error": "ID de déclaration manquant dans la requête"}, 400
 
     stmt = stmt_one_declaration_a_renouveler(id_declaration)
-    result = DB.session.execute(stmt).fetchone()
+    result = get_db().session.execute(stmt).fetchone()
     if not result:
-        return {"error": "Déclaration non trouvée"}, 404
+        return {"valid": False, "error": "Déclaration non trouvée"}, 404
+
+    # Normalize row access to a mapping/dict for safety across SQLAlchemy versions
+    row = result._mapping if hasattr(result, "_mapping") else dict(result)
+    token_renouvellement = row.get("token_renouvellement")
+    date_fin_token = row.get("date_fin_token")
+
+    if token_renouvellement is None:
+        return {"valid": False, "error": "Cette déclaration n'a pas de token de renouvellement"}, 404
+    if date_fin_token is None:
+        return {"valid": False, "error": "Cette déclaration n'a pas de date de fin de token"}, 404
+
     now = datetime.now()
+    # If date_fin_token is a date (not datetime), convert to datetime for a proper comparison
+    if isinstance(date_fin_token, date) and not isinstance(date_fin_token, datetime):
+        date_fin_token = datetime.combine(date_fin_token, datetime.max.time())
 
-    if now > result["date_fin_token"]:
-        return {"error": "Le lien a expiré"}, 404
-    
-    if token != result["token_renouvellement"]:
-        return {"error": "Token invalide"}, 404
+    if now > date_fin_token:
+        return {"valid": False, "error": "Le lien a expiré"}, 404
+
+    if token != token_renouvellement:
+        return {"valid": False, "error": "Token invalide"}, 404
     else:
-        return {"message": "Token valide"}, 200
+        return {"valid": True, "message": "Token valide"}, 200
     
-
-
 ##################################################################################
 ###################    EXPORT CSV / SHAPE  ########################################
 ###################################################################################
@@ -479,10 +604,10 @@ def export_declarations():
 
     # Définition du répertoire où seront stockés les fichiers shapefile
     if type_file == "gpkg":
-        dir_path = str(config["ROOT_DIR"] / "static/shapefiles")
+        dir_path = str(get_config()["ROOT_DIR"] / "static/shapefiles")
         output_filename = f"{dir_path}/{file_name}.gpkg"
     elif type_file == "csv":
-        dir_path = str(config["ROOT_DIR"] / "static/data")
+        dir_path = str(get_config()["ROOT_DIR"] / "static/data")
         output_filename = f"{dir_path}/{file_name}.csv"
 
     print(
@@ -490,7 +615,7 @@ def export_declarations():
     )
     # Récupère les données à exporter selon l'utilisateur courant et le type d'export
     stmt_data = get_stmt_for_declarations_export(type_file=type_file, type_out=type_out)
-    result_data = DB.session.execute(stmt_data)
+    result_data = get_db().session.execute(stmt_data)
 
     # Exécution de la requête
     rows = result_data.fetchall()
