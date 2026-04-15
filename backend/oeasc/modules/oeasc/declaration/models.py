@@ -51,9 +51,7 @@ class CorAreasDeclaration(CustomModel):
         primary_key=True,
     )
     id_area: Mapped[int] = Column(
-        Integer,
-        ForeignKey("ref_geo.l_areas.id_area"),
-        primary_key=True
+        Integer, ForeignKey("ref_geo.l_areas.id_area"), primary_key=True
     )
 
     def __init__(self, id_area=None):
@@ -73,8 +71,8 @@ class CorNomenclatureDeclarationEssenceSecondaire(CustomModel):
     id_nomenclature: Mapped[int] = Column(
         Integer,
         ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
-        primary_key=True
-        )
+        primary_key=True,
+    )
     id_declaration: Mapped[int] = Column(
         Integer,
         ForeignKey("oeasc_declarations.t_declarations.id_declaration"),
@@ -97,8 +95,8 @@ class CorNomenclatureDeclarationEssenceComplementaire(CustomModel):
 
     id_nomenclature: Mapped[int] = Column(
         Integer,
-        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"), 
-        primary_key=True
+        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
+        primary_key=True,
     )
     id_declaration: Mapped[int] = Column(
         Integer,
@@ -121,9 +119,9 @@ class CorNomenclatureDeclarationMaturite(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(
-        Integer, 
-        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"), 
-        primary_key=True
+        Integer,
+        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
+        primary_key=True,
     )
     id_declaration: Mapped[int] = Column(
         Integer,
@@ -146,9 +144,9 @@ class CorNomenclatureDeclarationOrigine(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(
-        Integer, 
-        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"), 
-        primary_key=True
+        Integer,
+        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
+        primary_key=True,
     )
     id_declaration: Mapped[int] = Column(
         Integer,
@@ -196,9 +194,9 @@ class CorNomenclatureDeclarationPaturageType(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(
-        Integer, 
-        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"), 
-        primary_key=True
+        Integer,
+        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
+        primary_key=True,
     )
     id_declaration: Mapped[int] = Column(
         Integer,
@@ -221,9 +219,9 @@ class CorNomenclatureDeclarationPaturageSaison(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(
-        Integer, 
-        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"), 
-        primary_key=True
+        Integer,
+        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
+        primary_key=True,
     )
     id_declaration: Mapped[int] = Column(
         Integer,
@@ -246,9 +244,9 @@ class CorNomenclatureDeclarationEspece(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_nomenclature: Mapped[int] = Column(
-        Integer, 
-        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"), 
-        primary_key=True
+        Integer,
+        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"),
+        primary_key=True,
     )
     id_declaration: Mapped[int] = Column(
         Integer,
@@ -271,10 +269,18 @@ class TDegatEssence(CustomModel):
     __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
 
     id_degat_essence: Mapped[int] = Column(Integer, primary_key=True)
-    id_nomenclature_degat_essence: Mapped[int] = Column(Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"))
-    id_nomenclature_degat_etendue: Mapped[int] = Column(Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"))
-    id_nomenclature_degat_gravite: Mapped[int] = Column(Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"))
-    id_nomenclature_degat_anteriorite: Mapped[int] = Column(Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"))
+    id_nomenclature_degat_essence: Mapped[int] = Column(
+        Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
+    )
+    id_nomenclature_degat_etendue: Mapped[int] = Column(
+        Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
+    )
+    id_nomenclature_degat_gravite: Mapped[int] = Column(
+        Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
+    )
+    id_nomenclature_degat_anteriorite: Mapped[int] = Column(
+        Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
+    )
 
     id_degat: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_declarations.t_degats.id_degat")
@@ -292,7 +298,9 @@ class TDegat(CustomModel):
 
     id_degat: Mapped[int] = Column(Integer, primary_key=True)
 
-    id_nomenclature_degat_type: Mapped[int] = Column(Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature"))
+    id_nomenclature_degat_type: Mapped[int] = Column(
+        Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
+    )
 
     id_declaration: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_declarations.t_declarations.id_declaration")
@@ -411,7 +419,7 @@ class TDeclaration(CustomModel):
         list[CorNomenclatureDeclarationOrigine]
     ] = relationship(
         "CorNomenclatureDeclarationOrigine",
-        cascade="save-update, merge, delete, delete-orphan", # permet de supprimer les Cornomenclatures liées à une déclaration si la déclaration est supprimée
+        cascade="save-update, merge, delete, delete-orphan",  # permet de supprimer les Cornomenclatures liées à une déclaration si la déclaration est supprimée
     )
 
     degats: Mapped[list[TDegat]] = relationship(
@@ -455,14 +463,10 @@ class CorAreasForet(CustomModel):
     __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
 
     id_area: Mapped[int] = Column(
-        Integer,
-        ForeignKey("ref_geo.l_areas.id_area"), 
-        primary_key=True
+        Integer, ForeignKey("ref_geo.l_areas.id_area"), primary_key=True
     )
     id_foret: Mapped[int] = Column(
-        Integer, 
-        ForeignKey("oeasc_forets.t_forets.id_foret"), 
-        primary_key=True
+        Integer, ForeignKey("oeasc_forets.t_forets.id_foret"), primary_key=True
     )
 
     def __init__(self, id_area=None):
@@ -506,8 +510,7 @@ class TProprietaire(CustomModel):
     s_commune_proprietaire: Mapped[str] = Column(Unicode(100))
 
     id_nomenclature_proprietaire_type: Mapped[int] = Column(
-        Integer, 
-        ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
+        Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
     )
 
 

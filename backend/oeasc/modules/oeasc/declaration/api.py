@@ -51,14 +51,12 @@ from .all_stmt import (
 from .models import TDeclaration
 from ..declaration.schema import TProprietaireSchema, TForetSchema, TDeclarationSchema
 
-
-    
-    
-
 bp = Blueprint("declaration_api", __name__)
+
 
 def get_config():
     return current_app.config
+
 
 def get_db():
     return get_config()["DB"]
@@ -122,7 +120,9 @@ def validate_declaration():
     """
     data = request.get_json()
 
-    print ("data validate_declaration", data)  # Debug : affiche les données reçues dans la requête
+    print(
+        "data validate_declaration", data
+    )  # Debug : affiche les données reçues dans la requête
     id_declaration = data.get("id_declaration")
     b_valid = data.get(
         "b_valid"
@@ -249,21 +249,25 @@ def api_get_declaration_renouvellement():
     """
     id_declaration = request.args.get("id", type=int)
     token = request.args.get("token", type=str)
-    
+
     response = check_token_renouvellement_declaration(id_declaration, token)
     if response.success == False:
-        print ("Token de renouvellement invalide ou expiré. Accès refusé à la déclaration pour le renouvellement.")
+        print(
+            "Token de renouvellement invalide ou expiré. Accès refusé à la déclaration pour le renouvellement."
+        )
         return response.response_to_frontend()
     else:
 
         # Création d'un utilisateur provisoire en session
-        session['temp_user'] = {
-            'token': token,
-            'id_verification': id_declaration,
-            'mode': "renouvellement_declaration"
+        session["temp_user"] = {
+            "token": token,
+            "id_verification": id_declaration,
+            "mode": "renouvellement_declaration",
         }
-        print ("temp_user créé. Session mise à jour:", session)  # Debug : affiche le contenu de la session après la création de temp_user
-    
+        print(
+            "temp_user créé. Session mise à jour:", session
+        )  # Debug : affiche le contenu de la session après la création de temp_user
+
     response = get_form_declaration(id_declaration=id_declaration, session=session)
 
     # Retourne le dictionnaire de la déclaration complète au format JSON
@@ -368,59 +372,90 @@ def duplicate_declaration():
     Duplique une déclaration existante.
     Utilisée lorsqu'un utilisateur souhaite créer une nouvelle déclaration basée sur une déclaration existante.
     """
-    
 
     apiResponse = ApiResponse(log_file="declarations.log", session=session)
 
-    variables_path = Path(get_config()["ROOT_DIR"]) / "config" / "variables" / "declaration.json"
+    variables_path = (
+        Path(get_config()["ROOT_DIR"]) / "config" / "variables" / "declaration.json"
+    )
     with open(variables_path, "r", encoding="utf-8") as f:
         variables_declaration = json.load(f)
 
     statut_declaration = variables_declaration.get("STATUT_DECLARATION")
-    nb_jours_validite_declaration = variables_declaration.get("NB_JOURS_VALIDITE_DECLARATION")
+    nb_jours_validite_declaration = variables_declaration.get(
+        "NB_JOURS_VALIDITE_DECLARATION"
+    )
 
     post_data = request.get_json()
     post_data = clean_declaration_data(post_data)
     id_declaration = post_data.get("id_declaration")
     if not id_declaration:
-        apiResponse.add_error(user_message="ID de déclaration manquant", system_error="ID de déclaration manquant dans la requête", status_code=200)
+        apiResponse.add_error(
+            user_message="ID de déclaration manquant",
+            system_error="ID de déclaration manquant dans la requête",
+            status_code=200,
+        )
         return apiResponse.response_to_frontend()
     post_data["id_declaration_originale"] = id_declaration
-    post_data["id_declaration"] = None  # Assurez-vous que l'ID de la déclaration est nul pour une nouvelle création
-    post_data["b_valid"] = False  # La déclaration renouvelée doit être à nouveau validée par un admin
-    post_data["token_renouvellement"] = None  # Le token de renouvellement doit être généré à nouveau pour la nouvelle déclaration
-    post_data["date_fin_token"] = None  # La date de fin du token doit être réinitialisée pour la nouvelle déclaration
-    post_data['meta_create_date'] = str(datetime.now())  # Met à jour la date de création pour la nouvelle déclaration
-    post_data['meta_update_date'] = str(datetime.now())  # Met à jour la date de mise à jour pour la nouvelle déclaration
-    date_fin = datetime.now().date() + timedelta(days=nb_jours_validite_declaration) 
-    post_data['date_fin'] = str(date_fin)  # Met à jour la date de fin en fonction de la durée de validité définie dans les variables
-    post_data['statut'] = statut_declaration.get("Active")  # Met à jour le statut de la déclaration renouvelée à "Active"
+    post_data["id_declaration"] = (
+        None  # Assurez-vous que l'ID de la déclaration est nul pour une nouvelle création
+    )
+    post_data["b_valid"] = (
+        False  # La déclaration renouvelée doit être à nouveau validée par un admin
+    )
+    post_data["token_renouvellement"] = (
+        None  # Le token de renouvellement doit être généré à nouveau pour la nouvelle déclaration
+    )
+    post_data["date_fin_token"] = (
+        None  # La date de fin du token doit être réinitialisée pour la nouvelle déclaration
+    )
+    post_data["meta_create_date"] = str(
+        datetime.now()
+    )  # Met à jour la date de création pour la nouvelle déclaration
+    post_data["meta_update_date"] = str(
+        datetime.now()
+    )  # Met à jour la date de mise à jour pour la nouvelle déclaration
+    date_fin = datetime.now().date() + timedelta(days=nb_jours_validite_declaration)
+    post_data["date_fin"] = str(
+        date_fin
+    )  # Met à jour la date de fin en fonction de la durée de validité définie dans les variables
+    post_data["statut"] = statut_declaration.get(
+        "Active"
+    )  # Met à jour le statut de la déclaration renouvelée à "Active"
 
     # met la toutes les valeurs "id_declaration". "id_degat" et "id_degat_essence" à null dans post_data pour éviter les conflits avec la déclaration originale lors de la création de la nouvelle déclaration
-    for degat in post_data['degats']:
-        degat['id_declaration'] = None
-        degat['id_degat'] = None
-        if ('degats_essences' in degat):  # Si la clé 'degats_essences' existe, on retire les id_degat et id_degat_essence pour éviter les conflits lors de la création de la nouvelle déclaration
-            for degat_essence in degat['degats_essences']:
-                if ('id_degat' in degat_essence):
-                    degat_essence['id_degat'] = None
-                if ('id_degat_essence' in degat_essence):
-                    degat_essence['id_degat_essence'] = None
+    for degat in post_data["degats"]:
+        degat["id_declaration"] = None
+        degat["id_degat"] = None
+        if (
+            "degats_essences" in degat
+        ):  # Si la clé 'degats_essences' existe, on retire les id_degat et id_degat_essence pour éviter les conflits lors de la création de la nouvelle déclaration
+            for degat_essence in degat["degats_essences"]:
+                if "id_degat" in degat_essence:
+                    degat_essence["id_degat"] = None
+                if "id_degat_essence" in degat_essence:
+                    degat_essence["id_degat_essence"] = None
 
     # print ("post_data duplicate_declaration", post_data)  # Debug : affiche les données reçues dans la requête
 
     _, response = create_or_update_declaration(post_data)
-    if (response.success == False):
+    if response.success == False:
         return response.response_to_frontend()
-    
+
     try:
         # archivage de la déclaration original
-        stmt_update_statut = stmt_change_statut_declaration(id_declaration, statut_declaration.get("Archivée"))
+        stmt_update_statut = stmt_change_statut_declaration(
+            id_declaration, statut_declaration.get("Archivée")
+        )
         get_db().session.execute(stmt_update_statut)
         get_db().session.commit()
     except Exception as e:
         get_db().session.rollback()
-        response.add_error(user_message="Erreur lors de l'archivage de la déclaration originale", system_error=str(e), status_code=500)
+        response.add_error(
+            user_message="Erreur lors de l'archivage de la déclaration originale",
+            system_error=str(e),
+            status_code=500,
+        )
         return response.response_to_frontend()
 
     # send_mail_validation_declaration(post_data_arranged, True)
@@ -439,43 +474,64 @@ def cloture_declaration():
     from sqlalchemy import update
     from pathlib import Path
 
-    variables_path = Path(get_config()["ROOT_DIR"]) / "config" / "variables" / "declaration.json"
+    variables_path = (
+        Path(get_config()["ROOT_DIR"]) / "config" / "variables" / "declaration.json"
+    )
     with open(variables_path, "r", encoding="utf-8") as f:
         variables_declaration = json.load(f)
     statut_declaration = variables_declaration.get("STATUT_DECLARATION")
 
     post_data = request.get_json()
-    print ("post_data cloture_declaration", post_data)  # Debug : affiche les données reçues dans la requête
+    print(
+        "post_data cloture_declaration", post_data
+    )  # Debug : affiche les données reçues dans la requête
     id_declaration = post_data.get("id_declaration", int)
     token = post_data.get("token_renouvellement", str)
-    print (f"Requête de clôture de la déclaration {id_declaration} avec le token {token}")
-    
+    print(
+        f"Requête de clôture de la déclaration {id_declaration} avec le token {token}"
+    )
+
     response = check_token_renouvellement_declaration(id_declaration, token)
     if response.success == False:
-        response.add_error(user_message="Token de renouvellement invalide ou expiré. Seule la personne ayant effectué le dernier renouvellement peut clôturer la déclaration.", system_error="Token de renouvellement invalide ou expiré pour la clôture de la déclaration", status_code=200)
+        response.add_error(
+            user_message="Token de renouvellement invalide ou expiré. Seule la personne ayant effectué le dernier renouvellement peut clôturer la déclaration.",
+            system_error="Token de renouvellement invalide ou expiré pour la clôture de la déclaration",
+            status_code=200,
+        )
         response.print_all()
         return response.response_to_frontend()
 
-
     if not id_declaration:
-        response.add_error(user_message="ID de déclaration manquant", system_error="ID de déclaration manquant dans la requête", status_code=200)
+        response.add_error(
+            user_message="ID de déclaration manquant",
+            system_error="ID de déclaration manquant dans la requête",
+            status_code=200,
+        )
         response.print_all()
         return response.response_to_frontend()
 
     try:
-        print(f"Clôture de la déclaration {id_declaration} avec le statut '{statut_declaration.get('Archivée')}'")
-        stmt = update(TDeclaration).where(
-            TDeclaration.id_declaration == id_declaration
-        ).values(
-            b_valid=True,
-            statut=statut_declaration.get("Archivée"),
+        print(
+            f"Clôture de la déclaration {id_declaration} avec le statut '{statut_declaration.get('Archivée')}'"
+        )
+        stmt = (
+            update(TDeclaration)
+            .where(TDeclaration.id_declaration == id_declaration)
+            .values(
+                b_valid=True,
+                statut=statut_declaration.get("Archivée"),
+            )
         )
         get_db().session.execute(stmt)
         get_db().session.commit()
         response.message = "Déclaration clôturée avec succès"
     except Exception as e:
         get_db().session.rollback()
-        response.add_error(user_message="Erreur lors de la clôture de la déclaration", system_error=str(e), status_code=500)
+        response.add_error(
+            user_message="Erreur lors de la clôture de la déclaration",
+            system_error=str(e),
+            status_code=500,
+        )
         return response.response_to_frontend()
 
     return response.response_to_frontend()
@@ -518,7 +574,10 @@ def check_token_declaration():
         return {"valid": False, "error": "Token manquant dans la requête"}, 400
     id_declaration = request.args.get("id")
     if not id_declaration:
-        return {"valid": False, "error": "ID de déclaration manquant dans la requête"}, 400
+        return {
+            "valid": False,
+            "error": "ID de déclaration manquant dans la requête",
+        }, 400
 
     stmt = stmt_one_declaration_a_renouveler(id_declaration)
     result = get_db().session.execute(stmt).fetchone()
@@ -531,9 +590,15 @@ def check_token_declaration():
     date_fin_token = row.get("date_fin_token")
 
     if token_renouvellement is None:
-        return {"valid": False, "error": "Cette déclaration n'a pas de token de renouvellement"}, 404
+        return {
+            "valid": False,
+            "error": "Cette déclaration n'a pas de token de renouvellement",
+        }, 404
     if date_fin_token is None:
-        return {"valid": False, "error": "Cette déclaration n'a pas de date de fin de token"}, 404
+        return {
+            "valid": False,
+            "error": "Cette déclaration n'a pas de date de fin de token",
+        }, 404
 
     now = datetime.now()
     # If date_fin_token is a date (not datetime), convert to datetime for a proper comparison
@@ -547,7 +612,8 @@ def check_token_declaration():
         return {"valid": False, "error": "Token invalide"}, 404
     else:
         return {"valid": True, "message": "Token valide"}, 200
-    
+
+
 ##################################################################################
 ###################    EXPORT CSV / SHAPE  ########################################
 ###################################################################################

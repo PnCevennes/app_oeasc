@@ -75,7 +75,7 @@ def upgrade():
         SET statut = 0
         WHERE b_valid = false
     """)
-    
+
     # # pour toutes les déclarations qui ont une date_fin et b_valid == true, on met le statut à "A renouveler 1" (code: 10)
     # op.execute(f"""
     #     UPDATE oeasc_declarations.t_declarations
