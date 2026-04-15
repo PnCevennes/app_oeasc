@@ -51,3 +51,61 @@
 .pdf .ignorepdf {
   display: none;
 }
+
+/*
+  Overrides pour éviter l'avertissement "will-change memory budget".
+  Certaines bibliothèques fournissent des règles `will-change` sur des
+  conteneurs potentiellement très grands (cartes Leaflet, sliders noUi,
+  listes déroulantes, etc.). Sur de grandes surfaces cela dépasse le
+  budget mémoire du navigateur. On neutralise `will-change` sur ces
+  sélecteurs larges et laisse `will-change` possible sur les petits éléments
+  spécifiques contrôlés ailleurs.
+*/
+
+.leaflet-container,
+.noUi-target,
+.noUi-origin,
+.noUi-connect,
+.choices__list--dropdown,
+.choices__list,
+.choices__list[aria-expanded],
+.choices__list--dropdown .choices__list,
+.choices__list--dropdown .choices__item,
+.choices__list[aria-expanded] .choices__list {
+  will-change: auto !important;
+}
+
+/* cas générique de sécurité : ne pas appliquer will-change aux très grands éléments */
+html body > .v-application__wrap,
+.v-application__wrap,
+#app {
+  will-change: auto !important;
+}
+
+/* Overrides spécifiques pour Vuetify et composants tiers générant de gros éléments */
+.v-overlay__scrim,
+.v-app-bar .v-toolbar__image .v-image__image,
+.v-parallax__image,
+.v-parallax__image-container,
+.v-app-bar.v-toolbar--prominent.v-app-bar--shrink-on-scroll .v-toolbar__image,
+.v-app-bar.v-toolbar--prominent.v-app-bar--shrink-on-scroll .v-toolbar__image .v-image__image,
+.v-app-bar .v-toolbar__image,
+.v-app-bar .v-toolbar__image .v-image__image {
+  will-change: auto !important;
+}
+
+/* Leaflet tiles / panes */
+.leaflet-container,
+.leaflet-pane,
+.leaflet-tile,
+.leaflet-image-layer,
+.leaflet-map-pane {
+  will-change: auto !important;
+}
+
+/* noUi / slider handles */
+.noUi-target,
+.noUi-origin,
+.noUi-connect {
+  will-change: auto !important;
+}
