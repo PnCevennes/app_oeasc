@@ -170,7 +170,7 @@ lxml==6.0.0
     # via
     #   oeasc (setup.py)
     #   py3o-template
-mako==1.3.10
+mako==1.3.11
     # via
     #   alembic
     #   oeasc (setup.py)
