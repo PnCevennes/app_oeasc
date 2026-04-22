@@ -15,27 +15,27 @@ const CODE_AREA = {
   332: 'OEASC_CADASTRE',
 };
 
-export async function fetch_declaration_by_id(id) {
-  try {
-    // const response = await fetch(`/api/declarations/${id}`);
-    const response = await apiRequest('GET', `api/declaration/declaration${id ? `/${id}` : ''}`);
-    console.log('Réponse de l’API pour la déclaration:', response);
-    return response;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des données', error);
-    return null;
-  }
-}
+// export async function fetch_declaration_by_id(id) {
+//   try {
+//     // const response = await fetch(`/api/declarations/${id}`);
+//     const response = await apiRequest('GET', `api/declaration/declaration${id ? `/${id}` : ''}`);
+//     console.log('Réponse de l’API pour la déclaration:', response);
+//     return response;
+//   } catch (error) {
+//     console.error('Erreur lors de la récupération des données', error);
+//     return null;
+//   }
+// }
 
-export async function fetch_declarations(id) {
-  try {
-    const response = await apiRequest('GET', `api/declaration/declarations`);
-    return response;
-  } catch (error) {
-    console.error('Erreur lors de la liste des déclarations', error);
-    return null;
-  }
-}
+// export async function fetch_declarations(id) {
+//   try {
+//     const response = await apiRequest('GET', `api/declaration/declarations`);
+//     return response;
+//   } catch (error) {
+//     console.error('Erreur lors de la liste des déclarations', error);
+//     return null;
+//   }
+// }
 
 export async function fetch_oeasc_perimetre() {
   try {

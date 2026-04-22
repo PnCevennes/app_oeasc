@@ -57,20 +57,26 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                   <tr>
                     <td class="gauche">Partage d'information</td>
                     <td class="droite">
-                      {{ declaration_data.b_autorisation ? 'Autorisé' : 'Non autorisé' }}
+                      {{ declaration_data.autorisation }}
                     </td>
                   </tr>
 
                   <tr>
-                    <td class="gauche">Date</td>
+                    <td class="gauche">Date de création</td>
                     <td class="droite">
                       {{ declaration_data.declaration_date }}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="gauche">Date de fin</td>
+                    <td class="droite">
+                      {{ declaration_data.date_fin }}
                     </td>
                   </tr>
                 </tbody>
 
                 <!-- ------------------------------- DECLARANT -------------------------------- -->
-                <tbody v-if="declaration_data.id_declarant">
+                <tbody v-if="declaration_data.declarant || declaration_data.organisme">
                   <tr>
                     <th
                       colspan="2"
@@ -102,19 +108,19 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     </th>
                   </tr>
 
-                  <tr v-if="declaration_data.areas_foret_names">
+                  <tr v-if="declaration_data.nom_foret">
                     <td class="gauche">Nom</td>
-                    <td class="droite">{{ declaration_data.label_foret }}</td>
+                    <td class="droite">{{ declaration_data.nom_foret }}</td>
                   </tr>
 
-                  <tr>
+                  <tr v-if="declaration_data.statut_public">
                     <td class="gauche">Statut</td>
                     <td class="droite">
                       {{ declaration_data.statut_public }}
                     </td>
                   </tr>
 
-                  <tr>
+                  <tr v-if="declaration_data.document">
                     <td class="gauche">Document de gestion durable</td>
                     <td class="droite">
                       {{ declaration_data.document }}
@@ -129,11 +135,11 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     </td>
                   </tr>
 
-                  <tr v-if="declaration_data.foret_type_label">
+                  <tr v-if="declaration_data.type_foret">
                     <td class="gauche">Type</td>
                     <td class="droite">
                       <!-- ici le type de foret affiché a été renommé par foretType, voir dans les script -->
-                      {{ declaration_data.foret_type_label }}
+                      {{ declaration_data.type_foret }}
                     </td>
                   </tr>
 
@@ -170,68 +176,16 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     <td class="droite">{{ declaration_data.parcelles }}</td>
                   </tr>
 
-                  <!-- <tr v-if="areas_section_computed.length > 0">
-                    <td class="gauche">Section(s)</td>
-                    <td class="droite">
-                      <v-chip
-                      v-for="area_section in areas_section_computed"
-                      :key="area_section.id_area"
-                      small
-                      class="ma-1" 
-                      >
-                      {{ area_section }}
-                    </v-chip>
-                    </td>
-                  </tr> -->
-
-                  <!-- <tr v-if="areas_cadastre_computed.length > 0">
-                    <td class="gauche">Parcelle(s) cadastrale(s)</td>
-                    <td class="droite">
-                      <v-chip
-                      v-for="area_cadastre in areas_cadastre_computed"
-                      :key="area_cadastre.id_area"
-                      small
-                      class="ma-1" 
-                      >
-                      {{ area_cadastre }}
-                    </v-chip>
-                    </td>
-                  </tr> -->
-
-                  <!-- <tr v-if="declaration_data.areas_localisation_cadastre.length > 0">
-
-                    <td class="gauche">Parcelle(s) cadastrale(s) (id)</td>
-                    <td class="droite">
-                      <v-chip
-                      v-for="area_cadastre in declaration_data.areas_localisation_cadastre"
-                      :key="area_cadastre"
-                      small
-                      class="ma-1" 
-                      >
-                      {{ area_cadastre }}
-                    </v-chip>
-                    </td>
-                  </tr> -->
-
-                  <!-- <tr v-if="areas_ug_computed.length > 0">
-                    <td class="gauche">Unités de gestion ONF</td>
-                    <td class="droite">
-                      <v-chip
-                      v-for="area_ug in areas_ug_computed"
-                      :key="area_ug.id_area"
-                      small
-                      class="ma-1" 
-                      >
-                      {{ area_ug }}
-                    </v-chip>
-                      
-                    </td>
-                  </tr> -->
-
-                  <tr v-if="declaration_data.peuplement_acces_label">
+                  <tr v-if="declaration_data.accessibilite">
                     <td class="gauche">Accessibilité</td>
                     <td class="droite">
-                      {{ declaration_data.peuplement_acces_label }}
+                      {{ declaration_data.accessibilite }}
+                    </td>
+                  </tr>
+                  <tr v-if="declaration_data.precision_localisation">
+                    <td class="gauche">Précisions sur la localisation</td>
+                    <td class="droite">
+                      {{ declaration_data.precision_localisation || 'Non renseigné' }}
                     </td>
                   </tr>
                 </tbody>
@@ -246,23 +200,23 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                       Peuplement - essences
                     </th>
                   </tr>
-                  <tr v-if="declaration_data.peuplement_ess_1_label">
+                  <tr v-if="declaration_data.peuplement_ess_1">
                     <td class="gauche">Principale</td>
                     <td class="droite">
-                      {{ declaration_data.peuplement_ess_1_label }}
+                      {{ declaration_data.peuplement_ess_1 }}
                     </td>
                   </tr>
-                  <tr v-if="declaration_data.peuplement_ess_2_label">
+                  <tr v-if="declaration_data.peuplement_ess_2">
                     <td class="gauche">Secondaire(s)</td>
                     <td class="droite">
-                      {{ declaration_data.peuplement_ess_2_label }}
+                      {{ declaration_data.peuplement_ess_2 }}
                     </td>
                   </tr>
 
-                  <tr v-if="declaration_data.peuplement_ess_3_label">
+                  <tr v-if="declaration_data.peuplement_ess_3">
                     <td class="gauche">Complémentaire(s)</td>
                     <td class="droite">
-                      {{ declaration_data.peuplement_ess_3_label }}
+                      {{ declaration_data.peuplement_ess_3 }}
                     </td>
                   </tr>
                 </tbody>
@@ -277,38 +231,38 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                       Peuplement - description
                     </th>
                   </tr>
-                  <tr v-if="declaration_data.peuplement_surface">
+                  <tr v-if="declaration_data.surface_renseignee">
                     <td class="gauche">Superficie du peuplement (ha)</td>
                     <td class="droite">
                       {{
-                        declaration_data.peuplement_surface
-                          ? declaration_data.peuplement_surface
+                        declaration_data.surface_renseignee
+                          ? declaration_data.surface_renseignee
                           : 'Non renseignée'
                       }}
                     </td>
                   </tr>
-                  <tr v-if="declaration_data.peuplement_origine_label">
+                  <tr v-if="declaration_data.origine_peuplement">
                     <td class="gauche">Origine</td>
                     <td class="droite">
-                      {{ declaration_data.peuplement_origine_label }}
+                      {{ declaration_data.origine_peuplement }}
                     </td>
                   </tr>
-                  <tr v-if="declaration_data.peuplement_origine2_label">
+                  <tr v-if="declaration_data.origine_plants_touches">
                     <td class="gauche">Origine des plants touchés</td>
                     <td class="droite">
-                      {{ declaration_data.peuplement_origine2_label }}
+                      {{ declaration_data.origine_plants_touches }}
                     </td>
                   </tr>
-                  <tr v-if="declaration_data.peuplement_type_label">
+                  <tr v-if="declaration_data.peuplement_type">
                     <td class="gauche">Type</td>
                     <td class="droite">
-                      {{ declaration_data.peuplement_type_label }}
+                      {{ declaration_data.peuplement_type }}
                     </td>
                   </tr>
-                  <tr v-if="declaration_data.peuplement_maturite_label">
+                  <tr v-if="declaration_data.peuplement_maturite">
                     <td class="gauche">Maturité</td>
                     <td class="droite">
-                      {{ declaration_data.peuplement_maturite_label }}
+                      {{ declaration_data.peuplement_maturite }}
                     </td>
                   </tr>
                 </tbody>
@@ -323,22 +277,22 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                       Peuplement - protection
                     </th>
                   </tr>
-                  <tr v-if="declaration_data.b_peuplement_protection_existence !== undefined">
+                  <tr>
                     <td class="gauche">Existence</td>
                     <td class="droite">
-                      {{ declaration_data.b_peuplement_protection_existence ? 'Oui' : 'Non' }}
+                      {{ declaration_data.peuplement_protection_type ? 'Oui' : 'Non' }}
                     </td>
                   </tr>
-                  <tr v-if="declaration_data.peuplement_protection_type_label">
+                  <tr v-if="declaration_data.peuplement_protection_type">
                     <td class="gauche">Type</td>
                     <td class="droite">
-                      {{ declaration_data.peuplement_protection_type_label }}
+                      {{ declaration_data.peuplement_protection_type }}
                     </td>
                   </tr>
                 </tbody>
 
                 <!-- --------------------------- PEUPLEMENT - PATURAGE --------------------------- -->
-                <tbody>
+                <tbody v-if="declaration_data.peuplement_paturage_type">
                   <tr>
                     <th
                       colspan="2"
@@ -347,39 +301,31 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                       Peuplement - pâturage
                     </th>
                   </tr>
-                  <tr v-if="declaration_data.b_peuplement_paturage_presence !== undefined">
-                    <td class="gauche">Présence</td>
+
+                  <tr v-if="declaration_data.peuplement_paturage_type">
+                    <td class="gauche">Type</td>
                     <td class="droite">
-                      {{ declaration_data.b_peuplement_paturage_presence ? 'Oui' : 'Non' }}
+                      {{ declaration_data.peuplement_paturage_type }}
                     </td>
                   </tr>
-                  <!-- Si il y a présence de pâturage, on affiche les détails -->
-                  <template v-if="declaration_data.b_peuplement_paturage_presence == true">
-                    <tr v-if="declaration_data.peuplement_paturage_type_label">
-                      <td class="gauche">Type</td>
-                      <td class="droite">
-                        {{ declaration_data.peuplement_paturage_type_label }}
-                      </td>
-                    </tr>
-                    <tr v-if="declaration_data.peuplement_paturage_statut_label">
-                      <td class="gauche">Statut</td>
-                      <td class="droite">
-                        {{ declaration_data.peuplement_paturage_statut_label }}
-                      </td>
-                    </tr>
-                    <tr v-if="declaration_data.peuplement_paturage_frequence_label">
-                      <td class="gauche">Fréquence</td>
-                      <td class="droite">
-                        {{ declaration_data.peuplement_paturage_frequence_label }}
-                      </td>
-                    </tr>
-                    <tr v-if="declaration_data.peuplement_paturage_saison_label">
-                      <td class="gauche">Saison</td>
-                      <td class="droite">
-                        {{ declaration_data.peuplement_paturage_saison_label }}
-                      </td>
-                    </tr>
-                  </template>
+                  <tr v-if="declaration_data.paturage_statut">
+                    <td class="gauche">Statut</td>
+                    <td class="droite">
+                      {{ declaration_data.paturage_statut }}
+                    </td>
+                  </tr>
+                  <tr v-if="declaration_data.paturage_frequence">
+                    <td class="gauche">Fréquence</td>
+                    <td class="droite">
+                      {{ declaration_data.paturage_frequence }}
+                    </td>
+                  </tr>
+                  <tr v-if="declaration_data.peuplement_paturage_saison">
+                    <td class="gauche">Saison</td>
+                    <td class="droite">
+                      {{ declaration_data.peuplement_paturage_saison }}
+                    </td>
+                  </tr>
                 </tbody>
 
                 <!-- --------------------------- DEGATS --------------------------- -->
@@ -403,7 +349,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                       <template v-if="item_degat.degat_type_code != 'P/C'">
                         <template>
                           <div
-                            v-for="(item_degat_essence, index_essence) in item_degat.degat_essences"
+                            v-for="(item_degat_essence, index_essence) in item_degat.essences"
                             :key="index_essence"
                           >
                             <strong>
@@ -423,13 +369,6 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                         <!-- si le type de degat est un degat sur cloture  on met juste oui-->
                         Oui
                       </template>
-                    </td>
-                  </tr>
-
-                  <tr v-if="declaration_data.precision_localisation">
-                    <td class="gauche">Précisions sur la localisation</td>
-                    <td class="droite">
-                      {{ declaration_data.precision_localisation || 'Non renseigné' }}
                     </td>
                   </tr>
                 </tbody>
@@ -460,35 +399,83 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
           </template>
         </div>
       </div>
+
       <div class="html2pdf__page-break"></div>
 
-      <div style="margin-top: 3em">
-        <div v-for="type in mapList">
-          <div
-            v-if="configMaps[type]"
-            :key="type"
-          >
-            <div small>{{ configMaps[type].title }}</div>
-            <base-map
-              :mapId="`map_${type}`"
-              :config="configMaps[type]"
-              height="315px"
-            ></base-map>
-          </div>
-        </div>
+      <h2 style="margin-top: 2em">Cartes</h2>
+
+      <div style="margin-top: 1em">
+        <MapDeclarationSimple
+          v-if="declaration_data"
+          :declaration_data="declaration_data"
+          :liste_layers="[
+            'OEASC',
+            'SECTEUR',
+            'COMMUNES',
+            'FORETS_DGD',
+            'FORETS_ONF',
+            'PARCELLES_ONF',
+            'CADASTRES',
+          ]"
+          :zoom_on="['SECTEUR']"
+        ></MapDeclarationSimple>
       </div>
+
+      <div style="margin-top: 1em">
+        <MapDeclarationSimple
+          v-if="declaration_data"
+          :declaration_data="declaration_data"
+          :liste_layers="[
+            'OEASC',
+            'FORETS_ONF',
+            'UG_ONF',
+            'FORETS_DGD',
+            'PARCELLES_ONF',
+            'CADASTRES',
+            'SECTIONS',
+          ]"
+          :zoom_on="['FORETS_ONF', 'FORETS_DGD', 'COMMUNES']"
+        ></MapDeclarationSimple>
+      </div>
+
+      <div style="margin-top: 1em">
+        <MapDeclarationSimple
+          v-if="declaration_data"
+          :declaration_data="declaration_data"
+          :liste_layers="['OEASC', 'FORETS_ONF', 'UG_ONF', 'FORETS_DGD', 'CADASTRES', 'SECTIONS']"
+          :zoom_on="['PARCELLES_ONF', 'CADASTRES']"
+        ></MapDeclarationSimple>
+      </div>
+
+      <!-- <div style="margin-top: 3em">
+          <div v-for="type in mapList">
+            <div
+              v-if="configMaps[type]"
+              :key="type"
+            >
+              <div small>{{ configMaps[type].title }}</div>
+              <base-map
+                :mapId="`map_${type}`"
+                :config="configMaps[type]"
+                height="315px"
+              ></base-map>
+            </div>
+          </div>
+        </div> -->
     </div>
     <!-- <pre>{{ declaration_data }}</pre> -->
   </div>
 </template>
 
 <script>
-import baseMap from '@/components/map/base-map';
+// import baseMap from '@/components/map/base-map';
 // import { exportPDF } from "@/modules/export";
 import { apiRequest } from '@/core/js/data/api';
 import './declaration.css';
 import html2pdf from 'html2pdf.js';
 import html2canvas from 'html2canvas';
+import resumeDeclaration from './resume_declaration.vue';
+import MapDeclarationSimple from './map/map_declaration_simple.vue';
 
 const styles = {
   foret: {
@@ -516,8 +503,9 @@ export default {
     mapList: ['secteur', 'foret', 'parcelles'],
   }),
   components: {
-    // resumeDeclaration,
-    baseMap,
+    resumeDeclaration,
+    // baseMap,
+    MapDeclarationSimple,
   },
   methods: {
     exportDeclaration() {
@@ -577,93 +565,95 @@ export default {
       });
     },
 
-    configMap(type) {
-      if (!this.declaration_data) {
-        return;
-      }
-      const markers = [
-        {
-          coords: this.declaration_data.centroid,
-          type: 'marker',
-          style: {
-            color: 'blue',
-            icon: 'map-marker',
-          },
-        },
-      ];
-      const markerLegendGroups = [
-        {
-          legends: [
-            {
-              icon: 'map-marker',
-              text: 'Localisation des alertes',
-              color: '#3689CE',
-            },
-          ],
-        },
-      ];
-      const titles = {
-        secteur: "Localisation de l'alerte dans le périmètre de l'observatoire",
-        foret: 'Localisation des parcelles',
-        parcelles: 'Carte des parcelles',
-      };
-      const layerList = {
-        secteur: {},
-        foret: {
-          url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration_data.areas_foret.join(
-            '&id_area='
-          )}`,
-          legend: "Forêt concernée par l'alerte",
-          style: styles.foret,
-          pane: 'PANE_LAYER_1',
-        },
-        parcelles: {
-          url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration_data.areas_localisation.join(
-            '&id_area='
-          )}`,
+    // configMap(type) {
+    //   if (!this.declaration_data) {
+    //     return;
+    //   }
+    //   const markers = [
+    //     {
+    //       coords: this.declaration_data.centroid,
+    //       type: 'marker',
+    //       style: {
+    //         color: 'blue',
+    //         icon: 'map-marker',
+    //       },
+    //     },
+    //   ];
+    //   const markerLegendGroups = [
+    //     {
+    //       legends: [
+    //         {
+    //           icon: 'map-marker',
+    //           text: 'Localisation des alertes',
+    //           color: '#3689CE',
+    //         },
+    //       ],
+    //     },
+    //   ];
+    //   const titles = {
+    //     secteur: "Localisation de l'alerte dans le périmètre de l'observatoire",
+    //     foret: 'Localisation des parcelles',
+    //     parcelles: 'Carte des parcelles',
+    //   };
+    //   const layerList = {
+    //     secteur: {},
+    //     foret: {
+    //       url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration_data.areas_foret.join(
+    //         '&id_area='
+    //       )}`,
+    //       legend: "Forêt concernée par l'alerte",
+    //       style: styles.foret,
+    //       pane: 'PANE_LAYER_1',
+    //     },
+    //     parcelles: {
+    //       url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration_data.areas_localisation.join(
+    //         '&id_area='
+    //       )}`,
 
-          legend: "Parcelle(s) concernée(s) par l'alerte",
-          style: styles.parcelles,
-          pane: 'PANE_LAYER_2',
-        },
-      };
+    //       legend: "Parcelle(s) concernée(s) par l'alerte",
+    //       style: styles.parcelles,
+    //       pane: 'PANE_LAYER_2',
+    //     },
+    //   };
 
-      layerList[type] = {
-        ...layerList[type],
-        tooltip: {
-          permanent: true,
-          className: 'tooltip-label',
-          label: 'label',
-        },
-        zoom: true,
-      };
-      if (type != '') {
-        delete layerList.secteur;
-      }
-      return { layerList, title: titles[type], markers, markerLegendGroups };
-    },
+    //   layerList[type] = {
+    //     ...layerList[type],
+    //     tooltip: {
+    //       permanent: true,
+    //       className: 'tooltip-label',
+    //       label: 'label',
+    //     },
+    //     zoom: true,
+    //   };
+    //   if (type != '') {
+    //     delete layerList.secteur;
+    //   }
+    //   return { layerList, title: titles[type], markers, markerLegendGroups };
+    // },
   },
   computed: {
     id() {
       return this.$route.params.id;
     },
-    configMaps() {
-      const configMaps = {};
-      for (const type of this.mapList) {
-        configMaps[type] = this.configMap(type);
-      }
-      return configMaps;
-    },
+    // configMaps() {
+    //   const configMaps = {};
+    //   for (const type of this.mapList) {
+    //     configMaps[type] = this.configMap(type);
+    //   }
+    //   return configMaps;
+    // },
   },
   async created() {
     // this.initDeclaration();
     this.id_declaration = this.$route.params.id;
+    this.bInit = true;
     this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
     this.declaration_data = await apiRequest(
       'GET',
       `api/declaration/voir_declaration/${this.id_declaration}`
     );
-    this.bInit = true;
+
+    console.log('declaration_data', this.declaration_data);
   },
   async mounted() {},
   watch: {},

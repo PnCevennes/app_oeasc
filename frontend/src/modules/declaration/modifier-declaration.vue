@@ -74,7 +74,11 @@
             </div>
 
             <v-fade-transition
-              v-if="declaration_data && ('b_statut_public' in declaration_data) && ('b_document' in declaration_data)"
+              v-if="
+                declaration_data &&
+                'b_statut_public' in declaration_data &&
+                'b_document' in declaration_data
+              "
             >
               <div>
                 <!-- ------------------  La carte  ---------------------  -->
@@ -680,7 +684,7 @@
           </div>
 
           <!-- --------------------- Validation directe de la déclaration pour les admins --------------------- -->
-          <div v-if="type_action =='CREATION' | type_action == 'MODIFICATION'">
+          <div v-if="(type_action == 'CREATION') | (type_action == 'MODIFICATION')">
             <div
               v-if="this.$store.getters.droitMax >= 5"
               style="margin-top: 30px"
@@ -719,16 +723,19 @@
               @click="submitDeclaration"
               :disabled="processing"
             >
-              <span v-if="type_action == 'RENOUVELLEMENT'"> Renouveller ma déclaration</span>
-              <span v-else> Soumettre la déclaration</span>
+              <span v-if="type_action == 'RENOUVELLEMENT'">Renouveller ma déclaration</span>
+              <span v-else>Soumettre la déclaration</span>
             </v-btn>
           </div>
-          <div v-if="type_action === 'CLOTURE'" style="margin-top: 30px; display: flex; justify-content: center">
+          <div
+            v-if="type_action === 'CLOTURE'"
+            style="margin-top: 30px; display: flex; justify-content: center"
+          >
             <v-btn
               color="red"
               @click="closeDeclaration"
               :disabled="processing"
-              style="width: 100%; max-width: 400px; height: 50px;"
+              style="width: 100%; max-width: 400px; height: 50px"
             >
               Cloturer cette déclaration
             </v-btn>
@@ -736,7 +743,6 @@
           <v-progress-linear
             v-if="processing"
             active
-
             indeterminate
           ></v-progress-linear>
         </div>
@@ -754,8 +760,7 @@
         justify-content: center;
         z-index: 9999;
       "
-    >
-    </div>
+    ></div>
 
     <!-- <div style="width: 70%;">
       <br><br>
@@ -791,18 +796,18 @@
             </ul>
           </v-card-text>
         </v-card>
-          <v-card v-else>
-            <v-card-title class="headline">Votre déclaration à bien été clôturée</v-card-title>
-            <v-card-text>
-              <p>Vous pouvez désormais</p>
-              <ul>
-                <li>
-                  <a href="#/declaration/declarer_en_ligne">Déclarer de nouveaux dégâts en forêt</a>
-                </li>
-                <li><a href="#/">Retourner à l'accueil</a></li>
-              </ul>
-            </v-card-text>
-          </v-card>
+        <v-card v-else>
+          <v-card-title class="headline">Votre déclaration à bien été clôturée</v-card-title>
+          <v-card-text>
+            <p>Vous pouvez désormais</p>
+            <ul>
+              <li>
+                <a href="#/declaration/declarer_en_ligne">Déclarer de nouveaux dégâts en forêt</a>
+              </li>
+              <li><a href="#/">Retourner à l'accueil</a></li>
+            </ul>
+          </v-card-text>
+        </v-card>
       </v-dialog>
     </div>
   </div>
@@ -814,16 +819,12 @@ import help from '@/components/form/help_static.vue';
 import tableAide from '@/modules/content/table-aide.vue';
 import { formFunctions } from '@/components/form/functions/form.js';
 import { apiRequest } from '@/core/js/data/api';
-import {
-  fetch_forets_from_code,
-  fetch_proprietaires_from_id,
-} from './utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
+import { fetch_forets_from_code, fetch_proprietaires_from_id } from './utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
 import MapDeclaration from '@/components/map/map_declaration.vue';
 import degatsForm from '@/components/form/degats_declaration_form.vue';
 import resumeDeclaration from '@/modules/declaration/resume_declaration.vue';
 import helpContent from '@/modules/declaration/help-content.vue';
 import { snackbarStore } from '@/store/snackbar';
-
 
 export default {
   name: 'ModifierDeclaration',
@@ -841,7 +842,7 @@ export default {
   data() {
     return {
       nomenclature: {}, // Nomenclature des essences et autres données
-      title: "",
+      title: '',
       declaration_data: {}, // Données de la déclaration
       storeName: 'declaration',
       declarationId: this.$route.query.id, // ID de la déclaration à modifier récupéré depuis l'URL
@@ -856,14 +857,14 @@ export default {
       // Étape d'affichage du formulaire (
       // AFFICHAGE_FORM => formulaire classique
       // AFFICHAGE_RESUME => résumé de la déclaration avant validation
-      etape_affichage: 'AFFICHAGE_FORM', 
-      
+      etape_affichage: 'AFFICHAGE_FORM',
+
       // type_action: action de l'utilisateur, qui peut être :
       // CREATION => création d'une nouvelle déclaration,
       // MODIFICATION => modification d'une déclaration existante,
       // RENOUVELLEMENT => Renouvellement d'une déclaration existante
       // CLOTURE => clôture d'une déclaration existante
-      type_action: "", 
+      type_action: '',
       information_declarant: {}, // Informations sur la personne connectée
       // liste_selection_essences: [], // Liste des essences sélectionnées
       affichage_fenetre_succes: false, // Affichage de la fenêtre de succès après soumission
@@ -930,7 +931,6 @@ export default {
     //   },
     //   deep: true,
     // },
-
   },
 
   created() {},
@@ -938,55 +938,58 @@ export default {
   async mounted() {
     this.define_type_action();
 
-
     // console.log("getter user:", this.$store.getters.user);
 
     // si l'utilisateur est connecté
-    if ((this.$store.getters.isAuth)) {
+    if (this.$store.getters.isAuth) {
       this.information_declarant = this.$store.getters.user;
       this.response = await apiRequest(
-          'GET',
-          `api/declaration/declaration?${this.declarationId ? `id=${this.declarationId}` : ''}`
-        );
+        'GET',
+        `api/declaration/declaration?${this.declarationId ? `id=${this.declarationId}` : ''}`
+      );
       // console.log("Response de l'API pour la déclaration:", this.response);
-
-    }else{ // l'utilisateur n'est pas connecté, on vérifie si c'est un renouvellement avec token
-      if ((this.type_action === "RENOUVELLEMENT") || (this.type_action === "CLOTURE")) {
+    } else {
+      // l'utilisateur n'est pas connecté, on vérifie si c'est un renouvellement avec token
+      if (this.type_action === 'RENOUVELLEMENT' || this.type_action === 'CLOTURE') {
         if (this.token_renouvellement && this.declarationId) {
-            this.response = await apiRequest(
+          this.response = await apiRequest(
             'GET',
             `api/declaration/declaration_renouvellement?id=${this.declarationId}&token=${this.token_renouvellement}`
+          );
+          if (this.response['success'] == false) {
+            snackbarStore.show(
+              'Token invalide pour le renouvellement de la déclaration. ',
+              'error'
             );
-          if (this.response["success"] == false) {
-            snackbarStore.show("Token invalide pour le renouvellement de la déclaration. " , "error");
             // this.redirect_to_login();
           }
-        }else{
-          snackbarStore.show("Token de renouvellement manquant ou ID de déclaration manquant. " , "error");
+        } else {
+          snackbarStore.show(
+            'Token de renouvellement manquant ou ID de déclaration manquant. ',
+            'error'
+          );
           // this.redirect_to_login();
         }
       }
     }
-    
 
-    if (this.response["success"] == true) {
-        this.declaration_data = this.response.data;
-        this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
-        if (!this.declaration_data.id_declarant) {
-          this.declaration_data.id_declarant = this.$store.getters.user.id_role;
-          this.declaration_data.email = this.$store.getters.user.email;
-          this.declaration_data.nom_proprietaire = this.$store.getters.user.nom_complet;
-          // this.declaration_data.b_document = null; // On laisse le choix à l'utilisateur de renseigner ou non le document de gestion
-          // this.declaration_data.b_statut_public = null;
-        }
+    if (this.response['success'] == true) {
+      this.declaration_data = this.response.data;
+      this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
+      if (!this.declaration_data.id_declarant) {
+        this.declaration_data.id_declarant = this.$store.getters.user.id_role;
+        this.declaration_data.email = this.$store.getters.user.email;
+        this.declaration_data.nom_proprietaire = this.$store.getters.user.nom_complet;
+        // this.declaration_data.b_document = null; // On laisse le choix à l'utilisateur de renseigner ou non le document de gestion
+        // this.declaration_data.b_statut_public = null;
+      }
 
-        if (!this.declaration_data.b_valid) {
-          this.declaration_data.b_valid = false; // Par défaut, la déclaration n'est pas validée
-        }
-        // console.log("Données de la déclaration après traitement du renouvellement:", this.declaration_data);
-        this.initialized = true;
+      if (!this.declaration_data.b_valid) {
+        this.declaration_data.b_valid = false; // Par défaut, la déclaration n'est pas validée
+      }
+      // console.log("Données de la déclaration après traitement du renouvellement:", this.declaration_data);
+      this.initialized = true;
     }
-
   },
 
   methods: {
@@ -1001,23 +1004,28 @@ export default {
       this.processing = true; // Désactiver les boutons pour éviter les doubles clics
 
       if (!this.declaration_data.b_autorisation) {
-        snackbarStore.show('Veuillez indiquer si vous autorisez la transmission des informations.', 'info');
+        snackbarStore.show(
+          'Veuillez indiquer si vous autorisez la transmission des informations.',
+          'info'
+        );
         return;
       }
 
       // Vérifier que la déclaration est bien chargée
       if (!this.declaration_data || Object.keys(this.declaration_data).length === 0) {
-        snackbarStore.show('Les données de la déclaration ne sont pas chargées. Veuillez réessayer plus tard.', 'error');
+        snackbarStore.show(
+          'Les données de la déclaration ne sont pas chargées. Veuillez réessayer plus tard.',
+          'error'
+        );
         return;
       }
 
       //------------------------------ preparation et envoi des données ------------------------------
 
       let options = { postData: { ...this.declaration_data } };
-      console.log("Données à soumettre:", options.postData);
+      console.log('Données à soumettre:', options.postData);
 
-      if (this.type_action === "RENOUVELLEMENT") {
-        
+      if (this.type_action === 'RENOUVELLEMENT') {
         apiRequest('POST', `/api/declaration/duplicate_declaration`, options)
           .then((response) => {
             // console.log("Déclaration renouvelée avec succès:", response);
@@ -1025,44 +1033,56 @@ export default {
           })
           .catch((error) => {
             console.error('Erreur lors du renouvellement de la déclaration:', error);
-            snackbarStore.show("Une erreur s'est produite lors de la soumission. Veuillez réessayer.", 'error');
+            snackbarStore.show(
+              "Une erreur s'est produite lors de la soumission. Veuillez réessayer.",
+              'error'
+            );
           });
-
-      } else if (this.type_action === "CREATION") {
-          if (this.declaration_data.id_declaration) {
-            snackbarStore.show("Une erreur est survenue: la déclaration existe déjà. Veuillez réessayer.", 'error');
-            return;
-          }
-          apiRequest('POST', `/api/declaration/declaration`, options)
-            .then((response) => {
-              // console.log("Déclaration créée avec succès:", response);
-              this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
-            })
-            .catch((error) => {
-              console.error('Erreur lors de la création de la déclaration:', error);
-              snackbarStore.show("Une erreur s'est produite lors de la soumission. Veuillez réessayer.", 'error');
-            });
-
-      } else if (this.type_action === "MODIFICATION") {
+      } else if (this.type_action === 'CREATION') {
+        if (this.declaration_data.id_declaration) {
+          snackbarStore.show(
+            'Une erreur est survenue: la déclaration existe déjà. Veuillez réessayer.',
+            'error'
+          );
+          return;
+        }
+        apiRequest('POST', `/api/declaration/declaration`, options)
+          .then((response) => {
+            // console.log("Déclaration créée avec succès:", response);
+            this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
+          })
+          .catch((error) => {
+            console.error('Erreur lors de la création de la déclaration:', error);
+            snackbarStore.show(
+              "Une erreur s'est produite lors de la soumission. Veuillez réessayer.",
+              'error'
+            );
+          });
+      } else if (this.type_action === 'MODIFICATION') {
         // Envoi de la déclaration via l'API
-          if (!this.declaration_data.id_declaration) {
-            snackbarStore.show("Une erreur est survenue: l'ID de déclaration est manquant pour la modification. Veuillez réessayer.", 'error');
-            return;
-          }
-          this.declaration_data.b_valid = false; // Lors d'une modification, la déclaration doit être à nouveau validée par un admin
-          
-          await apiRequest('PATCH', `api/declaration/declaration`, options)
-            .then((response) => {
-              // console.log("Déclaration mise à jour avec succès:", response);
-              this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
-            })
-            .catch((error) => {
-              console.error('Erreur lors de la mise à jour de la déclaration:', error);
-              snackbarStore.show("Une erreur s'est produite lors de la soumission. Veuillez réessayer.", 'error');
-            });
+        if (!this.declaration_data.id_declaration) {
+          snackbarStore.show(
+            "Une erreur est survenue: l'ID de déclaration est manquant pour la modification. Veuillez réessayer.",
+            'error'
+          );
+          return;
+        }
+        this.declaration_data.b_valid = false; // Lors d'une modification, la déclaration doit être à nouveau validée par un admin
+
+        await apiRequest('PATCH', `api/declaration/declaration`, options)
+          .then((response) => {
+            // console.log("Déclaration mise à jour avec succès:", response);
+            this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
+          })
+          .catch((error) => {
+            console.error('Erreur lors de la mise à jour de la déclaration:', error);
+            snackbarStore.show(
+              "Une erreur s'est produite lors de la soumission. Veuillez réessayer.",
+              'error'
+            );
+          });
       }
       this.processing = false; // Réactiver les boutons après le traitement
-
     },
 
     /**
@@ -1079,24 +1099,39 @@ export default {
 
       if (this.declaration_data.b_document === false) {
         if (this.declaration_data.areas_localisation_cadastre.length === 0) {
-          snackbarStore.show('Veuillez sélectionner au moins une aire de localisation cadastrale.', 'info');
+          snackbarStore.show(
+            'Veuillez sélectionner au moins une aire de localisation cadastrale.',
+            'info'
+          );
           return;
         }
         // Vérification si l'utilisateur à bien selectionné au moins une area sur la carte
         if (!this.declaration_data.nom_proprietaire) {
-          snackbarStore.show("Le nom du propriétaire est requis si il n'y a pas de document de gestion.", 'info');
+          snackbarStore.show(
+            "Le nom du propriétaire est requis si il n'y a pas de document de gestion.",
+            'info'
+          );
           return;
         }
         if (!this.declaration_data.telephone) {
-          snackbarStore.show('Le numéro de téléphone du propriétaire est requis si il n\'y a pas de document de gestion.', 'info');
+          snackbarStore.show(
+            "Le numéro de téléphone du propriétaire est requis si il n'y a pas de document de gestion.",
+            'info'
+          );
           return;
         }
         if (!this.declaration_data.email) {
-          snackbarStore.show("L'email du propriétaire est requis si il n'y a pas de document de gestion.", 'info');
+          snackbarStore.show(
+            "L'email du propriétaire est requis si il n'y a pas de document de gestion.",
+            'info'
+          );
           return;
         }
         if (!this.declaration_data.surface_renseignee) {
-          snackbarStore.show("La superficie renseignée est requise si il n'y a pas de document de gestion.", 'info');
+          snackbarStore.show(
+            "La superficie renseignée est requise si il n'y a pas de document de gestion.",
+            'info'
+          );
           return;
         }
       } else {
@@ -1105,14 +1140,20 @@ export default {
           this.declaration_data.b_statut_public == true &&
           this.declaration_data.areas_localisation_onf_ug.length === 0
         ) {
-          snackbarStore.show('Veuillez sélectionner au moins une aire de localisation ONF UG.', 'info');
+          snackbarStore.show(
+            'Veuillez sélectionner au moins une aire de localisation ONF UG.',
+            'info'
+          );
           return;
         }
         if (
           this.declaration_data.b_statut_public === false &&
           this.declaration_data.areas_localisation_cadastre.length === 0
         ) {
-            snackbarStore.show('Veuillez sélectionner au moins une aire de localisation cadastrale.', 'info');
+          snackbarStore.show(
+            'Veuillez sélectionner au moins une aire de localisation cadastrale.',
+            'info'
+          );
           return;
         }
       }
@@ -1121,7 +1162,10 @@ export default {
       if (this.declaration_data.degats.length > 0) {
         this.declaration_data.degats.forEach((degat) => {
           if (degat.degat_essences.length === 0 && degat.id_nomenclature_degat_type !== 480) {
-              snackbarStore.show('Veuillez valider le type de dégât pour tous les dégâts renseignés.', 'info');
+            snackbarStore.show(
+              'Veuillez valider le type de dégât pour tous les dégâts renseignés.',
+              'info'
+            );
             return;
           }
         });
@@ -1147,7 +1191,7 @@ export default {
         this.declaration_data.b_peuplement_protection_existence == true &&
         this.declaration_data.nomenclatures_peuplement_protection_type.length === 0
       ) {
-          snackbarStore.show('Veuillez sélectionner au moins un type de protection.', 'info');
+        snackbarStore.show('Veuillez sélectionner au moins un type de protection.', 'info');
         return;
       }
 
@@ -1164,8 +1208,8 @@ export default {
           this.declaration_data.id_nomenclature_peuplement_paturage_frequence == 547 &&
           this.declaration_data.nomenclatures_peuplement_paturage_saison.length === 0
         ) {
-            snackbarStore.show('Veuillez sélectionner au moins une saison pour le pâturage.', 'info'); 
-            return;
+          snackbarStore.show('Veuillez sélectionner au moins une saison pour le pâturage.', 'info');
+          return;
         }
       }
 
@@ -1226,22 +1270,30 @@ export default {
 
     closeDeclaration() {
       if (!this.declaration_data.id_declaration) {
-        snackbarStore.show("Une erreur est survenue: l'ID de déclaration est manquant pour la clôture. Veuillez réessayer.", 'error');
+        snackbarStore.show(
+          "Une erreur est survenue: l'ID de déclaration est manquant pour la clôture. Veuillez réessayer.",
+          'error'
+        );
         return;
-      }      
-      apiRequest('POST', `api/declaration/cloture_declaration`, { postData: {
-         id_declaration: this.declaration_data.id_declaration, token_renouvellement: this.declaration_data.token_renouvellement
-         } })
+      }
+      apiRequest('POST', `api/declaration/cloture_declaration`, {
+        postData: {
+          id_declaration: this.declaration_data.id_declaration,
+          token_renouvellement: this.declaration_data.token_renouvellement,
+        },
+      })
         .then((response) => {
           // console.log("Déclaration clôturée avec succès:", response);
           // snackbarStore.show("Déclaration clôturée avec succès.", 'success');
           this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
         })
         .catch((error) => {
-          snackbarStore.show("Une erreur s'est produite lors de la clôture. Veuillez réessayer.", 'error');
+          snackbarStore.show(
+            "Une erreur s'est produite lors de la clôture. Veuillez réessayer.",
+            'error'
+          );
         });
     },
-    
   },
 };
 </script>
