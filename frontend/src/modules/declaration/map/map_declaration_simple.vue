@@ -5,7 +5,8 @@
 <template>
   <div style="width: 100%; display: flex; flex-direction: row">
     <div
-      :id="mapId"
+      :id="mapID"
+      :ref="mapRef"
       class="map-container"
       style="height: 500px; width: 100%; z-index: 0"
     ></div>
@@ -17,6 +18,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { fetch_oeasc_perimetre } from '@/modules/declaration/utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
 import { apiRequest } from '@/core/js/data/api';
+
 
 const config_layers = {
   OEASC: {
@@ -116,6 +118,13 @@ export default {
       required: true,
     },
 
+    mapID: {
+      // id optionnel pour le conteneur de la carte, si pas fourni un id unique sera généré automatiquement
+      type: String,
+      required: false,
+      default: null,
+    },
+
     liste_layers: {
       // liste des types de zones à afficher sur la carte, par exemple ["COMMUNES", "FORETS_ONF"]
       type: Array,
@@ -134,20 +143,19 @@ export default {
 
   data() {
     return {
+        
       map: null, // Instance de la carte Leaflet. Sera activé dans monted() avec initMap()
-      mapId: null,
+      mapRef: `ref-${this.mapID}`, // référence pour le conteneur de la carte, générée à partir de mapID
       geom_perimetre_oeasc: null, // geojson du périmètre oeasc, affiché en noir et non selectionnable. Affiché en permanence.
       all_areas_geojson: null, // GeoJSON de toutes les zones disponibles pour le type de carte sélectionné. Sert à afficher les pastilles sur la carte.
-      areasLayerGroup: null,
-      // runtime helpers for string-based layer selection
-      requestedIdTypes: new Set(),
-      requestedNames: new Set(),
-      stylesById: {},
-      legendControl: null,
-      declarationMarker: null,
-      labelLayerGroup: null,
-      labelItems: [],
-      useLabelgun: false,
+      areasLayerGroup: null, // groupe de couches Leaflet pour les différentes zones affichées (communes, forêts, etc), permet de les gérer plus facilement (ajout/suppression)
+      requestedIdTypes: new Set(), // set des id_types à afficher, dérivé de liste_layers pour un accès plus facile lors du rendu
+      requestedNames: new Set(), // set des noms de couches demandés dans liste_layers, utilisé pour certaines logiques spécifiques (ex: périmètre OEASC)
+      stylesById: {}, // mapping id_type → config de style (color, fillColor, etc) pour un accès plus facile lors du rendu
+      legendControl: null, // instance du contrôle de légende Leaflet, pour pouvoir le supprimer avant d'en recréer un nouveau à chaque update
+      declarationMarker: null, // marker pour le centroid de la déclaration, affiché si declaration_data.centroid existe, mis à jour à chaque changement de déclaration
+      labelLayerGroup: null, // groupe de couches pour les labels (noms des zones), permet de les gérer plus facilement et de les placer au dessus des autres couches
+      labelItems: [], // liste des items de labels à placer, chaque item contient { feature, center, html } pour la feature à laquelle le label correspond, son centre géographique et le HTML du label à afficher. La placement effectif est fait dans placeLabels() qui résout les chevauchements.
     };
   },
 
@@ -164,8 +172,6 @@ export default {
   },
 
   created() {
-    // générer un id unique pour le conteneur de la carte (évite conflit si plusieurs instances)
-    this.mapId = `map-${this._uid || Math.floor(Math.random() * 1e9)}`;
   },
 
   async mounted() {
@@ -278,18 +284,19 @@ export default {
 
     async initMap() {
       if (this.map) return;
-      // initialiser la carte Leaflet dans le conteneur spécifié par mapId
-      const container = document.getElementById(this.mapId);
+      // initialiser la carte Leaflet dans le conteneur spécifié par mapID
+      const container = document.getElementById(this.mapID);
       if (!container) {
         setTimeout(() => this.initMap(), 50);
         return;
       }
       // création de la carte avec contrôle de zoom activé
-      this.map = L.map(container, { zoomControl: true });
+      this.map = L.map(container, { zoomControl: true, preferCanvas: true, renderer: L.canvas() }); 
 
       // couche de fond basique
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors',
+        crossOrigin: true,
       }).addTo(this.map);
 
       this.areasLayerGroup = L.layerGroup().addTo(this.map);
@@ -394,8 +401,17 @@ export default {
                   // remove existing marker if present
                   this.removeDeclarationMarker();
                   // create marker with a high zIndex offset so it stays above other layers
-                  this.declarationMarker = L.marker([lat, lng], { zIndexOffset: 1000 });
-                  this.declarationMarker.addTo(this.map);
+                  // this.declarationMarker = L.marker([lat, lng], { zIndexOffset: 1000, preferCanvas: true  });
+                  // this.declarationMarker.addTo(this.map);
+                  L.circleMarker([lat, lng], {
+                    radius: 12,
+                    fillColor: '#ff7800',
+                    color: '#000',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                  }).addTo(this.map)
+                  
                 }
               }
             } catch (e) {
@@ -422,10 +438,10 @@ export default {
 
     addAreasLayers() {
       if (!this.all_areas_geojson) return;
-      // clear existing
+      // efface l'existant pour repartir sur une base propre (utile notamment quand on change de déclaration ou de liste_layers)
       this.clearAreasLayers();
 
-      // create one geoJson layer per id_type so we can assign panes (z-index) per type
+      // Créé des couches Leaflet pour chaque type d'area présent dans all_areas_geojson, en utilisant les styles définis dans config_layers (ou le style par défaut si pas de config spécifique). Les couches sont filtrées pour ne garder que les features du type correspondant, et ajoutées à areasLayerGroup. Les panes sont utilisés pour gérer l'ordre d'empilement des couches selon leur zIndex.
       const idSet = new Set();
       if (this.all_areas_geojson && Array.isArray(this.all_areas_geojson.features)) {
         this.all_areas_geojson.features.forEach((f) => {
@@ -434,7 +450,7 @@ export default {
         });
       }
 
-      // only keep id types that are requested in liste_layers (props now provide names)
+      // Ne garde que les id_types qui sont à la fois présents dans les données et demandés dans requestedIdTypes (filtrage nécessaire car il peut y avoir des id_types dans les données pour lesquels on n'a pas de style défini, et qu'on ne veut pas afficher)
       const idsToRender = Array.from(idSet).filter((id) => this.requestedIdTypes.has(id));
 
       idsToRender.forEach((id) => {
@@ -462,7 +478,7 @@ export default {
         this.areasLayerGroup.addLayer(layerByType);
       });
 
-      // create labels (will be positioned by placeLabels to avoid overlaps)
+      // Créé des markers pour les labels (noms des zones) à partir des features de all_areas_geojson, en filtrant pour ne garder que les features des types demandés dans requestedIdTypes. Le HTML du label est stylisé en fonction du style de la couche correspondante (couleur de texte basée sur fillColor ou color), et stocké dans labelItems pour être placé ensuite avec placeLabels() qui gère les chevauchements.
       try {
         if (this.labelLayerGroup) this.labelLayerGroup.clearLayers();
         const features = this.all_areas_geojson.features.filter(
@@ -494,20 +510,20 @@ export default {
             const textColor =
               cfg && cfg.fillColor ? cfg.fillColor : cfg && cfg.color ? cfg.color : '#000';
             const html = `<div class="area-label-box" style="background:rgba(255,255,255,0.5);border:1px solid ${textColor};padding:2px 6px;border-radius:4px;display:inline-block;white-space:nowrap;"><div class=\"area-label\" style=\"color:${textColor};font-size:18px;font-weight:700;white-space:nowrap;display:inline-block;\">${String(areaName)}</div></div>`;
-            // store label item for later placement
+            // place le label à son centre géographique, le placement effectif et la résolution des chevauchements seront gérés ensuite dans placeLabels()
             this.labelItems.push({ feature: f, center, html });
           } catch (e) {
-            /* per-feature ignore */
+            console.warn('Erreur création label pour feature', f, e);
           }
         }
       } catch (e) {
-        /* ignore label creation errors */
+        console.warn('Erreur création des labels', e);
       }
 
-      // perform placement now
+      // place les labels en résolvant les chevauchements pour éviter que les labels ne se chevauchent entre eux ou avec d'autres labels, en utilisant
       this.placeLabels();
 
-      // update legend after layers created
+      // Mise à jour de la légende après avoir ajouté les couches, pour s'assurer que la légende reflète les couches actuellement affichées
       this.updateLegend();
     },
 
@@ -518,7 +534,7 @@ export default {
     },
 
     resolveLabels() {
-      // simple greedy overlap resolver: show/hide labels based on pixel bbox collisions
+      // résout les chevauchements de labels en cachant les labels qui se chevauchent avec d'autres labels prioritaires (priorité donnée à l'ordre dans la liste, le premier est prioritaire sur les suivants)
       try {
         if (!this.map || !this.labelLayerGroup) return;
         const layers = this.labelLayerGroup.getLayers();
@@ -527,7 +543,7 @@ export default {
           try {
             const el = m.getElement();
             if (!el) continue;
-            // ensure visible before measuring
+            // s'assure que le label est affiché pour pouvoir mesurer sa taille et sa position, il sera caché plus tard s'il se chevauche avec un label prioritaire
             el.style.display = '';
             const p = this.map.latLngToContainerPoint(m.getLatLng());
             const w = el.offsetWidth || 60;
@@ -535,14 +551,14 @@ export default {
             const rect = { x: p.x - w / 2, y: p.y - h / 2, w, h, marker: m };
             rects.push(rect);
           } catch (e) {
-            /* ignore per marker */
+            console.warn('Erreur mesure label', m, e);
           }
         }
 
         // vérifies si deux rectangles se chevauchent
         const overlap = (a, b) =>
           !(a.x + a.w < b.x || b.x + b.w < a.x || a.y + a.h < b.y || b.y + b.h < a.y);
-        // greedy: keep first, hide later overlaps
+        // garde les labels qui ne se chevauchent pas avec des labels prioritaires, en parcourant la liste dans l'ordre et en cachant les labels qui se chevauchent avec un label déjà prioritaire (le premier de la liste est prioritaire sur les suivants)
         for (let i = 0; i < rects.length; i++) {
             // si le marker a déjà été caché par un chevauchement précédent, on le skip pour éviter de cacher tous les markers qui suivent
           if (!rects[i].marker) continue;
@@ -557,7 +573,7 @@ export default {
           }
         }
       } catch (e) {
-        /* ignore */
+        console.warn('Erreur résolution chevauchement labels', e);
       }
     },
 
@@ -584,7 +600,7 @@ export default {
       try {
         if (!this.map) return;
         if (!this.labelItems || !this.labelItems.length) return;
-        // clear previous
+        // efface les labels existants pour repartir sur une base propre avant de replacer les labels à leurs nouvelles positions (utile notamment lors du zoom/pan où les positions changent, et pour éviter les doublons)
         if (this.labelLayerGroup) this.labelLayerGroup.clearLayers();
         const placed = [];
 
@@ -628,22 +644,22 @@ export default {
                 }
                 if (!collision) {
                   const icon = L.divIcon({ html: it.html, className: 'area-label-wrapper' });
-                  placedMarker = L.marker(cand, { icon: icon, interactive: false });
+                  placedMarker = L.marker(cand, { icon: icon, interactive: false});
                   if (this.labelLayerGroup) this.labelLayerGroup.addLayer(placedMarker);
                   placed.push(rect);
                   break;
                 }
               } catch (e) {
-                /* try next candidate */
+                console.warn('Erreur placement label candidat', cand, e);
               }
             }
-            // if none placed, skip label
+            // si aucun candidat n'a pu être placé sans collision, on place le label à sa position centrale par défaut (même si ça peut générer des chevauchements, au moins le label est affiché)
           } catch (e) {
-            /* per-label ignore */
+            console.warn('Erreur création label pour feature', f, e);
           }
         }
       } catch (e) {
-        /* ignore whole placement errors */
+        console.warn('Erreur placement des labels', e);
       }
     },
 
@@ -666,7 +682,7 @@ export default {
           this.map.removeLayer(this.declarationMarker);
         }
       } catch (e) {
-        /* ignore */
+        console.warn('Erreur suppression marker déclaration :', e);
       }
       this.declarationMarker = null;
     },
@@ -770,6 +786,13 @@ export default {
         console.warn('Erreur lors de la construction de la légende :', e);
       }
     },
+
+    // Méthode utilitaire pour obtenir l'instance de la carte depuis l'extérieur du composant,
+    // utile pour l'export en pdf par exemple
+    getMapInstance() {
+      return this.map
+    },
+
   },
 };
 </script>

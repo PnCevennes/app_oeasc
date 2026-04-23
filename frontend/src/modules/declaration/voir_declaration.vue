@@ -3,30 +3,33 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
 <template>
   <div style="min-width: 900px; max-width: 1000px; margin: auto">
     <v-progress-linear
-      v-if="pdfProcessing"
+      v-if="isExporting"
       active
       indeterminate
     ></v-progress-linear>
-
-    <div
-      style="width: 100%"
-      id="declaration"
-    >
-      <div v-if="declaration_data">
-        <h1>Déclaration {{ declaration_data.id_declaration }}</h1>
-        <v-btn
-          class="ignorepdf"
+    <div>
+      <v-btn
           icon
           color="red"
-          @click="exportDeclaration()"
+          @click="exportToPdf()"
           title="Exporter la déclaration au format pdf"
         >
           <v-icon>mdi-file-pdf</v-icon>
         </v-btn>
+    </div>
+    
+    <div
+      style="width: 100%; margin: auto; padding: 16px; background-color: white"
+      id="declaration" ref="ref_declaration"
+    >
+      <div v-if="declaration_data">
+        <h1>Déclaration {{ declaration_data.id_declaration }}</h1>
+        
 
         <div
           id="resume_declaration"
-          style=""
+          ref="ref_resume_declaration"
+          style="width: 100%; margin: auto;"
         >
           <template v-if="bInit == true">
             <div>
@@ -400,14 +403,14 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
         </div>
       </div>
 
-      <div class="html2pdf__page-break"></div>
-
       <h2 style="margin-top: 2em">Cartes</h2>
 
       <div style="margin-top: 1em">
         <MapDeclarationSimple
           v-if="declaration_data"
+          ref="map1"
           :declaration_data="declaration_data"
+          mapID="map1"
           :liste_layers="[
             'OEASC',
             'SECTEUR',
@@ -424,7 +427,9 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
       <div style="margin-top: 1em">
         <MapDeclarationSimple
           v-if="declaration_data"
+          ref="map2"
           :declaration_data="declaration_data"
+          mapID="map2"
           :liste_layers="[
             'OEASC',
             'FORETS_ONF',
@@ -441,29 +446,15 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
       <div style="margin-top: 1em">
         <MapDeclarationSimple
           v-if="declaration_data"
+          ref="map3"
           :declaration_data="declaration_data"
-          :liste_layers="['OEASC', 'FORETS_ONF', 'UG_ONF', 'FORETS_DGD', 'CADASTRES', 'SECTIONS']"
-          :zoom_on="['PARCELLES_ONF', 'CADASTRES']"
+          mapID="map3"
+          :liste_layers="['OEASC', 'PARCELLES_ONF', 'UG_ONF', 'FORETS_DGD', 'CADASTRES', 'SECTIONS']"
+          :zoom_on="['UG_ONF', 'CADASTRES']"
         ></MapDeclarationSimple>
       </div>
 
-      <!-- <div style="margin-top: 3em">
-          <div v-for="type in mapList">
-            <div
-              v-if="configMaps[type]"
-              :key="type"
-            >
-              <div small>{{ configMaps[type].title }}</div>
-              <base-map
-                :mapId="`map_${type}`"
-                :config="configMaps[type]"
-                height="315px"
-              ></base-map>
-            </div>
-          </div>
-        </div> -->
     </div>
-    <!-- <pre>{{ declaration_data }}</pre> -->
   </div>
 </template>
 
@@ -472,27 +463,11 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
 // import { exportPDF } from "@/modules/export";
 import { apiRequest } from '@/core/js/data/api';
 import './declaration.css';
-import html2pdf from 'html2pdf.js';
 import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf'
 import resumeDeclaration from './resume_declaration.vue';
 import MapDeclarationSimple from './map/map_declaration_simple.vue';
 
-const styles = {
-  foret: {
-    color: 'purple',
-    fillColor: 'purple',
-    weight: 2,
-    opacity: 1,
-    fillOpacity: 0.5,
-  },
-  parcelles: {
-    color: 'black',
-    fillColor: 'green',
-    weight: 2,
-    opacity: 1,
-    fillOpacity: 0.5,
-  },
-};
 
 export default {
   name: 'voir_declaration',
@@ -501,150 +476,151 @@ export default {
     declaration_data: null,
     b_init: false,
     mapList: ['secteur', 'foret', 'parcelles'],
+    isExporting: false,
   }),
   components: {
     resumeDeclaration,
-    // baseMap,
     MapDeclarationSimple,
   },
   methods: {
-    exportDeclaration() {
-      this.pdfProcessing = true;
-      this.$nextTick(() => {
-        // Attendre que toutes les cartes soient entièrement chargées
-        setTimeout(() => {
-          const element = document.getElementById('declaration');
 
-          // Masquer les éléments avec la classe ignorepdf
-          const elementsToHide = element.querySelectorAll('.ignorepdf');
-          elementsToHide.forEach((el) => (el.style.display = 'none'));
+    // attend que la carte ait fini de charger ses tiles avant de continuer (important pour éviter les problèmes de tiles manquantes dans le PDF si la capture est faite trop tôt)
+    waitForMapReady(mapRef) {
+      return new Promise((resolve) => {
+        const map = mapRef.getMapInstance()
+        
+        if (map._loaded) {
+          setTimeout(resolve, 300)
+          return
+        }
 
-          const opt = {
-            margin: 0.5,
-            filename: `declaration_${this.declaration_data.id_declaration}.pdf`,
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: {
-              scale: 1.5,
-              useCORS: true,
-              logging: false,
-              width: element.scrollWidth,
-              height: element.scrollHeight,
-              scrollX: 0,
-              scrollY: 0,
-              windowWidth: element.scrollWidth,
-              windowHeight: element.scrollHeight,
-              allowTaint: true,
-              foreignObjectRendering: false,
-              backgroundColor: '#ffffff',
-            },
-            jsPDF: {
-              unit: 'mm',
-              format: 'a4',
-              orientation: 'portrait',
-              compress: true,
-            },
-            pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-          };
-
-          html2pdf()
-            .set(opt)
-            .from(element)
-            .save()
-            .then(() => {
-              // Remettre les éléments cachés
-              elementsToHide.forEach((el) => (el.style.display = ''));
-              this.pdfProcessing = false;
-            })
-            .catch((error) => {
-              console.error('Erreur lors de la génération du PDF:', error);
-              // Remettre les éléments cachés même en cas d'erreur
-              elementsToHide.forEach((el) => (el.style.display = ''));
-              this.pdfProcessing = false;
-            });
-        }, 2000); // Délai plus long pour s'assurer que les cartes sont chargées
-      });
+        map.once('load', () => {
+          setTimeout(resolve, 300)
+        })
+      })
     },
 
-    // configMap(type) {
-    //   if (!this.declaration_data) {
-    //     return;
-    //   }
-    //   const markers = [
-    //     {
-    //       coords: this.declaration_data.centroid,
-    //       type: 'marker',
-    //       style: {
-    //         color: 'blue',
-    //         icon: 'map-marker',
-    //       },
-    //     },
-    //   ];
-    //   const markerLegendGroups = [
-    //     {
-    //       legends: [
-    //         {
-    //           icon: 'map-marker',
-    //           text: 'Localisation des alertes',
-    //           color: '#3689CE',
-    //         },
-    //       ],
-    //     },
-    //   ];
-    //   const titles = {
-    //     secteur: "Localisation de l'alerte dans le périmètre de l'observatoire",
-    //     foret: 'Localisation des parcelles',
-    //     parcelles: 'Carte des parcelles',
-    //   };
-    //   const layerList = {
-    //     secteur: {},
-    //     foret: {
-    //       url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration_data.areas_foret.join(
-    //         '&id_area='
-    //       )}`,
-    //       legend: "Forêt concernée par l'alerte",
-    //       style: styles.foret,
-    //       pane: 'PANE_LAYER_1',
-    //     },
-    //     parcelles: {
-    //       url: `api/ref_geo/areas_from_type/l?id_area=${this.declaration_data.areas_localisation.join(
-    //         '&id_area='
-    //       )}`,
+    // Pour l'export pdf, on capture le tableau de résumé
+    // Capture du tableau récapitulatif (resume_declaration)
+    async captureTable() {
+      try {
+        const el = document.getElementById('resume_declaration') || document.querySelector('#resume_declaration')
+        if (!el) {
+          const c = document.createElement('canvas')
+          c.width = 10
+          c.height = 10
+          return c
+        }
 
-    //       legend: "Parcelle(s) concernée(s) par l'alerte",
-    //       style: styles.parcelles,
-    //       pane: 'PANE_LAYER_2',
-    //     },
-    //   };
+        // ensure layout is stable
+        await this.$nextTick()
+        await new Promise((r) => setTimeout(r, 200))
 
-    //   layerList[type] = {
-    //     ...layerList[type],
-    //     tooltip: {
-    //       permanent: true,
-    //       className: 'tooltip-label',
-    //       label: 'label',
-    //     },
-    //     zoom: true,
-    //   };
-    //   if (type != '') {
-    //     delete layerList.secteur;
-    //   }
-    //   return { layerList, title: titles[type], markers, markerLegendGroups };
-    // },
+        const canvas = await html2canvas(el, { useCORS: true, allowTaint: true, scale: 1.5 })
+        return canvas
+      } catch (e) {
+        const c = document.createElement('canvas')
+        c.width = 10
+        c.height = 10
+        return c
+      }
+    },
+
+
+
+    async exportToPdf() {
+      try {
+        this.isExporting = true
+        const pdf = new jsPDF('p', 'mm', 'a4')
+        const pageWidth = pdf.internal.pageSize.getWidth()
+        const pageHeight = pdf.internal.pageSize.getHeight()
+        const margin = 10
+        const contentWidth = pageWidth - margin * 2
+        let currentY = margin
+        const dateStr = new Date().toLocaleString()
+
+        pdf.text(`Déclaration no : ${this.declaration_data.id_declaration}`, margin, currentY)
+        currentY += 10
+
+        pdf.setFontSize(12)
+        pdf.text(`Exporté le : ${dateStr}`, margin, currentY)
+        currentY += 10
+
+        // ---- TABLEAU ----
+        pdf.setFontSize(12)
+        pdf.setTextColor(40, 40, 40)
+
+        const tableCanvas = await this.captureTable()
+        const tableImgData = tableCanvas.toDataURL('image/png')
+        const tableAspectRatio = tableCanvas.height / tableCanvas.width
+        const tableHeight = contentWidth * tableAspectRatio
+
+        // Vérifier si on doit passer à une nouvelle page
+        if (currentY + tableHeight > pageHeight - margin) {
+          pdf.addPage()
+          currentY = margin
+        }
+
+        pdf.addImage(tableImgData, 'PNG', margin, currentY, contentWidth, tableHeight)
+        currentY += tableHeight + 10
+
+
+        // ---- CARTES ----
+        pdf.setFontSize(12)
+        pdf.setTextColor(40, 40, 40)
+
+        // Nouvelle page pour les cartes
+        pdf.addPage()
+        currentY = margin
+        pdf.text('Cartes de localisation', margin, currentY)
+        currentY += 8
+
+        // s'assurer que les trois maps ont fini de charger leurs tiles
+        await this.waitForMapReady(this.$refs.map1)
+        await this.waitForMapReady(this.$refs.map2)
+        await this.waitForMapReady(this.$refs.map3)
+
+        // Capturer chaque map via html2canvas sur le conteneur DOM (inclut labels/divIcon et légende)
+        const map1 = await this.$refs.map1.getMapInstance()
+        const map2 = await this.$refs.map2.getMapInstance()
+        const map3 = await this.$refs.map3.getMapInstance()
+        
+        const canvas1 = await html2canvas(map1.getContainer(), { useCORS: true, allowTaint: true, scale: 2 })
+        const canvas2 = await html2canvas(map2.getContainer(), { useCORS: true, allowTaint: true, scale: 2 })
+        const canvas3 = await html2canvas(map3.getContainer(), { useCORS: true, allowTaint: true, scale: 2 })
+
+        const img1 = canvas1.toDataURL('image/png')
+        const img2 = canvas2.toDataURL('image/png')
+        const img3 = canvas3.toDataURL('image/png')
+
+        // positionnement des images de cartes.
+        pdf.addImage(img1, 'PNG', 10, 10, 190, 90)
+        pdf.addImage(img2, 'PNG', 10, 105, 190, 90)
+        pdf.addImage(img3, 'PNG', 10, 200, 190, 90)
+
+        // // Sauvegarde du PDF
+        pdf.save(`declaration_${this.declaration_data.id_declaration}.pdf`)
+
+      } catch (error) {
+        console.error('Erreur lors de la génération du PDF:', error)
+        // Afficher une notification d'erreur avec Vuetify
+        this.$emit('export-error', error.message)
+      } finally {
+        this.isExporting = false
+      }
+    }
+  
+
+
   },
   computed: {
     id() {
       return this.$route.params.id;
     },
-    // configMaps() {
-    //   const configMaps = {};
-    //   for (const type of this.mapList) {
-    //     configMaps[type] = this.configMap(type);
-    //   }
-    //   return configMaps;
-    // },
+
   },
   async created() {
-    // this.initDeclaration();
+
     this.id_declaration = this.$route.params.id;
     this.bInit = true;
     this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
@@ -653,7 +629,7 @@ export default {
       `api/declaration/voir_declaration/${this.id_declaration}`
     );
 
-    console.log('declaration_data', this.declaration_data);
+    // console.log('declaration_data', this.declaration_data);
   },
   async mounted() {},
   watch: {},
