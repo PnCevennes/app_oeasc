@@ -19,7 +19,6 @@ import 'leaflet/dist/leaflet.css';
 import { fetch_oeasc_perimetre } from '@/modules/declaration/utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
 import { apiRequest } from '@/core/js/data/api';
 
-
 const config_layers = {
   OEASC: {
     id_type: 0,
@@ -143,7 +142,6 @@ export default {
 
   data() {
     return {
-        
       map: null, // Instance de la carte Leaflet. Sera activé dans monted() avec initMap()
       mapRef: `ref-${this.mapID}`, // référence pour le conteneur de la carte, générée à partir de mapID
       geom_perimetre_oeasc: null, // geojson du périmètre oeasc, affiché en noir et non selectionnable. Affiché en permanence.
@@ -171,8 +169,7 @@ export default {
     },
   },
 
-  created() {
-  },
+  created() {},
 
   async mounted() {
     // construire la liste des id_types à partir de liste_layers qui peut contenir des strings ou des id_types directs
@@ -291,7 +288,7 @@ export default {
         return;
       }
       // création de la carte avec contrôle de zoom activé
-      this.map = L.map(container, { zoomControl: true, preferCanvas: true, renderer: L.canvas() }); 
+      this.map = L.map(container, { zoomControl: true, preferCanvas: true, renderer: L.canvas() });
 
       // couche de fond basique
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -409,9 +406,8 @@ export default {
                     color: '#000',
                     weight: 1,
                     opacity: 1,
-                    fillOpacity: 0.8
-                  }).addTo(this.map)
-                  
+                    fillOpacity: 0.8,
+                  }).addTo(this.map);
                 }
               }
             } catch (e) {
@@ -560,7 +556,7 @@ export default {
           !(a.x + a.w < b.x || b.x + b.w < a.x || a.y + a.h < b.y || b.y + b.h < a.y);
         // garde les labels qui ne se chevauchent pas avec des labels prioritaires, en parcourant la liste dans l'ordre et en cachant les labels qui se chevauchent avec un label déjà prioritaire (le premier de la liste est prioritaire sur les suivants)
         for (let i = 0; i < rects.length; i++) {
-            // si le marker a déjà été caché par un chevauchement précédent, on le skip pour éviter de cacher tous les markers qui suivent
+          // si le marker a déjà été caché par un chevauchement précédent, on le skip pour éviter de cacher tous les markers qui suivent
           if (!rects[i].marker) continue;
           for (let j = i + 1; j < rects.length; j++) {
             if (!rects[j].marker) continue;
@@ -644,7 +640,7 @@ export default {
                 }
                 if (!collision) {
                   const icon = L.divIcon({ html: it.html, className: 'area-label-wrapper' });
-                  placedMarker = L.marker(cand, { icon: icon, interactive: false});
+                  placedMarker = L.marker(cand, { icon: icon, interactive: false });
                   if (this.labelLayerGroup) this.labelLayerGroup.addLayer(placedMarker);
                   placed.push(rect);
                   break;
@@ -790,9 +786,8 @@ export default {
     // Méthode utilitaire pour obtenir l'instance de la carte depuis l'extérieur du composant,
     // utile pour l'export en pdf par exemple
     getMapInstance() {
-      return this.map
+      return this.map;
     },
-
   },
 };
 </script>

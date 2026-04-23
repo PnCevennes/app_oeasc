@@ -1,7 +1,15 @@
 <template>
   <v-app>
-    <v-overlay :value="loading" absolute>
-      <v-progress-circular indeterminate size="64" width="6" color="primary"></v-progress-circular>
+    <v-overlay
+      :value="loading"
+      absolute
+    >
+      <v-progress-circular
+        indeterminate
+        size="64"
+        width="6"
+        color="primary"
+      ></v-progress-circular>
     </v-overlay>
 
     <div
@@ -38,26 +46,39 @@
           <!-- contenu de la page, router gére automatiquement les routes inscrites dans router/index.js -->
           <!-- mais dans cette appli on récupère aussi les roude dans modules/index.js et pages/index.js -->
           <router-view></router-view>
-              <!-- Le Snackbar Global -->
-        <!-- Le Snackbar qui affichera les messages d'erreur ou de succès-->
-        <v-snackbar
-          v-model="snackbarState.show"
-          :color="snackbarState.color"
-          :timeout="snackbarState.timeout"
-          min-height="100px"
-          elevation="2"
-          bottom
-          center
-        >
-          <span :style="{ whiteSpace: 'pre-line', fontSize: snackbarState.fontSize, fontWeight: snackbarState.fontWeight, lineHeight: snackbarState.lineHeight, color: snackbarState.textColor }">
-          {{ snackbarState.message }}
-          </span>
-          <template v-slot:action="{ attrs }">
-            <v-btn text v-bind="attrs" @click="snackbarState.show = false" :style="{ color: snackbarState.textColor, fontSize: '1rem', fontWeight: 400 }">
-              Fermer
-            </v-btn>
-          </template>
-        </v-snackbar>
+          <!-- Le Snackbar Global -->
+          <!-- Le Snackbar qui affichera les messages d'erreur ou de succès-->
+          <v-snackbar
+            v-model="snackbarState.show"
+            :color="snackbarState.color"
+            :timeout="snackbarState.timeout"
+            min-height="100px"
+            elevation="2"
+            bottom
+            center
+          >
+            <span
+              :style="{
+                whiteSpace: 'pre-line',
+                fontSize: snackbarState.fontSize,
+                fontWeight: snackbarState.fontWeight,
+                lineHeight: snackbarState.lineHeight,
+                color: snackbarState.textColor,
+              }"
+            >
+              {{ snackbarState.message }}
+            </span>
+            <template v-slot:action="{ attrs }">
+              <v-btn
+                text
+                v-bind="attrs"
+                @click="snackbarState.show = false"
+                :style="{ color: snackbarState.textColor, fontSize: '1rem', fontWeight: 400 }"
+              >
+                Fermer
+              </v-btn>
+            </template>
+          </v-snackbar>
         </div>
       </div>
     </div>
@@ -95,7 +116,7 @@ export default {
     },
     snackbarState() {
       return snackbarStore.state;
-    }
+    },
   },
 
   data() {
@@ -112,7 +133,7 @@ export default {
       snackbar: {
         show: false,
         message: '',
-        color: 'error' // 'success', 'info', etc.
+        color: 'error', // 'success', 'info', etc.
       },
       drawerShow: false,
       test_affichage_session: this.$session, // a retirer. C'est pour voir le contenu de la session
@@ -134,27 +155,30 @@ export default {
   methods: {
     process() {
       this.loading = true;
-      return this.$store.dispatch('testConnexion', {}).then(
-        // verifie si l'utilisateur est connecté
-        (user) => {
-          this.$store.commit('user', user); // met à jour les données de l'utilisateur
-          this.checkRigths(); //
-          // titre
-          this.setTitle();
-          return user;
-        },
-        (error) => {
-          // si erreur on déconnecte l'utilisateur
-          this.$store.commit('user', {});
-          this.checkRigths();
-          // titre
-          this.setTitle();
-          // rethrow to allow callers to handle the error if needed
-          throw error;
-        }
-      ).finally(() => {
-        this.loading = false;
-      });
+      return this.$store
+        .dispatch('testConnexion', {})
+        .then(
+          // verifie si l'utilisateur est connecté
+          (user) => {
+            this.$store.commit('user', user); // met à jour les données de l'utilisateur
+            this.checkRigths(); //
+            // titre
+            this.setTitle();
+            return user;
+          },
+          (error) => {
+            // si erreur on déconnecte l'utilisateur
+            this.$store.commit('user', {});
+            this.checkRigths();
+            // titre
+            this.setTitle();
+            // rethrow to allow callers to handle the error if needed
+            throw error;
+          }
+        )
+        .finally(() => {
+          this.loading = false;
+        });
     },
     setTitle() {
       // modifie le titre de la page
@@ -185,7 +209,6 @@ export default {
     // a la creation de la page on lance la fonction process.
     this.process();
   },
-
 };
 </script>
 

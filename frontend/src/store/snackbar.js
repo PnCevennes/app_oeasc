@@ -1,12 +1,11 @@
 // Affiche une petite fenêtre de notification en bas de l'écran, pour informer l'utilisateur d'une action réussie ou d'une erreur.
-// dans chaque vue il faudra importer le snackbarStore 
+// dans chaque vue il faudra importer le snackbarStore
 // et appeler snackbarStore.show("message à afficher", "type de message (ex: 'success' ou 'error')") pour afficher le message
 // le snackbar est implémenté dans App.vue pour être accessible depuis n'importe quelle vue de l'application
 
-
 import Vue from 'vue';
 
-// Si vous êtes en Vue 2.7+, 'reactive' est intégré. 
+// Si vous êtes en Vue 2.7+, 'reactive' est intégré.
 // Sinon, on utilise Vue.observable pour la réactivité.
 const state = Vue.observable({
   show: false,
@@ -16,8 +15,7 @@ const state = Vue.observable({
   textColor: 'black',
   fontSize: '1.3rem',
   fontWeight: 400,
-  lineHeight: 1.3
-  
+  lineHeight: 1.3,
 });
 
 export const snackbarStore = {
@@ -25,7 +23,7 @@ export const snackbarStore = {
   get state() {
     return state;
   },
-  
+
   // Méthode pour afficher le message
   show(message, color = 'error', textColor = 'black') {
     state.message = message;
@@ -33,11 +31,11 @@ export const snackbarStore = {
       // vert très clair
       state.color = '#d4f3db';
       state.textColor = '#363636';
-    }else if (color === 'error') {
+    } else if (color === 'error') {
       // rouge très clair
       state.color = '#f05d69';
       state.textColor = 'white';
-    }else if (color === 'info') {
+    } else if (color === 'info') {
       // bleu très clair
       state.color = '#b4d9e4';
       state.textColor = '#363636';
@@ -53,5 +51,5 @@ export const snackbarStore = {
   // Méthode pour fermer
   hide() {
     state.show = false;
-  }
+  },
 };

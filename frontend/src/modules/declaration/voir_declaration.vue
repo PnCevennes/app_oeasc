@@ -9,27 +9,27 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
     ></v-progress-linear>
     <div>
       <v-btn
-          icon
-          color="red"
-          @click="exportToPdf()"
-          title="Exporter la déclaration au format pdf"
-        >
-          <v-icon>mdi-file-pdf</v-icon>
-        </v-btn>
+        icon
+        color="red"
+        @click="exportToPdf()"
+        title="Exporter la déclaration au format pdf"
+      >
+        <v-icon>mdi-file-pdf</v-icon>
+      </v-btn>
     </div>
-    
+
     <div
       style="width: 100%; margin: auto; padding: 16px; background-color: white"
-      id="declaration" ref="ref_declaration"
+      id="declaration"
+      ref="ref_declaration"
     >
       <div v-if="declaration_data">
         <h1>Déclaration {{ declaration_data.id_declaration }}</h1>
-        
 
         <div
           id="resume_declaration"
           ref="ref_resume_declaration"
-          style="width: 100%; margin: auto;"
+          style="width: 100%; margin: auto"
         >
           <template v-if="bInit == true">
             <div>
@@ -449,11 +449,17 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
           ref="map3"
           :declaration_data="declaration_data"
           mapID="map3"
-          :liste_layers="['OEASC', 'PARCELLES_ONF', 'UG_ONF', 'FORETS_DGD', 'CADASTRES', 'SECTIONS']"
+          :liste_layers="[
+            'OEASC',
+            'PARCELLES_ONF',
+            'UG_ONF',
+            'FORETS_DGD',
+            'CADASTRES',
+            'SECTIONS',
+          ]"
           :zoom_on="['UG_ONF', 'CADASTRES']"
         ></MapDeclarationSimple>
       </div>
-
     </div>
   </div>
 </template>
@@ -464,10 +470,9 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
 import { apiRequest } from '@/core/js/data/api';
 import './declaration.css';
 import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf'
+import jsPDF from 'jspdf';
 import resumeDeclaration from './resume_declaration.vue';
 import MapDeclarationSimple from './map/map_declaration_simple.vue';
-
 
 export default {
   name: 'voir_declaration',
@@ -483,144 +488,148 @@ export default {
     MapDeclarationSimple,
   },
   methods: {
-
     // attend que la carte ait fini de charger ses tiles avant de continuer (important pour éviter les problèmes de tiles manquantes dans le PDF si la capture est faite trop tôt)
     waitForMapReady(mapRef) {
       return new Promise((resolve) => {
-        const map = mapRef.getMapInstance()
-        
+        const map = mapRef.getMapInstance();
+
         if (map._loaded) {
-          setTimeout(resolve, 300)
-          return
+          setTimeout(resolve, 300);
+          return;
         }
 
         map.once('load', () => {
-          setTimeout(resolve, 300)
-        })
-      })
+          setTimeout(resolve, 300);
+        });
+      });
     },
 
     // Pour l'export pdf, on capture le tableau de résumé
     // Capture du tableau récapitulatif (resume_declaration)
     async captureTable() {
       try {
-        const el = document.getElementById('resume_declaration') || document.querySelector('#resume_declaration')
+        const el =
+          document.getElementById('resume_declaration') ||
+          document.querySelector('#resume_declaration');
         if (!el) {
-          const c = document.createElement('canvas')
-          c.width = 10
-          c.height = 10
-          return c
+          const c = document.createElement('canvas');
+          c.width = 10;
+          c.height = 10;
+          return c;
         }
 
         // ensure layout is stable
-        await this.$nextTick()
-        await new Promise((r) => setTimeout(r, 200))
+        await this.$nextTick();
+        await new Promise((r) => setTimeout(r, 200));
 
-        const canvas = await html2canvas(el, { useCORS: true, allowTaint: true, scale: 1.5 })
-        return canvas
+        const canvas = await html2canvas(el, { useCORS: true, allowTaint: true, scale: 1.5 });
+        return canvas;
       } catch (e) {
-        const c = document.createElement('canvas')
-        c.width = 10
-        c.height = 10
-        return c
+        const c = document.createElement('canvas');
+        c.width = 10;
+        c.height = 10;
+        return c;
       }
     },
 
-
-
     async exportToPdf() {
       try {
-        this.isExporting = true
-        const pdf = new jsPDF('p', 'mm', 'a4')
-        const pageWidth = pdf.internal.pageSize.getWidth()
-        const pageHeight = pdf.internal.pageSize.getHeight()
-        const margin = 10
-        const contentWidth = pageWidth - margin * 2
-        let currentY = margin
-        const dateStr = new Date().toLocaleString()
+        this.isExporting = true;
+        const pdf = new jsPDF('p', 'mm', 'a4');
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const margin = 10;
+        const contentWidth = pageWidth - margin * 2;
+        let currentY = margin;
+        const dateStr = new Date().toLocaleString();
 
-        pdf.text(`Déclaration no : ${this.declaration_data.id_declaration}`, margin, currentY)
-        currentY += 10
+        pdf.text(`Déclaration no : ${this.declaration_data.id_declaration}`, margin, currentY);
+        currentY += 10;
 
-        pdf.setFontSize(12)
-        pdf.text(`Exporté le : ${dateStr}`, margin, currentY)
-        currentY += 10
+        pdf.setFontSize(12);
+        pdf.text(`Exporté le : ${dateStr}`, margin, currentY);
+        currentY += 10;
 
         // ---- TABLEAU ----
-        pdf.setFontSize(12)
-        pdf.setTextColor(40, 40, 40)
+        pdf.setFontSize(12);
+        pdf.setTextColor(40, 40, 40);
 
-        const tableCanvas = await this.captureTable()
-        const tableImgData = tableCanvas.toDataURL('image/png')
-        const tableAspectRatio = tableCanvas.height / tableCanvas.width
-        const tableHeight = contentWidth * tableAspectRatio
+        const tableCanvas = await this.captureTable();
+        const tableImgData = tableCanvas.toDataURL('image/png');
+        const tableAspectRatio = tableCanvas.height / tableCanvas.width;
+        const tableHeight = contentWidth * tableAspectRatio;
 
         // Vérifier si on doit passer à une nouvelle page
         if (currentY + tableHeight > pageHeight - margin) {
-          pdf.addPage()
-          currentY = margin
+          pdf.addPage();
+          currentY = margin;
         }
 
-        pdf.addImage(tableImgData, 'PNG', margin, currentY, contentWidth, tableHeight)
-        currentY += tableHeight + 10
-
+        pdf.addImage(tableImgData, 'PNG', margin, currentY, contentWidth, tableHeight);
+        currentY += tableHeight + 10;
 
         // ---- CARTES ----
-        pdf.setFontSize(12)
-        pdf.setTextColor(40, 40, 40)
+        pdf.setFontSize(12);
+        pdf.setTextColor(40, 40, 40);
 
         // Nouvelle page pour les cartes
-        pdf.addPage()
-        currentY = margin
-        pdf.text('Cartes de localisation', margin, currentY)
-        currentY += 8
+        pdf.addPage();
+        currentY = margin;
+        pdf.text('Cartes de localisation', margin, currentY);
+        currentY += 8;
 
         // s'assurer que les trois maps ont fini de charger leurs tiles
-        await this.waitForMapReady(this.$refs.map1)
-        await this.waitForMapReady(this.$refs.map2)
-        await this.waitForMapReady(this.$refs.map3)
+        await this.waitForMapReady(this.$refs.map1);
+        await this.waitForMapReady(this.$refs.map2);
+        await this.waitForMapReady(this.$refs.map3);
 
         // Capturer chaque map via html2canvas sur le conteneur DOM (inclut labels/divIcon et légende)
-        const map1 = await this.$refs.map1.getMapInstance()
-        const map2 = await this.$refs.map2.getMapInstance()
-        const map3 = await this.$refs.map3.getMapInstance()
-        
-        const canvas1 = await html2canvas(map1.getContainer(), { useCORS: true, allowTaint: true, scale: 2 })
-        const canvas2 = await html2canvas(map2.getContainer(), { useCORS: true, allowTaint: true, scale: 2 })
-        const canvas3 = await html2canvas(map3.getContainer(), { useCORS: true, allowTaint: true, scale: 2 })
+        const map1 = await this.$refs.map1.getMapInstance();
+        const map2 = await this.$refs.map2.getMapInstance();
+        const map3 = await this.$refs.map3.getMapInstance();
 
-        const img1 = canvas1.toDataURL('image/png')
-        const img2 = canvas2.toDataURL('image/png')
-        const img3 = canvas3.toDataURL('image/png')
+        const canvas1 = await html2canvas(map1.getContainer(), {
+          useCORS: true,
+          allowTaint: true,
+          scale: 2,
+        });
+        const canvas2 = await html2canvas(map2.getContainer(), {
+          useCORS: true,
+          allowTaint: true,
+          scale: 2,
+        });
+        const canvas3 = await html2canvas(map3.getContainer(), {
+          useCORS: true,
+          allowTaint: true,
+          scale: 2,
+        });
+
+        const img1 = canvas1.toDataURL('image/png');
+        const img2 = canvas2.toDataURL('image/png');
+        const img3 = canvas3.toDataURL('image/png');
 
         // positionnement des images de cartes.
-        pdf.addImage(img1, 'PNG', 10, 10, 190, 90)
-        pdf.addImage(img2, 'PNG', 10, 105, 190, 90)
-        pdf.addImage(img3, 'PNG', 10, 200, 190, 90)
+        pdf.addImage(img1, 'PNG', 10, 10, 190, 90);
+        pdf.addImage(img2, 'PNG', 10, 105, 190, 90);
+        pdf.addImage(img3, 'PNG', 10, 200, 190, 90);
 
         // // Sauvegarde du PDF
-        pdf.save(`declaration_${this.declaration_data.id_declaration}.pdf`)
-
+        pdf.save(`declaration_${this.declaration_data.id_declaration}.pdf`);
       } catch (error) {
-        console.error('Erreur lors de la génération du PDF:', error)
+        console.error('Erreur lors de la génération du PDF:', error);
         // Afficher une notification d'erreur avec Vuetify
-        this.$emit('export-error', error.message)
+        this.$emit('export-error', error.message);
       } finally {
-        this.isExporting = false
+        this.isExporting = false;
       }
-    }
-  
-
-
+    },
   },
   computed: {
     id() {
       return this.$route.params.id;
     },
-
   },
   async created() {
-
     this.id_declaration = this.$route.params.id;
     this.bInit = true;
     this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
