@@ -1,0 +1,48 @@
+<h3>Une déclaration a été renouvelée</h3>
+
+<p>La déclaration no {{info_declaration.id_declaration_originale}} a été renouvelée par <b>{{info_declaration.prenom_role}} {{info_declaration.nom_role}}</b>. <br>
+    
+    <table style="border-collapse: collapse; width: 100%; max-width: 600px; margin-top: 20px;">
+        <tr>
+            <td><b>Date de déclaration</b></td>
+            <td><b>{{info_declaration.date_declaration_visible}}</b></td>
+        </tr>
+        <tr>
+            <td><b>ID nouvelle déclaration</b></td>
+            <td><b>{{info_declaration.id_declaration}}</b></td>
+        </tr>
+        <tr>
+            <td><b>Déclarant</b></td>
+            <td><b>{{info_declaration.prenom_role}} {{info_declaration.nom_role}}</b></td>
+        </tr>
+        <tr>
+            <td><b>Organisme</b></td>
+            <td><b>{{info_declaration.organisme}}</b></td>
+        </tr>
+        <tr>
+            <td><b>Parcelles concernées</b></td>
+            <td><b>{{info_declaration.parcelles}}</b></td>
+        </tr>
+        <tr>
+            <td><b>Forêt concernée</b></td>
+            <td><b>{{info_declaration.label_foret}}</b></td>
+        </tr>
+
+    </table>
+
+    Pour accéder à la déclaration renouvelée, cliquez sur le bouton ci-dessous :<br>
+</p>
+<div style="text-align:center; margin-top:20px;">
+  <a href="{{ url_declaration }}" 
+     style="background-color:#4CAF50;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;">
+     🔍 Voir la déclaration renouvelée
+  </a>
+</div>
+
+
+<!-- <div style="text-align:center; margin-top:20px;">
+  <a href="{{ url_modifier }}" 
+     style="background-color:#2196F3;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;">
+     ✏️ MODIFIER
+  </a>
+</div> -->

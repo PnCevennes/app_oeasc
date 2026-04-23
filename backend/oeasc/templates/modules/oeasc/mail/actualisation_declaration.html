@@ -1,26 +1,30 @@
-<p>Bonjour, {{info_declaration.prenom_role}} {{info_declaration.nom_role}}</p>
+<p>Bonjour,</p>
 
-<p>Vous avez fait une déclaration de dêgat sur les parcelles {{info_declaration.parcelles}} dans la foret "{{info_declaration.label_foret}}". <br>
+<p>Le {{info_declaration.date_declaration_visible}}  vous avez signalé sur le site de l'Observatoire partagé de l'équilibre agro-sylvo-cynégétique, des
+   dêgats d'ongulés sauvages sur les parcelles {{info_declaration.parcelles}} dans la {{info_declaration.label_foret}}. <br>
    Cette déclaration date de plus de 3 ans. <br>
-   Afin qu'elle soit toujours valide, veuillez l'actualiser. </p>
-
-<p>
-   Le renouvellement ne prend que quelques minutes. <br>
-   Clôturer votre déclaration ne prend que quelques secondes et vous évitera de recevoir d'autres mails.
+   Il convient donc de la mettre à jour, afin d'actualiser les données relatives aux dégâts forestiers.
 </p>
 
-<p>Que souhaitez-vous faire ?</p>
+<p>
+   Si les dégâts sont toujours présents, il vous faut renouveler la déclaration, en indiquant d'éventuelles évolutions sur les caractéristiques des dégâts (types de dégâts, essences touchées, importance, etc.)
+   Cela ne vous prendra que quelques minutes.<br>
+   S'il n'y a plus de dégâts, il convient de "clôturer" votre déclaration (qui sera alors archivée).  Cela ne vous prendra que quelques secondes<br>
+   
+   Nous vous invitons donc à cliquer sur l'un des boutons ci-dessous, selon la situation constatée sur le terrain .<br>
+   
+</p>
 
 <div style="text-align:center; margin-top:20px;">
   <a href="{{ url_oui }}" 
      style="background-color:#4CAF50;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;">
-     ✅ OUI JE RENOUVELLE MA DÉCLARATION
+     ✅ RENOUVELER / ACTUALISER MA DÉCLARATION
   </a>
 </div>
 <div style="text-align:center; margin-top:20px;">
      <a href="{{ url_non }}" 
      style="background-color:#f44336;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;">
-     ❌ NON JE CLOTURE MA DÉCLARATION
+     ❌ JE CLÔTURE MA DÉCLARATION, CAR IL N'Y A PLUS DE DÉGÂTS
   </a>
 </div>
 

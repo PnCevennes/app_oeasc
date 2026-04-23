@@ -1,0 +1,23 @@
+<h3>Echec de renouvellement de déclaration</h3>
+
+<p>La déclaration no {{info_declaration.id_declaration}} n'a pas pu être renouvelée par <b>{{info_declaration.prenom_role}} {{info_declaration.nom_role}} le {{info_declaration.meta_create_date}}</b>. <br>
+    Le statut de la déclaration est resté <b>{{info_declaration.libelle_statut}}
+</b>. <br>
+<p>
+    Merci de contacter l'administrateur de l'application afin qu'il consulte les logs d'erreurs
+</p>
+
+<h3>Le contenu de la déclaration à transmettre à l'administrateur</h3>
+<pre>
+{{info_declaration | tojson(indent=2, ensure_ascii=False) }}
+</pre>
+    
+    
+
+
+<!-- <div style="text-align:center; margin-top:20px;">
+  <a href="{{ url_modifier }}" 
+     style="background-color:#2196F3;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;margin:5px;display:inline-block;">
+     ✏️ MODIFIER
+  </a>
+</div> -->
