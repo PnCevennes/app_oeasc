@@ -21,7 +21,7 @@ from oeasc.modules.oeasc.generic.repository import (
     create_or_update_object_type,
     # delete_object_type,
 )
-from oeasc.modules.oeasc.declaration.relance_renouvellement import (
+from oeasc.modules.oeasc.declaration.mail import (
     relance_toutes_declarations,
 )
 

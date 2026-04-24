@@ -15,6 +15,7 @@ DB = config["DB"]
 
 class VUsersShema(SQLAlchemyAutoSchema):
     id_role = fields.Integer(allow_none=True)
+    max_level_profil = id_droit_max = fields.Integer(allow_none=True)
 
     class Meta:
         model = VUsers

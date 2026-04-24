@@ -46,7 +46,7 @@ def check_auth_redirect_login(level):
             # Appel de la fonction d'authentification du module fnauth.
             # Si l'utilisateur est authentifié avec le bon niveau, la route est exécutée.
             # Sinon, l'utilisateur est redirigé selon la configuration de fnauth.
-            print("session in check_auth_redirect_login:", session)
+            # print("session in check_auth_redirect_login:", session)
             # si il existe un temp_user dans la session, on verifie si le token est valide
 
             if (session.get("temp_user", None)) and (

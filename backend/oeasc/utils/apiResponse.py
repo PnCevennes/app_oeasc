@@ -6,16 +6,16 @@ from flask import jsonify
 from datetime import datetime
 import os
 
-
 path_log = os.path.join(app.config["ROOT_DIR"], "logs/")
 os.makedirs(path_log, exist_ok=True)
+
 
 class ApiResponse:
     def __init__(
         self,
         success=True,
         message="",
-        data={},
+        data=None,
         system_error="",
         status_code=200,
         id_role=None,
@@ -28,31 +28,46 @@ class ApiResponse:
         ]  # mode debug de l'application, à utiliser pour les opérations qui nécessitent un comportement différent en mode debug (ex: afficher des messages de debug dans le journal de l'application, retourner des messages d'erreur plus détaillés à l'utilisateur, etc.). Cet attribut est défini à partir de la configuration de l'application Flask et peut être utilisé pour adapter le comportement de la classe ApiResponse en fonction du mode d'exécution de l'application.
         self.success = success  # Boolean indiquant si l'opération a réussi ou échoué. Par défaut, il est défini sur True, ce qui signifie que l'opération est considérée comme réussie à moins qu'une erreur ne soit ajoutée.
         self.message = message  # message destiné à être retourné à l'utilisateur. Il doit être clair et compréhensible pour un utilisateur non technique.
-        self.data = data  # données à retourner à l'utilisateur. Il peut s'agir de n'importe quelle structure de données (dictionnaire, liste, etc.) qui sera convertie en JSON pour la réponse de l'API.
+        self.data = (
+            data if data is not None else {}
+        )  # données à retourner à l'utilisateur. Il peut s'agir de n'importe quelle structure de données (dictionnaire, liste, etc.) qui sera convertie en JSON pour la réponse de l'API.
         self.system_error = system_error  # message d'erreur technique destiné à être utilisé pour le debug et le journal de l'application. Il ne doit pas être retourné à l'utilisateur.
         self.status_code = status_code  # code de statut HTTP à retourner avec la réponse de l'API. Par défaut, il est défini sur 200 (OK), mais il peut être modifié en fonction du résultat de l'opération (ex: 400 pour une erreur client, 500 pour une erreur serveur, etc.).
         self.journal = (
             []
         )  # liste de chaine de caractères qui sera retournée dans le journal de l'application. Elle peut être utilisée pour stocker des messages de debug ou des informations sur l'exécution de l'opération. Ces messages ne sont pas destinés à être retournés à l'utilisateur, mais peuvent être utiles pour le développement et la maintenance de l'application.
         self.return_journal = False  # si return_journal est à True, le journal sera retourné dans la réponse de l'API. Si return_journal est à False, le journal ne sera pas retourné dans la réponse de l'API.
-        
+
         # print (f"session dans ApiResponse => {session}")
         if id_role is not None:
             self.id_role = id_role  # id_role de l'utilisateur connecté, à utiliser pour les opérations qui nécessitent une identification de l'utilisateur (ex: enregistrement d'une action dans le journal de l'application, attribution d'une ressource à un utilisateur, etc.). Cet attribut doit être défini manuellement après l'initialisation de l'objet ApiResponse, en fonction de l'utilisateur connecté.
         else:
-            if ((session is not None) and (session.get("current_user", {}))):
-                self.id_role = session.get("current_user", {}).get("id_role", None)
+            current_user = {}
+            if session is not None:
+                try:
+                    if hasattr(session, "get"):
+                        current_user = session.get("current_user", {}) or {}
+                except Exception:
+                    current_user = {}
+            self.id_role = current_user.get("id_role", 0)
 
         if nom_complet is not None:
             self.nom_complet = nom_complet  # nom complet de l'utilisateur connecté, à utiliser pour les opérations qui nécessitent une identification de l'utilisateur (ex: enregistrement d'une action dans le journal de l'application, attribution d'une ressource à un utilisateur, etc.). Cet attribut doit être défini manuellement après l'initialisation de l'objet ApiResponse, en fonction de l'utilisateur connecté.
         else:
-            if ((session is not None) and (session.get("current_user", {}))):
-                self.nom_complet = session.get("current_user", {}).get("nom_complet", "Utilisateur non connecté")
+            current_user = {}
+            if session is not None:
+                try:
+                    if hasattr(session, "get"):
+                        current_user = session.get("current_user", {}) or {}
+                except Exception:
+                    current_user = {}
+            self.nom_complet = current_user.get(
+                "nom_complet", "Utilisateur non connecté"
+            )
 
         self.log_file = os.path.join(
             path_log, log_file
         )  # chemin du fichier de log où les entrées du journal seront écrites. Par défaut, il est défini sur "all_logs_files.log" dans le dossier de logs de l'application, mais il peut être modifié en fonction des besoins de l'application (ex: "error_logs.log" pour les erreurs, "debug_logs.log" pour les messages de debug, etc.).
-
 
     def print_all(self):
         """Affiche tous les attributs de l'objet ApiResponse pour le debug."""
@@ -142,7 +157,7 @@ class ApiResponse:
     # -------------------------
     def add_error(
         self,
-        system_error: str="",
+        system_error: str = "",
         user_message: str = "",
         with_timestamp: bool = True,
         status_code: int = 400,
@@ -158,7 +173,7 @@ class ApiResponse:
         self.status_code = status_code
         if system_error != "":
             self.system_error = system_error
-        
+
         if user_message != "":
             self.message = user_message
         else:

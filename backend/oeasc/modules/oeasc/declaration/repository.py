@@ -1,50 +1,25 @@
 """
 Fonctions de traitement de données pour les déclarations
 """
+
 from oeasc.utils.apiResponse import ApiResponse
 from datetime import datetime, date
 from sqlalchemy import (
     select,
-    case,
-    func,
     text,
-    literal,
-    cast,
-    String,
-    Boolean,
-    Text,
     and_,
-    or_,
-    literal_column,
 )
-from sqlalchemy.orm import aliased
-from sqlalchemy.dialects.postgresql import array_agg, ARRAY, INTEGER
+import json
+from flask import current_app, session
 
 from oeasc.modules.oeasc.declaration.models import (
     TDeclaration,
-    CorAreasDeclaration,
-    CorNomenclatureDeclarationEspece,
-    CorNomenclatureDeclarationEssenceComplementaire,
-    CorNomenclatureDeclarationEssenceSecondaire,
-    CorNomenclatureDeclarationMaturite,
-    CorNomenclatureDeclarationOrigine,
-    CorNomenclatureDeclarationPaturageSaison,
-    CorNomenclatureDeclarationPaturageType,
-    CorNomenclatureDeclarationProtectionType,
     TForet,
     TProprietaire,
-    TDegat,
 )
-
 from oeasc.modules.oeasc.user.models import VUsers
-
-# Import des modèles forets (à adapter selon votre projet)
 from oeasc.modules.oeasc.declaration.models import TForet, TProprietaire
 
-
-from flask import current_app, session
-from utils_flask_sqla_geo.generic import GenericQueryGeo
-from utils_flask_sqla.generic import GenericQuery
 from .schema import (
     TDeclarationSchema,
     TProprietaireSchema,
@@ -52,220 +27,121 @@ from .schema import (
 )
 from .all_stmt import (
     get_stmt_liste_declaration,
-    get_v_declarations_query,
-    get_v_degats_query,
-    get_v_export_vl_declaration_query,
-    get_v_declaration_degat_query,
-    get_v_export_declaration_csv_query,
-    get_v_export_declaration_degats_csv_query,
-    get_v_export_declaration_shape_query,
-    get_v_export_declaration_degats_shape_query,
-    get_v_declaration_degats_restrict_query,
-    get_stmt_for_resultats_degats,
-    stmt_one_declaration_a_renouveler
+    stmt_one_declaration_a_renouveler,
+    get_stmt_fiche_declaration,
+    get_stmt_degats,
 )
-
 from oeasc.modules.oeasc.nomenclature import (
     get_area_from_id,
     get_nomenclature_from_id,
-    get_dict_nomenclature_areas,
-    get_nomenclature
+    get_nomenclature,
 )
 from oeasc.modules.oeasc.user.repository import get_user, get_id_organismes
 
 config = current_app.config
 DB = config["DB"]
 
-# status_declaration = { # c'est maintenant dans un json
-#     "Non validée": 0,
-#     "Active": 1,
-#     "Archivée": 2,
-#     "Renouvellement 1": 10, # on passe a 10 pour laisser de la place à d'éventuels statuts intermédiaires
-#     "Renouvellement 2": 11, # La 2ème relance a été envoyée, on attend le retour du déclarant
-#     "Renouvellement 3": 12 # La 3ème relance a été envoyée
-# }
 
-# add_degats uniquement utilsé dans get_fiche_declaration
-def add_degats(declarations):
-    """
-    Ajoute un objet 'degats' à chaque déclaration dans la liste fournie.
-
-    Cette fonction est utilisée dans :
-    - get_declarations : pour enrichir chaque déclaration avec ses dégâts associés
-    - Toute logique nécessitant d'associer les dégâts (type, essence, gravité, etc.) aux déclarations
-
-    Elle récupère les dégâts via la vue SQL 'v_degats', puis les regroupe par déclaration.
-    Pour chaque déclaration, elle ajoute une clé 'degats' contenant la liste des dégâts structurés.
-
-    :param declarations: Liste de dictionnaires représentant les déclarations
-    """
-
-    # Récupération des dégâts via la vue SQL 'v_degats'
-    data_degats = GenericQuery(
-        DB, "v_degats", "oeasc_declarations", limit=1e6
-    ).return_query()["items"]
-
-    # Dictionnaire pour regrouper les dégâts par déclaration
-    degats_declarations = {}
-
-    for deg in data_degats:
-        # On récupère la liste des dégâts pour la déclaration courante
-        dd = degats_declarations.get(deg["id_declaration_degat"])
-        if not dd:
-            dd = degats_declarations[deg["id_declaration_degat"]] = []
-
-        d_cur = None
-        # On cherche si le type de dégât existe déjà dans la liste
-        for d in dd:
-            if d["degat_type_mnemo"] == deg["degat_type_mnemo"]:
-                d_cur = d
-                break
-
-        if not d_cur:
-            # Si le type de dégât n'existe pas, on le crée
-            d_cur = {
-                "degat_type_mnemo": deg["degat_type_mnemo"],
-                "degat_type_label": deg["degat_type_label"],
-                "degat_type_code": deg["degat_type_code"],
-            }
-            d_cur["degat_essences"] = []
-            dd.append(d_cur)
-
-        # On ajoute les informations d'essence de dégât si elles existent
-        if deg.get("degat_essence_mnemo"):
-            d_cur["degat_essences"].append(
-                {
-                    "degat_essence_mnemo": deg["degat_essence_mnemo"],
-                    "degat_anteriorite_mnemo": deg["degat_anteriorite_mnemo"],
-                    "degat_gravite_mnemo": deg["degat_gravite_mnemo"],
-                    "degat_etendue_mnemo": deg["degat_etendue_mnemo"],
-                    "degat_essence_label": deg["degat_essence_label"],
-                    "degat_anteriorite_label": deg["degat_anteriorite_label"],
-                    "degat_gravite_label": deg["degat_gravite_label"],
-                    "degat_etendue_label": deg["degat_etendue_label"],
-                    "degat_essence_code": deg["degat_essence_code"],
-                    "degat_anteriorite_code": deg["degat_anteriorite_code"],
-                    "degat_gravite_code": deg["degat_gravite_code"],
-                    "degat_etendue_code": deg["degat_etendue_code"],
-                }
-            )
-
-    # On ajoute la liste des dégâts à chaque déclaration
-    for d in declarations:
-        d["degats"] = degats_declarations.get(d["id_declaration"], [])
+def get_config():
+    return current_app.config
 
 
-def get_fiche_declaration(
-    user=None, type_export=None, type_out=None, id_declaration=None, restrict=False
-):
-    """
-    Récupère les données d'une déclaration selon les paramètres fournis.
-    Cette fonction est utilisée pour obtenir les informations d'une déclaration spécifique ou d'un ensemble de déclarations
-    en fonction des droits de l'utilisateur, du type d'export souhaité et d'autres critères.
-    """
+def get_db():
+    return get_config()["DB"]
+
+
+def get_variables_declaration():
+    """Récupère les variables de déclaration depuis le fichier JSON de configuration."""
+    with open(str(config["ROOT_DIR"]) + "/config/variables/declaration.json") as f:
+        return json.load(f)
+
+
+def get_fiche_declaration(id_declaration, type_export=None, session=None):
+    """Les données pour l'affichage d'une déclaration. Page voir_declaration."""
+
+    response = ApiResponse(log_file="declarations.log", session=session)
+    user = session.get("current_user", None) if session else None
+    if user == None:
+        response.add_error(
+            user_message="Utilisateur non authentifié",
+            system_error="Aucun utilisateur dans la session",
+            status_code=401,
+        )
+        return response
+
+    stmt = get_stmt_fiche_declaration(id_declaration)
 
     # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
     liste_id_organismes_solo = get_id_organismes(
         ["Autre (préciser)", "Pas d'organisme", "Aucun"]
     )
-
-    # Dictionnaire de correspondance entre les paramètres et les vues SQL à utiliser
-    view_names = {
-        "csv": "v_export_declarations_csv",
-        "csv_deg": "v_export_declaration_degats_csv",
-        "shape": "v_export_declarations_shape",
-        "shape_deg": "v_export_declaration_degats_shape",
-        "default": "v_declarations",
-        "default_deg": "v_declaration_degats",
-        "default_deg_restrict": "v_declaration_degats_restrict",
-    }
-
-    # Choix de la vue selon les paramètres d'export et de sortie
-    if type_export in ["csv", "shape"]:
-        view_key = type_export
-    else:
-        view_key = "default"
-
-    if type_out == "degat":
-        view_key += "_deg"
-
-    if restrict:
-        # Restriction supplémentaire, principalement pour les vues de dégâts
-        view_key += "_restrict"
-
-    view_name = view_names[view_key]
-
     # Définition des filtres selon les droits de l'utilisateur
-    filters = {}
     if user:
         # Cas administrateur ou animateur (droit >= 5) : accès à toutes les déclarations
-        if user["id_droit_max"] >= 5:
+        if user["max_level_profil"] >= 5:
             pass  # Pas de filtre
-
         # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
         elif (
-            user["id_droit_max"] >= 2
+            user["max_level_profil"] >= 2
             and user["id_organisme"] not in liste_id_organismes_solo
         ):
-            filters = {"organisme": user["organisme"]}
-
+            stmt = stmt.where(VUsers.organisme == user["organisme"])
         # Cas droit 1 : accès uniquement à ses propres alertes
-        elif user["id_droit_max"] >= 1:
-            filters = {"id_declarant": user["id_role"]}
+        elif user["max_level_profil"] >= 1:
+            stmt = stmt.where(VUsers.id_role == user["id_role"])
+        else:
+            # Pas de droit d'accès, on retourne une réponse vide
+            response.data = {}
+            return response
 
-    # Cas où on souhaite une seule déclaration (filtre par identifiant)
-    if id_declaration:
-        filters["id_declaration"] = id_declaration
+    result = get_db().session.execute(stmt).fetchone()
 
-    # Définition du champ géométrique pour l'export shapefile
-    geometry_field = None
-    if type_export == "shape":
-        geometry_field = "geom"
+    if result is None:
+        dict_result = {}
+        dict_result["id_declaration"] = id_declaration
+        dict_result["degats"] = []
+    else:
+        # Use the RowMapping to get a dict keyed by column labels
+        dict_result = dict(result._mapping)
+        stmt_degats = get_stmt_degats(id_declaration)
+        degats_declarations = get_db().session.execute(stmt_degats).fetchall()
 
-    # Création de la requête via GenericQueryGeo (utilise la vue SQL et les filtres)
-    data = None
-    gq = GenericQueryGeo(
-        DB,
-        view_name,
-        "oeasc_declarations",
-        geometry_field=geometry_field,
-        filters=filters,
-        limit=1e6,
-    )
+        # on rassemble tous les dégats essence qui ont le même id_degat
+        degats_dict = {}
+        for degat in degats_declarations:
+            degat = dict(degat._mapping)
+            id_degat = degat["id_degat"]
+            if id_degat not in degats_dict:
+                degats_dict[id_degat] = {
+                    "id_declaration_degat": degat["id_declaration_degat"],
+                    "id_degat": id_degat,
+                    "degat_type_mnemo": degat["degat_type_mnemo"],
+                    "degat_type_label": degat["degat_type_label"],
+                    "degat_type_code": degat["degat_type_code"],
+                    "essences": [],
+                }
+            if degat["id_degat_essence"] is not None:
+                degats_dict[id_degat]["essences"].append(
+                    {
+                        "id_degat_essence": degat["id_degat_essence"],
+                        "degat_essence_mnemo": degat["degat_essence_mnemo"],
+                        "degat_gravite_mnemo": degat["degat_gravite_mnemo"],
+                        "degat_etendue_mnemo": degat["degat_etendue_mnemo"],
+                        "degat_anteriorite_mnemo": degat["degat_anteriorite_mnemo"],
+                        "degat_essence_label": degat["degat_essence_label"],
+                        "degat_gravite_label": degat["degat_gravite_label"],
+                        "degat_etendue_label": degat["degat_etendue_label"],
+                        "degat_anteriorite_label": degat["degat_anteriorite_label"],
+                        "degat_essence_code": degat["degat_essence_code"],
+                        "degat_gravite_code": degat["degat_gravite_code"],
+                        "degat_etendue_code": degat["degat_etendue_code"],
+                        "degat_anteriorite_code": degat["degat_anteriorite_code"],
+                    }
+                )
 
-    # Cas d'export shapefile : on retourne directement le résultat de la requête
-    if type_export == "shape":
-        return gq.query()[0]
+        dict_result["degats"] = list(degats_dict.values())
 
-    # Exécution de la requête et récupération des données
-    data = gq.return_query()
-
-    # Si aucune donnée n'est trouvée, on retourne une liste vide
-    if not (data and data.get("items")):
-        return []
-
-    declarations = data.get("items")
-
-    # Remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
-    for d in declarations:
-        for e in d:
-            if d[e] is None:
-                d[e] = ""
-
-    # Si on utilise une vue d'export ou de dégâts, on retourne directement les déclarations
-    if view_key != "default":
-        return declarations
-
-    # Cas par défaut : enrichissement des déclarations avec les objets "dégats"
-    # (utilisé pour l'affichage détaillé ou l'export complet)
-    add_degats(declarations)
-
-    # Pré-traitement des nomenclatures géographiques (désactivé ici)
-    # pre_get_dict_nomenclature_areas(declarations)
-    # Résolution complète des déclarations (désactivé ici)
-    # declarations = [resolve_declaration(d) for d in declarations]
-
-    return declarations
+    return dict_result
 
 
 def get_form_declaration(id_declaration=None, session={}):
@@ -279,12 +155,15 @@ def get_form_declaration(id_declaration=None, session={}):
         apiResponse.data = schemaDeclaration.dump(TDeclaration())
         return apiResponse
 
-
     # Récupère la déclaration, la forêt et le propriétaire associés à l'identifiant donné
     declaration, foret, proprietaire = get_declaration(id_declaration)
     # Si aucune déclaration n'est trouvée, retourne une réponse vide
     if not declaration:
-        apiResponse.add_error(user_message="Déclaration non trouvée", system_error=f"Aucune déclaration trouvée pour l'id {id_declaration}", status_code=200)
+        apiResponse.add_error(
+            user_message="Déclaration non trouvée",
+            system_error=f"Aucune déclaration trouvée pour l'id {id_declaration}",
+            status_code=200,
+        )
         return apiResponse
 
     # Sérialise l'objet déclaration en dictionnaire
@@ -305,7 +184,7 @@ def get_form_declaration(id_declaration=None, session={}):
     # Pour chaque clé du dictionnaire, si la valeur est une liste d'objets contenant "id_nomenclature",
     # on transforme cette liste en une liste d'identifiants de nomenclature uniquement.
     # Cela permet de simplifier la structure des données retournées.
-    # print ("declaration_dict avant transformation des nomenclatures:", declaration_dict)
+
     for key in declaration_dict:
         if key == "centroid":  # les centroid sont en array et non en list
             declaration_dict[key] = {
@@ -367,221 +246,6 @@ def get_form_declaration(id_declaration=None, session={}):
     # Retourne le dictionnaire de la déclaration complète au format JSON
     apiResponse.data = declaration_dict
     return apiResponse
-
-def create_or_update_declaration_ancien(post_data):
-    """
-    Fonction principale pour la création ou la modification d'une déclaration de dégât en forêt.
-    Elle adapte les données reçues (post_data) pour les rendre compatibles avec les schémas Marshmallow,
-    puis crée ou met à jour les instances en base (propriétaire, forêt, déclaration).
-
-    Utilisation :
-    - Cette fonction est appelée lors de la soumission ou modification d'un formulaire de déclaration.
-    - Elle gère les cas de création de nouveaux propriétaires/forêts (petits propriétaires) ou la sélection
-      d'une forêt existante (gestion durable).
-    """
-
-    # arranged_post_data ne contiendra que les champs nécessaires à la création/modification de la déclaration, adaptés pour Marshmallow
-    arranged_post_data = {}
-
-    # On prépare un dictionnaire conforme au schéma Marshmallow pour la déclaration.
-    # On extrait et adapte les champs nécessaires depuis post_data.
-    arranged_post_data["id_declarant"] = post_data.get("id_declarant")
-    arranged_post_data["id_foret"] = post_data.get("id_foret")
-    arranged_post_data["id_nomenclature_peuplement_type"] = post_data.get(
-        "id_nomenclature_peuplement_type"
-    )
-    arranged_post_data["id_nomenclature_peuplement_acces"] = post_data.get(
-        "id_nomenclature_peuplement_acces"
-    )
-    arranged_post_data["id_nomenclature_peuplement_essence_principale"] = post_data.get(
-        "id_nomenclature_peuplement_essence_principale"
-    )
-    arranged_post_data["meta_create_date"] = post_data.get("meta_create_date")
-    arranged_post_data["meta_update_date"] = None  # sera mis à jour dans la bdd
-
-    arranged_post_data["b_peuplement_protection_existence"] = post_data.get(
-        "b_peuplement_protection_existence"
-    )
-    arranged_post_data["b_peuplement_paturage_presence"] = post_data.get(
-        "b_peuplement_paturage_presence"
-    )
-    arranged_post_data["b_autorisation"] = post_data.get("b_autorisation")
-    arranged_post_data["b_valid"] = post_data.get("b_valid")
-
-    arranged_post_data["id_nomenclature_proprietaire_declarant"] = post_data.get(
-        "id_nomenclature_proprietaire_declarant"
-    )
-    arranged_post_data["id_nomenclature_peuplement_origine"] = post_data.get(
-        "id_nomenclature_peuplement_origine"
-    )
-    arranged_post_data["id_nomenclature_foret_type"] = post_data.get(
-        "id_nomenclature_foret_type"
-    )
-    arranged_post_data["id_nomenclature_peuplement_paturage_frequence"] = post_data.get(
-        "id_nomenclature_peuplement_paturage_frequence"
-    )
-    arranged_post_data["id_nomenclature_peuplement_paturage_statut"] = post_data.get(
-        "id_nomenclature_peuplement_paturage_statut"
-    )
-    arranged_post_data["peuplement_surface"] = post_data.get("peuplement_surface")
-    arranged_post_data["autre_protection"] = post_data.get("autre_protection")
-    arranged_post_data["precision_localisation"] = post_data.get(
-        "precision_localisation"
-    )
-    arranged_post_data["commentaire"] = post_data.get("commentaire")
-    arranged_post_data["degats"] = post_data.get("degats")
-
-    # Gestion des relations de nomenclatures : on adapte le format pour Marshmallow
-    # Chaque clé "nomenclatures_*" devient une liste de dictionnaires avec l'id de la nomenclature
-    for key in post_data:
-        if "nomenclatures_" in key:
-            arranged_post_data[key] = [
-                {
-                    # "id_declaration": post_data.get("id_declaration"),
-                    "id_nomenclature": id_nomenclature,
-                }
-                for id_nomenclature in post_data[key]
-            ]
-
-    # Regroupement des zones de localisation (aires) pour la déclaration
-    post_data["areas_localisation"] = (
-        []
-        + post_data["areas_localisation_cadastre"]
-        + post_data["areas_localisation_onf_prf"]
-        + post_data["areas_localisation_onf_ug"]
-    )
-
-    # On adapte le format des aires pour Marshmallow (sans id_declaration)
-    arranged_post_data["areas_localisation"] = [
-        {"id_area": id_area} for id_area in post_data["areas_localisation"]
-    ]
-
-    # Cas 1 : La parcelle n'a pas de document de gestion durable (petit propriétaire)
-    # On crée éventuellement un nouveau propriétaire et une nouvelle forêt
-    if not post_data["b_document"]:
-        id_declarant = post_data["id_declarant"]
-
-        # On récupère la nomenclature du propriétaire déclarant
-        nomenclature = post_data[
-            "id_nomenclature_proprietaire_declarant"
-        ] and get_nomenclature_from_id(
-            post_data["id_nomenclature_proprietaire_declarant"]
-        )
-
-        # Si la nomenclature n'est pas "P_D_O_NP", on retire le déclarant
-        if nomenclature and nomenclature["cd_nomenclature"] != "P_D_O_NP":
-            post_data["id_declarant"] = None
-
-        # Préparation des données du propriétaire
-        proprietaireSchema = TProprietaireSchema()
-        data_proprio = {}
-        data_proprio["id_declarant"] = id_declarant
-        data_proprio["nom_proprietaire"] = post_data.get("nom_proprietaire")
-        data_proprio["telephone"] = post_data.get("telephone")
-        data_proprio["email"] = post_data.get("email")
-        data_proprio["adresse"] = post_data.get("adresse")
-        data_proprio["s_code_postal"] = post_data.get("s_code_postal")
-        data_proprio["s_commune_proprietaire"] = post_data.get("s_commune_proprietaire")
-        data_proprio["id_nomenclature_proprietaire_type"] = post_data.get(
-            "id_nomenclature_proprietaire_type"
-        )
-
-        # Si modification d'un propriétaire existant
-        if post_data.get("id_proprietaire"):
-            data_proprio["id_declaration"] = post_data.get("id_declaration")
-            proprietaire_bdd = DB.session.get(
-                TProprietaire, post_data.get("id_declaration")
-            )
-
-            proprietaire = proprietaireSchema.load(
-                data_proprio,
-                instance=proprietaire_bdd,
-                partial=True,  # Mise à jour partielle
-                session=DB.session,
-            )
-            DB.session.commit()  # modification de l'instance
-
-        else:
-            # Création d'un nouveau propriétaire
-            proprietaire = proprietaireSchema.load(
-                data_proprio, session=DB.session, partial=True
-            )
-            DB.session.add(proprietaire)
-            DB.session.commit()  # ajout de l'instance
-            post_data["id_proprietaire"] = proprietaire.id_proprietaire
-
-        # Préparation des données de la forêt
-        data_foret = {}
-        data_foret["id_proprietaire"] = proprietaire.id_proprietaire
-        data_foret["b_statut_public"] = post_data.get("b_statut_public")
-        data_foret["b_document"] = post_data.get("b_document")
-        data_foret["nom_foret"] = post_data.get("nom_foret")
-        data_foret["code_foret"] = post_data.get("code_foret")
-        data_foret["label_foret"] = post_data.get("label_foret")
-        data_foret["surface_calculee"] = post_data.get("surface_calculee")
-        data_foret["surface_renseignee"] = post_data.get("surface_renseignee")
-
-        # Regroupement des aires de la forêt
-        post_data["areas_foret"] = (
-            [] + post_data["areas_foret_communes"] + post_data["areas_foret_sections"]
-        )
-        if post_data["areas_foret_onf"]:
-            post_data["areas_foret"].append(post_data["areas_foret_onf"])
-        if post_data["areas_foret_dgd"]:
-            post_data["areas_foret"].append(post_data["areas_foret_dgd"])
-
-        data_foret["areas_foret"] = [
-            {"id_area": id_area}
-            for id_area in post_data.get("areas_foret", [])
-            if id_area is not None
-        ]
-
-        # Création de la forêt
-        foretSchema = TForetSchema()
-        new_foret = foretSchema.load(data_foret, session=DB.session, partial=True)
-        DB.session.add(new_foret)
-        DB.session.commit()
-        arranged_post_data["id_foret"] = new_foret.id_foret
-
-    else:
-        # Cas 2 : La parcelle a un document de gestion durable (forêt existante)
-        # On récupère la forêt existante à partir du code_area
-        id_area_foret = post_data["areas_foret_onf"] or post_data["areas_foret_dgd"]
-        code_foret = get_area_from_id(id_area_foret)["area_code"]
-
-        stmt_foret = select(TForet).where(TForet.code_foret == code_foret).limit(1)
-        foret = DB.session.execute(stmt_foret).scalars().first()
-        arranged_post_data["id_foret"] = foret.id_foret
-
-    # Création ou modification de la déclaration
-    declarationSchema = TDeclarationSchema()
-
-    # Si modification d'une déclaration existante
-    if post_data.get("id_declaration"):
-        arranged_post_data["id_declaration"] = post_data.get("id_declaration")
-        declaration_bdd = DB.session.get(TDeclaration, post_data.get("id_declaration"))
-
-        declaration = declarationSchema.load(
-            arranged_post_data,
-            instance=declaration_bdd,
-            partial=True,  # Mise à jour partielle
-            session=DB.session,
-        )
-        # declaration.degats = arranged_post_data.get("degats", [])
-    else:
-        # Création d'une nouvelle déclaration
-        declaration = declarationSchema.load(
-            arranged_post_data, session=DB.session, partial=True
-        )
-        DB.session.add(declaration)
-
-    DB.session.commit()
-
-    # Mise à jour des aires liées à la déclaration (communes, secteurs, sections)
-    patch_areas_declarations(declaration.id_declaration)
-
-    # On retourne les données arrangées (utiles pour debug ou pour affichage)
-    return arranged_post_data
 
 
 def create_or_update_declaration(post_data):
@@ -649,12 +313,13 @@ def create_or_update_declaration(post_data):
     arranged_post_data["commentaire"] = post_data.get("commentaire")
     arranged_post_data["degats"] = post_data.get("degats")
 
-    arranged_post_data['id_declaration_originale'] = post_data.get('id_declaration_originale')
-    arranged_post_data['date_fin'] = post_data.get('date_fin')
-    arranged_post_data['statut'] = post_data.get('statut')
-    arranged_post_data['token_renouvellement'] = post_data.get('token_renouvellement')
-    arranged_post_data['date_fin_token'] = post_data.get('date_fin_token')
-
+    arranged_post_data["id_declaration_originale"] = post_data.get(
+        "id_declaration_originale"
+    )
+    arranged_post_data["date_fin"] = post_data.get("date_fin")
+    arranged_post_data["statut"] = post_data.get("statut")
+    arranged_post_data["token_renouvellement"] = post_data.get("token_renouvellement")
+    arranged_post_data["date_fin_token"] = post_data.get("date_fin_token")
 
     # Gestion des relations de nomenclatures : on adapte le format pour Marshmallow
     # Chaque clé "nomenclatures_*" devient une liste de dictionnaires avec l'id de la nomenclature
@@ -677,7 +342,7 @@ def create_or_update_declaration(post_data):
     )
     # suppression des éventuels doublons
     post_data["areas_localisation"] = list(set(post_data["areas_localisation"]))
-    
+
     # On adapte le format des aires pour Marshmallow (sans id_declaration)
     arranged_post_data["areas_localisation"] = [
         {"id_area": id_area} for id_area in post_data["areas_localisation"]
@@ -702,43 +367,70 @@ def create_or_update_declaration(post_data):
             proprietaire = create_or_update_proprietaire(post_data)
         except Exception as e:
             DB.session.rollback()
-            response.add_error(user_message="Erreur lors de la création/modification du propriétaire", system_error=str(e), status_code=200)
+            response.add_error(
+                user_message="Erreur lors de la création/modification du propriétaire",
+                system_error=str(e),
+                status_code=200,
+            )
             return arranged_post_data, response
-        
+
         try:
             new_foret = create_or_update_foret(post_data, proprietaire.id_proprietaire)
         except Exception as e:
             DB.session.rollback()
-            response.add_error(user_message="Erreur lors de la création/modification de la forêt", system_error=str(e), status_code=200)
+            response.add_error(
+                user_message="Erreur lors de la création/modification de la forêt",
+                system_error=str(e),
+                status_code=200,
+            )
             return arranged_post_data, response
-        
+
         arranged_post_data["id_foret"] = new_foret.id_foret
 
     else:
         # Cas 2 : La parcelle a un document de gestion durable (forêt existante)
         # On récupère la forêt existante à partir du code_areaç
-        if (post_data["b_statut_public"] == True):
-            if (not post_data["areas_foret_onf"]):
-                response.add_error(user_message="Aire de forêt onf manquante pour les forêts publiques avec document de gestion durable", status_code=200)
+        if post_data["b_statut_public"] == True:
+            if not post_data["areas_foret_onf"]:
+                response.add_error(
+                    user_message="Aire de forêt onf manquante pour les forêts publiques avec document de gestion durable",
+                    status_code=200,
+                )
                 return arranged_post_data, response
             id_area_foret = post_data["areas_foret_onf"]
         else:
-            if (not post_data["areas_foret_dgd"]):
-                response.add_error(user_message="Aire de forêt dgd manquante pour les forêts privées sans statut public", status_code=200)
+            if not post_data["areas_foret_dgd"]:
+                response.add_error(
+                    user_message="Aire de forêt dgd manquante pour les forêts privées sans statut public",
+                    status_code=200,
+                )
                 return arranged_post_data, response
             id_area_foret = post_data["areas_foret_dgd"]
         if not id_area_foret:
-            response.add_error(user_message="Aire de forêt manquante pour les forêts avec document de gestion durable", status_code=200)
-            return arranged_post_data,response
+            response.add_error(
+                user_message="Aire de forêt manquante pour les forêts avec document de gestion durable",
+                status_code=200,
+            )
+            return arranged_post_data, response
         code_foret = get_area_from_id(id_area_foret)["area_code"]
-        
+
         try:
-            foret = DB.session.execute(
-                select(TForet.id_foret).where(TForet.code_foret == code_foret).limit(1)
-            ).scalars().first()
+            foret = (
+                DB.session.execute(
+                    select(TForet.id_foret)
+                    .where(TForet.code_foret == code_foret)
+                    .limit(1)
+                )
+                .scalars()
+                .first()
+            )
         except Exception as e:
             DB.session.rollback()
-            response.add_error(user_message="Erreur lors de la récupération de la forêt existante", system_error=str(e), status_code=200)
+            response.add_error(
+                user_message="Erreur lors de la récupération de la forêt existante",
+                system_error=str(e),
+                status_code=200,
+            )
             return arranged_post_data, response
         arranged_post_data["id_foret"] = foret
 
@@ -768,19 +460,27 @@ def create_or_update_declaration(post_data):
         DB.session.commit()
     except Exception as e:
         DB.session.rollback()
-        response.add_error(user_message="Erreur lors de la création/modification de la déclaration", system_error=str(e), status_code=200)
+        response.add_error(
+            user_message="Erreur lors de la création/modification de la déclaration",
+            system_error=str(e),
+            status_code=200,
+        )
         return arranged_post_data, response
-    
 
     # Mise à jour des aires liées à la déclaration (communes, secteurs, sections)
     try:
         patch_areas_declarations(declaration.id_declaration)
     except Exception as e:
         DB.session.rollback()
-        return arranged_post_data, response.add_error(user_message="Erreur lors de la mise à jour des aires liées à la déclaration", system_error=str(e), status_code=200)
+        return arranged_post_data, response.add_error(
+            user_message="Erreur lors de la mise à jour des aires liées à la déclaration",
+            system_error=str(e),
+            status_code=200,
+        )
 
     # On retourne les données arrangées (utiles pour debug ou pour affichage)
     return arranged_post_data, response
+
 
 def create_or_update_proprietaire(post_data):
     """
@@ -793,7 +493,7 @@ def create_or_update_proprietaire(post_data):
     Returns:
         dict: Dictionnaire contenant les données arrangées du propriétaire et de la forêt, avec les identifiants mis à jour après création/modification.
     """
-    
+
     # On prépare les données du propriétaire à partir de post_data
     proprietaireSchema = TProprietaireSchema()
     data_proprio = {}
@@ -801,24 +501,37 @@ def create_or_update_proprietaire(post_data):
     data_proprio["nom_proprietaire"] = post_data.get("nom_proprietaire")
     data_proprio["telephone"] = post_data.get("telephone")
     # Met le numéro de telephonne sous la forme 00 00 00 00 00 pour les numéros français
-    if (data_proprio["telephone"]):
-        data_proprio["telephone"] = data_proprio["telephone"].replace(" ", "").replace("-", "")
+    if data_proprio["telephone"]:
+        data_proprio["telephone"] = (
+            data_proprio["telephone"].replace(" ", "").replace("-", "")
+        )
         data_proprio["telephone"] = " ".join(
-            [data_proprio["telephone"][i : i + 2] for i in range(0, len(data_proprio["telephone"]), 2)]
+            [
+                data_proprio["telephone"][i : i + 2]
+                for i in range(0, len(data_proprio["telephone"]), 2)
+            ]
         )
     data_proprio["email"] = post_data.get("email")
     data_proprio["adresse"] = post_data.get("adresse")
     data_proprio["s_code_postal"] = post_data.get("s_code_postal")
     data_proprio["s_commune_proprietaire"] = post_data.get("s_commune_proprietaire")
-    
-    id_nomenclature_proprietaire_type = post_data.get("id_nomenclature_proprietaire_type")
+
+    id_nomenclature_proprietaire_type = post_data.get(
+        "id_nomenclature_proprietaire_type"
+    )
     if id_nomenclature_proprietaire_type:
-        data_proprio["id_nomenclature_proprietaire_type"] = id_nomenclature_proprietaire_type
+        data_proprio["id_nomenclature_proprietaire_type"] = (
+            id_nomenclature_proprietaire_type
+        )
     else:
         # si pas id_proprietaire_type, on lui met le type "privé" par défaut
-        nomenclature_prive = get_nomenclature("cd_nomenclature", "PT_PRI", "OEASC_PROPRIETAIRE_TYPE")
+        nomenclature_prive = get_nomenclature(
+            "cd_nomenclature", "PT_PRI", "OEASC_PROPRIETAIRE_TYPE"
+        )
         if nomenclature_prive:
-            data_proprio["id_nomenclature_proprietaire_type"] = nomenclature_prive["id_nomenclature"]
+            data_proprio["id_nomenclature_proprietaire_type"] = nomenclature_prive[
+                "id_nomenclature"
+            ]
 
     # Si modification d'un propriétaire existant
     if post_data.get("id_proprietaire"):
@@ -837,14 +550,25 @@ def create_or_update_proprietaire(post_data):
 
     else:
         # on verifie que le propriétaire n'existe pas déjà pour éviter les doublons (même nom avec meme mail ou même telephone)
-        proprietaire_existant = DB.session.execute(
-            select(TProprietaire).where(
-                (TProprietaire.nom_proprietaire == data_proprio["nom_proprietaire"])
-                & (
-                    ((TProprietaire.email == data_proprio["email"]) & (data_proprio["email"] is not None))
-                |   ((TProprietaire.telephone == data_proprio["telephone"]) & (data_proprio["telephone"] is not None))
+        proprietaire_existant = (
+            DB.session.execute(
+                select(TProprietaire).where(
+                    (TProprietaire.nom_proprietaire == data_proprio["nom_proprietaire"])
+                    & (
+                        (
+                            (TProprietaire.email == data_proprio["email"])
+                            & (data_proprio["email"] is not None)
+                        )
+                        | (
+                            (TProprietaire.telephone == data_proprio["telephone"])
+                            & (data_proprio["telephone"] is not None)
+                        )
+                    )
                 )
-            )).scalars().first()
+            )
+            .scalars()
+            .first()
+        )
         if proprietaire_existant:
             data_proprio["id_proprietaire"] = proprietaire_existant.id_proprietaire
 
@@ -856,6 +580,7 @@ def create_or_update_proprietaire(post_data):
         DB.session.commit()  # ajout de l'instance
 
     return proprietaire
+
 
 def create_or_update_foret(post_data, id_proprietaire):
     """
@@ -869,7 +594,7 @@ def create_or_update_foret(post_data, id_proprietaire):
     Returns:
         dict: Dictionnaire contenant les données arrangées de la forêt, avec l'identifiant mis à jour après création/modification.
     """
-    
+
     # Préparation des données de la forêt à partir de post_data
     data_foret = {}
     data_foret["id_proprietaire"] = id_proprietaire
@@ -910,13 +635,11 @@ def create_or_update_foret(post_data, id_proprietaire):
             partial=True,  # Mise à jour partielle
             session=DB.session,
         )
-        DB.session.commit()  # modification de l'instance 
+        DB.session.commit()  # modification de l'instance
 
     else:
         # Création d'une nouvelle forêt
-        foret = foretSchema.load(
-            data_foret, session=DB.session, partial=True
-        )
+        foret = foretSchema.load(data_foret, session=DB.session, partial=True)
         DB.session.add(foret)
         DB.session.commit()  # ajout de l'instance
         post_data["id_foret"] = foret.id_foret
@@ -934,10 +657,14 @@ def check_token_renouvellement_declaration(id_declaration, token, session={}):
 
     # Récupère le token de déclaration depuis les paramètres de la requête
     if not token:
-        response.add_error(user_message="Token manquant dans la requête", status_code=200)
+        response.add_error(
+            user_message="Token manquant dans la requête", status_code=200
+        )
         return response
     if not id_declaration:
-        response.add_error(user_message="ID de déclaration manquant dans la requête", status_code=200)
+        response.add_error(
+            user_message="ID de déclaration manquant dans la requête", status_code=200
+        )
         return response
 
     stmt = stmt_one_declaration_a_renouveler(id_declaration)
@@ -952,10 +679,16 @@ def check_token_renouvellement_declaration(id_declaration, token, session={}):
     date_fin_token = row.get("date_fin_token")
 
     if token_renouvellement is None:
-        response.add_error(user_message="Cette déclaration n'a pas de token de renouvellement", status_code=200)
+        response.add_error(
+            user_message="Cette déclaration n'a pas de token de renouvellement",
+            status_code=200,
+        )
         return response
     if date_fin_token is None:
-        response.add_error(user_message="Cette déclaration n'a pas de date de fin de token", status_code=200)
+        response.add_error(
+            user_message="Cette déclaration n'a pas de date de fin de token",
+            status_code=200,
+        )
         return response
 
     now = datetime.now()
@@ -964,17 +697,66 @@ def check_token_renouvellement_declaration(id_declaration, token, session={}):
         date_fin_token = datetime.combine(date_fin_token, datetime.max.time())
 
     if now > date_fin_token:
-        response.add_error(system_error="Le lien a expiré" , user_message="Le lien a expiré", status_code=200)
+        response.add_error(
+            system_error="Le lien a expiré",
+            user_message="Le lien a expiré",
+            status_code=200,
+        )
         return response
     if token != token_renouvellement:
-        response.add_error(system_error="Token invalide" , user_message="Token invalide", status_code=200)
+        response.add_error(
+            system_error="Token invalide",
+            user_message="Token invalide",
+            status_code=200,
+        )
         return response
     else:
         response.add_log(message="Token valide", type_log="INFO")
         return response
 
+
 ######################################################################################
 ######################################################################################
+
+
+def add_filters_declarations(stmt, user=None, id_declaration=None):
+    """
+    Ajoute des filtres à une requête de déclaration en fonction des droits de l'utilisateur et d'un éventuel identifiant de déclaration.
+
+    Utilisation :
+    - Cette fonction est utilisée pour appliquer les restrictions d'accès aux déclarations selon les droits de l'utilisateur.
+    - Elle peut être utilisée dans différentes fonctions de récupération de déclarations pour centraliser la logique de filtrage.
+
+    :param stmt: Requête SQLAlchemy à laquelle ajouter les filtres
+    :param user: Dictionnaire contenant les informations sur l'utilisateur (droits, organisme, etc.)
+    :param id_declaration: Identifiant de déclaration pour filtrer sur une déclaration précise (optionnel)
+    :return: Requête SQLAlchemy avec les filtres appliqués
+    """
+
+    # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
+    liste_id_organismes_solo = get_id_organismes(
+        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
+    )
+
+    if user:
+        if (
+            user["max_level_profil"] >= 5
+        ):  # Cas admin ou animateur (droit >= 5) : accès à toutes les déclarations
+            pass  # Pas de filtre
+        elif (  # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
+            user["max_level_profil"] >= 2
+            and user["id_organisme"] not in liste_id_organismes_solo
+        ):
+            stmt = stmt.where(VUsers.organisme == user["organisme"])
+        elif (
+            user["max_level_profil"] >= 1
+        ):  # Cas droit 1 : accès uniquement à ses propres alertes
+            stmt = stmt.where(TDeclaration.id_declarant == user["id_role"])
+    # Cas où on souhaite une seule déclaration (filtre par identifiant)
+    if id_declaration:
+        stmt = stmt.where(TDeclaration.id_declaration == id_declaration)
+
+    return stmt
 
 
 # Pour la liste des déclarations (page système d'alertes => alertes signalées)
@@ -989,7 +771,7 @@ def get_liste_declarations(filters=None, user=None, id_declaration=None):
         ["Autre (préciser)", "Pas d'organisme", "Aucun"]
     )
 
-    query = get_stmt_liste_declaration()
+    stmt = get_stmt_liste_declaration()
 
     # Définition des filtres selon les droits de l'utilisateur
     # on réutilise la valeur passée en paramètre si c'est une liste/tuple, sinon on part d'une liste vide
@@ -999,7 +781,6 @@ def get_liste_declarations(filters=None, user=None, id_declaration=None):
         local_filters = []
 
     if user:
-
         if (
             user["id_droit_max"] >= 5
         ):  # Cas admin ou animateur (droit >= 5) : accès à toutes les déclarations
@@ -1019,8 +800,8 @@ def get_liste_declarations(filters=None, user=None, id_declaration=None):
         local_filters.append(TDeclaration.id_declaration == id_declaration)
 
     if local_filters:
-        query = query.where(and_(*local_filters))
-    results = DB.session.execute(query).mappings().all()
+        stmt = stmt.where(and_(*local_filters))
+    results = DB.session.execute(stmt).mappings().all()
 
     if not results:
         return []
@@ -1074,349 +855,6 @@ def get_declaration(id_declaration):
     return (declaration, foret, proprietaire)
 
 
-# pour les export et les résultat de suivis => système d'alertes
-# sera a supprimé lorsqu'on aura tout passé en sqlalchemy
-def get_declarations_view_ancien(
-    user=None, type_export=None, type_out=None, id_declaration=None, restrict=False
-):
-    """
-    Retourne des donées de déclarations a partir des vues.
-
-    Cette fonction permet de récupérer les déclarations forestières selon différents paramètres :
-    - type_export : format d'export souhaité ("csv", "shape", ou None pour le format par défaut)
-    - type_out : "degat" pour une ligne par dégât, None pour une ligne par déclaration
-    - user : dictionnaire contenant les informations sur l'utilisateur (droits, organisme, etc.)
-    - id_declaration : pour filtrer sur une déclaration précise
-    - restrict : pour restreindre la vue (utilisé principalement pour les vues de dégâts)
-
-    """
-
-    # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
-    liste_id_organismes_solo = get_id_organismes(
-        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
-    )
-
-    # Dictionnaire de correspondance entre les paramètres et les vues SQL à utiliser
-    view_names = {
-        "csv": "v_export_declarations_csv",
-        "csv_deg": "v_export_declaration_degats_csv",
-        "shape": "v_export_declarations_shape",
-        "shape_deg": "v_export_declaration_degats_shape",
-        "default": "v_declarations",
-        "default_deg": "v_declaration_degats",
-        "default_deg_restrict": "v_declaration_degats_restrict",
-    }
-
-    # Choix de la vue selon les paramètres d'export et de sortie
-    if type_export in ["csv", "shape"]:
-        view_key = type_export
-    else:
-        view_key = "default"
-
-    if type_out == "degat":
-        view_key += "_deg"
-
-    if restrict:
-        # Restriction supplémentaire, principalement pour les vues de dégâts
-        view_key += "_restrict"
-
-    view_name = view_names[view_key]
-
-    # Définition des filtres selon les droits de l'utilisateur
-    filters = {}
-    if user:
-        # Cas administrateur ou animateur (droit >= 5) : accès à toutes les déclarations
-        if user["id_droit_max"] >= 5:
-            pass  # Pas de filtre
-
-        # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
-        elif (
-            user["id_droit_max"] >= 2
-            and user["id_organisme"] not in liste_id_organismes_solo
-        ):
-            filters = {"organisme": user["organisme"]}
-
-        # Cas droit 1 : accès uniquement à ses propres alertes
-        elif user["id_droit_max"] >= 1:
-            filters = {"id_declarant": user["id_role"]}
-
-    # Cas où on souhaite une seule déclaration (filtre par identifiant)
-    if id_declaration:
-        filters["id_declaration"] = id_declaration
-
-    # Définition du champ géométrique pour l'export shapefile
-    geometry_field = None
-    if type_export == "shape":
-        geometry_field = "geom"
-
-    # Création de la requête via GenericQueryGeo (utilise la vue SQL et les filtres)
-    data = None
-    gq = GenericQueryGeo(
-        DB,
-        view_name,
-        "oeasc_declarations",
-        geometry_field=geometry_field,
-        filters=filters,
-        limit=1e6,
-    )
-
-    # Cas d'export shapefile : on retourne directement le résultat de la requête
-    if type_export == "shape":
-        return gq.query()[0]
-
-    # Exécution de la requête et récupération des données
-    data = gq.return_query()
-
-    # Si aucune donnée n'est trouvée, on retourne une liste vide
-    if not (data and data.get("items")):
-        return []
-
-    declarations = data.get("items")
-
-    # Remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
-    for d in declarations:
-        for e in d:
-            if d[e] is None:
-                d[e] = ""
-
-    # Si on utilise une vue d'export ou de dégâts, on retourne directement les déclarations
-    if view_key != "default":
-        return declarations
-
-    # Cas par défaut : enrichissement des déclarations avec les objets "dégats"
-    # (utilisé pour l'affichage détaillé ou l'export complet)
-    add_degats(declarations)
-
-    # Pré-traitement des nomenclatures géographiques (désactivé ici)
-    # pre_get_dict_nomenclature_areas(declarations)
-    # Résolution complète des déclarations (désactivé ici)
-    # declarations = [resolve_declaration(d) for d in declarations]
-
-    return declarations
-
-
-# pour les export et les résultat de suivis => système d'alertes
-# sera a supprimé lorsqu'on aura tout passé en sqlalchemy
-def get_declarations_view(
-    user=None, type_export=None, type_out=None, id_declaration=None, restrict=False
-):
-    """
-    Retourne des donées de déclarations a partir des vues.
-
-    Cette fonction permet de récupérer les déclarations forestières selon différents paramètres :
-    - type_export : format d'export souhaité ("csv", "shape", ou None pour le format par défaut)
-    - type_out : "degat" pour une ligne par dégât, None pour une ligne par déclaration
-    - user : dictionnaire contenant les informations sur l'utilisateur (droits, organisme, etc.)
-    - id_declaration : pour filtrer sur une déclaration précise
-    - restrict : pour restreindre la vue (utilisé principalement pour les vues de dégâts)
-
-    """
-
-    # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
-    liste_id_organismes_solo = get_id_organismes(
-        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
-    )
-
-    # Dictionnaire de correspondance entre les paramètres et les vues SQL à utiliser
-    view_names = {
-        "csv": "v_export_declarations_csv",
-        "csv_deg": "v_export_declaration_degats_csv",
-        "shape": "v_export_declarations_shape",
-        "shape_deg": "v_export_declaration_degats_shape",
-        "default": "v_declarations",
-        "default_deg": "v_declaration_degats",
-        "default_deg_restrict": "v_declaration_degats_restrict",
-    }
-
-    stmt_function_names = {
-        "csv": get_v_export_declaration_csv_query,
-        "csv_deg": get_v_export_declaration_degats_csv_query,
-        "shape": get_v_export_declaration_shape_query,
-        "shape_deg": get_v_export_declaration_degats_shape_query,
-        "default": get_v_declarations_query,
-        "default_deg": get_v_declaration_degat_query,
-        "default_deg_restrict": get_v_declaration_degats_restrict_query,
-    }
-
-    # Choix de la vue selon les paramètres d'export et de sortie
-    if type_export in ["csv", "shape"]:
-        view_key = type_export
-    else:
-        view_key = "default"
-
-    if type_out == "degat":
-        view_key += "_deg"
-
-    if restrict:
-        # Restriction supplémentaire, principalement pour les vues de dégâts
-        view_key += "_restrict"
-
-    view_name = view_names[view_key]
-
-    stmt_function = stmt_function_names[view_key]
-    stmt = stmt_function()
-
-    # Définition des filtres selon les droits de l'utilisateur
-    filters = {}
-    if user:
-        # Cas administrateur ou animateur (droit >= 5) : accès à toutes les déclarations
-        if user["id_droit_max"] >= 5:
-            pass  # Pas de filtre
-
-        # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
-        elif (
-            user["id_droit_max"] >= 2
-            and user["id_organisme"] not in liste_id_organismes_solo
-        ):
-            stmt = stmt.where(VUsers.organisme == user["organisme"])
-            # filters = {"organisme": user["organisme"]}
-
-        # Cas droit 1 : accès uniquement à ses propres alertes
-        elif user["id_droit_max"] >= 1:
-            stmt = stmt.where(TDeclaration.id_declarant == user["id_role"])
-            # filters = {"id_declarant": user["id_role"]}
-
-    # Cas où on souhaite une seule déclaration (filtre par identifiant)
-    if id_declaration:
-        stmt = stmt.where(TDeclaration.id_declaration == id_declaration)
-        # filters["id_declaration"] = id_declaration
-
-    # Définition du champ géométrique pour l'export shapefile
-    geometry_field = None
-    if type_export == "shape":
-        geometry_field = "geom"
-        stmt = stmt.add_columns(
-            func.ST_AsBinary(
-                func.ST_Transform(func.ST_Centroid(TDeclaration.geom), 4326)
-            ).label("geom")
-        )
-
-    # Création de la requête via GenericQueryGeo (utilise la vue SQL et les filtres)
-    data = None
-    # gq = GenericQueryGeo(
-    #     DB,
-    #     view_name,
-    #     "oeasc_declarations",
-    #     geometry_field=geometry_field,
-    #     filters=filters,
-    #     limit=1e6,
-    # )
-
-    gq = DB.session.execute(stmt).mappings().all()
-
-    # Cas d'export shapefile : on retourne directement le résultat de la requête
-    if type_export == "shape":
-        return gq.query()[0]
-
-    # Exécution de la requête et récupération des données
-    data = gq.return_query()
-
-    # Si aucune donnée n'est trouvée, on retourne une liste vide
-    if not (data and data.get("items")):
-        return []
-
-    declarations = data.get("items")
-
-    # Remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
-    for d in declarations:
-        for e in d:
-            if d[e] is None:
-                d[e] = ""
-
-    # Si on utilise une vue d'export ou de dégâts, on retourne directement les déclarations
-    if view_key != "default":
-        return declarations
-
-    # Cas par défaut : enrichissement des déclarations avec les objets "dégats"
-    # (utilisé pour l'affichage détaillé ou l'export complet)
-    add_degats(declarations)
-
-    # Pré-traitement des nomenclatures géographiques (désactivé ici)
-    # pre_get_dict_nomenclature_areas(declarations)
-    # Résolution complète des déclarations (désactivé ici)
-    # declarations = [resolve_declaration(d) for d in declarations]
-
-    return declarations
-
-
-def add_filters_declarations(query, user=None, id_declaration=None):
-    """
-    Ajoute des filtres à une requête de déclaration en fonction des droits de l'utilisateur et d'un éventuel identifiant de déclaration.
-
-    Utilisation :
-    - Cette fonction est utilisée pour appliquer les restrictions d'accès aux déclarations selon les droits de l'utilisateur.
-    - Elle peut être utilisée dans différentes fonctions de récupération de déclarations pour centraliser la logique de filtrage.
-
-    :param query: Requête SQLAlchemy à laquelle ajouter les filtres
-    :param user: Dictionnaire contenant les informations sur l'utilisateur (droits, organisme, etc.)
-    :param id_declaration: Identifiant de déclaration pour filtrer sur une déclaration précise (optionnel)
-    :return: Requête SQLAlchemy avec les filtres appliqués
-    """
-
-    # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
-    liste_id_organismes_solo = get_id_organismes(
-        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
-    )
-
-    if user:
-        if (
-            user["id_droit_max"] >= 5
-        ):  # Cas admin ou animateur (droit >= 5) : accès à toutes les déclarations
-            pass  # Pas de filtre
-        elif (  # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
-            user["id_droit_max"] >= 2
-            and user["id_organisme"] not in liste_id_organismes_solo
-        ):
-            query = query.where(VUsers.organisme == user["organisme"])
-        elif (
-            user["id_droit_max"] >= 1
-        ):  # Cas droit 1 : accès uniquement à ses propres alertes
-            query = query.where(TDeclaration.id_declarant == user["id_role"])
-
-    # Cas où on souhaite une seule déclaration (filtre par identifiant)
-    if id_declaration:
-        query = query.where(TDeclaration.id_declaration == id_declaration)
-
-    return query
-
-
-def replace_none_by_empty_string(data):
-    """
-    Remplace les valeurs None par des chaînes vides dans une liste de dictionnaires.
-    """
-
-    for row in data:
-        for e in row:
-            if row[e] is None:
-                row[e] = ""
-    return data
-
-
-# def get_degats_for_resultats_suivi(user=None, id_declaration=None):
-#     """
-#     Récupère les dégâts associés à une déclaration pour l'affichage dans les résultats de suivi.
-
-#     Utilisation :
-#     - Cette fonction est utilisée pour obtenir les informations détaillées des dégâts (type, essence, gravité, etc.)
-#       associées à une déclaration spécifique, notamment dans le contexte des résultats de suivi ou d'affichage détaillé.
-
-#     :param id_declaration: Identifiant de la déclaration pour laquelle récupérer les dégâts
-#     :return: Liste des dégâts structurés associés à la déclaration
-#     """
-
-#     # Récupération des dégâts via la vue SQL 'v_degats' filtrée par id_declaration
-#     stmt = get_v_declaration_degats_restrict_query()
-#     stmt = add_filters_declarations(stmt, user=user, id_declaration=id_declaration)
-#     data_degats = DB.session.execute(stmt).mappings().all()
-#     # si aucune doée n'est trouvée, on retourne une liste vide
-#     if not data_degats:
-#         return []
-#     # remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
-#     data_degats = replace_none_by_empty_string(data_degats)
-
-#     data_degats = [dict(row) for row in data_degats]
-
-
 #############################################################################
 
 
@@ -1442,20 +880,8 @@ def get_id_area(areas, type_list):
 
     Args:
         areas (list): Liste des zones à examiner. Chaque zone doit contenir des informations permettant d'identifier son type.
-        type_list (list): Liste des types de zones recherchés.
+        type_list (list): Liste des codes de type à filtrer (ex: ["COMMUNE", "SECTION"]).
 
-    Returns:
-        int or None: L'identifiant de la première zone correspondant à l'un des types spécifiés dans type_list, ou None si aucune zone ne correspond.
-
-    Utilisation:
-        Cette fonction est utilisée lorsqu'on souhaite obtenir rapidement l'identifiant d'une zone spécifique parmi une liste, en filtrant selon certains types.
-        Par exemple, dans le contexte d'une application de gestion forestière, elle permet de retrouver l'identifiant d'une zone forestière d'un type particulier (ex: zone protégée, zone exploitée, etc.).
-
-    Remarques:
-        - La fonction utilise get_id_areas pour obtenir la liste des identifiants correspondant aux types recherchés, puis retourne le premier trouvé.
-        - Si aucune zone ne correspond, la fonction retourne None.
-
-    get_id_area
     """
 
     id_areas = get_id_areas(areas, type_list)
@@ -1606,62 +1032,6 @@ def get_foret_type(id_foret):
     return foret_type
 
 
-def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
-    """
-    Retourne une déclaration sous forme de dictionnaire, enrichie avec les informations
-    de la forêt, du propriétaire et du déclarant.
-
-    Cette fonction est utilisée pour transformer les objets SQLAlchemy (déclaration, forêt,
-    propriétaire, déclarant) en un dictionnaire exploitable par le frontend ou pour l'export.
-    Elle est notamment utilisée dans les fonctions dfpu_as_dict_from_id_declaration et
-    create_or_update_declaration pour préparer les données à afficher ou à transmettre.
-
-    :param declaration: Instance de TDeclaration (ou None)
-    :param foret: Instance de TForet (ou None)
-    :param proprietaire: Instance de TProprietaire (ou None)
-    :param declarant: Dictionnaire utilisateur (ou None)
-    :param b_resolve: Booléen, si True enrichit le dictionnaire avec les nomenclatures et le type de forêt
-    :return: Dictionnaire représentant la déclaration complète
-    """
-
-    # Si la déclaration n'est pas fournie, on crée une instance vide
-    if not declaration:
-        declaration = TDeclaration()
-
-    # Si la forêt n'est pas fournie, on crée une instance vide
-    if not foret:
-        foret = TForet()
-
-    # Si le propriétaire n'est pas fourni, on crée une instance vide
-    if not proprietaire:
-        proprietaire = TProprietaire()
-
-    # Si le déclarant n'est pas fourni, on récupère l'utilisateur courant
-    if not declarant:
-        declarant = get_user()
-
-    # Sérialisation des objets en dictionnaires via Marshmallow
-    declaration_schema = TDeclarationSchema()
-    declaration_dict = declaration_schema.dump(declaration)
-
-    foret_dict = TForetSchema().dump(foret)
-    proprietaire_dict = TProprietaireSchema().dump(proprietaire)
-
-    # On ajoute les informations de forêt et de propriétaire à la déclaration
-    declaration_dict["foret"] = foret_dict
-    declaration_dict["declarant"] = declarant
-    declaration_dict["foret"]["proprietaire"] = proprietaire_dict
-
-    # Si demandé, on enrichit le dictionnaire avec les nomenclatures et le type de forêt
-    if b_resolve:
-        # Ajoute les informations de nomenclature et d'aires géographiques
-        get_dict_nomenclature_areas(declaration_dict)
-        # Ajoute le type de forêt selon le propriétaire
-        get_foret_type(declaration_dict.get("id_foret"))
-
-    return declaration_dict
-
-
 def get_foret(id_foret):
     """
     Renvoie l'objet forêt et son propriétaire à partir de l'identifiant de la forêt.
@@ -1767,20 +1137,6 @@ def hide_proprietaire(proprietaire):
 
 
 ####################################################################################
-#############################$ NOUVEAUX ##########################################
-
-
-def get_degats_for_resultats_suivi():
-    stmt = get_stmt_for_resultats_degats()
-    result = DB.session.execute(stmt).mappings().all()
-    if not result:
-        return []
-    data = [dict(row) for row in result]
-
-    return data
-
-
-####################################################################################
 # non utilisé actuellement
 def resume_gravite(declaration_dict):
     """
@@ -1834,3 +1190,488 @@ def resume_gravite(declaration_dict):
 
     # On ajoute la gravité maximale trouvée au dictionnaire de déclaration
     declaration_dict["gravite"] = gravite
+
+
+####################################################################################
+## FONCTIONS REMPLACÉES
+
+
+# pour les export et les résultat de suivis => système d'alertes
+# sera a supprimé lorsqu'on aura tout passé en sqlalchemy
+# def get_declarations_view(
+#     user=None, type_export=None, type_out=None, id_declaration=None, restrict=False
+# ):
+#     """
+#     Retourne des donées de déclarations a partir des vues.
+
+#     Cette fonction permet de récupérer les déclarations forestières selon différents paramètres :
+#     - type_export : format d'export souhaité ("csv", "shape", ou None pour le format par défaut)
+#     - type_out : "degat" pour une ligne par dégât, None pour une ligne par déclaration
+#     - user : dictionnaire contenant les informations sur l'utilisateur (droits, organisme, etc.)
+#     - id_declaration : pour filtrer sur une déclaration précise
+#     - restrict : pour restreindre la vue (utilisé principalement pour les vues de dégâts)
+
+#     """
+
+#     # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
+#     liste_id_organismes_solo = get_id_organismes(
+#         ["Autre (préciser)", "Pas d'organisme", "Aucun"]
+#     )
+
+#     # Dictionnaire de correspondance entre les paramètres et les vues SQL à utiliser
+#     view_names = {
+#         "csv": "v_export_declarations_csv",
+#         "csv_deg": "v_export_declaration_degats_csv",
+#         "shape": "v_export_declarations_shape",
+#         "shape_deg": "v_export_declaration_degats_shape",
+#         "default": "v_declarations",
+#         "default_deg": "v_declaration_degats",
+#         "default_deg_restrict": "v_declaration_degats_restrict",
+#     }
+
+#     stmt_function_names = {
+#         "csv": get_v_export_declaration_csv_query,
+#         "csv_deg": get_v_export_declaration_degats_csv_query,
+#         "shape": get_v_export_declaration_shape_query,
+#         "shape_deg": get_v_export_declaration_degats_shape_query,
+#         "default": get_v_declarations_query,
+#         "default_deg": get_v_declaration_degat_query,
+#         "default_deg_restrict": get_v_declaration_degats_restrict_query,
+#     }
+
+#     # Choix de la vue selon les paramètres d'export et de sortie
+#     if type_export in ["csv", "shape"]:
+#         view_key = type_export
+#     else:
+#         view_key = "default"
+
+#     if type_out == "degat":
+#         view_key += "_deg"
+
+#     if restrict:
+#         # Restriction supplémentaire, principalement pour les vues de dégâts
+#         view_key += "_restrict"
+
+#     view_name = view_names[view_key]
+
+#     stmt_function = stmt_function_names[view_key]
+#     stmt = stmt_function()
+
+#     # Définition des filtres selon les droits de l'utilisateur
+#     filters = {}
+#     if user:
+#         # Cas administrateur ou animateur (droit >= 5) : accès à toutes les déclarations
+#         if user["max_level_profil"] >= 5:
+#             pass  # Pas de filtre
+
+#         # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
+#         elif (
+#             user["max_level_profil"] >= 2
+#             and user["id_organisme"] not in liste_id_organismes_solo
+#         ):
+#             stmt = stmt.where(VUsers.organisme == user["organisme"])
+#             # filters = {"organisme": user["organisme"]}
+
+#         # Cas droit 1 : accès uniquement à ses propres alertes
+#         elif user["max_level_profil"] >= 1:
+#             stmt = stmt.where(TDeclaration.id_declarant == user["id_role"])
+#             # filters = {"id_declarant": user["id_role"]}
+
+#     # Cas où on souhaite une seule déclaration (filtre par identifiant)
+#     if id_declaration:
+#         stmt = stmt.where(TDeclaration.id_declaration == id_declaration)
+#         # filters["id_declaration"] = id_declaration
+
+#     # Définition du champ géométrique pour l'export shapefile
+#     geometry_field = None
+#     if type_export == "shape":
+#         geometry_field = "geom"
+#         stmt = stmt.add_columns(
+#             func.ST_AsBinary(
+#                 func.ST_Transform(func.ST_Centroid(TDeclaration.geom), 4326)
+#             ).label("geom")
+#         )
+
+#     # Création de la requête via GenericQueryGeo (utilise la vue SQL et les filtres)
+#     data = None
+#     # gq = GenericQueryGeo(
+#     #     DB,
+#     #     view_name,
+#     #     "oeasc_declarations",
+#     #     geometry_field=geometry_field,
+#     #     filters=filters,
+#     #     limit=1e6,
+#     # )
+
+#     gq = DB.session.execute(stmt).mappings().all()
+
+#     # Cas d'export shapefile : on retourne directement le résultat de la requête
+#     if type_export == "shape":
+#         return gq.query()[0]
+
+#     # Exécution de la requête et récupération des données
+#     data = gq.return_query()
+
+#     # Si aucune donnée n'est trouvée, on retourne une liste vide
+#     if not (data and data.get("items")):
+#         return []
+
+#     declarations = data.get("items")
+
+#     # Remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
+#     for d in declarations:
+#         for e in d:
+#             if d[e] is None:
+#                 d[e] = ""
+
+#     # Si on utilise une vue d'export ou de dégâts, on retourne directement les déclarations
+#     if view_key != "default":
+#         return declarations
+
+#     # Cas par défaut : enrichissement des déclarations avec les objets "dégats"
+#     # (utilisé pour l'affichage détaillé ou l'export complet)
+#     add_degats(declarations)
+
+#     # Pré-traitement des nomenclatures géographiques (désactivé ici)
+#     # pre_get_dict_nomenclature_areas(declarations)
+#     # Résolution complète des déclarations (désactivé ici)
+#     # declarations = [resolve_declaration(d) for d in declarations]
+
+#     return declarations
+
+
+# def get_degats_for_resultats_suivi(user=None, id_declaration=None):
+#     """
+#     Récupère les dégâts associés à une déclaration pour l'affichage dans les résultats de suivi.
+
+#     Utilisation :
+#     - Cette fonction est utilisée pour obtenir les informations détaillées des dégâts (type, essence, gravité, etc.)
+#       associées à une déclaration spécifique, notamment dans le contexte des résultats de suivi ou d'affichage détaillé.
+
+#     :param id_declaration: Identifiant de la déclaration pour laquelle récupérer les dégâts
+#     :return: Liste des dégâts structurés associés à la déclaration
+#     """
+
+#     # Récupération des dégâts via la vue SQL 'v_degats' filtrée par id_declaration
+#     stmt = get_v_declaration_degats_restrict_query()
+#     stmt = add_filters_declarations(stmt, user=user, id_declaration=id_declaration)
+#     data_degats = DB.session.execute(stmt).mappings().all()
+#     # si aucune doée n'est trouvée, on retourne une liste vide
+#     if not data_degats:
+#         return []
+#     # remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
+#     data_degats = replace_none_by_empty_string(data_degats)
+
+#     data_degats = [dict(row) for row in data_degats]
+
+
+# def get_fiche_declaration_ancien(
+#     user=None, type_export=None, type_out=None, id_declaration=None, restrict=False
+# ):
+#     """
+#     Récupère les données d'une déclaration selon les paramètres fournis.
+#     Cette fonction est utilisée pour obtenir les informations d'une déclaration spécifique ou d'un ensemble de déclarations
+#     en fonction des droits de l'utilisateur, du type d'export souhaité et d'autres critères.
+#     """
+
+#     # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
+#     liste_id_organismes_solo = get_id_organismes(
+#         ["Autre (préciser)", "Pas d'organisme", "Aucun"]
+#     )
+
+#     # Dictionnaire de correspondance entre les paramètres et les vues SQL à utiliser
+#     view_names = {
+#         "csv": "v_export_declarations_csv",
+#         "csv_deg": "v_export_declaration_degats_csv",
+#         "shape": "v_export_declarations_shape",
+#         "shape_deg": "v_export_declaration_degats_shape",
+#         "default": "v_declarations",
+#         "default_deg": "v_declaration_degats",
+#         "default_deg_restrict": "v_declaration_degats_restrict",
+#     }
+
+#     # Choix de la vue selon les paramètres d'export et de sortie
+#     if type_export in ["csv", "shape"]:
+#         view_key = type_export
+#     else:
+#         view_key = "default"
+
+#     if type_out == "degat":
+#         view_key += "_deg"
+
+#     if restrict:
+#         # Restriction supplémentaire, principalement pour les vues de dégâts
+#         view_key += "_restrict"
+
+#     view_name = view_names[view_key]
+
+#     # Définition des filtres selon les droits de l'utilisateur
+#     filters = {}
+#     if user:
+#         # Cas administrateur ou animateur (droit >= 5) : accès à toutes les déclarations
+#         if user["max_level_profil"] >= 5:
+#             pass  # Pas de filtre
+
+#         # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
+#         elif (
+#             user["max_level_profil"] >= 2
+#             and user["id_organisme"] not in liste_id_organismes_solo
+#         ):
+#             filters = {"organisme": user["organisme"]}
+
+#         # Cas droit 1 : accès uniquement à ses propres alertes
+#         elif user["max_level_profil"] >= 1:
+#             filters = {"id_declarant": user["id_role"]}
+
+#     # Cas où on souhaite une seule déclaration (filtre par identifiant)
+#     if id_declaration:
+#         filters["id_declaration"] = id_declaration
+
+#     # Définition du champ géométrique pour l'export shapefile
+#     geometry_field = None
+#     if type_export == "shape":
+#         geometry_field = "geom"
+
+#     # Création de la requête via GenericQueryGeo (utilise la vue SQL et les filtres)
+#     data = None
+#     gq = GenericQueryGeo(
+#         DB,
+#         view_name,
+#         "oeasc_declarations",
+#         geometry_field=geometry_field,
+#         filters=filters,
+#         limit=1e6,
+#     )
+
+#     # Cas d'export shapefile : on retourne directement le résultat de la requête
+#     if type_export == "shape":
+#         return gq.query()[0]
+
+#     # Exécution de la requête et récupération des données
+#     data = gq.return_query()
+
+#     # Si aucune donnée n'est trouvée, on retourne une liste vide
+#     if not (data and data.get("items")):
+#         return []
+
+#     declarations = data.get("items")
+
+#     # Remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
+#     for d in declarations:
+#         for e in d:
+#             if d[e] is None:
+#                 d[e] = ""
+
+#     # Si on utilise une vue d'export ou de dégâts, on retourne directement les déclarations
+#     if view_key != "default":
+#         return declarations
+
+#     # Cas par défaut : enrichissement des déclarations avec les objets "dégats"
+#     # (utilisé pour l'affichage détaillé ou l'export complet)
+#     add_degats(declarations)
+
+#     # Pré-traitement des nomenclatures géographiques (désactivé ici)
+#     # pre_get_dict_nomenclature_areas(declarations)
+#     # Résolution complète des déclarations (désactivé ici)
+#     # declarations = [resolve_declaration(d) for d in declarations]
+
+#     return declarations
+
+
+# add_degats uniquement utilsé dans get_fiche_declaration
+# def add_degats(declarations):
+#     """
+#     Ajoute un objet 'degats' à chaque déclaration dans la liste fournie.
+
+#     Cette fonction est utilisée dans :
+#     - get_declarations : pour enrichir chaque déclaration avec ses dégâts associés
+#     - Toute logique nécessitant d'associer les dégâts (type, essence, gravité, etc.) aux déclarations
+
+#     Elle récupère les dégâts via la vue SQL 'v_degats', puis les regroupe par déclaration.
+#     Pour chaque déclaration, elle ajoute une clé 'degats' contenant la liste des dégâts structurés.
+
+#     :param declarations: Liste de dictionnaires représentant les déclarations
+#     """
+
+#     # Récupération des dégâts via la vue SQL 'v_degats'
+#     data_degats = GenericQuery(
+#         DB, "v_degats", "oeasc_declarations", limit=1e6
+#     ).return_query()["items"]
+
+#     # Dictionnaire pour regrouper les dégâts par déclaration
+#     degats_declarations = {}
+
+#     for deg in data_degats:
+#         # On récupère la liste des dégâts pour la déclaration courante
+#         dd = degats_declarations.get(deg["id_declaration_degat"])
+#         if not dd:
+#             dd = degats_declarations[deg["id_declaration_degat"]] = []
+
+#         d_cur = None
+#         # On cherche si le type de dégât existe déjà dans la liste
+#         for d in dd:
+#             if d["degat_type_mnemo"] == deg["degat_type_mnemo"]:
+#                 d_cur = d
+#                 break
+
+#         if not d_cur:
+#             # Si le type de dégât n'existe pas, on le crée
+#             d_cur = {
+#                 "degat_type_mnemo": deg["degat_type_mnemo"],
+#                 "degat_type_label": deg["degat_type_label"],
+#                 "degat_type_code": deg["degat_type_code"],
+#             }
+#             d_cur["degat_essences"] = []
+#             dd.append(d_cur)
+
+#         # On ajoute les informations d'essence de dégât si elles existent
+#         if deg.get("degat_essence_mnemo"):
+#             d_cur["degat_essences"].append(
+#                 {
+#                     "degat_essence_mnemo": deg["degat_essence_mnemo"],
+#                     "degat_anteriorite_mnemo": deg["degat_anteriorite_mnemo"],
+#                     "degat_gravite_mnemo": deg["degat_gravite_mnemo"],
+#                     "degat_etendue_mnemo": deg["degat_etendue_mnemo"],
+#                     "degat_essence_label": deg["degat_essence_label"],
+#                     "degat_anteriorite_label": deg["degat_anteriorite_label"],
+#                     "degat_gravite_label": deg["degat_gravite_label"],
+#                     "degat_etendue_label": deg["degat_etendue_label"],
+#                     "degat_essence_code": deg["degat_essence_code"],
+#                     "degat_anteriorite_code": deg["degat_anteriorite_code"],
+#                     "degat_gravite_code": deg["degat_gravite_code"],
+#                     "degat_etendue_code": deg["degat_etendue_code"],
+#                 }
+#             )
+
+#     # On ajoute la liste des dégâts à chaque déclaration
+#     for d in declarations:
+#         d["degats"] = degats_declarations.get(d["id_declaration"], [])
+
+
+# def replace_none_by_empty_string(data):
+#     """
+#     Remplace les valeurs None par des chaînes vides dans une liste de dictionnaires.
+#     """
+
+#     for row in data:
+#         for e in row:
+#             if row[e] is None:
+#                 row[e] = ""
+#     return data
+
+
+# def get_fiche_declaration(id_declaration, session=None, with_geom=True):
+
+#     stmt = get_stmt_fiche_declaration(id_declaration)
+
+#     result = get_db().session.execute(stmt).fetchone()
+#     if result is None:
+#         dict_result = {}
+#     else:
+#         # Use the RowMapping to get a dict keyed by column labels
+#         dict_result = dict(result._mapping)
+#     stmt_degats = get_stmt_degats(id_declaration)
+#     degats_declarations = get_db().session.execute(stmt_degats).fetchall()
+
+#     # on rassemble tous les dégats essence qui ont le même id_degat
+#     degats_dict = {}
+#     for degat in degats_declarations:
+#         degat = dict(degat._mapping)
+#         id_degat = degat["id_degat"]
+#         if id_degat not in degats_dict:
+#             degats_dict[id_degat] = {
+#                 "id_declaration_degat": degat["id_declaration_degat"],
+#                 "id_degat": id_degat,
+#                 "degat_type_mnemo": degat["degat_type_mnemo"],
+#                 "degat_type_label": degat["degat_type_label"],
+#                 "degat_type_code": degat["degat_type_code"],
+#                 "essences": [],
+#             }
+#         if degat["id_degat_essence"] is not None:
+#             degats_dict[id_degat]["essences"].append(
+#                 {
+#                     "id_degat_essence": degat["id_degat_essence"],
+#                     "degat_essence_mnemo": degat["degat_essence_mnemo"],
+#                     "degat_gravite_mnemo": degat["degat_gravite_mnemo"],
+#                     "degat_etendue_mnemo": degat["degat_etendue_mnemo"],
+#                     "degat_anteriorite_mnemo": degat["degat_anteriorite_mnemo"],
+#                     "degat_essence_label": degat["degat_essence_label"],
+#                     "degat_gravite_label": degat["degat_gravite_label"],
+#                     "degat_etendue_label": degat["degat_etendue_label"],
+#                     "degat_anteriorite_label": degat["degat_anteriorite_label"],
+#                     "degat_essence_code": degat["degat_essence_code"],
+#                     "degat_gravite_code": degat["degat_gravite_code"],
+#                     "degat_etendue_code": degat["degat_etendue_code"],
+#                     "degat_anteriorite_code": degat["degat_anteriorite_code"],
+#                 }
+#             )
+
+#     dict_result["degats"] = list(degats_dict.values())
+
+#     return dict_result
+
+
+# def get_degats_for_resultats_suivi():
+#     stmt = get_stmt_for_resultats_degats()
+#     result = DB.session.execute(stmt).mappings().all()
+#     if not result:
+#         return []
+#     data = [dict(row) for row in result]
+
+#     return data
+
+
+# def dfpu_as_dict(declaration, foret, proprietaire, declarant, b_resolve=True):
+#     """
+#     Retourne une déclaration sous forme de dictionnaire, enrichie avec les informations
+#     de la forêt, du propriétaire et du déclarant.
+
+#     Cette fonction est utilisée pour transformer les objets SQLAlchemy (déclaration, forêt,
+#     propriétaire, déclarant) en un dictionnaire exploitable par le frontend ou pour l'export.
+#     Elle est notamment utilisée dans les fonctions dfpu_as_dict_from_id_declaration et
+#     create_or_update_declaration pour préparer les données à afficher ou à transmettre.
+
+#     :param declaration: Instance de TDeclaration (ou None)
+#     :param foret: Instance de TForet (ou None)
+#     :param proprietaire: Instance de TProprietaire (ou None)
+#     :param declarant: Dictionnaire utilisateur (ou None)
+#     :param b_resolve: Booléen, si True enrichit le dictionnaire avec les nomenclatures et le type de forêt
+#     :return: Dictionnaire représentant la déclaration complète
+#     """
+
+#     # Si la déclaration n'est pas fournie, on crée une instance vide
+#     if not declaration:
+#         declaration = TDeclaration()
+
+#     # Si la forêt n'est pas fournie, on crée une instance vide
+#     if not foret:
+#         foret = TForet()
+
+#     # Si le propriétaire n'est pas fourni, on crée une instance vide
+#     if not proprietaire:
+#         proprietaire = TProprietaire()
+
+#     # Si le déclarant n'est pas fourni, on récupère l'utilisateur courant
+#     if not declarant:
+#         declarant = get_user()
+
+#     # Sérialisation des objets en dictionnaires via Marshmallow
+#     declaration_schema = TDeclarationSchema()
+#     declaration_dict = declaration_schema.dump(declaration)
+
+#     foret_dict = TForetSchema().dump(foret)
+#     proprietaire_dict = TProprietaireSchema().dump(proprietaire)
+
+#     # On ajoute les informations de forêt et de propriétaire à la déclaration
+#     declaration_dict["foret"] = foret_dict
+#     declaration_dict["declarant"] = declarant
+#     declaration_dict["foret"]["proprietaire"] = proprietaire_dict
+
+#     # Si demandé, on enrichit le dictionnaire avec les nomenclatures et le type de forêt
+#     if b_resolve:
+#         # Ajoute les informations de nomenclature et d'aires géographiques
+#         get_dict_nomenclature_areas(declaration_dict)
+#         # Ajoute le type de forêt selon le propriétaire
+#         get_foret_type(declaration_dict.get("id_foret"))
+
+#     return declaration_dict
