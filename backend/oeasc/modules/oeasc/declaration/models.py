@@ -445,7 +445,7 @@ class TDeclaration(CustomModel):
     date_fin_token: Mapped[DateTime] = Column(DateTime, nullable=True)
     id_declaration_originale: Mapped[int] = Column(Integer, nullable=True)
 
-    geom: Mapped[object] = Column(Geometry("GEOMETRY", 4326))
+    geom: Mapped[object] = Column(Geometry("MULTIPOLYGON", 4326))
 
 
 ################################################################
