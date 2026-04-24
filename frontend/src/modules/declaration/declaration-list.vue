@@ -2,7 +2,7 @@
  un fenetre s'affichera pour proposer 4 type de format d'exportation
  -->
 
-<template>
+<!-- <template>
   <div>
     <div>
       <div>
@@ -43,63 +43,63 @@
       <generic-table :config="configTable"></generic-table>
     </div>
   </div>
-</template>
+</template> -->
 
 <script>
-import { config } from '@/config/config.js';
-import genericTable from '@/components/table/generic-table';
-import '@/core/css/main.scss';
-import configDeclarationTable from './config/table-declaration';
+// import { config } from '@/config/config.js';
+// import genericTable from '@/components/table/generic-table';
+// import '@/core/css/main.scss';
+// import configDeclarationTable from './config/table-declaration';
 
-export default {
-  components: { genericTable },
-  data() {
-    return {
-      exports: [
-        {
-          href: `${config.URL_APPLICATION}/api/declaration/declarations_csv`,
-          label: 'Export CSV',
-          subLabel: 'une ligne par décaration',
-        },
-        {
-          href: `${config.URL_APPLICATION}/api/declaration/declarations_csv?type_out=degat`,
-          label: 'Export CSV',
-          subLabel: 'une ligne par dégât',
-        },
-        {
-          href: `${config.URL_APPLICATION}/api/declaration/declarations_shape`,
-          label: 'Export SHAPE',
-          subLabel: 'une ligne par décaration',
-        },
-        {
-          href: `${config.URL_APPLICATION}/api/declaration/declarations_shape?type_out=degat`,
-          label: 'Export SHAPE',
-          subLabel: 'une ligne par dégât',
-        },
-      ],
-      bDialogExport: false,
-      configTable: configDeclarationTable,
-      declarations: [],
-    };
-  },
-  name: 'declaration-list',
-  methods: {
-    /**
-     * Charge les déclarations depuis le store et les trie par date de création.
-     */
-    loadDeclarations() {
-      this.$store.dispatch('declarations').then((declarations) => {
-        declarations.sort((a, b) => {
-          return b.id_declaration - a.id_declaration;
-        });
-        this.declarations = declarations;
-        this.configTable.items = declarations;
-        this.configTable = { ...this.configTable };
-      });
-    },
-  },
-  created: function () {
-    this.loadDeclarations();
-  },
-};
+// export default {
+//   components: { genericTable },
+//   data() {
+//     return {
+//       exports: [
+//         {
+//           href: `${config.URL_APPLICATION}/api/declaration/declarations_csv`,
+//           label: 'Export CSV',
+//           subLabel: 'une ligne par décaration',
+//         },
+//         {
+//           href: `${config.URL_APPLICATION}/api/declaration/declarations_csv?type_out=degat`,
+//           label: 'Export CSV',
+//           subLabel: 'une ligne par dégât',
+//         },
+//         {
+//           href: `${config.URL_APPLICATION}/api/declaration/declarations_shape`,
+//           label: 'Export SHAPE',
+//           subLabel: 'une ligne par décaration',
+//         },
+//         {
+//           href: `${config.URL_APPLICATION}/api/declaration/declarations_shape?type_out=degat`,
+//           label: 'Export SHAPE',
+//           subLabel: 'une ligne par dégât',
+//         },
+//       ],
+//       bDialogExport: false,
+//       configTable: configDeclarationTable,
+//       declarations: [],
+//     };
+//   },
+//   name: 'declaration-list',
+//   methods: {
+//     /**
+//      * Charge les déclarations depuis le store et les trie par date de création.
+//      */
+//     loadDeclarations() {
+//       this.$store.dispatch('declarations').then((declarations) => {
+//         declarations.sort((a, b) => {
+//           return b.id_declaration - a.id_declaration;
+//         });
+//         this.declarations = declarations;
+//         this.configTable.items = declarations;
+//         this.configTable = { ...this.configTable };
+//       });
+//     },
+//   },
+//   created: function () {
+//     this.loadDeclarations();
+//   },
+// };
 </script>

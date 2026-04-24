@@ -97,7 +97,7 @@ export default {
         this.declarations = declarations;
         this.configTable.items = declarations;
         this.configTable = { ...this.configTable };
-        console.log('Déclarations chargées :', this.declarations);
+        // console.log('Déclarations chargées :', this.declarations);
       });
     },
   },

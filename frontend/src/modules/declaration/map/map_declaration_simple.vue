@@ -646,7 +646,7 @@ export default {
                   break;
                 }
               } catch (e) {
-                console.warn('Erreur placement label candidat', cand, e);
+                // console.warn('Erreur placement label candidat', cand, e);
               }
             }
             // si aucun candidat n'a pu être placé sans collision, on place le label à sa position centrale par défaut (même si ça peut générer des chevauchements, au moins le label est affiché)

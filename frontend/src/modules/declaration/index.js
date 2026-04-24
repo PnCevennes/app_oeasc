@@ -222,7 +222,7 @@ const STORE = {
         }
         apiRequest('GET', `api/declaration/declarations`).then(
           (apiData) => {
-            console.log('Données des déclarations reçues :', apiData);
+            // console.log('Données des déclarations reçues :', apiData);
             commit('declarations', apiData);
             resolve(apiData);
           },
