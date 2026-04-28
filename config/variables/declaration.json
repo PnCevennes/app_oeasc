@@ -14,7 +14,6 @@
     "_comment_NB_JOURS_VALIDITE_DECLARATION": "Une déclaration dure 3 ans (1095 jours)",
     "NB_JOURS_VALIDITE_DECLARATION": 1095,
     "_comment_LISTE_MAILS_ANIMATEURS": "Liste des mails des animateurs qui recevront les relances en copie. Pour leur permettre de répondre aussi avec des mails personnalisés",
-    "LISTE_MAILS_ANIMATEURS": [
-    ]
+    "LISTE_MAILS_ANIMATEURS": [ "thibaut.mean@cevennes-parcnational.fr"]
 
 }
