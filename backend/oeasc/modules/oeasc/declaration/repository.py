@@ -56,6 +56,31 @@ def get_variables_declaration():
         return json.load(f)
 
 
+def get_label_statut_declaration(code_statut):
+    """Récupère le label d'un statut de déclaration depuis le fichier JSON de configuration."""
+    declaration_variables = get_variables_declaration()
+    # "STATUT_DECLARATION" : {
+    #     "Non validée": 0,
+    #     "Active": 1,
+    #     "Archivée": 2,
+    #     "Archivée sans réponse": 3,
+    #     "Relance": 100
+    # },
+
+    label = None
+
+    if code_statut >= declaration_variables["STATUT_DECLARATION"]["Relance"]:
+        label = "Relance numéro " + str(
+            code_statut - declaration_variables["STATUT_DECLARATION"]["Relance"] + 1
+        )
+        return label
+    for label_statut, code in declaration_variables["STATUT_DECLARATION"].items():
+        if code == code_statut:
+            label = label_statut
+            break
+    return label
+
+
 def get_fiche_declaration(id_declaration, type_export=None, session=None):
     """Les données pour l'affichage d'une déclaration. Page voir_declaration."""
 
@@ -102,7 +127,13 @@ def get_fiche_declaration(id_declaration, type_export=None, session=None):
         dict_result["degats"] = []
     else:
         # Use the RowMapping to get a dict keyed by column labels
+
         dict_result = dict(result._mapping)
+
+        dict_result["statut_label"] = get_label_statut_declaration(
+            dict_result["statut"]
+        )
+
         stmt_degats = get_stmt_degats(id_declaration)
         degats_declarations = get_db().session.execute(stmt_degats).fetchall()
 
@@ -141,7 +172,9 @@ def get_fiche_declaration(id_declaration, type_export=None, session=None):
 
         dict_result["degats"] = list(degats_dict.values())
 
-    return dict_result
+        response.data = dict_result
+
+    return response
 
 
 def get_form_declaration(id_declaration=None, session={}):
@@ -479,6 +512,7 @@ def create_or_update_declaration(post_data):
         )
 
     # On retourne les données arrangées (utiles pour debug ou pour affichage)
+    response.data = declarationSchema.dump(declaration)
     return arranged_post_data, response
 
 

@@ -334,6 +334,7 @@ def get_stmt_fiche_declaration(id_declaration):
         select(
             ########################## INFORMATIONS ######################################
             TDeclaration.id_declaration,
+            TDeclaration.b_valid.label("b_valid"),
             TDeclaration.centroid.label("centroid"),
             case(
                 (TDeclaration.b_valid == True, "Validé"),
@@ -349,8 +350,11 @@ def get_stmt_fiche_declaration(id_declaration):
                 "declaration_date"
             ),
             func.to_char(TDeclaration.date_fin, "DD/MM/YYYY").label("date_fin"),
+            TDeclaration.statut.label("statut"),
             # ############################ DECLARANT ######################################
+            VUsers.id_role.label("id_declarant"),
             VUsers.nom_complet.label("declarant"),
+            VUsers.email.label("email"),
             VUsers.organisme.label("organisme"),
             ############################ FORET ######################################
             TForet.label_foret.label("nom_foret"),

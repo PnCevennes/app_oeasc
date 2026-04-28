@@ -1,7 +1,7 @@
 from flask_mail import Message
 import pandas as pd
-
-# from oeasc.utils.env import mail
+import time
+from datetime import datetime, timedelta
 from oeasc.utils.apiResponse import ApiResponse
 from flask import render_template, session, current_app
 from oeasc.modules.oeasc.declaration.models import TDeclaration
@@ -17,9 +17,6 @@ from .repository import (
 from oeasc.modules.oeasc.declaration.all_stmt import (
     stmt_liste_declarations_a_renouveler,
 )
-import time
-from flask.cli import with_appcontext
-from datetime import datetime, timedelta
 
 config = LocalProxy(lambda: current_app.config)
 mail = LocalProxy(lambda: config["MAIL"])
@@ -118,22 +115,43 @@ def send_mail_validation_declaration(declaration, b_create):
         conn.send(msg)  # Envoie le mail à l'animateur et à l'administrateur
 
 
-def send_mail_alerte_renouvellement_declaration(declaration):
-    """Envoie un mail à l'animateur pour l'informer qu'une déclaration est en attente de renouvellement.
-    Cela correspond à une ligne de la requête liste_declarations_a_renouveler()
-    Il faudra qu'il valide cette nouvelle déclaration.
-    """
+def send_mail_alerte_cloture_declaration(declaration):
+    """Envoie un mail à l'animateur pour l'informer qu'une déclaration a été clôturée."""
 
     variables_declaration = get_variables_declaration()
     liste_mails_animateurs = variables_declaration["LISTE_MAILS_ANIMATEURS"]
+    with mail.connect() as conn:
 
+        html = render_template(
+            "modules/oeasc/mail/alerte_cloture_declaration.html",
+            info_declaration=declaration,
+        )
+        msg = Message(
+            "[OEASC] [ANIMATEUR] Une déclaration a été cloturée",
+            sender=config["ANIMATEUR_APPLICATION_MAIL"],
+            recipients=liste_mails_animateurs,
+            html=html,
+        )
+
+        try:
+            conn.send(msg)
+        except SMTPRecipientsRefused:
+            print("Adresse invalide")
+        except Exception as e:
+            print("Erreur lors de l'envoi du mail : ", e)
+
+
+def send_mail_alerte_renouvellement_declaration(declaration):
+    """Envoie un mail à l'animateur pour l'informer qu'une déclaration a été renouvelée."""
+
+    variables_declaration = get_variables_declaration()
+    liste_mails_animateurs = variables_declaration["LISTE_MAILS_ANIMATEURS"]
     with mail.connect() as conn:
 
         html = render_template(
             "modules/oeasc/mail/alerte_renouvellement_declaration.html",
             info_declaration=declaration,
         )
-
         msg = Message(
             "[OEASC] [ANIMATEUR] Une déclaration a été renouvelée",
             sender=config["ANIMATEUR_APPLICATION_MAIL"],
@@ -169,7 +187,6 @@ def send_mail_echec_renouvellement_declaration(declaration):
             "modules/oeasc/mail/alerte_echec_renouvellement_declaration.html",
             info_declaration=declaration,
         )
-
         msg = Message(
             "[OEASC] [ANIMATEUR] Une déclaration a échoué à être renouvelée",
             sender=config["ANIMATEUR_APPLICATION_MAIL"],
@@ -185,7 +202,6 @@ def send_mail_echec_renouvellement_declaration(declaration):
             print("Erreur lors de l'envoi du mail : ", e)
 
 
-@with_appcontext
 def relance_toutes_declarations():
     """Envoie les emails de relance aux déclarations concernées
     cette fonction est appelée par la commande send-relance qui est exécutée tous les mois par le cron du serveur
@@ -258,9 +274,6 @@ def relance_toutes_declarations():
                 )
 
             # attente de 1 seconde entre chaque mail pour éviter les problèmes de saturation du serveur de mail
-            print(
-                f"Attente de 1 seconde avant d'envoyer le mail pour la déclaration {declaration['id_declaration']}..."
-            )
             time.sleep(1)
 
         response.add_log("Fin de l'envoi des mails de renouvellement", type_log="INFO")
@@ -270,13 +283,14 @@ def relance_toutes_declarations():
     return response
 
 
-@with_appcontext
-def send_mail_actualisation_declaration(declaration):
+def send_mail_actualisation_declaration(declaration, change_statut=True):
     """Envoie un mail au déclarant pour lui proposer de renouveler sa déclaration ou de la clôturer.
     On créé un token de renouvellement qui sera vérifié lors du clic sur les liens du mail.
     Le token est valide 1 mois.
     info_declaration doit contenir au moins : id_declaration, id_declarant, email, nom_role, prenom_role, accept_email
     Cela correspond à une ligne de la requête liste_declarations_a_renouveler()
+    change_statut indique si on doit changer le statut de la déclaration en "Relance" ou "Archivée sans réponse" en fonction du nombre de relances déjà effectuées
+    si l'admin envoie manuellement un mail de renouvellement depuis l'interface, on ne change pas le statut de la déclaration pour ne pas fausser les statistiques sur les relances
     """
 
     config = get_config()
@@ -299,24 +313,26 @@ def send_mail_actualisation_declaration(declaration):
     str_date_fin_token = date_fin_token.strftime("%Y-%m-%d")
 
     statut_actuel = declaration["statut"]
-    # print (statut_actuel)
-    if statut_actuel == statut_declaration["Active"]:
-        # si la déclaration est "Active", on passe son statut à "Relance"
-        new_statut = statut_declaration["Relance"]
-    elif statut_actuel >= statut_declaration["Relance"] + nb_max_renouvellement:
-        print(
-            f"Nombre de relances max atteint pour la déclaration {declaration['id_declaration']}. Aucune relance envoyée."
-        )
-        new_statut = statut_declaration["Archivée sans réponse"]
-    elif (statut_actuel >= statut_declaration["Relance"]) and (
-        statut_actuel != statut_declaration["Active"]
-    ):
-        # si la déclaration est déjà en statut de relance, on incrémente son statut
-        new_statut = (
-            statut_declaration["Relance"]
-            + (statut_actuel - statut_declaration["Relance"])
-            + 1
-        )
+    if change_statut:
+        if statut_actuel == statut_declaration["Active"]:
+            # si la déclaration est "Active", on passe son statut à "Relance"
+            new_statut = statut_declaration["Relance"]
+        elif statut_actuel >= statut_declaration["Relance"] + nb_max_renouvellement:
+            print(
+                f"Nombre de relances max atteint pour la déclaration {declaration['id_declaration']}. Aucune relance envoyée."
+            )
+            new_statut = statut_declaration["Archivée sans réponse"]
+        elif (statut_actuel >= statut_declaration["Relance"]) and (
+            statut_actuel != statut_declaration["Active"]
+        ):
+            # si la déclaration est déjà en statut de relance, on incrémente son statut
+            new_statut = (
+                statut_declaration["Relance"]
+                + (statut_actuel - statut_declaration["Relance"])
+                + 1
+            )
+        else:
+            new_statut = statut_actuel
     else:
         new_statut = statut_actuel
 

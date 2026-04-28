@@ -18,6 +18,8 @@ from ..declaration.mail import (
     send_mail_validation_declaration,
     send_mail_alerte_renouvellement_declaration,
     send_mail_echec_renouvellement_declaration,
+    send_mail_actualisation_declaration,
+    send_mail_alerte_cloture_declaration,
 )
 
 from ..nomenclature import get_nomenclature_from_id
@@ -150,12 +152,12 @@ def route_declaration(id_declaration):
     """
     # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur
 
-    declaration = get_fiche_declaration(id_declaration=id_declaration, session=session)
+    response = get_fiche_declaration(id_declaration=id_declaration, session=session)
 
-    if not declaration:
+    if response.success == False:
         return None
 
-    return declaration
+    return response.data
 
 
 # pas d'authentification check_auth ici car on passe par un token
@@ -434,12 +436,8 @@ def duplicate_declaration():
         )
         return apiResponse.response_to_frontend()
     post_data["id_declaration_originale"] = id_declaration
-    post_data["id_declaration"] = (
-        None  # Assurez-vous que l'ID de la déclaration est nul pour une nouvelle création
-    )
-    post_data["b_valid"] = (
-        False  # La déclaration renouvelée doit être à nouveau validée par un admin
-    )
+    post_data["id_declaration"] = None
+    post_data["b_valid"] = False
     post_data["token_renouvellement"] = (
         None  # Le token de renouvellement doit être généré à nouveau pour la nouvelle déclaration
     )
@@ -457,27 +455,42 @@ def duplicate_declaration():
         date_fin
     )  # Met à jour la date de fin en fonction de la durée de validité définie dans les variables
     post_data["statut"] = statut_declaration.get(
-        "Active"
+        "Non validée"
     )  # Met à jour le statut de la déclaration renouvelée à "Active"
 
     # met la toutes les valeurs "id_declaration". "id_degat" et "id_degat_essence" à null dans post_data pour éviter les conflits avec la déclaration originale lors de la création de la nouvelle déclaration
     for degat in post_data["degats"]:
         degat["id_declaration"] = None
         degat["id_degat"] = None
-        if (
-            "degats_essences" in degat
-        ):  # Si la clé 'degats_essences' existe, on retire les id_degat et id_degat_essence pour éviter les conflits lors de la création de la nouvelle déclaration
-            for degat_essence in degat["degats_essences"]:
+
+        # Si la clé 'degat_essences' existe, on retire les id_degat et id_degat_essence pour éviter les conflits lors de la création de la nouvelle déclaration
+        if "degat_essences" in degat:
+            for degat_essence in degat["degat_essences"]:
                 if "id_degat" in degat_essence:
                     degat_essence["id_degat"] = None
                 if "id_degat_essence" in degat_essence:
                     degat_essence["id_degat_essence"] = None
 
-    new_declaration, response = create_or_update_declaration(post_data)
+    _, response = create_or_update_declaration(post_data)
 
     if response.success == False:
+        print(
+            "Erreur lors de la création de la nouvelle déclaration pour le renouvellement. Envoi du mail d'échec de renouvellement."
+        )
         send_mail_echec_renouvellement_declaration(post_data)
         return response.response_to_frontend()
+
+    new_declaration = response.data
+
+    new_declaration["id_declaration_originale"] = id_declaration
+    # new_declaration["prenom_role"] = session["current_user"]["prenom_role"]
+    # new_declaration["nom_role"] = session["current_user"]["nom_role"]
+    url_declaration = (
+        f"{get_config()['URL_FRONTEND']}#/declaration/voir_declaration/{id_declaration}"
+    )
+    new_declaration["url_declaration"] = url_declaration
+    url_new_declaration = f"{get_config()['URL_FRONTEND']}#/declaration/voir_declaration/{new_declaration['id_declaration']}"
+    new_declaration["url_new_declaration"] = url_new_declaration
 
     try:
         # archivage de la déclaration original
@@ -486,7 +499,9 @@ def duplicate_declaration():
         )
         get_db().session.execute(stmt_update_statut)
         get_db().session.commit()
+
         send_mail_alerte_renouvellement_declaration(new_declaration)
+
     except Exception as e:
         get_db().session.rollback()
         response.add_error(
@@ -557,6 +572,10 @@ def cloture_declaration():
         get_db().session.execute(stmt)
         get_db().session.commit()
         response.message = "Déclaration clôturée avec succès"
+        post_data["url_declaration"] = (
+            f"{get_config()['URL_FRONTEND']}#/declaration/voir_declaration/{id_declaration}"
+        )
+        send_mail_alerte_cloture_declaration(post_data)
     except Exception as e:
         get_db().session.rollback()
         response.add_error(
@@ -612,7 +631,7 @@ def validate_declaration():
     stmt = (
         TDeclaration.__table__.update()
         .where(TDeclaration.id_declaration == id_declaration)
-        .values(b_valid=b_valid)
+        .values(b_valid=b_valid, statut=1 if b_valid else 0)
     )
     get_db().session.execute(stmt)
     get_db().session.commit()
@@ -630,6 +649,54 @@ def validate_declaration():
     # DB.session.commit()
 
     return dict_update
+
+
+@bp.route("send_mail_renouvellement", methods=["GET"])
+@check_auth_redirect_login(3)
+def send_mail():
+    """
+    Envoie un mail de renouvellement de déclaration.
+    Utilisée lorsqu'un utilisateur souhaite recevoir un mail pour renouveler une déclaration avant son expiration.
+    """
+    response = ApiResponse(log_file="declarations.log", session=session)
+    id_declaration = request.args.get("id_declaration", type=int)
+
+    reponse_declaration = get_fiche_declaration(
+        id_declaration=id_declaration, session=session
+    )
+
+    if reponse_declaration.success == False:
+        print("Déclaration non trouvée. Envoi du mail de renouvellement impossible.")
+        response.add_error(
+            user_message="Déclaration non trouvée. Envoi du mail de renouvellement impossible.",
+            system_error="Déclaration non trouvée pour l'envoi du mail de renouvellement",
+            status_code=404,
+        )
+        return response.response_to_frontend()
+
+    if reponse_declaration.data["b_valid"] == False:
+        print(
+            "La déclaration n'est pas encore validée. Envoi du mail de renouvellement impossible."
+        )
+        response.add_log(
+            message="La déclaration n'est pas encore validée. Envoi du mail de renouvellement impossible.",
+            level="ERROR",
+        )
+        return response.response_to_frontend()
+
+    try:
+        send_mail_actualisation_declaration(
+            reponse_declaration.data, change_statut=False
+        )
+        response.message = "Mail de renouvellement envoyé avec succès"
+    except Exception as e:
+        response.add_error(
+            user_message="Erreur lors de l'envoi du mail de renouvellement",
+            system_error=str(e),
+            status_code=500,
+        )
+
+    return response.response_to_frontend()
 
 
 ##################################################################################
