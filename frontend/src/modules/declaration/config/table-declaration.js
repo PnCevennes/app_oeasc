@@ -10,7 +10,7 @@ export default {
   headerDefs: {
     actions: {
       noSearch: true,
-      width: '120px',
+      width: '150px',
       text: 'Actions',
       list: [
         {
@@ -23,9 +23,20 @@ export default {
           icon: 'mdi-pencil',
           to: ({ item }) => `/declaration/modifier_declaration?id=${item.id_declaration}&keySession=all`,
           condition: ({ item, $store }) => {
+            // console.log('Condition édition déclaration', {
+            //   item,
+            //   droitMax: $store.getters.droitMax,
+            //   userIdRole: $store.getters.user.id_role,
+            //   idDroitMax: item.id_droit_max,
+            // });
             return (
-              $store.getters.droitMax > item.id_droit_max ||
-              $store.getters.user.id_role == item.id_declarant
+              ($store.getters.droitMax > 2) ||
+              ($store.getters.droitMax > item.id_droit_max) ||
+              (
+                $store.getters.user.id_role == item.id_declarant
+                && item.date_fin 
+                && new Date(item.date_fin) >= new Date()
+              )
             );
           },
         },
@@ -41,7 +52,27 @@ export default {
               ($store.getters.droitMax > item.id_droit_max || $store.getters.user.id_role == item.id_declarant) // L'utilisateur a les droits pour éditer la déclaration
             );
           },
+          
         },
+
+        {
+          title: 'Envoyer un mail de relance',
+          icon: 'mdi-email-send',
+          to: ({ item }) => {
+            return `/declaration/voir_declaration/${item.id_declaration}?relance=true&keySession=all`;
+          },
+          condition: ({ item, $store }) => {
+            return (
+              item.date_fin && new Date(item.date_fin) < new Date() && // La déclaration est expirée
+              item.b_valid === true && // La déclaration est validée
+              item.statut !== config_variables['STATUT_DECLARATION']['Archivée'] && // La déclaration n'est pas déjà archivée
+              ($store.getters.droitMax > item.id_droit_max || $store.getters.user.id_role == item.id_declarant) // L'utilisateur a les droits pour éditer la déclaration
+            );
+          },
+          // si on clic sur ce bouton, on affiche une boîte de dialogue de confirmation, et si l'utilisateur confirme, on envoie une requête POST à l'API pour envoyer le mail de relance
+  
+        },
+
       ],
       sortable: false,
     },
@@ -117,6 +148,7 @@ export default {
               config.value.tableData.value[index] = {
                 ...config.value.tableData.value[index],
                 b_valid: data.b_valid,
+                // change le statut de la déclaration en "En cours" si elle est validée, ou "Brouillon" si elle est invalidée
               };
             }
           },
@@ -133,6 +165,8 @@ export default {
     statut: {
       text: 'Statut',
       display: (val) => displayStatut(val.statut),
+      
     },
+    
   },
 };

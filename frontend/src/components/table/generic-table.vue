@@ -236,7 +236,11 @@ import './table.css';
 export default {
   name: 'generic-table',
   components: { genericForm },
-  props: ['config'],
+  props: {
+    config: {
+      type: Object,
+    },
+  },
   data: () => ({
     options: {}, // Objet contenant les options de configuration du tableau
     configTable: {}, // Configuration spécifique du tableau (colonnes, tri, etc.)

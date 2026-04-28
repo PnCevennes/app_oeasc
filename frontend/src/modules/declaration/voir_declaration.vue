@@ -7,16 +7,39 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
       active
       indeterminate
     ></v-progress-linear>
+
     <div>
-      <v-btn
-        icon
-        color="red"
-        @click="exportToPdf()"
-        title="Exporter la déclaration au format pdf"
-      >
-        <v-icon>mdi-file-pdf</v-icon>
-      </v-btn>
+      <span>
+        <v-btn
+          color="red"
+          :disabled="!declaration_data"
+          @click="exportToPdf"
+          title="Exporter la déclaration au format pdf"
+        >
+          <v-icon left>mdi-file-pdf</v-icon>
+          Exporter en PDF
+        </v-btn>
+      </span>
+
+      <span v-if="show_buttom_relance_mail">
+        <v-btn
+          style="margin-left: 16px"
+          color="orange lighten-2"
+          title="Envoyer un mail de relance pour cette déclaration"
+          @click="show_popup_relance = true"
+        >
+          <v-icon left>mdi-email-send</v-icon>
+          Envoyer un mail de relance
+        </v-btn>
+      </span>
     </div>
+
+    <confirmRelanceMail
+      v-if="declaration_data"
+      :declaration_data="declaration_data"
+      :show_popup_relance="show_popup_relance"
+      @close-relance-popup="show_popup_relance = false"
+    />
 
     <div
       style="width: 100%; margin: auto; padding: 16px; background-color: white"
@@ -52,7 +75,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     </th>
                   </tr>
                   <!-- seulement visible par les admins -->
-                  <tr v-if="this.$store.getters.droitMax >= 5">
+                  <tr v-if="this.$store.getters.droitMax >= 2">
                     <td class="gauche">Validité</td>
                     <td class="droite">{{ declaration_data.valide }}</td>
                   </tr>
@@ -63,6 +86,12 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                       {{ declaration_data.autorisation }}
                     </td>
                   </tr>
+                  <tr v-if="this.$store.getters.droitMax >= 2">
+                    <td class="gauche">Statut</td>
+                    <td class="droite">
+                      {{ declaration_data.statut_label }}
+                    </td>
+                  </tr>
 
                   <tr>
                     <td class="gauche">Date de création</td>
@@ -70,6 +99,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                       {{ declaration_data.declaration_date }}
                     </td>
                   </tr>
+
                   <tr>
                     <td class="gauche">Date de fin</td>
                     <td class="droite">
@@ -473,6 +503,8 @@ import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
 import resumeDeclaration from './resume_declaration.vue';
 import MapDeclarationSimple from './map/map_declaration_simple.vue';
+import confirmRelanceMail from './confirm_relance_mail.vue';
+import config_variables from '@/../../config/variables/declaration.json';
 
 export default {
   name: 'voir_declaration',
@@ -482,10 +514,14 @@ export default {
     b_init: false,
     mapList: ['secteur', 'foret', 'parcelles'],
     isExporting: false,
+    show_popup_relance: false,
+    show_buttom_relance_mail: false,
   }),
+
   components: {
     resumeDeclaration,
     MapDeclarationSimple,
+    confirmRelanceMail,
   },
   methods: {
     // attend que la carte ait fini de charger ses tiles avant de continuer (important pour éviter les problèmes de tiles manquantes dans le PDF si la capture est faite trop tôt)
@@ -623,6 +659,24 @@ export default {
         this.isExporting = false;
       }
     },
+
+    define_show_buttom_relance_mail() {
+      // le bouton de relance mail n'est affiché que pour les admins et si la déclaration est dans un statut qui autorise la relance
+      if (this.$store.getters.droitMax >= 2 && this.declaration_data) {
+        const statut = this.declaration_data.statut;
+        const config_statut = config_variables['STATUT_DECLARATION'];
+        if (statut >= config_statut['Relance']) {
+          this.show_buttom_relance_mail = true;
+        }
+        const [day, month, year] = this.declaration_data.date_fin.split('/');
+        const dateFin = new Date(year, month - 1, day);
+
+        if (statut === config_statut['Active'] && dateFin && dateFin < new Date()) {
+          this.show_buttom_relance_mail = true;
+          // console.log('Active show_buttom_relance_mail:', this.show_buttom_relance_mail);
+        }
+      }
+    },
   },
   computed: {
     id() {
@@ -637,10 +691,14 @@ export default {
       'GET',
       `api/declaration/voir_declaration/${this.id_declaration}`
     );
-
-    // console.log('declaration_data', this.declaration_data);
+    this.define_show_buttom_relance_mail();
   },
-  async mounted() {},
+  async mounted() {
+    // si il y a une query param relance=true, on affiche directement le popup de relance
+    if (this.$route.query.relance === 'true') {
+      this.show_popup_relance = true;
+    }
+  },
   watch: {},
 };
 </script>
