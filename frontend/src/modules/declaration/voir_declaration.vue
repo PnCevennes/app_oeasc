@@ -75,7 +75,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     </th>
                   </tr>
                   <!-- seulement visible par les admins -->
-                  <tr v-if="this.$store.getters.droitMax >= 2">
+                  <tr v-if="this.$store.getters.droitMax >= 4">
                     <td class="gauche">Validité</td>
                     <td class="droite">{{ declaration_data.valide }}</td>
                   </tr>
@@ -441,15 +441,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
           ref="map1"
           :declaration_data="declaration_data"
           mapID="map1"
-          :liste_layers="[
-            'OEASC',
-            'SECTEUR',
-            'COMMUNES',
-            'FORETS_DGD',
-            'FORETS_ONF',
-            'PARCELLES_ONF',
-            'CADASTRES',
-          ]"
+          :liste_layers="create_liste_layers_from_config('loin')"
           :zoom_on="['SECTEUR']"
         ></MapDeclarationSimple>
       </div>
@@ -460,15 +452,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
           ref="map2"
           :declaration_data="declaration_data"
           mapID="map2"
-          :liste_layers="[
-            'OEASC',
-            'FORETS_ONF',
-            'UG_ONF',
-            'FORETS_DGD',
-            'PARCELLES_ONF',
-            'CADASTRES',
-            'SECTIONS',
-          ]"
+          :liste_layers="create_liste_layers_from_config('moyen')"
           :zoom_on="['FORETS_ONF', 'FORETS_DGD', 'COMMUNES']"
         ></MapDeclarationSimple>
       </div>
@@ -479,14 +463,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
           ref="map3"
           :declaration_data="declaration_data"
           mapID="map3"
-          :liste_layers="[
-            'OEASC',
-            'PARCELLES_ONF',
-            'UG_ONF',
-            'FORETS_DGD',
-            'CADASTRES',
-            'SECTIONS',
-          ]"
+          :liste_layers="create_liste_layers_from_config('proche')"
           :zoom_on="['UG_ONF', 'CADASTRES']"
         ></MapDeclarationSimple>
       </div>
@@ -662,7 +639,7 @@ export default {
 
     define_show_buttom_relance_mail() {
       // le bouton de relance mail n'est affiché que pour les admins et si la déclaration est dans un statut qui autorise la relance
-      if (this.$store.getters.droitMax >= 2 && this.declaration_data) {
+      if (this.$store.getters.droitMax >= 4 && this.declaration_data) {
         const statut = this.declaration_data.statut;
         const config_statut = config_variables['STATUT_DECLARATION'];
         if (statut >= config_statut['Relance']) {
@@ -676,6 +653,65 @@ export default {
           // console.log('Active show_buttom_relance_mail:', this.show_buttom_relance_mail);
         }
       }
+    },
+
+    create_liste_layers_from_config(types) {
+      // méthode pour créer une liste de couches à afficher en fonction du type de forêt (qui dépend de document_foret et statut_public_foret dans declaration_data)
+      // type est le type de vue que l'on veut ("loin", "moyen" ou "proche" )
+
+      if (!this.declaration_data) {
+        return [];
+      }
+      const liste = [];
+      if (types == 'loin') {
+        liste.push('OEASC');
+        liste.push('SECTEUR');
+        if (this.declaration_data.document_foret == false) {
+          liste.push('COMMUNES');
+          liste.push('CADASTRES');
+        } else {
+          if (this.declaration_data.statut_public_foret == true) {
+            liste.push('FORETS_ONF');
+            liste.push('PARCELLES_ONF');
+          } else {
+            liste.push('FORETS_DGD');
+            liste.push('COMMUNES');
+            liste.push('CADASTRES');
+          }
+        }
+      } else if (types == 'moyen') {
+        liste.push('SECTEUR');
+        if (this.declaration_data.document_foret == false) {
+          liste.push('COMMUNES');
+          liste.push('CADASTRES');
+        } else {
+          if (this.declaration_data.statut_public_foret == true) {
+            liste.push('FORETS_ONF');
+            // liste.push('PARCELLES_ONF');
+            liste.push('UG_ONF');
+          } else {
+            liste.push('FORETS_DGD');
+            liste.push('CADASTRES');
+          }
+        }
+      } else if (types == 'proche') {
+        liste.push('SECTEUR');
+        if (this.declaration_data.document_foret == false) {
+          liste.push('SECTIONS');
+          liste.push('CADASTRES');
+        } else {
+          if (this.declaration_data.statut_public_foret == true) {
+            liste.push('FORETS_ONF');
+            // liste.push('PARCELLES_ONF');
+            liste.push('UG_ONF');
+          } else {
+            liste.push('FORETS_DGD');
+            liste.push('CADASTRES');
+          }
+        }
+      }
+
+      return liste;
     },
   },
   computed: {

@@ -30,7 +30,7 @@ export default {
             //   idDroitMax: item.id_droit_max,
             // });
             return (
-              ($store.getters.droitMax > 2) ||
+              ($store.getters.droitMax >= 4) ||
               ($store.getters.droitMax > item.id_droit_max) ||
               (
                 $store.getters.user.id_role == item.id_declarant

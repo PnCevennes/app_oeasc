@@ -401,12 +401,13 @@ export default {
                   // this.declarationMarker = L.marker([lat, lng], { zIndexOffset: 1000, preferCanvas: true  });
                   // this.declarationMarker.addTo(this.map);
                   L.circleMarker([lat, lng], {
-                    radius: 12,
-                    fillColor: '#ff7800',
-                    color: '#000',
-                    weight: 1,
+                    radius: 10,
+                    fillColor: '#ff0000',
+                    color: '#333333',
+                    weight: 2,
                     opacity: 1,
                     fillOpacity: 0.8,
+                    pane: 'markerPane',
                   }).addTo(this.map);
                 }
               }
