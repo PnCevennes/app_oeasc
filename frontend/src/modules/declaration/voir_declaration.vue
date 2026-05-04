@@ -472,8 +472,6 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
 </template>
 
 <script>
-// import baseMap from '@/components/map/base-map';
-// import { exportPDF } from "@/modules/export";
 import { apiRequest } from '@/core/js/data/api';
 import './declaration.css';
 import html2canvas from 'html2canvas';

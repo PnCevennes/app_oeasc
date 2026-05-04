@@ -110,7 +110,7 @@ export default {
           label: `Filtre : ${this.restitution.items[name].text}`,
           list_type: 'autocomplete',
           multiple: true,
-          url: 'api/resultat/custom/',
+          url: 'api/resultat/custom',
           params: {
             fieldName: name,
             dataType: this.settings.dataType,

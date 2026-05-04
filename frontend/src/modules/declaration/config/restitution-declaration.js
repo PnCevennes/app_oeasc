@@ -1,4 +1,6 @@
-/** definitions pour la restitution des déclaration à partir des données de la vue */
+/** definitions pour la restitution des déclaration à partir des données de la vue 
+ * Utilisé dans DEV -> Restitution
+*/
 import restitutionUtils from '@/modules/restitution/utils.js';
 
 export default {

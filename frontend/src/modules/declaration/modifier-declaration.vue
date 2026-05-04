@@ -820,7 +820,7 @@ import tableAide from '@/modules/content/table-aide.vue';
 import { formFunctions } from '@/components/form/functions/form.js';
 import { apiRequest } from '@/core/js/data/api';
 import { fetch_forets_from_code, fetch_proprietaires_from_id } from './utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
-import MapDeclaration from '@/components/map/map_declaration.vue';
+import MapDeclaration from './map/map_declaration.vue';
 import degatsForm from '@/components/form/degats_declaration_form.vue';
 import resumeDeclaration from '@/modules/declaration/resume_declaration.vue';
 import helpContent from '@/modules/declaration/help-content.vue';
@@ -924,21 +924,12 @@ export default {
         this.declaration_data.nom_foret = '';
       }
     },
-    // si declaration_data change en profondeur, on affiche la déclaration dans la console pour vérifier que les données sont correctes
-    // 'declaration_data': {
-    //   handler(newVal, oldVal) {
-    //     console.log("Données de la déclaration mises à jour:", newVal);
-    //   },
-    //   deep: true,
-    // },
   },
 
   created() {},
 
   async mounted() {
     this.define_type_action();
-
-    // console.log("getter user:", this.$store.getters.user);
 
     // si l'utilisateur est connecté
     if (this.$store.getters.isAuth) {
@@ -1301,10 +1292,7 @@ export default {
 <style>
 @import url('../../components/form/form.css');
 
-.chained-form {
-  width: 100%;
-  margin: 50px;
-}
+
 pre {
   background-color: #f4f4f4;
   padding: 10px;

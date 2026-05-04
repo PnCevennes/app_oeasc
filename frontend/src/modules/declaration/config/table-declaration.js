@@ -23,12 +23,6 @@ export default {
           icon: 'mdi-pencil',
           to: ({ item }) => `/declaration/modifier_declaration?id=${item.id_declaration}&keySession=all`,
           condition: ({ item, $store }) => {
-            // console.log('Condition édition déclaration', {
-            //   item,
-            //   droitMax: $store.getters.droitMax,
-            //   userIdRole: $store.getters.user.id_role,
-            //   idDroitMax: item.id_droit_max,
-            // });
             return (
               ($store.getters.droitMax >= 4) ||
               ($store.getters.droitMax > item.id_droit_max) ||

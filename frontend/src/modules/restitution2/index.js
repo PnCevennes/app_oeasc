@@ -45,7 +45,7 @@ const STORE = {
      */
     restitutionCustom: ({ getter }, params) => {
       getter;
-      return apiRequest('GET', `api/resultat/custom/`, { params });
+      return apiRequest('GET', `api/resultat/custom`, { params });
     },
   },
 };

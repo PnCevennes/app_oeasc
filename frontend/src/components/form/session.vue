@@ -29,7 +29,7 @@
 
   Ce composant est conçu pour être réutilisable et adaptable à différents types de formulaires de session.
 -->
-<template>
+<!-- <template>
   <div>
     <div>
       <h3>{{ config.title }}</h3>
@@ -113,77 +113,77 @@
       </v-row>
     </div>
   </div>
-</template>
+</template> -->
 
 <script>
-import dynamicFormGroup from '@/components/form/dynamic-form-group.vue';
+// import dynamicFormGroup from '@/components/form/dynamic-form-group.vue';
 
-export default {
-  name: 'formSession',
-  components: {
-    dynamicFormGroup,
-  },
-  data: () => ({
-    bModalPost: false, // Indique si la fenêtre modale de publication est affichée ou non  // bModalPost: false
-    bModalSuccess: false, // Indique si la fenêtre modale de succès est affichée ou non  // bModalSuccess: false
-    freeze: false, // Détermine si le formulaire est gelé (désactivé) ou non  // freeze: false
-  }),
-  watch: {
-    baseModel: {
-      deep: true,
-      handler() {
-        this.freeze = this.baseModel.freeze;
-      },
-    },
-  },
-  props: ['config', 'baseModel', 'validForms', 'keySession'],
-  methods: {
-    /**
-     * Méthode principale d'action du formulaire.
-     * Elle gère la soumission du formulaire, la validation, l'affichage des dialogues de progression et de succès,
-     * et l'enchaînement vers la prochaine étape si nécessaire.
-     */
-    action: function () {
-      // Vérifie la validité du formulaire via la méthode validate().
-      // Si le formulaire n'est pas valide, on arrête ici (les erreurs sont affichées automatiquement).
-      if (!this.validate()) {
-        return;
-      }
+// export default {
+//   name: 'formSession',
+//   components: {
+//     dynamicFormGroup,
+//   },
+//   data: () => ({
+//     bModalPost: false, // Indique si la fenêtre modale de publication est affichée ou non  // bModalPost: false
+//     bModalSuccess: false, // Indique si la fenêtre modale de succès est affichée ou non  // bModalSuccess: false
+//     freeze: false, // Détermine si le formulaire est gelé (désactivé) ou non  // freeze: false
+//   }),
+//   watch: {
+//     baseModel: {
+//       deep: true,
+//       handler() {
+//         this.freeze = this.baseModel.freeze;
+//       },
+//     },
+//   },
+//   props: ['config', 'baseModel', 'validForms', 'keySession'],
+//   methods: {
+//     /**
+//      * Méthode principale d'action du formulaire.
+//      * Elle gère la soumission du formulaire, la validation, l'affichage des dialogues de progression et de succès,
+//      * et l'enchaînement vers la prochaine étape si nécessaire.
+//      */
+//     action: function () {
+//       // Vérifie la validité du formulaire via la méthode validate().
+//       // Si le formulaire n'est pas valide, on arrête ici (les erreurs sont affichées automatiquement).
+//       if (!this.validate()) {
+//         return;
+//       }
 
-      // Si une action personnalisée est définie dans la configuration (ex: envoi POST du formulaire)
-      if (this.config.action) {
-        // Affiche le dialogue de progression (spinner) pendant le traitement.
-        this.bModalPost = true;
-        // Exécute la fonction process définie dans la config, généralement une requête asynchrone.
-        this.config.action.process({ baseModel: this.baseModel }).then((response) => {
-          // Après la réussite, masque le dialogue de progression et affiche le dialogue de succès.
-          setTimeout(() => {
-            this.bModalPost = false;
-            this.bModalSuccess = true;
-          }, 1000); // délai pour laisser le spinner visible un court instant
-        });
+//       // Si une action personnalisée est définie dans la configuration (ex: envoi POST du formulaire)
+//       if (this.config.action) {
+//         // Affiche le dialogue de progression (spinner) pendant le traitement.
+//         this.bModalPost = true;
+//         // Exécute la fonction process définie dans la config, généralement une requête asynchrone.
+//         this.config.action.process({ baseModel: this.baseModel }).then((response) => {
+//           // Après la réussite, masque le dialogue de progression et affiche le dialogue de succès.
+//           setTimeout(() => {
+//             this.bModalPost = false;
+//             this.bModalSuccess = true;
+//           }, 1000); // délai pour laisser le spinner visible un court instant
+//         });
 
-        // Si aucune action personnalisée n'est définie, on passe à la session suivante (navigation interne)
-      } else {
-        // Récupère la prochaine session à afficher via le store Vuex.
-        const nextSession = this.$store.getters.configDeclaration.nextSession(this.config.name);
-        // Si une prochaine session existe, on navigue vers celle-ci en modifiant la query de l'URL.
-        if (nextSession) {
-          this.$router.push({ query: { keySession: nextSession } });
-        }
-      }
-    },
+//         // Si aucune action personnalisée n'est définie, on passe à la session suivante (navigation interne)
+//       } else {
+//         // Récupère la prochaine session à afficher via le store Vuex.
+//         const nextSession = this.$store.getters.configDeclaration.nextSession(this.config.name);
+//         // Si une prochaine session existe, on navigue vers celle-ci en modifiant la query de l'URL.
+//         if (nextSession) {
+//           this.$router.push({ query: { keySession: nextSession } });
+//         }
+//       }
+//     },
 
-    /**
-     * Valide le formulaire référencé par le nom spécifié dans la configuration.
-     * Utilise la référence du formulaire (`$refs`) pour déclencher la validation.
-     * Retourne l'état de validité du formulaire correspondant depuis `validForms`.
-     * @returns {Boolean} - Indique si le formulaire est valide ou non.
-     */
-    validate: function () {
-      this.$refs[this.config.name].validate();
-      return this.validForms[this.config.name];
-    },
-  },
-};
+//     /**
+//      * Valide le formulaire référencé par le nom spécifié dans la configuration.
+//      * Utilise la référence du formulaire (`$refs`) pour déclencher la validation.
+//      * Retourne l'état de validité du formulaire correspondant depuis `validForms`.
+//      * @returns {Boolean} - Indique si le formulaire est valide ou non.
+//      */
+//     validate: function () {
+//       this.$refs[this.config.name].validate();
+//       return this.validForms[this.config.name];
+//     },
+//   },
+// };
 </script>

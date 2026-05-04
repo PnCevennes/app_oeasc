@@ -1,3 +1,5 @@
+// Utilisé dans DEV -> Restitution
+
 export default {
   group: 'declaration',
   name: 'degat',

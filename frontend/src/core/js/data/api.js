@@ -52,7 +52,6 @@ if (STORE.state.pendings == undefined) {
 var url = (urlRelative, params = {}) => {
   // Création de l'objet URL en utilisant l'URL de base de l'application et l'URL relative passée en paramètre
   let builtUrl = new URL(`${config.URL_APPLICATION}/${urlRelative}`);
-  console.log('builtUrl', builtUrl);
 
   // Parcours de chaque clé des paramètres
   Object.keys(params)
@@ -70,7 +69,6 @@ var url = (urlRelative, params = {}) => {
   if (builtUrl.href.endsWith('/')) {
     builtUrl = new URL(builtUrl.href.slice(0, -1));
   }
-  console.log('builtUrl after params', builtUrl);
 
   // On retourne l'objet URL final avec tous les paramètres ajoutés
   return builtUrl;
@@ -80,9 +78,9 @@ var url = (urlRelative, params = {}) => {
 // lors de l'appel à une API
 // elle affiche un message d'erreur dans la console
 // et renvoie une erreur
-var fail = (msg) => {
-  console.error(`apiRequest fail : ${msg}`);
-};
+// var fail = (msg) => {
+//   console.error(`apiRequest fail : ${msg}`);
+// };
 
 /**
  * Fonction asynchrone permettant de récupérer des données depuis une API via une requête GET.
@@ -136,7 +134,6 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
   // On construit l'URL complète de l'API à partir de l'URL relative et des paramètres éventuels
   const url_ = url(urlRelative, options.params);
 
-  console.log('url_ after params', url_);
   let request = null; // Variable qui va contenir la promesse de la requête
   let commit; // Variable pour savoir si on doit enregistrer la requête dans le store
 
