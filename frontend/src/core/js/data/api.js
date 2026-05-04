@@ -51,7 +51,8 @@ if (STORE.state.pendings == undefined) {
  */
 var url = (urlRelative, params = {}) => {
   // Création de l'objet URL en utilisant l'URL de base de l'application et l'URL relative passée en paramètre
-  const url = new URL(`${config.URL_APPLICATION}/${urlRelative}`);
+  let builtUrl = new URL(`${config.URL_APPLICATION}/${urlRelative}`);
+  console.log('builtUrl', builtUrl);
 
   // Parcours de chaque clé des paramètres
   Object.keys(params)
@@ -60,18 +61,19 @@ var url = (urlRelative, params = {}) => {
     .forEach((key) =>
       isObject(params[key])
         ? // Si la valeur du paramètre est un objet (ex: un dictionnaire), on le convertit en chaîne JSON
-          url.searchParams.append(key, JSON.stringify(params[key]))
+          builtUrl.searchParams.append(key, JSON.stringify(params[key]))
         : // Sinon, on ajoute la valeur telle quelle dans la query string
-          url.searchParams.append(key, params[key])
+          builtUrl.searchParams.append(key, params[key])
     );
   
-  // si url finit par un / on le supprime pour éviter les doublons
-  if (url.href.endsWith('/')) {
-    url = new URL(url.href.slice(0, -1));
+  // si builtUrl finit par un / on le supprime pour éviter les doublons
+  if (builtUrl.href.endsWith('/')) {
+    builtUrl = new URL(builtUrl.href.slice(0, -1));
   }
-  
+  console.log('builtUrl after params', builtUrl);
+
   // On retourne l'objet URL final avec tous les paramètres ajoutés
-  return url;
+  return builtUrl;
 };
 
 // fonction qui permet de gérer les erreurs
@@ -134,6 +136,7 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
   // On construit l'URL complète de l'API à partir de l'URL relative et des paramètres éventuels
   const url_ = url(urlRelative, options.params);
 
+  console.log('url_ after params', url_);
   let request = null; // Variable qui va contenir la promesse de la requête
   let commit; // Variable pour savoir si on doit enregistrer la requête dans le store
 
@@ -243,6 +246,10 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
   // On retourne la promesse de la requête
   return request;
 };
+
+
+
+
 
 /**
  *
