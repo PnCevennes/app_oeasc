@@ -1292,7 +1292,6 @@ export default {
 <style>
 @import url('../../components/form/form.css');
 
-
 pre {
   background-color: #f4f4f4;
   padding: 10px;

@@ -62,44 +62,44 @@ export async function fetch_forets_from_code(codeForet) {
   }
 }
 
-export async function fetch_all_foret_onf() {
-  try {
-    const response = await apiRequest(
-      'GET',
-      `api/ref_geo/areas_simples_from_type_code/l/OEASC_ONF_FRT`
-    );
-    return response;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des forêts par code', error);
-    return null;
-  }
-}
+// export async function fetch_all_foret_onf() {
+//   try {
+//     const response = await apiRequest(
+//       'GET',
+//       `api/ref_geo/areas_simples_from_type_code/l/OEASC_ONF_FRT`
+//     );
+//     return response;
+//   } catch (error) {
+//     console.error('Erreur lors de la récupération des forêts par code', error);
+//     return null;
+//   }
+// }
 
-export async function fetch_all_foret_dgd() {
-  try {
-    const response = await apiRequest(
-      'GET',
-      `api/ref_geo/areas_simples_from_type_code/l/OEASC_DGD`
-    );
-    return response;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des forêts par code', error);
-    return null;
-  }
-}
+// export async function fetch_all_foret_dgd() {
+//   try {
+//     const response = await apiRequest(
+//       'GET',
+//       `api/ref_geo/areas_simples_from_type_code/l/OEASC_DGD`
+//     );
+//     return response;
+//   } catch (error) {
+//     console.error('Erreur lors de la récupération des forêts par code', error);
+//     return null;
+//   }
+// }
 
-export async function fetch_proprietaires_from_id_declarant(idDeclarant) {
-  try {
-    const response = await apiRequest(
-      'GET',
-      `api/declaration/proprietaire_from_id_declarant/${idDeclarant}`
-    );
-    return response;
-  } catch (error) {
-    console.error('Erreur lors de la récupération des propriétaires par ID déclarant', error);
-    return null;
-  }
-}
+// export async function fetch_proprietaires_from_id_declarant(idDeclarant) {
+//   try {
+//     const response = await apiRequest(
+//       'GET',
+//       `api/declaration/proprietaire_from_id_declarant/${idDeclarant}`
+//     );
+//     return response;
+//   } catch (error) {
+//     console.error('Erreur lors de la récupération des propriétaires par ID déclarant', error);
+//     return null;
+//   }
+// }
 
 export async function fetch_proprietaires_from_id(id_proprietaire) {
   try {
@@ -133,15 +133,15 @@ export async function fetch_areas_group_from_id_type(id_type_area) {
   }
 }
 
-export async function fetch_nomenclatures() {
-  try {
-    const response = await apiRequest('GET', `api/oeasc/nomenclatures`);
-    return response;
-  } catch (error) {
-    console.error(`Erreur lors de la récupération des nomemclatures`, error);
-    return null;
-  }
-}
+// export async function fetch_nomenclatures() {
+//   try {
+//     const response = await apiRequest('GET', `api/oeasc/nomenclatures`);
+//     return response;
+//   } catch (error) {
+//     console.error(`Erreur lors de la récupération des nomemclatures`, error);
+//     return null;
+//   }
+// }
 
 /**
  *
@@ -167,18 +167,18 @@ export async function fetch_areas_child_of(id_area_parent, id_type_parent) {
  * @param {*} idsSection string de la forme "277378-277379-277380" ou tableau d'entiers [277378, 277379, 277380]
  * @returns geoJSON des sections oeasc
  */
-export async function fetch_areas_section_by_ids(idsSection) {
-  try {
-    const response = await apiRequest(
-      'GET',
-      `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_SECTION/${idsSection}`
-    );
-    return response;
-  } catch (error) {
-    console.error('Erreur lors de la récupération de la section oeasc', error);
-    return null;
-  }
-}
+// export async function fetch_areas_section_by_ids(idsSection) {
+//   try {
+//     const response = await apiRequest(
+//       'GET',
+//       `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_SECTION/${idsSection}`
+//     );
+//     return response;
+//   } catch (error) {
+//     console.error('Erreur lors de la récupération de la section oeasc', error);
+//     return null;
+//   }
+// }
 
 /**
  * retourne les zones géographiques à partir d'une liste d'identifiants

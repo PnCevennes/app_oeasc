@@ -1,4 +1,3 @@
-
 import modifier_declaration from './modifier-declaration.vue';
 import { apiRequest } from '@/core/js/data/api.js';
 import storeUtils from '@/store/utils';
@@ -38,7 +37,6 @@ const ROUTE = [
     component: modifier_declaration,
   },
 
-
   {
     path: '/declaration/liste',
     label: 'Alerte signalées',
@@ -47,7 +45,6 @@ const ROUTE = [
     parent: 'declaration.systeme_alerte',
     component: declarationListe,
   },
-
 
   {
     path: '/declaration/voir_declaration/:id', // nouvelle vertion de voir_declaration. Supprimer l'anctienne quand c'est finit
