@@ -814,7 +814,6 @@
 </template>
 
 <script>
-// import { mapState } from 'vuex';
 import help from '@/components/form/help_static.vue';
 import tableAide from '@/modules/content/table-aide.vue';
 import { formFunctions } from '@/components/form/functions/form.js';
