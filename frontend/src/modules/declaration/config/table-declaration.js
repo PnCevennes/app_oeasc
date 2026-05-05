@@ -145,6 +145,7 @@ export default {
                 // change le statut de la déclaration en "En cours" si elle est validée, ou "Brouillon" si elle est invalidée
               };
             }
+            // this.$store.commit('declarations', {});
           },
         },
         formDefs: {

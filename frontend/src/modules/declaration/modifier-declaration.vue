@@ -96,6 +96,34 @@
                   </div>
                 </div>
 
+
+
+                <!-- -------------  informations sur le declarant ---------------- -->
+                <div
+                  style="margin-top: 30px"
+                  v-if="this.$store.getters.droitMax >= 5 && this.liste_declarants.length > 0"
+                >
+                  <h3>Informations sur le déclarant</h3>
+                  <div>
+                    <div
+                      style="
+                        margin-top: 10px;
+                        border: 1px solid #ccc;
+                        padding: 20px;
+                        border-radius: 5px;
+                      "
+                    >
+                      <v-autocomplete
+                        v-model="declaration_data.id_declarant"
+                        :items="liste_declarants"
+                        :item-text="formatDeclarantLabel"
+                        item-value="id_role"
+                        label="Déclarant"
+                      ></v-autocomplete>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- -------------  informations sur la foret ---------------- -->
 
                 <div
@@ -843,6 +871,7 @@ export default {
       nomenclature: {}, // Nomenclature des essences et autres données
       title: '',
       declaration_data: {}, // Données de la déclaration
+      liste_declarants: [], // Liste des déclarants, à récupérer si l'utilisateur a un droit >= 5
       storeName: 'declaration',
       declarationId: this.$route.query.id, // ID de la déclaration à modifier récupéré depuis l'URL
       token_renouvellement: this.$route.query.token, // Token récupéré depuis l'URL
@@ -930,6 +959,11 @@ export default {
   async mounted() {
     this.define_type_action();
 
+    // si id_droit_max >= 5 on récupère la liste des déclarants
+    if (this.$store.getters.droitMax >= 5) {
+      this.liste_declarants = await apiRequest('GET', 'api/user/users');
+    }
+
     // si l'utilisateur est connecté
     if (this.$store.getters.isAuth) {
       this.information_declarant = this.$store.getters.user;
@@ -1013,7 +1047,7 @@ export default {
       //------------------------------ preparation et envoi des données ------------------------------
 
       let options = { postData: { ...this.declaration_data } };
-      console.log('Données à soumettre:', options.postData);
+      // console.log('Données à soumettre:', options.postData);
 
       if (this.type_action === 'RENOUVELLEMENT') {
         apiRequest('POST', `/api/declaration/duplicate_declaration`, options)
@@ -1040,6 +1074,7 @@ export default {
           .then((response) => {
             // console.log("Déclaration créée avec succès:", response);
             this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
+            this.$store.commit('declarations', {});
           })
           .catch((error) => {
             console.error('Erreur lors de la création de la déclaration:', error);
@@ -1063,6 +1098,8 @@ export default {
           .then((response) => {
             // console.log("Déclaration mise à jour avec succès:", response);
             this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
+            // on vide les données du store declarations pour recharger les données
+            this.$store.commit('declarations', {});
           })
           .catch((error) => {
             console.error('Erreur lors de la mise à jour de la déclaration:', error);
@@ -1221,6 +1258,13 @@ export default {
       ]
         .filter(Boolean)
         .flat();
+    },
+
+    formatDeclarantLabel(item) {
+      if (!item) return '';
+      const nom = item.nom_complet || '';
+      const org = item.org_mnemo ? ` (${item.org_mnemo})` : '';
+      return `${nom}${org}`;
     },
 
     handleLayerSelect(layerId) {
