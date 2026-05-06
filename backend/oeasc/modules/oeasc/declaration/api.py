@@ -22,6 +22,7 @@ from ..declaration.mail import (
     send_mail_alerte_cloture_declaration,
 )
 
+
 from ..nomenclature import get_nomenclature_from_id
 from .repository import (
     get_user,
@@ -33,6 +34,7 @@ from .repository import (
     hide_proprietaire,
     get_form_declaration,
     check_token_renouvellement_declaration,
+    get_variables_declaration,
 )
 from ..user.utils import check_auth_redirect_login
 
@@ -280,7 +282,13 @@ def degats():
     Retourne les dégats pour la page 'résultats de suivis'-> alertes signaléés.
     Est appelé dans une page dynamique des résultats
     """
+    # on fait le .where ici et non dans all_stmt pour éviter une boucle d'import circulaire avec
+    # les variables de déclaration.
+    variables_declarations = get_variables_declaration()
     stmt = get_stmt_for_resultats_degats()
+    stmt = stmt.where(
+        TDeclaration.statut == variables_declarations["STATUT_DECLARATION"]["Active"]
+    )
     result = get_db().session.execute(stmt).mappings().all()
     if not result:
         return []

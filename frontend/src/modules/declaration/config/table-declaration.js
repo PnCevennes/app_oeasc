@@ -23,15 +23,21 @@ export default {
           icon: 'mdi-pencil',
           to: ({ item }) => `/declaration/modifier_declaration?id=${item.id_declaration}&keySession=all`,
           condition: ({ item, $store }) => {
-            return (
-              ($store.getters.droitMax >= 4) ||
-              ($store.getters.droitMax > item.id_droit_max) ||
-              (
-                $store.getters.user.id_role == item.id_declarant
-                && item.date_fin 
-                && new Date(item.date_fin) >= new Date()
-              )
-            );
+            const aujourdhui = new Date();
+            const dateFin = item.date_fin ? new Date(item.date_fin) : null;
+
+            if ($store.getters.droitMax >= 4) {
+              return true; // Les admins peuvent éditer n'importe quelle déclaration, même celles dont ils ne sont pas le déclarant ou pour lesquelles ils n'ont pas les droits nécessaires, tant qu'elles ne sont pas expirées
+            }
+            if ( item.statut === config_variables['STATUT_DECLARATION']['Archivée']) {
+              return false; // Les déclarations archivées ne peuvent pas être éditées
+            }
+            if ($store.getters.user.id_role == item.id_declarant) {
+              return true; // Les déclarants peuvent éditer leurs propres déclarations tant qu'elles ne sont pas expirées, même s'ils n'ont pas les droits nécessaires
+            } else {
+              return false; // Les autres utilisateurs ne peuvent éditer que les déclarations dont ils sont le déclarant ou pour lesquelles ils ont les droits nécessaires, tant qu'elles ne sont pas expirées
+            }
+
           },
         },
         {
@@ -39,12 +45,23 @@ export default {
           icon: 'mdi-refresh',
           to: ({ item }) => `/declaration/actualisation_declaration?id=${item.id_declaration}&action=oui&keySession=all`,
           condition: ({ item, $store }) => {
-            return (
-              item.date_fin && new Date(item.date_fin) < new Date() && // La déclaration est expirée
-              item.b_valid === true && // La déclaration est validée
-              item.statut !== config_variables['STATUT_DECLARATION']['Archivée'] && // La déclaration n'est pas déjà archivée
-              ($store.getters.droitMax > item.id_droit_max || $store.getters.user.id_role == item.id_declarant) // L'utilisateur a les droits pour éditer la déclaration
-            );
+            const aujourdhui = new Date();
+            const dateFin = item.date_fin ? new Date(item.date_fin) : null;
+          
+            if ((dateFin > aujourdhui) 
+              || item.statut === config_variables['STATUT_DECLARATION']['Archivée']
+              || item.b_valid === false) {
+              return false; // Les déclarations archivées ne peuvent pas être renouvelées, même par les admins
+            }
+
+            if (($store.getters.droitMax >= 4)) {
+              return true; // Les admins peuvent renouveler n'importe quelle déclaration
+            }else if ( $store.getters.user.id_role == item.id_declarant) {
+              return true; // Les déclarants et les utilisateurs ayant les droits nécessaires peuvent renouveler les déclarations expirées dont ils sont le déclarant ou pour lesquelles ils ont les droits nécessaires
+            }else {
+              return false; // Les autres utilisateurs ne peuvent renouveler que les déclarations expirées dont ils sont le déclarant ou pour lesquelles ils ont les droits nécessaires
+            }
+          
           },
           
         },
@@ -56,12 +73,19 @@ export default {
             return `/declaration/voir_declaration/${item.id_declaration}?relance=true&keySession=all`;
           },
           condition: ({ item, $store }) => {
-            return (
-              item.date_fin && new Date(item.date_fin) < new Date() && // La déclaration est expirée
-              item.b_valid === true && // La déclaration est validée
-              item.statut !== config_variables['STATUT_DECLARATION']['Archivée'] && // La déclaration n'est pas déjà archivée
-              ($store.getters.droitMax > item.id_droit_max || $store.getters.user.id_role == item.id_declarant) // L'utilisateur a les droits pour éditer la déclaration
-            );
+            const aujourdhui = new Date();
+            const dateFin = item.date_fin ? new Date(item.date_fin) : null;
+
+            if ((dateFin > aujourdhui) 
+              || item.statut === config_variables['STATUT_DECLARATION']['Archivée']
+              || item.b_valid === false
+              || $store.getters.droitMax < 4) {
+              return false; // Les déclarations archivées ne peuvent pas être renouvelées, même par les admins
+            }else {
+              return true; // Les admins peuvent envoyer une relance pour n'importe quelle déclaration expirée, même celles dont ils ne sont pas le déclarant ou pour lesquelles ils n'ont pas les droits nécessaires
+            }
+
+            
           },
           // si on clic sur ce bouton, on affiche une boîte de dialogue de confirmation, et si l'utilisateur confirme, on envoie une requête POST à l'API pour envoyer le mail de relance
   

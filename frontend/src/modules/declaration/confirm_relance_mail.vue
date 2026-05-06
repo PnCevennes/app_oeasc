@@ -4,13 +4,31 @@
   <div v-if="localShow">
     <v-dialog
       v-model="localShow"
-      max-width="500"
+      max-width="600"
+      width="600"
     >
       <v-card>
-        <v-card-title>
+        <v-card-title
+          style="
+            justify-content: center;
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            text-align: center;
+          "
+        >
           Êtes-vous sûr de vouloir envoyer une relance à {{ declaration_data.declarant }} ?
         </v-card-title>
-        <v-card-text>L'email sera envoyé à : {{ declaration_data.email }}</v-card-text>
+        <v-card-text
+          style="
+            white-space: normal;
+            overflow-wrap: anywhere;
+            word-break: break-word;
+            text-align: center;
+          "
+        >
+          L'email sera envoyé à : {{ declaration_data.email }}
+        </v-card-text>
         <v-card-actions style="justify-content: center">
           <v-btn
             style="margin-right: 10px"

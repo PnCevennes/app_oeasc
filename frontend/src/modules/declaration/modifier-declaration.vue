@@ -96,8 +96,6 @@
                   </div>
                 </div>
 
-
-
                 <!-- -------------  informations sur le declarant ---------------- -->
                 <div
                   style="margin-top: 30px"
@@ -742,19 +740,20 @@
               color="primary"
               @click="etape_affichage = 'AFFICHAGE_FORM'"
               style="margin-right: 30px"
-              :disabled="processing"
+              :disabled="processing == true"
             >
-              Modifier la déclaration
+              Retourner à la déclaration
             </v-btn>
             <v-btn
               color="success"
               @click="submitDeclaration"
-              :disabled="processing"
+              :disabled="processing == true"
             >
               <span v-if="type_action == 'RENOUVELLEMENT'">Renouveller ma déclaration</span>
               <span v-else>Soumettre la déclaration</span>
             </v-btn>
           </div>
+
           <div
             v-if="type_action === 'CLOTURE'"
             style="margin-top: 30px; display: flex; justify-content: center"
@@ -1025,7 +1024,9 @@ export default {
       // Vérification des règles de validation
       // const isValid = this.$refs.form.validate();
 
-      this.processing = true; // Désactiver les boutons pour éviter les doubles clics
+      if (this.processing) {
+        return;
+      }
 
       if (!this.declaration_data.b_autorisation) {
         snackbarStore.show(
@@ -1046,70 +1047,51 @@ export default {
 
       //------------------------------ preparation et envoi des données ------------------------------
 
-      let options = { postData: { ...this.declaration_data } };
-      // console.log('Données à soumettre:', options.postData);
+      this.processing = true; // Désactiver les boutons pour éviter les doubles clics
 
-      if (this.type_action === 'RENOUVELLEMENT') {
-        apiRequest('POST', `/api/declaration/duplicate_declaration`, options)
-          .then((response) => {
-            // console.log("Déclaration renouvelée avec succès:", response);
-            this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
-          })
-          .catch((error) => {
-            console.error('Erreur lors du renouvellement de la déclaration:', error);
-            snackbarStore.show(
-              "Une erreur s'est produite lors de la soumission. Veuillez réessayer.",
-              'error'
-            );
-          });
-      } else if (this.type_action === 'CREATION') {
-        if (this.declaration_data.id_declaration) {
-          snackbarStore.show(
-            'Une erreur est survenue: la déclaration existe déjà. Veuillez réessayer.',
-            'error'
-          );
-          return;
-        }
-        apiRequest('POST', `/api/declaration/declaration`, options)
-          .then((response) => {
-            // console.log("Déclaration créée avec succès:", response);
-            this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
-            this.$store.commit('declarations', {});
-          })
-          .catch((error) => {
-            console.error('Erreur lors de la création de la déclaration:', error);
-            snackbarStore.show(
-              "Une erreur s'est produite lors de la soumission. Veuillez réessayer.",
-              'error'
-            );
-          });
-      } else if (this.type_action === 'MODIFICATION') {
-        // Envoi de la déclaration via l'API
-        if (!this.declaration_data.id_declaration) {
-          snackbarStore.show(
-            "Une erreur est survenue: l'ID de déclaration est manquant pour la modification. Veuillez réessayer.",
-            'error'
-          );
-          return;
-        }
-        this.declaration_data.b_valid = false; // Lors d'une modification, la déclaration doit être à nouveau validée par un admin
+      try {
+        let options = { postData: { ...this.declaration_data } };
+        // console.log('Données à soumettre:', options.postData);
 
-        await apiRequest('PATCH', `api/declaration/declaration`, options)
-          .then((response) => {
-            // console.log("Déclaration mise à jour avec succès:", response);
-            this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
-            // on vide les données du store declarations pour recharger les données
-            this.$store.commit('declarations', {});
-          })
-          .catch((error) => {
-            console.error('Erreur lors de la mise à jour de la déclaration:', error);
+        if (this.type_action === 'RENOUVELLEMENT') {
+          await apiRequest('POST', `/api/declaration/duplicate_declaration`, options);
+          this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
+        } else if (this.type_action === 'CREATION') {
+          if (this.declaration_data.id_declaration) {
             snackbarStore.show(
-              "Une erreur s'est produite lors de la soumission. Veuillez réessayer.",
+              'Une erreur est survenue: la déclaration existe déjà. Veuillez réessayer.',
               'error'
             );
-          });
+            return;
+          }
+          await apiRequest('POST', `/api/declaration/declaration`, options);
+          this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
+          this.$store.commit('declarations', {});
+        } else if (this.type_action === 'MODIFICATION') {
+          // Envoi de la déclaration via l'API
+          if (!this.declaration_data.id_declaration) {
+            snackbarStore.show(
+              "Une erreur est survenue: l'ID de déclaration est manquant pour la modification. Veuillez réessayer.",
+              'error'
+            );
+            return;
+          }
+          this.declaration_data.b_valid = false; // Lors d'une modification, la déclaration doit être à nouveau validée par un admin
+
+          await apiRequest('PATCH', `api/declaration/declaration`, options);
+          this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
+          // on vide les données du store declarations pour recharger les données
+          this.$store.commit('declarations', {});
+        }
+      } catch (error) {
+        console.error('Erreur lors de la soumission de la déclaration:', error);
+        snackbarStore.show(
+          "Une erreur s'est produite lors de la soumission. Veuillez réessayer.",
+          'error'
+        );
+      } finally {
+        this.processing = false; // Réactiver les boutons après le traitement
       }
-      this.processing = false; // Réactiver les boutons après le traitement
     },
 
     /**
