@@ -353,7 +353,7 @@ def send_mail_actualisation_declaration(declaration, change_statut=True):
             "[OEASC] Actualisation de votre déclaration",
             sender=config["ANIMATEUR_APPLICATION_MAIL"],
             recipients=[declaration["email"]],
-            cc=liste_mails_animateurs,
+            # cc=liste_mails_animateurs,
             html=html,
         )
 
