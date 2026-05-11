@@ -289,6 +289,7 @@
 import listForm from '@/components/form/list-form';
 import dynamicForm from '@/components/form/dynamic-form';
 import { apiRequest } from '@/core/js/data/api.js';
+import inGraph from './in-graph.vue';
 import './table.css';
 
 export default {
@@ -296,7 +297,7 @@ export default {
   props: ['graphOnly', 'commentaires'],
   components: {
     listForm,
-    'in-graph': () => import('./in-graph.vue'),
+    inGraph,
     dynamicForm,
   },
   // Données réactives du composant

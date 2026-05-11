@@ -29,7 +29,7 @@ affichage du menu de l'application -->
     <template v-for="(menu, indexMenu) of config">
       <v-btn
         :text="!menu.icon || !!menu.label"
-        :key="indexMenu"
+        :key="`menu-btn-${indexMenu}`"
         v-if="!menu.menus.length"
         :icon="!!menu.icon"
         :to="menu.path"
@@ -42,7 +42,7 @@ affichage du menu de l'application -->
         offset-y
         transition="slide-x-transition"
         open-on-hover
-        :key="indexMenu"
+        :key="`menu-dropdown-${indexMenu}`"
         v-else
       >
         <template v-slot:activator="{ on: bMenu }">

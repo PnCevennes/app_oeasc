@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
   <div v-if="configRealisationForm">
     <generic-form :config="configRealisationForm"></generic-form>
   </div>
@@ -17,4 +17,4 @@ export default {
     genericForm,
   },
 };
-</script>
+</script> -->
