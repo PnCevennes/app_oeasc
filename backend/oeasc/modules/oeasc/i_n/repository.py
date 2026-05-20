@@ -4,12 +4,10 @@ repository in
 
 import math
 from statsmodels.regression.linear_model import OLS
-from utils_flask_sqla.generic import GenericQuery
-from flask import current_app
 
-# from sqlalchemy import select
-# from .models import VResult
-# from .schema import VResultSchema
+# from utils_flask_sqla.generic import GenericQuery
+from flask import current_app
+from .all_stmt import stmt_results
 
 config = current_app.config
 DB = config["DB"]
@@ -17,79 +15,25 @@ DB = config["DB"]
 student = [0, 0, 12.71, 4.30, 3.18, 2.78, 2.57]
 
 
-def sort_data(res):
-    """
-    Trie la liste de dictionnaires 'res' selon plusieurs clés :
-    - nom_espece
-    - ug
-    - annee
-    - serie
-    - numero_circuit
-
-    Ce tri permet d'organiser les données pour faciliter leur regroupement et traitement
-    dans les fonctions suivantes (regroup_data, process_nom_especes, etc.).
-    Il est utilisé juste avant la création de la structure hiérarchique des résultats.
-
-    Args:
-        res (list): Liste de dictionnaires représentant les résultats de la requête SQL.
-
-    Returns:
-        None: Le tri est effectué en place sur la liste.
-    """
-    res.sort(
-        key=(
-            lambda x: (
-                x.get("nom_espece"),  # Tri par espèce
-                x.get("ug"),  # puis par UG
-                x.get("annee"),  # puis par année
-                x.get("serie"),  # puis par série
-                x.get("numero_circuit"),  # enfin par numéro de circuit
-            )
-        )
-    )
-
-
 def regroup_data(res):
-    """
-    Regroupe les données d'une liste de dictionnaires selon plusieurs niveaux hiérarchiques.
-
-    Cette fonction prend en entrée une liste de dictionnaires (`res`), où chaque dictionnaire représente une ligne de résultat
-    contenant des clés telles que "nom_espece", "ug", "annee", "serie", et "id_circuit". Elle construit une structure imbriquée
-    de dictionnaires, regroupant les données selon ces clés, dans l'ordre défini par la liste `regroup`.
-
-    La structure retournée permet d'accéder facilement aux données selon différents niveaux de regroupement, facilitant ainsi
-    l'affichage ou le traitement des résultats par espèce, unité de gestion, année, série, et circuit.
-
-    Utilisation typique :
-        - Organisation de résultats de requêtes SQL pour une restitution structurée dans une API ou une interface utilisateur.
-        - Préparation de données pour des traitements statistiques ou des visualisations hiérarchiques.
-
-    Args:
-        res (list[dict]): Liste de dictionnaires contenant les résultats à regrouper.
-
-    Returns:
-        dict: Dictionnaire imbriqué représentant les données regroupées selon les clés spécifiées.
-
-    Remarques :
-        - Si une clé de regroupement est absente dans une ligne, celle-ci est ignorée pour éviter des erreurs de structure.
-        - Le niveau le plus profond ("id_circuit") contient l'ensemble des données de la ligne originale.
-    """
+    """ """
     out = {"nom_especes": {}}
+
     regroup = ["nom_espece", "ug", "annee", "serie", "id_circuit"]
 
-    for r in res:  # parcours des lignes du resultat
-        cur = out
+    for row in res:  # parcours des lignes du resultat
+        current = out
         for key_group in regroup:
             # pacours de regroup pour créer la structure
             group_name = key_group + "s"
-            cur.setdefault(group_name, {})
-            key = r.get(key_group)  # Use .get() to handle missing keys
+            current.setdefault(group_name, {})
+            key = row.get(key_group)  # Use .get() to handle missing keys
             if key is None:
                 break  # Skip this entry if the key is missing
-            cur = cur[group_name].setdefault(key, {})
+            current = current[group_name].setdefault(key, {})
 
         if key is not None and key_group == "id_circuit":  # tout s'est bien passé,
-            cur.update(r)  # remplissage du niveau final (id_circuit)
+            current.update(row)  # remplissage du niveau final (id_circuit)
 
     return out
 
@@ -98,8 +42,6 @@ def in_data():
     """
     Fonction principale pour récupérer, organiser et traiter les données d'observations.
 
-    Cette fonction effectue les opérations suivantes :
-    1. Récupère les données depuis la vue SQL 'v_result' de la base 'oeasc_in' via GenericQuery.
     2. Trie les résultats selon plusieurs clés pour faciliter leur organisation.
     3. Regroupe les données dans une structure hiérarchique imbriquée (espèce > UG > année > série > circuit).
     4. Lance le traitement statistique sur chaque niveau via process_nom_especes (calculs de moyennes, régressions, etc.).
@@ -114,13 +56,41 @@ def in_data():
     """
 
     # Récupération des données depuis la base (limite à 1 million de lignes)
-    res = GenericQuery(DB, "v_result", "oeasc_in", limit=1e6).as_dict()["items"]
-
-    # Tri des données pour faciliter le regroupement
-    sort_data(res)
+    stmt = stmt_results()
+    res = DB.session.execute(stmt).mappings().all()
+    res = [dict(row) for row in res]  # Convertit les résultats en dictionnaires
 
     # Regroupement hiérarchique des données (espèce > UG > année > série > circuit)
     out = regroup_data(res)
+
+    for nom_espece, espece in out["nom_especes"].items():
+        espece["ugs"]["Causse-Gorges_coeur"] = {}
+        espece["ugs"]["Causse-Gorges_coeur"] = espece["ugs"]["Causse-Gorges"]
+
+        for nom_espece, espece in out["nom_especes"].items():
+            espece["ugs"]["Causse-Gorges_coeur"] = {"annees": {}}
+            # espece['ugs']['Causse-Gorges_coeur'] = espece['ugs']['Causse-Gorges']
+            for annee, annee_data in espece["ugs"]["Causse-Gorges"]["annees"].items():
+                espece["ugs"]["Causse-Gorges_coeur"]["annees"][annee] = {"series": {}}
+                for serie, serie_data in annee_data["series"].items():
+                    espece["ugs"]["Causse-Gorges_coeur"]["annees"][annee]["series"][
+                        serie
+                    ] = {"id_circuits": {}}
+                    for id_circuit, circuit_data in serie_data["id_circuits"].items():
+
+                        if circuit_data.get("in_coeur") == True:
+                            # on ajoute le circuit dans le coeur
+                            espece["ugs"]["Causse-Gorges_coeur"]["annees"][annee][
+                                "series"
+                            ][serie]["id_circuits"][id_circuit] = circuit_data
+
+                            out["nom_especes"][nom_espece]["ugs"][
+                                "Causse-Gorges_coeur"
+                            ]["annees"][annee]["series"][serie]["id_circuits"][
+                                id_circuit
+                            ][
+                                "ug"
+                            ] = "Causse-Gorges_coeur"
 
     # Calculs statistiques sur chaque niveau (moyennes, intervalles de confiance, régression linéaire)
     process_nom_especes(out)
@@ -178,13 +148,13 @@ def process_ugs(nom_espece):
         "ugs"
     ]  # Récupère le dictionnaire des unités de gestion pour l'espèce
 
-    for key_ug in ugs:  # Parcourt chaque unité de gestion
-        ug = ugs.get(key_ug)
+    for nom_ug in ugs:  # Parcourt chaque unité de gestion
+        ug = ugs.get(nom_ug)
         # Lance le traitement des années pour cette unité de gestion
-        process_annees(ug)
+        process_annees(ug, nom_ug)
 
 
-def process_annees(ug):
+def process_annees(ug, nom_ug):
     """
     Parcourt les années pour une unité de gestion donnée et lance le traitement des séries pour chaque année.
 
@@ -205,6 +175,7 @@ def process_annees(ug):
     Returns:
         None: Les traitements sont effectués en place sur la structure passée en argument.
     """
+
     annees = ug["annees"]
 
     # Préparation des listes pour la régression linéaire
@@ -214,11 +185,10 @@ def process_annees(ug):
     for key_annee in annees:
         annee = annees.get(key_annee)
         # Lance le traitement des séries pour cette année
-        process_series(annee)
+        process_series(annee, nom_ug)
 
         # On ne prend en compte que les années avec une moyenne calculée
         if not annee.get("moy"):
-            # print("### annee sans moyenne")
             continue
 
         X.append([int(key_annee), 1])  # Année et constante pour la régression
@@ -226,6 +196,11 @@ def process_annees(ug):
 
     # Si pas assez de points, on ne fait pas la régression
     if not len(X) or len(X) <= 1:
+        ug["reg_lin"] = {
+            "R2": None,
+            "params": [None, None],
+            "pvalues": [None, None],
+        }
         return
 
     # Régression linéaire (statsmodels)
@@ -250,7 +225,7 @@ def process_annees(ug):
     }
 
 
-def process_series(annee):
+def process_series(annee, nom_ug):
     """
     Traite les séries pour une année donnée, calcule la moyenne annuelle, l'écart-type,
     l'intervalle de confiance, et enrichit la structure avec ces statistiques.
@@ -280,9 +255,8 @@ def process_series(annee):
     # Parcours de chaque série pour calculer la moyenne de la série
     for key_serie in series:
         serie = series.get(key_serie)
-
         # Calcul de la moyenne pour chaque série via les circuits
-        process_circuits(serie)
+        process_circuits(serie, nom_ug)
 
         # Si la moyenne de la série n'est pas calculable, on ignore cette série
         if serie["moy"] is None:
@@ -333,7 +307,7 @@ def process_series(annee):
     annee["sup"] = annee["moy"] + d
 
 
-def process_circuits(serie):
+def process_circuits(serie, nom_ug):
     """
     Calcule la moyenne des observations pour une série donnée à partir des circuits associés.
 
@@ -364,9 +338,13 @@ def process_circuits(serie):
     # Parcours de chaque circuit pour calculer la moyenne
     for key_circuit in circuits:
         circuit = circuits[key_circuit]
+
         # On ne prend en compte que les circuits valides
-        if not circuit["valid"]:
+        if nom_ug == "Causse-Gorges_coeur" and not circuit["valide_ZC"]:
             continue
+        if nom_ug != "Causse-Gorges_coeur" and not circuit["valide_PNC"]:
+            continue
+
         # Ajout du ratio nb/km du circuit à la somme totale
         somme_circuit += circuit["nb"] / circuit["km"]
         nb_circuits += 1

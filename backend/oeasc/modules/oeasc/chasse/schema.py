@@ -27,7 +27,9 @@ class TZoneCynegetiquesSchema(SQLAlchemyAutoSchema):
         sqla_session = (DB.session,)
         unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
 
-    secteur = Nested("TSecteursSchema", many=False, exclude=("circuits",))
+    secteur = Nested(
+        "TSecteursSchema", many=False, dump_only=False, exclude=("circuits",)
+    )
 
 
 class TZoneIndicativesSchema(GeoAlchemyAutoSchema):

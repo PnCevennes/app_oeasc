@@ -78,7 +78,6 @@ def in_test_results():
     return in_data()
 
 
-
 @bp.route("valid_realisation", methods=["PATCH"])
 @check_auth_redirect_login(5)
 @json_resp
@@ -98,14 +97,14 @@ def in_valid_realisation():
 
     # Extraction des identifiants nécessaires pour cibler la bonne réalisation/tag
     id_realisation = data["id_realisation"]
-    valide_coeur = data["valide_coeur"]
-    valide_all = data["valide_all"]
+    valide_ZC = data["valide_ZC"]
+    valide_PNC = data["valide_PNC"]
     # Prépare la requête SQLAlchemy pour mettre à jour la table de correspondance
     # entre réalisation et tag (CorRealisationTag) avec les nouvelles valeurs
     stmt_cor = (
         update(TRealisations)
         .where(TRealisations.id_realisation == id_realisation)
-        .values(valide_coeur=valide_coeur, valide_all=valide_all)
+        .values(valide_ZC=valide_ZC, valide_PNC=valide_PNC)
     )  # Les champs à mettre à jour sont ceux présents dans 'data'
 
     # Exécute la requête de mise à jour sur la base de données
@@ -114,5 +113,3 @@ def in_valid_realisation():
 
     # Retourne True pour indiquer le succès de l'opération (formaté en JSON par le décorateur)
     return True
-
-

@@ -141,18 +141,24 @@ class TRealisations(CustomModel):
     id_circuit: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_in.t_circuits.id_circuit")
     )
-    valide_coeur: Mapped[bool] = Column(Boolean, default=True)
-    valide_all: Mapped[bool] = Column(Boolean, default=True)
+    valide_ZC: Mapped[bool] = Column(Boolean, default=True)
+    valide_PNC: Mapped[bool] = Column(Boolean, default=True)
     serie: Mapped[int] = Column(Integer)
     groupes: Mapped[int] = Column(Integer)
     vent: Mapped[str] = Column(Unicode)
     temps: Mapped[str] = Column(Unicode)
     temperature: Mapped[str] = Column(Unicode)
     date_realisation: Mapped[Date] = Column(Date)
-    
 
-    circuit: Mapped["TCircuits"] = relationship(
-        TCircuits, lazy="joined", overlaps="circuit, secteur"
+    circuit: Mapped["TCircuits"] = relationship(TCircuits, lazy="joined")
+    # relation juste là pour les filtres dans la table réalisation. Si il n'y a pas ça la recherche par secteur ne fonctionne pas car le secteur est une relation du circuit et pas de la réalisation
+    secteur: Mapped["TSecteurs"] = relationship(
+        TSecteurs,
+        secondary="oeasc_in.t_circuits",
+        primaryjoin="TRealisations.id_circuit == TCircuits.id_circuit",
+        secondaryjoin="TCircuits.id_secteur == TSecteurs.id_secteur",
+        viewonly=True,
+        lazy="joined",
     )
     observations: Mapped[list["TObservations"]] = relationship(
         TObservations,
@@ -164,8 +170,7 @@ class TRealisations(CustomModel):
         secondary=cor_realisation_observer,
         lazy="joined",
     )
-    
-    
+
     observers_table: Mapped[str] = column_property(
         select(func.string_agg(TObservers.nom_observer, ", "))
         .where(
@@ -176,25 +181,7 @@ class TRealisations(CustomModel):
         )
         .scalar_subquery()
     )
-    # tags_table: Mapped[str] = column_property(
-    #     select(
-    #         func.string_agg(
-    #             func.concat(
-    #                 TTagsIn.nom_tag,
-    #                 " : ",
-    #                 case((CorRealisationTag.valid == True, "o"), else_="x"),
-    #             ),
-    #             ", ",
-    #         )
-    #     )
-    #     .where(
-    #         and_(
-    #             CorRealisationTag.id_realisation == id_realisation,
-    #             CorRealisationTag.id_tag == TTagsIn.id_tag,
-    #         )
-    #     )
-    #     .scalar_subquery()
-    # )
+
     cerfs: Mapped[int] = column_property(
         select(TObservations.nb)
         .where(
@@ -239,4 +226,3 @@ class TRealisations(CustomModel):
         )
         .scalar_subquery()
     )
-
