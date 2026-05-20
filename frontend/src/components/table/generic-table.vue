@@ -185,7 +185,18 @@
               </v-btn>
             </div>
             <div v-else>
-              <span v-html="displayCell(props, value)"></span>
+              <!-- si value == true  ou si value == false on affiche un icone -->
+              <v-icon
+                v-if="displayCell(props, value) === true || displayCell(props, value) === false"
+                small
+                :color="displayCell(props, value) ? 'success' : 'error'"
+              >
+                {{ displayCell(props, value) ? 'mdi-check-bold' : 'mdi-close-thick' }}
+              </v-icon>
+              <span
+                v-else
+                v-html="displayCell(props, value)"
+              ></span>
             </div>
           </div>
         </template>

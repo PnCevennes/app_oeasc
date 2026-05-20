@@ -232,18 +232,36 @@
                       {{ numeroSerie }}
                     </td>
                     <!-- Checkbox pour valider le circuit (admin uniquement) -->
-                    <td :class="{ gris: indexCircuit % 2 }">
+                    <td
+                      v-if="settings.ug != 'Causse-Gorges_coeur'"
+                      :class="{ gris: indexCircuit % 2 }"
+                    >
                       <input
                         v-if="$store.getters.droitMax >= 5"
                         type="checkbox"
-                        v-model="circuit.valid"
+                        v-model="circuit.valide_PNC"
                         :disabled="freezeValid"
                         @change="validChange(circuit)"
                       />
                       <template v-else>
-                        {{ `${circuit.valid ? 'Oui' : 'Non'}` }}
+                        {{ `${circuit.valide_PNC ? 'Oui' : 'Non'}` }}
                       </template>
+                      pnc
                     </td>
+                    <td v-else>
+                      <input
+                        v-if="$store.getters.droitMax >= 5"
+                        type="checkbox"
+                        v-model="circuit.valide_ZC"
+                        :disabled="freezeValid"
+                        @change="validChange(circuit)"
+                      />
+                      <template v-else>
+                        {{ `${circuit.valide_ZC ? 'Oui' : 'Non'}` }}
+                      </template>
+                      zc
+                    </td>
+
                     <!-- Affichage des informations du circuit -->
                     <td :class="{ gris: indexCircuit % 2 }">
                       {{ circuit.date }}
@@ -381,7 +399,7 @@ export default {
      * Fonctionnement :
      * - Cette méthode est appelée lorsqu'un administrateur modifie la case à cocher "Validé" d'un circuit dans le tableau détaillé.
      * - Elle empêche toute modification supplémentaire pendant la requête API (freezeValid).
-     * - Prépare les données à envoyer à l'API (id_tag, id_realisation, valid).
+     * - Prépare les données à envoyer à l'API (id_tag, id_realisation, valide_PNC, valide_ZC).
      * - Envoie une requête PATCH à l'API pour mettre à jour la validation du circuit.
      * - Une fois la requête terminée, elle recharge les données du secteur sélectionné (initInTable) et réactive la modification.
      *
@@ -393,15 +411,16 @@ export default {
       this.freezeValid = true;
       const postData = {};
       // Prépare les données à envoyer à l'API
-      postData.id_tag = circuit.id_tag;
+      // postData.id_tag = circuit.id_tag;
       postData.id_realisation = circuit.id_realisation;
-      postData.valid = circuit.valid;
+      postData.valide_PNC = circuit.valide_PNC;
+      postData.valide_ZC = circuit.valide_ZC;
       // Envoie la requête PATCH à l'API pour mettre à jour la validation
       apiRequest('PATCH', 'api/in/valid_realisation/', {
         postData,
       }).then(() => {
         // Recharge les données du secteur sélectionné pour mettre à jour l'affichage
-        this.initInTable();
+        this.reload();
         // Réactive la modification
         this.freezeValid = false;
       });
