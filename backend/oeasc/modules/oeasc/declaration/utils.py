@@ -4,7 +4,7 @@ from oeasc.modules.oeasc.nomenclature import (
     get_dict_nomenclature_areas,
     get_nomenclature,
 )
-from oeasc.ref_geo.models import TAreas
+from oeasc.ref_geo_oeasc.models import VMAreasSimples
 from flask import current_app
 from sqlalchemy import func
 from .models import TForet, TProprietaire

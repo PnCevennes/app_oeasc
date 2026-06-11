@@ -47,7 +47,7 @@ from .all_stmt import (
 )
 from .models import TDeclaration
 from ..declaration.schema import TProprietaireSchema, TForetSchema
-from oeasc.ref_geo.schema import LAreasSchema
+from oeasc.ref_geo_oeasc.schema import LAreasSchema
 
 bp = Blueprint("declaration_api", __name__)
 

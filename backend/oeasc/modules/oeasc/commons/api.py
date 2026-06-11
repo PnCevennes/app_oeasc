@@ -9,28 +9,27 @@ from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp_accept_empty_list, json_resp
 from sqlalchemy import text, select, func
 
-# from sqlalchemy.orm import Session
-
-# from oeasc.utils.env import ROOT_DIR
 
 from .models import (
     TContents,
     TTags,
-    TSecteurs,
     TEspeces,
-    TCommunes,
+    TCommunesFrance,
     TNomenclaturesOeasc,
     TListeOrganismes,
 )
 from .schema import (
     TContentsSchema,
     TTagsSchema,
-    TSecteursSchema,
     TEspecesSchema,
-    TCommunesSchema,
+    TCommunesFranceSchema,
     TNomenclaturesOeascSchema,
     TListeOrganismesSchema,
 )
+
+from oeasc.modules.oeasc.commons.models import TSecteurs
+from oeasc.modules.oeasc.commons.schema import TSecteursSchema
+
 
 from pypnnomenclature.models import BibNomenclaturesTypes
 from pypnnomenclature.schemas import BibNomenclaturesTypesSchema
@@ -67,9 +66,9 @@ definitions = {
         "schema": TEspecesSchema,
     },
     "commune": {
-        "model": TCommunes,
+        "model": TCommunesFrance,
         "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
-        "schema": TCommunesSchema,
+        "schema": TCommunesFranceSchema,
     },
     "liste_organismes": {
         "model": TListeOrganismes,
@@ -102,16 +101,16 @@ def api_all_communes():
     """
 
     stmt_commune = (
-        select(TCommunes)
+        select(TCommunesFrance)
         .where(
-            (TCommunes.cp.startswith("07"))
-            | (TCommunes.cp.startswith("48"))
-            | (TCommunes.cp.startswith("30"))
+            (TCommunesFrance.cp.startswith("07"))
+            | (TCommunesFrance.cp.startswith("48"))
+            | (TCommunesFrance.cp.startswith("30"))
         )
-        .order_by(TCommunes.population.desc(), TCommunes.nom, TCommunes.cp)
+        .order_by(TCommunesFrance.population.desc(), TCommunesFrance.nom, TCommunesFrance.cp)
     )
     result = DB.session.execute(stmt_commune).scalars().all()
-    communeSchema = TCommunesSchema()
+    communeSchema = TCommunesFranceSchema()
     out = [communeSchema.dump(res) for res in result]
     return out
 
@@ -156,9 +155,9 @@ def api_communes(test):
 
     # Création de la requête SQL pour récupérer les communes correspondantes
     stmt_commune = (
-        select(func.concat(TCommunes.nom, " ", TCommunes.cp).label("nom_cp"))
+        select(func.concat(TCommunesFrance.nom, " ", TCommunesFrance.cp).label("nom_cp"))
         .where(text(cond_text))
-        .order_by(TCommunes.population.desc(), TCommunes.nom, TCommunes.cp)
+        .order_by(TCommunesFrance.population.desc(), TCommunesFrance.nom, TCommunesFrance.cp)
         .limit(20)
     )
 

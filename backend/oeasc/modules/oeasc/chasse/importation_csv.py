@@ -43,7 +43,7 @@ from flask import request, current_app, session
 
 from oeasc.utils.apiResponse import ApiResponse
 
-from oeasc.ref_geo.models import BibAreasType, LAreas
+from oeasc.ref_geo_oeasc.models import BibAreasType, LAreas
 from oeasc.modules.oeasc.chasse.models import (
     TAttributions,
     TZoneIndicatives,

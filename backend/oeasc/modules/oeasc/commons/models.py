@@ -71,18 +71,6 @@ class TTags(CustomModel):
     nom_tag: Mapped[str] = Column(Unicode(30))
     code_tag: Mapped[str] = Column(Unicode(10))
 
-
-# version sqlalchemy 2.0
-# @serializable
-# class TTags(DB.Model):
-#     """Tags des page pour définir si c'est une actu, une page ou un formulaire"""
-#     __tablename__ = "t_tags"
-#     __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
-#     id_tag: Mapped[int] = mapped_column(primary_key=True)
-#     nom_tag: Mapped[str] = mapped_column(String(30))
-#     code_tag: Mapped[str] = mapped_column(String(10))
-
-
 @serializable
 class TListeOrganismes(CustomModel):
     """
@@ -125,9 +113,6 @@ class TSecteurs(CustomModel):
     id_secteur: Mapped[int] = Column(Integer, primary_key=True)
     code_secteur: Mapped[str] = Column(String(250))
     nom_secteur: Mapped[str] = Column(Unicode)
-    # pour éviter une boucle d'importation avec le modele I_N, il faut déclarer cette relation après la définition des classe et depuis ce model
-    # circuits: Mapped[list["TCircuits"]] = relationship("TCircuits", back_populates="secteur", overlaps="secteur")
-
 
 @serializable
 class TEspeces(CustomModel):
@@ -144,9 +129,9 @@ class TEspeces(CustomModel):
     cd_nom: Mapped[str] = Column(String(250))
 
 
-class TCommunes(CustomModel):
+class TCommunesFrance(CustomModel):
     """
-    communes
+    communes. Uniquement utilisé pour les adresse des propiétaires de forets.
     """
 
     __tablename__ = "t_communes"

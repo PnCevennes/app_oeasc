@@ -39,7 +39,7 @@ class CustomModel(DB.Model):
 @serializable
 class CorAreasDeclaration(CustomModel):
     """
-    areas localisation
+    Correspondance entre les declarations et les areas (localisation de la déclaration)
     """
 
     __tablename__ = "cor_areas_declarations"
@@ -478,13 +478,12 @@ class CorAreasForet(CustomModel):
 # @serializable
 class CorDgdCadastre(CustomModel):
     """
-    Dgd cadastre
+    Correspondance entre les codes DGD et les codes cadastre pour les forêts (permet de faire le lien entre les données de la DGD et les données cadastrales)
     """
 
     __tablename__ = "cor_dgd_cadastre"
     __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
 
-    # les codes peuvent correspondre à plusieurs vue d'area différentes. VAreas, VLAreas, VAreasSimples, VLAreasSimples
     # donc pas possible de faire des clés étrangères.
     area_code_dgd: Mapped[str] = Column(Unicode, primary_key=True)
     area_code_cadastre: Mapped[str] = Column(Unicode, primary_key=True)

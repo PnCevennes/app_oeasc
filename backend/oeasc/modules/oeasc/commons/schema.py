@@ -92,11 +92,11 @@ class TEspecesSchema(SQLAlchemyAutoSchema):
         unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
 
 
-class TCommunesSchema(SQLAlchemyAutoSchema):
+class TCommunesFranceSchema(SQLAlchemyAutoSchema):
     code = fields.Integer(dump_only=True, allow_none=True)
 
     class Meta:
-        model = TCommunes
+        model = TCommunesFrance
         load_instance = True
         include_fk = True
         sqla_session = (DB.session,)
