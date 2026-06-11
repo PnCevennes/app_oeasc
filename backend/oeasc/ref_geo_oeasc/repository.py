@@ -9,18 +9,11 @@ from flask import current_app
 # from geojson import FeatureCollection
 
 from .models import (
-    VAreas as VA,
-    VLAreas as VLA,
-    VAreasSimples as VAS,
-    VLAreasSimples as VLAS,
     BibAreasType,
+    LAreas,
+    VMAreasSimples,
 )
-from .schema import (
-    VAreasSchema,
-    VLAreasSchema,
-    VAreasSimplesSchema,
-    VLAreasSimplesSchema,
-)
+from .schema import LAreasSchema, VMAreasSimplesSchema
 
 from ..modules.oeasc.declaration.models import CorDgdCadastre
 
@@ -53,32 +46,31 @@ def get_type_code(id_type):
 
 def set_table_and_schema(b_simple, data_type):
     """
-    choisi la table qui correspond aux données demandées
-    - b_simple : geometrie simplifée (True) ou brute (False)
-    - data_type : t -> attributs seul
-                l -> on ajoute la geometrie
+    Choisit la table et le schema selon le niveau de simplification souhaite.
+
+    - b_simple=True: vue materialisee simplifiee
+    - b_simple=False: table ref_geo.l_areas
+    - data_type est conserve pour compatibilite de signature
     """
     if b_simple:
-        attributs = VAS
-        schema_attributs = VAreasSimplesSchema
-        layers = VLAS
-        schema_layers = VLAreasSimplesSchema
+        return VMAreasSimples, VMAreasSimplesSchema
 
-    else:
-        attributs = VA
-        schema_attributs = VAreasSchema
-        layers = VLA
-        schema_layers = VLAreasSchema
+    return LAreas, LAreasSchema
 
-    if data_type == "l":
-        table = layers
-        schema = schema_layers
 
-    else:
-        table = attributs
-        schema = schema_attributs
+def _order_column(table):
+    """Retourne la colonne de tri compatible selon le modele utilise."""
+    if hasattr(table, "label"):
+        return table.label
+    return table.area_name
 
-    return table, schema
+
+def refresh_vm_lareas_simples(concurrently=False):
+    """Refresh explicite de la vue materialisee ref_geo.vm_lareas_simples."""
+    concurrently_sql = "CONCURRENTLY " if concurrently else ""
+    stmt = text(f"REFRESH MATERIALIZED VIEW {concurrently_sql}ref_geo.vm_lareas_simples")
+    DB.session.execute(stmt)
+    DB.session.commit()
 
 
 def areas_from_type_code(b_simple, data_type, type_code):
@@ -100,7 +92,7 @@ def areas_from_type_code(b_simple, data_type, type_code):
         select(table)
         .where(table.id_type == id_type)
         .where(table.enable)
-        .order_by(table.label)
+        .order_by(_order_column(table))
     )
     data = DB.session.execute(stmt).scalars().all()
 
@@ -149,7 +141,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
         stmt_container = (
             select(table)
             .where(table.id_area == id_area_container)
-            .order_by(table.label)
+            .order_by(_order_column(table))
             # .limit(1) # ajout le limit pour optimiser la requete
         )
         container = DB.session.execute(stmt_container).scalars().first()
@@ -179,7 +171,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                             table.area_code.like(area_code + "-%"),
                         )
                     )
-                    .order_by(table.label)
+                    .order_by(_order_column(table))
                 )
 
                 data = DB.session.execute(stmt).scalars().all() + data
@@ -195,7 +187,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
             v = [r[0] for r in res]
 
             stmt_by_area_code = (
-                select(table).where(table.area_code.in_(v)).order_by(table.label)
+                select(table).where(table.area_code.in_(v)).order_by(_order_column(table))
             )
             data = DB.session.execute(stmt_by_area_code).scalars().all()
 
@@ -211,7 +203,7 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
                         table.area_code.like(container.area_code + "-%"),
                     )
                 )
-                .order_by(table.label)
+                .order_by(_order_column(table))
             )
             data = DB.session.execute(stmt).scalars().all()
 

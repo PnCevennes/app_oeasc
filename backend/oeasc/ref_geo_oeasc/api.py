@@ -8,16 +8,17 @@ from flask import Blueprint, request, current_app
 from utils_flask_sqla.response import json_resp
 
 from .models import (
-    TAreas as TA,
-    VAreas,
-    VLAreasSimples as VLAS,
-    LAreas as LA,
+    # TAreas,
+    # VAreas,
+    VMAreasSimples,
+    LAreas,
     BibAreasType,
     CorHierarchieArea,
 )
 from .schema import (
-    VAreasSchema,
-    VLAreasSimplesSchema,
+    # VAreasSchema,
+    LAreasSchema,
+    VMAreasSimplesSchema,
     BibAreasTypeSchema,
     CorHierarchieAreaSchema,
 )
@@ -109,6 +110,7 @@ def get_area(data_type, id_area):
     """
     # On récupère la table et le schéma correspondant au type de données demandé
     # b_simple=True signifie qu'on utilise la version "simple" (sans géométrie complexe)
+
     table, schema = set_table_and_schema(b_simple=True, data_type=data_type)
 
     # On prépare la requête SQLAlchemy pour sélectionner l'aire dont l'id correspond à id_area
@@ -493,13 +495,13 @@ def get_areas_child_of(id_type, id_area):
     child_ids = [child.id_area_enfant for child in all_child_areas]
 
     # On prépare une requête pour récupérer les données des aires enfants
-    # à partir de la vue simplifiée VLAreasSimples (VLAS), qui contient les attributs et la géométrie simplifiée.
-    stmt_areas = select(VLAS).where(VLAS.id_area.in_(child_ids))
+    # à partir de la vue simplifiée vm_lareas_simples.
+    stmt_areas = select(VMAreasSimples).where(VMAreasSimples.id_area.in_(child_ids))
     data = DB.session.execute(stmt_areas).scalars().all()
 
-    # On utilise le schéma VLAreasSimplesSchema pour sérialiser les données au format GeoJSON,
+    # On utilise le schéma VMAreasSimplesSchema pour sérialiser les données au format GeoJSON,
     # ce qui est utile pour l'affichage cartographique ou le transfert de données spatiales.
-    all_areas = VLAreasSimplesSchema(many=True, as_geojson=True).dump(data)
+    all_areas = VMAreasSimplesSchema(many=True, as_geojson=True, include_geom=True).dump(data)
 
     # On retourne la liste des aires enfants au format JSON (GeoJSON si demandé).
     return all_areas
@@ -527,11 +529,11 @@ def get_areas_hierarchy(id_areas):
 
     # On prépare la requête SQLAlchemy pour récupérer les informations des aires
     # à partir de la vue VAreas, qui contient les attributs détaillés des aires.
-    stmt_area = select(VAreas).where(VAreas.id_area.in_(liste_areas))
+    stmt_area = select(LAreas).where(LAreas.id_area.in_(liste_areas))
     # On exécute la requête et on récupère tous les résultats.
     data = DB.session.execute(stmt_area).scalars().all()
-    # On sérialise les objets VAreas en dictionnaires JSON grâce au schéma VAreasSchema.
-    data_result = VAreasSchema(many=True).dump(data)
+    # On sérialise les objets LAreas en dictionnaires JSON grâce au schéma LAreasSchema.
+    data_result = LAreasSchema(many=True).dump(data)
 
     # On prépare une requête SQLAlchemy pour récupérer les relations de hiérarchie
     # où l'aire enfant correspond à l'un des identifiants transmis.
