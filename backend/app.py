@@ -6,10 +6,15 @@ fichier server app oeasc
 import sys
 import os
 
-base_path = os.path.abspath(os.path.join(os.getcwd(), ".."))
-# sys.path.append(os.path.join(base_path, 'config'))
-sys.path.append(base_path)
-# sys.path.append(os.path.join(base_path, 'backend'))
+backend_path = os.path.abspath(os.path.dirname(__file__))
+base_path = os.path.abspath(os.path.join(backend_path, ".."))
+
+# Ensure local sources are imported before any installed package in site-packages.
+for path in (backend_path, base_path):
+    if path in sys.path:
+        sys.path.remove(path)
+    sys.path.insert(0, path)
+
 # print ("sys.path", sys.path)
 # print ("base_path", base_path)
 
@@ -228,8 +233,8 @@ with app.app_context():
 
         return response
 
-    # import du blueprint ref_geo pour les données géographiques (zones, types de zones, communes, coordonnées)
-    from oeasc.ref_geo import api as ref_geo_api
+    # import du blueprint ref_geo_oeasc pour les données géographiques (zones, types de zones, communes, coordonnées)
+    from oeasc.ref_geo_oeasc import api as ref_geo_api
 
     app.register_blueprint(ref_geo_api.bp, url_prefix="/api/ref_geo")
 
