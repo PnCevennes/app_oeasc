@@ -152,7 +152,7 @@ SELECT --id_zone_cynegetique,
 s.id_secteur
 --, code_zone_cynegetique, code_secteur
 FROM oeasc_chasse.t_zone_cynegetiques zc2
-JOIN oeasc_commons.t_secteurs s ON s.code_secteur = SPLIT_PART(zc2.code_zone_cynegetique, '_', 1)
+JOIN ref_geo.t_secteurs s ON s.code_secteur = SPLIT_PART(zc2.code_zone_cynegetique, '_', 1)
  WHERE zc2.id_zone_cynegetique = zc.id_zone_cynegetique
 )
 ;

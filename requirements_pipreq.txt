@@ -1,0 +1,21 @@
+alembic==1.14.1
+click==8.2.1
+Flask==3.1.1
+flask_bcrypt==1.0.1
+flask_cors==5.0.1
+flask_mail==0.10.0
+Flask_Migrate==4.1.0
+flask_sqlalchemy==3.0.5
+GeoAlchemy2==0.17.1
+marshmallow==3.26.1
+marshmallow_sqlalchemy==1.4.1
+py3o.template==0.10.0
+python_dateutil==2.9.0.post0
+setuptools==66.1.1
+SQLAlchemy==1.4.54
+statsmodels==0.14.4
+pypnnomenclature @ https://github.com/PnX-SI/Nomenclature-api-module/archive/refs/heads/master.zip#sha256=48fd5506069c3fe5980863d692d6587d9c7026ac5633e53c2ae64d29e4bde888
+-e git+ssh://git@github.com/Fargo48/UsersHub-authentification-oeasc-module.git@56fcab1cea3a2881e31d4f27f612ce04698150c9#egg=pypnusershub
+-e git+ssh://git@github.com/Fargo48/TaxHub.git@e99d875373e4b33bd93fc83a2ea5f948aa203821#egg=taxhub
+-e git+ssh://git@github.com/Fargo48/Utils-Flask-SQLAlchemy.git@5fb6eb678b185e49ce5be98ec778653c799992cc#egg=utils_flask_sqlalchemy
+-e git+ssh://git@github.com/Fargo48/Utils-Flask-SQLAlchemy-Geo.git@70b1bb666ac8fd963cda2b0ad1217bf67e1329ce#egg=utils_flask_sqlalchemy_geo

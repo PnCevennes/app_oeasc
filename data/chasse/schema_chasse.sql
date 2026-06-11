@@ -27,7 +27,7 @@ CREATE TABLE oeasc_chasse.t_zone_cynegetiques
 
     CONSTRAINT pk_t_zone_cynegetiques_id_zone_cynegetique PRIMARY KEY (id_zone_cynegetique),
     CONSTRAINT fk_t_zone_cynegetiques_t_secteurs FOREIGN KEY (id_secteur)
-        REFERENCES oeasc_commons.t_secteurs(id_secteur) MATCH SIMPLE
+        REFERENCES ref_geo.t_secteurs(id_secteur) MATCH SIMPLE
         ON UPDATE CASCADE ON DELETE NO ACTION,
     CONSTRAINT unique_code_zone_cynegetique UNIQUE(code_zone_cynegetique)
 

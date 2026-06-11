@@ -62,6 +62,7 @@ CREATE OR REPLACE VIEW ref_geo.vl_areas AS
 DROP VIEW IF EXISTS ref_geo.vl_areas_simples;
 
 CREATE OR REPLACE VIEW ref_geo.vl_areas_simples AS
-    SELECT li.id_area, li.id_type, l.geom_4326, li.area_code, li.label, li.area_name, li.surface_calculee, li.surface_renseignee, li.source, li.enable
-        FROM ref_geo.l_areas_simples l, ref_geo.li_areas li
-        WHERE  l.id_area=li.id_area;
+  SELECT li.id_area, li.id_type, ls.geom_4326, li.area_code, li.label, li.area_name, ST_Area(l.geom) AS surface_calculee, li.surface_renseignee, li.source, li.enable
+    FROM ref_geo.l_areas_simples ls, ref_geo.li_areas li, ref_geo.l_areas l
+    WHERE  ls.id_area=li.id_area
+      AND l.id_area=li.id_area;

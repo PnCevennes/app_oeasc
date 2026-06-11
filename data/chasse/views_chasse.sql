@@ -166,7 +166,7 @@ SELECT
 	join oeasc_chasse.t_saisons ts on ts.id_saison =vb.id_saison
 	join oeasc_chasse.t_zone_cynegetiques tzc on tzc.id_zone_cynegetique = vb.id_zone_cynegetique
 	join oeasc_chasse.t_zone_indicatives tzi on tzi.id_zone_indicative = vb.id_zone_indicative
-	join oeasc_commons.t_secteurs tsec on tsec.id_secteur = vb.id_secteur
+    join ref_geo.t_secteurs tsec on tsec.id_secteur = vb.id_secteur
 	join oeasc_commons.t_especes te on te.id_espece = vb.id_espece;
 
 

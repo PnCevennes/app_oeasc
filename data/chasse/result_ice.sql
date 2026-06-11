@@ -312,7 +312,7 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 						) as  nom_zone_indicative,
 						(
 							SELECT STRING_AGG(nom_secteur, ', ' ORDER BY nom_secteur)
-								FROM oeasc_commons.t_secteurs ts
+								FROM ref_geo.t_secteurs ts
 								WHERE ts.id_secteur = ANY(id_secteur_in)
 						) as  nom_secteur,
 						nom_espece,

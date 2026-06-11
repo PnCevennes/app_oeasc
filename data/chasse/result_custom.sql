@@ -60,7 +60,7 @@
 		JOIN oeasc_commons.t_especes te  ON te.id_espece = ttb.id_espece
 		JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = ta.id_zone_cynegetique_affectee
 		JOIN oeasc_chasse.t_zone_indicatives tzi ON tzi.id_zone_indicative = ta.id_zone_indicative_affectee
-		JOIN oeasc_commons.t_secteurs tsec ON tsec.id_secteur = tzc.id_secteur
+		JOIN ref_geo.t_secteurs tsec ON tsec.id_secteur = tzc.id_secteur
 	;
 
 
@@ -114,7 +114,7 @@
 		JOIN oeasc_commons.t_especes te  ON te.id_espece = ttb.id_espece
 		LEFT JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = ta.id_zone_cynegetique_affectee
 		LEFT JOIN oeasc_chasse.t_zone_indicatives tzi ON tzi.id_zone_indicative = ta.id_zone_indicative_affectee
-		LEFT JOIN oeasc_commons.t_secteurs tsec ON tsec.id_secteur = tzc.id_secteur
+		LEFT JOIN ref_geo.t_secteurs tsec ON tsec.id_secteur = tzc.id_secteur
 	;
 
 

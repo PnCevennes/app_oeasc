@@ -45,7 +45,7 @@ SELECT
 	LEFT JOIN oeasc_chasse.t_realisations tr ON tr.id_attribution = ta.id_attribution
 	LEFT JOIN oeasc_chasse.t_zone_cynegetiques tzcr ON tzcr.id_zone_cynegetique = tr.id_zone_cynegetique_realisee
 	LEFT JOIN oeasc_chasse.t_zone_indicatives tzir ON tzir.id_zone_indicative = tr.id_zone_indicative_realisee
-	LEFT JOIN oeasc_commons.t_secteurs tsec ON tsec.id_secteur = tzcr.id_secteur
+	LEFT JOIN ref_geo.t_secteurs tsec ON tsec.id_secteur = tzcr.id_secteur
 	LEFT JOIN oeasc_chasse.t_lieu_tir_synonymes tlts ON tlts.id_lieu_tir_synonyme = tr.id_lieu_tir_synonyme
 	LEFT JOIN oeasc_chasse.t_lieu_tirs tlt ON tlt.id_lieu_tir =tlts.id_lieu_tir
 	LEFT JOIN oeasc_chasse.t_personnes tpat ON tpat.id_personne = tr.id_auteur_tir
