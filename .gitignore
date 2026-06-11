@@ -45,7 +45,7 @@ var/log/*.log
 .vscode/*
 *.save
 
-
+*.gpkg
 
 
 # frontend
