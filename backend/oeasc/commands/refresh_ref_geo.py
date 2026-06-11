@@ -269,21 +269,32 @@ def step_create_t_forets_new():
         "ALTER TABLE oeasc_forets.t_forets_new "
         "ALTER COLUMN id_foret SET DEFAULT nextval('oeasc_forets.t_forets_new_id_foret_seq')"
     ))
-    # Copie des forêts sans document (elles gardent leurs déclarations existantes)
+    # Colonne temporaire pour tracer la correspondance old_id_foret → new_id_foret
+    # (code_foret peut être NULL ou vide pour certaines forêts ss_document)
     db.session.execute(text(
-        "INSERT INTO oeasc_forets.t_forets_new "
-        "SELECT * FROM oeasc_forets.t_forets WHERE b_document = FALSE "
-        "ON CONFLICT DO NOTHING"
+        "ALTER TABLE oeasc_forets.t_forets_new ADD COLUMN old_id_foret INTEGER"
     ))
-    db.session.execute(text(
-        "SELECT setval('oeasc_forets.t_forets_new_id_foret_seq', "
-        "COALESCE((SELECT MAX(id_foret) FROM oeasc_forets.t_forets_new), 1))"
-    ))
+    # Copie des forêts sans document avec nouveaux ids (séquence repart de 1)
+    db.session.execute(text("""
+        INSERT INTO oeasc_forets.t_forets_new
+            (id_proprietaire, b_statut_public, b_document, nom_foret, code_foret, label_foret,
+             surface_renseignee, surface_calculee, id_area,
+             nom_proprietaire, adresse_proprietaire, cp_proprietaire, commune_proprietaire,
+             email_proprietaire, tel_proprietaire, id_nomenclature_proprietaire_type, id_declarant,
+             old_id_foret)
+        SELECT
+            id_proprietaire, b_statut_public, b_document, nom_foret, code_foret, label_foret,
+            surface_renseignee, surface_calculee, id_area,
+            nom_proprietaire, adresse_proprietaire, cp_proprietaire, commune_proprietaire,
+            email_proprietaire, tel_proprietaire, id_nomenclature_proprietaire_type, id_declarant,
+            id_foret
+        FROM oeasc_forets.t_forets WHERE b_document = FALSE
+    """))
     db.session.commit()
     n = db.session.execute(text(
         "SELECT count(*) FROM oeasc_forets.t_forets_new"
     )).scalar()
-    LOG.info(f"  t_forets_new créée avec {n} forêts sans document.")
+    LOG.info(f"  t_forets_new créée avec {n} forêts sans document (nouveaux ids).")
 
 
 # ---------------------------------------------------------------------------
@@ -1044,13 +1055,14 @@ def step_update_declarations():
         raw_conn.close()
 
     LOG.info("  6c : mise à jour id_foret pour les déclarations ONF (via code_foret)")
-    db.session.execute(text(f"""
+    db.session.execute(text("""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
         FROM oeasc_forets.t_forets f
         JOIN oeasc_forets.t_forets_new fn ON fn.code_foret = f.code_foret
+            AND fn.b_document = TRUE AND fn.b_statut_public = TRUE
         WHERE d.id_foret = f.id_foret
-        AND d.type_declaration = 'onf'
+        AND f.b_document = TRUE AND f.b_statut_public = TRUE
     """))
     n_onf = db.session.execute(text(
         "SELECT count(*) FROM oeasc_declarations.t_declarations d "
@@ -1060,21 +1072,35 @@ def step_update_declarations():
     LOG.info(f"    {n_onf} déclarations ONF mises à jour vers t_forets_new")
     db.session.commit()
 
-    # Rapport sur les déclarations non migrées (b_document=TRUE sans correspondance)
-    n_missing = db.session.execute(text(f"""
+    # 6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)
+    LOG.info("  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)")
+    db.session.execute(text("""
+        UPDATE oeasc_declarations.t_declarations d
+        SET id_foret = fn.id_foret
+        FROM oeasc_forets.t_forets_new fn
+        WHERE d.id_foret = fn.old_id_foret
+        AND fn.b_document = FALSE
+    """))
+    n_ss = db.session.execute(text(
+        "SELECT count(*) FROM oeasc_declarations.t_declarations d "
+        "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
+        "WHERE fn.b_document = false"
+    )).scalar()
+    LOG.info(f"    {n_ss} déclarations ss_document mises à jour vers t_forets_new")
+    db.session.commit()
+
+    # Rapport sur les déclarations non migrées (toutes catégories)
+    n_missing = db.session.execute(text("""
         SELECT count(*)
         FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
-        WHERE f.b_document = TRUE
-        AND NOT EXISTS (
+        WHERE NOT EXISTS (
             SELECT 1 FROM oeasc_forets.t_forets_new fn WHERE fn.id_foret = d.id_foret
         )
     """)).scalar()
     if n_missing:
         LOG.warning(
-            f"  ATTENTION : {n_missing} déclaration(s) pointent encore vers "
-            f"des forêts documentées (DGD/ONF) absentes de t_forets_new. "
-            f"Elles auront id_foret invalide après le swap — à corriger manuellement."
+            f"  ATTENTION : {n_missing} déclaration(s) ont un id_foret absent de t_forets_new "
+            f"— probablement des forêts DGD dont la géométrie a trop changé."
         )
     LOG.info("  Mise à jour des déclarations terminée.")
 
@@ -1447,6 +1473,7 @@ def step_cleanup():
         "REFRESH MATERIALIZED VIEW ref_geo.vm_lareas_simples",
         "ALTER TABLE ref_geo.l_areas DROP COLUMN IF EXISTS proprietaire",
         "ALTER TABLE oeasc_declarations.t_declarations DROP COLUMN IF EXISTS type_declaration",
+        "ALTER TABLE oeasc_forets.t_forets DROP COLUMN IF EXISTS old_id_foret",
     ]:
         db.session.execute(text(stmt))
     db.session.commit()
@@ -1488,6 +1515,42 @@ def step_verify():
     )).scalar()
     if no_foret:
         LOG.warning(f"  ATTENTION : {no_foret} déclaration(s) sans id_foret")
+
+    # Vérifier les déclarations dont id_foret ne correspond à aucune forêt (toutes catégories)
+    broken = db.session.execute(text("""
+        SELECT count(*)
+        FROM oeasc_declarations.t_declarations d
+        LEFT JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
+        WHERE d.id_foret IS NOT NULL AND f.id_foret IS NULL
+    """)).scalar()
+    if broken:
+        LOG.warning(
+            f"  ATTENTION : {broken} déclaration(s) pointent vers un id_foret inexistant "
+            f"— à corriger manuellement (probablement des forêts DGD dont la géométrie a trop changé)."
+        )
+
+    # Vérifier les forêts ss_document dont id_area pointe vers une area inconnue
+    bad_ss_area = db.session.execute(text("""
+        SELECT count(*)
+        FROM oeasc_forets.t_forets f
+        LEFT JOIN ref_geo.l_areas la ON la.id_area = f.id_area
+        WHERE f.b_document = FALSE AND f.id_area IS NOT NULL AND la.id_area IS NULL
+    """)).scalar()
+    if bad_ss_area:
+        LOG.warning(
+            f"  ATTENTION : {bad_ss_area} forêt(s) ss_document ont id_area invalide "
+            f"(zone référencée dans l'ancienne l_areas). Leur id_area est remis à NULL."
+        )
+        db.session.execute(text("""
+            UPDATE oeasc_forets.t_forets f
+            SET id_area = NULL
+            WHERE f.b_document = FALSE
+            AND f.id_area IS NOT NULL
+            AND NOT EXISTS (SELECT 1 FROM ref_geo.l_areas la WHERE la.id_area = f.id_area)
+        """))
+        db.session.commit()
+    else:
+        LOG.info("  Forêts ss_document : id_area valides.")
 
     LOG.info(
         f"  cor_area_intersect : {db.session.execute(text('SELECT count(*) FROM ref_geo.cor_area_intersect')).scalar()} entrées"
