@@ -1493,6 +1493,10 @@ def step_cleanup():
     LOG.info("Étape 10 : nettoyage final")
     db = _get_db()
 
+    db.session.execute(text(
+        "DROP MATERIALIZED VIEW IF EXISTS ref_geo.vm_lareas_simples"
+    ))
+    db.session.commit()
     db.session.execute(text("""
         CREATE MATERIALIZED VIEW ref_geo.vm_lareas_simples AS
         SELECT
@@ -1512,7 +1516,7 @@ def step_cleanup():
         "CREATE INDEX ix_vm_lareas_simples_id_type ON ref_geo.vm_lareas_simples (id_type)",
         "CREATE INDEX ix_vm_lareas_simples_area_code ON ref_geo.vm_lareas_simples (area_code)",
         # Corriger les géométries invalides (sections issues de ST_Union, données source DGD)
-        "UPDATE ref_geo.l_areas SET geom = ST_MakeValid(geom) WHERE NOT ST_IsValid(geom)",
+        "UPDATE ref_geo.l_areas SET geom = ST_Multi(ST_CollectionExtract(ST_MakeValid(geom), 3)) WHERE NOT ST_IsValid(geom)",
         "REFRESH MATERIALIZED VIEW ref_geo.vm_lareas_simples",
         "ALTER TABLE ref_geo.l_areas DROP COLUMN IF EXISTS proprietaire",
         "ALTER TABLE oeasc_declarations.t_declarations DROP COLUMN IF EXISTS type_declaration",
@@ -1605,6 +1609,21 @@ def step_verify():
 
 
 # ---------------------------------------------------------------------------
+# Étape 12 — Rafraîchissement final de la vue matérialisée
+# ---------------------------------------------------------------------------
+
+
+def step_refresh_vm_lareas_simples():
+    LOG.info("Étape 12 : rafraîchissement final de ref_geo.vm_lareas_simples")
+    db = _get_db()
+    db.session.execute(text(
+        "REFRESH MATERIALIZED VIEW CONCURRENTLY ref_geo.vm_lareas_simples"
+    ))
+    db.session.commit()
+    LOG.info("  vm_lareas_simples rafraîchie.")
+
+
+# ---------------------------------------------------------------------------
 # Commande principale
 # ---------------------------------------------------------------------------
 
@@ -1669,6 +1688,7 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
         step_build_cor_hierarchie_area()
         step_cleanup()
         step_verify()
+        step_refresh_vm_lareas_simples()
 
         LOG.info("=== refresh-ref-geo terminé avec succès ===")
 
