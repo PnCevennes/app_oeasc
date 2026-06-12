@@ -141,6 +141,7 @@ class CorAreaIntersect(CustomModel):
     id_commune = Column(Integer)
     id_foret_dgd = Column(Integer)
     id_foret_onf = Column(Integer)
+    id_foret_prive = Column(Integer)    # forêt privée sans document (id_type=33)
     id_parcelle_onf = Column(Integer)   # parcellaire ONF (329) contenant l'UG ONF
     id_secteur = Column(Integer)
     in_coeur = Column(Boolean)

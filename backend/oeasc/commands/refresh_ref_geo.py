@@ -50,6 +50,7 @@ ID_TYPE_UG_ONF = 330
 ID_TYPE_DGD = 331
 ID_TYPE_CADASTRE = 332
 ID_TYPE_SECTION = 333
+ID_TYPE_FORET_PRIVE = 33   # type_code = OEASC_FORET_PRIVE (forêts privées sans document DGD)
 
 FIXED_ID_TYPES = (ID_TYPE_OEASC, ID_TYPE_COEUR, ID_TYPE_ADHESION, ID_TYPE_SECTEUR)
 
@@ -209,6 +210,24 @@ def step_save_declaration_types():
     db.session.commit()
     LOG.info("  type_declaration rempli.")
 
+    # Suppression des forêts privées sans déclaration — elles n'ont pas de polygone
+    # et ne peuvent pas être reconstruites lors du refresh.
+    result = db.session.execute(text("""
+        DELETE FROM oeasc_forets.t_forets
+        WHERE b_document = FALSE
+        AND NOT EXISTS (
+            SELECT 1 FROM oeasc_declarations.t_declarations d
+            WHERE d.id_foret = t_forets.id_foret
+        )
+        RETURNING id_foret, nom_foret
+    """))
+    deleted = result.fetchall()
+    if deleted:
+        for row in deleted:
+            LOG.info(f"  Forêt ss_document supprimée : id_foret={row[0]} nom={row[1]!r}")
+        LOG.info(f"  {len(deleted)} forêt(s) ss_document sans déclaration supprimée(s).")
+    db.session.commit()
+
 
 # ---------------------------------------------------------------------------
 # Étape 1 — Création de l_areas_new
@@ -291,10 +310,80 @@ def step_create_t_forets_new():
         FROM oeasc_forets.t_forets WHERE b_document = FALSE
     """))
     db.session.commit()
+
+    # Copier les polygones des forêts sans document dans l_areas_new avec de nouveaux IDs.
+    # On passe par une colonne temporaire _old_id_area pour conserver la correspondance
+    # old id_area → new id_area, puis on met à jour t_forets_new.id_area en conséquence.
+    db.session.execute(text(
+        "ALTER TABLE ref_geo.l_areas_new ADD COLUMN IF NOT EXISTS _old_id_area INTEGER"
+    ))
+    db.session.execute(text(f"""
+        INSERT INTO ref_geo.l_areas_new
+            (id_type, area_name, area_code, source, enable,
+             meta_create_date, meta_update_date, geom, geom_4326, centroid, comment, _old_id_area)
+        SELECT la.id_type, la.area_name, la.area_code, la.source, la.enable,
+            la.meta_create_date, la.meta_update_date, la.geom, la.geom_4326, la.centroid,
+            la.comment, la.id_area
+        FROM ref_geo.l_areas la
+        WHERE la.id_area IN (
+            SELECT id_area FROM oeasc_forets.t_forets_new WHERE b_document = FALSE
+        )
+    """))
+    db.session.execute(text(f"""
+        UPDATE oeasc_forets.t_forets_new fn
+        SET id_area = lan.id_area
+        FROM ref_geo.l_areas_new lan
+        WHERE lan._old_id_area = fn.id_area AND fn.b_document = FALSE
+    """))
+    db.session.execute(text(
+        "ALTER TABLE ref_geo.l_areas_new DROP COLUMN IF EXISTS _old_id_area"
+    ))
+    db.session.commit()
+
+    # Pour les forêts ss_document sans id_area (pas de polygone dans l_areas),
+    # construire le polygone par union des géométries des déclarations associées.
+    db.session.execute(text(f"""
+        INSERT INTO ref_geo.l_areas_new
+            (id_type, area_name, area_code, source, enable, meta_create_date,
+             geom, geom_4326, centroid)
+        SELECT
+            {ID_TYPE_FORET_PRIVE},
+            COALESCE(NULLIF(TRIM(fn.nom_foret), ''), 'Forêt privée ' || fn.old_id_foret::text),
+            'FORET_PRIVE_' || fn.old_id_foret::text,
+            'OEASC', TRUE, now(),
+            ST_Multi(ST_Union(d.geom)),
+            ST_Multi(ST_Union(d.geom_4326)),
+            ST_Centroid(ST_Union(d.geom))
+        FROM oeasc_forets.t_forets_new fn
+        JOIN oeasc_declarations.t_declarations d ON d.id_foret = fn.old_id_foret
+        WHERE fn.b_document = FALSE
+        AND fn.id_area IS NULL
+        AND d.geom IS NOT NULL
+        GROUP BY fn.id_foret, fn.old_id_foret, fn.nom_foret
+        HAVING ST_Union(d.geom) IS NOT NULL
+    """))
+    db.session.execute(text(f"""
+        UPDATE oeasc_forets.t_forets_new fn
+        SET id_area = lan.id_area,
+            surface_calculee = ROUND((ST_Area(lan.geom) / 10000)::numeric, 4)
+        FROM ref_geo.l_areas_new lan
+        WHERE lan.area_code = 'FORET_PRIVE_' || fn.old_id_foret::text
+        AND fn.b_document = FALSE
+        AND fn.id_area IS NULL
+    """))
+    db.session.commit()
+
     n = db.session.execute(text(
         "SELECT count(*) FROM oeasc_forets.t_forets_new"
     )).scalar()
+    n_with_area = db.session.execute(text(
+        "SELECT count(*) FROM oeasc_forets.t_forets_new WHERE b_document=FALSE AND id_area IS NOT NULL"
+    )).scalar()
+    n_without = db.session.execute(text(
+        "SELECT count(*) FROM oeasc_forets.t_forets_new WHERE b_document=FALSE AND id_area IS NULL"
+    )).scalar()
     LOG.info(f"  t_forets_new créée avec {n} forêts sans document (nouveaux ids).")
+    LOG.info(f"  Forêts ss_document : {n_with_area} avec polygone, {n_without} sans polygone (pas de déclaration géolocalisée).")
 
 
 # ---------------------------------------------------------------------------
@@ -754,6 +843,7 @@ def step_build_cor_area_intersect():
         "fk_cor_area_intersect_id_commune",
         "fk_cor_area_intersect_id_foret_dgd",
         "fk_cor_area_intersect_id_foret_onf",
+        "fk_cor_area_intersect_id_foret_prive",
         "fk_cor_area_intersect_id_parcelle",
         "fk_cor_area_intersect_id_parcelle_onf",
         "fk_cor_area_intersect_id_secteur",
@@ -783,7 +873,7 @@ def step_build_cor_area_intersect():
     db.session.execute(text(f"""
         INSERT INTO ref_geo.cor_area_intersect
             (id_parcelle, id_type_parcelle, id_section_cadastrale, id_commune,
-             id_foret_dgd, id_foret_onf, id_parcelle_onf, id_secteur,
+             id_foret_dgd, id_foret_onf, id_foret_prive, id_parcelle_onf, id_secteur,
              in_coeur, in_aire_adhesion_pnc, in_oeasc)
         SELECT
             p.id_area,
@@ -816,6 +906,13 @@ def step_build_cor_area_intersect():
                 AND ST_Intersects(ST_PointOnSurface(p.geom), f.geom)
                 ORDER BY ST_Area(ST_Intersection(p.geom, f.geom)) DESC LIMIT 1
             ),
+            -- forêt privée sans document (pour cadastres uniquement)
+            CASE WHEN p.id_type = {ID_TYPE_CADASTRE} THEN (
+                SELECT fp.id_area FROM ref_geo.l_areas_new fp
+                WHERE fp.id_type = {ID_TYPE_FORET_PRIVE}
+                AND ST_Intersects(p.geom, fp.geom)
+                ORDER BY ST_Area(ST_Intersection(p.geom, fp.geom)) DESC LIMIT 1
+            ) END,
             -- parcelle ONF (pour UG ONF uniquement)
             CASE WHEN p.id_type = {ID_TYPE_UG_ONF} THEN (
                 SELECT po.id_area FROM ref_geo.l_areas_new po
@@ -897,71 +994,6 @@ def step_update_declarations():
         db.session.execute(text(stmt))
     db.session.commit()
 
-    # 6a : déclarations dgd / ss_document → correspondance cadastres
-    LOG.info("  6a : correspondance géométrique pour déclarations DGD/ss_document")
-    sql_match_cadastre = text(f"""
-        WITH old_areas AS (
-            SELECT cad.id_declaration, la.id_area AS old_id_area, la.geom AS old_geom
-            FROM oeasc_declarations.cor_areas_declarations cad
-            JOIN ref_geo.l_areas la ON la.id_area = cad.id_area
-            JOIN oeasc_declarations.t_declarations d ON d.id_declaration = cad.id_declaration
-            WHERE la.id_type = {ID_TYPE_CADASTRE}
-            AND d.type_declaration IN ('dgd', 'ss_document_prive', 'ss_document_public')
-        ),
-        new_matches AS (
-            SELECT oa.id_declaration, la_new.id_area AS new_id_area
-            FROM old_areas oa
-            JOIN ref_geo.l_areas_new la_new ON (
-                la_new.id_type = {ID_TYPE_CADASTRE}
-                AND ST_Intersects(oa.old_geom, la_new.geom)
-                AND (
-                    ST_Area(ST_Intersection(oa.old_geom, la_new.geom))
-                        / NULLIF(ST_Area(la_new.geom), 0) >= {MATCH_THRESHOLD}
-                    OR
-                    ST_Area(ST_Intersection(oa.old_geom, la_new.geom))
-                        / NULLIF(ST_Area(oa.old_geom), 0) >= {MATCH_THRESHOLD}
-                )
-            )
-        )
-        SELECT id_declaration, new_id_area FROM new_matches
-    """)
-    new_cad_matches = db.session.execute(sql_match_cadastre).fetchall()
-    LOG.info(f"    {len(new_cad_matches)} correspondances cadastres trouvées")
-
-    # Suppression des anciennes liaisons cadastre pour ces déclarations
-    decl_dgd_rows = db.session.execute(text(f"""
-        SELECT DISTINCT d.id_declaration
-        FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_declarations.cor_areas_declarations cad
-            ON cad.id_declaration = d.id_declaration
-        JOIN ref_geo.l_areas la ON la.id_area = cad.id_area
-        WHERE d.type_declaration IN ('dgd', 'ss_document_prive', 'ss_document_public')
-        AND la.id_type = {ID_TYPE_CADASTRE}
-    """)).fetchall()
-    if decl_dgd_rows:
-        ids_str = ",".join(str(r[0]) for r in decl_dgd_rows)
-        db.session.execute(text(f"""
-            DELETE FROM oeasc_declarations.cor_areas_declarations
-            WHERE id_declaration IN ({ids_str})
-            AND id_area IN (
-                SELECT id_area FROM ref_geo.l_areas WHERE id_type = {ID_TYPE_CADASTRE}
-            )
-        """))
-        db.session.commit()
-
-    if new_cad_matches:
-        raw_conn = _raw_conn()
-        cur = raw_conn.cursor()
-        psycopg2.extras.execute_values(
-            cur,
-            "INSERT INTO oeasc_declarations.cor_areas_declarations "
-            "(id_declaration, id_area) VALUES %s ON CONFLICT DO NOTHING",
-            new_cad_matches,
-        )
-        raw_conn.commit()
-        cur.close()
-        raw_conn.close()
-
     # 6b : mise à jour id_foret DGD par correspondance spatiale via id_area
     # Les codes DGD changent de format entre anciennes et nouvelles données :
     # on ne peut pas matcher par code_foret. On passe par l_areas (géométrie).
@@ -989,70 +1021,6 @@ def step_update_declarations():
     )).scalar()
     LOG.info(f"    {n_dgd} déclarations DGD mises à jour vers t_forets_new")
     db.session.commit()
-
-    # 6c : déclarations ONF → correspondance UG ONF
-    LOG.info("  6c : correspondance géométrique pour déclarations ONF")
-    sql_match_ug = text(f"""
-        WITH old_ug AS (
-            SELECT cad.id_declaration, la.id_area AS old_id_area, la.geom AS old_geom
-            FROM oeasc_declarations.cor_areas_declarations cad
-            JOIN ref_geo.l_areas la ON la.id_area = cad.id_area
-            JOIN oeasc_declarations.t_declarations d ON d.id_declaration = cad.id_declaration
-            WHERE la.id_type = {ID_TYPE_UG_ONF}
-            AND d.type_declaration = 'onf'
-        ),
-        new_matches AS (
-            SELECT oa.id_declaration, la_new.id_area AS new_id_area
-            FROM old_ug oa
-            JOIN ref_geo.l_areas_new la_new ON (
-                la_new.id_type = {ID_TYPE_UG_ONF}
-                AND ST_Intersects(oa.old_geom, la_new.geom)
-                AND (
-                    ST_Area(ST_Intersection(oa.old_geom, la_new.geom))
-                        / NULLIF(ST_Area(la_new.geom), 0) >= {MATCH_THRESHOLD}
-                    OR
-                    ST_Area(ST_Intersection(oa.old_geom, la_new.geom))
-                        / NULLIF(ST_Area(oa.old_geom), 0) >= {MATCH_THRESHOLD}
-                )
-            )
-        )
-        SELECT id_declaration, new_id_area FROM new_matches
-    """)
-    new_ug_matches = db.session.execute(sql_match_ug).fetchall()
-    LOG.info(f"    {len(new_ug_matches)} correspondances UG ONF trouvées")
-
-    decl_onf_rows = db.session.execute(text(f"""
-        SELECT DISTINCT d.id_declaration
-        FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_declarations.cor_areas_declarations cad
-            ON cad.id_declaration = d.id_declaration
-        JOIN ref_geo.l_areas la ON la.id_area = cad.id_area
-        WHERE d.type_declaration = 'onf'
-        AND la.id_type = {ID_TYPE_UG_ONF}
-    """)).fetchall()
-    if decl_onf_rows:
-        ids_str = ",".join(str(r[0]) for r in decl_onf_rows)
-        db.session.execute(text(f"""
-            DELETE FROM oeasc_declarations.cor_areas_declarations
-            WHERE id_declaration IN ({ids_str})
-            AND id_area IN (
-                SELECT id_area FROM ref_geo.l_areas WHERE id_type = {ID_TYPE_UG_ONF}
-            )
-        """))
-        db.session.commit()
-
-    if new_ug_matches:
-        raw_conn = _raw_conn()
-        cur = raw_conn.cursor()
-        psycopg2.extras.execute_values(
-            cur,
-            "INSERT INTO oeasc_declarations.cor_areas_declarations "
-            "(id_declaration, id_area) VALUES %s ON CONFLICT DO NOTHING",
-            new_ug_matches,
-        )
-        raw_conn.commit()
-        cur.close()
-        raw_conn.close()
 
     LOG.info("  6c : mise à jour id_foret pour les déclarations ONF (via code_foret)")
     db.session.execute(text("""
@@ -1087,6 +1055,72 @@ def step_update_declarations():
         "WHERE fn.b_document = false"
     )).scalar()
     LOG.info(f"    {n_ss} déclarations ss_document mises à jour vers t_forets_new")
+    db.session.commit()
+
+    # 6e : mise à jour id_area_commune dans t_lieu_tirs
+    LOG.info("  6e : mise à jour id_area_commune dans t_lieu_tirs")
+
+    # Passage 1 : correspondance par area_code (code INSEE commune, stable)
+    db.session.execute(text(f"""
+        UPDATE oeasc_chasse.t_lieu_tirs lt
+        SET id_area_commune = la_new.id_area
+        FROM ref_geo.l_areas la_old
+        JOIN ref_geo.l_areas_new la_new ON (
+            la_new.id_type = {ID_TYPE_COMMUNE}
+            AND la_new.area_code = la_old.area_code
+        )
+        WHERE lt.id_area_commune = la_old.id_area
+        AND la_old.id_type = {ID_TYPE_COMMUNE}
+    """))
+    db.session.commit()
+
+    # Passage 2 : fallback spatial pour les lieux dont la commune n'a pas été trouvée
+    # (id_area_commune pointe encore vers l'ancienne l_areas)
+    n_remaining = db.session.execute(text(f"""
+        SELECT count(*) FROM oeasc_chasse.t_lieu_tirs lt
+        WHERE lt.id_area_commune IS NOT NULL
+        AND NOT EXISTS (
+            SELECT 1 FROM ref_geo.l_areas_new la
+            WHERE la.id_area = lt.id_area_commune AND la.id_type = {ID_TYPE_COMMUNE}
+        )
+        AND lt.geom IS NOT NULL
+    """)).scalar()
+
+    if n_remaining > 0:
+        LOG.info(f"    {n_remaining} lieu(x) sans correspondance par code — fallback spatial")
+        db.session.execute(text(f"""
+            UPDATE oeasc_chasse.t_lieu_tirs lt
+            SET id_area_commune = (
+                SELECT la_new.id_area
+                FROM ref_geo.l_areas_new la_new
+                WHERE la_new.id_type = {ID_TYPE_COMMUNE}
+                AND ST_Intersects(lt.geom, la_new.geom)
+                ORDER BY ST_Area(ST_Intersection(lt.geom, la_new.geom)) DESC
+                LIMIT 1
+            )
+            WHERE lt.id_area_commune IS NOT NULL
+            AND NOT EXISTS (
+                SELECT 1 FROM ref_geo.l_areas_new la
+                WHERE la.id_area = lt.id_area_commune AND la.id_type = {ID_TYPE_COMMUNE}
+            )
+            AND lt.geom IS NOT NULL
+        """))
+        db.session.commit()
+
+    n_lt = db.session.execute(text(
+        "SELECT count(*) FROM oeasc_chasse.t_lieu_tirs lt "
+        f"JOIN ref_geo.l_areas_new la ON la.id_area = lt.id_area_commune AND la.id_type = {ID_TYPE_COMMUNE}"
+    )).scalar()
+    n_lt_total = db.session.execute(text(
+        "SELECT count(*) FROM oeasc_chasse.t_lieu_tirs WHERE id_area_commune IS NOT NULL"
+    )).scalar()
+    if n_lt < n_lt_total:
+        LOG.warning(
+            f"  ATTENTION : {n_lt_total - n_lt} lieu(x) de tir sur {n_lt_total} "
+            f"sans commune dans l_areas_new (ni par code ni par géométrie)."
+        )
+    else:
+        LOG.info(f"    {n_lt}/{n_lt_total} lieux de tir mis à jour.")
     db.session.commit()
 
     # Rapport sur les déclarations non migrées (toutes catégories)
@@ -1223,6 +1257,7 @@ def step_swap_l_areas():
         "ALTER TABLE ref_geo.cor_area_intersect DROP CONSTRAINT IF EXISTS fk_cor_area_intersect_id_commune",
         "ALTER TABLE ref_geo.cor_area_intersect DROP CONSTRAINT IF EXISTS fk_cor_area_intersect_id_foret_dgd",
         "ALTER TABLE ref_geo.cor_area_intersect DROP CONSTRAINT IF EXISTS fk_cor_area_intersect_id_foret_onf",
+        "ALTER TABLE ref_geo.cor_area_intersect DROP CONSTRAINT IF EXISTS fk_cor_area_intersect_id_foret_prive",
         "ALTER TABLE ref_geo.cor_area_intersect DROP CONSTRAINT IF EXISTS fk_cor_area_intersect_id_parcelle",
         "ALTER TABLE ref_geo.cor_area_intersect DROP CONSTRAINT IF EXISTS fk_cor_area_intersect_id_parcelle_onf",
         "ALTER TABLE ref_geo.cor_area_intersect DROP CONSTRAINT IF EXISTS fk_cor_area_intersect_id_secteur",
@@ -1250,6 +1285,8 @@ def step_swap_l_areas():
         ("ALTER TABLE oeasc_chasse.t_lieu_tirs "
          "ADD CONSTRAINT fk_t_lieu_tirs_l_areas "
          "FOREIGN KEY (id_area_commune) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE"),
+        # cor_areas_declarations sera reconstruite en step 9 — vider avant de recréer la FK
+        "TRUNCATE oeasc_declarations.cor_areas_declarations",
         ("ALTER TABLE oeasc_declarations.cor_areas_declarations "
          "ADD CONSTRAINT fk_cor_areas_declarations_id_area "
          "FOREIGN KEY (id_area) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE"),
@@ -1265,6 +1302,9 @@ def step_swap_l_areas():
         ("ALTER TABLE ref_geo.cor_area_intersect "
          "ADD CONSTRAINT fk_cor_area_intersect_id_foret_onf "
          "FOREIGN KEY (id_foret_onf) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
+        ("ALTER TABLE ref_geo.cor_area_intersect "
+         "ADD CONSTRAINT fk_cor_area_intersect_id_foret_prive "
+         "FOREIGN KEY (id_foret_prive) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
         ("ALTER TABLE ref_geo.cor_area_intersect "
          "ADD CONSTRAINT fk_cor_area_intersect_id_parcelle "
          "FOREIGN KEY (id_parcelle) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
@@ -1398,47 +1438,50 @@ def step_build_cor_hierarchie_area():
     db.session.commit()
     LOG.info("  cor_areas_forets reconstruite.")
 
-    # Fallback : reconstruire cor_areas_declarations pour les déclarations ONF
-    # dont les liaisons seraient absentes (ex. migration depuis état corrompu).
-    # Compter les liaisons ONF via les colonnes de t_forets (sans dépendre de type_declaration)
-    n_before = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_declarations.cor_areas_declarations cad "
-        "JOIN oeasc_declarations.t_declarations d ON d.id_declaration = cad.id_declaration "
-        "JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret "
-        "WHERE f.b_statut_public = true AND f.b_document = true"
+    # Reconstruction de cor_areas_declarations depuis cor_area_intersect
+    LOG.info("  Reconstruction de cor_areas_declarations depuis cor_area_intersect")
+    db.session.execute(text(f"""
+        INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
+        SELECT DISTINCT d.id_declaration, cai.id_parcelle
+        FROM oeasc_declarations.t_declarations d
+        JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
+            AND f.b_statut_public = TRUE AND f.b_document = TRUE
+        JOIN ref_geo.cor_area_intersect cai ON cai.id_foret_onf = f.id_area
+            AND cai.id_type_parcelle = {ID_TYPE_UG_ONF}
+        ON CONFLICT DO NOTHING
+    """))
+    db.session.execute(text(f"""
+        INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
+        SELECT DISTINCT d.id_declaration, cai.id_parcelle
+        FROM oeasc_declarations.t_declarations d
+        JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
+            AND f.b_statut_public = FALSE AND f.b_document = TRUE
+        JOIN ref_geo.cor_area_intersect cai ON cai.id_foret_dgd = f.id_area
+            AND cai.id_type_parcelle = {ID_TYPE_CADASTRE}
+        ON CONFLICT DO NOTHING
+    """))
+    
+    # Forêts privées ss_document (b_document=FALSE) : leur polygone est maintenant dans l_areas
+    # avec id_type=ID_TYPE_FORET_PRIVE (33), et cor_area_intersect.id_foret_prive les référence.
+    db.session.execute(text(f"""
+        INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
+        SELECT DISTINCT d.id_declaration, cai.id_parcelle
+        FROM oeasc_declarations.t_declarations d
+        JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
+            AND f.b_document = FALSE
+        JOIN ref_geo.cor_area_intersect cai ON cai.id_foret_prive = f.id_area
+            AND cai.id_type_parcelle = {ID_TYPE_CADASTRE}
+        ON CONFLICT DO NOTHING
+    """))
+
+
+
+
+    n_cor = db.session.execute(text(
+        "SELECT count(*) FROM oeasc_declarations.cor_areas_declarations"
     )).scalar()
-    if n_before == 0:
-        LOG.warning(
-            "  Aucune liaison ONF dans cor_areas_declarations — "
-            "reconstruction depuis cor_hierarchie_area"
-        )
-        # La hiérarchie est : UG ONF → Parcelle ONF → Forêt ONF (2 niveaux)
-        db.session.execute(text(f"""
-            INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
-            SELECT DISTINCT d.id_declaration, cha_ug.id_area_enfant
-            FROM oeasc_declarations.t_declarations d
-            JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
-                AND f.b_statut_public = true AND f.b_document = true
-            JOIN ref_geo.cor_hierarchie_area cha_prf ON (
-                cha_prf.id_area_parent = f.id_area
-                AND cha_prf.id_type_parent = {ID_TYPE_FORET_ONF}
-                AND cha_prf.id_type_enfant = {ID_TYPE_PARCELLE_ONF}
-            )
-            JOIN ref_geo.cor_hierarchie_area cha_ug ON (
-                cha_ug.id_area_parent = cha_prf.id_area_enfant
-                AND cha_ug.id_type_parent = {ID_TYPE_PARCELLE_ONF}
-                AND cha_ug.id_type_enfant = {ID_TYPE_UG_ONF}
-            )
-            ON CONFLICT DO NOTHING
-        """))
-        n_after = db.session.execute(text(
-            "SELECT count(*) FROM oeasc_declarations.cor_areas_declarations cad "
-            "JOIN oeasc_declarations.t_declarations d ON d.id_declaration = cad.id_declaration "
-            "JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret "
-            "WHERE f.b_statut_public = true AND f.b_document = true"
-        )).scalar()
-        LOG.info(f"  {n_after} liaisons ONF reconstruites depuis la hiérarchie.")
-        db.session.commit()
+    LOG.info(f"  {n_cor} liaisons reconstruites dans cor_areas_declarations.")
+    db.session.commit()
 
 
 # ---------------------------------------------------------------------------
