@@ -274,6 +274,27 @@ def step_create_l_areas_new():
 def step_create_t_forets_new():
     LOG.info("Étape 2 : création de oeasc_forets.t_forets_new")
     db = _get_db()
+    # Ces colonnes n'existent dans t_forets qu'après un premier refresh réussi
+    # (elles sont ajoutées via t_forets_new et promues lors du swap).
+    # Sur une base restaurée avant ce refresh, elles sont absentes — on les ajoute
+    # à t_forets AVANT le CREATE TABLE LIKE pour que t_forets_new les hérite.
+    for col_def in [
+        "id_area INTEGER",
+        "nom_proprietaire CHARACTER VARYING(256)",
+        "adresse_proprietaire CHARACTER VARYING(256)",
+        "cp_proprietaire CHARACTER VARYING(10)",
+        "commune_proprietaire CHARACTER VARYING(100)",
+        "email_proprietaire CHARACTER VARYING(250)",
+        "tel_proprietaire CHARACTER VARYING(20)",
+        "id_nomenclature_proprietaire_type INTEGER",
+        "id_declarant INTEGER",
+    ]:
+        col_name = col_def.split()[0]
+        if not _column_exists("oeasc_forets", "t_forets", col_name):
+            db.session.execute(text(
+                f"ALTER TABLE oeasc_forets.t_forets ADD COLUMN {col_def}"
+            ))
+    db.session.commit()
     db.session.execute(text("DROP TABLE IF EXISTS oeasc_forets.t_forets_new CASCADE"))
     db.session.execute(text("DROP SEQUENCE IF EXISTS oeasc_forets.t_forets_new_id_foret_seq"))
     db.session.commit()
@@ -837,22 +858,26 @@ def step_load_foret_onf():
 def step_build_cor_area_intersect():
     LOG.info("Étape 5 : construction de cor_area_intersect")
     db = _get_db()
-    # Les FK pointent vers l_areas (pas l_areas_new) — on les supprime ici,
-    # elles seront recréées dans step_swap_l_areas après le swap.
-    for fk_name in [
-        "fk_cor_area_intersect_id_commune",
-        "fk_cor_area_intersect_id_foret_dgd",
-        "fk_cor_area_intersect_id_foret_onf",
-        "fk_cor_area_intersect_id_foret_prive",
-        "fk_cor_area_intersect_id_parcelle",
-        "fk_cor_area_intersect_id_parcelle_onf",
-        "fk_cor_area_intersect_id_secteur",
-        "fk_cor_area_intersect_id_section_cadastrale",
-    ]:
-        db.session.execute(text(
-            f"ALTER TABLE ref_geo.cor_area_intersect DROP CONSTRAINT IF EXISTS {fk_name}"
-        ))
-    db.session.execute(text("TRUNCATE ref_geo.cor_area_intersect RESTART IDENTITY"))
+    # On recrée toujours la table depuis zéro (DROP + CREATE) pour éviter
+    # les problèmes de FK et de base restaurée sans cette table.
+    db.session.execute(text("DROP TABLE IF EXISTS ref_geo.cor_area_intersect"))
+    db.session.execute(text("""
+        CREATE TABLE ref_geo.cor_area_intersect (
+            id                      SERIAL PRIMARY KEY,
+            id_parcelle             INTEGER,
+            id_type_parcelle        INTEGER,
+            id_section_cadastrale   INTEGER,
+            id_commune              INTEGER,
+            id_foret_dgd            INTEGER,
+            id_foret_onf            INTEGER,
+            id_foret_prive          INTEGER,
+            id_parcelle_onf         INTEGER,
+            id_secteur              INTEGER,
+            in_coeur                BOOLEAN,
+            in_aire_adhesion_pnc    BOOLEAN,
+            in_oeasc                BOOLEAN
+        )
+    """))
     db.session.commit()
 
     # Index spatial sur l_areas_new pour accélérer les jointures
@@ -1285,6 +1310,16 @@ def step_swap_l_areas():
         ("ALTER TABLE oeasc_chasse.t_lieu_tirs "
          "ADD CONSTRAINT fk_t_lieu_tirs_l_areas "
          "FOREIGN KEY (id_area_commune) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE"),
+        # Sauvegarde de cor_areas_declarations avec géométries avant le TRUNCATE
+        # (l_areas_ancien existe déjà à ce stade — le join est valide)
+        "DROP TABLE IF EXISTS oeasc_declarations.cor_areas_declarations_ancien",
+        (
+            "CREATE TABLE oeasc_declarations.cor_areas_declarations_ancien AS "
+            "SELECT cad.id_declaration, cad.id_area, "
+            "       la.geom, la.area_name, la.area_code, la.id_type "
+            "FROM oeasc_declarations.cor_areas_declarations cad "
+            "JOIN ref_geo.l_areas_ancien la ON la.id_area = cad.id_area"
+        ),
         # cor_areas_declarations sera reconstruite en step 9 — vider avant de recréer la FK
         "TRUNCATE oeasc_declarations.cor_areas_declarations",
         ("ALTER TABLE oeasc_declarations.cor_areas_declarations "
@@ -1321,7 +1356,13 @@ def step_swap_l_areas():
         db.session.execute(text(stmt))
     db.session.commit()
     n = db.session.execute(text("SELECT count(*) FROM ref_geo.l_areas")).scalar()
-    LOG.info(f"  Swap l_areas terminé. {n} areas dans la nouvelle table (ancienne conservée sous l_areas_ancien).")
+    n_bak = db.session.execute(text(
+        "SELECT count(*) FROM oeasc_declarations.cor_areas_declarations_ancien"
+    )).scalar()
+    LOG.info(
+        f"  Swap l_areas terminé. {n} areas dans la nouvelle table (ancienne conservée sous l_areas_ancien). "
+        f"cor_areas_declarations_ancien sauvegardée ({n_bak} liaisons avec géométries)."
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -1438,41 +1479,38 @@ def step_build_cor_hierarchie_area():
     db.session.commit()
     LOG.info("  cor_areas_forets reconstruite.")
 
-    # Reconstruction de cor_areas_declarations depuis cor_area_intersect
-    LOG.info("  Reconstruction de cor_areas_declarations depuis cor_area_intersect")
+    # Reconstruction de cor_areas_declarations par transfert spatial depuis la sauvegarde.
+    # On ne conserve que les plus petites unités (UG ONF et parcelles cadastrales).
+    # Le seuil 50% gère les fusions et scissions entre ancienne et nouvelle topologie.
+    LOG.info("  Reconstruction de cor_areas_declarations par transfert spatial depuis cor_areas_declarations_ancien")
     db.session.execute(text(f"""
         INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
-        SELECT DISTINCT d.id_declaration, cai.id_parcelle
-        FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
-            AND f.b_statut_public = TRUE AND f.b_document = TRUE
-        JOIN ref_geo.cor_area_intersect cai ON cai.id_foret_onf = f.id_area
-            AND cai.id_type_parcelle = {ID_TYPE_UG_ONF}
+        SELECT DISTINCT cad_old.id_declaration, la_new.id_area
+        FROM oeasc_declarations.cor_areas_declarations_ancien cad_old
+        JOIN ref_geo.l_areas la_new ON (
+            la_new.id_type = cad_old.id_type
+            AND ST_Intersects(cad_old.geom, la_new.geom)
+            AND ST_Area(ST_Intersection(cad_old.geom, la_new.geom))
+                / NULLIF(ST_Area(cad_old.geom), 0) >= 0.5
+        )
+        WHERE cad_old.id_type IN ({ID_TYPE_UG_ONF}, {ID_TYPE_CADASTRE})
         ON CONFLICT DO NOTHING
     """))
-    db.session.execute(text(f"""
-        INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
-        SELECT DISTINCT d.id_declaration, cai.id_parcelle
-        FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
-            AND f.b_statut_public = FALSE AND f.b_document = TRUE
-        JOIN ref_geo.cor_area_intersect cai ON cai.id_foret_dgd = f.id_area
-            AND cai.id_type_parcelle = {ID_TYPE_CADASTRE}
-        ON CONFLICT DO NOTHING
-    """))
-    
-    # Forêts privées ss_document (b_document=FALSE) : leur polygone est maintenant dans l_areas
-    # avec id_type=ID_TYPE_FORET_PRIVE (33), et cor_area_intersect.id_foret_prive les référence.
-    db.session.execute(text(f"""
-        INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
-        SELECT DISTINCT d.id_declaration, cai.id_parcelle
-        FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
-            AND f.b_document = FALSE
-        JOIN ref_geo.cor_area_intersect cai ON cai.id_foret_prive = f.id_area
-            AND cai.id_type_parcelle = {ID_TYPE_CADASTRE}
-        ON CONFLICT DO NOTHING
-    """))
+    db.session.commit()
+
+    n_missing = db.session.execute(text("""
+        SELECT count(DISTINCT id_declaration)
+        FROM oeasc_declarations.cor_areas_declarations_ancien
+        WHERE id_declaration NOT IN (
+            SELECT DISTINCT id_declaration FROM oeasc_declarations.cor_areas_declarations
+        )
+    """)).scalar()
+    if n_missing:
+        LOG.warning(
+            f"  ATTENTION : {n_missing} déclaration(s) sans aucune area après le transfert spatial "
+            f"(parcelles totalement disparues du cadastre). "
+            f"Vérifier cor_areas_declarations_ancien pour correction manuelle."
+        )
 
 
 
