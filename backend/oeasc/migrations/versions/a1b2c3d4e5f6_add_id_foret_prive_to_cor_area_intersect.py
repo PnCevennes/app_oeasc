@@ -11,7 +11,7 @@ from alembic import op
 import sqlalchemy as sa
 
 revision = "a1b2c3d4e5f6"
-down_revision = "41042f593f9f"
+down_revision = "3e5c666af390"
 branch_labels = None
 depends_on = None
 
@@ -26,6 +26,14 @@ def upgrade():
 
 def downgrade():
     op.execute(
-        "ALTER TABLE ref_geo.cor_area_intersect "
-        "DROP COLUMN IF EXISTS id_foret_prive"
+        """
+        DO $$ BEGIN
+            IF EXISTS (
+                SELECT 1 FROM information_schema.tables
+                WHERE table_schema = 'ref_geo' AND table_name = 'cor_area_intersect'
+            ) THEN
+                ALTER TABLE ref_geo.cor_area_intersect DROP COLUMN IF EXISTS id_foret_prive;
+            END IF;
+        END $$;
+        """
     )
