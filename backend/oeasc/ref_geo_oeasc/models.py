@@ -47,8 +47,7 @@ class BibAreasType(RefBibAreasTypes):
 class LAreas(RefLAreas):
     """Extension locale de ref_geo.LAreas pour conserver l'API OEASC."""
 
-    # Compatibilite: le code OEASC historique utilise LAreas.comment.
-    comment = RefLAreas.description
+    pass
 
     def get_geofeature(self, recursif=False):
         """

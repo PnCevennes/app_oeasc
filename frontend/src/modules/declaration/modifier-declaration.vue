@@ -94,6 +94,21 @@
                       @layer-selected="handleLayerSelect"
                     />
                   </div>
+
+                  <div
+                    v-if="areas_infos.forets.length || areas_infos.secteurs.length || areas_infos.communes.length"
+                    style="margin-top: 12px; border: 1px solid #ccc; padding: 16px; border-radius: 5px;"
+                  >
+                    <p v-if="areas_infos.forets.length" style="margin: 4px 0">
+                      <strong>Forêt(s) :</strong> {{ areas_infos.forets.map(f => f.area_name).join(', ') }}
+                    </p>
+                    <p v-if="areas_infos.secteurs.length" style="margin: 4px 0">
+                      <strong>Secteur(s) :</strong> {{ areas_infos.secteurs.map(s => s.area_name).join(', ') }}
+                    </p>
+                    <p v-if="areas_infos.communes.length" style="margin: 4px 0">
+                      <strong>Commune(s) :</strong> {{ areas_infos.communes.map(c => c.area_name).join(', ') }}
+                    </p>
+                  </div>
                 </div>
 
                 <!-- -------------  informations sur le declarant ---------------- -->
@@ -710,7 +725,7 @@
           </div>
 
           <!-- --------------------- Validation directe de la déclaration pour les admins --------------------- -->
-          <div v-if="(type_action == 'CREATION') | (type_action == 'MODIFICATION')">
+          <div v-if="(type_action == 'CREATION') || (type_action == 'MODIFICATION')">
             <div
               v-if="this.$store.getters.droitMax >= 5"
               style="margin-top: 30px"
@@ -845,7 +860,7 @@ import help from '@/components/form/help_static.vue';
 import tableAide from '@/modules/content/table-aide.vue';
 import { formFunctions } from '@/components/form/functions/form.js';
 import { apiRequest } from '@/core/js/data/api';
-import { fetch_forets_from_code, fetch_proprietaires_from_id } from './utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
+import { fetch_forets_from_code, fetch_proprietaires_from_id} from './utils/api_request.js';
 import MapDeclaration from './map/map_declaration.vue';
 import degatsForm from '@/components/form/degats_declaration_form.vue';
 import resumeDeclaration from '@/modules/declaration/resume_declaration.vue';
@@ -897,6 +912,7 @@ export default {
       affichage_fenetre_succes: false, // Affichage de la fenêtre de succès après soumission
       affichage_peuplement_maturite: false, // Affichage de la maturité du peuplement
       response: null, // Réponse de l'API lors de la récupération des données de la déclaration
+      areas_infos: { forets: [], secteurs: [], communes: [] },
     };
   },
 
@@ -937,6 +953,14 @@ export default {
             console.error('Erreur lors de la récupération des données de la forêt:', error);
           });
       }
+    },
+    'declaration_data.areas_localisation_cadastre': {
+      handler() { this.refresh_areas_infos(); },
+      deep: true,
+    },
+    'declaration_data.areas_localisation_onf_ug': {
+      handler() { this.refresh_areas_infos(); },
+      deep: true,
     },
     'declaration_data.b_document'(newVal, oldVal) {
       if (newVal === false && oldVal !== undefined) {
@@ -985,7 +1009,7 @@ export default {
               'error'
             );
             // this.redirect_to_login();
-          }
+          } 
         } else {
           snackbarStore.show(
             'Token de renouvellement manquant ou ID de déclaration manquant. ',
@@ -1011,11 +1035,26 @@ export default {
         this.declaration_data.b_valid = false; // Par défaut, la déclaration n'est pas validée
       }
       // console.log("Données de la déclaration après traitement du renouvellement:", this.declaration_data);
+      await this.refresh_areas_infos();
       this.initialized = true;
     }
   },
 
   methods: {
+    async refresh_areas_infos() {
+      const parcelles = [
+        ...(this.declaration_data.areas_localisation_cadastre || []),
+        ...(this.declaration_data.areas_localisation_onf_ug || []),
+      ];
+      if (!parcelles.length) {
+        this.areas_infos = { forets: [], secteurs: [], communes: [] };
+        return;
+      }
+      const params = parcelles.map(id => `id_parcelle=${id}`).join('&');
+      const result = await apiRequest('GET', `api/ref_geo/areas_infos_from_parcelles?${params}`);
+      if (result) this.areas_infos = result;
+    },
+
     /**
      * Dernière petites vérifications avant l'envoi de la déclaration.
      * On clean certains champs superflus qui pourraient créer des erreurs
@@ -1228,20 +1267,6 @@ export default {
       }
     },
 
-    /**
-     * Concatène les listes d'aires sélectionnées de la déclaration pour "afficher les zonnes selectionnées" (le bouton à droite de la carte) sur la carte.
-     * @returns {Array} Un tableau contenant toutes les aires de localisation sélectionnées.
-     */
-    concateneAreasSelected() {
-      return [
-        this.declaration_data.areas_localisation_cadastre,
-        this.declaration_data.areas_localisation_onf_prf,
-        this.declaration_data.areas_localisation_onf_ug,
-      ]
-        .filter(Boolean)
-        .flat();
-    },
-
     formatDeclarantLabel(item) {
       if (!item) return '';
       const nom = item.nom_complet || '';
@@ -1250,11 +1275,11 @@ export default {
     },
 
     handleLayerSelect(layerId) {
-      const index = this.selectedLayers.indexOf(layerId);
+      const index = this.selected.indexOf(layerId);
       if (index === -1) {
-        this.selectedLayers.push(layerId);
+        this.selected.push(layerId);
       } else {
-        this.selectedLayers.splice(index, 1);
+        this.selected.splice(index, 1);
       }
     },
 

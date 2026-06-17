@@ -47,7 +47,7 @@ from .all_stmt import (
 )
 from .models import TDeclaration
 from ..declaration.schema import TProprietaireSchema, TForetSchema
-from oeasc.ref_geo_oeasc.schema import LAreasSchema
+from oeasc.ref_geo_oeasc.schema import LAreasSchema, VMAreasSimplesSchema
 
 bp = Blueprint("declaration_api", __name__)
 
@@ -212,10 +212,10 @@ def all_areas_declaration():
     )
     stmt = get_stmt_all_areas_declaration(id_declaration, list_id_types)
 
-    rows = get_db().session.execute(stmt).mappings().all()
-    geojson_areas = LAreasSchema(
-        many=True, as_geojson=True, feature_geometry="geom_4326"
-    ).dump(rows)
+    data = get_db().session.execute(stmt).scalars().all()
+    geojson_areas = VMAreasSimplesSchema(
+        many=True, as_geojson=True, include_geom=True
+    ).dump(data)
 
     return geojson_areas
 

@@ -64,7 +64,10 @@ class VMAreasSimplesSchema(GeoAlchemyAutoSchema):
         Par défaut, la géométrie simplifiée n'est pas sérialisée.
         Pour l'inclure explicitement:
             VMAreasSimplesSchema(include_geom=True)
+        La géométrie est automatiquement incluse quand as_geojson=True.
         """
+        if kwargs.get('as_geojson', False):
+            include_geom = True
         if not include_geom:
             excluded_fields = set(kwargs.pop("exclude", ()) or ())
             excluded_fields.add("geom_4326")

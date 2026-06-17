@@ -262,6 +262,8 @@ def get_area_from_id(id_area):
 
         # On sélectionne explicitement les colonnes attendues pour éviter
         # toute colonne additionnelle d'un mapping externe (ex: description).
+        # Note: la colonne DB s'appelle 'comment' mais le modèle RefLAreas la nomme 'description'.
+        # On n'inclut pas cette colonne ici car elle n'est pas utilisée par les appelants.
         stmt = (
             select(
                 LAreas.id_area,
@@ -269,7 +271,6 @@ def get_area_from_id(id_area):
                 LAreas.area_name,
                 LAreas.area_code,
                 LAreas.source,
-                LAreas.comment,
                 LAreas.enable,
                 LAreas.meta_create_date,
                 LAreas.meta_update_date,

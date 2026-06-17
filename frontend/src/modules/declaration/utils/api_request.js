@@ -9,10 +9,11 @@ const CADASTRE = 332; // Type area des parcelles cadastrales dans la bdd
 
 const CODE_AREA = {
   327: 'OEASC_COMMUNE',
-  333: 'OEASC_SECTION',
-  331: 'OEASC_DGD',
   328: 'OEASC_ONF_FRT',
+  330: 'OEASC_ONF_UG',
+  331: 'OEASC_DGD',
   332: 'OEASC_CADASTRE',
+  333: 'OEASC_SECTION',
 };
 
 // export async function fetch_declaration_by_id(id) {
@@ -133,15 +134,6 @@ export async function fetch_areas_group_from_id_type(id_type_area) {
   }
 }
 
-// export async function fetch_nomenclatures() {
-//   try {
-//     const response = await apiRequest('GET', `api/oeasc/nomenclatures`);
-//     return response;
-//   } catch (error) {
-//     console.error(`Erreur lors de la récupération des nomemclatures`, error);
-//     return null;
-//   }
-// }
 
 /**
  *
@@ -162,39 +154,7 @@ export async function fetch_areas_child_of(id_area_parent, id_type_parent) {
   }
 }
 
-/**
- * les idsSection peuvent être de la forme "277378-277379-277380"
- * @param {*} idsSection string de la forme "277378-277379-277380" ou tableau d'entiers [277378, 277379, 277380]
- * @returns geoJSON des sections oeasc
- */
-// export async function fetch_areas_section_by_ids(idsSection) {
-//   try {
-//     const response = await apiRequest(
-//       'GET',
-//       `api/ref_geo/areas_simples_from_type_code_container/l/OEASC_SECTION/${idsSection}`
-//     );
-//     return response;
-//   } catch (error) {
-//     console.error('Erreur lors de la récupération de la section oeasc', error);
-//     return null;
-//   }
-// }
 
-/**
- * retourne les zones géographiques à partir d'une liste d'identifiants
- * @param {*} list_id_areas
- * @returns  GeoJSON des zones géographiques
- */
-export async function fetch_areas_from_list_ids(list_id_areas) {
-  const str_ids = list_id_areas.join('-');
-  try {
-    const response = await apiRequest('GET', `api/ref_geo/areas/l/${str_ids}`);
-    return response;
-  } catch (error) {
-    console.error('Erreur lors de la récupération de la liste des areas', error);
-    return null;
-  }
-}
 
 export async function fetch_hierarchy_areas(list_id_areas) {
   const str_ids = list_id_areas.join('-');

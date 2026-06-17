@@ -11,6 +11,7 @@ from sqlalchemy import (
     and_,
     or_,
     update,
+    union_all,
 )
 from sqlalchemy.orm import aliased
 
@@ -29,7 +30,7 @@ from oeasc.modules.oeasc.declaration.models import (
     TDegat,
     TDegatEssence,
 )
-from oeasc.ref_geo_oeasc.models import BibAreasType, LAreas
+from oeasc.ref_geo_oeasc.models import BibAreasType, LAreas, CorAreaIntersect, VMAreasSimples
 from pypnnomenclature.models import TNomenclatures
 from oeasc.modules.oeasc.declaration.models import TForet
 from oeasc.modules.oeasc.user.models import VUsers
@@ -330,6 +331,43 @@ def get_stmt_liste_declaration():
 def get_stmt_fiche_declaration(id_declaration):
     """Récupère les informations d'une déclaration à partir de son id, pour l'affichage de la page de détail d'une déclaration"""
 
+    nom_foret_subq = (
+        select(func.string_agg(VMAreasSimples.area_name.distinct(), ", "))
+        .select_from(CorAreasDeclaration)
+        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(
+            VMAreasSimples,
+            or_(
+                VMAreasSimples.id_area == CorAreaIntersect.id_foret_onf,
+                VMAreasSimples.id_area == CorAreaIntersect.id_foret_dgd,
+                VMAreasSimples.id_area == CorAreaIntersect.id_foret_prive,
+            ),
+        )
+        .where(CorAreasDeclaration.id_declaration == id_declaration)
+        .correlate(TDeclaration)
+        .scalar_subquery()
+    )
+
+    secteur_subq = (
+        select(func.string_agg(VMAreasSimples.area_name.distinct(), ", "))
+        .select_from(CorAreasDeclaration)
+        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(VMAreasSimples, VMAreasSimples.id_area == CorAreaIntersect.id_secteur)
+        .where(CorAreasDeclaration.id_declaration == id_declaration)
+        .correlate(TDeclaration)
+        .scalar_subquery()
+    )
+
+    communes_subq = (
+        select(func.string_agg(VMAreasSimples.area_name.distinct(), ", "))
+        .select_from(CorAreasDeclaration)
+        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(VMAreasSimples, VMAreasSimples.id_area == CorAreaIntersect.id_commune)
+        .where(CorAreasDeclaration.id_declaration == id_declaration)
+        .correlate(TDeclaration)
+        .scalar_subquery()
+    )
+
     stmt = (
         select(
             ########################## INFORMATIONS ######################################
@@ -357,7 +395,7 @@ def get_stmt_fiche_declaration(id_declaration):
             VUsers.email.label("email"),
             VUsers.organisme.label("organisme"),
             ############################ FORET ######################################
-            TForet.label_foret.label("nom_foret"),
+            nom_foret_subq.label("nom_foret"),
             case(
                 (
                     and_(TForet.b_statut_public == True, TForet.b_document == True),
@@ -386,12 +424,8 @@ def get_stmt_fiche_declaration(id_declaration):
                 id_declaration, CorNomenclatureDeclarationEspece
             ).label("especes_labels"),
             # ######################## PEUPLEMENT LOCALISATION  ###################################
-            get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label(
-                "secteur"
-            ),
-            get_area_names(TDeclaration.id_declaration, "OEASC_COMMUNE").label(
-                "communes"
-            ),
+            secteur_subq.label("secteur"),
+            communes_subq.label("communes"),
             case(
                 (
                     and_(TForet.b_statut_public == True, TForet.b_document == True),
@@ -797,29 +831,68 @@ def get_stmt_areas_declaration(id_declaration, area_code):
 
 
 def get_stmt_all_areas_declaration(id_declaration, list_id_types=[]):
-    """retourne toutes les aires concernant une déclaration. Est utilisée pour afficher la carte dans voir déclaration."""
-    stmt = (
-        select(
-            LAreas.id_area,
-            LAreas.id_type,
-            LAreas.area_name,
-            LAreas.area_code,
-            LAreas.source,
-            LAreas.comment,
-            LAreas.enable,
-            LAreas.meta_create_date,
-            LAreas.meta_update_date,
-            LAreas.geom_4326,
-        )
-        .select_from(CorAreasDeclaration)
+    """Retourne les aires (via cor_area_intersect → vm_lareas_simples) concernant une déclaration.
+    Utilisée pour afficher la carte dans voir_declaration.
+    Pour les types de zone non-directs, les aires sont trouvées via cor_area_intersect à partir
+    des parcelles liées à la déclaration. Pour CADASTRES (332) et UG_ONF (330), les parcelles
+    elles-mêmes sont utilisées directement depuis cor_areas_declarations.
+    """
+
+    parcelles_q = (
+        select(CorAreasDeclaration.id_area)
         .where(CorAreasDeclaration.id_declaration == id_declaration)
-        .join(LAreas, LAreas.id_area == CorAreasDeclaration.id_area)
-        .join(BibAreasType, BibAreasType.id_type == LAreas.id_type)
-        # .group_by(LAreas.id_area, BibAreasType.id_type)
-        # .correlate(TDeclaration)
     )
-    if len(list_id_types) > 0:
-        stmt = stmt.where(BibAreasType.id_type.in_(list_id_types))
+
+    # Mapping id_type → colonne de cor_area_intersect
+    col_map = {
+        326: CorAreaIntersect.id_secteur,
+        327: CorAreaIntersect.id_commune,
+        328: CorAreaIntersect.id_foret_onf,
+        329: CorAreaIntersect.id_parcelle_onf,
+        331: CorAreaIntersect.id_foret_dgd,
+        333: CorAreaIntersect.id_section_cadastrale,
+    }
+    # types dont les parcelles de la déclaration SONT les aires (pas besoin de cor_area_intersect)
+    direct_types = [330, 332]
+
+    if list_id_types:
+        types_via_intersect = [t for t in col_map if t in list_id_types]
+        types_direct = [t for t in direct_types if t in list_id_types]
+    else:
+        types_via_intersect = list(col_map.keys())
+        types_direct = direct_types
+
+    subqueries = []
+
+    for id_type in types_via_intersect:
+        col = col_map[id_type]
+        q = (
+            select(col.label("id_area"))
+            .select_from(CorAreaIntersect)
+            .where(CorAreaIntersect.id_parcelle.in_(parcelles_q))
+            .where(col.isnot(None))
+        )
+        subqueries.append(q)
+
+    if types_direct:
+        q = (
+            select(CorAreasDeclaration.id_area.label("id_area"))
+            .where(CorAreasDeclaration.id_declaration == id_declaration)
+        )
+        subqueries.append(q)
+
+    if not subqueries:
+        return select(VMAreasSimples).where(VMAreasSimples.id_area == None)
+
+    area_ids_union = union_all(*subqueries).subquery()
+
+    stmt = (
+        select(VMAreasSimples)
+        .where(VMAreasSimples.id_area.in_(select(area_ids_union.c.id_area)))
+    )
+
+    if list_id_types:
+        stmt = stmt.where(VMAreasSimples.id_type.in_(list_id_types))
 
     return stmt
 

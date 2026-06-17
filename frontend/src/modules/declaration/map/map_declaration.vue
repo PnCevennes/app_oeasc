@@ -31,7 +31,7 @@ permet de zoomer dans les zones sélectionnées -->
 
   Ce composant est conçu pour guider l'utilisateur dans la sélection géographique, tout en offrant des aides et une expérience fluide lors du chargement des données cartographiques.
 -->
-<template>
+<template v-if="initialized">
   <div style="width: 100%; display: flex; flex-direction: row">
     <div style="position: relative; width: 70%">
       <v-btn
@@ -39,7 +39,7 @@ permet de zoomer dans les zones sélectionnées -->
         style="position: absolute; top: 16px; right: 16px; z-index: 1; border: 1px solid #ccc"
         @click="action_button_retour_arriere"
       >
-        <v-icon start>mdi-regular mdi-reply</v-icon>
+        <v-icon left>mdi-regular mdi-reply</v-icon>
         {{ typesCarteNames[last_typeCarte] || 'Retour' }}
       </v-btn>
       <div
@@ -68,7 +68,6 @@ permet de zoomer dans les zones sélectionnées -->
           color="primary"
           size="150"
           width="10"
-          :model-value="geojsonVisibleLayers"
         ></v-progress-circular>
         <div style="margin-top: 12px; font-size: 25px; font-weight: bold">chargement</div>
       </div>
@@ -121,7 +120,6 @@ permet de zoomer dans les zones sélectionnées -->
           clearable
           @change="action_select_in_liste($event)"
         >
-          >
         </v-autocomplete>
       </div>
 
@@ -133,10 +131,9 @@ permet de zoomer dans les zones sélectionnées -->
           <v-chip
             v-for="area in areasLocalisationOfThisMap"
             :key="area.id_area"
-            closable
+            close
             @click:close="action_close_pastille(area)"
             class="ma-1"
-            close
           >
             {{ area.area_code }}
           </v-chip>
@@ -156,7 +153,6 @@ import helpContent from '@/modules/declaration/help-content.vue';
 import {
   // certaines api request sont superflues. Il faudra les améliorer.
   fetch_oeasc_perimetre,
-  fetch_areas_from_list_ids,
   fetch_areas_child_of,
   fetch_areas_group_from_id_type,
   fetch_hierarchy_areas,
@@ -213,6 +209,7 @@ export default {
       last_typeCarte: this.typeCarte, // Dernier type de carte affiché pour le retour en arriere
       last_id_section_visible: null, // dernier id de la section visité( la section cadastrale ou la forêt DGD)
       geojsonVisibleLayers: {}, // données GeoJSON à afficher sur la carte
+      layerIndex: {}, // index id_area → layer Leaflet pour éviter les scans eachLayer
       layers_groupe_cache: {}, // contient les geojson des couches déja chargées de communes, section, forêts DGD et ONF.
       // Pour eviter de relancer une requête dans le retour en arrière
 
@@ -232,6 +229,7 @@ export default {
 
       freeze_map: false, // Permet de geler la carte pour éviter les interactions pendant le chargement des données
       // information_foret: null, // Forêt sélectionnée pour les forêts DGD et ONF
+      initialized: false, // Indique si le composant est initialisé et prêt à être affiché
     };
   },
 
@@ -242,11 +240,11 @@ export default {
         this.declaration_data.b_statut_public === true
       ) {
         return (this.declaration_data.areas_localisation || []).filter(
-          (area) => area.id_type === UG_ONF
+          (area) => area && area.id_type === UG_ONF
         );
       } else {
         return (this.declaration_data.areas_localisation || []).filter(
-          (area) => area.id_type === CADASTRES
+          (area) => area && area.id_type === CADASTRES
         );
       }
     },
@@ -256,6 +254,13 @@ export default {
     geojsonVisibleLayers(newVal) {
       // Lorsque les données GeoJSON changent, on met à jour les couches de la carte
       this.add_layers_on_map();
+    },
+
+    // Lorsque les zones sélectionnées changent, on re-rend la carte pour mettre à jour les couleurs
+    'declaration_data.areas_localisation'() {
+      if (this.map && this.geojsonVisibleLayers?.features?.length) {
+        this.add_layers_on_map();
+      }
     },
 
     // Lorsque le statut du document change dans le formulaire principal, on met à jour le type de carte
@@ -284,20 +289,13 @@ export default {
   async created() {},
 
   async mounted() {
-    // Récupère le périmètre OEASC via une requête asynchrone et l'assigne à la variable correspondante
-    // Définit le type de carte à afficher en fonction des données ou du contexte
-    // Récupère les zones à partir des données de déclaration
-    // Initialise la carte (création, configuration, etc.)
-    // Ajoute la couche représentant le périmètre OEASC sur la carte
-    // Récupère les nouveaux contours GeoJSON des couches à afficher selon le type de carte
-    // Initialise les zones de la déclaration (création des objets, affichage, etc.)
     this.geom_perimetre_oeasc = await fetch_oeasc_perimetre();
     this.typeCarte = this.defineTypeCarte();
-    this.fetch_areas_from_declaration_data();
     this.initMap();
     this.add_layer_perimetre_oeasc();
+    await this.initialise_areas(); // Initialise les zones avant le rendu de la carte
     this.fetch_new_geojson_data(this.typeCarte); // recupère les contours des layers à afficher
-    this.initialise_areas(); // Initialise les zones de la déclaration
+    this.initialized = true; // Indique que le composant est prêt à être affiché
   },
 
   methods: {
@@ -315,28 +313,6 @@ export default {
       this.declaration_data.areas_localisation_cadastre = [];
       this.declaration_data.areas_foret_onf = null; // Réinitialise la liste des zones ONF PRF sélectionnées
       this.declaration_data.areas_foret_dgd = null;
-    },
-
-    /**
-     * Affiche la carte par défaut avec les périmètres sélectionnés
-     * et met le type de carte à DEFAUT pour permettre au bouton retour de tout réinitialiser.
-     */
-    affichage_map_zones_selectionnees() {
-      // Affiche la carte par défaut avec les périmètres sélectionnés dans list_selected_areas
-      if (!this.list_selected_areas || this.list_selected_areas.length === 0) return;
-
-      // Récupérer les données GeoJSON pour les zones sélectionnées
-      if (this.list_selected_areas.length !== 0) {
-        fetch_areas_from_list_ids(this.list_selected_areas)
-          .then((geojson) => {
-            this.geojsonVisibleLayers = geojson; // Met à jour les données GeoJSON visibles
-            // this.add_layers_on_map(); // Ajoute les couches de la carte avec les périmètres sélectionnés
-          })
-          .catch((error) => {
-            console.error('Erreur lors de la récupération des zones sélectionnées :', error);
-          });
-      }
-      this.typeCarte = DEFAUT; // Met le type de carte à par défaut
     },
 
     /**
@@ -375,23 +351,23 @@ export default {
      * Réinitialise les layers de la carte et ajoute les nouveaux layen du nouveau type de carte.
      */
     async add_layers_on_map() {
-      // Affiche les layers d'ensemble à la carte. C'est à dire les communes, sections, les forêts DGD et ONF. Cliquer dessus
-      // on réinitialise les couches de la carte
-      if (!this.map) return; // Si la carte n'est pas initialisée, on ne fait rien
+      if (!this.map) return;
 
+      this.layerIndex = {}; // reset de l'index à chaque rechargement
       this.map.eachLayer((layer) => {
         if (layer instanceof L.GeoJSON) {
           this.map.removeLayer(layer);
         }
       });
-      this.add_layer_perimetre_oeasc(); // Ajoute le périmètre oeasc à la carte
+      this.add_layer_perimetre_oeasc();
+
+      // Canvas renderer : toutes les features partagent un seul <canvas> au lieu d'un SVG par feature
+      const renderer = L.canvas({ padding: 0.5 });
 
       if (this.typeCarte === CADASTRES || this.typeCarte === UG_ONF || this.typeCarte == DEFAUT) {
-        // on affiche les cadastres ou les sections
-        this.render_selectable_layers(); // Affiche les couches de cadastre pour la commune ou la section cliquée
+        this.render_selectable_layers(renderer);
       } else {
-        // affichage des groupes (communes, sections, forêts DGD et ONF)
-        this.render_clickable_layers(); // Affiche les couches cliquables sur la carte
+        this.render_clickable_layers(renderer);
       }
     },
 
@@ -400,41 +376,31 @@ export default {
      * ceux qui amènent à des sous sections lorsqu'on clique dessus. (donc tous saufs les cadastres)
      * le geojson affiché sera celui contenu dans this.geojsonVisibleLayers
      */
-    render_clickable_layers() {
-      // Affiche les couches cliquables sur la carte
+    render_clickable_layers(renderer) {
       const vm = this;
       const map_layers = L.geoJSON(this.geojsonVisibleLayers, {
+        renderer,
         style: styles.normal,
         onEachFeature: (feature, layer) => {
+          vm.layerIndex[feature.properties.id_area] = layer;
           layer.bindTooltip(feature.properties.area_name || '', {
-            // options pour l'affichage du nom de la commune
             direction: 'top',
             offset: [0, -20],
             className: 'anim-tooltip',
           });
+          const isSelected = () => vm.declaration_data.areas_localisation.some(
+            (area) => area.id_area === feature.properties.id_area
+          );
           layer.on('mouseover', function () {
             layer.setStyle(styles.hover);
-            layer.bringToFront();
           });
           layer.on('mouseout', function () {
-            layer.setStyle(
-              vm.declaration_data.areas_localisation.some(
-                (area) => area.id_area === feature.properties.id_area
-              )
-                ? styles.select
-                : styles.normal
-            );
+            layer.setStyle(isSelected() ? styles.select : styles.normal);
           });
           layer.on('click', () => {
-            this.action_click_on_layer(feature, layer); // Gère le clic sur la couche
+            vm.action_click_on_layer(feature, layer);
           });
-          layer.setStyle(
-            this.declaration_data.areas_localisation.some(
-              (area) => area.id_area === feature.properties.id_area
-            )
-              ? styles.select
-              : styles.normal
-          );
+          layer.setStyle(isSelected() ? styles.select : styles.normal);
         },
       }).addTo(this.map);
 
@@ -483,47 +449,35 @@ export default {
      * Pour les pages CADASTRES, UG_ONF et DEFAUT, affiche les layers que l'on peut sélectionner. et qui modifie la liste des périmètres sélectionnés.
      * affichera les donnée dans this.geojsonVisibleLayers.
      */
-    render_selectable_layers() {
-      // ajoute les layers de type cadastres. Cliquer dessus les rajoute à la liste des périmètres sélectionnés
-      // Affiche les couches cliquables sur la carte
-
+    render_selectable_layers(renderer) {
       const vm = this;
       const map_layers = L.geoJSON(this.geojsonVisibleLayers, {
+        renderer,
+        style: styles.normal,
         onEachFeature: (feature, layer) => {
+          vm.layerIndex[feature.properties.id_area] = layer;
           layer.bindTooltip(feature.properties.area_name || '', {
-            // options pour l'affichage du nom de la commune
             direction: 'top',
             offset: [0, -20],
             className: 'anim-tooltip',
           });
+          const isSelected = () => vm.declaration_data.areas_localisation.some(
+            (area) => area.id_area === feature.properties.id_area
+          );
           layer.on('mouseover', function () {
             layer.setStyle(styles.hover);
-            layer.bringToFront();
           });
           layer.on('mouseout', function () {
-            layer.setStyle(
-              vm.declaration_data.areas_localisation.some(
-                (area) => area.id_area === feature.properties.id_area
-              )
-                ? styles.select
-                : styles.normal
-            );
+            layer.setStyle(isSelected() ? styles.select : styles.normal);
           });
           layer.on('click', () => {
-            vm.action_selection_area(feature); // Gère la sélection de la zone sur la carte
+            vm.action_selection_area(feature);
           });
-          // Met à jour dynamiquement le style selon la sélection
-          layer.setStyle(
-            vm.declaration_data.areas_localisation.some(
-              (area) => area.id_area === feature.properties.id_area
-            )
-              ? styles.select
-              : styles.normal
-          );
+          // Le style par défaut est déjà styles.normal (option L.geoJSON), on ne surcharge que si sélectionné
+          if (isSelected()) layer.setStyle(styles.select);
         },
       }).addTo(this.map);
 
-      // Zoom sur l'ensemble des communes affichées
       if (map_layers.getLayers().length > 0) {
         this.map.fitBounds(map_layers.getBounds(), { maxZoom: 30 });
       }
@@ -564,18 +518,9 @@ export default {
      * @param {Object} style - Le style à appliquer au layer
      */
     change_style_layer(properties_layer, style) {
-      let foundLayer = null;
-      this.map.eachLayer((l) => {
-        if (
-          l.feature &&
-          l.feature.properties &&
-          l.feature.properties.id_area === properties_layer.id_area
-        ) {
-          foundLayer = l;
-        }
-      });
-      if (foundLayer) {
-        foundLayer.setStyle(style); // Met à jour le style du layer pour le mettre en orange
+      const layer = this.layerIndex[properties_layer.id_area];
+      if (layer) {
+        layer.setStyle(style);
       }
     },
 
@@ -752,13 +697,13 @@ export default {
       if (this.declaration_data.b_document == false) {
         // Si le statut public est faux, on est en mode DGD ou sections
         // ################## CAS DES SECTIONS ET COMMUNES ##################
-        this.declaration_data.areas_localisation_cadastre.pop(feature.id_area); // Retire l'id de la zone cadastrale de la déclaration
+        this.declaration_data.areas_localisation_cadastre = this.declaration_data.areas_localisation_cadastre.filter(id => id !== feature.id_area);
 
         // si l'actual_section n'est dans aucun id_parent des elements de areas_localisation, on le retire
         if (
           !this.declaration_data.areas_localisation.some((area) => area.id_parent === this_parent)
         ) {
-          this.declaration_data.areas_foret_sections.pop(this_parent); // Retire la section de la liste des zones sélectionnées
+          this.declaration_data.areas_foret_sections = this.declaration_data.areas_foret_sections.filter(id => id !== this_parent);
 
           this.declaration_data.areas_localisation =
             this.declaration_data.areas_localisation.filter((area) => area.id_area !== this_parent);
@@ -780,7 +725,7 @@ export default {
       } else if (this.declaration_data.b_document == true) {
         // ################## CAS DES FORET DGD ##############################
         if (this.declaration_data.b_statut_public == false) {
-          this.declaration_data.areas_localisation_cadastre.pop(feature.id_area); // Retire l'id de la zone cadastrale de la déclaration
+          this.declaration_data.areas_localisation_cadastre = this.declaration_data.areas_localisation_cadastre.filter(id => id !== feature.id_area);
           // si l'actual_foret_dgd n'est pas dans aucun id_parent des elements de areas_localisation, on le retire
           if (
             !this.declaration_data.areas_localisation.some((area) => area.id_parent === this_parent)
@@ -793,11 +738,11 @@ export default {
           }
         } else {
           // ################## CAS DES FORET ONF ##################
-          this.declaration_data.areas_localisation_onf_ug.pop(feature.id_area);
+          this.declaration_data.areas_localisation_onf_ug = this.declaration_data.areas_localisation_onf_ug.filter(id => id !== feature.id_area);
           if (
             !this.declaration_data.areas_localisation.some((area) => area.id_parent === this_parent)
           ) {
-            this.declaration_data.areas_localisation_onf_prf.pop(this_parent); // Retire la forêt ONF PRF de la liste des zones sélectionnées
+            this.declaration_data.areas_localisation_onf_prf = this.declaration_data.areas_localisation_onf_prf.filter(id => id !== this_parent);
             this.declaration_data.areas_localisation =
               this.declaration_data.areas_localisation.filter(
                 (area) => area.id_area !== this_parent
@@ -827,9 +772,9 @@ export default {
       if (this.typeCarte == CADASTRES) {
         if (this.last_typeCarte == SECTIONS) {
           this.last_typeCarte = COMMUNES;
-          this.typeCarte = SECTIONS; // On revient au mode communes
-          this.id_area_visible = this.last_id_section_visible; // On remet l'id de la zone visible à celui de la section
-          this.fetch_new_geojson_data(COMMUNES, this.id_area_visible);
+          this.typeCarte = SECTIONS;
+          this.id_area_visible = this.last_id_section_visible;
+          this.fetch_new_geojson_data(SECTIONS, this.id_area_visible);
         } else if (this.last_typeCarte == FORETS_DGD) {
           // on était des cadastres de forêts DGD on retourne vers la foret
           this.typeCarte = FORETS_DGD; // On revient au mode forêts DGD
@@ -887,6 +832,11 @@ export default {
       } = configMap;
       // creation de la carte Leaflet
       this.map = L.map('map').setView(INIT_VIEW, INIT_ZOOM);
+
+      // Pane dédié au périmètre OEASC, en dessous de l'overlayPane (z-index 400)
+      this.map.createPane('perimetre-pane');
+      this.map.getPane('perimetre-pane').style.zIndex = 350;
+      this.map.getPane('perimetre-pane').style.pointerEvents = 'none';
 
       // #################### FOND DE CARTE ##############################
       // trouve la clé du fond de carte par défaut (normalement mapbox)
@@ -959,53 +909,6 @@ export default {
     },
 
     /**
-     * Récupère les geojson des zones déja enregistrées dans la déclaration pour avoir le code de l'aire a afficher
-     * sur les pastilles à droite de la carte
-     */
-    fetch_areas_from_declaration_data() {
-      let list_to_fetch;
-      if (
-        this.declaration_data.b_document === true &&
-        this.declaration_data.b_statut_public === true
-      ) {
-        list_to_fetch = this.declaration_data.areas_localisation_onf_ug;
-      } else {
-        list_to_fetch = this.declaration_data.areas_localisation_cadastre;
-      }
-
-      if (!list_to_fetch || list_to_fetch.length === 0) {
-        this.reset_areas(); // Réinitialise les zones. Mais dans ce cas c'est surtout pour créer les dict des areas car on est sur une création de déclaration.
-        return;
-      }
-      fetch_areas_from_list_ids(list_to_fetch)
-        .then((data) => {
-          if (data && data.features) {
-            data.features.forEach((feature) => {
-              const index = this.declaration_data.areas_localisation.findIndex(
-                (area) => area.id_area === feature.properties.id_area
-              );
-              if (index !== -1) {
-                // Remplace l'élément existant
-                this.declaration_data.areas_localisation.splice(index, 1, {
-                  id_area: feature.properties.id_area,
-                  ...feature.properties,
-                });
-              } else {
-                // Ajoute si non existant
-                this.declaration_data.areas_localisation.push({
-                  id_area: feature.properties.id_area,
-                  ...feature.properties,
-                });
-              }
-            });
-          }
-        })
-        .catch((error) => {
-          console.error('Erreur lors de la récupération des zones sélectionnées :', error);
-        });
-    },
-
-    /**
      * retourne le cache qui est dans la variable layers_groupe_cache
      * @param id_type_carte COMMUNES, SECTIONS, FORETS_DGD, FORETS_ONF ou CADASTRES
      * @param id_area peut etre null si on veut les couches de type communes, sections, forêts DGD et ONF.
@@ -1053,6 +956,8 @@ export default {
 
       const layer = L.geoJSON(this.geom_perimetre_oeasc, {
         style: styles.po,
+        pane: 'perimetre-pane',
+        interactive: false,
       }).addTo(this.map);
     },
 
@@ -1119,17 +1024,38 @@ export default {
      * et le type de déclaration, afin de garantir la cohérence des données pour la suite du traitement.
      */
     async initialise_areas() {
-      if (
-        this.declaration_data.areas_localisation &&
-        this.declaration_data.areas_localisation.length > 0
-      ) {
-        this.list_selected_areas = this.declaration_data.areas_localisation.map(
-          (area) => area.id_area
-        ); // Récupère les ids des zones sélectionnées
-        this.hierarchy_areas = await fetch_hierarchy_areas(this.list_selected_areas); // Récupère la hiérarchie des zones sélectionnées
-        this.declaration_data.areas_localisation = []; // Réinitialise les zones sélectionnées pour les remplir à nouveau
+      const initialAreas = (this.declaration_data.areas_localisation || []).filter(
+        (a) => a && a.id_area
+      );
+
+      if (initialAreas.length > 0) {
+        // Collecte tous les id_area disponibles: feuilles (cor_areas_declarations) + niveaux
+        // parents connus depuis les champs foret du backend (areas_foret_communes, etc.)
+        // Cela permet à build_area_hierarchy de trouver les parents dans data_map.
+        const allAreaIds = new Set(initialAreas.map((a) => a.id_area));
+        [
+          ...(this.declaration_data.areas_foret_communes || []),
+          ...(this.declaration_data.areas_foret_sections || []),
+          ...(this.declaration_data.areas_localisation_onf_prf || []),
+          this.declaration_data.areas_foret_onf,
+          this.declaration_data.areas_foret_dgd,
+        ]
+          .filter((id) => id !== null && id !== undefined)
+          .forEach((id) => allAreaIds.add(id));
+
+        this.list_selected_areas = [...allAreaIds];
+        this.hierarchy_areas = await fetch_hierarchy_areas(this.list_selected_areas);
+        // Si la hiérarchie est indisponible, on conserve les données initiales du backend
+        if (!this.hierarchy_areas?.length) {
+          this.hierarchy_areas = [];
+          return;
+        }
+        this.declaration_data.areas_localisation = []; // Reset seulement si hiérarchie valide
       } else {
+        // Nouvelle déclaration ou état vide — initialiser les structures nécessaires
         this.hierarchy_areas = [];
+        this.reset_areas();
+        return;
       }
 
       if (

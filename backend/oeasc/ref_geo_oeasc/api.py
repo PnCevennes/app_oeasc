@@ -14,10 +14,9 @@ from .models import (
     LAreas,
     BibAreasType,
     CorHierarchieArea,
+    CorAreaIntersect,
 )
 from .schema import (
-    # VAreasSchema,
-    LAreasSchema,
     VMAreasSimplesSchema,
     BibAreasTypeSchema,
     CorHierarchieAreaSchema,
@@ -507,6 +506,60 @@ def get_areas_child_of(id_type, id_area):
     return all_areas
 
 
+@bp.route("areas_infos_from_parcelles", methods=["GET"])
+@json_resp
+def get_areas_infos_from_parcelles():
+    """
+    Retourne les forêts, secteurs et communes associés à une liste de parcelles
+    via la table cor_area_intersect.
+
+    Paramètre GET : id_parcelle (répétable)
+    Exemple : /areas_infos_from_parcelles?id_parcelle=123&id_parcelle=456
+
+    Réponse : {"forets": [...], "secteurs": [...], "communes": [...]}
+    Chaque élément contient les attributs VMAreasSimples (sans géométrie).
+    """
+    id_parcelles = request.args.getlist("id_parcelle", type=int)
+    if not id_parcelles:
+        return {"forets": [], "secteurs": [], "communes": []}
+
+    intersects = (
+        DB.session.execute(
+            select(CorAreaIntersect).where(CorAreaIntersect.id_parcelle.in_(id_parcelles))
+        )
+        .scalars()
+        .all()
+    )
+
+    ids_foret = set()
+    ids_secteur = set()
+    ids_commune = set()
+    for row in intersects:
+        for fid in (row.id_foret_onf, row.id_foret_dgd, row.id_foret_prive):
+            if fid is not None:
+                ids_foret.add(fid)
+        if row.id_secteur is not None:
+            ids_secteur.add(row.id_secteur)
+        if row.id_commune is not None:
+            ids_commune.add(row.id_commune)
+
+    schema = VMAreasSimplesSchema
+
+    def fetch_areas(ids):
+        if not ids:
+            return []
+        data = DB.session.execute(
+            select(VMAreasSimples).where(VMAreasSimples.id_area.in_(ids))
+        ).scalars().all()
+        return schema(many=True).dump(data)
+
+    return {
+        "forets": fetch_areas(ids_foret),
+        "secteurs": fetch_areas(ids_secteur),
+        "communes": fetch_areas(ids_commune),
+    }
+
+
 @bp.route("areas_hierarchy/<string:id_areas>", methods=["GET"])
 @json_resp
 def get_areas_hierarchy(id_areas):
@@ -529,11 +582,11 @@ def get_areas_hierarchy(id_areas):
 
     # On prépare la requête SQLAlchemy pour récupérer les informations des aires
     # à partir de la vue VAreas, qui contient les attributs détaillés des aires.
-    stmt_area = select(LAreas).where(LAreas.id_area.in_(liste_areas))
+    stmt_area = select(VMAreasSimples).where(VMAreasSimples.id_area.in_(liste_areas))
     # On exécute la requête et on récupère tous les résultats.
     data = DB.session.execute(stmt_area).scalars().all()
-    # On sérialise les objets LAreas en dictionnaires JSON grâce au schéma LAreasSchema.
-    data_result = LAreasSchema(many=True).dump(data)
+    # On sérialise via VMAreasSimplesSchema (sans géométrie) pour éviter l_areas.description.
+    data_result = VMAreasSimplesSchema(many=True).dump(data)
 
     # On prépare une requête SQLAlchemy pour récupérer les relations de hiérarchie
     # où l'aire enfant correspond à l'un des identifiants transmis.
