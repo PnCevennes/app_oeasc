@@ -26,6 +26,8 @@ from sqlalchemy import text
 
 LOG = logging.getLogger(__name__)
 
+REQUIRED_REVISION = "a1b2c3d4e5f6"
+
 # ---------------------------------------------------------------------------
 # Chemins des fichiers GPKG
 # ---------------------------------------------------------------------------
@@ -69,6 +71,25 @@ NOMENCLATURE_PT_E = 559     # propriétaire public (ONF)
 def _get_db():
     from oeasc.utils.env import db
     return db
+
+
+def _ensure_migrations():
+    """Vérifie que la migration REQUIRED_REVISION est appliquée, sinon lance l'upgrade."""
+    db = _get_db()
+    row = db.session.execute(text(
+        "SELECT version_num FROM alembic_version WHERE version_num = :rev"
+    ), {"rev": REQUIRED_REVISION}).fetchone()
+
+    if row is not None:
+        return
+
+    LOG.info(
+        f"Migration {REQUIRED_REVISION} non appliquée — "
+        "lancement automatique de flask db upgrade..."
+    )
+    from flask_migrate import upgrade as flask_migrate_upgrade
+    flask_migrate_upgrade(revision=REQUIRED_REVISION)
+    LOG.info(f"Migration {REQUIRED_REVISION} appliquée avec succès.")
 
 
 def _raw_conn():
@@ -189,6 +210,7 @@ def _get_area_code_to_id(id_type, proprietaire=None):
 
 def step_save_declaration_types():
     LOG.info("Étape 0 : sauvegarde type_declaration dans t_declarations")
+    print("Étape 0 : sauvegarde type_declaration dans t_declarations")
     db = _get_db()
     if not _column_exists("oeasc_declarations", "t_declarations", "type_declaration"):
         db.session.execute(text(
@@ -236,6 +258,7 @@ def step_save_declaration_types():
 
 def step_create_l_areas_new():
     LOG.info("Étape 1 : création de ref_geo.l_areas_new")
+    print ("Étape 1 : création de ref_geo.l_areas_new")
     db = _get_db()
     # Nettoyage d'une éventuelle table résiduelle d'une exécution précédente
     db.session.execute(text("DROP TABLE IF EXISTS ref_geo.l_areas_new CASCADE"))
@@ -273,6 +296,7 @@ def step_create_l_areas_new():
 
 def step_create_t_forets_new():
     LOG.info("Étape 2 : création de oeasc_forets.t_forets_new")
+    print ("Étape 2 : création de oeasc_forets.t_forets_new")
     db = _get_db()
     # Ces colonnes n'existent dans t_forets qu'après un premier refresh réussi
     # (elles sont ajoutées via t_forets_new et promues lors du swap).
@@ -414,6 +438,7 @@ def step_create_t_forets_new():
 
 def step_save_fixed_areas():
     LOG.info("Étape 3 : copie des areas fixes (OEASC, PNC cœur, adhésion, secteurs)")
+    print ("Étape 3 : copie des areas fixes (OEASC, PNC cœur, adhésion, secteurs)")
     db = _get_db()
     id_types_str = ",".join(str(t) for t in FIXED_ID_TYPES)
     db.session.execute(text(f"""
@@ -447,6 +472,7 @@ def step_save_fixed_areas():
 
 def step_load_communes():
     LOG.info("Étape 4a : chargement des communes depuis communes_aoa.gpkg")
+    print("Étape 4a : chargement des communes depuis communes_aoa.gpkg")
     oeasc_geom = _get_oeasc_geom()
     gdf = gpd.read_file(GPKG_COMMUNES)
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
@@ -480,6 +506,7 @@ def step_load_communes():
 
 
 def _update_communes_aoa(gdf):
+    print ("  Mise à jour de ref_geo.communes_aoa")
     db = _get_db()
     db.session.execute(text("TRUNCATE ref_geo.communes_aoa"))
     db.session.commit()
@@ -537,6 +564,7 @@ def _update_communes_aoa(gdf):
 
 def step_load_cadastres():
     LOG.info("Étape 4b : chargement des cadastres depuis cadastre_pec.gpkg")
+    print ("Étape 4b : chargement des cadastres depuis cadastre_pec.gpkg")
     oeasc_geom = _get_oeasc_geom()
     gdf = gpd.read_file(GPKG_CADASTRE)
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
@@ -576,6 +604,7 @@ def step_load_cadastres():
 
 def step_build_sections():
     LOG.info("Étape 4c : construction des sections cadastrales par agrégation")
+    print ("Étape 4c : construction des sections cadastrales par agrégation")
     oeasc_geom = _get_oeasc_geom()
     gdf = gpd.read_file(GPKG_CADASTRE)
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
@@ -617,6 +646,7 @@ def step_build_sections():
 
 def step_load_foret_dgd():
     LOG.info("Étape 4d : chargement des forêts DGD depuis data_new.gpkg")
+    print ("Étape 4d : chargement des forêts DGD depuis data_new.gpkg")
     import fiona
     oeasc_geom = _get_oeasc_geom()
     layers = fiona.listlayers(GPKG_DGD)
@@ -706,6 +736,7 @@ def step_load_foret_dgd():
 
 def step_load_ug_onf():
     LOG.info("Étape 4e : chargement des unités de gestion ONF")
+    print ("Étape 4e : chargement des unités de gestion ONF")
     oeasc_geom = _get_oeasc_geom()
     gdf = gpd.read_file(GPKG_UG_ONF)
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
@@ -745,6 +776,7 @@ def step_load_ug_onf():
 
 def step_load_parcelle_onf():
     LOG.info("Étape 4f : chargement des parcelles ONF")
+    print ("Étape 4f : chargement des parcelles ONF")
     oeasc_geom = _get_oeasc_geom()
     gdf = gpd.read_file(GPKG_PARCELLE_ONF)
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
@@ -783,6 +815,7 @@ def step_load_parcelle_onf():
 
 def step_load_foret_onf():
     LOG.info("Étape 4g : chargement des forêts ONF")
+    print ("Étape 4g : chargement des forêts ONF")
     oeasc_geom = _get_oeasc_geom()
     gdf = gpd.read_file(GPKG_FORET_ONF)
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
@@ -857,6 +890,7 @@ def step_load_foret_onf():
 
 def step_build_cor_area_intersect():
     LOG.info("Étape 5 : construction de cor_area_intersect")
+    print ("Étape 5 : construction de cor_area_intersect")
     db = _get_db()
     # On recrée toujours la table depuis zéro (DROP + CREATE) pour éviter
     # les problèmes de FK et de base restaurée sans cette table.
@@ -996,8 +1030,11 @@ def _alert_multi_commune():
             f"  ATTENTION : {len(rows)} parcelle(s) chevauchent plusieurs communes "
             "(on conserve la plus grande intersection) :"
         )
+        print ("  ATTENTION : certaines parcelles chevauchent plusieurs communes "
+               "(on conserve la plus grande intersection) :")
         for r in rows:
             LOG.warning(f"    id_area={r[0]} area_code={r[1]} → {r[2]} communes")
+            print(f"    id_area={r[0]} area_code={r[1]} → {r[2]} communes")
 
 
 # ---------------------------------------------------------------------------
@@ -1007,6 +1044,7 @@ def _alert_multi_commune():
 
 def step_update_declarations():
     LOG.info("Étape 6 : mise à jour des liaisons déclarations ↔ areas")
+    print ("Étape 6 : mise à jour des liaisons déclarations ↔ areas")
     db = _get_db()
     # Suppression des FK vers l_areas et t_forets :
     # les nouveaux ids viennent de l_areas_new/t_forets_new, seront recréés après le swap.
@@ -1023,6 +1061,7 @@ def step_update_declarations():
     # Les codes DGD changent de format entre anciennes et nouvelles données :
     # on ne peut pas matcher par code_foret. On passe par l_areas (géométrie).
     LOG.info("  6b : mise à jour id_foret pour les déclarations DGD (via id_area)")
+    print ("  6b : mise à jour id_foret pour les déclarations DGD (via id_area)")
     db.session.execute(text(f"""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
@@ -1048,6 +1087,7 @@ def step_update_declarations():
     db.session.commit()
 
     LOG.info("  6c : mise à jour id_foret pour les déclarations ONF (via code_foret)")
+    print ("  6c : mise à jour id_foret pour les déclarations ONF (via code_foret)")
     db.session.execute(text("""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
@@ -1067,6 +1107,7 @@ def step_update_declarations():
 
     # 6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)
     LOG.info("  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)")
+    print ("  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)")
     db.session.execute(text("""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
@@ -1084,6 +1125,7 @@ def step_update_declarations():
 
     # 6e : mise à jour id_area_commune dans t_lieu_tirs
     LOG.info("  6e : mise à jour id_area_commune dans t_lieu_tirs")
+    print ("  6e : mise à jour id_area_commune dans t_lieu_tirs")
 
     # Passage 1 : correspondance par area_code (code INSEE commune, stable)
     db.session.execute(text(f"""
@@ -1113,6 +1155,7 @@ def step_update_declarations():
 
     if n_remaining > 0:
         LOG.info(f"    {n_remaining} lieu(x) sans correspondance par code — fallback spatial")
+        print (f"    {n_remaining} lieu(x) sans correspondance par code — fallback spatial")
         db.session.execute(text(f"""
             UPDATE oeasc_chasse.t_lieu_tirs lt
             SET id_area_commune = (
@@ -1204,6 +1247,7 @@ def _get_views_ddl():
 
 def step_swap_t_forets():
     LOG.info("Étape 7 : swap t_forets → t_forets_new")
+    print ("Étape 7 : swap t_forets → t_forets_new")
     db = _get_db()
 
     # Sauvegarde puis suppression des vues dépendant de t_forets
@@ -1276,6 +1320,7 @@ def step_swap_t_forets():
 
 def step_swap_l_areas():
     LOG.info("Étape 8 : swap l_areas → l_areas_new")
+    print ("Étape 8 : swap l_areas → l_areas_new")
     db = _get_db()
     for stmt in [
         # FKs de cor_area_intersect vers l_areas
@@ -1372,6 +1417,7 @@ def step_swap_l_areas():
 
 def step_build_cor_hierarchie_area():
     LOG.info("Étape 9 : reconstruction de cor_hierarchie_area")
+    print ("Étape 9 : reconstruction de cor_hierarchie_area")
     db = _get_db()
 
     db.session.execute(text("""
@@ -1529,6 +1575,7 @@ def step_build_cor_hierarchie_area():
 
 def step_cleanup():
     LOG.info("Étape 10 : nettoyage final")
+    print ("Étape 10 : nettoyage final")
     db = _get_db()
 
     db.session.execute(text(
@@ -1572,6 +1619,7 @@ def step_cleanup():
 
 def step_verify():
     LOG.info("Étape 11 : vérification post-swap")
+    print ("Étape 11 : vérification post-swap")
     db = _get_db()
 
     rows = db.session.execute(text(
@@ -1653,6 +1701,7 @@ def step_verify():
 
 def step_refresh_vm_lareas_simples():
     LOG.info("Étape 12 : rafraîchissement final de ref_geo.vm_lareas_simples")
+    print ("Étape 12 : rafraîchissement final de ref_geo.vm_lareas_simples")
     db = _get_db()
     db.session.execute(text(
         "REFRESH MATERIALIZED VIEW CONCURRENTLY ref_geo.vm_lareas_simples"
@@ -1682,6 +1731,8 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
     )
+
+    _ensure_migrations()
 
     if dry_run:
         LOG.info("=== MODE DRY-RUN : le swap final ne sera PAS exécuté ===")
