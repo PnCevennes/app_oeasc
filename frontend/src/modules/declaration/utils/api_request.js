@@ -175,8 +175,6 @@ export async function fetch_hierarchy_from_intersect(declaration_data) {
   (declaration_data.areas_localisation_onf_ug || []).forEach((id) =>
     params.append('id_ug', id)
   );
-  params.append('b_document', declaration_data.b_document ?? false);
-  params.append('b_statut_public', declaration_data.b_statut_public ?? false);
   try {
     return await apiRequest(
       'GET',

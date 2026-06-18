@@ -927,26 +927,27 @@ export default {
               this.declaration_data.label_foret = result.label_foret;
               this.declaration_data.surface_renseignee = result.surface_renseignee;
               this.declaration_data.nom_foret = result.nom_foret;
-              // id_proprietaire = result.id_proprietaire;
-              fetch_proprietaires_from_id(result.id_proprietaire)
-                .then((proprietaire) => {
-                  if (proprietaire) {
-                    this.declaration_data.nom_proprietaire = proprietaire.nom_proprietaire;
-                    this.declaration_data.adresse = proprietaire.adresse;
-                    this.declaration_data.s_commune_proprietaire =
-                      proprietaire.s_commune_proprietaire;
-                    this.declaration_data.telephone = proprietaire.telephone;
-                    this.declaration_data.email = proprietaire.email;
-                  } else {
-                    console.error("Propriétaire non trouvé pour l'ID:", result.id_proprietaire);
-                  }
-                })
-                .catch((error) => {
-                  console.error(
-                    'Erreur lors de la récupération des données du propriétaire:',
-                    error
-                  );
-                });
+              if (result.id_proprietaire) {
+                fetch_proprietaires_from_id(result.id_proprietaire)
+                  .then((proprietaire) => {
+                    if (proprietaire) {
+                      this.declaration_data.nom_proprietaire = proprietaire.nom_proprietaire;
+                      this.declaration_data.adresse = proprietaire.adresse;
+                      this.declaration_data.s_commune_proprietaire =
+                        proprietaire.s_commune_proprietaire;
+                      this.declaration_data.telephone = proprietaire.telephone;
+                      this.declaration_data.email = proprietaire.email;
+                    } else {
+                      console.error("Propriétaire non trouvé pour l'ID:", result.id_proprietaire);
+                    }
+                  })
+                  .catch((error) => {
+                    console.error(
+                      'Erreur lors de la récupération des données du propriétaire:',
+                      error
+                    );
+                  });
+              }
             }
           })
           .catch((error) => {

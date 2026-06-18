@@ -625,8 +625,6 @@ def get_declaration_hierarchy_from_intersect():
     """
     id_cadastres = [int(x) for x in request.args.getlist("id_cadastre") if x]
     id_ugs = [int(x) for x in request.args.getlist("id_ug") if x]
-    b_document = request.args.get("b_document") == "true"
-    b_statut_public = request.args.get("b_statut_public") == "true"
 
     leaf_ids = id_cadastres + id_ugs
     if not leaf_ids:
@@ -640,23 +638,20 @@ def get_declaration_hierarchy_from_intersect():
     relations_set = set()
 
     for row in intersect_rows:
-        # UG ONF : toujours hiérarchie ONF (foret_onf → parcelle_onf → ug)
+        # UG ONF : hiérarchie parcelle_onf → ug (et foret_onf → parcelle_onf si disponible)
         if row.id_parcelle in id_ugs:
             if row.id_parcelle_onf:
                 relations_set.add((row.id_parcelle, row.id_parcelle_onf))
                 all_ids.add(row.id_parcelle_onf)
-            if row.id_foret_onf and row.id_parcelle_onf:
-                relations_set.add((row.id_parcelle_onf, row.id_foret_onf))
-                all_ids.add(row.id_foret_onf)
-        # Cadastres : hiérarchie selon le type de forêt
+                if row.id_foret_onf:
+                    relations_set.add((row.id_parcelle_onf, row.id_foret_onf))
+                    all_ids.add(row.id_foret_onf)
+        # Cadastres : foret_dgd si disponible, sinon chaîne section → commune
         elif row.id_parcelle in id_cadastres:
-            if b_document and not b_statut_public:
-                # Forêt DGD : foret_dgd → cadastre
-                if row.id_foret_dgd:
-                    relations_set.add((row.id_parcelle, row.id_foret_dgd))
-                    all_ids.add(row.id_foret_dgd)
+            if row.id_foret_dgd:
+                relations_set.add((row.id_parcelle, row.id_foret_dgd))
+                all_ids.add(row.id_foret_dgd)
             else:
-                # Hors forêt : commune → section → cadastre
                 if row.id_section_cadastrale:
                     relations_set.add((row.id_parcelle, row.id_section_cadastrale))
                     all_ids.add(row.id_section_cadastrale)

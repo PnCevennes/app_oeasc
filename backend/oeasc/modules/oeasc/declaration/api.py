@@ -102,25 +102,23 @@ def api_get_proprietaire_from_id_declarant(id_declarant):
 @bp.route("foret_from_code/<string:code_foret>", methods=["GET"])
 @check_auth_redirect_login(1)
 def api_get_foret_from_code(code_foret):
-    # Récupère la forêt et son propriétaire à partir du code de la forêt
     foret, proprietaire = get_foret_from_code(code_foret)
-    # Sérialise l'objet forêt en dictionnaire
+
+    if foret is None:
+        return {"error": f"Forêt '{code_foret}' introuvable"}, 404
+
     foret_dict = TForetSchema().dump(foret)
-    # Sérialise l'objet propriétaire en dictionnaire
-    proprietaire_dict = TProprietaireSchema().dump(proprietaire)
 
-    # Fusionne les informations du propriétaire dans le dictionnaire de la forêt
-    foret_dict.update(proprietaire_dict)
+    if proprietaire is not None:
+        proprietaire_dict = TProprietaireSchema().dump(proprietaire)
+        foret_dict.update(proprietaire_dict)
 
-    # Récupère la nomenclature du type de propriétaire
-    nomenclature = get_nomenclature_from_id(
-        proprietaire.id_nomenclature_proprietaire_type
-    )
-    # Si le propriétaire est privé, on cache ses informations personnelles
-    if nomenclature["cd_nomenclature"] == "PT_PRI":
-        hide_proprietaire(foret_dict)
+        nomenclature = get_nomenclature_from_id(
+            proprietaire.id_nomenclature_proprietaire_type
+        )
+        if nomenclature["cd_nomenclature"] == "PT_PRI":
+            hide_proprietaire(foret_dict)
 
-    # Retourne les informations de la forêt (et du propriétaire) au format JSON
     return foret_dict
 
 

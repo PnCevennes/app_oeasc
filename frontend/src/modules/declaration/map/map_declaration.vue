@@ -135,7 +135,7 @@ permet de zoomer dans les zones sélectionnées -->
             @click:close="action_close_pastille(area)"
             class="ma-1"
           >
-            {{ area.area_code }}
+            {{ area.area_name }}
           </v-chip>
         </v-chip-group>
       </div>
@@ -1054,61 +1054,23 @@ export default {
         return;
       }
 
-      if (
-        this.declaration_data.b_document === true &&
-        this.declaration_data.b_statut_public === true
-      ) {
-        // Si c'est une forêt ONF, on remplit les zones ONF UG et PRF
-        this.hierarchy_areas.forEach((area_first) => {
-          if (area_first.id_type === FORETS_ONF) {
-            this.declaration_data.areas_localisation.push(area_first);
-            area_first.areas_enfant.forEach((area_second) => {
-              if (area_second.id_type == PARCELLES_ONF) {
-                this.declaration_data.areas_localisation.push(area_second);
-                area_second.areas_enfant.forEach((area_third) => {
-                  if (area_third.id_type == UG_ONF) {
-                    this.declaration_data.areas_localisation.push(area_third);
-                  }
-                });
-              }
+      // Traversée de la hiérarchie basée sur les types réels des nœuds (pas sur b_document)
+      // afin de gérer les incohérences de données (ex: b_document incorrect par rapport aux areas stockées)
+      this.hierarchy_areas.forEach((root) => {
+        this.declaration_data.areas_localisation.push({ ...root, id_parent: null });
+        (root.areas_enfant || []).forEach((child) => {
+          this.declaration_data.areas_localisation.push({
+            ...child,
+            id_parent: root.id_area,
+          });
+          (child.areas_enfant || []).forEach((grandchild) => {
+            this.declaration_data.areas_localisation.push({
+              ...grandchild,
+              id_parent: child.id_area,
             });
-          }
+          });
         });
-      } else if (
-        this.declaration_data.b_document === true &&
-        this.declaration_data.b_statut_public === false
-      ) {
-        // Si c'est une forêt DGD, on remplit les zones DGD
-        this.hierarchy_areas.forEach((area_first) => {
-          if (area_first.id_type === FORETS_DGD) {
-            this.declaration_data.areas_localisation.push(area_first);
-            area_first.areas_enfant.forEach((area_second) => {
-              if (area_second.id_type == CADASTRES) {
-                this.declaration_data.areas_localisation.push(area_second);
-              }
-            });
-          }
-        });
-      } else if (this.declaration_data.b_document === false) {
-        // Si c'est une commune, on remplit les zones de la commune et de la section
-        // On parcourt l'arbre de la hiérarchie pour récupérer les zones sélectionnées
-        // On ajoute les communes, sections et sections enfants à la liste des zones sélectionnées
-        this.hierarchy_areas.forEach((area_first) => {
-          if (area_first.id_type === COMMUNES) {
-            this.declaration_data.areas_localisation.push(area_first);
-            area_first.areas_enfant.forEach((area_second) => {
-              if (area_second.id_type == SECTIONS) {
-                this.declaration_data.areas_localisation.push(area_second);
-                area_second.areas_enfant.forEach((area_third) => {
-                  if (area_third.id_type == CADASTRES) {
-                    this.declaration_data.areas_localisation.push(area_third);
-                  }
-                });
-              }
-            });
-          }
-        });
-      }
+      });
     },
   },
 };

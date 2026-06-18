@@ -1016,6 +1016,9 @@ def get_foret_from_code(code_foret):
     stmt_foret = select(TForet).where(TForet.code_foret == code_foret).limit(1)
     foret = DB.session.execute(stmt_foret).scalars().first()
 
+    if foret is None:
+        return (None, None)
+
     # On récupère le propriétaire associé à la forêt trouvée
     stmt_proprietaire = (
         select(TProprietaire)
