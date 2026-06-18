@@ -14,7 +14,7 @@ attrs==25.3.0
     # via
     #   fiona
     #   oeasc (setup.py)
-authlib==1.6.6
+authlib==1.6.12
     # via
     #   oeasc (setup.py)
     #   pypnusershub
