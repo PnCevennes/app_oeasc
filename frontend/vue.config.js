@@ -10,5 +10,10 @@ module.exports = {
   devServer: {
     port: 8080,
     proxy: 'http://localhost:5005'
+  },
+  configureWebpack: (config) => {
+    if (process.env.NODE_ENV === 'development') {
+      config.devtool = 'cheap-module-source-map';
+    }
   }
 };
