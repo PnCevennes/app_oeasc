@@ -532,6 +532,19 @@ def get_stmt_fiche_declaration(id_declaration):
 def get_stmt_for_resultats_degats():
     """Récupère les dégats pour l'affichage des résultats (page: résultats de suivis/système d'alerte)"""
 
+    # CTE secteur : calculé une fois par déclaration, puis jointé
+    secteur_cte = (
+        select(
+            CorAreasDeclaration.id_declaration,
+            func.string_agg(VMAreasSimples.area_name.distinct(), ", ").label("secteur"),
+        )
+        .select_from(CorAreasDeclaration)
+        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(VMAreasSimples, VMAreasSimples.id_area == CorAreaIntersect.id_secteur)
+        .group_by(CorAreasDeclaration.id_declaration)
+        .cte("secteur_degats")
+    )
+
     stmt_all_degats = (
         select(
             TDeclaration.b_peuplement_paturage_presence,
@@ -570,9 +583,7 @@ def get_stmt_for_resultats_degats():
             get_nomenclature_label(TDeclaration.id_nomenclature_peuplement_type).label(
                 "peuplement_type_label"
             ),
-            get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label(
-                "secteur"
-            ),
+            secteur_cte.c.secteur,
             case(
                 (
                     and_(TForet.b_statut_public == True, TForet.b_document == True),
@@ -604,6 +615,7 @@ def get_stmt_for_resultats_degats():
         .join(TDeclaration, TDegat.id_declaration == TDeclaration.id_declaration)
         .join(VUsers, TDeclaration.id_declarant == VUsers.id_role)
         .join(TForet, TDeclaration.id_foret == TForet.id_foret)
+        .outerjoin(secteur_cte, secteur_cte.c.id_declaration == TDeclaration.id_declaration)
         .order_by(TDegat.id_declaration)
     )
 

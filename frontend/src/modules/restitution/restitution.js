@@ -347,6 +347,7 @@ class Restitution {
     const condSame = this.condSame();
     let index = 0;
     for (const dataList of [dataList1, dataList2].filter((r) => !!r)) {
+      if (!dataList.length) continue;
       const key = dataList[0].key;
       const item = this.item(key);
       const markerLegends = {
@@ -450,6 +451,7 @@ class Restitution {
 
   /** type : icon ou color */
   valueOfType(type, value, dataList) {
+    if (!dataList || !dataList.length) return this._defaultTypes[type];
     let out;
     const key = dataList[0].key;
 
@@ -478,6 +480,7 @@ class Restitution {
   }
 
   cutDataList(dataList) {
+    if (!dataList || !dataList.length) return dataList;
     const nbMax =
       this._options.choix1 == dataList[0].key
         ? this._options.nbMax1

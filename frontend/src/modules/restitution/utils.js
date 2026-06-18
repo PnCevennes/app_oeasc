@@ -27,7 +27,7 @@ const fillDates = (dataList) => {
 };
 
 const split = (separator) => (d, item) => {
-  return d[item.key].split(separator);
+  return d[item.key] != null ? d[item.key].split(separator) : null;
 };
 
 const replace = (replaceList) => (d, item) => {
