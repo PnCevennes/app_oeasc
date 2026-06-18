@@ -263,6 +263,7 @@ def get_form_declaration(id_declaration=None, session={}):
     declaration_dict["areas_localisation_onf_ug"] = get_id_areas(
         areas_localisation, ["OEASC_ONF_UG"]
     )
+    declaration_dict["areas_localisation"] = [a for a in areas_localisation if a is not None]
 
     # Cache les informations personnelles du propriétaire si l'utilisateur n'est pas le déclarant
     # ou si son niveau d'accès est inférieur à 4 (donc pas administrateur).

@@ -79,3 +79,7 @@ data/chasse/data/*
 
 
 !.gitkeep
+*.md
+
+.claude/
+CLAUDE.md

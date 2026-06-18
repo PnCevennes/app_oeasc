@@ -235,18 +235,13 @@ export default {
 
   computed: {
     areasLocalisationOfThisMap() {
-      if (
-        this.declaration_data.b_document === true &&
-        this.declaration_data.b_statut_public === true
-      ) {
-        return (this.declaration_data.areas_localisation || []).filter(
-          (area) => area && area.id_type === UG_ONF
-        );
-      } else {
-        return (this.declaration_data.areas_localisation || []).filter(
-          (area) => area && area.id_type === CADASTRES
-        );
-      }
+      const leafIds = new Set([
+        ...(this.declaration_data.areas_localisation_cadastre || []),
+        ...(this.declaration_data.areas_localisation_onf_ug || []),
+      ]);
+      return (this.declaration_data.areas_localisation || []).filter(
+        (area) => area && leafIds.has(area.id_area)
+      );
     },
   },
   watch: {
