@@ -608,3 +608,70 @@ def get_areas_hierarchy(id_areas):
 
     # On retourne la hiérarchie construite au format JSON.
     return hierarchy
+
+
+@bp.route("declaration_hierarchy_from_intersect", methods=["GET"])
+@json_resp
+def get_declaration_hierarchy_from_intersect():
+    """
+    Construit la hiérarchie des areas d'une déclaration à partir de CorAreaIntersect.
+    Plus fiable que areas_hierarchy qui s'appuie sur cor_hierarchie_area (souvent incomplet).
+
+    Query params :
+      - id_cadastre (répétable) : IDs des parcelles cadastrales
+      - id_ug (répétable)       : IDs des unités de gestion ONF
+      - b_document              : "true" / "false"
+      - b_statut_public         : "true" / "false"
+    """
+    id_cadastres = [int(x) for x in request.args.getlist("id_cadastre") if x]
+    id_ugs = [int(x) for x in request.args.getlist("id_ug") if x]
+    b_document = request.args.get("b_document") == "true"
+    b_statut_public = request.args.get("b_statut_public") == "true"
+
+    leaf_ids = id_cadastres + id_ugs
+    if not leaf_ids:
+        return []
+
+    intersect_rows = DB.session.execute(
+        select(CorAreaIntersect).where(CorAreaIntersect.id_parcelle.in_(leaf_ids))
+    ).scalars().all()
+
+    all_ids = set(leaf_ids)
+    relations_set = set()
+
+    for row in intersect_rows:
+        # UG ONF : toujours hiérarchie ONF (foret_onf → parcelle_onf → ug)
+        if row.id_parcelle in id_ugs:
+            if row.id_parcelle_onf:
+                relations_set.add((row.id_parcelle, row.id_parcelle_onf))
+                all_ids.add(row.id_parcelle_onf)
+            if row.id_foret_onf and row.id_parcelle_onf:
+                relations_set.add((row.id_parcelle_onf, row.id_foret_onf))
+                all_ids.add(row.id_foret_onf)
+        # Cadastres : hiérarchie selon le type de forêt
+        elif row.id_parcelle in id_cadastres:
+            if b_document and not b_statut_public:
+                # Forêt DGD : foret_dgd → cadastre
+                if row.id_foret_dgd:
+                    relations_set.add((row.id_parcelle, row.id_foret_dgd))
+                    all_ids.add(row.id_foret_dgd)
+            else:
+                # Hors forêt : commune → section → cadastre
+                if row.id_section_cadastrale:
+                    relations_set.add((row.id_parcelle, row.id_section_cadastrale))
+                    all_ids.add(row.id_section_cadastrale)
+                if row.id_commune and row.id_section_cadastrale:
+                    relations_set.add((row.id_section_cadastrale, row.id_commune))
+                    all_ids.add(row.id_commune)
+
+    relations = [
+        {"id_area_enfant": enfant, "id_area_parent": parent}
+        for enfant, parent in relations_set
+    ]
+
+    areas = DB.session.execute(
+        select(VMAreasSimples).where(VMAreasSimples.id_area.in_(list(all_ids)))
+    ).scalars().all()
+    data_result = VMAreasSimplesSchema(many=True).dump(areas)
+
+    return build_area_hierarchy(data_result, relations)

@@ -156,6 +156,7 @@ import {
   fetch_areas_child_of,
   fetch_areas_group_from_id_type,
   fetch_hierarchy_areas,
+  fetch_hierarchy_from_intersect,
 } from '@/modules/declaration/utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
 
 const DEFAUT = 0; // uniquement le perimetre oeasc
@@ -1039,7 +1040,7 @@ export default {
           .forEach((id) => allAreaIds.add(id));
 
         this.list_selected_areas = [...allAreaIds];
-        this.hierarchy_areas = await fetch_hierarchy_areas(this.list_selected_areas);
+        this.hierarchy_areas = await fetch_hierarchy_from_intersect(this.declaration_data);
         // Si la hiérarchie est indisponible, on conserve les données initiales du backend
         if (!this.hierarchy_areas?.length) {
           this.hierarchy_areas = [];

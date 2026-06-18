@@ -167,4 +167,25 @@ export async function fetch_hierarchy_areas(list_id_areas) {
   }
 }
 
+export async function fetch_hierarchy_from_intersect(declaration_data) {
+  const params = new URLSearchParams();
+  (declaration_data.areas_localisation_cadastre || []).forEach((id) =>
+    params.append('id_cadastre', id)
+  );
+  (declaration_data.areas_localisation_onf_ug || []).forEach((id) =>
+    params.append('id_ug', id)
+  );
+  params.append('b_document', declaration_data.b_document ?? false);
+  params.append('b_statut_public', declaration_data.b_statut_public ?? false);
+  try {
+    return await apiRequest(
+      'GET',
+      `api/ref_geo/declaration_hierarchy_from_intersect?${params}`
+    );
+  } catch (error) {
+    console.error('Erreur lors de la récupération de la hiérarchie depuis intersect', error);
+    return null;
+  }
+}
+
 export default {};
