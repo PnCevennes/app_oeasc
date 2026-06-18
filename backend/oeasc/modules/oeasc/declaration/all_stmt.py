@@ -276,6 +276,43 @@ def get_stmt_liste_declaration():
     )
 
     # -------------------------
+    # CTE : nom_foret (via cor_area_intersect → vm_areas_simples)
+    # -------------------------
+    nom_foret_cte = (
+        select(
+            CorAreasDeclaration.id_declaration,
+            func.string_agg(VMAreasSimples.area_name.distinct(), ", ").label("label_foret"),
+        )
+        .select_from(CorAreasDeclaration)
+        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(
+            VMAreasSimples,
+            or_(
+                VMAreasSimples.id_area == CorAreaIntersect.id_foret_onf,
+                VMAreasSimples.id_area == CorAreaIntersect.id_foret_dgd,
+                VMAreasSimples.id_area == CorAreaIntersect.id_foret_prive,
+            ),
+        )
+        .group_by(CorAreasDeclaration.id_declaration)
+        .cte("nom_foret")
+    )
+
+    # -------------------------
+    # CTE : secteur (via cor_area_intersect → vm_areas_simples)
+    # -------------------------
+    secteur_cte = (
+        select(
+            CorAreasDeclaration.id_declaration,
+            func.string_agg(VMAreasSimples.area_name.distinct(), ", ").label("secteur"),
+        )
+        .select_from(CorAreasDeclaration)
+        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(VMAreasSimples, VMAreasSimples.id_area == CorAreaIntersect.id_secteur)
+        .group_by(CorAreasDeclaration.id_declaration)
+        .cte("secteur")
+    )
+
+    # -------------------------
     # Requête principale
     # -------------------------
     # d = TDeclaration
@@ -283,6 +320,8 @@ def get_stmt_liste_declaration():
     p = peuplement_cte
     pn = peuplement_nomenclatures_cte
     deg = degat_type_cte
+    nf = nom_foret_cte
+    sec = secteur_cte
     # vu = VUsers
 
     stmt = (
@@ -297,10 +336,8 @@ def get_stmt_liste_declaration():
             VUsers.organisme,
             VUsers.id_droit_max,
             VUsers.org_mnemo,
-            f.c.label_foret,
-            get_area_names(TDeclaration.id_declaration, "OEASC_SECTEUR").label(
-                "secteur"
-            ),
+            nf.c.label_foret,
+            sec.c.secteur,
             case(
                 (
                     and_(f.c.b_statut_public == True, f.c.b_document == True),
@@ -323,6 +360,8 @@ def get_stmt_liste_declaration():
         .join(p, p.c.id_declaration == TDeclaration.id_declaration)
         .join(pn, pn.c.id_declaration == TDeclaration.id_declaration)
         .join(deg, deg.c.id_declaration == TDeclaration.id_declaration)
+        .outerjoin(nf, nf.c.id_declaration == TDeclaration.id_declaration)
+        .outerjoin(sec, sec.c.id_declaration == TDeclaration.id_declaration)
     )
 
     return stmt
