@@ -474,21 +474,6 @@ class CorAreasForet(CustomModel):
         self.id_area = id_area
 
 
-# PROBLEME DE CLE PRIMAIRE et de DOUBLON dans la table
-# @serializable
-class CorDgdCadastre(CustomModel):
-    """
-    Correspondance entre les codes DGD et les codes cadastre pour les forêts (permet de faire le lien entre les données de la DGD et les données cadastrales)
-    """
-
-    __tablename__ = "cor_dgd_cadastre"
-    __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
-
-    # donc pas possible de faire des clés étrangères.
-    area_code_dgd: Mapped[str] = Column(Unicode, primary_key=True)
-    area_code_cadastre: Mapped[str] = Column(Unicode, primary_key=True)
-
-
 @serializable
 class TProprietaire(CustomModel):
     """

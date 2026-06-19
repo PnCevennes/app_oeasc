@@ -10,12 +10,11 @@ from flask import current_app
 
 from .models import (
     BibAreasType,
+    CorHierarchieArea,
     LAreas,
     VMAreasSimples,
 )
 from .schema import LAreasSchema, VMAreasSimplesSchema
-
-from ..modules.oeasc.declaration.models import CorDgdCadastre
 
 config = current_app.config
 DB = config["DB"]
@@ -179,17 +178,15 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
         # cas des dgd
         elif container.id_type == id_type_dgd:
 
-            stmt_cadastre = select(CorDgdCadastre.area_code_cadastre).where(
-                CorDgdCadastre.area_code_dgd == container.area_code
+            stmt_enfants = select(CorHierarchieArea.id_area_enfant).where(
+                CorHierarchieArea.id_area_parent == container.id_area
             )
-            res = DB.session.execute(stmt_cadastre).all()
+            ids_enfants = DB.session.execute(stmt_enfants).scalars().all()
 
-            v = [r[0] for r in res]
-
-            stmt_by_area_code = (
-                select(table).where(table.area_code.in_(v)).order_by(_order_column(table))
+            stmt_by_id = (
+                select(table).where(table.id_area.in_(ids_enfants)).order_by(_order_column(table))
             )
-            data = DB.session.execute(stmt_by_area_code).scalars().all()
+            data = DB.session.execute(stmt_by_id).scalars().all()
 
         # autres cas ONF
         else:

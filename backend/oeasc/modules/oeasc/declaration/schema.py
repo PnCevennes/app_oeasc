@@ -235,17 +235,6 @@ class CorAreasForetSchema(SQLAlchemyAutoSchema):
         unknown = EXCLUDE
 
 
-class CorDgdCadastreSchema(SQLAlchemyAutoSchema):
-    area_code_dgd = fields.String(allow_none=True)
-    area_code_cadastre = fields.String(allow_none=True)
-
-    class Meta:
-        model = CorDgdCadastre
-        load_instance = True
-        sqla_session = (DB.session,)
-        unknown = EXCLUDE
-
-
 class TProprietaireSchema(SQLAlchemyAutoSchema):
     id_proprietaire = fields.Integer(allow_none=True)
 
