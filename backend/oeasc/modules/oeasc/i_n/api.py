@@ -10,18 +10,14 @@ from .repository import in_data
 from .models import (
     TRealisations,
     TCircuits,
-    TTagsIn,
     TObservers,
-    CorRealisationTag,
     CorRealisationObserver,
 )
 
 from .schema import (
     TRealisationsSchema,
     TCircuitsSchema,
-    TTagsInSchema,
     TObserversSchema,
-    CorRealisationTagSchema,
     CorRealisationObserverSchema,
 )
 
@@ -46,20 +42,10 @@ definitions = {
         "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
         "schema": TCircuitsSchema,
     },
-    "tag": {
-        "model": TTagsIn,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
-        "schema": TTagsInSchema,
-    },
     "observer": {
         "model": TObservers,
         "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
         "schema": TObserversSchema,
-    },
-    "cor_realisation_tag": {
-        "model": CorRealisationTag,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
-        "schema": CorRealisationTagSchema,
     },
     "cor_realisation_observer": {
         "model": CorRealisationObserver,
@@ -111,17 +97,14 @@ def in_valid_realisation():
 
     # Extraction des identifiants nécessaires pour cibler la bonne réalisation/tag
     id_realisation = data["id_realisation"]
-    id_tag = data["id_tag"]
-
+    valide_ZC = data["valide_ZC"]
+    valide_PNC = data["valide_PNC"]
     # Prépare la requête SQLAlchemy pour mettre à jour la table de correspondance
     # entre réalisation et tag (CorRealisationTag) avec les nouvelles valeurs
     stmt_cor = (
-        update(CorRealisationTag)
-        .where(
-            CorRealisationTag.id_realisation == id_realisation,
-            CorRealisationTag.id_tag == id_tag,
-        )
-        .values(data)
+        update(TRealisations)
+        .where(TRealisations.id_realisation == id_realisation)
+        .values(valide_ZC=valide_ZC, valide_PNC=valide_PNC)
     )  # Les champs à mettre à jour sont ceux présents dans 'data'
 
     # Exécute la requête de mise à jour sur la base de données

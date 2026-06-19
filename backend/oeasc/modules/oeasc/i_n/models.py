@@ -76,6 +76,7 @@ class TCircuits(CustomModel):
         TSecteurs,
         back_populates="circuits",
     )
+    in_coeur: Mapped[bool] = Column(Boolean, default=True)
 
 
 # pour éviter une boucle d'importation avec le modele I_N, il faut déclarer cette relation après la définition des classe et depuis ce model
@@ -104,42 +105,6 @@ class TObservations(CustomModel):
     )
     espece: Mapped["TEspeces"] = relationship(TEspeces, lazy="joined")
     nb: Mapped[int] = Column(Integer)
-
-
-@serializable
-class TTagsIn(CustomModel):
-    """
-    Tags for circuits
-    """
-
-    __tablename__ = "t_tags"
-    __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
-    id_tag: Mapped[int] = Column(Integer, primary_key=True)
-    nom_tag: Mapped[str] = Column(Unicode)
-    code_tag: Mapped[str] = Column(Unicode)
-
-
-@serializable
-class CorRealisationTag(CustomModel):
-    """
-    Cor Realisation Tag
-    """
-
-    __tablename__ = "cor_realisation_tag"
-    __table_args__ = {"schema": "oeasc_in", "extend_existing": True}
-
-    id_tag: Mapped[int] = Column(
-        Integer,
-        ForeignKey("oeasc_in.t_tags.id_tag"),
-        primary_key=True,
-    )
-    id_realisation: Mapped[int] = Column(
-        Integer,
-        ForeignKey("oeasc_in.t_realisations.id_realisation"),
-        primary_key=True,
-    )
-    valid: Mapped[bool] = Column(Boolean)
-    tag: Mapped["TTagsIn"] = relationship(TTagsIn, lazy="joined")
 
 
 @serializable
@@ -176,14 +141,24 @@ class TRealisations(CustomModel):
     id_circuit: Mapped[int] = Column(
         Integer, ForeignKey("oeasc_in.t_circuits.id_circuit")
     )
+    valide_ZC: Mapped[bool] = Column(Boolean, default=True)
+    valide_PNC: Mapped[bool] = Column(Boolean, default=True)
     serie: Mapped[int] = Column(Integer)
     groupes: Mapped[int] = Column(Integer)
     vent: Mapped[str] = Column(Unicode)
     temps: Mapped[str] = Column(Unicode)
     temperature: Mapped[str] = Column(Unicode)
     date_realisation: Mapped[Date] = Column(Date)
-    circuit: Mapped["TCircuits"] = relationship(
-        TCircuits, lazy="joined", overlaps="circuit, secteur"
+
+    circuit: Mapped["TCircuits"] = relationship(TCircuits, lazy="joined")
+    # relation juste là pour les filtres dans la table réalisation. Si il n'y a pas ça la recherche par secteur ne fonctionne pas car le secteur est une relation du circuit et pas de la réalisation
+    secteur: Mapped["TSecteurs"] = relationship(
+        TSecteurs,
+        secondary="oeasc_in.t_circuits",
+        primaryjoin="TRealisations.id_circuit == TCircuits.id_circuit",
+        secondaryjoin="TCircuits.id_secteur == TSecteurs.id_secteur",
+        viewonly=True,
+        lazy="joined",
     )
     observations: Mapped[list["TObservations"]] = relationship(
         TObservations,
@@ -195,11 +170,7 @@ class TRealisations(CustomModel):
         secondary=cor_realisation_observer,
         lazy="joined",
     )
-    tags: Mapped[list["CorRealisationTag"]] = relationship(
-        CorRealisationTag,
-        cascade="save-update, merge, delete, delete-orphan",
-        lazy="joined",
-    )
+
     observers_table: Mapped[str] = column_property(
         select(func.string_agg(TObservers.nom_observer, ", "))
         .where(
@@ -210,25 +181,7 @@ class TRealisations(CustomModel):
         )
         .scalar_subquery()
     )
-    tags_table: Mapped[str] = column_property(
-        select(
-            func.string_agg(
-                func.concat(
-                    TTagsIn.nom_tag,
-                    " : ",
-                    case((CorRealisationTag.valid == True, "o"), else_="x"),
-                ),
-                ", ",
-            )
-        )
-        .where(
-            and_(
-                CorRealisationTag.id_realisation == id_realisation,
-                CorRealisationTag.id_tag == TTagsIn.id_tag,
-            )
-        )
-        .scalar_subquery()
-    )
+
     cerfs: Mapped[int] = column_property(
         select(TObservations.nb)
         .where(
@@ -273,32 +226,3 @@ class TRealisations(CustomModel):
         )
         .scalar_subquery()
     )
-
-
-@serializable
-class VResult(DB.Model):
-    __tablename__ = "v_result"
-    __table_args__ = {"schema": "oeasc_in"}
-    # __mapper_args__ = {"primary_key": [Column("id_observation", Integer)]}
-
-    id_observation: Mapped[int] = Column(Integer, primary_key=True)
-    nb: Mapped[int] = Column(Integer)
-    groupes: Mapped[str] = Column(Unicode)
-    serie: Mapped[str] = Column(Unicode)
-    date: Mapped[str] = Column(Unicode)
-    # id_circuit: Mapped[int] = Column(Integer, ForeignKey("oeasc_in.t_circuits.id_circuit"))
-    id_circuit: Mapped[int] = Column(Integer)
-    nom_circuit: Mapped[str] = Column(Unicode)
-    numero_circuit: Mapped[str] = Column(Unicode)
-    nom_secteur: Mapped[str] = Column(Unicode)
-    km: Mapped[float] = Column(Float)
-    valid: Mapped[bool] = Column(Boolean)
-    nom_tag: Mapped[str] = Column(Unicode)
-    id_tag: Mapped[int] = Column(Integer)
-    # id_tag: Mapped[int] = Column(Integer, ForeignKey("oeasc_in.t_tags.id_tag"))
-    ug: Mapped[str] = Column(Unicode)
-    nom_espece: Mapped[str] = Column(Unicode)
-    # id_realisation: Mapped[int] = Column(Integer, ForeignKey("oeasc_in.t_realisations.id_realisation"))
-    id_realisation: Mapped[int] = Column(Integer)
-    nbkm: Mapped[float] = Column(Float)
-    annee: Mapped[str] = Column(Unicode)

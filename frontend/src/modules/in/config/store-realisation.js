@@ -12,7 +12,7 @@ export default {
     sortBy: ['id_realisation'], // tri par défaut
     sortDesc: [true], // tri en ordre décroissant
     // fields: [ //les des champs des modèles à intégrer à la requête get
-    //   "circuit.secteur.id_secteur", "circuit.secteur.nom_secteur", "circuit.secteur.code_secteur", "circuit.id_circuit", "circuit.nom_circuit", "circuit.numero_circuit",
+    //   "secteur.id_secteur", "secteur.nom_secteur",
     // ]
   },
 
@@ -22,7 +22,8 @@ export default {
     'circuit',
     'secteur',
     'serie',
-    'tags_table',
+    'valide_ZC',
+    'valide_PNC',
     'observers_table',
     'cerfs',
     'chevreuils',
@@ -33,6 +34,7 @@ export default {
     observers_table: {
       label: 'Observateurs',
     },
+
     id_realisation: {
       label: 'ID',
       hidden: true,
@@ -54,13 +56,19 @@ export default {
     },
     secteur: {
       text: 'Secteur',
-      storeName: 'commonsSecteur',
+      label: 'Secteur',
+      // storeName: 'commonsSecteur',
       displayFieldName: 'code_secteur',
       type: 'list_form',
       list_type: 'select',
       returnObject: true,
-      preProcess: (d) => d.circuit.secteur,
+      dataReloadOnSearch: true,
+      // preProcess: (d) => d.circuit.secteur,
+      display: (d) => (
+        d.circuit && d.circuit.secteur && d.circuit.secteur.code_secteur ? d.circuit.secteur.code_secteur : ''
+      ),
     },
+
     observers: {
       type: 'list_form',
       list_type: 'combobox',
@@ -69,35 +77,23 @@ export default {
       multiple: true,
       storeName: 'inObserver',
       returnObject: true,
-      dataReloadOnSearch: true,
+      // dataReloadOnSearch: true,
       display: (d) => (d && d.length ? d.map((dd) => dd.nom_observer).join(', ') : ''),
     },
-    tags_table: {
-      label: 'Tags',
+
+    // on n'affiche valide_ZC que si le secteur du circuit est "Causse-Gorges"
+    valide_ZC: {
+      label: 'Valide ZC',
+      type: 'bool_switch',
+      display: (d) => (
+        d.circuit && d.circuit.secteur && d.circuit.secteur.code_secteur === 'CAUS' ? d.valide_ZC : ''
+      ),
     },
-    tags: {
-      type: 'list',
-      label: 'Tags',
-      forms: ['id_realisation', 'id_tag', 'valid'],
-    },
-    id_tag: {
-      label: 'Tag',
-      type: 'list_form',
-      list_type: 'select',
-      required: true,
-      storeName: 'inTag',
-    },
-    valid: {
-      label: 'Valide',
+    valide_PNC: {
+      label: 'Valide PNC',
       type: 'bool_switch',
     },
-    tag: {
-      type: 'list_form',
-      list_type: 'select',
-      label: 'Tag',
-      storeName: 'inTag',
-      returnObject: true,
-    },
+
     temperature: {
       label: 'Température',
       type: 'list_form',
@@ -176,9 +172,18 @@ export default {
       },
       {
         title: 'Validation',
-        forms: ['tags'],
+        condition: ({ baseModel }) => {
+          return baseModel.circuit && baseModel.circuit.secteur && baseModel.circuit.secteur.code_secteur === 'CAUS';
+        },
+        forms: ['valide_ZC', 'valide_PNC'],
       },
-
+      {
+        title: 'Validation',
+        condition: ({ baseModel }) => {
+          return baseModel.circuit && baseModel.circuit.secteur && baseModel.circuit.secteur.code_secteur != 'CAUS';
+        },
+        forms: ['valide_PNC'],
+      },
       {
         title: 'Météo',
         direction: 'row',
@@ -190,13 +195,14 @@ export default {
       },
     ],
     value: {
-      tags: [{ id_tag: 1, valid: true }],
       observations: [
         { id_espece: 1, nb: 0 },
         { id_espece: 2, nb: 0 },
         { id_espece: 3, nb: 0 },
         { id_espece: 4, nb: 0 },
       ],
+      //on n'affiche valide_ZC que si le secteur du circuit est "Causse-Gorges", on le met à true par défaut pour éviter les erreurs de validation
+      
     },
     // action: {
     // preProcess: ({ baseModel }) => {

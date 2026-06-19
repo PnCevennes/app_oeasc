@@ -44,6 +44,12 @@ export default {
       required: true,
       min: 0,
     },
+    in_coeur: {
+      label: 'En zone coeur',
+      type: 'bool_switch',
+      required: true,
+      min: 0,
+    },
     actif: {
       label: 'Actif',
       type: 'bool_switch',

@@ -1,6 +1,6 @@
 import storeUtils from '@/store/utils';
 import admin from '@/components/admin';
-import configStoreTag from './config/store-tag';
+// import configStoreTag from './config/store-tag';
 import configStoreObserver from './config/store-observer';
 import configStoreCircuit from './config/store-circuit';
 import configStoreRealisation from './config/store-realisation';
@@ -46,9 +46,6 @@ const ROUTE = [
           observer: {
             storeName: 'inObserver',
           },
-          tag: {
-            storeName: 'inTag',
-          },
         },
       },
     },
@@ -80,7 +77,6 @@ storeUtils.addSimpleStore(STORE, 'inResults', 'api/in/results/');
 
 storeUtils.addStore(STORE, configStoreCircuit);
 storeUtils.addStore(STORE, configStoreObserver);
-storeUtils.addStore(STORE, configStoreTag);
 storeUtils.addStore(STORE, configStoreRealisation);
 
 const CONTENT = {

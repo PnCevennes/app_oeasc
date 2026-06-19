@@ -244,6 +244,7 @@ import help from './help.vue'; // contenu d'aide inscrit dans la bdd. Remplacer 
 import list from './list.vue';
 import { copy } from '@/core/js/util/util.js';
 import { formFunctions } from '@/components/form/functions/form.js';
+import oeascContent from '@/modules/content/content.vue';
 
 export default {
   name: 'dynamicForm',
@@ -252,7 +253,7 @@ export default {
     nomenclatureForm,
     selectMap,
     listForm,
-    oeascContent: () => import('@/modules/content/content.vue'),
+    oeascContent,
     help,
     list,
   },
