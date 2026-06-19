@@ -30,7 +30,6 @@ from .repository import (
     get_liste_declarations,
     create_or_update_declaration,
     get_foret_from_code,
-    get_proprietaire_from_id,
     hide_proprietaire,
     get_form_declaration,
     check_token_renouvellement_declaration,
@@ -46,7 +45,7 @@ from .all_stmt import (
     get_stmt_for_resultats_degats,
 )
 from .models import TDeclaration
-from ..declaration.schema import TProprietaireSchema, TForetSchema
+from ..declaration.schema import TForetSchema
 from oeasc.ref_geo_oeasc.schema import LAreasSchema, VMAreasSimplesSchema
 
 bp = Blueprint("declaration_api", __name__)
@@ -65,58 +64,29 @@ def get_db():
 ######################################################################################
 
 
-# Cette route permet de récupérer les informations du propriétaire à partir de l'identifiant du déclarant.
-# Elle est utilisée lorsqu'on souhaite afficher ou utiliser les données du propriétaire liées à un déclarant spécifique.
-@bp.route("proprietaire_from_id/<int:id_declarant>", methods=["GET"])
-@check_auth_redirect_login(1)
-def api_get_proprietaire_from_id(id_declarant):
-    # Appel de la fonction pour obtenir le propriétaire selon l'id du déclarant
-    proprietaire = get_proprietaire_from_id(
-        id_declarant, type_proprietaire="proprietaire"
-    )
-    # Sérialisation de l'objet propriétaire en dictionnaire
-    proprietaire_dict = TProprietaireSchema().dump(proprietaire)
-
-    # Retourne les informations du propriétaire au format JSON
-    return proprietaire_dict
-
-
-# Cette route permet de récupérer les informations du propriétaire à partir de l'identifiant du déclarant.
-# Elle est utilisée lorsqu'on souhaite afficher ou utiliser les données du propriétaire liées à un déclarant spécifique,
-# mais en passant par la fonction get_proprietaire_from_id qui peut différer de get_proprietaire_from_id selon la logique métier.
-@bp.route("proprietaire_from_id_declarant/<int:id_declarant>", methods=["GET"])
-@check_auth_redirect_login(1)
-def api_get_proprietaire_from_id_declarant(id_declarant):
-    # Appel de la fonction pour obtenir le propriétaire selon l'id du déclarant
-    proprietaire = get_proprietaire_from_id(id_declarant, type_proprietaire="declarant")
-    # Sérialisation de l'objet propriétaire en dictionnaire
-    proprietaire_dict = TProprietaireSchema().dump(proprietaire)
-
-    # Retourne les informations du propriétaire au format JSON
-    return proprietaire_dict
-
-
 # Cette route permet de récupérer les informations de la forêt à partir de son code.
 # Elle est utilisée lorsqu'on souhaite afficher ou utiliser les données d'une forêt spécifique,
 # ainsi que celles de son propriétaire. Elle cache le nom du propriétaire si celui-ci est privé.
 @bp.route("foret_from_code/<string:code_foret>", methods=["GET"])
 @check_auth_redirect_login(1)
 def api_get_foret_from_code(code_foret):
-    foret, proprietaire = get_foret_from_code(code_foret)
+    foret, _ = get_foret_from_code(code_foret)
 
     if foret is None:
         return {"error": f"Forêt '{code_foret}' introuvable"}, 404
 
     foret_dict = TForetSchema().dump(foret)
 
-    if proprietaire is not None:
-        proprietaire_dict = TProprietaireSchema().dump(proprietaire)
-        foret_dict.update(proprietaire_dict)
+    # Renommage des champs propriétaire vers les noms attendus par le frontend
+    foret_dict["telephone"] = foret_dict.pop("tel_proprietaire", None)
+    foret_dict["email"] = foret_dict.pop("email_proprietaire", None)
+    foret_dict["adresse"] = foret_dict.pop("adresse_proprietaire", None)
+    foret_dict["s_commune_proprietaire"] = foret_dict.pop("commune_proprietaire", None)
+    foret_dict["s_code_postal"] = foret_dict.pop("cp_proprietaire", None)
 
-        nomenclature = get_nomenclature_from_id(
-            proprietaire.id_nomenclature_proprietaire_type
-        )
-        if nomenclature["cd_nomenclature"] == "PT_PRI":
+    if foret.id_nomenclature_proprietaire_type:
+        nomenclature = get_nomenclature_from_id(foret.id_nomenclature_proprietaire_type)
+        if nomenclature and nomenclature["cd_nomenclature"] == "PT_PRI":
             hide_proprietaire(foret_dict)
 
     return foret_dict

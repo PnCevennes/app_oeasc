@@ -860,7 +860,7 @@ import help from '@/components/form/help_static.vue';
 import tableAide from '@/modules/content/table-aide.vue';
 import { formFunctions } from '@/components/form/functions/form.js';
 import { apiRequest } from '@/core/js/data/api';
-import { fetch_forets_from_code, fetch_proprietaires_from_id} from './utils/api_request.js';
+import { fetch_forets_from_code } from './utils/api_request.js';
 import MapDeclaration from './map/map_declaration.vue';
 import degatsForm from '@/components/form/degats_declaration_form.vue';
 import resumeDeclaration from '@/modules/declaration/resume_declaration.vue';
@@ -927,27 +927,12 @@ export default {
               this.declaration_data.label_foret = result.label_foret;
               this.declaration_data.surface_renseignee = result.surface_renseignee;
               this.declaration_data.nom_foret = result.nom_foret;
-              if (result.id_proprietaire) {
-                fetch_proprietaires_from_id(result.id_proprietaire)
-                  .then((proprietaire) => {
-                    if (proprietaire) {
-                      this.declaration_data.nom_proprietaire = proprietaire.nom_proprietaire;
-                      this.declaration_data.adresse = proprietaire.adresse;
-                      this.declaration_data.s_commune_proprietaire =
-                        proprietaire.s_commune_proprietaire;
-                      this.declaration_data.telephone = proprietaire.telephone;
-                      this.declaration_data.email = proprietaire.email;
-                    } else {
-                      console.error("Propriétaire non trouvé pour l'ID:", result.id_proprietaire);
-                    }
-                  })
-                  .catch((error) => {
-                    console.error(
-                      'Erreur lors de la récupération des données du propriétaire:',
-                      error
-                    );
-                  });
-              }
+              // Les données propriétaire sont désormais dans t_forets
+              this.declaration_data.nom_proprietaire = result.nom_proprietaire;
+              this.declaration_data.adresse = result.adresse;
+              this.declaration_data.s_commune_proprietaire = result.s_commune_proprietaire;
+              this.declaration_data.telephone = result.telephone;
+              this.declaration_data.email = result.email;
             }
           })
           .catch((error) => {

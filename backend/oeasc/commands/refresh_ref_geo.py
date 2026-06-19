@@ -884,6 +884,48 @@ def step_load_foret_onf():
 
 
 # ---------------------------------------------------------------------------
+# Étape 4h — Reprise des infos propriétaire ONF depuis t_forets
+# ---------------------------------------------------------------------------
+
+
+def step_copy_onf_proprietaire():
+    LOG.info("Étape 4h : reprise des infos propriétaire ONF (b_document=true, b_statut_public=true)")
+    print("Étape 4h : reprise des infos propriétaire ONF (b_document=true, b_statut_public=true)")
+    db = _get_db()
+    result = db.session.execute(text("""
+        UPDATE oeasc_forets.t_forets_new fn
+        SET
+            id_proprietaire                  = f.id_proprietaire,
+            nom_proprietaire                 = f.nom_proprietaire,
+            adresse_proprietaire             = f.adresse_proprietaire,
+            cp_proprietaire                  = f.cp_proprietaire,
+            commune_proprietaire             = f.commune_proprietaire,
+            email_proprietaire               = f.email_proprietaire,
+            tel_proprietaire                 = f.tel_proprietaire,
+            id_nomenclature_proprietaire_type = f.id_nomenclature_proprietaire_type,
+            id_declarant                     = f.id_declarant
+        FROM oeasc_forets.t_forets f
+        WHERE fn.code_foret = f.code_foret
+        AND fn.b_document = TRUE AND fn.b_statut_public = TRUE
+        AND  f.b_document = TRUE AND  f.b_statut_public = TRUE
+    """))
+    db.session.commit()
+    n = result.rowcount
+    LOG.info(f"  {n} forêt(s) ONF mises à jour avec les infos propriétaire de t_forets.")
+
+    n_missing = db.session.execute(text("""
+        SELECT count(*) FROM oeasc_forets.t_forets_new
+        WHERE b_document = TRUE AND b_statut_public = TRUE
+        AND id_proprietaire IS NULL AND nom_proprietaire = 'ONF'
+    """)).scalar()
+    if n_missing:
+        LOG.warning(
+            f"  ATTENTION : {n_missing} forêt(s) ONF sans correspondance par code_foret "
+            f"dans t_forets — infos propriétaire conservées à 'ONF'."
+        )
+
+
+# ---------------------------------------------------------------------------
 # Étape 5 — Construction de cor_area_intersect
 # ---------------------------------------------------------------------------
 
@@ -1569,6 +1611,125 @@ def step_build_cor_hierarchie_area():
 
 
 # ---------------------------------------------------------------------------
+# Étape 9b — Suppression des forêts hors périmètre OEASC
+# ---------------------------------------------------------------------------
+
+
+def step_prune_forests_outside_oeasc():
+    LOG.info("Étape 9b : suppression des forêts sans parcelle dans le périmètre OEASC")
+    print("Étape 9b : suppression des forêts sans parcelle dans le périmètre OEASC")
+    db = _get_db()
+
+    # Identifie les forêts à supprimer selon leur type.
+    # Pour les DGD : on utilise cor_hierarchie_area (seuil 50% de surface) plutôt que
+    # cor_area_intersect (toute intersection, même minuscule) afin d'éviter de conserver
+    # des forêts dont seules des parcelles à cheval sur la bordure OEASC les référencent.
+    to_delete = db.session.execute(text(f"""
+        SELECT f.id_foret, f.nom_foret, f.code_foret,
+               f.b_document, f.b_statut_public, f.id_area
+        FROM oeasc_forets.t_forets f
+        WHERE
+            -- ONF : pas dans id_foret_onf
+            (f.b_document = TRUE AND f.b_statut_public = TRUE
+             AND NOT EXISTS (
+                 SELECT 1 FROM ref_geo.cor_area_intersect
+                 WHERE id_foret_onf = f.id_area
+             ))
+            OR
+            -- DGD : supprimée si aucune parcelle cadastrale avec >50% de surface dans la forêt
+            -- (cor_hierarchie_area) OU si aucune parcelle cadastrale n'est du tout associée
+            -- (cor_area_intersect). Les deux vérifications sont nécessaires : cor_hierarchie_area
+            -- évite de conserver des forêts dont seules des parcelles en bordure les frôlent,
+            -- cor_area_intersect confirme l'absence totale de parcelles cadastrales.
+            (f.b_document = TRUE AND f.b_statut_public = FALSE
+             AND (
+                 NOT EXISTS (
+                     SELECT 1 FROM ref_geo.cor_hierarchie_area cha
+                     JOIN ref_geo.l_areas la ON la.id_area = cha.id_area_enfant
+                     WHERE cha.id_area_parent = f.id_area
+                     AND la.id_type = {ID_TYPE_CADASTRE}
+                 )
+                 OR NOT EXISTS (
+                     SELECT 1 FROM ref_geo.cor_area_intersect
+                     WHERE id_foret_dgd = f.id_area
+                 )
+             ))
+            OR
+            -- Privée/ss_document : pas dans id_foret_prive
+            (f.b_document = FALSE
+             AND NOT EXISTS (
+                 SELECT 1 FROM ref_geo.cor_area_intersect
+                 WHERE id_foret_prive = f.id_area
+             ))
+    """)).fetchall()
+
+    if not to_delete:
+        LOG.info("  Aucune forêt hors périmètre OEASC à supprimer.")
+        return
+
+    ids_to_delete = [r[0] for r in to_delete]
+    for r in to_delete:
+        LOG.info(
+            f"  Suppression : id_foret={r[0]} nom={r[1]!r} code={r[2]!r} "
+            f"b_document={r[3]} b_statut_public={r[4]} id_area={r[5]}"
+        )
+
+    # Nullifie id_foret dans t_declarations (FK sans ON DELETE CASCADE)
+    n_decl = db.session.execute(text("""
+        UPDATE oeasc_declarations.t_declarations
+        SET id_foret = NULL
+        WHERE id_foret = ANY(:ids)
+    """), {"ids": ids_to_delete}).rowcount
+    if n_decl:
+        LOG.warning(
+            f"  {n_decl} déclaration(s) ont eu leur id_foret mis à NULL "
+            f"(forêt hors périmètre OEASC)."
+        )
+
+    # Collecte les id_area non-null avant suppression (pour nettoyer l_areas ensuite)
+    id_areas_to_delete = [r[5] for r in to_delete if r[5] is not None]
+
+    # Supprime les forêts (CASCADE → cor_areas_forets)
+    db.session.execute(text("""
+        DELETE FROM oeasc_forets.t_forets WHERE id_foret = ANY(:ids)
+    """), {"ids": ids_to_delete})
+    db.session.commit()
+    LOG.info(f"  {len(ids_to_delete)} forêt(s) supprimée(s).")
+
+    # Supprime les polygones correspondants de l_areas
+    if id_areas_to_delete:
+        # Nullifie d'abord les références dans cor_area_intersect pour éviter que
+        # le CASCADE DELETE ne supprime les lignes entières des parcelles voisines
+        # (qui conservent des infos valides comme commune, secteur, etc.)
+        db.session.execute(text("""
+            UPDATE ref_geo.cor_area_intersect
+            SET id_foret_dgd = NULL WHERE id_foret_dgd = ANY(:ids)
+        """), {"ids": id_areas_to_delete})
+        db.session.execute(text("""
+            UPDATE ref_geo.cor_area_intersect
+            SET id_foret_onf = NULL WHERE id_foret_onf = ANY(:ids)
+        """), {"ids": id_areas_to_delete})
+        db.session.execute(text("""
+            UPDATE ref_geo.cor_area_intersect
+            SET id_foret_prive = NULL WHERE id_foret_prive = ANY(:ids)
+        """), {"ids": id_areas_to_delete})
+        # cor_hierarchie_area n'a pas de CASCADE depuis l_areas
+        n_hier = db.session.execute(text("""
+            DELETE FROM ref_geo.cor_hierarchie_area
+            WHERE id_area_parent = ANY(:ids) OR id_area_enfant = ANY(:ids)
+        """), {"ids": id_areas_to_delete}).rowcount
+        # l_areas (le CASCADE sur cor_area_intersect ne supprime plus rien car déjà nullifié)
+        n_areas = db.session.execute(text("""
+            DELETE FROM ref_geo.l_areas WHERE id_area = ANY(:ids)
+        """), {"ids": id_areas_to_delete}).rowcount
+        db.session.commit()
+        LOG.info(
+            f"  {n_areas} polygone(s) supprimé(s) de l_areas "
+            f"(cor_hierarchie_area: {n_hier} entrée(s) supprimée(s))."
+        )
+
+
+# ---------------------------------------------------------------------------
 # Étape 10 — Nettoyage final
 # ---------------------------------------------------------------------------
 
@@ -1759,6 +1920,7 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
             step_load_ug_onf()
             step_load_parcelle_onf()
             step_load_foret_onf()
+            step_copy_onf_proprietaire()
         else:
             LOG.info("--skip-load : chargement GPKG ignoré (l_areas_new déjà présente)")
 
@@ -1775,6 +1937,7 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
         step_swap_t_forets()
         step_swap_l_areas()
         step_build_cor_hierarchie_area()
+        step_prune_forests_outside_oeasc()
         step_cleanup()
         step_verify()
         step_refresh_vm_lareas_simples()

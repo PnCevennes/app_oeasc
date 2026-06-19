@@ -84,7 +84,7 @@ def upgrade():
                 SELECT
                     l.id_area,
                     l.id_type,
-                    ST_Transform(ST_SimplifyPreserveTopology(l.geom, 50), 4326) AS geom_4326,
+                    ST_Transform(ST_SimplifyPreserveTopology(l.geom, 40), 4326) AS geom_4326,
                     l.area_code,
                     l.area_name,
                     l.area_name AS label,

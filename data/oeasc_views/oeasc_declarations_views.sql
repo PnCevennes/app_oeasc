@@ -18,10 +18,8 @@ CREATE OR REPLACE VIEW oeasc_declarations.v_declarations AS
             WHEN NOT b_statut_public AND NOT b_document THEN 'Privé (sans DGD)'
             ELSE ''
         END AS type_foret,
-        ref_nomenclatures.get_nomenclature_label(p.id_nomenclature_proprietaire_type) AS foret_type_label
-        FROM oeasc_forets.t_forets f 
-        JOIN oeasc_forets.t_proprietaires p
-            ON p.id_proprietaire = f.id_proprietaire
+        ref_nomenclatures.get_nomenclature_label(f.id_nomenclature_proprietaire_type) AS foret_type_label
+        FROM oeasc_forets.t_forets f
     ),
     peuplement AS ( SELECT
         id_declaration,  

@@ -538,6 +538,15 @@ class TForet(CustomModel):
     surface_calculee: Mapped[float] = Column(Float)
     surface_renseignee: Mapped[float] = Column(Float)
 
+    nom_proprietaire: Mapped[str] = Column(Unicode(255), nullable=True)
+    adresse_proprietaire: Mapped[str] = Column(Unicode(255), nullable=True)
+    cp_proprietaire: Mapped[str] = Column(Unicode(5), nullable=True)
+    commune_proprietaire: Mapped[str] = Column(Unicode(255), nullable=True)
+    email_proprietaire: Mapped[str] = Column(Unicode(255), nullable=True)
+    tel_proprietaire: Mapped[str] = Column(Unicode(255), nullable=True)
+    id_nomenclature_proprietaire_type: Mapped[int] = Column(Integer, nullable=True)
+    id_declarant: Mapped[int] = Column(Integer, nullable=True)
+
     areas_foret: Mapped[list[CorAreasForet]] = relationship(
         "CorAreasForet", cascade="save-update, merge, delete, delete-orphan"
     )

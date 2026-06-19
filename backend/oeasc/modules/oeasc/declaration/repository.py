@@ -15,14 +15,11 @@ from flask import current_app, session
 from oeasc.modules.oeasc.declaration.models import (
     TDeclaration,
     TForet,
-    TProprietaire,
 )
 from oeasc.modules.oeasc.user.models import VUsers
-from oeasc.modules.oeasc.declaration.models import TForet, TProprietaire
 
 from .schema import (
     TDeclarationSchema,
-    TProprietaireSchema,
     TForetSchema,
 )
 from .all_stmt import (
@@ -204,11 +201,13 @@ def get_form_declaration(id_declaration=None, session={}):
 
     # Sérialise l'objet forêt en dictionnaire et fusionne avec la déclaration
     foret_dict = TForetSchema().dump(foret) if foret else {}
+    # Renommage des champs propriétaire de t_forets vers les noms attendus par le frontend
+    foret_dict["telephone"] = foret_dict.pop("tel_proprietaire", None)
+    foret_dict["email"] = foret_dict.pop("email_proprietaire", None)
+    foret_dict["adresse"] = foret_dict.pop("adresse_proprietaire", None)
+    foret_dict["s_commune_proprietaire"] = foret_dict.pop("commune_proprietaire", None)
+    foret_dict["s_code_postal"] = foret_dict.pop("cp_proprietaire", None)
     declaration_dict.update(foret_dict)
-
-    # Sérialise l'objet propriétaire en dictionnaire et fusionne avec la déclaration
-    proprietaire_dict = TProprietaireSchema().dump(proprietaire) if proprietaire else {}
-    declaration_dict.update(proprietaire_dict)
 
     # Ajoute l'identifiant du déclarant dans le dictionnaire de la déclaration
     id_declarant = declaration.id_declarant
@@ -383,7 +382,7 @@ def create_or_update_declaration(post_data):
     ]
 
     # Cas 1 : La parcelle n'a pas de document de gestion durable (petit propriétaire)
-    # On crée éventuellement un nouveau propriétaire et une nouvelle forêt
+    # On crée ou met à jour la forêt avec les données propriétaire directement
     if not post_data["b_document"]:
 
         # On récupère la nomenclature du propriétaire déclarant
@@ -398,18 +397,7 @@ def create_or_update_declaration(post_data):
             post_data["id_declarant"] = None
 
         try:
-            proprietaire = create_or_update_proprietaire(post_data)
-        except Exception as e:
-            DB.session.rollback()
-            response.add_error(
-                user_message="Erreur lors de la création/modification du propriétaire",
-                system_error=str(e),
-                status_code=200,
-            )
-            return arranged_post_data, response
-
-        try:
-            new_foret = create_or_update_foret(post_data, proprietaire.id_proprietaire)
+            new_foret = create_or_update_foret(post_data)
         except Exception as e:
             DB.session.rollback()
             response.add_error(
@@ -517,124 +505,42 @@ def create_or_update_declaration(post_data):
     return arranged_post_data, response
 
 
-def create_or_update_proprietaire(post_data):
+def create_or_update_foret(post_data):
     """
-    Fonction pour créer ou mettre à jour un propriétaire et une forêt associés à une déclaration.
-    Utilisée principalement dans le cas où la déclaration concerne un petit propriétaire sans document de gestion durable,
-    nécessitant la création d'un nouveau propriétaire et d'une nouvelle forêt, ou la modification d'un propriétaire existant.
+    Fonction pour créer ou mettre à jour une forêt avec ses données propriétaire.
+    Utilisée dans le cas où la déclaration concerne un petit propriétaire sans document de gestion durable.
 
     Args:
-        post_data (dict): Dictionnaire contenant les données de la déclaration, y compris les informations du propriétaire et de la forêt.
+        post_data (dict): Dictionnaire contenant les données de la déclaration, y compris les informations de la forêt et du propriétaire.
     Returns:
-        dict: Dictionnaire contenant les données arrangées du propriétaire et de la forêt, avec les identifiants mis à jour après création/modification.
+        TForet: Instance de la forêt créée ou mise à jour.
     """
 
-    # On prépare les données du propriétaire à partir de post_data
-    proprietaireSchema = TProprietaireSchema()
-    data_proprio = {}
-    data_proprio["id_declarant"] = post_data["id_declarant"]
-    data_proprio["nom_proprietaire"] = post_data.get("nom_proprietaire")
-    data_proprio["telephone"] = post_data.get("telephone")
-    # Met le numéro de telephonne sous la forme 00 00 00 00 00 pour les numéros français
-    if data_proprio["telephone"]:
-        data_proprio["telephone"] = (
-            data_proprio["telephone"].replace(" ", "").replace("-", "")
-        )
-        data_proprio["telephone"] = " ".join(
-            [
-                data_proprio["telephone"][i : i + 2]
-                for i in range(0, len(data_proprio["telephone"]), 2)
-            ]
-        )
-    data_proprio["email"] = post_data.get("email")
-    data_proprio["adresse"] = post_data.get("adresse")
-    data_proprio["s_code_postal"] = post_data.get("s_code_postal")
-    data_proprio["s_commune_proprietaire"] = post_data.get("s_commune_proprietaire")
-
-    id_nomenclature_proprietaire_type = post_data.get(
-        "id_nomenclature_proprietaire_type"
-    )
-    if id_nomenclature_proprietaire_type:
-        data_proprio["id_nomenclature_proprietaire_type"] = (
-            id_nomenclature_proprietaire_type
-        )
-    else:
-        # si pas id_proprietaire_type, on lui met le type "privé" par défaut
-        nomenclature_prive = get_nomenclature(
-            "cd_nomenclature", "PT_PRI", "OEASC_PROPRIETAIRE_TYPE"
-        )
-        if nomenclature_prive:
-            data_proprio["id_nomenclature_proprietaire_type"] = nomenclature_prive[
-                "id_nomenclature"
-            ]
-
-    # Si modification d'un propriétaire existant
-    if post_data.get("id_proprietaire"):
-        data_proprio["id_declaration"] = post_data.get("id_declaration")
-        proprietaire_bdd = DB.session.get(
-            TProprietaire, post_data.get("id_declaration")
-        )
-
-        proprietaire = proprietaireSchema.load(
-            data_proprio,
-            instance=proprietaire_bdd,
-            partial=True,  # Mise à jour partielle
-            session=DB.session,
-        )
-        DB.session.commit()  # modification de l'instance
-
-    else:
-        # on verifie que le propriétaire n'existe pas déjà pour éviter les doublons (même nom avec meme mail ou même telephone)
-        proprietaire_existant = (
-            DB.session.execute(
-                select(TProprietaire).where(
-                    (TProprietaire.nom_proprietaire == data_proprio["nom_proprietaire"])
-                    & (
-                        (
-                            (TProprietaire.email == data_proprio["email"])
-                            & (data_proprio["email"] is not None)
-                        )
-                        | (
-                            (TProprietaire.telephone == data_proprio["telephone"])
-                            & (data_proprio["telephone"] is not None)
-                        )
-                    )
-                )
-            )
-            .scalars()
-            .first()
-        )
-        if proprietaire_existant:
-            data_proprio["id_proprietaire"] = proprietaire_existant.id_proprietaire
-
-        # Création d'un nouveau propriétaire
-        proprietaire = proprietaireSchema.load(
-            data_proprio, session=DB.session, partial=True
-        )
-        DB.session.add(proprietaire)
-        DB.session.commit()  # ajout de l'instance
-
-    return proprietaire
-
-
-def create_or_update_foret(post_data, id_proprietaire):
-    """
-    Fonction pour créer ou mettre à jour une forêt associée à un propriétaire.
-    Utilisée principalement dans le cas où la déclaration concerne un petit propriétaire sans document de gestion durable,
-    nécessitant la création d'une nouvelle forêt, ou la modification d'une forêt existante.
-
-    Args:
-        post_data (dict): Dictionnaire contenant les données de la déclaration, y compris les informations de la forêt.
-        id_proprietaire (int): Identifiant du propriétaire auquel la forêt est associée.
-    Returns:
-        dict: Dictionnaire contenant les données arrangées de la forêt, avec l'identifiant mis à jour après création/modification.
-    """
+    # Formatage du téléphone si présent
+    telephone = post_data.get("telephone")
+    if telephone:
+        telephone = telephone.replace(" ", "").replace("-", "")
+        telephone = " ".join([telephone[i : i + 2] for i in range(0, len(telephone), 2)])
 
     # Préparation des données de la forêt à partir de post_data
     data_foret = {}
-    data_foret["id_proprietaire"] = id_proprietaire
     data_foret["b_statut_public"] = post_data.get("b_statut_public")
     data_foret["b_document"] = post_data.get("b_document")
+    # Données propriétaire stockées directement dans t_forets
+    data_foret["nom_proprietaire"] = post_data.get("nom_proprietaire")
+    data_foret["tel_proprietaire"] = telephone
+    data_foret["email_proprietaire"] = post_data.get("email")
+    data_foret["adresse_proprietaire"] = post_data.get("adresse")
+    data_foret["commune_proprietaire"] = post_data.get("s_commune_proprietaire")
+    data_foret["cp_proprietaire"] = post_data.get("s_code_postal")
+    id_nomenclature_proprietaire_type = post_data.get("id_nomenclature_proprietaire_type")
+    if not id_nomenclature_proprietaire_type:
+        # Par défaut, type "Privé"
+        nomenclature_prive = get_nomenclature("cd_nomenclature", "PT_PRI", "OEASC_PROPRIETAIRE_TYPE")
+        if nomenclature_prive:
+            id_nomenclature_proprietaire_type = nomenclature_prive["id_nomenclature"]
+    data_foret["id_nomenclature_proprietaire_type"] = id_nomenclature_proprietaire_type
+    data_foret["id_declarant"] = post_data.get("id_declarant")
     data_foret["nom_foret"] = post_data.get("nom_foret")
     data_foret["code_foret"] = post_data.get("code_foret")
     data_foret["label_foret"] = post_data.get("label_foret")
@@ -856,7 +762,7 @@ def get_declaration(id_declaration):
       (par exemple pour l'affichage ou la modification d'une déclaration existante).
 
     :param id_declaration: Identifiant de la déclaration à récupérer.
-    :return: Tuple (TDeclaration, TForet, TProprietaire)
+    :return: Tuple (TDeclaration, TForet, None)
     """
 
     try:
@@ -868,26 +774,18 @@ def get_declaration(id_declaration):
         )
         declaration = DB.session.execute(stmt_declaration).scalars().first()
 
-        # On récupère la forêt associée à la déclaration
+        # On récupère la forêt associée à la déclaration (contient les infos propriétaire)
         stmt_foret = (
             select(TForet).where(TForet.id_foret == declaration.id_foret).limit(1)
         )
         foret = DB.session.execute(stmt_foret).scalars().first()
 
-        # On récupère le propriétaire associé à la forêt
-        stmt_proprietaire = (
-            select(TProprietaire)
-            .where(TProprietaire.id_proprietaire == foret.id_proprietaire)
-            .limit(1)
-        )
-        proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
-
     except Exception as e:
         # En cas d'erreur (ex: id non trouvé), on retourne des instances vides
         print(f"Erreur lors de la récupération de la déclaration : {e}")
-        return (TDeclaration(), TForet(), TProprietaire())
+        return (TDeclaration(), TForet(), None)
 
-    return (declaration, foret, proprietaire)
+    return (declaration, foret, None)
 
 
 #############################################################################
@@ -1006,54 +904,41 @@ def get_foret_from_code(code_foret):
       ou pour afficher les détails d'une forêt à partir de son code.
 
     :param code_foret: Code unique de la forêt à rechercher (chaîne de caractères).
-    :return: Tuple (TForet, TProprietaire) correspondant à la forêt et son propriétaire.
+    :return: Tuple (TForet, None) — les données propriétaire sont dans TForet.
     """
 
     # On s'assure que le code forêt est en majuscules pour la recherche
     code_foret = code_foret.upper()
 
-    # On récupère la forêt correspondant au code fourni
+    # On récupère la forêt correspondant au code fourni (contient les infos propriétaire)
     stmt_foret = select(TForet).where(TForet.code_foret == code_foret).limit(1)
     foret = DB.session.execute(stmt_foret).scalars().first()
 
     if foret is None:
         return (None, None)
 
-    # On récupère le propriétaire associé à la forêt trouvée
-    stmt_proprietaire = (
-        select(TProprietaire)
-        .where(TProprietaire.id_proprietaire == foret.id_proprietaire)
-        .limit(1)
-    )
-    proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
-
-    # On retourne la forêt et son propriétaire sous forme de tuple
-    return (foret, proprietaire)
+    return (foret, None)
 
 
 def get_foret_type(id_foret):
     """
     Retourne le type de forêt à partir de l'identifiant de la forêt.
-    Utilisé pour enrichir les informations d'une déclaration avec le type de forêt
-    (ex: Domaniale, Communale, Privée, etc.) selon le type du propriétaire.
+    Utilise id_nomenclature_proprietaire_type stocké directement dans t_forets.
     """
-    # On récupère la forêt et son propriétaire via la fonction get_foret
-    foret, proprietaire = get_foret(id_foret)
+    foret = DB.session.execute(
+        select(TForet).where(TForet.id_foret == id_foret).limit(1)
+    ).scalars().first()
 
-    # Si la forêt n'existe pas, on ne retourne rien
     if not foret:
         return
 
-    # Si le type de propriétaire n'est pas renseigné, on retourne "Indéterminé"
-    if not proprietaire.id_nomenclature_proprietaire_type:
+    if not foret.id_nomenclature_proprietaire_type:
         return "Indéterminé"
 
-    # On récupère le libellé du type de propriétaire via la nomenclature
     proprietaire_type = get_nomenclature_from_id(
-        proprietaire.id_nomenclature_proprietaire_type
+        foret.id_nomenclature_proprietaire_type
     )["label_fr"]
 
-    # Dictionnaire de correspondance entre le type de propriétaire et le type de forêt
     d_prop_foret_type = {
         "État": "Domaniale",
         "Centre hospitalier": "Autre forêt publique",
@@ -1064,74 +949,7 @@ def get_foret_type(id_foret):
         "Privé": "Privée",
     }
 
-    # On retourne le type de forêt correspondant, ou "Indeterminé" si non trouvé
-    foret_type = d_prop_foret_type.get(proprietaire_type, "Indeterminé")
-
-    return foret_type
-
-
-def get_foret(id_foret):
-    """
-    Renvoie l'objet forêt et son propriétaire à partir de l'identifiant de la forêt.
-
-    Cette fonction est utilisée dans :
-    - get_foret_type : pour déterminer le type de forêt selon le propriétaire
-    - dfpu_as_dict : pour enrichir les informations de la déclaration avec la forêt et le propriétaire
-
-    :param id_foret: Identifiant de la forêt
-    :return: Tuple (foret, proprietaire)
-    """
-
-    foret = proprietaire = None
-
-    # On récupère la forêt correspondant à l'id fourni
-    stmt_foret = select(TForet).where(TForet.id_foret == id_foret).limit(1)
-    foret = DB.session.execute(stmt_foret).scalars().first()
-
-    # Si la forêt existe, on récupère son propriétaire
-    if foret:
-        id_proprietaire = foret.id_proprietaire
-
-        if id_proprietaire:
-            stmt_proprietaire = (
-                select(TProprietaire)
-                .where(TProprietaire.id_proprietaire == id_proprietaire)
-                .limit(1)
-            )
-            proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
-
-    return foret, proprietaire
-
-
-def get_proprietaire_from_id(id_proprietaire, type_proprietaire="proprietaire"):
-    """
-
-    Args:
-        id_proprietaire (int): L'identifiant du propriétaire à rechercher.
-
-    Returns:
-        TProprietaire: L'objet propriétaire correspondant à l'identifiant, ou un objet vide si aucun n'est trouvé.
-
-    Utilisation :
-        Cette fonction est utilisée pour obtenir les informations d'un propriétaire à partir de son identifiant,
-        par exemple lors de la consultation ou de la modification d'une forêt ou d'une déclaration.
-    """
-    if type_proprietaire == "declarant":
-        stmt_proprietaire = (
-            select(TProprietaire)
-            .where(TProprietaire.id_declarant == id_proprietaire)
-            .limit(1)
-        )
-
-    elif type_proprietaire == "proprietaire":
-        stmt_proprietaire = (
-            select(TProprietaire)
-            .where(TProprietaire.id_proprietaire == id_proprietaire)
-            .limit(1)
-        )
-    proprietaire = DB.session.execute(stmt_proprietaire).scalars().first()
-
-    return proprietaire or TProprietaire()
+    return d_prop_foret_type.get(proprietaire_type, "Indeterminé")
 
 
 def hide_proprietaire(proprietaire):
