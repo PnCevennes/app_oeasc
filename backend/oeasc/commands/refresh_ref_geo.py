@@ -1134,6 +1134,60 @@ def _alert_multi_commune():
 # ---------------------------------------------------------------------------
 
 
+def _mark_erreur_refgeo(db, type_declaration):
+    """
+    Identifie les déclarations d'un type donné dont id_foret n'a pas pu être migré
+    vers t_forets_new, puis :
+      - met id_foret à NULL
+      - met statut à 999 (Erreur Refgeo)
+      - renseigne precision_localisation avec le nom de l'ancienne forêt et ses areas
+
+    Doit être appelé AVANT le swap (t_forets et l_areas sont encore les anciennes tables).
+    """
+    unmatched = db.session.execute(text("""
+        SELECT
+            d.id_declaration,
+            f.nom_foret,
+            COALESCE(
+                string_agg(
+                    la.area_code || ' (' || la.area_name || ')',
+                    ', ' ORDER BY la.area_code
+                ),
+                ''
+            ) AS areas_info
+        FROM oeasc_declarations.t_declarations d
+        JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
+        LEFT JOIN oeasc_declarations.cor_areas_declarations cad
+            ON cad.id_declaration = d.id_declaration
+        LEFT JOIN ref_geo.l_areas la ON la.id_area = cad.id_area
+        WHERE d.type_declaration = :type_decl
+        AND d.id_foret IS NOT NULL
+        AND NOT EXISTS (
+            SELECT 1 FROM oeasc_forets.t_forets_new fn WHERE fn.id_foret = d.id_foret
+        )
+        GROUP BY d.id_declaration, f.nom_foret
+    """), {"type_decl": type_declaration}).fetchall()
+
+    if not unmatched:
+        return 0
+
+    for row in unmatched:
+        id_decl, nom_foret, areas_info = row
+        precision = f"[Erreur RefGeo] Forêt non retrouvée : {nom_foret}"
+        if areas_info:
+            precision += f" | {areas_info}"
+        db.session.execute(text("""
+            UPDATE oeasc_declarations.t_declarations
+            SET id_foret = NULL,
+                statut = 999,
+                precision_localisation = :precision
+            WHERE id_declaration = :id_decl
+        """), {"precision": precision, "id_decl": id_decl})
+
+    db.session.commit()
+    return len(unmatched)
+
+
 def step_update_declarations():
     LOG.info("Étape 6 : mise à jour des liaisons déclarations ↔ areas")
     print ("Étape 6 : mise à jour des liaisons déclarations ↔ areas")
@@ -1152,8 +1206,8 @@ def step_update_declarations():
     # 6b : mise à jour id_foret DGD par correspondance spatiale via id_area
     # Les codes DGD changent de format entre anciennes et nouvelles données :
     # on ne peut pas matcher par code_foret. On passe par l_areas (géométrie).
-    LOG.info("  6b : mise à jour id_foret pour les déclarations DGD (via id_area)")
-    print ("  6b : mise à jour id_foret pour les déclarations DGD (via id_area)")
+    LOG.info("  6b : mise à jour id_foret pour les déclarations DGD (correspondance spatiale ≥90%)")
+    print("  6b : mise à jour id_foret pour les déclarations DGD (correspondance spatiale ≥90%)")
     db.session.execute(text(f"""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
@@ -1170,36 +1224,51 @@ def step_update_declarations():
         AND d.type_declaration = 'dgd'
         AND f.b_document = TRUE
     """))
+    db.session.commit()
     n_dgd = db.session.execute(text(
         "SELECT count(*) FROM oeasc_declarations.t_declarations d "
         "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
         "WHERE fn.b_statut_public = false AND fn.b_document = true"
     )).scalar()
     LOG.info(f"    {n_dgd} déclarations DGD mises à jour vers t_forets_new")
-    db.session.commit()
+    n_err_dgd = _mark_erreur_refgeo(db, "dgd")
+    if n_err_dgd:
+        LOG.warning(f"    {n_err_dgd} déclaration(s) DGD marquées Erreur Refgeo (forêt DGD non retrouvée)")
 
-    LOG.info("  6c : mise à jour id_foret pour les déclarations ONF (via code_foret)")
-    print ("  6c : mise à jour id_foret pour les déclarations ONF (via code_foret)")
-    db.session.execute(text("""
+    LOG.info("  6c : mise à jour id_foret pour les déclarations ONF (correspondance spatiale ≥90%)")
+    print("  6c : mise à jour id_foret pour les déclarations ONF (correspondance spatiale ≥90%)")
+    db.session.execute(text(f"""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
         FROM oeasc_forets.t_forets f
-        JOIN oeasc_forets.t_forets_new fn ON fn.code_foret = f.code_foret
+        JOIN ref_geo.l_areas la_old ON la_old.id_area = f.id_area
+            AND la_old.id_type = {ID_TYPE_FORET_ONF}
+        JOIN ref_geo.l_areas_new la_new ON (
+            la_new.id_type = {ID_TYPE_FORET_ONF}
+            AND ST_Intersects(la_old.geom, la_new.geom)
+            AND ST_Area(ST_Intersection(la_old.geom, la_new.geom))
+                / NULLIF(ST_Area(la_old.geom), 0) >= {MATCH_THRESHOLD}
+        )
+        JOIN oeasc_forets.t_forets_new fn ON fn.id_area = la_new.id_area
             AND fn.b_document = TRUE AND fn.b_statut_public = TRUE
         WHERE d.id_foret = f.id_foret
+        AND d.type_declaration = 'onf'
         AND f.b_document = TRUE AND f.b_statut_public = TRUE
     """))
+    db.session.commit()
     n_onf = db.session.execute(text(
         "SELECT count(*) FROM oeasc_declarations.t_declarations d "
         "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
         "WHERE fn.b_statut_public = true AND fn.b_document = true"
     )).scalar()
     LOG.info(f"    {n_onf} déclarations ONF mises à jour vers t_forets_new")
-    db.session.commit()
+    n_err_onf = _mark_erreur_refgeo(db, "onf")
+    if n_err_onf:
+        LOG.warning(f"    {n_err_onf} déclaration(s) ONF marquées Erreur Refgeo (forêt ONF non retrouvée)")
 
     # 6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)
     LOG.info("  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)")
-    print ("  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)")
+    print("  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)")
     db.session.execute(text("""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
@@ -1283,18 +1352,25 @@ def step_update_declarations():
         LOG.info(f"    {n_lt}/{n_lt_total} lieux de tir mis à jour.")
     db.session.commit()
 
-    # Rapport sur les déclarations non migrées (toutes catégories)
-    n_missing = db.session.execute(text("""
-        SELECT count(*)
-        FROM oeasc_declarations.t_declarations d
-        WHERE NOT EXISTS (
-            SELECT 1 FROM oeasc_forets.t_forets_new fn WHERE fn.id_foret = d.id_foret
-        )
-    """)).scalar()
-    if n_missing:
+    # Rapport final
+    n_erreur = db.session.execute(text(
+        "SELECT count(*) FROM oeasc_declarations.t_declarations WHERE statut = 999"
+    )).scalar()
+    if n_erreur:
         LOG.warning(
-            f"  ATTENTION : {n_missing} déclaration(s) ont un id_foret absent de t_forets_new "
-            f"— probablement des forêts DGD dont la géométrie a trop changé."
+            f"  ATTENTION : {n_erreur} déclaration(s) en statut Erreur Refgeo (999) "
+            f"— forêt non retrouvée, id_foret mis à NULL, precision_localisation renseignée."
+        )
+    # Déclarations avec id_foret non null mais absent de t_forets_new (ne devrait pas arriver)
+    n_broken = db.session.execute(text("""
+        SELECT count(*) FROM oeasc_declarations.t_declarations d
+        WHERE d.id_foret IS NOT NULL
+        AND NOT EXISTS (SELECT 1 FROM oeasc_forets.t_forets_new fn WHERE fn.id_foret = d.id_foret)
+    """)).scalar()
+    if n_broken:
+        LOG.warning(
+            f"  ATTENTION : {n_broken} déclaration(s) ont id_foret non null mais absent de t_forets_new "
+            f"(type_declaration non géré ?)."
         )
     LOG.info("  Mise à jour des déclarations terminée.")
 
