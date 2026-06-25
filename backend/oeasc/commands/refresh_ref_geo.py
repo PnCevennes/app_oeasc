@@ -37,9 +37,9 @@ GPKG_DGD = "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_dgd.gpkg"
 
 
 # GPKG_FORET_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_gestion_onf_aoa.gpkg"
-GPKG_FORET_ONF = '/home/thibaut/appli/app_oeasc/data/ref_geo/forets_onf_france.gpkg'
+GPKG_FORET_ONF = '/home/thibaut/appli/app_oeasc/data/ref_geo/forets_gestion_onf_aoa.gpkg'
 # GPKG_PARCELLE_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forets_onf.gpkg"
-GPKG_PARCELLE_ONF = '/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forestieres_onf_nouveau.gpkg'
+GPKG_PARCELLE_ONF = '/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forets_onf_new.gpkg'
 GPKG_UG_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/unites_gestion_forets_onf.gpkg"
 
 
@@ -926,28 +926,45 @@ def step_copy_onf_proprietaire():
 
     # Correspondance spatiale : forêt nouvelle ↔ ancienne si chevauchement ≥ 90 %
     # (le code_foret a changé de format entre l'ancienne et la nouvelle version des données)
+    # La sous-requête évite de référencer fn dans le FROM (interdit en PostgreSQL).
     result = db.session.execute(text(f"""
         UPDATE oeasc_forets.t_forets_new fn
         SET
-            id_proprietaire                   = f.id_proprietaire,
-            nom_proprietaire                  = f.nom_proprietaire,
-            adresse_proprietaire              = f.adresse_proprietaire,
-            cp_proprietaire                   = f.cp_proprietaire,
-            commune_proprietaire              = f.commune_proprietaire,
-            email_proprietaire                = f.email_proprietaire,
-            tel_proprietaire                  = f.tel_proprietaire,
-            id_nomenclature_proprietaire_type = f.id_nomenclature_proprietaire_type,
-            id_declarant                      = f.id_declarant
-        FROM oeasc_forets.t_forets f
-        JOIN ref_geo.l_areas la_old ON la_old.id_area = f.id_area
-            AND la_old.id_type = {ID_TYPE_FORET_ONF}
-        JOIN ref_geo.l_areas_new la_new ON la_new.id_area = fn.id_area
-            AND la_new.id_type = {ID_TYPE_FORET_ONF}
-        WHERE fn.b_document = TRUE AND fn.b_statut_public = TRUE
-        AND   f.b_document  = TRUE AND  f.b_statut_public = TRUE
-        AND ST_Intersects(la_new.geom, la_old.geom)
-        AND ST_Area(ST_Intersection(la_new.geom, la_old.geom))
-            / NULLIF(ST_Area(la_new.geom), 0) >= {MATCH_THRESHOLD}
+            id_proprietaire                   = match.id_proprietaire,
+            nom_proprietaire                  = match.nom_proprietaire,
+            adresse_proprietaire              = match.adresse_proprietaire,
+            cp_proprietaire                   = match.cp_proprietaire,
+            commune_proprietaire              = match.commune_proprietaire,
+            email_proprietaire                = match.email_proprietaire,
+            tel_proprietaire                  = match.tel_proprietaire,
+            id_nomenclature_proprietaire_type = match.id_nomenclature_proprietaire_type,
+            id_declarant                      = match.id_declarant
+        FROM (
+            SELECT
+                fn2.id_foret AS new_id_foret,
+                f.id_proprietaire,
+                f.nom_proprietaire,
+                f.adresse_proprietaire,
+                f.cp_proprietaire,
+                f.commune_proprietaire,
+                f.email_proprietaire,
+                f.tel_proprietaire,
+                f.id_nomenclature_proprietaire_type,
+                f.id_declarant
+            FROM oeasc_forets.t_forets_new fn2
+            JOIN ref_geo.l_areas_new la_new ON la_new.id_area = fn2.id_area
+                AND la_new.id_type = {ID_TYPE_FORET_ONF}
+            JOIN ref_geo.l_areas la_old ON (
+                la_old.id_type = {ID_TYPE_FORET_ONF}
+                AND ST_Intersects(la_new.geom, la_old.geom)
+                AND ST_Area(ST_Intersection(la_new.geom, la_old.geom))
+                    / NULLIF(ST_Area(la_new.geom), 0) >= {MATCH_THRESHOLD}
+            )
+            JOIN oeasc_forets.t_forets f ON f.id_area = la_old.id_area
+                AND f.b_document = TRUE AND f.b_statut_public = TRUE
+            WHERE fn2.b_document = TRUE AND fn2.b_statut_public = TRUE
+        ) match
+        WHERE fn.id_foret = match.new_id_foret
     """))
     db.session.commit()
     n = result.rowcount
@@ -1020,6 +1037,19 @@ def step_build_cor_area_intersect():
     raw_conn.commit()
     cur.close()
     raw_conn.close()
+
+    # Corriger les géométries invalides avant les opérations d'intersection
+    n_invalid = db.session.execute(text(
+        "SELECT count(*) FROM ref_geo.l_areas_new WHERE NOT ST_IsValid(geom)"
+    )).scalar()
+    if n_invalid:
+        LOG.warning(f"  {n_invalid} géométrie(s) invalide(s) dans l_areas_new — correction ST_MakeValid")
+        db.session.execute(text(
+            "UPDATE ref_geo.l_areas_new "
+            "SET geom = ST_Multi(ST_CollectionExtract(ST_MakeValid(geom), 3)) "
+            "WHERE NOT ST_IsValid(geom)"
+        ))
+        db.session.commit()
 
     db.session.execute(text(f"""
         INSERT INTO ref_geo.cor_area_intersect
@@ -1137,14 +1167,27 @@ def _alert_multi_commune():
 def _mark_erreur_refgeo(db, type_declaration):
     """
     Identifie les déclarations d'un type donné dont id_foret n'a pas pu être migré
-    vers t_forets_new, puis :
+    vers t_forets_new avec le BON TYPE de forêt, puis :
       - met id_foret à NULL
       - met statut à 999 (Erreur Refgeo)
       - renseigne precision_localisation avec le nom de l'ancienne forêt et ses areas
 
     Doit être appelé AVANT le swap (t_forets et l_areas sont encore les anciennes tables).
+
+    Le filtre NOT EXISTS vérifie que l'id_foret pointe bien vers une forêt du même type
+    (ONF: b_statut_public=TRUE, DGD: b_statut_public=FALSE) dans t_forets_new.
+    Sans ce filtre, un id_foret d'une ancienne forêt ONF peut coïncider avec l'id d'une
+    nouvelle forêt DGD (les séquences repartent de 1 dans t_forets_new), causant une
+    correspondance silencieuse vers le mauvais type.
     """
-    unmatched = db.session.execute(text("""
+    if type_declaration == "onf":
+        type_filter = "AND fn.b_statut_public = TRUE AND fn.b_document = TRUE"
+    elif type_declaration == "dgd":
+        type_filter = "AND fn.b_statut_public = FALSE AND fn.b_document = TRUE"
+    else:
+        type_filter = ""
+
+    unmatched = db.session.execute(text(f"""
         SELECT
             d.id_declaration,
             f.nom_foret,
@@ -1163,7 +1206,9 @@ def _mark_erreur_refgeo(db, type_declaration):
         WHERE d.type_declaration = :type_decl
         AND d.id_foret IS NOT NULL
         AND NOT EXISTS (
-            SELECT 1 FROM oeasc_forets.t_forets_new fn WHERE fn.id_foret = d.id_foret
+            SELECT 1 FROM oeasc_forets.t_forets_new fn
+            WHERE fn.id_foret = d.id_foret
+            {type_filter}
         )
         GROUP BY d.id_declaration, f.nom_foret
     """), {"type_decl": type_declaration}).fetchall()
@@ -1235,8 +1280,10 @@ def step_update_declarations():
     if n_err_dgd:
         LOG.warning(f"    {n_err_dgd} déclaration(s) DGD marquées Erreur Refgeo (forêt DGD non retrouvée)")
 
-    LOG.info("  6c : mise à jour id_foret pour les déclarations ONF (correspondance spatiale ≥90%)")
-    print("  6c : mise à jour id_foret pour les déclarations ONF (correspondance spatiale ≥90%)")
+    LOG.info("  6c : mise à jour id_foret pour les déclarations ONF")
+    print("  6c : mise à jour id_foret pour les déclarations ONF")
+
+    # Passage 1 : correspondance spatiale pour les forêts ONF dont id_area est renseigné
     db.session.execute(text(f"""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
@@ -1254,8 +1301,80 @@ def step_update_declarations():
         WHERE d.id_foret = f.id_foret
         AND d.type_declaration = 'onf'
         AND f.b_document = TRUE AND f.b_statut_public = TRUE
+        AND f.id_area IS NOT NULL
     """))
     db.session.commit()
+
+    # Passage 2a : pour les forêts ONF dont id_area est NULL, via correspondance spatiale
+    # entre les UG ONF de la déclaration (l_areas) et les nouvelles forêts ONF (l_areas_new).
+    # Robuste même si iidtn_frt a changé entre deux versions du GPKG.
+    db.session.execute(text(f"""
+        UPDATE oeasc_declarations.t_declarations d
+        SET id_foret = match.id_foret
+        FROM (
+            SELECT DISTINCT ON (d2.id_declaration)
+                d2.id_declaration,
+                fn.id_foret,
+                ST_Area(ST_Intersection(la_ug.geom, la_foret_new.geom)) AS overlap
+            FROM oeasc_declarations.t_declarations d2
+            JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2.id_foret
+                AND f2.b_document = TRUE AND f2.b_statut_public = TRUE
+                AND f2.id_area IS NULL
+            -- Pas encore mis à jour vers une nouvelle forêt ONF
+            AND NOT EXISTS (
+                SELECT 1 FROM oeasc_forets.t_forets_new fn0
+                WHERE fn0.id_foret = d2.id_foret
+                AND fn0.b_document = TRUE AND fn0.b_statut_public = TRUE
+            )
+            JOIN oeasc_declarations.cor_areas_declarations cad
+                ON cad.id_declaration = d2.id_declaration
+            JOIN ref_geo.l_areas la_ug
+                ON la_ug.id_area = cad.id_area AND la_ug.id_type = {ID_TYPE_UG_ONF}
+            JOIN ref_geo.l_areas_new la_foret_new
+                ON la_foret_new.id_type = {ID_TYPE_FORET_ONF}
+                AND ST_Intersects(la_ug.geom, la_foret_new.geom)
+            JOIN oeasc_forets.t_forets_new fn ON fn.id_area = la_foret_new.id_area
+                AND fn.b_document = TRUE AND fn.b_statut_public = TRUE
+            WHERE d2.type_declaration = 'onf'
+            ORDER BY d2.id_declaration, overlap DESC
+        ) match
+        WHERE d.id_declaration = match.id_declaration
+    """))
+    db.session.commit()
+
+    # Passage 2b : fallback via cadastres — pour les déclarations ONF dont les areas sont
+    # des parcelles cadastrales (pas d'UG ONF). Utilise cor_area_intersect.id_foret_onf
+    # (déjà construit à l'étape 5 sur l_areas_new) pour trouver la nouvelle forêt ONF.
+    db.session.execute(text(f"""
+        UPDATE oeasc_declarations.t_declarations d
+        SET id_foret = match.id_foret
+        FROM (
+            SELECT DISTINCT ON (d2.id_declaration)
+                d2.id_declaration,
+                fn.id_foret
+            FROM oeasc_declarations.t_declarations d2
+            JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2.id_foret
+                AND f2.b_document = TRUE AND f2.b_statut_public = TRUE
+            AND NOT EXISTS (
+                SELECT 1 FROM oeasc_forets.t_forets_new fn0
+                WHERE fn0.id_foret = d2.id_foret
+                AND fn0.b_document = TRUE AND fn0.b_statut_public = TRUE
+            )
+            JOIN oeasc_declarations.cor_areas_declarations cad
+                ON cad.id_declaration = d2.id_declaration
+            JOIN ref_geo.l_areas la_cad
+                ON la_cad.id_area = cad.id_area AND la_cad.id_type = {ID_TYPE_CADASTRE}
+            JOIN ref_geo.cor_area_intersect cai
+                ON cai.id_parcelle = la_cad.id_area AND cai.id_foret_onf IS NOT NULL
+            JOIN oeasc_forets.t_forets_new fn ON fn.id_area = cai.id_foret_onf
+                AND fn.b_document = TRUE AND fn.b_statut_public = TRUE
+            WHERE d2.type_declaration = 'onf'
+            ORDER BY d2.id_declaration
+        ) match
+        WHERE d.id_declaration = match.id_declaration
+    """))
+    db.session.commit()
+
     n_onf = db.session.execute(text(
         "SELECT count(*) FROM oeasc_declarations.t_declarations d "
         "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
