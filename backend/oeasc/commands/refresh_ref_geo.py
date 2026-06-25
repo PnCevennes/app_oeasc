@@ -34,9 +34,17 @@ REQUIRED_REVISION = "a1b2c3d4e5f6"
 GPKG_CADASTRE = "/home/thibaut/appli/app_oeasc/data/ref_geo/cadastres.gpkg"
 GPKG_COMMUNES = "/home/thibaut/appli/app_oeasc/data/ref_geo/communes_aoa.gpkg"
 GPKG_DGD = "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_dgd.gpkg"
-GPKG_FORET_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_gestion_onf_aoa.gpkg"
-GPKG_PARCELLE_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forets_onf.gpkg"
+
+
+# GPKG_FORET_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_gestion_onf_aoa.gpkg"
+GPKG_FORET_ONF = '/home/thibaut/appli/app_oeasc/data/ref_geo/forets_onf_france.gpkg'
+# GPKG_PARCELLE_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forets_onf.gpkg"
+GPKG_PARCELLE_ONF = '/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forestieres_onf_nouveau.gpkg'
 GPKG_UG_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/unites_gestion_forets_onf.gpkg"
+
+
+
+
 
 # ---------------------------------------------------------------------------
 # id_type (ref_geo.bib_areas_types)
@@ -429,7 +437,7 @@ def step_create_t_forets_new():
     )).scalar()
     LOG.info(f"  t_forets_new créée avec {n} forêts sans document (nouveaux ids).")
     LOG.info(f"  Forêts ss_document : {n_with_area} avec polygone, {n_without} sans polygone (pas de déclaration géolocalisée).")
-
+ 
 
 # ---------------------------------------------------------------------------
 # Étape 3 — Sauvegarde des areas fixes (323, 324, 325, 326)
@@ -730,15 +738,148 @@ def step_load_foret_dgd():
 
 
 # ---------------------------------------------------------------------------
-# Étape 4e — Unités de gestion ONF
+# Étape 4e — Forêts ONF
 # ---------------------------------------------------------------------------
 
 
+def step_load_foret_onf():
+    LOG.info("Étape 4e : chargement des forêts ONF")
+    print("Étape 4e : chargement des forêts ONF")
+    oeasc_geom = _get_oeasc_geom()
+    gdf = gpd.read_file(GPKG_FORET_ONF)
+    gdf = _filter_by_oeasc(gdf, oeasc_geom)
+    gdf_4326 = gdf.to_crs(epsg=4326)
+    LOG.info(f"  {len(gdf)} forêts ONF dans le périmètre OEASC")
+
+    now = datetime.now()
+    area_rows = []
+    area_codes = []
+    for i in range(len(gdf)):
+        r = gdf.iloc[i]
+        geom = _to_multi(r.geometry)
+        geom4326 = _to_multi(gdf_4326.iloc[i].geometry)
+        area_code = str(r["iidtn_frt"])
+        area_name = str(r["llib_frt"])
+        area_codes.append(area_code)
+        area_rows.append((
+            ID_TYPE_FORET_ONF,
+            area_name,
+            area_code,
+            "OEASC", True, now,
+            _wkt(geom),
+            _wkt(geom4326),
+            wkt_dumps(geom.centroid),
+            "FORET_ONF",
+        ))
+
+    raw_conn = _raw_conn()
+    _bulk_insert_areas(raw_conn, area_rows)
+    raw_conn.close()
+
+    code_to_id = _get_area_code_to_id(ID_TYPE_FORET_ONF, "FORET_ONF")
+
+    raw_conn2 = _raw_conn()
+    cur = raw_conn2.cursor()
+    sql_foret = """
+        INSERT INTO oeasc_forets.t_forets_new
+            (b_document, b_statut_public, nom_foret, label_foret, code_foret,
+             surface_renseignee, surface_calculee, nom_proprietaire,
+             id_nomenclature_proprietaire_type, id_area)
+        VALUES %s
+    """
+    data = []
+    for i in range(len(gdf)):
+        r = gdf.iloc[i]
+        geom = _to_multi(r.geometry)
+        area_code = area_codes[i]
+        surf_calc = round(geom.area / 10000, 4)
+        data.append((
+            True, True,
+            str(r["llib_frt"]),
+            str(r["llib_frt"]),
+            area_code,
+            surf_calc,
+            surf_calc,
+            "ONF",
+            NOMENCLATURE_PT_E,
+            code_to_id.get(area_code),
+        ))
+    psycopg2.extras.execute_values(cur, sql_foret, data, page_size=200)
+    raw_conn2.commit()
+    cur.close()
+    raw_conn2.close()
+    LOG.info(f"  {len(data)} forêts ONF insérées dans l_areas_new et t_forets_new.")
+
+
+# ---------------------------------------------------------------------------
+# Étape 4f — Parcelles ONF
+# ---------------------------------------------------------------------------
+
+
+def step_load_parcelle_onf():
+    LOG.info("Étape 4f : chargement des parcelles ONF")
+    print("Étape 4f : chargement des parcelles ONF")
+    oeasc_geom = _get_oeasc_geom()
+    gdf = gpd.read_file(GPKG_PARCELLE_ONF)
+    gdf = _filter_by_oeasc(gdf, oeasc_geom)
+    gdf_4326 = gdf.to_crs(epsg=4326)
+    LOG.info(f"  {len(gdf)} parcelles ONF dans le périmètre OEASC")
+
+    now = datetime.now()
+    rows = []
+    for i in range(len(gdf)):
+        r = gdf.iloc[i]
+        geom = _to_multi(r.geometry)
+        geom4326 = _to_multi(gdf_4326.iloc[i].geometry)
+        cinse_dep = str(r["cinse_dep"])
+        iidtn_frt = str(r["iidtn_frt"])
+        ccod_prf = str(r["ccod_prf"])
+        area_code = f"{cinse_dep}-{iidtn_frt}-{ccod_prf}"
+        rows.append((
+            ID_TYPE_PARCELLE_ONF,
+            ccod_prf,
+            area_code,
+            "OEASC", True, now,
+            _wkt(geom),
+            _wkt(geom4326),
+            wkt_dumps(geom.centroid),
+            "PARCELLE_ONF",
+        ))
+        # Parcelle unique dans la forêt : on crée aussi l'UG correspondante
+        if ccod_prf == "U":
+            rows.append((
+                ID_TYPE_UG_ONF,
+                f"{ccod_prf}-1",
+                f"{area_code}-1",
+                "OEASC", True, now,
+                _wkt(geom),
+                _wkt(geom4326),
+                wkt_dumps(geom.centroid),
+                "UG_ONF",
+            ))
+
+    raw_conn = _raw_conn()
+    _bulk_insert_areas(raw_conn, rows)
+    raw_conn.close()
+    n_parcelles = sum(1 for r in rows if r[0] == ID_TYPE_PARCELLE_ONF)
+    n_ug_u = sum(1 for r in rows if r[0] == ID_TYPE_UG_ONF)
+    LOG.info(f"  {n_parcelles} parcelles ONF insérées, {n_ug_u} UG 'U' créées.")
+
+
+# ---------------------------------------------------------------------------
+# Étape 4g — Unités de gestion ONF
+# ---------------------------------------------------------------------------
+
+_CACT_TO_DEP = {8720: 48, 8765: 30, 8775: 12}
+
+
 def step_load_ug_onf():
-    LOG.info("Étape 4e : chargement des unités de gestion ONF")
-    print ("Étape 4e : chargement des unités de gestion ONF")
+    LOG.info("Étape 4g : chargement des unités de gestion ONF")
+    print("Étape 4g : chargement des unités de gestion ONF")
     oeasc_geom = _get_oeasc_geom()
     gdf = gpd.read_file(GPKG_UG_ONF)
+    # Exclure les UG dont CCOD_PRF n'est pas un entier (parcelles "U" gérées en 4f)
+    gdf = gdf[gdf["CCOD_PRF"].apply(lambda x: str(x).strip().isdigit())]
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
     gdf_4326 = gdf.to_crs(epsg=4326)
     LOG.info(f"  {len(gdf)} UG ONF dans le périmètre OEASC")
@@ -749,8 +890,12 @@ def step_load_ug_onf():
         r = gdf.iloc[i]
         geom = _to_multi(r.geometry)
         geom4326 = _to_multi(gdf_4326.iloc[i].geometry)
-        area_code = f"{r['CCOD_DEP']}-{r['CCOD_FRT']}-{r['CCOD_PRF']}-{r['CCOD_UG']}"
-        area_name = f"{r['CCOD_PRF']}-{r['CCOD_UG']}"
+        cinse_dep = _CACT_TO_DEP.get(int(r["CCOD_CACT"]), int(r["CCOD_CACT"]))
+        iidtn_frt = str(r["IIDTN_FRT"])
+        ccod_prf = str(r["CCOD_PRF"])
+        ccod_ug = str(r["CCOD_UG"])
+        area_code = f"{cinse_dep}-{iidtn_frt}-{ccod_prf}-{ccod_ug}"
+        area_name = f"{ccod_prf}-{ccod_ug}"
         rows.append((
             ID_TYPE_UG_ONF,
             area_name,
@@ -770,120 +915,6 @@ def step_load_ug_onf():
 
 
 # ---------------------------------------------------------------------------
-# Étape 4f — Parcelles ONF
-# ---------------------------------------------------------------------------
-
-
-def step_load_parcelle_onf():
-    LOG.info("Étape 4f : chargement des parcelles ONF")
-    print ("Étape 4f : chargement des parcelles ONF")
-    oeasc_geom = _get_oeasc_geom()
-    gdf = gpd.read_file(GPKG_PARCELLE_ONF)
-    gdf = _filter_by_oeasc(gdf, oeasc_geom)
-    gdf_4326 = gdf.to_crs(epsg=4326)
-    LOG.info(f"  {len(gdf)} parcelles ONF dans le périmètre OEASC")
-
-    now = datetime.now()
-    rows = []
-    for i in range(len(gdf)):
-        r = gdf.iloc[i]
-        geom = _to_multi(r.geometry)
-        geom4326 = _to_multi(gdf_4326.iloc[i].geometry)
-        area_code = f"{r['FIRST_CINS']}-{r['CCOD_FRT']}-{r['CCOD_PRF']}"
-        area_name = str(r["CCOD_PRF"])
-        rows.append((
-            ID_TYPE_PARCELLE_ONF,
-            area_name,
-            area_code,
-            "OEASC", True, now,
-            _wkt(geom),
-            _wkt(geom4326),
-            wkt_dumps(geom.centroid),
-            "PARCELLE_ONF",
-        ))
-
-    raw_conn = _raw_conn()
-    _bulk_insert_areas(raw_conn, rows)
-    raw_conn.close()
-    LOG.info(f"  {len(rows)} parcelles ONF insérées.")
-
-
-# ---------------------------------------------------------------------------
-# Étape 4g — Forêts ONF
-# ---------------------------------------------------------------------------
-
-
-def step_load_foret_onf():
-    LOG.info("Étape 4g : chargement des forêts ONF")
-    print ("Étape 4g : chargement des forêts ONF")
-    oeasc_geom = _get_oeasc_geom()
-    gdf = gpd.read_file(GPKG_FORET_ONF)
-    gdf = _filter_by_oeasc(gdf, oeasc_geom)
-    gdf_4326 = gdf.to_crs(epsg=4326)
-    LOG.info(f"  {len(gdf)} forêts ONF dans le périmètre OEASC")
-
-    now = datetime.now()
-    area_rows = []
-    area_codes = []
-    for i in range(len(gdf)):
-        r = gdf.iloc[i]
-        geom = _to_multi(r.geometry)
-        geom4326 = _to_multi(gdf_4326.iloc[i].geometry)
-        area_code = f"{r['FIRST_CINS']}-{r['CCOD_FRT']}"
-        area_name = str(r["FIRST_LLIB"])
-        area_codes.append(area_code)
-        area_rows.append((
-            ID_TYPE_FORET_ONF,
-            area_name,
-            area_code,
-            "OEASC", True, now,
-            _wkt(geom),
-            _wkt(geom4326),
-            wkt_dumps(geom.centroid),
-            "FORET_ONF",
-        ))
-
-    raw_conn = _raw_conn()
-    _bulk_insert_areas(raw_conn, area_rows)
-    raw_conn.close()
-
-    # Récupère les id_area par area_code
-    code_to_id = _get_area_code_to_id(ID_TYPE_FORET_ONF, "FORET_ONF")
-
-    raw_conn2 = _raw_conn()
-    cur = raw_conn2.cursor()
-    sql_foret = """
-        INSERT INTO oeasc_forets.t_forets_new
-            (b_document, b_statut_public, nom_foret, label_foret, code_foret,
-             surface_renseignee, surface_calculee, nom_proprietaire,
-             id_nomenclature_proprietaire_type, id_area)
-        VALUES %s
-    """
-    data = []
-    for i in range(len(gdf)):
-        r = gdf.iloc[i]
-        geom = _to_multi(r.geometry)
-        area_code = area_codes[i]
-        surf_ren = float(r["FIRST_QSRE"]) if r.get("FIRST_QSRE") is not None else None
-        data.append((
-            True, True,
-            str(r["CCOD_FRT"]).lower(),
-            str(r["FIRST_LLIB"]),
-            area_code,
-            surf_ren,
-            round(geom.area / 10000, 4),
-            "ONF",
-            NOMENCLATURE_PT_E,
-            code_to_id.get(area_code),
-        ))
-    psycopg2.extras.execute_values(cur, sql_foret, data, page_size=200)
-    raw_conn2.commit()
-    cur.close()
-    raw_conn2.close()
-    LOG.info(f"  {len(data)} forêts ONF insérées dans l_areas_new et t_forets_new.")
-
-
-# ---------------------------------------------------------------------------
 # Étape 4h — Reprise des infos propriétaire ONF depuis t_forets
 # ---------------------------------------------------------------------------
 
@@ -892,35 +923,54 @@ def step_copy_onf_proprietaire():
     LOG.info("Étape 4h : reprise des infos propriétaire ONF (b_document=true, b_statut_public=true)")
     print("Étape 4h : reprise des infos propriétaire ONF (b_document=true, b_statut_public=true)")
     db = _get_db()
-    result = db.session.execute(text("""
+
+    # Correspondance spatiale : forêt nouvelle ↔ ancienne si chevauchement ≥ 90 %
+    # (le code_foret a changé de format entre l'ancienne et la nouvelle version des données)
+    result = db.session.execute(text(f"""
         UPDATE oeasc_forets.t_forets_new fn
         SET
-            id_proprietaire                  = f.id_proprietaire,
-            nom_proprietaire                 = f.nom_proprietaire,
-            adresse_proprietaire             = f.adresse_proprietaire,
-            cp_proprietaire                  = f.cp_proprietaire,
-            commune_proprietaire             = f.commune_proprietaire,
-            email_proprietaire               = f.email_proprietaire,
-            tel_proprietaire                 = f.tel_proprietaire,
+            id_proprietaire                   = f.id_proprietaire,
+            nom_proprietaire                  = f.nom_proprietaire,
+            adresse_proprietaire              = f.adresse_proprietaire,
+            cp_proprietaire                   = f.cp_proprietaire,
+            commune_proprietaire              = f.commune_proprietaire,
+            email_proprietaire                = f.email_proprietaire,
+            tel_proprietaire                  = f.tel_proprietaire,
             id_nomenclature_proprietaire_type = f.id_nomenclature_proprietaire_type,
-            id_declarant                     = f.id_declarant
+            id_declarant                      = f.id_declarant
         FROM oeasc_forets.t_forets f
-        WHERE fn.code_foret = f.code_foret
-        AND fn.b_document = TRUE AND fn.b_statut_public = TRUE
-        AND  f.b_document = TRUE AND  f.b_statut_public = TRUE
+        JOIN ref_geo.l_areas la_old ON la_old.id_area = f.id_area
+            AND la_old.id_type = {ID_TYPE_FORET_ONF}
+        JOIN ref_geo.l_areas_new la_new ON la_new.id_area = fn.id_area
+            AND la_new.id_type = {ID_TYPE_FORET_ONF}
+        WHERE fn.b_document = TRUE AND fn.b_statut_public = TRUE
+        AND   f.b_document  = TRUE AND  f.b_statut_public = TRUE
+        AND ST_Intersects(la_new.geom, la_old.geom)
+        AND ST_Area(ST_Intersection(la_new.geom, la_old.geom))
+            / NULLIF(ST_Area(la_new.geom), 0) >= {MATCH_THRESHOLD}
     """))
     db.session.commit()
     n = result.rowcount
-    LOG.info(f"  {n} forêt(s) ONF mises à jour avec les infos propriétaire de t_forets.")
+    LOG.info(f"  {n} forêt(s) ONF mises à jour avec les infos propriétaire de t_forets (correspondance spatiale).")
+
+    # Forêts sans correspondance : on s'assure que nom_proprietaire reste "ONF"
+    db.session.execute(text("""
+        UPDATE oeasc_forets.t_forets_new
+        SET nom_proprietaire = 'ONF'
+        WHERE b_document = TRUE AND b_statut_public = TRUE
+        AND id_proprietaire IS NULL
+        AND (nom_proprietaire IS NULL OR nom_proprietaire != 'ONF')
+    """))
+    db.session.commit()
 
     n_missing = db.session.execute(text("""
         SELECT count(*) FROM oeasc_forets.t_forets_new
         WHERE b_document = TRUE AND b_statut_public = TRUE
-        AND id_proprietaire IS NULL AND nom_proprietaire = 'ONF'
+        AND id_proprietaire IS NULL
     """)).scalar()
     if n_missing:
         LOG.warning(
-            f"  ATTENTION : {n_missing} forêt(s) ONF sans correspondance par code_foret "
+            f"  ATTENTION : {n_missing} forêt(s) ONF sans correspondance spatiale "
             f"dans t_forets — infos propriétaire conservées à 'ONF'."
         )
 
@@ -1520,7 +1570,9 @@ def step_build_cor_hierarchie_area():
         ON CONFLICT DO NOTHING
     """))
 
-    # 4. Parcelles ONF → Forêts ONF (par préfixe area_code)
+    # 4. Parcelles ONF → Forêts ONF
+    # area_code parcelle = "{dep}-{iidtn_frt}-{ccod_prf}", area_code forêt = "{iidtn_frt}"
+    # → SPLIT_PART(..., '-', 2) extrait iidtn_frt depuis le code parcelle
     db.session.execute(text(f"""
         INSERT INTO ref_geo.cor_hierarchie_area
             (id_area_enfant, id_type_enfant, id_area_parent, id_type_parent)
@@ -1528,7 +1580,7 @@ def step_build_cor_hierarchie_area():
         FROM ref_geo.l_areas p
         JOIN ref_geo.l_areas f ON (
             f.id_type = {ID_TYPE_FORET_ONF}
-            AND p.area_code ILIKE f.area_code || '-%'
+            AND SPLIT_PART(p.area_code, '-', 2) = f.area_code
         )
         WHERE p.id_type = {ID_TYPE_PARCELLE_ONF}
         ON CONFLICT DO NOTHING
@@ -1917,9 +1969,9 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
             step_load_cadastres()
             step_build_sections()
             step_load_foret_dgd()
-            step_load_ug_onf()
-            step_load_parcelle_onf()
             step_load_foret_onf()
+            step_load_parcelle_onf()
+            step_load_ug_onf()
             step_copy_onf_proprietaire()
         else:
             LOG.info("--skip-load : chargement GPKG ignoré (l_areas_new déjà présente)")

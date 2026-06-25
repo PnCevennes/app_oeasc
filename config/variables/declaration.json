@@ -5,7 +5,8 @@
         "Active": 1,
         "Archivée": 2,
         "Archivée sans réponse": 3,
-        "Relance": 100
+        "Relance": 100,
+        "Erreur Refgeo": 999
     },
     "_comment_NB_JOURS_RELANCE_MAIL": "Nombre de jours après la date de fin de la déclaration pour envoyer la première relance. Ensuite, on envoie une relance tous les NB_JOURS_RELANCE_MAIL jours tant que la déclaration n'est pas renouvelée, jusqu'à un maximum de NB_RELANCES_MAX relances.",
     "NB_JOURS_RELANCE_MAIL": 30,

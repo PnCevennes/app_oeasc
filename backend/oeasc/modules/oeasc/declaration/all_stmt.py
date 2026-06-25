@@ -345,6 +345,25 @@ def get_stmt_liste_declaration():
                 ),
                 else_=get_area_names(TDeclaration.id_declaration, "OEASC_CADASTRE"),
             ).label("parcelles"),
+            case(
+                (
+                    and_(f.c.b_statut_public == True, f.c.b_document == True),
+                    "Public + DGD",
+                ),
+                (
+                    and_(f.c.b_statut_public == True, f.c.b_document == False),
+                    "Public ss DGD",
+                ),
+                (
+                    and_(f.c.b_statut_public == False, f.c.b_document == True),
+                    "Privé + DGD",
+                ),
+                (
+                    and_(f.c.b_statut_public == False, f.c.b_document == False),
+                    "Privée ss DGD",
+                ),
+                else_="",
+            ).label("type_foret"),
             p.c.peuplement_type_mnemo,
             pn.c.peuplement_origine2_mnemo,
             p.c.peuplement_ess_1_mnemo,
