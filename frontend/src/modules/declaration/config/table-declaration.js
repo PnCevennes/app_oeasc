@@ -122,6 +122,9 @@ export default {
     label_foret: {
       text: 'Nom forêt',
     },
+    type_foret: {
+      text: 'Type forêt',
+    },
     // peuplement_ess_1_mnemo: {
     //   text: 'Ess. objectif',
     // },
