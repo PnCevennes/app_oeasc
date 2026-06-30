@@ -29,6 +29,8 @@ def upgrade():
     ]:
         op.execute(f"ALTER TABLE oeasc_forets.t_forets ADD COLUMN IF NOT EXISTS {col} {col_type}")
 
+    op.execute("ALTER TABLE oeasc_forets.t_forets ADD COLUMN IF NOT EXISTS valide BOOLEAN NOT NULL DEFAULT TRUE")
+
     op.execute("""
         DO $$ BEGIN
             IF NOT EXISTS (
@@ -105,6 +107,8 @@ def downgrade():
             END IF;
         END $$;
     """)
+
+    op.execute("ALTER TABLE oeasc_forets.t_forets DROP COLUMN IF EXISTS valide")
 
     for col in [
         'id_area', 'nom_proprietaire', 'adresse_proprietaire', 'cp_proprietaire',

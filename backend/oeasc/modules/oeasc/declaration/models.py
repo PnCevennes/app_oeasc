@@ -535,3 +535,4 @@ class TForet(CustomModel):
     areas_foret: Mapped[list[CorAreasForet]] = relationship(
         "CorAreasForet", cascade="save-update, merge, delete, delete-orphan"
     )
+    valide: Mapped[bool] = Column(Boolean, nullable=True)
