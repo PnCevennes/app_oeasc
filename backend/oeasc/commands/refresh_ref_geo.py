@@ -1270,6 +1270,38 @@ def step_update_declarations():
         AND f.b_document = TRUE
     """))
     db.session.commit()
+
+    # Passage 2 : fallback via cadastres pour les forêts DGD sans id_area (pas de polygone
+    # dans l'ancienne l_areas). On passe par area_code (code cadastral stable) pour relier
+    # l'ancien id_area au nouveau, puis cor_area_intersect.id_foret_dgd pour trouver la forêt.
+    db.session.execute(text(f"""
+        UPDATE oeasc_declarations.t_declarations d
+        SET id_foret = match.id_foret
+        FROM (
+            SELECT DISTINCT ON (d2.id_declaration)
+                d2.id_declaration,
+                fn.id_foret
+            FROM oeasc_declarations.t_declarations d2
+            JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2.id_foret
+                AND f2.b_document = TRUE AND f2.b_statut_public = FALSE
+                AND f2.id_area IS NULL
+            JOIN oeasc_declarations.cor_areas_declarations cad
+                ON cad.id_declaration = d2.id_declaration
+            JOIN ref_geo.l_areas la_cad
+                ON la_cad.id_area = cad.id_area AND la_cad.id_type = {ID_TYPE_CADASTRE}
+            JOIN ref_geo.l_areas_new la_cad_new
+                ON la_cad_new.area_code = la_cad.area_code
+                AND la_cad_new.id_type = {ID_TYPE_CADASTRE}
+            JOIN ref_geo.cor_area_intersect cai
+                ON cai.id_parcelle = la_cad_new.id_area AND cai.id_foret_dgd IS NOT NULL
+            JOIN oeasc_forets.t_forets_new fn ON fn.id_area = cai.id_foret_dgd
+            WHERE d2.type_declaration = 'dgd'
+            ORDER BY d2.id_declaration
+        ) match
+        WHERE d.id_declaration = match.id_declaration
+    """))
+    db.session.commit()
+
     n_dgd = db.session.execute(text(
         "SELECT count(*) FROM oeasc_declarations.t_declarations d "
         "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
@@ -1308,6 +1340,9 @@ def step_update_declarations():
     # Passage 2a : pour les forêts ONF dont id_area est NULL, via correspondance spatiale
     # entre les UG ONF de la déclaration (l_areas) et les nouvelles forêts ONF (l_areas_new).
     # Robuste même si iidtn_frt a changé entre deux versions du GPKG.
+    # Note : on filtre sur f2.id_area IS NULL (passage 1 couvre les forêts avec id_area).
+    # On n'utilise pas de NOT EXISTS sur t_forets_new car les nouveaux IDs (séquence depuis 1)
+    # peuvent coïncider avec d'anciens IDs, créant des faux positifs.
     db.session.execute(text(f"""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = match.id_foret
@@ -1320,12 +1355,6 @@ def step_update_declarations():
             JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2.id_foret
                 AND f2.b_document = TRUE AND f2.b_statut_public = TRUE
                 AND f2.id_area IS NULL
-            -- Pas encore mis à jour vers une nouvelle forêt ONF
-            AND NOT EXISTS (
-                SELECT 1 FROM oeasc_forets.t_forets_new fn0
-                WHERE fn0.id_foret = d2.id_foret
-                AND fn0.b_document = TRUE AND fn0.b_statut_public = TRUE
-            )
             JOIN oeasc_declarations.cor_areas_declarations cad
                 ON cad.id_declaration = d2.id_declaration
             JOIN ref_geo.l_areas la_ug
@@ -1342,9 +1371,10 @@ def step_update_declarations():
     """))
     db.session.commit()
 
-    # Passage 2b : fallback via cadastres — pour les déclarations ONF dont les areas sont
-    # des parcelles cadastrales (pas d'UG ONF). Utilise cor_area_intersect.id_foret_onf
-    # (déjà construit à l'étape 5 sur l_areas_new) pour trouver la nouvelle forêt ONF.
+    # Passage 2b : fallback via cadastres — pour les déclarations ONF sans UG (id_area IS NULL
+    # sur la forêt). Utilise cor_area_intersect.id_foret_onf (construit à l'étape 5 sur
+    # l_areas_new). Le bridge par area_code est indispensable : cor_area_intersect utilise
+    # les IDs de l_areas_new, mais cor_areas_declarations référence encore les anciens IDs.
     db.session.execute(text(f"""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = match.id_foret
@@ -1355,17 +1385,16 @@ def step_update_declarations():
             FROM oeasc_declarations.t_declarations d2
             JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2.id_foret
                 AND f2.b_document = TRUE AND f2.b_statut_public = TRUE
-            AND NOT EXISTS (
-                SELECT 1 FROM oeasc_forets.t_forets_new fn0
-                WHERE fn0.id_foret = d2.id_foret
-                AND fn0.b_document = TRUE AND fn0.b_statut_public = TRUE
-            )
+                AND f2.id_area IS NULL
             JOIN oeasc_declarations.cor_areas_declarations cad
                 ON cad.id_declaration = d2.id_declaration
             JOIN ref_geo.l_areas la_cad
                 ON la_cad.id_area = cad.id_area AND la_cad.id_type = {ID_TYPE_CADASTRE}
+            JOIN ref_geo.l_areas_new la_cad_new
+                ON la_cad_new.area_code = la_cad.area_code
+                AND la_cad_new.id_type = {ID_TYPE_CADASTRE}
             JOIN ref_geo.cor_area_intersect cai
-                ON cai.id_parcelle = la_cad.id_area AND cai.id_foret_onf IS NOT NULL
+                ON cai.id_parcelle = la_cad_new.id_area AND cai.id_foret_onf IS NOT NULL
             JOIN oeasc_forets.t_forets_new fn ON fn.id_area = cai.id_foret_onf
                 AND fn.b_document = TRUE AND fn.b_statut_public = TRUE
             WHERE d2.type_declaration = 'onf'
