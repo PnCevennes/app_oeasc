@@ -1199,17 +1199,13 @@ def _mark_erreur_refgeo(db, type_declaration):
                 ''
             ) AS areas_info
         FROM oeasc_declarations.t_declarations d
-        JOIN oeasc_forets.t_forets f ON f.id_foret = d.id_foret
+        JOIN oeasc_forets.t_forets f ON f.id_foret = d._pre_refresh_id_foret
         LEFT JOIN oeasc_declarations.cor_areas_declarations cad
             ON cad.id_declaration = d.id_declaration
         LEFT JOIN ref_geo.l_areas la ON la.id_area = cad.id_area
         WHERE d.type_declaration = :type_decl
         AND d.id_foret IS NOT NULL
-        AND NOT EXISTS (
-            SELECT 1 FROM oeasc_forets.t_forets_new fn
-            WHERE fn.id_foret = d.id_foret
-            {type_filter}
-        )
+        AND d.id_foret = d._pre_refresh_id_foret
         GROUP BY d.id_declaration, f.nom_foret
     """), {"type_decl": type_declaration}).fetchall()
 
@@ -1248,6 +1244,19 @@ def step_update_declarations():
         db.session.execute(text(stmt))
     db.session.commit()
 
+    # Colonne temporaire pour détecter les déclarations non mises à jour en step 6.
+    # _mark_erreur_refgeo l'utilise pour identifier les déclarations dont id_foret
+    # n'a pas changé (= non retrouvées), évitant la confusion avec les nouvelles forêts
+    # qui ont le même id numérique par coïncidence (séquences repartant de 1 dans t_forets_new).
+    db.session.execute(text(
+        "ALTER TABLE oeasc_declarations.t_declarations "
+        "ADD COLUMN IF NOT EXISTS _pre_refresh_id_foret INTEGER"
+    ))
+    db.session.execute(text(
+        "UPDATE oeasc_declarations.t_declarations SET _pre_refresh_id_foret = id_foret"
+    ))
+    db.session.commit()
+
     # 6b : mise à jour id_foret DGD par correspondance spatiale via id_area
     # Les codes DGD changent de format entre anciennes et nouvelles données :
     # on ne peut pas matcher par code_foret. On passe par l_areas (géométrie).
@@ -1271,32 +1280,32 @@ def step_update_declarations():
     """))
     db.session.commit()
 
-    # Passage 2 : fallback via cadastres pour les forêts DGD sans id_area (pas de polygone
-    # dans l'ancienne l_areas). On passe par area_code (code cadastral stable) pour relier
-    # l'ancien id_area au nouveau, puis cor_area_intersect.id_foret_dgd pour trouver la forêt.
+    # Passage 2 : fallback spatial pour les forêts DGD sans id_area (pas de polygone dans
+    # l'ancienne l_areas). Le format area_code des cadastres change entre GPKG successifs,
+    # donc on utilise la géométrie des anciennes parcelles pour trouver la nouvelle forêt DGD.
     db.session.execute(text(f"""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = match.id_foret
         FROM (
             SELECT DISTINCT ON (d2.id_declaration)
                 d2.id_declaration,
-                fn.id_foret
+                fn.id_foret,
+                ST_Area(ST_Intersection(la_cad.geom, la_dgd_new.geom)) AS overlap
             FROM oeasc_declarations.t_declarations d2
-            JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2.id_foret
+            JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2._pre_refresh_id_foret
                 AND f2.b_document = TRUE AND f2.b_statut_public = FALSE
                 AND f2.id_area IS NULL
             JOIN oeasc_declarations.cor_areas_declarations cad
                 ON cad.id_declaration = d2.id_declaration
             JOIN ref_geo.l_areas la_cad
                 ON la_cad.id_area = cad.id_area AND la_cad.id_type = {ID_TYPE_CADASTRE}
-            JOIN ref_geo.l_areas_new la_cad_new
-                ON la_cad_new.area_code = la_cad.area_code
-                AND la_cad_new.id_type = {ID_TYPE_CADASTRE}
-            JOIN ref_geo.cor_area_intersect cai
-                ON cai.id_parcelle = la_cad_new.id_area AND cai.id_foret_dgd IS NOT NULL
-            JOIN oeasc_forets.t_forets_new fn ON fn.id_area = cai.id_foret_dgd
+            JOIN ref_geo.l_areas_new la_dgd_new
+                ON la_dgd_new.id_type = {ID_TYPE_DGD}
+                AND ST_Intersects(la_cad.geom, la_dgd_new.geom)
+            JOIN oeasc_forets.t_forets_new fn ON fn.id_area = la_dgd_new.id_area
             WHERE d2.type_declaration = 'dgd'
-            ORDER BY d2.id_declaration
+            AND d2.id_foret = d2._pre_refresh_id_foret
+            ORDER BY d2.id_declaration, overlap DESC
         ) match
         WHERE d.id_declaration = match.id_declaration
     """))
@@ -1352,7 +1361,7 @@ def step_update_declarations():
                 fn.id_foret,
                 ST_Area(ST_Intersection(la_ug.geom, la_foret_new.geom)) AS overlap
             FROM oeasc_declarations.t_declarations d2
-            JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2.id_foret
+            JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2._pre_refresh_id_foret
                 AND f2.b_document = TRUE AND f2.b_statut_public = TRUE
                 AND f2.id_area IS NULL
             JOIN oeasc_declarations.cor_areas_declarations cad
@@ -1365,40 +1374,41 @@ def step_update_declarations():
             JOIN oeasc_forets.t_forets_new fn ON fn.id_area = la_foret_new.id_area
                 AND fn.b_document = TRUE AND fn.b_statut_public = TRUE
             WHERE d2.type_declaration = 'onf'
+            AND d2.id_foret = d2._pre_refresh_id_foret
             ORDER BY d2.id_declaration, overlap DESC
         ) match
         WHERE d.id_declaration = match.id_declaration
     """))
     db.session.commit()
 
-    # Passage 2b : fallback via cadastres — pour les déclarations ONF sans UG (id_area IS NULL
-    # sur la forêt). Utilise cor_area_intersect.id_foret_onf (construit à l'étape 5 sur
-    # l_areas_new). Le bridge par area_code est indispensable : cor_area_intersect utilise
-    # les IDs de l_areas_new, mais cor_areas_declarations référence encore les anciens IDs.
+    # Passage 2b : fallback spatial via cadastres — pour les déclarations ONF sans UG
+    # (id_area IS NULL sur la forêt, et pas de match en 2a). Le format area_code des
+    # cadastres change entre GPKG, donc on utilise la géométrie des anciennes parcelles
+    # pour trouver directement la nouvelle forêt ONF qui les contient.
     db.session.execute(text(f"""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = match.id_foret
         FROM (
             SELECT DISTINCT ON (d2.id_declaration)
                 d2.id_declaration,
-                fn.id_foret
+                fn.id_foret,
+                ST_Area(ST_Intersection(la_cad.geom, la_onf_new.geom)) AS overlap
             FROM oeasc_declarations.t_declarations d2
-            JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2.id_foret
+            JOIN oeasc_forets.t_forets f2 ON f2.id_foret = d2._pre_refresh_id_foret
                 AND f2.b_document = TRUE AND f2.b_statut_public = TRUE
                 AND f2.id_area IS NULL
             JOIN oeasc_declarations.cor_areas_declarations cad
                 ON cad.id_declaration = d2.id_declaration
             JOIN ref_geo.l_areas la_cad
                 ON la_cad.id_area = cad.id_area AND la_cad.id_type = {ID_TYPE_CADASTRE}
-            JOIN ref_geo.l_areas_new la_cad_new
-                ON la_cad_new.area_code = la_cad.area_code
-                AND la_cad_new.id_type = {ID_TYPE_CADASTRE}
-            JOIN ref_geo.cor_area_intersect cai
-                ON cai.id_parcelle = la_cad_new.id_area AND cai.id_foret_onf IS NOT NULL
-            JOIN oeasc_forets.t_forets_new fn ON fn.id_area = cai.id_foret_onf
+            JOIN ref_geo.l_areas_new la_onf_new
+                ON la_onf_new.id_type = {ID_TYPE_FORET_ONF}
+                AND ST_Intersects(la_cad.geom, la_onf_new.geom)
+            JOIN oeasc_forets.t_forets_new fn ON fn.id_area = la_onf_new.id_area
                 AND fn.b_document = TRUE AND fn.b_statut_public = TRUE
             WHERE d2.type_declaration = 'onf'
-            ORDER BY d2.id_declaration
+            AND d2.id_foret = d2._pre_refresh_id_foret
+            ORDER BY d2.id_declaration, overlap DESC
         ) match
         WHERE d.id_declaration = match.id_declaration
     """))
@@ -2053,6 +2063,7 @@ def step_cleanup():
         "REFRESH MATERIALIZED VIEW ref_geo.vm_lareas_simples",
         "ALTER TABLE ref_geo.l_areas DROP COLUMN IF EXISTS proprietaire",
         "ALTER TABLE oeasc_declarations.t_declarations DROP COLUMN IF EXISTS type_declaration",
+        "ALTER TABLE oeasc_declarations.t_declarations DROP COLUMN IF EXISTS _pre_refresh_id_foret",
         "ALTER TABLE oeasc_forets.t_forets DROP COLUMN IF EXISTS old_id_foret",
     ]:
         db.session.execute(text(stmt))
