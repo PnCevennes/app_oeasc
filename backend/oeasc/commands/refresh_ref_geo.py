@@ -2027,6 +2027,171 @@ def step_prune_forests_outside_oeasc():
 
 
 # ---------------------------------------------------------------------------
+# Étape 9c — Préservation des forêts absentes des nouvelles données
+# ---------------------------------------------------------------------------
+
+
+def step_preserve_unmatched_forests():
+    """
+    Pour les déclarations dont la forêt n'a pas été retrouvée dans les nouvelles données
+    GPKG (marquées statut=999 par _mark_erreur_refgeo), copie l'ancienne forêt et son
+    polygon depuis t_forets_ancien / l_areas_ancien avec valide=FALSE / enable=FALSE.
+    Ces areas n'ont pas participé à cor_area_intersect (step 5) ni cor_hierarchie_area
+    (step 9) car elles sont insérées après ces deux étapes.
+    """
+    LOG.info("Étape 9c : préservation des forêts non retrouvées dans les nouvelles données")
+    print("Étape 9c : préservation des forêts non retrouvées dans les nouvelles données")
+    db = _get_db()
+
+    # Forêts distinctes à préserver (toutes catégories : DGD, ONF)
+    unmatched_forests = db.session.execute(text("""
+        SELECT DISTINCT _pre_refresh_id_foret AS old_id_foret
+        FROM oeasc_declarations.t_declarations
+        WHERE id_foret IS NULL
+          AND _pre_refresh_id_foret IS NOT NULL
+          AND statut = 999
+    """)).fetchall()
+
+    if not unmatched_forests:
+        LOG.info("  Aucune forêt à préserver.")
+        return
+
+    for row in unmatched_forests:
+        old_id_foret = row.old_id_foret
+
+        # Déclarations concernées par cette forêt
+        decl_rows = db.session.execute(text("""
+            SELECT id_declaration
+            FROM oeasc_declarations.t_declarations
+            WHERE _pre_refresh_id_foret = :old_id AND id_foret IS NULL AND statut = 999
+        """), {"old_id": old_id_foret}).fetchall()
+        decl_ids = [r.id_declaration for r in decl_rows]
+
+        # Ancienne forêt
+        old_foret = db.session.execute(text("""
+            SELECT id_foret, id_proprietaire, b_statut_public, b_document,
+                   nom_foret, code_foret, label_foret,
+                   surface_renseignee, surface_calculee, id_area,
+                   nom_proprietaire, adresse_proprietaire, cp_proprietaire,
+                   commune_proprietaire, email_proprietaire, tel_proprietaire,
+                   id_nomenclature_proprietaire_type, id_declarant
+            FROM oeasc_forets.t_forets_ancien
+            WHERE id_foret = :id
+        """), {"id": old_id_foret}).fetchone()
+
+        if not old_foret:
+            LOG.warning(f"  Forêt ancienne id={old_id_foret} introuvable dans t_forets_ancien — déclarations {decl_ids} ignorées.")
+            continue
+
+        nom = old_foret.nom_foret or f"id={old_id_foret}"
+
+        # Copier le polygone depuis l_areas_ancien si la forêt en avait un
+        new_id_area = None
+        if old_foret.id_area:
+            old_area = db.session.execute(text("""
+                SELECT id_type, area_name, area_code, source,
+                       meta_create_date, meta_update_date,
+                       geom, geom_4326, centroid
+                FROM ref_geo.l_areas_ancien
+                WHERE id_area = :id
+            """), {"id": old_foret.id_area}).fetchone()
+
+            if old_area:
+                comment = (
+                    f"Area sauvegardée pour les déclarations {decl_ids} "
+                    f"et la forêt \"{nom}\" (non retrouvée lors du refresh)"
+                )
+                result = db.session.execute(text("""
+                    INSERT INTO ref_geo.l_areas
+                        (id_type, area_name, area_code, source,
+                         meta_create_date, meta_update_date,
+                         geom, geom_4326, centroid,
+                         enable, comment)
+                    VALUES
+                        (:id_type, :area_name, :area_code, :source,
+                         :meta_create_date, :meta_update_date,
+                         :geom, :geom_4326, :centroid,
+                         FALSE, :comment)
+                    RETURNING id_area
+                """), {
+                    "id_type": old_area.id_type,
+                    "area_name": old_area.area_name,
+                    "area_code": old_area.area_code,
+                    "source": old_area.source,
+                    "meta_create_date": old_area.meta_create_date,
+                    "meta_update_date": old_area.meta_update_date,
+                    "geom": old_area.geom,
+                    "geom_4326": old_area.geom_4326,
+                    "centroid": old_area.centroid,
+                    "comment": comment,
+                })
+                new_id_area = result.scalar()
+
+        # Insérer la forêt préservée (valide=FALSE, colonnes listées explicitement)
+        new_foret = db.session.execute(text("""
+            INSERT INTO oeasc_forets.t_forets
+                (id_proprietaire, b_statut_public, b_document,
+                 nom_foret, code_foret, label_foret,
+                 surface_renseignee, surface_calculee, id_area,
+                 nom_proprietaire, adresse_proprietaire, cp_proprietaire,
+                 commune_proprietaire, email_proprietaire, tel_proprietaire,
+                 id_nomenclature_proprietaire_type, id_declarant,
+                 valide)
+            VALUES
+                (:id_proprietaire, :b_statut_public, :b_document,
+                 :nom_foret, :code_foret, :label_foret,
+                 :surface_renseignee, :surface_calculee, :id_area,
+                 :nom_proprietaire, :adresse_proprietaire, :cp_proprietaire,
+                 :commune_proprietaire, :email_proprietaire, :tel_proprietaire,
+                 :id_nomenclature_proprietaire_type, :id_declarant,
+                 FALSE)
+            RETURNING id_foret
+        """), {
+            "id_proprietaire": old_foret.id_proprietaire,
+            "b_statut_public": old_foret.b_statut_public,
+            "b_document": old_foret.b_document,
+            "nom_foret": old_foret.nom_foret,
+            "code_foret": old_foret.code_foret,
+            "label_foret": old_foret.label_foret,
+            "surface_renseignee": old_foret.surface_renseignee,
+            "surface_calculee": old_foret.surface_calculee,
+            "id_area": new_id_area,
+            "nom_proprietaire": old_foret.nom_proprietaire,
+            "adresse_proprietaire": old_foret.adresse_proprietaire,
+            "cp_proprietaire": old_foret.cp_proprietaire,
+            "commune_proprietaire": old_foret.commune_proprietaire,
+            "email_proprietaire": old_foret.email_proprietaire,
+            "tel_proprietaire": old_foret.tel_proprietaire,
+            "id_nomenclature_proprietaire_type": old_foret.id_nomenclature_proprietaire_type,
+            "id_declarant": old_foret.id_declarant,
+        })
+        new_id_foret = new_foret.scalar()
+
+        # Rattacher les déclarations à la forêt préservée
+        db.session.execute(text("""
+            UPDATE oeasc_declarations.t_declarations
+            SET id_foret = :new_id,
+                statut = 0,
+                precision_localisation = :precision
+            WHERE _pre_refresh_id_foret = :old_id AND id_foret IS NULL AND statut = 999
+        """), {
+            "new_id": new_id_foret,
+            "old_id": old_id_foret,
+            "precision": f"[Forêt non retrouvée dans les nouvelles données — conservée] (ancien id={old_id_foret})",
+        })
+        db.session.commit()
+
+        LOG.info(
+            f"  Forêt préservée : \"{nom}\" "
+            f"(ancien id={old_id_foret}, nouvel id={new_id_foret}, "
+            f"id_area={'NULL' if new_id_area is None else new_id_area}) "
+            f"— {len(decl_ids)} déclaration(s) rattachées : {decl_ids}"
+        )
+
+    LOG.info("  Préservation terminée.")
+
+
+# ---------------------------------------------------------------------------
 # Étape 10 — Nettoyage final
 # ---------------------------------------------------------------------------
 
@@ -2236,6 +2401,7 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
         step_swap_l_areas()
         step_build_cor_hierarchie_area()
         step_prune_forests_outside_oeasc()
+        step_preserve_unmatched_forests()
         step_cleanup()
         step_verify()
         step_refresh_vm_lareas_simples()
