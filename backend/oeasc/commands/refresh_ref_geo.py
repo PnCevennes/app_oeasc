@@ -1812,7 +1812,25 @@ def step_build_cor_hierarchie_area():
         ON CONFLICT DO NOTHING
     """))
     db.session.commit()
-    LOG.info("  cor_areas_forets reconstruite.")
+
+    # Forêts ss_document (b_document=FALSE) : alimenter cor_areas_forets depuis cor_area_intersect.
+    # L'étape 5 renseigne id_foret_prive = id_area de la forêt privée pour chaque cadastre
+    # qui l'intersecte ; on utilise cette correspondance pour lier cadastre → forêt privée.
+    db.session.execute(text("""
+        INSERT INTO oeasc_forets.cor_areas_forets (id_area, id_foret)
+        SELECT DISTINCT cai.id_parcelle, tf.id_foret
+        FROM ref_geo.cor_area_intersect cai
+        JOIN oeasc_forets.t_forets tf ON tf.id_area = cai.id_foret_prive
+        WHERE cai.id_foret_prive IS NOT NULL
+        ON CONFLICT DO NOTHING
+    """))
+    db.session.commit()
+    n_prive = db.session.execute(text(
+        "SELECT count(*) FROM oeasc_forets.cor_areas_forets caf "
+        "JOIN oeasc_forets.t_forets tf ON tf.id_foret = caf.id_foret "
+        "WHERE tf.b_document = FALSE"
+    )).scalar()
+    LOG.info(f"  cor_areas_forets reconstruite (dont {n_prive} liaison(s) forêts ss_document).")
 
     # Reconstruction de cor_areas_declarations par transfert spatial depuis la sauvegarde.
     # On ne conserve que les plus petites unités (UG ONF et parcelles cadastrales).
@@ -1900,13 +1918,6 @@ def step_prune_forests_outside_oeasc():
                      SELECT 1 FROM ref_geo.cor_area_intersect
                      WHERE id_foret_dgd = f.id_area
                  )
-             ))
-            OR
-            -- Privée/ss_document : pas dans id_foret_prive
-            (f.b_document = FALSE
-             AND NOT EXISTS (
-                 SELECT 1 FROM ref_geo.cor_area_intersect
-                 WHERE id_foret_prive = f.id_area
              ))
     """)).fetchall()
 
