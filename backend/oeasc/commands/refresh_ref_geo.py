@@ -14,6 +14,7 @@ Options :
 """
 
 import logging
+import os
 from datetime import datetime
 
 import click
@@ -25,6 +26,8 @@ from shapely.wkt import dumps as wkt_dumps
 from sqlalchemy import text
 
 LOG = logging.getLogger(__name__)
+
+_report: dict = {}
 
 REQUIRED_REVISION = "a1b2c3d4e5f6"
 
@@ -256,6 +259,11 @@ def step_save_declaration_types():
         for row in deleted:
             LOG.info(f"  Forêt ss_document supprimée : id_foret={row[0]} nom={row[1]!r}")
         LOG.info(f"  {len(deleted)} forêt(s) ss_document sans déclaration supprimée(s).")
+        _report["anomalies"].append(
+            f"[Étape 0] {len(deleted)} forêt(s) ss_document sans déclaration supprimée(s) : "
+            + ", ".join(f"{r[1]!r} (id={r[0]})" for r in deleted)
+        )
+    _report["volumes"]["forets_ss_doc_supprimees"] = len(deleted)
     db.session.commit()
 
 
@@ -511,6 +519,7 @@ def step_load_communes():
     # Mise à jour de communes_aoa
     _update_communes_aoa(gdf)
     LOG.info(f"  {len(rows)} communes insérées.")
+    _report["volumes"]["communes"] = len(rows)
 
 
 def _update_communes_aoa(gdf):
@@ -603,6 +612,7 @@ def step_load_cadastres():
     _create_gist_index(raw_conn)
     raw_conn.close()
     LOG.info(f"  {len(rows)} cadastres insérés.")
+    _report["volumes"]["cadastres"] = len(rows)
 
 
 # ---------------------------------------------------------------------------
@@ -645,6 +655,7 @@ def step_build_sections():
     _bulk_insert_areas(raw_conn, rows)
     raw_conn.close()
     LOG.info(f"  {len(rows)} sections cadastrales créées.")
+    _report["volumes"]["sections"] = len(rows)
 
 
 # ---------------------------------------------------------------------------
@@ -735,6 +746,7 @@ def step_load_foret_dgd():
     cur.close()
     raw_conn2.close()
     LOG.info(f"  {len(data)} forêts DGD insérées dans l_areas_new et t_forets_new.")
+    _report["volumes"]["forets_dgd"] = len(data)
 
 
 # ---------------------------------------------------------------------------
@@ -809,6 +821,7 @@ def step_load_foret_onf():
     cur.close()
     raw_conn2.close()
     LOG.info(f"  {len(data)} forêts ONF insérées dans l_areas_new et t_forets_new.")
+    _report["volumes"]["forets_onf"] = len(data)
 
 
 # ---------------------------------------------------------------------------
@@ -864,6 +877,8 @@ def step_load_parcelle_onf():
     n_parcelles = sum(1 for r in rows if r[0] == ID_TYPE_PARCELLE_ONF)
     n_ug_u = sum(1 for r in rows if r[0] == ID_TYPE_UG_ONF)
     LOG.info(f"  {n_parcelles} parcelles ONF insérées, {n_ug_u} UG 'U' créées.")
+    _report["volumes"]["parcelles_onf"] = n_parcelles
+    _report["volumes"]["ug_u_creees"] = n_ug_u
 
 
 # ---------------------------------------------------------------------------
@@ -912,6 +927,7 @@ def step_load_ug_onf():
     _create_gist_index(raw_conn)
     raw_conn.close()
     LOG.info(f"  {len(rows)} UG ONF insérées.")
+    _report["volumes"]["ug_onf"] = len(rows)
 
 
 # ---------------------------------------------------------------------------
@@ -990,6 +1006,10 @@ def step_copy_onf_proprietaire():
             f"  ATTENTION : {n_missing} forêt(s) ONF sans correspondance spatiale "
             f"dans t_forets — infos propriétaire conservées à 'ONF'."
         )
+        _report["anomalies"].append(
+            f"[Étape 4h] {n_missing} forêt(s) ONF sans correspondance spatiale dans t_forets "
+            f"(infos propriétaire conservées à 'ONF')"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1044,6 +1064,9 @@ def step_build_cor_area_intersect():
     )).scalar()
     if n_invalid:
         LOG.warning(f"  {n_invalid} géométrie(s) invalide(s) dans l_areas_new — correction ST_MakeValid")
+        _report["anomalies"].append(
+            f"[Étape 5] {n_invalid} géométrie(s) invalide(s) dans l_areas_new corrigées par ST_MakeValid"
+        )
         db.session.execute(text(
             "UPDATE ref_geo.l_areas_new "
             "SET geom = ST_Multi(ST_CollectionExtract(ST_MakeValid(geom), 3)) "
@@ -1131,6 +1154,7 @@ def step_build_cor_area_intersect():
         "SELECT count(*) FROM ref_geo.cor_area_intersect"
     )).scalar()
     LOG.info(f"  cor_area_intersect remplie avec {n} entrées.")
+    _report["volumes"]["cor_area_intersect"] = n
 
 
 def _alert_multi_commune():
@@ -1157,6 +1181,10 @@ def _alert_multi_commune():
         for r in rows:
             LOG.warning(f"    id_area={r[0]} area_code={r[1]} → {r[2]} communes")
             print(f"    id_area={r[0]} area_code={r[1]} → {r[2]} communes")
+        _report["anomalies"].append(
+            f"[Étape 5] {len(rows)} parcelle(s) chevauchent plusieurs communes "
+            "(correspondance conservée sur la plus grande intersection)"
+        )
 
 
 # ---------------------------------------------------------------------------
@@ -1317,9 +1345,14 @@ def step_update_declarations():
         "WHERE fn.b_statut_public = false AND fn.b_document = true"
     )).scalar()
     LOG.info(f"    {n_dgd} déclarations DGD mises à jour vers t_forets_new")
+    _report["volumes"]["decl_dgd_mises_a_jour"] = n_dgd
     n_err_dgd = _mark_erreur_refgeo(db, "dgd")
     if n_err_dgd:
         LOG.warning(f"    {n_err_dgd} déclaration(s) DGD marquées Erreur Refgeo (forêt DGD non retrouvée)")
+        _report["anomalies"].append(
+            f"[Étape 6b] {n_err_dgd} déclaration(s) DGD en Erreur Refgeo (forêt DGD non retrouvée dans le nouveau GPKG)"
+        )
+    _report["volumes"]["decl_dgd_erreur_refgeo"] = n_err_dgd
 
     LOG.info("  6c : mise à jour id_foret pour les déclarations ONF")
     print("  6c : mise à jour id_foret pour les déclarations ONF")
@@ -1420,9 +1453,14 @@ def step_update_declarations():
         "WHERE fn.b_statut_public = true AND fn.b_document = true"
     )).scalar()
     LOG.info(f"    {n_onf} déclarations ONF mises à jour vers t_forets_new")
+    _report["volumes"]["decl_onf_mises_a_jour"] = n_onf
     n_err_onf = _mark_erreur_refgeo(db, "onf")
     if n_err_onf:
         LOG.warning(f"    {n_err_onf} déclaration(s) ONF marquées Erreur Refgeo (forêt ONF non retrouvée)")
+        _report["anomalies"].append(
+            f"[Étape 6c] {n_err_onf} déclaration(s) ONF en Erreur Refgeo (forêt ONF non retrouvée dans le nouveau GPKG)"
+        )
+    _report["volumes"]["decl_onf_erreur_refgeo"] = n_err_onf
 
     # 6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)
     LOG.info("  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)")
@@ -1440,6 +1478,7 @@ def step_update_declarations():
         "WHERE fn.b_document = false"
     )).scalar()
     LOG.info(f"    {n_ss} déclarations ss_document mises à jour vers t_forets_new")
+    _report["volumes"]["decl_ss_document_mises_a_jour"] = n_ss
     db.session.commit()
 
     # 6e : mise à jour id_area_commune dans t_lieu_tirs
@@ -1506,8 +1545,13 @@ def step_update_declarations():
             f"  ATTENTION : {n_lt_total - n_lt} lieu(x) de tir sur {n_lt_total} "
             f"sans commune dans l_areas_new (ni par code ni par géométrie)."
         )
+        _report["anomalies"].append(
+            f"[Étape 6e] {n_lt_total - n_lt} lieu(x) de tir sur {n_lt_total} sans commune dans l_areas_new"
+        )
     else:
         LOG.info(f"    {n_lt}/{n_lt_total} lieux de tir mis à jour.")
+    _report["volumes"]["lieux_tir_mis_a_jour"] = n_lt
+    _report["volumes"]["lieux_tir_total"] = n_lt_total
     db.session.commit()
 
     # Rapport final
@@ -1529,6 +1573,10 @@ def step_update_declarations():
         LOG.warning(
             f"  ATTENTION : {n_broken} déclaration(s) ont id_foret non null mais absent de t_forets_new "
             f"(type_declaration non géré ?)."
+        )
+        _report["anomalies"].append(
+            f"[Étape 6] {n_broken} déclaration(s) avec id_foret non null absent de t_forets_new "
+            f"(type_declaration non géré ?)"
         )
     LOG.info("  Mise à jour des déclarations terminée.")
 
@@ -1637,6 +1685,7 @@ def step_swap_t_forets():
         "SELECT count(*) FROM oeasc_forets.t_forets"
     )).scalar()
     LOG.info(f"  Swap t_forets terminé. {n} forêts dans la nouvelle table (ancienne conservée sous t_forets_ancien).")
+    _report["volumes"]["t_forets"] = n
 
 
 # ---------------------------------------------------------------------------
@@ -1734,6 +1783,8 @@ def step_swap_l_areas():
         f"  Swap l_areas terminé. {n} areas dans la nouvelle table (ancienne conservée sous l_areas_ancien). "
         f"cor_areas_declarations_ancien sauvegardée ({n_bak} liaisons avec géométries)."
     )
+    _report["volumes"]["l_areas"] = n
+    _report["volumes"]["cor_areas_declarations_ancien"] = n_bak
 
 
 # ---------------------------------------------------------------------------
@@ -1839,6 +1890,7 @@ def step_build_cor_hierarchie_area():
         "SELECT count(*) FROM ref_geo.cor_hierarchie_area"
     )).scalar()
     LOG.info(f"  cor_hierarchie_area reconstruite avec {n} entrées.")
+    _report["volumes"]["cor_hierarchie_area"] = n
 
     # Reconstruction de cor_areas_forets depuis la hiérarchie
     db.session.execute(text(f"""
@@ -1961,6 +2013,10 @@ def step_build_cor_hierarchie_area():
             f"(UG totalement hors périmètre ou forêt sans UG connue). "
             f"Vérifier cor_areas_declarations_ancien pour correction manuelle."
         )
+        _report["anomalies"].append(
+            f"[Étape 9] {n_missing} déclaration(s) sans aucune area après le transfert spatial "
+            f"(UG hors périmètre ou forêt sans UG connue — vérifier cor_areas_declarations_ancien)"
+        )
 
 
 
@@ -1969,6 +2025,7 @@ def step_build_cor_hierarchie_area():
         "SELECT count(*) FROM oeasc_declarations.cor_areas_declarations"
     )).scalar()
     LOG.info(f"  {n_cor} liaisons reconstruites dans cor_areas_declarations.")
+    _report["volumes"]["cor_areas_declarations"] = n_cor
     db.session.commit()
 
 
@@ -2020,6 +2077,7 @@ def step_prune_forests_outside_oeasc():
 
     if not to_delete:
         LOG.info("  Aucune forêt hors périmètre OEASC à supprimer.")
+        _report["volumes"]["forets_prunees"] = 0
         return
 
     ids_to_delete = [r[0] for r in to_delete]
@@ -2028,6 +2086,12 @@ def step_prune_forests_outside_oeasc():
             f"  Suppression : id_foret={r[0]} nom={r[1]!r} code={r[2]!r} "
             f"b_document={r[3]} b_statut_public={r[4]} id_area={r[5]}"
         )
+
+    _report["volumes"]["forets_prunees"] = len(ids_to_delete)
+    _report["anomalies"].append(
+        f"[Étape 9b] {len(ids_to_delete)} forêt(s) supprimée(s) (hors périmètre OEASC) : "
+        + ", ".join(f"{r[1]!r} (id={r[0]})" for r in to_delete)
+    )
 
     # Nullifie id_foret dans t_declarations (FK sans ON DELETE CASCADE)
     n_decl = db.session.execute(text("""
@@ -2039,6 +2103,9 @@ def step_prune_forests_outside_oeasc():
         LOG.warning(
             f"  {n_decl} déclaration(s) ont eu leur id_foret mis à NULL "
             f"(forêt hors périmètre OEASC)."
+        )
+        _report["anomalies"].append(
+            f"[Étape 9b] {n_decl} déclaration(s) avec id_foret mis à NULL (forêt hors périmètre OEASC)"
         )
 
     # Collecte les id_area non-null avant suppression (pour nettoyer l_areas ensuite)
@@ -2112,6 +2179,7 @@ def step_preserve_unmatched_forests():
 
     if not unmatched_forests:
         LOG.info("  Aucune forêt à préserver.")
+        _report["volumes"]["forets_preservees"] = 0
         return
 
     for row in unmatched_forests:
@@ -2245,7 +2313,13 @@ def step_preserve_unmatched_forests():
             f"id_area={'NULL' if new_id_area is None else new_id_area}) "
             f"— {len(decl_ids)} déclaration(s) rattachées : {decl_ids}"
         )
+        _report["anomalies"].append(
+            f"[Étape 9c] Forêt préservée (valide=FALSE) : \"{nom}\" "
+            f"(ancien id={old_id_foret}, nouvel id={new_id_foret}) "
+            f"— {len(decl_ids)} déclaration(s) : {decl_ids}"
+        )
 
+    _report["volumes"]["forets_preservees"] = len(unmatched_forests)
     LOG.info("  Préservation terminée.")
 
 
@@ -2310,12 +2384,14 @@ def step_verify():
     LOG.info("  Comptage par id_type dans l_areas :")
     for r in rows:
         LOG.info(f"    id_type={r[0]} → {r[1]} areas")
+    _report["volumes"]["l_areas_par_type"] = {r[0]: r[1] for r in rows}
 
     invalid = db.session.execute(text(
         "SELECT count(*) FROM ref_geo.l_areas WHERE NOT ST_IsValid(geom)"
     )).scalar()
     if invalid:
         LOG.warning(f"  ATTENTION : {invalid} géométrie(s) invalide(s)")
+        _report["anomalies"].append(f"[Étape 11] {invalid} géométrie(s) invalide(s) restantes dans l_areas")
     else:
         LOG.info("  Toutes les géométries sont valides.")
 
@@ -2324,12 +2400,18 @@ def step_verify():
     )).scalar()
     if no_commune:
         LOG.warning(f"  ATTENTION : {no_commune} parcelle(s) sans commune dans cor_area_intersect")
+        _report["anomalies"].append(
+            f"[Étape 11] {no_commune} parcelle(s) sans commune dans cor_area_intersect"
+        )
 
     no_foret = db.session.execute(text(
         "SELECT count(*) FROM oeasc_declarations.t_declarations WHERE id_foret IS NULL"
     )).scalar()
     if no_foret:
         LOG.warning(f"  ATTENTION : {no_foret} déclaration(s) sans id_foret")
+        _report["anomalies"].append(
+            f"[Étape 11] {no_foret} déclaration(s) sans id_foret après le refresh"
+        )
 
     # Vérifier les déclarations dont id_foret ne correspond à aucune forêt (toutes catégories)
     broken = db.session.execute(text("""
@@ -2342,6 +2424,10 @@ def step_verify():
         LOG.warning(
             f"  ATTENTION : {broken} déclaration(s) pointent vers un id_foret inexistant "
             f"— à corriger manuellement (probablement des forêts DGD dont la géométrie a trop changé)."
+        )
+        _report["anomalies"].append(
+            f"[Étape 11] {broken} déclaration(s) pointent vers un id_foret inexistant "
+            f"(correction manuelle requise)"
         )
 
     # Vérifier les forêts ss_document dont id_area pointe vers une area inconnue
@@ -2356,6 +2442,9 @@ def step_verify():
             f"  ATTENTION : {bad_ss_area} forêt(s) ss_document ont id_area invalide "
             f"(zone référencée dans l'ancienne l_areas). Leur id_area est remis à NULL."
         )
+        _report["anomalies"].append(
+            f"[Étape 11] {bad_ss_area} forêt(s) ss_document avec id_area invalide — id_area remis à NULL"
+        )
         db.session.execute(text("""
             UPDATE oeasc_forets.t_forets f
             SET id_area = NULL
@@ -2367,12 +2456,12 @@ def step_verify():
     else:
         LOG.info("  Forêts ss_document : id_area valides.")
 
-    LOG.info(
-        f"  cor_area_intersect : {db.session.execute(text('SELECT count(*) FROM ref_geo.cor_area_intersect')).scalar()} entrées"
-    )
-    LOG.info(
-        f"  cor_hierarchie_area : {db.session.execute(text('SELECT count(*) FROM ref_geo.cor_hierarchie_area')).scalar()} entrées"
-    )
+    n_cai = db.session.execute(text('SELECT count(*) FROM ref_geo.cor_area_intersect')).scalar()
+    n_cha = db.session.execute(text('SELECT count(*) FROM ref_geo.cor_hierarchie_area')).scalar()
+    LOG.info(f"  cor_area_intersect : {n_cai} entrées")
+    LOG.info(f"  cor_hierarchie_area : {n_cha} entrées")
+    _report["volumes"]["final_cor_area_intersect"] = n_cai
+    _report["volumes"]["final_cor_hierarchie_area"] = n_cha
     LOG.info("  Vérification terminée.")
 
 
@@ -2390,6 +2479,48 @@ def step_refresh_vm_lareas_simples():
     ))
     db.session.commit()
     LOG.info("  vm_lareas_simples rafraîchie.")
+
+
+# ---------------------------------------------------------------------------
+# Bilan final
+# ---------------------------------------------------------------------------
+
+
+def _write_bilan_final():
+    end_time = datetime.now()
+    start_time = _report.get("start_time", end_time)
+    duration = end_time - start_time
+    minutes, seconds = divmod(int(duration.total_seconds()), 60)
+
+    opts = _report.get("options", {})
+    opts_str = " ".join(
+        f"--{k.replace('_', '-')}" for k, v in opts.items() if v
+    ) or "(aucune)"
+
+    LOG.info("=" * 60)
+    LOG.info("BILAN FINAL — refresh-ref-geo")
+    LOG.info("=" * 60)
+    LOG.info(f"  Statut  : {'SUCCES' if _report.get('success') else 'ECHEC'}")
+    if _report.get("error"):
+        LOG.error(f"  Erreur  : {_report['error']}")
+    LOG.info(f"  Duree   : {minutes}m {seconds}s")
+    LOG.info(f"  Options : {opts_str}")
+
+    v = _report.get("volumes", {})
+    if v:
+        LOG.info("--- VOLUMES ---")
+        for key, val in v.items():
+            LOG.info(f"  {key:<40} : {val}")
+
+    anomalies = _report.get("anomalies", [])
+    if anomalies:
+        LOG.warning("--- ANOMALIES / CAS PARTICULIERS ---")
+        for a in anomalies:
+            LOG.warning(f"  {a}")
+    else:
+        LOG.info("--- ANOMALIES : aucune ---")
+
+    LOG.info("=" * 60)
 
 
 # ---------------------------------------------------------------------------
@@ -2413,6 +2544,31 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
     )
+
+    # Initialisation du rapport et du fichier log horodaté
+    _report.clear()
+    _report["start_time"] = datetime.now()
+    _report["options"] = {
+        "dry_run": dry_run,
+        "skip_load": skip_load,
+        "skip_intersect": skip_intersect,
+        "force": force,
+    }
+    _report["volumes"] = {}
+    _report["anomalies"] = []
+    _report["success"] = False
+    _report["error"] = None
+
+    log_dir = os.path.normpath(
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../../logs")
+    )
+    os.makedirs(log_dir, exist_ok=True)
+    ts = _report["start_time"].strftime("%Y-%m-%d-%H-%M-%S")
+    log_path = os.path.join(log_dir, f"rapport_refresh_ref_geo_{ts}.log")
+    _file_handler = logging.FileHandler(log_path, encoding="utf-8")
+    _file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
+    LOG.addHandler(_file_handler)
+    LOG.info(f"Rapport enregistré dans : {log_path}")
 
     _ensure_migrations()
 
@@ -2453,6 +2609,9 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
 
         if dry_run:
             LOG.info("=== DRY-RUN terminé. Tables _new disponibles pour inspection. ===")
+            _report["success"] = True
+            _write_bilan_final()
+            LOG.removeHandler(_file_handler)
             return
 
         step_swap_t_forets()
@@ -2464,9 +2623,15 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
         step_verify()
         step_refresh_vm_lareas_simples()
 
+        _report["success"] = True
+        _write_bilan_final()
         LOG.info("=== refresh-ref-geo terminé avec succès ===")
+        LOG.removeHandler(_file_handler)
 
     except Exception as exc:
         LOG.error(f"ERREUR : {exc}", exc_info=True)
+        _report["error"] = str(exc)
+        _write_bilan_final()
+        LOG.removeHandler(_file_handler)
         _get_db().session.rollback()
         raise SystemExit(1)
