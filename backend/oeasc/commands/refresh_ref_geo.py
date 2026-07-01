@@ -1890,6 +1890,64 @@ def step_build_cor_hierarchie_area():
     """))
     db.session.commit()
 
+    # Fallback 1 ONF — meilleur recouvrement sans seuil.
+    # Couvre les cas où l'ancienne UG a été subdivisée : aucune nouvelle UG ne dépasse
+    # 50% mais le meilleur candidat a un recouvrement positif significatif.
+    # On contraint aux UGs de la forêt correcte (via cor_hierarchie_area) pour ne pas
+    # attraper des UGs d'une autre forêt qui intersecterait géographiquement.
+    db.session.execute(text(f"""
+        INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
+        SELECT DISTINCT ON (cad_old.id_declaration, cad_old.id_area)
+            cad_old.id_declaration, la_ug.id_area
+        FROM oeasc_declarations.cor_areas_declarations_ancien cad_old
+        JOIN oeasc_declarations.t_declarations d ON d.id_declaration = cad_old.id_declaration
+        JOIN oeasc_forets.t_forets tf ON tf.id_foret = d.id_foret
+            AND tf.b_document = TRUE AND tf.b_statut_public = TRUE
+        JOIN ref_geo.cor_hierarchie_area cha1 ON cha1.id_area_parent = tf.id_area
+        JOIN ref_geo.cor_hierarchie_area cha2 ON cha2.id_area_parent = cha1.id_area_enfant
+        JOIN ref_geo.l_areas la_ug ON la_ug.id_area = cha2.id_area_enfant
+            AND la_ug.id_type = {ID_TYPE_UG_ONF}
+            AND ST_Intersects(cad_old.geom, la_ug.geom)
+            AND ST_Area(ST_Intersection(cad_old.geom, la_ug.geom)) >= 100
+        WHERE cad_old.id_type = {ID_TYPE_UG_ONF}
+        AND NOT EXISTS (
+            SELECT 1 FROM oeasc_declarations.cor_areas_declarations cad_new
+            WHERE cad_new.id_declaration = cad_old.id_declaration
+        )
+        ORDER BY cad_old.id_declaration, cad_old.id_area,
+                 ST_Area(ST_Intersection(cad_old.geom, la_ug.geom))
+                     / NULLIF(ST_Area(cad_old.geom), 0) DESC
+        ON CONFLICT DO NOTHING
+    """))
+    db.session.commit()
+
+    # Fallback 2 ONF — UG la plus proche par centroïde dans la forêt correcte.
+    # Couvre les cas de refonte complète du découpage en UG (recouvrement nul).
+    # ST_DWithin(5 km) limite le produit cartésien et tire profit de l'index spatial.
+    db.session.execute(text(f"""
+        INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
+        SELECT DISTINCT ON (cad_old.id_declaration, cad_old.id_area)
+            cad_old.id_declaration, la_ug.id_area
+        FROM oeasc_declarations.cor_areas_declarations_ancien cad_old
+        JOIN oeasc_declarations.t_declarations d ON d.id_declaration = cad_old.id_declaration
+        JOIN oeasc_forets.t_forets tf ON tf.id_foret = d.id_foret
+            AND tf.b_document = TRUE AND tf.b_statut_public = TRUE
+        JOIN ref_geo.cor_hierarchie_area cha1 ON cha1.id_area_parent = tf.id_area
+        JOIN ref_geo.cor_hierarchie_area cha2 ON cha2.id_area_parent = cha1.id_area_enfant
+        JOIN ref_geo.l_areas la_ug ON la_ug.id_area = cha2.id_area_enfant
+            AND la_ug.id_type = {ID_TYPE_UG_ONF}
+            AND ST_DWithin(cad_old.geom, la_ug.geom, 5000)
+        WHERE cad_old.id_type = {ID_TYPE_UG_ONF}
+        AND NOT EXISTS (
+            SELECT 1 FROM oeasc_declarations.cor_areas_declarations cad_new
+            WHERE cad_new.id_declaration = cad_old.id_declaration
+        )
+        ORDER BY cad_old.id_declaration, cad_old.id_area,
+                 ST_Distance(ST_Centroid(cad_old.geom), ST_Centroid(la_ug.geom)) ASC
+        ON CONFLICT DO NOTHING
+    """))
+    db.session.commit()
+
     n_missing = db.session.execute(text("""
         SELECT count(DISTINCT id_declaration)
         FROM oeasc_declarations.cor_areas_declarations_ancien
@@ -1900,7 +1958,7 @@ def step_build_cor_hierarchie_area():
     if n_missing:
         LOG.warning(
             f"  ATTENTION : {n_missing} déclaration(s) sans aucune area après le transfert spatial "
-            f"(parcelles totalement disparues du cadastre). "
+            f"(UG totalement hors périmètre ou forêt sans UG connue). "
             f"Vérifier cor_areas_declarations_ancien pour correction manuelle."
         )
 
