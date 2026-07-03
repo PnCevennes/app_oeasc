@@ -778,7 +778,7 @@ export default {
           this.last_typeCarte = COMMUNES;
           this.typeCarte = SECTIONS;
           this.id_area_visible = this.last_id_section_visible;
-          this.fetch_new_geojson_data(SECTIONS, this.id_area_visible);
+          this.fetch_new_geojson_data(COMMUNES, this.id_area_visible);
         } else if (this.last_typeCarte == FORETS_DGD) {
           // on était des cadastres de forêts DGD on retourne vers la foret
           this.typeCarte = FORETS_DGD; // On revient au mode forêts DGD
