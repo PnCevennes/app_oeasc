@@ -121,6 +121,9 @@ export default {
     },
     label_foret: {
       text: 'Nom forêt',
+      display: (val) =>
+        val.label_foret ||
+        '<span class="red--text"><i class="mdi mdi-alert"></i> Aucune forêt</span>',
     },
     type_foret: {
       text: 'Type forêt',
