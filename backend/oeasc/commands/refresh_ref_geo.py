@@ -1086,19 +1086,27 @@ def step_copy_onf_proprietaire():
     """))
     db.session.commit()
 
-    n_missing = db.session.execute(text("""
-        SELECT count(*) FROM oeasc_forets.t_forets_new
+    missing = db.session.execute(text("""
+        SELECT id_foret, nom_foret, code_foret FROM oeasc_forets.t_forets_new
         WHERE b_document = TRUE AND b_statut_public = TRUE
         AND id_proprietaire IS NULL
-    """)).scalar()
+        ORDER BY nom_foret
+    """)).fetchall()
+    n_missing = len(missing)
     if n_missing:
+        for row in missing:
+            LOG.warning(
+                f"  Forêt ONF sans correspondance spatiale : id_foret={row[0]} "
+                f"nom={row[1]!r} code_foret={row[2]!r}"
+            )
         LOG.warning(
             f"  ATTENTION : {n_missing} forêt(s) ONF sans correspondance spatiale "
             f"dans t_forets — infos propriétaire conservées à 'ONF'."
         )
         _report["anomalies"].append(
             f"[Étape 4h] {n_missing} forêt(s) ONF sans correspondance spatiale dans t_forets "
-            f"(infos propriétaire conservées à 'ONF')"
+            f"(infos propriétaire conservées à 'ONF') : "
+            + ", ".join(f"{r[1]!r} (id={r[0]})" for r in missing)
         )
 
 
