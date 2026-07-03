@@ -40,13 +40,16 @@ GPKG_DGD = "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_dgd.gpkg"
 
 
 # GPKG_FORET_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_gestion_onf_aoa.gpkg"
-GPKG_FORET_ONF = '/home/thibaut/appli/app_oeasc/data/ref_geo/forets_gestion_onf_aoa.gpkg'
+GPKG_FORET_ONF = (
+    "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_gestion_onf_aoa.gpkg"
+)
 # GPKG_PARCELLE_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forets_onf.gpkg"
-GPKG_PARCELLE_ONF = '/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forets_onf_new.gpkg'
-GPKG_UG_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/unites_gestion_forets_onf.gpkg"
-
-
-
+GPKG_PARCELLE_ONF = (
+    "/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forets_onf_new.gpkg"
+)
+GPKG_UG_ONF = (
+    "/home/thibaut/appli/app_oeasc/data/ref_geo/unites_gestion_forets_onf.gpkg"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -63,7 +66,9 @@ ID_TYPE_UG_ONF = 330
 ID_TYPE_DGD = 331
 ID_TYPE_CADASTRE = 332
 ID_TYPE_SECTION = 333
-ID_TYPE_FORET_PRIVE = 33   # type_code = OEASC_FORET_PRIVE (forêts privées sans document DGD)
+ID_TYPE_FORET_PRIVE = (
+    33  # type_code = OEASC_FORET_PRIVE (forêts privées sans document DGD)
+)
 
 FIXED_ID_TYPES = (ID_TYPE_OEASC, ID_TYPE_COEUR, ID_TYPE_ADHESION, ID_TYPE_SECTEUR)
 
@@ -71,8 +76,8 @@ FIXED_ID_TYPES = (ID_TYPE_OEASC, ID_TYPE_COEUR, ID_TYPE_ADHESION, ID_TYPE_SECTEU
 MATCH_THRESHOLD = 0.9
 
 # Nomenclature propriétaire
-NOMENCLATURE_PT_PRI = 565   # propriétaire privé (DGD)
-NOMENCLATURE_PT_E = 559     # propriétaire public (ONF)
+NOMENCLATURE_PT_PRI = 565  # propriétaire privé (DGD)
+NOMENCLATURE_PT_E = 559  # propriétaire public (ONF)
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -81,15 +86,17 @@ NOMENCLATURE_PT_E = 559     # propriétaire public (ONF)
 
 def _get_db():
     from oeasc.utils.env import db
+
     return db
 
 
 def _ensure_migrations():
     """Vérifie que la migration REQUIRED_REVISION est appliquée, sinon lance l'upgrade."""
     db = _get_db()
-    row = db.session.execute(text(
-        "SELECT version_num FROM alembic_version WHERE version_num = :rev"
-    ), {"rev": REQUIRED_REVISION}).fetchone()
+    row = db.session.execute(
+        text("SELECT version_num FROM alembic_version WHERE version_num = :rev"),
+        {"rev": REQUIRED_REVISION},
+    ).fetchone()
 
     if row is not None:
         return
@@ -99,6 +106,7 @@ def _ensure_migrations():
         "lancement automatique de flask db upgrade..."
     )
     from flask_migrate import upgrade as flask_migrate_upgrade
+
     flask_migrate_upgrade(revision=REQUIRED_REVISION)
     LOG.info(f"Migration {REQUIRED_REVISION} appliquée avec succès.")
 
@@ -123,19 +131,25 @@ def _wkt(geom):
 
 def _table_exists(schema, table):
     db = _get_db()
-    r = db.session.execute(text(
-        "SELECT 1 FROM information_schema.tables "
-        "WHERE table_schema=:s AND table_name=:t"
-    ), {"s": schema, "t": table}).fetchone()
+    r = db.session.execute(
+        text(
+            "SELECT 1 FROM information_schema.tables "
+            "WHERE table_schema=:s AND table_name=:t"
+        ),
+        {"s": schema, "t": table},
+    ).fetchone()
     return r is not None
 
 
 def _column_exists(schema, table, column):
     db = _get_db()
-    r = db.session.execute(text(
-        "SELECT 1 FROM information_schema.columns "
-        "WHERE table_schema=:s AND table_name=:t AND column_name=:c"
-    ), {"s": schema, "t": table, "c": column}).fetchone()
+    r = db.session.execute(
+        text(
+            "SELECT 1 FROM information_schema.columns "
+            "WHERE table_schema=:s AND table_name=:t AND column_name=:c"
+        ),
+        {"s": schema, "t": table, "c": column},
+    ).fetchone()
     return r is not None
 
 
@@ -156,12 +170,15 @@ def _get_oeasc_geom():
     """Récupère la géométrie du périmètre OEASC depuis l_areas_new ou l_areas."""
     db = _get_db()
     table = "l_areas_new" if _table_exists("ref_geo", "l_areas_new") else "l_areas"
-    row = db.session.execute(text(
-        f"SELECT ST_AsText(geom) FROM ref_geo.{table} WHERE id_type = {ID_TYPE_OEASC} LIMIT 1"
-    )).fetchone()
+    row = db.session.execute(
+        text(
+            f"SELECT ST_AsText(geom) FROM ref_geo.{table} WHERE id_type = {ID_TYPE_OEASC} LIMIT 1"
+        )
+    ).fetchone()
     if row is None:
         raise RuntimeError("Périmètre OEASC (id_type=323) introuvable")
     from shapely.wkt import loads
+
     return loads(row[0])
 
 
@@ -197,7 +214,7 @@ def _bulk_insert_areas(raw_conn, rows, chunksize=500):
     )
     cur = raw_conn.cursor()
     for i in range(0, len(rows), chunksize):
-        chunk = rows[i: i + chunksize]
+        chunk = rows[i : i + chunksize]
         psycopg2.extras.execute_values(cur, sql, chunk, template=template)
     raw_conn.commit()
     cur.close()
@@ -207,10 +224,12 @@ def _get_area_code_to_id(id_type, proprietaire=None):
     """Retourne un dict {area_code: id_area} pour un id_type donné."""
     db = _get_db()
     extra = f"AND proprietaire = '{proprietaire}'" if proprietaire else ""
-    rows = db.session.execute(text(
-        f"SELECT area_code, id_area FROM ref_geo.l_areas_new "
-        f"WHERE id_type = {id_type} {extra}"
-    )).fetchall()
+    rows = db.session.execute(
+        text(
+            f"SELECT area_code, id_area FROM ref_geo.l_areas_new "
+            f"WHERE id_type = {id_type} {extra}"
+        )
+    ).fetchall()
     return {r[0]: r[1] for r in rows}
 
 
@@ -224,10 +243,12 @@ def step_save_declaration_types():
     print("Étape 0 : sauvegarde type_declaration dans t_declarations")
     db = _get_db()
     if not _column_exists("oeasc_declarations", "t_declarations", "type_declaration"):
-        db.session.execute(text(
-            "ALTER TABLE oeasc_declarations.t_declarations "
-            "ADD COLUMN IF NOT EXISTS type_declaration TEXT"
-        ))
+        db.session.execute(
+            text(
+                "ALTER TABLE oeasc_declarations.t_declarations "
+                "ADD COLUMN IF NOT EXISTS type_declaration TEXT"
+            )
+        )
     db.session.execute(text("""
         UPDATE oeasc_declarations.t_declarations d
         SET type_declaration = CASE
@@ -257,8 +278,12 @@ def step_save_declaration_types():
     deleted = result.fetchall()
     if deleted:
         for row in deleted:
-            LOG.info(f"  Forêt ss_document supprimée : id_foret={row[0]} nom={row[1]!r}")
-        LOG.info(f"  {len(deleted)} forêt(s) ss_document sans déclaration supprimée(s).")
+            LOG.info(
+                f"  Forêt ss_document supprimée : id_foret={row[0]} nom={row[1]!r}"
+            )
+        LOG.info(
+            f"  {len(deleted)} forêt(s) ss_document sans déclaration supprimée(s)."
+        )
         _report["anomalies"].append(
             f"[Étape 0] {len(deleted)} forêt(s) ss_document sans déclaration supprimée(s) : "
             + ", ".join(f"{r[1]!r} (id={r[0]})" for r in deleted)
@@ -274,33 +299,36 @@ def step_save_declaration_types():
 
 def step_create_l_areas_new():
     LOG.info("Étape 1 : création de ref_geo.l_areas_new")
-    print ("Étape 1 : création de ref_geo.l_areas_new")
+    print("Étape 1 : création de ref_geo.l_areas_new")
     db = _get_db()
     # Nettoyage d'une éventuelle table résiduelle d'une exécution précédente
     db.session.execute(text("DROP TABLE IF EXISTS ref_geo.l_areas_new CASCADE"))
     db.session.execute(text("DROP SEQUENCE IF EXISTS ref_geo.l_areas_new_id_area_seq"))
     db.session.commit()
-    db.session.execute(text(
-        "CREATE TABLE ref_geo.l_areas_new "
-        "(LIKE ref_geo.l_areas INCLUDING ALL)"
-    ))
-    db.session.execute(text(
-        "CREATE SEQUENCE ref_geo.l_areas_new_id_area_seq"
-    ))
-    db.session.execute(text(
-        "ALTER TABLE ref_geo.l_areas_new "
-        "ALTER COLUMN id_area SET DEFAULT nextval('ref_geo.l_areas_new_id_area_seq')"
-    ))
+    db.session.execute(
+        text("CREATE TABLE ref_geo.l_areas_new " "(LIKE ref_geo.l_areas INCLUDING ALL)")
+    )
+    db.session.execute(text("CREATE SEQUENCE ref_geo.l_areas_new_id_area_seq"))
+    db.session.execute(
+        text(
+            "ALTER TABLE ref_geo.l_areas_new "
+            "ALTER COLUMN id_area SET DEFAULT nextval('ref_geo.l_areas_new_id_area_seq')"
+        )
+    )
     # LIKE INCLUDING ALL ne copie pas les FK mais copie les check constraints.
     # On retire la FK copiée si elle existe.
-    db.session.execute(text(
-        "ALTER TABLE ref_geo.l_areas_new "
-        "DROP CONSTRAINT IF EXISTS fk_l_areas_id_type"
-    ))
+    db.session.execute(
+        text(
+            "ALTER TABLE ref_geo.l_areas_new "
+            "DROP CONSTRAINT IF EXISTS fk_l_areas_id_type"
+        )
+    )
     if not _column_exists("ref_geo", "l_areas_new", "proprietaire"):
-        db.session.execute(text(
-            "ALTER TABLE ref_geo.l_areas_new ADD COLUMN proprietaire TEXT DEFAULT NULL"
-        ))
+        db.session.execute(
+            text(
+                "ALTER TABLE ref_geo.l_areas_new ADD COLUMN proprietaire TEXT DEFAULT NULL"
+            )
+        )
     db.session.commit()
     LOG.info("  l_areas_new créée.")
 
@@ -312,7 +340,7 @@ def step_create_l_areas_new():
 
 def step_create_t_forets_new():
     LOG.info("Étape 2 : création de oeasc_forets.t_forets_new")
-    print ("Étape 2 : création de oeasc_forets.t_forets_new")
+    print("Étape 2 : création de oeasc_forets.t_forets_new")
     db = _get_db()
     # Ces colonnes n'existent dans t_forets qu'après un premier refresh réussi
     # (elles sont ajoutées via t_forets_new et promues lors du swap).
@@ -331,29 +359,33 @@ def step_create_t_forets_new():
     ]:
         col_name = col_def.split()[0]
         if not _column_exists("oeasc_forets", "t_forets", col_name):
-            db.session.execute(text(
-                f"ALTER TABLE oeasc_forets.t_forets ADD COLUMN {col_def}"
-            ))
+            db.session.execute(
+                text(f"ALTER TABLE oeasc_forets.t_forets ADD COLUMN {col_def}")
+            )
     db.session.commit()
     db.session.execute(text("DROP TABLE IF EXISTS oeasc_forets.t_forets_new CASCADE"))
-    db.session.execute(text("DROP SEQUENCE IF EXISTS oeasc_forets.t_forets_new_id_foret_seq"))
+    db.session.execute(
+        text("DROP SEQUENCE IF EXISTS oeasc_forets.t_forets_new_id_foret_seq")
+    )
     db.session.commit()
-    db.session.execute(text(
-        "CREATE TABLE oeasc_forets.t_forets_new "
-        "(LIKE oeasc_forets.t_forets INCLUDING ALL)"
-    ))
-    db.session.execute(text(
-        "CREATE SEQUENCE oeasc_forets.t_forets_new_id_foret_seq"
-    ))
-    db.session.execute(text(
-        "ALTER TABLE oeasc_forets.t_forets_new "
-        "ALTER COLUMN id_foret SET DEFAULT nextval('oeasc_forets.t_forets_new_id_foret_seq')"
-    ))
+    db.session.execute(
+        text(
+            "CREATE TABLE oeasc_forets.t_forets_new "
+            "(LIKE oeasc_forets.t_forets INCLUDING ALL)"
+        )
+    )
+    db.session.execute(text("CREATE SEQUENCE oeasc_forets.t_forets_new_id_foret_seq"))
+    db.session.execute(
+        text(
+            "ALTER TABLE oeasc_forets.t_forets_new "
+            "ALTER COLUMN id_foret SET DEFAULT nextval('oeasc_forets.t_forets_new_id_foret_seq')"
+        )
+    )
     # Colonne temporaire pour tracer la correspondance old_id_foret → new_id_foret
     # (code_foret peut être NULL ou vide pour certaines forêts ss_document)
-    db.session.execute(text(
-        "ALTER TABLE oeasc_forets.t_forets_new ADD COLUMN old_id_foret INTEGER"
-    ))
+    db.session.execute(
+        text("ALTER TABLE oeasc_forets.t_forets_new ADD COLUMN old_id_foret INTEGER")
+    )
     # Copie des forêts sans document avec nouveaux ids (séquence repart de 1)
     db.session.execute(text("""
         INSERT INTO oeasc_forets.t_forets_new
@@ -375,9 +407,11 @@ def step_create_t_forets_new():
     # Copier les polygones des forêts sans document dans l_areas_new avec de nouveaux IDs.
     # On passe par une colonne temporaire _old_id_area pour conserver la correspondance
     # old id_area → new id_area, puis on met à jour t_forets_new.id_area en conséquence.
-    db.session.execute(text(
-        "ALTER TABLE ref_geo.l_areas_new ADD COLUMN IF NOT EXISTS _old_id_area INTEGER"
-    ))
+    db.session.execute(
+        text(
+            "ALTER TABLE ref_geo.l_areas_new ADD COLUMN IF NOT EXISTS _old_id_area INTEGER"
+        )
+    )
     db.session.execute(text(f"""
         INSERT INTO ref_geo.l_areas_new
             (id_type, area_name, area_code, source, enable,
@@ -396,9 +430,9 @@ def step_create_t_forets_new():
         FROM ref_geo.l_areas_new lan
         WHERE lan._old_id_area = fn.id_area AND fn.b_document = FALSE
     """))
-    db.session.execute(text(
-        "ALTER TABLE ref_geo.l_areas_new DROP COLUMN IF EXISTS _old_id_area"
-    ))
+    db.session.execute(
+        text("ALTER TABLE ref_geo.l_areas_new DROP COLUMN IF EXISTS _old_id_area")
+    )
     db.session.commit()
 
     # Pour les forêts ss_document sans id_area (pas de polygone dans l_areas),
@@ -434,18 +468,24 @@ def step_create_t_forets_new():
     """))
     db.session.commit()
 
-    n = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_forets.t_forets_new"
-    )).scalar()
-    n_with_area = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_forets.t_forets_new WHERE b_document=FALSE AND id_area IS NOT NULL"
-    )).scalar()
-    n_without = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_forets.t_forets_new WHERE b_document=FALSE AND id_area IS NULL"
-    )).scalar()
+    n = db.session.execute(
+        text("SELECT count(*) FROM oeasc_forets.t_forets_new")
+    ).scalar()
+    n_with_area = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_forets.t_forets_new WHERE b_document=FALSE AND id_area IS NOT NULL"
+        )
+    ).scalar()
+    n_without = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_forets.t_forets_new WHERE b_document=FALSE AND id_area IS NULL"
+        )
+    ).scalar()
     LOG.info(f"  t_forets_new créée avec {n} forêts sans document (nouveaux ids).")
-    LOG.info(f"  Forêts ss_document : {n_with_area} avec polygone, {n_without} sans polygone (pas de déclaration géolocalisée).")
- 
+    LOG.info(
+        f"  Forêts ss_document : {n_with_area} avec polygone, {n_without} sans polygone (pas de déclaration géolocalisée)."
+    )
+
 
 # ---------------------------------------------------------------------------
 # Étape 3 — Sauvegarde des areas fixes (323, 324, 325, 326)
@@ -454,7 +494,7 @@ def step_create_t_forets_new():
 
 def step_save_fixed_areas():
     LOG.info("Étape 3 : copie des areas fixes (OEASC, PNC cœur, adhésion, secteurs)")
-    print ("Étape 3 : copie des areas fixes (OEASC, PNC cœur, adhésion, secteurs)")
+    print("Étape 3 : copie des areas fixes (OEASC, PNC cœur, adhésion, secteurs)")
     db = _get_db()
     id_types_str = ",".join(str(t) for t in FIXED_ID_TYPES)
     db.session.execute(text(f"""
@@ -470,14 +510,14 @@ def step_save_fixed_areas():
         WHERE id_type IN ({id_types_str})
         ON CONFLICT DO NOTHING
     """))
-    db.session.execute(text(
-        "SELECT setval('ref_geo.l_areas_new_id_area_seq', "
-        "(SELECT MAX(id_area) FROM ref_geo.l_areas_new))"
-    ))
+    db.session.execute(
+        text(
+            "SELECT setval('ref_geo.l_areas_new_id_area_seq', "
+            "(SELECT MAX(id_area) FROM ref_geo.l_areas_new))"
+        )
+    )
     db.session.commit()
-    n = db.session.execute(text(
-        "SELECT count(*) FROM ref_geo.l_areas_new"
-    )).scalar()
+    n = db.session.execute(text("SELECT count(*) FROM ref_geo.l_areas_new")).scalar()
     LOG.info(f"  {n} areas fixes copiées.")
 
 
@@ -501,16 +541,20 @@ def step_load_communes():
         r = gdf.iloc[i]
         geom = _to_multi(r.geometry)
         geom4326 = _to_multi(gdf_4326.iloc[i].geometry)
-        rows.append((
-            ID_TYPE_COMMUNE,
-            str(r["nom"]),
-            str(r["code_siren"]),
-            "OEASC", True, now,
-            _wkt(geom),
-            _wkt(geom4326),
-            wkt_dumps(geom.centroid),
-            "COMMUNE",
-        ))
+        rows.append(
+            (
+                ID_TYPE_COMMUNE,
+                str(r["nom"]),
+                str(r["code_siren"]),
+                "OEASC",
+                True,
+                now,
+                _wkt(geom),
+                _wkt(geom4326),
+                wkt_dumps(geom.centroid),
+                "COMMUNE",
+            )
+        )
 
     raw_conn = _raw_conn()
     _bulk_insert_areas(raw_conn, rows)
@@ -523,7 +567,7 @@ def step_load_communes():
 
 
 def _update_communes_aoa(gdf):
-    print ("  Mise à jour de ref_geo.communes_aoa")
+    print("  Mise à jour de ref_geo.communes_aoa")
     db = _get_db()
     db.session.execute(text("TRUNCATE ref_geo.communes_aoa"))
     db.session.commit()
@@ -548,26 +592,28 @@ def _update_communes_aoa(gdf):
     for i in range(len(gdf)):
         r = gdf.iloc[i]
         geom = _to_multi(r.geometry)
-        rows.append((
-            str(r["code_siren"]),
-            _wkt(geom),
-            i,   # fid bigint — on utilise l'index car id_municipality est une chaîne
-            str(r.get("insee_com") or ""),
-            str(r.get("nom") or ""),
-            str(r.get("insee_dep") or ""),
-            int(r["zc"]) if r.get("zc") is not None else None,
-            int(r["aa"]) if r.get("aa") is not None else None,
-            int(r["aoa"]) if r.get("aoa") is not None else None,
-            str(r.get("massif") or ""),
-            int(r["population"]) if r.get("population") is not None else None,
-            str(r.get("siren_epci") or ""),
-            str(r.get("nom") or ""),        # nom_ccom ← nom (meilleure approx)
-            int(r["surface_ha"]) if r.get("surface_ha") is not None else None,
-            str(r["date_creat"]) if r.get("date_creat") else now_str,
-            str(r["date_maj"]) if r.get("date_maj") else now_str,
-            str(r.get("code_siren") or ""),
-            str(r.get("code_post") or ""),
-        ))
+        rows.append(
+            (
+                str(r["code_siren"]),
+                _wkt(geom),
+                i,  # fid bigint — on utilise l'index car id_municipality est une chaîne
+                str(r.get("insee_com") or ""),
+                str(r.get("nom") or ""),
+                str(r.get("insee_dep") or ""),
+                int(r["zc"]) if r.get("zc") is not None else None,
+                int(r["aa"]) if r.get("aa") is not None else None,
+                int(r["aoa"]) if r.get("aoa") is not None else None,
+                str(r.get("massif") or ""),
+                int(r["population"]) if r.get("population") is not None else None,
+                str(r.get("siren_epci") or ""),
+                str(r.get("nom") or ""),  # nom_ccom ← nom (meilleure approx)
+                int(r["surface_ha"]) if r.get("surface_ha") is not None else None,
+                str(r["date_creat"]) if r.get("date_creat") else now_str,
+                str(r["date_maj"]) if r.get("date_maj") else now_str,
+                str(r.get("code_siren") or ""),
+                str(r.get("code_post") or ""),
+            )
+        )
     psycopg2.extras.execute_values(cur, sql, rows, template=template, page_size=200)
     raw_conn.commit()
     cur.close()
@@ -581,7 +627,7 @@ def _update_communes_aoa(gdf):
 
 def step_load_cadastres():
     LOG.info("Étape 4b : chargement des cadastres depuis cadastre_pec.gpkg")
-    print ("Étape 4b : chargement des cadastres depuis cadastre_pec.gpkg")
+    print("Étape 4b : chargement des cadastres depuis cadastre_pec.gpkg")
     oeasc_geom = _get_oeasc_geom()
     gdf = gpd.read_file(GPKG_CADASTRE)
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
@@ -596,16 +642,20 @@ def step_load_cadastres():
         geom4326 = _to_multi(gdf_4326.iloc[i].geometry)
         area_code = str(r["id_parcelle"])
         area_name = f"{r['insee_com']}-{r['section']}-{r['num_parc']}"
-        rows.append((
-            ID_TYPE_CADASTRE,
-            area_name,
-            area_code,
-            "OEASC", True, now,
-            _wkt(geom),
-            _wkt(geom4326),
-            wkt_dumps(geom.centroid),
-            str(r.get("proprietaire") or ""),
-        ))
+        rows.append(
+            (
+                ID_TYPE_CADASTRE,
+                area_name,
+                area_code,
+                "OEASC",
+                True,
+                now,
+                _wkt(geom),
+                _wkt(geom4326),
+                wkt_dumps(geom.centroid),
+                str(r.get("proprietaire") or ""),
+            )
+        )
 
     raw_conn = _raw_conn()
     _bulk_insert_areas(raw_conn, rows)
@@ -622,7 +672,7 @@ def step_load_cadastres():
 
 def step_build_sections():
     LOG.info("Étape 4c : construction des sections cadastrales par agrégation")
-    print ("Étape 4c : construction des sections cadastrales par agrégation")
+    print("Étape 4c : construction des sections cadastrales par agrégation")
     oeasc_geom = _get_oeasc_geom()
     gdf = gpd.read_file(GPKG_CADASTRE)
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
@@ -634,22 +684,24 @@ def step_build_sections():
     rows = []
     for sec_code, grp in gdf.groupby("_sec_code"):
         union_geom = _to_multi(grp.geometry.unary_union)
-        geom4326 = _to_multi(
-            gpd.GeoSeries([union_geom], crs=2154).to_crs(4326).iloc[0]
-        )
+        geom4326 = _to_multi(gpd.GeoSeries([union_geom], crs=2154).to_crs(4326).iloc[0])
         nom_com = str(grp.iloc[0]["nom_com"]).upper()
         sec_raw = str(grp.iloc[0]["section"])
         area_name = f"{nom_com}-{sec_raw}"
-        rows.append((
-            ID_TYPE_SECTION,
-            area_name,
-            sec_code,
-            "OEASC", True, now,
-            _wkt(union_geom),
-            _wkt(geom4326),
-            wkt_dumps(union_geom.centroid),
-            "SECTION",
-        ))
+        rows.append(
+            (
+                ID_TYPE_SECTION,
+                area_name,
+                sec_code,
+                "OEASC",
+                True,
+                now,
+                _wkt(union_geom),
+                _wkt(geom4326),
+                wkt_dumps(union_geom.centroid),
+                "SECTION",
+            )
+        )
 
     raw_conn = _raw_conn()
     _bulk_insert_areas(raw_conn, rows)
@@ -665,8 +717,9 @@ def step_build_sections():
 
 def step_load_foret_dgd():
     LOG.info("Étape 4d : chargement des forêts DGD depuis data_new.gpkg")
-    print ("Étape 4d : chargement des forêts DGD depuis data_new.gpkg")
+    print("Étape 4d : chargement des forêts DGD depuis data_new.gpkg")
     import fiona
+
     oeasc_geom = _get_oeasc_geom()
     layers = fiona.listlayers(GPKG_DGD)
     gdf = gpd.read_file(GPKG_DGD, layer=layers[0])
@@ -686,16 +739,20 @@ def step_load_foret_dgd():
         area_code = f"DGD_{cx}_{cy}"
         area_name = str(r["Fornom"]).upper()
         area_codes.append(area_code)
-        area_rows.append((
-            ID_TYPE_DGD,
-            area_name,
-            area_code,
-            "OEASC", True, now,
-            _wkt(geom),
-            _wkt(geom4326),
-            wkt_dumps(geom.centroid),
-            "DGD",
-        ))
+        area_rows.append(
+            (
+                ID_TYPE_DGD,
+                area_name,
+                area_code,
+                "OEASC",
+                True,
+                now,
+                _wkt(geom),
+                _wkt(geom4326),
+                wkt_dumps(geom.centroid),
+                "DGD",
+            )
+        )
 
     raw_conn = _raw_conn()
     _bulk_insert_areas(raw_conn, area_rows)
@@ -722,25 +779,33 @@ def step_load_foret_dgd():
         area_code = area_codes[i]
         area_name = area_rows[i][1]
         surf_calc = round(geom.area / 10000, 4)
-        adresse = " ".join(filter(None, [
-            str(r.get("Perlig1") or ""),
-            str(r.get("Perlig2") or ""),
-            str(r.get("Perlig3") or ""),
-        ])).strip()[:255]
-        data.append((
-            True, False,
-            area_name,
-            f"{area_name.lower()}-{r.get('Procpoid') or ''}",
-            area_code,
-            float(r["surface"]) if r.get("surface") is not None else None,
-            surf_calc,
-            str(r.get("proprio") or ""),
-            adresse,
-            str(r.get("Percp") or "")[:5],
-            str(r.get("Perbur") or "")[:255],
-            NOMENCLATURE_PT_PRI,
-            code_to_id.get(area_code),
-        ))
+        adresse = " ".join(
+            filter(
+                None,
+                [
+                    str(r.get("Perlig1") or ""),
+                    str(r.get("Perlig2") or ""),
+                    str(r.get("Perlig3") or ""),
+                ],
+            )
+        ).strip()[:255]
+        data.append(
+            (
+                True,
+                False,
+                area_name,
+                f"{area_name.lower()}-{r.get('Procpoid') or ''}",
+                area_code,
+                float(r["surface"]) if r.get("surface") is not None else None,
+                surf_calc,
+                str(r.get("proprio") or ""),
+                adresse,
+                str(r.get("Percp") or "")[:5],
+                str(r.get("Perbur") or "")[:255],
+                NOMENCLATURE_PT_PRI,
+                code_to_id.get(area_code),
+            )
+        )
     psycopg2.extras.execute_values(cur, sql_foret, data, page_size=200)
     raw_conn2.commit()
     cur.close()
@@ -773,16 +838,20 @@ def step_load_foret_onf():
         area_code = str(r["iidtn_frt"])
         area_name = str(r["llib_frt"])
         area_codes.append(area_code)
-        area_rows.append((
-            ID_TYPE_FORET_ONF,
-            area_name,
-            area_code,
-            "OEASC", True, now,
-            _wkt(geom),
-            _wkt(geom4326),
-            wkt_dumps(geom.centroid),
-            "FORET_ONF",
-        ))
+        area_rows.append(
+            (
+                ID_TYPE_FORET_ONF,
+                area_name,
+                area_code,
+                "OEASC",
+                True,
+                now,
+                _wkt(geom),
+                _wkt(geom4326),
+                wkt_dumps(geom.centroid),
+                "FORET_ONF",
+            )
+        )
 
     raw_conn = _raw_conn()
     _bulk_insert_areas(raw_conn, area_rows)
@@ -805,17 +874,20 @@ def step_load_foret_onf():
         geom = _to_multi(r.geometry)
         area_code = area_codes[i]
         surf_calc = round(geom.area / 10000, 4)
-        data.append((
-            True, True,
-            str(r["llib_frt"]),
-            str(r["llib_frt"]),
-            area_code,
-            surf_calc,
-            surf_calc,
-            "ONF",
-            NOMENCLATURE_PT_E,
-            code_to_id.get(area_code),
-        ))
+        data.append(
+            (
+                True,
+                True,
+                str(r["llib_frt"]),
+                str(r["llib_frt"]),
+                area_code,
+                surf_calc,
+                surf_calc,
+                "ONF",
+                NOMENCLATURE_PT_E,
+                code_to_id.get(area_code),
+            )
+        )
     psycopg2.extras.execute_values(cur, sql_foret, data, page_size=200)
     raw_conn2.commit()
     cur.close()
@@ -848,28 +920,36 @@ def step_load_parcelle_onf():
         iidtn_frt = str(r["iidtn_frt"])
         ccod_prf = str(r["ccod_prf"])
         area_code = f"{cinse_dep}-{iidtn_frt}-{ccod_prf}"
-        rows.append((
-            ID_TYPE_PARCELLE_ONF,
-            ccod_prf,
-            area_code,
-            "OEASC", True, now,
-            _wkt(geom),
-            _wkt(geom4326),
-            wkt_dumps(geom.centroid),
-            "PARCELLE_ONF",
-        ))
-        # Parcelle unique dans la forêt : on crée aussi l'UG correspondante
-        if ccod_prf == "U":
-            rows.append((
-                ID_TYPE_UG_ONF,
-                f"{ccod_prf}-1",
-                f"{area_code}-1",
-                "OEASC", True, now,
+        rows.append(
+            (
+                ID_TYPE_PARCELLE_ONF,
+                ccod_prf,
+                area_code,
+                "OEASC",
+                True,
+                now,
                 _wkt(geom),
                 _wkt(geom4326),
                 wkt_dumps(geom.centroid),
-                "UG_ONF",
-            ))
+                "PARCELLE_ONF",
+            )
+        )
+        # Parcelle unique dans la forêt : on crée aussi l'UG correspondante
+        if ccod_prf == "U":
+            rows.append(
+                (
+                    ID_TYPE_UG_ONF,
+                    f"{ccod_prf}-1",
+                    f"{area_code}-1",
+                    "OEASC",
+                    True,
+                    now,
+                    _wkt(geom),
+                    _wkt(geom4326),
+                    wkt_dumps(geom.centroid),
+                    "UG_ONF",
+                )
+            )
 
     raw_conn = _raw_conn()
     _bulk_insert_areas(raw_conn, rows)
@@ -911,16 +991,20 @@ def step_load_ug_onf():
         ccod_ug = str(r["CCOD_UG"])
         area_code = f"{cinse_dep}-{iidtn_frt}-{ccod_prf}-{ccod_ug}"
         area_name = f"{ccod_prf}-{ccod_ug}"
-        rows.append((
-            ID_TYPE_UG_ONF,
-            area_name,
-            area_code,
-            "OEASC", True, now,
-            _wkt(geom),
-            _wkt(geom4326),
-            wkt_dumps(geom.centroid),
-            "UG_ONF",
-        ))
+        rows.append(
+            (
+                ID_TYPE_UG_ONF,
+                area_name,
+                area_code,
+                "OEASC",
+                True,
+                now,
+                _wkt(geom),
+                _wkt(geom4326),
+                wkt_dumps(geom.centroid),
+                "UG_ONF",
+            )
+        )
 
     raw_conn = _raw_conn()
     _bulk_insert_areas(raw_conn, rows)
@@ -936,8 +1020,12 @@ def step_load_ug_onf():
 
 
 def step_copy_onf_proprietaire():
-    LOG.info("Étape 4h : reprise des infos propriétaire ONF (b_document=true, b_statut_public=true)")
-    print("Étape 4h : reprise des infos propriétaire ONF (b_document=true, b_statut_public=true)")
+    LOG.info(
+        "Étape 4h : reprise des infos propriétaire ONF (b_document=true, b_statut_public=true)"
+    )
+    print(
+        "Étape 4h : reprise des infos propriétaire ONF (b_document=true, b_statut_public=true)"
+    )
     db = _get_db()
 
     # Correspondance spatiale : forêt nouvelle ↔ ancienne si chevauchement ≥ 90 %
@@ -984,7 +1072,9 @@ def step_copy_onf_proprietaire():
     """))
     db.session.commit()
     n = result.rowcount
-    LOG.info(f"  {n} forêt(s) ONF mises à jour avec les infos propriétaire de t_forets (correspondance spatiale).")
+    LOG.info(
+        f"  {n} forêt(s) ONF mises à jour avec les infos propriétaire de t_forets (correspondance spatiale)."
+    )
 
     # Forêts sans correspondance : on s'assure que nom_proprietaire reste "ONF"
     db.session.execute(text("""
@@ -1019,7 +1109,7 @@ def step_copy_onf_proprietaire():
 
 def step_build_cor_area_intersect():
     LOG.info("Étape 5 : construction de cor_area_intersect")
-    print ("Étape 5 : construction de cor_area_intersect")
+    print("Étape 5 : construction de cor_area_intersect")
     db = _get_db()
     # On recrée toujours la table depuis zéro (DROP + CREATE) pour éviter
     # les problèmes de FK et de base restaurée sans cette table.
@@ -1059,19 +1149,23 @@ def step_build_cor_area_intersect():
     raw_conn.close()
 
     # Corriger les géométries invalides avant les opérations d'intersection
-    n_invalid = db.session.execute(text(
-        "SELECT count(*) FROM ref_geo.l_areas_new WHERE NOT ST_IsValid(geom)"
-    )).scalar()
+    n_invalid = db.session.execute(
+        text("SELECT count(*) FROM ref_geo.l_areas_new WHERE NOT ST_IsValid(geom)")
+    ).scalar()
     if n_invalid:
-        LOG.warning(f"  {n_invalid} géométrie(s) invalide(s) dans l_areas_new — correction ST_MakeValid")
+        LOG.warning(
+            f"  {n_invalid} géométrie(s) invalide(s) dans l_areas_new — correction ST_MakeValid"
+        )
         _report["anomalies"].append(
             f"[Étape 5] {n_invalid} géométrie(s) invalide(s) dans l_areas_new corrigées par ST_MakeValid"
         )
-        db.session.execute(text(
-            "UPDATE ref_geo.l_areas_new "
-            "SET geom = ST_Multi(ST_CollectionExtract(ST_MakeValid(geom), 3)) "
-            "WHERE NOT ST_IsValid(geom)"
-        ))
+        db.session.execute(
+            text(
+                "UPDATE ref_geo.l_areas_new "
+                "SET geom = ST_Multi(ST_CollectionExtract(ST_MakeValid(geom), 3)) "
+                "WHERE NOT ST_IsValid(geom)"
+            )
+        )
         db.session.commit()
 
     db.session.execute(text(f"""
@@ -1150,9 +1244,9 @@ def step_build_cor_area_intersect():
 
     _alert_multi_commune()
 
-    n = db.session.execute(text(
-        "SELECT count(*) FROM ref_geo.cor_area_intersect"
-    )).scalar()
+    n = db.session.execute(
+        text("SELECT count(*) FROM ref_geo.cor_area_intersect")
+    ).scalar()
     LOG.info(f"  cor_area_intersect remplie avec {n} entrées.")
     _report["volumes"]["cor_area_intersect"] = n
 
@@ -1176,8 +1270,10 @@ def _alert_multi_commune():
             f"  ATTENTION : {len(rows)} parcelle(s) chevauchent plusieurs communes "
             "(on conserve la plus grande intersection) :"
         )
-        print ("  ATTENTION : certaines parcelles chevauchent plusieurs communes "
-               "(on conserve la plus grande intersection) :")
+        print(
+            "  ATTENTION : certaines parcelles chevauchent plusieurs communes "
+            "(on conserve la plus grande intersection) :"
+        )
         for r in rows:
             LOG.warning(f"    id_area={r[0]} area_code={r[1]} → {r[2]} communes")
             print(f"    id_area={r[0]} area_code={r[1]} → {r[2]} communes")
@@ -1215,7 +1311,8 @@ def _mark_erreur_refgeo(db, type_declaration):
     else:
         type_filter = ""
 
-    unmatched = db.session.execute(text(f"""
+    unmatched = db.session.execute(
+        text(f"""
         SELECT
             d.id_declaration,
             f.nom_foret,
@@ -1235,7 +1332,9 @@ def _mark_erreur_refgeo(db, type_declaration):
         AND d.id_foret IS NOT NULL
         AND d.id_foret = d._pre_refresh_id_foret
         GROUP BY d.id_declaration, f.nom_foret
-    """), {"type_decl": type_declaration}).fetchall()
+    """),
+        {"type_decl": type_declaration},
+    ).fetchall()
 
     if not unmatched:
         return 0
@@ -1245,13 +1344,16 @@ def _mark_erreur_refgeo(db, type_declaration):
         precision = f"[Erreur RefGeo] Forêt non retrouvée : {nom_foret}"
         if areas_info:
             precision += f" | {areas_info}"
-        db.session.execute(text("""
+        db.session.execute(
+            text("""
             UPDATE oeasc_declarations.t_declarations
             SET id_foret = NULL,
                 statut = 999,
                 precision_localisation = :precision
             WHERE id_declaration = :id_decl
-        """), {"precision": precision, "id_decl": id_decl})
+        """),
+            {"precision": precision, "id_decl": id_decl},
+        )
 
     db.session.commit()
     return len(unmatched)
@@ -1259,7 +1361,7 @@ def _mark_erreur_refgeo(db, type_declaration):
 
 def step_update_declarations():
     LOG.info("Étape 6 : mise à jour des liaisons déclarations ↔ areas")
-    print ("Étape 6 : mise à jour des liaisons déclarations ↔ areas")
+    print("Étape 6 : mise à jour des liaisons déclarations ↔ areas")
     db = _get_db()
     # Suppression des FK vers l_areas et t_forets :
     # les nouveaux ids viennent de l_areas_new/t_forets_new, seront recréés après le swap.
@@ -1276,20 +1378,28 @@ def step_update_declarations():
     # _mark_erreur_refgeo l'utilise pour identifier les déclarations dont id_foret
     # n'a pas changé (= non retrouvées), évitant la confusion avec les nouvelles forêts
     # qui ont le même id numérique par coïncidence (séquences repartant de 1 dans t_forets_new).
-    db.session.execute(text(
-        "ALTER TABLE oeasc_declarations.t_declarations "
-        "ADD COLUMN IF NOT EXISTS _pre_refresh_id_foret INTEGER"
-    ))
-    db.session.execute(text(
-        "UPDATE oeasc_declarations.t_declarations SET _pre_refresh_id_foret = id_foret"
-    ))
+    db.session.execute(
+        text(
+            "ALTER TABLE oeasc_declarations.t_declarations "
+            "ADD COLUMN IF NOT EXISTS _pre_refresh_id_foret INTEGER"
+        )
+    )
+    db.session.execute(
+        text(
+            "UPDATE oeasc_declarations.t_declarations SET _pre_refresh_id_foret = id_foret"
+        )
+    )
     db.session.commit()
 
     # 6b : mise à jour id_foret DGD par correspondance spatiale via id_area
     # Les codes DGD changent de format entre anciennes et nouvelles données :
     # on ne peut pas matcher par code_foret. On passe par l_areas (géométrie).
-    LOG.info("  6b : mise à jour id_foret pour les déclarations DGD (correspondance spatiale ≥90%)")
-    print("  6b : mise à jour id_foret pour les déclarations DGD (correspondance spatiale ≥90%)")
+    LOG.info(
+        "  6b : mise à jour id_foret pour les déclarations DGD (correspondance spatiale ≥90%)"
+    )
+    print(
+        "  6b : mise à jour id_foret pour les déclarations DGD (correspondance spatiale ≥90%)"
+    )
     db.session.execute(text(f"""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
@@ -1339,16 +1449,20 @@ def step_update_declarations():
     """))
     db.session.commit()
 
-    n_dgd = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_declarations.t_declarations d "
-        "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
-        "WHERE fn.b_statut_public = false AND fn.b_document = true"
-    )).scalar()
+    n_dgd = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_declarations.t_declarations d "
+            "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
+            "WHERE fn.b_statut_public = false AND fn.b_document = true"
+        )
+    ).scalar()
     LOG.info(f"    {n_dgd} déclarations DGD mises à jour vers t_forets_new")
     _report["volumes"]["decl_dgd_mises_a_jour"] = n_dgd
     n_err_dgd = _mark_erreur_refgeo(db, "dgd")
     if n_err_dgd:
-        LOG.warning(f"    {n_err_dgd} déclaration(s) DGD marquées Erreur Refgeo (forêt DGD non retrouvée)")
+        LOG.warning(
+            f"    {n_err_dgd} déclaration(s) DGD marquées Erreur Refgeo (forêt DGD non retrouvée)"
+        )
         _report["anomalies"].append(
             f"[Étape 6b] {n_err_dgd} déclaration(s) DGD en Erreur Refgeo (forêt DGD non retrouvée dans le nouveau GPKG)"
         )
@@ -1447,24 +1561,32 @@ def step_update_declarations():
     """))
     db.session.commit()
 
-    n_onf = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_declarations.t_declarations d "
-        "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
-        "WHERE fn.b_statut_public = true AND fn.b_document = true"
-    )).scalar()
+    n_onf = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_declarations.t_declarations d "
+            "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
+            "WHERE fn.b_statut_public = true AND fn.b_document = true"
+        )
+    ).scalar()
     LOG.info(f"    {n_onf} déclarations ONF mises à jour vers t_forets_new")
     _report["volumes"]["decl_onf_mises_a_jour"] = n_onf
     n_err_onf = _mark_erreur_refgeo(db, "onf")
     if n_err_onf:
-        LOG.warning(f"    {n_err_onf} déclaration(s) ONF marquées Erreur Refgeo (forêt ONF non retrouvée)")
+        LOG.warning(
+            f"    {n_err_onf} déclaration(s) ONF marquées Erreur Refgeo (forêt ONF non retrouvée)"
+        )
         _report["anomalies"].append(
             f"[Étape 6c] {n_err_onf} déclaration(s) ONF en Erreur Refgeo (forêt ONF non retrouvée dans le nouveau GPKG)"
         )
     _report["volumes"]["decl_onf_erreur_refgeo"] = n_err_onf
 
     # 6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)
-    LOG.info("  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)")
-    print("  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)")
+    LOG.info(
+        "  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)"
+    )
+    print(
+        "  6d : mise à jour id_foret pour les déclarations ss_document (via old_id_foret)"
+    )
     db.session.execute(text("""
         UPDATE oeasc_declarations.t_declarations d
         SET id_foret = fn.id_foret
@@ -1472,18 +1594,20 @@ def step_update_declarations():
         WHERE d.id_foret = fn.old_id_foret
         AND fn.b_document = FALSE
     """))
-    n_ss = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_declarations.t_declarations d "
-        "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
-        "WHERE fn.b_document = false"
-    )).scalar()
+    n_ss = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_declarations.t_declarations d "
+            "JOIN oeasc_forets.t_forets_new fn ON fn.id_foret = d.id_foret "
+            "WHERE fn.b_document = false"
+        )
+    ).scalar()
     LOG.info(f"    {n_ss} déclarations ss_document mises à jour vers t_forets_new")
     _report["volumes"]["decl_ss_document_mises_a_jour"] = n_ss
     db.session.commit()
 
     # 6e : mise à jour id_area_commune dans t_lieu_tirs
     LOG.info("  6e : mise à jour id_area_commune dans t_lieu_tirs")
-    print ("  6e : mise à jour id_area_commune dans t_lieu_tirs")
+    print("  6e : mise à jour id_area_commune dans t_lieu_tirs")
 
     # Passage 1 : correspondance par area_code (code INSEE commune, stable)
     db.session.execute(text(f"""
@@ -1512,8 +1636,12 @@ def step_update_declarations():
     """)).scalar()
 
     if n_remaining > 0:
-        LOG.info(f"    {n_remaining} lieu(x) sans correspondance par code — fallback spatial")
-        print (f"    {n_remaining} lieu(x) sans correspondance par code — fallback spatial")
+        LOG.info(
+            f"    {n_remaining} lieu(x) sans correspondance par code — fallback spatial"
+        )
+        print(
+            f"    {n_remaining} lieu(x) sans correspondance par code — fallback spatial"
+        )
         db.session.execute(text(f"""
             UPDATE oeasc_chasse.t_lieu_tirs lt
             SET id_area_commune = (
@@ -1533,13 +1661,17 @@ def step_update_declarations():
         """))
         db.session.commit()
 
-    n_lt = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_chasse.t_lieu_tirs lt "
-        f"JOIN ref_geo.l_areas_new la ON la.id_area = lt.id_area_commune AND la.id_type = {ID_TYPE_COMMUNE}"
-    )).scalar()
-    n_lt_total = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_chasse.t_lieu_tirs WHERE id_area_commune IS NOT NULL"
-    )).scalar()
+    n_lt = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_chasse.t_lieu_tirs lt "
+            f"JOIN ref_geo.l_areas_new la ON la.id_area = lt.id_area_commune AND la.id_type = {ID_TYPE_COMMUNE}"
+        )
+    ).scalar()
+    n_lt_total = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_chasse.t_lieu_tirs WHERE id_area_commune IS NOT NULL"
+        )
+    ).scalar()
     if n_lt < n_lt_total:
         LOG.warning(
             f"  ATTENTION : {n_lt_total - n_lt} lieu(x) de tir sur {n_lt_total} "
@@ -1555,9 +1687,11 @@ def step_update_declarations():
     db.session.commit()
 
     # Rapport final
-    n_erreur = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_declarations.t_declarations WHERE statut = 999"
-    )).scalar()
+    n_erreur = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_declarations.t_declarations WHERE statut = 999"
+        )
+    ).scalar()
     if n_erreur:
         LOG.warning(
             f"  ATTENTION : {n_erreur} déclaration(s) en statut Erreur Refgeo (999) "
@@ -1602,13 +1736,16 @@ def _get_views_ddl():
     ddls = {}
     for vname in views_ordered:
         # Vérifie que la vue existe avant d'appeler pg_get_viewdef
-        exists = db.session.execute(text(
-            "SELECT 1 FROM pg_views WHERE schemaname='oeasc_declarations' AND viewname=:n"
-        ), {"n": vname}).fetchone()
+        exists = db.session.execute(
+            text(
+                "SELECT 1 FROM pg_views WHERE schemaname='oeasc_declarations' AND viewname=:n"
+            ),
+            {"n": vname},
+        ).fetchone()
         if exists:
-            r = db.session.execute(text(
-                f"SELECT pg_get_viewdef('oeasc_declarations.{vname}', true)"
-            )).fetchone()
+            r = db.session.execute(
+                text(f"SELECT pg_get_viewdef('oeasc_declarations.{vname}', true)")
+            ).fetchone()
             if r:
                 ddls[vname] = r[0]
     if not ddls:
@@ -1621,14 +1758,14 @@ def _get_views_ddl():
 
 def step_swap_t_forets():
     LOG.info("Étape 7 : swap t_forets → t_forets_new")
-    print ("Étape 7 : swap t_forets → t_forets_new")
+    print("Étape 7 : swap t_forets → t_forets_new")
     db = _get_db()
 
     # Sauvegarde puis suppression des vues dépendant de t_forets
     views_ordered, views_ddl = _get_views_ddl()
-    db.session.execute(text(
-        "DROP VIEW IF EXISTS oeasc_declarations.v_declarations CASCADE"
-    ))
+    db.session.execute(
+        text("DROP VIEW IF EXISTS oeasc_declarations.v_declarations CASCADE")
+    )
     db.session.commit()
 
     for stmt in [
@@ -1650,24 +1787,32 @@ def step_swap_t_forets():
         "ALTER TABLE oeasc_forets.t_forets_new RENAME TO t_forets",
         "ALTER SEQUENCE oeasc_forets.t_forets_new_id_foret_seq RENAME TO t_forets_id_foret_seq",
         # Recréer FKs sur t_forets
-        ("ALTER TABLE oeasc_forets.t_forets "
-         "ADD CONSTRAINT fk_foret_id_declarant "
-         "FOREIGN KEY (id_declarant) REFERENCES utilisateurs.t_roles(id_role)"),
-        ("ALTER TABLE oeasc_forets.t_forets "
-         "ADD CONSTRAINT fk_foret_id_nomenclature_proprietaire_type "
-         "FOREIGN KEY (id_nomenclature_proprietaire_type) "
-         "REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature)"),
+        (
+            "ALTER TABLE oeasc_forets.t_forets "
+            "ADD CONSTRAINT fk_foret_id_declarant "
+            "FOREIGN KEY (id_declarant) REFERENCES utilisateurs.t_roles(id_role)"
+        ),
+        (
+            "ALTER TABLE oeasc_forets.t_forets "
+            "ADD CONSTRAINT fk_foret_id_nomenclature_proprietaire_type "
+            "FOREIGN KEY (id_nomenclature_proprietaire_type) "
+            "REFERENCES ref_nomenclatures.t_nomenclatures(id_nomenclature)"
+        ),
         # Recréer FKs depuis les tables référençant t_forets
-        ("ALTER TABLE oeasc_forets.cor_areas_forets "
-         "ADD CONSTRAINT fk_cor_areas_foret_id_foret "
-         "FOREIGN KEY (id_foret) REFERENCES oeasc_forets.t_forets(id_foret) "
-         "ON UPDATE CASCADE ON DELETE CASCADE"),
+        (
+            "ALTER TABLE oeasc_forets.cor_areas_forets "
+            "ADD CONSTRAINT fk_cor_areas_foret_id_foret "
+            "FOREIGN KEY (id_foret) REFERENCES oeasc_forets.t_forets(id_foret) "
+            "ON UPDATE CASCADE ON DELETE CASCADE"
+        ),
         # NOT VALID : on ne vérifie pas les lignes existantes à la création.
         # Les déclarations dont id_foret n'a pas pu être mis à jour (codes DGD
         # changeant de format) sont signalées par step_verify().
-        ("ALTER TABLE oeasc_declarations.t_declarations "
-         "ADD CONSTRAINT fk_t_declarations_id_foret "
-         "FOREIGN KEY (id_foret) REFERENCES oeasc_forets.t_forets(id_foret) NOT VALID"),
+        (
+            "ALTER TABLE oeasc_declarations.t_declarations "
+            "ADD CONSTRAINT fk_t_declarations_id_foret "
+            "FOREIGN KEY (id_foret) REFERENCES oeasc_forets.t_forets(id_foret) NOT VALID"
+        ),
     ]:
         db.session.execute(text(stmt))
     db.session.commit()
@@ -1675,16 +1820,18 @@ def step_swap_t_forets():
     # Recréation des vues dans l'ordre de dépendance
     for vname in views_ordered:
         if vname in views_ddl:
-            db.session.execute(text(
-                f"CREATE OR REPLACE VIEW oeasc_declarations.{vname} AS\n{views_ddl[vname]}"
-            ))
+            db.session.execute(
+                text(
+                    f"CREATE OR REPLACE VIEW oeasc_declarations.{vname} AS\n{views_ddl[vname]}"
+                )
+            )
     db.session.commit()
     LOG.info(f"  {len(views_ddl)} vues recréées.")
 
-    n = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_forets.t_forets"
-    )).scalar()
-    LOG.info(f"  Swap t_forets terminé. {n} forêts dans la nouvelle table (ancienne conservée sous t_forets_ancien).")
+    n = db.session.execute(text("SELECT count(*) FROM oeasc_forets.t_forets")).scalar()
+    LOG.info(
+        f"  Swap t_forets terminé. {n} forêts dans la nouvelle table (ancienne conservée sous t_forets_ancien)."
+    )
     _report["volumes"]["t_forets"] = n
 
 
@@ -1695,7 +1842,7 @@ def step_swap_t_forets():
 
 def step_swap_l_areas():
     LOG.info("Étape 8 : swap l_areas → l_areas_new")
-    print ("Étape 8 : swap l_areas → l_areas_new")
+    print("Étape 8 : swap l_areas → l_areas_new")
     db = _get_db()
     for stmt in [
         # FKs de cor_area_intersect vers l_areas
@@ -1723,13 +1870,17 @@ def step_swap_l_areas():
         # Promouvoir l_areas_new en l_areas
         "ALTER TABLE ref_geo.l_areas_new RENAME TO l_areas",
         "ALTER SEQUENCE ref_geo.l_areas_new_id_area_seq RENAME TO l_areas_id_area_seq",
-        ("ALTER TABLE ref_geo.l_areas ALTER COLUMN id_area "
-         "SET DEFAULT nextval('ref_geo.l_areas_id_area_seq')"),
+        (
+            "ALTER TABLE ref_geo.l_areas ALTER COLUMN id_area "
+            "SET DEFAULT nextval('ref_geo.l_areas_id_area_seq')"
+        ),
         "ALTER SEQUENCE ref_geo.l_areas_id_area_seq OWNED BY ref_geo.l_areas.id_area",
         # Recréer FKs
-        ("ALTER TABLE oeasc_chasse.t_lieu_tirs "
-         "ADD CONSTRAINT fk_t_lieu_tirs_l_areas "
-         "FOREIGN KEY (id_area_commune) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE"),
+        (
+            "ALTER TABLE oeasc_chasse.t_lieu_tirs "
+            "ADD CONSTRAINT fk_t_lieu_tirs_l_areas "
+            "FOREIGN KEY (id_area_commune) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE"
+        ),
         # Sauvegarde de cor_areas_declarations avec géométries avant le TRUNCATE
         # (l_areas_ancien existe déjà à ce stade — le join est valide)
         "DROP TABLE IF EXISTS oeasc_declarations.cor_areas_declarations_ancien",
@@ -1742,43 +1893,63 @@ def step_swap_l_areas():
         ),
         # cor_areas_declarations sera reconstruite en step 9 — vider avant de recréer la FK
         "TRUNCATE oeasc_declarations.cor_areas_declarations",
-        ("ALTER TABLE oeasc_declarations.cor_areas_declarations "
-         "ADD CONSTRAINT fk_cor_areas_declarations_id_area "
-         "FOREIGN KEY (id_area) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE"),
-        ("ALTER TABLE oeasc_forets.cor_areas_forets "
-         "ADD CONSTRAINT fk_cor_areas_foret_id_area "
-         "FOREIGN KEY (id_area) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE"),
-        ("ALTER TABLE ref_geo.cor_area_intersect "
-         "ADD CONSTRAINT fk_cor_area_intersect_id_commune "
-         "FOREIGN KEY (id_commune) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
-        ("ALTER TABLE ref_geo.cor_area_intersect "
-         "ADD CONSTRAINT fk_cor_area_intersect_id_foret_dgd "
-         "FOREIGN KEY (id_foret_dgd) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
-        ("ALTER TABLE ref_geo.cor_area_intersect "
-         "ADD CONSTRAINT fk_cor_area_intersect_id_foret_onf "
-         "FOREIGN KEY (id_foret_onf) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
-        ("ALTER TABLE ref_geo.cor_area_intersect "
-         "ADD CONSTRAINT fk_cor_area_intersect_id_foret_prive "
-         "FOREIGN KEY (id_foret_prive) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
-        ("ALTER TABLE ref_geo.cor_area_intersect "
-         "ADD CONSTRAINT fk_cor_area_intersect_id_parcelle "
-         "FOREIGN KEY (id_parcelle) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
-        ("ALTER TABLE ref_geo.cor_area_intersect "
-         "ADD CONSTRAINT fk_cor_area_intersect_id_parcelle_onf "
-         "FOREIGN KEY (id_parcelle_onf) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
-        ("ALTER TABLE ref_geo.cor_area_intersect "
-         "ADD CONSTRAINT fk_cor_area_intersect_id_secteur "
-         "FOREIGN KEY (id_secteur) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
-        ("ALTER TABLE ref_geo.cor_area_intersect "
-         "ADD CONSTRAINT fk_cor_area_intersect_id_section_cadastrale "
-         "FOREIGN KEY (id_section_cadastrale) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"),
+        (
+            "ALTER TABLE oeasc_declarations.cor_areas_declarations "
+            "ADD CONSTRAINT fk_cor_areas_declarations_id_area "
+            "FOREIGN KEY (id_area) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE"
+        ),
+        (
+            "ALTER TABLE oeasc_forets.cor_areas_forets "
+            "ADD CONSTRAINT fk_cor_areas_foret_id_area "
+            "FOREIGN KEY (id_area) REFERENCES ref_geo.l_areas(id_area) ON UPDATE CASCADE"
+        ),
+        (
+            "ALTER TABLE ref_geo.cor_area_intersect "
+            "ADD CONSTRAINT fk_cor_area_intersect_id_commune "
+            "FOREIGN KEY (id_commune) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"
+        ),
+        (
+            "ALTER TABLE ref_geo.cor_area_intersect "
+            "ADD CONSTRAINT fk_cor_area_intersect_id_foret_dgd "
+            "FOREIGN KEY (id_foret_dgd) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"
+        ),
+        (
+            "ALTER TABLE ref_geo.cor_area_intersect "
+            "ADD CONSTRAINT fk_cor_area_intersect_id_foret_onf "
+            "FOREIGN KEY (id_foret_onf) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"
+        ),
+        (
+            "ALTER TABLE ref_geo.cor_area_intersect "
+            "ADD CONSTRAINT fk_cor_area_intersect_id_foret_prive "
+            "FOREIGN KEY (id_foret_prive) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"
+        ),
+        (
+            "ALTER TABLE ref_geo.cor_area_intersect "
+            "ADD CONSTRAINT fk_cor_area_intersect_id_parcelle "
+            "FOREIGN KEY (id_parcelle) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"
+        ),
+        (
+            "ALTER TABLE ref_geo.cor_area_intersect "
+            "ADD CONSTRAINT fk_cor_area_intersect_id_parcelle_onf "
+            "FOREIGN KEY (id_parcelle_onf) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"
+        ),
+        (
+            "ALTER TABLE ref_geo.cor_area_intersect "
+            "ADD CONSTRAINT fk_cor_area_intersect_id_secteur "
+            "FOREIGN KEY (id_secteur) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"
+        ),
+        (
+            "ALTER TABLE ref_geo.cor_area_intersect "
+            "ADD CONSTRAINT fk_cor_area_intersect_id_section_cadastrale "
+            "FOREIGN KEY (id_section_cadastrale) REFERENCES ref_geo.l_areas(id_area) ON DELETE CASCADE"
+        ),
     ]:
         db.session.execute(text(stmt))
     db.session.commit()
     n = db.session.execute(text("SELECT count(*) FROM ref_geo.l_areas")).scalar()
-    n_bak = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_declarations.cor_areas_declarations_ancien"
-    )).scalar()
+    n_bak = db.session.execute(
+        text("SELECT count(*) FROM oeasc_declarations.cor_areas_declarations_ancien")
+    ).scalar()
     LOG.info(
         f"  Swap l_areas terminé. {n} areas dans la nouvelle table (ancienne conservée sous l_areas_ancien). "
         f"cor_areas_declarations_ancien sauvegardée ({n_bak} liaisons avec géométries)."
@@ -1794,7 +1965,7 @@ def step_swap_l_areas():
 
 def step_build_cor_hierarchie_area():
     LOG.info("Étape 9 : reconstruction de cor_hierarchie_area")
-    print ("Étape 9 : reconstruction de cor_hierarchie_area")
+    print("Étape 9 : reconstruction de cor_hierarchie_area")
     db = _get_db()
 
     db.session.execute(text("""
@@ -1806,10 +1977,12 @@ def step_build_cor_hierarchie_area():
             PRIMARY KEY (id_area_enfant, id_type_enfant, id_area_parent, id_type_parent)
         )
     """))
-    db.session.execute(text(
-        "CREATE INDEX cor_hierarchie_area_id_type_enfant_idx "
-        "ON ref_geo.cor_hierarchie_area (id_type_enfant, id_type_parent)"
-    ))
+    db.session.execute(
+        text(
+            "CREATE INDEX cor_hierarchie_area_id_type_enfant_idx "
+            "ON ref_geo.cor_hierarchie_area (id_type_enfant, id_type_parent)"
+        )
+    )
 
     # 1. Sections → Communes (jointure spatiale)
     db.session.execute(text(f"""
@@ -1886,9 +2059,9 @@ def step_build_cor_hierarchie_area():
     """))
 
     db.session.commit()
-    n = db.session.execute(text(
-        "SELECT count(*) FROM ref_geo.cor_hierarchie_area"
-    )).scalar()
+    n = db.session.execute(
+        text("SELECT count(*) FROM ref_geo.cor_hierarchie_area")
+    ).scalar()
     LOG.info(f"  cor_hierarchie_area reconstruite avec {n} entrées.")
     _report["volumes"]["cor_hierarchie_area"] = n
 
@@ -1916,17 +2089,23 @@ def step_build_cor_hierarchie_area():
         ON CONFLICT DO NOTHING
     """))
     db.session.commit()
-    n_prive = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_forets.cor_areas_forets caf "
-        "JOIN oeasc_forets.t_forets tf ON tf.id_foret = caf.id_foret "
-        "WHERE tf.b_document = FALSE"
-    )).scalar()
-    LOG.info(f"  cor_areas_forets reconstruite (dont {n_prive} liaison(s) forêts ss_document).")
+    n_prive = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_forets.cor_areas_forets caf "
+            "JOIN oeasc_forets.t_forets tf ON tf.id_foret = caf.id_foret "
+            "WHERE tf.b_document = FALSE"
+        )
+    ).scalar()
+    LOG.info(
+        f"  cor_areas_forets reconstruite (dont {n_prive} liaison(s) forêts ss_document)."
+    )
 
     # Reconstruction de cor_areas_declarations par transfert spatial depuis la sauvegarde.
     # On ne conserve que les plus petites unités (UG ONF et parcelles cadastrales).
     # Le seuil 50% gère les fusions et scissions entre ancienne et nouvelle topologie.
-    LOG.info("  Reconstruction de cor_areas_declarations par transfert spatial depuis cor_areas_declarations_ancien")
+    LOG.info(
+        "  Reconstruction de cor_areas_declarations par transfert spatial depuis cor_areas_declarations_ancien"
+    )
     db.session.execute(text(f"""
         INSERT INTO oeasc_declarations.cor_areas_declarations (id_declaration, id_area)
         SELECT DISTINCT cad_old.id_declaration, la_new.id_area
@@ -2018,12 +2197,9 @@ def step_build_cor_hierarchie_area():
             f"(UG hors périmètre ou forêt sans UG connue — vérifier cor_areas_declarations_ancien)"
         )
 
-
-
-
-    n_cor = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_declarations.cor_areas_declarations"
-    )).scalar()
+    n_cor = db.session.execute(
+        text("SELECT count(*) FROM oeasc_declarations.cor_areas_declarations")
+    ).scalar()
     LOG.info(f"  {n_cor} liaisons reconstruites dans cor_areas_declarations.")
     _report["volumes"]["cor_areas_declarations"] = n_cor
     db.session.commit()
@@ -2094,11 +2270,14 @@ def step_prune_forests_outside_oeasc():
     )
 
     # Nullifie id_foret dans t_declarations (FK sans ON DELETE CASCADE)
-    n_decl = db.session.execute(text("""
+    n_decl = db.session.execute(
+        text("""
         UPDATE oeasc_declarations.t_declarations
         SET id_foret = NULL
         WHERE id_foret = ANY(:ids)
-    """), {"ids": ids_to_delete}).rowcount
+    """),
+        {"ids": ids_to_delete},
+    ).rowcount
     if n_decl:
         LOG.warning(
             f"  {n_decl} déclaration(s) ont eu leur id_foret mis à NULL "
@@ -2112,9 +2291,12 @@ def step_prune_forests_outside_oeasc():
     id_areas_to_delete = [r[5] for r in to_delete if r[5] is not None]
 
     # Supprime les forêts (CASCADE → cor_areas_forets)
-    db.session.execute(text("""
+    db.session.execute(
+        text("""
         DELETE FROM oeasc_forets.t_forets WHERE id_foret = ANY(:ids)
-    """), {"ids": ids_to_delete})
+    """),
+        {"ids": ids_to_delete},
+    )
     db.session.commit()
     LOG.info(f"  {len(ids_to_delete)} forêt(s) supprimée(s).")
 
@@ -2123,27 +2305,42 @@ def step_prune_forests_outside_oeasc():
         # Nullifie d'abord les références dans cor_area_intersect pour éviter que
         # le CASCADE DELETE ne supprime les lignes entières des parcelles voisines
         # (qui conservent des infos valides comme commune, secteur, etc.)
-        db.session.execute(text("""
+        db.session.execute(
+            text("""
             UPDATE ref_geo.cor_area_intersect
             SET id_foret_dgd = NULL WHERE id_foret_dgd = ANY(:ids)
-        """), {"ids": id_areas_to_delete})
-        db.session.execute(text("""
+        """),
+            {"ids": id_areas_to_delete},
+        )
+        db.session.execute(
+            text("""
             UPDATE ref_geo.cor_area_intersect
             SET id_foret_onf = NULL WHERE id_foret_onf = ANY(:ids)
-        """), {"ids": id_areas_to_delete})
-        db.session.execute(text("""
+        """),
+            {"ids": id_areas_to_delete},
+        )
+        db.session.execute(
+            text("""
             UPDATE ref_geo.cor_area_intersect
             SET id_foret_prive = NULL WHERE id_foret_prive = ANY(:ids)
-        """), {"ids": id_areas_to_delete})
+        """),
+            {"ids": id_areas_to_delete},
+        )
         # cor_hierarchie_area n'a pas de CASCADE depuis l_areas
-        n_hier = db.session.execute(text("""
+        n_hier = db.session.execute(
+            text("""
             DELETE FROM ref_geo.cor_hierarchie_area
             WHERE id_area_parent = ANY(:ids) OR id_area_enfant = ANY(:ids)
-        """), {"ids": id_areas_to_delete}).rowcount
+        """),
+            {"ids": id_areas_to_delete},
+        ).rowcount
         # l_areas (le CASCADE sur cor_area_intersect ne supprime plus rien car déjà nullifié)
-        n_areas = db.session.execute(text("""
+        n_areas = db.session.execute(
+            text("""
             DELETE FROM ref_geo.l_areas WHERE id_area = ANY(:ids)
-        """), {"ids": id_areas_to_delete}).rowcount
+        """),
+            {"ids": id_areas_to_delete},
+        ).rowcount
         db.session.commit()
         LOG.info(
             f"  {n_areas} polygone(s) supprimé(s) de l_areas "
@@ -2164,8 +2361,12 @@ def step_preserve_unmatched_forests():
     Ces areas n'ont pas participé à cor_area_intersect (step 5) ni cor_hierarchie_area
     (step 9) car elles sont insérées après ces deux étapes.
     """
-    LOG.info("Étape 9c : préservation des forêts non retrouvées dans les nouvelles données")
-    print("Étape 9c : préservation des forêts non retrouvées dans les nouvelles données")
+    LOG.info(
+        "Étape 9c : préservation des forêts non retrouvées dans les nouvelles données"
+    )
+    print(
+        "Étape 9c : préservation des forêts non retrouvées dans les nouvelles données"
+    )
     db = _get_db()
 
     # Forêts distinctes à préserver (toutes catégories : DGD, ONF)
@@ -2186,15 +2387,19 @@ def step_preserve_unmatched_forests():
         old_id_foret = row.old_id_foret
 
         # Déclarations concernées par cette forêt
-        decl_rows = db.session.execute(text("""
+        decl_rows = db.session.execute(
+            text("""
             SELECT id_declaration
             FROM oeasc_declarations.t_declarations
             WHERE _pre_refresh_id_foret = :old_id AND id_foret IS NULL AND statut = 999
-        """), {"old_id": old_id_foret}).fetchall()
+        """),
+            {"old_id": old_id_foret},
+        ).fetchall()
         decl_ids = [r.id_declaration for r in decl_rows]
 
         # Ancienne forêt
-        old_foret = db.session.execute(text("""
+        old_foret = db.session.execute(
+            text("""
             SELECT id_foret, id_proprietaire, b_statut_public, b_document,
                    nom_foret, code_foret, label_foret,
                    surface_renseignee, surface_calculee, id_area,
@@ -2203,10 +2408,14 @@ def step_preserve_unmatched_forests():
                    id_nomenclature_proprietaire_type, id_declarant
             FROM oeasc_forets.t_forets_ancien
             WHERE id_foret = :id
-        """), {"id": old_id_foret}).fetchone()
+        """),
+            {"id": old_id_foret},
+        ).fetchone()
 
         if not old_foret:
-            LOG.warning(f"  Forêt ancienne id={old_id_foret} introuvable dans t_forets_ancien — déclarations {decl_ids} ignorées.")
+            LOG.warning(
+                f"  Forêt ancienne id={old_id_foret} introuvable dans t_forets_ancien — déclarations {decl_ids} ignorées."
+            )
             continue
 
         nom = old_foret.nom_foret or f"id={old_id_foret}"
@@ -2214,20 +2423,24 @@ def step_preserve_unmatched_forests():
         # Copier le polygone depuis l_areas_ancien si la forêt en avait un
         new_id_area = None
         if old_foret.id_area:
-            old_area = db.session.execute(text("""
+            old_area = db.session.execute(
+                text("""
                 SELECT id_type, area_name, area_code, source,
                        meta_create_date, meta_update_date,
                        geom, geom_4326, centroid
                 FROM ref_geo.l_areas_ancien
                 WHERE id_area = :id
-            """), {"id": old_foret.id_area}).fetchone()
+            """),
+                {"id": old_foret.id_area},
+            ).fetchone()
 
             if old_area:
                 comment = (
                     f"Area sauvegardée pour les déclarations {decl_ids} "
-                    f"et la forêt \"{nom}\" (non retrouvée lors du refresh)"
+                    f'et la forêt "{nom}" (non retrouvée lors du refresh)'
                 )
-                result = db.session.execute(text("""
+                result = db.session.execute(
+                    text("""
                     INSERT INTO ref_geo.l_areas
                         (id_type, area_name, area_code, source,
                          meta_create_date, meta_update_date,
@@ -2239,22 +2452,25 @@ def step_preserve_unmatched_forests():
                          :geom, :geom_4326, :centroid,
                          FALSE, :comment)
                     RETURNING id_area
-                """), {
-                    "id_type": old_area.id_type,
-                    "area_name": old_area.area_name,
-                    "area_code": old_area.area_code,
-                    "source": old_area.source,
-                    "meta_create_date": old_area.meta_create_date,
-                    "meta_update_date": old_area.meta_update_date,
-                    "geom": old_area.geom,
-                    "geom_4326": old_area.geom_4326,
-                    "centroid": old_area.centroid,
-                    "comment": comment,
-                })
+                """),
+                    {
+                        "id_type": old_area.id_type,
+                        "area_name": old_area.area_name,
+                        "area_code": old_area.area_code,
+                        "source": old_area.source,
+                        "meta_create_date": old_area.meta_create_date,
+                        "meta_update_date": old_area.meta_update_date,
+                        "geom": old_area.geom,
+                        "geom_4326": old_area.geom_4326,
+                        "centroid": old_area.centroid,
+                        "comment": comment,
+                    },
+                )
                 new_id_area = result.scalar()
 
         # Insérer la forêt préservée (valide=FALSE, colonnes listées explicitement)
-        new_foret = db.session.execute(text("""
+        new_foret = db.session.execute(
+            text("""
             INSERT INTO oeasc_forets.t_forets
                 (id_proprietaire, b_statut_public, b_document,
                  nom_foret, code_foret, label_foret,
@@ -2272,49 +2488,54 @@ def step_preserve_unmatched_forests():
                  :id_nomenclature_proprietaire_type, :id_declarant,
                  FALSE)
             RETURNING id_foret
-        """), {
-            "id_proprietaire": old_foret.id_proprietaire,
-            "b_statut_public": old_foret.b_statut_public,
-            "b_document": old_foret.b_document,
-            "nom_foret": old_foret.nom_foret,
-            "code_foret": old_foret.code_foret,
-            "label_foret": old_foret.label_foret,
-            "surface_renseignee": old_foret.surface_renseignee,
-            "surface_calculee": old_foret.surface_calculee,
-            "id_area": new_id_area,
-            "nom_proprietaire": old_foret.nom_proprietaire,
-            "adresse_proprietaire": old_foret.adresse_proprietaire,
-            "cp_proprietaire": old_foret.cp_proprietaire,
-            "commune_proprietaire": old_foret.commune_proprietaire,
-            "email_proprietaire": old_foret.email_proprietaire,
-            "tel_proprietaire": old_foret.tel_proprietaire,
-            "id_nomenclature_proprietaire_type": old_foret.id_nomenclature_proprietaire_type,
-            "id_declarant": old_foret.id_declarant,
-        })
+        """),
+            {
+                "id_proprietaire": old_foret.id_proprietaire,
+                "b_statut_public": old_foret.b_statut_public,
+                "b_document": old_foret.b_document,
+                "nom_foret": old_foret.nom_foret,
+                "code_foret": old_foret.code_foret,
+                "label_foret": old_foret.label_foret,
+                "surface_renseignee": old_foret.surface_renseignee,
+                "surface_calculee": old_foret.surface_calculee,
+                "id_area": new_id_area,
+                "nom_proprietaire": old_foret.nom_proprietaire,
+                "adresse_proprietaire": old_foret.adresse_proprietaire,
+                "cp_proprietaire": old_foret.cp_proprietaire,
+                "commune_proprietaire": old_foret.commune_proprietaire,
+                "email_proprietaire": old_foret.email_proprietaire,
+                "tel_proprietaire": old_foret.tel_proprietaire,
+                "id_nomenclature_proprietaire_type": old_foret.id_nomenclature_proprietaire_type,
+                "id_declarant": old_foret.id_declarant,
+            },
+        )
         new_id_foret = new_foret.scalar()
 
         # Rattacher les déclarations à la forêt préservée
-        db.session.execute(text("""
+        db.session.execute(
+            text("""
             UPDATE oeasc_declarations.t_declarations
             SET id_foret = :new_id,
                 statut = 0,
                 precision_localisation = :precision
             WHERE _pre_refresh_id_foret = :old_id AND id_foret IS NULL AND statut = 999
-        """), {
-            "new_id": new_id_foret,
-            "old_id": old_id_foret,
-            "precision": f"[Forêt non retrouvée dans les nouvelles données — conservée] (ancien id={old_id_foret})",
-        })
+        """),
+            {
+                "new_id": new_id_foret,
+                "old_id": old_id_foret,
+                "precision": f"[Forêt non retrouvée dans les nouvelles données — conservée] (ancien id={old_id_foret})",
+            },
+        )
         db.session.commit()
 
         LOG.info(
-            f"  Forêt préservée : \"{nom}\" "
+            f'  Forêt préservée : "{nom}" '
             f"(ancien id={old_id_foret}, nouvel id={new_id_foret}, "
             f"id_area={'NULL' if new_id_area is None else new_id_area}) "
             f"— {len(decl_ids)} déclaration(s) rattachées : {decl_ids}"
         )
         _report["anomalies"].append(
-            f"[Étape 9c] Forêt préservée (valide=FALSE) : \"{nom}\" "
+            f'[Étape 9c] Forêt préservée (valide=FALSE) : "{nom}" '
             f"(ancien id={old_id_foret}, nouvel id={new_id_foret}) "
             f"— {len(decl_ids)} déclaration(s) : {decl_ids}"
         )
@@ -2330,12 +2551,12 @@ def step_preserve_unmatched_forests():
 
 def step_cleanup():
     LOG.info("Étape 10 : nettoyage final")
-    print ("Étape 10 : nettoyage final")
+    print("Étape 10 : nettoyage final")
     db = _get_db()
 
-    db.session.execute(text(
-        "DROP MATERIALIZED VIEW IF EXISTS ref_geo.vm_lareas_simples"
-    ))
+    db.session.execute(
+        text("DROP MATERIALIZED VIEW IF EXISTS ref_geo.vm_lareas_simples")
+    )
     db.session.commit()
     db.session.execute(text("""
         CREATE MATERIALIZED VIEW ref_geo.vm_lareas_simples AS
@@ -2375,38 +2596,46 @@ def step_cleanup():
 
 def step_verify():
     LOG.info("Étape 11 : vérification post-swap")
-    print ("Étape 11 : vérification post-swap")
+    print("Étape 11 : vérification post-swap")
     db = _get_db()
 
-    rows = db.session.execute(text(
-        "SELECT id_type, count(*) FROM ref_geo.l_areas GROUP BY id_type ORDER BY id_type"
-    )).fetchall()
+    rows = db.session.execute(
+        text(
+            "SELECT id_type, count(*) FROM ref_geo.l_areas GROUP BY id_type ORDER BY id_type"
+        )
+    ).fetchall()
     LOG.info("  Comptage par id_type dans l_areas :")
     for r in rows:
         LOG.info(f"    id_type={r[0]} → {r[1]} areas")
     _report["volumes"]["l_areas_par_type"] = {r[0]: r[1] for r in rows}
 
-    invalid = db.session.execute(text(
-        "SELECT count(*) FROM ref_geo.l_areas WHERE NOT ST_IsValid(geom)"
-    )).scalar()
+    invalid = db.session.execute(
+        text("SELECT count(*) FROM ref_geo.l_areas WHERE NOT ST_IsValid(geom)")
+    ).scalar()
     if invalid:
         LOG.warning(f"  ATTENTION : {invalid} géométrie(s) invalide(s)")
-        _report["anomalies"].append(f"[Étape 11] {invalid} géométrie(s) invalide(s) restantes dans l_areas")
+        _report["anomalies"].append(
+            f"[Étape 11] {invalid} géométrie(s) invalide(s) restantes dans l_areas"
+        )
     else:
         LOG.info("  Toutes les géométries sont valides.")
 
-    no_commune = db.session.execute(text(
-        "SELECT count(*) FROM ref_geo.cor_area_intersect WHERE id_commune IS NULL"
-    )).scalar()
+    no_commune = db.session.execute(
+        text("SELECT count(*) FROM ref_geo.cor_area_intersect WHERE id_commune IS NULL")
+    ).scalar()
     if no_commune:
-        LOG.warning(f"  ATTENTION : {no_commune} parcelle(s) sans commune dans cor_area_intersect")
+        LOG.warning(
+            f"  ATTENTION : {no_commune} parcelle(s) sans commune dans cor_area_intersect"
+        )
         _report["anomalies"].append(
             f"[Étape 11] {no_commune} parcelle(s) sans commune dans cor_area_intersect"
         )
 
-    no_foret = db.session.execute(text(
-        "SELECT count(*) FROM oeasc_declarations.t_declarations WHERE id_foret IS NULL"
-    )).scalar()
+    no_foret = db.session.execute(
+        text(
+            "SELECT count(*) FROM oeasc_declarations.t_declarations WHERE id_foret IS NULL"
+        )
+    ).scalar()
     if no_foret:
         LOG.warning(f"  ATTENTION : {no_foret} déclaration(s) sans id_foret")
         _report["anomalies"].append(
@@ -2456,8 +2685,12 @@ def step_verify():
     else:
         LOG.info("  Forêts ss_document : id_area valides.")
 
-    n_cai = db.session.execute(text('SELECT count(*) FROM ref_geo.cor_area_intersect')).scalar()
-    n_cha = db.session.execute(text('SELECT count(*) FROM ref_geo.cor_hierarchie_area')).scalar()
+    n_cai = db.session.execute(
+        text("SELECT count(*) FROM ref_geo.cor_area_intersect")
+    ).scalar()
+    n_cha = db.session.execute(
+        text("SELECT count(*) FROM ref_geo.cor_hierarchie_area")
+    ).scalar()
     LOG.info(f"  cor_area_intersect : {n_cai} entrées")
     LOG.info(f"  cor_hierarchie_area : {n_cha} entrées")
     _report["volumes"]["final_cor_area_intersect"] = n_cai
@@ -2472,11 +2705,11 @@ def step_verify():
 
 def step_refresh_vm_lareas_simples():
     LOG.info("Étape 12 : rafraîchissement final de ref_geo.vm_lareas_simples")
-    print ("Étape 12 : rafraîchissement final de ref_geo.vm_lareas_simples")
+    print("Étape 12 : rafraîchissement final de ref_geo.vm_lareas_simples")
     db = _get_db()
-    db.session.execute(text(
-        "REFRESH MATERIALIZED VIEW CONCURRENTLY ref_geo.vm_lareas_simples"
-    ))
+    db.session.execute(
+        text("REFRESH MATERIALIZED VIEW CONCURRENTLY ref_geo.vm_lareas_simples")
+    )
     db.session.commit()
     LOG.info("  vm_lareas_simples rafraîchie.")
 
@@ -2493,9 +2726,9 @@ def _write_bilan_final():
     minutes, seconds = divmod(int(duration.total_seconds()), 60)
 
     opts = _report.get("options", {})
-    opts_str = " ".join(
-        f"--{k.replace('_', '-')}" for k, v in opts.items() if v
-    ) or "(aucune)"
+    opts_str = (
+        " ".join(f"--{k.replace('_', '-')}" for k, v in opts.items() if v) or "(aucune)"
+    )
 
     LOG.info("=" * 60)
     LOG.info("BILAN FINAL — refresh-ref-geo")
@@ -2529,14 +2762,27 @@ def _write_bilan_final():
 
 
 @click.command("refresh-ref-geo")
-@click.option("--dry-run", is_flag=True, default=False,
-              help="Exécute toutes les étapes sauf le swap final")
-@click.option("--skip-load", is_flag=True, default=False,
-              help="Saute le chargement GPKG si l_areas_new existe déjà")
-@click.option("--skip-intersect", is_flag=True, default=False,
-              help="Saute la reconstruction de cor_area_intersect (doit être faite au préalable)")
-@click.option("--force", is_flag=True, default=False,
-              help="Pas de confirmation interactive")
+@click.option(
+    "--dry-run",
+    is_flag=True,
+    default=False,
+    help="Exécute toutes les étapes sauf le swap final",
+)
+@click.option(
+    "--skip-load",
+    is_flag=True,
+    default=False,
+    help="Saute le chargement GPKG si l_areas_new existe déjà",
+)
+@click.option(
+    "--skip-intersect",
+    is_flag=True,
+    default=False,
+    help="Saute la reconstruction de cor_area_intersect (doit être faite au préalable)",
+)
+@click.option(
+    "--force", is_flag=True, default=False, help="Pas de confirmation interactive"
+)
 @with_appcontext
 def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
     """Reconstruit ref_geo.l_areas depuis les fichiers GPKG."""
@@ -2566,7 +2812,9 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
     ts = _report["start_time"].strftime("%Y-%m-%d-%H-%M-%S")
     log_path = os.path.join(log_dir, f"rapport_refresh_ref_geo_{ts}.log")
     _file_handler = logging.FileHandler(log_path, encoding="utf-8")
-    _file_handler.setFormatter(logging.Formatter("%(asctime)s [%(levelname)s] %(message)s"))
+    _file_handler.setFormatter(
+        logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    )
     LOG.addHandler(_file_handler)
     LOG.info(f"Rapport enregistré dans : {log_path}")
 
@@ -2608,7 +2856,9 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
         step_update_declarations()
 
         if dry_run:
-            LOG.info("=== DRY-RUN terminé. Tables _new disponibles pour inspection. ===")
+            LOG.info(
+                "=== DRY-RUN terminé. Tables _new disponibles pour inspection. ==="
+            )
             _report["success"] = True
             _write_bilan_final()
             LOG.removeHandler(_file_handler)

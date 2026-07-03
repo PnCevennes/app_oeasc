@@ -500,7 +500,9 @@ def get_areas_child_of(id_type, id_area):
 
     # On utilise le schéma VMAreasSimplesSchema pour sérialiser les données au format GeoJSON,
     # ce qui est utile pour l'affichage cartographique ou le transfert de données spatiales.
-    all_areas = VMAreasSimplesSchema(many=True, as_geojson=True, include_geom=True).dump(data)
+    all_areas = VMAreasSimplesSchema(
+        many=True, as_geojson=True, include_geom=True
+    ).dump(data)
 
     # On retourne la liste des aires enfants au format JSON (GeoJSON si demandé).
     return all_areas
@@ -525,7 +527,9 @@ def get_areas_infos_from_parcelles():
 
     intersects = (
         DB.session.execute(
-            select(CorAreaIntersect).where(CorAreaIntersect.id_parcelle.in_(id_parcelles))
+            select(CorAreaIntersect).where(
+                CorAreaIntersect.id_parcelle.in_(id_parcelles)
+            )
         )
         .scalars()
         .all()
@@ -548,9 +552,13 @@ def get_areas_infos_from_parcelles():
     def fetch_areas(ids):
         if not ids:
             return []
-        data = DB.session.execute(
-            select(VMAreasSimples).where(VMAreasSimples.id_area.in_(ids))
-        ).scalars().all()
+        data = (
+            DB.session.execute(
+                select(VMAreasSimples).where(VMAreasSimples.id_area.in_(ids))
+            )
+            .scalars()
+            .all()
+        )
         return schema(many=True).dump(data)
 
     return {
@@ -630,9 +638,13 @@ def get_declaration_hierarchy_from_intersect():
     if not leaf_ids:
         return []
 
-    intersect_rows = DB.session.execute(
-        select(CorAreaIntersect).where(CorAreaIntersect.id_parcelle.in_(leaf_ids))
-    ).scalars().all()
+    intersect_rows = (
+        DB.session.execute(
+            select(CorAreaIntersect).where(CorAreaIntersect.id_parcelle.in_(leaf_ids))
+        )
+        .scalars()
+        .all()
+    )
 
     all_ids = set(leaf_ids)
     relations_set = set()
@@ -664,9 +676,13 @@ def get_declaration_hierarchy_from_intersect():
         for enfant, parent in relations_set
     ]
 
-    areas = DB.session.execute(
-        select(VMAreasSimples).where(VMAreasSimples.id_area.in_(list(all_ids)))
-    ).scalars().all()
+    areas = (
+        DB.session.execute(
+            select(VMAreasSimples).where(VMAreasSimples.id_area.in_(list(all_ids)))
+        )
+        .scalars()
+        .all()
+    )
     data_result = VMAreasSimplesSchema(many=True).dump(areas)
 
     return build_area_hierarchy(data_result, relations)

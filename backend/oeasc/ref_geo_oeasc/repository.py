@@ -67,7 +67,9 @@ def _order_column(table):
 def refresh_vm_lareas_simples(concurrently=False):
     """Refresh explicite de la vue materialisee ref_geo.vm_lareas_simples."""
     concurrently_sql = "CONCURRENTLY " if concurrently else ""
-    stmt = text(f"REFRESH MATERIALIZED VIEW {concurrently_sql}ref_geo.vm_lareas_simples")
+    stmt = text(
+        f"REFRESH MATERIALIZED VIEW {concurrently_sql}ref_geo.vm_lareas_simples"
+    )
     DB.session.execute(stmt)
     DB.session.commit()
 
@@ -184,7 +186,9 @@ def areas_from_type_code_container(b_simple, data_type, type_code, ids_area_cont
             ids_enfants = DB.session.execute(stmt_enfants).scalars().all()
 
             stmt_by_id = (
-                select(table).where(table.id_area.in_(ids_enfants)).order_by(_order_column(table))
+                select(table)
+                .where(table.id_area.in_(ids_enfants))
+                .order_by(_order_column(table))
             )
             data = DB.session.execute(stmt_by_id).scalars().all()
 

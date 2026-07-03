@@ -15,5 +15,3 @@ from .models import (
     VPlanChasseRealisationBilan,
     TRealisationsChasse,
 )
-
-

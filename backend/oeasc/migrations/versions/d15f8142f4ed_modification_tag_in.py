@@ -16,14 +16,18 @@ depends_on = None
 
 
 def upgrade():
-    op.execute("ALTER TABLE oeasc_in.t_circuits ADD COLUMN IF NOT EXISTS in_coeur BOOLEAN DEFAULT TRUE")
+    op.execute(
+        "ALTER TABLE oeasc_in.t_circuits ADD COLUMN IF NOT EXISTS in_coeur BOOLEAN DEFAULT TRUE"
+    )
     op.execute("UPDATE oeasc_in.t_circuits SET in_coeur = True")
     op.execute(
         "UPDATE oeasc_in.t_circuits SET in_coeur = False"
         " WHERE nom_circuit IN ('St-Pierre-des-Trippiers', 'Hures-la-Parade', 'Mas-St-Chély')"
     )
 
-    op.execute('ALTER TABLE oeasc_in.t_realisations ADD COLUMN IF NOT EXISTS "valide_ZC" BOOLEAN DEFAULT FALSE')
+    op.execute(
+        'ALTER TABLE oeasc_in.t_realisations ADD COLUMN IF NOT EXISTS "valide_ZC" BOOLEAN DEFAULT FALSE'
+    )
     op.execute('UPDATE oeasc_in.t_realisations SET "valide_ZC" = False')
     op.execute("""
         DO $$ BEGIN
@@ -40,7 +44,9 @@ def upgrade():
         END $$;
     """)
 
-    op.execute('ALTER TABLE oeasc_in.t_realisations ADD COLUMN IF NOT EXISTS "valide_PNC" BOOLEAN DEFAULT FALSE')
+    op.execute(
+        'ALTER TABLE oeasc_in.t_realisations ADD COLUMN IF NOT EXISTS "valide_PNC" BOOLEAN DEFAULT FALSE'
+    )
     op.execute('UPDATE oeasc_in.t_realisations SET "valide_PNC" = False')
     op.execute("""
         DO $$ BEGIN

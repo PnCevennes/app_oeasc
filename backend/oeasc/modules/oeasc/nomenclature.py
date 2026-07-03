@@ -264,19 +264,16 @@ def get_area_from_id(id_area):
         # toute colonne additionnelle d'un mapping externe (ex: description).
         # Note: la colonne DB s'appelle 'comment' mais le modèle RefLAreas la nomme 'description'.
         # On n'inclut pas cette colonne ici car elle n'est pas utilisée par les appelants.
-        stmt = (
-            select(
-                LAreas.id_area,
-                LAreas.id_type,
-                LAreas.area_name,
-                LAreas.area_code,
-                LAreas.source,
-                LAreas.enable,
-                LAreas.meta_create_date,
-                LAreas.meta_update_date,
-            )
-            .where(LAreas.id_area == id_area)
-        )
+        stmt = select(
+            LAreas.id_area,
+            LAreas.id_type,
+            LAreas.area_name,
+            LAreas.area_code,
+            LAreas.source,
+            LAreas.enable,
+            LAreas.meta_create_date,
+            LAreas.meta_update_date,
+        ).where(LAreas.id_area == id_area)
         data = DB.session.execute(stmt).mappings().first()
 
         if not data:
@@ -291,8 +288,6 @@ def get_area_from_id(id_area):
 
     # On retourne l'aire depuis le cache
     return config["_areas"][str(id_area)]
-
-
 
 
 def get_dict_nomenclature_areas(dict_in):

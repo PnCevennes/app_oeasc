@@ -5,31 +5,35 @@ Revises: 8bf1a1d4e2c7
 Create Date: 2026-06-08 14:06:56.041320
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 
-
-revision = '3e5c666af390'
-down_revision = '8bf1a1d4e2c7'
+revision = "3e5c666af390"
+down_revision = "8bf1a1d4e2c7"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
     for col, col_type in [
-        ('id_area', 'INTEGER'),
-        ('nom_proprietaire', 'VARCHAR(255)'),
-        ('adresse_proprietaire', 'VARCHAR(255)'),
-        ('cp_proprietaire', 'VARCHAR(5)'),
-        ('commune_proprietaire', 'VARCHAR(255)'),
-        ('email_proprietaire', 'VARCHAR(255)'),
-        ('tel_proprietaire', 'VARCHAR(255)'),
-        ('id_nomenclature_proprietaire_type', 'INTEGER'),
-        ('id_declarant', 'INTEGER'),
+        ("id_area", "INTEGER"),
+        ("nom_proprietaire", "VARCHAR(255)"),
+        ("adresse_proprietaire", "VARCHAR(255)"),
+        ("cp_proprietaire", "VARCHAR(5)"),
+        ("commune_proprietaire", "VARCHAR(255)"),
+        ("email_proprietaire", "VARCHAR(255)"),
+        ("tel_proprietaire", "VARCHAR(255)"),
+        ("id_nomenclature_proprietaire_type", "INTEGER"),
+        ("id_declarant", "INTEGER"),
     ]:
-        op.execute(f"ALTER TABLE oeasc_forets.t_forets ADD COLUMN IF NOT EXISTS {col} {col_type}")
+        op.execute(
+            f"ALTER TABLE oeasc_forets.t_forets ADD COLUMN IF NOT EXISTS {col} {col_type}"
+        )
 
-    op.execute("ALTER TABLE oeasc_forets.t_forets ADD COLUMN IF NOT EXISTS valide BOOLEAN NOT NULL DEFAULT TRUE")
+    op.execute(
+        "ALTER TABLE oeasc_forets.t_forets ADD COLUMN IF NOT EXISTS valide BOOLEAN NOT NULL DEFAULT TRUE"
+    )
 
     op.execute("""
         DO $$ BEGIN
@@ -111,9 +115,15 @@ def downgrade():
     op.execute("ALTER TABLE oeasc_forets.t_forets DROP COLUMN IF EXISTS valide")
 
     for col in [
-        'id_area', 'nom_proprietaire', 'adresse_proprietaire', 'cp_proprietaire',
-        'commune_proprietaire', 'email_proprietaire', 'tel_proprietaire',
-        'id_nomenclature_proprietaire_type', 'id_declarant',
+        "id_area",
+        "nom_proprietaire",
+        "adresse_proprietaire",
+        "cp_proprietaire",
+        "commune_proprietaire",
+        "email_proprietaire",
+        "tel_proprietaire",
+        "id_nomenclature_proprietaire_type",
+        "id_declarant",
     ]:
         op.execute(f"ALTER TABLE oeasc_forets.t_forets DROP COLUMN IF EXISTS {col}")
 

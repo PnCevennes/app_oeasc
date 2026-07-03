@@ -25,8 +25,7 @@ def upgrade():
 
 
 def downgrade():
-    op.execute(
-        """
+    op.execute("""
         DO $$ BEGIN
             IF EXISTS (
                 SELECT 1 FROM information_schema.tables
@@ -35,5 +34,4 @@ def downgrade():
                 ALTER TABLE ref_geo.cor_area_intersect DROP COLUMN IF EXISTS id_foret_prive;
             END IF;
         END $$;
-        """
-    )
+        """)

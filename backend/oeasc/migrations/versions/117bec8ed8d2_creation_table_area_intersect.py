@@ -5,22 +5,22 @@ Revises: d15f8142f4ed
 Create Date: 2026-05-22 09:25:34.519550
 
 """
+
 from alembic import op
 import sqlalchemy as sa
 import geoalchemy2
 
-
-revision = '117bec8ed8d2'
-down_revision = 'd15f8142f4ed'
+revision = "117bec8ed8d2"
+down_revision = "d15f8142f4ed"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    op.drop_table('li_grids', schema='ref_geo', if_exists=True)
-    op.drop_table('dem', schema='ref_geo', if_exists=True)
-    op.drop_table('dem_vector', schema='ref_geo', if_exists=True)
-    op.drop_table('li_municipalities', schema='ref_geo', if_exists=True)
+    op.drop_table("li_grids", schema="ref_geo", if_exists=True)
+    op.drop_table("dem", schema="ref_geo", if_exists=True)
+    op.drop_table("dem_vector", schema="ref_geo", if_exists=True)
+    op.drop_table("li_municipalities", schema="ref_geo", if_exists=True)
     op.execute("DROP VIEW IF EXISTS ref_geo.vl_areas")
     op.execute("""
         DO $$ BEGIN
@@ -31,8 +31,8 @@ def upgrade():
             END IF;
         END $$;
     """)
-    op.drop_table('l_areas_simples', schema='ref_geo', if_exists=True)
-    op.drop_table('li_areas', schema='ref_geo', if_exists=True)
+    op.drop_table("l_areas_simples", schema="ref_geo", if_exists=True)
+    op.drop_table("li_areas", schema="ref_geo", if_exists=True)
 
     op.execute("""
         CREATE TABLE IF NOT EXISTS ref_geo.cor_area_intersect (
@@ -50,16 +50,18 @@ def upgrade():
             in_oeasc BOOLEAN NOT NULL DEFAULT TRUE
         )
     """)
-    op.execute("CREATE INDEX IF NOT EXISTS ix_cor_area_intersect_id_parcelle ON ref_geo.cor_area_intersect (id_parcelle)")
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS ix_cor_area_intersect_id_parcelle ON ref_geo.cor_area_intersect (id_parcelle)"
+    )
 
     for constraint, column in [
-        ('fk_cor_area_intersect_id_parcelle', 'id_parcelle'),
-        ('fk_cor_area_intersect_id_section_cadastrale', 'id_section_cadastrale'),
-        ('fk_cor_area_intersect_id_commune', 'id_commune'),
-        ('fk_cor_area_intersect_id_foret_dgd', 'id_foret_dgd'),
-        ('fk_cor_area_intersect_id_foret_onf', 'id_foret_onf'),
-        ('fk_cor_area_intersect_id_parcelle_onf', 'id_parcelle_onf'),
-        ('fk_cor_area_intersect_id_secteur', 'id_secteur'),
+        ("fk_cor_area_intersect_id_parcelle", "id_parcelle"),
+        ("fk_cor_area_intersect_id_section_cadastrale", "id_section_cadastrale"),
+        ("fk_cor_area_intersect_id_commune", "id_commune"),
+        ("fk_cor_area_intersect_id_foret_dgd", "id_foret_dgd"),
+        ("fk_cor_area_intersect_id_foret_onf", "id_foret_onf"),
+        ("fk_cor_area_intersect_id_parcelle_onf", "id_parcelle_onf"),
+        ("fk_cor_area_intersect_id_secteur", "id_secteur"),
     ]:
         op.execute(f"""
             DO $$ BEGIN
@@ -98,11 +100,21 @@ def upgrade():
         END $$;
     """)
     op.execute("REFRESH MATERIALIZED VIEW ref_geo.vm_lareas_simples")
-    op.execute("CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_id_area ON ref_geo.vm_lareas_simples (id_area)")
-    op.execute("CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_geom_4326 ON ref_geo.vm_lareas_simples USING GIST (geom_4326)")
-    op.execute("CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_area_code ON ref_geo.vm_lareas_simples (area_code)")
-    op.execute("CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_id_type ON ref_geo.vm_lareas_simples (id_type)")
-    op.execute("CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_source ON ref_geo.vm_lareas_simples (source)")
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_id_area ON ref_geo.vm_lareas_simples (id_area)"
+    )
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_geom_4326 ON ref_geo.vm_lareas_simples USING GIST (geom_4326)"
+    )
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_area_code ON ref_geo.vm_lareas_simples (area_code)"
+    )
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_id_type ON ref_geo.vm_lareas_simples (id_type)"
+    )
+    op.execute(
+        "CREATE INDEX IF NOT EXISTS ix_vm_lareas_simples_source ON ref_geo.vm_lareas_simples (source)"
+    )
 
 
 def downgrade():

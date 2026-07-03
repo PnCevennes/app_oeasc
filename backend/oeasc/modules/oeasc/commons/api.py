@@ -107,7 +107,9 @@ def api_all_communes():
             | (TCommunesFrance.cp.startswith("48"))
             | (TCommunesFrance.cp.startswith("30"))
         )
-        .order_by(TCommunesFrance.population.desc(), TCommunesFrance.nom, TCommunesFrance.cp)
+        .order_by(
+            TCommunesFrance.population.desc(), TCommunesFrance.nom, TCommunesFrance.cp
+        )
     )
     result = DB.session.execute(stmt_commune).scalars().all()
     communeSchema = TCommunesFranceSchema()
@@ -155,9 +157,13 @@ def api_communes(test):
 
     # Création de la requête SQL pour récupérer les communes correspondantes
     stmt_commune = (
-        select(func.concat(TCommunesFrance.nom, " ", TCommunesFrance.cp).label("nom_cp"))
+        select(
+            func.concat(TCommunesFrance.nom, " ", TCommunesFrance.cp).label("nom_cp")
+        )
         .where(text(cond_text))
-        .order_by(TCommunesFrance.population.desc(), TCommunesFrance.nom, TCommunesFrance.cp)
+        .order_by(
+            TCommunesFrance.population.desc(), TCommunesFrance.nom, TCommunesFrance.cp
+        )
         .limit(20)
     )
 

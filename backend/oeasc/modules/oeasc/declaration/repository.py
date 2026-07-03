@@ -262,7 +262,9 @@ def get_form_declaration(id_declaration=None, session={}):
     declaration_dict["areas_localisation_onf_ug"] = get_id_areas(
         areas_localisation, ["OEASC_ONF_UG"]
     )
-    declaration_dict["areas_localisation"] = [a for a in areas_localisation if a is not None]
+    declaration_dict["areas_localisation"] = [
+        a for a in areas_localisation if a is not None
+    ]
 
     # Cache les informations personnelles du propriétaire si l'utilisateur n'est pas le déclarant
     # ou si son niveau d'accès est inférieur à 4 (donc pas administrateur).
@@ -520,7 +522,9 @@ def create_or_update_foret(post_data):
     telephone = post_data.get("telephone")
     if telephone:
         telephone = telephone.replace(" ", "").replace("-", "")
-        telephone = " ".join([telephone[i : i + 2] for i in range(0, len(telephone), 2)])
+        telephone = " ".join(
+            [telephone[i : i + 2] for i in range(0, len(telephone), 2)]
+        )
 
     # Préparation des données de la forêt à partir de post_data
     data_foret = {}
@@ -533,10 +537,14 @@ def create_or_update_foret(post_data):
     data_foret["adresse_proprietaire"] = post_data.get("adresse")
     data_foret["commune_proprietaire"] = post_data.get("s_commune_proprietaire")
     data_foret["cp_proprietaire"] = post_data.get("s_code_postal")
-    id_nomenclature_proprietaire_type = post_data.get("id_nomenclature_proprietaire_type")
+    id_nomenclature_proprietaire_type = post_data.get(
+        "id_nomenclature_proprietaire_type"
+    )
     if not id_nomenclature_proprietaire_type:
         # Par défaut, type "Privé"
-        nomenclature_prive = get_nomenclature("cd_nomenclature", "PT_PRI", "OEASC_PROPRIETAIRE_TYPE")
+        nomenclature_prive = get_nomenclature(
+            "cd_nomenclature", "PT_PRI", "OEASC_PROPRIETAIRE_TYPE"
+        )
         if nomenclature_prive:
             id_nomenclature_proprietaire_type = nomenclature_prive["id_nomenclature"]
     data_foret["id_nomenclature_proprietaire_type"] = id_nomenclature_proprietaire_type
@@ -925,9 +933,11 @@ def get_foret_type(id_foret):
     Retourne le type de forêt à partir de l'identifiant de la forêt.
     Utilise id_nomenclature_proprietaire_type stocké directement dans t_forets.
     """
-    foret = DB.session.execute(
-        select(TForet).where(TForet.id_foret == id_foret).limit(1)
-    ).scalars().first()
+    foret = (
+        DB.session.execute(select(TForet).where(TForet.id_foret == id_foret).limit(1))
+        .scalars()
+        .first()
+    )
 
     if not foret:
         return

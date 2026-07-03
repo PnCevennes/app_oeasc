@@ -71,6 +71,7 @@ class TTags(CustomModel):
     nom_tag: Mapped[str] = Column(Unicode(30))
     code_tag: Mapped[str] = Column(Unicode(10))
 
+
 @serializable
 class TListeOrganismes(CustomModel):
     """
@@ -113,6 +114,7 @@ class TSecteurs(CustomModel):
     id_secteur: Mapped[int] = Column(Integer, primary_key=True)
     code_secteur: Mapped[str] = Column(String(250))
     nom_secteur: Mapped[str] = Column(Unicode)
+
 
 @serializable
 class TEspeces(CustomModel):

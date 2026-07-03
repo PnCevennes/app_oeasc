@@ -30,7 +30,12 @@ from oeasc.modules.oeasc.declaration.models import (
     TDegat,
     TDegatEssence,
 )
-from oeasc.ref_geo_oeasc.models import BibAreasType, LAreas, CorAreaIntersect, VMAreasSimples
+from oeasc.ref_geo_oeasc.models import (
+    BibAreasType,
+    LAreas,
+    CorAreaIntersect,
+    VMAreasSimples,
+)
 from pypnnomenclature.models import TNomenclatures
 from oeasc.modules.oeasc.declaration.models import TForet
 from oeasc.modules.oeasc.user.models import VUsers
@@ -281,10 +286,15 @@ def get_stmt_liste_declaration():
     nom_foret_cte = (
         select(
             CorAreasDeclaration.id_declaration,
-            func.string_agg(VMAreasSimples.area_name.distinct(), ", ").label("label_foret"),
+            func.string_agg(VMAreasSimples.area_name.distinct(), ", ").label(
+                "label_foret"
+            ),
         )
         .select_from(CorAreasDeclaration)
-        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(
+            CorAreaIntersect,
+            CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area,
+        )
         .join(
             VMAreasSimples,
             or_(
@@ -306,7 +316,10 @@ def get_stmt_liste_declaration():
             func.string_agg(VMAreasSimples.area_name.distinct(), ", ").label("secteur"),
         )
         .select_from(CorAreasDeclaration)
-        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(
+            CorAreaIntersect,
+            CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area,
+        )
         .join(VMAreasSimples, VMAreasSimples.id_area == CorAreaIntersect.id_secteur)
         .group_by(CorAreasDeclaration.id_declaration)
         .cte("secteur")
@@ -392,7 +405,10 @@ def get_stmt_fiche_declaration(id_declaration):
     nom_foret_subq = (
         select(func.string_agg(VMAreasSimples.area_name.distinct(), ", "))
         .select_from(CorAreasDeclaration)
-        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(
+            CorAreaIntersect,
+            CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area,
+        )
         .join(
             VMAreasSimples,
             or_(
@@ -409,7 +425,10 @@ def get_stmt_fiche_declaration(id_declaration):
     secteur_subq = (
         select(func.string_agg(VMAreasSimples.area_name.distinct(), ", "))
         .select_from(CorAreasDeclaration)
-        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(
+            CorAreaIntersect,
+            CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area,
+        )
         .join(VMAreasSimples, VMAreasSimples.id_area == CorAreaIntersect.id_secteur)
         .where(CorAreasDeclaration.id_declaration == id_declaration)
         .correlate(TDeclaration)
@@ -419,7 +438,10 @@ def get_stmt_fiche_declaration(id_declaration):
     communes_subq = (
         select(func.string_agg(VMAreasSimples.area_name.distinct(), ", "))
         .select_from(CorAreasDeclaration)
-        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(
+            CorAreaIntersect,
+            CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area,
+        )
         .join(VMAreasSimples, VMAreasSimples.id_area == CorAreaIntersect.id_commune)
         .where(CorAreasDeclaration.id_declaration == id_declaration)
         .correlate(TDeclaration)
@@ -558,7 +580,10 @@ def get_stmt_for_resultats_degats():
             func.string_agg(VMAreasSimples.area_name.distinct(), ", ").label("secteur"),
         )
         .select_from(CorAreasDeclaration)
-        .join(CorAreaIntersect, CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area)
+        .join(
+            CorAreaIntersect,
+            CorAreaIntersect.id_parcelle == CorAreasDeclaration.id_area,
+        )
         .join(VMAreasSimples, VMAreasSimples.id_area == CorAreaIntersect.id_secteur)
         .group_by(CorAreasDeclaration.id_declaration)
         .cte("secteur_degats")
@@ -634,7 +659,9 @@ def get_stmt_for_resultats_degats():
         .join(TDeclaration, TDegat.id_declaration == TDeclaration.id_declaration)
         .join(VUsers, TDeclaration.id_declarant == VUsers.id_role)
         .join(TForet, TDeclaration.id_foret == TForet.id_foret)
-        .outerjoin(secteur_cte, secteur_cte.c.id_declaration == TDeclaration.id_declaration)
+        .outerjoin(
+            secteur_cte, secteur_cte.c.id_declaration == TDeclaration.id_declaration
+        )
         .order_by(TDegat.id_declaration)
     )
 
@@ -908,9 +935,8 @@ def get_stmt_all_areas_declaration(id_declaration, list_id_types=[]):
     elles-mêmes sont utilisées directement depuis cor_areas_declarations.
     """
 
-    parcelles_q = (
-        select(CorAreasDeclaration.id_area)
-        .where(CorAreasDeclaration.id_declaration == id_declaration)
+    parcelles_q = select(CorAreasDeclaration.id_area).where(
+        CorAreasDeclaration.id_declaration == id_declaration
     )
 
     # Mapping id_type → colonne de cor_area_intersect
@@ -945,9 +971,8 @@ def get_stmt_all_areas_declaration(id_declaration, list_id_types=[]):
         subqueries.append(q)
 
     if types_direct:
-        q = (
-            select(CorAreasDeclaration.id_area.label("id_area"))
-            .where(CorAreasDeclaration.id_declaration == id_declaration)
+        q = select(CorAreasDeclaration.id_area.label("id_area")).where(
+            CorAreasDeclaration.id_declaration == id_declaration
         )
         subqueries.append(q)
 
@@ -956,9 +981,8 @@ def get_stmt_all_areas_declaration(id_declaration, list_id_types=[]):
 
     area_ids_union = union_all(*subqueries).subquery()
 
-    stmt = (
-        select(VMAreasSimples)
-        .where(VMAreasSimples.id_area.in_(select(area_ids_union.c.id_area)))
+    stmt = select(VMAreasSimples).where(
+        VMAreasSimples.id_area.in_(select(area_ids_union.c.id_area))
     )
 
     if list_id_types:
@@ -1023,4 +1047,3 @@ def stmt_liste_declarations_a_renouveler(statut_declaration):
         # VUsers.accept_email == True
     )
     return stmt_renew
-

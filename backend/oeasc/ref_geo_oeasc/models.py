@@ -103,7 +103,6 @@ class TCommunesArea(CustomModel):
     __tablename__ = "communes_aoa"
     __table_args__ = {"schema": "ref_geo", "extend_existing": True}
 
-
     id = Column(String(25), primary_key=True)
     fid = Column(Integer)
     insee_com = Column(String(5))
@@ -134,20 +133,18 @@ class CorAreaIntersect(CustomModel):
     __table_args__ = {"schema": "ref_geo", "extend_existing": True}
 
     id = Column(Integer, primary_key=True)
-    id_parcelle = Column(Integer)       # parcelle cadastrale (332) ou UG ONF (330)
+    id_parcelle = Column(Integer)  # parcelle cadastrale (332) ou UG ONF (330)
     id_type_parcelle = Column(Integer)
     id_section_cadastrale = Column(Integer)
     id_commune = Column(Integer)
     id_foret_dgd = Column(Integer)
     id_foret_onf = Column(Integer)
-    id_foret_prive = Column(Integer)    # forêt privée sans document (id_type=33)
-    id_parcelle_onf = Column(Integer)   # parcellaire ONF (329) contenant l'UG ONF
+    id_foret_prive = Column(Integer)  # forêt privée sans document (id_type=33)
+    id_parcelle_onf = Column(Integer)  # parcellaire ONF (329) contenant l'UG ONF
     id_secteur = Column(Integer)
     in_coeur = Column(Boolean)
     in_aire_adhesion_pnc = Column(Boolean)
     in_oeasc = Column(Boolean)
-
-
 
 
 # @serializable
@@ -158,7 +155,6 @@ class CorAreaIntersect(CustomModel):
 #     id_secteur: Mapped[int] = Column(Integer, primary_key=True)
 #     code_secteur: Mapped[str] = Column(String(250))
 #     nom_secteur: Mapped[str] = Column(String(250))
-
 
 
 @serializable
@@ -212,15 +208,9 @@ class VMAreasSimples(CustomModel):
     geom_4326: Mapped[Geometry] = Column(Geometry("MULTIPOLYGON", 4326))
 
 
-
-
-
-
 #########################################################################################
 #########################################################################################
 #########################################################################################
-
-
 
 
 # @serializable
@@ -274,7 +264,6 @@ class VMAreasSimples(CustomModel):
 #     # - Pour afficher ou manipuler les aires sans géométrie (listes, exports CSV, formulaires)
 #     # - Lorsque la géométrie n'est pas nécessaire (optimisation des requêtes)
 #     # - Pour des traitements attributaires ou des synchronisations de données non spatiales
-
 
 
 # @serializable
@@ -449,12 +438,6 @@ class VMAreasSimples(CustomModel):
 #         return self.as_geofeature("geom_4326", "id_area", recursif)
 
 
-
-
-
-
-
-
 # @serializable
 # @geoserializable
 # class VLAreasSimples(CustomModel):
@@ -518,4 +501,3 @@ class VMAreasSimples(CustomModel):
 #             dict: Représentation GeoJSON de l'aire.
 #         """
 #         return self.as_geofeature("geom_4326", "id_area", recursif)
-

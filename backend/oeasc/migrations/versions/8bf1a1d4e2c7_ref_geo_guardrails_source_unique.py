@@ -8,7 +8,6 @@ Create Date: 2026-06-01 12:00:00.000000
 
 from alembic import op
 
-
 # revision identifiers, used by Alembic.
 revision = "8bf1a1d4e2c7"
 down_revision = "117bec8ed8d2"
@@ -18,8 +17,7 @@ depends_on = None
 
 def upgrade():
     # Validate mandatory source tables.
-    op.execute(
-        """
+    op.execute("""
         DO $$
         BEGIN
             IF NOT EXISTS (
@@ -39,12 +37,10 @@ def upgrade():
             END IF;
         END
         $$;
-        """
-    )
+        """)
 
     # Ensure hierarchy table exists (non destructive).
-    op.execute(
-        """
+    op.execute("""
         CREATE TABLE IF NOT EXISTS ref_geo.cor_hierarchie_area (
             id_area_enfant INTEGER NOT NULL,
             id_type_enfant INTEGER NOT NULL,
@@ -54,12 +50,10 @@ def upgrade():
             FOREIGN KEY (id_area_enfant) REFERENCES ref_geo.l_areas(id_area),
             FOREIGN KEY (id_area_parent) REFERENCES ref_geo.l_areas(id_area)
         );
-        """
-    )
+        """)
 
     # Ensure simplified materialized view exists.
-    op.execute(
-        """
+    op.execute("""
         DO $$
         BEGIN
             IF NOT EXISTS (
@@ -84,8 +78,7 @@ def upgrade():
             END IF;
         END
         $$;
-        """
-    )
+        """)
 
     # Ensure indexes for runtime and future concurrent refresh.
     op.execute(
@@ -108,8 +101,7 @@ def upgrade():
     op.execute("REFRESH MATERIALIZED VIEW ref_geo.vm_lareas_simples;")
 
     # Non-blocking legacy object visibility for operators.
-    op.execute(
-        """
+    op.execute("""
         DO $$
         BEGIN
             IF EXISTS (
@@ -127,8 +119,7 @@ def upgrade():
             END IF;
         END
         $$;
-        """
-    )
+        """)
 
 
 def downgrade():

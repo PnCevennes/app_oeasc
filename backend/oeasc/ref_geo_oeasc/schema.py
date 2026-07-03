@@ -25,7 +25,6 @@ class BibAreasTypeSchema(SQLAlchemyAutoSchema):
         dump_only = "__all__"  # Toutes les propriétés sont en dump_only
 
 
-
 class LAreasSchema(GeoAlchemyAutoSchema):
     """Schema pour les zones l_area avec les champs géométriques"""
 
@@ -54,8 +53,9 @@ class CorHierarchieAreaSchema(SQLAlchemyAutoSchema):
 class VMAreasSimplesSchema(GeoAlchemyAutoSchema):
     """Schema pour les vues VMAreasSimples avec les champs géométriques simplifiés
     A utiliser principalement pour l'affichage web et les requêtes de listes d'aires (ex: liste des aires d'un type)
-    
-    Note: geom_4326 n'est retourné que si explicitement demandé (via include_geom=True)"""
+
+    Note: geom_4326 n'est retourné que si explicitement demandé (via include_geom=True)
+    """
 
     geom_4326 = GeometryField()
 
@@ -66,7 +66,7 @@ class VMAreasSimplesSchema(GeoAlchemyAutoSchema):
             VMAreasSimplesSchema(include_geom=True)
         La géométrie est automatiquement incluse quand as_geojson=True.
         """
-        if kwargs.get('as_geojson', False):
+        if kwargs.get("as_geojson", False):
             include_geom = True
         if not include_geom:
             excluded_fields = set(kwargs.pop("exclude", ()) or ())
@@ -95,9 +95,7 @@ class CorAreaIntersectSchema(SQLAlchemyAutoSchema):
         include_fk = True  # Inclut les clés étrangères dans la sérialisation
 
 
-
 ######################################################################
-
 
 
 # class TAreasSchema(SQLAlchemyAutoSchema):
