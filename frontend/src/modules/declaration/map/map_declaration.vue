@@ -119,8 +119,7 @@ permet de zoomer dans les zones sélectionnées -->
           label="Rechercher une parcelle"
           clearable
           @change="action_select_in_liste($event)"
-        >
-        </v-autocomplete>
+        ></v-autocomplete>
       </div>
 
       <div>
@@ -384,9 +383,10 @@ export default {
             offset: [0, -20],
             className: 'anim-tooltip',
           });
-          const isSelected = () => vm.declaration_data.areas_localisation.some(
-            (area) => area.id_area === feature.properties.id_area
-          );
+          const isSelected = () =>
+            vm.declaration_data.areas_localisation.some(
+              (area) => area.id_area === feature.properties.id_area
+            );
           layer.on('mouseover', function () {
             layer.setStyle(styles.hover);
           });
@@ -457,9 +457,10 @@ export default {
             offset: [0, -20],
             className: 'anim-tooltip',
           });
-          const isSelected = () => vm.declaration_data.areas_localisation.some(
-            (area) => area.id_area === feature.properties.id_area
-          );
+          const isSelected = () =>
+            vm.declaration_data.areas_localisation.some(
+              (area) => area.id_area === feature.properties.id_area
+            );
           layer.on('mouseover', function () {
             layer.setStyle(styles.hover);
           });
@@ -693,13 +694,15 @@ export default {
       if (this.declaration_data.b_document == false) {
         // Si le statut public est faux, on est en mode DGD ou sections
         // ################## CAS DES SECTIONS ET COMMUNES ##################
-        this.declaration_data.areas_localisation_cadastre = this.declaration_data.areas_localisation_cadastre.filter(id => id !== feature.id_area);
+        this.declaration_data.areas_localisation_cadastre =
+          this.declaration_data.areas_localisation_cadastre.filter((id) => id !== feature.id_area);
 
         // si l'actual_section n'est dans aucun id_parent des elements de areas_localisation, on le retire
         if (
           !this.declaration_data.areas_localisation.some((area) => area.id_parent === this_parent)
         ) {
-          this.declaration_data.areas_foret_sections = this.declaration_data.areas_foret_sections.filter(id => id !== this_parent);
+          this.declaration_data.areas_foret_sections =
+            this.declaration_data.areas_foret_sections.filter((id) => id !== this_parent);
 
           this.declaration_data.areas_localisation =
             this.declaration_data.areas_localisation.filter((area) => area.id_area !== this_parent);
@@ -721,7 +724,10 @@ export default {
       } else if (this.declaration_data.b_document == true) {
         // ################## CAS DES FORET DGD ##############################
         if (this.declaration_data.b_statut_public == false) {
-          this.declaration_data.areas_localisation_cadastre = this.declaration_data.areas_localisation_cadastre.filter(id => id !== feature.id_area);
+          this.declaration_data.areas_localisation_cadastre =
+            this.declaration_data.areas_localisation_cadastre.filter(
+              (id) => id !== feature.id_area
+            );
           // si l'actual_foret_dgd n'est pas dans aucun id_parent des elements de areas_localisation, on le retire
           if (
             !this.declaration_data.areas_localisation.some((area) => area.id_parent === this_parent)
@@ -734,11 +740,13 @@ export default {
           }
         } else {
           // ################## CAS DES FORET ONF ##################
-          this.declaration_data.areas_localisation_onf_ug = this.declaration_data.areas_localisation_onf_ug.filter(id => id !== feature.id_area);
+          this.declaration_data.areas_localisation_onf_ug =
+            this.declaration_data.areas_localisation_onf_ug.filter((id) => id !== feature.id_area);
           if (
             !this.declaration_data.areas_localisation.some((area) => area.id_parent === this_parent)
           ) {
-            this.declaration_data.areas_localisation_onf_prf = this.declaration_data.areas_localisation_onf_prf.filter(id => id !== this_parent);
+            this.declaration_data.areas_localisation_onf_prf =
+              this.declaration_data.areas_localisation_onf_prf.filter((id) => id !== this_parent);
             this.declaration_data.areas_localisation =
               this.declaration_data.areas_localisation.filter(
                 (area) => area.id_area !== this_parent

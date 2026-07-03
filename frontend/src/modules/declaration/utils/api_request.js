@@ -134,7 +134,6 @@ export async function fetch_areas_group_from_id_type(id_type_area) {
   }
 }
 
-
 /**
  *
  * @param {*} id_area_parent
@@ -154,8 +153,6 @@ export async function fetch_areas_child_of(id_area_parent, id_type_parent) {
   }
 }
 
-
-
 export async function fetch_hierarchy_areas(list_id_areas) {
   const str_ids = list_id_areas.join('-');
   try {
@@ -172,14 +169,9 @@ export async function fetch_hierarchy_from_intersect(declaration_data) {
   (declaration_data.areas_localisation_cadastre || []).forEach((id) =>
     params.append('id_cadastre', id)
   );
-  (declaration_data.areas_localisation_onf_ug || []).forEach((id) =>
-    params.append('id_ug', id)
-  );
+  (declaration_data.areas_localisation_onf_ug || []).forEach((id) => params.append('id_ug', id));
   try {
-    return await apiRequest(
-      'GET',
-      `api/ref_geo/declaration_hierarchy_from_intersect?${params}`
-    );
+    return await apiRequest('GET', `api/ref_geo/declaration_hierarchy_from_intersect?${params}`);
   } catch (error) {
     console.error('Erreur lors de la récupération de la hiérarchie depuis intersect', error);
     return null;

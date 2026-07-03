@@ -96,17 +96,38 @@
                   </div>
 
                   <div
-                    v-if="areas_infos.forets.length || areas_infos.secteurs.length || areas_infos.communes.length"
-                    style="margin-top: 12px; border: 1px solid #ccc; padding: 16px; border-radius: 5px;"
+                    v-if="
+                      areas_infos.forets.length ||
+                      areas_infos.secteurs.length ||
+                      areas_infos.communes.length
+                    "
+                    style="
+                      margin-top: 12px;
+                      border: 1px solid #ccc;
+                      padding: 16px;
+                      border-radius: 5px;
+                    "
                   >
-                    <p v-if="areas_infos.forets.length" style="margin: 4px 0">
-                      <strong>Forêt(s) :</strong> {{ areas_infos.forets.map(f => f.area_name).join(', ') }}
+                    <p
+                      v-if="areas_infos.forets.length"
+                      style="margin: 4px 0"
+                    >
+                      <strong>Forêt(s) :</strong>
+                      {{ areas_infos.forets.map((f) => f.area_name).join(', ') }}
                     </p>
-                    <p v-if="areas_infos.secteurs.length" style="margin: 4px 0">
-                      <strong>Secteur(s) :</strong> {{ areas_infos.secteurs.map(s => s.area_name).join(', ') }}
+                    <p
+                      v-if="areas_infos.secteurs.length"
+                      style="margin: 4px 0"
+                    >
+                      <strong>Secteur(s) :</strong>
+                      {{ areas_infos.secteurs.map((s) => s.area_name).join(', ') }}
                     </p>
-                    <p v-if="areas_infos.communes.length" style="margin: 4px 0">
-                      <strong>Commune(s) :</strong> {{ areas_infos.communes.map(c => c.area_name).join(', ') }}
+                    <p
+                      v-if="areas_infos.communes.length"
+                      style="margin: 4px 0"
+                    >
+                      <strong>Commune(s) :</strong>
+                      {{ areas_infos.communes.map((c) => c.area_name).join(', ') }}
                     </p>
                   </div>
                 </div>
@@ -725,7 +746,7 @@
           </div>
 
           <!-- --------------------- Validation directe de la déclaration pour les admins --------------------- -->
-          <div v-if="(type_action == 'CREATION') || (type_action == 'MODIFICATION')">
+          <div v-if="type_action == 'CREATION' || type_action == 'MODIFICATION'">
             <div
               v-if="this.$store.getters.droitMax >= 5"
               style="margin-top: 30px"
@@ -941,11 +962,15 @@ export default {
       }
     },
     'declaration_data.areas_localisation_cadastre': {
-      handler() { this.refresh_areas_infos(); },
+      handler() {
+        this.refresh_areas_infos();
+      },
       deep: true,
     },
     'declaration_data.areas_localisation_onf_ug': {
-      handler() { this.refresh_areas_infos(); },
+      handler() {
+        this.refresh_areas_infos();
+      },
       deep: true,
     },
     'declaration_data.b_document'(newVal, oldVal) {
@@ -995,7 +1020,7 @@ export default {
               'error'
             );
             // this.redirect_to_login();
-          } 
+          }
         } else {
           snackbarStore.show(
             'Token de renouvellement manquant ou ID de déclaration manquant. ',
@@ -1036,7 +1061,7 @@ export default {
         this.areas_infos = { forets: [], secteurs: [], communes: [] };
         return;
       }
-      const params = parcelles.map(id => `id_parcelle=${id}`).join('&');
+      const params = parcelles.map((id) => `id_parcelle=${id}`).join('&');
       const result = await apiRequest('GET', `api/ref_geo/areas_infos_from_parcelles?${params}`);
       if (result) this.areas_infos = result;
     },
