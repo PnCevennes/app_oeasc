@@ -1311,6 +1311,9 @@ def _mark_erreur_refgeo(db, type_declaration):
     Sans ce filtre, un id_foret d'une ancienne forêt ONF peut coïncider avec l'id d'une
     nouvelle forêt DGD (les séquences repartent de 1 dans t_forets_new), causant une
     correspondance silencieuse vers le mauvais type.
+
+    Retourne la liste des déclarations marquées en erreur, sous forme de tuples
+    (id_declaration, nom_foret), pour permettre au rapport de détailler les cas.
     """
     if type_declaration == "onf":
         type_filter = "AND fn.b_statut_public = TRUE AND fn.b_document = TRUE"
@@ -1345,10 +1348,12 @@ def _mark_erreur_refgeo(db, type_declaration):
     ).fetchall()
 
     if not unmatched:
-        return 0
+        return []
 
+    details = []
     for row in unmatched:
         id_decl, nom_foret, areas_info = row
+        details.append((id_decl, nom_foret))
         precision = f"[Erreur RefGeo] Forêt non retrouvée : {nom_foret}"
         if areas_info:
             precision += f" | {areas_info}"
@@ -1364,7 +1369,7 @@ def _mark_erreur_refgeo(db, type_declaration):
         )
 
     db.session.commit()
-    return len(unmatched)
+    return details
 
 
 def step_update_declarations():
@@ -1466,13 +1471,16 @@ def step_update_declarations():
     ).scalar()
     LOG.info(f"    {n_dgd} déclarations DGD mises à jour vers t_forets_new")
     _report["volumes"]["decl_dgd_mises_a_jour"] = n_dgd
-    n_err_dgd = _mark_erreur_refgeo(db, "dgd")
+    erreurs_dgd = _mark_erreur_refgeo(db, "dgd")
+    n_err_dgd = len(erreurs_dgd)
     if n_err_dgd:
         LOG.warning(
             f"    {n_err_dgd} déclaration(s) DGD marquées Erreur Refgeo (forêt DGD non retrouvée)"
         )
         _report["anomalies"].append(
-            f"[Étape 6b] {n_err_dgd} déclaration(s) DGD en Erreur Refgeo (forêt DGD non retrouvée dans le nouveau GPKG)"
+            f"[Étape 6b] {n_err_dgd} déclaration(s) DGD en Erreur Refgeo "
+            f"(forêt DGD non retrouvée dans le nouveau GPKG) : "
+            + ", ".join(f"id_declaration={d} (forêt {n!r})" for d, n in erreurs_dgd)
         )
     _report["volumes"]["decl_dgd_erreur_refgeo"] = n_err_dgd
 
@@ -1578,13 +1586,16 @@ def step_update_declarations():
     ).scalar()
     LOG.info(f"    {n_onf} déclarations ONF mises à jour vers t_forets_new")
     _report["volumes"]["decl_onf_mises_a_jour"] = n_onf
-    n_err_onf = _mark_erreur_refgeo(db, "onf")
+    erreurs_onf = _mark_erreur_refgeo(db, "onf")
+    n_err_onf = len(erreurs_onf)
     if n_err_onf:
         LOG.warning(
             f"    {n_err_onf} déclaration(s) ONF marquées Erreur Refgeo (forêt ONF non retrouvée)"
         )
         _report["anomalies"].append(
-            f"[Étape 6c] {n_err_onf} déclaration(s) ONF en Erreur Refgeo (forêt ONF non retrouvée dans le nouveau GPKG)"
+            f"[Étape 6c] {n_err_onf} déclaration(s) ONF en Erreur Refgeo "
+            f"(forêt ONF non retrouvée dans le nouveau GPKG) : "
+            + ", ".join(f"id_declaration={d} (forêt {n!r})" for d, n in erreurs_onf)
         )
     _report["volumes"]["decl_onf_erreur_refgeo"] = n_err_onf
 
