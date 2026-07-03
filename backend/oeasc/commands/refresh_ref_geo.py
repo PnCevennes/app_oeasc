@@ -2530,6 +2530,36 @@ def step_preserve_unmatched_forests():
         )
         new_id_foret = new_foret.scalar()
 
+        # Type de la forêt (ONF / DGD / privée), sur le même modèle que step 2/6
+        if old_foret.b_statut_public and old_foret.b_document:
+            type_phrase = "des forêts ONF"
+        elif not old_foret.b_statut_public and old_foret.b_document:
+            type_phrase = "des forêts DGD"
+        else:
+            type_phrase = "des forêts privées"
+
+        # Secteur de la forêt, retrouvé via les liaisons area sauvegardées
+        # avant swap (cor_areas_declarations_ancien) pour les déclarations concernées
+        secteur_nom = None
+        if decl_ids:
+            secteur_row = db.session.execute(
+                text("""
+                SELECT DISTINCT area_name
+                FROM oeasc_declarations.cor_areas_declarations_ancien
+                WHERE id_declaration = ANY(:decl_ids) AND id_type = :id_type_secteur
+                LIMIT 1
+            """),
+                {"decl_ids": decl_ids, "id_type_secteur": ID_TYPE_SECTEUR},
+            ).fetchone()
+            if secteur_row:
+                secteur_nom = secteur_row.area_name
+        secteur_txt = f" dans le secteur de {secteur_nom}" if secteur_nom else ""
+
+        precision = (
+            f"[Forêt non retrouvée dans la mise à jour des données {type_phrase} — conservée]. "
+            f'La forêt se nommait "{nom}"{secteur_txt} (ancien id={old_id_foret})'
+        )
+
         # Rattacher les déclarations à la forêt préservée
         db.session.execute(
             text("""
@@ -2542,7 +2572,7 @@ def step_preserve_unmatched_forests():
             {
                 "new_id": new_id_foret,
                 "old_id": old_id_foret,
-                "precision": f"[Forêt non retrouvée dans les nouvelles données — conservée] (ancien id={old_id_foret})",
+                "precision": precision,
             },
         )
         db.session.commit()
