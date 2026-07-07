@@ -237,13 +237,13 @@
                       ></v-text-field>
                       <v-text-field
                         v-model="declaration_data.telephone"
-                        :rules="[rules.required, rules.telephone]"
+                        :rules="[rules.telephone]"
                         :disabled="declaration_data.b_document === true"
                         label="Teléphone"
                       ></v-text-field>
                       <v-text-field
                         v-model="declaration_data.email"
-                        :rules="[rules.required, rules.email]"
+                        :rules="[rules.email]"
                         :disabled="declaration_data.b_document === true"
                         label="Email"
                       ></v-text-field>
