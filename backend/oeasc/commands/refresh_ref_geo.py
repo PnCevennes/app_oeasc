@@ -20,6 +20,7 @@ from datetime import datetime
 import click
 import geopandas as gpd
 import psycopg2.extras
+from flask import current_app
 from flask.cli import with_appcontext
 from shapely.geometry import MultiPolygon
 from shapely.wkt import dumps as wkt_dumps
@@ -32,24 +33,12 @@ _report: dict = {}
 REQUIRED_REVISION = "a1b2c3d4e5f6"
 
 # ---------------------------------------------------------------------------
-# Chemins des fichiers GPKG
+# Chemins des fichiers GPKG (relatifs à ROOT_DIR, cf. backend/app.py)
 # ---------------------------------------------------------------------------
-GPKG_CADASTRE = "/home/thibaut/appli/app_oeasc/data/ref_geo/cadastres.gpkg"
-GPKG_COMMUNES = "/home/thibaut/appli/app_oeasc/data/ref_geo/communes_aoa.gpkg"
-GPKG_DGD = "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_dgd.gpkg"
 
 
-# GPKG_FORET_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_gestion_onf_aoa.gpkg"
-GPKG_FORET_ONF = (
-    "/home/thibaut/appli/app_oeasc/data/ref_geo/forets_gestion_onf_aoa.gpkg"
-)
-# GPKG_PARCELLE_ONF = "/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forets_onf.gpkg"
-GPKG_PARCELLE_ONF = (
-    "/home/thibaut/appli/app_oeasc/data/ref_geo/parcelles_forets_onf_new.gpkg"
-)
-GPKG_UG_ONF = (
-    "/home/thibaut/appli/app_oeasc/data/ref_geo/unites_gestion_forets_onf.gpkg"
-)
+def _gpkg_path(filename):
+    return os.path.join(current_app.config["ROOT_DIR"], "data", "ref_geo", filename)
 
 
 # ---------------------------------------------------------------------------
@@ -530,7 +519,7 @@ def step_load_communes():
     LOG.info("Étape 4a : chargement des communes depuis communes_aoa.gpkg")
     print("Étape 4a : chargement des communes depuis communes_aoa.gpkg")
     oeasc_geom = _get_oeasc_geom()
-    gdf = gpd.read_file(GPKG_COMMUNES)
+    gdf = gpd.read_file(_gpkg_path("communes_aoa.gpkg"))
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
     gdf_4326 = gdf.to_crs(epsg=4326)
     LOG.info(f"  {len(gdf)} communes dans le périmètre OEASC")
@@ -629,7 +618,7 @@ def step_load_cadastres():
     LOG.info("Étape 4b : chargement des cadastres depuis cadastre_pec.gpkg")
     print("Étape 4b : chargement des cadastres depuis cadastre_pec.gpkg")
     oeasc_geom = _get_oeasc_geom()
-    gdf = gpd.read_file(GPKG_CADASTRE)
+    gdf = gpd.read_file(_gpkg_path("cadastres.gpkg"))
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
     gdf_4326 = gdf.to_crs(epsg=4326)
     LOG.info(f"  {len(gdf)} cadastres dans le périmètre OEASC")
@@ -674,7 +663,7 @@ def step_build_sections():
     LOG.info("Étape 4c : construction des sections cadastrales par agrégation")
     print("Étape 4c : construction des sections cadastrales par agrégation")
     oeasc_geom = _get_oeasc_geom()
-    gdf = gpd.read_file(GPKG_CADASTRE)
+    gdf = gpd.read_file(_gpkg_path("cadastres.gpkg"))
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
 
     # Groupe par code_section = id_parcelle[:11]
@@ -721,8 +710,9 @@ def step_load_foret_dgd():
     import fiona
 
     oeasc_geom = _get_oeasc_geom()
-    layers = fiona.listlayers(GPKG_DGD)
-    gdf = gpd.read_file(GPKG_DGD, layer=layers[0])
+    gpkg_dgd = _gpkg_path("forets_dgd.gpkg")
+    layers = fiona.listlayers(gpkg_dgd)
+    gdf = gpd.read_file(gpkg_dgd, layer=layers[0])
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
     gdf_4326 = gdf.to_crs(epsg=4326)
     LOG.info(f"  {len(gdf)} forêts DGD dans le périmètre OEASC")
@@ -823,7 +813,7 @@ def step_load_foret_onf():
     LOG.info("Étape 4e : chargement des forêts ONF")
     print("Étape 4e : chargement des forêts ONF")
     oeasc_geom = _get_oeasc_geom()
-    gdf = gpd.read_file(GPKG_FORET_ONF)
+    gdf = gpd.read_file(_gpkg_path("forets_gestion_onf_aoa.gpkg"))
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
     gdf_4326 = gdf.to_crs(epsg=4326)
     LOG.info(f"  {len(gdf)} forêts ONF dans le périmètre OEASC")
@@ -905,7 +895,7 @@ def step_load_parcelle_onf():
     LOG.info("Étape 4f : chargement des parcelles ONF")
     print("Étape 4f : chargement des parcelles ONF")
     oeasc_geom = _get_oeasc_geom()
-    gdf = gpd.read_file(GPKG_PARCELLE_ONF)
+    gdf = gpd.read_file(_gpkg_path("parcelles_forets_onf_new.gpkg"))
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
     gdf_4326 = gdf.to_crs(epsg=4326)
     LOG.info(f"  {len(gdf)} parcelles ONF dans le périmètre OEASC")
@@ -972,7 +962,7 @@ def step_load_ug_onf():
     LOG.info("Étape 4g : chargement des unités de gestion ONF")
     print("Étape 4g : chargement des unités de gestion ONF")
     oeasc_geom = _get_oeasc_geom()
-    gdf = gpd.read_file(GPKG_UG_ONF)
+    gdf = gpd.read_file(_gpkg_path("unites_gestion_forets_onf.gpkg"))
     # Exclure les UG dont CCOD_PRF n'est pas un entier (parcelles "U" gérées en 4f)
     gdf = gdf[gdf["CCOD_PRF"].apply(lambda x: str(x).strip().isdigit())]
     gdf = _filter_by_oeasc(gdf, oeasc_geom)
