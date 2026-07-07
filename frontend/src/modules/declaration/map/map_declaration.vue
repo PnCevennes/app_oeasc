@@ -496,7 +496,10 @@ export default {
         );
         // ########## Cette area est déja selectionnée, on cherche donc à la retirer #################
         if (index > -1) {
-          this.unselect_area(feature.properties); // Retire la zone de la déclaration
+          // On utilise l'entrée déjà enregistrée dans areas_localisation (qui contient id_parent)
+          // plutôt que feature.properties (issu du geojson brut, sans id_parent) pour que la
+          // cascade de nettoyage des parents (commune, section, forêt) fonctionne correctement.
+          this.unselect_area(this.declaration_data.areas_localisation[index]); // Retire la zone de la déclaration
         } else {
           // ######### Cette area n'est pas déja selectionnée, on cherche donc à l'ajouter #############
           this.select_area(feature.properties);
@@ -701,25 +704,34 @@ export default {
         if (
           !this.declaration_data.areas_localisation.some((area) => area.id_parent === this_parent)
         ) {
+          // Récupère l'id de la commune parente de la section avant de retirer la section
+          const section_entry = this.declaration_data.areas_localisation.find(
+            (area) => area.id_area === this_parent
+          );
+          const id_commune_parente = section_entry ? section_entry.id_parent : null;
+
           this.declaration_data.areas_foret_sections =
             this.declaration_data.areas_foret_sections.filter((id) => id !== this_parent);
 
           this.declaration_data.areas_localisation =
             this.declaration_data.areas_localisation.filter((area) => area.id_area !== this_parent);
-          // si l'actual_commune n'est dans aucun id_parent des elements de areas_localisation, on le retire
-          // Supprime de areas_localisation tous les éléments dont id_parent n'existe pas dans areas_foret_communes
-          this.declaration_data.areas_localisation =
-            this.declaration_data.areas_localisation.filter((area) => {
-              return (
-                area.id_parent == null ||
-                this.declaration_data.areas_foret_communes.includes(area.id_parent)
+
+          // si la commune n'est dans aucun id_parent des elements restants de areas_localisation, on la retire
+          if (
+            id_commune_parente !== null &&
+            !this.declaration_data.areas_localisation.some(
+              (area) => area.id_parent === id_commune_parente
+            )
+          ) {
+            this.declaration_data.areas_localisation =
+              this.declaration_data.areas_localisation.filter(
+                (area) => area.id_area !== id_commune_parente
               );
-            });
-          // Met à jour areas_foret_communes pour ne garder que celles qui sont encore référencées comme parent
-          this.declaration_data.areas_foret_communes =
-            this.declaration_data.areas_foret_communes.filter((commune) =>
-              this.declaration_data.areas_localisation.some((area) => area.id_parent === commune)
-            );
+            this.declaration_data.areas_foret_communes =
+              this.declaration_data.areas_foret_communes.filter(
+                (id) => id !== id_commune_parente
+              );
+          }
         }
       } else if (this.declaration_data.b_document == true) {
         // ################## CAS DES FORET DGD ##############################
