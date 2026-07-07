@@ -728,9 +728,7 @@ export default {
                 (area) => area.id_area !== id_commune_parente
               );
             this.declaration_data.areas_foret_communes =
-              this.declaration_data.areas_foret_communes.filter(
-                (id) => id !== id_commune_parente
-              );
+              this.declaration_data.areas_foret_communes.filter((id) => id !== id_commune_parente);
           }
         }
       } else if (this.declaration_data.b_document == true) {
