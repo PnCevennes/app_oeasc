@@ -24,6 +24,7 @@
     "sass-loader": "^8.0.2",
     "v-runtime-template": "^1.10.0",
     "vue": "^2.7.14",
+    "vue-matomo": "^4.2.0",
     "vue-promised": "^2.2.0",
     "vue-router": "^3.4.9",
     "vue-session": "^1.0.0",

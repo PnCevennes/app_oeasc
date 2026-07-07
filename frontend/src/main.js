@@ -12,6 +12,8 @@ import More from 'highcharts/highcharts-more';
 import exporting from 'highcharts/modules/exporting';
 import HighchartsVue from 'highcharts-vue';
 
+import VueMatomo from 'vue-matomo'
+
 // highcharts est une librairie pour créer des graphiques
 More(Highcharts);
 exporting(Highcharts);
@@ -28,6 +30,14 @@ Vue.use(VueSession, { persist: true });
 Vue.use(vuetify);
 Vue.use(HighchartsVue, {
   highcharts: Highcharts,
+});
+
+// vue-matomo est une librairie pour suivre les statistiques de visite (Matomo)
+Vue.use(VueMatomo, {
+  // Configurez votre instance Matomo en renseignant :
+  host: 'https://stats.cevennes-parcnational.net',
+  siteId: 6,
+  router,
 });
 
 // Register the component globally
