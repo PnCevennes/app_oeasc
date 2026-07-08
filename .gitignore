@@ -84,3 +84,5 @@ data/chasse/data/*
 .claude/
 CLAUDE.md
 zzz_archives/
+*.csv
+.nvmrc
