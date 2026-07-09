@@ -61,6 +61,7 @@ import { configMenu } from './menu.js';
 // fixed : Le drawer est fixé à sa position et ne défile pas avec le contenu principal.
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'oeasc-drawer',
   props: ['config'],
   computed: {

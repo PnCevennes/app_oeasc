@@ -76,6 +76,7 @@
 
 <script>
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'tableAide',
 };
 </script>

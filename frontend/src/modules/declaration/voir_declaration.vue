@@ -484,6 +484,7 @@ import confirmRelanceMail from './confirm_relance_mail.vue';
 import config_variables from '@/../../config/variables/declaration.json';
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'voir_declaration',
   data: () => ({
     pdfProcessing: false,

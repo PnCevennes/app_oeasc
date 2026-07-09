@@ -99,6 +99,7 @@ import { config as globalConfig } from '@/config/config.js';
 import { copy } from '@/core/js/util/util.js';
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'generic-form',
   components: {
     dynamicFormGroup,

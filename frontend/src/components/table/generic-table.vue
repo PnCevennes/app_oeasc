@@ -247,6 +247,7 @@ import genericForm from '@/components/form/generic-form.vue';
 import './table.css';
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'generic-table',
   components: { genericForm },
   props: {

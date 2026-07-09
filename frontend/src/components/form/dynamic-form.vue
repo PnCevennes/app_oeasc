@@ -246,6 +246,7 @@ import { copy } from '@/core/js/util/util.js';
 import { formFunctions } from '@/components/form/functions/form.js';
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'dynamicForm',
 
   components: {

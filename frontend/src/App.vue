@@ -105,6 +105,7 @@ import breadcrump from '@/components/app/breadcrump';
 // sinon le template est dans nom_modules/nom_component
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'App',
   components: { oeascAppBar, oeascDrawer, breadcrump },
 

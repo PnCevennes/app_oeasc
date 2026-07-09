@@ -382,6 +382,7 @@ import help from '@/components/form/help_static.vue';
 import helpContent from '@/modules/declaration/help-content.vue';
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'degatsForm',
   components: {
     help,

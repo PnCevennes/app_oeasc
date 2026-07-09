@@ -46,6 +46,7 @@ import genericTable from '@/components/table/generic-table.vue';
 import inTable from '@/modules/in/in-table.vue';
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'generic-admin',
   components: {
     genericTable,
