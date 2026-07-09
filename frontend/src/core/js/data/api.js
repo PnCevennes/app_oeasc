@@ -90,7 +90,7 @@ var url = (urlRelative, params = {}) => {
  */
 const fetchData = async (urlRelative, options = {}) => {
   // Construction de l'URL complète à partir de l'URL relative et des éventuels paramètres
-  const url_ = url(urlRelative, options.params);
+  let url_ = url(urlRelative, options.params);
 
   // Préparation des options pour la requête fetch
   var fetchOptions = {

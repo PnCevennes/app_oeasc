@@ -78,8 +78,8 @@ export default {
       // configuration de la restitution selon le type
       const restitution = restitutions[this.dataType];
 
-      const params = this.$props;
-      params.sort = restitution.items[params.fieldName].sort;
+      // this.$props est réactif/readonly en Vue 3 : on ne peut pas lui ajouter la clé "sort"
+      const params = { ...this.$props, sort: restitution.items[this.$props.fieldName].sort };
 
       this.$store
         // requete avec les props en parametres de route

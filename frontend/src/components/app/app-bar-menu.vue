@@ -26,10 +26,12 @@ affichage du menu de l'application -->
 
 <template>
   <div>
-    <template v-for="(menu, indexMenu) of config">
+    <template
+      v-for="(menu, indexMenu) of config"
+      :key="indexMenu"
+    >
       <v-btn
         :text="!menu.icon || !!menu.label"
-        :key="`menu-btn-${indexMenu}`"
         v-if="!menu.menus.length"
         :icon="!!menu.icon"
         :to="menu.path"
@@ -42,12 +44,11 @@ affichage du menu de l'application -->
         offset-y
         transition="slide-x-transition"
         open-on-hover
-        :key="`menu-dropdown-${indexMenu}`"
         v-else
       >
-        <template v-slot:activator="{ on: bMenu }">
+        <template v-slot:activator="{ props: menuActivatorProps }">
           <v-btn
-            v-on="bMenu"
+            v-bind="menuActivatorProps"
             :text="!menu.icon || !!menu.label"
             :icon="!menu.label && !!menu.icon"
             class="text-none"
@@ -57,15 +58,20 @@ affichage du menu de l'application -->
           </v-btn>
         </template>
         <v-list>
-          <template v-for="(item, index) in menu.menus">
+          <template
+            v-for="(item, index) in menu.menus"
+            :key="index"
+          >
             <v-list-item
-              :key="index"
               :to="item.path"
               v-if="item == '-' || (item.meta && item.meta.access <= $store.getters.droitMax)"
             >
-              <v-list-item-icon v-if="item.icon">
+              <template
+                v-slot:prepend
+                v-if="item.icon"
+              >
                 <v-icon v-text="item.icon"></v-icon>
-              </v-list-item-icon>
+              </template>
               <v-list-item-title v-if="item.label">{{ item.label }}</v-list-item-title>
               <v-divider v-if="item == '-'"></v-divider>
             </v-list-item>

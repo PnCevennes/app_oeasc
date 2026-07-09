@@ -10,9 +10,9 @@
     <div>
       <!-- boutton pour copier le code du widget dans le presse papier -->
       <v-tooltip bottom>
-        <template v-slot:activator="{ on }">
+        <template v-slot:activator="{ props: tooltipActivatorProps }">
           <v-btn
-            v-on="on"
+            v-bind="tooltipActivatorProps"
             icon
             @click="contentToClipboard()"
           >

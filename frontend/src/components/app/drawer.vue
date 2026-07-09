@@ -12,10 +12,12 @@
       nav
       class="py-0"
     >
-      <template v-for="(item, index) of configMenus">
+      <template
+        v-for="(item, index) of configMenus"
+        :key="index"
+      >
         <v-list-group
           v-if="item.menus.length"
-          :key="`item.${index}`"
           :prepend-icon="item.icon"
         >
           <template v-slot:activator>
@@ -27,30 +29,24 @@
             :to="subItem.path"
             @click="drawer = false"
           >
-            <v-list-item-icon>
+            <template v-slot:prepend>
               <v-icon>blougi</v-icon>
-            </v-list-item-icon>
-            <v-list-item-content>
-              <v-list-item-title>{{ subItem.label }}</v-list-item-title>
-            </v-list-item-content>
-            <v-list-item-icon>
+            </template>
+            <v-list-item-title>{{ subItem.label }}</v-list-item-title>
+            <template v-slot:append>
               <v-icon>{{ subItem.icon }}</v-icon>
-            </v-list-item-icon>
+            </template>
           </v-list-item>
         </v-list-group>
 
         <v-list-item
           v-else
-          :key="index"
           :to="item.path"
         >
-          <v-list-item-icon></v-list-item-icon>
-          <v-list-item-content>
-            <v-list-item-title>{{ item.label }}</v-list-item-title>
-          </v-list-item-content>
-          <v-list-item-icon>
+          <v-list-item-title>{{ item.label }}</v-list-item-title>
+          <template v-slot:append>
             <v-icon>{{ item.icon }}</v-icon>
-          </v-list-item-icon>
+          </template>
         </v-list-item>
       </template>
     </v-list>

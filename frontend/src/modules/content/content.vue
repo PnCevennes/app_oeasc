@@ -145,7 +145,7 @@ import configDocForm from './config/form-doc';
 import marked from 'marked';
 
 import genericForm from '@/components/form/generic-form'; // formulaire de modification de page
-import VRuntimeTemplate from 'v-runtime-template'; // pour l'affichage du contenu markdown dynamique
+import VRuntimeTemplate from 'vue3-runtime-template'; // pour l'affichage du contenu markdown dynamique
 
 export default {
   name: 'oeasc-content',

@@ -76,7 +76,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
             v-if="SelecteddegatTypesComputed.includes(item_type_degat.id_nomenclature)"
             style="margin-left: 50px"
           >
-            <v-simple-table style="width: 900px">
+            <v-table style="width: 900px">
               <!-- le type de dégat en cours n'est pas un dégat de piste et cloture ni un déficit de régénération -->
               <thead
                 v-if="
@@ -222,7 +222,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                       "
                       title="Sélectionnez l'essence"
                       item-value="id_nomenclature"
-                      item-text="label_fr"
+                      item-title="label_fr"
                       label="Essence"
                       :rules="[rules.requiredListSimple]"
                       solo
@@ -242,7 +242,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                       v-model="degatEssence.gravite"
                       :items="nomenclature.OEASC_DEGAT_GRAVITE.values"
                       item-value="id_nomenclature"
-                      item-text="label_fr"
+                      item-title="label_fr"
                       label="Gravité"
                       :rules="[rules.requiredListSimple]"
                       solo
@@ -262,7 +262,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                       v-model="degatEssence.etendue"
                       :items="nomenclature.OEASC_DEGAT_ETENDUE.values"
                       item-value="id_nomenclature"
-                      item-text="label_fr"
+                      item-title="label_fr"
                       label="Étendue"
                       :rules="[rules.requiredListSimple]"
                       solo
@@ -282,7 +282,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                       v-model="degatEssence.anteriorite"
                       :items="nomenclature.OEASC_DEGAT_ANTERIORITE.values"
                       item-value="id_nomenclature"
-                      item-text="label_fr"
+                      item-title="label_fr"
                       label="Antériorité"
                       :rules="[rules.requiredListSimple]"
                       solo
@@ -356,7 +356,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                   </td>
                 </tr>
               </tfoot>
-            </v-simple-table>
+            </v-table>
           </div>
         </div>
         <!-- fin de div des checkbox -->
@@ -410,11 +410,19 @@ export default {
     'declaration_data.id_nomenclature_peuplement_essence_principale': function () {
       this.liste_selection_essences = this.concateneEssencesPeuplement();
     },
-    'declaration_data.nomenclatures_peuplement_essence_secondaire': function () {
-      this.liste_selection_essences = this.concateneEssencesPeuplement();
+    // deep:true nécessaire en Vue 3 pour ces deux tableaux : les mutations (push/splice) ne
+    // déclenchent plus un watcher par défaut comme en Vue 2 (voir compat WATCH_ARRAY)
+    'declaration_data.nomenclatures_peuplement_essence_secondaire': {
+      handler() {
+        this.liste_selection_essences = this.concateneEssencesPeuplement();
+      },
+      deep: true,
     },
-    'declaration_data.nomenclatures_peuplement_essence_complementaire': function () {
-      this.liste_selection_essences = this.concateneEssencesPeuplement();
+    'declaration_data.nomenclatures_peuplement_essence_complementaire': {
+      handler() {
+        this.liste_selection_essences = this.concateneEssencesPeuplement();
+      },
+      deep: true,
     },
   },
 

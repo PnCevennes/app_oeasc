@@ -95,8 +95,8 @@ if [[ -z  $(which nvm) ]]; then
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-    # installation de la version 10 de node
-    nvm install 10
+    # installation de la version 24 de node
+    nvm install 24
 
 fi
 

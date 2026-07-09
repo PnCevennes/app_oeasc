@@ -6,12 +6,14 @@
 
 <template v-if="bInit == true">
   <div>
-    <v-simple-table
-      dense
+    <v-table
+      density="compact"
       style="margin-bottom: 16px; width: 70%; max-width: 100%; margin: auto"
     >
       <thead>
-        <th colspan="2">Résumé de la déclaration</th>
+        <tr>
+          <th colspan="2">Résumé de la déclaration</th>
+        </tr>
       </thead>
 
       <!-- ------------------------------- INFORMATIONS -------------------------------- -->
@@ -566,7 +568,7 @@
           </td>
         </tr>
       </tbody>
-    </v-simple-table>
+    </v-table>
 
     <!-- ---------------------------------------------------------------- -->
   </div>

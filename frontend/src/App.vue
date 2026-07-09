@@ -1,7 +1,7 @@
 <template>
   <v-app>
     <v-overlay
-      :value="loading"
+      :model-value="loading"
       absolute
     >
       <v-progress-circular
@@ -70,8 +70,8 @@
             </span>
             <template v-slot:action="{ attrs }">
               <v-btn
-                text
                 v-bind="attrs"
+                variant="text"
                 @click="snackbarState.show = false"
                 :style="{ color: snackbarState.textColor, fontSize: '1rem', fontWeight: 400 }"
               >

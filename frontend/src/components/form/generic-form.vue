@@ -354,9 +354,11 @@ export default {
      *     - Affiche un message d'erreur dans le snackbar.
      */
     processAction() {
-      setTimeout(() => {
+      setTimeout(async () => {
         // Validation du formulaire
-        this.bValidForm = this.$refs.form.validate();
+        // Vuetify 3 : form.validate() est désormais asynchrone et renvoie { valid, errors }
+        const { valid } = await this.$refs.form.validate();
+        this.bValidForm = valid;
         if (!this.bValidForm) {
           return;
         }

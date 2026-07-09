@@ -2,9 +2,9 @@
   <div class="page-restitution">
     <h2>Tableau de bord - restitution</h2>
     <v-tooltip bottom>
-      <template v-slot:activator="{ on }">
+      <template v-slot:activator="{ props: tooltipActivatorProps }">
         <v-btn
-          v-on="on"
+          v-bind="tooltipActivatorProps"
           icon
           @click="contentToClipboard()"
         >
@@ -17,8 +17,8 @@
     <div class="container-restitution">
       <div class="result">
         <restitution
-          ref="restitution"
           v-bind="settings"
+          ref="restitution"
         ></restitution>
       </div>
       <div class="config">

@@ -220,9 +220,9 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
     </template>
     <template v-else-if="configForm.type === 'button'">
       <v-tooltip bottom>
-        <template v-slot:activator="{ on }">
+        <template v-slot:activator="{ props: tooltipActivatorProps }">
           <v-btn
-            v-on="on"
+            v-bind="tooltipActivatorProps"
             :icon="!!configForm.icon"
             @click="configForm.click({ baseModel })"
           >
@@ -244,7 +244,6 @@ import help from './help.vue'; // contenu d'aide inscrit dans la bdd. Remplacer 
 import list from './list.vue';
 import { copy } from '@/core/js/util/util.js';
 import { formFunctions } from '@/components/form/functions/form.js';
-import oeascContent from '@/modules/content/content.vue';
 
 export default {
   name: 'dynamicForm',
@@ -253,7 +252,9 @@ export default {
     nomenclatureForm,
     selectMap,
     listForm,
-    oeascContent,
+    // import dynamique pour casser le cycle content.vue -> generic-form.vue -> dynamic-form-group.vue -> dynamic-form.vue -> content.vue
+    // (un import statique provoque une ReferenceError de TDZ sous Vite/ESM natif, alors que webpack/CommonJS le tolérait)
+    oeascContent: () => import('@/modules/content/content.vue'),
     help,
     list,
   },

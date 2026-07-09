@@ -16,8 +16,6 @@
       v-model="tab"
       fixed
     >
-      <v-tabs-slider color="yellow"></v-tabs-slider>
-
       <v-tab
         v-for="[key, tab] of Object.entries(config.tabs)"
         :key="key"
@@ -26,8 +24,8 @@
       </v-tab>
     </v-tabs>
 
-    <v-tabs-items v-model="tab">
-      <v-tab-item
+    <v-window v-model="tab">
+      <v-window-item
         v-for="[key, tab] of Object.entries(config.tabs)"
         :key="key"
       >
@@ -38,8 +36,8 @@
         ></generic-table>
         <!-- affiche les tables des indices nocturnes -->
         <in-table v-if="tab.type == 'in-table'"></in-table>
-      </v-tab-item>
-    </v-tabs-items>
+      </v-window-item>
+    </v-window>
   </div>
 </template>
 

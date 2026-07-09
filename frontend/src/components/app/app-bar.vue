@@ -5,13 +5,13 @@
 //
 // Props :
 // - config : objet contenant les noms des menus à afficher à gauche et à droite.
-// - value : booléen indiquant l'état d'ouverture du menu latéral (drawer).
+// - modelValue : booléen indiquant l'état d'ouverture du menu latéral (drawer), via v-model.
 //
 // Computed :
 // - configMenus : génère les configurations des menus de gauche et de droite en filtrant ceux qui sont cachés.
 //
 // Méthodes :
-// - drawnerClick : émet un événement 'input' pour inverser l'état du menu latéral lors du clic sur l'icône de navigation.
+// - drawnerClick : émet 'update:modelValue' pour inverser l'état du menu latéral lors du clic sur l'icône de navigation.
 //
 // Utilise Vuetify pour la structure visuelle (v-card, v-app-bar, v-app-bar-nav-icon, v-spacer).
 // Le composant est conçu pour être réutilisable et configurable selon les besoins de l'application. -->
@@ -38,7 +38,8 @@ import appBarMenu from './app-bar-menu.vue';
 export default {
   name: 'oeasc-app-bar',
   components: { appBarMenu },
-  props: ['config', 'value'],
+  props: ['config', 'modelValue'],
+  emits: ['update:modelValue'],
   computed: {
     configMenus() {
       return {
@@ -53,7 +54,7 @@ export default {
   },
   methods: {
     drawnerClick() {
-      this.$emit('input', !this.value);
+      this.$emit('update:modelValue', !this.modelValue);
     },
   },
 };

@@ -1,14 +1,12 @@
 // importe les routes depuis les modules dans le repertoire modules/
 
-import Vue from 'vue';
-import Router from 'vue-router';
+import { createRouter, createWebHashHistory } from 'vue-router';
 import { page } from '@/modules/page';
 import { MODULES_ROUTES } from '@/modules';
 
-Vue.use(Router);
-
 // récupère les routes dans modules.index.js qui ont été rassemblées dans MODULES_ROUTES.
-export default new Router({
+export default createRouter({
+  history: createWebHashHistory(),
   routes: [
     // Ajout des routes des modules
     ...MODULES_ROUTES.map((route) => {

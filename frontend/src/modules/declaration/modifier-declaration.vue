@@ -150,7 +150,7 @@
                       <v-autocomplete
                         v-model="declaration_data.id_declarant"
                         :items="liste_declarants"
-                        :item-text="formatDeclarantLabel"
+                        :item-title="formatDeclarantLabel"
                         item-value="id_role"
                         label="Déclarant"
                       ></v-autocomplete>
@@ -277,7 +277,7 @@
                       :items="nomenclature.OEASC_PEUPLEMENT_ESSENCE.values"
                       title="Sélectionnez l'essence principale"
                       item-value="id_nomenclature"
-                      item-text="label_fr"
+                      item-title="label_fr"
                       label="Essence principale"
                       :rules="[rules.requiredListSimple]"
                       solo
@@ -290,7 +290,7 @@
                       :items="nomenclature.OEASC_PEUPLEMENT_ESSENCE.values"
                       title="Sélectionnez l'essence secondaire (plusieurs possibles)"
                       item-value="id_nomenclature"
-                      item-text="label_fr"
+                      item-title="label_fr"
                       label="Essence secondaire (plusieurs possibles)"
                       multiple
                     ></v-select>
@@ -301,7 +301,7 @@
                       :items="nomenclature.OEASC_PEUPLEMENT_ESSENCE.values"
                       title="Sélectionnez l'essence complémentaire (plusieurs possibles)"
                       item-value="id_nomenclature"
-                      item-text="label_fr"
+                      item-title="label_fr"
                       label="Essence complementaire (plusieurs possibles)"
                       multiple
                     ></v-select>
@@ -531,7 +531,7 @@
                               :items="nomenclature.OEASC_PEUPLEMENT_PATURAGE_TYPE.values"
                               title="Sélectionnez le type de pâturage, plusieurs possibles"
                               item-value="id_nomenclature"
-                              item-text="label_fr"
+                              item-title="label_fr"
                               label="Type de pâturage, plusieurs possibles"
                               multiple
                             ></v-select>
@@ -542,7 +542,7 @@
                               :items="nomenclature.OEASC_PEUPLEMENT_PATURAGE_STATUT.values"
                               title="Sélectionnez le statut du pâturage"
                               item-value="id_nomenclature"
-                              item-text="label_fr"
+                              item-title="label_fr"
                               label="Statut du pâturage"
                             ></v-select>
                           </div>
@@ -554,7 +554,7 @@
                               :items="nomenclature.OEASC_PEUPLEMENT_PATURAGE_FREQUENCE.values"
                               title="Sélectionnez la fréquence du pâturage"
                               item-value="id_nomenclature"
-                              item-text="label_fr"
+                              item-title="label_fr"
                               label="Fréquence du pâturage"
                             ></v-select>
                           </div>
@@ -569,7 +569,7 @@
                               :items="nomenclature.OEASC_PEUPLEMENT_PATURAGE_SAISON.values"
                               title="Sélectionnez la saison du pâturage, plusieurs possibles"
                               item-value="id_nomenclature"
-                              item-text="label_fr"
+                              item-title="label_fr"
                               label="Saison du pâturage, plusieurs possibles"
                               multiple
                             ></v-select>
@@ -617,7 +617,7 @@
                           :items="nomenclature.OEASC_PEUPLEMENT_ESPECE.values"
                           title="Sélectionnez les espèces présentes (plusieurs possibles)"
                           item-value="id_nomenclature"
-                          item-text="label_fr"
+                          item-title="label_fr"
                           :rules="[rules.requiredListMultiple]"
                           label="Espèces présentes (plusieurs possibles)"
                           multiple
@@ -1031,7 +1031,7 @@ export default {
       }
     }
 
-    if (this.response['success'] == true) {
+    if (this.response && this.response['success'] == true) {
       this.declaration_data = this.response.data;
       this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
       if (!this.declaration_data.id_declarant) {
@@ -1148,10 +1148,12 @@ export default {
      * Lorsque l'utilisateur à terminé de remplir, on vérifie si toutes les données sont valides avant
      * d'afficher le résumé de la déclaration.
      */
-    action_terminer_declaration() {
+    async action_terminer_declaration() {
       this.error = null; // Réinitialiser l'erreur
 
-      if (!this.$refs.form.validate()) {
+      // Vuetify 3 : form.validate() est désormais asynchrone et renvoie { valid, errors }
+      const { valid } = await this.$refs.form.validate();
+      if (!valid) {
         snackbarStore.show('Veuillez remplir tous les champs requis.', 'info');
         return;
       }
@@ -1272,7 +1274,7 @@ export default {
         }
       }
 
-      if (this.$refs.form.validate() && this.error === null) {
+      if ((await this.$refs.form.validate()).valid && this.error === null) {
         this.etape_affichage = 'AFFICHAGE_RESUME';
         return;
       }

@@ -5,13 +5,10 @@
   Si il faut en rajouter en lien avec des modules, i
 */
 
-import Vue from 'vue';
-import Vuex from 'vuex';
+import { createStore } from 'vuex';
 import { MODULES_STORE } from '@/modules';
 import { STORE as API_STORE } from '@/core/js/data/api.js';
 import { STORE as FORM_STORE } from '@/components/form';
-
-Vue.use(Vuex);
 
 const storeDefinition = {
   getters: {},
@@ -28,6 +25,6 @@ for (const store of stores) {
   }
 }
 
-let store = new Vuex.Store(storeDefinition);
+let store = createStore(storeDefinition);
 
 export default store;

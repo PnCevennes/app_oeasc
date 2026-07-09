@@ -230,7 +230,7 @@ export default {
     this.initMap();
   },
 
-  beforeDestroy() {
+  beforeUnmount() {
     // s'assure que la carte est bien détruite quand le composant est démonté
     try {
       // remove declaration marker if any

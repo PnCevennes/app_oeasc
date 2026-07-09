@@ -113,6 +113,13 @@
   </div>
 </template> -->
 
+<script>
+// Composant vidé de son template/script par un commit précédent ("menage et commentaires dans le code")
+// mais toujours importé et rendu (en no-op) par dynamic-form.vue. Ce stub minimal préserve ce comportement ;
+// webpack tolérait un SFC sans <template> ni <script>, le compilateur SFC de Vite/Vue 3 non.
+export default { name: 'selectMap' };
+</script>
+
 <!-- <script>
 
 import { selectMapMethods } from "./select-map.js";

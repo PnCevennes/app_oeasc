@@ -47,7 +47,7 @@
           <v-spacer></v-spacer>
           <v-btn
             color="green darken-1"
-            text
+            variant="text"
             @click="
               deleteRow(idToDelete);
               idToDelete = null;
@@ -59,7 +59,7 @@
 
           <v-btn
             color="green darken-1"
-            text
+            variant="text"
             @click="
               idToDelete = null;
               deleteModal = false;
@@ -132,9 +132,9 @@
                 type="text"
               ></v-text-field>
               <v-tooltip top>
-                <template v-slot:activator="{ on }">
+                <template v-slot:activator="{ props: tooltipActivatorProps }">
                   <v-btn
-                    v-on="on"
+                    v-bind="tooltipActivatorProps"
                     v-if="header.value == 'actions'"
                     color="primary"
                     icon
@@ -156,11 +156,13 @@
           <div :key="index">
             <!-- bouton supprimer et editer -->
             <div v-if="value == 'actions'">
-              <template v-for="(action, indexAction) of props.header.list || []">
+              <template
+                v-for="(action, indexAction) of props.column.list || []"
+                :key="indexAction"
+              >
                 <v-btn
                   small
                   v-if="!action.condition || action.condition({ $store, item: props.item })"
-                  :key="indexAction"
                   icon
                   :to="
                     typeof action.to == 'function'
@@ -296,8 +298,8 @@ export default {
     displayCell(props, value) {
       const res =
         props.item &&
-        (typeof props.header.display == 'function'
-          ? props.header.display(props.item, { $store: this.$store })
+        (typeof props.column.display == 'function'
+          ? props.column.display(props.item, { $store: this.$store })
           : props.item[value]);
       return res;
     },
@@ -314,9 +316,9 @@ export default {
      */
     bEditCell(props) {
       return (
-        props.header.edit &&
-        (!props.header.edit.condition ||
-          props.header.edit.condition({
+        props.column.edit &&
+        (!props.column.edit.condition ||
+          props.column.edit.condition({
             $store: this.$store,
             baseModel: props.item,
           }))
@@ -554,8 +556,14 @@ export default {
       /** contruction de la variable header */
       const headers = [];
 
-      for (const [value, header] of Object.entries(config.headerDefs)) {
-        header.value = value;
+      for (const [value, headerDef] of Object.entries(config.headerDefs)) {
+        // copie superficielle : config.headerDefs vient d'une prop, la muter directement échoue
+        // silencieusement en Vue 3 (proxy readonly)
+        const header = { ...headerDef, value };
+        // Vuetify 3 lit "title" pour le libellé de colonne (au lieu de "text" en Vuetify 2) ;
+        // toutes les configs de tableau du projet utilisent encore "text", donc pont de compat ici
+        // plutôt que de renommer "text" en "title" dans chaque fichier de config.
+        header.title = header.title ?? header.text;
 
         // le tri ne fonctionne pas correctement à cause du format de la date. On récupère maintenant le bon format en bdd et on modifie l'affiche avec la fonction display dans le fichier de config de la table
         //  if (header.type == 'date') {

@@ -24,8 +24,8 @@
       <!-- Tableau récapitulatif du nombre de séries et de circuits par année -->
       <v-row v-if="dataUg && graphOnly === undefined">
         <v-col>
-          <v-simple-table
-            dense
+          <v-table
+            density="compact"
             class="stats"
             v-if="dataUg"
           >
@@ -49,7 +49,7 @@
                 <td>{{ row.nbCircuitsMax }}</td>
               </tr>
             </tbody>
-          </v-simple-table>
+          </v-table>
         </v-col>
       </v-row>
 
@@ -95,8 +95,8 @@
           <transition name="fade">
             <!-- Tableau des paramètres de la régression linéaire -->
             <div v-if="dataUg && this.settings.displayReg">
-              <v-simple-table
-                dense
+              <v-table
+                density="compact"
                 class="stats"
               >
                 <thead>
@@ -110,19 +110,21 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <td></td>
-                  <!-- round() : méthode pour arrondir les valeurs -->
-                  <td>{{ round(dataUg.reg_lin.params[0], dec) }}</td>
-                  <td>{{ round(dataUg.reg_lin.params[1], dec) }}</td>
-                  <!-- <td>
-                  {{ round(dataUg.reg_lin.R2, dec) }}
-                  </td>-->
-                  <td>{{ round(dataUg.reg_lin.pvalues[0], dec) }}</td>
-                  <!-- <td>
-                  {{ round(dataUg.reg_lin.pvalues[1], dec) }}
-                  </td>-->
+                  <tr>
+                    <td></td>
+                    <!-- round() : méthode pour arrondir les valeurs -->
+                    <td>{{ round(dataUg.reg_lin.params[0], dec) }}</td>
+                    <td>{{ round(dataUg.reg_lin.params[1], dec) }}</td>
+                    <!-- <td>
+                    {{ round(dataUg.reg_lin.R2, dec) }}
+                    </td>-->
+                    <td>{{ round(dataUg.reg_lin.pvalues[0], dec) }}</td>
+                    <!-- <td>
+                    {{ round(dataUg.reg_lin.pvalues[1], dec) }}
+                    </td>-->
+                  </tr>
                 </tbody>
-              </v-simple-table>
+              </v-table>
             </div>
           </transition>
         </v-col>
@@ -133,6 +135,7 @@
         <h4>Indices nocturnes {{ settings.nom_espece }} {{ settings.ug }}</h4>
 
         <v-tabs
+          v-model="activeAnneeTab"
           center-active
           dark
         >
@@ -140,20 +143,22 @@
           <v-tab
             v-for="annee of Object.keys(dataUg.annees)"
             :key="annee"
-            :href="`#tab-${annee}`"
+            :value="'tab-' + annee"
           >
             {{ annee }}
           </v-tab>
+        </v-tabs>
 
+        <v-window v-model="activeAnneeTab">
           <!-- Contenu de chaque onglet année -->
-          <v-tab-item
+          <v-window-item
             v-for="[annee, dataAnnee] of Object.entries(dataUg.annees)"
             :key="annee"
             :value="'tab-' + annee"
           >
             <!-- Tableau des statistiques globales de l'année -->
-            <v-simple-table
-              dense
+            <v-table
+              density="compact"
               class="stats"
             >
               <thead>
@@ -165,16 +170,18 @@
                 </tr>
               </thead>
               <tbody>
-                <td>{{ round(dataAnnee.moy, dec) }}</td>
-                <td>{{ round(dataAnnee.E, dec) }}</td>
-                <td>{{ round(dataAnnee.inf, dec) }}</td>
-                <td>{{ round(dataAnnee.sup, dec) }}</td>
+                <tr>
+                  <td>{{ round(dataAnnee.moy, dec) }}</td>
+                  <td>{{ round(dataAnnee.E, dec) }}</td>
+                  <td>{{ round(dataAnnee.inf, dec) }}</td>
+                  <td>{{ round(dataAnnee.sup, dec) }}</td>
+                </tr>
               </tbody>
-            </v-simple-table>
+            </v-table>
 
             <!-- Tableau détaillé des circuits par série -->
-            <v-simple-table
-              dense
+            <v-table
+              density="compact"
               class="in"
             >
               <thead>
@@ -295,9 +302,9 @@
                   </tr>
                 </template>
               </tbody>
-            </v-simple-table>
-          </v-tab-item>
-        </v-tabs>
+            </v-table>
+          </v-window-item>
+        </v-window>
       </div>
     </div>
   </div>
@@ -339,6 +346,8 @@ export default {
     dec: 4,
     // Empêche la modification de la validation pendant une requête API
     freezeValid: false,
+    // Onglet année actif dans le tableau des indices nocturnes (v-tabs/v-window liés par value)
+    activeAnneeTab: null,
     // Configuration du switch pour afficher ou non la régression linéaire
     configSwitchReg: {
       type: 'bool_switch', // Type du champ : interrupteur booléen

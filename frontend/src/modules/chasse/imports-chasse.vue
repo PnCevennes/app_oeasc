@@ -10,7 +10,7 @@
         <v-select
           v-model="saison"
           :items="saisons"
-          item-text="nom_saison"
+          item-title="nom_saison"
           item-value="id_saison"
           label="Saison"
           dense
@@ -49,7 +49,7 @@
             Importer
           </v-btn>
           <v-btn
-            text
+            variant="text"
             @click="clear"
             :disabled="uploading"
           >
@@ -161,14 +161,14 @@
           <v-spacer></v-spacer>
           <v-btn
             color="red"
-            text
+            variant="text"
             @click="close_popup_update"
           >
             NON Annuler
           </v-btn>
           <v-btn
             color="green"
-            text
+            variant="text"
             @click="confirmUpdate_action"
           >
             Confirmer

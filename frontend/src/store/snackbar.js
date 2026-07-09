@@ -3,11 +3,9 @@
 // et appeler snackbarStore.show("message à afficher", "type de message (ex: 'success' ou 'error')") pour afficher le message
 // le snackbar est implémenté dans App.vue pour être accessible depuis n'importe quelle vue de l'application
 
-import Vue from 'vue';
+import { reactive } from 'vue';
 
-// Si vous êtes en Vue 2.7+, 'reactive' est intégré.
-// Sinon, on utilise Vue.observable pour la réactivité.
-const state = Vue.observable({
+const state = reactive({
   show: false,
   message: '',
   color: '', // couleur de fond du snackbar (ex: 'success' pour vert, 'error' pour rouge, ou une couleur personnalisée)

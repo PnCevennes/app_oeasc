@@ -114,7 +114,7 @@ permet de zoomer dans les zones sélectionnées -->
           id="liste_select_areas"
           ref="liste_select_areas"
           :items="geojsonVisibleLayers.features"
-          item-text="properties.label"
+          item-title="properties.label"
           item-value="properties.id_area"
           label="Rechercher une parcelle"
           clearable
@@ -252,10 +252,15 @@ export default {
     },
 
     // Lorsque les zones sélectionnées changent, on re-rend la carte pour mettre à jour les couleurs
-    'declaration_data.areas_localisation'() {
-      if (this.map && this.geojsonVisibleLayers?.features?.length) {
-        this.add_layers_on_map();
-      }
+    // deep:true nécessaire en Vue 3 : les mutations de tableau (push/splice) ne déclenchent plus
+    // un watcher par défaut comme en Vue 2 (voir compat WATCH_ARRAY)
+    'declaration_data.areas_localisation': {
+      handler() {
+        if (this.map && this.geojsonVisibleLayers?.features?.length) {
+          this.add_layers_on_map();
+        }
+      },
+      deep: true,
     },
 
     // Lorsque le statut du document change dans le formulaire principal, on met à jour le type de carte

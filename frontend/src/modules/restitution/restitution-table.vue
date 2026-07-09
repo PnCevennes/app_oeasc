@@ -3,7 +3,7 @@
     v-if="results"
     class="restitution-table"
   >
-    <v-simple-table dense>
+    <v-table density="compact">
       <thead>
         <tr>
           <th>Texte</th>
@@ -14,11 +14,9 @@
       </thead>
       <template
         v-for="(result, index) of [results.choix.choix1, results.choix.choix2].filter((c) => !!c)"
+        :key="`${index}`"
       >
-        <tbody
-          v-if="!(results.condSame && index)"
-          :key="`${index}`"
-        >
+        <tbody v-if="!(results.condSame && index)">
           <tr v-if="index">
             <td colspan="4"></td>
           </tr>
@@ -31,8 +29,11 @@
               {{ result.text }}
             </td>
           </tr>
-          <template v-for="(result, index1) of result.dataList">
-            <tr :key="`${index}_${index1}`">
+          <template
+            v-for="(result, index1) of result.dataList"
+            :key="`${index}_${index1}`"
+          >
+            <tr>
               <td>{{ result.text }}</td>
               <td>{{ result.count }}</td>
               <td>
@@ -80,7 +81,7 @@
           </template>
         </tbody>
       </template>
-    </v-simple-table>
+    </v-table>
   </div>
 </template>
 

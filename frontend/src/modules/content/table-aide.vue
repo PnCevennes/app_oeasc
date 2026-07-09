@@ -1,8 +1,8 @@
 <template>
   <div>
     <div class="small-table"></div>
-    <v-simple-table
-      dense
+    <v-table
+      density="compact"
       class="small-table"
       id="contacts"
     >
@@ -70,7 +70,7 @@
           </td>
         </tr>
       </tbody>
-    </v-simple-table>
+    </v-table>
   </div>
 </template>
 

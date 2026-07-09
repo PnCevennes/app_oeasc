@@ -56,12 +56,14 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
         >
           <template v-if="bInit == true">
             <div>
-              <v-simple-table
-                dense
+              <v-table
+                density="compact"
                 style="margin-bottom: 16px; width: 100%; max-width: 100%; margin: auto"
               >
                 <thead>
-                  <th colspan="2">Résumé de la déclaration</th>
+                  <tr>
+                    <th colspan="2">Résumé de la déclaration</th>
+                  </tr>
                 </thead>
 
                 <!-- ------------------------------- INFORMATIONS -------------------------------- -->
@@ -427,7 +429,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     </td>
                   </tr>
                 </tbody>
-              </v-simple-table>
+              </v-table>
             </div>
           </template>
         </div>

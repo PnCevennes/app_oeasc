@@ -31,7 +31,7 @@ export NVM_DIR="$HOME/.nvm"
 
 echo "Installation de Node et Npm"
 cd frontend
-nvm install 10
+nvm install 24
 cd ..
 
 echo " ############"

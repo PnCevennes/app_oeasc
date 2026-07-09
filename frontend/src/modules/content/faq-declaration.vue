@@ -11,9 +11,7 @@
             <span
               style="line-height: 23px"
               v-html="item.question"
-            >
-              {{ item.question }}
-            </span>
+            ></span>
           </v-expansion-panel-header>
           <v-expansion-panel-content>
             <div v-html="item.response"></div>
