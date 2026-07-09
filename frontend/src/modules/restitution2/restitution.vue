@@ -27,6 +27,7 @@ import restitutionGraph from './restitution-graph';
 import props from './config/props';
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'restitution2',
   components: {
     restitutionGraph,

@@ -77,8 +77,14 @@ else:  # Pour le mode production, n'affiche que les erreurs
 # initiation du framework flask
 app = Flask(__name__, template_folder="oeasc/templates", static_folder="../static")
 
-# cors permet de gérer les requetes venant d'autres domaines. * signifie que tout le monde peut se connecter
-cors = CORS(app, resources={r"*": {"origins": "*"}}, supports_credentials=True)
+# cors permet de gérer les requetes venant d'autres domaines.
+# origins="*" combiné à supports_credentials=True est une combinaison invalide selon le spec CORS
+# (les navigateurs la rejettent) : on restreint donc l'origine autorisée au frontend configuré.
+cors = CORS(
+    app,
+    resources={r"*": {"origins": cfg.URL_FRONTEND.rstrip("/")}},
+    supports_credentials=True,
+)
 
 
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_prefix=1)

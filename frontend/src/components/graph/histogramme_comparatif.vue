@@ -52,6 +52,7 @@ exportingInit(Highcharts); // initialise le module export, doit être fait aprè
 offlineExporting(Highcharts); // initialise l'export coté client, doit être fait après l'import de highcharts
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'histogramme_comparatif',
   props: {
     data_db: { default: null },

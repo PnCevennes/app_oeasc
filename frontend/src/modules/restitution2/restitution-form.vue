@@ -36,6 +36,7 @@ import configFormRestition from './config/form-restitution.js'; // definition du
 import restitutions from './config/restitutions'; // dictionaires contenant les options des restituions pour chaque type de donnée (dataType)
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'restitution-form',
   components: { dynamicFormGroup, dynamicForm },
   props: ['dataType'],
