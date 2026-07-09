@@ -110,6 +110,7 @@ import dynamicForm from '@/components/form/dynamic-form.vue';
 import help from './help.vue'; // contenu d'aide inscrit dans la bdd. A remplacer par static help.vue pour un contenu statique
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'dynamic-form-group',
   components: {
     dynamicForm,

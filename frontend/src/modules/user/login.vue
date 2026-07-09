@@ -44,6 +44,7 @@ import { apiRequest } from '@/core/js/data/api.js';
 import configFormLogin from './config/form-login';
 
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'login',
   components: { genericForm },
   computed: {

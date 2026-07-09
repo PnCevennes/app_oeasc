@@ -39,6 +39,7 @@ qui les charge directement depuis un fichier statique. On le garde le temps de t
 
 <script>
 export default {
+  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'help',
   props: ['code'],
   components: {
