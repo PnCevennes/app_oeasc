@@ -475,30 +475,6 @@ class CorAreasForet(CustomModel):
 
 
 @serializable
-class TProprietaire(CustomModel):
-    """
-    modeles proprietaires
-    """
-
-    __tablename__ = "t_proprietaires"
-    __table_args__ = {"schema": "oeasc_forets", "extend_existing": True}
-
-    id_proprietaire: Mapped[int] = Column(Integer, primary_key=True)
-    id_declarant: Mapped[int] = Column(Integer)
-
-    nom_proprietaire: Mapped[str] = Column(Unicode(250))
-    telephone: Mapped[str] = Column(Unicode(20))
-    email: Mapped[str] = Column(Unicode(250))
-    adresse: Mapped[str] = Column(Unicode(250))
-    s_code_postal: Mapped[str] = Column(Unicode(10))
-    s_commune_proprietaire: Mapped[str] = Column(Unicode(100))
-
-    id_nomenclature_proprietaire_type: Mapped[int] = Column(
-        Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
-    )
-
-
-@serializable
 class TForet(CustomModel):
     """
     modele foret

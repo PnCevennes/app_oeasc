@@ -235,16 +235,6 @@ class CorAreasForetSchema(SQLAlchemyAutoSchema):
         unknown = EXCLUDE
 
 
-class TProprietaireSchema(SQLAlchemyAutoSchema):
-    id_proprietaire = fields.Integer(allow_none=True)
-
-    class Meta:
-        model = TProprietaire
-        load_instance = True
-        sqla_session = (DB.session,)
-        unknown = EXCLUDE
-
-
 class TForetSchema(SQLAlchemyAutoSchema):
     id_foret = fields.Integer(allow_none=True)
     areas_foret = Nested(
