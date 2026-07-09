@@ -38,7 +38,6 @@
 
 <script>
 export default {
-  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   // Création d'un fil d'ariane
   name: 'breadcrump',
   computed: {

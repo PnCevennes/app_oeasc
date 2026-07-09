@@ -53,7 +53,6 @@ import configFormEmail from './config/form-email.js';
 import configFormPassword from './config/form-password.js';
 
 export default {
-  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'change-password',
   components: { genericForm },
   computed: {

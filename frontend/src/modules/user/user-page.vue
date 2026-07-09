@@ -14,7 +14,6 @@ import genericForm from '@/components/form/generic-form';
 import configFormUser from './config/form-update-user.js';
 
 export default {
-  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'userPage',
   components: { genericForm },
   data: () => ({

@@ -352,7 +352,6 @@
 <script>
 import contentImg from '@/modules/content/content-img.vue';
 export default {
-  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'helpContent',
   components: {
     contentImg,

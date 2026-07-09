@@ -60,7 +60,6 @@ import restitution2 from './restitution.vue';
 // import deepEqual from "fast-deep-equal";
 
 export default {
-  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'restitution-dashboard',
 
   components: {

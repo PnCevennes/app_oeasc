@@ -29,7 +29,6 @@ import genericForm from '@/components/form/generic-form';
 import configFormUser from './config/form-create-user.js';
 
 export default {
-  compatConfig: { MODE: 3 }, // verrouille les acquis Phase 4 (composant testé sans warning au 2026-07-10)
   name: 'createUser',
   components: { genericForm },
   data: () => ({
