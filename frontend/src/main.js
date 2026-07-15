@@ -35,7 +35,7 @@ Vue.use(HighchartsVue, {
 // vue-matomo est une librairie pour suivre les statistiques de visite (Matomo)
 Vue.use(VueMatomo, {
   // Configurez votre instance Matomo en renseignant :
-  host: 'https://stats.cevennes-parcnational.net',
+  host: 'https://oeasc-cevennes-parcnational.net/stats/',
   siteId: 6,
   router,
 });
