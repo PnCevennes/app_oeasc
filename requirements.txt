@@ -38,7 +38,6 @@ marshmallow==3.26.2
 marshmallow-sqlalchemy==1.4.1
 marshmallow_geojson==0.5.0
 numpy==2.3.2
--e git+https://github.com/PnCevennes/app_oeasc.git@d98f22b1ae0f1f8f7f0e79e0765b0e00b418d225#egg=oeasc
 packaging==25.0
 pandas==2.3.1
 patsy==1.0.1
