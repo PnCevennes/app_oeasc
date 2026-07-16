@@ -1,3 +1,10 @@
+// Espace davantage les radios d'un même groupe affiché en ligne (prop "inline" sur v-radio-group,
+// remplace la prop "row" de Vuetify 2 qui n'existe plus en V3) : par défaut ils sont collés les uns
+// aux autres.
+.v-selection-control-group--inline > .v-selection-control:not(:last-child) {
+  margin-right: 24px;
+}
+
 // CSS surtout utilisé dans le header
 
 // Bandeau du header

@@ -28,13 +28,18 @@
                   <v-radio-group
                     v-model="declaration_data.b_statut_public"
                     :rules="[rules.required]"
-                    row
+                    inline
+                    density="compact"
+                    hide-details="auto"
+                    class="flex-grow-0"
                   >
                     <v-radio
+                      inline
                       label="Public"
                       :value="true"
                     ></v-radio>
                     <v-radio
+                      inline
                       label="Privée"
                       :value="false"
                     ></v-radio>
@@ -58,13 +63,17 @@
                   <v-radio-group
                     v-model="declaration_data.b_document"
                     :rules="[rules.required]"
-                    row
+                    inline
+                    density="compact"
+                    hide-details="auto"
                   >
                     <v-radio
+                      inline
                       label="Oui"
                       :value="true"
                     ></v-radio>
                     <v-radio
+                      inline
                       label="Non"
                       :value="false"
                     ></v-radio>
@@ -182,25 +191,31 @@
                         border-radius: 5px;
                       "
                     >
-                      <v-text-field
-                        v-model="declaration_data.label_foret"
-                        label="Nom de la forêt"
-                        :disabled="declaration_data.b_document === true"
+                      <div
+                        class="d-flex align-center"
+                        style="gap: 8px"
                       >
-                        <template v-slot:append-outer>
-                          <help><helpContent helpID="form_nom_foret"></helpContent></help>
-                        </template>
-                      </v-text-field>
-                      <v-text-field
-                        v-model="declaration_data.surface_renseignee"
-                        :rules="[rules.required]"
-                        label="Total de la surface (en ha)"
-                        :disabled="declaration_data.b_document === true"
+                        <v-text-field
+                          v-model="declaration_data.label_foret"
+                          label="Nom de la forêt"
+                          :disabled="declaration_data.b_document === true"
+                          style="max-width: 400px"
+                        ></v-text-field>
+                        <help><helpContent helpID="form_nom_foret"></helpContent></help>
+                      </div>
+                      <div
+                        class="d-flex align-center"
+                        style="gap: 8px"
                       >
-                        <template v-slot:append-outer>
-                          <help><helpContent helpID="form_superficie_foret"></helpContent></help>
-                        </template>
-                      </v-text-field>
+                        <v-text-field
+                          v-model="declaration_data.surface_renseignee"
+                          :rules="[rules.required]"
+                          label="Total de la surface (en ha)"
+                          :disabled="declaration_data.b_document === true"
+                          style="max-width: 400px"
+                        ></v-text-field>
+                        <help><helpContent helpID="form_superficie_foret"></helpContent></help>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -382,6 +397,7 @@
                               style="display: flex; align-items: center"
                             >
                               <v-radio
+                                inline
                                 :label="item.label_fr"
                                 :value="item.id_nomenclature"
                               ></v-radio>
@@ -453,14 +469,18 @@
                         <v-radio-group
                           v-model="declaration_data.b_peuplement_protection_existence"
                           :rules="[rules.required]"
-                          row
+                          inline
+                          density="compact"
+                          hide-details="auto"
                           style="margin-left: 20px"
                         >
                           <v-radio
+                            inline
                             label="Oui"
                             :value="true"
                           ></v-radio>
                           <v-radio
+                            inline
                             label="Non"
                             :value="false"
                           ></v-radio>
@@ -506,14 +526,18 @@
                         <v-radio-group
                           v-model="declaration_data.b_peuplement_paturage_presence"
                           :rules="[rules.required]"
-                          row
+                          inline
+                          density="compact"
+                          hide-details="auto"
                           style="margin-left: 20px"
                         >
                           <v-radio
+                            inline
                             label="Oui"
                             :value="true"
                           ></v-radio>
                           <v-radio
+                            inline
                             label="Non"
                             :value="false"
                           ></v-radio>
@@ -591,11 +615,14 @@
                         <v-radio-group
                           v-model="declaration_data.id_nomenclature_peuplement_acces"
                           :rules="[rules.required]"
-                          row
+                          inline
+                          density="compact"
+                          hide-details="auto"
                         >
                           <v-radio
                             v-for="(item, index) in nomenclature.OEASC_PEUPLEMENT_ACCES.values"
                             :key="index"
+                            inline
                             :label="item.label_fr"
                             :value="item.id_nomenclature"
                           ></v-radio>
@@ -732,13 +759,17 @@
             <v-radio-group
               v-model="declaration_data.b_autorisation"
               :rules="[rules.required]"
-              row
+              inline
+              density="compact"
+              hide-details="auto"
             >
               <v-radio
+                inline
                 label="Oui"
                 :value="true"
               ></v-radio>
               <v-radio
+                inline
                 label="Non"
                 :value="false"
               ></v-radio>
@@ -756,13 +787,17 @@
                 <v-radio-group
                   v-model="declaration_data.b_valid"
                   :mandatory="false"
-                  row
+                  inline
+                  density="compact"
+                  hide-details="auto"
                 >
                   <v-radio
+                    inline
                     label="Oui"
                     :value="true"
                   ></v-radio>
                   <v-radio
+                    inline
                     label="Non"
                     :value="false"
                   ></v-radio>

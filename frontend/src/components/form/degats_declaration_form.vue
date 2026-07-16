@@ -189,6 +189,8 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                   <th v-if="item_type_degat.cd_nomenclature !== 'P/C'">
                     <v-btn
                       icon
+                      size="small"
+                      variant="text"
                       @click="
                         removeDegatEssence(
                           item_type_degat.id_nomenclature,
@@ -196,7 +198,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                         )
                       "
                     >
-                      <v-icon>mdi-delete</v-icon>
+                      <v-icon size="20">mdi-delete</v-icon>
                     </v-btn>
                   </th>
                 </tr>

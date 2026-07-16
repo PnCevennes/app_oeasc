@@ -26,11 +26,16 @@ on utilisera un fichier du type help_content.vue pour le contenu de la fenêtre.
       placeholder="NoTabIndex"
       class="btn"
       icon
-      small
+      size="small"
+      variant="text"
       @click.stop="dialog = true"
       title="Cliquer pour obtenir de l'aide"
     >
-      <v-icon tabindex="-1">help</v-icon>
+      <v-icon
+        tabindex="-1"
+        size="22"
+        >help</v-icon
+      >
     </v-btn>
   </span>
 </template>

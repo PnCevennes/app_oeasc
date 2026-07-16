@@ -45,7 +45,9 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
         v-else
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
-        row
+        inline
+        density="compact"
+        hide-details="auto"
         :rules="configForm.rules"
         @change="configForm.change && configForm.change({ baseModel, config, $store })"
       >
@@ -61,10 +63,12 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
         ></help>
 
         <v-radio
+          inline
           :label="configForm.labels[0]"
           :value="true"
         ></v-radio>
         <v-radio
+          inline
           :label="configForm.labels[1]"
           :value="false"
         ></v-radio>
