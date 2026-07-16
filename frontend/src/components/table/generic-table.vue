@@ -138,9 +138,11 @@
                     v-if="header.value == 'actions'"
                     color="primary"
                     icon
+                    size="x-small"
+                    variant="text"
                     @click="edit('actions')"
                   >
-                    <v-icon>fa-plus</v-icon>
+                    <v-icon size="16">fa-plus</v-icon>
                   </v-btn>
                 </template>
                 <span>Ajouter une nouvelle ligne au tableau</span>
@@ -155,15 +157,19 @@
         >
           <div :key="index">
             <!-- bouton supprimer et editer -->
-            <div v-if="value == 'actions'">
+            <div
+              v-if="value == 'actions'"
+              class="d-flex flex-nowrap align-center"
+            >
               <template
                 v-for="(action, indexAction) of props.column.list || []"
                 :key="indexAction"
               >
                 <v-btn
-                  small
                   v-if="!action.condition || action.condition({ $store, item: props.item })"
                   icon
+                  size="x-small"
+                  variant="text"
                   :to="
                     typeof action.to == 'function'
                       ? action.to({ item: props.item, $store })
@@ -172,7 +178,7 @@
                   :title="action.title"
                   @click="action.click && action.click(props.item[configTable.idFieldName])"
                 >
-                  <v-icon small>{{ action.icon }}</v-icon>
+                  <v-icon size="16">{{ action.icon }}</v-icon>
                 </v-btn>
               </template>
             </div>

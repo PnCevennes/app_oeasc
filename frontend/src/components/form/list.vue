@@ -74,6 +74,7 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue';
 import { formFunctions } from '@/components/form/functions/form.js';
 export default {
   name: 'list',
@@ -206,7 +207,7 @@ export default {
       });
     },
   },
-  components: { dynamicForm: () => import('./dynamic-form') },
+  components: { dynamicForm: defineAsyncComponent(() => import('./dynamic-form')) },
   data: () => ({
     configForm: null, // Stocke la configuration du formulaire principal
     localModel: {}, // Modèle local pour manipuler les données du formulaire

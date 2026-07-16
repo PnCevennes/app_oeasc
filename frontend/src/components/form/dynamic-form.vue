@@ -102,17 +102,14 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
               ? configForm.type
               : 'text'
         "
-        :append-icon="config.type === 'password' ? (show1 ? 'mdi-eye' : 'mdi-eye-off') : null"
-        dense
         v-model="baseModel[configForm.name]"
         :rules="configForm.rules"
-        :label="configForm.label"
         :counter="configForm.counter"
         :maxlength="configForm.maxlength"
         :disabled="configForm.disabled"
         @change="inputChange($event)"
       >
-        <span slot="label">
+        <template v-slot:label>
           {{ configForm.label }}
           <span
             v-if="configForm.required && config.label"
@@ -120,29 +117,25 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
           >
             *
           </span>
-        </span>
-        {{ `form-${config.name}` }}
+        </template>
 
-        <span
-          slot="append"
-          @click="show1 = !!show1"
-        >
+        <template v-slot:append>
           <v-btn
             icon
-            v-if="config.type === 'password'"
+            size="small"
+            variant="text"
+            v-if="configForm.type === 'password'"
             @click="show1 = !show1"
             tabindex="-1"
           >
-            <v-icon>
-              {{ config.type === 'password' ? (show1 ? 'mdi-eye' : 'mdi-eye-off') : null }}
-            </v-icon>
+            <v-icon size="22">{{ show1 ? 'mdi-eye' : 'mdi-eye-off' }}</v-icon>
           </v-btn>
           <help
             tabindex="-1"
             :code="`form-${configForm.name}`"
             v-if="configForm.help"
           ></help>
-        </span>
+        </template>
       </v-text-field>
     </template>
 
@@ -156,11 +149,13 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
         :placeholder="configForm.placeholder"
         :rows="configForm.rows"
       >
-        <help
-          slot="append"
-          :code="`form-${configForm.name}`"
-          v-if="configForm.help"
-        ></help>
+        <template v-slot:append>
+          <help
+            tabindex="-1"
+            :code="`form-${configForm.name}`"
+            v-if="configForm.help"
+          ></help>
+        </template>
       </v-textarea>
     </template>
 
@@ -172,11 +167,13 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
         :label="configForm.label"
         :placeholder="configForm.placeholder"
       >
-        <help
-          slot="append"
-          :code="`form-${configForm.name}`"
-          v-if="configForm.help"
-        ></help>
+        <template v-slot:append>
+          <help
+            tabindex="-1"
+            :code="`form-${configForm.name}`"
+            v-if="configForm.help"
+          ></help>
+        </template>
       </v-file-input>
     </template>
 
@@ -237,6 +234,7 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue';
 import nomenclatureForm from './nomenclature-form.vue';
 import listForm from './list-form.vue';
 import selectMap from './select-map.vue';
@@ -254,7 +252,8 @@ export default {
     listForm,
     // import dynamique pour casser le cycle content.vue -> generic-form.vue -> dynamic-form-group.vue -> dynamic-form.vue -> content.vue
     // (un import statique provoque une ReferenceError de TDZ sous Vite/ESM natif, alors que webpack/CommonJS le tolérait)
-    oeascContent: () => import('@/modules/content/content.vue'),
+    // defineAsyncComponent est indispensable en Vue 3 (cf. commentaire dans help.vue)
+    oeascContent: defineAsyncComponent(() => import('@/modules/content/content.vue')),
     help,
     list,
   },

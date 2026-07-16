@@ -28,21 +28,32 @@ qui les charge directement depuis un fichier statique. On le garde le temps de t
       placeholder="NoTabIndex"
       class="btn"
       icon
-      small
+      size="small"
+      variant="text"
       @click.stop="dialog = true"
       title="Cliquer pour obtenir de l'aide"
     >
-      <v-icon tabindex="-1">help</v-icon>
+      <v-icon
+        tabindex="-1"
+        size="22"
+        >help</v-icon
+      >
     </v-btn>
   </div>
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue';
+
 export default {
   name: 'help',
   props: ['code'],
   components: {
-    oeascContent: () => import('@/modules/content/content.vue'),
+    // import dynamique pour casser le cycle content.vue -> help.vue -> content.vue
+    // defineAsyncComponent est indispensable en Vue 3 : une simple fonction () => import(...)
+    // n'est plus reconnue comme composant asynchrone (contrairement à Vue 2) et est exécutée
+    // comme un composant fonctionnel, ce qui affiche "[object Promise]" au lieu du contenu.
+    oeascContent: defineAsyncComponent(() => import('@/modules/content/content.vue')),
   },
   data: () => ({
     dialog: false,

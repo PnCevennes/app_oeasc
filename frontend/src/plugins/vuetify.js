@@ -22,4 +22,13 @@ export default createVuetify({
     fallback: 'en',
     messages: { fr },
   },
+  defaults: {
+    // Vuetify 3 utilise par défaut le variant "filled" (fond grisé) pour les champs de saisie,
+    // contrairement à Vuetify 2 qui n'appliquait pas de fond. On revient à un style sans fond
+    // pour conserver l'apparence d'origine de l'application.
+    VTextField: { variant: 'underlined' },
+    VSelect: { variant: 'underlined' },
+    VTextarea: { variant: 'underlined' },
+    VFileInput: { variant: 'underlined' },
+  },
 });

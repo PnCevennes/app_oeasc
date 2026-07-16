@@ -70,7 +70,7 @@ affichage du menu de l'application -->
                 v-slot:prepend
                 v-if="item.icon"
               >
-                <v-icon v-text="item.icon"></v-icon>
+                <v-icon :icon="item.icon"></v-icon>
               </template>
               <v-list-item-title v-if="item.label">{{ item.label }}</v-list-item-title>
               <v-divider v-if="item == '-'"></v-divider>
