@@ -20,8 +20,10 @@
           v-if="item.menus.length"
           :prepend-icon="item.icon"
         >
-          <template v-slot:activator>
-            <v-list-item-title>{{ item.label }}</v-list-item-title>
+          <template v-slot:activator="{ props }">
+            <v-list-item v-bind="props">
+              <v-list-item-title>{{ item.label }}</v-list-item-title>
+            </v-list-item>
           </template>
           <v-list-item
             v-for="(subItem, indexSub) of item.menus"
