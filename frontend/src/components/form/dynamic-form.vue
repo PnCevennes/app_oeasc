@@ -83,7 +83,7 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
         <template v-else>Indéfini</template>
       </span>
       <v-switch
-        :id="`form-${config.name}`"
+        :id="`form-${config.name}${config.rowIndex != null ? '-' + config.rowIndex : ''}`"
         v-else
         dense
         v-model="baseModel[configForm.name]"
@@ -98,7 +98,7 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
       <span v-if="configForm.displayValue">{{ baseModel[configForm.name] }}</span>
       <v-text-field
         v-else
-        :id="`form-${configForm.name}`"
+        :id="`form-${configForm.name}${configForm.rowIndex != null ? '-' + configForm.rowIndex : ''}`"
         :type="
           !show1 && configForm.type === 'password'
             ? 'password'

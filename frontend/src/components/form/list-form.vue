@@ -39,7 +39,7 @@
         <div v-else-if="config.list_type === 'combobox'">
           <v-combobox
             ref="autocomplete"
-            :id="`form-${config.name}`"
+            :id="fieldId"
             clearable
             v-model="baseModel[config.name]"
             :items="items"
@@ -79,7 +79,7 @@
         <div v-else-if="config.list_type === 'autocomplete'">
           <v-autocomplete
             ref="autocomplete"
-            :id="`form-${config.name}`"
+            :id="fieldId"
             clearable
             v-model="baseModel[config.name]"
             :items="items"
@@ -123,7 +123,7 @@
         <!-- Affichage sous forme de select (liste déroulante) -->
         <div v-else-if="config.list_type === 'select'">
           <v-select
-            :id="`form-${config.name}`"
+            :id="fieldId"
             clearable
             dense
             v-model="baseModel[config.name]"
@@ -321,7 +321,7 @@ export default {
     change(event) {
       // Pour les listes de type combobox, select ou autocomplete, on déclenche une action pour gérer l'index clearable
       if (['combobox', 'select', 'autocomplete'].includes(this.config.list_type)) {
-        this.$store.dispatch('setClearableTabIndex', `#form-${this.config.name}`);
+        this.$store.dispatch('setClearableTabIndex', `#${this.fieldId}`);
       }
 
       // Cas particulier pour le combobox avec returnObject :
@@ -575,6 +575,15 @@ export default {
     },
   },
   computed: {
+    /**
+     * Id DOM du champ, unique par ligne quand le champ fait partie d'une liste répétée (list.vue
+     * propage un rowIndex) afin d'éviter le warning Vuetify "Duplicate input name" et les collisions
+     * d'id HTML quand le même champ (ex: id_espece) est répété sur plusieurs lignes.
+     */
+    fieldId() {
+      return `form-${this.config.name}${this.config.rowIndex != null ? '-' + this.config.rowIndex : ''}`;
+    },
+
     /**
      * Calcule et retourne la valeur affichée pour le champ sélectionné.
      * Cette méthode est utilisée lorsque l'option "displayValue" est activée dans la configuration.

@@ -44,6 +44,7 @@
           :config="{
             ...config.formDefs[keyForm],
             name: keyForm,
+            rowIndex: indexLine,
             change: newChange(config.formDefs[keyForm].change),
             displayValue: config.displayValue,
           }"

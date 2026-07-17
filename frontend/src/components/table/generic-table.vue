@@ -107,17 +107,21 @@
         <v-spacer></v-spacer>
       </v-card-title>
 
-      <v-data-table
-        :options.sync="options"
+      <component
+        :is="configTable.serverSide ? 'v-data-table-server' : 'v-data-table'"
+        :items-length="configTable.serverSide ? itemsServerCount || 0 : undefined"
+        :page="options.page"
+        :items-per-page="options.itemsPerPage"
+        :sort-by="vuetifySortBy"
         :class="configTable.classes"
         :headers="configTable.headers"
         :items="filteredItems"
         multi-sort
         :dense="configTable.dense"
         :loading="!configTable.items"
-        :server-items-length="configTable.serverSide && itemsServerCount"
         loading-text="Chargement en cours... merci de patienter"
         :footer-props="{ 'items-per-page-options': [20, 50, 100] }"
+        @update:options="onUpdateOptions"
       >
         <template v-slot:body.prepend>
           <tr>
@@ -208,7 +212,7 @@
             </div>
           </div>
         </template>
-      </v-data-table>
+      </component>
     </v-card>
 
     <!--
@@ -486,6 +490,23 @@ export default {
      */
     closeDialog() {
       this.bEditDialog = false;
+    },
+
+    /**
+     * Reçoit l'objet "options" émis par v-data-table(-server) en Vuetify 3
+     * (page, itemsPerPage, sortBy: [{key, order}], ...) et le convertit vers le format
+     * legacy {page, itemsPerPage, sortBy: [string], sortDesc: [bool]} attendu par
+     * preloadData/le backend (hérité de Vuetify 2, cf repository.py: getlist "sortBy"/"sortDesc").
+     * Remplace this.options par une nouvelle référence pour déclencher le watcher "options".
+     */
+    onUpdateOptions(vuetifyOptions) {
+      const sortBy = vuetifyOptions.sortBy || [];
+      this.options = {
+        page: vuetifyOptions.page,
+        itemsPerPage: vuetifyOptions.itemsPerPage,
+        sortBy: sortBy.map((s) => s.key),
+        sortDesc: sortBy.map((s) => s.order === 'desc'),
+      };
     },
 
     /**
@@ -790,8 +811,23 @@ export default {
       }
       return filteredItems;
     },
+
+    /**
+     * Pont entre le format legacy de this.options.sortBy/sortDesc (tableaux parallèles,
+     * hérité de Vuetify 2) et le format attendu par la prop "sort-by" de Vuetify 3
+     * ([{ key, order }]).
+     */
+    vuetifySortBy() {
+      return (this.options.sortBy || []).map((key, index) => ({
+        key,
+        order: this.options.sortDesc && this.options.sortDesc[index] ? 'desc' : 'asc',
+      }));
+    },
   },
-  mounted() {
+  created() {
+    // appelé avant le premier rendu (contrairement à mounted) pour que configTable.serverSide
+    // soit déjà connu au moment où le template choisit entre v-data-table et v-data-table-server,
+    // évitant un premier montage en mode client suivi d'un remontage
     this.initConfig();
   },
 };
