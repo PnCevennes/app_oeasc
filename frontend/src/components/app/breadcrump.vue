@@ -17,7 +17,7 @@
  * - methods:
  *   - breadcrumpList(name, list) : Fonction récursive qui construit la liste du fil d'Ariane.
  *     - Recherche la route correspondante dans la configuration du routeur.
- *     - Ajoute un objet { text, to } à la liste, où "text" est le label de la route (ou le paramètre "code" si absent),
+ *     - Ajoute un objet { title, to } à la liste, où "title" est le label de la route (ou le paramètre "code" si absent),
  *       et "to" est le chemin de la route.
  *     - Remonte récursivement vers la route parente jusqu'à la racine.
  * 
@@ -54,7 +54,7 @@ export default {
 
       const route = this.$router.options.routes.find((route) => route.name == name);
       list.unshift({
-        text: route.label || this.$route.params.code,
+        title: route.label || this.$route.params.code,
         to: route.path,
       });
       return this.breadcrumpList(route.parent, list);
