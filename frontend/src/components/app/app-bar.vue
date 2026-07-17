@@ -13,22 +13,17 @@
 // Méthodes :
 // - drawnerClick : émet 'update:modelValue' pour inverser l'état du menu latéral lors du clic sur l'icône de navigation.
 //
-// Utilise Vuetify pour la structure visuelle (v-card, v-app-bar, v-app-bar-nav-icon, v-spacer).
+// Utilise Vuetify pour la structure visuelle (v-app-bar, v-app-bar-nav-icon, v-spacer).
 // Le composant est conçu pour être réutilisable et configurable selon les besoins de l'application. -->
 
 <template>
-  <v-card>
-    <v-app-bar
-      dense
-      fixed
-    >
-      <v-app-bar-nav-icon @click="drawnerClick()"></v-app-bar-nav-icon>
-      <app-bar-menu :config="configMenus.leftMenus"></app-bar-menu>
+  <v-app-bar dense>
+    <v-app-bar-nav-icon @click="drawnerClick()"></v-app-bar-nav-icon>
+    <app-bar-menu :config="configMenus.leftMenus"></app-bar-menu>
 
-      <v-spacer></v-spacer>
-      <app-bar-menu :config="configMenus.rightMenus"></app-bar-menu>
-    </v-app-bar>
-  </v-card>
+    <v-spacer></v-spacer>
+    <app-bar-menu :config="configMenus.rightMenus"></app-bar-menu>
+  </v-app-bar>
 </template>
 
 <script>
