@@ -1,4 +1,3 @@
-import genericForm from '@/components/form/generic-form';
 import configFormTest from './config/form-test.js';
 
 const ROUTE = [
@@ -15,7 +14,7 @@ const ROUTE = [
     name: 'test.form',
     label: 'Test Form',
     parent: 'test',
-    component: genericForm,
+    component: () => import('@/components/form/generic-form.vue'),
     props: {
       config: configFormTest,
     },

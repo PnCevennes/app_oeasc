@@ -1,7 +1,7 @@
 // toutes les pages d'information du site. Le contenu est cherché en base de données. Meriterait d'être passé en
 //statique.
 
-import page from './page';
+const page = () => import('./page.vue');
 
 const ROUTE = [
   {

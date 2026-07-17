@@ -1,10 +1,7 @@
-import modifier_declaration from './modifier-declaration.vue';
 import { apiRequest } from '@/core/js/data/api.js';
 import storeUtils from '@/store/utils';
 import configResitutionDeclaration from './config/restitution-declaration';
 import configStoreDegat from './config/store-degat';
-import voir_declaration from './voir_declaration.vue';
-import declarationListe from './declaration-liste.vue';
 
 const ROUTE = [
   {
@@ -14,7 +11,7 @@ const ROUTE = [
     name: 'nouvelle_declaration',
     hideTitle: true,
     parent: 'declaration.systeme_alerte',
-    component: modifier_declaration,
+    component: () => import('./modifier-declaration.vue'),
   },
 
   {
@@ -24,7 +21,7 @@ const ROUTE = [
     hideTitle: true,
     parent: 'declaration.liste_declarations',
     name: 'modifier_declaration',
-    component: modifier_declaration,
+    component: () => import('./modifier-declaration.vue'),
   },
 
   // pas de access ici car l'identification se fait via un token
@@ -34,7 +31,7 @@ const ROUTE = [
     hideTitle: true,
     parent: 'declaration.liste_declarations',
     name: 'actualisation_declaration',
-    component: modifier_declaration,
+    component: () => import('./modifier-declaration.vue'),
   },
 
   {
@@ -43,7 +40,7 @@ const ROUTE = [
     access: 1,
     name: 'declaration.liste_declarations',
     parent: 'declaration.systeme_alerte',
-    component: declarationListe,
+    component: () => import('./declaration-liste.vue'),
   },
 
   {
@@ -52,7 +49,7 @@ const ROUTE = [
     access: 1,
     name: 'voir_declaration',
     parent: 'declaration.liste_declarations',
-    component: voir_declaration,
+    component: () => import('./voir_declaration.vue'),
   },
 
   {

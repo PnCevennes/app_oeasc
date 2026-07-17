@@ -1,8 +1,5 @@
 import storeUtils from '@/store/utils';
-import content from './content';
-import actualite from './actualite';
 // import { apiRequest } from "@/core/js/data/api.js";
-import admin from '@/components/admin';
 
 import configStoreTag from './config/store-tag';
 import configStoreContent from './config/store-content';
@@ -15,7 +12,7 @@ const ROUTE = [
     path: '/content/admin',
     label: 'Contenus',
     hideTitle: true,
-    component: admin,
+    component: () => import('@/components/admin.vue'),
     props: {
       config: {
         title: 'Contenus',
@@ -37,7 +34,7 @@ const ROUTE = [
     label: 'Actualités',
     name: 'actualite.index',
     parent: 'page.accueil',
-    component: actualite,
+    component: () => import('./actualite.vue'),
     props: {
       tagNames: ['actualité'],
     },
@@ -52,7 +49,7 @@ const ROUTE = [
     path: '/content/:code',
     label: 'content',
     name: 'content',
-    component: content,
+    component: () => import('./content.vue'),
     props: {
       page: true,
     },
@@ -62,7 +59,7 @@ const ROUTE = [
     label: 'actualite',
     name: 'actualite.new',
     parent: 'actualite.index',
-    component: content,
+    component: () => import('./content.vue'),
     props: {
       page: true,
       code: null,
@@ -77,4 +74,4 @@ const STORE = {};
 storeUtils.addStore(STORE, configStoreContent);
 storeUtils.addStore(STORE, configStoreTag);
 
-export { ROUTE, STORE, content };
+export { ROUTE, STORE };

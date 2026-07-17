@@ -1,5 +1,4 @@
 import storeUtils from '@/store/utils';
-import admin from '@/components/admin';
 // import configStoreTag from './config/store-tag';
 import configStoreObserver from './config/store-observer';
 import configStoreCircuit from './config/store-circuit';
@@ -28,7 +27,7 @@ const ROUTE = [
     label: 'Indices nocturnes ',
     // parent: "in.index",
     hideTitle: true,
-    component: admin,
+    component: () => import('@/components/admin.vue'),
     props: {
       config: {
         title: 'Indice Nocturnes',

@@ -1,10 +1,4 @@
-import login from './login.vue';
 import { config } from '@/config/config.js';
-import userPage from './user-page';
-import createUser from './create-user';
-import manageUser from './manage-user';
-import changePassword from './change-password';
-import logout from './logout';
 import { apiRequest } from '@/core/js/data/api.js';
 
 // ROUTE: intègre les routes pour la connexion, l'inscription, la déconnexion et
@@ -20,7 +14,7 @@ const ROUTE = [
     icon: 'mdi-login',
     name: 'user.login',
     parent: 'page.accueil',
-    component: login,
+    component: () => import('./login.vue'),
     hidden: ({ $store }) => !!$store.getters.isAuth,
   },
   {
@@ -28,7 +22,7 @@ const ROUTE = [
     label: 'Déconnexion',
     name: 'user.logout',
     icon: 'mdi-logout',
-    component: logout,
+    component: () => import('./logout.vue'),
     hidden: ({ $store }) => !$store.getters.isAuth,
   },
 
@@ -39,7 +33,7 @@ const ROUTE = [
     icon: 'mdi-account',
     name: 'user.espace_utilisateur',
     parent: 'page.accueil',
-    component: userPage,
+    component: () => import('./user-page.vue'),
     hidden: ({ $store }) => !$store.getters.isAuth,
   },
   {
@@ -48,7 +42,7 @@ const ROUTE = [
     icon: 'mdi-account-plus',
     name: 'user.creer_utilisateur',
     parent: 'page.accueil',
-    component: createUser,
+    component: () => import('./create-user.vue'),
     hidden: ({ $store }) => !!$store.getters.isAuth,
   },
   {
@@ -58,7 +52,7 @@ const ROUTE = [
     icon: 'mdi-account-group',
     parent: 'page.accueil',
     access: 4,
-    component: manageUser,
+    component: () => import('./manage-user.vue'),
     hidden: ({ $store }) => !$store.getters.droitMax >= 4,
   },
   {
@@ -66,7 +60,7 @@ const ROUTE = [
     label: 'Changement de mot de passe',
     name: 'user.change_password',
     parent: 'page.accueil',
-    component: changePassword,
+    component: () => import('./change-password.vue'),
   },
 ];
 
@@ -225,4 +219,4 @@ const STORE = {
   },
 };
 
-export { ROUTE, STORE, login };
+export { ROUTE, STORE };

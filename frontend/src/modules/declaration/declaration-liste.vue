@@ -5,7 +5,7 @@ Page affichant le tableau avec la liste des declarations. Affiche aussi un bouto
  -->
 
 <template>
-  <div>
+  <div class="w-100">
     <div>
       <div>
         <v-btn

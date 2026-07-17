@@ -1,4 +1,3 @@
-import RestitutionTest from './restitution-dashboard.vue';
 const ROUTE = [
   {
     path: '/restitution/test',
@@ -7,7 +6,7 @@ const ROUTE = [
     parent: 'restitution',
     access: 1,
     hideTitle: true,
-    component: RestitutionTest,
+    component: () => import('./restitution-dashboard.vue'),
   },
   {
     path: '/restitution',

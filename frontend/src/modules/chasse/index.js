@@ -5,8 +5,6 @@ import { apiRequest } from '@/core/js/data/api.js'; // pour intégrer apiRequest
 import { round } from '@/core/js/util/util.js';
 
 // Import des fichiers de configuration des stores
-// import admin from "./admin.vue"; // la page d'administration avec le tableau de données
-import admin from '@/components/admin';
 // import genericForm from "./form/generic-form.vue";
 import { generateConfigformDef } from './config/form-content-chasse.js';
 import configStoreZoneCynegetique from './config/store-zone-cynegetique.js';
@@ -21,13 +19,8 @@ import configStoreAttribution from './config/store-attribution.js';
 import configStoreRealisation from './config/store-realisation.js';
 
 // Import des routes
-import formRealisationChasse from './form-realisation-chasse.vue';
-import exportsChasse from './exports-chasse.vue';
-import pageChasseBilanDetaille from './page-chasse-bilan-detaille.vue';
-import pageBilanDonneeChasse from './bilan_donnee.vue';
 import Graph_bilan_evolution from './graph/graph_bilan_evolution.vue';
 import graphChasseIce from './graph/graph_ice.vue';
-import importsChasse from './imports-chasse.vue';
 import graphChasseIcePoints from './graph/graph_ice_points.vue';
 
 const ROUTE = [
@@ -37,7 +30,7 @@ const ROUTE = [
     path: '/chasse/admin',
     label: 'Données chasse',
     hideTitle: true, // True => cache le bandeau header pour plus de place
-    component: admin, // le component admin est le composant générique qui affiche une table avec generic-table.vue (il faut la props.config.tabs)
+    component: () => import('@/components/admin.vue'), // le component admin est le composant générique qui affiche une table avec generic-table.vue (il faut la props.config.tabs)
     props: {
       config: {
         // titre affiché en haut de page suivi de "- Page d'administration"
@@ -87,7 +80,7 @@ const ROUTE = [
     path: '/chasse/saisie',
     label: 'Saisie données chasse',
     hideTitle: true, // True => cache le bandeau header pour plus de place
-    component: formRealisationChasse,
+    component: () => import('./form-realisation-chasse.vue'),
     access: 4,
   },
 
@@ -96,7 +89,7 @@ const ROUTE = [
     path: '/chasse/export',
     label: 'Exports données chasse', // titre dans le menu (mais pas dans la page)
     hideTitle: true, // True => cache le bandeau header pour plus de place
-    component: exportsChasse,
+    component: () => import('./exports-chasse.vue'),
     access: 4,
   },
 
@@ -105,7 +98,7 @@ const ROUTE = [
     path: '/chasse/imports',
     label: 'Imports données chasse', // titre dans le menu (mais pas dans la page)
     hideTitle: true, // True => cache le bandeau header pour plus de place
-    component: importsChasse,
+    component: () => import('./imports-chasse.vue'),
     access: 4,
   },
 
@@ -114,7 +107,7 @@ const ROUTE = [
     path: '/chasse/restitution_bilan_detaille',
     label: 'Chasse : analyse détaillée',
     hideTitle: true, // True => cache le bandeau header pour plus de place
-    component: pageChasseBilanDetaille,
+    component: () => import('./page-chasse-bilan-detaille.vue'),
     access: 4,
   },
 
@@ -153,7 +146,7 @@ const ROUTE = [
     path: '/chasse/bilan',
     label: 'Bilan données chasse', // titre dans le menu (mais pas dans la page)
     hideTitle: true, // True => cache le bandeau header pour plus de place
-    component: pageBilanDonneeChasse,
+    component: () => import('./bilan_donnee.vue'),
     access: 4,
   },
 ];

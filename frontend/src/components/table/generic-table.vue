@@ -11,7 +11,7 @@
  -->
 
 <template>
-  <div>
+  <div class="w-100">
     <!--
       Ce composant Vue.js affiche une boîte de dialogue de confirmation pour la suppression d'une ligne dans un tableau.
       - <v-dialog> : Fenêtre modale persistante qui s'affiche lorsque la variable 'deleteModal' est vraie.

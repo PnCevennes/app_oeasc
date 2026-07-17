@@ -23,8 +23,6 @@
  *
  */
 
-import RestitutionDashboard from './restitution-dashboard.vue';
-
 import { apiRequest } from '@/core/js/data/api.js';
 
 const ROUTE = [
@@ -34,7 +32,7 @@ const ROUTE = [
     name: 'restitution2.test',
     access: 1,
     hideTitle: true,
-    component: RestitutionDashboard,
+    component: () => import('./restitution-dashboard.vue'),
   },
 ];
 

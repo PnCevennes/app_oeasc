@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="w-100">
     <h1>Gestion des utilisateurs</h1>
     <div>
       <v-btn

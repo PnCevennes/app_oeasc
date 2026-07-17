@@ -1,5 +1,4 @@
 import storeUtils from '@/store/utils.js';
-import admin from '@/components/admin.vue';
 import configStoreSecteur from './config/store-secteur.js';
 import configStoreEspece from './config/store-espece.js';
 import configStoreNomenclature from './config/store-nomenclature.js';
@@ -30,7 +29,7 @@ const ROUTE = [
     path: '/commons/admin',
     label: 'Données commons',
     hideTitle: true,
-    component: admin,
+    component: () => import('@/components/admin.vue'),
     props: {
       config: {
         title: 'Commons',
