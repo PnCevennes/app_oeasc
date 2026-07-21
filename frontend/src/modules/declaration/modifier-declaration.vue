@@ -548,8 +548,8 @@
                         v-if="declaration_data.b_peuplement_paturage_presence == true"
                         style="padding-left: 20px"
                       >
-                        <div style="display: flex; flex-direction: row">
-                          <div>
+                        <div style="display: flex; flex-direction: row; flex-wrap: wrap; gap: 20px">
+                          <div style="flex: 1 1 240px; min-width: 240px">
                             <v-select
                               v-model="declaration_data.nomenclatures_peuplement_paturage_type"
                               :items="nomenclature.OEASC_PEUPLEMENT_PATURAGE_TYPE.values"
@@ -560,7 +560,7 @@
                               multiple
                             ></v-select>
                           </div>
-                          <div style="margin-left: 20px">
+                          <div style="flex: 1 1 240px; min-width: 240px">
                             <v-select
                               v-model="declaration_data.id_nomenclature_peuplement_paturage_statut"
                               :items="nomenclature.OEASC_PEUPLEMENT_PATURAGE_STATUT.values"
@@ -570,7 +570,7 @@
                               label="Statut du pâturage"
                             ></v-select>
                           </div>
-                          <div style="margin-left: 20px">
+                          <div style="flex: 1 1 240px; min-width: 240px">
                             <v-select
                               v-model="
                                 declaration_data.id_nomenclature_peuplement_paturage_frequence
@@ -586,7 +586,7 @@
                             v-if="
                               declaration_data.id_nomenclature_peuplement_paturage_frequence == 547
                             "
-                            style="margin-left: 20px"
+                            style="flex: 1 1 240px; min-width: 240px"
                           >
                             <v-select
                               v-model="declaration_data.nomenclatures_peuplement_paturage_saison"

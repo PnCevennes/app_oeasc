@@ -28,6 +28,8 @@ export default createVuetify({
     // pour conserver l'apparence d'origine de l'application.
     VTextField: { variant: 'underlined' },
     VSelect: { variant: 'underlined' },
+    VAutocomplete: { variant: 'underlined' },
+    VCombobox: { variant: 'underlined' },
     VTextarea: { variant: 'underlined' },
     VFileInput: { variant: 'underlined' },
   },
