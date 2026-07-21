@@ -5,7 +5,7 @@ A supprimé lorsque les pages sont repassées en statique. -->
     <div v-if="contentCode">
       <oeasc-content
         :code="contentCode"
-        :class="{ page: true, large }"
+        :class="{ page: true, large: isLarge }"
       ></oeasc-content>
     </div>
   </div>
@@ -17,11 +17,15 @@ import './page.css';
 
 export default {
   name: 'page',
-  props: ['large'],
   components: { oeascContent },
   computed: {
     contentCode() {
       return this.$route.meta.content || this.$route.params.code;
+    },
+    // certaines pages (tableaux de bord avec graphiques) ont besoin de plus de largeur
+    // que la colonne de lecture par défaut (voir large: true dans la config de route concernée)
+    isLarge() {
+      return !!this.$route.meta.large;
     },
   },
 };

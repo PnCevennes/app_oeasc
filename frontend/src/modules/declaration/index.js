@@ -86,6 +86,7 @@ const ROUTE = [
     content: 'resultats.declarations',
     parent: 'resultats.index',
     type: 'page',
+    large: true, // page contenant des graphiques, a besoin de plus de largeur que la colonne de lecture par défaut
   },
 ];
 

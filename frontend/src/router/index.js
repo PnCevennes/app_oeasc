@@ -27,6 +27,7 @@ export default createRouter({
           hideTitle: route.hideTitle,
           label: route.label,
           title: route.title,
+          large: route.large, // page CMS large (voir modules/page/page.css .page.large)
         },
       };
     }),

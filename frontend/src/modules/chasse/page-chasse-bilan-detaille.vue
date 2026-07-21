@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div style="width: 1200px">
     <!--
       Formulaire générique pour sélectionner les paramètres de filtre du bilan.
       Utilisé pour permettre à l'utilisateur de choisir l'espèce, la saison, la zone, etc.
