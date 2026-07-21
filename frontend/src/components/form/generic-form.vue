@@ -36,35 +36,35 @@
           </div>
         </div>
 
-        <template v-if="!displayValue">
+        <div style="display: flex; gap: 12px">
+          <template v-if="!displayValue">
+            <v-btn
+              v-if="config.action"
+              ref="btn-valid-form"
+              color="success"
+              @click="processAction()"
+              :disabled="bSending || baseModel.freeze"
+            >
+              {{ config.action.label || 'Valider' }}
+            </v-btn>
+          </template>
+
           <v-btn
-            v-if="config.action"
-            absolute
-            right
-            ref="btn-valid-form"
-            color="success"
-            @click="processAction()"
-            :disabled="bSending || baseModel.freeze"
+            v-if="switchDisplay"
+            color="primary"
+            @click="processAnnulerModifier()"
           >
-            {{ config.action.label || 'Valider' }}
+            {{ displayValue ? 'Modifier' : 'Annuler' }}
           </v-btn>
-        </template>
 
-        <v-btn
-          v-if="switchDisplay"
-          color="primary"
-          @click="processAnnulerModifier()"
-        >
-          {{ displayValue ? 'Modifier' : 'Annuler' }}
-        </v-btn>
-
-        <v-btn
-          v-if="config.cancel"
-          color="primary"
-          @click="config.cancel.action({ baseModel })"
-        >
-          Annuler
-        </v-btn>
+          <v-btn
+            v-if="config.cancel"
+            color="primary"
+            @click="config.cancel.action({ baseModel })"
+          >
+            Annuler
+          </v-btn>
+        </div>
 
         <v-progress-linear
           indeterminate

@@ -39,7 +39,10 @@
       </div>
 
       <div style="margin-top: 1rem; align-items: center; margin: auto">
-        <div class="mt-2">
+        <div
+          class="mt-2"
+          style="display: flex; gap: 12px"
+        >
           <v-btn
             :disabled="!file || uploading"
             color="primary"
