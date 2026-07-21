@@ -527,6 +527,8 @@ export default {
 </script>
 
 <style>
+@import url('./form.css');
+
 .form-container {
   min-width: 800px;
   position: relative;
