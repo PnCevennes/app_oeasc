@@ -44,6 +44,8 @@ affichage du menu de l'application -->
         offset-y
         transition="slide-x-transition"
         open-on-hover
+        :open-delay="0"
+        :close-delay="0"
         v-else
       >
         <template v-slot:activator="{ props: menuActivatorProps }">
