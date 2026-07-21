@@ -11,6 +11,7 @@
           <!-- bouton pour éditer le contenu -->
           <v-btn
             icon
+            variant="text"
             v-if="!bEditContents && $store.getters.droitMax >= 5"
             @click="bEditContents = true"
             :ref="`btn-edit-content_${getCode()}`"
@@ -51,6 +52,7 @@
           <div>
             <v-btn
               icon
+              variant="text"
               v-if="bEditContents"
               @click="bEditContents = false"
             >
@@ -58,6 +60,7 @@
             </v-btn>
             <v-btn
               icon
+              variant="text"
               v-if="bEditContents"
               @click="
                 configImgForm.value = { position: 'center' };
@@ -68,6 +71,7 @@
             </v-btn>
             <v-btn
               icon
+              variant="text"
               v-if="bEditContents"
               @click="
                 configDocForm.value = null;
@@ -78,6 +82,7 @@
             </v-btn>
             <v-btn
               icon
+              variant="text"
               v-if="bEditContents"
               @click="triggerValidForm()"
             >
