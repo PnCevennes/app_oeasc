@@ -86,6 +86,7 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
         :id="`form-${config.name}${config.rowIndex != null ? '-' + config.rowIndex : ''}`"
         v-else
         dense
+        color="success"
         v-model="baseModel[configForm.name]"
         :label="configForm.label"
         :disabled="configForm.disabled"
