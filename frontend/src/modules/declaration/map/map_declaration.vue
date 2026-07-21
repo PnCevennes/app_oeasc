@@ -146,6 +146,24 @@ permet de zoomer dans les zones sélectionnées -->
 import { configMap } from '@/config/config-map.js'; // Importez la configuration de la carte
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+
+// Correctif d'un bug Leaflet (confirmé dans node_modules/leaflet/src/layer/Tooltip.js, v1.9.4) :
+// Tooltip.prototype._updatePosition/_animateZoom accèdent à this._map sans vérifier qu'il est
+// encore défini, contrairement à DivOverlay (leur classe de base) qui a bien ce garde-fou. Un
+// tooltip peut rester enregistré comme écouteur zoom/viewreset/zoomanim sur la carte juste après
+// que son layer d'origine a été retiré (fenêtre de course lors du remplacement rapide des couches
+// au clic dans cette page), ce qui fait planter l'appli au fitBounds ou au zoom suivant. Pas de fix
+// upstream disponible pour cette version ; on restaure le garde-fou manquant.
+const originalTooltipUpdatePosition = L.Tooltip.prototype._updatePosition;
+L.Tooltip.prototype._updatePosition = function (...args) {
+  if (!this._map) return;
+  return originalTooltipUpdatePosition.apply(this, args);
+};
+const originalTooltipAnimateZoom = L.Tooltip.prototype._animateZoom;
+L.Tooltip.prototype._animateZoom = function (...args) {
+  if (!this._map) return;
+  return originalTooltipAnimateZoom.apply(this, args);
+};
 import { styles } from '@/config/config-style.js'; // les styles des couches de la carte
 import help from '@/components/form/help_static.vue';
 import helpContent from '@/modules/declaration/help-content.vue';
@@ -355,7 +373,13 @@ export default {
 
       this.layerIndex = {}; // reset de l'index à chaque rechargement
       this.map.eachLayer((layer) => {
-        if (layer instanceof L.GeoJSON) {
+        // Un tooltip ouvert (par clic ou survol) est ajouté à la carte comme son propre layer, pas
+        // une instance de L.GeoJSON : il n'est donc pas retiré par le filtre ci-dessous et reste
+        // accroché à la carte (écouteurs viewreset/zoom/zoomanim), même une fois son layer d'origine
+        // supprimé. Un fitBounds ou zoom ultérieur le fait alors planter (Tooltip._updatePosition /
+        // _animateZoom accèdent à this._map sans vérifier qu'il est encore défini). On le retire
+        // explicitement en plus des layers GeoJSON.
+        if (layer instanceof L.GeoJSON || layer instanceof L.Tooltip) {
           this.map.removeLayer(layer);
         }
       });
@@ -406,8 +430,11 @@ export default {
       }).addTo(this.map);
 
       // Zoom sur l'ensemble des communes affichées
+      // animate: false évite une animation de zoom asynchrone (requestAnimationFrame) qui peut
+      // encore être en vol lorsqu'un clic déclenche un nouveau rendu de layers avant la fin de la
+      // précédente, provoquant un crash Leaflet (tooltip._map devenu null pendant l'animation).
       if (map_layers.getLayers().length > 0) {
-        this.map.fitBounds(map_layers.getBounds(), { maxZoom: 30 });
+        this.map.fitBounds(map_layers.getBounds(), { maxZoom: 30, animate: false });
       }
     },
 
@@ -481,7 +508,7 @@ export default {
       }).addTo(this.map);
 
       if (map_layers.getLayers().length > 0) {
-        this.map.fitBounds(map_layers.getBounds(), { maxZoom: 30 });
+        this.map.fitBounds(map_layers.getBounds(), { maxZoom: 30, animate: false });
       }
     },
 

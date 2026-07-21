@@ -7,15 +7,15 @@
           v-for="(item, index) in faq"
           :key="index"
         >
-          <v-expansion-panel-header>
+          <v-expansion-panel-title>
             <span
               style="line-height: 23px"
               v-html="item.question"
             ></span>
-          </v-expansion-panel-header>
-          <v-expansion-panel-content>
+          </v-expansion-panel-title>
+          <v-expansion-panel-text>
             <div v-html="item.response"></div>
-          </v-expansion-panel-content>
+          </v-expansion-panel-text>
         </v-expansion-panel>
       </v-expansion-panels>
     </v-row>

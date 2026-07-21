@@ -47,6 +47,7 @@ import exportingInit from 'highcharts/modules/exporting';
 import offlineExporting from 'highcharts/modules/offline-exporting';
 import { round } from '@/core/js/util/util.js';
 import { dataTxt, localisationTitle } from '../config/util.js';
+import { apiRequest } from '@/core/js/data/api.js';
 
 // Initialise le module d'exportation de Highcharts (permet l'export PNG, PDF, etc. depuis le menu du graphique)
 exportingInit(Highcharts);
