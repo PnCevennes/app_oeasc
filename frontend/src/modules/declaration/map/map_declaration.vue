@@ -130,7 +130,7 @@ permet de zoomer dans les zones sélectionnées -->
           <v-chip
             v-for="area in areasLocalisationOfThisMap"
             :key="area.id_area"
-            close
+            closable
             @click:close="action_close_pastille(area)"
             class="ma-1"
           >

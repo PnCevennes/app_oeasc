@@ -77,9 +77,8 @@
             :rules="rules"
             dense
             :chips="config.multiple ? true : false"
-            :small-chips="config.multiple ? true : false"
             hide-selected
-            :deletable-chips="config.multiple ? true : false"
+            :closable-chips="config.multiple ? true : false"
             clearable
             placeholder="Choisir un element dans la liste"
             @change="selectChange"
