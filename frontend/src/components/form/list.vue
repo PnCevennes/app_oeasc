@@ -26,11 +26,13 @@
       <v-col class="col-btn">
         <v-btn
           icon
+          size="small"
+          variant="text"
           color="red"
           @click="deleteItem(indexLine)"
           v-if="!config.displayValue"
         >
-          <v-icon>mdi-close-circle</v-icon>
+          <v-icon size="24">mdi-close-circle</v-icon>
         </v-btn>
       </v-col>
 
@@ -59,10 +61,13 @@
         <v-btn
           color="green"
           icon
+          size="small"
+          variant="text"
           v-if="!config.displayValue"
         >
           <!-- Bouton d'ajout, désactivé si le formulaire n'est pas valide -->
           <v-icon
+            size="24"
             @click="addItem"
             :disabled="!bValidForm"
           >
