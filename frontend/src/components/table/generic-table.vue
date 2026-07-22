@@ -592,6 +592,15 @@ export default {
         // plutôt que de renommer "text" en "title" dans chaque fichier de config.
         header.title = header.title ?? header.text;
 
+        // Vuetify 3 ne considère une colonne comme triable par défaut que si elle a une prop
+        // "key" explicite ou une fonction "sort" personnalisée (cf. composables/headers.js :
+        // sortable = header.sortable ?? (header.key != null || !!header.sort)). Comme ce projet
+        // ne définit jamais "key" (seulement "value", convention Vuetify 2), toutes les colonnes
+        // sans store lié (donc sans header.sort, cf plus bas) devenaient silencieusement non
+        // triables. On restaure le comportement Vuetify 2 : triable par défaut, sauf mention
+        // explicite contraire dans headerDefs (ex: sortable: false sur "actions").
+        header.sortable = header.sortable ?? true;
+
         // le tri ne fonctionne pas correctement à cause du format de la date. On récupère maintenant le bon format en bdd et on modifie l'affiche avec la fonction display dans le fichier de config de la table
         //  if (header.type == 'date') {
         //   sortDate; // apparemment inutilisé
