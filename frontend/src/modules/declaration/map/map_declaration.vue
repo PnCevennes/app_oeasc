@@ -118,7 +118,7 @@ permet de zoomer dans les zones sélectionnées -->
           item-value="properties.id_area"
           label="Rechercher une parcelle"
           clearable
-          @change="action_select_in_liste($event)"
+          @update:model-value="action_select_in_liste($event)"
         ></v-autocomplete>
       </div>
 
