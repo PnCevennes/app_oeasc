@@ -1,10 +1,15 @@
+import { defineAsyncComponent } from 'vue';
 import storeUtils from '@/store/utils';
 // import configStoreTag from './config/store-tag';
 import configStoreObserver from './config/store-observer';
 import configStoreCircuit from './config/store-circuit';
 import configStoreRealisation from './config/store-realisation';
-import inGraph from '@/modules/in/in-graph.vue';
-import inTable from '@/modules/in/in-table.vue';
+
+// composants disponibles dans les pages CMS (voir CONTENT plus bas) : chargés à la demande
+// seulement quand une page en fait effectivement usage, pas à chaque démarrage de l'app
+// (ce module est importé eagerly par modules/index.js pour construire le store Vuex central)
+const inGraph = defineAsyncComponent(() => import('@/modules/in/in-graph.vue'));
+const inTable = defineAsyncComponent(() => import('@/modules/in/in-table.vue'));
 
 // route definitions
 

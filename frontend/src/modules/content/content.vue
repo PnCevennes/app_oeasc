@@ -139,6 +139,7 @@
 <script>
 // Chargement des contenu pour les type = "page" défini dans le index.js
 
+import { defineAsyncComponent } from 'vue';
 import { config } from '@/config/config.js';
 import components from './config/components';
 
@@ -149,8 +150,14 @@ import configImgForm from './config/form-img';
 import configDocForm from './config/form-doc';
 import marked from 'marked';
 
-import genericForm from '@/components/form/generic-form'; // formulaire de modification de page
 import VRuntimeTemplate from 'vue3-runtime-template'; // pour l'affichage du contenu markdown dynamique
+
+// formulaire de modification de page : chargé à la demande. content.vue est monté pour CHAQUE
+// page CMS vue par TOUS les visiteurs (pas seulement les admins) ; le formulaire lui-même n'est
+// affiché que derrière v-if="bEditContents" (voir template), mais un import statique aurait quand
+// même fait télécharger tout son arbre (generic-form -> dynamic-form-group -> dynamic-form, qui
+// utilise une bonne partie des composants de saisie Vuetify) à chaque visiteur, admin ou non.
+const genericForm = defineAsyncComponent(() => import('@/components/form/generic-form'));
 
 export default {
   name: 'oeasc-content',

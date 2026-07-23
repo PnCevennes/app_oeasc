@@ -1,4 +1,8 @@
-import { MapService } from './map-service.js';
+// Ce module est importé de façon statique par modules/index.js pour TOUTES les pages
+// (construction du store Vuex central), pas seulement celles avec une carte. Ne pas importer
+// MapService ici : ce fichier charge Leaflet/leaflet-easyprint/tous les map-elements en tête
+// (voir map-service.js), ce qui ferait charger Leaflet sur chaque page de l'app. base-map.vue
+// importe MapService directement depuis './map-service.js'.
 
 // Définition de l'objet STORE qui gère l'état des services de carte
 const STORE = {
@@ -27,8 +31,12 @@ const STORE = {
     setMapService: (state, mapService) => {
       state._mapServices[mapService._id] = mapService;
     },
+    // Retire une instance MapService de l'état (appelé au démontage du composant base-map)
+    removeMapService: (state, id) => {
+      delete state._mapServices[id];
+    },
   },
   actions: {},
 };
 
-export { STORE, MapService };
+export { STORE };

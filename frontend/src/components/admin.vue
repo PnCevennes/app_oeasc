@@ -42,8 +42,13 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue';
 import genericTable from '@/components/table/generic-table.vue';
-import inTable from '@/modules/in/in-table.vue';
+// admin.vue est réutilisé par plusieurs modules (chasse/admin, in/admin, commons/admin...) ; seul
+// in/admin a des onglets de type "in-table" (v-if="tab.type == 'in-table'" ci-dessous). Un import
+// statique aurait quand même fait charger in-table.vue (et sa propre chaîne list-form/dynamic-form)
+// sur TOUTES les pages d'admin, y compris celles qui n'ont aucun onglet "in-table".
+const inTable = defineAsyncComponent(() => import('@/modules/in/in-table.vue'));
 
 export default {
   name: 'generic-admin',

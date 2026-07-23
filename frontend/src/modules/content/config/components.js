@@ -1,18 +1,24 @@
-import val from '../val.vue';
-import faqDeclaration from '../faq-declaration.vue';
-import tableAide from '../table-aide.vue';
-import listePartenaire from '../liste-partenaire.vue';
-// import declarationTable from '@/modules/declaration/declaration-table.vue';
-import baseMap from '@/components/map/base-map.vue';
-import contentImg from '../content-img.vue';
-import restitution from '@/modules/restitution/restitution.vue';
-import restitution2 from '@/modules/restitution2/restitution.vue';
-import actualiteBandeau from '../actualites-bandeau.vue';
+import { defineAsyncComponent } from 'vue';
 import { CONTENT as CHASSE_CONTENT } from '@/modules/chasse/index.js';
 import { CONTENT as IN_CONTENT } from '@/modules/in/index.js';
 import { CONTENT as DECLARATIONS_CONTENT } from '@/modules/declaration/index.js';
-import dynamicForm from '@/components/form/dynamic-form.vue';
-import dynamicFormGroup from '@/components/form/dynamic-form-group.vue';
+
+// Chargés à la demande (defineAsyncComponent) plutôt qu'en import statique : ce fichier est lui-même
+// importé par content.vue dès qu'une seule page CMS est affichée, donc un import statique ici
+// (carte Leaflet, dashboards de restitution Highcharts, etc.) faisait charger la quasi-totalité
+// du site à chaque navigation, même quand le contenu de la page n'utilise aucun de ces composants.
+const val = defineAsyncComponent(() => import('../val.vue'));
+const faqDeclaration = defineAsyncComponent(() => import('../faq-declaration.vue'));
+const tableAide = defineAsyncComponent(() => import('../table-aide.vue'));
+const listePartenaire = defineAsyncComponent(() => import('../liste-partenaire.vue'));
+// import declarationTable from '@/modules/declaration/declaration-table.vue';
+const baseMap = defineAsyncComponent(() => import('@/components/map/base-map.vue'));
+const contentImg = defineAsyncComponent(() => import('../content-img.vue'));
+const restitution = defineAsyncComponent(() => import('@/modules/restitution/restitution.vue'));
+const restitution2 = defineAsyncComponent(() => import('@/modules/restitution2/restitution.vue'));
+const actualiteBandeau = defineAsyncComponent(() => import('../actualites-bandeau.vue'));
+const dynamicForm = defineAsyncComponent(() => import('@/components/form/dynamic-form.vue'));
+const dynamicFormGroup = defineAsyncComponent(() => import('@/components/form/dynamic-form-group.vue'));
 
 /**
  * @module components

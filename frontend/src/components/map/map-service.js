@@ -88,6 +88,19 @@ class MapService {
     return this._map;
   };
 
+  /**
+   * Détruit la carte Leaflet et libère ses écouteurs internes (resize, etc.).
+   * À appeler impérativement quand le composant qui possède la carte est démonté,
+   * sinon Leaflet garde des références vivantes (tuiles, couches, listeners sur window/document)
+   * qui s'accumulent au fil des navigations et finissent par saturer la mémoire du navigateur.
+   */
+  destroy = function () {
+    if (this._map) {
+      this._map.remove();
+      this._map = null;
+    }
+  };
+
   upConfig() {
     this._config = copy(this._config);
   }

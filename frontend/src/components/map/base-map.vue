@@ -94,11 +94,14 @@
 </template>
 
 <script>
-import { MapService } from '@/components/map/index.js';
+import { defineAsyncComponent } from 'vue';
+import { MapService } from '@/components/map/map-service.js';
 import listForm from '@/components/form/list-form.vue';
 import mapLegend from './map-legend.vue';
 import configFormExportMap from './config/form-export-map.js';
-import GenericForm from '@/components/form/generic-form.vue';
+// base-map est monté sur toutes les pages carte ; GenericForm n'est affiché que dans le dialogue
+// d'export (v-if="bExportMap"), donc chargé à la demande plutôt qu'à chaque affichage de carte.
+const GenericForm = defineAsyncComponent(() => import('@/components/form/generic-form.vue'));
 
 export default {
   name: 'baseMap',
@@ -232,6 +235,21 @@ export default {
     // Ajoute un écouteur d'événement sur l'élément DOM de la carte.
     // Cet événement "layer-data" permet de gérer la sélection dynamique des couches.
     document.getElementById(this.mapId).addEventListener('layer-data', this.initSelect);
+  },
+
+  // Détruit la carte Leaflet et retire l'instance du store quand le composant est démonté
+  // (changement de page). Sans ça, Leaflet garde des références vivantes (tuiles, couches,
+  // listeners window/document) qui s'accumulent au fil des navigations et finissent par
+  // faire ramer puis planter le navigateur.
+  unmounted: function () {
+    const elem = document.getElementById(this.mapId);
+    if (elem) {
+      elem.removeEventListener('layer-data', this.initSelect);
+    }
+    if (this.mapService) {
+      this.mapService.destroy();
+    }
+    this.$store.commit('removeMapService', this.mapId);
   },
 };
 </script>

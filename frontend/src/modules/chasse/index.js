@@ -1,5 +1,6 @@
 // les formulaires sont importés ici. Puis ajoutés à la fin de ce fichier dans storeUtils.addStore
 
+import { defineAsyncComponent } from 'vue';
 import storeUtils from '@/store/utils.js'; // pour importer addStore qui construit les states, mutations, actions et getters
 import { apiRequest } from '@/core/js/data/api.js'; // pour intégrer apiRequest dang des actions de store
 import { round } from '@/core/js/util/util.js';
@@ -18,10 +19,12 @@ import configStoreTypeBracelet from './config/store-type-bracelet.js';
 import configStoreAttribution from './config/store-attribution.js';
 import configStoreRealisation from './config/store-realisation.js';
 
-// Import des routes
-import Graph_bilan_evolution from './graph/graph_bilan_evolution.vue';
-import graphChasseIce from './graph/graph_ice.vue';
-import graphChasseIcePoints from './graph/graph_ice_points.vue';
+// composants disponibles dans les pages CMS (voir CONTENT plus bas) : chargés à la demande
+// seulement quand une page en fait effectivement usage, pas à chaque démarrage de l'app
+// (ce module est importé eagerly par modules/index.js pour construire le store Vuex central)
+const Graph_bilan_evolution = defineAsyncComponent(() => import('./graph/graph_bilan_evolution.vue'));
+const graphChasseIce = defineAsyncComponent(() => import('./graph/graph_ice.vue'));
+const graphChasseIcePoints = defineAsyncComponent(() => import('./graph/graph_ice_points.vue'));
 
 const ROUTE = [
   {

@@ -3,15 +3,20 @@
 
 import 'vuetify/styles';
 import { createVuetify } from 'vuetify';
-import * as components from 'vuetify/components';
-import * as directives from 'vuetify/directives';
 import { aliases } from 'vuetify/iconsets/md';
 import { app as appIconSet } from './icons.js';
 import { fr } from 'vuetify/locale';
 
+// components/directives ne sont plus importés en bloc ici : vite-plugin-vuetify
+// (voir vite.config.js, autoImport: true) injecte à la compilation, pour chaque .vue,
+// uniquement les composants/directives Vuetify réellement utilisés dans son template.
+// 'vuetify/styles' est gardé (setup standard documenté par vite-plugin-vuetify) : c'est UN SEUL
+// fichier CSS déjà compilé (~18000 lignes, node_modules/vuetify/lib/styles/main.css), pas une pile
+// de fichiers par composant — il fournit les classes utilitaires/animations qui ne sont liées à
+// aucun composant précis (bg-*, elevation-*, @keyframes v-shake, etc.), pas fournies autrement.
+// Ne pas le retirer : la vraie cause d'un chargement massif de CSS par composant sans rapport
+// avec la page (VFab/VRating/VStepper/...) était ailleurs, voir generic-table.vue plus bas.
 export default createVuetify({
-  components,
-  directives,
   icons: {
     defaultSet: 'app',
     aliases,

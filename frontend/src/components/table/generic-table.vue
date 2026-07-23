@@ -251,14 +251,28 @@
 </template>
 
 <script>
+import { defineAsyncComponent } from 'vue';
 import { copy, sortDate } from '@/core/js/util/util.js';
 // import { sortDateTable } from './util';
-import genericForm from '@/components/form/generic-form.vue';
+// generic-table est monté sur quasi toutes les pages d'admin ; genericForm n'est affiché que
+// dans le dialogue d'édition (v-if="configForm && bEditDialog"), donc chargé à la demande plutôt
+// qu'à chaque affichage de tableau.
+const genericForm = defineAsyncComponent(() => import('@/components/form/generic-form.vue'));
+// VDataTable/VDataTableServer sont choisis dynamiquement via <component :is="'v-data-table...'">
+// ci-dessous : l'auto-import de vite-plugin-vuetify ne détecte que les balises statiques dans le
+// template, pas les noms de composants résolus par chaîne à l'exécution. Il faut donc les
+// enregistrer explicitement ici pour que la résolution dynamique fonctionne.
+// import depuis le sous-module 'vuetify/components/VDataTable' et NON le barrel 'vuetify/components' :
+// un import du barrel force le pré-bundling esbuild de Vite à évaluer l'index complet (~300
+// composants), ce qui charge le CSS de TOUS les composants Vuetify sur toute page utilisant
+// generic-table (constaté sur /chasse/admin : VFab/VRating/VOtpInput/VStepper/... chargés alors
+// qu'aucun n'est utilisé nulle part dans l'app).
+import { VDataTable, VDataTableServer } from 'vuetify/components/VDataTable';
 import './table.css';
 
 export default {
   name: 'generic-table',
-  components: { genericForm },
+  components: { genericForm, 'v-data-table': VDataTable, 'v-data-table-server': VDataTableServer },
   props: {
     config: {
       type: Object,
@@ -541,7 +555,15 @@ export default {
         const configStore = this.$store.getters.configStore(config.storeName);
         config.serverSide = configStore.serverSide;
         config.idFieldName = configStore.idFieldName;
+        // itemsPerPage par défaut : le tout premier chargement (dans created(), voir plus bas)
+        // part avant que v-data-table-server n'ait émis son propre update:options, donc avant
+        // que this.options ait une valeur. La quasi-totalité des configStore serverSide ne
+        // définit pas itemsPerPage (seul store-attribution-massif.js le fait) : sans ce défaut,
+        // le paramètre itemsPerPage part vide et le backend (generic/repository.py getlist,
+        // "if itemsPerPage and int(itemsPerPage) > 0") n'applique alors aucune LIMIT SQL et
+        // renvoie la table entière.
         this.options = {
+          itemsPerPage: 20,
           ...this.options,
           ...(configStore.options || {}),
         };
