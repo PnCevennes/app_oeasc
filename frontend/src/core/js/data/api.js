@@ -258,7 +258,7 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
  */
 
 const simple_fetch = async (method, urlRelative, body = null, options = {}) => {
-  const url = `${BASE_URL}${urlRelative}`;
+  const url = `${BASE_URL}/${urlRelative}`;
 
   const configRequest = {
     method: method.toUpperCase(),

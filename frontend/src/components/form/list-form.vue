@@ -22,7 +22,7 @@
           <div class="select-list-label">{{ config.label }}</div>
           <v-btn-toggle
             v-model="baseModel[config.name]"
-            @change="change($event)"
+            @update:model-value="change($event)"
             dense
           >
             <v-btn
@@ -55,7 +55,7 @@
             v-model:search-input="search"
             :placeholder="config.placeholder"
             :filter="config.dataReloadOnSearch && customFilter"
-            @change="change($event)"
+            @update:model-value="change($event)"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
             @update:list-index="comboboxUpdateListIndex($event)"
@@ -94,7 +94,7 @@
             v-model:search-input="search"
             :placeholder="config.placeholder"
             :filter="config.dataReloadOnSearch && customFilter"
-            @change="change($event)"
+            @update:model-value="change($event)"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
             no-data-text="Pas de donnée disponible"
@@ -136,7 +136,7 @@
             :closable-chips="config.multiple ? true : false"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
-            @change="change($event)"
+            @update:model-value="change($event)"
           >
             <span slot="label">
               {{ config.label }}
@@ -190,7 +190,7 @@
                 dense
                 :rules="config.rules"
                 :disabled="config.disabled"
-                @change="change($event)"
+                @update:model-value="change($event)"
               ></v-checkbox>
               <!-- Affiche l'aide spécifique à chaque item si définie -->
               <help
@@ -223,6 +223,7 @@
               <v-radio-group
                 v-model="baseModel[config.name]"
                 :rules="config.rules"
+                @update:model-value="change($event)"
               >
                 <div
                   v-for="item in items"
@@ -234,7 +235,6 @@
                       :value="(config.returnObject && item) || item[config.valueFieldName]"
                       :label="item[config.displayFieldName]"
                       :disabled="config.disabled"
-                      @change="change($event)"
                     ></v-radio>
                   </div>
                   <!-- Affiche l'aide spécifique à chaque item sauf ceux exclus par la config -->

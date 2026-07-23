@@ -149,8 +149,15 @@
           </v-tab>
         </v-tabs>
 
-        <v-window v-model="activeAnneeTab">
+        <v-window
+          v-model="activeAnneeTab"
+          eager
+        >
           <!-- Contenu de chaque onglet année -->
+          <!-- eager : force le rendu de tous les onglets dès le montage, plutôt que d'attendre
+               qu'ils soient activés une première fois. Sans ça, quand dataUg est remplacé (reload
+               après validation d'un circuit), Vuetify perd le suivi des onglets déjà "visités" et
+               leur contenu (lignes du tableau, onglet actif) peut disparaître. -->
           <v-window-item
             v-for="[annee, dataAnnee] of Object.entries(dataUg.annees)"
             :key="annee"
@@ -428,10 +435,13 @@ export default {
       apiRequest('PATCH', 'api/in/valid_realisation/', {
         postData,
       }).then(() => {
-        // Recharge les données du secteur sélectionné pour mettre à jour l'affichage
-        this.reload();
-        // Réactive la modification
-        this.freezeValid = false;
+        // Recharge les données du secteur sélectionné pour mettre à jour l'affichage,
+        // puis seulement réactive la modification (sinon les checkboxes se réactivaient
+        // avant que les nouvelles données soient arrivées, permettant de relancer une
+        // validation pendant que le reload précédent était encore en cours).
+        this.reload().then(() => {
+          this.freezeValid = false;
+        });
       });
     },
 
@@ -459,6 +469,14 @@ export default {
       const nom_especes = this.dataIn.nom_especes;
       const ugs = nom_especes[this.settings.nom_espece].ugs;
       this.dataUg = ugs[this.settings.ug];
+
+      // dataUg est remplacé par un nouvel objet à chaque reload (nouvelle requête API) : si l'onglet
+      // année actif ne correspond plus à une année de ce nouvel objet (ou n'a jamais été initialisé),
+      // on le fait pointer vers une année valide pour éviter que v-tabs/v-window perdent leur sélection.
+      const anneesTab = Object.keys(this.dataUg.annees || {}).map((annee) => `tab-${annee}`);
+      if (!anneesTab.includes(this.activeAnneeTab)) {
+        this.activeAnneeTab = anneesTab[0] || null;
+      }
     },
 
     /**
@@ -584,7 +602,7 @@ export default {
       this.loading = true;
 
       // Récupère les données depuis le store Vuex, en forçant le rechargement
-      this.$store.dispatch('inResults', { forceReload: true }).then((data) => {
+      return this.$store.dispatch('inResults', { forceReload: true }).then((data) => {
         this.ready = false; // Désactive l'affichage des composants dépendants
         this.dataAnnee = false; // Réinitialise la donnée d'année
         this.dataIn = data; // Met à jour les données principales
