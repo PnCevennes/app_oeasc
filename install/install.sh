@@ -75,9 +75,9 @@ pip install -r requirements.txt
 # # node et npm installation
 echo "Instalation de npm"
 
-cd $ROOT_DIR/static/
+cd $ROOT_DIR/frontend/
 
-if [ "REMOVE_NODE" = "1" ]
+if [ "$REMOVE_NODE" = "1" ]
 then
     echo "supression de node_modules"
     rm -Rf node_modules
@@ -86,7 +86,6 @@ fi
 if [[ -z  $(which nvm) ]]; then
 
     sudo apt install curl
-    sudo apt install nodejs
 
     # installation de nvm pour gérer les versions de node
     wget -qO- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
@@ -95,19 +94,15 @@ if [[ -z  $(which nvm) ]]; then
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
     [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-    # installation de la version 24 de node
-    nvm install 24
-
 fi
 
+# installation/activation de la version de node définie dans .nvmrc (24)
+nvm install
+nvm use
 
 echo "Installation des paquets npm"
-npm install
-cd frontend/
-npm install
-# la route du frontent est défini dans frontend/vue.config.js et est actuellement à /front/ en production et / en devellopement
+npm ci
+# la route du frontend est définie dans frontend/vite.config.js et est actuellement à /front/ en production et / en développement
 npm run build
-
-
 
 cd $ROOT_DIR
