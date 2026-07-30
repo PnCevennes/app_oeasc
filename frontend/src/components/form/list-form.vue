@@ -52,10 +52,11 @@
             :chips="config.multiple ? true : false"
             dense
             :closable-chips="config.multiple ? true : false"
-            v-model:search-input="search"
+            v-model:search="search"
             :placeholder="config.placeholder"
-            :filter="config.dataReloadOnSearch && customFilter"
+            :no-filter="!!config.dataReloadOnSearch"
             @update:model-value="change($event)"
+            @focus="clearStalePrefill"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
             @update:list-index="comboboxUpdateListIndex($event)"
@@ -91,10 +92,11 @@
             :chips="config.multiple ? true : false"
             dense
             :closable-chips="config.multiple ? true : false"
-            v-model:search-input="search"
+            v-model:search="search"
             :placeholder="config.placeholder"
-            :filter="config.dataReloadOnSearch && customFilter"
+            :no-filter="!!config.dataReloadOnSearch"
             @update:model-value="change($event)"
+            @focus="clearStalePrefill"
             :return-object="config.returnObject ? true : false"
             :disabled="config.disabled"
             no-data-text="Pas de donnée disponible"
@@ -277,11 +279,15 @@ export default {
     },
     search: '', // Texte de recherche saisi par l'utilisateur (pour autocomplete/combobox)
     dataItems: null, // Données brutes récupérées avant traitement (API, store, ou config.items)
+    // true pendant l'affectation programmatique de `search` par setInitSearch (affichage de la
+    // valeur déjà sélectionnée) : évite que cette valeur soit interprétée comme une recherche
+    // utilisateur et ne filtre le résultat de getData() à ce seul élément déjà enregistré.
+    initializingSearch: false,
   }),
 
   watch: {
     search() {
-      if (this.config.dataReloadOnSearch) {
+      if (this.config.dataReloadOnSearch && !this.initializingSearch) {
         this.getData();
       }
     },
@@ -373,21 +379,6 @@ export default {
     },
 
     /**
-     * Filtre personnalisé pour les composants de type autocomplete ou combobox.
-     * Cette fonction est utilisée pour filtrer les éléments de la liste selon le texte de recherche saisi par l'utilisateur.
-     * Actuellement, elle retourne toujours true (aucun filtrage), mais elle peut être adaptée pour effectuer un filtrage plus précis.
-     * @param {Object} item - L'élément de la liste à tester.
-     * @param {String} queryText - Le texte de recherche saisi par l'utilisateur.
-     * @returns {Boolean} true si l'élément doit être affiché, false sinon.
-     */
-    customFilter(item, queryText) {
-      // Ici, aucun filtrage n'est appliqué : tous les éléments sont affichés.
-      // Pour personnaliser le filtrage, comparer item[config.displayFieldName] avec queryText.
-      item + queryText;
-      return true;
-    },
-
-    /**
      * Traite et prépare la liste des items à afficher dans le composant.
      * Cette méthode permet d'appliquer une transformation personnalisée sur les données via config.processItems,
      * puis de filtrer les éléments selon les filtres définis dans config.filters.
@@ -440,7 +431,28 @@ export default {
         !this.search &&
         value
       ) {
+        this.initializingSearch = true;
         this.search = value;
+        this.$nextTick(() => {
+          this.initializingSearch = false;
+        });
+      }
+    },
+
+    /**
+     * Vide le texte de recherche pré-rempli par setInitSearch() (label de la valeur déjà
+     * sélectionnée) quand le champ reprend le focus, tant que l'utilisateur ne l'a pas encore
+     * modifié. Sans ça, taper "2023" dans un champ affichant déjà "1985-1986" insère le texte
+     * au milieu/à la fin de la valeur existante (ex : "1985-19862023"), qui ne correspond à
+     * aucune saison réelle et fait afficher "Pas de donnée disponible" côté serveur.
+     */
+    clearStalePrefill() {
+      const currentDisplay =
+        this.config.returnObject &&
+        this.baseModel[this.config.name] &&
+        this.baseModel[this.config.name][this.config.displayFieldName];
+      if (currentDisplay && this.search === currentDisplay) {
+        this.search = '';
       }
     },
 
@@ -521,8 +533,9 @@ export default {
           itemsPerPage: this.config.dataReloadOnSearch ? 10 : -1,
           ...this.config.params,
         };
-        // Ajout du paramètre de recherche si nécessaire
-        if (this.config.dataReloadOnSearch && this.search) {
+        // Ajout du paramètre de recherche si nécessaire (uniquement pour une recherche saisie
+        // par l'utilisateur, pas pour la valeur déjà sélectionnée initialisée par setInitSearch)
+        if (this.config.dataReloadOnSearch && this.search && !this.initializingSearch) {
           params[`${this.config.displayFieldName}__ilike`] = this.search || '';
         }
         // Lancement de la requête au store
