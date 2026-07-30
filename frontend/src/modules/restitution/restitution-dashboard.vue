@@ -43,6 +43,7 @@ import restitution from './restitution.vue';
 import restitutionSettings from './restitution-settings';
 import './restitution.css';
 import deepEqual from 'fast-deep-equal';
+import { addPxSuffix } from '../../core/js/util/util.js';
 export default {
   name: 'restitution-dashboard',
   components: {
@@ -51,6 +52,10 @@ export default {
   },
   methods: {
     updateSettings(settings) {
+      // normalise largeur/hauteur (ajout de 'px' si absent) pour que l'aperçu en direct
+      // (v-bind="settings" sur <restitution>) change bien de taille même sans unité saisie
+      settings.height = addPxSuffix(settings.height);
+      settings.width = addPxSuffix(settings.width);
       this.settings = settings;
     },
     toContent() {

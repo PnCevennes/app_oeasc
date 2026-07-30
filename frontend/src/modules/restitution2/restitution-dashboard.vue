@@ -57,6 +57,7 @@
 <script>
 import restitutionForm from './restitution-form';
 import restitution2 from './restitution.vue';
+import { addPxSuffix } from '../../core/js/util/util.js';
 // import deepEqual from "fast-deep-equal";
 
 export default {
@@ -79,6 +80,10 @@ export default {
      *  - ?? pour s'assurer de la bonne synchronisation des composants
      */
     updateSettings(settings) {
+      // normalise largeur/hauteur (ajout de 'px' si absent) pour que l'aperçu en direct
+      // (v-bind="settings" sur <restitution2>) change bien de taille même sans unité saisie
+      settings.height = addPxSuffix(settings.height);
+      settings.width = addPxSuffix(settings.width);
       this.settings = settings;
     },
 
@@ -98,9 +103,15 @@ export default {
         .filter(
           (prop) =>
             !['n', 'filterList'].includes(prop) &&
-            (['dataType', 'fieldName', 'fieldName2', 'display', 'height', 'filters'].includes(
-              prop
-            ) ||
+            ([
+              'dataType',
+              'fieldName',
+              'fieldName2',
+              'display',
+              'height',
+              'width',
+              'filters',
+            ].includes(prop) ||
               // clés spéciales graph
               (this.settings.display == 'graph' && ['typeGraph', 'stacking'].includes(prop)))
         );

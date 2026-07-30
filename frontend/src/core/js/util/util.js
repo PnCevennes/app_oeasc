@@ -132,4 +132,27 @@ const round = function (x, dec) {
   return Math.floor(x * 10 ** dec) / 10 ** dec;
 };
 
-export { copy, sortDate, upFirstLetter, camelToSnakeCase, round, isObject, jsoncopy, fde };
+/**
+ * Ajoute l'unité 'px' à la fin d'une valeur si elle n'est pas déjà présente.
+ * Utile pour les champs de saisie de largeur/hauteur qui acceptent soit un entier (ex: '500'),
+ * soit une valeur déjà suffixée par l'utilisateur (ex: '500px').
+ * @param {*} value - La valeur saisie.
+ * @returns {*} - La valeur suivie de 'px', ou la valeur telle quelle si vide ou déjà suffixée.
+ */
+const addPxSuffix = (value) => {
+  if (value === null || value === undefined || value === '') return value;
+  const str = String(value).trim();
+  return /px$/i.test(str) ? str : `${str}px`;
+};
+
+export {
+  copy,
+  sortDate,
+  upFirstLetter,
+  camelToSnakeCase,
+  round,
+  isObject,
+  jsoncopy,
+  fde,
+  addPxSuffix,
+};
