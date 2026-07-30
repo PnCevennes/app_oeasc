@@ -34,8 +34,9 @@ on utilisera un fichier du type help_content.vue pour le contenu de la fenêtre.
       <v-icon
         tabindex="-1"
         size="22"
-        >help</v-icon
       >
+        help
+      </v-icon>
     </v-btn>
   </span>
 </template>

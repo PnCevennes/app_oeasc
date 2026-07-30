@@ -22,7 +22,9 @@ import configStoreRealisation from './config/store-realisation.js';
 // composants disponibles dans les pages CMS (voir CONTENT plus bas) : chargés à la demande
 // seulement quand une page en fait effectivement usage, pas à chaque démarrage de l'app
 // (ce module est importé eagerly par modules/index.js pour construire le store Vuex central)
-const Graph_bilan_evolution = defineAsyncComponent(() => import('./graph/graph_bilan_evolution.vue'));
+const Graph_bilan_evolution = defineAsyncComponent(
+  () => import('./graph/graph_bilan_evolution.vue')
+);
 const graphChasseIce = defineAsyncComponent(() => import('./graph/graph_ice.vue'));
 const graphChasseIcePoints = defineAsyncComponent(() => import('./graph/graph_ice_points.vue'));
 

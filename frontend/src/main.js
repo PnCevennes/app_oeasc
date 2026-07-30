@@ -11,7 +11,7 @@ import More from 'highcharts/highcharts-more';
 import exporting from 'highcharts/modules/exporting';
 import HighchartsVue from 'highcharts-vue';
 
-import VueMatomo from 'vue-matomo'
+import VueMatomo from 'vue-matomo';
 
 // highcharts est une librairie pour créer des graphiques
 More(Highcharts);

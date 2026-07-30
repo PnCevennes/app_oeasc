@@ -36,8 +36,9 @@ qui les charge directement depuis un fichier statique. On le garde le temps de t
       <v-icon
         tabindex="-1"
         size="22"
-        >help</v-icon
       >
+        help
+      </v-icon>
     </v-btn>
   </div>
 </template>

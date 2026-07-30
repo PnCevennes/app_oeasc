@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import { copy, sortDate, upFirstLetter, camelToSnakeCase, round, isObject, jsoncopy, fde } from './util.js';
+import {
+  copy,
+  sortDate,
+  upFirstLetter,
+  camelToSnakeCase,
+  round,
+  isObject,
+  jsoncopy,
+  fde,
+} from './util.js';
 
 describe('util.js', () => {
   it('copy fait une copie profonde sans garder de référence', () => {
