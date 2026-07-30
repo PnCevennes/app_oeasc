@@ -76,6 +76,7 @@ class MapService {
   _id; // map id
   _config; // configuration
   _map = null; // map leaflet object
+  _resizeObserver = null; // observe le conteneur pour ne recalculer la taille que si elle change réellement
 
   baseModel = {};
 
@@ -95,6 +96,10 @@ class MapService {
    * qui s'accumulent au fil des navigations et finissent par saturer la mémoire du navigateur.
    */
   destroy = function () {
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
+    }
     if (this._map) {
       this._map.remove();
       this._map = null;
@@ -117,7 +122,7 @@ class MapService {
    * 6. Initialise les fonds de tuiles (tiles) de la carte.
    * 7. Initialise les couches supplémentaires (layers).
    * 8. Initialise les marqueurs sur la carte.
-   * 9. Corrige la taille de la carte à différents intervalles pour éviter les bugs d'affichage liés aux animations ou aux requêtes asynchrones.
+   * 9. Observe le conteneur et corrige la taille de la carte quand elle change réellement.
    *
    * @returns {boolean} true si l'initialisation a réussi, false sinon.
    */
@@ -125,6 +130,13 @@ class MapService {
     // 1. Traite la configuration de la carte ; si elle est invalide, arrête l'initialisation.
     if (!this.processConfig()) {
       return;
+    }
+
+    // init() peut être rappelé sans destroy() (ex: watch height dans base-map.vue) ;
+    // on coupe l'éventuel observer précédent pour ne pas en empiler plusieurs.
+    if (this._resizeObserver) {
+      this._resizeObserver.disconnect();
+      this._resizeObserver = null;
     }
 
     // 2. Crée l'objet carte Leaflet avec des options de zoom personnalisées.
@@ -151,12 +163,22 @@ class MapService {
     // 8. Initialise les marqueurs sur la carte.
     this.initMarkers();
 
-    // 9. Corrige la taille de la carte à différents intervalles pour éviter les bugs d'affichage
-    //    (utile lors d'animations ou de chargements asynchrones).
-    for (const delay of [100, 1000, 2000, 5000, 10000]) {
-      setTimeout(() => {
-        this._map.invalidateSize();
-      }, delay);
+    // 9. Corrige la taille de la carte quand son conteneur change réellement de dimensions
+    //    (layout Vuetify qui se stabilise, panneau qui s'ouvre/ferme, etc.), au lieu de
+    //    la deviner via une salve de setTimeout qui rechargeait les tuiles en aveugle et
+    //    provoquait des annulations de requêtes (NS_BINDING_ABORTED) visibles dans Firefox.
+    const container = document.getElementById(this._id);
+    if (container && typeof ResizeObserver !== 'undefined') {
+      let debounce;
+      this._resizeObserver = new ResizeObserver(() => {
+        clearTimeout(debounce);
+        debounce = setTimeout(() => {
+          if (this._map) {
+            this._map.invalidateSize();
+          }
+        }, 100);
+      });
+      this._resizeObserver.observe(container);
     }
 
     // Retourne true si l'initialisation s'est déroulée correctement.
