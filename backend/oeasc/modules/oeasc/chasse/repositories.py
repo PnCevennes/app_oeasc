@@ -18,6 +18,20 @@ from .models import (
 config = current_app.config
 DB = config["DB"]
 
+# cache du mapping de la vue v_custom_result_attribution : la réflexion (introspection du
+# schéma en base) est coûteuse (vue avec 7 jointures) et n'a pas besoin d'être refaite à
+# chaque appel puisque le schéma de la vue ne change pas en cours d'exécution.
+_v_custom_result_attribution = None
+
+
+def _get_v_custom_result_attribution_columns():
+    global _v_custom_result_attribution
+    if _v_custom_result_attribution is None:
+        _v_custom_result_attribution = GenericTable(
+            "v_custom_result_attribution", "oeasc_chasse", DB.engine
+        ).tableDef
+    return _v_custom_result_attribution.columns
+
 
 def chasse_process_args():
     """
@@ -90,9 +104,7 @@ def get_attribution_result(params):
         Cette fonction est généralement utilisée dans les endpoints d'API ou les services métiers pour afficher des statistiques
         sur les attributions, par exemple dans des tableaux de bord ou des rapports de suivi.
     """
-    columns = GenericTable(
-        "v_custom_result_attribution", "oeasc_chasse", DB.engine
-    ).tableDef.columns
+    columns = _get_v_custom_result_attribution_columns()
 
     stmt = select(
         func.count(columns.id_attribution),
