@@ -653,6 +653,7 @@ def etape__récuperation_csv(apiResponse):
             return apiResponse
 
         file = request.files["file"]
+        file_save = file
 
         if file.filename == "":
             apiResponse.add_log("Nom de fichier vide", type_log="ERROR")
@@ -673,12 +674,13 @@ def etape__récuperation_csv(apiResponse):
             sep = ","
 
         colonnes_csv = pd.read_csv(file, nrows=0, sep=sep).columns.tolist()
+        file.seek(0)  # Revenir au début du fichier: read_csv a pu avancer le curseur au-delà de la ligne d'en-tête (buffer interne du moteur C)
         liste_mapping = get_columns_mapping(
             colonnes_csv=colonnes_csv, columns_name=COLUMNS_NAME, seuil_similarite=90
         )
 
         df = pd.read_csv(
-            file,
+            file_save,
             sep=sep,
             encoding="utf-8-sig",
             skiprows=1,
@@ -1537,10 +1539,13 @@ def etape__integration_communes_dans_df(df, apiResponse):
             df_liste_commune_oeasc["commune_name"]
         )
 
+        # NB: "insee_commune" ici contient en réalité l'area_code (code SIREN de la commune),
+        # pas le code INSEE à 5 chiffres. "213001399" est le code SIREN de Lanuéjols (Gard),
+        # à distinguer de celui de Lanuéjols (Lozère, "214800815").
         df_liste_commune_oeasc.loc[
             (
                 (df_liste_commune_oeasc["commune_name"] == "LANUEJOLS")
-                & (df_liste_commune_oeasc["insee_commune"] == "30139")
+                & (df_liste_commune_oeasc["insee_commune"] == "213001399")
             ),
             "commune_name",
         ] = "LANUEJOLS GARD"
