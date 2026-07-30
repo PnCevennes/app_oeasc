@@ -674,7 +674,9 @@ def etape__récuperation_csv(apiResponse):
             sep = ","
 
         colonnes_csv = pd.read_csv(file, nrows=0, sep=sep).columns.tolist()
-        file.seek(0)  # Revenir au début du fichier: read_csv a pu avancer le curseur au-delà de la ligne d'en-tête (buffer interne du moteur C)
+        file.seek(
+            0
+        )  # Revenir au début du fichier: read_csv a pu avancer le curseur au-delà de la ligne d'en-tête (buffer interne du moteur C)
         liste_mapping = get_columns_mapping(
             colonnes_csv=colonnes_csv, columns_name=COLUMNS_NAME, seuil_similarite=90
         )
