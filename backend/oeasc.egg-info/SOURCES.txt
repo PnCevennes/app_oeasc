@@ -1,5 +1,4 @@
 LICENSE
-README.md
 setup.py
 backend/oeasc/__init__.py
 backend/oeasc.egg-info/PKG-INFO
@@ -8,6 +7,11 @@ backend/oeasc.egg-info/dependency_links.txt
 backend/oeasc.egg-info/entry_points.txt
 backend/oeasc.egg-info/requires.txt
 backend/oeasc.egg-info/top_level.txt
+backend/oeasc/templates/modules/alerte_renouvellement_declaration.html
+backend/oeasc/templates/modules/oeasc/mail/actualisation_declaration.html
+backend/oeasc/templates/modules/oeasc/mail/alerte_cloture_declaration.html
+backend/oeasc/templates/modules/oeasc/mail/alerte_echec_renouvellement_declaration.html
+backend/oeasc/templates/modules/oeasc/mail/alerte_renouvellement_declaration.html
 backend/oeasc/templates/modules/oeasc/mail/change_application_right.html
 backend/oeasc/templates/modules/oeasc/mail/change_password.html
 backend/oeasc/templates/modules/oeasc/mail/create_temp_user.html

@@ -9,8 +9,8 @@ with (root_dir / "VERSION").open() as f:
     version = f.read().strip()
 
 # Lecture du contenu du fichier README.md pour la description longue du package
-with (root_dir / "README.md").open() as f:
-    long_description = f.read()
+readme_path = root_dir / "README.md"
+long_description = readme_path.read_text() if readme_path.exists() else ""
 
 ### Méta-données et configuration du package ###
 setuptools.setup(
