@@ -1,4 +1,7 @@
 import { defineAsyncComponent } from 'vue';
+import { VBtn } from 'vuetify/components/VBtn';
+import { VIcon } from 'vuetify/components/VIcon';
+import { VRow, VCol } from 'vuetify/components/VGrid';
 import { CONTENT as CHASSE_CONTENT } from '@/modules/chasse/index.js';
 import { CONTENT as IN_CONTENT } from '@/modules/in/index.js';
 import { CONTENT as DECLARATIONS_CONTENT } from '@/modules/declaration/index.js';
@@ -38,6 +41,11 @@ const dynamicFormGroup = defineAsyncComponent(() => import('@/components/form/dy
  * - restitution2 : Variante du composant de restitution.
  * - dynamicForm : Composant pour la gestion des formulaires dynamiques.
  * - dynamicFormGroup : Composant pour la gestion des groupes de formulaires dynamiques.
+ * - VBtn, VIcon, VRow, VCol : composants Vuetify utilisés directement dans le contenu CMS (balises
+ *   <v-btn>, <v-icon>, <v-row>, <v-col> saisies dans le markdown en base). L'auto-import de
+ *   vite-plugin-vuetify (voir vite.config.js) ne les enregistre que localement dans les .vue
+ *   compilés statiquement ; v-runtime-template (voir content.vue) ne voit que les composants
+ *   déclarés explicitement ici, d'où leur ajout manuel.
  * - ...CHASSE_CONTENT : Inclusion des composants spécifiques à la chasse.
  * - ...IN_CONTENT : Inclusion des composants spécifiques à l'inventaire.
  * - ...DECLARATIONS_CONTENT : Inclusion des composants spécifiques aux déclarations.
@@ -56,6 +64,10 @@ export default {
   restitution2,
   dynamicForm,
   dynamicFormGroup,
+  VBtn,
+  VIcon,
+  VRow,
+  VCol,
   ...CHASSE_CONTENT,
   ...IN_CONTENT,
   ...DECLARATIONS_CONTENT,

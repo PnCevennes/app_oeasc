@@ -9,7 +9,13 @@ export default defineConfig(({ mode }) => ({
   // (c'était la cause des centaines de requêtes .js/.vue sans rapport à chaque rechargement)
   plugins: [vue(), vuetify({ autoImport: true })],
   resolve: {
-    alias: [{ find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) }],
+    alias: [
+      { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },
+      // vue3-runtime-template (contenu CMS/markdown dynamique dans modules/content/content.vue)
+      // compile des templates à l'exécution : ça nécessite le build complet de Vue (avec compilateur),
+      // alors que Vite résout "vue" vers le build runtime-only par défaut.
+      { find: 'vue', replacement: 'vue/dist/vue.esm-bundler.js' },
+    ],
     // webpack (Vue CLI) résolvait les imports de composants sans extension (ex: '@/components/app/app-bar')
     extensions: ['.mjs', '.js', '.mts', '.ts', '.jsx', '.tsx', '.json', '.vue'],
   },
