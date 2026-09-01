@@ -45,6 +45,7 @@
 import Highcharts from 'highcharts';
 import exportingInit from 'highcharts/modules/exporting';
 import offlineExporting from 'highcharts/modules/offline-exporting';
+import { Chart as highcharts } from 'highcharts-vue';
 import { round } from '@/core/js/util/util.js';
 import { dataTxt, localisationTitle } from '../config/util.js';
 import { apiRequest } from '@/core/js/data/api.js';
@@ -56,6 +57,7 @@ offlineExporting(Highcharts);
 
 export default {
   name: 'graphChasseIcePoints',
+  components: { highcharts },
   props: {
     width: { default: '100%' },
     height: { default: '500px' },

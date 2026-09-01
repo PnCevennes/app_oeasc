@@ -6,16 +6,7 @@ import store from '@/store/store';
 import vuetify from '@/plugins/vuetify'; // path to vuetify export
 import session from '@/plugins/session';
 
-import Highcharts from 'highcharts';
-import More from 'highcharts/highcharts-more';
-import exporting from 'highcharts/modules/exporting';
-import HighchartsVue from 'highcharts-vue';
-
 import VueMatomo from 'vue-matomo';
-
-// highcharts est une librairie pour créer des graphiques
-More(Highcharts);
-exporting(Highcharts);
 
 // port d'ecoute du serveur backend 5000. Mettre le meme dans config/config.py
 // Vue.config.devServer = { port: 8080, proxy: 'http://localhost:5005' };
@@ -37,9 +28,6 @@ app.use(session);
 
 // vutify est un framework css pour vuejs pour les formulaires, boutons, etc
 app.use(vuetify);
-app.use(HighchartsVue, {
-  highcharts: Highcharts,
-});
 
 // vue-matomo est une librairie pour suivre les statistiques de visite (Matomo)
 app.use(VueMatomo, {

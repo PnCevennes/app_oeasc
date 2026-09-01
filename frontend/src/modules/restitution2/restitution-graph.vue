@@ -26,6 +26,7 @@
 import Highcharts from 'highcharts';
 import exportingInit from 'highcharts/modules/exporting';
 import offlineExporting from 'highcharts/modules/offline-exporting';
+import { Chart as highcharts } from 'highcharts-vue';
 import processData from './process/graph-custom.js';
 import restitutions from './config/restitutions.js';
 import props from './config/props.js';
@@ -37,6 +38,7 @@ offlineExporting(Highcharts); // initialise l'export coté client, doit être fa
 
 export default {
   name: 'restitution-graph',
+  components: { highcharts },
   props: props,
   data: () => ({
     chartOptions: null, // option pour le graphique highchart (calculé en fonction des options et des données)

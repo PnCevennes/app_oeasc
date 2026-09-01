@@ -35,15 +35,20 @@
 
 <script>
 import Highcharts from 'highcharts';
+import More from 'highcharts/highcharts-more';
 import exportingInit from 'highcharts/modules/exporting';
 import offlineExporting from 'highcharts/modules/offline-exporting';
+import { Chart as highcharts } from 'highcharts-vue';
 import chroma from 'chroma-js';
 import { round } from '@/core/js/util/util.js';
+// Initialise le module highcharts-more (nécessaire pour la série 'errorbar' utilisée dans ce graphique)
+More(Highcharts);
 exportingInit(Highcharts);
 offlineExporting(Highcharts);
 
 export default {
   name: 'in-graph',
+  components: { highcharts },
   props: [
     'displayTitle',
     'dataIn',

@@ -48,6 +48,7 @@
 import Highcharts, { chart } from 'highcharts';
 import exportingInit from 'highcharts/modules/exporting';
 import offlineExporting from 'highcharts/modules/offline-exporting';
+import { Chart as highcharts } from 'highcharts-vue';
 import { apiRequest } from '../../../core/js/data/api.js';
 import { localisationTitle } from '../config/util.js';
 
@@ -58,6 +59,7 @@ offlineExporting(Highcharts);
 
 export default {
   name: 'graph_bilan_evolution',
+  components: { highcharts },
   props: {
     bilanParams: { type: Object, default: () => ({}) }, // Paramètres de filtrage pour récupérer les données du bilan d'évolution
     height: { type: String, default: '400px' }, // Hauteur du graphique

@@ -11,8 +11,10 @@
 
 <script>
 import Highcharts from 'highcharts';
+import { Chart as highcharts } from 'highcharts-vue';
 export default {
   name: 'restitution-graph',
+  components: { highcharts },
   props: ['results'],
   data: () => ({
     chartOptions: null,

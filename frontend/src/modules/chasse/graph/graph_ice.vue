@@ -43,12 +43,16 @@
 
 <script>
 import Highcharts from 'highcharts';
+import More from 'highcharts/highcharts-more';
 import exportingInit from 'highcharts/modules/exporting';
 import offlineExporting from 'highcharts/modules/offline-exporting';
+import { Chart as highcharts } from 'highcharts-vue';
 import { round } from '@/core/js/util/util.js';
 import { dataTxt, localisationTitle } from '../config/util.js';
 import { apiRequest } from '@/core/js/data/api.js';
 
+// Initialise le module highcharts-more (nécessaire pour la série 'errorbar' utilisée dans ce graphique)
+More(Highcharts);
 // Initialise le module d'exportation de Highcharts (permet l'export PNG, PDF, etc. depuis le menu du graphique)
 exportingInit(Highcharts);
 // Initialise le module d'exportation hors-ligne de Highcharts (permet l'export même sans connexion internet)
@@ -56,6 +60,7 @@ offlineExporting(Highcharts);
 
 export default {
   name: 'graphChasseIce',
+  components: { highcharts },
   props: {
     width: { default: '100%' },
     height: { default: '500px' },

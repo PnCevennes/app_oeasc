@@ -28,6 +28,7 @@
 import Highcharts, { color } from 'highcharts';
 import exportingInit from 'highcharts/modules/exporting';
 import offlineExporting from 'highcharts/modules/offline-exporting';
+import { Chart as highcharts } from 'highcharts-vue';
 
 // Modification de highcharts pour permettre l'export des graphiques
 exportingInit(Highcharts); // initialise le module export, doit être fait après l'import de highcharts
@@ -35,6 +36,7 @@ offlineExporting(Highcharts); // initialise l'export coté client, doit être fa
 
 export default {
   name: 'graph_lignes_multiples',
+  components: { highcharts },
   props: {
     data_db: { default: null }, // données à afficher
     field_x: { default: null }, // nom du champ à utiliser pour les catégories de l'axe x
