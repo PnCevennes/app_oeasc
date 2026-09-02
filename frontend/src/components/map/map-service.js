@@ -6,7 +6,6 @@ import { copy } from '@/core/js/util/util.js';
 import 'leaflet/dist/leaflet.css';
 import './map.css';
 import 'leaflet/dist/leaflet';
-import * as L from 'leaflet';
 import 'leaflet-easyprint';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
@@ -19,6 +18,16 @@ import { mapLayer } from './map-elements/map-layer.js';
 import { mapLegend } from './map-elements/map-legend.js';
 import { mapExport } from './map-elements/map-export.js';
 import { mapMarker } from './map-elements/map-marker.js';
+
+// le build "leaflet/dist/leaflet" (UMD) importé ci-dessus expose L en global (window.L) ; tous les
+// autres modules de la carte (map-layer, map-marker, map-tile, map-legend) et le plugin
+// leaflet-easyprint s'accrochent sur ce même global. On réutilise cette instance ici plutôt que de
+// faire un `import * as L from 'leaflet'` séparé : les deux builds créent chacun leur propre copie
+// des classes Leaflet, et un objet créé par l'une (ex: un layer GeoJSON) n'est pas reconnu par les
+// vérifications `instanceof` internes de l'autre (fitBounds, rendu SVG des marqueurs...), ce qui
+// provoquait des plantages silencieux (marqueurs manquants, zoom automatique sur les couches qui ne
+// se faisait plus).
+const L = window.L;
 
 /**
  * @constant {L.Icon} DefaultIcon
