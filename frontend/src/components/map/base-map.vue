@@ -229,8 +229,15 @@ export default {
     // Le service sera stocké dans state._mapServices.
     this.$store.commit('setMapService', this.mapService);
 
-    // Initialise les couches, tuiles et marqueurs de la carte.
-    this.mapService.init();
+    // Initialise les couches, tuiles et marqueurs de la carte, une fois que Vue a appliqué au DOM
+    // la vraie hauteur du conteneur (computedHeight passe de "0px" à sa valeur réelle avec bInit).
+    // Sans ce $nextTick, L.map() est créée sur un conteneur de hauteur 0 : le fond de carte ne
+    // couvre pas toute la zone visible (grisé en bas) et l'ajout des marqueurs plante (le rendu SVG
+    // de Leaflet n'a pas encore de bounds valides), ce qui empêche aussi les marqueurs suivants de
+    // s'afficher.
+    this.$nextTick(() => {
+      this.mapService.init();
+    });
 
     // Ajoute un écouteur d'événement sur l'élément DOM de la carte.
     // Cet événement "layer-data" permet de gérer la sélection dynamique des couches.

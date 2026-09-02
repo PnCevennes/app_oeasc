@@ -132,7 +132,13 @@ const mapLayer = {
    * zoom on layer
    */
   zoomOnLayer: function (layer) {
-    this._map.fitBounds(layer.getBounds());
+    const bounds = layer.getBounds();
+    // Une couche sans géométrie valide (ex: réponse API vide) donne des bounds invalides ;
+    // fitBounds lèverait alors une exception qui empêcherait toute correction ultérieure du zoom.
+    if (!bounds.isValid()) {
+      return;
+    }
+    this._map.fitBounds(bounds);
   },
 
   reinitZoom() {
@@ -153,6 +159,9 @@ const mapLayer = {
     }
     const layersGroup = L.featureGroup(layers);
     const bounds = layersGroup.getBounds();
+    if (!bounds.isValid()) {
+      return false;
+    }
     this._map.fitBounds(bounds);
     return true;
   },

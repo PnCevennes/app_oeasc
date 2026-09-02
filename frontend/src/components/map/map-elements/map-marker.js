@@ -64,7 +64,13 @@ const mapMarker = {
   initMarkers() {
     this.removeMarkers();
     for (const marker of this._config.markers || []) {
-      this.addMarker(marker);
+      // Un marqueur en erreur (ex: carte pas encore correctement dimensionnée) ne doit pas
+      // empêcher l'ajout de tous les marqueurs suivants de la boucle.
+      try {
+        this.addMarker(marker);
+      } catch (error) {
+        console.error('Erreur ajout marqueur carte:', error);
+      }
     }
     this.upConfig();
   },

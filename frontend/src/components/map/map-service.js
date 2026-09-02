@@ -118,11 +118,12 @@ class MapService {
    * 2. Crée l'objet carte Leaflet et définit les options de zoom.
    * 3. Centre la carte sur la vue initiale et le niveau de zoom défini dans la configuration.
    * 4. Ajoute le contrôle d'échelle à la carte.
-   * 5. Initialise les panneaux (panes) pour la gestion des couches.
-   * 6. Initialise les fonds de tuiles (tiles) de la carte.
-   * 7. Initialise les couches supplémentaires (layers).
-   * 8. Initialise les marqueurs sur la carte.
-   * 9. Observe le conteneur et corrige la taille de la carte quand elle change réellement.
+   * 5. Observe le conteneur et corrige la taille de la carte quand elle change réellement
+   *    (avant les étapes suivantes pour rester actif même si l'une d'elles plante).
+   * 6. Initialise les panneaux (panes) pour la gestion des couches.
+   * 7. Initialise les fonds de tuiles (tiles) de la carte.
+   * 8. Initialise les couches supplémentaires (layers).
+   * 9. Initialise les marqueurs sur la carte.
    *
    * @returns {boolean} true si l'initialisation a réussi, false sinon.
    */
@@ -151,22 +152,12 @@ class MapService {
     // 4. Ajoute un contrôle d'échelle (barre d'échelle) à la carte.
     L.control.scale().addTo(this._map);
 
-    // 5. Initialise les panneaux (panes) pour organiser les couches de la carte.
-    this.initPanes();
-
-    // 6. Initialise les fonds de tuiles (tiles) de la carte.
-    this.initTiles();
-
-    // 7. Initialise les couches supplémentaires (layers) sur la carte.
-    this.initLayers();
-
-    // 8. Initialise les marqueurs sur la carte.
-    this.initMarkers();
-
-    // 9. Corrige la taille de la carte quand son conteneur change réellement de dimensions
+    // 5. Corrige la taille de la carte quand son conteneur change réellement de dimensions
     //    (layout Vuetify qui se stabilise, panneau qui s'ouvre/ferme, etc.), au lieu de
     //    la deviner via une salve de setTimeout qui rechargeait les tuiles en aveugle et
     //    provoquait des annulations de requêtes (NS_BINDING_ABORTED) visibles dans Firefox.
+    //    Fait avant l'init des panes/tiles/layers/markers ci-dessous : si l'un d'eux plante,
+    //    l'observer reste quand même actif et peut corriger la taille de la carte après coup.
     const container = document.getElementById(this._id);
     if (container && typeof ResizeObserver !== 'undefined') {
       let debounce;
@@ -180,6 +171,18 @@ class MapService {
       });
       this._resizeObserver.observe(container);
     }
+
+    // 6. Initialise les panneaux (panes) pour organiser les couches de la carte.
+    this.initPanes();
+
+    // 7. Initialise les fonds de tuiles (tiles) de la carte.
+    this.initTiles();
+
+    // 8. Initialise les couches supplémentaires (layers) sur la carte.
+    this.initLayers();
+
+    // 9. Initialise les marqueurs sur la carte.
+    this.initMarkers();
 
     // Retourne true si l'initialisation s'est déroulée correctement.
     return true;
