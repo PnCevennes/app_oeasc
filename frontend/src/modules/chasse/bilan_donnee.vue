@@ -35,6 +35,10 @@
           : {{ infos.echelle }}
         </li>
         <li>
+          <b>Superficie en ha</b>
+          : {{ infos.superficie }}
+        </li>
+        <li>
           <b>Espèce</b>
           : {{ infos.nom_espece }}
         </li>
