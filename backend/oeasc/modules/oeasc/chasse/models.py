@@ -74,6 +74,7 @@ class TZoneIndicatives(CustomModel):
     )
 
     geom: Mapped[object] = Column(Geometry("GEOMETRY", 4326))
+    superficie: Mapped[float] = Column(Float)
 
 
 @serializable

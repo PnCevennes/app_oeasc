@@ -213,6 +213,37 @@ def chasse_get_infos():
         )
     )
 
+    #################################################################################################
+    # Calcul de la superficie totale (en hectares) selon la même priorité que l'échelle :
+    # zone indicative > zone cynégétique > secteur > Cœur (= tout le périmètre).
+    if args["id_zone_indicative"]:
+        select_superficie = select(
+            func.coalesce(func.sum(TZoneIndicatives.superficie), 0)
+        ).where(TZoneIndicatives.id_zone_indicative.in_(args["id_zone_indicative"]))
+    elif args["id_zone_cynegetique"]:
+        select_superficie = select(
+            func.coalesce(func.sum(TZoneIndicatives.superficie), 0)
+        ).where(TZoneIndicatives.id_zone_cynegetique.in_(args["id_zone_cynegetique"]))
+    elif args["id_secteur"]:
+        # ZI -> ZC -> Secteur (pas de FK directe ZI -> Secteur)
+        select_superficie = (
+            select(func.coalesce(func.sum(TZoneIndicatives.superficie), 0))
+            .select_from(TZoneIndicatives)
+            .join(
+                TZoneCynegetiques,
+                TZoneCynegetiques.id_zone_cynegetique
+                == TZoneIndicatives.id_zone_cynegetique,
+            )
+            .where(TZoneCynegetiques.id_secteur.in_(args["id_secteur"]))
+        )
+    else:
+        # Cœur : aucune zone sélectionnée -> superficie totale du périmètre OEASC
+        select_superficie = select(
+            func.coalesce(func.sum(TZoneIndicatives.superficie), 0)
+        )
+
+    superficie = round(DB.session.scalar(select_superficie), 2)
+
     # Récupération du nom de la saison à partir de son id
     select_saison = select(TSaisons.nom_saison).where(
         TSaisons.id_saison == args["id_saison"]
@@ -235,6 +266,7 @@ def chasse_get_infos():
         "nom_saison": nom_saison,  # Nom de la saison sélectionnée
         "nom_espece": nom_espece,  # Nom de l'espèce sélectionnée
         "echelle": echelle,  # Texte décrivant l'échelle de la zone
+        "superficie": superficie,  # Superficie en hectares de la zone sélectionnée (ou totale)
         "last_5_id_saison": last_5_id_saisons,  # Liste des 5 dernières saisons (id)
         "nom_saison": nom_saison,  # (doublon, peut être nettoyé)
         **get_attribution_result(args),  # Statistiques d'attribution/réalisation
