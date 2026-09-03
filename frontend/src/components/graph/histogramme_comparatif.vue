@@ -67,6 +67,10 @@ export default {
     width: { default: '100%' },
     height: { default: '400px' },
     code_couleurs: { default: null }, // objet de la forme { 'nom_categorie': 'couleur1', 'nom_categorie2': 'couleur2', ... } pour colorer les points en fonction de la valeur d'un champ
+    // colorer la partie "valeur" (gauche) de chaque ligne selon le groupe (fieldGroup) de la ligne.
+    // Forme attendue : { 'nom_groupe': 'couleur', ... }
+    code_couleurs_categorie: { default: null },
+    couleur_reste: { default: null }, // couleur de la partie "Restant" (droite) quand code_couleurs_categorie est utilisé
   },
   data() {
     return {
@@ -192,7 +196,14 @@ export default {
               : name_field;
           return {
             name: label,
-            data: data.map((item2) => Number(item2[name_field] || 0)),
+            data: data.map((item2) => {
+              const y = Number(item2[name_field] || 0);
+              // couleur par ligne (groupe) si code_couleurs_categorie est fourni
+              if (props.code_couleurs_categorie) {
+                return { y, color: props.code_couleurs_categorie[item2[props.fieldGroup]] };
+              }
+              return y;
+            }),
             color:
               props.code_couleurs && props.code_couleurs[name_field]
                 ? props.code_couleurs[name_field]
@@ -211,9 +222,10 @@ export default {
           }),
           hideInTooltip: true,
           hideDataLabels: true,
-          color:
-            props.code_couleurs &&
-            (props.code_couleurs.restant || props.code_couleurs[props.fieldReference])
+          color: props.code_couleurs_categorie
+            ? props.couleur_reste || '#e0e0e0'
+            : props.code_couleurs &&
+                (props.code_couleurs.restant || props.code_couleurs[props.fieldReference])
               ? props.code_couleurs.restant || props.code_couleurs[props.fieldReference]
               : undefined,
         };

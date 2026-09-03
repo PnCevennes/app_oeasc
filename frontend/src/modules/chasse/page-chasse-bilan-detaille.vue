@@ -91,6 +91,7 @@
             :data_db="data_part_mode_chasse"
             fieldName="text"
             fieldValue="count"
+            :code_couleurs="code_couleurs_mode_chasse"
             title="Répartition par mode de chasse"
           ></camembert>
         </v-col>
@@ -137,6 +138,7 @@
               :data_db="data_count_realisations_par_type_de_bracelet"
               fieldName="type_bracelet"
               fieldValue="nb_bracelet"
+              :code_couleurs="code_couleurs_type_bracelet"
               title="Prélèvements par type de bracelet"
             ></camembert>
           </v-col>
@@ -149,6 +151,8 @@
               :listfieldValues="['nb_realisations']"
               nameGroup=" Type de bracelets"
               :listNameValues="['nb Réalisations']"
+              :code_couleurs_categorie="code_couleurs_comparatif_type_bracelet"
+              couleur_reste="#e0e0e0"
               title="Comparatif des prélèvements par type de bracelet"
             ></histogramme_comparatif>
           </v-col>
@@ -160,6 +164,7 @@
               :data_db="data_nb_type_bracelet_par_mois"
               fieldGroup="mois"
               :values_field="['type de bracelet', 'réalisations']"
+              :code_couleurs="code_couleurs_type_bracelet"
               :title="`Chronologie des prélèvements par catégorie`"
             ></colonnes_empilees>
           </v-col>
@@ -169,6 +174,7 @@
               :data_db="data_repartition_mode_chasse_par_type_bracelet"
               fieldGroup="mode_chasse"
               :values_field="['type de bracelet', 'réalisations']"
+              :code_couleurs="code_couleurs_type_bracelet"
               :title="`Réalisation par mode de chasse et par type de bracelet`"
             ></colonnes_empilees>
           </v-col>
@@ -184,6 +190,7 @@
               :data_db="data_nbrealisation_par_age_par_type_bracelet"
               fieldGroup="type_bracelet"
               :values_field="['classe_age', 'réalisations']"
+              :code_couleurs_categorie="code_couleurs_age_par_type_bracelet"
               :title="`Prélèvements par classe d'âge et par catégorie`"
             ></colonnes_empilees>
           </v-col>
@@ -222,49 +229,139 @@ export default {
   },
 
   // Déclaration des données réactives du composant
-  data: () => ({
-    // Paramètres de filtre pour les requêtes. Correspond au formulaire en haut de page (saison, espèce, secteur, zone, etc.)
-    bilanParams: {
-      id_espece: null, // Identifiant de l'espèce sélectionnée
-      espece: null, // Nom de l'espèce (optionnel, parfois utilisé pour affichage)
-      id_zone_indicative: [], // Liste des zones indicatives sélectionnées
-      id_zone_cynegetique: [], // Liste des zones cynégétiques sélectionnées
-      id_secteur: [], // Liste des secteurs sélectionnés
-      id_saison: null, // Identifiant de la saison sélectionnée
-    },
-    nb_saison_chronologie: 5, // Nombre de saisons à afficher dans le graphique de chronologie des prélèvements
-    // Informations détaillées du bilan, récupérées depuis l'API après sélection des filtres
-    infos: {},
-    data_bilan_principal: null, // histogramme bilan principal
-    data_cam_sexe_age: null, // camembert sexe/age
-    data_part_mode_chasse: null, // camembert part mode de chasse
-    data_chronologie_prelevement: null, // graph multi-lignes chronologie des prélèvements
-    data_count_realisations_par_type_de_bracelet: null, // graph multi-lignes chronologie des prélèvements par type de bracelet
-    data_nbRealisations_vs_nbAttributions: null, // histogramme comparatif nb réalisations vs nb attributions
-    data_nb_type_bracelet_par_mois: null, // graph multi-lignes chronologie des prélèvements par type de bracelet
-    data_repartition_mode_chasse_par_type_bracelet: null, // graph multi-lignes chronologie des prélèvements par type de bracelet et par mode de chasse
-    data_nbrealisation_par_age_par_type_bracelet: null, // graph multi-lignes chronologie des prélèvements par type de bracelet et par classe d'âge
+  data() {
+    // ------------------------------------------------------------------
+    // Rampes de couleur communes aux graphiques "sexe / classe d'âge".
+    // Principe :
+    //   - la TEINTE indique le sexe   : bleu = Mâle, orange/jaune = Femelle, violet = Indéterminé
+    //     (repris des couleurs par défaut de Highcharts : #7cb5ec / #f7a35c / #8085e9)
+    //   - la CLARTÉ indique l'âge      : plus l'animal est jeune, plus la couleur est claire
+    //     (Adulte le plus foncé -> Sub-adulte -> Juvénile -> Inconnu / Indéterminé le plus clair)
+    // ------------------------------------------------------------------
+    const rampe_male = {
+      Adulte: '#1f5c99',
+      'Sub-adulte': '#4a90d9',
+      Juvénile: '#8fc1ec',
+      Inconnu: '#c6e0f7',
+      Indéterminé: '#c6e0f7',
+    };
+    const rampe_femelle = {
+      Adulte: '#f7b264', // orange foncé
+      'Sub-adulte': '#fad090',
+      Juvénile: '#fff3af',
+      Inconnu: '#fffbea', // jaune très clair
+      Indéterminé: '#fffbea',
+    };
+    const rampe_indetermine = {
+      Adulte: '#3f3f9e',
+      'Sub-adulte': '#7076d6',
+      Juvénile: '#a6aae8',
+      Inconnu: '#d2d4f5',
+      Indéterminé: '#d2d4f5',
+    };
 
-    code_couleurs_repartition_sexe_age: {
-      // Mâles (tons bleus) — plus jeune = ton plus clair
-      'Mâle - Adulte': '#528adf', // bleu foncé
-      'Mâle - Sub-adulte': '#5cabeb', // bleu moyen
-      'Mâle - Juvénile': '#90CAF9', // bleu clair
-      'Mâle - Inconnu': '#a9cdeb', // cas particulier, ton intermédiaire
+    return {
+      // Paramètres de filtre pour les requêtes. Correspond au formulaire en haut de page (saison, espèce, secteur, zone, etc.)
+      bilanParams: {
+        id_espece: null, // Identifiant de l'espèce sélectionnée
+        espece: null, // Nom de l'espèce (optionnel, parfois utilisé pour affichage)
+        id_zone_indicative: [], // Liste des zones indicatives sélectionnées
+        id_zone_cynegetique: [], // Liste des zones cynégétiques sélectionnées
+        id_secteur: [], // Liste des secteurs sélectionnés
+        id_saison: null, // Identifiant de la saison sélectionnée
+      },
+      nb_saison_chronologie: 5, // Nombre de saisons à afficher dans le graphique de chronologie des prélèvements
+      // Informations détaillées du bilan, récupérées depuis l'API après sélection des filtres
+      infos: {},
+      data_bilan_principal: null, // histogramme bilan principal
+      data_cam_sexe_age: null, // camembert sexe/age
+      data_part_mode_chasse: null, // camembert part mode de chasse
+      data_chronologie_prelevement: null, // graph multi-lignes chronologie des prélèvements
+      data_count_realisations_par_type_de_bracelet: null, // graph multi-lignes chronologie des prélèvements par type de bracelet
+      data_nbRealisations_vs_nbAttributions: null, // histogramme comparatif nb réalisations vs nb attributions
+      data_nb_type_bracelet_par_mois: null, // graph multi-lignes chronologie des prélèvements par type de bracelet
+      data_repartition_mode_chasse_par_type_bracelet: null, // graph multi-lignes chronologie des prélèvements par type de bracelet et par mode de chasse
+      data_nbrealisation_par_age_par_type_bracelet: null, // graph multi-lignes chronologie des prélèvements par type de bracelet et par classe d'âge
 
-      // Femelles (tons rose) — plus jeune = ton plus clair
-      'Femelle - Adulte': '#e470a2', // rose foncé
-      'Femelle - Sub-adulte': '#d86d91', // rose moyen
-      'Femelle - Juvénile': '#F8BBD0', // rose clair
-      'Femelle - Inconnu': '#e6cad5', // ton intermédiaire
+      // Camembert "Répartition par sexe et âge".
+      // Teinte = sexe (bleu / orange-jaune / violet), clarté = âge (plus jeune = plus clair).
+      code_couleurs_repartition_sexe_age: {
+        'Mâle - Adulte': rampe_male['Adulte'],
+        'Mâle - Sub-adulte': rampe_male['Sub-adulte'],
+        'Mâle - Juvénile': rampe_male['Juvénile'],
+        'Mâle - Inconnu': rampe_male['Inconnu'],
+        'Mâle - Indéterminé': rampe_male['Indéterminé'],
 
-      // Indéterminés (tons gris) — plus jeune = ton plus clair
-      'Indéterminé - Adulte': '#424242', // gris foncé
-      'Indéterminé - Sub-adulte': '#9E9E9E', // gris moyen
-      'Indéterminé - Juvénile': '#E0E0E0', // gris clair
-      'Indéterminé - Indéterminé': '#9E9E9E', // ton intermédiaire
-    },
-  }),
+        'Femelle - Adulte': rampe_femelle['Adulte'],
+        'Femelle - Sub-adulte': rampe_femelle['Sub-adulte'],
+        'Femelle - Juvénile': rampe_femelle['Juvénile'],
+        'Femelle - Inconnu': rampe_femelle['Inconnu'],
+        'Femelle - Indéterminé': rampe_femelle['Indéterminé'],
+
+        'Indéterminé - Adulte': rampe_indetermine['Adulte'],
+        'Indéterminé - Sub-adulte': rampe_indetermine['Sub-adulte'],
+        'Indéterminé - Juvénile': rampe_indetermine['Juvénile'],
+        'Indéterminé - Inconnu': rampe_indetermine['Inconnu'],
+        'Indéterminé - Indéterminé': rampe_indetermine['Indéterminé'],
+      },
+
+      // Camembert "Répartition par mode de chasse" — couleur par mode de chasse
+      // (palette par défaut de Highcharts, une teinte distincte par mode)
+      code_couleurs_mode_chasse: {
+        'Battue': '#7cb5ec',
+        'Individuel': '#434348',
+        'Affut': '#90ed7d',
+        'Approche': '#f7a35c',
+        'Poussée silencieuse': '#e4d354',
+        'Indéterminé': '#8085e9',
+      },
+
+      // Couleur par type de bracelet. Utilisé pour :
+      //  - le camembert "Prélèvements par type de bracelet"
+      //  - les colonnes empilées "Chronologie des prélèvements par catégorie"
+      //  - les colonnes empilées "Réalisation par mode de chasse et par type de bracelet"
+      // Même logique de teinte que ci-dessus : bleu = catégories mâles, orange-jaune = femelles, violet = chevreuil.
+      code_couleurs_type_bracelet: {
+        CEM: '#1f5c99', // bleu foncé
+        CEFFD: '#3f82c4', // bleu moyen
+        MOM: '#6aa9e0', // bleu clair
+        MOM1: '#a8ccef', // bleu très clair
+        CEFF: '#f7b264', // orange foncé
+        MOF: '#fad090', // orange moyen
+        MOIJ: '#fff3af', // jaune clair
+        CHI: '#7076d6', // violet
+      },
+
+      // Histogramme comparatif "Comparatif des prélèvements par type de bracelet"
+      // -> couleur de la partie gauche (réalisations) de chaque ligne selon le type de bracelet.
+      //    La partie droite (restant) est en gris clair (voir prop couleur_reste du composant).
+      code_couleurs_comparatif_type_bracelet: {
+        CEM: '#1f5c99',
+        CEFFD: '#3f82c4',
+        MOM: '#6aa9e0',
+        MOM1: '#a8ccef',
+        CEFF: '#f7b264', // orange foncé
+        MOF: '#fad090', // orange moyen
+        MOIJ: '#fff3af', // jaune clair
+        CHI: '#7076d6',
+      },
+
+      // Colonnes empilées "Prélèvements par classe d'âge et par catégorie"
+      // -> couleur qui dépend à la fois de la colonne (type de bracelet) et de la série (classe d'âge).
+      //    Teinte = groupe du bracelet (bleu = mâles, orange-jaune = femelles, violet = chevreuil),
+      //    clarté = classe d'âge (plus jeune = plus clair). "Inconnu" = même couleur que "Indéterminé".
+      code_couleurs_age_par_type_bracelet: {
+        CEM: { ...rampe_male },
+        CEFFD: { ...rampe_male },
+        MOM1: { ...rampe_male },
+        MOM: { ...rampe_male },
+        CEFF: { ...rampe_femelle },
+        MOF: { ...rampe_femelle },
+        MOIJ: { ...rampe_femelle },
+        CHI: { ...rampe_indetermine },
+      },
+    };
+  },
 
   watch: {
     bilanParams: {

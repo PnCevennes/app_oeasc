@@ -68,6 +68,10 @@ export default {
     width: { default: '100%' },
     height: { default: '400px' },
     code_couleurs: { default: null }, // objet de la forme { 'nom_champ': 'couleur1', 'nom_champ2': 'couleur2', ... } pour colorer les points en fonction de la valeur d'un champ
+    // colorer point par point selon la colonne (fieldGroup) ET éventuellement la série.
+    // Forme attendue : { 'nom_colonne': 'couleur' } (toute la colonne d'une même couleur)
+    //   ou { 'nom_colonne': { 'nom_serie': 'couleur', ... }, ... } (couleur par colonne et par série)
+    code_couleurs_categorie: { default: null },
   },
   data() {
     return {
@@ -191,9 +195,25 @@ export default {
       const series = seriesOrder.map((name) => {
         const serieData = seriesMap.get(name) || [];
         const total = serieData.reduce((acc, value) => acc + Number(value || 0), 0);
+
+        let data_serie = serieData;
+        // couleur point par point : dépend de la colonne (categories[index]) et éventuellement de la série (name)
+        if (props.code_couleurs_categorie) {
+          data_serie = serieData.map((value, index) => {
+            const couleurs_colonne = props.code_couleurs_categorie[categories[index]];
+            let color;
+            if (couleurs_colonne && typeof couleurs_colonne === 'object') {
+              color = couleurs_colonne[name];
+            } else if (typeof couleurs_colonne === 'string') {
+              color = couleurs_colonne;
+            }
+            return color ? { y: value, color } : value;
+          });
+        }
+
         const serie = {
           name,
-          data: serieData,
+          data: data_serie,
           custom: { total },
         };
 
@@ -225,7 +245,9 @@ export default {
       if (Array.isArray(result.categories) && Array.isArray(this.chartOptions.series)) {
         const totals = result.categories.map((_, index) => {
           return this.chartOptions.series.reduce((acc, serie) => {
-            const value = Array.isArray(serie.data) ? Number(serie.data[index] || 0) : 0;
+            const raw = Array.isArray(serie.data) ? serie.data[index] : 0;
+            // un point peut être un nombre ou un objet { y, color }
+            const value = raw && typeof raw === 'object' ? Number(raw.y || 0) : Number(raw || 0);
             return acc + value;
           }, 0);
         });
