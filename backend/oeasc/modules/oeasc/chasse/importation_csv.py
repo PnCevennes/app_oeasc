@@ -47,18 +47,34 @@ from oeasc.ref_geo_oeasc.models import BibAreasType, LAreas
 from oeasc.modules.oeasc.chasse.models import (
     TAttributions,
     TZoneIndicatives,
+    TZoneCynegetiques,
+    TTypeBracelets,
+    TSaisons,
     TRealisationsChasse,
+    TLieuTirs,
     TLieuTirSynonymes,
 )
 from oeasc.modules.oeasc.chasse.schema import (
-    TAttributionsSchema,
     TRealisationsChasseSchema,
     TZoneIndicativesSchema,
-    TLieuTirSynonymesSchema,
 )
 
 config = current_app.config
 DB = config["DB"]
+
+# --- Contournement d'un coût inutile de marshmallow_sqlalchemy 1.4.1 ---
+# _cast_data() est appelé à CHAQUE schema.load() et invoque
+# importlib.metadata.version("marshmallow"), qui reparse le fichier METADATA
+# du paquet (~1-2 ms par appel). Sur un import de plusieurs milliers de lignes
+# (une réalisation = un schema.load), cela représente plusieurs secondes.
+# La version de marshmallow ne change pas au runtime et _cast_data se contente
+# d'un typing.cast (no-op) : on le remplace par l'identité.
+try:
+    import marshmallow_sqlalchemy.load_instance_mixin as _mm_sqla_load_mixin
+
+    _mm_sqla_load_mixin._cast_data = lambda data: data
+except Exception:  # pragma: no cover - dépend de la version installée
+    pass
 
 
 # from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
@@ -858,51 +874,78 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
             )
             return df, apiResponse
 
-        # on fait une requete à la base de données pour trouver toutes les attributions de la saison id_saison qui n'ont pas de réalisations
+        # on fait une requete à la base de données pour trouver toutes les attributions de la saison id_saison
         with app.app_context():
 
-            stmt_attributions = select(TAttributions).where(
-                TAttributions.id_saison == id_saison,
+            # Récupération directe des seules colonnes utiles.
+            # Remplace un dump Marshmallow imbriqué (zones + géométries + réalisation)
+            # suivi de N+1 lazy-loads, très coûteux sur plusieurs centaines d'attributions.
+            # id_realisation / zones réalisées : on reproduit le column_property
+            # TAttributions.id_realisation (la plus grande id_realisation de l'attribution)
+            # et on lit les zones réalisées de cette même réalisation.
+            stmt_attributions = (
+                select(
+                    TAttributions.numero_bracelet,
+                    TAttributions.id_attribution,
+                    TAttributions.id_saison,
+                    TAttributions.id_zone_cynegetique_affectee,
+                    TAttributions.id_zone_indicative_affectee,
+                    TSaisons.date_debut.label("saison_date_debut"),
+                    TSaisons.date_fin.label("saison_date_fin"),
+                    TZoneCynegetiques.id_secteur.label("id_secteur_affectee"),
+                    TTypeBracelets.code_type_bracelet,
+                    TRealisationsChasse.id_realisation,
+                    TRealisationsChasse.id_zone_indicative_realisee,
+                    TRealisationsChasse.id_zone_cynegetique_realisee,
+                )
+                .select_from(TAttributions)
+                .outerjoin(TSaisons, TSaisons.id_saison == TAttributions.id_saison)
+                .outerjoin(
+                    TZoneCynegetiques,
+                    TZoneCynegetiques.id_zone_cynegetique
+                    == TAttributions.id_zone_cynegetique_affectee,
+                )
+                .outerjoin(
+                    TTypeBracelets,
+                    TTypeBracelets.id_type_bracelet == TAttributions.id_type_bracelet,
+                )
+                .outerjoin(
+                    TRealisationsChasse,
+                    TRealisationsChasse.id_attribution == TAttributions.id_attribution,
+                )
+                .where(TAttributions.id_saison == id_saison)
             )
 
-            attributions_result = DB.session.execute(stmt_attributions).scalars().all()
-            attributions_dict = TAttributionsSchema().dump(
-                attributions_result, many=True
+            df_attributions = pd.DataFrame(
+                DB.session.execute(stmt_attributions).mappings().all()
             )
-            df_attributions = pd.json_normalize(attributions_dict)
+
+            # une attribution peut (anomalie) porter plusieurs réalisations : on ne
+            # garde que la plus grande id_realisation, comme le column_property d'origine.
+            if not df_attributions.empty:
+                df_attributions = df_attributions.sort_values(
+                    "id_realisation"
+                ).drop_duplicates("id_attribution", keep="last")
+
+            # Marshmallow sérialisait les dates de saison en chaînes "AAAA-MM-JJ" :
+            # on garde ce format car la comparaison avec df["date"] se fait sur des str.
+            for col in ("saison_date_debut", "saison_date_fin"):
+                df_attributions[col] = df_attributions[col].apply(
+                    lambda d: d.isoformat() if d is not None and pd.notna(d) else None
+                )
+            df_attributions = df_attributions.rename(
+                columns={
+                    "saison_date_debut": "saison.date_debut",
+                    "saison_date_fin": "saison.date_fin",
+                }
+            )
 
             # pour comparer les attributions de la bdd avec celles du csv il faut remplacer les espaces par 00
             df_attributions["numero_bracelet"] = df_attributions[
                 "numero_bracelet"
             ].str.replace(" ", "00")
 
-            # renommage des colonnes trop longues pour faciliter le travail dessus.
-            df_attributions["id_zone_cynegetique_affectee"] = df_attributions[
-                "zone_cynegetique_affectee.id_zone_cynegetique"
-            ]
-            df_attributions["id_zone_indicative_affectee"] = df_attributions[
-                "zone_indicative_affectee.id_zone_indicative"
-            ]
-            df_attributions["id_secteur_affectee"] = df_attributions[
-                "zone_cynegetique_affectee.id_secteur"
-            ]
-            df_attributions["code_type_bracelet"] = df_attributions[
-                "type_bracelet.code_type_bracelet"
-            ]
-
-            # si il y aura des update on gardera les zone réaliséés pour ne pas modifier des transferts qui ont été fait manuellement dans oeasc.
-            df_attributions["id_zone_indicative_realisee"] = df_attributions[
-                "realisation.id_zone_indicative_realisee"
-            ]
-            df_attributions["id_zone_cynegetique_realisee"] = df_attributions[
-                "realisation.id_zone_cynegetique_realisee"
-            ]
-
-            # df_attributions['description_type_bracelet'] = df_attributions['type_bracelet.description_type_bracelet']
-            # df_attributions['type_bracelet_id_espece'] = df_attributions['type_bracelet.espece.id_espece']
-
             # un peu de clean du dataframe pour alléger. On ne garde que les colonnes qui nous intéressent
-
             df_attributions = df_attributions[
                 [
                     "numero_bracelet",
@@ -920,8 +963,7 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
                 ]
             ]
 
-            # df_attributions.set_index('numero_bracelet', inplace=True)
-            df_attributions = df_attributions.reset_index()
+            # index = numero_bracelet pour la jointure avec le csv geochasse
             df_attributions.index = df_attributions["numero_bracelet"]
 
             # fusion de df_trie et df_attributions_non_realisees sur l'index (numero_bracelet)
@@ -1684,30 +1726,32 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
 
         # récupération des lieux de tir synonymes de la base de données avec les informations sur les lieux de tir associés, les zones indicatives et les zones cynégétiques
         with app.app_context():
-            stmt_liste_lieu_tirs_synonymes = select(TLieuTirSynonymes)
-            rows = DB.session.execute(stmt_liste_lieu_tirs_synonymes).scalars().all()
-            df_lts = TLieuTirSynonymesSchema().dump(rows, many=True)
-            df_lts = pd.json_normalize(df_lts)
-            # on ne garde que les colonnes qui nous intéressent pour alléger les calculs sur le dataframe.
-            df_lts = df_lts[
-                [
-                    "id_lieu_tir_synonyme",
-                    "id_lieu_tir",
-                    "nom_lieu_tir_synonyme",
-                    "lieu_tir.nom_lieu_tir",
-                    "lieu_tir.zone_indicative.id_zone_indicative",
-                    "lieu_tir.zone_indicative.zone_cynegetique.id_zone_cynegetique",
-                    "lieu_tir.id_area_commune",
-                ]
-            ]
-            # renommage des colonnes pour faciliter le travail dessus
-            df_lts = df_lts.rename(
-                columns={
-                    "lieu_tir.nom_lieu_tir": "nom_lieu_tir",
-                    "lieu_tir.zone_indicative.id_zone_indicative": "id_zi_lieu_tir",
-                    "lieu_tir.zone_indicative.zone_cynegetique.id_zone_cynegetique": "id_zc_lieu_tir",
-                    "lieu_tir.id_area_commune": "id_area_commune_lieu_tir",
-                }
+            # Récupération directe des colonnes utiles (remplace un dump Marshmallow
+            # imbriqué lieu_tir -> zone_indicative -> zone_cynegetique sur ~1800 synonymes).
+            # order_by explicite : plusieurs branches prennent le "premier" résultat
+            # (.iloc[0]), il faut donc un ordre stable et déterministe.
+            stmt_liste_lieu_tirs_synonymes = (
+                select(
+                    TLieuTirSynonymes.id_lieu_tir_synonyme,
+                    TLieuTirSynonymes.id_lieu_tir,
+                    TLieuTirSynonymes.nom_lieu_tir_synonyme,
+                    TLieuTirs.nom_lieu_tir.label("nom_lieu_tir"),
+                    TLieuTirs.id_zone_indicative.label("id_zi_lieu_tir"),
+                    TZoneIndicatives.id_zone_cynegetique.label("id_zc_lieu_tir"),
+                    TLieuTirs.id_area_commune.label("id_area_commune_lieu_tir"),
+                )
+                .select_from(TLieuTirSynonymes)
+                .outerjoin(
+                    TLieuTirs, TLieuTirs.id_lieu_tir == TLieuTirSynonymes.id_lieu_tir
+                )
+                .outerjoin(
+                    TZoneIndicatives,
+                    TZoneIndicatives.id_zone_indicative == TLieuTirs.id_zone_indicative,
+                )
+                .order_by(TLieuTirSynonymes.id_lieu_tir_synonyme)
+            )
+            df_lts = pd.DataFrame(
+                DB.session.execute(stmt_liste_lieu_tirs_synonymes).mappings().all()
             )
 
             # mettre les noms en majuscules et uniformiser les champs texte
@@ -1725,6 +1769,53 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                     & (df_lts["id_lieu_tir_synonyme"] == df_lts["id_lieu_tir"])
                 )
             ]
+
+        # --- Pré-indexation de df_lts ---
+        # Les recherches ci-dessous étaient faites par un masque booléen pandas
+        # pour CHAQUE ligne du csv (O(lignes x synonymes)). On précalcule une fois
+        # des groupby / index pour ramener chaque recherche à un accès O(1).
+        for _col in (
+            "id_zi_lieu_tir",
+            "id_zc_lieu_tir",
+            "id_area_commune_lieu_tir",
+        ):
+            df_lts[_col] = pd.to_numeric(df_lts[_col], errors="coerce")
+
+        _EMPTY_LTS = df_lts.iloc[0:0]
+        _groups_zi = df_lts.groupby(
+            ["id_zi_lieu_tir", "nom_lieu_tir_synonyme"], sort=False
+        )
+        _groups_commune = df_lts.groupby(
+            ["id_area_commune_lieu_tir", "nom_lieu_tir_synonyme"], sort=False
+        )
+        _groups_zc = df_lts.groupby(
+            ["id_zc_lieu_tir", "nom_lieu_tir_synonyme"], sort=False
+        )
+        _names_by_zi = (
+            df_lts.groupby("id_zi_lieu_tir", sort=False)["nom_lieu_tir_synonyme"]
+            .apply(list)
+            .to_dict()
+        )
+        _names_by_commune = (
+            df_lts.groupby("id_area_commune_lieu_tir", sort=False)[
+                "nom_lieu_tir_synonyme"
+            ]
+            .apply(list)
+            .to_dict()
+        )
+        _names_by_zc = (
+            df_lts.groupby("id_zc_lieu_tir", sort=False)["nom_lieu_tir_synonyme"]
+            .apply(list)
+            .to_dict()
+        )
+        _lts_by_synid = df_lts.set_index("id_lieu_tir_synonyme", drop=False)
+
+        def _grp(groupby_obj, key):
+            """get_group tolérant : renvoie un df vide si la clé est absente."""
+            try:
+                return groupby_obj.get_group(key)
+            except KeyError:
+                return _EMPTY_LTS
 
         # les futurs id_lieu_tir_synonyme et nom_lieu_tir_synonyme seront mis dans ces colonnes
         df["id_lieu_tir_synonyme"] = None
@@ -1746,12 +1837,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                 continue
             else:
                 # on recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même zone indicative que le tir réalisé
-                df_result = df_lts.loc[
-                    (
-                        (df_lts["id_zi_lieu_tir"] == id_zone_indicative_realisee)
-                        & (df_lts["nom_lieu_tir_synonyme"] == nom_parc_lieu_dit)
-                    )
-                ]
+                df_result = _grp(
+                    _groups_zi, (id_zone_indicative_realisee, nom_parc_lieu_dit)
+                )
                 if df_result.shape[0] == 1:
                     # il existe une seule correspondance exacte. On la prend.
                     df.at[index, "id_lieu_tir_synonyme"] = df_result.iloc[0][
@@ -1808,9 +1896,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                     }
                 else:
                     # Pas de nom exact retrouvé, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires au nom_parc_lieu_dit parmi les lieux de tir synonymes qui ont la même zone indicative
-                    liste_nom_lieu_tir_synonyme_in_zi = df_lts.loc[
-                        df_lts["id_zi_lieu_tir"] == id_zone_indicative_realisee
-                    ]["nom_lieu_tir_synonyme"].tolist()
+                    liste_nom_lieu_tir_synonyme_in_zi = _names_by_zi.get(
+                        id_zone_indicative_realisee, []
+                    )
                     if liste_nom_lieu_tir_synonyme_in_zi:
                         resultat = rpfz.process.extractOne(
                             nom_parc_lieu_dit,
@@ -1823,26 +1911,16 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                 0
                             ]  # resultat[0] contient le nom du lieu de tir synonyme qui est le plus similaire au nom_parc_lieu_dit parmi les lieux de tir synonymes qui ont la même zone indicative
                             # On considère que le lieu trouvé est le bon, on enregitre son id et nom et on ajoute un commentaire d'erreur pour indiquer que c'est une correspondance trouvée avec une similarité de nom qui sera indiqué à l'utilisateur.
-                            id_new_lieu_tir_synonyme = df_lts.loc[
-                                (
-                                    (df_lts["nom_lieu_tir_synonyme"] == meilleur_match)
-                                    & (
-                                        df_lts["id_zi_lieu_tir"]
-                                        == id_zone_indicative_realisee
-                                    )
-                                ),
-                                "id_lieu_tir_synonyme",
-                            ].values[0]
+                            id_new_lieu_tir_synonyme = _grp(
+                                _groups_zi,
+                                (id_zone_indicative_realisee, meilleur_match),
+                            )["id_lieu_tir_synonyme"].values[0]
                             df.at[index, "id_lieu_tir_synonyme"] = (
                                 id_new_lieu_tir_synonyme
                             )
-                            df.at[index, "nom_lieu_tir_synonyme"] = df_lts.loc[
-                                (
-                                    df_lts["id_lieu_tir_synonyme"]
-                                    == id_new_lieu_tir_synonyme
-                                ),
-                                "nom_lieu_tir_synonyme_origin",
-                            ].values[0]
+                            df.at[index, "nom_lieu_tir_synonyme"] = _lts_by_synid.loc[
+                                id_new_lieu_tir_synonyme, "nom_lieu_tir_synonyme_origin"
+                            ]
                             df.at[
                                 index, "commentaires_erreurs"
                             ] += f"Lieu tir {nom_save_lieu_dit}: nom similaire trouvé dans la même ZI: {meilleur_match} "
@@ -1858,20 +1936,12 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                 "id_zone_indicative_realisee": id_zone_indicative_realisee,
                                 "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
                                 "id_commune": id_commune,
-                                "id_lieu_tir": df_lts.loc[
-                                    (
-                                        df_lts["id_lieu_tir_synonyme"]
-                                        == id_new_lieu_tir_synonyme
-                                    ),
-                                    "id_lieu_tir",
-                                ].values[0],
-                                "nom_lieu_tir": df_lts.loc[
-                                    (
-                                        df_lts["id_lieu_tir_synonyme"]
-                                        == id_new_lieu_tir_synonyme
-                                    ),
-                                    "nom_lieu_tir",
-                                ].values[0],
+                                "id_lieu_tir": _lts_by_synid.loc[
+                                    id_new_lieu_tir_synonyme, "id_lieu_tir"
+                                ],
+                                "nom_lieu_tir": _lts_by_synid.loc[
+                                    id_new_lieu_tir_synonyme, "nom_lieu_tir"
+                                ],
                                 "lattitude": row["latitude"],
                                 "longitude": row["longitude"],
                             }
@@ -1881,15 +1951,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                             # rien n'a été trouvé dans la même zone indicative, on élargit la recherche à la commune.
                             # on recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même commune que le lieu de tir réalisé
 
-                            df_result = df_lts.loc[
-                                (
-                                    (df_lts["id_area_commune_lieu_tir"] == id_commune)
-                                    & (
-                                        df_lts["nom_lieu_tir_synonyme"]
-                                        == nom_parc_lieu_dit
-                                    )
-                                )
-                            ]
+                            df_result = _grp(
+                                _groups_commune, (id_commune, nom_parc_lieu_dit)
+                            )
                             if df_result.shape[0] >= 1:
                                 # des nom exactes ont été trouvés on garde le premier résultat et on indique en commentaire les raisons.
                                 df.at[index, "id_lieu_tir_synonyme"] = df_result.iloc[
@@ -1922,9 +1986,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                 }
                             else:
                                 # pas de nom exact retrouvé dans la même commune, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires dans la même commune
-                                liste_nom_lieu_tir_synonyme_in_commune = df_lts.loc[
-                                    df_lts["id_area_commune_lieu_tir"] == id_commune
-                                ]["nom_lieu_tir_synonyme"].tolist()
+                                liste_nom_lieu_tir_synonyme_in_commune = (
+                                    _names_by_commune.get(id_commune, [])
+                                )
                                 if liste_nom_lieu_tir_synonyme_in_commune:
                                     resultat = rpfz.process.extractOne(
                                         nom_parc_lieu_dit,
@@ -1934,28 +1998,18 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                     if resultat[1] >= SCORE_MINIMUM_RAPIDFUZZ:
                                         # des résultats similaires ont été trouvés, on les prend.
                                         meilleur_match = resultat[0]
-                                        id_new_lieu_tir_synonyme = df_lts.loc[
-                                            (
-                                                (
-                                                    df_lts["nom_lieu_tir_synonyme"]
-                                                    == meilleur_match
-                                                )
-                                                & (
-                                                    df_lts["id_area_commune_lieu_tir"]
-                                                    == id_commune
-                                                )
-                                            ),
-                                            "id_lieu_tir_synonyme",
-                                        ].values[0]
+                                        id_new_lieu_tir_synonyme = _grp(
+                                            _groups_commune,
+                                            (id_commune, meilleur_match),
+                                        )["id_lieu_tir_synonyme"].values[0]
                                         df.at[index, "id_lieu_tir_synonyme"] = (
                                             id_new_lieu_tir_synonyme
                                         )
                                         df.at[index, "nom_lieu_tir_synonyme"] = (
-                                            df_lts.loc[
-                                                df_lts["id_lieu_tir_synonyme"]
-                                                == id_new_lieu_tir_synonyme,
+                                            _lts_by_synid.loc[
+                                                id_new_lieu_tir_synonyme,
                                                 "nom_lieu_tir_synonyme_origin",
-                                            ].values[0]
+                                            ]
                                         )
                                         df.at[
                                             index, "commentaires_erreurs"
@@ -1976,16 +2030,12 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                             "id_zone_indicative_realisee": id_zone_indicative_realisee,
                                             "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
                                             "id_commune": id_commune,
-                                            "id_lieu_tir": df_lts.loc[
-                                                df_lts["id_lieu_tir_synonyme"]
-                                                == id_new_lieu_tir_synonyme,
-                                                "id_lieu_tir",
-                                            ].values[0],
-                                            "nom_lieu_tir": df_lts.loc[
-                                                df_lts["id_lieu_tir_synonyme"]
-                                                == id_new_lieu_tir_synonyme,
-                                                "nom_lieu_tir",
-                                            ].values[0],
+                                            "id_lieu_tir": _lts_by_synid.loc[
+                                                id_new_lieu_tir_synonyme, "id_lieu_tir"
+                                            ],
+                                            "nom_lieu_tir": _lts_by_synid.loc[
+                                                id_new_lieu_tir_synonyme, "nom_lieu_tir"
+                                            ],
                                             "lattitude": row["latitude"],
                                             "longitude": row["longitude"],
                                         }
@@ -1995,18 +2045,13 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                         # rien n'a été trouvé dans la même commune, on élargit la recherche aux zones cynégétiques.
                                         # On recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même zone cynégétique que le tir réalisé
 
-                                        df_result = df_lts.loc[
+                                        df_result = _grp(
+                                            _groups_zc,
                                             (
-                                                (
-                                                    df_lts["id_zc_lieu_tir"]
-                                                    == id_zone_cynegetique_realisee
-                                                )
-                                                & (
-                                                    df_lts["nom_lieu_tir_synonyme"]
-                                                    == nom_parc_lieu_dit
-                                                )
-                                            )
-                                        ]
+                                                id_zone_cynegetique_realisee,
+                                                nom_parc_lieu_dit,
+                                            ),
+                                        )
                                         if df_result.shape[0] >= 1:
                                             # des nom exactes ont été trouvés on garde le premier résultat et on indique en commentaire les raisons.
                                             df.at[index, "id_lieu_tir_synonyme"] = None
@@ -2045,10 +2090,9 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                         else:
                                             # Pas de nom exact retrouvé dans la même zone cynégétique, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires dans la même zone cynégétique
                                             liste_nom_lieu_tir_synonyme_in_zc = (
-                                                df_lts.loc[
-                                                    df_lts["id_zc_lieu_tir"]
-                                                    == id_zone_cynegetique_realisee
-                                                ]["nom_lieu_tir_synonyme"].tolist()
+                                                _names_by_zc.get(
+                                                    id_zone_cynegetique_realisee, []
+                                                )
                                             )
                                             if liste_nom_lieu_tir_synonyme_in_zc:
                                                 resultat = rpfz.process.extractOne(
@@ -2062,20 +2106,14 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                                 ):
                                                     # si un resultat a été trouvé avec un score de similarité suffisant, On le prend
                                                     meilleur_match = resultat[0]
-                                                    id_new_lieu_tir_synonyme = df_lts.loc[
+                                                    id_new_lieu_tir_synonyme = _grp(
+                                                        _groups_zc,
                                                         (
-                                                            (
-                                                                df_lts[
-                                                                    "nom_lieu_tir_synonyme"
-                                                                ]
-                                                                == meilleur_match
-                                                            )
-                                                            & (
-                                                                df_lts["id_zc_lieu_tir"]
-                                                                == id_zone_cynegetique_realisee
-                                                            )
+                                                            id_zone_cynegetique_realisee,
+                                                            meilleur_match,
                                                         ),
-                                                        "id_lieu_tir_synonyme",
+                                                    )[
+                                                        "id_lieu_tir_synonyme"
                                                     ].values[
                                                         0
                                                     ]
@@ -2095,39 +2133,24 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                                         "nom_lieu_csv": df.at[
                                                             index, "save_lieu_dit"
                                                         ],
-                                                        "correspondance": df_lts.loc[
-                                                            (
-                                                                df_lts[
-                                                                    "id_lieu_tir_synonyme"
-                                                                ]
-                                                                == id_new_lieu_tir_synonyme
-                                                            ),
+                                                        "correspondance": _lts_by_synid.loc[
+                                                            id_new_lieu_tir_synonyme,
                                                             "nom_lieu_tir_synonyme_origin",
-                                                        ].values[0],
+                                                        ],
                                                         "id_correspondance": id_new_lieu_tir_synonyme,
                                                         "type_correspondance": "SIMILAIRE_ZC",
                                                         "raison": "Nom similaire retrouvé dans la ZC",
                                                         "id_zone_indicative_realisee": id_zone_indicative_realisee,
                                                         "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
                                                         "id_commune": id_commune,
-                                                        "id_lieu_tir": df_lts.loc[
-                                                            (
-                                                                df_lts[
-                                                                    "id_lieu_tir_synonyme"
-                                                                ]
-                                                                == id_new_lieu_tir_synonyme
-                                                            ),
+                                                        "id_lieu_tir": _lts_by_synid.loc[
+                                                            id_new_lieu_tir_synonyme,
                                                             "id_lieu_tir",
-                                                        ].values[0],
-                                                        "nom_lieu_tir": df_lts.loc[
-                                                            (
-                                                                df_lts[
-                                                                    "id_lieu_tir_synonyme"
-                                                                ]
-                                                                == id_new_lieu_tir_synonyme
-                                                            ),
+                                                        ],
+                                                        "nom_lieu_tir": _lts_by_synid.loc[
+                                                            id_new_lieu_tir_synonyme,
                                                             "nom_lieu_tir",
-                                                        ].values[0],
+                                                        ],
                                                         "lattitude": row["latitude"],
                                                         "longitude": row["longitude"],
                                                     }
@@ -2196,12 +2219,16 @@ def etape_save_bilan_synonymes_in_csv(dict_bilan_synonymes, apiResponse):
 def etape__remplissage_commentaires(df, apiResponse):
     """On ajoute aux commentaires des lignes valides les commentaires d'erreurs."""
     try:
-        for index, row in df.iterrows():
-            if row["valide"] == True and pd.notna(row["commentaires_erreurs"]):
-                commentaire = row["commentaire"] if pd.notna(row["commentaire"]) else ""
-                df.at[index, "commentaire"] = (
-                    f"{commentaire} \n {row['commentaires_erreurs']}"
-                )
+        # équivalent vectorisé de la boucle iterrows d'origine :
+        # pour chaque ligne valide, commentaire = "<commentaire> \n <commentaires_erreurs>"
+        mask = (df["valide"] == True) & df["commentaires_erreurs"].notna()
+        commentaire_base = (
+            df["commentaire"].where(df["commentaire"].notna(), "").astype(str)
+        )
+        nouveau = (
+            commentaire_base + " \n " + df["commentaires_erreurs"].astype(str)
+        )
+        df["commentaire"] = df["commentaire"].mask(mask, nouveau)
         return df, apiResponse
     except Exception as e:
         user_message = f"Une erreur est survenue lors du remplissage des commentaires d'erreurs. {e}"
