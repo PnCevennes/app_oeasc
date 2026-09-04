@@ -62,12 +62,25 @@
       </div>
     </div>
 
-    <v-progress-linear
+    <div
       v-if="uploading"
-      indeterminate
-      color="primary"
       class="mt-3"
-    ></v-progress-linear>
+    >
+      <v-progress-linear
+        indeterminate
+        color="primary"
+      ></v-progress-linear>
+      <div
+        v-if="etape_message"
+        style="margin-top: 0.35rem; font-size: 0.9rem; color: #555"
+      >
+        {{ etape_message }}
+      </div>
+      <div style="margin-top: 0.15rem; font-size: 0.8rem; color: #888">
+        Le traitement s'exécute sur le serveur et se terminera même si l'opération
+        est longue. Merci de patienter sans fermer cette page.
+      </div>
+    </div>
 
     <!-- affichage des messages de succès ou d'erreur après l'import -->
     <div
@@ -201,11 +214,15 @@ export default {
       affiche_popup_update: false, // etat de la checkbox
       nom_fichier_erreur: null, // si il est différent de null, on propose un bouton de téléchargement du fichier d'erreur généré par le backend
       url_fichier_erreur: null,
+      id_import: null, // id de la ligne de suivi de l'import lancé en tâche de fond
+      etape_message: '', // libellé de l'étape en cours (ex. "Étape 4/11 : ...")
+      pollTimer: null, // timer de polling du statut
     };
   },
   methods: {
     clear() {
       // réinitialise tout si la personne clic sur annuler
+      this.stopPolling();
       this.file = null;
       this.message = '';
       this.error = false;
@@ -214,7 +231,17 @@ export default {
       this.reponse_affichee = [];
       this.nom_fichier_erreur = null;
       this.url_fichier_erreur = null;
+      this.id_import = null;
+      this.etape_message = '';
+      this.uploading = false;
       this.response;
+    },
+
+    stopPolling() {
+      if (this.pollTimer) {
+        clearTimeout(this.pollTimer);
+        this.pollTimer = null;
+      }
     },
 
     close_popup_update() {
@@ -243,11 +270,14 @@ export default {
         return;
       }
 
+      this.stopPolling();
       this.message = '';
       this.error = false;
       this.reponse_affichee = [];
       this.nom_fichier_erreur = null;
       this.url_fichier_erreur = null;
+      this.etape_message = '';
+      this.id_import = null;
 
       try {
         this.uploading = true;
@@ -258,89 +288,102 @@ export default {
         if (this.saison) {
           formData.append('saison', this.saison);
         }
-        formData.append('id_role', this.$store.getters.user.id_role); // à remplacer par le rôle de l'utilisateur connecté, ici on met 1 pour les tests
-        formData.append('nom_complet', this.$store.getters.user.nom_complet); // à remplacer par le nom complet de l'utilisateur connecté, ici on met "Test User" pour les tests
 
-        // console.log('Envoi du FormData...');
-
-        // console.log('upload(): envoi du FormData, attente réponse...');
+        // Lancement de l'import : le backend enregistre le fichier, crée une ligne
+        // de suivi et traite en tâche de fond. Réponse immédiate (202) avec id_import.
         const response = await simple_fetch('POST', 'api/chasse/import/traitement-csv', formData);
-        // console.log("Réponse brute de l'API:", response);
 
         // simple_fetch redirige vers /login et retourne undefined en cas de 401
         if (!response) {
-          console.warn(
-            'upload(): pas de réponse (probable 401/redirection), annulation et reset uploading.'
-          );
           this.message = 'Vous devez être connecté pour importer un fichier.';
           this.error = true;
           this.uploading = false;
           return;
         }
 
-        if (response.success === false || response.user_message) {
-          console.error('upload(): réponse API avec erreur:', response.error);
-          this.message = response.user_message || "Erreur lors de l'import.";
+        if (response.success === false || !response.id_import) {
+          this.message = response.user_message || "Erreur lors du lancement de l'import.";
           this.error = true;
           this.uploading = false;
           return;
         }
 
-        await this.traitement_journal(response);
-        // this.message = response.journal || 'Importation réussie.';
-        // console.log('Réponse API:', response.journal);
-        this.uploading = false;
+        this.id_import = response.id_import;
+        this.etape_message = "Import en attente de traitement…";
+        this.pollStatus();
       } catch (err) {
         console.error("Erreur lors de l'import:", err);
         this.message = err.message || "Erreur lors de l'import.";
         this.error = true;
-      } finally {
-        // always ensure uploading flag is cleared
         this.uploading = false;
       }
     },
 
-    async traitement_journal(response) {
-      // parcours les lignes du journal pour remplir le dic reponse_affichee qui aura logo et message à chaque lignes.
-      // si la ligne contient [ERROR] on met un icone de croix rouge
-      // si la ligne contient [INFO] on met un icone de check vert
-      // si la ligne contient [FILE] on créé icone de fichier et nom_fichier_erreur prendra la valeur du nom du fichier d'erreur à télécharger
-      // message contiendra le message sans les tags [ERROR], [INFO] ou [FILE]
-
-      // Process logs in chunks to avoid blocking the main thread and hitting script-timeout
-      const lines = response && response.journal ? response.journal : [];
-      const chunkSize = 100; // adjust as needed
-      const maxDisplay = 1000; // keep at most this many lines in the DOM
-
-      for (let i = 0; i < lines.length; i += chunkSize) {
-        const chunk = lines.slice(i, i + chunkSize);
-        for (let log of chunk) {
-          if (log.includes('[ERROR]')) {
-            this.reponse_affichee.push({ type: 'error', message: log.replace('[ERROR] ', '') });
-          } else if (log.includes('[INFO]')) {
-            this.reponse_affichee.push({ type: 'info', message: log.replace('[INFO] ', '') });
-          } else if (log.includes('[WARNING]')) {
-            this.reponse_affichee.push({ type: 'warning', message: log.replace('[WARNING] ', '') });
-          } else if (log.includes('[FILE]')) {
-            const fileName = log.replace('[FILE] ', '');
-            this.nom_fichier_erreur = fileName;
-            this.reponse_affichee.push({ type: 'file', message: fileName });
-          }
-        }
-
-        // trim to last maxDisplay entries to avoid memory/DOM bloat
-        if (this.reponse_affichee.length > maxDisplay) {
-          this.reponse_affichee = this.reponse_affichee.slice(-maxDisplay);
-        }
-
-        // yield to the event loop so the browser can render and avoid script timeout
-        // use nextTick + small timeout for maximum compatibility
-        // eslint-disable-next-line no-await-in-loop
-        await this.$nextTick();
-        // eslint-disable-next-line no-await-in-loop
-        await new Promise((r) => setTimeout(r, 0));
+    async pollStatus() {
+      // interroge périodiquement l'état de l'import jusqu'à TERMINE / ERREUR
+      if (!this.id_import) return;
+      let res;
+      try {
+        res = await simple_fetch('GET', `api/chasse/import/status/${this.id_import}`);
+      } catch (err) {
+        console.error('pollStatus:', err);
+        // on retente quelques instants plus tard plutôt que d'abandonner
+        this.pollTimer = setTimeout(() => this.pollStatus(), 3000);
+        return;
       }
 
+      if (!res || res.success === false || !res.import_status) {
+        this.message = (res && res.user_message) || "Suivi de l'import indisponible.";
+        this.error = true;
+        this.uploading = false;
+        return;
+      }
+
+      const st = res.import_status;
+      this.traitement_journal(st.journal || []);
+      this.etape_message = st.message || '';
+
+      if (st.statut === 'TERMINE' || st.statut === 'ERREUR') {
+        this.stopPolling();
+        this.uploading = false;
+        this.etape_message = '';
+        if (st.statut === 'ERREUR' || st.success === false) {
+          this.error = true;
+          if (st.message) this.message = st.message;
+        } else {
+          this.message = 'Importation terminée.';
+        }
+        return;
+      }
+
+      // toujours en cours : on reprogramme un poll
+      this.pollTimer = setTimeout(() => this.pollStatus(), 2000);
+    },
+
+    traitement_journal(journal) {
+      // reconstruit reponse_affichee à partir du journal (liste de lignes taguées
+      // [ERROR] / [INFO] / [WARNING] / [FILE]). Idempotent : appelé à chaque poll.
+      const lines = Array.isArray(journal) ? journal : [];
+      const maxDisplay = 1000;
+      const out = [];
+      let fichierErreur = null;
+
+      for (const log of lines) {
+        if (log.includes('[ERROR]')) {
+          out.push({ type: 'error', message: log.replace('[ERROR] ', '') });
+        } else if (log.includes('[INFO]')) {
+          out.push({ type: 'info', message: log.replace('[INFO] ', '') });
+        } else if (log.includes('[WARNING]')) {
+          out.push({ type: 'warning', message: log.replace('[WARNING] ', '') });
+        } else if (log.includes('[FILE]')) {
+          const fileName = log.replace('[FILE] ', '');
+          fichierErreur = fileName;
+          out.push({ type: 'file', message: fileName });
+        }
+      }
+
+      this.reponse_affichee = out.length > maxDisplay ? out.slice(-maxDisplay) : out;
+      this.nom_fichier_erreur = fichierErreur;
       return this.reponse_affichee;
     },
 
@@ -389,6 +432,11 @@ export default {
         console.error('Failed to fetch saisons', err);
         this.saisons = [];
       });
+  },
+
+  beforeUnmount() {
+    // stoppe le polling si l'utilisateur quitte la page pendant un import
+    this.stopPolling();
   },
 };
 </script>

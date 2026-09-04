@@ -39,7 +39,7 @@ from pyproj import Transformer
 from marshmallow.exceptions import ValidationError
 
 from sqlalchemy import func, select
-from flask import request, current_app, session
+from flask import request, current_app, session, has_request_context
 
 from oeasc.utils.apiResponse import ApiResponse
 
@@ -648,35 +648,56 @@ def convert_to_int(serie):
 ##################################################################################
 
 
-def etape__récuperation_csv(apiResponse):
+def etape__récuperation_csv(apiResponse, source=None):
     """Check si les informations nécessaires à l'import sont présentes et récupère le csv exporté par geochasse.
      retourne un dataframe pandas et une ApiResponse avec les messages d'erreur et le journal de l'opération.
      Si une erreur est détectée, le dataframe retourné est vide et la ApiResponse contient les messages d'erreur et le journal de l'opération.
     Si aucune erreur n'est détectée, le dataframe retourné contient les données du csv et la ApiResponse contient le journal de l'opération.
+
+    source : chemin de fichier (str/Path) ou objet fichier. Si None, on lit
+    request.files["file"] (comportement historique en contexte de requête).
     """
 
+    file = None
+    fichier_ouvert_ici = False
     try:
         df = pd.DataFrame()
 
-        if "file" not in request.files:
-            apiResponse.add_log(
-                "Aucun fichier trouvé dans la requête", type_log="ERROR"
-            )
-            apiResponse.add_error(
-                user_message="Aucun fichier trouvé dans la requête",
-                system_error="Aucun fichier trouvé dans la requête",
-            )
-            return apiResponse
+        if source is None:
+            if "file" not in request.files:
+                apiResponse.add_log(
+                    "Aucun fichier trouvé dans la requête", type_log="ERROR"
+                )
+                apiResponse.add_error(
+                    user_message="Aucun fichier trouvé dans la requête",
+                    system_error="Aucun fichier trouvé dans la requête",
+                )
+                return pd.DataFrame(), apiResponse
+            source = request.files["file"]
 
-        file = request.files["file"]
+        if isinstance(source, (str, Path)):
+            if not Path(source).is_file():
+                apiResponse.add_log(
+                    f"Fichier introuvable: {source}", type_log="ERROR"
+                )
+                apiResponse.add_error(
+                    user_message="Le fichier importé est introuvable sur le serveur.",
+                    system_error=f"Fichier introuvable: {source}",
+                )
+                return pd.DataFrame(), apiResponse
+            file = open(source, "rb")
+            fichier_ouvert_ici = True
+        else:
+            file = source
+            if getattr(file, "filename", None) == "":
+                apiResponse.add_log("Nom de fichier vide", type_log="ERROR")
+                apiResponse.add_error(
+                    user_message="Nom de fichier vide",
+                    system_error="Nom de fichier vide",
+                )
+                return pd.DataFrame(), apiResponse
+
         file_save = file
-
-        if file.filename == "":
-            apiResponse.add_log("Nom de fichier vide", type_log="ERROR")
-            apiResponse.add_error(
-                user_message="Nom de fichier vide", system_error="Nom de fichier vide"
-            )
-            return apiResponse
 
         # repère le caratère de séparation utilisé dans le csv ("," ou ";") et utilise le bon séparateur pour lire le csv. Par défaut geochasse utilise ";" mais il arrive que le csv soit exporté avec "," comme séparateur.
         # On lit les 5 premières lignes du csv pour repérer le séparateur utilisé. Si le csv contient moins de 5 lignes, on lit toutes les lignes.
@@ -712,7 +733,7 @@ def etape__récuperation_csv(apiResponse):
                 user_message="Le fichier CSV est vide",
                 system_error="Le fichier CSV est vide",
             )
-            return apiResponse
+            return pd.DataFrame(), apiResponse
 
         return df, apiResponse
     except Exception as e:
@@ -720,20 +741,43 @@ def etape__récuperation_csv(apiResponse):
         apiResponse.add_error(system_error=str(e), user_message=user_message)
         apiResponse.add_log(message=user_message, type_log="ERROR")
         return pd.DataFrame(), apiResponse
+    finally:
+        if fichier_ouvert_ici and file is not None:
+            try:
+                file.close()
+            except Exception:
+                pass
 
 
 #################################################################################
 #################################################################################
 
 
-def initialisation_apiResponse():
-    """Initialise une ApiResponse pour stocker les messages d'erreur et de succès, le journal de l'opération et les données à retourner à l'utilisateur."""
+def initialisation_apiResponse(id_role=None, nom_complet=None):
+    """Initialise une ApiResponse pour stocker les messages d'erreur et de succès, le journal de l'opération et les données à retourner à l'utilisateur.
+
+    id_role / nom_complet : si fournis, on les utilise directement (cas d'un
+    traitement lancé hors contexte de requête, ex. thread de fond). Sinon on lit
+    la session Flask (comportement historique).
+    """
     apiResponse = ApiResponse(log_file="import_geochasse.log")
 
-    if "current_user" not in session:
-        # revois les droit pour id_role
+    # si l'appelant n'a pas fourni l'utilisateur, on tente la session Flask
+    # (uniquement en contexte de requête : la session n'existe pas dans un thread).
+    if (
+        (id_role is None or nom_complet is None)
+        and has_request_context()
+        and ("current_user" in session)
+    ):
+        current_user = session.get("current_user") or {}
+        id_role = id_role if id_role is not None else current_user.get("id_role")
+        nom_complet = (
+            nom_complet if nom_complet is not None else current_user.get("nom_complet")
+        )
+
+    if id_role is None or nom_complet is None:
         apiResponse.add_log(
-            "Tentative d'importation: Utilisateur non connecté. Veuillez vous connecter pour continuer.",
+            "Tentative d'importation: Utilisateur non connecté ou informations manquantes. Veuillez vous connecter pour continuer.",
             type_log="ERROR",
             with_timestamp=True,
         )
@@ -741,36 +785,18 @@ def initialisation_apiResponse():
         apiResponse.status_code = 401
         apiResponse.add_error(
             user_message="Tentative d'importation: Utilisateur non connecté. Veuillez vous connecter pour continuer.",
-            system_error="Tentative d'importation: Utilisateur non connecté. Veuillez vous connecter pour continuer.",
+            system_error="Tentative d'importation: Utilisateur non connecté ou informations manquantes.",
         )
         return apiResponse
-    else:
-        id_role = session.get("current_user")["id_role"]
-        # print(f"id_role from session: {id_role}")
-        nom_complet = session.get("current_user")["nom_complet"]
-        # print(f"nom_complet from session: {nom_complet}")
-        if (id_role is None) or (nom_complet is None):
-            apiResponse.add_log(
-                "Tentative d'importation: Informations utilisateur manquantes. Veuillez vous reconnecter.",
-                type_log="ERROR",
-                with_timestamp=True,
-            )
-            apiResponse.success = False
-            apiResponse.status_code = 401
-            apiResponse.add_error(
-                user_message="Tentative d'importation: Informations utilisateur manquantes. Veuillez vous reconnecter.",
-                system_error="Tentative d'importation: Informations utilisateur manquantes. Veuillez vous reconnecter.",
-            )
-            return apiResponse
-        else:
-            apiResponse.id_role = session["current_user"]["id_role"]
-            apiResponse.nom_complet = session["current_user"]["nom_complet"]
-            apiResponse.return_journal = True
-            date_time = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
-            apiResponse.add_log(
-                f"Utilisateur {apiResponse.nom_complet} (id_role: {apiResponse.id_role}) a lancé l'import des données de chasse depuis Geochasse à {date_time}.",
-                with_timestamp=True,
-            )
+
+    apiResponse.id_role = id_role
+    apiResponse.nom_complet = nom_complet
+    apiResponse.return_journal = True
+    date_time = pd.Timestamp.now().strftime("%Y-%m-%d %H:%M:%S")
+    apiResponse.add_log(
+        f"Utilisateur {apiResponse.nom_complet} (id_role: {apiResponse.id_role}) a lancé l'import des données de chasse depuis Geochasse à {date_time}.",
+        with_timestamp=True,
+    )
 
     return apiResponse
 
@@ -919,6 +945,18 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
             df_attributions = pd.DataFrame(
                 DB.session.execute(stmt_attributions).mappings().all()
             )
+
+            if df_attributions.empty:
+                apiResponse.add_log(
+                    f"Aucune attribution trouvée pour la saison id_saison={id_saison}. "
+                    "Vérifiez que la saison est correcte et qu'elle contient des attributions.",
+                    type_log="ERROR",
+                )
+                apiResponse.add_error(
+                    user_message="Aucune attribution n'existe pour la saison sélectionnée. Vérifiez la saison choisie.",
+                    system_error=f"Aucune attribution pour id_saison={id_saison}",
+                )
+                return pd.DataFrame(), apiResponse
 
             # une attribution peut (anomalie) porter plusieurs réalisations : on ne
             # garde que la plus grande id_realisation, comme le column_property d'origine.
@@ -2508,63 +2546,101 @@ def etape__creation_csv_a_verifier(df, df_original, apiResponse):
 ################################################################################################
 
 
-def traitement_import_realisation_chasse(path_csv, id_saison, update):
+def traitement_import_realisation_chasse(
+    path_csv,
+    id_saison,
+    update,
+    id_role=None,
+    nom_complet=None,
+    progress_callback=None,
+):
     """Fonction principale de traitement de l'import csv.
     Retourne un objet ApiResponse avec les messages, le journal de l'opération et les données à retourner à l'utilisateur.
+
+    path_csv : chemin du fichier CSV sur disque, ou objet fichier, ou None
+               (dans ce dernier cas on lit request.files["file"] — contexte requête).
+    id_role / nom_complet : utilisateur à l'origine de l'import (obligatoire hors
+               contexte de requête).
+    progress_callback : appelé avec (apiResponse, etape_label, num, total) après
+               chaque étape pour permettre à l'appelant de persister l'avancement
+               (thread de fond + polling).
     """
     if update == "true":
         update = True
     elif update == "false":
         update = False
 
-    apiResponse = initialisation_apiResponse()
+    _TOTAL_ETAPES = 11
+    _compteur = {"n": 0}
+
+    def _progress(api, label=""):
+        _compteur["n"] += 1
+        if progress_callback is not None:
+            try:
+                progress_callback(api, label, _compteur["n"], _TOTAL_ETAPES)
+            except Exception:
+                pass
+
+    apiResponse = initialisation_apiResponse(id_role=id_role, nom_complet=nom_complet)
     if apiResponse.success == False:
         apiResponse.print_all()
+        _progress(apiResponse, "Authentification")
         return apiResponse
 
-    df, apiResponse = etape__récuperation_csv(apiResponse)
+    df, apiResponse = etape__récuperation_csv(apiResponse, source=path_csv)
+    _progress(apiResponse, "Lecture du fichier CSV")
     if apiResponse.success == False:
         return apiResponse
     df, apiResponse = etape__clean_csv(df, apiResponse)
     df_original = (
         df.copy()
     )  # on garde une copie du dataframe original pour pouvoir faire des comparaisons à l'avenir si besoin et pour garder une trace de ce qui a été saisi dans le csv.
+    _progress(apiResponse, "Nettoyage des données")
     if apiResponse.success == False:
         return apiResponse
     df, apiResponse = etape__recupération_attributions(
         df, id_saison, update, apiResponse
     )
+    _progress(apiResponse, "Récupération des attributions")
     if apiResponse.success == False:
         return apiResponse
     df, apiResponse = etape__verification_donnees_geochasse(df, apiResponse)
+    _progress(apiResponse, "Vérification de la cohérence des données")
     if apiResponse.success == False:
         return apiResponse
     df, apiResponse = etape__ajout_colonnes_vides_pour_bdd(df, apiResponse, update)
+    _progress(apiResponse, "Préparation des données")
     if apiResponse.success == False:
         return apiResponse
     df, apiResponse = etape__integration_communes_dans_df(df, apiResponse)
+    _progress(apiResponse, "Rapprochement des communes")
     if apiResponse.success == False:
         return apiResponse
     df, apiResponse = etape__integration_zones_dans_df(df, apiResponse)
+    _progress(apiResponse, "Rapprochement des zones")
     if apiResponse.success == False:
         return apiResponse
     # dict_bilan_synonymes contiendra un bilan des correspondances trouvées entre les lieux dits saisis dans le csv et les lieux de tir synonymes de la bdd
     df, apiResponse, dict_bilan_synonymes = (
         etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse)
     )
+    _progress(apiResponse, "Recherche des lieux de tir")
     if apiResponse.success == False:
         return apiResponse
 
     apiResponse = etape_save_bilan_synonymes_in_csv(dict_bilan_synonymes, apiResponse)
 
     df, apiResponse = etape__remplissage_commentaires(df, apiResponse)
+    _progress(apiResponse, "Consolidation des commentaires")
     if apiResponse.success == False:
         return apiResponse
 
     # insertion puis mise à jour, on fait les 2 avant de vérifier si il y a des erreurs.
     apiResponse, df_erreurs_insert = etape__insert_new_realisations(df, apiResponse)
+    _progress(apiResponse, "Insertion des nouvelles réalisations")
     if update == True:
         apiResponse, df_erreurs_update = etape__update_realisations(df, apiResponse)
+        _progress(apiResponse, "Mise à jour des réalisations existantes")
     else:
         df_erreurs_update = (
             pd.DataFrame()
@@ -2581,6 +2657,7 @@ def traitement_import_realisation_chasse(path_csv, id_saison, update):
 
     # enregiste les logs dans un fichier
     apiResponse.write_in_log_file()
+    _progress(apiResponse, "Génération des rapports")
 
     # apiResponse.print_all() # pour le débug
     # print (df)

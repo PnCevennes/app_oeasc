@@ -37,7 +37,9 @@ from pypnnomenclature.schemas import NomenclatureSchema
 
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
-from flask import Blueprint, current_app, request, send_file
+from flask import Blueprint, current_app, request, send_file, session, jsonify
+from flask_login import current_user as login_user
+from werkzeug.utils import secure_filename
 from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
@@ -52,7 +54,12 @@ from .export_chasse import (
     exportation_attributions_realises_chasse,
     get_data_all_especes_export_ods,
 )
-from .importation_csv import traitement_import_realisation_chasse
+from .import_async import (
+    creer_suivi,
+    lancer_import_async,
+    lire_suivi,
+    DOSSIER_SUIVI,
+)
 from sqlalchemy import func, select
 from sqlalchemy.orm import aliased
 import datetime
@@ -336,20 +343,80 @@ def api_result_export():
 @bp.route("import/traitement-csv", methods=["POST"])
 @check_auth_redirect_login(4)
 def traitement_csv():
-    """Route pour traiter l'importation d'un fichier CSV contenant les réalisations de chasse.
-    Les paramètres de la requête POST doivent inclure :
-    - saison : la saison pour laquelle les données sont importées
-    - update : indique si les données existantes doivent être mises à jour ("true" ou "false")
-    - file : le fichier CSV à importer
+    """Lance l'importation d'un fichier CSV Geochasse en tâche de fond.
+
+    Le fichier est enregistré sur disque, un fichier de suivi JSON est créé, et le
+    traitement (long) est délégué à un thread. La réponse (202) contient
+    `id_import` ; le frontend suit l'avancement via `GET import/status/<id_import>`.
+
+    Paramètres POST (multipart) : saison, update ("true"/"false"), file (CSV).
     """
     saison = request.form.get("saison")
-    update = request.form.get("update")  # sera une string "true" ou "false"
+    update = request.form.get("update") == "true"
     file = request.files.get("file")
-    apiResponse = traitement_import_realisation_chasse(file, saison, update)
-    if apiResponse.success == False:
-        apiResponse.print_all()
 
-    return apiResponse.response_to_frontend()
+    session_user = session.get("current_user") or {}
+    id_role = session_user.get("id_role")
+    nom_complet = session_user.get("nom_complet")
+    # repli sur l'utilisateur du token (flask-login) si la session ne le porte pas
+    if id_role is None and getattr(login_user, "is_authenticated", False):
+        id_role = getattr(login_user, "id_role", None)
+        nom_complet = nom_complet or " ".join(
+            p
+            for p in (
+                getattr(login_user, "prenom_role", None),
+                getattr(login_user, "nom_role", None),
+            )
+            if p
+        )
+
+    if file is None or file.filename == "":
+        return jsonify({"success": False, "user_message": "Aucun fichier fourni."}), 400
+    if not saison:
+        return (
+            jsonify({"success": False, "user_message": "La saison n'est pas renseignée."}),
+            400,
+        )
+
+    horodatage = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    nom_sur = secure_filename(file.filename) or "import.csv"
+    chemin_fichier = DOSSIER_SUIVI / f"{horodatage}_{nom_sur}"
+    file.save(chemin_fichier)
+
+    id_import = creer_suivi(
+        id_saison=saison,
+        do_update=update,
+        nom_fichier=file.filename,
+        chemin_fichier=chemin_fichier,
+        id_role=id_role,
+        nom_complet=nom_complet,
+    )
+    lancer_import_async(
+        id_import=id_import,
+        chemin_fichier=str(chemin_fichier),
+        id_saison=saison,
+        do_update=update,
+        id_role=id_role,
+        nom_complet=nom_complet,
+    )
+
+    return (
+        jsonify({"success": True, "id_import": id_import, "statut": "EN_ATTENTE"}),
+        202,
+    )
+
+
+@bp.route("import/status/<id_import>", methods=["GET"])
+@check_auth_redirect_login(4)
+def import_status(id_import):
+    """Renvoie l'état d'un import lancé en tâche de fond (statut, journal, success)."""
+    etat = lire_suivi(id_import)
+    if etat is None:
+        return (
+            jsonify({"success": False, "user_message": "Import introuvable."}),
+            404,
+        )
+    return jsonify({"success": True, "import_status": etat})
 
 
 @bp.route("import/download-erreurs-csv/<file_name>", methods=["GET"])

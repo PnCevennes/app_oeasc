@@ -35,6 +35,7 @@ static/node_modules
 static/documents
 static/shapefiles/*
 static/erreurs_import_chasse/*.log
+static/imports_chasse/*
 
 static/dist/*
 static/src/js/config/config*.js
