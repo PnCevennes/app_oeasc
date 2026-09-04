@@ -2112,11 +2112,7 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                                                             id_zone_cynegetique_realisee,
                                                             meilleur_match,
                                                         ),
-                                                    )[
-                                                        "id_lieu_tir_synonyme"
-                                                    ].values[
-                                                        0
-                                                    ]
+                                                    )["id_lieu_tir_synonyme"].values[0]
                                                     df.at[
                                                         index, "id_lieu_tir_synonyme"
                                                     ] = None  # trop de risque de se tromper.
@@ -2225,9 +2221,7 @@ def etape__remplissage_commentaires(df, apiResponse):
         commentaire_base = (
             df["commentaire"].where(df["commentaire"].notna(), "").astype(str)
         )
-        nouveau = (
-            commentaire_base + " \n " + df["commentaires_erreurs"].astype(str)
-        )
+        nouveau = commentaire_base + " \n " + df["commentaires_erreurs"].astype(str)
         df["commentaire"] = df["commentaire"].mask(mask, nouveau)
         return df, apiResponse
     except Exception as e:
