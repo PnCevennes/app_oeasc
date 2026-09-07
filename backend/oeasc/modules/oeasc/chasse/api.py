@@ -374,7 +374,9 @@ def traitement_csv():
         return jsonify({"success": False, "user_message": "Aucun fichier fourni."}), 400
     if not saison:
         return (
-            jsonify({"success": False, "user_message": "La saison n'est pas renseignée."}),
+            jsonify(
+                {"success": False, "user_message": "La saison n'est pas renseignée."}
+            ),
             400,
         )
 

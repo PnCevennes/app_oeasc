@@ -677,9 +677,7 @@ def etape__récuperation_csv(apiResponse, source=None):
 
         if isinstance(source, (str, Path)):
             if not Path(source).is_file():
-                apiResponse.add_log(
-                    f"Fichier introuvable: {source}", type_log="ERROR"
-                )
+                apiResponse.add_log(f"Fichier introuvable: {source}", type_log="ERROR")
                 apiResponse.add_error(
                     user_message="Le fichier importé est introuvable sur le serveur.",
                     system_error=f"Fichier introuvable: {source}",

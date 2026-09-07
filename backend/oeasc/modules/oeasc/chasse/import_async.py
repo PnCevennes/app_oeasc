@@ -85,9 +85,7 @@ def _ecrire_suivi(id_import, **champs):
     data.update(champs)
     data["id_import"] = id_import
     tmp = chemin.with_suffix(".json.tmp")
-    tmp.write_text(
-        json.dumps(data, default=str, ensure_ascii=False), encoding="utf-8"
-    )
+    tmp.write_text(json.dumps(data, default=str, ensure_ascii=False), encoding="utf-8")
     os.replace(tmp, chemin)
 
 
@@ -146,7 +144,9 @@ def lire_suivi(id_import):
     return data
 
 
-def _traiter(app, id_import, chemin_fichier, id_saison, do_update, id_role, nom_complet):
+def _traiter(
+    app, id_import, chemin_fichier, id_saison, do_update, id_role, nom_complet
+):
     with app.app_context():
         try:
             _ecrire_suivi(id_import, statut="EN_COURS")
