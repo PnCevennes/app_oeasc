@@ -718,6 +718,26 @@ def etape__récuperation_csv(apiResponse, source=None):
             colonnes_csv=colonnes_csv, columns_name=COLUMNS_NAME, seuil_similarite=90
         )
 
+        # colonnes présentes dans le csv mais non reconnues : geochasse change parfois
+        # ses noms de colonnes (cf ERREUR_NOMS_COLONNES_GEOCHASSE plus haut) sans que ça
+        # provoque d'erreur — la colonne correspondante est alors silencieusement vide
+        # (ex: "type_chasse" introuvable => mode de chasse toujours null en base).
+        # On avertit systématiquement dans le journal pour que ce soit visible.
+        colonnes_non_reconnues = [
+            col_csv
+            for col_csv, col_reconnue in zip(colonnes_csv, liste_mapping)
+            if col_reconnue is None
+        ]
+        if colonnes_non_reconnues:
+            apiResponse.add_log(
+                "Colonne(s) du CSV non reconnue(s), ignorée(s) : "
+                + ", ".join(f"'{c}'" for c in colonnes_non_reconnues)
+                + ". Si l'une d'elles correspond à un champ attendu (ex: TYPE CHASSE), "
+                "l'export geochasse a probablement changé de nom de colonne : ce champ "
+                "restera vide pour toutes les lignes importées.",
+                type_log="WARNING",
+            )
+
         df = pd.read_csv(
             file_save,
             sep=sep,
