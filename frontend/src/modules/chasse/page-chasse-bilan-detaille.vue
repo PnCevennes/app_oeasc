@@ -308,12 +308,12 @@ export default {
       // Camembert "Répartition par mode de chasse" — couleur par mode de chasse
       // (palette par défaut de Highcharts, une teinte distincte par mode)
       code_couleurs_mode_chasse: {
-        'Battue': '#7cb5ec',
-        'Individuel': '#434348',
-        'Affut': '#90ed7d',
-        'Approche': '#f7a35c',
+        Battue: '#7cb5ec',
+        Individuel: '#434348',
+        Affut: '#90ed7d',
+        Approche: '#f7a35c',
         'Poussée silencieuse': '#e4d354',
-        'Indéterminé': '#8085e9',
+        Indéterminé: '#8085e9',
       },
 
       // Couleur par type de bracelet. Utilisé pour :

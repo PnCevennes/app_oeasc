@@ -71,35 +71,64 @@ def _app_context():
 
 
 def _normalize(valeur):
-    """Minuscule, sans accent, sans espaces de bord. Sert au matching insensible
-    à la casse/aux accents des entêtes de colonnes et des valeurs."""
+    """Minuscule, sans accent, sans espaces de bord.
+
+    Utilisé partout où l'on compare des chaînes venant du CSV (entêtes de
+    colonnes, noms d'espèce, libellés de mode de chasse, codes de bracelet…) :
+    l'utilisateur exporte depuis Excel/Calc et la casse comme les accents varient
+    d'un export à l'autre. `unicodedata` (stdlib) suffit — `unidecode` n'est pas
+    installé dans le venv.
+    Ex. : "Espèce" -> "espece", "  Cerf Élaphe " -> "cerf elaphe".
+    """
     if valeur is None:
         return ""
+    # NFKD décompose "é" en "e" + accent combinant ; l'encodage ascii "ignore"
+    # supprime ensuite les accents (et tout caractère non-ascii résiduel).
     s = unicodedata.normalize("NFKD", str(valeur))
     s = s.encode("ascii", "ignore").decode("ascii")
     return s.strip().lower()
 
 
 def _normalize_saison(valeur):
-    """« 2026/2027 », « 2026 - 2027 » -> « 2026-2027 » pour comparer à nom_saison."""
+    """Ramène une valeur d'année/saison à la forme de `t_saisons.nom_saison`
+    (« 2026-2027 »), pour pouvoir comparer.
+
+    Les fichiers utilisent des formes variées : « 2026/2027 » (colonne Annee des
+    attributions), « 2026 - 2027 », « 2026-2027 » (colonne saison des massifs).
+    On enlève les espaces et on remplace « / » par « - ».
+    """
     return re.sub(r"\s+", "", str(valeur or "")).replace("/", "-")
 
 
 def _detect_sep(path):
-    """Détection du séparateur (`;` ou `,`) : même heuristique que
-    `importation_csv.etape__récuperation_csv` (comptage sur un échantillon)."""
+    """Devine le séparateur du CSV : « ; » ou « , ».
+
+    Même heuristique que l'import des réalisations
+    (`importation_csv.etape__récuperation_csv`) : on lit un échantillon en tête de
+    fichier et on prend le caractère le plus fréquent. Les exports Geochasse /
+    Excel alternent entre les deux selon la locale du poste.
+    """
     with open(path, "rb") as f:
+        # utf-8-sig : consomme le BOM éventuel ajouté par Excel.
         sample = f.read(4096).decode("utf-8-sig", errors="replace")
     return ";" if sample.count(";") > sample.count(",") else ","
 
 
 def lire_csv_auto(path):
-    """Lit le CSV en autodétectant le séparateur ; force les entêtes en
-    minuscules. Tout est lu en texte pour maîtriser le parsing nous-mêmes.
+    """Lit le CSV et renvoie (DataFrame, séparateur).
 
-    Répare les lignes « sur-quotées » par certains exports Excel : quand un champ
-    contient le séparateur, la ligne entière se retrouve entre guillemets et donc
-    dans la seule première colonne — on la redécoupe alors nous-mêmes."""
+    - séparateur autodétecté (`_detect_sep`) ;
+    - entêtes forcées en minuscules (le reste du matching passe par `_normalize`) ;
+    - `dtype=str` + `keep_default_na=False` : tout est lu en texte, cellules vides
+      = "" (pas de NaN) — on maîtrise nous-mêmes chaque conversion.
+
+    Répare aussi les lignes « sur-quotées » par certains exports Excel : quand une
+    valeur contient le séparateur (ex. un nom de massif avec une virgule), Excel
+    entoure la **ligne entière** de guillemets. pandas la lit alors comme un seul
+    champ, rangé dans la 1re colonne, les autres colonnes vides. On repère ces
+    lignes (toutes les colonnes sauf la 1re vides, et la 1re contient le
+    séparateur) et on les redécoupe avec le module `csv`.
+    """
     sep = _detect_sep(path)
     df = pd.read_csv(
         path, sep=sep, encoding="utf-8-sig", dtype=str, keep_default_na=False
@@ -114,6 +143,7 @@ def lire_csv_auto(path):
             & df[premiere].str.contains(re.escape(sep), regex=True)
         ]
         for idx in a_reparer:
+            # csv.reader gère les guillemets internes et les "" échappés
             parts = next(csv.reader([df.at[idx, premiere]], delimiter=sep))
             for col, val in zip(df.columns, parts):
                 df.at[idx, col] = val.strip()
@@ -122,8 +152,17 @@ def lire_csv_auto(path):
 
 
 def _resoudre_colonnes(df, alias_map):
-    """alias_map : {nom_canonique: [variantes...]}. Compare via `_normalize`.
-    Retourne (mapping {canonique: nom_colonne_reel}, [canoniques manquants])."""
+    """Fait correspondre les colonnes réelles du fichier aux noms « canoniques »
+    attendus par le traitement, de façon tolérante (casse + accents).
+
+    `alias_map` : {nom_canonique: [orthographes acceptées...]}. Le nom canonique
+    lui-même est toujours essayé en premier.
+
+    Retourne un couple :
+      - mapping   : {nom_canonique: nom_de_colonne_réel_dans_le_df}
+      - manquantes: [noms_canoniques introuvables]  -> l'appelant en fait une
+                    erreur bloquante avec la liste.
+    """
     cols_norm = {_normalize(c): c for c in df.columns}
     mapping = {}
     manquantes = []
@@ -142,6 +181,11 @@ def _resoudre_colonnes(df, alias_map):
 
 
 def _parse_date_fr(valeur):
+    """Parse une date de fichier -> `datetime.date`, ou None si illisible.
+
+    Les fichiers mélangent parfois les formats (année sur 2 ou 4 chiffres) :
+    « 01/09/2026 », « 13/09/26 »… On essaie les formats les plus courants.
+    """
     s = str(valeur or "").strip()
     if not s:
         return None
@@ -154,6 +198,11 @@ def _parse_date_fr(valeur):
 
 
 def _parse_int(valeur):
+    """Parse un entier de fichier -> int, ou None si vide/illisible.
+
+    Tolère les cellules vides, « nan »/« none » (pandas), et un séparateur
+    décimal virgule (« 12,0 » -> 12).
+    """
     s = str(valeur or "").strip()
     if s == "" or s.lower() in ("nan", "none"):
         return None
@@ -164,7 +213,12 @@ def _parse_int(valeur):
 
 
 def _split_modes(valeur):
-    """« Approche, Affut » -> ['Approche', 'Affut'] (séparateur `,` ou `;`)."""
+    """Découpe la colonne `type_chasse` en liste de modes.
+
+    Une même ligne du fichier « dates de saison » peut porter plusieurs modes de
+    chasse : « Approche, Affut » -> ['Approche', 'Affut']. On accepte « , » ou
+    « ; » comme séparateur interne.
+    """
     s = str(valeur or "").strip()
     if not s:
         return []
@@ -172,6 +226,8 @@ def _split_modes(valeur):
 
 
 def _init_api(id_role, nom_complet):
+    """Prépare l'ApiResponse commune aux 3 imports : journal renvoyé au frontend,
+    fichier de log dédié, et une première ligne traçant qui a lancé l'import."""
     api = ApiResponse(log_file="import_attributions.log")
     api.id_role = id_role
     api.nom_complet = nom_complet or "Utilisateur"
@@ -186,6 +242,13 @@ def _init_api(id_role, nom_complet):
 
 
 def _make_progress(progress_callback, total):
+    """Fabrique un petit helper `_progress(api, label)` qui incrémente un compteur
+    d'étape et relaie l'avancement à `progress_callback` (fourni par le thread
+    d'import async, qui persiste alors « Étape n/total : label » + le journal dans
+    le fichier de suivi lu par le polling frontend).
+
+    `total` : nombre d'appels `_progress` prévus dans le traitement.
+    """
     compteur = {"n": 0}
 
     def _progress(api, label=""):
@@ -202,8 +265,13 @@ def _make_progress(progress_callback, total):
 
 
 def _abandon_erreurs(api, erreurs, prefixe="Import annulé"):
-    """Journalise chaque erreur puis marque l'ApiResponse en échec avec un
-    message utilisateur récapitulatif."""
+    """Termine un import en échec sur des erreurs de données.
+
+    Chaque erreur devient une ligne `[ERROR]` du journal (affichée dans le
+    tableau de la page), et `api.add_error` pose `success=False` + le message
+    récapitulatif (affiché dans le snackbar). Aucune écriture BDD n'a eu lieu :
+    tous les contrôles sont faits avant le premier `INSERT`.
+    """
     for e in erreurs:
         api.add_log(e, type_log="ERROR")
     apercu = " | ".join(erreurs[:MAX_ERREURS_MESSAGE])
@@ -216,6 +284,8 @@ def _abandon_erreurs(api, erreurs, prefixe="Import annulé"):
 
 
 def _saison_courante():
+    """La saison en cours (`t_saisons.current = true`) — source de vérité pour
+    les 3 imports. Le frontend n'a pas de sélecteur de saison."""
     return (
         DB.session.execute(select(TSaisons).where(TSaisons.current.is_(True)))
         .scalars()
@@ -224,7 +294,11 @@ def _saison_courante():
 
 
 def _lookup_especes():
-    """{nom_espece normalisé: id_espece}."""
+    """Table de correspondance {nom_espece normalisé -> id_espece}.
+
+    En base, `oeasc_commons.t_especes.nom_espece` vaut « Cerf » / « Chevreuil » /
+    « Mouflon » (sans accent).
+    """
     return {
         _normalize(nom): id_e
         for id_e, nom in DB.session.execute(
@@ -234,7 +308,12 @@ def _lookup_especes():
 
 
 def _match_espece(valeur, especes):
-    """Gère « Cerf », « Cerf élaphe », « Chevreuil européen »…"""
+    """Retrouve l'id_espece à partir d'une valeur de fichier, ou None.
+
+    Les fichiers écrivent parfois le nom vernaculaire complet ; on considère
+    qu'il y a correspondance si la valeur *commence par* le nom en base :
+    « Cerf élaphe » -> Cerf, « Chevreuil européen » -> Chevreuil, « Cerf » -> Cerf.
+    """
     n = _normalize(valeur)
     if not n:
         return None
@@ -251,16 +330,30 @@ def _match_espece(valeur, especes):
 
 def traitement_import_saison_dates(
     path_csv,
-    id_saison=None,
-    update="false",
+    id_saison=None,  # ignoré : la saison courante fait foi (signature commune aux imports)
+    update="false",  # ignoré
     id_role=None,
     nom_complet=None,
     progress_callback=None,
 ):
+    """ÉTAPE 1 — Dates d'ouverture de la saison par espèce et mode de chasse.
+
+    Fichier attendu (cf. `1_import_saison_chasse.sql`) :
+        espece, date_debut, date_fin, type_chasse
+        Cerf,01/09/2026,28/02/2027,"Approche, Affut"
+        ...
+    - `type_chasse` peut lister plusieurs modes (« Approche, Affut ») : on crée
+      **une ligne t_saison_dates par (espèce, mode)**.
+    - id du mode via `ref_nomenclatures` (mnémonique OEASC_MOD_CHASSE).
+    - Stratégie : on **efface toutes les lignes de la saison courante puis on
+      réinsère** depuis le fichier.
+    - La moindre valeur non résolue (espèce, mode, date) annule tout l'import.
+    """
     api = _init_api(id_role, nom_complet)
     _progress = _make_progress(progress_callback, 4)
     try:
         with _app_context():
+            # --- 1. saison courante (obligatoire) --------------------------------
             saison = _saison_courante()
             if saison is None:
                 api.add_error(
@@ -271,6 +364,7 @@ def traitement_import_saison_dates(
                 return api
             id_saison = saison.id_saison
 
+            # --- 2. lecture du CSV (séparateur auto, entêtes en minuscules) -----
             try:
                 df, _sep = lire_csv_auto(path_csv)
             except Exception as e:  # noqa: BLE001
@@ -281,6 +375,7 @@ def traitement_import_saison_dates(
                 return api
             _progress(api, "Lecture du fichier CSV")
 
+            # --- 3. présence des colonnes attendues ----------------------------
             cols, manquantes = _resoudre_colonnes(
                 df,
                 {
@@ -298,7 +393,9 @@ def traitement_import_saison_dates(
                 )
                 return api
 
-            especes = _lookup_especes()
+            # --- 4. tables de correspondance (chargées une fois) ---------------
+            especes = _lookup_especes()  # {nom normalisé -> id_espece}
+            # {libellé mode normalisé -> id_nomenclature} : "affut"->573, "approche"->574, "battue"->575
             modes = {
                 _normalize(label): id_n
                 for id_n, label in DB.session.execute(
@@ -309,10 +406,11 @@ def traitement_import_saison_dates(
                 ).all()
             }
 
-            lignes = []
+            # --- 5. validation ligne par ligne, sans rien écrire --------------
+            lignes = []  # dicts prêts pour TSaisonDates(**ligne)
             erreurs = []
             for i, row in df.iterrows():
-                num = i + 2  # +1 entête, +1 pour un index humain
+                num = i + 2  # n° de ligne dans le fichier (+1 entête, +1 index 1-based)
                 esp_val = row[cols["espece"]]
                 id_espece = _match_espece(esp_val, especes)
                 if id_espece is None:
@@ -326,6 +424,7 @@ def traitement_import_saison_dates(
                         f"(« {row[cols['date_debut']]} » / « {row[cols['date_fin']]} »)"
                     )
                     continue
+                # une ligne du fichier -> une ligne t_saison_dates PAR mode de chasse
                 modes_ligne = _split_modes(row[cols["type_chasse"]])
                 if not modes_ligne:
                     erreurs.append(f"ligne {num} : aucun mode de chasse renseigné")
@@ -348,6 +447,7 @@ def traitement_import_saison_dates(
                     )
             _progress(api, "Validation des données")
 
+            # --- 6. abandon si la moindre erreur (aucune écriture faite) ------
             if erreurs:
                 return _abandon_erreurs(api, erreurs)
             if not lignes:
@@ -357,6 +457,7 @@ def traitement_import_saison_dates(
                 )
                 return api
 
+            # --- 7. remplacement : purge de la saison puis insertion ----------
             nb_suppr = (
                 DB.session.execute(
                     delete(TSaisonDates).where(TSaisonDates.id_saison == id_saison)
@@ -389,16 +490,29 @@ def traitement_import_saison_dates(
 
 def traitement_import_attribution_massifs(
     path_csv,
-    id_saison=None,
-    update="false",
+    id_saison=None,  # ignoré : saison courante
+    update="false",  # ignoré
     id_role=None,
     nom_complet=None,
     progress_callback=None,
 ):
+    """ÉTAPE 2 — Quotas d'attribution min/max par espèce et par massif.
+
+    « massif » = zone cynégétique (`t_zone_cynegetiques`).
+
+    Fichier attendu (cf. 2e partie de `2_import_plan_chasse.sql`) :
+        nom_vern, massif, saison, nb_affecte_max, nb_affecte_min
+        Cerf élaphe,Aigoual nord,2026-2027,225,157
+        ...
+    - `nb_affecte_min` peut être absente / vide -> 0.
+    - Contrôle bloquant : la colonne `saison` doit valoir la saison en cours.
+    - Stratégie : **efface + réinsère** pour la saison courante.
+    """
     api = _init_api(id_role, nom_complet)
     _progress = _make_progress(progress_callback, 4)
     try:
         with _app_context():
+            # --- 1. saison courante -------------------------------------------
             saison = _saison_courante()
             if saison is None:
                 api.add_error(
@@ -408,6 +522,7 @@ def traitement_import_attribution_massifs(
                 return api
             id_saison = saison.id_saison
 
+            # --- 2. lecture CSV ---------------------------------------------------
             try:
                 df, _sep = lire_csv_auto(path_csv)
             except Exception as e:  # noqa: BLE001
@@ -418,6 +533,7 @@ def traitement_import_attribution_massifs(
                 return api
             _progress(api, "Lecture du fichier CSV")
 
+            # --- 3. colonnes (nb_affecte_min est optionnelle) ------------------
             cols, manquantes = _resoudre_colonnes(
                 df,
                 {
@@ -437,9 +553,11 @@ def traitement_import_attribution_massifs(
             cols_min, _ = _resoudre_colonnes(
                 df, {"nb_affecte_min": ["nb affecte min", "nb_affecte_min", "min"]}
             )
-            col_min = cols_min.get("nb_affecte_min")
+            col_min = cols_min.get("nb_affecte_min")  # None si la colonne est absente
 
+            # --- 4. correspondances espèces + massifs -------------------------
             especes = _lookup_especes()
+            # {nom_zone_cynegetique normalisé -> id_zone_cynegetique}
             zc_lookup = {
                 _normalize(nom): id_zc
                 for id_zc, nom in DB.session.execute(
@@ -450,11 +568,13 @@ def traitement_import_attribution_massifs(
                 ).all()
             }
 
+            # --- 5. validation ligne par ligne -------------------------------
             nom_saison_norm = _normalize_saison(saison.nom_saison)
             lignes = []
             erreurs = []
             for i, row in df.iterrows():
                 num = i + 2
+                # contrôle année : bloquant si ≠ saison en cours
                 sais_val = row[cols["saison"]]
                 if _normalize_saison(sais_val) != nom_saison_norm:
                     erreurs.append(
@@ -467,6 +587,8 @@ def traitement_import_attribution_massifs(
                 if id_espece is None:
                     erreurs.append(f"ligne {num} : espèce inconnue « {nv} »")
                     continue
+                # rstrip(" ,") : certains massifs sont exportés avec une virgule
+                # finale parasite (« Mont Lozère est (Gard), ») — cf. le SQL d'origine.
                 mv = str(row[cols["massif"]]).strip()
                 id_zc = zc_lookup.get(_normalize(mv.rstrip(" ,")))
                 if id_zc is None:
@@ -479,7 +601,7 @@ def traitement_import_attribution_massifs(
                         f"« {row[cols['nb_affecte_max']]} »"
                     )
                     continue
-                nb_min = 0
+                nb_min = 0  # défaut si colonne absente ou cellule vide
                 if col_min:
                     raw = str(row[col_min]).strip()
                     if raw:
@@ -500,6 +622,7 @@ def traitement_import_attribution_massifs(
                 )
             _progress(api, "Validation des données")
 
+            # --- 6. abandon si erreur --------------------------------------------
             if erreurs:
                 return _abandon_erreurs(api, erreurs)
             if not lignes:
@@ -509,6 +632,7 @@ def traitement_import_attribution_massifs(
                 )
                 return api
 
+            # --- 7. remplacement de la saison courante ------------------------
             nb_suppr = (
                 DB.session.execute(
                     delete(TAttributionMassifs).where(
@@ -542,21 +666,43 @@ def traitement_import_attribution_massifs(
 #  3. Attributions de bracelets -> t_attributions (synchronisation incrémentale)
 # ---------------------------------------------------------------------------
 
+# reconnaît un TERRITOIRE de la forme « 12: PNC TCA … » -> (id_zi, nom_zi)
 _RE_TERRITOIRE = re.compile(r"^\s*(\d+)\s*:\s*(.+)$")
 
 
 def traitement_import_attributions(
     path_csv,
-    id_saison=None,
-    update="false",
+    id_saison=None,  # ignoré : saison courante
+    update="false",  # ignoré
     id_role=None,
     nom_complet=None,
     progress_callback=None,
 ):
+    """ÉTAPE 3 — Attributions de bracelets, une ligne t_attributions par bracelet.
+
+    Fichier attendu (cf. 1re partie de `2_import_plan_chasse.sql`) :
+        DEP;zi;TERRITOIRE;Espèce;Quantité;N° debut;N° fin;...;Annee
+        48;1;1:PNC TCA MTLO Ouest;CEFF;8;6623;6630;...;2026/2027
+
+    - `zi` = `t_zone_indicatives.code_zone_indicative`. Si la colonne est absente,
+      l'id est extrait de `TERRITOIRE` (« id_zi: nom_zi »).
+    - `Espèce` = `t_type_bracelets.code_type_bracelet` (CEFF / CEFFD / CEM / CHI…).
+    - Un bracelet est généré pour chaque n de `N° debut` à `N° fin` **inclus** :
+      `numero_bracelet = code_type_bracelet + "00" + n`  (ex. CEFF + 00 + 6623).
+    - Contrôles bloquants : `Annee` = saison en cours, et
+      `Quantité == N° fin - N° debut + 1`.
+    - Stratégie : **synchronisation incrémentale** (pas de purge globale). On
+      compare l'ensemble cible du fichier à l'existant en base pour la saison :
+        * nouveaux           -> INSERT
+        * conservés, zone/type modifiés -> UPDATE de la zone
+        * disparus du fichier -> DELETE, **sauf** s'ils portent déjà une
+          réalisation (`t_realisations`) : ceux-là sont conservés + WARNING.
+    """
     api = _init_api(id_role, nom_complet)
     _progress = _make_progress(progress_callback, 5)
     try:
         with _app_context():
+            # --- 1. saison courante -------------------------------------------
             saison = _saison_courante()
             if saison is None:
                 api.add_error(
@@ -566,6 +712,7 @@ def traitement_import_attributions(
                 return api
             id_saison = saison.id_saison
 
+            # --- 2. lecture CSV ---------------------------------------------------
             try:
                 df, _sep = lire_csv_auto(path_csv)
             except Exception as e:  # noqa: BLE001
@@ -576,6 +723,7 @@ def traitement_import_attributions(
                 return api
             _progress(api, "Lecture du fichier CSV")
 
+            # --- 3. colonnes obligatoires ----------------------------------------
             cols, manquantes = _resoudre_colonnes(
                 df,
                 {
@@ -611,6 +759,7 @@ def traitement_import_attributions(
                 )
                 return api
 
+            # --- 4. zone indicative : colonne `zi`, sinon extraite de TERRITOIRE
             zi_col_map, _ = _resoudre_colonnes(
                 df, {"zi": ["zi", "id_zi", "code_zi", "num_zi", "zone_indicative"]}
             )
@@ -627,7 +776,9 @@ def traitement_import_attributions(
                 )
                 return api
 
+            # --- 5. correspondances (chargées une fois) -----------------------
             # {code_zone_indicative -> (id_zone_indicative, id_zone_cynegetique)}
+            # la zone cynégétique (massif) de l'attribution est déduite de la zi.
             zi_lookup = {}
             for code, id_zi, id_zc in DB.session.execute(
                 select(
@@ -638,6 +789,7 @@ def traitement_import_attributions(
             ).all():
                 zi_lookup[str(code).strip()] = (id_zi, id_zc)
 
+            # {code_type_bracelet normalisé -> (id_type_bracelet, code d'origine)}
             tb_lookup = {
                 _normalize(code): (id_tb, code)
                 for id_tb, code in DB.session.execute(
@@ -648,13 +800,16 @@ def traitement_import_attributions(
                 ).all()
             }
 
+            # --- 6. validation + construction de l'ensemble CIBLE -------------
             nom_saison_norm = _normalize_saison(saison.nom_saison)
-            # numero_bracelet -> dict(id_type_bracelet, id_zone_indicative_affectee, id_zone_cynegetique_affectee)
+            # cible : {numero_bracelet -> dict(id_type_bracelet,
+            #          id_zone_indicative_affectee, id_zone_cynegetique_affectee)}
             cible = {}
             erreurs = []
             for i, row in df.iterrows():
                 num = i + 2
 
+                # contrôle année (bloquant)
                 an = row[cols["annee"]]
                 if _normalize_saison(an) != nom_saison_norm:
                     erreurs.append(
@@ -663,6 +818,7 @@ def traitement_import_attributions(
                     )
                     continue
 
+                # zone indicative : colonne zi si présente, sinon 1er groupe de TERRITOIRE
                 code_zi = str(row[col_zi]).strip() if col_zi else ""
                 if not code_zi and col_terr:
                     m = _RE_TERRITOIRE.match(str(row[col_terr]))
@@ -674,6 +830,7 @@ def traitement_import_attributions(
                         "(colonne zi vide et TERRITOIRE non conforme)"
                     )
                     continue
+                # comparaison directe puis sans zéros de tête (« 07 » -> « 7 »)
                 zi_hit = zi_lookup.get(code_zi)
                 if zi_hit is None and code_zi.isdigit():
                     zi_hit = zi_lookup.get(str(int(code_zi)))
@@ -682,6 +839,7 @@ def traitement_import_attributions(
                     continue
                 id_zi, id_zc = zi_hit
 
+                # type de bracelet (= colonne Espèce : CEFF, CEM, CHI…)
                 esp = str(row[cols["espece"]]).strip()
                 tb = tb_lookup.get(_normalize(esp))
                 if tb is None:
@@ -691,6 +849,7 @@ def traitement_import_attributions(
                     continue
                 id_tb, code_tb = tb
 
+                # numéros + contrôle de cohérence de la quantité
                 n_deb = _parse_int(row[cols["n_debut"]])
                 n_fin = _parse_int(row[cols["n_fin"]])
                 qte = _parse_int(row[cols["quantite"]])
@@ -704,15 +863,18 @@ def traitement_import_attributions(
                         f"ligne {num} : N° fin ({n_fin}) < N° debut ({n_deb})"
                     )
                     continue
-                if qte != (n_fin - n_deb + 1):
+                if qte != (n_fin - n_deb + 1):  # comptage inclusif
                     erreurs.append(
                         f"ligne {num} : Quantité {qte} ≠ {n_fin - n_deb + 1} "
                         f"(N° fin - N° debut + 1) pour zi {code_zi} / {esp}"
                     )
                     continue
 
+                # un bracelet par numéro de la plage (bornes incluses)
                 for n in range(n_deb, n_fin + 1):
-                    numero = f"{code_tb}00{n}"
+                    numero = (
+                        f"{code_tb}00{n}"  # ex. "CEFF" + "00" + "6623" -> "CEFF006623"
+                    )
                     cible[numero] = dict(
                         id_type_bracelet=id_tb,
                         id_zone_indicative_affectee=id_zi,
@@ -729,6 +891,7 @@ def traitement_import_attributions(
                 )
                 return api
 
+            # --- 7. ensemble EXISTANT en base pour la saison ------------------
             existant = {
                 a.numero_bracelet: a
                 for a in DB.session.execute(
@@ -739,9 +902,12 @@ def traitement_import_attributions(
             }
             _progress(api, "Comparaison avec l'existant")
 
-            a_inserer = [k for k in cible if k not in existant]
-            a_supprimer = [k for k in existant if k not in cible]
-            a_maj = []
+            # --- 8. diff cible / existant -----------------------------------
+            a_inserer = [k for k in cible if k not in existant]  # dans cible seulement
+            a_supprimer = [
+                k for k in existant if k not in cible
+            ]  # dans existant seulement
+            a_maj = []  # présents des deux côtés mais zone/type différents
             for k, c in cible.items():
                 a = existant.get(k)
                 if a is None:
@@ -754,7 +920,9 @@ def traitement_import_attributions(
                 ):
                     a_maj.append((a, c))
 
+            # --- 9. application du diff -------------------------------------
             now = datetime.now()
+            # 9a. nouveaux bracelets
             for k in a_inserer:
                 c = cible[k]
                 DB.session.add(
@@ -768,12 +936,17 @@ def traitement_import_attributions(
                         meta_update_date=now,
                     )
                 )
+            # 9b. bracelets conservés dont la zone / le type a changé
             for a, c in a_maj:
                 a.id_type_bracelet = c["id_type_bracelet"]
                 a.id_zone_indicative_affectee = c["id_zone_indicative_affectee"]
                 a.id_zone_cynegetique_affectee = c["id_zone_cynegetique_affectee"]
                 a.meta_update_date = now
 
+            # 9c. bracelets disparus du fichier : suppression, SAUF ceux qui
+            # portent déjà une réalisation (`TAttributions.id_realisation` est un
+            # column_property, cf. models.py) — les supprimer perdrait la donnée
+            # de tir et violerait la FK t_realisations.
             protegees = []
             nb_supprimees = 0
             for k in a_supprimer:
@@ -820,7 +993,16 @@ def traitement_import_attributions(
 
 
 def get_etat_import_attributions():
-    """Renvoie l'état des 4 étapes pour la saison courante."""
+    """État des 4 étapes pour la saison courante, consommé par le frontend pour
+    activer / griser les formulaires.
+
+    - `saison_ok`             : une saison courante existe ET la date du jour est
+                                <= sa date_fin (sinon : « créez la nouvelle saison »).
+    - `saison_dates_ok`       : au moins une ligne t_saison_dates pour la saison.
+    - `attribution_massifs_ok`: idem t_attribution_massifs.
+    - `attributions_ok`       : idem t_attributions.
+    Chaque étape n'est déverrouillée côté front que si la précédente est *_ok.
+    """
     with _app_context():
         saison = _saison_courante()
         if saison is None:
@@ -836,6 +1018,7 @@ def get_etat_import_attributions():
         saison_ok = saison.date_fin is None or aujourdhui <= saison.date_fin
 
         def _existe(model):
+            """True s'il existe au moins une ligne de `model` pour la saison courante."""
             return (
                 DB.session.execute(
                     select(model.id_saison)

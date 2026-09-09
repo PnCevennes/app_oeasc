@@ -25,8 +25,9 @@
         <v-icon
           left
           color="grey"
-          >mdi-information-outline</v-icon
         >
+          mdi-information-outline
+        </v-icon>
         {{ inactifMessage }}
       </div>
 
@@ -61,7 +62,8 @@
             color="primary"
             @click="importer"
           >
-            <v-icon left>mdi-upload</v-icon> Importer
+            <v-icon left>mdi-upload</v-icon>
+            Importer
           </v-btn>
           <v-btn
             variant="text"
@@ -87,8 +89,7 @@
             {{ etapeMessage }}
           </div>
           <div style="margin-top: 0.15rem; font-size: 0.8rem; color: #888">
-            Le traitement s'exécute sur le serveur. Merci de patienter sans fermer
-            la page.
+            Le traitement s'exécute sur le serveur. Merci de patienter sans fermer la page.
           </div>
         </div>
 
@@ -105,20 +106,23 @@
               v-if="l.type === 'error'"
               color="error"
               size="small"
-              >mdi-close-circle</v-icon
             >
+              mdi-close-circle
+            </v-icon>
             <v-icon
               v-else-if="l.type === 'warning'"
               color="orange"
               size="small"
-              >mdi-alert</v-icon
             >
+              mdi-alert
+            </v-icon>
             <v-icon
               v-else
               color="green"
               size="small"
-              >mdi-check-circle</v-icon
             >
+              mdi-check-circle
+            </v-icon>
             <span>{{ l.message }}</span>
           </div>
         </div>
@@ -164,23 +168,32 @@
 </template>
 
 <script>
+/**
+ * Bloc réutilisable d'une étape d'import du plan de chasse, utilisé 3 fois par
+ * `imports-attributions-chasse.vue` (parent). Purement présentation + choix de
+ * fichier : le parent gère l'appel réseau et le polling.
+ *
+ * C'est un composant séparé (et non un template chaîne inline dans le parent)
+ * parce que Vuetify est configuré en `autoImport` par SFC (vite.config.js) :
+ * les `<v-…>` ne sont pas enregistrés globalement.
+ */
 export default {
   name: 'ImportSectionAttributions',
   props: {
     titre: { type: String, required: true },
-    active: { type: Boolean, default: false },
-    inactifMessage: { type: String, default: '' },
-    texteAide: { type: String, default: '' },
-    uploading: { type: Boolean, default: false },
-    enCours: { type: Boolean, default: false },
-    etapeMessage: { type: String, default: '' },
-    journal: { type: Array, default: () => [] },
+    active: { type: Boolean, default: false }, // false => bloc grisé + verrouillé
+    inactifMessage: { type: String, default: '' }, // raison du verrouillage
+    texteAide: { type: String, default: '' }, // consignes affichées au-dessus du champ
+    uploading: { type: Boolean, default: false }, // un import (n'importe lequel) est en cours
+    enCours: { type: Boolean, default: false }, // CET import est en cours -> barre de progression
+    etapeMessage: { type: String, default: '' }, // libellé d'étape du suivi backend
+    journal: { type: Array, default: () => [] }, // [{ type, message }]
     exemple: {
       type: Object,
-      default: () => ({ colonnes: [], lignes: [] }),
+      default: () => ({ colonnes: [], lignes: [] }), // tableau d'exemple affiché sous le champ
     },
   },
-  emits: ['importer'],
+  emits: ['importer'], // émis avec le File choisi quand l'utilisateur clique « Importer »
   data() {
     return { file: null };
   },

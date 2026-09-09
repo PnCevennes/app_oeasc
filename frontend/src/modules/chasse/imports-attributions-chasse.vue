@@ -1,12 +1,17 @@
+<!--
+  Page d'import du plan de chasse annuel (voir le bloc <script> pour le détail).
+  Structure : 1 carte d'état « saison » + 3 blocs <import-section-attributions>
+  (dates de saison / massifs / attributions), déverrouillés progressivement.
+-->
 <template>
   <div>
     <br />
     <h1>Import du plan de chasse</h1>
     <p style="max-width: 900px; color: #555">
       Mise à jour annuelle du plan de chasse pour la
-      <strong>saison en cours</strong>. Les étapes se déverrouillent l'une après
-      l'autre : chaque import n'est possible que si le précédent a bien alimenté
-      la base.
+      <strong>saison en cours</strong>
+      . Les étapes se déverrouillent l'une après l'autre : chaque import n'est possible que si le
+      précédent a bien alimenté la base.
     </p>
 
     <!-- ====================== ÉTAPE 0 : SAISON ====================== -->
@@ -24,12 +29,14 @@
       </v-card-title>
       <v-card-text v-if="etat">
         <template v-if="etat.saison_courante">
-          Saison <strong>{{ etat.saison_courante.nom_saison }}</strong>
+          Saison
+          <strong>{{ etat.saison_courante.nom_saison }}</strong>
           <span v-if="etat.saison_courante.date_fin">
-            (fin le {{ formatDate(etat.saison_courante.date_fin) }})</span
-          >.
+            (fin le {{ formatDate(etat.saison_courante.date_fin) }})
+          </span>
+          .
         </template>
-        <template v-else> Aucune saison enregistrée. </template>
+        <template v-else>Aucune saison enregistrée.</template>
 
         <div
           v-if="!etat.saison_ok"
@@ -38,18 +45,16 @@
           <v-icon
             left
             color="orange"
-            >mdi-arrow-right-bold</v-icon
           >
-          La saison en cours est terminée (ou absente). Créez la nouvelle saison
-          dans
-          <router-link :to="{ name: 'chasse.admin' }">
-            Données chasse → onglet Saisons </router-link
-          >
-          avant de poursuivre. Tant que ce n'est pas fait, les imports ci-dessous
-          restent désactivés.
+            mdi-arrow-right-bold
+          </v-icon>
+          La saison en cours est terminée (ou absente). Créez la nouvelle saison dans
+          <router-link :to="{ name: 'chasse.admin' }">Données chasse → onglet Saisons</router-link>
+          avant de poursuivre. Tant que ce n'est pas fait, les imports ci-dessous restent
+          désactivés.
         </div>
       </v-card-text>
-      <v-card-text v-else> Chargement de l'état… </v-card-text>
+      <v-card-text v-else>Chargement de l'état…</v-card-text>
     </v-card>
 
     <!-- ============== ÉTAPE 1 : DATES DE SAISON / MODE DE CHASSE ============== -->
@@ -107,6 +112,19 @@
 </template>
 
 <script>
+/**
+ * Page « Import du plan de chasse » — /chasse/imports-attributions
+ * (menu Administration, réservée id_droit_max >= 6).
+ *
+ * 3 imports CSV asynchrones séquentiels vers le backend
+ * (`/api/chasse/import-attributions/<etape>`), sur le modèle de
+ * `imports-chasse.vue` : POST du fichier -> réponse 202 { id_import } ->
+ * polling de `import/status/<id_import>` jusqu'à TERMINE / ERREUR.
+ *
+ * Le déverrouillage progressif des 3 formulaires est piloté par `etat`
+ * (GET `import-attributions/etat`), rechargé après chaque import réussi.
+ * Un seul import à la fois : `uploading` verrouille tous les formulaires.
+ */
 import { apiRequest, simple_fetch } from '@/core/js/data/api.js';
 import { snackbarStore } from '@/store/snackbar';
 import ImportSectionAttributions from './import-section-attributions.vue';
@@ -116,15 +134,19 @@ export default {
   components: { ImportSectionAttributions },
   data() {
     return {
+      // état renvoyé par le backend : { saison_courante, saison_ok,
+      // saison_dates_ok, attribution_massifs_ok, attributions_ok }
       etat: null,
       uploading: false, // un import est en cours (verrouille tous les formulaires)
-      etapeEnCours: null, // 'saison-dates' | 'massifs' | 'attributions'
-      derniereEtape: null, // dernière étape jouée (pour garder son journal affiché)
-      idImport: null,
-      etapeMessage: '',
-      journal: [],
-      pollTimer: null,
+      etapeEnCours: null, // 'saison-dates' | 'massifs' | 'attributions' pendant l'import
+      derniereEtape: null, // dernière étape jouée (pour garder son journal affiché après coup)
+      idImport: null, // id du suivi backend en cours de polling
+      etapeMessage: '', // libellé « Étape n/total : … » renvoyé par le suivi
+      journal: [], // lignes formatées { type, message } issues du journal backend
+      pollTimer: null, // handle setTimeout du polling
 
+      // Tableaux d'exemple affichés sous chaque formulaire (données statiques,
+      // juste indicatives des colonnes attendues et de leur format).
       exempleSaisonDates: {
         colonnes: ['espece', 'date_debut', 'date_fin', 'type_chasse'],
         lignes: [
@@ -143,37 +165,30 @@ export default {
         ],
       },
       exempleAttributions: {
-        colonnes: [
-          'DEP',
-          'zi',
-          'TERRITOIRE',
-          'Espèce',
-          'Quantité',
-          'N° debut',
-          'N° fin',
-          'Indicateur dessin',
-          'Texte complementaire bracelet 1',
-          'Annee',
-        ],
+        colonnes: ['DEP', 'zi', 'TERRITOIRE', 'Espèce', 'Quantité', 'N° debut', 'N° fin', 'Annee'],
         lignes: [
-          ['48', '1', '1:PNC TCA MTLO Ouest', 'CEFF', '8', '6623', '6630', '9', '', '2026/2027'],
-          ['48', '1', '1:PNC TCA MTLO Ouest', 'CEM', '3', '6415', '6417', '5', '', '2026/2027'],
-          ['48', '3', '3: ACPNC - Sect 1 - MTLO', 'CHI', '16', '6011', '6026', '3', 'Chevreuil', '2026/2027'],
+          ['48', '1', '1:PNC TCA MTLO Ouest', 'CEFF', '8', '6623', '6630', '2026/2027'],
+          ['48', '1', '1:PNC TCA MTLO Ouest', 'CEM', '3', '6415', '6417', '2026/2027'],
+          ['48', '3', '3: ACPNC - Sect 1 - MTLO', 'CHI', '16', '6011', '6026', '2026/2027'],
         ],
       },
     };
   },
   computed: {
+    // --- déverrouillage progressif : chaque étape exige la précédente -------
     saisonOk() {
       return !!(this.etat && this.etat.saison_ok);
     },
     etape1Active() {
+      // dates de saison : dès qu'une saison en cours valide existe
       return this.saisonOk && !this.uploading;
     },
     etape2Active() {
+      // massifs : + il faut des lignes t_saison_dates pour la saison
       return this.saisonOk && !!this.etat.saison_dates_ok && !this.uploading;
     },
     etape3Active() {
+      // attributions : + il faut des lignes t_attribution_massifs
       return this.saisonOk && !!this.etat.attribution_massifs_ok && !this.uploading;
     },
     messageEtape1() {
@@ -226,6 +241,8 @@ export default {
       }
     },
 
+    // Envoie le fichier de l'étape et démarre le polling. `etape` est le segment
+    // d'URL backend ('saison-dates' | 'massifs' | 'attributions').
     async lancerImport(etape, file) {
       if (this.uploading || !file) return;
       this.stopPolling();
@@ -233,12 +250,13 @@ export default {
       this.etapeEnCours = etape;
       this.derniereEtape = etape;
       this.idImport = null;
-      this.etapeMessage = "Import en attente de traitement…";
+      this.etapeMessage = 'Import en attente de traitement…';
       this.journal = [];
 
       try {
         const formData = new FormData();
         formData.append('file', file);
+        // 202 immédiat : le traitement tourne dans un thread côté serveur
         const response = await simple_fetch(
           'POST',
           `api/chasse/import-attributions/${etape}`,
@@ -246,6 +264,7 @@ export default {
         );
 
         if (!response) {
+          // simple_fetch renvoie undefined + redirige vers /login sur un 401
           this.echec('Vous devez être connecté pour lancer un import.');
           return;
         }
@@ -261,12 +280,14 @@ export default {
       }
     },
 
+    // Interroge le suivi backend toutes les 2 s jusqu'au statut final.
     async pollStatus() {
       if (!this.idImport) return;
       let res;
       try {
         res = await simple_fetch('GET', `api/chasse/import/status/${this.idImport}`);
       } catch (err) {
+        // erreur réseau transitoire : on retente un peu plus tard
         console.error('pollStatus', err);
         this.pollTimer = setTimeout(() => this.pollStatus(), 3000);
         return;
@@ -306,6 +327,9 @@ export default {
       snackbarStore.show(message, 'error');
     },
 
+    // Le backend renvoie un journal de chaînes taguées « [INFO] … » /
+    // « [ERROR] … » / « [WARNING] … » (parfois précédées d'un timestamp) ;
+    // on les transforme en { type, message } pour l'affichage.
     formatJournal(journal) {
       const out = [];
       for (const log of journal) {

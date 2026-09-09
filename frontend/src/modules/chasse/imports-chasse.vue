@@ -77,8 +77,8 @@
         {{ etape_message }}
       </div>
       <div style="margin-top: 0.15rem; font-size: 0.8rem; color: #888">
-        Le traitement s'exécute sur le serveur et se terminera même si l'opération
-        est longue. Merci de patienter sans fermer cette page.
+        Le traitement s'exécute sur le serveur et se terminera même si l'opération est longue. Merci
+        de patienter sans fermer cette page.
       </div>
     </div>
 
@@ -309,7 +309,7 @@ export default {
         }
 
         this.id_import = response.id_import;
-        this.etape_message = "Import en attente de traitement…";
+        this.etape_message = 'Import en attente de traitement…';
         this.pollStatus();
       } catch (err) {
         console.error("Erreur lors de l'import:", err);
