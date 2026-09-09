@@ -23,8 +23,24 @@ from pathlib import Path
 from flask import current_app
 
 from .importation_csv import traitement_import_realisation_chasse
+from .import_attributions import (
+    traitement_import_saison_dates,
+    traitement_import_attribution_massifs,
+    traitement_import_attributions,
+)
 
 config = current_app.config
+
+# Aiguillage du traitement selon le type d'import. Chaque fonction a la signature
+# (path_csv, id_saison, update, id_role=, nom_complet=, progress_callback=) et
+# renvoie un objet type ApiResponse (.journal, .success, .message).
+TRAITEMENTS = {
+    "realisations": traitement_import_realisation_chasse,
+    "saison_dates": traitement_import_saison_dates,
+    "attribution_massifs": traitement_import_attribution_massifs,
+    "attributions": traitement_import_attributions,
+}
+TYPE_IMPORT_DEFAUT = "realisations"
 
 DOSSIER_SUIVI = Path(config["ROOT_DIR"]) / "static/imports_chasse"
 DOSSIER_SUIVI.mkdir(parents=True, exist_ok=True)
@@ -90,7 +106,13 @@ def _ecrire_suivi(id_import, **champs):
 
 
 def creer_suivi(
-    id_saison, do_update, nom_fichier, chemin_fichier, id_role, nom_complet
+    id_saison,
+    do_update,
+    nom_fichier,
+    chemin_fichier,
+    id_role,
+    nom_complet,
+    type_import=TYPE_IMPORT_DEFAUT,
 ):
     """Crée le fichier de suivi (statut EN_ATTENTE) et renvoie son id_import."""
     purger_vieux_suivis()
@@ -100,6 +122,7 @@ def creer_suivi(
     _ecrire_suivi(
         id_import,
         statut="EN_ATTENTE",
+        type_import=type_import,
         id_saison=id_saison,
         do_update=bool(do_update),
         nom_fichier=nom_fichier,
@@ -145,7 +168,14 @@ def lire_suivi(id_import):
 
 
 def _traiter(
-    app, id_import, chemin_fichier, id_saison, do_update, id_role, nom_complet
+    app,
+    id_import,
+    chemin_fichier,
+    id_saison,
+    do_update,
+    id_role,
+    nom_complet,
+    type_import=TYPE_IMPORT_DEFAUT,
 ):
     with app.app_context():
         try:
@@ -159,7 +189,10 @@ def _traiter(
                     )
                 _ecrire_suivi(id_import, **champs)
 
-            api = traitement_import_realisation_chasse(
+            traitement = TRAITEMENTS.get(
+                type_import, traitement_import_realisation_chasse
+            )
+            api = traitement(
                 chemin_fichier,
                 id_saison,
                 "true" if do_update else "false",
@@ -194,7 +227,13 @@ def _traiter(
 
 
 def lancer_import_async(
-    id_import, chemin_fichier, id_saison, do_update, id_role, nom_complet
+    id_import,
+    chemin_fichier,
+    id_saison,
+    do_update,
+    id_role,
+    nom_complet,
+    type_import=TYPE_IMPORT_DEFAUT,
 ):
     """Démarre le traitement dans un thread de fond (daemon)."""
     app = current_app._get_current_object()
@@ -208,6 +247,7 @@ def lancer_import_async(
             do_update,
             id_role,
             nom_complet,
+            type_import,
         ),
         name=f"import-chasse-{id_import}",
         daemon=True,

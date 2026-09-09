@@ -60,6 +60,7 @@ from .import_async import (
     lire_suivi,
     DOSSIER_SUIVI,
 )
+from .import_attributions import get_etat_import_attributions
 from sqlalchemy import func, select
 from sqlalchemy.orm import aliased
 import datetime
@@ -435,6 +436,93 @@ def download_erreurs_csv(file_name):
         as_attachment=True,
         download_name=f"{file_name}",
         mimetype="text/csv",
+    )
+
+
+# ---------------------------------------------------------------------------
+#  IMPORT DU PLAN DE CHASSE ANNUEL (attributions de chasse) — 3 étapes
+# ---------------------------------------------------------------------------
+# Réservé aux gestionnaires (id_droit_max / max_level_profil >= 6).
+# Chaque import est asynchrone : on enregistre le CSV, on crée un suivi JSON et
+# on délègue à un thread ; le frontend suit via GET import/status/<id_import>
+# (route générique déjà définie plus haut).
+
+# type d'import (import_async.TRAITEMENTS) associé à chaque route
+_TYPES_IMPORT_ATTRIBUTIONS = {
+    "saison-dates": "saison_dates",
+    "massifs": "attribution_massifs",
+    "attributions": "attributions",
+}
+
+
+@bp.route("import-attributions/etat", methods=["GET"])
+@check_auth_redirect_login(6)
+def import_attributions_etat():
+    """État des 4 étapes pour la saison courante (pilote le déverrouillage front)."""
+    return jsonify({"success": True, "etat": get_etat_import_attributions()})
+
+
+@bp.route("import-attributions/<etape>", methods=["POST"])
+@check_auth_redirect_login(6)
+def import_attributions_lancer(etape):
+    """Lance l'un des 3 imports du plan de chasse en tâche de fond.
+
+    `etape` ∈ {saison-dates, massifs, attributions}. Paramètre POST (multipart) :
+    file (CSV). La saison est résolue côté serveur (saison courante).
+    Réponse 202 : {success, id_import} ; suivi via GET import/status/<id_import>.
+    """
+    type_import = _TYPES_IMPORT_ATTRIBUTIONS.get(etape)
+    if type_import is None:
+        return (
+            jsonify({"success": False, "user_message": "Étape d'import inconnue."}),
+            404,
+        )
+
+    file = request.files.get("file")
+    if file is None or file.filename == "":
+        return jsonify({"success": False, "user_message": "Aucun fichier fourni."}), 400
+
+    session_user = session.get("current_user") or {}
+    id_role = session_user.get("id_role")
+    nom_complet = session_user.get("nom_complet")
+    if id_role is None and getattr(login_user, "is_authenticated", False):
+        id_role = getattr(login_user, "id_role", None)
+        nom_complet = nom_complet or " ".join(
+            p
+            for p in (
+                getattr(login_user, "prenom_role", None),
+                getattr(login_user, "nom_role", None),
+            )
+            if p
+        )
+
+    horodatage = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    nom_sur = secure_filename(file.filename) or "import.csv"
+    chemin_fichier = DOSSIER_SUIVI / f"{horodatage}_{type_import}_{nom_sur}"
+    file.save(chemin_fichier)
+
+    id_import = creer_suivi(
+        id_saison=None,
+        do_update=False,
+        nom_fichier=file.filename,
+        chemin_fichier=chemin_fichier,
+        id_role=id_role,
+        nom_complet=nom_complet,
+        type_import=type_import,
+    )
+    lancer_import_async(
+        id_import=id_import,
+        chemin_fichier=str(chemin_fichier),
+        id_saison=None,
+        do_update=False,
+        id_role=id_role,
+        nom_complet=nom_complet,
+        type_import=type_import,
+    )
+
+    return (
+        jsonify({"success": True, "id_import": id_import, "statut": "EN_ATTENTE"}),
+        202,
     )
 
 

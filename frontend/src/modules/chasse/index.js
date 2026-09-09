@@ -108,6 +108,18 @@ const ROUTE = [
   },
 
   {
+    name: 'chasse.imports_attributions',
+    path: '/chasse/imports-attributions',
+    label: 'Import attributions', // titre dans le menu (Administration)
+    hideTitle: true,
+    component: () => import('./imports-attributions-chasse.vue'),
+    access: 6, // garde de redirection (App.vue checkRigths)
+    // masque l'entrée dans le menu Administration (rendu par le drawer, qui ne
+    // filtre pas sur meta.access) : cf. components/app/menu.js -> configMenu
+    hidden: ({ $store }) => $store.getters.droitMax < 6,
+  },
+
+  {
     name: 'chasse.restitution_bilan_detaille',
     path: '/chasse/restitution_bilan_detaille',
     label: 'Chasse : analyse détaillée',

@@ -56,7 +56,13 @@ const menus = {
     label: 'Administration',
     icon: 'fa-cog',
     hidden: ({ $store }) => $store.getters.droitMax < 5,
-    names: ['user.admin', 'commons.admin', 'in.admin', 'chasse.admin'],
+    names: [
+      'user.admin',
+      'commons.admin',
+      'in.admin',
+      'chasse.admin',
+      'chasse.imports_attributions',
+    ],
   },
 
   dev: {
