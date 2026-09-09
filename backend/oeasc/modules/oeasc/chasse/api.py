@@ -60,7 +60,10 @@ from .import_async import (
     lire_suivi,
     DOSSIER_SUIVI,
 )
-from .import_attributions import get_etat_import_attributions
+from .import_attributions import (
+    get_etat_import_attributions,
+    multiplicite_saisons_courantes,
+)
 from sqlalchemy import func, select
 from sqlalchemy.orm import aliased
 import datetime
@@ -477,6 +480,19 @@ def import_attributions_lancer(etape):
             jsonify({"success": False, "user_message": "Étape d'import inconnue."}),
             404,
         )
+
+    # Garde-fou : plusieurs saisons marquées « en cours » -> on ne sait pas
+    # laquelle viser, on refuse tout import (doublé côté frontend + traitement).
+    nb_saisons, noms = multiplicite_saisons_courantes()
+    if nb_saisons > 1:
+        msg = (
+            f"Import bloqué : {nb_saisons} saisons sont marquées « en cours » "
+            f"({', '.join(noms)}). Désactivez l'ancienne dans Données chasse → "
+            "onglet Saisons."
+        )
+        # `message` : lu par simple_fetch (front) sur une réponse non-ok
+        # `user_message` : lu par le flux de polling
+        return jsonify({"success": False, "message": msg, "user_message": msg}), 409
 
     file = request.files.get("file")
     if file is None or file.filename == "":

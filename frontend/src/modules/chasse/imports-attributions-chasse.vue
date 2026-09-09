@@ -17,14 +17,12 @@
     <!-- ====================== ÉTAPE 0 : SAISON ====================== -->
     <v-card
       class="etape"
-      :color="etat && etat.saison_ok ? '#e8f5e9' : '#fff3e0'"
+      :color="saisonCardColor"
       variant="flat"
       border
     >
       <v-card-title class="etape-titre">
-        <v-icon :color="etat && etat.saison_ok ? 'green' : 'orange'">
-          {{ etat && etat.saison_ok ? 'mdi-check-circle' : 'mdi-alert' }}
-        </v-icon>
+        <v-icon :color="saisonIconColor">{{ saisonIcon }}</v-icon>
         1. Saison en cours
       </v-card-title>
       <v-card-text v-if="etat">
@@ -38,8 +36,26 @@
         </template>
         <template v-else>Aucune saison enregistrée.</template>
 
+        <!-- ERREUR BLOQUANTE (rouge) : plusieurs saisons « en cours » en base.
+             Tous les imports sont désactivés tant que ce n'est pas corrigé. -->
         <div
-          v-if="!etat.saison_ok"
+          v-if="erreurBloquante"
+          class="erreur-bloquante"
+        >
+          <v-icon
+            left
+            color="error"
+          >
+            mdi-alert-octagon
+          </v-icon>
+          <span>
+            {{ erreurBloquante }}
+            <router-link :to="{ name: 'chasse.admin' }">Ouvrir l'onglet Saisons</router-link>
+          </span>
+        </div>
+
+        <div
+          v-if="!erreurBloquante && !etat.saison_ok"
           style="margin-top: 0.6rem; color: #b26a00"
         >
           <v-icon
@@ -67,7 +83,7 @@
       :etape-message="etapeMessage"
       :journal="journalDe('saison-dates')"
       :exemple="exempleSaisonDates"
-      texte-aide="Fichier CSV (séparateur « ; » ou « , »). Une ligne par espèce ;
+      texte-aide="Fichier CSV (séparateur « ; », « , » ou tabulation). Une ligne par espèce ;
         la colonne type_chasse peut contenir plusieurs modes séparés par « , »
         (une ligne de date est créée par mode). Les lignes existantes de la
         saison sont remplacées."
@@ -84,7 +100,7 @@
       :etape-message="etapeMessage"
       :journal="journalDe('massifs')"
       :exemple="exempleMassifs"
-      texte-aide="Fichier CSV (séparateur « ; » ou « , »). La colonne saison doit
+      texte-aide="Fichier CSV (séparateur « ; », « , » ou tabulation). La colonne saison doit
         correspondre à la saison en cours. nom_vern : Cerf / Chevreuil / Mouflon
         (les libellés « Cerf élaphe », « Chevreuil européen » sont acceptés). Les
         lignes existantes de la saison sont remplacées."
@@ -101,7 +117,7 @@
       :etape-message="etapeMessage"
       :journal="journalDe('attributions')"
       :exemple="exempleAttributions"
-      texte-aide="Fichier CSV (séparateur « ; » ou « , »). La colonne Annee doit
+      texte-aide="Fichier CSV (séparateur « ; », « , » ou tabulation). La colonne Annee doit
         correspondre à la saison en cours. Si la colonne zi est absente, l'id est
         extrait de TERRITOIRE (« id_zi: nom_zi »). Import incrémental : les
         nouveaux bracelets sont ajoutés, ceux qui ont disparu sont supprimés
@@ -175,28 +191,54 @@ export default {
     };
   },
   computed: {
+    // Erreur rouge bloquante renvoyée par le backend (ou null) : actuellement
+    // « plusieurs saisons marquées "en cours" ». Bloque TOUS les imports.
+    erreurBloquante() {
+      return (this.etat && this.etat.erreur) || null;
+    },
+    // Un import est-il possible du tout ? (indépendamment de l'étape)
+    importsPossibles() {
+      return this.saisonOk && !this.erreurBloquante && !this.uploading;
+    },
+
+    // --- carte « Saison en cours » : rouge si erreur, vert si OK, orange sinon
+    saisonCardColor() {
+      if (this.erreurBloquante) return '#fdecea';
+      return this.etat && this.etat.saison_ok ? '#e8f5e9' : '#fff3e0';
+    },
+    saisonIconColor() {
+      if (this.erreurBloquante) return 'error';
+      return this.etat && this.etat.saison_ok ? 'green' : 'orange';
+    },
+    saisonIcon() {
+      if (this.erreurBloquante) return 'mdi-alert-octagon';
+      return this.etat && this.etat.saison_ok ? 'mdi-check-circle' : 'mdi-alert';
+    },
+
     // --- déverrouillage progressif : chaque étape exige la précédente -------
     saisonOk() {
       return !!(this.etat && this.etat.saison_ok);
     },
     etape1Active() {
       // dates de saison : dès qu'une saison en cours valide existe
-      return this.saisonOk && !this.uploading;
+      return this.importsPossibles;
     },
     etape2Active() {
       // massifs : + il faut des lignes t_saison_dates pour la saison
-      return this.saisonOk && !!this.etat.saison_dates_ok && !this.uploading;
+      return this.importsPossibles && !!this.etat.saison_dates_ok;
     },
     etape3Active() {
       // attributions : + il faut des lignes t_attribution_massifs
-      return this.saisonOk && !!this.etat.attribution_massifs_ok && !this.uploading;
+      return this.importsPossibles && !!this.etat.attribution_massifs_ok;
     },
     messageEtape1() {
+      if (this.erreurBloquante) return this.erreurBloquante;
       if (!this.saisonOk) return "Créez d'abord la nouvelle saison (étape 1).";
       if (this.uploading) return 'Un import est déjà en cours…';
       return '';
     },
     messageEtape2() {
+      if (this.erreurBloquante) return this.erreurBloquante;
       if (!this.saisonOk) return "Créez d'abord la nouvelle saison (étape 1).";
       if (!this.etat || !this.etat.saison_dates_ok)
         return "Importez d'abord les dates de saison par mode de chasse (étape 2).";
@@ -204,6 +246,7 @@ export default {
       return '';
     },
     messageEtape3() {
+      if (this.erreurBloquante) return this.erreurBloquante;
       if (!this.saisonOk) return "Créez d'abord la nouvelle saison (étape 1).";
       if (!this.etat || !this.etat.attribution_massifs_ok)
         return "Importez d'abord les attributions par massif (étape 3).";
@@ -245,6 +288,10 @@ export default {
     // d'URL backend ('saison-dates' | 'massifs' | 'attributions').
     async lancerImport(etape, file) {
       if (this.uploading || !file) return;
+      if (this.erreurBloquante) {
+        snackbarStore.show(this.erreurBloquante, 'error');
+        return;
+      }
       this.stopPolling();
       this.uploading = true;
       this.etapeEnCours = etape;
@@ -366,5 +413,13 @@ export default {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+.erreur-bloquante {
+  margin-top: 0.6rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  color: #b71c1c;
+  font-weight: 700;
 }
 </style>

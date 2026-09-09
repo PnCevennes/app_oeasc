@@ -101,54 +101,88 @@ def _normalize_saison(valeur):
 
 
 def _detect_sep(path):
-    """Devine le séparateur du CSV : « ; » ou « , ».
+    """Devine le séparateur du CSV parmi « ; », tabulation et « , ».
 
-    Même heuristique que l'import des réalisations
-    (`importation_csv.etape__récuperation_csv`) : on lit un échantillon en tête de
-    fichier et on prend le caractère le plus fréquent. Les exports Geochasse /
-    Excel alternent entre les deux selon la locale du poste.
+    On se base sur la **ligne d'entête** (1re ligne non vide) : elle contient
+    exactement N-1 séparateurs et aucun séparateur « parasite » dans une valeur.
+    On prend le candidat le plus fréquent, en départageant dans l'ordre
+    « ; » > tab > « , » (les exports Geochasse/Excel/Calc utilisent les trois
+    selon la locale et le format d'enregistrement).
     """
     with open(path, "rb") as f:
         # utf-8-sig : consomme le BOM éventuel ajouté par Excel.
-        sample = f.read(4096).decode("utf-8-sig", errors="replace")
-    return ";" if sample.count(";") > sample.count(",") else ","
+        contenu = f.read(8192).decode("utf-8-sig", errors="replace")
+    entete = next((ligne for ligne in contenu.splitlines() if ligne.strip()), contenu)
+    comptes = {sep: entete.count(sep) for sep in (";", "\t", ",")}
+    meilleur = max(comptes, key=lambda s: comptes[s])
+    return meilleur if comptes[meilleur] > 0 else ","
 
 
-def lire_csv_auto(path):
+def lire_csv_auto(path, col_multi=None):
     """Lit le CSV et renvoie (DataFrame, séparateur).
 
     - séparateur autodétecté (`_detect_sep`) ;
-    - entêtes forcées en minuscules (le reste du matching passe par `_normalize`) ;
-    - `dtype=str` + `keep_default_na=False` : tout est lu en texte, cellules vides
-      = "" (pas de NaN) — on maîtrise nous-mêmes chaque conversion.
+    - lecture via `csv.reader` (RFC-4180 : gère les champs entre guillemets et les
+      `""` échappés) — donc un libellé correctement quoté qui contient le
+      séparateur (`"Mont Lozère sud, Bougès nord"`) est lu comme un seul champ ;
+    - entêtes forcées en minuscules ; tout est lu en texte, cellules vides = "".
 
-    Répare aussi les lignes « sur-quotées » par certains exports Excel : quand une
-    valeur contient le séparateur (ex. un nom de massif avec une virgule), Excel
-    entoure la **ligne entière** de guillemets. pandas la lit alors comme un seul
-    champ, rangé dans la 1re colonne, les autres colonnes vides. On repère ces
-    lignes (toutes les colonnes sauf la 1re vides, et la 1re contient le
-    séparateur) et on les redécoupe avec le module `csv`.
+    Deux réparations pour les exports « sales » :
+
+    1. Ligne « sur-quotée » : certains exports entourent la ligne ENTIÈRE de
+       guillemets quand une valeur contient le séparateur — `csv.reader` renvoie
+       alors un seul champ. On le re-découpe.
+    2. `col_multi` (nom d'une colonne, ex. "massif" / "type_chasse") : la seule
+       colonne susceptible de contenir le séparateur SANS être quotée. Si une
+       ligne a plus de champs que l'entête, on recolle le surplus dans cette
+       colonne (repérée par sa position), les colonnes avant/après restant
+       calées. Couvre le cas d'un export « , » non quoté avec une virgule dans un
+       nom de massif.
     """
     sep = _detect_sep(path)
-    df = pd.read_csv(
-        path, sep=sep, encoding="utf-8-sig", dtype=str, keep_default_na=False
-    )
-    df.columns = [str(c).strip().lower() for c in df.columns]
 
-    if len(df.columns) >= 2:
-        premiere = df.columns[0]
-        autres = list(df.columns[1:])
-        a_reparer = df.index[
-            df[autres].eq("").all(axis=1)
-            & df[premiere].str.contains(re.escape(sep), regex=True)
+    with open(path, encoding="utf-8-sig", newline="") as f:
+        lignes = [
+            ligne
+            for ligne in csv.reader(f, delimiter=sep)
+            if any(cellule.strip() for cellule in ligne)  # ignore les lignes vides
         ]
-        for idx in a_reparer:
-            # csv.reader gère les guillemets internes et les "" échappés
-            parts = next(csv.reader([df.at[idx, premiere]], delimiter=sep))
-            for col, val in zip(df.columns, parts):
-                df.at[idx, col] = val.strip()
+    if not lignes:
+        return pd.DataFrame(), sep
 
-    return df, sep
+    entete = [str(c).strip().lower() for c in lignes[0]]
+    n = len(entete)
+
+    # position de la colonne « extensible », si demandée et présente
+    # (comparaison tolérante : casse, accents, « _ »/« - »/espaces)
+    def _fold(s):
+        return re.sub(r"[ _-]+", "", _normalize(s))
+
+    entete_fold = [_fold(c) for c in entete]
+    idx_multi = (
+        entete_fold.index(_fold(col_multi))
+        if col_multi and _fold(col_multi) in entete_fold
+        else None
+    )
+    n_apres_multi = (n - idx_multi - 1) if idx_multi is not None else 0
+
+    data = []
+    for champs in lignes[1:]:
+        # réparation 1 : ligne entière re-quotée -> un seul champ à re-découper
+        if len(champs) == 1 and n > 1 and sep in champs[0]:
+            champs = next(csv.reader([champs[0]], delimiter=sep))
+        # réparation 2 : trop de champs -> on recolle le surplus dans col_multi
+        if len(champs) > n and idx_multi is not None:
+            avant = champs[:idx_multi]
+            apres = champs[len(champs) - n_apres_multi :] if n_apres_multi else []
+            milieu = sep.join(champs[idx_multi : len(champs) - n_apres_multi])
+            champs = avant + [milieu] + apres
+        # calage sur le nombre de colonnes de l'entête
+        champs = [c.strip() for c in champs]
+        champs = (champs + [""] * n)[:n]
+        data.append(champs)
+
+    return pd.DataFrame(data, columns=entete), sep
 
 
 def _resoudre_colonnes(df, alias_map):
@@ -283,14 +317,64 @@ def _abandon_erreurs(api, erreurs, prefixe="Import annulé"):
     return api
 
 
-def _saison_courante():
-    """La saison en cours (`t_saisons.current = true`) — source de vérité pour
-    les 3 imports. Le frontend n'a pas de sélecteur de saison."""
+def _saisons_courantes():
+    """Toutes les saisons marquées `current = true` (normalement une seule).
+
+    Triées de la plus récente à la plus ancienne (`date_debut` puis `id_saison`)
+    pour que `_saison_courante()` soit déterministe même si l'admin a oublié de
+    décocher l'ancienne (le formulaire Saisons ne le fait pas automatiquement).
+    """
     return (
-        DB.session.execute(select(TSaisons).where(TSaisons.current.is_(True)))
+        DB.session.execute(
+            select(TSaisons)
+            .where(TSaisons.current.is_(True))
+            .order_by(TSaisons.date_debut.desc().nullslast(), TSaisons.id_saison.desc())
+        )
         .scalars()
-        .first()
+        .all()
     )
+
+
+def _saison_courante():
+    """La saison en cours — source de vérité pour les 3 imports (le frontend n'a
+    pas de sélecteur de saison). S'il y en a plusieurs de marquées `current`, on
+    prend la plus récente."""
+    saisons = _saisons_courantes()
+    return saisons[0] if saisons else None
+
+
+def _resoudre_saison_courante(api):
+    """Renvoie la saison courante pour un import, ou None après avoir posé
+    l'erreur bloquante adéquate sur `api` :
+      - aucune saison `current`   -> « créez la nouvelle saison »
+      - plusieurs saisons `current` -> import bloqué (on ne sait pas laquelle
+        viser ; désactiver l'ancienne). Garde-fou serveur, doublé côté route.
+    """
+    saisons = _saisons_courantes()
+    if not saisons:
+        api.add_error(
+            system_error="Aucune saison courante (current=true).",
+            user_message="Aucune saison en cours. Créez la nouvelle saison "
+            "dans Données chasse → onglet Saisons.",
+        )
+        return None
+    if len(saisons) > 1:
+        noms = ", ".join(f"« {s.nom_saison} »" for s in saisons)
+        api.add_error(
+            system_error=f"{len(saisons)} saisons current=true : {noms}",
+            user_message=f"Import bloqué : {len(saisons)} saisons sont marquées "
+            f"« en cours » ({noms}). Désactivez l'ancienne dans "
+            "Données chasse → onglet Saisons.",
+        )
+        return None
+    return saisons[0]
+
+
+def multiplicite_saisons_courantes():
+    """(nb_saisons_current, [noms]) — utilisé par la route pour refuser un import
+    avant même de lancer le thread."""
+    saisons = _saisons_courantes()
+    return len(saisons), [s.nom_saison for s in saisons]
 
 
 def _lookup_especes():
@@ -353,20 +437,17 @@ def traitement_import_saison_dates(
     _progress = _make_progress(progress_callback, 4)
     try:
         with _app_context():
-            # --- 1. saison courante (obligatoire) --------------------------------
-            saison = _saison_courante()
+            # --- 1. saison courante (unique et obligatoire) --------------------
+            saison = _resoudre_saison_courante(api)
             if saison is None:
-                api.add_error(
-                    system_error="Aucune saison courante (current=true).",
-                    user_message="Aucune saison en cours. Créez la nouvelle saison "
-                    "dans Données chasse → onglet Saisons.",
-                )
                 return api
             id_saison = saison.id_saison
 
             # --- 2. lecture du CSV (séparateur auto, entêtes en minuscules) -----
+            # col_multi="type_chasse" : seule colonne pouvant contenir le
+            # séparateur sans être quotée (« Approche, Affut »).
             try:
-                df, _sep = lire_csv_auto(path_csv)
+                df, _sep = lire_csv_auto(path_csv, col_multi="type_chasse")
             except Exception as e:  # noqa: BLE001
                 api.add_error(
                     system_error=f"Lecture CSV : {e}",
@@ -512,19 +593,18 @@ def traitement_import_attribution_massifs(
     _progress = _make_progress(progress_callback, 4)
     try:
         with _app_context():
-            # --- 1. saison courante -------------------------------------------
-            saison = _saison_courante()
+            # --- 1. saison courante (unique) --------------------------------
+            saison = _resoudre_saison_courante(api)
             if saison is None:
-                api.add_error(
-                    system_error="Aucune saison courante.",
-                    user_message="Aucune saison en cours.",
-                )
                 return api
             id_saison = saison.id_saison
 
             # --- 2. lecture CSV ---------------------------------------------------
+            # col_multi="massif" : des noms de massif contiennent une virgule
+            # (« Mont Lozère sud, Bougès nord ») -> recollés même si le fichier
+            # est « , »-séparé et mal quoté.
             try:
-                df, _sep = lire_csv_auto(path_csv)
+                df, _sep = lire_csv_auto(path_csv, col_multi="massif")
             except Exception as e:  # noqa: BLE001
                 api.add_error(
                     system_error=f"Lecture CSV : {e}",
@@ -702,19 +782,17 @@ def traitement_import_attributions(
     _progress = _make_progress(progress_callback, 5)
     try:
         with _app_context():
-            # --- 1. saison courante -------------------------------------------
-            saison = _saison_courante()
+            # --- 1. saison courante (unique) --------------------------------
+            saison = _resoudre_saison_courante(api)
             if saison is None:
-                api.add_error(
-                    system_error="Aucune saison courante.",
-                    user_message="Aucune saison en cours.",
-                )
                 return api
             id_saison = saison.id_saison
 
             # --- 2. lecture CSV ---------------------------------------------------
+            # col_multi="territoire" : la colonne TERRITOIRE peut contenir le
+            # séparateur si le fichier est converti en « , ».
             try:
-                df, _sep = lire_csv_auto(path_csv)
+                df, _sep = lire_csv_auto(path_csv, col_multi="territoire")
             except Exception as e:  # noqa: BLE001
                 api.add_error(
                     system_error=f"Lecture CSV : {e}",
@@ -1001,10 +1079,31 @@ def get_etat_import_attributions():
     - `saison_dates_ok`       : au moins une ligne t_saison_dates pour la saison.
     - `attribution_massifs_ok`: idem t_attribution_massifs.
     - `attributions_ok`       : idem t_attributions.
-    Chaque étape n'est déverrouillée côté front que si la précédente est *_ok.
+    - `saisons_multiples`     : plusieurs saisons marquées `current` en base ->
+                                **tout import est bloqué** tant que ce n'est pas
+                                corrigé (risque d'écrire sur la mauvaise saison).
+    - `erreur`                : message rouge bloquant (ou None).
+    Chaque étape n'est déverrouillée côté front que si la précédente est *_ok
+    ET qu'il n'y a pas d'`erreur`.
     """
     with _app_context():
-        saison = _saison_courante()
+        saisons_courantes = _saisons_courantes()
+        saison = saisons_courantes[0] if saisons_courantes else None
+
+        # Garde-fou : plusieurs saisons "en cours" -> on ne sait pas laquelle
+        # viser, on bloque tout (cf. incident où des données ont été écrites /
+        # supprimées sur la mauvaise saison).
+        saisons_multiples = len(saisons_courantes) > 1
+        erreur = None
+        if saisons_multiples:
+            noms = ", ".join(f"« {s.nom_saison} »" for s in saisons_courantes)
+            erreur = (
+                f"{len(saisons_courantes)} saisons sont marquées « en cours » "
+                f"en base ({noms}). Tout import est bloqué. Allez dans "
+                "Données chasse → onglet Saisons et désactivez l'ancienne saison "
+                "pour n'en garder qu'une seule « en cours »."
+            )
+
         if saison is None:
             return {
                 "saison_courante": None,
@@ -1012,6 +1111,8 @@ def get_etat_import_attributions():
                 "saison_dates_ok": False,
                 "attribution_massifs_ok": False,
                 "attributions_ok": False,
+                "saisons_multiples": False,
+                "erreur": None,
             }
 
         aujourdhui = datetime.now().date()
@@ -1041,4 +1142,6 @@ def get_etat_import_attributions():
             "saison_dates_ok": _existe(TSaisonDates),
             "attribution_massifs_ok": _existe(TAttributionMassifs),
             "attributions_ok": _existe(TAttributions),
+            "saisons_multiples": saisons_multiples,
+            "erreur": erreur,
         }
