@@ -8,6 +8,14 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
       indeterminate
     ></v-progress-linear>
 
+    <v-snackbar
+      v-model="showExportError"
+      color="error"
+      :timeout="6000"
+    >
+      L'export PDF a échoué : {{ exportErrorMsg }}
+    </v-snackbar>
+
     <div>
       <span>
         <v-btn
@@ -476,12 +484,15 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
 <script>
 import { apiRequest } from '@/core/js/data/api';
 import './declaration.css';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import resumeDeclaration from './resume_declaration.vue';
 import MapDeclarationSimple from './map/map_declaration_simple.vue';
 import confirmRelanceMail from './confirm_relance_mail.vue';
 import config_variables from '@/../../config/variables/declaration.json';
+
+// jsPDF et html2canvas sont volumineux et uniquement utiles pour l'export PDF :
+// on les charge à la demande (voir exportToPdf) pour alléger le bundle initial.
+let jsPDFLib = null;
+let html2canvasLib = null;
 
 export default {
   name: 'voir_declaration',
@@ -493,6 +504,8 @@ export default {
     isExporting: false,
     show_popup_relance: false,
     show_buttom_relance_mail: false,
+    showExportError: false,
+    exportErrorMsg: '',
   }),
 
   components: {
@@ -501,54 +514,90 @@ export default {
     confirmRelanceMail,
   },
   methods: {
-    // attend que la carte ait fini de charger ses tiles avant de continuer (important pour éviter les problèmes de tiles manquantes dans le PDF si la capture est faite trop tôt)
-    waitForMapReady(mapRef) {
-      return new Promise((resolve) => {
-        const map = mapRef.getMapInstance();
+    // Rend brièvement la main au navigateur : anime la barre de progression et évite
+    // que l'onglet soit tué pour "script non responsive" sur les PC lents.
+    _yield(ms = 40) {
+      return new Promise((resolve) => setTimeout(resolve, ms));
+    },
 
-        if (map._loaded) {
-          setTimeout(resolve, 300);
+    // Machines peu puissantes -> on réduit la résolution de capture pour éviter les
+    // dépassements mémoire (crash d'onglet). deviceMemory / hardwareConcurrency ne sont
+    // pas dispo sur tous les navigateurs : valeurs par défaut prudentes.
+    _isLowPowerDevice() {
+      const mem = navigator.deviceMemory || 8;
+      const cores = navigator.hardwareConcurrency || 8;
+      return mem <= 4 || cores <= 4;
+    },
+
+    // Attend que la carte soit prête, AVEC un timeout pour ne jamais bloquer l'export.
+    waitForMapReady(mapRef, timeout = 8000) {
+      return new Promise((resolve) => {
+        const map = mapRef && mapRef.getMapInstance ? mapRef.getMapInstance() : null;
+        if (!map) {
+          resolve();
           return;
         }
 
-        map.once('load', () => {
-          setTimeout(resolve, 300);
-        });
+        let settled = false;
+        const finish = () => {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          // laisse le temps aux dernières tuiles de se peindre
+          setTimeout(resolve, 350);
+        };
+
+        const timer = setTimeout(finish, timeout);
+
+        // whenReady() se déclenche immédiatement si la carte a déjà un centre/zoom,
+        // sinon au premier "load" (contrairement à once('load') qui, si "load" a déjà
+        // été émis, ne se redéclenche jamais et bloque l'export indéfiniment).
+        try {
+          map.whenReady(finish);
+        } catch (e) {
+          finish();
+        }
       });
     },
 
-    // Pour l'export pdf, on capture le tableau de résumé
-    // Capture du tableau récapitulatif (resume_declaration)
-    async captureTable() {
-      try {
-        const el =
-          document.getElementById('resume_declaration') ||
-          document.querySelector('#resume_declaration');
-        if (!el) {
-          const c = document.createElement('canvas');
-          c.width = 10;
-          c.height = 10;
-          return c;
-        }
-
-        // ensure layout is stable
-        await this.$nextTick();
-        await new Promise((r) => setTimeout(r, 200));
-
-        const canvas = await html2canvas(el, { useCORS: true, allowTaint: true, scale: 1.5 });
-        return canvas;
-      } catch (e) {
-        const c = document.createElement('canvas');
-        c.width = 10;
-        c.height = 10;
-        return c;
-      }
+    // Capture un élément DOM en image.
+    // PNG (net) pour le texte du tableau, JPEG (léger) pour les cartes.
+    // Le canvas est libéré immédiatement (crucial sur les PC à faible RAM).
+    async captureElement(el, { scale = 1.5, format = 'png', quality = 0.85 } = {}) {
+      const canvas = await html2canvasLib(el, {
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        scale,
+        logging: false,
+        imageTimeout: 15000,
+      });
+      const mime = format === 'jpeg' ? 'image/jpeg' : 'image/png';
+      const data = canvas.toDataURL(mime, quality);
+      const width = canvas.width;
+      const height = canvas.height;
+      canvas.width = 0;
+      canvas.height = 0;
+      return { data, width, height, format: format === 'jpeg' ? 'JPEG' : 'PNG' };
     },
 
     async exportToPdf() {
+      if (this.isExporting || !this.declaration_data) return;
+      this.isExporting = true;
+
+      // laisse la barre de progression s'afficher avant les traitements lourds
+      await this.$nextTick();
+      await this._yield(60);
+
       try {
-        this.isExporting = true;
-        const pdf = new jsPDF('p', 'mm', 'a4');
+        // chargement à la demande des librairies d'export
+        if (!jsPDFLib) jsPDFLib = (await import('jspdf')).default;
+        if (!html2canvasLib) html2canvasLib = (await import('html2canvas')).default;
+
+        const lowPower = this._isLowPowerDevice();
+        const tableScale = lowPower ? 1.2 : 1.6;
+        const mapScale = lowPower ? 1 : 1.5;
+
+        const pdf = new jsPDFLib('p', 'mm', 'a4');
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
         const margin = 10;
@@ -556,82 +605,86 @@ export default {
         let currentY = margin;
         const dateStr = new Date().toLocaleString();
 
+        pdf.setFontSize(14);
         pdf.text(`Déclaration no : ${this.declaration_data.id_declaration}`, margin, currentY);
         currentY += 10;
-
         pdf.setFontSize(12);
+        pdf.setTextColor(40, 40, 40);
         pdf.text(`Exporté le : ${dateStr}`, margin, currentY);
         currentY += 10;
 
-        // ---- TABLEAU ----
-        pdf.setFontSize(12);
-        pdf.setTextColor(40, 40, 40);
-
-        const tableCanvas = await this.captureTable();
-        const tableImgData = tableCanvas.toDataURL('image/png');
-        const tableAspectRatio = tableCanvas.height / tableCanvas.width;
-        const tableHeight = contentWidth * tableAspectRatio;
-
-        // Vérifier si on doit passer à une nouvelle page
-        if (currentY + tableHeight > pageHeight - margin) {
-          pdf.addPage();
-          currentY = margin;
+        // ---- TABLEAU RÉCAPITULATIF ----
+        const tableEl = document.getElementById('resume_declaration');
+        if (tableEl) {
+          await this.$nextTick();
+          await this._yield(150);
+          try {
+            const table = await this.captureElement(tableEl, { scale: tableScale, format: 'png' });
+            const tableHeight = (contentWidth * table.height) / table.width;
+            if (currentY + tableHeight > pageHeight - margin) {
+              pdf.addPage();
+              currentY = margin;
+            }
+            pdf.addImage(
+              table.data,
+              'PNG',
+              margin,
+              currentY,
+              contentWidth,
+              tableHeight,
+              undefined,
+              'FAST'
+            );
+          } catch (e) {
+            console.error('Tableau non capturé pour le PDF :', e);
+          }
         }
-
-        pdf.addImage(tableImgData, 'PNG', margin, currentY, contentWidth, tableHeight);
-        currentY += tableHeight + 10;
+        await this._yield(50);
 
         // ---- CARTES ----
+        pdf.addPage();
         pdf.setFontSize(12);
         pdf.setTextColor(40, 40, 40);
+        pdf.text('Cartes de localisation', margin, margin);
 
-        // Nouvelle page pour les cartes
-        pdf.addPage();
-        currentY = margin;
-        pdf.text('Cartes de localisation', margin, currentY);
-        currentY += 8;
+        const maps = [
+          { ref: this.$refs.map1, y: 16 },
+          { ref: this.$refs.map2, y: 107 },
+          { ref: this.$refs.map3, y: 198 },
+        ];
 
-        // s'assurer que les trois maps ont fini de charger leurs tiles
-        await this.waitForMapReady(this.$refs.map1);
-        await this.waitForMapReady(this.$refs.map2);
-        await this.waitForMapReady(this.$refs.map3);
+        // Capture SÉQUENTIELLE : une seule carte en mémoire à la fois.
+        // Une carte en échec n'empêche pas la génération du reste du PDF.
+        for (const item of maps) {
+          try {
+            await this.waitForMapReady(item.ref);
+            const map = item.ref && item.ref.getMapInstance ? item.ref.getMapInstance() : null;
+            if (!map) continue;
+            try {
+              map.invalidateSize({ animate: false });
+            } catch (e) {
+              /* ignore */
+            }
+            await this._yield(150);
+            const img = await this.captureElement(map.getContainer(), {
+              scale: mapScale,
+              format: 'jpeg',
+              quality: 0.82,
+            });
+            pdf.addImage(img.data, 'JPEG', margin, item.y, 190, 90, undefined, 'FAST');
+          } catch (e) {
+            console.error('Carte non capturée pour le PDF :', e);
+          }
+          // rend la main entre chaque carte
+          await this._yield(60);
+        }
 
-        // Capturer chaque map via html2canvas sur le conteneur DOM (inclut labels/divIcon et légende)
-        const map1 = await this.$refs.map1.getMapInstance();
-        const map2 = await this.$refs.map2.getMapInstance();
-        const map3 = await this.$refs.map3.getMapInstance();
-
-        const canvas1 = await html2canvas(map1.getContainer(), {
-          useCORS: true,
-          allowTaint: true,
-          scale: 2,
-        });
-        const canvas2 = await html2canvas(map2.getContainer(), {
-          useCORS: true,
-          allowTaint: true,
-          scale: 2,
-        });
-        const canvas3 = await html2canvas(map3.getContainer(), {
-          useCORS: true,
-          allowTaint: true,
-          scale: 2,
-        });
-
-        const img1 = canvas1.toDataURL('image/png');
-        const img2 = canvas2.toDataURL('image/png');
-        const img3 = canvas3.toDataURL('image/png');
-
-        // positionnement des images de cartes.
-        pdf.addImage(img1, 'PNG', 10, 10, 190, 90);
-        pdf.addImage(img2, 'PNG', 10, 105, 190, 90);
-        pdf.addImage(img3, 'PNG', 10, 200, 190, 90);
-
-        // // Sauvegarde du PDF
         pdf.save(`declaration_${this.declaration_data.id_declaration}.pdf`);
       } catch (error) {
-        console.error('Erreur lors de la génération du PDF:', error);
-        // Afficher une notification d'erreur avec Vuetify
-        this.$emit('export-error', error.message);
+        console.error('Erreur lors de la génération du PDF :', error);
+        this.exportErrorMsg = error && error.message ? error.message : 'erreur inconnue';
+        this.showExportError = true;
+        this.$emit('export-error', this.exportErrorMsg);
       } finally {
         this.isExporting = false;
       }
