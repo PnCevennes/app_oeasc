@@ -1415,12 +1415,10 @@ export default {
           token_renouvellement: this.declaration_data.token_renouvellement,
         },
       })
-        .then((response) => {
-          // console.log("Déclaration clôturée avec succès:", response);
-          // snackbarStore.show("Déclaration clôturée avec succès.", 'success');
+        .then(() => {
           this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
         })
-        .catch((error) => {
+        .catch(() => {
           snackbarStore.show(
             "Une erreur s'est produite lors de la clôture. Veuillez réessayer.",
             'error'

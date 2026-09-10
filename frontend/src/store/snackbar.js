@@ -1,52 +1,69 @@
-// Affiche une petite fenêtre de notification en bas de l'écran, pour informer l'utilisateur d'une action réussie ou d'une erreur.
-// dans chaque vue il faudra importer le snackbarStore
-// et appeler snackbarStore.show("message à afficher", "type de message (ex: 'success' ou 'error')") pour afficher le message
-// le snackbar est implémenté dans App.vue pour être accessible depuis n'importe quelle vue de l'application
+// Affiche une notification globale en bas de l'écran, pour informer l'utilisateur d'une action
+// réussie, d'une info ou d'une erreur.
+//
+// Utilisation depuis n'importe quelle vue :
+//   import { snackbarStore } from '@/store/snackbar.js';
+//   snackbarStore.show('Message à afficher', 'error');   // 'error' | 'success' | 'info' | 'warning'
+//
+// Le rendu (styles, icône, couleurs) est géré dans App.vue à partir de `state.type`.
+// Le snackbar est monté une seule fois dans App.vue pour être accessible partout.
 
 import { reactive } from 'vue';
+
+// Types sémantiques reconnus -> icône mdi associée.
+const TYPES = {
+  success: 'mdi-check-circle',
+  error: 'mdi-alert-circle',
+  info: 'mdi-information',
+  warning: 'mdi-alert',
+};
+
+const DEFAULT_TIMEOUT = 5000;
 
 const state = reactive({
   show: false,
   message: '',
-  color: '', // couleur de fond du snackbar (ex: 'success' pour vert, 'error' pour rouge, ou une couleur personnalisée)
-  timeout: 5000,
-  textColor: 'black',
-  fontSize: '1.3rem',
-  fontWeight: 400,
-  lineHeight: 1.3,
+  type: 'info', // 'success' | 'error' | 'info' | 'warning' | 'custom'
+  icon: TYPES.info,
+  timeout: DEFAULT_TIMEOUT,
+  // Utilisés uniquement quand une couleur personnalisée est passée (type === 'custom')
+  customColor: '',
+  customTextColor: '',
 });
 
 export const snackbarStore = {
-  // Getters pour accéder à l'état
   get state() {
     return state;
   },
 
-  // Méthode pour afficher le message
-  show(message, color = 'error', textColor = 'black') {
+  /**
+   * Affiche le snackbar.
+   * @param {string} message  Texte à afficher (les retours à la ligne sont conservés).
+   * @param {string} type     'error' (défaut) | 'success' | 'info' | 'warning', ou une
+   *                           couleur CSS personnalisée (rétro-compat).
+   * @param {string} textColor Couleur du texte si `type` est une couleur personnalisée.
+   * @param {object} options   { timeout } — durée d'affichage en ms.
+   */
+  show(message, type = 'error', textColor = '', options = {}) {
     state.message = message;
-    if (color === 'success') {
-      // vert très clair
-      state.color = '#d4f3db';
-      state.textColor = '#363636';
-    } else if (color === 'error') {
-      // rouge très clair
-      state.color = '#f05d69';
-      state.textColor = 'white';
-    } else if (color === 'info') {
-      // bleu très clair
-      state.color = '#b4d9e4';
-      state.textColor = '#363636';
+    state.timeout = options.timeout ?? DEFAULT_TIMEOUT;
+
+    if (TYPES[type]) {
+      state.type = type;
+      state.icon = TYPES[type];
+      state.customColor = '';
+      state.customTextColor = '';
     } else {
-      //gris très clair
-      state.color = color; // Utiliser la couleur personnalisée si fournie
-      state.textColor = textColor; // Utiliser la couleur de texte personnalisée si fournie
+      // Rétro-compatibilité : une couleur CSS arbitraire a été passée.
+      state.type = 'custom';
+      state.icon = TYPES.info;
+      state.customColor = type;
+      state.customTextColor = textColor || 'white';
     }
 
     state.show = true;
   },
 
-  // Méthode pour fermer
   hide() {
     state.show = false;
   },
