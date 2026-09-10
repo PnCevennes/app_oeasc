@@ -3,9 +3,11 @@ liste des api pour les declarations
 """
 
 from datetime import date, datetime, timedelta
-from flask import Blueprint, request, current_app, session
+import time
+from flask import Blueprint, request, current_app, session, Response, abort
 from flask.helpers import send_from_directory
 import json
+import requests  # proxy des tuiles cartographiques (voir route tiles)
 from pathlib import Path
 import geopandas as gpd  # pour l'export en gpkg
 from shapely import wkb, wkt  # pour l'export en gpkg (verification de la géométrie)
@@ -186,6 +188,90 @@ def all_areas_declaration():
     ).dump(data)
 
     return geojson_areas
+
+
+# ---------------------------------------------------------------------------
+# Proxy des tuiles cartographiques (fond OpenStreetMap)
+# ---------------------------------------------------------------------------
+# Les cartes de la fiche déclaration (voir_declaration.vue / map_declaration_simple.vue)
+# récupèrent leur fond de carte via cette route au lieu d'appeler directement
+# tile.openstreetmap.org depuis le navigateur. Intérêts :
+#   - le poste client n'a plus besoin d'atteindre openstreetmap.org (réseaux
+#     d'administration filtrants, antivirus qui casse le HTTPS/CORS...) : il ne
+#     contacte que le backend de l'application. Corrige les "cartes grises".
+#   - le backend maîtrise les en-têtes CORS (via flask-cors) : l'export PDF peut
+#     donc capturer les tuiles avec html2canvas sans canvas "tainted".
+# Un cache disque (var/tile_cache/) évite de retélécharger les tuiles et respecte
+# la tile usage policy d'OSM.
+
+TILE_CACHE_MAX_AGE = 7 * 24 * 3600  # durée de validité d'une tuile en cache (7 jours)
+TILE_UPSTREAM_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+# User-Agent explicite exigé par la tile usage policy d'OSM.
+TILE_USER_AGENT = (
+    "app_oeasc / Parc national des Cevennes (https://www.cevennes-parcnational.fr)"
+)
+
+
+def _tile_cache_dir():
+    root = current_app.config.get("ROOT_DIR")
+    base = Path(root) if root else Path(current_app.root_path).parent.parent
+    return base / "var" / "tile_cache"
+
+
+@bp.route("tiles/<int:z>/<int:x>/<int:y>.png", methods=["GET"])
+def proxy_tile(z, x, y):
+    """Relaie une tuile OpenStreetMap, avec cache disque."""
+    # garde-fous : bornes valides du schéma de tuilage web mercator
+    if not (0 <= z <= 19) or not (0 <= x < 2**z) or not (0 <= y < 2**z):
+        abort(404)
+
+    tile_path = _tile_cache_dir() / str(z) / str(x) / f"{y}.png"
+
+    def _send(content, max_age=TILE_CACHE_MAX_AGE):
+        return Response(
+            content,
+            content_type="image/png",
+            headers={"Cache-Control": f"public, max-age={max_age}"},
+        )
+
+    # 1. cache frais -> on sert directement
+    try:
+        if (
+            tile_path.is_file()
+            and (time.time() - tile_path.stat().st_mtime) < TILE_CACHE_MAX_AGE
+        ):
+            return _send(tile_path.read_bytes())
+    except OSError:
+        pass
+
+    # 2. téléchargement depuis OSM
+    try:
+        resp = requests.get(
+            TILE_UPSTREAM_URL.format(z=z, x=x, y=y),
+            headers={"User-Agent": TILE_USER_AGENT},
+            timeout=6,
+        )
+        resp.raise_for_status()
+        content = resp.content
+    except requests.RequestException:
+        # 3. OSM injoignable : on sert la version périmée si on l'a
+        try:
+            if tile_path.is_file():
+                return _send(tile_path.read_bytes(), max_age=3600)
+        except OSError:
+            pass
+        abort(502)
+
+    # écriture atomique dans le cache
+    try:
+        tile_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = tile_path.with_name(f"{y}.png.{time.monotonic_ns()}.tmp")
+        tmp_path.write_bytes(content)
+        tmp_path.replace(tile_path)
+    except OSError as e:
+        current_app.logger.warning("Cache tuile non écrit (%s) : %s", tile_path, e)
+
+    return _send(content)
 
 
 @bp.route("check_token_declaration", methods=["GET"])

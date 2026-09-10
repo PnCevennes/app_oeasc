@@ -18,6 +18,15 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { fetch_oeasc_perimetre } from '@/modules/declaration/utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
 import { apiRequest } from '@/core/js/data/api';
+import { config } from '@/config/config.js';
+
+// Fond de carte servi par le backend (proxy des tuiles OSM, avec cache disque).
+// On passe par le backend plutôt que par tile.openstreetmap.org directement pour que
+// le poste client n'ait pas besoin d'atteindre openstreetmap.org (réseaux filtrants,
+// antivirus qui casse le HTTPS/CORS -> "cartes grises"), et pour maîtriser les
+// en-têtes CORS lors de l'export PDF (voir enableCorsTiles / disableCorsTiles).
+const TILE_URL = `${config.URL_APPLICATION.replace(/\/$/, '')}/api/declaration/tiles/{z}/{x}/{y}.png`;
+const TILE_ATTRIBUTION = '&copy; OpenStreetMap contributors';
 
 const config_layers = {
   OEASC: {
@@ -143,6 +152,7 @@ export default {
   data() {
     return {
       map: null, // Instance de la carte Leaflet. Sera activé dans monted() avec initMap()
+      tileLayer: null, // couche de fond de carte courante (tuiles OSM via proxy backend)
       mapRef: `ref-${this.mapID}`, // référence pour le conteneur de la carte, générée à partir de mapID
       geom_perimetre_oeasc: null, // geojson du périmètre oeasc, affiché en noir et non selectionnable. Affiché en permanence.
       all_areas_geojson: null, // GeoJSON de toutes les zones disponibles pour le type de carte sélectionné. Sert à afficher les pastilles sur la carte.
@@ -290,11 +300,21 @@ export default {
       // création de la carte avec contrôle de zoom activé
       this.map = L.map(container, { zoomControl: true, preferCanvas: true, renderer: L.canvas() });
 
-      // couche de fond basique
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors',
-        crossOrigin: true,
-      }).addTo(this.map);
+      // couche de fond basique (pas de crossOrigin en affichage normal : évite que Chrome
+      // rejette les tuiles quand un proxy/antivirus retire les en-têtes CORS -> carte grise)
+      this.tileLayer = L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION });
+      this.tileLayer.on('tileerror', (e) => {
+        console.warn('Erreur de chargement de tuile', e && e.coords, e && e.tile && e.tile.src);
+      });
+      this.tileLayer.addTo(this.map);
+
+      // recalcule la taille de la carte une fois le layout stabilisé (mise à l'échelle
+      // Windows, polices, barres de défilement... peuvent fausser la grille de tuiles)
+      this.$nextTick(() => {
+        setTimeout(() => {
+          if (this.map) this.map.invalidateSize();
+        }, 250);
+      });
 
       this.areasLayerGroup = L.layerGroup().addTo(this.map);
       this.labelLayerGroup = L.layerGroup().addTo(this.map);
@@ -788,6 +808,52 @@ export default {
     // utile pour l'export en pdf par exemple
     getMapInstance() {
       return this.map;
+    },
+
+    /**
+     * Bascule le fond de carte sur une couche `crossOrigin` (nécessaire pour que
+     * html2canvas puisse lire les tuiles sans "tainter" le canvas lors de l'export PDF).
+     * Appelée par voir_declaration.vue juste avant la capture de la carte.
+     * Résout quand les nouvelles tuiles sont chargées (ou après `timeout` ms).
+     */
+    enableCorsTiles(timeout = 8000) {
+      return new Promise((resolve) => {
+        if (!this.map) {
+          resolve();
+          return;
+        }
+        const corsLayer = L.tileLayer(TILE_URL, {
+          attribution: TILE_ATTRIBUTION,
+          crossOrigin: 'anonymous',
+        });
+        let done = false;
+        const finish = () => {
+          if (done) return;
+          done = true;
+          clearTimeout(timer);
+          // on retire l'ancienne couche (tuiles non-CORS => canvas tainted) une fois
+          // la nouvelle prête, pour éviter un clignotement
+          if (this.tileLayer && this.map) this.map.removeLayer(this.tileLayer);
+          this.tileLayer = corsLayer;
+          setTimeout(resolve, 200);
+        };
+        const timer = setTimeout(finish, timeout);
+        corsLayer.on('load', finish);
+        corsLayer.addTo(this.map);
+      });
+    },
+
+    /**
+     * Rétablit le fond de carte normal (sans crossOrigin) après l'export PDF.
+     */
+    disableCorsTiles() {
+      if (!this.map) return;
+      const normalLayer = L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION });
+      normalLayer.addTo(this.map);
+      if (this.tileLayer && this.tileLayer !== normalLayer) {
+        this.map.removeLayer(this.tileLayer);
+      }
+      this.tileLayer = normalLayer;
     },
   },
 };

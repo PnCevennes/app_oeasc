@@ -11,6 +11,7 @@ remove/
 venv/
 venv2/
 var/log/error*
+var/tile_cache/
 settings.ini
 config/settings.ini_*
 config/config.py

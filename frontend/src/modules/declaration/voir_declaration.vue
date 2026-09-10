@@ -656,10 +656,16 @@ export default {
         // Capture SÉQUENTIELLE : une seule carte en mémoire à la fois.
         // Une carte en échec n'empêche pas la génération du reste du PDF.
         for (const item of maps) {
+          let corsEnabled = false;
           try {
             await this.waitForMapReady(item.ref);
             const map = item.ref && item.ref.getMapInstance ? item.ref.getMapInstance() : null;
             if (!map) continue;
+            // recharge le fond de carte avec crossOrigin pour permettre la capture canvas
+            if (item.ref.enableCorsTiles) {
+              await item.ref.enableCorsTiles();
+              corsEnabled = true;
+            }
             try {
               map.invalidateSize({ animate: false });
             } catch (e) {
@@ -674,6 +680,15 @@ export default {
             pdf.addImage(img.data, 'JPEG', margin, item.y, 190, 90, undefined, 'FAST');
           } catch (e) {
             console.error('Carte non capturée pour le PDF :', e);
+          } finally {
+            // rétablit le fond de carte normal (sans crossOrigin)
+            if (corsEnabled && item.ref && item.ref.disableCorsTiles) {
+              try {
+                item.ref.disableCorsTiles();
+              } catch (e) {
+                /* ignore */
+              }
+            }
           }
           // rend la main entre chaque carte
           await this._yield(60);
