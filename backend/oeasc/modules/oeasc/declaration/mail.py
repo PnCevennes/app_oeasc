@@ -94,7 +94,7 @@ def send_mail_validation_declaration(declaration, b_create):
                 "[OEASC] [ANIMATEUR] Nouvelle déclaration"
                 if b_create
                 else "[OEASC] [ANIMATEUR] Modification de la déclaration "
-                + str(declaration["id_declaration"])
+                + str(declaration.get("id_declaration", ""))
             ),
             sender=config["ANIMATEUR_APPLICATION_MAIL"],
             recipients=[

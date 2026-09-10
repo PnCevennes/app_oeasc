@@ -3,7 +3,7 @@ Fonctions de traitement de données pour les déclarations
 """
 
 from oeasc.utils.apiResponse import ApiResponse
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from sqlalchemy import (
     select,
     text,
@@ -475,6 +475,25 @@ def create_or_update_declaration(post_data):
         # declaration.degats = arranged_post_data.get("degats", [])
     else:
         # Création d'une nouvelle déclaration
+
+        # Calcule la date de fin de validité si elle n'est pas fournie par l'appelant
+        # (le formulaire de création ne l'envoie pas ; le renouvellement la fournit déjà).
+        if not arranged_post_data.get("date_fin"):
+            variables_declaration = get_variables_declaration()
+            nb_jours_validite = variables_declaration.get(
+                "NB_JOURS_VALIDITE_DECLARATION"
+            )
+            if nb_jours_validite:
+                arranged_post_data["date_fin"] = str(
+                    datetime.now().date() + timedelta(days=nb_jours_validite)
+                )
+
+        # Statut par défaut d'une nouvelle déclaration : "Non validée" (en attente de validation)
+        if arranged_post_data.get("statut") is None:
+            arranged_post_data["statut"] = get_variables_declaration()[
+                "STATUT_DECLARATION"
+            ]["Non validée"]
+
         declaration = declarationSchema.load(
             arranged_post_data, session=DB.session, partial=True
         )

@@ -424,8 +424,16 @@ def api_patch_declaration():
     # Ici, on suppose que l'identifiant de la déclaration existe déjà dans post_data
     result_declaration, response = create_or_update_declaration(post_data)
     # Envoie un mail de notification pour informer de la modification de la déclaration
-    # (le second paramètre "False" indique qu'il ne s'agit pas d'une création mais d'une modification)
-    send_mail_validation_declaration(result_declaration, False)
+    # (le second paramètre "False" indique qu'il ne s'agit pas d'une création mais d'une modification).
+    # On n'envoie le mail que si l'enregistrement a réussi, et un échec d'envoi de mail
+    # ne doit pas faire échouer la requête (la déclaration est déjà enregistrée).
+    if getattr(response, "success", True):
+        try:
+            send_mail_validation_declaration(result_declaration, False)
+        except Exception as e:
+            current_app.logger.exception(
+                "Erreur lors de l'envoi du mail de modification de déclaration : %s", e
+            )
     # Retourne le résultat de la modification au format JSON
     response.data = result_declaration
     return response.response_to_frontend()
@@ -455,9 +463,16 @@ def api_post_declaration():
     # Ici, on suppose que l'identifiant de la déclaration n'existe pas encore (création)
     post_data_arranged, response = create_or_update_declaration(post_data)
 
-    # Envoie un mail de notification pour informer de la création de la déclaration
-    # (décommenter la ligne ci-dessous pour activer l'envoi de mail après les tests)
-    send_mail_validation_declaration(post_data_arranged, b_create)
+    # Envoie un mail de notification pour informer de la création de la déclaration.
+    # On n'envoie le mail que si l'enregistrement a réussi, et un échec d'envoi de mail
+    # ne doit pas faire échouer la requête (la déclaration est déjà enregistrée).
+    if getattr(response, "success", True):
+        try:
+            send_mail_validation_declaration(post_data_arranged, b_create)
+        except Exception as e:
+            current_app.logger.exception(
+                "Erreur lors de l'envoi du mail de création de déclaration : %s", e
+            )
 
     # Retourne le résultat de la création au format JSON
     response.data = post_data_arranged
