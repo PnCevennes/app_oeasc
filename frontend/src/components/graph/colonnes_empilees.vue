@@ -230,6 +230,18 @@ export default {
 
         if (props.code_couleurs && props.code_couleurs[name]) {
           serie.color = props.code_couleurs[name];
+        } else if (props.code_couleurs_categorie) {
+          // Coloration point par point : Highcharts n'en déduit pas la couleur du
+          // symbole de légende et retombe sur la palette par défaut (d'où un
+          // symbole incohérent, ex. "Sub-adulte" en gris foncé).
+          // On force la couleur de légende sur la première couleur trouvée pour
+          // cette série (première colonne colorée).
+          const couleur_legende = data_serie
+            .map((point) => (point && typeof point === 'object' ? point.color : null))
+            .find((color) => color);
+          if (couleur_legende) {
+            serie.color = couleur_legende;
+          }
         }
 
         return serie;
