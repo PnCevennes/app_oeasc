@@ -138,6 +138,76 @@ Modifier le fichier de configuration pour pointer vers le build du frontend (roo
 Copier les fichiers statics
 
 
+# Cartes de la fiche déclaration — proxy des tuiles
+
+Les cartes de `voir_declaration.vue` récupèrent leur fond de carte via la route backend
+`GET /api/declaration/tiles/<z>/<x>/<y>.png`, qui relaie `tile.openstreetmap.org` et met les
+tuiles en cache disque dans `var/tile_cache/`. Objectif : que le poste client n'ait pas besoin
+d'atteindre `openstreetmap.org` (réseaux filtrants / antivirus qui casse le HTTPS/CORS →
+« cartes grises »).
+
+## 1. Vérifier l'accès sortant HTTPS du serveur
+
+Test direct, avec l'utilisateur du service systemd (`oeasc`) :
+```sh
+sudo -u <user_du_service> curl -sS -o /dev/null \
+  -w "HTTP %{http_code} en %{time_total}s\n" \
+  https://tile.openstreetmap.org/9/256/178.png
+```
+`HTTP 200` attendu. `Could not resolve host` / timeout / `403` → sortie bloquée.
+
+Test bout-en-bout après déploiement :
+```sh
+curl -sS -o /dev/null -w "%{http_code} %{content_type}\n" \
+  https://<domaine>/oeasc/api/declaration/tiles/9/256/178.png
+```
+`200 image/png` → OK. `502` → gunicorn n'atteint pas OSM (ou cache non inscriptible).
+
+Si un proxy sortant est imposé, l'ajouter au fichier `environ` (EnvironmentFile du service) :
+```
+HTTPS_PROXY=http://proxy.mon-orga.fr:3128
+NO_PROXY=127.0.0.1,localhost
+```
+puis `sudo systemctl restart oeasc`.
+
+Vérifier que le cache est inscriptible :
+```sh
+sudo -u <user_du_service> mkdir -p <BASE_DIR>/var/tile_cache && echo "cache OK"
+```
+
+## 2. (Optionnel) Cache Apache mod_cache_disk
+
+Le cache disque Flask suffit dans la plupart des cas. `mod_cache_disk` n'économise en plus que
+l'aller-retour Apache→gunicorn : utile seulement en cas de forte consultation simultanée des fiches.
+
+```sh
+sudo a2enmod cache cache_disk
+```
+
+Dans le vhost (`install/assets/apache2/oeasc.conf`), à l'intérieur du `<VirtualHost>`
+(Flask envoie déjà `Cache-Control: public, max-age=604800`) :
+```apache
+CacheRoot /var/cache/apache2/oeasc_tiles
+CacheDirLevels 2
+CacheDirLength 1
+
+<Location /oeasc/api/declaration/tiles>
+    CacheEnable disk
+    CacheHeader on
+</Location>
+```
+
+```sh
+sudo mkdir -p /var/cache/apache2/oeasc_tiles
+sudo chown www-data:www-data /var/cache/apache2/oeasc_tiles
+sudo systemctl enable --now apache-htcacheclean   # purge auto ; taille dans /etc/default/apache-htcacheclean
+sudo apachectl configtest && sudo systemctl reload apache2
+```
+
+Vérification (pas de `Set-Cookie` sur la réponse, `X-Cache: HIT` au 2e appel) :
+```sh
+curl -sI https://<domaine>/oeasc/api/declaration/tiles/9/256/178.png | grep -iE "set-cookie|cache-control|x-cache"
+```
 
 
 -------------------------------------------------------------------------------------------------------
