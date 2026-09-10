@@ -413,50 +413,49 @@ def create_or_update_declaration(post_data):
 
     else:
         # Cas 2 : La parcelle a un document de gestion durable (forêt existante)
-        # On récupère la forêt existante à partir du code_areaç
-        if post_data["b_statut_public"] == True:
-            if not post_data["areas_foret_onf"]:
-                response.add_error(
-                    user_message="Aire de forêt onf manquante pour les forêts publiques avec document de gestion durable",
-                    status_code=200,
-                )
-                return arranged_post_data, response
-            id_area_foret = post_data["areas_foret_onf"]
-        else:
-            if not post_data["areas_foret_dgd"]:
-                response.add_error(
-                    user_message="Aire de forêt dgd manquante pour les forêts privées sans statut public",
-                    status_code=200,
-                )
-                return arranged_post_data, response
-            id_area_foret = post_data["areas_foret_dgd"]
-        if not id_area_foret:
-            response.add_error(
-                user_message="Aire de forêt manquante pour les forêts avec document de gestion durable",
-                status_code=200,
-            )
-            return arranged_post_data, response
-        code_foret = get_area_from_id(id_area_foret)["area_code"]
+        # On récupère la forêt existante à partir de l'aire de forêt sélectionnée.
+        id_area_foret = (
+            post_data.get("areas_foret_onf")
+            if post_data.get("b_statut_public") == True
+            else post_data.get("areas_foret_dgd")
+        )
 
-        try:
-            foret = (
-                DB.session.execute(
-                    select(TForet.id_foret)
-                    .where(TForet.code_foret == code_foret)
-                    .limit(1)
+        if not id_area_foret:
+            # La forêt n'est pas modifiable dans le formulaire lorsqu'il y a un
+            # document de gestion durable. En modification, si le frontend n'a pas
+            # fourni l'aire de forêt (ex : cor_areas_forets incomplet après un
+            # refresh ref_geo, l'intersect ne retrouve plus la forêt parente), on
+            # conserve la forêt déjà rattachée à la déclaration.
+            if post_data.get("id_foret"):
+                arranged_post_data["id_foret"] = post_data["id_foret"]
+            else:
+                response.add_error(
+                    user_message="Aire de forêt manquante pour les forêts avec document de gestion durable",
+                    status_code=200,
                 )
-                .scalars()
-                .first()
-            )
-        except Exception as e:
-            DB.session.rollback()
-            response.add_error(
-                user_message="Erreur lors de la récupération de la forêt existante",
-                system_error=str(e),
-                status_code=200,
-            )
-            return arranged_post_data, response
-        arranged_post_data["id_foret"] = foret
+                return arranged_post_data, response
+        else:
+            code_foret = get_area_from_id(id_area_foret)["area_code"]
+
+            try:
+                foret = (
+                    DB.session.execute(
+                        select(TForet.id_foret)
+                        .where(TForet.code_foret == code_foret)
+                        .limit(1)
+                    )
+                    .scalars()
+                    .first()
+                )
+            except Exception as e:
+                DB.session.rollback()
+                response.add_error(
+                    user_message="Erreur lors de la récupération de la forêt existante",
+                    system_error=str(e),
+                    status_code=200,
+                )
+                return arranged_post_data, response
+            arranged_post_data["id_foret"] = foret
 
     # Création ou modification de la déclaration
     declarationSchema = TDeclarationSchema()
@@ -509,6 +508,12 @@ def create_or_update_declaration(post_data):
             status_code=200,
         )
         return arranged_post_data, response
+
+    # On renseigne l'id réel de la déclaration (création comme modification) :
+    # en modification, le frontend n'envoie pas toujours id_declaration dans le
+    # post_data, et les consommateurs du retour (envoi de mail, réponse frontend)
+    # en ont besoin.
+    arranged_post_data["id_declaration"] = declaration.id_declaration
 
     # Mise à jour des aires liées à la déclaration (communes, secteurs, sections)
     try:

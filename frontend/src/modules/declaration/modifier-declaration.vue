@@ -865,49 +865,58 @@
       <pre> declaration_data: {{ JSON.stringify(declaration_data, null, 2)}}</pre>
     </div> -->
 
-    <div
-      v-if="affichage_fenetre_succes"
-      slot="success"
+    <v-dialog
+      v-model="affichage_fenetre_succes"
+      max-width="600"
     >
-      <v-dialog
-        value="true"
-        persistent
-        max-width="600"
-      >
-        <v-card v-if="type_action != 'CLOTURE'">
-          <v-card-title class="headline">Votre déclaration à bien été enregistrée</v-card-title>
-          <v-card-text>
-            <p>Vous pouvez désormais</p>
-            <ul>
-              <li>
-                <a href="#/declaration/declarer_en_ligne">Déclarer de nouveaux dégâts en forêt</a>
-              </li>
-              <li>
-                <a
-                  Voir
-                  href="#/declaration/liste"
-                >
-                  Voir la liste des dégâts déclarés
-                </a>
-              </li>
-              <li><a href="#/">Retourner à l'accueil</a></li>
-            </ul>
-          </v-card-text>
-        </v-card>
-        <v-card v-else>
-          <v-card-title class="headline">Votre déclaration à bien été clôturée</v-card-title>
-          <v-card-text>
-            <p>Vous pouvez désormais</p>
-            <ul>
-              <li>
-                <a href="#/declaration/declarer_en_ligne">Déclarer de nouveaux dégâts en forêt</a>
-              </li>
-              <li><a href="#/">Retourner à l'accueil</a></li>
-            </ul>
-          </v-card-text>
-        </v-card>
-      </v-dialog>
-    </div>
+      <v-card>
+        <v-card-title class="headline">
+          {{
+            type_action == 'CLOTURE'
+              ? 'Votre déclaration a bien été clôturée'
+              : 'Votre déclaration a bien été enregistrée'
+          }}
+        </v-card-title>
+        <v-card-text>
+          <p>Vous pouvez désormais</p>
+          <ul>
+            <li>
+              <a
+                href="#"
+                @click.prevent="goTo('/declaration/declarer_en_ligne')"
+              >
+                Déclarer de nouveaux dégâts en forêt
+              </a>
+            </li>
+            <li v-if="type_action != 'CLOTURE'">
+              <a
+                href="#"
+                @click.prevent="goTo('/declaration/liste')"
+              >
+                Voir la liste des dégâts déclarés
+              </a>
+            </li>
+            <li>
+              <a
+                href="#"
+                @click.prevent="goTo('/')"
+              >
+                Retourner à l'accueil
+              </a>
+            </li>
+          </ul>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="text"
+            @click="affichage_fenetre_succes = false"
+          >
+            Fermer
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -1135,12 +1144,31 @@ export default {
       this.processing = true; // Désactiver les boutons pour éviter les doubles clics
 
       try {
-        let options = { postData: { ...this.declaration_data } };
-        // console.log('Données à soumettre:', options.postData);
+        // Le backend renvoie toujours un HTTP 200 : le succès réel est porté par
+        // response.success. On le vérifie systématiquement avant d'afficher la
+        // fenêtre de succès, sinon une erreur applicative passe inaperçue
+        // (« la requête retourne 200 mais rien ne se passe »).
+        const check_success = (response) => {
+          if (response && response.success === false) {
+            snackbarStore.show(
+              response.message ||
+                "Une erreur s'est produite lors de la soumission. Veuillez réessayer.",
+              'error'
+            );
+            return false;
+          }
+          this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
+          return true;
+        };
 
         if (this.type_action === 'RENOUVELLEMENT') {
-          await apiRequest('POST', `/api/declaration/duplicate_declaration`, options);
-          this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
+          const options = { postData: { ...this.declaration_data } };
+          const response = await apiRequest(
+            'POST',
+            `/api/declaration/duplicate_declaration`,
+            options
+          );
+          check_success(response);
         } else if (this.type_action === 'CREATION') {
           if (this.declaration_data.id_declaration) {
             snackbarStore.show(
@@ -1149,9 +1177,11 @@ export default {
             );
             return;
           }
-          await apiRequest('POST', `/api/declaration/declaration`, options);
-          this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
-          this.$store.commit('declarations', {});
+          const options = { postData: { ...this.declaration_data } };
+          const response = await apiRequest('POST', `/api/declaration/declaration`, options);
+          if (check_success(response)) {
+            this.$store.commit('declarations', {});
+          }
         } else if (this.type_action === 'MODIFICATION') {
           // Envoi de la déclaration via l'API
           if (!this.declaration_data.id_declaration) {
@@ -1163,10 +1193,12 @@ export default {
           }
           this.declaration_data.b_valid = false; // Lors d'une modification, la déclaration doit être à nouveau validée par un admin
 
-          await apiRequest('PATCH', `api/declaration/declaration`, options);
-          this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
-          // on vide les données du store declarations pour recharger les données
-          this.$store.commit('declarations', {});
+          const options = { postData: { ...this.declaration_data } };
+          const response = await apiRequest('PATCH', `api/declaration/declaration`, options);
+          if (check_success(response)) {
+            // on vide les données du store declarations pour recharger les données
+            this.$store.commit('declarations', {});
+          }
         }
       } catch (error) {
         console.error('Erreur lors de la soumission de la déclaration:', error);
@@ -1312,6 +1344,18 @@ export default {
       if ((await this.$refs.form.validate()).valid && this.error === null) {
         this.etape_affichage = 'AFFICHAGE_RESUME';
         return;
+      }
+    },
+
+    /**
+     * Navigation depuis la fenêtre de succès : on ferme d'abord la modale
+     * (sinon le scrim Vuetify reste au-dessus de la page cible et « rien ne se
+     * passe » visuellement), puis on route via vue-router.
+     */
+    goTo(path) {
+      this.affichage_fenetre_succes = false;
+      if (this.$route.path !== path) {
+        this.$router.push(path);
       }
     },
 

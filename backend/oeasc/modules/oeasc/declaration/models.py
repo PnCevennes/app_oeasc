@@ -485,9 +485,12 @@ class TForet(CustomModel):
 
     id_foret: Mapped[int] = Column(Integer, primary_key=True)
 
-    id_proprietaire: Mapped[int] = Column(
-        Integer, ForeignKey("oeasc_forets.t_proprietaires.id_proprietaire")
-    )
+    # La table oeasc_forets.t_proprietaires a été supprimée (migration bb34c60299a3).
+    # On garde la colonne (données historiques) mais sans contrainte de clé étrangère,
+    # sinon SQLAlchemy échoue à configurer le mapper de TForet ("could not find table
+    # 'oeasc_forets.t_proprietaires'"), ce qui casse toute création/modification de forêt
+    # et donc de déclaration.
+    id_proprietaire: Mapped[int] = Column(Integer, nullable=True)
 
     b_statut_public: Mapped[bool] = Column(Boolean)
     b_document: Mapped[bool] = Column(Boolean)
