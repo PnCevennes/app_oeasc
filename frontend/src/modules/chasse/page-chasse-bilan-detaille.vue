@@ -83,6 +83,7 @@
             fieldName="text"
             fieldValue="count"
             :code_couleurs="code_couleurs_repartition_sexe_age"
+            :ordre="ordre_sexe_classe_age"
             title="Répartition par sexe et âge"
           ></camembert>
         </v-col>
@@ -191,6 +192,7 @@
               fieldGroup="type_bracelet"
               :values_field="['classe_age', 'réalisations']"
               :code_couleurs_categorie="code_couleurs_age_par_type_bracelet"
+              :ordre_series="ordre_classe_age"
               :title="`Prélèvements par classe d'âge et par catégorie`"
             ></colonnes_empilees>
           </v-col>
@@ -260,7 +262,20 @@ export default {
       Indéterminé: '#d2d4f5',
     };
 
+    // Ordre d'affichage souhaité pour les classes d'âge (du plus âgé au plus jeune).
+    // "Inconnu" / "Indéterminé" sont rejetés en fin de liste.
+    const ordre_classe_age = ['Adulte', 'Sub-adulte', 'Juvénile', 'Inconnu', 'Indéterminé'];
+
+    // Ordre d'affichage souhaité pour les parts "sexe - âge" :
+    // Mâle puis Femelle puis Indéterminé, et pour chaque sexe l'ordre des classes d'âge ci-dessus.
+    const ordre_sexe_classe_age = ['Mâle', 'Femelle', 'Indéterminé'].flatMap((sexe) =>
+      ordre_classe_age.map((age) => `${sexe} - ${age}`)
+    );
+
     return {
+      // Ordre d'affichage des classes d'âge / des couples sexe-âge dans les graphiques
+      ordre_classe_age,
+      ordre_sexe_classe_age,
       // Paramètres de filtre pour les requêtes. Correspond au formulaire en haut de page (saison, espèce, secteur, zone, etc.)
       bilanParams: {
         id_espece: null, // Identifiant de l'espèce sélectionnée

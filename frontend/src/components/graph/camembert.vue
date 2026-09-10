@@ -45,6 +45,7 @@ export default {
     width: { default: '100%' },
     height: { default: '400px' },
     code_couleurs: { default: null }, // objet de la forme { 'nom_categorie': 'couleur1', 'nom_categorie2': 'couleur2', ... } pour colorer les points en fonction de la valeur d'un champ
+    ordre: { default: null }, // liste des valeurs de fieldName dans l'ordre d'affichage souhaité des parts. Les valeurs absentes de la liste sont placées à la fin.
   },
   data() {
     return {
@@ -117,13 +118,23 @@ export default {
        * transformation de data_db en serie bien formatée pour highcharts
        * sous la forme :
        */
-      const total = data.reduce((p, c) => {
+      // tri optionnel des parts selon la liste props.ordre
+      let dataTriee = data;
+      if (Array.isArray(props.ordre) && props.ordre.length > 0) {
+        const rang = (nom) => {
+          const i = props.ordre.indexOf(nom);
+          return i === -1 ? props.ordre.length : i;
+        };
+        dataTriee = [...data].sort((a, b) => rang(a[props.fieldName]) - rang(b[props.fieldName]));
+      }
+
+      const total = dataTriee.reduce((p, c) => {
         return p + c[props.fieldValue];
       }, 0);
       let serie = {
         name: props.title || '',
         animation: true,
-        data: data.map((d) => {
+        data: dataTriee.map((d) => {
           return {
             name: `<b>${d[props.fieldName]}</b>`,
             useHTML: true,

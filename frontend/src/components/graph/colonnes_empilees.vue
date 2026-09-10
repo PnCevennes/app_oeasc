@@ -72,6 +72,7 @@ export default {
     // Forme attendue : { 'nom_colonne': 'couleur' } (toute la colonne d'une même couleur)
     //   ou { 'nom_colonne': { 'nom_serie': 'couleur', ... }, ... } (couleur par colonne et par série)
     code_couleurs_categorie: { default: null },
+    ordre_series: { default: null }, // liste des noms de séries (values_field[0]) dans l'ordre d'empilement souhaité. Les séries absentes de la liste sont placées à la fin.
   },
   data() {
     return {
@@ -192,7 +193,17 @@ export default {
         });
       });
 
-      const series = seriesOrder.map((name) => {
+      // tri optionnel des séries (ordre d'empilement) selon la liste props.ordre_series
+      let seriesOrderTrie = seriesOrder;
+      if (Array.isArray(props.ordre_series) && props.ordre_series.length > 0) {
+        const rang = (nom) => {
+          const i = props.ordre_series.indexOf(nom);
+          return i === -1 ? props.ordre_series.length : i;
+        };
+        seriesOrderTrie = [...seriesOrder].sort((a, b) => rang(a) - rang(b));
+      }
+
+      const series = seriesOrderTrie.map((name) => {
         const serieData = seriesMap.get(name) || [];
         const total = serieData.reduce((acc, value) => acc + Number(value || 0), 0);
 
