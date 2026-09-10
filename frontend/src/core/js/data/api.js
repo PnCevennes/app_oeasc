@@ -201,21 +201,32 @@ var apiRequest = (method, urlRelative, options = {}, $store = null) => {
               }
             );
           } else {
-            // Si la requête a échoué (statut non accepté)
-            if (response.json) {
-              // On tente de récupérer le message d'erreur au format JSON
-              response.json().then(
-                (json) => {
-                  reject(json);
-                },
-                (error) => {
-                  reject(error);
+            // Si la requête a échoué (statut non accepté).
+            // On lit le corps en texte puis on tente de le parser en JSON : ainsi une
+            // réponse d'erreur non-JSON (page HTML 500, message texte 403…) est quand
+            // même rejetée avec un objet exploitable { status, message, field_errors }
+            // plutôt qu'avec une SyntaxError opaque.
+            response.text().then(
+              (text) => {
+                let body = null;
+                try {
+                  body = text ? JSON.parse(text) : null;
+                } catch (e) {
+                  body = null;
                 }
-              );
-            } else {
-              // Si pas de JSON, on rejette la réponse brute
-              reject(response);
-            }
+                if (body && typeof body === 'object') {
+                  reject({ status: response.status, ...body });
+                } else {
+                  // corps non-JSON : on ne garde le texte que s'il est court et
+                  // sans balise HTML (sinon on laisse le message à null)
+                  const plain = typeof body === 'string' ? body : text;
+                  const usable =
+                    plain && plain.length < 300 && !/[<>]/.test(plain) ? plain.trim() : null;
+                  reject({ status: response.status, message: usable });
+                }
+              },
+              () => reject({ status: response.status, message: null })
+            );
           }
         },
 

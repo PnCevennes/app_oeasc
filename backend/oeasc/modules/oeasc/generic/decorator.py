@@ -3,10 +3,27 @@ decorator
 """
 
 from functools import wraps
-from flask import session
+from flask import session, current_app
 from .definitions import GenericRouteDefinitions
 
 definitions = GenericRouteDefinitions()
+
+
+def _forbidden(system_error, message=None):
+    """
+    Réponse 403 uniforme et compréhensible.
+    `message` : phrase affichée à l'utilisateur (sans jargon).
+    `system_error` : détail technique, ajouté uniquement en mode développement.
+    """
+    payload = {
+        "success": False,
+        "message": message
+        or "Vous n'avez pas les droits nécessaires pour effectuer cette action.",
+        "code": 403,
+    }
+    if current_app.config.get("DEBUG") or current_app.config.get("MODE_DEVELOPPEMENT"):
+        payload["system_error"] = system_error
+    return (payload, 403)
 
 
 def check_object_type(droit_type):
@@ -33,15 +50,18 @@ def check_object_type(droit_type):
             module = definitions.get_module(module_name)
             if not module:
                 # Cas où le module n'est pas défini : accès refusé
-                return ("pas de module défini pour {}".format(module_name), 403)
+                return _forbidden(
+                    "pas de module défini pour {}".format(module_name),
+                    "Cette page n'est pas disponible (module inconnu).",
+                )
 
             # Vérifie que le type d'objet existe dans le module
             object_definition = definitions.get_object_type(module_name, object_type)
             if not object_definition:
                 # Cas où l'objet n'est pas défini : accès refusé
-                return (
+                return _forbidden(
                     "pas d'object défini pour {} {}".format(module_name, object_type),
-                    403,
+                    "Cette donnée n'est pas disponible (type inconnu).",
                 )
 
             # Vérifie que des droits sont définis pour le type de droit demandé
@@ -50,11 +70,11 @@ def check_object_type(droit_type):
             )
             if id_droit_max_object_type is None:
                 # Cas où aucun droit n'est défini pour ce type de droit : accès refusé
-                return (
+                return _forbidden(
                     "pas de droits définis en {} pour la route {} {} : route fermée".format(
                         droit_type, module_name, object_type
                     ),
-                    403,
+                    "Cette action n'est pas autorisée sur cette donnée.",
                 )
 
             # Récupère le niveau de droit maximal de l'utilisateur courant, ou 0 si non connecté
@@ -63,14 +83,20 @@ def check_object_type(droit_type):
             # Vérifie que l'utilisateur a un niveau de droit suffisant
             if id_droit_max_user < id_droit_max_object_type:
                 # Cas où le niveau de droit est insuffisant : accès refusé
-                return (
+                message = "Vous n'avez pas les droits nécessaires pour effectuer cette action."
+                if not current_user:
+                    message = (
+                        "Vous devez être connecté pour effectuer cette action. "
+                        "Merci de vous reconnecter."
+                    )
+                return _forbidden(
                     "pas de droit suffisant pour {} en {} : ({} < {})".format(
                         object_type,
                         droit_type,
                         id_droit_max_user,
                         id_droit_max_object_type,
                     ),
-                    403,
+                    message,
                 )
             # Si toutes les vérifications sont passées, exécute la fonction de route
             return fn(*args, **kwargs)

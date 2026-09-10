@@ -321,6 +321,8 @@
 import listForm from '@/components/form/list-form';
 import dynamicForm from '@/components/form/dynamic-form';
 import { apiRequest } from '@/core/js/data/api.js';
+import { describeApiError } from '@/core/js/data/api-messages.js';
+import { snackbarStore } from '@/store/snackbar';
 import inGraph from './in-graph.vue';
 import './table.css';
 
@@ -431,18 +433,42 @@ export default {
       postData.id_realisation = circuit.id_realisation;
       postData.valide_PNC = circuit.valide_PNC;
       postData.valide_ZC = circuit.valide_ZC;
+      // Valeur de la case avant modification, pour pouvoir la rétablir en cas d'échec
+      const champValide = this.settings.ug != 'Causse-Gorges_coeur' ? 'valide_PNC' : 'valide_ZC';
+      const valeurAvant = !circuit[champValide];
+
       // Envoie la requête PATCH à l'API pour mettre à jour la validation
       apiRequest('PATCH', 'api/in/valid_realisation/', {
         postData,
-      }).then(() => {
-        // Recharge les données du secteur sélectionné pour mettre à jour l'affichage,
-        // puis seulement réactive la modification (sinon les checkboxes se réactivaient
-        // avant que les nouvelles données soient arrivées, permettant de relancer une
-        // validation pendant que le reload précédent était encore en cours).
-        this.reload().then(() => {
+      }).then(
+        () => {
+          snackbarStore.show(
+            circuit[champValide]
+              ? 'Circuit validé et enregistré.'
+              : 'Validation du circuit retirée et enregistrée.',
+            'success'
+          );
+          // Recharge les données du secteur sélectionné pour mettre à jour l'affichage,
+          // puis seulement réactive la modification (sinon les checkboxes se réactivaient
+          // avant que les nouvelles données soient arrivées, permettant de relancer une
+          // validation pendant que le reload précédent était encore en cours).
+          this.reload().then(() => {
+            this.freezeValid = false;
+          });
+        },
+        (error) => {
+          // Rétablit visuellement la case et informe l'utilisateur
+          circuit[champValide] = valeurAvant;
           this.freezeValid = false;
-        });
-      });
+          snackbarStore.show(
+            describeApiError(error, {
+              action: 'modification',
+              fallback: "La validation du circuit n'a pas pu être enregistrée. Merci de réessayer.",
+            }),
+            'error'
+          );
+        }
+      );
     },
 
     /**

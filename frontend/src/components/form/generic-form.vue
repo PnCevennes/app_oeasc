@@ -75,28 +75,17 @@
         <slot name="appendForm"></slot>
       </v-form>
     </div>
-    <v-snackbar
-      color="error"
-      v-model="bError"
-      :timeout="5000"
-    >
-      {{ msgError }}
-    </v-snackbar>
-    <v-snackbar
-      color="success"
-      v-model="bSuccess"
-      :timeout="2000"
-    >
-      {{ msgSuccess }}
-    </v-snackbar>
   </div>
 </template>
 
 <script>
 import { apiRequest } from '@/core/js/data/api.js';
+import { describeApiError } from '@/core/js/data/api-messages.js';
 import dynamicFormGroup from '@/components/form/dynamic-form-group.vue';
 import { config as globalConfig } from '@/config/config.js';
 import { copy } from '@/core/js/util/util.js';
+import { formFunctions } from '@/components/form/functions/form.js';
+import { snackbarStore } from '@/store/snackbar';
 
 export default {
   name: 'generic-form',
@@ -360,6 +349,8 @@ export default {
         const { valid } = await this.$refs.form.validate();
         this.bValidForm = valid;
         if (!this.bValidForm) {
+          // Message clair : liste des informations obligatoires manquantes / à corriger
+          snackbarStore.show(this.messageFormInvalide(), 'warning');
           return;
         }
 
@@ -408,10 +399,14 @@ export default {
             this.bSending = false;
             this.$emit('onSuccess', data);
 
-            // Affichage du message de succès si le formulaire n'est pas enchaîné
+            // Confirmation via le snackbar global (App.vue), sauf formulaire enchaîné
             if (!this.config.bChained) {
-              this.bSuccess = true;
-              this.msgSuccess = 'La requête à été effectuée avec succès';
+              snackbarStore.show(
+                this.idModel
+                  ? 'Les modifications ont bien été enregistrées.'
+                  : 'Le nouvel élément a bien été enregistré.',
+                'success'
+              );
             }
 
             // Exécution de la fonction personnalisée onSuccess si définie
@@ -443,11 +438,75 @@ export default {
           },
           (error) => {
             this.bSending = false;
-            this.bError = true;
-            this.msgError = `Erreur avec la requête : ${error.msg}`;
+            snackbarStore.show(
+              describeApiError(error, {
+                formDefs: this.config.formDefs,
+                action: this.idModel ? 'modification' : 'enregistrement',
+              }),
+              'error'
+            );
           }
         );
       }, 100);
+    },
+
+    /**
+     * Construit un message d'erreur de validation lisible : distingue les
+     * informations obligatoires non renseignées des informations à corriger,
+     * en utilisant les libellés des champs (et non leurs noms techniques).
+     */
+    messageFormInvalide() {
+      const manquants = [];
+      const aCorriger = [];
+      const formDefs = this.config.formDefs || {};
+
+      for (const key of Object.keys(formDefs)) {
+        const formDef = formDefs[key];
+        const valide = formFunctions.isValidForm(
+          { $store: this.$store, baseModel: this.baseModel, config: this.config },
+          key
+        );
+        if (valide) {
+          continue;
+        }
+        const label = formDef.label || formDef.text || key;
+        const val = this.baseModel ? this.baseModel[key] : null;
+        const vide =
+          val === null ||
+          val === undefined ||
+          val === '' ||
+          (Array.isArray(val) && val.length === 0);
+        const requis =
+          typeof formDef.required === 'function'
+            ? formDef.required({ $store: this.$store, baseModel: this.baseModel })
+            : formDef.required;
+
+        if (vide && requis) {
+          manquants.push(label);
+        } else {
+          aCorriger.push(label);
+        }
+      }
+
+      const parts = [];
+      if (manquants.length) {
+        parts.push(
+          `Information${manquants.length > 1 ? 's' : ''} obligatoire${
+            manquants.length > 1 ? 's' : ''
+          } à renseigner : ${manquants.join(', ')}.`
+        );
+      }
+      if (aCorriger.length) {
+        parts.push(
+          `Information${aCorriger.length > 1 ? 's' : ''} à corriger : ${aCorriger.join(', ')}.`
+        );
+      }
+      if (!parts.length) {
+        parts.push(
+          'Le formulaire n’est pas complet ou contient une valeur non valide. Merci de vérifier les champs signalés en rouge.'
+        );
+      }
+      return parts.join('\n');
     },
 
     /**
@@ -514,10 +573,6 @@ export default {
     bInit: false, // Indique si le formulaire est initialisé et prêt à être affiché
     baseModel: null, // Modèle de base contenant les valeurs des champs du formulaire
     baseModelSave: null, // Sauvegarde du modèle de base pour annuler les modifications
-    msgError: null, // Message d'erreur à afficher dans le snackbar
-    bError: false, // Indique si une erreur est survenue (affiche le snackbar d'erreur)
-    msgSuccess: null, // Message de succès à afficher dans le snackbar
-    bSuccess: false, // Indique si l'action a réussi (affiche le snackbar de succès)
     bRequestSuccess: false, // Indique si la requête a été effectuée avec succès (affiche le slot de succès)
     bSending: false, // Indique si une requête est en cours d'envoi (affiche le loader)
     recompConfig: true, // Permet de forcer la recompilation de la config si besoin

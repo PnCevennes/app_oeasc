@@ -216,19 +216,6 @@
     </v-card>
 
     <!--
-      Affiche un message d'erreur dans une boîte de dialogue si 'bError' est vrai.
-      - Utilise v-snackbar pour afficher le message d'erreur 'msgError'.
-      - La boîte de dialogue disparaît après 5 secondes (timeout = 5000).
-     -->
-    <v-snackbar
-      color="error"
-      v-model="bError"
-      :timeout="5000"
-    >
-      {{ msgError }}
-    </v-snackbar>
-
-    <!--
       Affiche un formulaire générique dans une boîte de dialogue pour l'édition des données.
       - Utilise v-dialog pour afficher le formulaire lorsque 'bEditDialog' est vrai.
       - La largeur maximale de la boîte de dialogue est fixée à 1400px.
@@ -253,6 +240,8 @@
 <script>
 import { defineAsyncComponent } from 'vue';
 import { copy, sortDate } from '@/core/js/util/util.js';
+import { describeApiError } from '@/core/js/data/api-messages.js';
+import { snackbarStore } from '@/store/snackbar';
 // import { sortDateTable } from './util';
 // generic-table est monté sur quasi toutes les pages d'admin ; genericForm n'est affiché que
 // dans le dialogue d'édition (v-if="configForm && bEditDialog"), donc chargé à la demande plutôt
@@ -283,8 +272,6 @@ export default {
     configTable: {}, // Configuration spécifique du tableau (colonnes, tri, etc.)
     searchs: {}, // Paramètres de recherche appliqués au tableau
     saveValue: null, // Valeur temporaire pour sauvegarder des données
-    msgError: null, // Message d'erreur à afficher à l'utilisateur
-    bError: false, // Booléen indiquant la présence d'une erreur
     idToDelete: null, // Identifiant de l'élément à supprimer
     deleteModal: null, // Référence au composant modal de suppression
     deleteWithoutWarning: false, // Indique si la suppression doit se faire sans avertissement
@@ -487,14 +474,15 @@ export default {
           this.configTable.delete(id, { $store: this.$store }).then(
             () => {
               this.configTable.items.splice(index, 1);
+              snackbarStore.show('L’élément a bien été supprimé.', 'success');
             },
             (err) => {
-              this.bError = true;
-              this.msgError = err;
+              snackbarStore.show(describeApiError(err, { action: 'suppression' }), 'error');
             }
           );
         } else {
-          this.configTabel.items.splice(index, 1);
+          this.configTable.items.splice(index, 1);
+          snackbarStore.show('L’élément a bien été supprimé.', 'success');
         }
       }
     },
@@ -790,8 +778,13 @@ export default {
             this.configTable = copy(this.configTable);
           },
           (error) => {
-            this.msgError = error;
-            this.bError = true;
+            snackbarStore.show(
+              describeApiError(error, {
+                fallback:
+                  'Le chargement des données du tableau a échoué. Merci de rafraîchir la page.',
+              }),
+              'error'
+            );
           }
         );
       }

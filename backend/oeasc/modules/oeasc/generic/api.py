@@ -6,6 +6,7 @@ from utils_flask_sqla.response import json_resp, json_resp_accept_empty_list
 from flask import Blueprint, request
 
 from .decorator import check_object_type
+from .errors import build_error_payload
 
 from .definitions import GenericRouteDefinitions
 
@@ -149,8 +150,14 @@ def patch_generic(module_name, object_type, id_value):
     # Récupère les données envoyées dans la requête (au format JSON)
     post_data = request.get_json()
 
-    # Appelle la fonction métier pour créer ou mettre à jour l'objet
-    res = create_or_update_object_type(module_name, object_type, id_value, post_data)
+    try:
+        # Appelle la fonction métier pour créer ou mettre à jour l'objet
+        res = create_or_update_object_type(
+            module_name, object_type, id_value, post_data
+        )
+    except Exception as exc:
+        # Traduit l'erreur technique en message clair pour l'utilisateur
+        return build_error_payload(exc, action="modification")
 
     # Récupère la classe de schéma pour sérialiser l'objet modifié
     schema_class = definitions.get_schema_from_definition(module_name, object_type)
@@ -192,8 +199,12 @@ def post_generic(module_name, object_type):
     # Récupère la classe de schéma pour sérialiser l'objet créé
     schema_class = definitions.get_schema_from_definition(module_name, object_type)
 
-    # Appelle la fonction métier pour créer l'objet (id_value=None indique une création)
-    res = create_or_update_object_type(module_name, object_type, None, post_data)
+    try:
+        # Appelle la fonction métier pour créer l'objet (id_value=None indique une création)
+        res = create_or_update_object_type(module_name, object_type, None, post_data)
+    except Exception as exc:
+        # Traduit l'erreur technique en message clair pour l'utilisateur
+        return build_error_payload(exc, action="enregistrement")
 
     if not res:
         # Si la création a échoué, retourne None
@@ -232,4 +243,9 @@ def delete_generic(module_name, object_type, id_value):
     """
 
     # Appelle la fonction métier pour supprimer l'objet correspondant à l'identifiant donné
-    return delete_object_type(module_name, object_type, id_value)
+    try:
+        return delete_object_type(module_name, object_type, id_value)
+    except Exception as exc:
+        # Traduit l'erreur technique en message clair pour l'utilisateur
+        # (cas fréquent : l'élément est encore référencé ailleurs -> 409)
+        return build_error_payload(exc, action="suppression")

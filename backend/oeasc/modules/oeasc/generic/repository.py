@@ -388,8 +388,10 @@ def delete_object_type(module_name, object_type, id_value):
         # Valide la suppression en base de données
         DB.session.commit()
     except Exception as e:
-        # En cas d'erreur lors de la suppression, affiche un message (à améliorer pour la gestion d'erreur)
-        print("Erreur lors de la suppression de l'objet : ", e)
+        # Annule la transaction et propage l'erreur : elle sera traduite en message
+        # clair par build_error_payload dans la route (ex : élément encore référencé).
+        DB.session.rollback()
+        raise e
 
     # Retourne les données de l'objet supprimé
     return out
