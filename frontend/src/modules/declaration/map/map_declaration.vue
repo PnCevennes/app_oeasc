@@ -885,7 +885,7 @@ export default {
       this.map.getPane('perimetre-pane').style.pointerEvents = 'none';
 
       // #################### FOND DE CARTE ##############################
-      // trouve la clé du fond de carte par défaut (normalement mapbox)
+      // trouve la clé du fond de carte par défaut (normalement IGN Cartes/Scan25)
       const defaultTileKey = Object.keys(baseTilesConfig).find(
         (key) => tileList[key].default || baseTilesConfig[key]?.label === INIT_TILE
       );

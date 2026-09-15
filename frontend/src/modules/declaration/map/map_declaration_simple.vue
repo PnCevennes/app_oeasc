@@ -20,13 +20,13 @@ import { fetch_oeasc_perimetre } from '@/modules/declaration/utils/api_request.j
 import { apiRequest } from '@/core/js/data/api';
 import { config } from '@/config/config.js';
 
-// Fond de carte servi par le backend (proxy des tuiles OSM, avec cache disque).
-// On passe par le backend plutôt que par tile.openstreetmap.org directement pour que
-// le poste client n'ait pas besoin d'atteindre openstreetmap.org (réseaux filtrants,
+// Fond de carte servi par le backend (proxy des tuiles IGN Plan IGN/Scan25, avec cache disque).
+// On passe par le backend plutôt que par data.geopf.fr directement pour que
+// le poste client n'ait pas besoin d'atteindre data.geopf.fr (réseaux filtrants,
 // antivirus qui casse le HTTPS/CORS -> "cartes grises"), et pour maîtriser les
 // en-têtes CORS lors de l'export PDF (voir enableCorsTiles / disableCorsTiles).
 const TILE_URL = `${config.URL_APPLICATION.replace(/\/$/, '')}/api/declaration/tiles/{z}/{x}/{y}.png`;
-const TILE_ATTRIBUTION = '&copy; OpenStreetMap contributors';
+const TILE_ATTRIBUTION = '&copy; <a href="http://www.ign.fr/">IGN</a>';
 
 const config_layers = {
   OEASC: {

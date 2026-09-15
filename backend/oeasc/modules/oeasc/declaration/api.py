@@ -191,22 +191,28 @@ def all_areas_declaration():
 
 
 # ---------------------------------------------------------------------------
-# Proxy des tuiles cartographiques (fond OpenStreetMap)
+# Proxy des tuiles cartographiques (fond IGN Cartes / Scan25)
 # ---------------------------------------------------------------------------
 # Les cartes de la fiche déclaration (voir_declaration.vue / map_declaration_simple.vue)
 # récupèrent leur fond de carte via cette route au lieu d'appeler directement
-# tile.openstreetmap.org depuis le navigateur. Intérêts :
-#   - le poste client n'a plus besoin d'atteindre openstreetmap.org (réseaux
+# le Géoportail IGN depuis le navigateur. Intérêts :
+#   - le poste client n'a plus besoin d'atteindre wxs.ign.fr (réseaux
 #     d'administration filtrants, antivirus qui casse le HTTPS/CORS...) : il ne
 #     contacte que le backend de l'application. Corrige les "cartes grises".
 #   - le backend maîtrise les en-têtes CORS (via flask-cors) : l'export PDF peut
 #     donc capturer les tuiles avec html2canvas sans canvas "tainted".
-# Un cache disque (var/tile_cache/) évite de retélécharger les tuiles et respecte
-# la tile usage policy d'OSM.
+# Un cache disque (var/tile_cache/) évite de retélécharger les tuiles.
+# Service Géoplateforme IGN (data.geopf.fr), successeur de l'ancien wxs.ign.fr
+# (décommissionné). Couche "Plan IGN" (GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2) :
+# fond topographique multi-échelles en accès libre, sans clé d'API, qui a
+# remplacé l'ancienne couche GEOGRAPHICALGRIDSYSTEMS.MAPS (Cartes/Scan25).
 
 TILE_CACHE_MAX_AGE = 7 * 24 * 3600  # durée de validité d'une tuile en cache (7 jours)
-TILE_UPSTREAM_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png"
-# User-Agent explicite exigé par la tile usage policy d'OSM.
+TILE_UPSTREAM_URL = (
+    "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0"
+    "&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal"
+    "&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fpng"
+)
 TILE_USER_AGENT = (
     "app_oeasc / Parc national des Cevennes (https://www.cevennes-parcnational.fr)"
 )
@@ -220,7 +226,7 @@ def _tile_cache_dir():
 
 @bp.route("tiles/<int:z>/<int:x>/<int:y>.png", methods=["GET"])
 def proxy_tile(z, x, y):
-    """Relaie une tuile OpenStreetMap, avec cache disque."""
+    """Relaie une tuile IGN (Plan IGN / Cartes), avec cache disque."""
     # garde-fous : bornes valides du schéma de tuilage web mercator
     if not (0 <= z <= 19) or not (0 <= x < 2**z) or not (0 <= y < 2**z):
         abort(404)
@@ -244,7 +250,7 @@ def proxy_tile(z, x, y):
     except OSError:
         pass
 
-    # 2. téléchargement depuis OSM
+    # 2. téléchargement depuis le Géoportail IGN
     try:
         resp = requests.get(
             TILE_UPSTREAM_URL.format(z=z, x=x, y=y),
@@ -254,7 +260,7 @@ def proxy_tile(z, x, y):
         resp.raise_for_status()
         content = resp.content
     except requests.RequestException:
-        # 3. OSM injoignable : on sert la version périmée si on l'a
+        # 3. IGN injoignable : on sert la version périmée si on l'a
         try:
             if tile_path.is_file():
                 return _send(tile_path.read_bytes(), max_age=3600)

@@ -2,8 +2,8 @@
 import { styles } from './config-style.js';
 
 // Clés d'accès pour les différents fournisseurs de tuiles cartographiques
-const IGN_KEY = '3s8maqk3hm42vsjty9yoajtb'; // Clé IGN pour les cartes topographiques
-const IGN_KEY2 = 'decouverte'; // Clé IGN pour les orthophotos
+// Les fonds IGN sont servis par la Géoplateforme (data.geopf.fr), en accès libre
+// sans clé d'API. L'ancien service à clé (wxs.ign.fr) est décommissionné.
 const MAPBOX_ACCESS_TOKEN =
   'pk.eyJ1Ijoiam9lbGNsZW1zIiwiYSI6ImNrbDBtaDkzcDBwZGwycG1sejQxczh0bWIifQ.LkAgAh9XQXuK1UeAcisSAA'; // Token d'accès Mapbox
 const MAPBOX_ID = 'mapbox/streets-v11'; // Identifiant du style Mapbox
@@ -35,9 +35,12 @@ const configMap = {
       id: 'mapbox',
       label: 'Mapbox',
     },
-    // Fond IGN Cartes
+    // Fond IGN Cartes (Plan IGN, successeur du fond Cartes/Scan25)
     ign_carte: {
-      url: `https://wxs.ign.fr/${IGN_KEY}/geoportail/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.MAPS&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fjpeg`,
+      url:
+        'https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0' +
+        '&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal' +
+        '&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fpng',
       attribution: '&copy; <a href="http://www.ign.fr/">IGN</a>',
       id: 'ign_carte',
       label: 'IGN (Cartes)',
@@ -45,7 +48,7 @@ const configMap = {
     // Fond IGN Orthophotos
     ign_ortho: {
       url:
-        `https://wxs.ign.fr/${IGN_KEY2}/geoportail/wmts?` +
+        'https://data.geopf.fr/wmts?' +
         '&REQUEST=GetTile&SERVICE=WMTS&VERSION=1.0.0' +
         '&STYLE=normal' +
         '&TILEMATRIXSET=PM' +
@@ -63,10 +66,10 @@ const configMap = {
   // Liste des fonds de carte disponibles et configuration du fond par défaut
   tileList: {
     open_topo_map: {},
-    mapbox: {
-      default: true, // Mapbox est le fond par défaut
+    mapbox: {},
+    ign_carte: {
+      default: true, // IGN (Cartes / Scan25) est le fond par défaut
     },
-    ign_carte: {},
     ign_ortho: {},
   },
 
