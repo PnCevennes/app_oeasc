@@ -56,6 +56,17 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
     >
       <div v-if="declaration_data">
         <h1>Déclaration {{ declaration_data.id_declaration }}</h1>
+        <h3 v-if="declaration_data.id_declaration_originale">
+          Renouvellement de la
+          <router-link
+            :to="{
+              name: 'voir_declaration',
+              params: { id: declaration_data.id_declaration_originale },
+            }"
+          >
+            déclaration no {{ declaration_data.id_declaration_originale }}
+          </router-link>
+        </h3>
 
         <div
           id="resume_declaration"

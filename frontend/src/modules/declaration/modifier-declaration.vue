@@ -1,6 +1,17 @@
 <template>
   <div style="margin: 40px; width: 100%">
     <h1>{{ title }}</h1>
+    <h3 v-if="declaration_data.id_declaration_originale">
+      Renouvellement de la
+      <router-link
+        :to="{
+          name: 'voir_declaration',
+          params: { id: declaration_data.id_declaration_originale },
+        }"
+      >
+        déclaration no {{ declaration_data.id_declaration_originale }}
+      </router-link>
+    </h3>
 
     <div>
       <div v-if="etape_affichage === 'AFFICHAGE_FORM'">

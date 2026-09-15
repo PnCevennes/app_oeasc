@@ -340,6 +340,7 @@ def get_stmt_liste_declaration():
     stmt = (
         select(
             TDeclaration.id_declaration,
+            TDeclaration.id_declaration_originale,
             # func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label("declaration_date"),
             func.to_char(TDeclaration.meta_create_date, "YYYY/MM/DD").label(
                 "declaration_date"
@@ -452,6 +453,7 @@ def get_stmt_fiche_declaration(id_declaration):
         select(
             ########################## INFORMATIONS ######################################
             TDeclaration.id_declaration,
+            TDeclaration.id_declaration_originale,
             TDeclaration.b_valid.label("b_valid"),
             TDeclaration.centroid.label("centroid"),
             case(

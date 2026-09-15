@@ -96,6 +96,10 @@ export default {
     },
     id_declaration: {
       text: 'Id',
+      display: (val) =>
+        val.id_declaration_originale
+          ? `${val.id_declaration} (<a href="#/declaration/voir_declaration/${val.id_declaration_originale}">${val.id_declaration_originale}</a>)`
+          : `${val.id_declaration}`,
     },
     declarant: {
       text: 'Déclarant',
