@@ -1591,17 +1591,17 @@ def etape__integration_communes_dans_df(df, apiResponse):
 
     try:
         with app.app_context():
-            # récupération des communes de la bdd avec leur géométrie en geojson.
+            # récupération des communes de la bdd.
             # Sélection explicite des colonnes utiles pour éviter d'invoquer
-            # des colonnes absentes sur certaines bases (ex: description)
+            # des colonnes absentes sur certaines bases (ex: description).
+            # La géométrie n'est pas récupérée : le rapprochement se fait uniquement
+            # sur le nom de la commune (rapidfuzz plus bas), et une géométrie complète
+            # par commune alourdit inutilement la requête.
             stmt = (
                 select(
                     LAreas.id_area,
                     LAreas.area_code,
                     LAreas.area_name,
-                    func.ST_AsGeoJSON(func.ST_Transform(LAreas.geom_4326, 4326)).label(
-                        "geom_4326"
-                    ),
                 )
                 .join(BibAreasType, LAreas.id_type == BibAreasType.id_type)
                 .where(BibAreasType.type_code == "OEASC_COMMUNE")
@@ -1609,27 +1609,25 @@ def etape__integration_communes_dans_df(df, apiResponse):
 
             rows = DB.session.execute(
                 stmt
-            ).all()  # retourne [(id_area, area_code, area_name, geom_4326), ...]
+            ).all()  # retourne [(id_area, area_code, area_name), ...]
             liste = []
-            for id_area, area_code, area_name, geom_json in rows:
+            for id_area, area_code, area_name in rows:
                 d = {
                     "id_area": id_area,
                     "area_code": area_code,
                     "area_name": area_name,
-                    "geom_4326": geom_json,
                 }
                 liste.append(d)
 
             df_liste_commune_oeasc = pd.json_normalize(liste)
             df_liste_commune_oeasc = df_liste_commune_oeasc[
-                ["id_area", "area_code", "area_name", "geom_4326"]
+                ["id_area", "area_code", "area_name"]
             ]
             df_liste_commune_oeasc = df_liste_commune_oeasc.rename(
                 columns={
                     "id_area": "commune_id_area",
                     "area_code": "insee_commune",
                     "area_name": "commune_name",
-                    "geom_4326": "commune_geom",
                 }
             )
 
@@ -1680,7 +1678,7 @@ def etape__integration_communes_dans_df(df, apiResponse):
             lambda x: trouver_commune_similaire(x, liste_nom_communes)
         )
 
-        # on intégre les données sur les communes dans le dataframe principal. Et on supprime la colonne commune_name qui n'est plus utile après la fusion. La fusion se fait en faisant correspondre la colonne commune de df avec la colonne commune_name de df_liste_commune_oeasc. On fait une jointure à gauche pour ne pas perdre les lignes du csv qui n'ont pas de correspondance dans la base de données (même si on a essayé de corriger les noms de communes pour maximiser les correspondances). Les lignes du csv qui n'ont pas de correspondance dans la base de données auront des valeurs nulles pour les colonnes communes à df_liste_commune_oeasc (commune_id_area, insee_commune, commune_geom).
+        # on intégre les données sur les communes dans le dataframe principal. Et on supprime la colonne commune_name qui n'est plus utile après la fusion. La fusion se fait en faisant correspondre la colonne commune de df avec la colonne commune_name de df_liste_commune_oeasc. On fait une jointure à gauche pour ne pas perdre les lignes du csv qui n'ont pas de correspondance dans la base de données (même si on a essayé de corriger les noms de communes pour maximiser les correspondances). Les lignes du csv qui n'ont pas de correspondance dans la base de données auront des valeurs nulles pour les colonnes communes à df_liste_commune_oeasc (commune_id_area, insee_commune).
         df_fusion = df.merge(
             df_liste_commune_oeasc,
             left_on="commune",

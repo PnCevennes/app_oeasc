@@ -486,6 +486,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
           mapID="map3"
           :liste_layers="create_liste_layers_from_config('proche')"
           :zoom_on="['UG_ONF', 'CADASTRES']"
+          :zoom_offset="-2"
         ></MapDeclarationSimple>
       </div>
     </div>

@@ -148,6 +148,12 @@ export default {
       required: false,
       default: () => null,
     },
+    zoom_offset: {
+      // décalage appliqué au niveau de zoom une fois le fitBounds effectué (ex: -1 pour dézoomer légèrement)
+      type: Number,
+      required: false,
+      default: 0,
+    },
   },
 
   components: {},
@@ -398,6 +404,16 @@ export default {
 
             if (targetBounds) {
               this.map.fitBounds(targetBounds);
+              if (this.zoom_offset) {
+                // zoomSnap par défaut (1) arrondit setZoom() au niveau entier le plus proche,
+                // ce qui empêche un décalage fin (ex: -0.5). On le désactive ponctuellement
+                // pour appliquer l'offset exact, puis on le restaure pour les interactions
+                // normales (molette, contrôle +/-) après ce cadrage initial.
+                const previousZoomSnap = this.map.options.zoomSnap;
+                this.map.options.zoomSnap = 0;
+                this.map.setZoom(this.map.getZoom() + this.zoom_offset);
+                this.map.options.zoomSnap = previousZoomSnap;
+              }
               //   console.debug('MapDeclarationSimple: fitBounds applied to targetBounds', targetBounds);
             } else {
               // fallback général
