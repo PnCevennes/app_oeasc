@@ -928,6 +928,40 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <v-dialog
+      v-model="affichage_fenetre_token_invalide"
+      max-width="600"
+      persistent
+    >
+      <v-card>
+        <v-card-title class="headline"> Lien invalide ou expiré </v-card-title>
+        <v-card-text>
+          <p>
+            Le lien utilisé n'est plus valide, il a peut-être déjà été utilisé ou a expiré.
+          </p>
+          <p>
+            Pour gérer vos déclarations, veuillez vous connecter à votre compte.
+          </p>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="text"
+            @click="goTo('/')"
+          >
+            Retourner à l'accueil
+          </v-btn>
+          <v-btn
+            color="primary"
+            variant="flat"
+            @click="redirect_to_login"
+          >
+            Se connecter
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -986,6 +1020,7 @@ export default {
       information_declarant: {}, // Informations sur la personne connectée
       // liste_selection_essences: [], // Liste des essences sélectionnées
       affichage_fenetre_succes: false, // Affichage de la fenêtre de succès après soumission
+      affichage_fenetre_token_invalide: false, // Affichage de la fenêtre invitant à se connecter si le token de renouvellement/clôture est invalide
       affichage_peuplement_maturite: false, // Affichage de la maturité du peuplement
       response: null, // Réponse de l'API lors de la récupération des données de la déclaration
       areas_infos: { forets: [], secteurs: [], communes: [] },
@@ -1070,18 +1105,10 @@ export default {
             `api/declaration/declaration_renouvellement?id=${this.declarationId}&token=${this.token_renouvellement}`
           );
           if (this.response['success'] == false) {
-            snackbarStore.show(
-              'Token invalide pour le renouvellement de la déclaration. ',
-              'error'
-            );
-            // this.redirect_to_login();
+            this.affichage_fenetre_token_invalide = true;
           }
         } else {
-          snackbarStore.show(
-            'Token de renouvellement manquant ou ID de déclaration manquant. ',
-            'error'
-          );
-          // this.redirect_to_login();
+          this.affichage_fenetre_token_invalide = true;
         }
       }
     }
@@ -1365,6 +1392,7 @@ export default {
      */
     goTo(path) {
       this.affichage_fenetre_succes = false;
+      this.affichage_fenetre_token_invalide = false;
       if (this.$route.path !== path) {
         this.$router.push(path);
       }
