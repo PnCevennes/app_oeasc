@@ -935,14 +935,10 @@
       persistent
     >
       <v-card>
-        <v-card-title class="headline"> Lien invalide ou expiré </v-card-title>
+        <v-card-title class="headline">Lien invalide ou expiré</v-card-title>
         <v-card-text>
-          <p>
-            Le lien utilisé n'est plus valide, il a peut-être déjà été utilisé ou a expiré.
-          </p>
-          <p>
-            Pour gérer vos déclarations, veuillez vous connecter à votre compte.
-          </p>
+          <p>Le lien utilisé n'est plus valide, il a peut-être déjà été utilisé ou a expiré.</p>
+          <p>Pour gérer vos déclarations, veuillez vous connecter à votre compte.</p>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
