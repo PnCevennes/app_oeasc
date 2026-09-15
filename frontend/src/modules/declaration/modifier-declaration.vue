@@ -1402,6 +1402,10 @@ export default {
     },
 
     closeDeclaration() {
+      if (this.processing) {
+        return;
+      }
+
       if (!this.declaration_data.id_declaration) {
         snackbarStore.show(
           "Une erreur est survenue: l'ID de déclaration est manquant pour la clôture. Veuillez réessayer.",
@@ -1409,6 +1413,8 @@ export default {
         );
         return;
       }
+
+      this.processing = true; // Désactiver le bouton pour éviter les doubles clics
       apiRequest('POST', `api/declaration/cloture_declaration`, {
         postData: {
           id_declaration: this.declaration_data.id_declaration,
@@ -1423,6 +1429,9 @@ export default {
             "Une erreur s'est produite lors de la clôture. Veuillez réessayer.",
             'error'
           );
+        })
+        .finally(() => {
+          this.processing = false; // Réactiver le bouton après le traitement
         });
     },
   },
