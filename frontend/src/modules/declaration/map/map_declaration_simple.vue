@@ -25,7 +25,10 @@ import { config } from '@/config/config.js';
 // le poste client n'ait pas besoin d'atteindre data.geopf.fr (réseaux filtrants,
 // antivirus qui casse le HTTPS/CORS -> "cartes grises"), et pour maîtriser les
 // en-têtes CORS lors de l'export PDF (voir enableCorsTiles / disableCorsTiles).
-const TILE_URL = `${config.URL_APPLICATION.replace(/\/$/, '')}/api/declaration/tiles/{z}/{x}/{y}.png`;
+// Le préfixe /v2/ change le chemin d'URL des tuiles : ça invalide le cache HTTP
+// des navigateurs clients quand on change de fournisseur de fond de carte (les
+// anciennes tuiles OSM en cache ne seraient sinon resservies que 7 jours plus tard).
+const TILE_URL = `${config.URL_APPLICATION.replace(/\/$/, '')}/api/declaration/tiles/v2/{z}/{x}/{y}.png`;
 const TILE_ATTRIBUTION = '&copy; <a href="http://www.ign.fr/">IGN</a>';
 
 const config_layers = {

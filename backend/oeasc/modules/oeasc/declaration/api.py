@@ -226,9 +226,17 @@ def _tile_cache_dir():
     return base / "var" / "tile_cache" / "ign_planignv2"
 
 
-@bp.route("tiles/<int:z>/<int:x>/<int:y>.png", methods=["GET"])
+@bp.route("tiles/v2/<int:z>/<int:x>/<int:y>.png", methods=["GET"])
 def proxy_tile(z, x, y):
-    """Relaie une tuile IGN (Plan IGN / Cartes), avec cache disque."""
+    """Relaie une tuile IGN (Plan IGN / Cartes), avec cache disque.
+
+    Le préfixe `v2/` (fournisseur IGN, ex-OSM) fait partie de l'URL pour que le
+    changement de fournisseur invalide aussi le cache HTTP des navigateurs clients
+    (Cache-Control: max-age=7 jours ci-dessous) : sans ça, les tuiles OSM déjà en
+    cache navigateur continueraient d'être servies pendant 7 jours après le
+    déploiement, sans repasser par le serveur. À incrémenter si le fournisseur
+    change à nouveau.
+    """
     # garde-fous : bornes valides du schéma de tuilage web mercator
     if not (0 <= z <= 19) or not (0 <= x < 2**z) or not (0 <= y < 2**z):
         abort(404)
