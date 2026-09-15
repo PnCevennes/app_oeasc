@@ -266,11 +266,17 @@ export default {
     // "Inconnu" / "Indéterminé" sont rejetés en fin de liste.
     const ordre_classe_age = ['Adulte', 'Sub-adulte', 'Juvénile', 'Inconnu', 'Indéterminé'];
 
-    // Ordre d'affichage souhaité pour les parts "sexe - âge" :
-    // Mâle puis Femelle puis Indéterminé, et pour chaque sexe l'ordre des classes d'âge ci-dessus.
-    const ordre_sexe_classe_age = ['Mâle', 'Femelle', 'Indéterminé'].flatMap((sexe) =>
-      ordre_classe_age.map((age) => `${sexe} - ${age}`)
-    );
+    // Ordre d'affichage souhaité pour les parts "sexe - âge" du camembert "Répartition par sexe et âge" :
+    // en partant du haut du camembert et dans le sens des aiguilles d'une montre, les classes d'âge
+    // du Mâle (Juvénile -> Sub-adulte -> Adulte -> Inconnu -> Indéterminé) puis, en miroir, celles de
+    // la Femelle dans l'ordre inverse, de sorte qu'une classe d'âge donnée se retrouve dans la portion
+    // symétrique (opposée) à celle du sexe correspondant. Le sexe "Indéterminé" est ajouté à la suite.
+    const ordre_age_camembert_sexe_age = ['Juvénile', 'Sub-adulte', 'Adulte', 'Inconnu', 'Indéterminé'];
+    const ordre_sexe_classe_age = [
+      ...ordre_age_camembert_sexe_age.map((age) => `Mâle - ${age}`),
+      ...[...ordre_age_camembert_sexe_age].reverse().map((age) => `Femelle - ${age}`),
+      ...ordre_classe_age.map((age) => `Indéterminé - ${age}`),
+    ];
 
     return {
       // Ordre d'affichage des classes d'âge / des couples sexe-âge dans les graphiques
