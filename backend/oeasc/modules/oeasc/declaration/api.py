@@ -221,7 +221,9 @@ TILE_USER_AGENT = (
 def _tile_cache_dir():
     root = current_app.config.get("ROOT_DIR")
     base = Path(root) if root else Path(current_app.root_path).parent.parent
-    return base / "var" / "tile_cache"
+    # sous-dossier par fournisseur/couche : évite de resservir une tuile en cache
+    # d'un ancien fournisseur (ex. OSM) si celui-ci change un jour, sans purge manuelle
+    return base / "var" / "tile_cache" / "ign_planignv2"
 
 
 @bp.route("tiles/<int:z>/<int:x>/<int:y>.png", methods=["GET"])
