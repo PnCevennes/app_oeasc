@@ -339,6 +339,18 @@ def send_mail_actualisation_declaration(declaration, change_statut=True):
     # transformation de declaration en dictionnaire pour pouvoir accéder aux champs dans le template du mail
     declaration_dict = dict(declaration)
 
+    # selon l'origine de la déclaration (relance automatique groupée ou envoi manuel
+    # depuis la fiche d'une déclaration), les colonnes n'ont pas le même nom :
+    # - relance_toutes_declarations() fournit "date_declaration_visible" et "label_foret"
+    # - get_fiche_declaration() (envoi manuel) fournit "declaration_date" (déjà au format JJ/MM/AAAA) et "nom_foret"
+    # on normalise ici pour que le template du mail dispose toujours des deux champs
+    if not declaration_dict.get("date_declaration_visible"):
+        declaration_dict["date_declaration_visible"] = declaration_dict.get(
+            "declaration_date"
+        )
+    if not declaration_dict.get("label_foret"):
+        declaration_dict["label_foret"] = declaration_dict.get("nom_foret")
+
     with mail.connect() as conn:
         html = render_template(
             "modules/oeasc/mail/actualisation_declaration.html",
