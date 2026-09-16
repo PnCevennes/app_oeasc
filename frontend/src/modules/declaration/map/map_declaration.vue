@@ -622,21 +622,31 @@ export default {
       } else if (this.declaration_data.b_document == true) {
         // ################## CAS DES FORET DGD ##############################
         if (this.declaration_data.b_statut_public == false) {
-          if (this.declaration_data.areas_foret_dgd !== this.actual_foret_dgd) {
+          // On se base sur la racine déjà présente dans areas_localisation (issue de la hiérarchie
+          // fiable calculée par intersection spatiale, cf. initialise_areas/fetch_hierarchy_from_intersect)
+          // plutôt que sur declaration_data.areas_foret_dgd : ce dernier vient de la relation
+          // TDeclaration.areas_foret, qui peut diverger de la hiérarchie par intersection pour une
+          // déclaration existante. Comparer à areas_foret_dgd déclenchait alors un reset_areas() (donc
+          // la perte des zones déjà enregistrées) dès la première sélection, alors qu'il s'agissait de
+          // la même forêt (déjà affichée en surbrillance sur la carte).
+          const root_foret_dgd = this.declaration_data.areas_localisation.find(
+            (area) => area.id_parent === null
+          );
+          if (!root_foret_dgd || root_foret_dgd.id_area !== this.actual_foret_dgd) {
             // Si la forêt DGD sélectionnée est différente de celle déjà sélectionnée, on efface tout car il ne peut y avoir qu'une foret selectionné
             this.reset_areas(); // Réinitialise les zones sélectionnées
-            this.declaration_data.areas_foret_dgd = this.actual_foret_dgd; // Réinitialise la forêt DGD sélectionnée
-            this.declaration_data.nom_foret =
-              this.liste_areas_selected[this.actual_foret_dgd].area_name; // Met à jour le label de la forêt DGD
-            this.declaration_data.label_foret =
-              this.liste_areas_selected[this.actual_foret_dgd].label; // Met à jour le label de la forêt DGD
-            this.declaration_data.code_foret =
-              this.liste_areas_selected[this.actual_foret_dgd].area_code;
-            this.declaration_data.surface_renseignee =
-              this.liste_areas_selected[this.actual_foret_dgd].surface_renseignee;
-            this.declaration_data.surface_calculee =
-              this.liste_areas_selected[this.actual_foret_dgd].surface_calculee;
           }
+          // Resynchronise systématiquement ces champs avec la forêt réellement cliquée (idempotent
+          // si c'est déjà la bonne forêt), pour ne pas laisser declaration_data.areas_foret_dgd stalé.
+          this.declaration_data.areas_foret_dgd = this.actual_foret_dgd;
+          this.declaration_data.nom_foret = this.liste_areas_selected[this.actual_foret_dgd].area_name; // Met à jour le label de la forêt DGD
+          this.declaration_data.label_foret = this.liste_areas_selected[this.actual_foret_dgd].label; // Met à jour le label de la forêt DGD
+          this.declaration_data.code_foret =
+            this.liste_areas_selected[this.actual_foret_dgd].area_code;
+          this.declaration_data.surface_renseignee =
+            this.liste_areas_selected[this.actual_foret_dgd].surface_renseignee;
+          this.declaration_data.surface_calculee =
+            this.liste_areas_selected[this.actual_foret_dgd].surface_calculee;
           this.declaration_data.areas_localisation_cadastre.push(feature.id_area);
           let area_dgd = this.liste_areas_selected[this.actual_foret_dgd];
           area_dgd['id_parent'] = null;
@@ -653,21 +663,27 @@ export default {
           });
         } else {
           // ################### CAS DES FORETS ONF ##############################
+          // cf. commentaire équivalent dans le cas DGD ci-dessus : on compare à la racine déjà
+          // présente dans areas_localisation plutôt qu'à declaration_data.areas_foret_onf, qui peut
+          // diverger de la hiérarchie par intersection pour une déclaration existante.
+          const root_foret_onf = this.declaration_data.areas_localisation.find(
+            (area) => area.id_parent === null
+          );
           // Si la forêt ONF sélectionnée est différente de celle déjà sélectionnée, on efface tout car il ne peut y avoir qu'une foret selectionné
-          if (this.declaration_data.areas_foret_onf !== this.actual_foret_onf) {
+          if (!root_foret_onf || root_foret_onf.id_area !== this.actual_foret_onf) {
             this.reset_areas();
-            this.declaration_data.areas_foret_onf = this.actual_foret_onf; // Réinitialise la forêt ONF sélectionnée
-            this.declaration_data.nom_foret =
-              this.liste_areas_selected[this.actual_foret_onf].area_name; // Met à jour le label de la forêt ONF
-            this.declaration_data.label_foret =
-              this.liste_areas_selected[this.actual_foret_onf].label; // Met à jour le label de la forêt ONF
-            this.declaration_data.code_foret =
-              this.liste_areas_selected[this.actual_foret_onf].area_code;
-            this.declaration_data.surface_renseignee =
-              this.liste_areas_selected[this.actual_foret_onf].surface_renseignee;
-            this.declaration_data.surface_calculee =
-              this.liste_areas_selected[this.actual_foret_onf].surface_calculee;
           }
+          // Resynchronise systématiquement ces champs avec la forêt réellement cliquée (idempotent
+          // si c'est déjà la bonne forêt), pour ne pas laisser declaration_data.areas_foret_onf stalé.
+          this.declaration_data.areas_foret_onf = this.actual_foret_onf;
+          this.declaration_data.nom_foret = this.liste_areas_selected[this.actual_foret_onf].area_name; // Met à jour le label de la forêt ONF
+          this.declaration_data.label_foret = this.liste_areas_selected[this.actual_foret_onf].label; // Met à jour le label de la forêt ONF
+          this.declaration_data.code_foret =
+            this.liste_areas_selected[this.actual_foret_onf].area_code;
+          this.declaration_data.surface_renseignee =
+            this.liste_areas_selected[this.actual_foret_onf].surface_renseignee;
+          this.declaration_data.surface_calculee =
+            this.liste_areas_selected[this.actual_foret_onf].surface_calculee;
 
           // On remplit les aire de la parcelle et de l'ug pour l'enregistrement en bdd
           // La parcelle ONF n'est plus sélectionnée par l'utilisateur (étape retirée) : elle est
@@ -784,6 +800,14 @@ export default {
           if (
             !this.declaration_data.areas_localisation.some((area) => area.id_parent === this_parent)
           ) {
+            // Récupère l'id de la forêt ONF parente de la parcelle avant de retirer la parcelle.
+            // On ne se fie pas à declaration_data.areas_foret_onf (cf. commentaire dans select_area) :
+            // on lit l'id_parent réellement enregistré sur l'entrée areas_localisation.
+            const parcelle_entry = this.declaration_data.areas_localisation.find(
+              (area) => area.id_area === this_parent
+            );
+            const id_foret_onf_parente = parcelle_entry ? parcelle_entry.id_parent : null;
+
             this.declaration_data.areas_localisation_onf_prf =
               this.declaration_data.areas_localisation_onf_prf.filter((id) => id !== this_parent);
             this.declaration_data.areas_localisation =
@@ -791,13 +815,14 @@ export default {
                 (area) => area.id_area !== this_parent
               );
             if (
+              id_foret_onf_parente !== null &&
               !this.declaration_data.areas_localisation.some(
-                (area) => area.id_parent === this.declaration_data.areas_foret_onf
+                (area) => area.id_parent === id_foret_onf_parente
               )
             ) {
               this.declaration_data.areas_localisation =
                 this.declaration_data.areas_localisation.filter(
-                  (area) => area.id_area !== this.declaration_data.areas_foret_onf
+                  (area) => area.id_area !== id_foret_onf_parente
                 );
               this.declaration_data.areas_foret_onf = null; // Réinitialise la forêt ONF sélectionnée
             }
