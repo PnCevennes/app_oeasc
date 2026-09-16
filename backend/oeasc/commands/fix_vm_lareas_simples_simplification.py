@@ -75,8 +75,7 @@ def fix_vm_lareas_simples_simplification_cmd(force, tolerance, other_tolerance):
         f"Recréation de ref_geo.vm_lareas_simples "
         f"(cadastres id_type={ID_TYPE_CADASTRE} : tolérance={tolerance} ; autres id_type : tolérance={other_tolerance})"
     )
-    db.session.execute(
-        text(f"""
+    db.session.execute(text(f"""
         CREATE MATERIALIZED VIEW ref_geo.vm_lareas_simples AS
         SELECT
             l.id_area, l.id_type,
@@ -92,8 +91,7 @@ def fix_vm_lareas_simples_simplification_cmd(force, tolerance, other_tolerance):
             COALESCE(l.enable, TRUE) AS enable
         FROM ref_geo.l_areas l
         WITH NO DATA
-    """)
-    )
+    """))
 
     for stmt in [
         "CREATE UNIQUE INDEX ux_vm_lareas_simples_id_area ON ref_geo.vm_lareas_simples (id_area)",

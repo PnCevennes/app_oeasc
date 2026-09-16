@@ -545,8 +545,7 @@ def get_areas_ug_onf_of_foret(id_area_foret):
         VMAreasSimples.id_area.in_(id_parcelles)
     )
     parcelles_info = {
-        p.id_area: p
-        for p in DB.session.execute(stmt_parcelles_info).scalars().all()
+        p.id_area: p for p in DB.session.execute(stmt_parcelles_info).scalars().all()
     }
 
     stmt_ug = (

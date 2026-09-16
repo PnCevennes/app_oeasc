@@ -878,9 +878,11 @@ def export_declarations():
 
     # Remplace le code statut par son libellé (config/variables/declaration.json -> STATUT_DECLARATION)
     df["Statut"] = df["Statut"].apply(
-        lambda code_statut: get_label_statut_declaration(code_statut)
-        if code_statut is not None
-        else None
+        lambda code_statut: (
+            get_label_statut_declaration(code_statut)
+            if code_statut is not None
+            else None
+        )
     )
 
     if type_file == "gpkg":
