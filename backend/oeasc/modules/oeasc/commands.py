@@ -25,6 +25,9 @@ from oeasc.modules.oeasc.declaration.mail import (
     relance_toutes_declarations,
 )
 from oeasc.commands.refresh_ref_geo import refresh_ref_geo_cmd
+from oeasc.commands.fix_vm_lareas_simples_simplification import (
+    fix_vm_lareas_simples_simplification_cmd,
+)
 
 
 # Commande CLI pour tester la création ou mise à jour d'une réalisation de chasse
@@ -75,4 +78,5 @@ commands = [
     cmd_test_chasse_realisation,
     send_relance_command,
     refresh_ref_geo_cmd,
+    fix_vm_lareas_simples_simplification_cmd,
 ]

@@ -2597,11 +2597,15 @@ def step_cleanup():
         text("DROP MATERIALIZED VIEW IF EXISTS ref_geo.vm_lareas_simples")
     )
     db.session.commit()
-    db.session.execute(text("""
+    db.session.execute(text(f"""
         CREATE MATERIALIZED VIEW ref_geo.vm_lareas_simples AS
         SELECT
             l.id_area, l.id_type,
-            ST_Transform(ST_SimplifyPreserveTopology(l.geom, 50), 4326) AS geom_4326,
+            CASE
+                WHEN l.id_type = {ID_TYPE_CADASTRE}
+                    THEN ST_Transform(ST_SimplifyPreserveTopology(l.geom, 50), 4326)
+                ELSE ST_Transform(l.geom, 4326)
+            END AS geom_4326,
             l.area_code, l.area_name, l.area_name AS label,
             ROUND((ST_Area(l.geom) / 10000)::numeric, 3) AS surface_calculee,
             ROUND((ST_Area(l.geom) / 10000)::numeric, 3) AS surface_renseignee,
