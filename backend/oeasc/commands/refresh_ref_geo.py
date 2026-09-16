@@ -2603,8 +2603,8 @@ def step_cleanup():
             l.id_area, l.id_type,
             CASE
                 WHEN l.id_type = {ID_TYPE_CADASTRE}
-                    THEN ST_Transform(ST_SimplifyPreserveTopology(l.geom, 50), 4326)
-                ELSE ST_Transform(l.geom, 4326)
+                    THEN ST_Transform(ST_SimplifyPreserveTopology(l.geom, 5), 4326)
+                ELSE ST_Transform(ST_SimplifyPreserveTopology(l.geom, 2), 4326)
             END AS geom_4326,
             l.area_code, l.area_name, l.area_name AS label,
             ROUND((ST_Area(l.geom) / 10000)::numeric, 3) AS surface_calculee,

@@ -1,4 +1,4 @@
-"""limite la simplification de vm_lareas_simples aux cadastres
+"""limite la simplification de vm_lareas_simples (cadastres 5m, autres 2m)
 
 Revision ID: c9d4e8f1a2b3
 Revises: 71ace03ca6a3
@@ -18,6 +18,11 @@ depends_on = None
 # doit être simplifiée dans vm_lareas_simples.geom_4326.
 ID_TYPE_CADASTRE = 332
 
+# Tolérances ST_SimplifyPreserveTopology (en mètres, Lambert-93), validées
+# visuellement via `flask fix-vm-lareas-simples-simplification --tolerance ... --other-tolerance ...`
+CADASTRE_TOLERANCE = 5
+OTHER_TOLERANCE = 2
+
 
 def upgrade():
     op.execute("DROP MATERIALIZED VIEW IF EXISTS ref_geo.vm_lareas_simples")
@@ -28,8 +33,8 @@ def upgrade():
             l.id_area, l.id_type,
             CASE
                 WHEN l.id_type = {ID_TYPE_CADASTRE}
-                    THEN ST_Transform(ST_SimplifyPreserveTopology(l.geom, 50), 4326)
-                ELSE ST_Transform(l.geom, 4326)
+                    THEN ST_Transform(ST_SimplifyPreserveTopology(l.geom, {CADASTRE_TOLERANCE}), 4326)
+                ELSE ST_Transform(ST_SimplifyPreserveTopology(l.geom, {OTHER_TOLERANCE}), 4326)
             END AS geom_4326,
             l.area_code, l.area_name, l.area_name AS label,
             ROUND((ST_Area(l.geom) / 10000)::numeric, 3) AS surface_calculee,
