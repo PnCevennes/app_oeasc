@@ -682,11 +682,13 @@ def get_stmt_for_declarations_export(type_file="csv", type_out="degat"):
 
     stmt = select(
         TDeclaration.id_declaration.label("id"),
+        TDeclaration.id_declaration_originale.label("id declaration origine"),
         case(
             (TDeclaration.b_valid == True, "Validé"),
             (TDeclaration.b_valid == False, "Non validé"),
             else_="En attente",
         ).label("Valide"),
+        TDeclaration.statut.label("Statut"),
         func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label("Date"),
         VUsers.nom_complet.label("Déclarant"),
         VUsers.organisme.label("Organisme"),

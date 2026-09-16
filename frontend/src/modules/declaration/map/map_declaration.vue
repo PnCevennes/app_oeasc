@@ -267,18 +267,6 @@ export default {
       this.add_layers_on_map();
     },
 
-    // Lorsque les zones sélectionnées changent, on re-rend la carte pour mettre à jour les couleurs
-    // deep:true nécessaire en Vue 3 : les mutations de tableau (push/splice) ne déclenchent plus
-    // un watcher par défaut comme en Vue 2 (voir compat WATCH_ARRAY)
-    'declaration_data.areas_localisation': {
-      handler() {
-        if (this.map && this.geojsonVisibleLayers?.features?.length) {
-          this.add_layers_on_map();
-        }
-      },
-      deep: true,
-    },
-
     // Lorsque le statut du document change dans le formulaire principal, on met à jour le type de carte
     b_document(newVal, oldVal) {
       if (oldVal === undefined) return;
@@ -521,6 +509,9 @@ export default {
           // plutôt que feature.properties (issu du geojson brut, sans id_parent) pour que la
           // cascade de nettoyage des parents (commune, section, forêt) fonctionne correctement.
           this.unselect_area(this.declaration_data.areas_localisation[index]); // Retire la zone de la déclaration
+          // on remet le style normal sur le layer désélectionné (plus de rebuild global de la
+          // carte pour ça, cf. suppression du watcher deep sur areas_localisation)
+          this.change_style_layer(feature.properties, styles.normal);
         } else {
           // ######### Cette area n'est pas déja selectionnée, on cherche donc à l'ajouter #############
           this.select_area(feature.properties);

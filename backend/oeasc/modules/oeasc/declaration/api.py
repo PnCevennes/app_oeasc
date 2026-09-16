@@ -36,6 +36,7 @@ from .repository import (
     get_form_declaration,
     check_token_renouvellement_declaration,
     get_variables_declaration,
+    get_label_statut_declaration,
 )
 from ..user.utils import check_auth_redirect_login
 
@@ -871,6 +872,16 @@ def export_declarations():
 
     # Conversion en DataFrame
     df = pd.DataFrame(rows, columns=keys)
+
+    # Type entier nullable pour éviter que la colonne soit convertie en float à cause des valeurs manquantes (ex: 123.0)
+    df["id declaration origine"] = df["id declaration origine"].astype("Int64")
+
+    # Remplace le code statut par son libellé (config/variables/declaration.json -> STATUT_DECLARATION)
+    df["Statut"] = df["Statut"].apply(
+        lambda code_statut: get_label_statut_declaration(code_statut)
+        if code_statut is not None
+        else None
+    )
 
     if type_file == "gpkg":
         # Conversion de la colonne geom en géométrie Shapely
