@@ -508,6 +508,81 @@ def get_areas_child_of(id_type, id_area):
     return all_areas
 
 
+# id_type des forêts et parcelles ONF dans ref_geo.bib_areas_types (voir aussi
+# ID_TYPE_FORET_ONF/ID_TYPE_PARCELLE_ONF dans commands/refresh_ref_geo.py)
+ID_TYPE_FORET_ONF = 328
+ID_TYPE_PARCELLE_ONF = 329
+
+
+@bp.route("areas_ug_onf_of_foret/<int:id_area_foret>", methods=["GET"])
+@json_resp
+def get_areas_ug_onf_of_foret(id_area_foret):
+    """
+    Récupère directement toutes les UG ONF d'une forêt ONF, en sautant le niveau
+    intermédiaire des parcelles ONF (PRF) : côté carte de déclaration, un clic sur une
+    forêt ONF doit afficher toutes ses UG sans étape de sélection de parcelle.
+
+    Chaque UG renvoyée porte en plus les propriétés id_area_parcelle_onf,
+    area_name_parcelle_onf, label_parcelle_onf et area_code_parcelle_onf correspondant
+    à sa parcelle parente : le front en a besoin pour reconstruire la hiérarchie
+    forêt > parcelle > UG (areas_localisation_onf_prf) sans que l'utilisateur ait cliqué
+    la parcelle.
+
+    Exemple d'URL : /areas_ug_onf_of_foret/277431
+    """
+    stmt_parcelles = (
+        select(CorHierarchieArea)
+        .where(CorHierarchieArea.id_area_parent == id_area_foret)
+        .where(CorHierarchieArea.id_type_parent == ID_TYPE_FORET_ONF)
+    )
+    id_parcelles = [
+        p.id_area_enfant for p in DB.session.execute(stmt_parcelles).scalars().all()
+    ]
+    if not id_parcelles:
+        return {"type": "FeatureCollection", "features": []}
+
+    stmt_parcelles_info = select(VMAreasSimples).where(
+        VMAreasSimples.id_area.in_(id_parcelles)
+    )
+    parcelles_info = {
+        p.id_area: p
+        for p in DB.session.execute(stmt_parcelles_info).scalars().all()
+    }
+
+    stmt_ug = (
+        select(CorHierarchieArea)
+        .where(CorHierarchieArea.id_area_parent.in_(id_parcelles))
+        .where(CorHierarchieArea.id_type_parent == ID_TYPE_PARCELLE_ONF)
+    )
+    ug_links = DB.session.execute(stmt_ug).scalars().all()
+    id_parcelle_of_ug = {link.id_area_enfant: link.id_area_parent for link in ug_links}
+
+    stmt_ug_areas = select(VMAreasSimples).where(
+        VMAreasSimples.id_area.in_(id_parcelle_of_ug.keys())
+    )
+    ug_areas = DB.session.execute(stmt_ug_areas).scalars().all()
+
+    all_areas = VMAreasSimplesSchema(
+        many=True, as_geojson=True, include_geom=True
+    ).dump(ug_areas)
+
+    for feature in all_areas["features"]:
+        id_parcelle = id_parcelle_of_ug.get(feature["properties"]["id_area"])
+        parcelle = parcelles_info.get(id_parcelle)
+        feature["properties"]["id_area_parcelle_onf"] = id_parcelle
+        feature["properties"]["area_name_parcelle_onf"] = (
+            parcelle.area_name if parcelle else None
+        )
+        feature["properties"]["label_parcelle_onf"] = (
+            parcelle.label if parcelle else None
+        )
+        feature["properties"]["area_code_parcelle_onf"] = (
+            parcelle.area_code if parcelle else None
+        )
+
+    return all_areas
+
+
 @bp.route("areas_infos_from_parcelles", methods=["GET"])
 @json_resp
 def get_areas_infos_from_parcelles():

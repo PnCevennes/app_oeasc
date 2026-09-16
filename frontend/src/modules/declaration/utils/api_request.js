@@ -153,6 +153,23 @@ export async function fetch_areas_child_of(id_area_parent, id_type_parent) {
   }
 }
 
+/**
+ * Retourne directement les UG ONF d'une forêt ONF, en sautant le niveau parcelle ONF (PRF).
+ * Chaque UG porte en plus les propriétés id_area_parcelle_onf, area_name_parcelle_onf,
+ * label_parcelle_onf et area_code_parcelle_onf de sa parcelle parente.
+ * @param {*} id_area_foret l'id_area de la forêt ONF
+ * @returns geoJSON des UG ONF de la forêt
+ */
+export async function fetch_areas_ug_onf_of_foret(id_area_foret) {
+  try {
+    const response = await apiRequest('GET', `api/ref_geo/areas_ug_onf_of_foret/${id_area_foret}`);
+    return response;
+  } catch (error) {
+    console.error("Erreur lors de la récupération des UG ONF d'une forêt", error);
+    return null;
+  }
+}
+
 export async function fetch_hierarchy_areas(list_id_areas) {
   const str_ids = list_id_areas.join('-');
   try {

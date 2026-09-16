@@ -172,6 +172,7 @@ import {
   fetch_oeasc_perimetre,
   fetch_areas_child_of,
   fetch_areas_group_from_id_type,
+  fetch_areas_ug_onf_of_foret,
   fetch_hierarchy_areas,
   fetch_hierarchy_from_intersect,
 } from '@/modules/declaration/utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
@@ -179,7 +180,6 @@ import {
 const DEFAUT = 0; // uniquement le perimetre oeasc
 const COMMUNES = 327; // Type area des communes dans la base de données
 const FORETS_ONF = 328; // Type area des forêts ONF dans la bdd
-const PARCELLES_ONF = 329; // Type area des parcelles dans la bdd
 const UG_ONF = 330; // Type area des unités de gestion ONF dans la bdd
 const FORETS_DGD = 331; // Type area des forêts DGD dans la bdd
 const CADASTRES = 332; // Type area des parcelles cadastrales dans la bdd
@@ -193,7 +193,6 @@ const NOM_TYPECARTE = {
   [FORETS_DGD]: 'Forêts DGD',
   [FORETS_ONF]: 'Forêts ONF',
   [CADASTRES]: 'Cadastres',
-  [PARCELLES_ONF]: 'Parcelles ONF',
   [UG_ONF]: 'Unités de gestion ONF',
 };
 
@@ -232,7 +231,6 @@ export default {
       // Pour eviter de relancer une requête dans le retour en arrière
 
       actual_foret_onf: null, // Forêt ONF sélectionnée pour les forêts ONF
-      actual_foret_onf_parcelle: null, // Forêt ONF PRF sélectionnée pour les forêts ONF
       actual_foret_dgd: null, // Forêt DGD sélectionnée pour les forêts DGD
       actual_commune: null, // Commune sélectionnée pour les sections cadastrales
       actual_section: null, // Section cadastrale sélectionnée pour les parcelles cadastrales
@@ -351,14 +349,9 @@ export default {
         this.last_typeCarte = FORETS_DGD;
         this.typeCarte = CADASTRES;
       } else if (this.typeCarte === FORETS_ONF) {
+        // Un clic sur une forêt ONF affiche directement toutes ses UG, sans étape parcelle ONF
         this.last_typeCarte = FORETS_ONF;
-        this.typeCarte = PARCELLES_ONF;
-      } else if (this.typeCarte === PARCELLES_ONF) {
-        this.last_typeCarte = PARCELLES_ONF;
         this.typeCarte = UG_ONF;
-      } else if (this.typeCarte === UG_ONF) {
-        this.last_typeCarte = UG_ONF;
-        this.typeCarte = FORETS_ONF;
       } else if (this.typeCarte === CADASTRES) {
         this.last_typeCarte = CADASTRES;
         this.typeCarte = FORETS_DGD; // on revient aux forêts DGD
@@ -440,7 +433,7 @@ export default {
 
     /**
      * Toutes les actions à effectuer lorsqu'on clique sur un layer de la carte.
-     * Un layer cliquable est non un layer selectionnable. C'est à dire les COMMUNES, SECTIONS, FORETS_DGD, FORETS_ONF.PARCELLES_ONF
+     * Un layer cliquable est non un layer selectionnable. C'est à dire les COMMUNES, SECTIONS, FORETS_DGD, FORETS_ONF
      * @param {Object} feature - Les feature geojson du layer cliqué sur la carte.
      * @param {Object} layer - Le layer leaflet cliqué. Pas utilisé mais pourrait l'être pour de améliorations futures.
      */
@@ -458,10 +451,6 @@ export default {
       } else if (this.typeCarte == FORETS_ONF) {
         // Pour sauvegarder l'id de la forêt ONF visible avant de changer de type de carte.
         this.actual_foret_onf = feature.properties.id_area; // Met à jour l'id de la forêt ONF
-      } else if (this.typeCarte == PARCELLES_ONF) {
-        // Pour sauvegarder l'id de la forêt ONF PRF visible avant de changer de type de carte.
-        this.actual_foret_onf_parcelle = feature.properties.id_area; // Met à jour l'id de la forêt ONF PRF
-        this.last_id_section_visible = this.id_area_visible;
       } else if (this.typeCarte == FORETS_DGD) {
         // Pour sauvegarder l'id de la forêt DGD visible avant de changer de type de carte.
         this.actual_foret_dgd = feature.properties.id_area; // Met à jour l'id de la forêt DGD
@@ -681,14 +670,22 @@ export default {
           }
 
           // On remplit les aire de la parcelle et de l'ug pour l'enregistrement en bdd
+          // La parcelle ONF n'est plus sélectionnée par l'utilisateur (étape retirée) : elle est
+          // fournie par le backend sur chaque feature UG (voir areas_ug_onf_of_foret).
+          const id_area_parcelle_onf = feature.id_area_parcelle_onf;
           this.declaration_data.areas_localisation_onf_ug.push(feature.id_area);
-          this.declaration_data.areas_localisation_onf_prf.push(this.actual_foret_onf_parcelle);
+          this.declaration_data.areas_localisation_onf_prf.push(id_area_parcelle_onf);
 
           let area_onf = this.liste_areas_selected[this.actual_foret_onf];
           area_onf['id_parent'] = null;
-          let area_onf_parcelle = this.liste_areas_selected[this.actual_foret_onf_parcelle];
-          area_onf_parcelle['id_parent'] = this.actual_foret_onf;
-          let area_onf_ug = { ...feature, id_parent: this.actual_foret_onf_parcelle }; // Ajoute l'id de la parcelle ONF à la déclaration
+          let area_onf_parcelle = {
+            id_area: id_area_parcelle_onf,
+            area_name: feature.area_name_parcelle_onf,
+            label: feature.label_parcelle_onf,
+            area_code: feature.area_code_parcelle_onf,
+            id_parent: this.actual_foret_onf,
+          };
+          let area_onf_ug = { ...feature, id_parent: id_area_parcelle_onf }; // Ajoute l'id de la parcelle ONF à la déclaration
           if (
             !this.declaration_data.areas_localisation.some(
               (area) => area.id_area === area_onf.id_area
@@ -831,17 +828,11 @@ export default {
         this.typeCarte = COMMUNES;
         this.last_typeCarte = DEFAUT; // On revient au mode communes
         this.fetch_new_geojson_data(COMMUNES); // Recharge les données GeoJSON pour le type de carte communes
-      } else if (this.typeCarte == PARCELLES_ONF) {
-        // Si on est en mode parcelles ONF ou unités de gestion ONF, on revient au mode forêts ONF
-        this.typeCarte = FORETS_ONF;
-        this.last_typeCarte = DEFAUT; // On revient au mode forêts ONF
-        this.fetch_new_geojson_data(FORETS_ONF); // Recharge les données GeoJSON pour le type de carte forêts ONF
       } else if (this.typeCarte == UG_ONF) {
-        // Si on est en mode unités de gestion ONF, on revient au mode parcelles ONF
-        this.typeCarte = PARCELLES_ONF;
-        this.last_typeCarte = FORETS_ONF; // On revient au mode forêts ONF
-        this.id_area_visible = this.last_id_section_visible; // On remet l'id de la zone visible à celui de la section
-        this.fetch_new_geojson_data(FORETS_ONF, this.last_id_section_visible); // Recharge les données GeoJSON pour le type de carte forêts ONF
+        // Si on est en mode unités de gestion ONF, on revient directement au mode forêts ONF
+        this.typeCarte = FORETS_ONF;
+        this.last_typeCarte = DEFAUT; // On revient au mode par défaut
+        this.fetch_new_geojson_data(FORETS_ONF); // Recharge les données GeoJSON pour le type de carte forêts ONF
       } else if (
         this.typeCarte == FORETS_DGD ||
         this.typeCarte == FORETS_ONF ||
@@ -915,7 +906,12 @@ export default {
           if (this.is_layer_in_cache(id_type_carte, id_area_parent)) {
             geojson = this.get_layer_from_cache(id_type_carte, id_area_parent);
           } else {
-            const fetched = await fetch_areas_child_of(id_area_parent, id_type_carte);
+            // Cas particulier des forêts ONF : on saute le niveau parcelle ONF (PRF) et on
+            // affiche directement toutes les UG de la forêt cliquée.
+            const fetched =
+              id_type_carte === FORETS_ONF
+                ? await fetch_areas_ug_onf_of_foret(id_area_parent)
+                : await fetch_areas_child_of(id_area_parent, id_type_carte);
             this.save_layer_in_cache(id_type_carte, id_area_parent, fetched);
             geojson = fetched;
           }
