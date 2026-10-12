@@ -62,6 +62,8 @@ const menus = {
       'in.admin',
       'chasse.admin',
       'chasse.imports_attributions',
+      'degats_agricoles.imports',
+      'degats_agricoles.admin',
     ],
   },
 
