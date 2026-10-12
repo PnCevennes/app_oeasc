@@ -13,7 +13,10 @@ import { ROUTE as commons_routes, STORE as commons_store } from './commons';
 import { ROUTE as in_routes, STORE as in_store } from './in';
 import { ROUTE as chasse_routes, STORE as chasse_store } from './chasse';
 import { ROUTE as icia_routes } from './icia';
-import { ROUTE as degats_agricoles_routes } from './degats_agricoles';
+import {
+  ROUTE as degats_agricoles_routes,
+  STORE as degats_agricoles_store,
+} from './degats_agricoles';
 import { ROUTE as sylviculture_routes } from './sylviculture';
 import { ROUTE as content_routes, STORE as content_store } from './content';
 import { ROUTE as declaration_routes, STORE as declaration_store } from './declaration';
@@ -48,6 +51,7 @@ const stores = [
   commons_store,
   in_store,
   chasse_store,
+  degats_agricoles_store,
   data_store,
   map_store,
   declaration_store,
