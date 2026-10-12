@@ -125,7 +125,8 @@ const ROUTE = [
     label: 'Chasse : analyse détaillée',
     hideTitle: true, // True => cache le bandeau header pour plus de place
     component: () => import('./page-chasse-bilan-detaille.vue'),
-    access: 4,
+    parent: 'resultats.index', // définit la place dans le menu. Ici dans "resultats des suivis"
+    // pas de `access` : page publique, accessible sans être connecté
   },
 
   {
