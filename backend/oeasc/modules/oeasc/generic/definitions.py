@@ -4,6 +4,7 @@ from ..declaration.schema import *
 from ..chasse.schema import *
 from ..commons.schema import *
 from ..i_n.schema import *
+from ..agricole.schema import *
 
 
 class GenericRouteDefinitions:

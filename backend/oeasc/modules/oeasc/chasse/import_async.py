@@ -28,6 +28,7 @@ from .import_attributions import (
     traitement_import_attribution_massifs,
     traitement_import_attributions,
 )
+from ..agricole.importation import traitement_import_degats_agricoles
 
 config = current_app.config
 
@@ -39,6 +40,7 @@ TRAITEMENTS = {
     "saison_dates": traitement_import_saison_dates,
     "attribution_massifs": traitement_import_attribution_massifs,
     "attributions": traitement_import_attributions,
+    "degats_agricoles": traitement_import_degats_agricoles,
 }
 TYPE_IMPORT_DEFAUT = "realisations"
 
@@ -57,12 +59,12 @@ RETENTION_JOURS = 365
 
 
 def purger_vieux_suivis(jours=RETENTION_JOURS):
-    """Supprime les fichiers de suivi JSON et les CSV importés de plus de `jours`
+    """Supprime les fichiers de suivi JSON et les fichiers importés de plus de `jours`
     jours. Best effort : toute erreur est ignorée."""
     limite = time.time() - jours * 86400
     try:
         for f in DOSSIER_SUIVI.iterdir():
-            if f.suffix.lower() not in (".json", ".csv"):
+            if f.suffix.lower() not in (".json", ".csv", ".xls", ".ods"):
                 continue
             try:
                 if f.stat().st_mtime < limite:

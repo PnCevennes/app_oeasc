@@ -11,6 +11,7 @@ from ..declaration.schema import *
 from ..chasse.schema import *
 from ..commons.schema import *
 from ..i_n.schema import *
+from ..agricole.schema import *
 
 
 # s'assure de retourner le bon type de donnée da la requête sql
