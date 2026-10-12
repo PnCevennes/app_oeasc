@@ -47,6 +47,7 @@ export default defineConfig(({ mode }) => ({
       'vuetify/components/VList',
       'vuetify/components/VMenu',
       'vuetify/components/VNavigationDrawer',
+      'vuetify/components/VNumberInput',
       'vuetify/components/VOverlay',
       'vuetify/components/VProgressCircular',
       'vuetify/components/VProgressLinear',

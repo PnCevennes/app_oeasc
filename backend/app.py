@@ -285,6 +285,11 @@ with app.app_context():
 
     app.register_blueprint(chasse_api.bp, url_prefix="/api/chasse")
 
+    # module dégâts agricoles
+    from oeasc.modules.oeasc.agricole import api as agricole_api
+
+    app.register_blueprint(agricole_api.bp, url_prefix="/api/agricole")
+
     # routes pour l'enregistrement des utilisateurs, changer mots de passe, éditer droits utilisateurs
     from pypnusershub import routes_register
 
