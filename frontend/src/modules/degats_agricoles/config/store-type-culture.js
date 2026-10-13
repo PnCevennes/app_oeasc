@@ -3,23 +3,23 @@ export default {
   name: 'typeCulture',
   label: 'Type de culture',
   labels: 'Types de culture',
-  idFieldName: 'id_culture',
-  displayFieldName: 'nom_culture',
+  idFieldName: 'id_type_culture',
+  displayFieldName: 'nom_type_culture',
   serverSide: true, // si pagination et tri sont gérés côté serveur
 
   options: {
     page: 1, // on affiche la première page par défaut
-    sortBy: ['nom_culture'], // tri par défaut
+    sortBy: ['nom_type_culture'], // tri par défaut
     sortDesc: [false],
   },
 
   defs: {
-    id_culture: {
+    id_type_culture: {
       label: 'ID',
       type: 'text',
       hidden: true,
     },
-    nom_culture: {
+    nom_type_culture: {
       label: 'Nom',
       type: 'text',
       required: true,

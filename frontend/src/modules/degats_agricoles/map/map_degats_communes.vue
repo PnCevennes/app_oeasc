@@ -1,6 +1,6 @@
 <!--
   Carte des communes de la zone OEASC colorées selon la surface détruite (ha)
-  pour une saison. Au survol : montant indemnisé et nombre de dossiers.
+  pour une saison ou cumulée sur toutes les saisons. Au survol : montant indemnisé et nombre de dossiers.
 -->
 <template>
   <div>
@@ -43,10 +43,20 @@ const CLASSES = [
   { min: 1, color: '#fb8c00', label: '1 à 5 ha' },
   { min: 0, color: '#43a047', label: 'moins de 1 ha' },
 ];
+// couleurs des classes, de la plus forte surface à la plus faible
+const COULEURS = CLASSES.map((c) => c.color);
 const CLASSE_NULLE = { color: '#ffffff', label: '0 ha' };
 
-const classeSurface = (surface) =>
-  surface > 0 ? CLASSES.find((c) => surface > c.min) : CLASSE_NULLE;
+const classeSurface = (surface, classes) =>
+  surface > 0 ? classes.find((c) => surface > c.min) : CLASSE_NULLE;
+
+// quantile d'ordre p (0 à 1) d'une liste triée, par interpolation linéaire
+const quantile = (valeursTriees, p) => {
+  const position = (valeursTriees.length - 1) * p;
+  const bas = Math.floor(position);
+  const haut = Math.ceil(position);
+  return valeursTriees[bas] + (valeursTriees[haut] - valeursTriees[bas]) * (position - bas);
+};
 
 const nombre = (valeur, decimales = 0) =>
   Number(valeur || 0).toLocaleString('fr-FR', {
@@ -60,10 +70,45 @@ export default {
     // FeatureCollection des communes : properties { nom, surface_detruite, montant_total, nb_dossiers }
     geojson: { default: null },
     height: { default: '600px' },
+    cumul: { default: false }, // true : surfaces cumulées sur toutes les saisons (autres seuils)
   },
-  data: () => ({
-    classes: [...CLASSES, CLASSE_NULLE],
-  }),
+  computed: {
+    // En cumul, les seuils fixes d'une saison ne conviennent plus (presque toutes les
+    // communes touchées dépassent 10 ha) : les seuils sont les quartiles des surfaces
+    // cumulées des communes touchées, soit environ un quart de ces communes par classe.
+    classesCumul() {
+      const surfaces = ((this.geojson && this.geojson.features) || [])
+        .map((f) => f.properties.surface_detruite)
+        .filter((surface) => surface > 0)
+        .sort((a, b) => a - b);
+      if (!surfaces.length) {
+        return [];
+      }
+      // seuils arrondis au dixième d'hectare pour que la légende corresponde exactement
+      // au classement ; les doublons (peu de communes, valeurs égales) sont retirés
+      const seuils = [0.75, 0.5, 0.25]
+        .map((p) => Number(quantile(surfaces, p).toFixed(1)))
+        .filter((seuil, i, liste) => seuil > 0 && liste.indexOf(seuil) === i);
+      const bornes = [...seuils, 0]; // bornes basses, de la plus forte à la plus faible
+      // les couleurs les plus fortes restent sur les classes les plus hautes
+      return bornes.map((min, i) => {
+        const max = bornes[i - 1];
+        let label = `${nombre(min, 1)} à ${nombre(max, 1)} ha`;
+        if (i === 0) {
+          label = bornes.length > 1 ? `plus de ${nombre(min, 1)} ha` : 'plus de 0 ha';
+        } else if (min === 0) {
+          label = `jusqu'à ${nombre(max, 1)} ha`;
+        }
+        return { min, color: COULEURS[i], label };
+      });
+    },
+    classesSurface() {
+      return this.cumul ? this.classesCumul : CLASSES;
+    },
+    classes() {
+      return [...this.classesSurface, CLASSE_NULLE];
+    },
+  },
   watch: {
     geojson() {
       this.afficherCommunes();
@@ -81,11 +126,12 @@ export default {
       if (!this.geojson || !this.geojson.features || !this.geojson.features.length) {
         return;
       }
+      const classesSurface = this.classesSurface;
       this.layer = L.geoJSON(this.geojson, {
         style: (feature) => ({
           color: '#555555',
           weight: 1,
-          fillColor: classeSurface(feature.properties.surface_detruite).color,
+          fillColor: classeSurface(feature.properties.surface_detruite, classesSurface).color,
           fillOpacity: 0.75,
         }),
         onEachFeature: (feature, layer) => {

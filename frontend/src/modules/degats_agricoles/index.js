@@ -3,7 +3,9 @@ import storeUtils from '@/store/utils.js'; // pour importer addStore qui constru
 // Import des fichiers de configuration des stores
 import configStoreDeclaration from './config/store-declaration.js';
 import configStoreSaison from './config/store-saison.js';
+import configStoreCulture from './config/store-culture.js';
 import configStoreTypeCulture from './config/store-type-culture.js';
+import configStoreUgAgricole from './config/store-ug-agricole.js';
 import configStoreCommune from './config/store-commune.js';
 
 const ROUTE = [
@@ -46,9 +48,17 @@ const ROUTE = [
             storeName: 'agricoleSaison',
             labels: 'Saisons',
           },
+          culture_tab: {
+            storeName: 'agricoleCulture',
+            labels: 'Cultures',
+          },
           typeCulture_tab: {
             storeName: 'agricoleTypeCulture',
-            labels: 'Type de culture',
+            labels: 'Types de culture',
+          },
+          ugAgricole_tab: {
+            storeName: 'agricoleUgAgricole',
+            labels: 'Unités de gestion',
           },
         },
       },
@@ -62,7 +72,9 @@ const STORE = {};
 // Ajout des configStore en fonction des fichiers dans config
 storeUtils.addStore(STORE, configStoreDeclaration);
 storeUtils.addStore(STORE, configStoreSaison);
+storeUtils.addStore(STORE, configStoreCulture);
 storeUtils.addStore(STORE, configStoreTypeCulture);
+storeUtils.addStore(STORE, configStoreUgAgricole);
 storeUtils.addStore(STORE, configStoreCommune);
 
 export { ROUTE, STORE };

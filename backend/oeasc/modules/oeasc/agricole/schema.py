@@ -24,10 +24,34 @@ class TSaisonAgricoleSchema(SQLAlchemyAutoSchema):
 
 
 class TTypeCultureSchema(SQLAlchemyAutoSchema):
-    id_culture = fields.Integer(allow_none=True)
+    id_type_culture = fields.Integer(allow_none=True)
 
     class Meta:
         model = TTypeCulture
+        load_instance = True
+        include_fk = True
+        sqla_session = (DB.session,)
+        unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
+
+
+class TCultureSchema(SQLAlchemyAutoSchema):
+    id_culture = fields.Integer(allow_none=True)
+
+    class Meta:
+        model = TCulture
+        load_instance = True
+        include_fk = True
+        sqla_session = (DB.session,)
+        unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
+
+    type_culture = Nested("TTypeCultureSchema", many=False, allow_none=True)
+
+
+class TUgAgricoleSchema(SQLAlchemyAutoSchema):
+    id_ug_agricole = fields.Integer(allow_none=True)
+
+    class Meta:
+        model = TUgAgricole
         load_instance = True
         include_fk = True
         sqla_session = (DB.session,)
@@ -68,6 +92,7 @@ class TDeclarationAgricoleSchema(SQLAlchemyAutoSchema):
     montant_total_paye = fields.Float(allow_none=True)
 
     saison = Nested("TSaisonAgricoleSchema", many=False)
-    culture = Nested("TTypeCultureSchema", many=False, allow_none=True)
+    culture = Nested("TCultureSchema", many=False, allow_none=True)
+    ug_agricole = Nested("TUgAgricoleSchema", many=False, allow_none=True)
     espece = Nested("TEspecesSchema", many=False, allow_none=True)
     commune = Nested("TCommunesAreaSchema", many=False, allow_none=True)

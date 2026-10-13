@@ -9,10 +9,18 @@ from flask_login import current_user as login_user
 from werkzeug.utils import secure_filename
 
 from oeasc.ref_geo_oeasc.models import TCommunesArea
-from .models import TSaisonAgricole, TTypeCulture, TDeclarationAgricole
+from .models import (
+    TSaisonAgricole,
+    TTypeCulture,
+    TCulture,
+    TUgAgricole,
+    TDeclarationAgricole,
+)
 from .schema import (
     TSaisonAgricoleSchema,
     TTypeCultureSchema,
+    TCultureSchema,
+    TUgAgricoleSchema,
     TDeclarationAgricoleSchema,
     TCommunesAreaSchema,
 )
@@ -53,10 +61,20 @@ definitions = {
         "droits": droits,
         "schema": TSaisonAgricoleSchema,
     },
+    "culture": {
+        "model": TCulture,
+        "droits": droits,
+        "schema": TCultureSchema,
+    },
     "type_culture": {
         "model": TTypeCulture,
         "droits": droits,
         "schema": TTypeCultureSchema,
+    },
+    "ug_agricole": {
+        "model": TUgAgricole,
+        "droits": droits,
+        "schema": TUgAgricoleSchema,
     },
     # communes de l'observatoire (ref_geo.communes_aoa) : lecture seule, pour les
     # listes de choix. Sans droit C/U/D défini, ces routes sont fermées.
@@ -191,7 +209,18 @@ def results_saisons():
 
 @bp.route("results/cultures", methods=["GET"])
 def results_cultures():
-    """Indicateurs par type de culture pour la saison `id_saison`."""
+    """Indicateurs par type de culture pour la saison `id_saison`.
+    Avec `toutes_saisons=true`, les indicateurs sont cumulés sur toutes les saisons."""
+    if request.args.get("toutes_saisons", "").lower() in ("true", "1"):
+        return jsonify(
+            {
+                "zone": ZONE,
+                "id_saison": None,
+                "nom_saison": None,
+                "toutes_saisons": True,
+                "items": get_bilan_cultures(),
+            }
+        )
     saison, erreur = _saison_from_args()
     if erreur:
         return erreur
@@ -208,7 +237,12 @@ def results_cultures():
 @bp.route("results/communes", methods=["GET"])
 def results_communes():
     """GeoJSON des communes de la zone OEASC avec les indicateurs de la saison
-    `id_saison` (surface détruite, montant indemnisé, nombre de dossiers)."""
+    `id_saison` (surface détruite, montant indemnisé, nombre de dossiers).
+    Avec `toutes_saisons=true`, les indicateurs sont cumulés sur toutes les saisons."""
+    if request.args.get("toutes_saisons", "").lower() in ("true", "1"):
+        geojson = get_bilan_communes_geojson()
+        geojson.update(zone=ZONE, id_saison=None, nom_saison=None, toutes_saisons=True)
+        return jsonify(geojson)
     saison, erreur = _saison_from_args()
     if erreur:
         return erreur

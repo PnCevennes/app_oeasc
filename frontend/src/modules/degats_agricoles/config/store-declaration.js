@@ -49,9 +49,16 @@ export default {
       list_type: 'autocomplete',
       returnObject: true,
     },
+    ug_agricole: {
+      label: 'Unité de gestion',
+      storeName: 'agricoleUgAgricole',
+      type: 'list_form',
+      list_type: 'select',
+      returnObject: true,
+    },
     culture: {
       label: 'Culture',
-      storeName: 'agricoleTypeCulture',
+      storeName: 'agricoleCulture',
       type: 'list_form',
       list_type: 'autocomplete',
       returnObject: true,

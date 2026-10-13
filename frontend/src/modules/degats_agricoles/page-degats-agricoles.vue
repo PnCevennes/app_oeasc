@@ -117,6 +117,8 @@
         fieldValue="valeur"
         :title="titreCamembert"
         :unite="mesure.unite"
+        :code_couleurs="couleursCultures"
+        :ordre="ordreCultures"
         height="500px"
       ></camembert>
       <div
@@ -131,9 +133,20 @@
       <selecteur-saison
         v-model="idSaisonCarte"
         :saisons="saisons"
-      ></selecteur-saison>
+        :disabled="toutesSaisonsCarte"
+      >
+        <v-checkbox
+          v-model="toutesSaisonsCarte"
+          label="Toutes les années cumulées"
+          density="compact"
+          hide-details
+        ></v-checkbox>
+      </selecteur-saison>
 
-      <map_degats_communes :geojson="geojsonCommunes"></map_degats_communes>
+      <map_degats_communes
+        :geojson="geojsonCommunes"
+        :cumul="!!(geojsonCommunes && geojsonCommunes.toutes_saisons)"
+      ></map_degats_communes>
     </div>
   </div>
 </template>
@@ -148,6 +161,40 @@ import selecteurSaison from './selecteur-saison.vue';
 // part (en %) en dessous de laquelle une culture est regroupée dans « Autres cultures »
 const SEUIL_AUTRES = 2;
 
+// couleurs des parts du camembert, attribuées aux cultures par ordre d'importance
+// (toutes saisons confondues) pour rester identiques d'une saison et d'une mesure à l'autre
+const PALETTE_CULTURES = [
+  '#4e79a7',
+  '#f28e2b',
+  '#59a14f',
+  '#e15759',
+  '#b07aa1',
+  '#edc948',
+  '#76b7b2',
+  '#9c755f',
+  '#ff9da7',
+  '#1b9e77',
+  '#a6761d',
+  '#7570b3',
+  '#e7298a',
+  '#66a61e',
+  '#86bcb6',
+  '#d37295',
+  '#a0cbe8',
+  '#ffbe7d',
+  '#8cd17d',
+  '#d4a6c8',
+];
+const COULEUR_AUTRES = '#b0b0b0';
+const COULEUR_NON_RENSEIGNEE = '#dcdcdc';
+const NOM_NON_RENSEIGNEE = 'Non renseignée';
+
+// au-delà de la palette, teintes réparties par l'angle d'or pour rester distinctes
+const couleurCulture = (rang) =>
+  rang < PALETTE_CULTURES.length
+    ? PALETTE_CULTURES[rang]
+    : `hsl(${Math.round((rang * 137.508) % 360)}, 55%, 55%)`;
+
 const arrondi = (valeur, decimales) => Number(valeur.toFixed(decimales));
 
 export default {
@@ -160,7 +207,9 @@ export default {
     idSaisonCultures: null,
     idSaisonCarte: null,
     cultures: [], // indicateurs par type de culture pour idSaisonCultures
-    geojsonCommunes: null, // communes + indicateurs pour idSaisonCarte
+    culturesToutesSaisons: [], // idem cumulés sur toutes les saisons (référence des couleurs)
+    toutesSaisonsCarte: false, // carte : cumul de toutes les saisons au lieu de idSaisonCarte
+    geojsonCommunes: null, // communes + indicateurs pour idSaisonCarte (ou cumulés)
     mesureCultures: 'nb_declarations',
     mesures: [
       { value: 'nb_declarations', label: 'Nombre de déclarations', decimales: 0, unite: '' },
@@ -188,6 +237,31 @@ export default {
     },
     titreCamembert() {
       return `Types de culture touchés — ${this.mesure.label} — saison ${this.nomSaisonCultures}`;
+    },
+    // ordre des parts, identique dans tous les camemberts : cultures par ordre d'importance
+    // toutes saisons confondues ; le regroupement « Autres cultures (n) », absent de la liste,
+    // est placé à la fin
+    ordreCultures() {
+      return this.culturesToutesSaisons.map((c) => c.nom_culture);
+    },
+    // { nom de la part: couleur } : une culture garde la même couleur dans tous les camemberts
+    couleursCultures() {
+      const couleurs = {};
+      let rang = 0;
+      // les cultures absentes du cumul (réponse pas encore arrivée) sont ajoutées à la suite
+      for (const { nom_culture } of [...this.culturesToutesSaisons, ...this.cultures]) {
+        if (nom_culture in couleurs) {
+          continue;
+        }
+        couleurs[nom_culture] =
+          nom_culture === NOM_NON_RENSEIGNEE ? COULEUR_NON_RENSEIGNEE : couleurCulture(rang++);
+      }
+      for (const { nom_culture } of this.dataCamembert) {
+        if (!(nom_culture in couleurs)) {
+          couleurs[nom_culture] = COULEUR_AUTRES; // regroupement « Autres cultures (n) »
+        }
+      }
+      return couleurs;
     },
     // parts du camembert : les petites cultures sont regroupées pour rester lisible
     dataCamembert() {
@@ -217,8 +291,11 @@ export default {
     idSaisonCultures(id_saison) {
       this.chargerCultures(id_saison);
     },
-    idSaisonCarte(id_saison) {
-      this.chargerCommunes(id_saison);
+    idSaisonCarte() {
+      this.chargerCommunes();
+    },
+    toutesSaisonsCarte() {
+      this.chargerCommunes();
     },
   },
   methods: {
@@ -237,13 +314,17 @@ export default {
         }
       });
     },
-    chargerCommunes(id_saison) {
-      if (!id_saison) {
+    chargerCommunes() {
+      const id_saison = this.idSaisonCarte;
+      const toutes_saisons = this.toutesSaisonsCarte;
+      if (!toutes_saisons && !id_saison) {
         this.geojsonCommunes = null;
         return;
       }
-      apiRequest('GET', 'api/agricole/results/communes', { params: { id_saison } }).then((res) => {
-        if (id_saison === this.idSaisonCarte) {
+      const params = toutes_saisons ? { toutes_saisons: true } : { id_saison };
+      apiRequest('GET', 'api/agricole/results/communes', { params }).then((res) => {
+        // ignore une réponse arrivée après un nouveau changement de saison ou de cumul
+        if (id_saison === this.idSaisonCarte && toutes_saisons === this.toutesSaisonsCarte) {
           this.geojsonCommunes = res;
         }
       });
@@ -253,6 +334,11 @@ export default {
     apiRequest('GET', 'api/agricole/results/saisons')
       .then((res) => {
         this.saisons = res.items || [];
+        apiRequest('GET', 'api/agricole/results/cultures', {
+          params: { toutes_saisons: true },
+        }).then((r) => {
+          this.culturesToutesSaisons = r.items || [];
+        });
         // saison la plus récente par défaut
         const derniere = this.saisons[this.saisons.length - 1];
         if (derniere) {

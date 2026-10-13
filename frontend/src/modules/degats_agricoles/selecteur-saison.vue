@@ -2,6 +2,8 @@
   Sélecteur de saison : un champ numérique sur l'année de début de la saison
   (2024 pour la saison 2024-2025). v-model = id_saison (null si aucune saison
   ne commence l'année choisie).
+  Le slot par défaut est placé juste à droite du champ ; `disabled` grise le champ
+  et masque le nom de la saison (la saison choisie ne s'applique alors plus).
 -->
 <template>
   <div class="selecteur-saison">
@@ -14,20 +16,24 @@
       hide-details
       :min="anneeMin"
       :max="anneeMax"
+      :disabled="disabled"
       style="max-width: 220px"
     ></v-number-input>
-    <span
-      v-if="saison"
-      class="nom-saison"
-    >
-      Saison {{ saison.nom_saison }}
-    </span>
-    <span
-      v-else
-      class="nom-saison aucune"
-    >
-      Aucune donnée pour cette saison
-    </span>
+    <slot></slot>
+    <template v-if="!disabled">
+      <span
+        v-if="saison"
+        class="nom-saison"
+      >
+        Saison {{ saison.nom_saison }}
+      </span>
+      <span
+        v-else
+        class="nom-saison aucune"
+      >
+        Aucune donnée pour cette saison
+      </span>
+    </template>
   </div>
 </template>
 
@@ -37,6 +43,7 @@ export default {
   props: {
     modelValue: { default: null }, // id_saison
     saisons: { default: () => [] }, // [{ id_saison, nom_saison, annee_debut }]
+    disabled: { default: false },
   },
   emits: ['update:modelValue'],
   data: () => ({

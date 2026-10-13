@@ -9,7 +9,7 @@ import json
 from flask import current_app
 from sqlalchemy import case, distinct, func, select, text
 
-from .models import TSaisonAgricole, TTypeCulture, TDeclarationAgricole
+from .models import TSaisonAgricole, TCulture, TDeclarationAgricole
 
 config = current_app.config
 DB = config["DB"]
@@ -81,22 +81,25 @@ def get_bilan_saisons():
     ]
 
 
-def get_bilan_cultures(id_saison):
-    """Indicateurs par type de culture pour une saison."""
+def get_bilan_cultures(id_saison=None):
+    """Indicateurs par culture pour une saison.
+    Sans `id_saison`, les indicateurs sont cumulés sur toutes les saisons."""
     D = TDeclarationAgricole
-    nom_culture = func.coalesce(TTypeCulture.nom_culture, "Non renseignée")
-    rows = DB.session.execute(
+    nom_culture = func.coalesce(TCulture.nom_culture, "Non renseignée")
+    query = (
         select(
             nom_culture,
             func.count(D.id_declaration),
             func.coalesce(func.sum(D.montant_total_paye), 0),
             _surface_ha(D.surface_detruite),
         )
-        .outerjoin(TTypeCulture, TTypeCulture.id_culture == D.id_culture)
-        .where(D.id_saison == id_saison)
+        .outerjoin(TCulture, TCulture.id_culture == D.id_culture)
         .group_by(nom_culture)
         .order_by(func.count(D.id_declaration).desc(), nom_culture)
-    ).all()
+    )
+    if id_saison is not None:
+        query = query.where(D.id_saison == id_saison)
+    rows = DB.session.execute(query).all()
     return [
         {
             "nom_culture": r[0],
@@ -108,9 +111,10 @@ def get_bilan_cultures(id_saison):
     ]
 
 
-def get_bilan_communes_geojson(id_saison):
+def get_bilan_communes_geojson(id_saison=None):
     """FeatureCollection des communes de la zone OEASC avec, pour la saison :
     surface détruite (ha), montant total indemnisé et nombre de dossiers.
+    Sans `id_saison`, les indicateurs sont cumulés sur toutes les saisons.
     Les communes sans déclaration sont présentes avec des valeurs à 0.
 
     Les géométries de `communes_aoa` sont en Lambert-93 (EPSG:2154) : elles sont
@@ -143,7 +147,7 @@ def get_bilan_communes_geojson(id_saison):
                     COUNT(DISTINCT numero_dossier) AS nb_dossiers,
                     COUNT(*) AS nb_declarations
                 FROM oeasc_agricole.t_declaration_agricole
-                WHERE id_saison = :id_saison
+                WHERE CAST(:id_saison AS integer) IS NULL OR id_saison = :id_saison
                 GROUP BY id_commune
             ) b ON b.id_commune = c.id
             ORDER BY c.nom

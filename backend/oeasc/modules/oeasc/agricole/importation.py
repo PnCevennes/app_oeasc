@@ -7,6 +7,7 @@ Fichier attendu (csv, xls ou ods), une ligne par déclaration :
     Volume détruit (qtx), Unité de la quantité détruite expertisé, Pourcentage,
     Espèce, Montant payé PR (€), Surface RESSEMIS (ha),
     Montant payé RESSEMIS (€), Montant total payé (€)
+« Secteur » (unité de gestion agricole) est facultative.
 
 `traitement_import_degats_agricoles` est appelée en tâche de fond par
 `chasse.import_async._traiter` (thread + suivi JSON + polling), avec la signature
@@ -42,7 +43,7 @@ from oeasc.modules.oeasc.chasse.import_attributions import (
     lire_csv_auto,
 )
 from oeasc.ref_geo_oeasc.models import TCommunesArea
-from .models import TSaisonAgricole, TTypeCulture, TDeclarationAgricole
+from .models import TSaisonAgricole, TCulture, TUgAgricole, TDeclarationAgricole
 
 config = current_app.config
 DB = config["DB"]
@@ -56,6 +57,7 @@ ALIAS_COLONNES = {
     "date_creation": ["date de creation", "date creation"],
     "numero_dossier": ["n dossier", "no dossier", "numero dossier", "num dossier"],
     "date_document": ["date document", "date du document"],
+    "secteur": ["secteur", "ug agricole", "unite de gestion"],
     "code_insee": ["code insee", "insee", "code insee commune"],
     "culture": ["culture", "type de culture"],
     "surface_detruite": ["surface detruite ha", "surface detruite"],
@@ -73,6 +75,9 @@ ALIAS_COLONNES = {
     "montant_paye_ressemis": ["montant paye ressemis"],
     "montant_total_paye": ["montant total paye", "montant total"],
 }
+
+# colonnes dont l'absence ne bloque pas l'import (champ laissé vide)
+COLONNES_FACULTATIVES = ("secteur",)
 
 # score RapidFuzz (0-100) minimal pour rapprocher une entête d'un nom attendu
 SEUIL_FUZZY = 85
@@ -325,7 +330,8 @@ def traitement_import_degats_agricoles(
 ):
     """Importe un fichier de dégâts agricoles.
 
-    - Saisons et types de culture absents de la base : créés.
+    - Saisons, cultures et unités de gestion agricoles (colonne « Secteur »)
+      absentes de la base : créées.
     - Un dossier est identifié par son numéro et regroupe plusieurs déclarations.
       `update` faux : les dossiers déjà en base sont ignorés ; `update` vrai :
       toutes les déclarations des numéros de dossier présents dans le fichier
@@ -372,6 +378,13 @@ def traitement_import_degats_agricoles(
                     f"« {ALIAS_COLONNES[canon][0]} » (ressemblance {score} %).",
                     type_log="WARNING",
                 )
+            if "secteur" in manquantes:
+                api.add_log(
+                    "Colonne « Secteur » absente : déclarations importées sans "
+                    "unité de gestion agricole.",
+                    type_log="WARNING",
+                )
+            manquantes = [c for c in manquantes if c not in COLONNES_FACULTATIVES]
             if manquantes:
                 api.add_error(
                     system_error=f"Colonnes manquantes : {manquantes}",
@@ -389,7 +402,8 @@ def traitement_import_degats_agricoles(
                 ).all()
             )
 
-            lignes = []  # dicts de valeurs + nom_saison / nom_culture à résoudre
+            lignes = []  # dicts de valeurs + nom_saison / nom_culture /
+            # nom_ug_agricole à résoudre
             saisons_fichier = {}  # {nom_saison: (date_debut, date_fin)}
             erreurs = []
             for i, row in df.iterrows():
@@ -451,6 +465,11 @@ def traitement_import_degats_agricoles(
                         id_commune=id_commune,
                         id_espece=id_espece,
                         nom_culture=" ".join(_texte(row[cols["culture"]]).split()),
+                        nom_ug_agricole=(
+                            " ".join(_texte(row[cols["secteur"]]).split())
+                            if "secteur" in cols
+                            else ""
+                        ),
                         unit_quantite_detruite=_texte(
                             row[cols["unit_quantite_detruite"]]
                         )
@@ -463,7 +482,7 @@ def traitement_import_degats_agricoles(
             if erreurs:
                 return _abandon_erreurs(api, erreurs)
 
-            # --- 4. saisons et types de culture --------------------------------
+            # --- 4. saisons, cultures et unités de gestion ---------------------
             saisons = {
                 s.nom_saison: s.id_saison
                 for s in DB.session.execute(select(TSaisonAgricole)).scalars()
@@ -481,12 +500,29 @@ def traitement_import_degats_agricoles(
 
             cultures = {
                 _normalize_entete(c.nom_culture): c.id_culture
-                for c in DB.session.execute(select(TTypeCulture)).scalars()
+                for c in DB.session.execute(select(TCulture)).scalars()
+            }
+            ugs = {
+                _normalize_entete(u.nom_ug_agricole): u.id_ug_agricole
+                for u in DB.session.execute(select(TUgAgricole)).scalars()
             }
             cultures_creees = []
+            ugs_creees = []
             nb_sans_culture = 0
             for ligne in lignes:
                 ligne["id_saison"] = saisons[ligne.pop("nom_saison")]
+
+                nom_ug = ligne.pop("nom_ug_agricole")
+                cle_ug = _normalize_entete(nom_ug)
+                if nom_ug and cle_ug not in ugs:
+                    # le fichier ne contient que des communes de l'OEASC
+                    u = TUgAgricole(nom_ug_agricole=nom_ug, in_oeasc=True)
+                    DB.session.add(u)
+                    DB.session.flush()
+                    ugs[cle_ug] = u.id_ug_agricole
+                    ugs_creees.append(nom_ug)
+                ligne["id_ug_agricole"] = ugs.get(cle_ug) if nom_ug else None
+
                 nom = ligne.pop("nom_culture")
                 if not nom:
                     ligne["id_culture"] = None
@@ -494,13 +530,13 @@ def traitement_import_degats_agricoles(
                     continue
                 cle = _normalize_entete(nom)
                 if cle not in cultures:
-                    c = TTypeCulture(nom_culture=nom)
+                    c = TCulture(nom_culture=nom)
                     DB.session.add(c)
                     DB.session.flush()
                     cultures[cle] = c.id_culture
                     cultures_creees.append(nom)
                 ligne["id_culture"] = cultures[cle]
-            _progress(api, "Saisons et types de culture")
+            _progress(api, "Saisons, cultures et unités de gestion")
 
             # --- 5. déclarations ----------------------------------------------
             # un dossier est identifié par son seul numéro, quelle que soit la saison
@@ -549,8 +585,15 @@ def traitement_import_degats_agricoles(
                 )
             if cultures_creees:
                 api.add_log(
-                    f"{len(cultures_creees)} type(s) de culture créé(s) : "
+                    f"{len(cultures_creees)} culture(s) créée(s), sans type de "
+                    "culture (à renseigner dans « Données dégâts agricoles ») : "
                     + ", ".join(cultures_creees),
+                    type_log="WARNING",
+                )
+            if ugs_creees:
+                api.add_log(
+                    f"{len(ugs_creees)} unité(s) de gestion agricole créée(s) : "
+                    + ", ".join(ugs_creees),
                     type_log="INFO",
                 )
             if nb_sans_culture:
