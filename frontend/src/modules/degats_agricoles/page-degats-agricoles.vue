@@ -29,52 +29,56 @@
     <div v-else>
       <h2>Évolution par saison</h2>
 
-      <graph_colonnes_saisons
-        title="Montant total indemnisé par saison"
-        :categories="categories"
-        :series="[{ name: 'Montant indemnisé', data: valeurs('montant_total'), color: '#7cb5ec' }]"
-        yTitle="Montant indemnisé (€)"
-        unite="€"
-      ></graph_colonnes_saisons>
+      <div class="grille-graphiques">
+        <graph_colonnes_saisons
+          title="Montant total indemnisé par saison"
+          :categories="categories"
+          :series="[
+            { name: 'Montant indemnisé', data: valeurs('montant_total'), color: '#7cb5ec' },
+          ]"
+          yTitle="Montant indemnisé (€)"
+          unite="€"
+        ></graph_colonnes_saisons>
 
-      <graph_colonnes_saisons
-        title="Nombre de déclarations par saison"
-        :categories="categories"
-        :series="[{ name: 'Déclarations', data: valeurs('nb_declarations'), color: '#f7a35c' }]"
-        yTitle="Nombre de déclarations"
-      ></graph_colonnes_saisons>
+        <graph_colonnes_saisons
+          title="Nombre de déclarations par saison"
+          :categories="categories"
+          :series="[{ name: 'Déclarations', data: valeurs('nb_declarations'), color: '#f7a35c' }]"
+          yTitle="Nombre de déclarations"
+        ></graph_colonnes_saisons>
 
-      <graph_colonnes_saisons
-        title="Nombre de dossiers par saison"
-        :categories="categories"
-        :series="[{ name: 'Dossiers', data: valeurs('nb_dossiers'), color: '#8085e9' }]"
-        yTitle="Nombre de dossiers"
-      ></graph_colonnes_saisons>
+        <graph_colonnes_saisons
+          title="Nombre de dossiers par saison"
+          :categories="categories"
+          :series="[{ name: 'Dossiers', data: valeurs('nb_dossiers'), color: '#8085e9' }]"
+          yTitle="Nombre de dossiers"
+        ></graph_colonnes_saisons>
 
-      <graph_colonnes_saisons
-        title="Surface détruite et surface remise en état par saison"
-        :categories="categories"
-        :series="[
-          { name: 'Surface détruite', data: valeurs('surface_detruite'), color: '#e4572e' },
-          {
-            name: 'Surface remise en état (ressemis)',
-            data: valeurs('surface_ressemis'),
-            color: '#76b041',
-          },
-        ]"
-        yTitle="Surface (ha)"
-        unite="ha"
-        :decimales="1"
-      ></graph_colonnes_saisons>
+        <graph_colonnes_saisons
+          title="Surface détruite et surface remise en état par saison"
+          :categories="categories"
+          :series="[
+            { name: 'Surface détruite', data: valeurs('surface_detruite'), color: '#e4572e' },
+            {
+              name: 'Surface remise en état (ressemis)',
+              data: valeurs('surface_ressemis'),
+              color: '#76b041',
+            },
+          ]"
+          yTitle="Surface (ha)"
+          unite="ha"
+          :decimales="1"
+        ></graph_colonnes_saisons>
 
-      <graph_colonnes_saisons
-        title="Surface détruite cumulée"
-        :categories="categories"
-        :series="[{ name: 'Surface détruite cumulée', data: surfaceCumulee, color: '#a23b72' }]"
-        yTitle="Surface cumulée (ha)"
-        unite="ha"
-        :decimales="1"
-      ></graph_colonnes_saisons>
+        <graph_colonnes_saisons
+          title="Surface détruite cumulée"
+          :categories="categories"
+          :series="[{ name: 'Surface détruite cumulée', data: surfaceCumulee, color: '#a23b72' }]"
+          yTitle="Surface cumulée (ha)"
+          unite="ha"
+          :decimales="1"
+        ></graph_colonnes_saisons>
+      </div>
 
       <p class="note">
         Les surfaces ne comptent que les déclarations exprimées en hectares : celles évaluées en
@@ -112,6 +116,7 @@
         fieldName="nom_culture"
         fieldValue="valeur"
         :title="titreCamembert"
+        :unite="mesure.unite"
         height="500px"
       ></camembert>
       <div
@@ -159,7 +164,7 @@ export default {
     mesureCultures: 'nb_declarations',
     mesures: [
       { value: 'nb_declarations', label: 'Nombre de déclarations', decimales: 0, unite: '' },
-      { value: 'surface_detruite', label: 'Surface détruite (ha)', decimales: 2, unite: 'ha' },
+      { value: 'surface_detruite', label: 'Surface détruite (ha)', decimales: 2, unite: 'Ha' },
       { value: 'montant_total', label: 'Montant indemnisé (€)', decimales: 0, unite: '€' },
     ],
   }),
@@ -274,6 +279,17 @@ export default {
 .page-degats-agricoles h2 {
   margin-top: 32px;
   margin-bottom: 8px;
+}
+.grille-graphiques {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+/* une seule colonne sur petit écran, sinon les graphiques sont illisibles */
+@media (max-width: 900px) {
+  .grille-graphiques {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 .note {
   font-style: italic;

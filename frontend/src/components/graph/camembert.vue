@@ -42,6 +42,7 @@ export default {
     fieldName: { default: null },
     fieldValue: { default: null },
     title: { default: '' },
+    unite: { default: '' }, // unité ajoutée après les valeurs (ex: '€', 'Ha')
     width: { default: '100%' },
     height: { default: '400px' },
     code_couleurs: { default: null }, // objet de la forme { 'nom_categorie': 'couleur1', 'nom_categorie2': 'couleur2', ... } pour colorer les points en fonction de la valeur d'un champ
@@ -170,6 +171,12 @@ export default {
       //   // si update échoue, on retombe sur l'affectation classique
       //   console.warn('Highcharts update failed:', e);
       // }
+
+      // titre et unité peuvent changer avec les props : on les recalcule à chaque fois
+      const unite = this.$props.unite ? ` ${this.$props.unite}` : '';
+      this.chartOptions.title.text = this.$props.title || '';
+      this.chartOptions.tooltip.pointFormat = `<b>{point.y}${unite}</b>: {point.percentage:.1f} %`;
+      this.chartOptions.plotOptions.pie.dataLabels.format = `<b>{point.name}:</b> <br> <b style="text-align:center">{point.y}${unite}</b> ({point.percentage:.1f} %)`;
 
       // premier affichage ou fallback
       this.chartOptions.series = newSeries;
