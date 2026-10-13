@@ -28,7 +28,7 @@ from pathlib import Path
 import pandas as pd
 from flask import current_app
 from rapidfuzz import fuzz
-from sqlalchemy import select, delete, insert, update as sql_update
+from sqlalchemy import select, delete, insert, text, update as sql_update
 
 from oeasc.utils.apiResponse import ApiResponse
 from oeasc.modules.oeasc.chasse.import_attributions import (
@@ -281,6 +281,35 @@ def actualiser_saison_courante():
     return id_recente
 
 
+def recaler_sequence_declarations():
+    """Fait repartir `id_declaration` juste après le plus grand id présent.
+
+    Sans cela, chaque import avec mise à jour (suppression puis réinsertion des
+    dossiers) continue la numérotation après les id supprimés, et les id
+    grimpent de plusieurs milliers à chaque fois.
+
+    La table est verrouillée en écriture jusqu'à la fin de la transaction, pour
+    qu'aucune insertion concurrente ne prenne un id entre le recalage et
+    l'insertion (les lectures restent possibles).
+    """
+    DB.session.execute(
+        text("LOCK TABLE oeasc_agricole.t_declaration_agricole IN EXCLUSIVE MODE")
+    )
+    DB.session.execute(text("""
+            SELECT setval(
+                pg_get_serial_sequence(
+                    'oeasc_agricole.t_declaration_agricole', 'id_declaration'
+                ),
+                COALESCE(
+                    (SELECT MAX(id_declaration)
+                     FROM oeasc_agricole.t_declaration_agricole),
+                    0
+                ) + 1,
+                false
+            )
+            """))
+
+
 # ---------------------------------------------------------------------------
 #  Traitement
 # ---------------------------------------------------------------------------
@@ -506,6 +535,7 @@ def traitement_import_degats_agricoles(
                 ]
 
             if a_inserer:
+                recaler_sequence_declarations()
                 DB.session.execute(insert(TDeclarationAgricole), a_inserer)
             DB.session.commit()
             _progress(api, "Enregistrement")
