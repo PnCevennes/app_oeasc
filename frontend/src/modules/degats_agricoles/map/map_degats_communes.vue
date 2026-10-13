@@ -112,7 +112,7 @@ export default {
   },
   mounted() {
     // la carte et sa couche ne sont volontairement pas réactives (objets Leaflet)
-    this.map = L.map(this.$refs.map, { scrollWheelZoom: false }).setView([44.3, 3.7], 9);
+    this.map = L.map(this.$refs.map).setView([44.3, 3.7], 9);
     L.tileLayer(TILE_URL, { maxZoom: 18, opacity: 0.7, attribution: TILE_ATTRIBUTION }).addTo(
       this.map
     );
