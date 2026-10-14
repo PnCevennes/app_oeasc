@@ -2,14 +2,22 @@
 Requêtes d'agrégation des dégâts agricoles (restitution : graphiques et carte).
 
 Toutes les données concernent la zone OEASC (communes de `ref_geo.communes_aoa`).
+Avec `uniquement_oeasc` (vrai par défaut), seules les déclarations dont l'unité de
+gestion agricole est dans l'OEASC (`t_ug_agricole.in_oeasc`) sont comptées.
 """
 
 import json
 
 from flask import current_app
-from sqlalchemy import case, distinct, func, select, text
+from sqlalchemy import and_, case, distinct, func, select, text, true
 
-from .models import TSaisonAgricole, TCulture, TDeclarationAgricole
+from .models import (
+    TSaisonAgricole,
+    TCulture,
+    TTypeCulture,
+    TUgAgricole,
+    TDeclarationAgricole,
+)
 
 config = current_app.config
 DB = config["DB"]
@@ -42,12 +50,24 @@ def _surface_ha(colonne):
     )
 
 
+def _filtre_oeasc(uniquement_oeasc):
+    """Condition sur les déclarations : unité de gestion agricole dans l'OEASC
+    (les déclarations sans unité de gestion sont alors exclues)."""
+    if not uniquement_oeasc:
+        return true()
+    return TDeclarationAgricole.id_ug_agricole.in_(
+        select(TUgAgricole.id_ug_agricole).where(TUgAgricole.in_oeasc.is_(True))
+    )
+
+
 def get_saison(id_saison):
     return DB.session.get(TSaisonAgricole, id_saison)
 
 
-def get_bilan_saisons():
-    """Indicateurs par saison, de la plus ancienne à la plus récente."""
+def get_bilan_saisons(uniquement_oeasc=True):
+    """Indicateurs par saison, de la plus ancienne à la plus récente.
+    Toutes les saisons sont renvoyées, à 0 si aucune déclaration ne passe le filtre
+    (la liste sert aussi aux sélecteurs de saison de la page)."""
     D = TDeclarationAgricole
     rows = DB.session.execute(
         select(
@@ -61,7 +81,13 @@ def get_bilan_saisons():
             _surface_ha(D.surface_detruite),
             _surface_ha(D.surface_ressemis),
         )
-        .join(D, D.id_saison == TSaisonAgricole.id_saison)
+        .outerjoin(
+            D,
+            and_(
+                D.id_saison == TSaisonAgricole.id_saison,
+                _filtre_oeasc(uniquement_oeasc),
+            ),
+        )
         .group_by(TSaisonAgricole.id_saison)
         .order_by(TSaisonAgricole.date_debut, TSaisonAgricole.nom_saison)
     ).all()
@@ -81,20 +107,27 @@ def get_bilan_saisons():
     ]
 
 
-def get_bilan_cultures(id_saison=None):
-    """Indicateurs par culture pour une saison.
+def get_bilan_cultures(id_saison=None, uniquement_oeasc=True):
+    """Indicateurs par culture pour une saison, avec le type de culture de
+    chacune (le regroupement par type est fait par l'appelant).
     Sans `id_saison`, les indicateurs sont cumulés sur toutes les saisons."""
     D = TDeclarationAgricole
     nom_culture = func.coalesce(TCulture.nom_culture, "Non renseignée")
+    nom_type_culture = func.coalesce(TTypeCulture.nom_type_culture, "Non renseigné")
     query = (
         select(
             nom_culture,
             func.count(D.id_declaration),
             func.coalesce(func.sum(D.montant_total_paye), 0),
             _surface_ha(D.surface_detruite),
+            nom_type_culture,
         )
         .outerjoin(TCulture, TCulture.id_culture == D.id_culture)
-        .group_by(nom_culture)
+        .outerjoin(
+            TTypeCulture, TTypeCulture.id_type_culture == TCulture.id_type_culture
+        )
+        .where(_filtre_oeasc(uniquement_oeasc))
+        .group_by(nom_culture, nom_type_culture)
         .order_by(func.count(D.id_declaration).desc(), nom_culture)
     )
     if id_saison is not None:
@@ -103,6 +136,7 @@ def get_bilan_cultures(id_saison=None):
     return [
         {
             "nom_culture": r[0],
+            "nom_type_culture": r[4],
             "nb_declarations": r[1],
             "montant_total": float(r[2]),
             "surface_detruite": float(r[3]),
@@ -111,7 +145,7 @@ def get_bilan_cultures(id_saison=None):
     ]
 
 
-def get_bilan_communes_geojson(id_saison=None):
+def get_bilan_communes_geojson(id_saison=None, uniquement_oeasc=True):
     """FeatureCollection des communes de la zone OEASC avec, pour la saison :
     surface détruite (ha), montant total indemnisé et nombre de dossiers.
     Sans `id_saison`, les indicateurs sont cumulés sur toutes les saisons.
@@ -147,12 +181,24 @@ def get_bilan_communes_geojson(id_saison=None):
                     COUNT(DISTINCT numero_dossier) AS nb_dossiers,
                     COUNT(*) AS nb_declarations
                 FROM oeasc_agricole.t_declaration_agricole
-                WHERE CAST(:id_saison AS integer) IS NULL OR id_saison = :id_saison
+                WHERE (CAST(:id_saison AS integer) IS NULL OR id_saison = :id_saison)
+                  AND (
+                    NOT :uniquement_oeasc
+                    OR id_ug_agricole IN (
+                        SELECT id_ug_agricole
+                        FROM oeasc_agricole.t_ug_agricole
+                        WHERE in_oeasc
+                    )
+                  )
                 GROUP BY id_commune
             ) b ON b.id_commune = c.id
             ORDER BY c.nom
             """),
-        {"id_saison": id_saison, "tolerance": TOLERANCE_SIMPLIFICATION},
+        {
+            "id_saison": id_saison,
+            "uniquement_oeasc": bool(uniquement_oeasc),
+            "tolerance": TOLERANCE_SIMPLIFICATION,
+        },
     ).all()
     return {
         "type": "FeatureCollection",

@@ -9,6 +9,12 @@ Fichier attendu (csv, xls ou ods), une ligne par déclaration :
     Montant payé RESSEMIS (€), Montant total payé (€)
 « Secteur » (unité de gestion agricole) est facultative.
 
+Cas particuliers (lignes hors périmètre, écartées avant toute validation) :
+    - secteur « 06 / GARDILLE/CHASSEZAC » : toutes les lignes ;
+    - secteur « 07 / SAUVETERRE » : toutes sauf celles de la commune d'Ispagnac ;
+    - communes de Gorges du Tarn Causses et Massegros Causses Gorges : toutes
+      les lignes, quel que soit le secteur.
+
 `traitement_import_degats_agricoles` est appelée en tâche de fond par
 `chasse.import_async._traiter` (thread + suivi JSON + polling), avec la signature
 commune aux imports `(path, id_saison, update, id_role=, nom_complet=,
@@ -87,6 +93,15 @@ ECART_FUZZY = 3
 
 # valeurs de la colonne Espèce absentes de oeasc_commons.t_especes
 ALIAS_ESPECES = {"cervide": "cerf", "cervides": "cerf"}
+
+# cas particuliers — secteurs comparés après `_normalize_entete`
+# secteurs dont toutes les lignes sont écartées
+SECTEURS_EXCLUS = {"06 gardille chassezac"}
+# secteurs dont on ne garde que certaines communes : {secteur: {codes INSEE}}
+COMMUNES_GARDEES_PAR_SECTEUR = {"07 sauveterre": {"48075"}}  # Ispagnac
+# communes (codes INSEE) dont toutes les lignes sont écartées, quel que soit le
+# secteur : Massegros Causses Gorges, Gorges du Tarn Causses
+COMMUNES_EXCLUES = {"48094", "48146"}
 
 COLONNES_NUMERIQUES = (
     "surface_detruite",
@@ -253,6 +268,18 @@ def _parse_saison(valeur):
     return f"{an1}-{an2}", date(an1, 7, 1), date(an2, 6, 30)
 
 
+def _ligne_exclue(secteur, insee):
+    """Vrai si la ligne relève d'un cas particulier à ne pas importer
+    (`SECTEURS_EXCLUS`, `COMMUNES_GARDEES_PAR_SECTEUR`, `COMMUNES_EXCLUES`)."""
+    if insee in COMMUNES_EXCLUES:
+        return True
+    cle = _normalize_entete(secteur)
+    if cle in SECTEURS_EXCLUS:
+        return True
+    gardees = COMMUNES_GARDEES_PAR_SECTEUR.get(cle)
+    return gardees is not None and insee not in gardees
+
+
 def _init_api(id_role, nom_complet):
     api = ApiResponse(log_file="import_degats_agricoles.log")
     api.id_role = id_role
@@ -332,6 +359,8 @@ def traitement_import_degats_agricoles(
 
     - Saisons, cultures et unités de gestion agricoles (colonne « Secteur »)
       absentes de la base : créées.
+    - Les lignes des cas particuliers (`_ligne_exclue`) ne sont pas importées ;
+      avec `update` vrai, leurs dossiers déjà en base sont supprimés.
     - Un dossier est identifié par son numéro et regroupe plusieurs déclarations.
       `update` faux : les dossiers déjà en base sont ignorés ; `update` vrai :
       toutes les déclarations des numéros de dossier présents dans le fichier
@@ -406,6 +435,9 @@ def traitement_import_degats_agricoles(
             # nom_ug_agricole à résoudre
             saisons_fichier = {}  # {nom_saison: (date_debut, date_fin)}
             erreurs = []
+            # {secteur ou commune: nb de lignes écartées (cas particuliers)}
+            exclus = {}
+            dossiers_exclus = set()
             for i, row in df.iterrows():
                 num = i + 2  # n° de ligne dans le fichier (+1 entête, +1 index 1-based)
                 err = []
@@ -424,6 +456,21 @@ def traitement_import_degats_agricoles(
                 insee = _texte(row[cols["code_insee"]]).upper()
                 if insee.isdigit():
                     insee = insee.zfill(5)
+
+                secteur = (
+                    " ".join(_texte(row[cols["secteur"]]).split())
+                    if "secteur" in cols
+                    else ""
+                )
+                if _ligne_exclue(secteur, insee):
+                    motif = (
+                        f"commune {insee}" if insee in COMMUNES_EXCLUES else secteur
+                    )
+                    exclus[motif] = exclus.get(motif, 0) + 1
+                    if numero_dossier:
+                        dossiers_exclus.add(numero_dossier)
+                    continue
+
                 id_commune = communes.get(insee)
                 if id_commune is None:
                     err.append(f"code INSEE inconnu « {insee} »")
@@ -465,11 +512,7 @@ def traitement_import_degats_agricoles(
                         id_commune=id_commune,
                         id_espece=id_espece,
                         nom_culture=" ".join(_texte(row[cols["culture"]]).split()),
-                        nom_ug_agricole=(
-                            " ".join(_texte(row[cols["secteur"]]).split())
-                            if "secteur" in cols
-                            else ""
-                        ),
+                        nom_ug_agricole=secteur,
                         unit_quantite_detruite=_texte(
                             row[cols["unit_quantite_detruite"]]
                         )
@@ -515,8 +558,7 @@ def traitement_import_degats_agricoles(
                 nom_ug = ligne.pop("nom_ug_agricole")
                 cle_ug = _normalize_entete(nom_ug)
                 if nom_ug and cle_ug not in ugs:
-                    # le fichier ne contient que des communes de l'OEASC
-                    u = TUgAgricole(nom_ug_agricole=nom_ug, in_oeasc=True)
+                    u = TUgAgricole(nom_ug_agricole=nom_ug, in_oeasc=False)
                     DB.session.add(u)
                     DB.session.flush()
                     ugs[cle_ug] = u.id_ug_agricole
@@ -541,15 +583,24 @@ def traitement_import_degats_agricoles(
             # --- 5. déclarations ----------------------------------------------
             # un dossier est identifié par son seul numéro, quelle que soit la saison
             dossiers_fichier = {l["numero_dossier"] for l in lignes}
-            dossiers_existants = set(
+            # dossiers dont toutes les lignes sont écartées (cas particuliers)
+            dossiers_exclus -= dossiers_fichier
+            en_base = set(
                 DB.session.execute(
                     select(TDeclarationAgricole.numero_dossier)
-                    .where(TDeclarationAgricole.numero_dossier.in_(dossiers_fichier))
+                    .where(
+                        TDeclarationAgricole.numero_dossier.in_(
+                            dossiers_fichier | dossiers_exclus
+                        )
+                    )
                     .distinct()
                 ).scalars()
             )
+            dossiers_existants = en_base & dossiers_fichier
+            dossiers_exclus_en_base = en_base & dossiers_exclus
 
             nb_suppr = 0
+            nb_suppr_exclus = 0
             if do_update:
                 # toutes les déclarations de ces dossiers sont supprimées : après
                 # l'import, ils ne contiennent plus que les lignes du fichier
@@ -559,6 +610,18 @@ def traitement_import_degats_agricoles(
                             delete(TDeclarationAgricole).where(
                                 TDeclarationAgricole.numero_dossier.in_(
                                     dossiers_existants
+                                )
+                            )
+                        ).rowcount
+                        or 0
+                    )
+                # ... y compris les dossiers écartés importés avant ces règles
+                if dossiers_exclus_en_base:
+                    nb_suppr_exclus = (
+                        DB.session.execute(
+                            delete(TDeclarationAgricole).where(
+                                TDeclarationAgricole.numero_dossier.in_(
+                                    dossiers_exclus_en_base
                                 )
                             )
                         ).rowcount
@@ -577,6 +640,27 @@ def traitement_import_degats_agricoles(
             _progress(api, "Enregistrement")
 
             # --- bilan ----------------------------------------------------------
+            if exclus:
+                api.add_log(
+                    f"{sum(exclus.values())} ligne(s) hors périmètre non "
+                    "importée(s) : "
+                    + ", ".join(f"{s or '?'} ({n})" for s, n in sorted(exclus.items())),
+                    type_log="INFO",
+                )
+            if dossiers_exclus_en_base:
+                if do_update:
+                    api.add_log(
+                        f"{len(dossiers_exclus_en_base)} dossier(s) hors périmètre "
+                        f"supprimé(s) de la base ({nb_suppr_exclus} déclaration(s)).",
+                        type_log="INFO",
+                    )
+                else:
+                    api.add_log(
+                        f"{len(dossiers_exclus_en_base)} dossier(s) hors périmètre "
+                        "encore en base. Cochez « Mettre à jour les données "
+                        "existantes » pour les supprimer.",
+                        type_log="WARNING",
+                    )
             if saisons_creees:
                 api.add_log(
                     f"{len(saisons_creees)} saison(s) créée(s) : "
@@ -592,9 +676,10 @@ def traitement_import_degats_agricoles(
                 )
             if ugs_creees:
                 api.add_log(
-                    f"{len(ugs_creees)} unité(s) de gestion agricole créée(s) : "
-                    + ", ".join(ugs_creees),
-                    type_log="INFO",
+                    f"{len(ugs_creees)} unité(s) de gestion agricole créée(s), "
+                    "hors OEASC par défaut (à corriger au besoin dans « Données "
+                    "dégâts agricoles ») : " + ", ".join(ugs_creees),
+                    type_log="WARNING",
                 )
             if nb_sans_culture:
                 api.add_log(

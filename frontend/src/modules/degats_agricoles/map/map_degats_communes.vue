@@ -22,6 +22,10 @@
         ></span>
         {{ classe.label }}
       </span>
+      <span class="legende-item">
+        <span class="legende-perimetre"></span>
+        Périmètre OEASC
+      </span>
     </div>
   </div>
 </template>
@@ -30,10 +34,14 @@
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { config } from '@/config/config.js';
+import { fetch_oeasc_perimetre } from '@/modules/declaration/utils/api_request.js';
 
 // Fond de carte servi par le backend (proxy des tuiles IGN), comme map_declaration_simple.vue
 const TILE_URL = `${config.URL_APPLICATION.replace(/\/$/, '')}/api/declaration/tiles/v2/{z}/{x}/{y}.png`;
 const TILE_ATTRIBUTION = '&copy; <a href="http://www.ign.fr/">IGN</a>';
+
+// contour du périmètre OEASC : sans remplissage pour ne pas fausser les couleurs des communes
+const STYLE_PERIMETRE = { color: '#000000', weight: 3, opacity: 0.9, fill: false };
 
 // classes de surface détruite (ha), de la plus forte à la plus faible :
 // une commune prend la couleur de la première classe dont elle dépasse le seuil
@@ -155,6 +163,24 @@ export default {
         this.cadre = true;
       }
     },
+
+    // Ajoute le contour du périmètre OEASC, au-dessus des communes et non interactif
+    // (il ne doit pas masquer les infobulles des communes)
+    async afficherPerimetre() {
+      const perimetre = await fetch_oeasc_perimetre();
+      // la carte peut avoir été détruite pendant le chargement
+      if (!perimetre || !this.map) {
+        return;
+      }
+      this.map.createPane('perimetre-pane');
+      this.map.getPane('perimetre-pane').style.zIndex = 450;
+      this.map.getPane('perimetre-pane').style.pointerEvents = 'none';
+      this.layerPerimetre = L.geoJSON(perimetre, {
+        style: STYLE_PERIMETRE,
+        pane: 'perimetre-pane',
+        interactive: false,
+      }).addTo(this.map);
+    },
   },
   mounted() {
     // la carte et sa couche ne sont volontairement pas réactives (objets Leaflet)
@@ -163,6 +189,7 @@ export default {
       this.map
     );
     this.afficherCommunes();
+    this.afficherPerimetre();
   },
   beforeUnmount() {
     if (this.map) {
@@ -191,5 +218,11 @@ export default {
   width: 18px;
   height: 18px;
   border: 1px solid #555555;
+}
+.legende-perimetre {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 3px solid #000000;
 }
 </style>

@@ -1,7 +1,9 @@
 <!--
   Page publique « Dégâts agricoles » (menu Résultats des suivis) : graphiques par
-  saison, répartition par type de culture et carte des communes.
+  saison, répartition par type de culture (ou par culture) et carte des communes.
   Données : indemnisations de dégâts agricoles, zone OEASC (schéma oeasc_agricole).
+  Chaque section a sa case « Uniquement l'OEASC » (cochée par défaut) : ne compter que
+  les déclarations dont l'unité de gestion agricole est dans l'OEASC.
 -->
 <template>
   <div class="page-degats-agricoles">
@@ -28,6 +30,13 @@
 
     <div v-else>
       <h2>Évolution par saison</h2>
+
+      <v-checkbox
+        v-model="oeascSaisons"
+        :label="LIBELLE_OEASC"
+        density="compact"
+        hide-details
+      ></v-checkbox>
 
       <div class="grille-graphiques">
         <graph_colonnes_saisons
@@ -86,12 +95,32 @@
         mais comptées dans les montants, les déclarations et les dossiers.
       </p>
 
-      <h2>Types de culture touchés</h2>
+      <h2>{{ libelleCultures }}</h2>
 
       <selecteur-saison
         v-model="idSaisonCultures"
         :saisons="saisons"
-      ></selecteur-saison>
+        :disabled="toutesSaisonsCultures"
+      >
+        <v-checkbox
+          v-model="toutesSaisonsCultures"
+          label="Cumuler toutes les saisons"
+          density="compact"
+          hide-details
+        ></v-checkbox>
+        <v-checkbox
+          v-model="parCulture"
+          label="Afficher par culture"
+          density="compact"
+          hide-details
+        ></v-checkbox>
+        <v-checkbox
+          v-model="oeascCultures"
+          :label="LIBELLE_OEASC"
+          density="compact"
+          hide-details
+        ></v-checkbox>
+      </selecteur-saison>
 
       <v-btn-toggle
         v-model="mesureCultures"
@@ -113,7 +142,7 @@
       <camembert
         v-if="dataCamembert.length"
         :data_db="dataCamembert"
-        fieldName="nom_culture"
+        fieldName="nom"
         fieldValue="valeur"
         :title="titreCamembert"
         :unite="mesure.unite"
@@ -122,10 +151,10 @@
         height="500px"
       ></camembert>
       <div
-        v-else-if="idSaisonCultures"
+        v-else-if="toutesSaisonsCultures || idSaisonCultures"
         class="note"
       >
-        Aucune valeur à afficher pour cette saison.
+        Aucune valeur à afficher{{ toutesSaisonsCultures ? '' : ' pour cette saison' }}.
       </div>
 
       <h2>Carte des communes</h2>
@@ -138,6 +167,12 @@
         <v-checkbox
           v-model="toutesSaisonsCarte"
           label="Toutes les années cumulées"
+          density="compact"
+          hide-details
+        ></v-checkbox>
+        <v-checkbox
+          v-model="oeascCarte"
+          :label="LIBELLE_OEASC"
           density="compact"
           hide-details
         ></v-checkbox>
@@ -159,9 +194,10 @@ import map_degats_communes from './map/map_degats_communes.vue';
 import selecteurSaison from './selecteur-saison.vue';
 
 // part (en %) en dessous de laquelle une culture est regroupée dans « Autres cultures »
+// (affichage par culture uniquement : les types de culture, peu nombreux, restent séparés)
 const SEUIL_AUTRES = 2;
 
-// couleurs des parts du camembert, attribuées aux cultures par ordre d'importance
+// couleurs des parts du camembert, attribuées aux cultures (ou aux types) par ordre d'importance
 // (toutes saisons confondues) pour rester identiques d'une saison et d'une mesure à l'autre
 const PALETTE_CULTURES = [
   '#4e79a7',
@@ -187,7 +223,9 @@ const PALETTE_CULTURES = [
 ];
 const COULEUR_AUTRES = '#b0b0b0';
 const COULEUR_NON_RENSEIGNEE = '#dcdcdc';
-const NOM_NON_RENSEIGNEE = 'Non renseignée';
+// libellés renvoyés par l'API pour une déclaration sans culture / une culture sans type
+const NOMS_NON_RENSEIGNES = ['Non renseignée', 'Non renseigné'];
+const MESURES_SOMMEES = ['nb_declarations', 'montant_total', 'surface_detruite'];
 
 // au-delà de la palette, teintes réparties par l'angle d'or pour rester distinctes
 const couleurCulture = (rang) =>
@@ -196,6 +234,9 @@ const couleurCulture = (rang) =>
     : `hsl(${Math.round((rang * 137.508) % 360)}, 55%, 55%)`;
 
 const arrondi = (valeur, decimales) => Number(valeur.toFixed(decimales));
+
+// case « uniquement les unités de gestion agricole de l'OEASC » de chaque section
+const LIBELLE_OEASC = "Uniquement l'OEASC";
 
 export default {
   name: 'pageDegatsAgricoles',
@@ -206,9 +247,18 @@ export default {
     saisons: [], // indicateurs par saison, de la plus ancienne à la plus récente
     idSaisonCultures: null,
     idSaisonCarte: null,
-    cultures: [], // indicateurs par type de culture pour idSaisonCultures
-    culturesToutesSaisons: [], // idem cumulés sur toutes les saisons (référence des couleurs)
+    cultures: [], // indicateurs par culture pour idSaisonCultures
+    // idem cumulés sur toutes les saisons : référence des couleurs, et données du camembert
+    // quand toutesSaisonsCultures est coché
+    culturesToutesSaisons: [],
+    toutesSaisonsCultures: false, // camembert : cumul de toutes les saisons
+    parCulture: false, // camembert : détail par culture au lieu des types de culture
     toutesSaisonsCarte: false, // carte : cumul de toutes les saisons au lieu de idSaisonCarte
+    // par section : uniquement les déclarations des unités de gestion agricole de l'OEASC
+    oeascSaisons: true,
+    oeascCultures: true,
+    oeascCarte: true,
+    LIBELLE_OEASC,
     geojsonCommunes: null, // communes + indicateurs pour idSaisonCarte (ou cumulés)
     mesureCultures: 'nb_declarations',
     mesures: [
@@ -235,50 +285,74 @@ export default {
       const saison = this.saisons.find((s) => s.id_saison === this.idSaisonCultures);
       return saison ? saison.nom_saison : '';
     },
+    libelleCultures() {
+      return this.parCulture ? 'Cultures touchées' : 'Types de culture touchés';
+    },
     titreCamembert() {
-      return `Types de culture touchés — ${this.mesure.label} — saison ${this.nomSaisonCultures}`;
+      const periode = this.toutesSaisonsCultures
+        ? 'toutes saisons cumulées'
+        : `saison ${this.nomSaisonCultures}`;
+      return `${this.libelleCultures} — ${this.mesure.label} — ${periode}`;
     },
-    // ordre des parts, identique dans tous les camemberts : cultures par ordre d'importance
-    // toutes saisons confondues ; le regroupement « Autres cultures (n) », absent de la liste,
-    // est placé à la fin
+    // parts de référence (toutes saisons confondues, par ordre d'importance) : fixent l'ordre
+    // et les couleurs des parts, identiques d'une saison et d'une mesure à l'autre
+    partsToutesSaisons() {
+      return this.regrouper(this.culturesToutesSaisons);
+    },
+    // parts affichées : saison choisie ou cumul, par culture ou par type de culture
+    partsCultures() {
+      return this.toutesSaisonsCultures ? this.partsToutesSaisons : this.regrouper(this.cultures);
+    },
+    // le regroupement « Autres cultures (n) », absent de la liste, est placé à la fin
+    // Par type de culture, les parts partent du haut dans le sens horaire, du moins au plus
+    // important, sauf le plus petit type (MÉLANGE) placé en dernier : les deux petites parts
+    // se retrouvent de part et d'autre du sommet, et le libellé de la plus petite s'affiche
+    // à gauche, du côté opposé aux autres, au lieu de les chevaucher
     ordreCultures() {
-      return this.culturesToutesSaisons.map((c) => c.nom_culture);
+      const noms = this.partsToutesSaisons.map((c) => c.nom);
+      if (this.parCulture || noms.length < 3) {
+        return noms;
+      }
+      const [plusPetit, ...autres] = noms.reverse();
+      return [...autres, plusPetit];
     },
-    // { nom de la part: couleur } : une culture garde la même couleur dans tous les camemberts
+    // { nom de la part: couleur } : une part garde la même couleur dans tous les camemberts
     couleursCultures() {
       const couleurs = {};
       let rang = 0;
-      // les cultures absentes du cumul (réponse pas encore arrivée) sont ajoutées à la suite
-      for (const { nom_culture } of [...this.culturesToutesSaisons, ...this.cultures]) {
-        if (nom_culture in couleurs) {
+      // les parts absentes du cumul (réponse pas encore arrivée) sont ajoutées à la suite
+      for (const { nom } of [...this.partsToutesSaisons, ...this.partsCultures]) {
+        if (nom in couleurs) {
           continue;
         }
-        couleurs[nom_culture] =
-          nom_culture === NOM_NON_RENSEIGNEE ? COULEUR_NON_RENSEIGNEE : couleurCulture(rang++);
+        couleurs[nom] = NOMS_NON_RENSEIGNES.includes(nom)
+          ? COULEUR_NON_RENSEIGNEE
+          : couleurCulture(rang++);
       }
-      for (const { nom_culture } of this.dataCamembert) {
-        if (!(nom_culture in couleurs)) {
-          couleurs[nom_culture] = COULEUR_AUTRES; // regroupement « Autres cultures (n) »
+      for (const { nom } of this.dataCamembert) {
+        if (!(nom in couleurs)) {
+          couleurs[nom] = COULEUR_AUTRES; // regroupement « Autres cultures (n) »
         }
       }
       return couleurs;
     },
-    // parts du camembert : les petites cultures sont regroupées pour rester lisible
+    // parts du camembert ; par culture, les petites parts sont regroupées pour rester lisible
     dataCamembert() {
       const { value, decimales } = this.mesure;
-      const lignes = this.cultures
-        .map((c) => ({ nom_culture: c.nom_culture, valeur: c[value] }))
+      const lignes = this.partsCultures
+        .map((c) => ({ nom: c.nom, valeur: c[value] }))
         .filter((c) => c.valeur > 0)
         .sort((a, b) => b.valeur - a.valeur);
       const total = lignes.reduce((somme, c) => somme + c.valeur, 0);
       if (!total) {
         return [];
       }
-      const principales = lignes.filter((c) => (c.valeur / total) * 100 >= SEUIL_AUTRES);
-      const autres = lignes.filter((c) => (c.valeur / total) * 100 < SEUIL_AUTRES);
+      const seuil = this.parCulture ? SEUIL_AUTRES : 0;
+      const principales = lignes.filter((c) => (c.valeur / total) * 100 >= seuil);
+      const autres = lignes.filter((c) => (c.valeur / total) * 100 < seuil);
       if (autres.length > 1) {
         principales.push({
-          nom_culture: `Autres cultures (${autres.length})`,
+          nom: `Autres cultures (${autres.length})`,
           valeur: autres.reduce((somme, c) => somme + c.valeur, 0),
         });
       } else {
@@ -291,10 +365,20 @@ export default {
     idSaisonCultures(id_saison) {
       this.chargerCultures(id_saison);
     },
+    oeascSaisons() {
+      this.chargerSaisons();
+    },
+    oeascCultures() {
+      this.chargerCulturesToutesSaisons();
+      this.chargerCultures(this.idSaisonCultures);
+    },
     idSaisonCarte() {
       this.chargerCommunes();
     },
     toutesSaisonsCarte() {
+      this.chargerCommunes();
+    },
+    oeascCarte() {
       this.chargerCommunes();
     },
   },
@@ -302,14 +386,60 @@ export default {
     valeurs(champ) {
       return this.saisons.map((s) => s[champ]);
     },
+    // lignes de l'API (une par culture) -> parts { nom, mesures } : une par culture si
+    // parCulture, sinon une par type de culture (mesures sommées) ; par nombre de
+    // déclarations décroissant
+    regrouper(cultures) {
+      const parts = {};
+      for (const c of cultures) {
+        const nom = this.parCulture ? c.nom_culture : c.nom_type_culture;
+        parts[nom] = parts[nom] || {
+          nom,
+          nb_declarations: 0,
+          montant_total: 0,
+          surface_detruite: 0,
+        };
+        for (const champ of MESURES_SOMMEES) {
+          parts[nom][champ] += c[champ];
+        }
+      }
+      return Object.values(parts).sort(
+        (a, b) => b.nb_declarations - a.nb_declarations || a.nom.localeCompare(b.nom)
+      );
+    },
+    // toutes les saisons sont renvoyées (à 0 si besoin) : la liste sert aussi aux sélecteurs
+    chargerSaisons() {
+      const uniquement_oeasc = this.oeascSaisons;
+      return apiRequest('GET', 'api/agricole/results/saisons', {
+        params: { uniquement_oeasc },
+      }).then((res) => {
+        // ignore une réponse arrivée après un nouveau changement de la case
+        if (uniquement_oeasc === this.oeascSaisons) {
+          this.saisons = res.items || [];
+        }
+      });
+    },
+    chargerCulturesToutesSaisons() {
+      const uniquement_oeasc = this.oeascCultures;
+      apiRequest('GET', 'api/agricole/results/cultures', {
+        params: { toutes_saisons: true, uniquement_oeasc },
+      }).then((res) => {
+        if (uniquement_oeasc === this.oeascCultures) {
+          this.culturesToutesSaisons = res.items || [];
+        }
+      });
+    },
     chargerCultures(id_saison) {
       if (!id_saison) {
         this.cultures = [];
         return;
       }
-      apiRequest('GET', 'api/agricole/results/cultures', { params: { id_saison } }).then((res) => {
-        // ignore une réponse arrivée après un nouveau changement de saison
-        if (id_saison === this.idSaisonCultures) {
+      const uniquement_oeasc = this.oeascCultures;
+      apiRequest('GET', 'api/agricole/results/cultures', {
+        params: { id_saison, uniquement_oeasc },
+      }).then((res) => {
+        // ignore une réponse arrivée après un nouveau changement de saison ou de la case
+        if (id_saison === this.idSaisonCultures && uniquement_oeasc === this.oeascCultures) {
           this.cultures = res.items || [];
         }
       });
@@ -317,28 +447,30 @@ export default {
     chargerCommunes() {
       const id_saison = this.idSaisonCarte;
       const toutes_saisons = this.toutesSaisonsCarte;
+      const uniquement_oeasc = this.oeascCarte;
       if (!toutes_saisons && !id_saison) {
         this.geojsonCommunes = null;
         return;
       }
-      const params = toutes_saisons ? { toutes_saisons: true } : { id_saison };
+      const params = toutes_saisons
+        ? { toutes_saisons: true, uniquement_oeasc }
+        : { id_saison, uniquement_oeasc };
       apiRequest('GET', 'api/agricole/results/communes', { params }).then((res) => {
-        // ignore une réponse arrivée après un nouveau changement de saison ou de cumul
-        if (id_saison === this.idSaisonCarte && toutes_saisons === this.toutesSaisonsCarte) {
+        // ignore une réponse arrivée après un nouveau changement de saison, de cumul ou de case
+        if (
+          id_saison === this.idSaisonCarte &&
+          toutes_saisons === this.toutesSaisonsCarte &&
+          uniquement_oeasc === this.oeascCarte
+        ) {
           this.geojsonCommunes = res;
         }
       });
     },
   },
   mounted() {
-    apiRequest('GET', 'api/agricole/results/saisons')
-      .then((res) => {
-        this.saisons = res.items || [];
-        apiRequest('GET', 'api/agricole/results/cultures', {
-          params: { toutes_saisons: true },
-        }).then((r) => {
-          this.culturesToutesSaisons = r.items || [];
-        });
+    this.chargerSaisons()
+      .then(() => {
+        this.chargerCulturesToutesSaisons();
         // saison la plus récente par défaut
         const derniere = this.saisons[this.saisons.length - 1];
         if (derniere) {

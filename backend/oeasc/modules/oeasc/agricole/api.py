@@ -179,6 +179,12 @@ def import_status(id_import):
 ############################################################################################
 
 
+def _uniquement_oeasc_from_args():
+    """Paramètre `uniquement_oeasc` (vrai par défaut) : ne compter que les
+    déclarations dont l'unité de gestion agricole est dans l'OEASC."""
+    return request.args.get("uniquement_oeasc", "true").lower() not in ("false", "0")
+
+
 def _saison_from_args():
     """Saison désignée par le paramètre `id_saison`, ou (None, réponse d'erreur)."""
     valeur = request.args.get("id_saison")
@@ -203,22 +209,33 @@ def _saison_from_args():
 @bp.route("results/saisons", methods=["GET"])
 def results_saisons():
     """Indicateurs par saison : montant indemnisé, nombre de déclarations et de
-    dossiers, surfaces détruite et ressemée (ha)."""
-    return jsonify({"zone": ZONE, "items": get_bilan_saisons()})
+    dossiers, surfaces détruite et ressemée (ha).
+    `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non."""
+    uniquement_oeasc = _uniquement_oeasc_from_args()
+    return jsonify(
+        {
+            "zone": ZONE,
+            "uniquement_oeasc": uniquement_oeasc,
+            "items": get_bilan_saisons(uniquement_oeasc),
+        }
+    )
 
 
 @bp.route("results/cultures", methods=["GET"])
 def results_cultures():
-    """Indicateurs par type de culture pour la saison `id_saison`.
-    Avec `toutes_saisons=true`, les indicateurs sont cumulés sur toutes les saisons."""
+    """Indicateurs par culture (avec son type de culture) pour la saison `id_saison`.
+    Avec `toutes_saisons=true`, les indicateurs sont cumulés sur toutes les saisons.
+    `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non."""
+    uniquement_oeasc = _uniquement_oeasc_from_args()
     if request.args.get("toutes_saisons", "").lower() in ("true", "1"):
         return jsonify(
             {
                 "zone": ZONE,
+                "uniquement_oeasc": uniquement_oeasc,
                 "id_saison": None,
                 "nom_saison": None,
                 "toutes_saisons": True,
-                "items": get_bilan_cultures(),
+                "items": get_bilan_cultures(uniquement_oeasc=uniquement_oeasc),
             }
         )
     saison, erreur = _saison_from_args()
@@ -227,9 +244,10 @@ def results_cultures():
     return jsonify(
         {
             "zone": ZONE,
+            "uniquement_oeasc": uniquement_oeasc,
             "id_saison": saison.id_saison,
             "nom_saison": saison.nom_saison,
-            "items": get_bilan_cultures(saison.id_saison),
+            "items": get_bilan_cultures(saison.id_saison, uniquement_oeasc),
         }
     )
 
@@ -238,14 +256,27 @@ def results_cultures():
 def results_communes():
     """GeoJSON des communes de la zone OEASC avec les indicateurs de la saison
     `id_saison` (surface détruite, montant indemnisé, nombre de dossiers).
-    Avec `toutes_saisons=true`, les indicateurs sont cumulés sur toutes les saisons."""
+    Avec `toutes_saisons=true`, les indicateurs sont cumulés sur toutes les saisons.
+    `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non."""
+    uniquement_oeasc = _uniquement_oeasc_from_args()
     if request.args.get("toutes_saisons", "").lower() in ("true", "1"):
-        geojson = get_bilan_communes_geojson()
-        geojson.update(zone=ZONE, id_saison=None, nom_saison=None, toutes_saisons=True)
+        geojson = get_bilan_communes_geojson(uniquement_oeasc=uniquement_oeasc)
+        geojson.update(
+            zone=ZONE,
+            uniquement_oeasc=uniquement_oeasc,
+            id_saison=None,
+            nom_saison=None,
+            toutes_saisons=True,
+        )
         return jsonify(geojson)
     saison, erreur = _saison_from_args()
     if erreur:
         return erreur
-    geojson = get_bilan_communes_geojson(saison.id_saison)
-    geojson.update(zone=ZONE, id_saison=saison.id_saison, nom_saison=saison.nom_saison)
+    geojson = get_bilan_communes_geojson(saison.id_saison, uniquement_oeasc)
+    geojson.update(
+        zone=ZONE,
+        uniquement_oeasc=uniquement_oeasc,
+        id_saison=saison.id_saison,
+        nom_saison=saison.nom_saison,
+    )
     return jsonify(geojson)

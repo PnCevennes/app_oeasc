@@ -91,15 +91,16 @@ CULTURES_PAR_TYPE = {
     ],
 }
 
-# valeurs de la colonne « Secteur » de data/degat_agricoles/degats_lozere.xls
-UG_AGRICOLES = [
-    "06 / GARDILLE/CHASSEZAC",
-    "07 / SAUVETERRE",
-    "08 / MEJEAN",
-    "09 / MONT LOZERE",
-    "10 / AIGOUAL",
-    "11 / CEVENNES",
-]
+# valeurs de la colonne « Secteur » de data/degat_agricoles/degats_lozere.xls :
+# {nom de l'unité de gestion: in_oeasc}
+UG_AGRICOLES = {
+    "06 / GARDILLE/CHASSEZAC": False,
+    "07 / SAUVETERRE": False,
+    "08 / MEJEAN": True,
+    "09 / MONT LOZERE": True,
+    "10 / AIGOUAL": True,
+    "11 / CEVENNES": True,
+}
 
 
 def upgrade():
@@ -177,14 +178,13 @@ def upgrade():
             in_oeasc BOOLEAN NOT NULL DEFAULT FALSE
         )
         """)
-    for nom_ug in UG_AGRICOLES:
-        # in_oeasc à vrai : le fichier ne contient que des communes de l'OEASC
+    for nom_ug, in_oeasc in UG_AGRICOLES.items():
         conn.execute(
             sa.text("""
                 INSERT INTO oeasc_agricole.t_ug_agricole (nom_ug_agricole, in_oeasc)
-                VALUES (:nom, TRUE)
+                VALUES (:nom, :in_oeasc)
                 """),
-            {"nom": nom_ug},
+            {"nom": nom_ug, "in_oeasc": in_oeasc},
         )
 
     op.execute("""

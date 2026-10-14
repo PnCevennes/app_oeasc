@@ -2,8 +2,9 @@
   Sélecteur de saison : un champ numérique sur l'année de début de la saison
   (2024 pour la saison 2024-2025). v-model = id_saison (null si aucune saison
   ne commence l'année choisie).
-  Le slot par défaut est placé juste à droite du champ ; `disabled` grise le champ
-  et masque le nom de la saison (la saison choisie ne s'applique alors plus).
+  Le nom de la saison est affiché juste à droite du champ, suivi du slot par défaut ;
+  `disabled` grise le champ et masque le nom de la saison (la saison choisie ne
+  s'applique alors plus).
 -->
 <template>
   <div class="selecteur-saison">
@@ -19,7 +20,6 @@
       :disabled="disabled"
       style="max-width: 220px"
     ></v-number-input>
-    <slot></slot>
     <template v-if="!disabled">
       <span
         v-if="saison"
@@ -34,6 +34,7 @@
         Aucune donnée pour cette saison
       </span>
     </template>
+    <slot></slot>
   </div>
 </template>
 
