@@ -42,6 +42,7 @@ import pandas as pd
 # from marshmallow.exceptions import ValidationError
 
 from sqlalchemy import func, select
+from sqlalchemy import table as sa_table, column as sa_column
 from sqlalchemy.orm import aliased
 from flask import request, current_app, session
 
@@ -595,8 +596,71 @@ def get_data_all_especes_export_ods(nom_saison):
 ###############################################################################
 
 
-def exportation_attributions_realises_chasse():
+def _bilan_historique(nom_saison_debut=None, nom_saison_fin=None):
     """
+    Totaux historiques (t_bilan_chasse_historique) par saison, espèce et zone indicative.
+    Colonnes alignées sur celles de l'export détaillé (zones « attribuées »).
+    """
+    historique = sa_table(
+        "t_bilan_chasse_historique",
+        sa_column("id_saison"),
+        sa_column("id_espece"),
+        sa_column("id_zone_indicative"),
+        sa_column("nb_affecte_max"),
+        sa_column("nb_realise"),
+        sa_column("nb_realise_avant_11"),
+        schema="oeasc_chasse",
+    )
+    stmt = (
+        select(
+            TSaisons.nom_saison,
+            TEspeces.nom_espece,
+            TEspeces.code_espece,
+            TEspeces.cd_nom,
+            TSecteurs.nom_secteur,
+            TSecteurs.code_secteur,
+            TZoneCynegetiques.nom_zone_cynegetique.label(
+                "nom_zone_cynegetique_attribuee"
+            ),
+            TZoneCynegetiques.code_zone_cynegetique.label(
+                "code_zone_cynegetique_attribuee"
+            ),
+            TZoneIndicatives.nom_zone_indicative.label("nom_zone_indicative_attribuee"),
+            TZoneIndicatives.code_zone_indicative.label(
+                "code_zone_indicative_attribuee"
+            ),
+            historique.c.nb_affecte_max,
+            historique.c.nb_realise,
+            historique.c.nb_realise_avant_11,
+        )
+        .select_from(historique)
+        .join(TSaisons, TSaisons.id_saison == historique.c.id_saison)
+        .join(TEspeces, TEspeces.id_espece == historique.c.id_espece)
+        .join(
+            TZoneIndicatives,
+            TZoneIndicatives.id_zone_indicative == historique.c.id_zone_indicative,
+        )
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TZoneIndicatives.id_zone_cynegetique,
+        )
+        .outerjoin(TSecteurs, TSecteurs.id_secteur == TZoneCynegetiques.id_secteur)
+        .where(
+            *([TSaisons.nom_saison >= nom_saison_debut] if nom_saison_debut else []),
+            *([TSaisons.nom_saison <= nom_saison_fin] if nom_saison_fin else []),
+        )
+        .order_by(TSaisons.nom_saison.desc(), TEspeces.nom_espece)
+    )
+    df = pd.DataFrame(DB.session.execute(stmt).all())
+    if len(df):
+        df.insert(0, "type_ligne", "historique_agrege")
+    return df
+
+
+def exportation_attributions_realises_chasse(id_saison_debut=None, id_saison_fin=None):
+    """
+    id_saison_debut / id_saison_fin : bornes (incluses) de la période exportée, None = pas de borne.
     Récupèration des données pertinentes en BDD.
     Plusieurs traitements de données sont faits pour afficher des données lisibles.
     retourne un dataframe
@@ -611,6 +675,18 @@ def exportation_attributions_realises_chasse():
     tns = aliased(TNomenclatures)
     tnca = aliased(TNomenclatures)
     tnmc = aliased(TNomenclatures)
+
+    # Les id_saison ne sont pas chronologiques : on borne sur nom_saison ("AAAA-AAAA")
+    def _nom_saison(id_saison):
+        if not id_saison:
+            return None
+        return DB.session.execute(
+            select(TSaisons.nom_saison).where(TSaisons.id_saison == id_saison)
+        ).scalar_one_or_none()
+
+    with app.app_context():
+        nom_saison_debut = _nom_saison(id_saison_debut)
+        nom_saison_fin = _nom_saison(id_saison_fin)
 
     stmt = (
         select(
@@ -718,6 +794,14 @@ def exportation_attributions_realises_chasse():
             tnmc,
             tnmc.id_nomenclature == TRealisationsChasse.id_nomenclature_mode_chasse,
         )
+        .where(
+            *(
+                [TSaisons.nom_saison >= nom_saison_debut]
+                if nom_saison_debut
+                else []
+            ),
+            *([TSaisons.nom_saison <= nom_saison_fin] if nom_saison_fin else []),
+        )
         .order_by(
             TSaisons.nom_saison.desc(),
             "realisee",
@@ -732,6 +816,12 @@ def exportation_attributions_realises_chasse():
 
     with app.app_context():
         data = DB.session.execute(stmt).all()
+        df_historique = _bilan_historique(nom_saison_debut, nom_saison_fin)
     df_export = pd.DataFrame(data)
+    df_export.insert(0, "type_ligne", "detail")
+
+    # Saisons antérieures aux données détaillées : totaux agrégés (pas de détail par tir)
+    if len(df_historique):
+        df_export = pd.concat([df_export, df_historique], ignore_index=True)
 
     return df_export

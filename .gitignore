@@ -85,6 +85,8 @@ data/chasse/settings.ini
 data/chasse/shp/*
 data/chasse/data/*
 
+prompt/
+
 
 !.gitkeep
 *.md

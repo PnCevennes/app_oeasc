@@ -329,8 +329,9 @@ def api_result_export():
     Cette API permet d'exporter les réalisations de chasse sous forme de fichier CSV, selon les paramètres fournis dans la requête GET.
     Utilisation typique : extraction des données pour analyse ou archivage.
     """
-    print("Requête reçue pour l'export CSV des réalisations de chasse")
-    df = exportation_attributions_realises_chasse()
+    id_saison_debut = request.args.get("id_saison_debut", type=int)
+    id_saison_fin = request.args.get("id_saison_fin", type=int)
+    df = exportation_attributions_realises_chasse(id_saison_debut, id_saison_fin)
 
     # Retourne un tuple attendu par csv_resp (filename, data, columns, separator)
     data = df.to_dict(orient="records")
