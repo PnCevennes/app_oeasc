@@ -97,10 +97,15 @@ def send_mail_validation_declaration(declaration, b_create):
                 + str(declaration.get("id_declaration", ""))
             ),
             sender=config["ANIMATEUR_APPLICATION_MAIL"],
-            recipients=[
-                config["ANIMATEUR_APPLICATION_MAIL"],
-                config["ADMIN_APPLICATION_MAIL"],
-            ],
+            recipients=list(
+                dict.fromkeys(
+                    [
+                        config["ANIMATEUR_APPLICATION_MAIL"],
+                        config["ADMIN_APPLICATION_MAIL"],
+                        *get_variables_declaration()["LISTE_MAILS_ANIMATEURS"],
+                    ]
+                )
+            ),
         )
 
         # Génère le contenu HTML du mail à partir du template
