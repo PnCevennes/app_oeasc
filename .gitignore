@@ -1,96 +1,59 @@
-# server.py
-#OTHER/
-data/donnees_gestion_foret
-data/limites_pnc
-data/Zonage_OEASC
-data/csv/ref_geo
-data/archives_lieux_dits/*.csv
-remove/
+# Python
+__pycache__/
 *.pyc
 *.ipynb
 venv/
-venv2/
-data/cache/
+
+# Configuration locale / secrets
 settings.ini
 config/settings.ini_*
 config/config.py
+frontend/src/config/config.js
+frontend/.env.local
+frontend/.env.*.local
 
+# Logs
 logs/*.log
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
 
-install/scripts_db/SQL/ref_geo_import.sql
-install/scripts_db/SQL/ref_geo_process.sql
+# Frontend (build, dépendances)
+frontend/node_modules
+frontend/dist
+frontend/.DS_Store
 
-install/script_db/config.csv
+# Données (volumineuses ou locales)
+data/limites_pnc
+data/cache/
+data/chasse/shp/*
+data/chasse/data/*
+data/degat_agricoles/*
+*.gpkg
+*.csv
 
+# Static (fichiers générés / uploadés)
 static/medias/img/*
 static/medias/doc/*
-# install/minimal_db/nomenclatures.sql
-# install/minimal_db/utilisateurs.sql
-# install/minimal_db/ref_geo.sql
-
 static/data/*.json
 static/export
-
-static/node_modules
-static/documents
 static/shapefiles/*
 static/erreurs_import_chasse/*.log
 static/imports_chasse/*
 
-static/dist/*
-static/src/js/config/config*.js
-
-procedure_install_server.sh
-
-.vscode/*
-*.save
-
-*.gpkg
-
-
-# frontend
-
-frontend/.DS_Store
-frontend/node_modules
-frontend/dist
-frontend/public/documents
-
-# local env files
-frontend/.env.local
-frontend/.env.*.local
-
-# Log files
-frontend/npm-debug.log*
-frontend/yarn-debug.log*
-frontend/yarn-error.log*
-
-# Editor directories and files
-frontend/.vscode
+# Éditeurs / outils
+.vscode/
 .idea
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-
-# frontend/vue.config.js
-frontend/src/config/config.js
-
-
-# chasse
-data/chasse/settings.ini
-data/chasse/shp/*
-data/chasse/data/*
-
-prompt/
-
-
-!.gitkeep
-*.md
-
+*.save
 .claude/
-CLAUDE.md
-*.csv
 .nvmrc
 
-data/degat_agricoles/*
+# Divers
+prompt/
+*.md
+
+!.gitkeep
