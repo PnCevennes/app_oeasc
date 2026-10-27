@@ -10,7 +10,7 @@ remove/
 *.ipynb
 venv/
 venv2/
-var/tile_cache/
+data/cache/
 settings.ini
 config/settings.ini_*
 config/config.py

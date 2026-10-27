@@ -202,7 +202,7 @@ def all_areas_declaration():
 #     contacte que le backend de l'application. Corrige les "cartes grises".
 #   - le backend maîtrise les en-têtes CORS (via flask-cors) : l'export PDF peut
 #     donc capturer les tuiles avec html2canvas sans canvas "tainted".
-# Un cache disque (var/tile_cache/) évite de retélécharger les tuiles.
+# Un cache disque (data/cache/tile/) évite de retélécharger les tuiles.
 # Service Géoplateforme IGN (data.geopf.fr), successeur de l'ancien wxs.ign.fr
 # (décommissionné). Couche "Plan IGN" (GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2) :
 # fond topographique multi-échelles en accès libre, sans clé d'API, qui a
@@ -224,7 +224,7 @@ def _tile_cache_dir():
     base = Path(root) if root else Path(current_app.root_path).parent.parent
     # sous-dossier par fournisseur/couche : évite de resservir une tuile en cache
     # d'un ancien fournisseur (ex. OSM) si celui-ci change un jour, sans purge manuelle
-    return base / "var" / "tile_cache" / "ign_planignv2"
+    return base / "data" / "cache" / "tile" / "ign_planignv2"
 
 
 @bp.route("tiles/v2/<int:z>/<int:x>/<int:y>.png", methods=["GET"])
