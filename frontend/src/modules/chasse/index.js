@@ -18,6 +18,7 @@ import configStoreAttributionMassif from './config/store-attribution-massif.js';
 import configStoreTypeBracelet from './config/store-type-bracelet.js';
 import configStoreAttribution from './config/store-attribution.js';
 import configStoreRealisation from './config/store-realisation.js';
+import configStoreStandardMesure from './config/store-standard-mesure.js';
 
 // composants disponibles dans les pages CMS (voir CONTENT plus bas) : chargés à la demande
 // seulement quand une page en fait effectivement usage, pas à chaque démarrage de l'app
@@ -74,6 +75,9 @@ const ROUTE = [
           zoneCynegetique_tab: {
             storeName: 'chasseZoneCynegetique',
           },
+          standardMesure_tab: {
+            storeName: 'chasseStandardMesure',
+          },
         },
       },
     },
@@ -95,6 +99,15 @@ const ROUTE = [
     label: 'Exports données chasse', // titre dans le menu (mais pas dans la page)
     hideTitle: true, // True => cache le bandeau header pour plus de place
     component: () => import('./exports-chasse.vue'),
+    access: 4,
+  },
+
+  {
+    name: 'chasse.donnees_aberrantes',
+    path: '/chasse/donnees-aberrantes',
+    label: 'Données aberrantes', // titre dans le menu (mais pas dans la page)
+    hideTitle: true, // True => cache le bandeau header pour plus de place
+    component: () => import('./donnees-aberrantes-chasse.vue'),
     access: 4,
   },
 
@@ -371,6 +384,7 @@ storeUtils.addStore(STORE, configStoreAttributionMassif);
 storeUtils.addStore(STORE, configStoreTypeBracelet);
 storeUtils.addStore(STORE, configStoreAttribution);
 storeUtils.addStore(STORE, configStoreRealisation);
+storeUtils.addStore(STORE, configStoreStandardMesure);
 
 // liste des composants susceptibles d'être utilisés dans les pages créées dynamiquement.
 const CONTENT = {

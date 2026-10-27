@@ -102,6 +102,7 @@ const menus = {
       'chasse.restitution_bilan_detaille',
       'chasse.exports',
       'chasse.imports',
+      'chasse.donnees_aberrantes',
     ],
     hidden: ({ $store }) => $store.getters.droitMax < 5,
   },

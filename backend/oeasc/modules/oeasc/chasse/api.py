@@ -13,6 +13,7 @@ from .models import (
     TTypeBracelets,
     TAttributions,
     TRealisationsChasse,
+    TStandardsMesures,
     VPlanChasseRealisationBilan,
     VChasseBilan,
 )
@@ -28,6 +29,7 @@ from .schema import (
     TTypeBraceletsSchema,
     TAttributionsSchema,
     TRealisationsChasseSchema,
+    TStandardsMesuresSchema,
     VPlanChasseRealisationBilanSchema,
     VChasseBilanSchema,
 )
@@ -43,12 +45,16 @@ from werkzeug.utils import secure_filename
 from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
+from ..generic.errors import build_error_payload
 from .repositories import (
     get_chasse_bilan,
     get_attribution_result,
     chasse_process_args,
     chasse_get_infos,
     filtrage_stmt_secteur_zi_zc,
+    get_donnees_aberrantes,
+    update_mesures_realisation,
+    MesureInvalide,
 )
 from .export_chasse import (
     exportation_attributions_realises_chasse,
@@ -168,6 +174,11 @@ definitions = {
         "model": TRealisationsChasse,
         "droits": droits,
         "schema": TRealisationsChasseSchema,
+    },
+    "standard_mesure": {
+        "model": TStandardsMesures,
+        "droits": droits,
+        "schema": TStandardsMesuresSchema,
     },
     "plan_chasse_realisation_bilan": {
         "model": VPlanChasseRealisationBilan,
@@ -540,6 +551,73 @@ def import_attributions_lancer(etape):
     return (
         jsonify({"success": True, "id_import": id_import, "statut": "EN_ATTENTE"}),
         202,
+    )
+
+
+# ---------------------------------------------------------------------------
+#  DONNEES ABERRANTES (poids / dagues hors fourchette standard)
+# ---------------------------------------------------------------------------
+# Les fourchettes sont dans oeasc_chasse.t_standards_mesures (espèce x classe d'âge x sexe).
+
+
+@bp.route("donnees-aberrantes", methods=["GET"])
+@check_auth_redirect_login(4)
+def api_donnees_aberrantes():
+    """Réalisations dont le poids ou la longueur de dagues sort de la fourchette standard.
+
+    Paramètres (query) : id_saison, id_espece, type ("poids" | "dagues", défaut les deux).
+    Réponse : {success, nb, data: [{id_realisation, ..., anomalies: [...]}]}
+    """
+    type_mesure = request.args.get("type") or None
+    if type_mesure not in (None, "poids", "dagues"):
+        return (
+            jsonify({"success": False, "message": "Paramètre « type » invalide."}),
+            400,
+        )
+    try:
+        data = get_donnees_aberrantes(
+            id_saison=request.args.get("id_saison"),
+            id_espece=request.args.get("id_espece"),
+            type_mesure=type_mesure,
+        )
+    except ValueError:
+        return (
+            jsonify({"success": False, "message": "Filtre saison ou espèce invalide."}),
+            400,
+        )
+    except Exception as exc:
+        DB.session.rollback()
+        current_app.logger.error(f"Erreur données aberrantes: {exc}")
+        payload, status = build_error_payload(exc, action="chargement")
+        return jsonify(payload), status
+    return jsonify({"success": True, "nb": len(data), "data": data})
+
+
+@bp.route("donnees-aberrantes/<int:id_realisation>", methods=["PATCH"])
+@check_auth_redirect_login(4)
+def api_donnees_aberrantes_modifier(id_realisation):
+    """Corrige les mesures (poids / dagues) d'une réalisation.
+
+    Corps JSON : sous-ensemble de poid_entier, poid_vide, poid_c_f_p,
+    long_dagues_droite, long_dagues_gauche (null = effacer la valeur).
+    """
+    valeurs = request.get_json(silent=True)
+    if not isinstance(valeurs, dict) or not valeurs:
+        return (
+            jsonify({"success": False, "message": "Aucune valeur à enregistrer."}),
+            400,
+        )
+    try:
+        modifiees = update_mesures_realisation(id_realisation, valeurs)
+    except MesureInvalide as exc:
+        DB.session.rollback()
+        return jsonify({"success": False, "message": str(exc)}), 400
+    except Exception as exc:
+        DB.session.rollback()
+        payload, status = build_error_payload(exc, action="modification")
+        return jsonify(payload), status
+    return jsonify(
+        {"success": True, "id_realisation": id_realisation, "valeurs": modifiees}
     )
 
 

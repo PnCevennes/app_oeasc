@@ -42,6 +42,7 @@ from sqlalchemy import func, select
 from flask import request, current_app, session, has_request_context
 
 from oeasc.utils.apiResponse import ApiResponse
+from oeasc.modules.oeasc.chasse.poids import poid_vide_depuis_entier
 
 from oeasc.ref_geo_oeasc.models import BibAreasType, LAreas
 from oeasc.modules.oeasc.chasse.models import (
@@ -545,52 +546,13 @@ def uniformise_date(serie):
 
 
 def poid_vide_cerf(poids_entier_in):
-    """
-    Calcule le poids vide d'un cerf (CF) à partir de son poids entier.
-
-    Args:
-        poids_entier_in (float): Poids entier du cerf
-
-    Returns:
-        int: Poids vide calculé
-
-    Raises:
-        ValueError: Si le poids entier n'est pas fourni
-    """
-    try:
-        if poids_entier_in is None:
-            return None
-        pe_exp = -0.3948
-        pe_puis = 1.0247
-        result = round((math.exp(pe_exp) * (poids_entier_in**pe_puis)), 2)
-        return result
-    except Exception:
-        return None
+    """Poids vide d'un cerf (CF) calculé à partir de son poids entier (None si non calculable)."""
+    return poid_vide_depuis_entier("CF", poids_entier_in)
 
 
 def poid_vide_chevreuil(poids_entier_in):
-    """
-    Calcule le poids vide d'un chevreuil (CH) à partir de son poids entier.
-
-    Args:
-        poids_entier_in (float): Poids entier du chevreuil
-
-    Returns:
-        int: Poids vide calculé
-
-    Raises:
-        ValueError: Si le poids entier n'est pas fourni
-    """
-    try:
-        if poids_entier_in is None:
-            return None
-
-        pe_exp = -0.3572
-        pe_puis = 1.023
-        result = round((math.exp(pe_exp) * (poids_entier_in**pe_puis)), 2)
-        return result
-    except Exception:
-        return None
+    """Poids vide d'un chevreuil (CH) calculé à partir de son poids entier (None si non calculable)."""
+    return poid_vide_depuis_entier("CH", poids_entier_in)
 
 
 def convert_str_to_float(serie):

@@ -177,6 +177,42 @@ class TTypeBraceletsSchema(SQLAlchemyAutoSchema):
     )
 
 
+class TStandardsMesuresSchema(SQLAlchemyAutoSchema):
+    id_standard = fields.Integer(allow_none=True)
+
+    class Meta:
+        model = TStandardsMesures
+        load_instance = True
+        include_fk = True
+        sqla_session = (DB.session,)
+        unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
+
+    espece = Nested("TEspecesSchema", many=False)
+    _nomenclature_only = (
+        "id_nomenclature",
+        "id_type",
+        "cd_nomenclature",
+        "mnemonique",
+        "label_fr",
+        "definition_default",
+    )
+    nomenclature_classe_age = Nested(
+        "TNomenclaturesOeascSchema",
+        many=False,
+        only=_nomenclature_only,
+        metadata={"load_instance": False},
+        unknown=EXCLUDE,
+    )
+    nomenclature_sexe = Nested(
+        "TNomenclaturesOeascSchema",
+        many=False,
+        only=_nomenclature_only,
+        allow_none=True,
+        metadata={"load_instance": False},
+        unknown=EXCLUDE,
+    )
+
+
 class TAttributionsSchema(SQLAlchemyAutoSchema):
     id_attribution = fields.Integer(allow_none=True)
 

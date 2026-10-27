@@ -1,9 +1,10 @@
 from utils_flask_sqla.generic import GenericTable
 from flask import request, current_app
 from ..generic.repository import getlist
+from .poids import poid_vide_depuis_entier, poid_entier_depuis_vide
 
 # from ..resultat.repository import result_custom
-from sqlalchemy import func, cast, select, Integer
+from sqlalchemy import func, cast, select, text, Integer
 from ..commons.models import TEspeces, TSecteurs
 from sqlalchemy.exc import SQLAlchemyError
 from .models import (
@@ -612,3 +613,192 @@ def filtrage_stmt_secteur_zi_zc(
         stmt = stmt.where(TZoneCynegetiques.id_secteur.in_(list_id_secteur))
 
     return stmt
+
+
+# mesures contrôlées par la page « Données aberrantes » (colonnes de t_realisations)
+MESURES_POIDS = ("poid_entier", "poid_vide", "poid_c_f_p")
+MESURES_DAGUES = ("long_dagues",)
+
+
+def get_donnees_aberrantes(id_saison=None, id_espece=None, type_mesure=None):
+    """
+    Réalisations dont au moins une mesure (poids ou longueur de dagues) sort de la
+    fourchette de `t_standards_mesures` (espèce x classe d'âge x sexe).
+
+    Pour chaque mesure on retient le standard du sexe de la réalisation, à défaut
+    celui sans sexe (tous les sexes). Les valeurs nulles ou égales à 0 sont ignorées
+    (non renseigné). Les dagues sont comparées à la plus grande des deux longueurs.
+
+    Args:
+        id_saison (int, optionnel): filtre sur la saison
+        id_espece (int, optionnel): filtre sur l'espèce
+        type_mesure (str, optionnel): "poids" ou "dagues" (None = les deux)
+
+    Returns:
+        list[dict]: une ligne par réalisation, avec la liste `anomalies`
+        ([{mesure, valeur, valeur_min, valeur_max}]).
+    """
+    if type_mesure == "poids":
+        mesures = MESURES_POIDS
+    elif type_mesure == "dagues":
+        mesures = MESURES_DAGUES
+    else:
+        mesures = MESURES_POIDS + MESURES_DAGUES
+
+    sql = text("""
+        WITH anomalies AS (
+            SELECT
+                tr.id_realisation,
+                m.mesure,
+                m.valeur,
+                st.valeur_min,
+                st.valeur_max
+            FROM oeasc_chasse.t_realisations tr
+            JOIN oeasc_chasse.t_attributions ta ON ta.id_attribution = tr.id_attribution
+            JOIN oeasc_chasse.t_type_bracelets ttb ON ttb.id_type_bracelet = ta.id_type_bracelet
+            CROSS JOIN LATERAL (VALUES
+                ('poid_entier', tr.poid_entier),
+                ('poid_vide', tr.poid_vide),
+                ('poid_c_f_p', tr.poid_c_f_p),
+                ('long_dagues', GREATEST(tr.long_dagues_droite, tr.long_dagues_gauche)::FLOAT)
+            ) AS m(mesure, valeur)
+            JOIN LATERAL (
+                SELECT s.valeur_min, s.valeur_max
+                FROM oeasc_chasse.t_standards_mesures s
+                WHERE s.id_espece = ttb.id_espece
+                    AND s.id_nomenclature_classe_age = tr.id_nomenclature_classe_age
+                    AND s.mesure = m.mesure
+                    AND (
+                        s.id_nomenclature_sexe = tr.id_nomenclature_sexe
+                        OR s.id_nomenclature_sexe IS NULL
+                    )
+                ORDER BY s.id_nomenclature_sexe NULLS LAST
+                LIMIT 1
+            ) st ON TRUE
+            WHERE m.mesure = ANY(:mesures)
+                AND m.valeur > 0
+                AND (m.valeur < st.valeur_min OR m.valeur > st.valeur_max)
+                AND (CAST(:id_saison AS INTEGER) IS NULL OR ta.id_saison = :id_saison)
+                AND (CAST(:id_espece AS INTEGER) IS NULL OR ttb.id_espece = :id_espece)
+        ),
+        regroupees AS (
+            SELECT
+                id_realisation,
+                JSON_AGG(
+                    JSON_BUILD_OBJECT(
+                        'mesure', mesure,
+                        'valeur', valeur,
+                        'valeur_min', valeur_min,
+                        'valeur_max', valeur_max
+                    )
+                    ORDER BY mesure
+                ) AS anomalies
+            FROM anomalies
+            GROUP BY id_realisation
+        )
+        SELECT
+            tr.id_realisation,
+            ts.id_saison,
+            ts.nom_saison,
+            ta.numero_bracelet,
+            tr.date_exacte,
+            te.id_espece,
+            te.nom_espece,
+            te.code_espece,
+            tns.label_default AS sexe,
+            tna.label_default AS classe_age,
+            tr.poid_entier,
+            tr.poid_vide,
+            tr.poid_c_f_p,
+            tr.long_dagues_droite,
+            tr.long_dagues_gauche,
+            rg.anomalies
+        FROM regroupees rg
+        JOIN oeasc_chasse.t_realisations tr ON tr.id_realisation = rg.id_realisation
+        JOIN oeasc_chasse.t_attributions ta ON ta.id_attribution = tr.id_attribution
+        JOIN oeasc_chasse.t_saisons ts ON ts.id_saison = ta.id_saison
+        JOIN oeasc_chasse.t_type_bracelets ttb ON ttb.id_type_bracelet = ta.id_type_bracelet
+        JOIN oeasc_commons.t_especes te ON te.id_espece = ttb.id_espece
+        LEFT JOIN ref_nomenclatures.t_nomenclatures tns
+            ON tns.id_nomenclature = tr.id_nomenclature_sexe
+        LEFT JOIN ref_nomenclatures.t_nomenclatures tna
+            ON tna.id_nomenclature = tr.id_nomenclature_classe_age
+        ORDER BY ts.nom_saison DESC, te.nom_espece, tr.id_realisation
+        """)
+
+    rows = DB.session.execute(
+        sql,
+        {
+            "mesures": list(mesures),
+            "id_saison": int(id_saison) if id_saison else None,
+            "id_espece": int(id_espece) if id_espece else None,
+        },
+    ).mappings()
+    return [dict(row) for row in rows]
+
+
+class MesureInvalide(Exception):
+    """Valeur de mesure refusée (champ non modifiable, non numérique ou négatif)."""
+
+
+# champs de t_realisations modifiables depuis la page « Données aberrantes » : type attendu
+CHAMPS_MESURES_MODIFIABLES = {
+    "poid_entier": float,
+    "poid_vide": float,
+    "poid_c_f_p": float,
+    "long_dagues_droite": int,
+    "long_dagues_gauche": int,
+}
+
+
+def update_mesures_realisation(id_realisation, valeurs):
+    """
+    Met à jour les mesures (poids / dagues) d'une réalisation.
+
+    Args:
+        id_realisation (int): réalisation à modifier
+        valeurs (dict): sous-ensemble de CHAMPS_MESURES_MODIFIABLES ; None = effacer la valeur.
+            Poids entier / poids vidé : si un seul est fourni l'autre est recalculé (cerf, chevreuil)
+
+    Raises:
+        ValueError: réalisation introuvable (-> 404 via build_error_payload)
+        MesureInvalide: champ non modifiable ou valeur non numérique / négative (-> 400 dans la route)
+    """
+    realisation = DB.session.get(TRealisationsChasse, id_realisation)
+    if realisation is None:
+        raise ValueError(f"Réalisation {id_realisation} introuvable")
+
+    convertis = {}
+    for champ, valeur in valeurs.items():
+        if champ not in CHAMPS_MESURES_MODIFIABLES:
+            raise MesureInvalide(f"Le champ « {champ} » n'est pas modifiable ici.")
+        if valeur is None or valeur == "":
+            convertis[champ] = None
+            continue
+        if isinstance(valeur, bool):
+            raise MesureInvalide(f"Valeur invalide pour « {champ} ».")
+        try:
+            nombre = CHAMPS_MESURES_MODIFIABLES[champ](valeur)
+        except (TypeError, ValueError):
+            raise MesureInvalide(f"Valeur invalide pour « {champ} » : {valeur}.")
+        if nombre < 0:
+            raise MesureInvalide(f"La valeur de « {champ} » ne peut pas être négative.")
+        convertis[champ] = nombre
+
+    # poids entier et poids vidé se déduisent l'un de l'autre (cerf, chevreuil) : si un seul des
+    # deux est fourni, l'autre est recalculé ; si les deux sont fournis, on garde les deux valeurs.
+    code_espece = realisation.attribution.type_bracelet.espece.code_espece
+    if "poid_entier" in convertis and "poid_vide" not in convertis:
+        convertis["poid_vide"] = poid_vide_depuis_entier(
+            code_espece, convertis["poid_entier"]
+        )
+    elif "poid_vide" in convertis and "poid_entier" not in convertis:
+        convertis["poid_entier"] = poid_entier_depuis_vide(
+            code_espece, convertis["poid_vide"]
+        )
+
+    for champ, valeur in convertis.items():
+        setattr(realisation, champ, valeur)
+    realisation.meta_update_date = func.now()
+    DB.session.commit()
+    return convertis  # inclut les valeurs recalculées

@@ -379,6 +379,38 @@ class TRealisationsChasse(CustomModel):
     meta_update_date: Mapped[DateTime] = Column(DateTime)
 
 
+@serializable
+class TStandardsMesures(CustomModel):
+    """
+    Fourchettes standard (poids, longueur de dagues) par espèce, classe d'âge et sexe.
+    Sexe null = tous les sexes. Utilisé par la page « Données aberrantes ».
+    """
+
+    __tablename__ = "t_standards_mesures"
+    __table_args__ = {"schema": "oeasc_chasse", "extend_existing": True}
+
+    id_standard: Mapped[int] = Column(Integer, primary_key=True)
+    id_espece: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_commons.t_especes.id_espece")
+    )
+    espece: Mapped["TEspeces"] = relationship(TEspeces, foreign_keys=id_espece)
+    id_nomenclature_classe_age: Mapped[int] = Column(
+        Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
+    )
+    nomenclature_classe_age: Mapped["TNomenclaturesOeasc"] = relationship(
+        TNomenclaturesOeasc, foreign_keys=id_nomenclature_classe_age
+    )
+    id_nomenclature_sexe: Mapped[int] = Column(
+        Integer, ForeignKey("ref_nomenclatures.t_nomenclatures.id_nomenclature")
+    )
+    nomenclature_sexe: Mapped["TNomenclaturesOeasc"] = relationship(
+        TNomenclaturesOeasc, foreign_keys=id_nomenclature_sexe
+    )
+    mesure: Mapped[str] = Column(Unicode)
+    valeur_min: Mapped[float] = Column(Float)
+    valeur_max: Mapped[float] = Column(Float)
+
+
 # Définition de la propriété de colonne après les définitions de classes pour éviter les références circulaires
 # TAttributions.has_realisation = column_property(
 #     exists().where(TRealisationsChasse.id_attribution == TAttributions.id_attribution)
