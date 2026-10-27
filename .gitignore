@@ -23,10 +23,10 @@ frontend/dist
 frontend/.DS_Store
 
 # Données (volumineuses ou locales)
-data/limites_pnc
+install/data/limites_pnc
 data/cache/
-data/chasse/shp/*
-data/chasse/data/*
+install/data/chasse/shp/*
+install/data/chasse/data/*
 data/degat_agricoles/*
 *.gpkg
 *.csv
@@ -57,3 +57,5 @@ static/imports_chasse/*
 
 !.gitkeep
 TODO.md
+# Archives locales (anciens fichiers retirés du dépôt)
+archive/

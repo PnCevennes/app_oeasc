@@ -39,7 +39,7 @@ fi
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 echo "fonctions nomenclatures" >> $log_file
-sql_file=${ROOT_DIR}/data/functions/nomenclatures.sql
+sql_file=${ROOT_DIR}/install/data/functions/nomenclatures.sql
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 
@@ -53,33 +53,33 @@ fi
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 echo "complements ref_geo" >> $log_file
-sql_file=${ROOT_DIR}/data/oeasc_schemas/ref_geo.sql
+sql_file=${ROOT_DIR}/install/data/oeasc_schemas/ref_geo.sql
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 echo "fonctions ref_geo" >> $log_file
-sql_file=${ROOT_DIR}/data/functions/ref_geo.sql
+sql_file=${ROOT_DIR}/install/data/functions/ref_geo.sql
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 
 echo "fonctions generiques" >> $log_file
-sql_file=${ROOT_DIR}/data/functions/generic.sql
+sql_file=${ROOT_DIR}/install/data/functions/generic.sql
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 echo "Schema oeasc_commons" >> $log_file
-sql_file=${ROOT_DIR}/data/oeasc_schemas/oeasc_commons.sql
+sql_file=${ROOT_DIR}/install/data/oeasc_schemas/oeasc_commons.sql
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 echo "Schema oeasc_forets" >> $log_file
-sql_file=${ROOT_DIR}/data/oeasc_schemas/oeasc_forets.sql
+sql_file=${ROOT_DIR}/install/data/oeasc_schemas/oeasc_forets.sql
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 
 echo "Schema oeasc_declarations" >> $log_file
-sql_file=${ROOT_DIR}/data/oeasc_schemas/oeasc_declarations.sql
+sql_file=${ROOT_DIR}/install/data/oeasc_schemas/oeasc_declarations.sql
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 echo "Schema oeasc_declarations views" >> $log_file
-sql_file=${ROOT_DIR}/data/oeasc_schemas/oeasc_declarations_views.sql
+sql_file=${ROOT_DIR}/install/data/oeasc_schemas/oeasc_declarations_views.sql
 export PGPASSWORD=$user_pg_pass;psql -h $db_host -U $user_pg -d $db_name -f $sql_file  &>> $log_file
 
 #echo "Schema oeasc_in"

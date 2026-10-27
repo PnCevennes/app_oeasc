@@ -49,7 +49,7 @@ fi
 
 dir_sql=$ROOT_DIR/install/install_db/sql
 dir_script=$ROOT_DIR/install/install_db
-dir_data=$ROOT_DIR/data
+dir_data=$ROOT_DIR/install/data
 
 
 # chargement de la configuration SQL dans settings.ini et tests de connextion

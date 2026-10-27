@@ -13,14 +13,14 @@ echo 'init_view oeasc' > $log_file
 
 # cat $settings
 for file in $(echo \
-    "../oeasc_schemas/oeasc_functions.sql" \
+    "../../install/data/oeasc_schemas/oeasc_functions.sql" \
     "oeasc_commons_views.sql" \
     "oeasc_declarations_views.sql" \
-    "../in/oeasc_in_views.sql" \
-    "../chasse/views_chasse.sql" \
-    "../chasse/result_ice.sql" \
-    "../chasse/views_export_chasse.sql" \
-    "../chasse/result_custom.sql" \
+    "../../install/data/in/oeasc_in_views.sql" \
+    "../../install/data/chasse/views_chasse.sql" \
+    "../../install/data/chasse/result_ice.sql" \
+    "../../install/data/chasse/views_export_chasse.sql" \
+    "../../install/data/chasse/result_custom.sql" \
     )
 do
 
