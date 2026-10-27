@@ -177,8 +177,12 @@ export default {
     'tagNames',
   ],
   watch: {
-    $route() {
-      // react to route changes...
+    // Navigation entre deux pages /actualite/:code qui réutilisent ce composant.
+    // Ne rien faire quand le code vient d'une prop (liste d'actualités) ou quand on QUITTE la
+    // page (code absent de la route) : sinon setContent({}) basculait le composant en mode
+    // édition pendant son démontage, d'où des erreurs de patch Vue (« C is null », « parentNode »).
+    '$route.params.code'(newCode) {
+      if (this.code || !newCode) return;
       this.initContent();
     },
     content: {
@@ -316,14 +320,18 @@ export default {
       }
 
       const configStore = this.$store.getters.configStore('commonsContent');
-      this.$store.dispatch(configStore.get, { value: this.getCode(), fieldName: 'code' }).then(
+      const code = this.getCode();
+      this.$store.dispatch(configStore.get, { value: code, fieldName: 'code' }).then(
         (data) => {
+          // réponse périmée (navigation entre-temps) ou composant démonté : on ignore
+          if (this.$.isUnmounted || code !== this.getCode()) return;
           this.setContent(data);
           // console.log(data);
         },
         // si erreur => content vide (comportement prod != dev)
         (error) => {
           error;
+          if (this.$.isUnmounted || code !== this.getCode()) return;
           this.setContent({ code: this.getCode() });
         }
       );
