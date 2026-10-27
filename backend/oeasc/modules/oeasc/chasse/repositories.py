@@ -1,7 +1,7 @@
 from utils_flask_sqla.generic import GenericTable
 from flask import request, current_app
 from ..generic.repository import getlist
-from .poids import poid_vide_depuis_entier, poid_entier_depuis_vide
+from .poids import CHAMPS_POIDS, poids_deduits
 
 # from ..resultat.repository import result_custom
 from sqlalchemy import func, cast, select, text, Integer
@@ -758,7 +758,7 @@ def update_mesures_realisation(id_realisation, valeurs):
     Args:
         id_realisation (int): réalisation à modifier
         valeurs (dict): sous-ensemble de CHAMPS_MESURES_MODIFIABLES ; None = effacer la valeur.
-            Poids entier / poids vidé : si un seul est fourni l'autre est recalculé (cerf, chevreuil)
+            Poids entier / vidé / c.f.p. : si un seul est fourni les deux autres sont recalculés (cerf, chevreuil)
 
     Raises:
         ValueError: réalisation introuvable (-> 404 via build_error_payload)
@@ -785,16 +785,13 @@ def update_mesures_realisation(id_realisation, valeurs):
             raise MesureInvalide(f"La valeur de « {champ} » ne peut pas être négative.")
         convertis[champ] = nombre
 
-    # poids entier et poids vidé se déduisent l'un de l'autre (cerf, chevreuil) : si un seul des
-    # deux est fourni, l'autre est recalculé ; si les deux sont fournis, on garde les deux valeurs.
-    code_espece = realisation.attribution.type_bracelet.espece.code_espece
-    if "poid_entier" in convertis and "poid_vide" not in convertis:
-        convertis["poid_vide"] = poid_vide_depuis_entier(
-            code_espece, convertis["poid_entier"]
-        )
-    elif "poid_vide" in convertis and "poid_entier" not in convertis:
-        convertis["poid_entier"] = poid_entier_depuis_vide(
-            code_espece, convertis["poid_vide"]
+    # les trois poids se déduisent les uns des autres (cerf, chevreuil) : si un seul est fourni,
+    # les deux autres sont recalculés ; si plusieurs sont fournis, on garde les valeurs envoyées.
+    poids_fournis = [champ for champ in CHAMPS_POIDS if champ in convertis]
+    if len(poids_fournis) == 1:
+        code_espece = realisation.attribution.type_bracelet.espece.code_espece
+        convertis.update(
+            poids_deduits(code_espece, poids_fournis[0], convertis[poids_fournis[0]])
         )
 
     for champ, valeur in convertis.items():

@@ -11,8 +11,8 @@
     <p style="max-width: 900px; color: #555">
       Réalisations dont le poids ou la longueur des dagues sort de la fourchette standard définie
       pour l'espèce, la classe d'âge et le sexe (poids en kg, dagues en mm). Corrigez les valeurs
-      directement dans le tableau puis enregistrez la ligne. Pour le cerf et le chevreuil, modifier le
-      poids entier recalcule le poids vidé, et inversement. Les fourchettes se modifient dans
+      directement dans le tableau puis enregistrez la ligne. Pour le cerf et le chevreuil, modifier
+      un des trois poids (entier, vidé, c.f.p.) recalcule les deux autres. Les fourchettes se modifient dans
       <router-link :to="{ name: 'chasse.admin' }">Données chasse → onglet Standards de mesures</router-link>
       .
     </p>
@@ -164,11 +164,19 @@ const CHAMPS_PAR_MESURE = {
   long_dagues: ['long_dagues_droite', 'long_dagues_gauche'],
 };
 
-// poids vide = exp(exposant) * poids entier ^ puissance, par code espèce (mêmes coefficients que
-// oeasc_chasse.fct_poid_vide et backend/.../chasse/poids.py). Autres espèces : pas de conversion.
+// poids vide = exp(exposant) * poids ^ puissance, avec des coefficients propres au poids entier et au
+// poids c.f.p., par code espèce (mêmes coefficients que oeasc_chasse.fct_poid_vide et
+// backend/.../chasse/poids.py). Le poids vide sert de pivot entre entier et c.f.p.
+// Autres espèces : pas de conversion.
 const COEFFICIENTS_POIDS = {
-  CF: { exposant: -0.3948, puissance: 1.0247 },
-  CH: { exposant: -0.3572, puissance: 1.023 },
+  poid_entier: {
+    CF: { exposant: -0.3948, puissance: 1.0247 },
+    CH: { exposant: -0.3572, puissance: 1.023 },
+  },
+  poid_c_f_p: {
+    CF: { exposant: -0.1128, puissance: 1.0041 },
+    CH: { exposant: -0.2868, puissance: 1.0614 },
+  },
 };
 
 const arrondi2 = (valeur) => Math.round(valeur * 100) / 100;
@@ -301,23 +309,34 @@ export default {
     },
 
     /**
-     * Poids entier et poids vidé se déduisent l'un de l'autre (cerf, chevreuil) : quand l'un est
-     * modifié, l'autre est recalculé dans le tableau. Un champ vidé ne recalcule rien.
+     * Les trois poids se déduisent les uns des autres (cerf, chevreuil) : quand l'un est modifié,
+     * les deux autres sont recalculés dans le tableau, via le poids vide (pivot). Un champ vidé ou
+     * non numérique ne recalcule rien.
      */
     recalculerPoids(item, champ) {
-      const coef = COEFFICIENTS_POIDS[item.code_espece];
-      if (!coef || !['poid_entier', 'poid_vide'].includes(champ)) {
+      const champsPoids = ['poid_entier', 'poid_vide', 'poid_c_f_p'];
+      if (!champsPoids.includes(champ) || !COEFFICIENTS_POIDS.poid_entier[item.code_espece]) {
         return;
       }
       const saisi = this.valeurSaisie(item, champ);
       if (saisi === null || Number.isNaN(saisi) || saisi <= 0) {
         return;
       }
-      if (champ === 'poid_entier') {
-        item.edition.poid_vide = arrondi2(Math.exp(coef.exposant) * saisi ** coef.puissance);
-      } else {
-        item.edition.poid_entier = arrondi2((saisi / Math.exp(coef.exposant)) ** (1 / coef.puissance));
+      let vide = saisi;
+      if (champ !== 'poid_vide') {
+        const { exposant, puissance } = COEFFICIENTS_POIDS[champ][item.code_espece];
+        vide = Math.exp(exposant) * saisi ** puissance;
       }
+      champsPoids
+        .filter((autre) => autre !== champ)
+        .forEach((autre) => {
+          if (autre === 'poid_vide') {
+            item.edition.poid_vide = arrondi2(vide);
+          } else {
+            const { exposant, puissance } = COEFFICIENTS_POIDS[autre][item.code_espece];
+            item.edition[autre] = arrondi2((vide / Math.exp(exposant)) ** (1 / puissance));
+          }
+        });
     },
 
     /** La mesure de ce champ est-elle hors fourchette (d'après la valeur chargée) ? */
