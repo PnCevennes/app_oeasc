@@ -53,7 +53,7 @@ static/imports_chasse/*
 .nvmrc
 
 # Divers
-prompt/
 *.md
 
 !.gitkeep
+TODO.md
