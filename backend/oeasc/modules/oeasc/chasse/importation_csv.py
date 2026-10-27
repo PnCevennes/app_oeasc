@@ -104,7 +104,7 @@ NB_CORS_MINIMUM = 1  # en dessous de ce nombre, on considère que c'est une erre
 NB_CORS_MAXIMUM = 24  # au dessus de ce nombre, on considère que c'est une erreur de saisie et on remplace par null
 
 TAILLE_MINIMUM_DAGUES = {
-    "CERF": {"ADULTE": 10, "SUBADULTE": 10, "INDÉTERMINÉ": 5, "JEUNE": 2, "FAON": 2},
+    "CERF": {"ADULTE": 50, "SUBADULTE": 50, "INDÉTERMINÉ": 5, "JEUNE": 2, "FAON": 2},
     "CHEVREUIL": {"ADULTE": 10, "SUBADULTE": 1, "INDÉTERMINÉ": 1, "JEUNE": 1},
 }
 TAILLE_MAXIMUM_DAGUES = {
@@ -1396,7 +1396,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         ].index
         df.loc[
             idx_erreur_dagues_aberrantes_gauche, "commentaires_erreurs"
-        ] += f"Longueur de dague gauche aberrante. "
+        ] += "Longueur de dague gauche aberrante (unité attendue : mm, vérifier une saisie en cm). "
         df.loc[idx_erreur_dagues_aberrantes_gauche, "a_verifier"] = True
         del idx_erreur_dagues_aberrantes_gauche
 
@@ -1421,7 +1421,7 @@ def etape__verification_donnees_geochasse(df, apiResponse):
         ].index
         df.loc[
             idx_erreur_dagues_aberrantes_droite, "commentaires_erreurs"
-        ] += f"Longueur de dague droite aberrante. "
+        ] += "Longueur de dague droite aberrante (unité attendue : mm, vérifier une saisie en cm). "
         df.loc[idx_erreur_dagues_aberrantes_droite, "a_verifier"] = True
         del idx_erreur_dagues_aberrantes_droite
 
