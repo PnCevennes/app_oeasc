@@ -855,6 +855,9 @@ def export_declarations():
         dir_path = str(get_config()["ROOT_DIR"] / "static/data")
         output_filename = f"{dir_path}/{file_name}.csv"
 
+    # Crée le dossier de sortie s'il n'existe pas
+    Path(dir_path).mkdir(parents=True, exist_ok=True)
+
     print(
         f"Export des déclarations : type_out={type_out}, type_file={type_file}, output_filename={output_filename}"
     )
