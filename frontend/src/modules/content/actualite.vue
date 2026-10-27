@@ -68,7 +68,14 @@ export default {
             this.contents = [];
             return;
           }
-          this.contents = contents.sort((a, b) => {
+          // filtrage côté client (comme actualites-bandeau) : ne jamais afficher ici un contenu
+          // d'aide/page sans le tag demandé, ses templates dépendent de props absentes (ex. meta)
+          const tagNames = this.tagNames || [];
+          this.contents = contents
+            .filter((c) =>
+              tagNames.every((nom_tag) => (c.tags || []).some((t) => t.nom_tag === nom_tag))
+            )
+            .sort((a, b) => {
             const tA = new Date(a.meta_create_date).getTime() || 0;
             const tB = new Date(b.meta_create_date).getTime() || 0;
             return tB - tA;

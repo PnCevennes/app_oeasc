@@ -37,6 +37,7 @@
         <!-- affichage du contenu -->
         <!-- evite la propagation des événements de clavier vers les élements parents pour éviter les conflits raccourcis clavier -->
         <v-runtime-template
+          v-if="!renderError"
           class="content"
           @keydown="$event.stopPropagation()"
           @keyup="$event.stopPropagation()"
@@ -166,6 +167,13 @@ export default {
     VRuntimeTemplate,
     genericForm,
   },
+  // un échec de compilation/rendu du template d'un contenu (HTML invalide issu de la BDD,
+  // variable absente comme `meta`) ne doit pas faire planter toute la page
+  errorCaptured(err) {
+    console.error(`Contenu CMS "${this.getCode()}" non affichable :`, err);
+    this.renderError = true;
+    return false;
+  },
   props: [
     'code',
     'containerClassIn',
@@ -188,6 +196,9 @@ export default {
     content: {
       handler() {},
       deep: true,
+    },
+    'content.html'() {
+      this.renderError = false;
     },
   },
   computed: {
@@ -221,6 +232,7 @@ export default {
     bSnack: false,
     msgSnack: null,
     bInitialized: false,
+    renderError: false,
     contentValues: {
       id_espece: null,
       espece: null,
