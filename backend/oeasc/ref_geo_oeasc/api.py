@@ -325,10 +325,6 @@ def get_areas_centroid_post(data_type):
         # On convertit la liste d'identifiants en tuple pour l'utiliser dans la requête SQL.
         t = tuple(v)
 
-        # Si la liste ne contient qu'un seul identifiant, on adapte le format pour la requête SQL.
-        if len(v) == 1:
-            t = str(t).replace(",", "")
-
         # On prépare la requête SQL pour calculer le centroïde :
         # - ST_UNION(geom_4326) fusionne toutes les géométries des aires sélectionnées.
         # - ST_CENTROID calcule le centre de la géométrie fusionnée.

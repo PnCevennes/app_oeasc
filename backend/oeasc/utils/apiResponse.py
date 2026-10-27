@@ -118,16 +118,18 @@ class ApiResponse:
     # -------------------------
     def write_in_log_file(self, filename=None, with_timestamp: bool = False):
         """Ajoute les entrées du journal dans un fichier de log. Les entrées sont écrites avec un niveau INFO si success est True, sinon avec un niveau ERROR."""
-        logger = logging.getLogger("ApiResponseLogger")
+        if (
+            filename is None
+        ):  # si le fichier n'est pas définie, on utilise celui enregistré à l'initialisation de l'objet ApiResponse
+            filename = self.log_file
+        else:  # Si un fichier est défini, on créé un chemin et on utilise ce fichier pour le log
+            filename = os.path.join(path_log, filename)
+
+        # un logger par fichier : sinon le premier fichier utilisé capte tous les logs
+        logger = logging.getLogger(f"ApiResponseLogger.{filename}")
         logger.setLevel(logging.INFO)
 
         if not logger.handlers:
-            if (
-                filename is None
-            ):  # si le fichier n'est pas définie, on utilise celui enregistré à l'initialisation de l'objet ApiResponse
-                filename = self.log_file
-            else:  # Si un fichier est défini, on créé un chemin et on utilise ce fichier pour le log
-                filename = os.path.join(path_log, filename)
 
             # si le fichier de log n'existe pas, on le créé
             if not os.path.exists(filename):
@@ -191,7 +193,8 @@ class ApiResponse:
             "success": self.success,
             "message": self.message,
             "data": self.data,
-            "errors": self.system_error,
+            # le détail technique (SQL, noms de tables...) n'est exposé qu'en debug
+            "errors": self.system_error if self.debug_mode else "",
         }
         if self.return_journal:
             response["journal"] = self.journal

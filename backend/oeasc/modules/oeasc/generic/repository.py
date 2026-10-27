@@ -345,11 +345,11 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
         # Retourne l'objet créé ou mis à jour
         return obj
 
-    except Exception as e:
+    except Exception:
         # En cas d'erreur, annule la transaction pour éviter les incohérences
         DB.session.rollback()
         # Propage l'exception pour gestion par le contrôleur ou l'API
-        raise e
+        raise
 
 
 def delete_object_type(module_name, object_type, id_value):
@@ -388,11 +388,11 @@ def delete_object_type(module_name, object_type, id_value):
         DB.session.delete(res)
         # Valide la suppression en base de données
         DB.session.commit()
-    except Exception as e:
+    except Exception:
         # Annule la transaction et propage l'erreur : elle sera traduite en message
         # clair par build_error_payload dans la route (ex : élément encore référencé).
         DB.session.rollback()
-        raise e
+        raise
 
     # Retourne les données de l'objet supprimé
     return out

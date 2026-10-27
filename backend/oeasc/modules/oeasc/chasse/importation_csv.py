@@ -756,16 +756,11 @@ def initialisation_apiResponse(id_role=None, nom_complet=None):
         )
 
     if id_role is None or nom_complet is None:
-        apiResponse.add_log(
-            "Tentative d'importation: Utilisateur non connecté ou informations manquantes. Veuillez vous connecter pour continuer.",
-            type_log="ERROR",
-            with_timestamp=True,
-        )
-        apiResponse.success = False
-        apiResponse.status_code = 401
+        # add_error marque la réponse en échec et journalise l'erreur système
         apiResponse.add_error(
             user_message="Tentative d'importation: Utilisateur non connecté. Veuillez vous connecter pour continuer.",
             system_error="Tentative d'importation: Utilisateur non connecté ou informations manquantes.",
+            status_code=401,
         )
         return apiResponse
 

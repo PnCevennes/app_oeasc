@@ -53,20 +53,12 @@ def get_all_generic(module_name, object_types):
     if "count" in args:
         return count
 
-    # Si la clé 'only_fields' est présente, on retourne seulement les champs demandés pour chaque objet
-    if "only_fields" in args:
-        only_fields = args.get("only_fields").split(",")
-        # Création du schéma avec uniquement les champs demandés
-        schema = class_schema(many=True, only_fields=only_fields)
-        # Suppression des doublons et récupération des objets
-        res = res.unique().all()
-        # Sérialisation des objets
-        items = schema.dump(res)
-    else:
-        # Si aucun champ spécifique n'est demandé, on retourne tous les champs
-        schema = class_schema(many=True)
-        res = res.unique().all()
-        items = schema.dump(res)
+    # Si 'only_fields' est présent, on ne sérialise que les champs demandés
+    only_fields = args.get("only_fields")
+    schema_kwargs = {"only": only_fields.split(",")} if only_fields else {}
+    schema = class_schema(many=True, **schema_kwargs)
+    # Suppression des doublons puis sérialisation
+    items = schema.dump(res.unique().all())
 
     # On retourne un dictionnaire avec le nombre total, le nombre filtré et la liste des objets
     return {"total": count, "total_filtered": count_filtered, "items": items}

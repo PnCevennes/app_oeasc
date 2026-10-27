@@ -7,7 +7,7 @@ from pathlib import Path
 
 from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp_accept_empty_list, json_resp
-from sqlalchemy import text, select, func
+from sqlalchemy import select, func, or_, and_
 
 
 from .models import (
@@ -145,22 +145,25 @@ def api_communes(test):
     # Séparation de la recherche en plusieurs mots si nécessaire
     tests = test.strip().split(" ")
 
-    # Construction de la condition SQL pour filtrer sur le nom ou le code postal
-    cond_text = " AND ".join(
-        [
-            (
-                " ( TRANSLATE(nom, '{1}', '{2}') ILIKE '{3}{0}%' OR cp ILIKE '{3}{0}%' ) "
-            ).format(s_test, s_trans_I, s_trans_O, "" if s_test == tests[0] else "%")
-            for s_test in tests
-        ]
-    )
+    # Condition sur le nom (sans accents) ou le code postal pour chaque mot saisi.
+    # Les valeurs sont passées en paramètres liés (pas de SQL construit à la main).
+    nom_sans_accent = func.translate(TCommunesFrance.nom, s_trans_I, s_trans_O)
+    conditions = []
+    for index, s_test in enumerate(tests):
+        pattern = f"{'' if index == 0 else '%'}{s_test}%"
+        conditions.append(
+            or_(
+                nom_sans_accent.ilike(pattern),
+                TCommunesFrance.cp.ilike(pattern),
+            )
+        )
 
     # Création de la requête SQL pour récupérer les communes correspondantes
     stmt_commune = (
         select(
             func.concat(TCommunesFrance.nom, " ", TCommunesFrance.cp).label("nom_cp")
         )
-        .where(text(cond_text))
+        .where(and_(*conditions))
         .order_by(
             TCommunesFrance.population.desc(), TCommunesFrance.nom, TCommunesFrance.cp
         )
