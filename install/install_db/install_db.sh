@@ -55,7 +55,7 @@ dir_data=$ROOT_DIR/data
 # chargement de la configuration SQL dans settings.ini et tests de connextion
 
 setting_file=${ROOT_DIR}/config/settings.ini
-log_file=$ROOT_DIR/var/log/install_db.log
+log_file=$ROOT_DIR/logs/install_db.log
 
 echo "install_db" > $log_file
 

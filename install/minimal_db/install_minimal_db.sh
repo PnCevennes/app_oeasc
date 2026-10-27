@@ -4,7 +4,7 @@ geonature_realease=2.3.0
 srid_local=2154
 
 ROOT_DIR=$(readlink -e "${0%/*}")/../..
-log_file=${ROOT_DIR}/var/log/install_db.log
+log_file=${ROOT_DIR}/logs/install_db.log
 
 MINIMAL_INSTALL_DIR=${ROOT_DIR}/install/minimal_db
 . ${ROOT_DIR}/config/settings.ini

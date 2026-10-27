@@ -10,7 +10,6 @@ remove/
 *.ipynb
 venv/
 venv2/
-var/log/error*
 var/tile_cache/
 settings.ini
 config/settings.ini_*
@@ -43,7 +42,6 @@ static/src/js/config/config*.js
 
 procedure_install_server.sh
 
-var/log/*.log
 .vscode/*
 *.save
 
@@ -77,7 +75,6 @@ frontend/.vscode
 
 # frontend/vue.config.js
 frontend/src/config/config.js
-var/log/*
 
 
 # chasse
