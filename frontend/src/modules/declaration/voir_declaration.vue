@@ -401,23 +401,21 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     <td class="droite">
                       <!-- si le type de degat n'est pas un degat sur cloture-->
                       <template v-if="item_degat.degat_type_code != 'P/C'">
-                        <template>
-                          <div
-                            v-for="(item_degat_essence, index_essence) in item_degat.essences"
-                            :key="index_essence"
-                          >
-                            <strong>
-                              {{ item_degat_essence.degat_essence_label }}
-                            </strong>
-                            <!-- si le degat n'est pas un defaut de regeneration, on affiche les détails -->
-                            <span v-if="item_degat.degat_type_code != 'ABS'">
-                              :
-                              {{ item_degat_essence.degat_etendue_label }},
-                              {{ item_degat_essence.degat_gravite_label }},
-                              {{ item_degat_essence.degat_anteriorite_label }}
-                            </span>
-                          </div>
-                        </template>
+                        <div
+                          v-for="(item_degat_essence, index_essence) in item_degat.essences"
+                          :key="index_essence"
+                        >
+                          <strong>
+                            {{ item_degat_essence.degat_essence_label }}
+                          </strong>
+                          <!-- si le degat n'est pas un defaut de regeneration, on affiche les détails -->
+                          <span v-if="item_degat.degat_type_code != 'ABS'">
+                            :
+                            {{ item_degat_essence.degat_etendue_label }},
+                            {{ item_degat_essence.degat_gravite_label }},
+                            {{ item_degat_essence.degat_anteriorite_label }}
+                          </span>
+                        </div>
                       </template>
                       <template v-if="item_degat.id_nomenclature_degat_type == 480">
                         <!-- si le type de degat est un degat sur cloture  on met juste oui-->

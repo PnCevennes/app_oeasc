@@ -182,7 +182,11 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 				JOIN oeasc_chasse.t_zone_cynegetiques tzc ON tzc.id_zone_cynegetique = tr.id_zone_cynegetique_realisee
 				WHERE
 					date_exacte IS NOT NULL
-					AND COALESCE(poid_entier, poid_vide, poid_c_f_p) IS NOT NULL
+					AND (
+						-- le poids n'est requis que pour le calcul sur la masse corporelle, pas pour les dagues
+						poids_ou_dagues_in IS FALSE
+						OR COALESCE(poid_entier, poid_vide, poid_c_f_p) IS NOT NULL
+					)
 					AND (
 						-- si on veut les resultats sur les dagues alors on prend toutes les classes d'ages
 						(poids_ou_dagues_in IS FALSE) AND (tn.cd_nomenclature IN ('3', '5')) --juvenile et subadulte
@@ -312,7 +316,7 @@ CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in INTEGER, 
 						) as  nom_zone_indicative,
 						(
 							SELECT STRING_AGG(nom_secteur, ', ' ORDER BY nom_secteur)
-								FROM ref_geo.t_secteurs ts
+								FROM oeasc_commons.t_secteurs ts
 								WHERE ts.id_secteur = ANY(id_secteur_in)
 						) as  nom_secteur,
 						nom_espece,
