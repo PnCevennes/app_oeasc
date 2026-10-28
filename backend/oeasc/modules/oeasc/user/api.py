@@ -3,6 +3,7 @@ api user
 """
 
 from flask import Blueprint, request, redirect, current_app, session
+from oeasc.utils.current_user import get_current_user
 from utils_flask_sqla.response import json_resp
 
 # from utils_flask_sqla.response import json_resp, json_resp_accept
@@ -23,13 +24,7 @@ def api_test():
     Elle retourne le contenu de la session sous la clé "current_user".
     Utile pour les tests d'intégration ou pour vérifier l'état de connexion côté frontend.
     """
-    res = session.get(
-        "current_user", {}
-    )  # Récupère l'utilisateur courant de la session
-    if (res is None) or (res == ""):
-        res = {}  # Si aucun utilisateur n'est trouvé, retourne un dictionnaire vide
-    # print ("api_test session:", res)  # Affiche le contenu de la session pour le debug
-    return res
+    return get_current_user()
 
 
 @bp.route("login_error", methods=["GET"])

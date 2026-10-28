@@ -39,7 +39,8 @@ from pyproj import Transformer
 from marshmallow.exceptions import ValidationError
 
 from sqlalchemy import func, select
-from flask import request, current_app, session, has_request_context
+from flask import request, current_app, session
+from oeasc.utils.current_user import get_current_user
 
 from oeasc.utils.apiResponse import ApiResponse
 from oeasc.modules.oeasc.chasse.poids import poid_vide_depuis_entier
@@ -744,12 +745,8 @@ def initialisation_apiResponse(id_role=None, nom_complet=None):
 
     # si l'appelant n'a pas fourni l'utilisateur, on tente la session Flask
     # (uniquement en contexte de requête : la session n'existe pas dans un thread).
-    if (
-        (id_role is None or nom_complet is None)
-        and has_request_context()
-        and ("current_user" in session)
-    ):
-        current_user = session.get("current_user") or {}
+    if id_role is None or nom_complet is None:
+        current_user = get_current_user()
         id_role = id_role if id_role is not None else current_user.get("id_role")
         nom_complet = (
             nom_complet if nom_complet is not None else current_user.get("nom_complet")
@@ -1153,13 +1150,13 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             & (df["poid_entier"].notnull())
             & (df["poid_vide"].isnull()),
             "poid_vide",
-        ] = df.apply(lambda row: poid_vide_cerf(row["poid_entier"]), axis=1)
+        ] = df["poid_entier"].map(poid_vide_cerf)
         df.loc[
             (df["espece"] == "CHEVREUIL")
             & (df["poid_entier"].notnull())
             & (df["poid_vide"].isnull()),
             "poid_vide",
-        ] = df.apply(lambda row: poid_vide_chevreuil(row["poid_entier"]), axis=1)
+        ] = df["poid_entier"].map(poid_vide_chevreuil)
 
         # on cherche les poids inférieurs a la valeur dans POIDS_VIDE_MINIMUM pour chaque espèce en fonction de l'age. Si le poids est inférieur à cette valeur, on considère que c'est une erreur. On ajoute un commentaire d'erreur dans ce cas.
         idx_poids_minimum_aberrant = df[

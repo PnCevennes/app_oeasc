@@ -188,55 +188,6 @@ def get_nomenclature(key_in, value_in, type_code, key_out=""):
     # Si aucun élément ne correspond, on retourne None
     return None
 
-
-# def get_areas_from_ids(id_areas):
-#     """
-#     Recherche les attributs des aires (areas) en base de données pour une liste d'identifiants,
-#     uniquement si ces aires ne sont pas déjà présentes dans la session Flask (_areas).
-
-#     Cette fonction permet d'optimiser les accès à la base en évitant de refaire des requêtes
-#     pour des aires déjà chargées en mémoire. Elle est utile lorsqu'on doit traiter plusieurs
-#     aires en une seule fois (ex : lors du chargement d'une liste de déclarations).
-
-#     Args:
-#         id_areas (list): Liste des identifiants d'aires à récupérer.
-
-#     Utilisation typique :
-#         - Appelée en amont d'un traitement qui nécessite d'accéder aux attributs de plusieurs aires,
-#           pour précharger toutes les données nécessaires en une seule requête SQL.
-#         - Utilisée dans la fonction (commentée) pre_get_dict_nomenclature_areas pour optimiser
-#           le chargement des aires associées à des déclarations.
-#     """
-#     # On initialise le cache des aires dans la config Flask si nécessaire
-#     if not config.get("_areas"):
-#         config["_areas"] = {}
-
-#     id_areas_to_query = []  # Liste des identifiants à interroger en base
-
-#     # On parcourt la liste des identifiants fournis
-#     for id in id_areas:
-#         # Si l'aire n'est pas déjà présente dans le cache, on l'ajoute à la liste à interroger
-#         if not config["_areas"].get(str(id), None):
-#             id_areas_to_query.append(id)
-
-#     # Si des aires doivent être récupérées en base
-#     if id_areas_to_query:
-
-#         # On construit la requête SQL pour récupérer toutes les aires d'un coup
-#         stmt = select(VA).where(VA.id_area.in_(id_areas_to_query))
-#         result_db = DB.session.execute(
-#             stmt
-#         ).all()  # Exécution de la requête, récupération des résultats
-
-#         # On convertit les résultats en liste de dictionnaires via le schéma Marshmallow
-#         all_area = LAreasSchema(many=True).dump(result_db)
-
-#         # Pour chaque aire récupérée, on ajoute le type_code et on la stocke dans le cache
-#         for area in all_area:
-#             area["type_code"] = get_type_code(area["id_type"])
-#             config["_areas"][str(area["id_area"])] = area
-
-
 def get_area_from_id(id_area):
     """
     Recherche les attributs d'une aire (area) en base de données à partir de son identifiant,

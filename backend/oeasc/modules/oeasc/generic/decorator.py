@@ -4,6 +4,7 @@ decorator
 
 from functools import wraps
 from flask import session, current_app
+from oeasc.utils.current_user import get_current_user
 from .definitions import GenericRouteDefinitions
 
 definitions = GenericRouteDefinitions()
@@ -44,7 +45,7 @@ def check_object_type(droit_type):
             # Récupère le type d'objet depuis les arguments, ou le dernier élément de "object_types"
             object_type = kwargs.get("object_type") or kwargs.get("object_types")[:-1]
             # Récupère l'utilisateur courant depuis la session Flask
-            current_user = session.get("current_user", {})
+            current_user = get_current_user()
 
             # Vérifie que le module existe dans les définitions
             module = definitions.get_module(module_name)

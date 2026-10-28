@@ -5,6 +5,7 @@ liste des api pour les declarations
 from datetime import date, datetime, timedelta
 import time
 from flask import Blueprint, request, current_app, session, Response, abort
+from oeasc.utils.current_user import get_current_user
 from flask.helpers import send_from_directory
 import json
 import requests  # proxy des tuiles cartographiques (voir route tiles)
@@ -379,11 +380,8 @@ def declarations():
     """
 
     # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur
-    user = (
-        get_user(session["current_user"]["id_role"])
-        if "current_user" in session and session["current_user"]
-        else None
-    )
+    id_role = get_current_user().get("id_role")
+    user = get_user(id_role) if id_role else None
 
     # Retourne la liste des déclarations accessibles à cet utilisateur
     return get_liste_declarations(user=user)

@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timedelta
 from oeasc.utils.apiResponse import ApiResponse
 from flask import render_template, session, current_app
+from oeasc.utils.current_user import get_current_user
 from oeasc.modules.oeasc.declaration.models import TDeclaration
 from sqlalchemy import update
 from itsdangerous import URLSafeTimedSerializer
@@ -55,7 +56,7 @@ def send_mail_validation_declaration(declaration, b_create):
     """
 
     # Récupère l'utilisateur à partir de la session (id_role)
-    user = get_user(session["current_user"]["id_role"])
+    user = get_user(get_current_user()["id_role"])
 
     # Récupère l'adresse email de l'utilisateur
     email_user = user["email"]

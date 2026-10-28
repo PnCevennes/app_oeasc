@@ -906,7 +906,7 @@ def get_stmt_areas_declaration(id_declaration, area_code):
     return stmt
 
 
-def get_stmt_all_areas_declaration(id_declaration, list_id_types=[]):
+def get_stmt_all_areas_declaration(id_declaration, list_id_types=None):
     """Retourne les aires (via cor_area_intersect → vm_lareas_simples) concernant une déclaration.
     Utilisée pour afficher la carte dans voir_declaration.
     Pour les types de zone non-directs, les aires sont trouvées via cor_area_intersect à partir

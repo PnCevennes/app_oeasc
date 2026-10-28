@@ -5,6 +5,7 @@ import logging
 from flask import jsonify
 from datetime import datetime
 import os
+from oeasc.utils.current_user import get_current_user
 
 path_log = os.path.join(app.config["ROOT_DIR"], "logs/")
 os.makedirs(path_log, exist_ok=True)
@@ -39,12 +40,7 @@ class ApiResponse:
         self.return_journal = False  # si return_journal est à True, le journal sera retourné dans la réponse de l'API. Si return_journal est à False, le journal ne sera pas retourné dans la réponse de l'API.
 
         # utilisateur connecté, lu dans la session sauf si fourni explicitement
-        current_user = {}
-        if session is not None and hasattr(session, "get"):
-            try:
-                current_user = session.get("current_user", {}) or {}
-            except Exception:
-                current_user = {}
+        current_user = get_current_user(session)
 
         # id_role de l'utilisateur connecté (opérations nécessitant une identification : journal, attribution...)
         self.id_role = id_role if id_role is not None else current_user.get("id_role", 0)

@@ -22,11 +22,6 @@ from sqlalchemy import (
 
 from ..commons.models import TEspeces, TSecteurs, TNomenclaturesOeasc
 
-# from pypnnomenclature.models import TNomenclatures
-# from sqlalchemy import select
-# from sqlalchemy.ext.hybrid import hybrid_property
-# from typing import Optional, List
-
 from oeasc.utils.env import db as DB
 
 

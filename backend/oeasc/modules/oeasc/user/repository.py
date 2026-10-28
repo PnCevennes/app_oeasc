@@ -3,6 +3,7 @@ fonction acces DB pour la partie user
 """
 
 from flask import current_app, session
+from oeasc.utils.current_user import get_current_user
 from sqlalchemy import select
 
 # from sqlalchemy.orm import Session
@@ -65,7 +66,7 @@ def get_users():
 
     # Récupère l'utilisateur courant à partir de la session (id_role)
     # (pas de current_user en session pour un utilisateur temporaire, ex: renouvellement par token)
-    id_role = (session.get("current_user") or {}).get("id_role")
+    id_role = get_current_user().get("id_role")
     current_user = get_user(id_role) if id_role else None
     if not current_user:
         return v_out

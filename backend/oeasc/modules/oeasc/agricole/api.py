@@ -5,6 +5,7 @@ api dégâts agricoles
 import datetime
 
 from flask import Blueprint, request, session, jsonify
+from oeasc.utils.current_user import get_current_user
 from flask_login import current_user as login_user
 from werkzeug.utils import secure_filename
 
@@ -101,7 +102,7 @@ def import_degats_agricoles():
     update = request.form.get("update") == "true"
     file = request.files.get("file")
 
-    session_user = session.get("current_user") or {}
+    session_user = get_current_user()
     id_role = session_user.get("id_role")
     nom_complet = session_user.get("nom_complet")
     # repli sur l'utilisateur du token (flask-login) si la session ne le porte pas

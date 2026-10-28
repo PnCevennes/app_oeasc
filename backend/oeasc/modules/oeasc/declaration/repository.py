@@ -12,6 +12,7 @@ from sqlalchemy import (
 )
 import json
 from flask import current_app, session
+from oeasc.utils.current_user import get_current_user
 
 from oeasc.modules.oeasc.declaration.models import (
     TDeclaration,
@@ -74,7 +75,7 @@ def get_fiche_declaration(id_declaration, type_export=None, session=None):
     """Les données pour l'affichage d'une déclaration. Page voir_declaration."""
 
     response = ApiResponse(log_file="declarations.log", session=session)
-    user = session.get("current_user", None) if session else None
+    user = get_current_user(session) or None
     if user == None:
         response.add_error(
             user_message="Utilisateur non authentifié",
@@ -147,7 +148,7 @@ def get_fiche_declaration(id_declaration, type_export=None, session=None):
     return response
 
 
-def get_form_declaration(id_declaration=None, session={}):
+def get_form_declaration(id_declaration=None, session=None):
     """
     Récupère toutes les informations pour afficher les formulaire de déclaration. Pour la création, modification et renouvellement.
     Si aucun id n'est spécifié on retourne les schémas vides.
@@ -243,9 +244,9 @@ def get_form_declaration(id_declaration=None, session={}):
     # ou si son niveau d'accès est inférieur à 4 (donc pas administrateur).
     # Ceci permet de protéger la vie privée du propriétaire.
     if session is not None:
-        current_user = session.get("current_user", None)
+        current_user = get_current_user(session)
         if (
-            (current_user is not None)
+            current_user
             and (current_user["max_level_profil"] < 4)
             and (current_user["id_role"] != declaration_dict["id_declarant"])
         ):
@@ -566,7 +567,7 @@ def create_or_update_foret(post_data):
     return foret
 
 
-def check_token_renouvellement_declaration(id_declaration, token, session={}):
+def check_token_renouvellement_declaration(id_declaration, token, session=None):
     """
     Vérifie la validité d'un token de renouvellement de déclaration.
     Utilisée pour sécuriser l'accès à certaines fonctionnalités liées aux déclarations,

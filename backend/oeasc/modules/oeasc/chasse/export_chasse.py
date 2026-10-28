@@ -104,7 +104,7 @@ DOSSIER_RAPPORTS = Path(config["ROOT_DIR"]) / "static/erreurs_import_chasse/"
 ###############################################################################
 
 
-def get_details(nom_saison, nom_espece, filter={}):
+def get_details(nom_saison, nom_espece, filter=None):
     """
     Récupère et agrège des statistiques détaillées sur les résultats de chasse pour une saison et une espèce données.
 
@@ -147,7 +147,7 @@ def get_details(nom_saison, nom_espece, filter={}):
                 "filters": {
                     "nom_saison": [nom_saison],
                     "nom_espece": [nom_espece],
-                    **filter,
+                    **(filter or {}),
                 },
             }
         )
@@ -159,7 +159,7 @@ def get_details(nom_saison, nom_espece, filter={}):
             "filters": {
                 "nom_saison": [nom_saison],
                 "nom_espece": [nom_espece],
-                **filter,
+                **(filter or {}),
             },
         }
     )

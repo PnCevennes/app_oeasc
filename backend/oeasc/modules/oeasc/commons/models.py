@@ -159,19 +159,3 @@ class TNomenclaturesOeasc(TNomenclatures):
         .correlate_except(BibNomenclaturesTypes)
         .scalar_subquery()
     )
-
-
-# Supprimé car le modele est déja défini dans le module nomenclature. Surement il est apparue dans une mise à jour
-# @serializable
-# class BibNomenclaturesTypes(CustomModel):
-#     """
-#     Nomenclature type
-#     """
-
-#     __tablename__ = "bib_nomenclatures_types"
-#     __table_args__ = {"schema": "ref_nomenclatures", "extend_existing": True}
-
-#     id_type = DB.Column(DB.Integer, primary_key=True)
-#     mnemonique = DB.Column(DB.Unicode)
-#     label_fr = DB.Column(DB.Unicode)
-#     definition_fr = DB.Column(DB.Unicode)

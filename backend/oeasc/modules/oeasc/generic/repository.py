@@ -7,11 +7,6 @@ from .definitions import GenericRouteDefinitions
 
 from sqlalchemy import func, cast, select, orm, and_
 from sqlalchemy.sql.functions import ReturnTypeFromArgs
-from ..declaration.schema import *
-from ..chasse.schema import *
-from ..commons.schema import *
-from ..i_n.schema import *
-from ..agricole.schema import *
 
 
 # s'assure de retourner le bon type de donnée da la requête sql
@@ -313,14 +308,12 @@ def create_or_update_object_type(module_name, object_type, id_value, post_data):
     # Récupère le modèle SQLAlchemy et le nom du champ id
     Model, id_field_name = definitions.get_model(module_name, object_type)
 
-    # Recherche du schéma Marshmallow correspondant au modèle (ex: UserSchema pour User)
-    schema_name = f"{Model.__name__}Schema"
-    schema = globals().get(schema_name)
+    # Schéma Marshmallow enregistré dans les définitions du module
+    schema = definitions.get_schema_from_definition(module_name, object_type)
 
-    # Vérifie que le schéma existe bien dans le contexte global
     if not schema:
         raise ValueError(
-            f"Schéma {schema_name} non trouvé pour le modèle {Model.__name__}"
+            f"Schéma non trouvé pour {object_type} du module {module_name}"
         )
 
     try:

@@ -40,6 +40,7 @@ from pypnnomenclature.schemas import NomenclatureSchema
 from ..generic.definitions import GenericRouteDefinitions
 from ..generic.repository import getlist
 from flask import Blueprint, current_app, request, send_file, session, jsonify
+from oeasc.utils.current_user import get_current_user
 from flask_login import current_user as login_user
 from werkzeug.utils import secure_filename
 from utils_flask_sqla.response import json_resp, csv_resp
@@ -371,7 +372,7 @@ def traitement_csv():
     update = request.form.get("update") == "true"
     file = request.files.get("file")
 
-    session_user = session.get("current_user") or {}
+    session_user = get_current_user()
     id_role = session_user.get("id_role")
     nom_complet = session_user.get("nom_complet")
     # repli sur l'utilisateur du token (flask-login) si la session ne le porte pas
@@ -510,7 +511,7 @@ def import_attributions_lancer(etape):
     if file is None or file.filename == "":
         return jsonify({"success": False, "user_message": "Aucun fichier fourni."}), 400
 
-    session_user = session.get("current_user") or {}
+    session_user = get_current_user()
     id_role = session_user.get("id_role")
     nom_complet = session_user.get("nom_complet")
     if id_role is None and getattr(login_user, "is_authenticated", False):
@@ -825,10 +826,6 @@ def api_realisations_par_mois_sur_dernieres_saisons():
 
     for mois, nb_realisations, nom_saison, id_saison in res:
         mois_txt = MOIS_MAPPING.get(mois, mois)
-        # saison_data = {
-        #     "nom_saison": nom_saison,
-        #     "nb_realisations": nb_realisations,
-        # }
         saison_entry = next(
             (item for item in data if item["nom_saison"] == nom_saison), None
         )
