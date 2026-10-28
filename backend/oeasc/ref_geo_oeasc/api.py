@@ -167,135 +167,41 @@ def get_areas_liste(data_type, id_areas):
         return schema(many=True).dump(data)
 
 
-@bp.route("areas_post/<string:data_type>", methods=["POST"])
+@bp.route(
+    "areas_post/<string:data_type>", methods=["POST"], defaults={"b_simple": False}
+)
+@bp.route(
+    "areas_from_type/<string:data_type>", methods=["GET"], defaults={"b_simple": False}
+)
+@bp.route(
+    "areas_simples_post/<string:data_type>",
+    methods=["POST"],
+    defaults={"b_simple": True},
+)
+@bp.route(
+    "areas_simple/<string:data_type>", methods=["GET"], defaults={"b_simple": True}
+)
 @json_resp
-def get_areas_post(data_type):
+def get_areas_by_ids(b_simple, data_type):
     """
-    Cette fonction permet de récupérer les informations de plusieurs aires
-    à partir d'une liste d'identifiants passée en POST (dans le corps de la requête).
+    Récupère les informations de plusieurs aires à partir d'une liste d'identifiants.
 
+    b_simple : fixé par la route
+        False (areas_post, areas_from_type) -> version complète
+        True (areas_simples_post, areas_simple) -> version "simple" (géométrie simplifiée ou attributs seuls)
     data_type :
         t -> renvoie seulement les attributs (sans géométrie)
         l -> renvoie aussi la géométrie (format GeoJSON)
 
-    Utilisation typique :
-    - Lorsqu'on souhaite afficher ou traiter plusieurs aires sélectionnées par l'utilisateur,
-      par exemple pour un affichage cartographique ou une analyse batch.
-    - Quand la liste des aires à récupérer est trop longue pour être passée dans l'URL,
-      on utilise une requête POST avec un JSON contenant les identifiants.
-    - Pour des traitements côté client où l'on envoie dynamiquement une liste d'aires à l'API.
-
-    Exemple de payload JSON :
-    {
-        "areas": [277431, 277432, 277433]
-    }
+    Source des identifiants :
+        - POST : corps JSON {"areas": [277431, 277432]} (listes longues)
+        - GET : paramètres d'URL ?id_area=277431&id_area=277432
     """
-    # On récupère le contenu JSON envoyé dans la requête POST
-    data_in = request.get_json()
+    if request.method == "POST":
+        areas = request.get_json()["areas"]
+    else:
+        areas = request.args.getlist("id_area")
 
-    # On extrait la liste des identifiants d'aires à partir du JSON
-    areas = data_in["areas"]
-
-    # b_simple=False signifie qu'on veut la version complète (avec géométrie si data_type == "l")
-    b_simple = False
-
-    # On appelle la fonction générique qui va interroger la base et sérialiser les résultats
-    return areas_post(b_simple, data_type, areas)
-
-
-@bp.route("areas_from_type/<string:data_type>", methods=["GET"])
-@json_resp
-def get_areas(data_type):
-    """
-    Récupère les informations de plusieurs aires à partir d'une liste d'identifiants passée en GET.
-
-    data_type :
-        t -> renvoie seulement les attributs (sans géométrie)
-        l -> renvoie aussi la géométrie (format GeoJSON)
-
-    Utilisation typique :
-    - Lorsqu'on souhaite afficher ou traiter plusieurs aires sélectionnées par l'utilisateur,
-      par exemple pour un affichage cartographique ou une analyse batch.
-    - Quand la liste des aires à récupérer est passée en paramètres GET (dans l'URL),
-      sous forme de liste d'identifiants.
-    - Pour des traitements côté client où l'on envoie dynamiquement une liste d'aires à l'API.
-
-    Exemple d'URL :
-    /areas_from_type/l?id_area=277431&id_area=277432&id_area=277433
-    """
-    # On récupère la liste des identifiants d'aires passée en paramètres GET (dans l'URL)
-    areas = request.args.getlist("id_area")
-
-    # b_simple=False signifie qu'on veut la version complète (avec géométrie si data_type == "l")
-    b_simple = False
-
-    # On appelle la fonction générique qui va interroger la base et sérialiser les résultats
-    return areas_post(b_simple, data_type, areas)
-
-
-@bp.route("areas_simple/<string:data_type>", methods=["GET"])
-@json_resp
-def get_areas_simple(data_type):
-    """
-    Récupère les informations de plusieurs aires "simples" à partir d'une liste d'identifiants passée en GET.
-
-    data_type :
-        t -> renvoie seulement les attributs (sans géométrie)
-        l -> renvoie aussi la géométrie (format GeoJSON)
-
-    Utilisation typique :
-    - Lorsqu'on souhaite afficher ou traiter plusieurs aires sélectionnées par l'utilisateur,
-      par exemple pour un affichage cartographique ou une analyse batch.
-    - Quand la liste des aires à récupérer est passée en paramètres GET (dans l'URL),
-      sous forme de liste d'identifiants.
-    - Pour des traitements côté client où l'on envoie dynamiquement une liste d'aires à l'API.
-
-    Exemple d'URL :
-    /areas_simple/l?id_area=277431&id_area=277432&id_area=277433
-    """
-    # On récupère la liste des identifiants d'aires passée en paramètres GET (dans l'URL)
-    areas = request.args.getlist("id_area")
-
-    # b_simple=True signifie qu'on utilise la version "simple" (géométrie simplifiée ou attributs uniquement)
-    b_simple = True
-
-    # On appelle la fonction générique qui va interroger la base et sérialiser les résultats
-    return areas_post(b_simple, data_type, areas)
-
-
-@bp.route("areas_simples_post/<string:data_type>", methods=["POST"])
-@json_resp
-def get_areas_simples_post(data_type):
-    """
-    Cette fonction permet de récupérer les informations de plusieurs aires "simples"
-    à partir d'une liste d'identifiants passée en POST (dans le corps de la requête).
-
-    data_type :
-        t -> renvoie seulement les attributs (sans géométrie)
-        l -> renvoie aussi la géométrie (format GeoJSON)
-
-    Utilisation typique :
-    - Lorsqu'on souhaite afficher ou traiter plusieurs aires sélectionnées par l'utilisateur,
-      par exemple pour un affichage cartographique ou une analyse batch.
-    - Quand la liste des aires à récupérer est trop longue pour être passée dans l'URL,
-      on utilise une requête POST avec un JSON contenant les identifiants.
-    - Pour des traitements côté client où l'on envoie dynamiquement une liste d'aires à l'API.
-
-    Exemple de payload JSON :
-    {
-        "areas": [277431, 277432, 277433]
-    }
-    """
-    # On récupère le contenu JSON envoyé dans la requête POST
-    data_in = request.get_json()
-
-    # On extrait la liste des identifiants d'aires à partir du JSON
-    areas = data_in["areas"]
-
-    # b_simple=True signifie qu'on utilise la version "simple" (géométrie simplifiée ou attributs uniquement)
-    b_simple = True
-
-    # On appelle la fonction générique qui va interroger la base et sérialiser les résultats
     return areas_post(b_simple, data_type, areas)
 
 
@@ -348,48 +254,24 @@ def get_areas_centroid_post(data_type):
 @bp.route(
     "areas_from_type_code/<string:data_type>/<string:type_code>",
     methods=["GET", "POST"],
+    defaults={"b_simple": False},
 )
-@json_resp
-def get_areas_from_type_code(data_type, type_code):
-    """
-    Retourne toutes les aires pour un type_code donné (par exemple OEASC_CADASTRE).
-
-    data_type :
-        t -> renvoie seulement les attributs (sans géométrie)
-        l -> renvoie aussi la géométrie (format GeoJSON)
-
-    Utilisation typique :
-    - Lorsqu'on souhaite afficher ou récupérer toutes les aires d'un certain type,
-      par exemple toutes les parcelles cadastrales, toutes les forêts, etc.
-    - Pour filtrer les données géographiques selon leur type dans l'interface utilisateur,
-      lors du paramétrage ou du filtrage cartographique.
-    - Utile pour des analyses spatiales ou statistiques sur un ensemble homogène d'aires.
-    - Peut être utilisé côté client pour afficher sur une carte toutes les entités d'un type donné.
-    - La distinction entre "t" et "l" permet d'obtenir soit les attributs seuls, soit les géométries pour affichage cartographique.
-    """
-
-    # On appelle la fonction générique qui interroge la base de données
-    # pour récupérer toutes les aires correspondant au type_code donné.
-    # b_simple=False signifie qu'on veut la version complète (avec géométrie si data_type == "l").
-    return areas_from_type_code(False, data_type, type_code)
-
-
 @bp.route(
     "areas_simples_from_type_code/<string:data_type>/<string:type_code>",
     methods=["GET", "POST"],
+    defaults={"b_simple": True},
 )
 @json_resp
-def get_areas_simples_from_type_code(data_type, type_code):
+def get_areas_from_type_code(b_simple, data_type, type_code):
     """
-    retourne toutes les aires pour un type_code donne (par exemple OEASC_CADASTRE)
+    Retourne toutes les aires pour un type_code donné (par exemple OEASC_CADASTRE).
 
-    data type : t -> renvoie seulement les attributs
-                l -> renvoie aussi la geometrie
+    b_simple : fixé par la route (areas_from_type_code -> False, areas_simples_from_type_code -> True)
+    data_type :
+        t -> renvoie seulement les attributs (sans géométrie)
+        l -> renvoie aussi la géométrie (format GeoJSON)
     """
-
-    data = areas_from_type_code(True, data_type, type_code)
-
-    return data
+    return areas_from_type_code(b_simple, data_type, type_code)
 
 
 @bp.route(
@@ -398,64 +280,33 @@ def get_areas_simples_from_type_code(data_type, type_code):
 <string:type_code>/\
 <string:ids_area_container>",
     methods=["GET", "POST"],
+    defaults={"b_simple": False},
 )
-@json_resp
-def get_areas_from_type_code_container(data_type, type_code, ids_area_container):
-    """
-    Retourne toutes les aires pour un type_code donné (par exemple OEASC_CADASTRE)
-    et étant contenue dans la géométrie identifiée par son id_area : id_area_container
-    la recherche de ses éléments se fait par rapport aux area_code:
-        - soit en comparant les area_code des contenus et du contenant (cas général)
-        - soit en se servant d'une table de corrélation pré-calculée
-            pour le cas des forêts avec DGD
-    data type : t -> renvoie seulement les attributs
-                l -> renvoie aussi la géométrie
-    """
-
-    b_simple = False
-    return areas_from_type_code_container(
-        b_simple, data_type, type_code, ids_area_container
-    )
-
-
 @bp.route(
     "areas_simples_from_type_code_container/\
 <string:data_type>/\
 <string:type_code>/\
 <ids_area_container>",
     methods=["GET", "POST"],
+    defaults={"b_simple": True},
 )
 @json_resp
-def get_areas_simples_from_type_code_container(
-    data_type, type_code, ids_area_container
+def get_areas_from_type_code_container(
+    b_simple, data_type, type_code, ids_area_container
 ):
     """
-    Retourne toutes les aires "simples" pour un type_code donné (par exemple OEASC_CADASTRE)
+    Retourne toutes les aires pour un type_code donné (par exemple OEASC_CADASTRE)
     et étant contenues dans la géométrie identifiée par son id_area : id_area_container.
 
-    La recherche des éléments contenus se fait :
+    La recherche des éléments contenus se fait par rapport aux area_code :
         - soit en comparant les area_code des contenus et du contenant (cas général)
-        - soit en utilisant une table de corrélation pré-calculée (cas particulier, ex : forêts avec DGD)
+        - soit en se servant d'une table de corrélation pré-calculée (cas des forêts avec DGD)
 
+    b_simple : fixé par la route (version "simple" des aires si True)
     data_type :
         t -> renvoie seulement les attributs (sans géométrie)
         l -> renvoie aussi la géométrie (format GeoJSON)
-
-    Utilisation typique :
-    - Pour afficher sur une carte toutes les entités d'un type donné qui sont contenues dans une aire "contenant"
-      (ex : toutes les parcelles cadastrales dans une commune, tous les peuplements dans une forêt, etc.).
-    - Utile pour des analyses spatiales où l'on souhaite filtrer les entités par inclusion géographique.
-    - Permet de réaliser des recherches spatiales complexes côté client ou serveur, en limitant les résultats
-      à une zone géographique précise.
-    - La version "simple" est utilisée pour optimiser les performances (géométrie simplifiée ou attributs uniquement).
-
     """
-    # On indique que l'on souhaite la version "simple" des aires (b_simple=True)
-    b_simple = True
-
-    # On appelle la fonction générique qui interroge la base de données pour récupérer les aires
-    # correspondant au type_code et contenues dans l'aire spécifiée par ids_area_container.
-    # Cette fonction gère la logique de comparaison des area_code ou l'utilisation de la table de corrélation.
     return areas_from_type_code_container(
         b_simple, data_type, type_code, ids_area_container
     )
