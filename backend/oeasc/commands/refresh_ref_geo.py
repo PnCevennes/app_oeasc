@@ -1296,22 +1296,14 @@ def _mark_erreur_refgeo(db, type_declaration):
 
     Doit être appelé AVANT le swap (t_forets et l_areas sont encore les anciennes tables).
 
-    Le filtre NOT EXISTS vérifie que l'id_foret pointe bien vers une forêt du même type
-    (ONF: b_statut_public=TRUE, DGD: b_statut_public=FALSE) dans t_forets_new.
-    Sans ce filtre, un id_foret d'une ancienne forêt ONF peut coïncider avec l'id d'une
-    nouvelle forêt DGD (les séquences repartent de 1 dans t_forets_new), causant une
-    correspondance silencieuse vers le mauvais type.
+    Une déclaration est considérée non retrouvée si son id_foret n'a pas changé
+    (id_foret = _pre_refresh_id_foret). On ne teste pas l'existence de l'id dans
+    t_forets_new : les séquences y repartent de 1, un ancien id peut donc coïncider
+    avec celui d'une nouvelle forêt d'un autre type.
 
     Retourne la liste des déclarations marquées en erreur, sous forme de tuples
     (id_declaration, nom_foret), pour permettre au rapport de détailler les cas.
     """
-    if type_declaration == "onf":
-        type_filter = "AND fn.b_statut_public = TRUE AND fn.b_document = TRUE"
-    elif type_declaration == "dgd":
-        type_filter = "AND fn.b_statut_public = FALSE AND fn.b_document = TRUE"
-    else:
-        type_filter = ""
-
     unmatched = db.session.execute(
         text(f"""
         SELECT
