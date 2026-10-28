@@ -29,7 +29,6 @@ from pathlib import Path
 
 from app import app
 
-import math
 import numpy as np
 import pandas as pd
 import json
@@ -39,7 +38,7 @@ from pyproj import Transformer
 from marshmallow.exceptions import ValidationError
 
 from sqlalchemy import func, select
-from flask import request, current_app, session
+from flask import request, current_app
 from oeasc.utils.current_user import get_current_user
 
 from oeasc.utils.apiResponse import ApiResponse
@@ -79,14 +78,9 @@ except Exception:  # pragma: no cover - dépend de la version installée
     pass
 
 
-# from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
-# from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
 #####################################################################################################
 ####################              VARIABLES GLOBALES                            #####################
 #####################################################################################################
-
-# Initialisation de l'ApiResponse pour stocker les messages, le journal de l'opération et les données à retourner à l'utilisateur.
-apiResponse = ApiResponse()
 
 # chemin du dossier où seront stockés les rapports d'erreurs à la fin du traitement. Si le dossier n'existe pas, il sera créé.
 DOSSIER_RAPPORTS = Path(config["ROOT_DIR"]) / "static/erreurs_import_chasse/"
@@ -793,8 +787,6 @@ def etape__clean_csv(df, apiResponse):
         df_trie = df_trie.set_index("numero")
         # suppression des colonnes inutiles
         df_trie = df_trie.drop(columns=COLUMNS_INUTILES, errors="ignore")
-        # renommage des colonnes avec les bons noms
-        df_trie = df_trie.rename(columns=ERREUR_NOMS_COLONNES_GEOCHASSE)
 
         df_trie = check_caracteres_invisibles(df_trie)
 
@@ -840,7 +832,6 @@ def etape__clean_csv(df, apiResponse):
         df_trie["date"] = uniformise_date(df_trie["date"])
         df_trie["date_saisie"] = uniformise_date(df_trie["date_saisie"])
 
-        df_trie["commune"] = clean_colonne_str(df_trie["commune"])
         df_trie["lieu_dit"] = clean_colonne_str(df_trie["lieu_dit"])
         df_trie["departement"] = clean_colonne_str(df_trie["departement"])
         df_trie["parc_lieu_dit2"] = clean_colonne_str(df_trie["parc_lieu_dit2"])
@@ -861,16 +852,15 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
     Vérifie que l'id_saison est renseigné et valide, puis récupère les attributions de la saison en cours.
     Retourne un dataframe qui contient le csv geochasse fusionné avec les attributions.
     L'index du dataframe retourné est le numéro de bracelet.
-    update: bool qui indique si on doit récupérer toutes les attributions de la saison (update=True) ou seulement celles qui n'ont pas de réalisations associées (update=False).
+    update: non utilisé (toutes les attributions de la saison sont récupérées ; le tri insert / update se fait sur id_realisation).
     Si une erreur est détectée, le dataframe retourné est vide et la ApiResponse contient les messages d'erreur et le journal de l'opération. Si aucune erreur n'est détectée, le dataframe retourné contient les données des attributions et la ApiResponse contient le journal de l'opération.
     """
     try:
         if id_saison is None:
-            apiResponse.add_log(
-                "id_saison n'est pas renseigné. Veuillez renseigner un id_saison pour continuer.",
-                type_log="ERROR",
-            )
-            return df, apiResponse
+            message = "id_saison n'est pas renseigné. Veuillez renseigner un id_saison pour continuer."
+            apiResponse.add_log(message, type_log="ERROR")
+            apiResponse.add_error(user_message=message, system_error=message)
+            return pd.DataFrame(), apiResponse
 
         # on fait une requete à la base de données pour trouver toutes les attributions de la saison id_saison
         with app.app_context():
@@ -932,10 +922,9 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
 
             # une attribution peut (anomalie) porter plusieurs réalisations : on ne
             # garde que la plus grande id_realisation, comme le column_property d'origine.
-            if not df_attributions.empty:
-                df_attributions = df_attributions.sort_values(
-                    "id_realisation"
-                ).drop_duplicates("id_attribution", keep="last")
+            df_attributions = df_attributions.sort_values(
+                "id_realisation"
+            ).drop_duplicates("id_attribution", keep="last")
 
             # Marshmallow sérialisait les dates de saison en chaînes "AAAA-MM-JJ" :
             # on garde ce format car la comparaison avec df["date"] se fait sur des str.
@@ -1006,135 +995,153 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
         return pd.DataFrame(), apiResponse
 
 
+def _signaler(df, idx, message, bloquant=True):
+    """Ajoute message aux commentaires_erreurs des lignes idx.
+    bloquant=True : la ligne devient invalide (valide=False, elle ne sera pas enregistrée).
+    bloquant=False : la ligne est enregistrée mais marquée à vérifier (a_verifier=True)."""
+    if bloquant:
+        df.loc[idx, "valide"] = False
+    else:
+        df.loc[idx, "a_verifier"] = True
+    df.loc[idx, "commentaires_erreurs"] += message
+
+
+def _idx_non_positifs(serie):
+    """Index des valeurs non nulles qui ne sont pas des nombres positifs."""
+    return serie[
+        ~serie.apply(lambda x: (isinstance(x, (int, float)) and x >= 0) or pd.isnull(x))
+    ].index
+
+
+def _masque_seuil(df, col, seuils, depasse):
+    """Masque des lignes dont df[col] dépasse le seuil seuils[espece][age].
+    depasse(valeur, seuil) indique le sens de la comparaison."""
+    return df.apply(
+        lambda row: (
+            row[col] is not None
+            and row["age"] in seuils.get(row["espece"], {})
+            and depasse(row[col], seuils[row["espece"]][row["age"]])
+        ),
+        axis=1,
+    )
+
+
+def _inferieur(valeur, seuil):
+    return valeur < seuil
+
+
+def _superieur(valeur, seuil):
+    return valeur > seuil
+
+
 def etape__verification_donnees_geochasse(df, apiResponse):
     """
     Vérifie que les données du csv geochasse sont cohérentes entre elles et avec les données de la base de données.
     ajoute des colonnes "valide" et "commentaires_erreurs" au dataframe pour indiquer si les données sont valides ou non et pour stocker les commentaires d'erreurs. On s'en servira pour faire un rapport final à l'utilisateur.
-
+    Les erreurs bloquantes mettent valide à False, les valeurs aberrantes mettent a_verifier à True (cf. _signaler).
     """
     try:
 
-        # on peut faire une première validation : vérifier que l'espèce du bracelet correspond à l'espèce du tir
         df["valide"] = True
         df["a_verifier"] = False
         df["commentaires_erreurs"] = ""
 
         ################################### VERIF DES BRACELETS EXISTANTS ##########################################
-        # on vérifie que les bracelets du csv existent dans les attributions de la saison.
-        # Met valide à False et ajoute un commentaire d'erreur si un bracelet du csv n'existe pas dans les attributions de la saison.
-        idx_erreur = df[df["id_attribution"].isnull()].index
-        df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Le numéro de bracelet n'existe pas dans les attributions de la saison. "
-        del idx_erreur
+        # les bracelets du csv doivent exister dans les attributions de la saison.
+        _signaler(
+            df,
+            df[df["id_attribution"].isnull()].index,
+            "Le numéro de bracelet n'existe pas dans les attributions de la saison. ",
+        )
 
         ########################################   TRAITEMENT DE L'ESPÈCE  ############################################
-        # on créé id_nomenclature_espece en fonction de la colonne espece pour retrouver la catégorie de l'éspece (FAON, BICHETTE, DAGUET etc..)
-        #  L'id correspondant est trouvé dans la table LISTE_NOMENCLATURE_ESPECE.
-
+        # id_nomenclature_espece permet de retrouver la catégorie de l'espèce (FAON, BICHETTE, DAGUET etc..)
         df["id_nomenclature_espece"] = df["espece"].map(LISTE_NOMENCLATURE_ESPECE)
 
-        # utiliser le code du bracelet pour retrouver l'espèce théorique depuis la table LISTE_ESPECE
-        # Met valide à False et ajoute un commentaire d'erreur si l'espèce du tir ne correspond pas à l'espèce théorique du bracelet
-        df["espece_theorique"] = df["code_type_bracelet"].map(
-            lambda k: LISTE_ESPECE.get(k)[0] if k in LISTE_ESPECE else None
+        # LISTE_ESPECE[code_type_bracelet] = [espèce, sexes possibles, âges possibles]
+        def theorique(position):
+            return df["code_type_bracelet"].map(
+                lambda k: LISTE_ESPECE.get(k)[position] if k in LISTE_ESPECE else None
+            )
+
+        # l'espèce du tir doit correspondre à l'espèce théorique du bracelet
+        _signaler(
+            df,
+            df[df["espece"] != theorique(0)].index,
+            "Espèce du tir ne correspond pas à l'espèce du bracelet. ",
         )
-        idx_erreur = df[df["espece"] != df["espece_theorique"]].index
-        df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Espèce du tir ne correspond pas à l'espèce du bracelet. "
-        df.drop(columns=["espece_theorique"], inplace=True)
-        del idx_erreur
 
         ############################# TRAITEMENT DU SEXE  ############################################
-        # verification que le sexe du tir se trouve dans la liste des sexes du code du bracelet dans LISTE_ESPECE.
-        #  Met valide à False en commentaire l'erreur
-        df["sexe_theorique"] = df["code_type_bracelet"].map(
-            lambda k: LISTE_ESPECE.get(k)[1] if k in LISTE_ESPECE else None
+        # le sexe du tir doit faire partie des sexes possibles pour le code du bracelet
+        df["sexe_theorique"] = theorique(1)
+        _signaler(
+            df,
+            df[
+                ~df.apply(
+                    lambda row: (
+                        row["sexe"] in row["sexe_theorique"]
+                        if row["sexe_theorique"] is not None
+                        else True
+                    ),
+                    axis=1,
+                )
+            ].index,
+            "Sexe du tir ne correspond pas au sexe du bracelet. ",
         )
-        idx_erreur = df[
-            ~df.apply(
-                lambda row: (
-                    row["sexe"] in row["sexe_theorique"]
-                    if row["sexe_theorique"] is not None
-                    else True
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Sexe du tir ne correspond pas au sexe du bracelet. "
-        del idx_erreur
 
-        # Changement de la colonne sexe en id_nomenclature_sexe en fonction de la table LISTE_NOMENCLATURE_SEXE.
-        # Met valide à False et ajoute un commentaire d'erreur si le sexe du tir ne correspond à aucun sexe de la nomenclature
         df["id_nomenclature_sexe"] = df["sexe"].map(LISTE_NOMENCLATURE_SEXE)
-        idx_erreur = df[df["id_nomenclature_sexe"].isnull()].index
-        df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Sexe du tir ne correspond à aucun sexe de la nomenclature. "
-        del idx_erreur
+        _signaler(
+            df,
+            df[df["id_nomenclature_sexe"].isnull()].index,
+            "Sexe du tir ne correspond à aucun sexe de la nomenclature. ",
+        )
 
         ###########################   TRAITEMENT DE L'ÂGE  ############################################
-        # verification que l'âge du tir se trouve dans la liste des âges du code du bracelet dans LISTE_ESPECE.
-        #  Met valide à False en commentaire l'erreur
-
-        # pour les mouflons en repère l'age avec le code du code_type_bracelet
+        # pour les mouflons on repère l'âge avec le code_type_bracelet
         df.loc[df["espece"] == "MOUFLON", "age"] = df.loc[
             (df["espece"] == "MOUFLON"), "code_type_bracelet"
         ].map(lambda k: LISTE_ESPECE.get(k)[2][0] if k in LISTE_ESPECE else None)
-        df["age_theorique"] = df["code_type_bracelet"].map(
-            lambda k: LISTE_ESPECE.get(k)[2] if k in LISTE_ESPECE else None
+
+        # l'âge du tir doit faire partie des âges possibles pour le code du bracelet
+        df["age_theorique"] = theorique(2)
+        _signaler(
+            df,
+            df[
+                ~df.apply(
+                    lambda row: (
+                        row["age"] in row["age_theorique"]
+                        if row["age_theorique"] is not None
+                        else True
+                    ),
+                    axis=1,
+                )
+            ].index,
+            "Âge du tir ne correspond pas à l'âge du bracelet. ",
         )
 
-        idx_espece_age_incoherente = df[
-            ~df.apply(
-                lambda row: (
-                    row["age"] in row["age_theorique"]
-                    if row["age_theorique"] is not None
-                    else True
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[idx_espece_age_incoherente, "valide"] = False
-        df.loc[
-            idx_espece_age_incoherente, "commentaires_erreurs"
-        ] += "Âge du tir ne correspond pas à l'âge du bracelet. "
-        del idx_espece_age_incoherente
-
-        # Changement de la colonne age en id_nomenclature_classe_age en fonction de la table LISTE_NOMENCLATURE_AGE.
-        # Met valide à False et ajoute un commentaire d'erreur si l'âge du tir ne correspond à aucun âge de la nomenclature
         df["id_nomenclature_classe_age"] = df["age"].map(LISTE_NOMENCLATURE_AGE)
-        idx_erreur = df[df["id_nomenclature_classe_age"].isnull()].index
-        df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Âge du tir ne correspond à aucun âge dans les nomenclatures de la bdd. "
-        del idx_erreur
+        _signaler(
+            df,
+            df[df["id_nomenclature_classe_age"].isnull()].index,
+            "Âge du tir ne correspond à aucun âge dans les nomenclatures de la bdd. ",
+        )
 
-        ##########################  TRAITEMENT DU POIDS ET DE LA PESÉE  #####################################
+        ##########################  TRAITEMENT DU POIDS ET DE LA PESEE  #####################################
 
         df["poid_c_f_p"] = None
         df["poid_indique"] = False
 
-        # les lignes où "poid" n'est pas un nombre ou est négatif et est différent de None, alors elles sont considérées comme des erreurs. On met valide à False et on ajoute un commentaire d'erreur dans ce cas.
-        idx_erreur_poids = df[
-            (
-                ~df["poids"].apply(lambda x: isinstance(x, (int, float)) and x >= 0)
-                & (df["poids"].notnull())
-            )
-        ].index
-        df.loc[idx_erreur_poids, "valide"] = False
-        df.loc[
-            idx_erreur_poids, "commentaires_erreurs"
-        ] += "Poids du tir n'est pas un nombre ou est négatif. "
-        del idx_erreur_poids
+        # un poids renseigné doit être un nombre positif
+        _signaler(
+            df,
+            df[
+                (
+                    ~df["poids"].apply(lambda x: isinstance(x, (int, float)) and x >= 0)
+                    & (df["poids"].notnull())
+                )
+            ].index,
+            "Poids du tir n'est pas un nombre ou est négatif. ",
+        )
 
         df.loc[
             ((df["pesee"] == "PLEIN") & (df["poids"] > 0) & (df["poids"].notnull())),
@@ -1158,323 +1165,185 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             "poid_vide",
         ] = df["poid_entier"].map(poid_vide_chevreuil)
 
-        # on cherche les poids inférieurs a la valeur dans POIDS_VIDE_MINIMUM pour chaque espèce en fonction de l'age. Si le poids est inférieur à cette valeur, on considère que c'est une erreur. On ajoute un commentaire d'erreur dans ce cas.
-        idx_poids_minimum_aberrant = df[
-            df.apply(
-                lambda row: (
-                    row["poid_vide"] is not None
-                    and row["age"] in POIDS_VIDE_MINIMUM.get(row["espece"], {})
-                    and row["poid_vide"] < POIDS_VIDE_MINIMUM[row["espece"]][row["age"]]
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[
-            idx_poids_minimum_aberrant, "commentaires_erreurs"
-        ] += "Poids vide inférieur au poids vide minimum pour l'espèce et l'âge. "
-        df.loc[idx_poids_minimum_aberrant, "a_verifier"] = True
-        del idx_poids_minimum_aberrant
-
-        idx_poids_maximum_aberrant = df[
-            df.apply(
-                lambda row: (
-                    row["poid_vide"] is not None
-                    and row["age"] in POIDS_VIDE_MAXIMUM.get(row["espece"], {})
-                    and row["poid_vide"] > POIDS_VIDE_MAXIMUM[row["espece"]][row["age"]]
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[
-            idx_poids_maximum_aberrant, "commentaires_erreurs"
-        ] += "Poids vide supérieur au poids vide maximum pour l'espèce et l'âge. "
-        df.loc[idx_poids_maximum_aberrant, "a_verifier"] = True
-        del idx_poids_maximum_aberrant
+        # poids vide hors des fourchettes POIDS_VIDE_MINIMUM / MAXIMUM (par espèce et âge) : à vérifier
+        _signaler(
+            df,
+            df[_masque_seuil(df, "poid_vide", POIDS_VIDE_MINIMUM, _inferieur)].index,
+            "Poids vide inférieur au poids vide minimum pour l'espèce et l'âge. ",
+            bloquant=False,
+        )
+        _signaler(
+            df,
+            df[_masque_seuil(df, "poid_vide", POIDS_VIDE_MAXIMUM, _superieur)].index,
+            "Poids vide supérieur au poids vide maximum pour l'espèce et l'âge. ",
+            bloquant=False,
+        )
 
         df.drop(columns=["poids", "pesee"], inplace=True)
 
         ##########################  TRAITEMENT DU MODE DE CHASSE  ###########################################
-        # on indique l'id_nomenclature_mode_chasse en fonction de la colonne type_chasse. L'id correspondant est trouvé dans la table LISTE_NOMENCLATURE_MODE_CHASSE
-        # type_chasse est égale à "INDIVIDUEL", "COLLECTIVE" ou "BATTUE "
+        # type_chasse est égale à "INDIVIDUEL", "COLLECTIVE" ou "BATTUE"
         df["id_nomenclature_mode_chasse"] = None
-        df.loc[df["type_chasse"] == "INDIVIDUEL", "id_nomenclature_mode_chasse"] = (
-            LISTE_NOMENCLATURE_MODE_CHASSE.get("INDIVIDUEL")
-        )
-        df.loc[df["type_chasse"] == "COLLECTIVE", "id_nomenclature_mode_chasse"] = (
-            LISTE_NOMENCLATURE_MODE_CHASSE.get("COLLECTIVE")
-        )
-        df.loc[df["type_chasse"] == "BATTUE", "id_nomenclature_mode_chasse"] = (
-            LISTE_NOMENCLATURE_MODE_CHASSE.get("BATTUE")
-        )
+        for type_chasse in ["INDIVIDUEL", "COLLECTIVE", "BATTUE"]:
+            df.loc[df["type_chasse"] == type_chasse, "id_nomenclature_mode_chasse"] = (
+                LISTE_NOMENCLATURE_MODE_CHASSE.get(type_chasse)
+            )
         df.drop(columns=["type_chasse"], inplace=True)
 
         ##########################   TRAITEMENT DES DATES  ##################################################
-
-        # on verifie que la date est un string au format aaaa-mm-jj. Si ce n'est pas le cas, on met valide à False et on ajoute un commentaire d'erreur
-
-        idx_erreur = df[df["date"].isnull()].index
-        df.loc[idx_erreur, "valide"] = False
-        df.loc[
-            idx_erreur, "commentaires_erreurs"
-        ] += "Date du tir au format incorrect ou manquante. "
-        del idx_erreur
+        # la date a été mise au format aaaa-mm-jj par uniformise_date (None si non convertible)
+        _signaler(
+            df,
+            df[df["date"].isnull()].index,
+            "Date du tir au format incorrect ou manquante. ",
+        )
+        # date_exacte et date_enreg ne sont plus différentiées dans les dernières versions oeasc, on les mets à l'identique
         df["date_exacte"] = df["date"]
         df["date_enreg"] = df["date_exacte"]
 
-        # Traitement des dates: on vérifie si la date d'enregistrement du tir se trouve entre la date de début et la date de fin de la saison. Met valide à False et ajoute un commentaire d'erreur si ce n'est pas le cas
-        # Si la saison n'a pas de date de début ou de fin, on ne fait pas la vérification et on considère que la date est valide (on ne met pas valide à False)
-        # date_exacte et date_enreg ne sont plus différentiées dans les dernières versions oeasc, on les mets à l'identique
-        idx_erreur_date_debut = df[
-            (
+        # la date du tir doit être comprise dans la saison (si la saison a des dates de début / fin)
+        _signaler(
+            df,
+            df[
                 (df["date"] < df["saison.date_debut"])
                 & (df["saison.date_debut"].notnull())
-            )
-        ].index
-        df.loc[idx_erreur_date_debut, "valide"] = False
-        df.loc[
-            idx_erreur_date_debut, "commentaires_erreurs"
-        ] += "Date du tir avant le début de la saison. "
-        del idx_erreur_date_debut
+            ].index,
+            "Date du tir avant le début de la saison. ",
+        )
+        _signaler(
+            df,
+            df[
+                (df["date"] > df["saison.date_fin"]) & (df["saison.date_fin"].notnull())
+            ].index,
+            "Date du tir après la fin de la saison. ",
+        )
 
-        idx_erreur_date_fin = df[
-            ((df["date"] > df["saison.date_fin"]) & (df["saison.date_fin"].notnull()))
-        ].index
-        df.loc[idx_erreur_date_fin, "valide"] = False
-        df.loc[
-            idx_erreur_date_fin, "commentaires_erreurs"
-        ] += "Date du tir après la fin de la saison. "
-        del idx_erreur_date_fin
-
-        # suppression des colonnes désormais inutiles
         df.drop(columns=["date"], inplace=True)
 
-        ###########################   TRAITEMENT DES CORS   #############################################
+        ###########################   TRAITEMENT DES CORS   #############################################
+        # un nombre de cors renseigné doit être un entier positif
+        _signaler(
+            df,
+            df[
+                ~df["cors_nb"].apply(
+                    lambda x: (
+                        isinstance(x, (int, float)) and x >= 0 and x.is_integer()
+                    )
+                    or pd.isnull(x)
+                )
+            ].index,
+            "Nombre de cors n'est pas un nombre entier positif ou est différent de null. ",
+        )
+        _signaler(
+            df,
+            df[(df["espece"] == "MOUFLON") & (df["cors_nb"].notnull())].index,
+            "Nombre de cors renseigné pour un mouflon. ",
+        )
+        _signaler(
+            df,
+            df[
+                (df["cors_nb"] < NB_CORS_MINIMUM) | (df["cors_nb"] > NB_CORS_MAXIMUM)
+            ].index,
+            f"Nombre de cors aberrant (inférieur à {NB_CORS_MINIMUM} ou supérieur à {NB_CORS_MAXIMUM}). ",
+            bloquant=False,
+        )
 
-        # si le nb de cors n'est pas None et ce n'est pas un float dont la valeur est positive et égale à un entier, alors on considère que c'est une erreur. On met valide à False et on ajoute un commentaire d'erreur dans ce cas.
-
-        idx_erreur_cors = df[
-            ~df["cors_nb"].apply(
-                lambda x: (isinstance(x, (int, float)) and x >= 0 and x.is_integer())
-                or pd.isnull(x)
-            )
-        ].index
-        df.loc[idx_erreur_cors, "valide"] = False
-        df.loc[
-            idx_erreur_cors, "commentaires_erreurs"
-        ] += "Nombre de cors n'est pas un nombre entier positif ou est différent de null. "
-        del idx_erreur_cors
-
-        # si le nb de cors est différent de null pour les mouflons on retourne une erreur
-        idx_erreur_cors_mouflon = df[
-            (df["espece"] == "MOUFLON") & (df["cors_nb"].notnull())
-        ].index
-        df.loc[idx_erreur_cors_mouflon, "valide"] = False
-        df.loc[
-            idx_erreur_cors_mouflon, "commentaires_erreurs"
-        ] += "Nombre de cors renseigné pour un mouflon. "
-        del idx_erreur_cors_mouflon
-
-        # Si le nb de cors est aberrant
-        idx_erreur_nb_cors = df[
-            (df["cors_nb"] < NB_CORS_MINIMUM) | (df["cors_nb"] > NB_CORS_MAXIMUM)
-        ].index
-        df.loc[
-            idx_erreur_nb_cors, "commentaires_erreurs"
-        ] += f"Nombre de cors aberrant (inférieur à {NB_CORS_MINIMUM} ou supérieur à {NB_CORS_MAXIMUM}). "
-        df.loc[idx_erreur_nb_cors, "a_verifier"] = True
-        del idx_erreur_nb_cors
-
-        # création du champs cor_indetermine
         df["cors_indetermine"] = True
         df.loc[df["cors_nb"] >= 0, "cors_indetermine"] = False
 
-        ######################### TRAITEMENT DES DAGUES  #############################################
-        # remplacement des 0 par null pour les longueurs de dagues
-
-        df.loc[(df["long_dagues_droite"] == 0), "long_dagues_droite"] = None
-        df.loc[(df["long_dagues_gauche"] == 0), "long_dagues_gauche"] = None
-
-        # si la longueur de dagues n'est pas None et ce n'est pas un float dont la valeur est positive, alors on considère que c'est une erreur. On met valide à False et on ajoute un commentaire d'erreur dans ce cas.
-        idx_erreur_dagues_droite = df[
-            ~df["long_dagues_droite"].apply(
-                lambda x: (isinstance(x, (int, float)) and x >= 0) or pd.isnull(x)
+        ######################### TRAITEMENT DES DAGUES  #############################################
+        for cote in ["droite", "gauche"]:
+            col = f"long_dagues_{cote}"
+            # remplacement des 0 par null
+            df.loc[(df[col] == 0), col] = None
+            _signaler(
+                df,
+                _idx_non_positifs(df[col]),
+                f"La longueur de dague {cote} n'est pas un nombre entier positif ou est différent de null. ",
             )
-        ].index
-        df.loc[idx_erreur_dagues_droite, "valide"] = False
-        df.loc[
-            idx_erreur_dagues_droite, "commentaires_erreurs"
-        ] += "La longueur de dague droite n'est pas un nombre entier positif ou est différent de null. "
-        del idx_erreur_dagues_droite
 
-        idx_erreur_dagues_gauche = df[
-            ~df["long_dagues_gauche"].apply(
-                lambda x: (isinstance(x, (int, float)) and x >= 0) or pd.isnull(x)
+        _signaler(
+            df,
+            df[
+                (df["sexe"] == "FEMELLE")
+                & (
+                    df["long_dagues_droite"].notnull()
+                    | df["long_dagues_gauche"].notnull()
+                )
+            ].index,
+            "Longueur de dague renseignée pour une femelle. ",
+        )
+
+        # longueur hors des fourchettes TAILLE_MINIMUM / MAXIMUM_DAGUES (par espèce et âge) : à vérifier
+        for cote in ["gauche", "droite"]:
+            col = f"long_dagues_{cote}"
+            _signaler(
+                df,
+                df[
+                    _masque_seuil(df, col, TAILLE_MINIMUM_DAGUES, _inferieur)
+                    | _masque_seuil(df, col, TAILLE_MAXIMUM_DAGUES, _superieur)
+                ].index,
+                f"Longueur de dague {cote} aberrante (unité attendue : mm, vérifier une saisie en cm). ",
+                bloquant=False,
             )
-        ].index
-        df.loc[idx_erreur_dagues_gauche, "valide"] = False
-        df.loc[
-            idx_erreur_dagues_gauche, "commentaires_erreurs"
-        ] += "La longueur de dague gauche n'est pas un nombre entier positif ou est différent de null. "
-        del idx_erreur_dagues_gauche
-
-        # si le sexe est FEMELLE et que les longueurs de dagues sont renseignées, on retourne une erreur
-        idx_erreur_dagues_femelle = df[
-            (df["sexe"] == "FEMELLE")
-            & (df["long_dagues_droite"].notnull() | df["long_dagues_gauche"].notnull())
-        ].index
-        df.loc[idx_erreur_dagues_femelle, "valide"] = False
-        df.loc[
-            idx_erreur_dagues_femelle, "commentaires_erreurs"
-        ] += "Longueur de dague renseignée pour une femelle. "
-        del idx_erreur_dagues_femelle
-
-        # met la valeur des dagues en commentaire d'erreur si la longueur est aberrante
-        idx_erreur_dagues_aberrantes_gauche = df[
-            df.apply(
-                lambda row: (
-                    (
-                        row["long_dagues_gauche"] is not None
-                        and row["age"] in TAILLE_MINIMUM_DAGUES.get(row["espece"], {})
-                        and row["long_dagues_gauche"]
-                        < TAILLE_MINIMUM_DAGUES[row["espece"]][row["age"]]
-                    )
-                    or (
-                        row["long_dagues_gauche"] is not None
-                        and row["age"] in TAILLE_MAXIMUM_DAGUES.get(row["espece"], {})
-                        and row["long_dagues_gauche"]
-                        > TAILLE_MAXIMUM_DAGUES[row["espece"]][row["age"]]
-                    )
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[
-            idx_erreur_dagues_aberrantes_gauche, "commentaires_erreurs"
-        ] += "Longueur de dague gauche aberrante (unité attendue : mm, vérifier une saisie en cm). "
-        df.loc[idx_erreur_dagues_aberrantes_gauche, "a_verifier"] = True
-        del idx_erreur_dagues_aberrantes_gauche
-
-        idx_erreur_dagues_aberrantes_droite = df[
-            df.apply(
-                lambda row: (
-                    (
-                        row["long_dagues_droite"] is not None
-                        and row["age"] in TAILLE_MINIMUM_DAGUES.get(row["espece"], {})
-                        and row["long_dagues_droite"]
-                        < TAILLE_MINIMUM_DAGUES[row["espece"]][row["age"]]
-                    )
-                    or (
-                        row["long_dagues_droite"] is not None
-                        and row["age"] in TAILLE_MAXIMUM_DAGUES.get(row["espece"], {})
-                        and row["long_dagues_droite"]
-                        > TAILLE_MAXIMUM_DAGUES[row["espece"]][row["age"]]
-                    )
-                ),
-                axis=1,
-            )
-        ].index
-        df.loc[
-            idx_erreur_dagues_aberrantes_droite, "commentaires_erreurs"
-        ] += "Longueur de dague droite aberrante (unité attendue : mm, vérifier une saisie en cm). "
-        df.loc[idx_erreur_dagues_aberrantes_droite, "a_verifier"] = True
-        del idx_erreur_dagues_aberrantes_droite
 
         df.drop(columns=["sexe", "sexe_theorique"], inplace=True)
 
-        ######################## TRAITEMENT DES MANDIBULES  #############################################
-        # remplacement des 0 par null pour les longueurs de mandibules
-        df.loc[df["long_mandibules_droite"] == 0, "long_mandibules_droite"] = None
-        df.loc[df["long_mandibules_gauche"] == 0, "long_mandibules_gauche"] = None
-
-        # si la longueur de mandibules n'est pas None et ce n'est pas un float dont la valeur est positive, alors on considère que c'est une erreur. On met valide à False et on ajoute un commentaire d'erreur dans ce cas.
-        idx_erreur_mandibules = df[
-            ~df["long_mandibules_droite"].apply(
-                lambda x: (isinstance(x, (int, float)) and x >= 0) or pd.isnull(x)
+        ######################## TRAITEMENT DES MANDIBULES  #############################################
+        for cote in ["droite", "gauche"]:
+            col = f"long_mandibules_{cote}"
+            # remplacement des 0 par null
+            df.loc[df[col] == 0, col] = None
+        for cote in ["droite", "gauche"]:
+            _signaler(
+                df,
+                _idx_non_positifs(df[f"long_mandibules_{cote}"]),
+                f"La longueur de mandibule {cote} n'est pas un nombre entier positif ou est différent de null. ",
             )
-        ].index
-        df.loc[idx_erreur_mandibules, "valide"] = False
-        df.loc[
-            idx_erreur_mandibules, "commentaires_erreurs"
-        ] += "La longueur de mandibule droite n'est pas un nombre entier positif ou est différent de null. "
-        del idx_erreur_mandibules
-        idx_erreur_mandibules = df[
-            ~df["long_mandibules_gauche"].apply(
-                lambda x: (isinstance(x, (int, float)) and x >= 0) or pd.isnull(x)
+
+        _signaler(
+            df,
+            df[
+                (df["long_mandibules_droite"] > TAILLE_MAXIMUM_MANDIBULES)
+                | (df["long_mandibules_droite"] < TAILLE_MINIMUM_MANDIBULES)
+                | (df["long_mandibules_gauche"] < TAILLE_MINIMUM_MANDIBULES)
+                | (df["long_mandibules_gauche"] > TAILLE_MAXIMUM_MANDIBULES)
+            ].index,
+            "Longueur de mandibules aberrante. ",
+            bloquant=False,
+        )
+
+        ######################## TRAITEMENT LATITUDE ET LONGITUDE  #############################################
+        for col, nom in [("latitude", "Latitude"), ("longitude", "Longitude")]:
+            _signaler(
+                df,
+                df[
+                    ~df[col].apply(lambda x: isinstance(x, (int, float)) or pd.isnull(x))
+                ].index,
+                f"{nom} n'est pas un nombre ou est différent de null. ",
             )
-        ].index
-        df.loc[idx_erreur_mandibules, "valide"] = False
-        df.loc[
-            idx_erreur_mandibules, "commentaires_erreurs"
-        ] += "La longueur de mandibule gauche n'est pas un nombre entier positif ou est différent de null. "
-        del idx_erreur_mandibules
 
-        # si la longueur de mandibules est aberrante (inférieure à la valeur dans TAILLE_MINIMUM_MANDIBULES ou supérieure à la valeur dans TAILLE_MAXIMUM_MANDIBULES), on ajoute un commentaire d'erreur et on met a_verifier à True pour que l'utilisateur puisse vérifier la valeur. Les valeurs de taille minimum et maximum sont définies en fonction de l'espèce et de l'âge dans les dictionnaires TAILLE_MINIMUM_MANDIBULES et TAILLE_MAXIMUM_MANDIBULES.
-        index_erreur_taille_mandibules = df[
-            (df["long_mandibules_droite"] > TAILLE_MAXIMUM_MANDIBULES)
-            | (df["long_mandibules_droite"] < TAILLE_MINIMUM_MANDIBULES)
-            | (df["long_mandibules_gauche"] < TAILLE_MINIMUM_MANDIBULES)
-            | (df["long_mandibules_gauche"] > TAILLE_MAXIMUM_MANDIBULES)
-        ].index
-        df.loc[
-            index_erreur_taille_mandibules, "commentaires_erreurs"
-        ] += "Longueur de mandibules aberrante. "
-        df.loc[index_erreur_taille_mandibules, "a_verifier"] = True
-        del index_erreur_taille_mandibules
-
-        ######################## TRAITEMENT LATITUDE ET LONGITUDE  #############################################
-        # verification que les latitude et longitude sont des floats si elles ne sont pas nulles. Met valide à False et ajoute un commentaire d'erreur si ce n'est pas le cas.
-        idx_erreur_latitude = df[
-            ~df["latitude"].apply(lambda x: isinstance(x, (int, float)) or pd.isnull(x))
-        ].index
-        df.loc[idx_erreur_latitude, "valide"] = False
-        df.loc[
-            idx_erreur_latitude, "commentaires_erreurs"
-        ] += "Latitude n'est pas un nombre ou est différent de null. "
-        del idx_erreur_latitude
-        idx_erreur_longitude = df[
-            ~df["longitude"].apply(
-                lambda x: isinstance(x, (int, float)) or pd.isnull(x)
-            )
-        ].index
-        df.loc[idx_erreur_longitude, "valide"] = False
-        df.loc[
-            idx_erreur_longitude, "commentaires_erreurs"
-        ] += "Longitude n'est pas un nombre ou est différent de null. "
-        del idx_erreur_longitude
-
-        # transformation des latitude et longitude qui sont en ws84 en coordonnée lambert 93 pour pouvoir les comparer aux coordonnées des zones de chasse.
-        # pour la transformation on utilise la bibliothèque pyproj
+        # transformation des coordonnées wgs84 en lambert 93 pour pouvoir les comparer aux coordonnées des zones de chasse.
         transformer = Transformer.from_crs("EPSG:4326", "EPSG:2154", always_xy=True)
-        # on applique la transformation aux colonnes longitude et latitude pour obtenir des colonnes x et y en lambert 93
         df["longitude"], df["latitude"] = transformer.transform(
             df["longitude"], df["latitude"]
         )
 
-        ####################### TRAITEMENT DES AUTEURS DE TIR  #############################################
-        # Si l'auteur du tir n'est pas None et est un nombre, on considère que que c'est une erreur
-        idx_erreur_auteur_tir = df[
-            ~df["auteur_tir_str"].apply(
-                lambda x: not isinstance(x, (int, float)) or pd.isnull(x)
+        ####################### TRAITEMENT DES AUTEURS ET LIEUX DE TIR  #############################################
+        # l'auteur et le lieu de tir ne peuvent pas être des nombres
+        for col, message in [
+            ("auteur_tir_str", "L'auteur du tir ne peut pas être un nombre. "),
+            ("lieu_tir_txt", "Le lieu de tir ne peut pas être un nombre. "),
+        ]:
+            _signaler(
+                df,
+                df[
+                    ~df[col].apply(
+                        lambda x: not isinstance(x, (int, float)) or pd.isnull(x)
+                    )
+                ].index,
+                message,
             )
-        ].index
-        df.loc[idx_erreur_auteur_tir, "valide"] = False
-        df.loc[
-            idx_erreur_auteur_tir, "commentaires_erreurs"
-        ] += "L'auteur du tir ne peut pas être un nombre. "
-        del idx_erreur_auteur_tir
-
-        ####################### TRAITEMENT DES LIEUX DE TIR #############################################
-        # Si le lieu de tir n'est pas None et est un nombre, on considère que que c'est une erreur
-        idx_erreur_lieu_tir = df[
-            ~df["lieu_tir_txt"].apply(
-                lambda x: not isinstance(x, (int, float)) or pd.isnull(x)
-            )
-        ].index
-        df.loc[idx_erreur_lieu_tir, "valide"] = False
-        df.loc[
-            idx_erreur_lieu_tir, "commentaires_erreurs"
-        ] += "Le lieu de tir ne peut pas être un nombre. "
-        del idx_erreur_lieu_tir
 
         df.drop(columns=["age", "age_theorique"], inplace=True)
 
@@ -1829,360 +1698,189 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
         df["id_lieu_tir_synonyme"] = None
         df["nom_lieu_tir_synonyme"] = None
 
-        # parcours de df pour trouver l'id_lieu_tir_synonyme correspondant à lieu_tir_txt. Il faut que l'id_zone_indicative_realisee du tir corresponde à l'id_zi_lieu_tir du lieu de tir synonyme, et que le nom du lieu dit corresponde au nom_lieu_tir_synonyme du lieu de tir synonyme
+        def entree_bilan(row, type_correspondance, raison, synonyme=None):
+            """Entrée du dict de bilan des synonymes pour le tir row.
+            synonyme : ligne de df_lts retenue comme correspondance (None si aucune)."""
+            return {
+                "nom_lieu_csv": row["save_lieu_dit"],
+                "correspondance": (
+                    None
+                    if synonyme is None
+                    else synonyme["nom_lieu_tir_synonyme_origin"]
+                ),
+                "id_correspondance": (
+                    None if synonyme is None else synonyme["id_lieu_tir_synonyme"]
+                ),
+                "type_correspondance": type_correspondance,
+                "raison": raison,
+                "id_zone_indicative_realisee": row["id_zone_indicative_realisee"],
+                "id_zone_cynegetique_realisee": row["id_zone_cynegetique_realisee"],
+                "id_commune": row["commune_id_area"],
+                "id_lieu_tir": None if synonyme is None else synonyme["id_lieu_tir"],
+                "nom_lieu_tir": None if synonyme is None else synonyme["nom_lieu_tir"],
+                "lattitude": row["latitude"],
+                "longitude": row["longitude"],
+            }
+
+        def meilleur_similaire(groups, names_by, cle_zone, nom):
+            """Synonyme (ligne de df_lts) le plus similaire à nom parmi ceux de la zone cle_zone,
+            si le score rapidfuzz atteint SCORE_MINIMUM_RAPIDFUZZ.
+            Retourne (synonyme, nom_trouve) ; (None, None) si aucun nom dans la zone ;
+            (False, None) si des noms existent mais aucun n'est assez similaire."""
+            noms = names_by.get(cle_zone, [])
+            if not noms:
+                return None, None
+            resultat = rpfz.process.extractOne(nom, noms, scorer=rpfz.fuzz.ratio)
+            if resultat[1] < SCORE_MINIMUM_RAPIDFUZZ:
+                return False, None
+            meilleur_match = resultat[0]
+            id_synonyme = _grp(groups, (cle_zone, meilleur_match))[
+                "id_lieu_tir_synonyme"
+            ].values[0]
+            return _lts_by_synid.loc[id_synonyme], meilleur_match
+
+        def affecter(index, synonyme):
+            df.at[index, "id_lieu_tir_synonyme"] = synonyme["id_lieu_tir_synonyme"]
+            df.at[index, "nom_lieu_tir_synonyme"] = synonyme[
+                "nom_lieu_tir_synonyme_origin"
+            ]
+
+        # parcours de df pour trouver l'id_lieu_tir_synonyme correspondant à lieu_tir_txt.
+        # Recherche en cascade : nom exact puis similaire dans la ZI, puis dans la commune, puis dans la ZC.
+        # Les correspondances trouvées dans la ZC ne sont pas affectées (trop de risque d'erreur), seulement signalées en commentaire.
+        # NB : la recherche ne passe au niveau suivant que si la zone courante contient des synonymes
+        # (si elle n'en contient aucun, le tir reste sans lieu et sans entrée de bilan).
         for index, row in df.iterrows():
-            df_result = pd.DataFrame()
             id_zone_indicative_realisee = row["id_zone_indicative_realisee"]
             id_zone_cynegetique_realisee = row["id_zone_cynegetique_realisee"]
             id_commune = row["commune_id_area"]
             nom_parc_lieu_dit = row["lieu_tir_txt"]
+            # nom du lieu dit d'origine en majuscules pour les commentaires
             nom_save_lieu_dit = (
                 row["save_lieu_dit"].upper()
                 if isinstance(row["save_lieu_dit"], str)
                 else row["save_lieu_dit"]
-            )  # on met aussi le nom du lieu dit d'origine en majuscules pour l'ajouter au dict de bilan des synonymes
+            )
             if pd.isna(nom_parc_lieu_dit):  # pas de lieu dit saisi dans geochasse.
                 continue
-            else:
-                # on recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même zone indicative que le tir réalisé
-                df_result = _grp(
-                    _groups_zi, (id_zone_indicative_realisee, nom_parc_lieu_dit)
-                )
+            numero_bracelet = row["numero_bracelet"]
+
+            # 1. nom exact dans la même ZI
+            df_result = _grp(_groups_zi, (id_zone_indicative_realisee, nom_parc_lieu_dit))
+            if df_result.shape[0] >= 1:
+                synonyme = df_result.iloc[0]
+                affecter(index, synonyme)
                 if df_result.shape[0] == 1:
-                    # il existe une seule correspondance exacte. On la prend.
-                    df.at[index, "id_lieu_tir_synonyme"] = df_result.iloc[0][
-                        "id_lieu_tir_synonyme"
-                    ]
-                    df.at[index, "nom_lieu_tir_synonyme"] = df_result.iloc[0][
-                        "nom_lieu_tir_synonyme_origin"
-                    ]
-                    # enregistrement de ce cas dans le dict de bilan de synonymes
-                    dict_bilan_synonymes[row["numero_bracelet"]] = {
-                        "nom_lieu_csv": df.at[index, "save_lieu_dit"],
-                        "correspondance": df_result.iloc[0][
-                            "nom_lieu_tir_synonyme_origin"
-                        ],
-                        "id_correspondance": df_result.iloc[0]["id_lieu_tir_synonyme"],
-                        "type_correspondance": "EXACTE_ZI",
-                        "raison": "Nom exact retrouvé dans la ZI",
-                        "id_zone_indicative_realisee": id_zone_indicative_realisee,
-                        "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
-                        "id_commune": id_commune,
-                        "id_lieu_tir": df_result.iloc[0]["id_lieu_tir"],
-                        "nom_lieu_tir": df_result.iloc[0]["nom_lieu_tir"],
-                        "lattitude": row["latitude"],
-                        "longitude": row["longitude"],
-                    }
-                elif df_result.shape[0] > 1:
-                    # il existe plusieurs correspondances exactes. On prend la première mais on ajoute un commentaire d'erreur pour indiquer qu'il y a plusieurs correspondances et qu'il faut vérifier laquelle est la bonne. On garde aussi dans le dict de bilan des synonymes les différentes correspondances trouvées pour pouvoir les ajouter à la base de données des lieux de tir synonymes à l'avenir.
+                    dict_bilan_synonymes[numero_bracelet] = entree_bilan(
+                        row, "EXACTE_ZI", "Nom exact retrouvé dans la ZI", synonyme
+                    )
+                else:
+                    # plusieurs correspondances exactes : on prend la première et on le signale
                     liste_nom_lieu_tir_synonyme = df_result["nom_lieu_tir"].tolist()
                     df.at[
                         index, "commentaires_erreurs"
                     ] += f"{df_result.shape[0]} correspondances trouvées dans les lieux de tir synonymes pour le lieu dit {nom_save_lieu_dit} dans la ZI: {liste_nom_lieu_tir_synonyme}"
-                    df.at[index, "id_lieu_tir_synonyme"] = df_result.iloc[0][
-                        "id_lieu_tir_synonyme"
-                    ]
-                    df.at[index, "nom_lieu_tir_synonyme"] = df_result.iloc[0][
-                        "nom_lieu_tir_synonyme_origin"
-                    ]
-                    # enregistrement de ce cas dans le dict de bilan de synonymes
-                    dict_bilan_synonymes[row["numero_bracelet"]] = {
-                        "nom_lieu_csv": df.at[index, "save_lieu_dit"],
-                        "correspondance": df_result.iloc[0][
-                            "nom_lieu_tir_synonyme_origin"
-                        ],
-                        "id_correspondance": df_result.iloc[0]["id_lieu_tir_synonyme"],
-                        "type_correspondance": "EXACTE_MULTIPLE_ZI",
-                        "raison": "Plusieurs noms exacts retrouvés dans la ZI",
-                        "id_zone_indicative_realisee": id_zone_indicative_realisee,
-                        "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
-                        "id_commune": id_commune,
-                        "id_lieu_tir": df_result.iloc[0]["id_lieu_tir"],
-                        "nom_lieu_tir": df_result.iloc[0]["nom_lieu_tir"],
-                        "lattitude": row["latitude"],
-                        "longitude": row["longitude"],
-                    }
-                else:
-                    # Pas de nom exact retrouvé, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires au nom_parc_lieu_dit parmi les lieux de tir synonymes qui ont la même zone indicative
-                    liste_nom_lieu_tir_synonyme_in_zi = _names_by_zi.get(
-                        id_zone_indicative_realisee, []
+                    dict_bilan_synonymes[numero_bracelet] = entree_bilan(
+                        row,
+                        "EXACTE_MULTIPLE_ZI",
+                        "Plusieurs noms exacts retrouvés dans la ZI",
+                        synonyme,
                     )
-                    if liste_nom_lieu_tir_synonyme_in_zi:
-                        resultat = rpfz.process.extractOne(
-                            nom_parc_lieu_dit,
-                            liste_nom_lieu_tir_synonyme_in_zi,
-                            scorer=rpfz.fuzz.ratio,
-                        )
-                        # si le score de similarité contenu dans resultat[1] est supérieur à 80, on considère que c'est une correspondance et on prend le meilleur match
-                        if resultat[1] >= SCORE_MINIMUM_RAPIDFUZZ:
-                            meilleur_match = resultat[
-                                0
-                            ]  # resultat[0] contient le nom du lieu de tir synonyme qui est le plus similaire au nom_parc_lieu_dit parmi les lieux de tir synonymes qui ont la même zone indicative
-                            # On considère que le lieu trouvé est le bon, on enregitre son id et nom et on ajoute un commentaire d'erreur pour indiquer que c'est une correspondance trouvée avec une similarité de nom qui sera indiqué à l'utilisateur.
-                            id_new_lieu_tir_synonyme = _grp(
-                                _groups_zi,
-                                (id_zone_indicative_realisee, meilleur_match),
-                            )["id_lieu_tir_synonyme"].values[0]
-                            df.at[index, "id_lieu_tir_synonyme"] = (
-                                id_new_lieu_tir_synonyme
-                            )
-                            df.at[index, "nom_lieu_tir_synonyme"] = _lts_by_synid.loc[
-                                id_new_lieu_tir_synonyme, "nom_lieu_tir_synonyme_origin"
-                            ]
-                            df.at[
-                                index, "commentaires_erreurs"
-                            ] += f"Lieu tir {nom_save_lieu_dit}: nom similaire trouvé dans la même ZI: {meilleur_match} "
-                            # enregistrement de ce cas dans le dict de bilan de synonymes
-                            dict_bilan_synonymes[row["numero_bracelet"]] = {
-                                "nom_lieu_csv": df.at[index, "save_lieu_dit"],
-                                "correspondance": df.at[index, "nom_lieu_tir_synonyme"],
-                                "id_correspondance": df.at[
-                                    index, "id_lieu_tir_synonyme"
-                                ],
-                                "type_correspondance": "SIMILAIRE_ZI",
-                                "raison": "Nom similaire retrouvé dans la ZI",
-                                "id_zone_indicative_realisee": id_zone_indicative_realisee,
-                                "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
-                                "id_commune": id_commune,
-                                "id_lieu_tir": _lts_by_synid.loc[
-                                    id_new_lieu_tir_synonyme, "id_lieu_tir"
-                                ],
-                                "nom_lieu_tir": _lts_by_synid.loc[
-                                    id_new_lieu_tir_synonyme, "nom_lieu_tir"
-                                ],
-                                "lattitude": row["latitude"],
-                                "longitude": row["longitude"],
-                            }
+                continue
 
-                        else:
+            # 2. nom similaire dans la même ZI
+            synonyme, meilleur_match = meilleur_similaire(
+                _groups_zi, _names_by_zi, id_zone_indicative_realisee, nom_parc_lieu_dit
+            )
+            if synonyme is None:
+                continue
+            if synonyme is not False:
+                affecter(index, synonyme)
+                df.at[
+                    index, "commentaires_erreurs"
+                ] += f"Lieu tir {nom_save_lieu_dit}: nom similaire trouvé dans la même ZI: {meilleur_match} "
+                dict_bilan_synonymes[numero_bracelet] = entree_bilan(
+                    row, "SIMILAIRE_ZI", "Nom similaire retrouvé dans la ZI", synonyme
+                )
+                continue
 
-                            # rien n'a été trouvé dans la même zone indicative, on élargit la recherche à la commune.
-                            # on recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même commune que le lieu de tir réalisé
+            # 3. nom exact dans la même commune
+            df_result = _grp(_groups_commune, (id_commune, nom_parc_lieu_dit))
+            if df_result.shape[0] >= 1:
+                synonyme = df_result.iloc[0]
+                affecter(index, synonyme)
+                df.at[
+                    index, "commentaires_erreurs"
+                ] += f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la commune mais pas dans la ZI."
+                dict_bilan_synonymes[numero_bracelet] = entree_bilan(
+                    row,
+                    "EXACTE_COMMUNE",
+                    "Nom exact retrouvé dans la commune",
+                    synonyme,
+                )
+                continue
 
-                            df_result = _grp(
-                                _groups_commune, (id_commune, nom_parc_lieu_dit)
-                            )
-                            if df_result.shape[0] >= 1:
-                                # des nom exactes ont été trouvés on garde le premier résultat et on indique en commentaire les raisons.
-                                df.at[index, "id_lieu_tir_synonyme"] = df_result.iloc[
-                                    0
-                                ]["id_lieu_tir_synonyme"]
-                                df.at[index, "nom_lieu_tir_synonyme"] = df_result.iloc[
-                                    0
-                                ]["nom_lieu_tir_synonyme_origin"]
-                                df.at[
-                                    index, "commentaires_erreurs"
-                                ] += f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la commune mais pas dans la ZI."
-                                # enregistrement de ce cas dans le dict de bilan de synonymes
-                                dict_bilan_synonymes[row["numero_bracelet"]] = {
-                                    "nom_lieu_csv": df.at[index, "save_lieu_dit"],
-                                    "correspondance": df_result.iloc[0][
-                                        "nom_lieu_tir_synonyme_origin"
-                                    ],
-                                    "id_correspondance": df_result.iloc[0][
-                                        "id_lieu_tir_synonyme"
-                                    ],
-                                    "type_correspondance": "EXACTE_COMMUNE",
-                                    "raison": "Nom exact retrouvé dans la commune",
-                                    "id_zone_indicative_realisee": id_zone_indicative_realisee,
-                                    "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
-                                    "id_commune": id_commune,
-                                    "id_lieu_tir": df_result.iloc[0]["id_lieu_tir"],
-                                    "nom_lieu_tir": df_result.iloc[0]["nom_lieu_tir"],
-                                    "lattitude": row["latitude"],
-                                    "longitude": row["longitude"],
-                                }
-                            else:
-                                # pas de nom exact retrouvé dans la même commune, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires dans la même commune
-                                liste_nom_lieu_tir_synonyme_in_commune = (
-                                    _names_by_commune.get(id_commune, [])
-                                )
-                                if liste_nom_lieu_tir_synonyme_in_commune:
-                                    resultat = rpfz.process.extractOne(
-                                        nom_parc_lieu_dit,
-                                        liste_nom_lieu_tir_synonyme_in_commune,
-                                        scorer=rpfz.fuzz.ratio,
-                                    )
-                                    if resultat[1] >= SCORE_MINIMUM_RAPIDFUZZ:
-                                        # des résultats similaires ont été trouvés, on les prend.
-                                        meilleur_match = resultat[0]
-                                        id_new_lieu_tir_synonyme = _grp(
-                                            _groups_commune,
-                                            (id_commune, meilleur_match),
-                                        )["id_lieu_tir_synonyme"].values[0]
-                                        df.at[index, "id_lieu_tir_synonyme"] = (
-                                            id_new_lieu_tir_synonyme
-                                        )
-                                        df.at[index, "nom_lieu_tir_synonyme"] = (
-                                            _lts_by_synid.loc[
-                                                id_new_lieu_tir_synonyme,
-                                                "nom_lieu_tir_synonyme_origin",
-                                            ]
-                                        )
-                                        df.at[
-                                            index, "commentaires_erreurs"
-                                        ] += f" Lieu tir {nom_save_lieu_dit}: Nom similaire trouvé dans la commune: {meilleur_match}  mais pas dans la ZI. "
-                                        # enregistrement de ce cas dans le dict de bilan de synonymes
-                                        dict_bilan_synonymes[row["numero_bracelet"]] = {
-                                            "nom_lieu_csv": df.at[
-                                                index, "save_lieu_dit"
-                                            ],
-                                            "correspondance": df.at[
-                                                index, "nom_lieu_tir_synonyme"
-                                            ],
-                                            "id_correspondance": df.at[
-                                                index, "id_lieu_tir_synonyme"
-                                            ],
-                                            "type_correspondance": "SIMILAIRE_COMMUNE",
-                                            "raison": "Nom similaire retrouvé dans la commune",
-                                            "id_zone_indicative_realisee": id_zone_indicative_realisee,
-                                            "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
-                                            "id_commune": id_commune,
-                                            "id_lieu_tir": _lts_by_synid.loc[
-                                                id_new_lieu_tir_synonyme, "id_lieu_tir"
-                                            ],
-                                            "nom_lieu_tir": _lts_by_synid.loc[
-                                                id_new_lieu_tir_synonyme, "nom_lieu_tir"
-                                            ],
-                                            "lattitude": row["latitude"],
-                                            "longitude": row["longitude"],
-                                        }
+            # 4. nom similaire dans la même commune
+            synonyme, meilleur_match = meilleur_similaire(
+                _groups_commune, _names_by_commune, id_commune, nom_parc_lieu_dit
+            )
+            if synonyme is None:
+                continue
+            if synonyme is not False:
+                affecter(index, synonyme)
+                df.at[
+                    index, "commentaires_erreurs"
+                ] += f" Lieu tir {nom_save_lieu_dit}: Nom similaire trouvé dans la commune: {meilleur_match}  mais pas dans la ZI. "
+                dict_bilan_synonymes[numero_bracelet] = entree_bilan(
+                    row,
+                    "SIMILAIRE_COMMUNE",
+                    "Nom similaire retrouvé dans la commune",
+                    synonyme,
+                )
+                continue
 
-                                    else:
+            # 5. nom exact dans la même ZC : signalé mais non affecté
+            df_result = _grp(
+                _groups_zc, (id_zone_cynegetique_realisee, nom_parc_lieu_dit)
+            )
+            if df_result.shape[0] >= 1:
+                df.at[index, "id_lieu_tir_synonyme"] = None
+                df.at[index, "nom_lieu_tir_synonyme"] = None
+                df.at[
+                    index, "commentaires_erreurs"
+                ] += f"Lieu tir {nom_save_lieu_dit} déclaré: Un même lieu dit a été trouvé dans la même ZC mais pas dans la ZI."
+                dict_bilan_synonymes[numero_bracelet] = entree_bilan(
+                    row, "EXACTE_ZC", "Nom exact retrouvé dans la ZC", df_result.iloc[0]
+                )
+                continue
 
-                                        # rien n'a été trouvé dans la même commune, on élargit la recherche aux zones cynégétiques.
-                                        # On recherche d'abord les correspondances exactes dans les lieux de tir synonymes qui ont la même zone cynégétique que le tir réalisé
+            # 6. nom similaire dans la même ZC : signalé mais non affecté
+            synonyme, meilleur_match = meilleur_similaire(
+                _groups_zc,
+                _names_by_zc,
+                id_zone_cynegetique_realisee,
+                nom_parc_lieu_dit,
+            )
+            if synonyme is None:
+                continue
+            if synonyme is not False:
+                df.at[index, "id_lieu_tir_synonyme"] = None
+                df.at[index, "nom_lieu_tir_synonyme"] = None
+                df.at[
+                    index, "commentaires_erreurs"
+                ] += f"Lieu tir {nom_save_lieu_dit} déclaré: Nom similaire trouvé dans la ZC: {meilleur_match}  mais pas dans la ZI."
+                dict_bilan_synonymes[numero_bracelet] = entree_bilan(
+                    row, "SIMILAIRE_ZC", "Nom similaire retrouvé dans la ZC", synonyme
+                )
+                continue
 
-                                        df_result = _grp(
-                                            _groups_zc,
-                                            (
-                                                id_zone_cynegetique_realisee,
-                                                nom_parc_lieu_dit,
-                                            ),
-                                        )
-                                        if df_result.shape[0] >= 1:
-                                            # des nom exactes ont été trouvés on garde le premier résultat et on indique en commentaire les raisons.
-                                            df.at[index, "id_lieu_tir_synonyme"] = None
-                                            df.at[index, "nom_lieu_tir_synonyme"] = None
-                                            df.at[
-                                                index, "commentaires_erreurs"
-                                            ] += f"Lieu tir {nom_save_lieu_dit} déclaré: Un même lieu dit a été trouvé dans la même ZC mais pas dans la ZI."
-                                            # enregistrement de ce cas dans le dict de bilan de synonymes
-                                            dict_bilan_synonymes[
-                                                row["numero_bracelet"]
-                                            ] = {
-                                                "nom_lieu_csv": df.at[
-                                                    index, "save_lieu_dit"
-                                                ],
-                                                "correspondance": df_result.iloc[0][
-                                                    "nom_lieu_tir_synonyme_origin"
-                                                ],
-                                                "id_correspondance": df_result.iloc[0][
-                                                    "id_lieu_tir_synonyme"
-                                                ],
-                                                "type_correspondance": "EXACTE_ZC",
-                                                "raison": "Nom exact retrouvé dans la ZC",
-                                                "id_zone_indicative_realisee": id_zone_indicative_realisee,
-                                                "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
-                                                "id_commune": id_commune,
-                                                "id_lieu_tir": df_result.iloc[0][
-                                                    "id_lieu_tir"
-                                                ],
-                                                "nom_lieu_tir": df_result.iloc[0][
-                                                    "nom_lieu_tir"
-                                                ],
-                                                "lattitude": row["latitude"],
-                                                "longitude": row["longitude"],
-                                            }
-
-                                        else:
-                                            # Pas de nom exact retrouvé dans la même zone cynégétique, on recherche avec rapidfuzz les lieu tir synonymes qui sont le plus similaires dans la même zone cynégétique
-                                            liste_nom_lieu_tir_synonyme_in_zc = (
-                                                _names_by_zc.get(
-                                                    id_zone_cynegetique_realisee, []
-                                                )
-                                            )
-                                            if liste_nom_lieu_tir_synonyme_in_zc:
-                                                resultat = rpfz.process.extractOne(
-                                                    nom_parc_lieu_dit,
-                                                    liste_nom_lieu_tir_synonyme_in_zc,
-                                                    scorer=rpfz.fuzz.ratio,
-                                                )
-                                                if (
-                                                    resultat[1]
-                                                    >= SCORE_MINIMUM_RAPIDFUZZ
-                                                ):
-                                                    # si un resultat a été trouvé avec un score de similarité suffisant, On le prend
-                                                    meilleur_match = resultat[0]
-                                                    id_new_lieu_tir_synonyme = _grp(
-                                                        _groups_zc,
-                                                        (
-                                                            id_zone_cynegetique_realisee,
-                                                            meilleur_match,
-                                                        ),
-                                                    )["id_lieu_tir_synonyme"].values[0]
-                                                    df.at[
-                                                        index, "id_lieu_tir_synonyme"
-                                                    ] = None  # trop de risque de se tromper.
-                                                    df.at[
-                                                        index, "nom_lieu_tir_synonyme"
-                                                    ] = None  # trop de risque de se tromper, on laisse la valeur à None mais on indique dans le commentaire
-                                                    df.at[
-                                                        index, "commentaires_erreurs"
-                                                    ] += f"Lieu tir {nom_save_lieu_dit} déclaré: Nom similaire trouvé dans la ZC: {meilleur_match}  mais pas dans la ZI."
-                                                    # enregistrement de ce cas dans le dict de bilan de synonymes
-                                                    dict_bilan_synonymes[
-                                                        row["numero_bracelet"]
-                                                    ] = {
-                                                        "nom_lieu_csv": df.at[
-                                                            index, "save_lieu_dit"
-                                                        ],
-                                                        "correspondance": _lts_by_synid.loc[
-                                                            id_new_lieu_tir_synonyme,
-                                                            "nom_lieu_tir_synonyme_origin",
-                                                        ],
-                                                        "id_correspondance": id_new_lieu_tir_synonyme,
-                                                        "type_correspondance": "SIMILAIRE_ZC",
-                                                        "raison": "Nom similaire retrouvé dans la ZC",
-                                                        "id_zone_indicative_realisee": id_zone_indicative_realisee,
-                                                        "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
-                                                        "id_commune": id_commune,
-                                                        "id_lieu_tir": _lts_by_synid.loc[
-                                                            id_new_lieu_tir_synonyme,
-                                                            "id_lieu_tir",
-                                                        ],
-                                                        "nom_lieu_tir": _lts_by_synid.loc[
-                                                            id_new_lieu_tir_synonyme,
-                                                            "nom_lieu_tir",
-                                                        ],
-                                                        "lattitude": row["latitude"],
-                                                        "longitude": row["longitude"],
-                                                    }
-
-                                                else:
-                                                    # Aucune similarité suffisante n'a été trouvée même dans la même commune, on considère que le lieu de tir n'a pas été retrouvé et on ajoute un commentaire d'erreur pour indiquer qu'aucun lieu de tir synonyme n'a été trouvé pour ce lieu dit de tir saisi dans le csv. On enregistre aussi ce cas dans le dict de bilan des synonymes pour pouvoir ajouter ce lieu dit comme synonyme à l'avenir dans la base de données des lieux de tir synonymes en indiquant les zones et la commune associées pour faciliter le travail de l'équipe technique.
-                                                    # C'est soit une erreur de saisie soit un lieu dit qui n'existe pas dans la base de données et qui pourrait être ajouté comme synonyme à l'avenir si c'est un lieu dit qui existe mais qui a été mal saisi.
-                                                    df.at[
-                                                        index, "commentaires_erreurs"
-                                                    ] += f"Aucun lieu de tir synonyme trouvé pour le lieu dit {nom_save_lieu_dit} dans la ZI, ZC ou la commune. "
-                                                    dict_bilan_synonymes[
-                                                        row["numero_bracelet"]
-                                                    ] = {
-                                                        "nom_lieu_csv": df.at[
-                                                            index, "save_lieu_dit"
-                                                        ],
-                                                        "correspondance": None,
-                                                        "id_correspondance": None,
-                                                        "type_correspondance": "AUCUNE",
-                                                        "raison": "Aucun nom similaire retrouvé",
-                                                        "id_zone_indicative_realisee": id_zone_indicative_realisee,
-                                                        "id_zone_cynegetique_realisee": id_zone_cynegetique_realisee,
-                                                        "id_commune": id_commune,
-                                                        "id_lieu_tir": None,
-                                                        "nom_lieu_tir": None,
-                                                        "lattitude": row["latitude"],
-                                                        "longitude": row["longitude"],
-                                                    }
+            # 7. aucune correspondance : erreur de saisie ou lieu dit absent de la bdd (à ajouter comme synonyme)
+            df.at[
+                index, "commentaires_erreurs"
+            ] += f"Aucun lieu de tir synonyme trouvé pour le lieu dit {nom_save_lieu_dit} dans la ZI, ZC ou la commune. "
+            dict_bilan_synonymes[numero_bracelet] = entree_bilan(
+                row, "AUCUNE", "Aucun nom similaire retrouvé"
+            )
 
         df["lieu_tir_txt"] = df["save_lieu_dit"].copy()
 
@@ -2430,40 +2128,39 @@ def etape__update_realisations(df, apiResponse):
         return apiResponse, pd.DataFrame()
 
 
+def _ecrire_rapport(df_original, commentaires, suffixe):
+    """Écrit dans DOSSIER_RAPPORTS les lignes du csv d'origine présentes dans commentaires
+    (série commentaires_erreurs indexée par id_geochasse), avec ce commentaire en dernière colonne.
+    Retourne le nom du fichier, sous la forme AAAA-MM-JJ_HH-MM-SS_<suffixe>.csv"""
+    # on sort le numéro de bracelet de l'index pour le remplacer par id_geochasse
+    df_origin = df_original.copy()
+    df_origin["numero"] = df_origin.index
+    df_origin.set_index("id_geochasse", inplace=True)
+    # on ne garde que les lignes concernées
+    df_origin = df_origin.join(commentaires, how="inner")
+
+    nom_fichier = f"{pd.Timestamp.now().strftime('%Y-%m-%d_%H-%M-%S')}_{suffixe}.csv"
+    df_origin.to_csv(Path(DOSSIER_RAPPORTS) / nom_fichier, index=False)
+    return nom_fichier
+
+
 def etape__creation_dataframe_erreurs(
     df_original, df_insert_erreurs, df_update_erreurs, apiResponse
 ):
+    df_erreurs = df_insert_erreurs
     try:
-
         if df_update_erreurs.shape[0] > 0:
-            # on ne garde que la colonne commentaires erreurs des dataframes d'erreurs d'insertion et de mise à jour
             df_erreurs = pd.concat(
                 [df_insert_erreurs, df_update_erreurs], ignore_index=True
             )
-        else:
-            df_erreurs = df_insert_erreurs.copy()
 
         if df_erreurs.shape[0] > 0:  # si il existe des erreurs
-            df_erreurs.set_index("id_geochasse", inplace=True)
-            df_erreurs = df_erreurs["commentaires_erreurs"]
-
-            # on sort le numéro de bracelet de l'index pour le remplacre par id_geochasse
-            df_origin = df_original.copy()
-            df_origin["numero"] = df_origin.index
-            df_origin.set_index("id_geochasse", inplace=True)
-
-            # on ajoute la colonne commentaires_erreurs au dataframe d'origine en ne gardant que les lignes en erreur.
-            df_origin = df_origin.join(df_erreurs, how="inner")
-
-            # creation d'un nom de fichier csv sous forme AAAA-MM-JJ_HH-MM-SS_erreurs_import_geochasse.csv
-            nom_fichier = f"{pd.Timestamp.now().strftime('%Y-%m-%d_%H-%M-%S')}_erreurs_import_geochasse.csv"
-            chemin_fichier = Path(DOSSIER_RAPPORTS) / nom_fichier
-            df_origin.to_csv(chemin_fichier, index=False)
-
-            # apiResponse.add_log(message=f"Un fichier d'erreur enregistré: {chemin_fichier}", type_log="INFO")
+            df_erreurs = df_erreurs.set_index("id_geochasse")["commentaires_erreurs"]
+            nom_fichier = _ecrire_rapport(
+                df_original, df_erreurs, "erreurs_import_geochasse"
+            )
             # type_log FILE permettra d'indiquer au frontend que c'est le nom d'un fichier à télécharger
-            if df_erreurs.shape[0] > 0:
-                apiResponse.add_log(message=f"{nom_fichier}", type_log="FILE")
+            apiResponse.add_log(message=f"{nom_fichier}", type_log="FILE")
 
         return df_erreurs, apiResponse
 
@@ -2475,32 +2172,16 @@ def etape__creation_dataframe_erreurs(
 
 
 def etape__creation_csv_a_verifier(df, df_original, apiResponse):
+    df_verif = df.loc[df["a_verifier"] == True]
     try:
-        df_verif = df.loc[df["a_verifier"] == True].copy()
-        if df_verif.shape[0] > 0:  # si il existe des erreurs
-            df_verif.set_index("id_geochasse", inplace=True)
-            df_verif = df_verif["commentaires_erreurs"]
-
-            # on sort le numéro de bracelet de l'index pour le remplacre par id_geochasse
-            df_origin = df_original.copy()
-            df_origin["numero"] = df_origin.index
-            df_origin.set_index("id_geochasse", inplace=True)
-
-            # on ajoute la colonne commentaires_erreurs au dataframe d'origine en ne gardant que les lignes en erreur.
-            df_origin = df_origin.join(df_verif, how="inner")
-            # creation d'un nom de fichier csv sous forme AAAA-MM-JJ_HH-MM-SS_a_verifier.csv
-            nom_fichier = (
-                f"{pd.Timestamp.now().strftime('%Y-%m-%d_%H-%M-%S')}_a_verifier.csv"
-            )
-            chemin_fichier = Path(DOSSIER_RAPPORTS) / nom_fichier
-            df_origin.to_csv(chemin_fichier, index=False)
-        # apiResponse.add_log(message=f"Un fichier d'erreur enregistré: {chemin_fichier}", type_log="INFO")
-        # type_log FILE permettra d'indiquer au frontend que c'est le nom d'un fichier à télécharger
-        if df_verif.shape[0] > 0:
+        if df_verif.shape[0] > 0:  # si il existe des données aberrantes
+            df_verif = df_verif.set_index("id_geochasse")["commentaires_erreurs"]
+            nom_fichier = _ecrire_rapport(df_original, df_verif, "a_verifier")
             apiResponse.add_log(
                 message=f"{df_verif.shape[0]} lignes avec des données aberrantes: à vérifier",
                 type_log="WARNING",
             )
+            # type_log FILE permettra d'indiquer au frontend que c'est le nom d'un fichier à télécharger
             apiResponse.add_log(message=f"{nom_fichier}", type_log="FILE")
 
         return df_verif, apiResponse
