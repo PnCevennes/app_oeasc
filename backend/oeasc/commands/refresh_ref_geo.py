@@ -8,7 +8,8 @@ Usage :
     flask refresh-ref-geo [--dry-run] [--skip-load] [--force]
 
 Options :
-    --dry-run    Exécute toutes les étapes sauf le swap final
+    --dry-run    Construit les tables _new sans toucher aux tables vivantes
+                 (ni swap, ni mise à jour des déclarations, ni suppression de forêts)
     --skip-load  Saute le chargement GPKG si l_areas_new existe déjà
     --force      Pas de confirmation interactive
 """
@@ -227,7 +228,7 @@ def _get_area_code_to_id(id_type, proprietaire=None):
 # ---------------------------------------------------------------------------
 
 
-def step_save_declaration_types():
+def step_save_declaration_types(dry_run=False):
     LOG.info("Étape 0 : sauvegarde type_declaration dans t_declarations")
     print("Étape 0 : sauvegarde type_declaration dans t_declarations")
     db = _get_db()
@@ -255,26 +256,30 @@ def step_save_declaration_types():
 
     # Suppression des forêts privées sans déclaration — elles n'ont pas de polygone
     # et ne peuvent pas être reconstruites lors du refresh.
-    result = db.session.execute(text("""
-        DELETE FROM oeasc_forets.t_forets
+    # En dry-run on ne fait que lister : t_forets_new exclut de toute façon ces forêts
+    # (cf. étape 2), le résultat est donc le même que dans une exécution réelle.
+    orphelines = """
+        FROM oeasc_forets.t_forets
         WHERE b_document = FALSE
         AND NOT EXISTS (
             SELECT 1 FROM oeasc_declarations.t_declarations d
             WHERE d.id_foret = t_forets.id_foret
         )
-        RETURNING id_foret, nom_foret
-    """))
-    deleted = result.fetchall()
+    """
+    if dry_run:
+        deleted = db.session.execute(
+            text(f"SELECT id_foret, nom_foret {orphelines}")
+        ).fetchall()
+    else:
+        deleted = db.session.execute(
+            text(f"DELETE {orphelines} RETURNING id_foret, nom_foret")
+        ).fetchall()
     if deleted:
+        verbe = "à supprimer (dry-run)" if dry_run else "supprimée(s)"
         for row in deleted:
-            LOG.info(
-                f"  Forêt ss_document supprimée : id_foret={row[0]} nom={row[1]!r}"
-            )
-        LOG.info(
-            f"  {len(deleted)} forêt(s) ss_document sans déclaration supprimée(s)."
-        )
+            LOG.info(f"  Forêt ss_document {verbe} : id_foret={row[0]} nom={row[1]!r}")
         _report["anomalies"].append(
-            f"[Étape 0] {len(deleted)} forêt(s) ss_document sans déclaration supprimée(s) : "
+            f"[Étape 0] {len(deleted)} forêt(s) ss_document sans déclaration {verbe} : "
             + ", ".join(f"{r[1]!r} (id={r[0]})" for r in deleted)
         )
     _report["volumes"]["forets_ss_doc_supprimees"] = len(deleted)
@@ -389,7 +394,14 @@ def step_create_t_forets_new():
             nom_proprietaire, adresse_proprietaire, cp_proprietaire, commune_proprietaire,
             email_proprietaire, tel_proprietaire, id_nomenclature_proprietaire_type, id_declarant,
             id_foret
-        FROM oeasc_forets.t_forets WHERE b_document = FALSE
+        FROM oeasc_forets.t_forets
+        WHERE b_document = FALSE
+        -- les forêts sans déclaration sont supprimées de t_forets par l'étape 0
+        -- (hors dry-run) : on les exclut ici pour que le dry-run donne le même résultat
+        AND EXISTS (
+            SELECT 1 FROM oeasc_declarations.t_declarations d
+            WHERE d.id_foret = t_forets.id_foret
+        )
     """))
     db.session.commit()
 
@@ -2801,7 +2813,7 @@ def _write_bilan_final():
     "--dry-run",
     is_flag=True,
     default=False,
-    help="Exécute toutes les étapes sauf le swap final",
+    help="Construit les tables _new sans modifier les tables vivantes (ni déclarations ni swap)",
 )
 @click.option(
     "--skip-load",
@@ -2865,7 +2877,7 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
         )
 
     try:
-        step_save_declaration_types()
+        step_save_declaration_types(dry_run)
 
         already_loaded = skip_load and _table_exists("ref_geo", "l_areas_new")
 
@@ -2888,9 +2900,11 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
             step_build_cor_area_intersect()
         else:
             LOG.info("--skip-intersect : étape 5 ignorée")
-        step_update_declarations()
 
         if dry_run:
+            # L'étape 6 réécrit t_declarations.id_foret avec les ids de t_forets_new
+            # (et supprime des FK) : elle n'a de sens qu'avec le swap qui suit.
+            LOG.info("--dry-run : étape 6 (mise à jour des déclarations) non exécutée")
             LOG.info(
                 "=== DRY-RUN terminé. Tables _new disponibles pour inspection. ==="
             )
@@ -2898,6 +2912,8 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
             _write_bilan_final()
             LOG.removeHandler(_file_handler)
             return
+
+        step_update_declarations()
 
         step_swap_t_forets()
         step_swap_l_areas()
