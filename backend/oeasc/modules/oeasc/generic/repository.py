@@ -116,7 +116,7 @@ def custom_getattr(Model, attr_name, stmt):
         return getattr(Model, attr_name), stmt
 
 
-def get_objects_type(module_name, object_type, args={}):
+def get_objects_type(module_name, object_type, args=None):
     """
     Fonction générique pour récupérer une liste d'objets d'un modèle SQLAlchemy en fonction de filtres, tris et pagination.
 
@@ -134,6 +134,8 @@ def get_objects_type(module_name, object_type, args={}):
         count: Nombre total d'objets (avant filtrage)
         count_filtered: Nombre d'objets après filtrage
     """
+
+    args = args or {}
 
     # Récupère le modèle SQLAlchemy et le nom du champ id
     Model, _ = definitions.get_model(module_name, object_type)

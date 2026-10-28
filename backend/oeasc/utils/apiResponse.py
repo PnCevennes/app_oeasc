@@ -38,32 +38,23 @@ class ApiResponse:
         )  # liste de chaine de caractères qui sera retournée dans le journal de l'application. Elle peut être utilisée pour stocker des messages de debug ou des informations sur l'exécution de l'opération. Ces messages ne sont pas destinés à être retournés à l'utilisateur, mais peuvent être utiles pour le développement et la maintenance de l'application.
         self.return_journal = False  # si return_journal est à True, le journal sera retourné dans la réponse de l'API. Si return_journal est à False, le journal ne sera pas retourné dans la réponse de l'API.
 
-        # print (f"session dans ApiResponse => {session}")
-        if id_role is not None:
-            self.id_role = id_role  # id_role de l'utilisateur connecté, à utiliser pour les opérations qui nécessitent une identification de l'utilisateur (ex: enregistrement d'une action dans le journal de l'application, attribution d'une ressource à un utilisateur, etc.). Cet attribut doit être défini manuellement après l'initialisation de l'objet ApiResponse, en fonction de l'utilisateur connecté.
-        else:
-            current_user = {}
-            if session is not None:
-                try:
-                    if hasattr(session, "get"):
-                        current_user = session.get("current_user", {}) or {}
-                except Exception:
-                    current_user = {}
-            self.id_role = current_user.get("id_role", 0)
+        # utilisateur connecté, lu dans la session sauf si fourni explicitement
+        current_user = {}
+        if session is not None and hasattr(session, "get"):
+            try:
+                current_user = session.get("current_user", {}) or {}
+            except Exception:
+                current_user = {}
 
-        if nom_complet is not None:
-            self.nom_complet = nom_complet  # nom complet de l'utilisateur connecté, à utiliser pour les opérations qui nécessitent une identification de l'utilisateur (ex: enregistrement d'une action dans le journal de l'application, attribution d'une ressource à un utilisateur, etc.). Cet attribut doit être défini manuellement après l'initialisation de l'objet ApiResponse, en fonction de l'utilisateur connecté.
-        else:
-            current_user = {}
-            if session is not None:
-                try:
-                    if hasattr(session, "get"):
-                        current_user = session.get("current_user", {}) or {}
-                except Exception:
-                    current_user = {}
-            self.nom_complet = current_user.get(
-                "nom_complet", "Utilisateur non connecté"
-            )
+        # id_role de l'utilisateur connecté (opérations nécessitant une identification : journal, attribution...)
+        self.id_role = id_role if id_role is not None else current_user.get("id_role", 0)
+
+        # nom complet de l'utilisateur connecté (même usage que id_role)
+        self.nom_complet = (
+            nom_complet
+            if nom_complet is not None
+            else current_user.get("nom_complet", "Utilisateur non connecté")
+        )
 
         self.log_file = os.path.join(
             path_log, log_file

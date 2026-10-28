@@ -508,11 +508,7 @@ def duplicate_declaration():
 
     apiResponse = ApiResponse(log_file="declarations.log", session=session)
 
-    variables_path = (
-        Path(get_config()["ROOT_DIR"]) / "config" / "variables" / "declaration.json"
-    )
-    with open(variables_path, "r", encoding="utf-8") as f:
-        variables_declaration = json.load(f)
+    variables_declaration = get_variables_declaration()
 
     statut_declaration = variables_declaration.get("STATUT_DECLARATION")
     nb_jours_validite_declaration = variables_declaration.get(
@@ -622,11 +618,7 @@ def cloture_declaration():
     from sqlalchemy import update
     from pathlib import Path
 
-    variables_path = (
-        Path(get_config()["ROOT_DIR"]) / "config" / "variables" / "declaration.json"
-    )
-    with open(variables_path, "r", encoding="utf-8") as f:
-        variables_declaration = json.load(f)
+    variables_declaration = get_variables_declaration()
     statut_declaration = variables_declaration.get("STATUT_DECLARATION")
 
     post_data = request.get_json()

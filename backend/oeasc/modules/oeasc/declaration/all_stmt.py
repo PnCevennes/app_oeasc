@@ -39,6 +39,7 @@ from oeasc.ref_geo_oeasc.models import (
 from pypnnomenclature.models import TNomenclatures
 from oeasc.modules.oeasc.declaration.models import TForet
 from oeasc.modules.oeasc.user.models import VUsers
+from .variables import get_variables_declaration
 
 from flask import current_app
 
@@ -108,18 +109,7 @@ def get_id_areas(id_declaration, area_type):
 def filter_declarations_a_renouveler(stmt):
     """Ajoute un filtre à une requête de déclarations pour ne récupérer que celles à renouveler, c'est à dire celles dont la date de fin est dépassée et qui ne sont pas archivées."""
 
-    # Import local pour éviter un import circulaire avec repository
-    import json
-    import os
-
-    # read declaration status using current_app.config at runtime
-    with open(
-        os.path.join(
-            current_app.config["ROOT_DIR"], "config", "variables", "declaration.json"
-        ),
-        "r",
-    ) as _f:
-        statut_declaration = json.load(_f)["STATUT_DECLARATION"]
+    statut_declaration = get_variables_declaration()["STATUT_DECLARATION"]
 
     stmt = stmt.where(
         TDeclaration.date_fin <= func.now(),  # date de fin dépassée
@@ -498,10 +488,6 @@ def get_stmt_fiche_declaration(id_declaration):
                 else_="",
             ).label("type_foret"),
             TForet.surface_renseignee.label("surface_renseignee"),
-            # case((TForet.b_statut_public == True, "Public"), else_="Privé").label(
-            #     "statut_foret"
-            # ),
-            # case((TForet.b_document == True, "Oui (document de gestion durable)"), else_="Non").label("documentee"),
             get_liste_nomenclature_labels(
                 id_declaration, CorNomenclatureDeclarationEspece
             ).label("especes_labels"),
@@ -861,17 +847,6 @@ def get_stmt_for_declarations_export(type_file="csv", type_out="degat"):
                 ),
                 else_=get_area_names(TDeclaration.id_declaration, "OEASC_CADASTRE"),
             ).label("Parcelle(s)"),
-            # case(
-            #     (
-            #         and_(TForet.b_statut_public == True, TForet.b_document == True),
-            #         get_area_names(TDeclaration.id_declaration, "OEASC_ONF_FRT"),
-            #     ),
-            #     (
-            #         and_(TForet.b_statut_public == False, TForet.b_document == True),
-            #         get_area_names(TDeclaration.id_declaration, "OEASC_DGD"),
-            #     ),
-            #     else_=get_area_names(TDeclaration.id_declaration, "OEASC_SECTION"),
-            # ).label("Nom section(s)"),
         )
 
     if type_out == "declaration":

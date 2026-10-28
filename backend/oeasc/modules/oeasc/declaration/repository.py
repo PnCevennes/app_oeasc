@@ -22,6 +22,7 @@ from .schema import (
     TDeclarationSchema,
     TForetSchema,
 )
+from .variables import get_variables_declaration
 from .all_stmt import (
     get_stmt_liste_declaration,
     stmt_one_declaration_a_renouveler,
@@ -45,12 +46,6 @@ def get_config():
 
 def get_db():
     return get_config()["DB"]
-
-
-def get_variables_declaration():
-    """Récupère les variables de déclaration depuis le fichier JSON de configuration."""
-    with open(str(config["ROOT_DIR"]) + "/config/variables/declaration.json") as f:
-        return json.load(f)
 
 
 def get_label_statut_declaration(code_statut):
@@ -298,63 +293,36 @@ def create_or_update_declaration(post_data):
     response = ApiResponse(log_file="declarations.log", session=session)
 
     # arranged_post_data ne contiendra que les champs nécessaires à la création/modification de la déclaration, adaptés pour Marshmallow
-    arranged_post_data = {}
-
-    # On prépare un dictionnaire conforme au schéma Marshmallow pour la déclaration.
-    # On extrait et adapte les champs nécessaires depuis post_data.
-    arranged_post_data["id_declarant"] = post_data.get("id_declarant")
-    arranged_post_data["id_foret"] = post_data.get("id_foret")
-    arranged_post_data["id_nomenclature_peuplement_type"] = post_data.get(
-        "id_nomenclature_peuplement_type"
+    # Champs de la déclaration repris tels quels depuis post_data
+    CHAMPS_DECLARATION = (
+        "id_declarant",
+        "id_foret",
+        "id_nomenclature_peuplement_type",
+        "id_nomenclature_peuplement_acces",
+        "id_nomenclature_peuplement_essence_principale",
+        "meta_create_date",
+        "b_peuplement_protection_existence",
+        "b_peuplement_paturage_presence",
+        "b_autorisation",
+        "b_valid",
+        "id_nomenclature_proprietaire_declarant",
+        "id_nomenclature_peuplement_origine",
+        "id_nomenclature_foret_type",
+        "id_nomenclature_peuplement_paturage_frequence",
+        "id_nomenclature_peuplement_paturage_statut",
+        "peuplement_surface",
+        "autre_protection",
+        "precision_localisation",
+        "commentaire",
+        "degats",
+        "id_declaration_originale",
+        "date_fin",
+        "statut",
+        "token_renouvellement",
+        "date_fin_token",
     )
-    arranged_post_data["id_nomenclature_peuplement_acces"] = post_data.get(
-        "id_nomenclature_peuplement_acces"
-    )
-    arranged_post_data["id_nomenclature_peuplement_essence_principale"] = post_data.get(
-        "id_nomenclature_peuplement_essence_principale"
-    )
-    arranged_post_data["meta_create_date"] = post_data.get("meta_create_date")
+    arranged_post_data = {champ: post_data.get(champ) for champ in CHAMPS_DECLARATION}
     arranged_post_data["meta_update_date"] = None  # sera mis à jour dans la bdd
-
-    arranged_post_data["b_peuplement_protection_existence"] = post_data.get(
-        "b_peuplement_protection_existence"
-    )
-    arranged_post_data["b_peuplement_paturage_presence"] = post_data.get(
-        "b_peuplement_paturage_presence"
-    )
-    arranged_post_data["b_autorisation"] = post_data.get("b_autorisation")
-    arranged_post_data["b_valid"] = post_data.get("b_valid")
-
-    arranged_post_data["id_nomenclature_proprietaire_declarant"] = post_data.get(
-        "id_nomenclature_proprietaire_declarant"
-    )
-    arranged_post_data["id_nomenclature_peuplement_origine"] = post_data.get(
-        "id_nomenclature_peuplement_origine"
-    )
-    arranged_post_data["id_nomenclature_foret_type"] = post_data.get(
-        "id_nomenclature_foret_type"
-    )
-    arranged_post_data["id_nomenclature_peuplement_paturage_frequence"] = post_data.get(
-        "id_nomenclature_peuplement_paturage_frequence"
-    )
-    arranged_post_data["id_nomenclature_peuplement_paturage_statut"] = post_data.get(
-        "id_nomenclature_peuplement_paturage_statut"
-    )
-    arranged_post_data["peuplement_surface"] = post_data.get("peuplement_surface")
-    arranged_post_data["autre_protection"] = post_data.get("autre_protection")
-    arranged_post_data["precision_localisation"] = post_data.get(
-        "precision_localisation"
-    )
-    arranged_post_data["commentaire"] = post_data.get("commentaire")
-    arranged_post_data["degats"] = post_data.get("degats")
-
-    arranged_post_data["id_declaration_originale"] = post_data.get(
-        "id_declaration_originale"
-    )
-    arranged_post_data["date_fin"] = post_data.get("date_fin")
-    arranged_post_data["statut"] = post_data.get("statut")
-    arranged_post_data["token_renouvellement"] = post_data.get("token_renouvellement")
-    arranged_post_data["date_fin_token"] = post_data.get("date_fin_token")
 
     # Gestion des relations de nomenclatures : on adapte le format pour Marshmallow
     # Chaque clé "nomenclatures_*" devient une liste de dictionnaires avec l'id de la nomenclature
@@ -1080,432 +1048,3 @@ def resume_gravite(declaration_dict):
 
     # On ajoute la gravité maximale trouvée au dictionnaire de déclaration
     declaration_dict["gravite"] = gravite
-
-
-####################################################################################
-## FONCTIONS REMPLACÉES
-
-
-# pour les export et les résultat de suivis => système d'alertes
-# sera a supprimé lorsqu'on aura tout passé en sqlalchemy
-# def get_declarations_view(
-#     user=None, type_export=None, type_out=None, id_declaration=None, restrict=False
-# ):
-#     """
-#     Retourne des donées de déclarations a partir des vues.
-
-#     Cette fonction permet de récupérer les déclarations forestières selon différents paramètres :
-#     - type_export : format d'export souhaité ("csv", "shape", ou None pour le format par défaut)
-#     - type_out : "degat" pour une ligne par dégât, None pour une ligne par déclaration
-#     - user : dictionnaire contenant les informations sur l'utilisateur (droits, organisme, etc.)
-#     - id_declaration : pour filtrer sur une déclaration précise
-#     - restrict : pour restreindre la vue (utilisé principalement pour les vues de dégâts)
-
-#     """
-
-#     # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
-#     liste_id_organismes_solo = get_id_organismes(
-#         ["Autre (préciser)", "Pas d'organisme", "Aucun"]
-#     )
-
-#     # Dictionnaire de correspondance entre les paramètres et les vues SQL à utiliser
-#     view_names = {
-#         "csv": "v_export_declarations_csv",
-#         "csv_deg": "v_export_declaration_degats_csv",
-#         "shape": "v_export_declarations_shape",
-#         "shape_deg": "v_export_declaration_degats_shape",
-#         "default": "v_declarations",
-#         "default_deg": "v_declaration_degats",
-#         "default_deg_restrict": "v_declaration_degats_restrict",
-#     }
-
-#     stmt_function_names = {
-#         "csv": get_v_export_declaration_csv_query,
-#         "csv_deg": get_v_export_declaration_degats_csv_query,
-#         "shape": get_v_export_declaration_shape_query,
-#         "shape_deg": get_v_export_declaration_degats_shape_query,
-#         "default": get_v_declarations_query,
-#         "default_deg": get_v_declaration_degat_query,
-#         "default_deg_restrict": get_v_declaration_degats_restrict_query,
-#     }
-
-#     # Choix de la vue selon les paramètres d'export et de sortie
-#     if type_export in ["csv", "shape"]:
-#         view_key = type_export
-#     else:
-#         view_key = "default"
-
-#     if type_out == "degat":
-#         view_key += "_deg"
-
-#     if restrict:
-#         # Restriction supplémentaire, principalement pour les vues de dégâts
-#         view_key += "_restrict"
-
-#     view_name = view_names[view_key]
-
-#     stmt_function = stmt_function_names[view_key]
-#     stmt = stmt_function()
-
-#     # Définition des filtres selon les droits de l'utilisateur
-#     filters = {}
-#     if user:
-#         # Cas administrateur ou animateur (droit >= 5) : accès à toutes les déclarations
-#         if user["max_level_profil"] >= 5:
-#             pass  # Pas de filtre
-
-#         # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
-#         elif (
-#             user["max_level_profil"] >= 2
-#             and user["id_organisme"] not in liste_id_organismes_solo
-#         ):
-#             stmt = stmt.where(VUsers.organisme == user["organisme"])
-#             # filters = {"organisme": user["organisme"]}
-
-#         # Cas droit 1 : accès uniquement à ses propres alertes
-#         elif user["max_level_profil"] >= 1:
-#             stmt = stmt.where(TDeclaration.id_declarant == user["id_role"])
-#             # filters = {"id_declarant": user["id_role"]}
-
-#     # Cas où on souhaite une seule déclaration (filtre par identifiant)
-#     if id_declaration:
-#         stmt = stmt.where(TDeclaration.id_declaration == id_declaration)
-#         # filters["id_declaration"] = id_declaration
-
-#     # Définition du champ géométrique pour l'export shapefile
-#     geometry_field = None
-#     if type_export == "shape":
-#         geometry_field = "geom"
-#         stmt = stmt.add_columns(
-#             func.ST_AsBinary(
-#                 func.ST_Transform(func.ST_Centroid(TDeclaration.geom), 4326)
-#             ).label("geom")
-#         )
-
-#     # Création de la requête via GenericQueryGeo (utilise la vue SQL et les filtres)
-#     data = None
-#     # gq = GenericQueryGeo(
-#     #     DB,
-#     #     view_name,
-#     #     "oeasc_declarations",
-#     #     geometry_field=geometry_field,
-#     #     filters=filters,
-#     #     limit=1e6,
-#     # )
-
-#     gq = DB.session.execute(stmt).mappings().all()
-
-#     # Cas d'export shapefile : on retourne directement le résultat de la requête
-#     if type_export == "shape":
-#         return gq.query()[0]
-
-#     # Exécution de la requête et récupération des données
-#     data = gq.return_query()
-
-#     # Si aucune donnée n'est trouvée, on retourne une liste vide
-#     if not (data and data.get("items")):
-#         return []
-
-#     declarations = data.get("items")
-
-#     # Remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
-#     for d in declarations:
-#         for e in d:
-#             if d[e] is None:
-#                 d[e] = ""
-
-#     # Si on utilise une vue d'export ou de dégâts, on retourne directement les déclarations
-#     if view_key != "default":
-#         return declarations
-
-#     # Cas par défaut : enrichissement des déclarations avec les objets "dégats"
-#     # (utilisé pour l'affichage détaillé ou l'export complet)
-#     add_degats(declarations)
-
-#     # Pré-traitement des nomenclatures géographiques (désactivé ici)
-#     # pre_get_dict_nomenclature_areas(declarations)
-#     # Résolution complète des déclarations (désactivé ici)
-#     # declarations = [resolve_declaration(d) for d in declarations]
-
-#     return declarations
-
-
-# def get_degats_for_resultats_suivi(user=None, id_declaration=None):
-#     """
-#     Récupère les dégâts associés à une déclaration pour l'affichage dans les résultats de suivi.
-
-#     Utilisation :
-#     - Cette fonction est utilisée pour obtenir les informations détaillées des dégâts (type, essence, gravité, etc.)
-#       associées à une déclaration spécifique, notamment dans le contexte des résultats de suivi ou d'affichage détaillé.
-
-#     :param id_declaration: Identifiant de la déclaration pour laquelle récupérer les dégâts
-#     :return: Liste des dégâts structurés associés à la déclaration
-#     """
-
-#     # Récupération des dégâts via la vue SQL 'v_degats' filtrée par id_declaration
-#     stmt = get_v_declaration_degats_restrict_query()
-#     stmt = add_filters_declarations(stmt, user=user, id_declaration=id_declaration)
-#     data_degats = DB.session.execute(stmt).mappings().all()
-#     # si aucune doée n'est trouvée, on retourne une liste vide
-#     if not data_degats:
-#         return []
-#     # remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
-#     data_degats = replace_none_by_empty_string(data_degats)
-
-#     data_degats = [dict(row) for row in data_degats]
-
-
-# def get_fiche_declaration_ancien(
-#     user=None, type_export=None, type_out=None, id_declaration=None, restrict=False
-# ):
-#     """
-#     Récupère les données d'une déclaration selon les paramètres fournis.
-#     Cette fonction est utilisée pour obtenir les informations d'une déclaration spécifique ou d'un ensemble de déclarations
-#     en fonction des droits de l'utilisateur, du type d'export souhaité et d'autres critères.
-#     """
-
-#     # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
-#     liste_id_organismes_solo = get_id_organismes(
-#         ["Autre (préciser)", "Pas d'organisme", "Aucun"]
-#     )
-
-#     # Dictionnaire de correspondance entre les paramètres et les vues SQL à utiliser
-#     view_names = {
-#         "csv": "v_export_declarations_csv",
-#         "csv_deg": "v_export_declaration_degats_csv",
-#         "shape": "v_export_declarations_shape",
-#         "shape_deg": "v_export_declaration_degats_shape",
-#         "default": "v_declarations",
-#         "default_deg": "v_declaration_degats",
-#         "default_deg_restrict": "v_declaration_degats_restrict",
-#     }
-
-#     # Choix de la vue selon les paramètres d'export et de sortie
-#     if type_export in ["csv", "shape"]:
-#         view_key = type_export
-#     else:
-#         view_key = "default"
-
-#     if type_out == "degat":
-#         view_key += "_deg"
-
-#     if restrict:
-#         # Restriction supplémentaire, principalement pour les vues de dégâts
-#         view_key += "_restrict"
-
-#     view_name = view_names[view_key]
-
-#     # Définition des filtres selon les droits de l'utilisateur
-#     filters = {}
-#     if user:
-#         # Cas administrateur ou animateur (droit >= 5) : accès à toutes les déclarations
-#         if user["max_level_profil"] >= 5:
-#             pass  # Pas de filtre
-
-#         # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
-#         elif (
-#             user["max_level_profil"] >= 2
-#             and user["id_organisme"] not in liste_id_organismes_solo
-#         ):
-#             filters = {"organisme": user["organisme"]}
-
-#         # Cas droit 1 : accès uniquement à ses propres alertes
-#         elif user["max_level_profil"] >= 1:
-#             filters = {"id_declarant": user["id_role"]}
-
-#     # Cas où on souhaite une seule déclaration (filtre par identifiant)
-#     if id_declaration:
-#         filters["id_declaration"] = id_declaration
-
-#     # Définition du champ géométrique pour l'export shapefile
-#     geometry_field = None
-#     if type_export == "shape":
-#         geometry_field = "geom"
-
-#     # Création de la requête via GenericQueryGeo (utilise la vue SQL et les filtres)
-#     data = None
-#     gq = GenericQueryGeo(
-#         DB,
-#         view_name,
-#         "oeasc_declarations",
-#         geometry_field=geometry_field,
-#         filters=filters,
-#         limit=1e6,
-#     )
-
-#     # Cas d'export shapefile : on retourne directement le résultat de la requête
-#     if type_export == "shape":
-#         return gq.query()[0]
-
-#     # Exécution de la requête et récupération des données
-#     data = gq.return_query()
-
-#     # Si aucune donnée n'est trouvée, on retourne une liste vide
-#     if not (data and data.get("items")):
-#         return []
-
-#     declarations = data.get("items")
-
-#     # Remplacement des valeurs None par des chaînes vides pour éviter les erreurs côté frontend
-#     for d in declarations:
-#         for e in d:
-#             if d[e] is None:
-#                 d[e] = ""
-
-#     # Si on utilise une vue d'export ou de dégâts, on retourne directement les déclarations
-#     if view_key != "default":
-#         return declarations
-
-#     # Cas par défaut : enrichissement des déclarations avec les objets "dégats"
-#     # (utilisé pour l'affichage détaillé ou l'export complet)
-#     add_degats(declarations)
-
-#     # Pré-traitement des nomenclatures géographiques (désactivé ici)
-#     # pre_get_dict_nomenclature_areas(declarations)
-#     # Résolution complète des déclarations (désactivé ici)
-#     # declarations = [resolve_declaration(d) for d in declarations]
-
-#     return declarations
-
-
-# add_degats uniquement utilsé dans get_fiche_declaration
-# def add_degats(declarations):
-#     """
-#     Ajoute un objet 'degats' à chaque déclaration dans la liste fournie.
-
-#     Cette fonction est utilisée dans :
-#     - get_declarations : pour enrichir chaque déclaration avec ses dégâts associés
-#     - Toute logique nécessitant d'associer les dégâts (type, essence, gravité, etc.) aux déclarations
-
-#     Elle récupère les dégâts via la vue SQL 'v_degats', puis les regroupe par déclaration.
-#     Pour chaque déclaration, elle ajoute une clé 'degats' contenant la liste des dégâts structurés.
-
-#     :param declarations: Liste de dictionnaires représentant les déclarations
-#     """
-
-#     # Récupération des dégâts via la vue SQL 'v_degats'
-#     data_degats = GenericQuery(
-#         DB, "v_degats", "oeasc_declarations", limit=1e6
-#     ).return_query()["items"]
-
-#     # Dictionnaire pour regrouper les dégâts par déclaration
-#     degats_declarations = {}
-
-#     for deg in data_degats:
-#         # On récupère la liste des dégâts pour la déclaration courante
-#         dd = degats_declarations.get(deg["id_declaration_degat"])
-#         if not dd:
-#             dd = degats_declarations[deg["id_declaration_degat"]] = []
-
-#         d_cur = None
-#         # On cherche si le type de dégât existe déjà dans la liste
-#         for d in dd:
-#             if d["degat_type_mnemo"] == deg["degat_type_mnemo"]:
-#                 d_cur = d
-#                 break
-
-#         if not d_cur:
-#             # Si le type de dégât n'existe pas, on le crée
-#             d_cur = {
-#                 "degat_type_mnemo": deg["degat_type_mnemo"],
-#                 "degat_type_label": deg["degat_type_label"],
-#                 "degat_type_code": deg["degat_type_code"],
-#             }
-#             d_cur["degat_essences"] = []
-#             dd.append(d_cur)
-
-#         # On ajoute les informations d'essence de dégât si elles existent
-#         if deg.get("degat_essence_mnemo"):
-#             d_cur["degat_essences"].append(
-#                 {
-#                     "degat_essence_mnemo": deg["degat_essence_mnemo"],
-#                     "degat_anteriorite_mnemo": deg["degat_anteriorite_mnemo"],
-#                     "degat_gravite_mnemo": deg["degat_gravite_mnemo"],
-#                     "degat_etendue_mnemo": deg["degat_etendue_mnemo"],
-#                     "degat_essence_label": deg["degat_essence_label"],
-#                     "degat_anteriorite_label": deg["degat_anteriorite_label"],
-#                     "degat_gravite_label": deg["degat_gravite_label"],
-#                     "degat_etendue_label": deg["degat_etendue_label"],
-#                     "degat_essence_code": deg["degat_essence_code"],
-#                     "degat_anteriorite_code": deg["degat_anteriorite_code"],
-#                     "degat_gravite_code": deg["degat_gravite_code"],
-#                     "degat_etendue_code": deg["degat_etendue_code"],
-#                 }
-#             )
-
-#     # On ajoute la liste des dégâts à chaque déclaration
-#     for d in declarations:
-#         d["degats"] = degats_declarations.get(d["id_declaration"], [])
-
-
-# def replace_none_by_empty_string(data):
-#     """
-#     Remplace les valeurs None par des chaînes vides dans une liste de dictionnaires.
-#     """
-
-#     for row in data:
-#         for e in row:
-#             if row[e] is None:
-#                 row[e] = ""
-#     return data
-
-
-# def get_fiche_declaration(id_declaration, session=None, with_geom=True):
-
-#     stmt = get_stmt_fiche_declaration(id_declaration)
-
-#     result = get_db().session.execute(stmt).fetchone()
-#     if result is None:
-#         dict_result = {}
-#     else:
-#         # Use the RowMapping to get a dict keyed by column labels
-#         dict_result = dict(result._mapping)
-#     stmt_degats = get_stmt_degats(id_declaration)
-#     degats_declarations = get_db().session.execute(stmt_degats).fetchall()
-
-#     # on rassemble tous les dégats essence qui ont le même id_degat
-#     degats_dict = {}
-#     for degat in degats_declarations:
-#         degat = dict(degat._mapping)
-#         id_degat = degat["id_degat"]
-#         if id_degat not in degats_dict:
-#             degats_dict[id_degat] = {
-#                 "id_declaration_degat": degat["id_declaration_degat"],
-#                 "id_degat": id_degat,
-#                 "degat_type_mnemo": degat["degat_type_mnemo"],
-#                 "degat_type_label": degat["degat_type_label"],
-#                 "degat_type_code": degat["degat_type_code"],
-#                 "essences": [],
-#             }
-#         if degat["id_degat_essence"] is not None:
-#             degats_dict[id_degat]["essences"].append(
-#                 {
-#                     "id_degat_essence": degat["id_degat_essence"],
-#                     "degat_essence_mnemo": degat["degat_essence_mnemo"],
-#                     "degat_gravite_mnemo": degat["degat_gravite_mnemo"],
-#                     "degat_etendue_mnemo": degat["degat_etendue_mnemo"],
-#                     "degat_anteriorite_mnemo": degat["degat_anteriorite_mnemo"],
-#                     "degat_essence_label": degat["degat_essence_label"],
-#                     "degat_gravite_label": degat["degat_gravite_label"],
-#                     "degat_etendue_label": degat["degat_etendue_label"],
-#                     "degat_anteriorite_label": degat["degat_anteriorite_label"],
-#                     "degat_essence_code": degat["degat_essence_code"],
-#                     "degat_gravite_code": degat["degat_gravite_code"],
-#                     "degat_etendue_code": degat["degat_etendue_code"],
-#                     "degat_anteriorite_code": degat["degat_anteriorite_code"],
-#                 }
-#             )
-
-#     dict_result["degats"] = list(degats_dict.values())
-
-#     return dict_result
-
-
-# def get_degats_for_resultats_suivi():
-#     stmt = get_stmt_for_resultats_degats()
-#     result = DB.session.execute(stmt).mappings().all()
-#     if not result:
-#         return []
-#     data = [dict(row) for row in result]
-
-#     return data
