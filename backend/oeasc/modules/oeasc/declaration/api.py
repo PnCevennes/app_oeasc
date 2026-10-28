@@ -369,13 +369,15 @@ def degats():
 
 
 @bp.route("declarations", methods=["GET"])
+@check_auth_redirect_login(1)
 @json_resp
 def declarations():
     """
     Liste des déclarations pour la page "alertes signalées". Utilise une vue PostgreSQL qui transforme les données
     en interne pour être directement affichées.
     Retourne aussi beaucoup de données uniquement intégrées dans l'export.
-    Ne retourne que les déclarations de l'utilisateur.
+    Réservé aux utilisateurs connectés (droit >= 1). Ne retourne que les déclarations auxquelles
+    l'utilisateur a accès selon ses droits (voir get_filtres_droits_declarations).
     """
 
     # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur

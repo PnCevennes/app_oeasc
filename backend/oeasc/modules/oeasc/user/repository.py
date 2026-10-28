@@ -65,7 +65,11 @@ def get_users():
     v_out = []  # Liste qui contiendra les utilisateurs filtrés à retourner
 
     # Récupère l'utilisateur courant à partir de la session (id_role)
-    current_user = get_user(session.get("current_user", {}).get("id_role"))
+    # (pas de current_user en session pour un utilisateur temporaire, ex: renouvellement par token)
+    id_role = (session.get("current_user") or {}).get("id_role")
+    current_user = get_user(id_role) if id_role else None
+    if not current_user:
+        return v_out
 
     # Prépare la requête pour récupérer tous les utilisateurs de la vue VUsers
     stmt_v = select(VUsers)
@@ -78,10 +82,9 @@ def get_users():
         # - Si l'utilisateur courant a un droit max >= 5 (admin ou super utilisateur)
         # - OU si l'utilisateur courant appartient au même organisme que l'utilisateur parcouru
         #   et que le nom de l'organisme correspond (double vérification)
-        if (
-            current_user["id_droit_max"] >= 5
-            or current_user["id_organisme"] == user.id_organisme
-            and current_user["organisme"] == current_user["organisme"]
+        if current_user["id_droit_max"] >= 5 or (
+            current_user["id_organisme"] == user.id_organisme
+            and current_user["organisme"] == user.organisme
         ):
             # Sérialise l'utilisateur avec le schéma VUsersShema
             user_dict = VUsersShema().dump(user)

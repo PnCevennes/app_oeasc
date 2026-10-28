@@ -5,6 +5,7 @@ Fonctions de traitement de données pour les déclarations
 from oeasc.utils.apiResponse import ApiResponse
 from datetime import datetime, date, timedelta
 from sqlalchemy import (
+    false,
     select,
     text,
     and_,
@@ -88,28 +89,9 @@ def get_fiche_declaration(id_declaration, type_export=None, session=None):
 
     stmt = get_stmt_fiche_declaration(id_declaration)
 
-    # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
-    liste_id_organismes_solo = get_id_organismes(
-        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
-    )
-    # Définition des filtres selon les droits de l'utilisateur
-    if user:
-        # Cas administrateur ou animateur (droit >= 5) : accès à toutes les déclarations
-        if user["max_level_profil"] >= 5:
-            pass  # Pas de filtre
-        # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
-        elif (
-            user["max_level_profil"] >= 2
-            and user["id_organisme"] not in liste_id_organismes_solo
-        ):
-            stmt = stmt.where(VUsers.organisme == user["organisme"])
-        # Cas droit 1 : accès uniquement à ses propres alertes
-        elif user["max_level_profil"] >= 1:
-            stmt = stmt.where(VUsers.id_role == user["id_role"])
-        else:
-            # Pas de droit d'accès, on retourne une réponse vide
-            response.data = {}
-            return response
+    # Restriction selon les droits de l'utilisateur
+    for filtre in get_filtres_droits_declarations(user):
+        stmt = stmt.where(filtre)
 
     result = get_db().session.execute(stmt).fetchone()
 
@@ -660,44 +642,39 @@ def check_token_renouvellement_declaration(id_declaration, token, session={}):
 ######################################################################################
 
 
-def add_filters_declarations(stmt, user=None, id_declaration=None):
+def get_filtres_droits_declarations(user):
     """
-    Ajoute des filtres à une requête de déclaration en fonction des droits de l'utilisateur et d'un éventuel identifiant de déclaration.
+    Clauses SQLAlchemy qui restreignent les déclarations visibles selon les droits de l'utilisateur.
+    Utilisée par la liste et la fiche de déclaration (requêtes jointes sur VUsers).
 
-    Utilisation :
-    - Cette fonction est utilisée pour appliquer les restrictions d'accès aux déclarations selon les droits de l'utilisateur.
-    - Elle peut être utilisée dans différentes fonctions de récupération de déclarations pour centraliser la logique de filtrage.
+    - droit >= 5 (animateur, administrateur) : toutes les déclarations (pas de filtre)
+    - droit >= 2 et organisme "réel" (pas un particulier) : les déclarations de son organisme
+    - droit >= 1 : ses propres déclarations
+    - sinon, ou sans utilisateur : aucune déclaration
 
-    :param stmt: Requête SQLAlchemy à laquelle ajouter les filtres
-    :param user: Dictionnaire contenant les informations sur l'utilisateur (droits, organisme, etc.)
-    :param id_declaration: Identifiant de déclaration pour filtrer sur une déclaration précise (optionnel)
-    :return: Requête SQLAlchemy avec les filtres appliqués
+    :param user: dictionnaire de l'utilisateur (droits, organisme, id_role), ou None
+    :return: liste de clauses (vide = pas de restriction)
     """
+    if not user:
+        return [false()]
 
-    # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
-    liste_id_organismes_solo = get_id_organismes(
-        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
-    )
+    niveau = user.get("max_level_profil", user.get("id_droit_max")) or 0
 
-    if user:
-        if (
-            user["max_level_profil"] >= 5
-        ):  # Cas admin ou animateur (droit >= 5) : accès à toutes les déclarations
-            pass  # Pas de filtre
-        elif (  # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
-            user["max_level_profil"] >= 2
-            and user["id_organisme"] not in liste_id_organismes_solo
-        ):
-            stmt = stmt.where(VUsers.organisme == user["organisme"])
-        elif (
-            user["max_level_profil"] >= 1
-        ):  # Cas droit 1 : accès uniquement à ses propres alertes
-            stmt = stmt.where(TDeclaration.id_declarant == user["id_role"])
-    # Cas où on souhaite une seule déclaration (filtre par identifiant)
-    if id_declaration:
-        stmt = stmt.where(TDeclaration.id_declaration == id_declaration)
+    if niveau >= 5:
+        return []
 
-    return stmt
+    if niveau >= 2:
+        # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
+        liste_id_organismes_solo = get_id_organismes(
+            ["Autre (préciser)", "Pas d'organisme", "Aucun"]
+        )
+        if user["id_organisme"] not in liste_id_organismes_solo:
+            return [VUsers.organisme == user["organisme"]]
+
+    if niveau >= 1:
+        return [TDeclaration.id_declarant == user["id_role"]]
+
+    return [false()]
 
 
 # Pour la liste des déclarations (page système d'alertes => alertes signalées)
@@ -707,34 +684,16 @@ def get_liste_declarations(filters=None, user=None, id_declaration=None):
     Exécute la requête et retourne les résultats.
     On peut passer des filtres supplémentaires (dict ou liste de clauses).
     """
-    # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
-    liste_id_organismes_solo = get_id_organismes(
-        ["Autre (préciser)", "Pas d'organisme", "Aucun"]
-    )
-
     stmt = get_stmt_liste_declaration()
 
-    # Définition des filtres selon les droits de l'utilisateur
     # on réutilise la valeur passée en paramètre si c'est une liste/tuple, sinon on part d'une liste vide
     if isinstance(filters, (list, tuple)):
         local_filters = list(filters)
     else:
         local_filters = []
 
-    if user:
-        if (
-            user["id_droit_max"] >= 5
-        ):  # Cas admin ou animateur (droit >= 5) : accès à toutes les déclarations
-            pass  # Pas de filtre
-        elif (  # Cas déclarant de la même structure (hors particuliers) (droit >= 2)
-            user["id_droit_max"] >= 2
-            and user["id_organisme"] not in liste_id_organismes_solo
-        ):
-            local_filters.append(VUsers.organisme == user["organisme"])
-        elif (
-            user["id_droit_max"] >= 1
-        ):  # Cas droit 1 : accès uniquement à ses propres alertes
-            local_filters.append(TDeclaration.id_declarant == user["id_role"])
+    # Restriction selon les droits de l'utilisateur
+    local_filters.extend(get_filtres_droits_declarations(user))
 
     # Cas où on souhaite une seule déclaration (filtre par identifiant)
     if id_declaration:
