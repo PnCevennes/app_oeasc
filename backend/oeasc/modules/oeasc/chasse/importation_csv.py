@@ -2041,7 +2041,11 @@ def etape__update_realisations(df, apiResponse):
         liste_id_erreurs = []
 
         if nb_updates > 0:
-            df_update = df_update[COLUMNS_REALISATION].copy()
+            # meta_create_date est exclue : la renvoyer (même à None) la ferait
+            # réécrire par le trigger fct_trg_meta_dates_change
+            df_update = df_update[
+                [c for c in COLUMNS_REALISATION if c != "meta_create_date"]
+            ].copy()
             df_update = df_update.replace({np.nan: None})
 
             list_id_realisations = df_update.index.tolist()
