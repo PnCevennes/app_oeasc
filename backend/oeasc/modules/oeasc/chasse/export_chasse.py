@@ -1,66 +1,23 @@
 ########################################################################################################
-################# TRAITEMENT DE L'IMPORTATION CSV DE GEOCHASSE AVEC PYTHON ET PANDAS  ##################
+######################## EXPORTS DU PLAN DE CHASSE (ODS ET CSV) ########################################
 ########################################################################################################
-# fait un clean du csv exporté par geochasse, ( certaines colonnes sont décalées et d'autres sont inutiles)
-# récupère les attributions de la saison sélectionnée par l'utilisateur
-# fusionne le csv avec les attributions grâce au numéro de bracelet,
-# vérifie que les données sont cohérentes et complètes,
-# Cherche des correspondances pour les lieux de tir.
-#   Les correspondances sont validées si elles sont dans la même Zi ou même commune
-#   Si une correspondance est trouvée dans la même ZC on ne la propose qu'en commentaire
-# Insert les nouvelles données puis fait une mise à jour des données existante
-# Créé un csv des lignes en erreur pour que l'utilisateur puisse les corriger.
-# retourne une apiResponse qui affichera toutes les étapes réussies ou échouées au frontend.
+# - get_data_all_especes_export_ods : données du bilan de chasse injectées dans le template ODS
+# - exportation_attributions_realises_chasse : export CSV des attributions / réalisations
 
 
-##########################################################################################################
-################# POUR AMÉLIORER LA GESTION DES LIEUX DIT ################################################
-# Pour les lieux dits qui ont des correspondances dans la même commune, il faudrait faire une  buffer zone autour de la geometrie de la zi et vérifier si ça croise la geometrie des lieux dits trouvés en correspondance. Si ça croise, on peut considérer que c'est une correspondance valide, même si le nom n'est pas exactement le même.
-# Pour les lieux dits trouvés dans la même ZC, il faudrait vérifier que la geometrie de chaques correspondance se trouve proche autour de la geometrie de la ZI
-# Une fois traité, il faudrait enregistrer tous les nouveaux synonymes des lieux de tir
-
-
-import sys
-
-# ensure project root is on sys.path so `import config.config` works
-sys.path.append("/home/thibaut/appli/app_oeasc")
-sys.path.append("/home/thibaut/appli/app_oeasc/backend")
-from pathlib import Path
-
-from app import app
-
-# from utils_flask_sqla.generic import GenericTable
-# from flask import request, current_app, jsonify
-
-# import numpy as np
 import pandas as pd
 
-# import json
-# import rapidfuzz as fuzz
-# from pyproj import Transformer
-
-# from marshmallow.exceptions import ValidationError
-
-from sqlalchemy import func, select
+from sqlalchemy import func, cast, select, Integer
 from sqlalchemy import table as sa_table, column as sa_column
 from sqlalchemy.orm import aliased
-from flask import request, current_app, session
-
-# from oeasc.utils.apiResponse import ApiResponse
 
 from utils_flask_sqla.generic import GenericTable
-from flask import request, current_app
+from pypnnomenclature.models import TNomenclatures
 
-# from ..generic.repository import getlist
+from oeasc.utils.env import db as DB
 from ..resultat.repository import result_custom
-from sqlalchemy import func, cast, select, Integer
 from ..commons.models import TEspeces, TSecteurs
-
-
-from oeasc.modules.oeasc.commons.models import TEspeces, TSecteurs
-
-
-from oeasc.modules.oeasc.chasse.models import (
+from .models import (
     TSaisons,
     TAttributions,
     TTypeBracelets,
@@ -72,36 +29,37 @@ from oeasc.modules.oeasc.chasse.models import (
 )
 
 
-from .models import (
-    TSaisons,
-    TZoneCynegetiques,
-    TZoneIndicatives,
-    # TAttributionMassifs,
-    # VPlanChasseRealisationBilan,
-)
-
-from pypnnomenclature.models import (
-    TNomenclatures,
-    # BibNomenclaturesTypes
-)
-
-# from pypnnomenclature.schemas import NomenclatureSchema, BibNomenclaturesTypesSchema
-
-
-# Initialisation de l'ApiResponse pour stocker les messages, le journal de l'opération et les données à retourner à l'utilisateur.
-# apiResponse = ApiResponse()
-
-
-config = current_app.config
-from oeasc.utils.env import db as DB
-SESSION = session
-# chemin du dossier où seront stockés les rapports d'erreurs à la fin du traitement. Si le dossier n'existe pas, il sera créé.
-DOSSIER_RAPPORTS = Path(config["ROOT_DIR"]) / "static/erreurs_import_chasse/"
-
-
 #################################################################################
-################### CREATION D'UN EXPORT ODS POUR LIBREOFFICE  ##################
+################### CREATION D'UN EXPORT ODS POUR LIBREOFFICE  ##################
 ###############################################################################
+
+# clé du template ODS -> (champ de la vue, libellé recherché)
+# "bracelet_attr" désigne le champ "bracelet" de la vue des attributions
+DETAILS_ODS = {
+    "nb_sexe_male": ("label_sexe", "Mâle"),
+    "nb_sexe_femelle": ("label_sexe", "Femelle"),
+    "nb_sexe_ind": ("label_sexe", "Indéterminé"),
+    "nb_mois_sep": ("mois_txt", "Sep."),
+    "nb_mois_oct": ("mois_txt", "Oct."),
+    "nb_mois_nov": ("mois_txt", "Nov."),
+    "nb_mois_dec": ("mois_txt", "Déc."),
+    "nb_mois_jan": ("mois_txt", "Jan."),
+    "nb_mois_fev": ("mois_txt", "Fév."),
+    "nb_age_ad": ("label_classe_age", "Adulte"),
+    "nb_age_ind": ("label_classe_age", "Indéterminé"),
+    "nb_age_suba": ("label_classe_age", "Sub-adulte"),
+    "nb_age_juv": ("label_classe_age", "Juvénile"),
+    "nb_mode_chasse_app": ("label_mode_chasse", "Approche"),
+    "nb_mode_chasse_aff": ("label_mode_chasse", "Affut"),
+    "nb_mode_chasse_ind": ("label_mode_chasse", "Indéterminé"),
+    "nb_mode_chasse_bat": ("label_mode_chasse", "Battue"),
+    "nb_real_cem": ("bracelet", "CEM"),
+    "nb_real_ceff": ("bracelet", "CEFF"),
+    "nb_real_ceffd": ("bracelet", "CEFFD"),
+    "nb_attr_cem": ("bracelet_attr", "CEM"),
+    "nb_attr_ceff": ("bracelet_attr", "CEFF"),
+    "nb_attr_ceffd": ("bracelet_attr", "CEFFD"),
+}
 
 
 def get_details(nom_saison, nom_espece, filter=None):
@@ -116,7 +74,7 @@ def get_details(nom_saison, nom_espece, filter=None):
     - Type de bracelet utilisé (CEM, CEFF, CEFFD)
     - Attribution des bracelets (CEM, CEFF, CEFFD)
 
-    Pour chaque critère, la fonction extrait le nombre d'individus correspondant, et calcule également le pourcentage de réalisation par rapport à l'attribution des bracelets.
+    Pour chaque critère, la fonction extrait le nombre d'individus correspondant (cf. DETAILS_ODS), et calcule également le pourcentage de réalisation par rapport à l'attribution des bracelets.
 
     Args:
         nom_saison (str): Le nom de la saison de chasse concernée.
@@ -125,313 +83,51 @@ def get_details(nom_saison, nom_espece, filter=None):
 
     Returns:
         dict: Un dictionnaire contenant les statistiques agrégées pour chaque critère.
-
-    Utilisation :
-        Cette fonction est typiquement utilisée dans les modules de reporting ou d'affichage de statistiques pour fournir une vue synthétique et détaillée des résultats de chasse, par exemple dans une API ou une interface utilisateur de suivi des prélèvements.
     """
-    out = {}
+    filters = {
+        "nom_saison": [nom_saison],
+        "nom_espece": [nom_espece],
+        **(filter or {}),
+    }
 
-    res_details = {}
-
-    for field_name in [
-        "label_sexe",
-        "mois_txt",
-        "label_classe_age",
-        "label_mode_chasse",
-        "bracelet",
-    ]:
-        res_details[field_name] = result_custom(
+    res_details = {
+        field_name: result_custom(
             {
                 "view": "oeasc_chasse.v_custom_results",
                 "field_name": field_name,
-                "filters": {
-                    "nom_saison": [nom_saison],
-                    "nom_espece": [nom_espece],
-                    **(filter or {}),
-                },
+                "filters": filters,
             }
         )
-
+        for field_name in [
+            "label_sexe",
+            "mois_txt",
+            "label_classe_age",
+            "label_mode_chasse",
+            "bracelet",
+        ]
+    }
     res_details["bracelet_attr"] = result_custom(
         {
             "view": "oeasc_chasse.v_custom_result_attribution",
-            "field_name": field_name,
-            "filters": {
-                "nom_saison": [nom_saison],
-                "nom_espece": [nom_espece],
-                **(filter or {}),
-            },
+            "field_name": "bracelet",
+            "filters": filters,
         }
     )
 
-    out["nb_sexe_male"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_sexe"]
-                if elem["text"] == "Mâle"
-            ),
+    out = {
+        key: next(
+            (elem["count"] for elem in res_details[field] if elem["text"] == text),
             0,
         )
         or ""
-    )
-    out["nb_sexe_femelle"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_sexe"]
-                if elem["text"] == "Femelle"
-            ),
-            0,
+        for key, (field, text) in DETAILS_ODS.items()
+    }
+
+    for bracelet in ["cem", "ceff", "ceffd"]:
+        nb_real = out[f"nb_real_{bracelet}"]
+        out[f"pourcent_{bracelet}"] = (
+            round(1.0 * nb_real / out[f"nb_attr_{bracelet}"] * 100) if nb_real else ""
         )
-        or ""
-    )
-    out["nb_sexe_ind"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_sexe"]
-                if elem["text"] == "Indéterminé"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mois_sep"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["mois_txt"]
-                if elem["text"] == "Sep."
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mois_oct"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["mois_txt"]
-                if elem["text"] == "Oct."
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mois_nov"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["mois_txt"]
-                if elem["text"] == "Nov."
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mois_dec"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["mois_txt"]
-                if elem["text"] == "Déc."
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mois_jan"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["mois_txt"]
-                if elem["text"] == "Jan."
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mois_fev"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["mois_txt"]
-                if elem["text"] == "Fév."
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_age_ad"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_classe_age"]
-                if elem["text"] == "Adulte"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_age_ind"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_classe_age"]
-                if elem["text"] == "Indéterminé"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_age_suba"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_classe_age"]
-                if elem["text"] == "Sub-adulte"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_age_juv"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_classe_age"]
-                if elem["text"] == "Juvénile"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mode_chasse_app"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_mode_chasse"]
-                if elem["text"] == "Approche"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mode_chasse_aff"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_mode_chasse"]
-                if elem["text"] == "Affut"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mode_chasse_ind"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_mode_chasse"]
-                if elem["text"] == "Indéterminé"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_mode_chasse_bat"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["label_mode_chasse"]
-                if elem["text"] == "Battue"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_real_cem"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["bracelet"]
-                if elem["text"] == "CEM"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_real_ceff"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["bracelet"]
-                if elem["text"] == "CEFF"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_real_ceffd"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["bracelet"]
-                if elem["text"] == "CEFFD"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_attr_cem"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["bracelet_attr"]
-                if elem["text"] == "CEM"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_attr_ceff"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["bracelet_attr"]
-                if elem["text"] == "CEFF"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["nb_attr_ceffd"] = (
-        next(
-            (
-                elem["count"]
-                for elem in res_details["bracelet_attr"]
-                if elem["text"] == "CEFFD"
-            ),
-            0,
-        )
-        or ""
-    )
-    out["pourcent_cem"] = (
-        round(1.0 * out["nb_real_cem"] / out["nb_attr_cem"] * 100)
-        if out["nb_real_cem"]
-        else ""
-    )
-    out["pourcent_ceff"] = (
-        round(1.0 * out["nb_real_ceff"] / out["nb_attr_ceff"] * 100)
-        if out["nb_real_ceff"]
-        else ""
-    )
-    out["pourcent_ceffd"] = (
-        round(1.0 * out["nb_real_ceffd"] / out["nb_attr_ceffd"] * 100)
-        if out["nb_real_ceffd"]
-        else ""
-    )
     return out
 
 
@@ -684,9 +380,8 @@ def exportation_attributions_realises_chasse(id_saison_debut=None, id_saison_fin
             select(TSaisons.nom_saison).where(TSaisons.id_saison == id_saison)
         ).scalar_one_or_none()
 
-    with app.app_context():
-        nom_saison_debut = _nom_saison(id_saison_debut)
-        nom_saison_fin = _nom_saison(id_saison_fin)
+    nom_saison_debut = _nom_saison(id_saison_debut)
+    nom_saison_fin = _nom_saison(id_saison_fin)
 
     stmt = (
         select(
@@ -814,9 +509,8 @@ def exportation_attributions_realises_chasse(id_saison_debut=None, id_saison_fin
         )
     )
 
-    with app.app_context():
-        data = DB.session.execute(stmt).all()
-        df_historique = _bilan_historique(nom_saison_debut, nom_saison_fin)
+    data = DB.session.execute(stmt).all()
+    df_historique = _bilan_historique(nom_saison_debut, nom_saison_fin)
     df_export = pd.DataFrame(data)
     df_export.insert(0, "type_ligne", "detail")
 
