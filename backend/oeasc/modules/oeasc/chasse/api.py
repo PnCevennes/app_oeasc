@@ -77,7 +77,7 @@ import datetime
 from py3o.template import Template
 
 config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 bp = Blueprint("chasse_api", __name__)

@@ -33,9 +33,8 @@ from .repository import (
 
 bp = Blueprint("ref_geo", __name__)
 
-config = current_app.config
 
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 @bp.route("type_codes_oeasc")

@@ -16,8 +16,7 @@ from .repository import result_custom
 
 # from ..generic.repository import getlist
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 bp = Blueprint("resultat_api", __name__)
 
 # pour les rendus customisés (route 'custom/')

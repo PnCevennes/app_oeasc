@@ -2,7 +2,6 @@
 pour mapper la vue user de oeasc_commons
 """
 
-from flask import current_app
 
 from sqlalchemy.orm import column_property, relationship, Mapped
 
@@ -26,8 +25,7 @@ from pypnnomenclature.models import BibNomenclaturesTypes, TNomenclatures
 # from sqlalchemy.orm import mapped_column
 
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 # les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0

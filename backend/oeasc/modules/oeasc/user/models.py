@@ -2,14 +2,12 @@
 pour mapper la vue user de oeasc_commons
 """
 
-from flask import current_app
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.dialects.postgresql import JSONB
 from utils_flask_sqla.serializers import serializable
 from sqlalchemy.orm import synonym
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 # les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0

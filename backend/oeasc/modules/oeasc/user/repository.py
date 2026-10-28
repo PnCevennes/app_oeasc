@@ -14,8 +14,7 @@ from ..commons.models import TListeOrganismes
 from .models import VUsers
 from .schema import VUsersShema
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 def get_liste_organismes_oeasc():

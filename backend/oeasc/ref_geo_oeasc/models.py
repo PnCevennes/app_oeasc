@@ -7,7 +7,6 @@ etc...
 améliorer forets
 """
 
-from flask import current_app
 from geoalchemy2 import Geometry
 from ref_geo.models import BibAreasTypes as RefBibAreasTypes
 from ref_geo.models import LAreas as RefLAreas
@@ -26,8 +25,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 class CustomModel(DB.Model):

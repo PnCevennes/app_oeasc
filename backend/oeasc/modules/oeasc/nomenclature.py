@@ -8,7 +8,7 @@ from sqlalchemy import select
 # from sqlalchemy.orm import Session
 
 config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 nomenclature_oeasc_types = [
     "OEASC_PEUPLEMENT_ESSENCE",

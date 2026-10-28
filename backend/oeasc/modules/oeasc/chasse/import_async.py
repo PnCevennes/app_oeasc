@@ -22,6 +22,8 @@ from pathlib import Path
 
 from flask import current_app
 
+from oeasc.utils.env import db as DB
+
 from .importation_csv import traitement_import_realisation_chasse
 from .import_attributions import (
     traitement_import_saison_dates,
@@ -223,7 +225,7 @@ def _traiter(
                 pass
         finally:
             try:
-                config["DB"].session.remove()
+                DB.session.remove()
             except Exception:
                 pass
 

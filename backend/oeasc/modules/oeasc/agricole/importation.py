@@ -51,8 +51,7 @@ from oeasc.modules.oeasc.chasse.import_attributions import (
 from oeasc.ref_geo_oeasc.models import TCommunesArea
 from .models import TSaisonAgricole, TCulture, TUgAgricole, TDeclarationAgricole
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 EXTENSIONS_ACCEPTEES = (".csv", ".xls", ".ods")
 

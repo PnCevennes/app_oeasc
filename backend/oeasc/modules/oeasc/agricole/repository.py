@@ -8,7 +8,6 @@ gestion agricole est dans l'OEASC (`t_ug_agricole.in_oeasc`) sont comptées.
 
 import json
 
-from flask import current_app
 from sqlalchemy import and_, case, distinct, func, select, text, true
 
 from .models import (
@@ -19,8 +18,7 @@ from .models import (
     TDeclarationAgricole,
 )
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 ZONE = "OEASC"
 

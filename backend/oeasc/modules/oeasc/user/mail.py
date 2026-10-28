@@ -6,7 +6,7 @@ from pypnusershub.db.models import Application, User, Organisme
 from pypnusershub.db.models_register import TempUser
 
 config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 MAIL = config.get("MAIL", None)
 # DB = config.get("DB", None)

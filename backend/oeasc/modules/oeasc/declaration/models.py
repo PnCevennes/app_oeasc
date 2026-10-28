@@ -2,7 +2,6 @@
 modeles alerte OEASC
 """
 
-from flask import current_app
 from pypnusershub.db.models import User
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
@@ -24,8 +23,7 @@ from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
 
 from geoalchemy2 import Geometry
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 # les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0

@@ -4,7 +4,6 @@ Fonctions pour récupérer les géometries
 
 from sqlalchemy import and_, text, select, func
 from sqlalchemy.orm import Session
-from flask import current_app
 
 # from geojson import FeatureCollection
 
@@ -16,8 +15,7 @@ from .models import (
 )
 from .schema import LAreasSchema, VMAreasSimplesSchema
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 def get_id_type(type_code):

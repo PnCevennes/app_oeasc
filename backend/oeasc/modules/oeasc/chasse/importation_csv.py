@@ -61,7 +61,7 @@ from oeasc.modules.oeasc.chasse.schema import (
 )
 
 config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 # --- Contournement d'un coût inutile de marshmallow_sqlalchemy 1.4.1 ---
 # _cast_data() est appelé à CHAQUE schema.load() et invoque

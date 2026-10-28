@@ -1,5 +1,4 @@
 from sqlalchemy import text, func, select
-from flask import current_app
 from ..nomenclature import nomenclature_oeasc
 from utils_flask_sqla.generic import GenericTable
 from ..declaration.models import TDeclaration, TDegat
@@ -7,8 +6,7 @@ from ..commons.models import TNomenclaturesOeasc
 
 cache_generic_table = {}
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 def data_to_chart_data(data):

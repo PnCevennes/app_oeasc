@@ -2,7 +2,6 @@
 modele chasse
 """
 
-from flask import current_app
 from utils_flask_sqla.serializers import serializable
 from utils_flask_sqla_geo.serializers import geoserializable
 from geoalchemy2 import Geometry
@@ -28,8 +27,7 @@ from ..commons.models import TEspeces, TSecteurs, TNomenclaturesOeasc
 # from sqlalchemy.ext.hybrid import hybrid_property
 # from typing import Optional, List
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 # les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0

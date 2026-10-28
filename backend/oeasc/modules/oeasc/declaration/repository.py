@@ -38,15 +38,11 @@ from oeasc.modules.oeasc.nomenclature import (
 from oeasc.modules.oeasc.user.repository import get_user, get_id_organismes
 
 config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 def get_config():
     return current_app.config
-
-
-def get_db():
-    return get_config()["DB"]
 
 
 def get_label_statut_declaration(code_statut):
@@ -93,7 +89,7 @@ def get_fiche_declaration(id_declaration, type_export=None, session=None):
     for filtre in get_filtres_droits_declarations(user):
         stmt = stmt.where(filtre)
 
-    result = get_db().session.execute(stmt).fetchone()
+    result = DB.session.execute(stmt).fetchone()
 
     if result is None:
         dict_result = {}
@@ -109,7 +105,7 @@ def get_fiche_declaration(id_declaration, type_export=None, session=None):
         )
 
         stmt_degats = get_stmt_degats(id_declaration)
-        degats_declarations = get_db().session.execute(stmt_degats).fetchall()
+        degats_declarations = DB.session.execute(stmt_degats).fetchall()
 
         # on rassemble tous les dégats essence qui ont le même id_degat
         degats_dict = {}

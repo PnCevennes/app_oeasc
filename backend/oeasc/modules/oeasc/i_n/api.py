@@ -28,8 +28,7 @@ grd = GenericRouteDefinitions()
 
 bp = Blueprint("in_api", __name__)
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 definitions = {
     "realisation": {

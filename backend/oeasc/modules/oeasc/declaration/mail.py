@@ -18,16 +18,14 @@ from oeasc.modules.oeasc.declaration.all_stmt import (
     stmt_liste_declarations_a_renouveler,
 )
 
+from oeasc.utils.env import db as DB
+
 config = LocalProxy(lambda: current_app.config)
 mail = LocalProxy(lambda: config["MAIL"])
 
 
 def get_config():
     return current_app.config
-
-
-def get_db():
-    return current_app.config["DB"]
 
 
 def generate_token(user_id, declaration_id):
@@ -216,7 +214,6 @@ def relance_toutes_declarations():
 
     vars_declaration = get_variables_declaration()
     statut_declaration = vars_declaration["STATUT_DECLARATION"]
-    DB = get_db()
 
     stmt_renew = stmt_liste_declarations_a_renouveler(statut_declaration)
 
@@ -304,7 +301,6 @@ def send_mail_actualisation_declaration(declaration, change_statut=True):
     nb_max_renouvellement = vars_declaration["NB_RELANCES_MAX"]
     statut_declaration = vars_declaration["STATUT_DECLARATION"]
     liste_mails_animateurs = vars_declaration["LISTE_MAILS_ANIMATEURS"]
-    DB = get_db()
 
     token = generate_token(
         int(declaration["id_declarant"]), int(declaration["id_declaration"])

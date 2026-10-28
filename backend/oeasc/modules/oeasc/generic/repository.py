@@ -21,7 +21,7 @@ class unaccent(ReturnTypeFromArgs):
 
 
 config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 # les routes pour accéder aux modèles de la base de données
 definitions = GenericRouteDefinitions()

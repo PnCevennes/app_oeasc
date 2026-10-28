@@ -51,15 +51,13 @@ from .models import TDeclaration
 from ..declaration.schema import TForetSchema
 from oeasc.ref_geo_oeasc.schema import LAreasSchema, VMAreasSimplesSchema
 
+from oeasc.utils.env import db as DB
+
 bp = Blueprint("declaration_api", __name__)
 
 
 def get_config():
     return current_app.config
-
-
-def get_db():
-    return get_config()["DB"]
 
 
 ######################################################################################
@@ -183,7 +181,7 @@ def all_areas_declaration():
     )
     stmt = get_stmt_all_areas_declaration(id_declaration, list_id_types)
 
-    data = get_db().session.execute(stmt).scalars().all()
+    data = DB.session.execute(stmt).scalars().all()
     geojson_areas = VMAreasSimplesSchema(
         many=True, as_geojson=True, include_geom=True
     ).dump(data)
@@ -312,7 +310,7 @@ def check_token_declaration():
         }, 400
 
     stmt = stmt_one_declaration_a_renouveler(id_declaration)
-    result = get_db().session.execute(stmt).fetchone()
+    result = DB.session.execute(stmt).fetchone()
     if not result:
         return {"valid": False, "error": "Déclaration non trouvée"}, 404
 
@@ -360,7 +358,7 @@ def degats():
     stmt = stmt.where(
         TDeclaration.statut == variables_declarations["STATUT_DECLARATION"]["Active"]
     )
-    result = get_db().session.execute(stmt).mappings().all()
+    result = DB.session.execute(stmt).mappings().all()
     if not result:
         return []
     data = [dict(row) for row in result]
@@ -589,13 +587,13 @@ def duplicate_declaration():
         stmt_update_statut = stmt_change_statut_declaration(
             id_declaration, statut_declaration.get("Archivée")
         )
-        get_db().session.execute(stmt_update_statut)
-        get_db().session.commit()
+        DB.session.execute(stmt_update_statut)
+        DB.session.commit()
 
         send_mail_alerte_renouvellement_declaration(new_declaration)
 
     except Exception as e:
-        get_db().session.rollback()
+        DB.session.rollback()
         response.add_error(
             user_message="Erreur lors de l'archivage de la déclaration originale",
             system_error=str(e),
@@ -657,15 +655,15 @@ def cloture_declaration():
                 statut=statut_declaration.get("Archivée"),
             )
         )
-        get_db().session.execute(stmt)
-        get_db().session.commit()
+        DB.session.execute(stmt)
+        DB.session.commit()
         response.message = "Déclaration clôturée avec succès"
         post_data["url_declaration"] = (
             f"{get_config()['URL_FRONTEND']}#/declaration/voir_declaration/{id_declaration}"
         )
         send_mail_alerte_cloture_declaration(post_data)
     except Exception as e:
-        get_db().session.rollback()
+        DB.session.rollback()
         response.add_error(
             user_message="Erreur lors de la clôture de la déclaration",
             system_error=str(e),
@@ -690,9 +688,9 @@ def delete_declaration(id_declaration):
         TDeclaration.id_declaration == id_declaration,
     )
     # Exécution de la requête sur la session de base de données
-    get_db().session.execute(stmt)
+    DB.session.execute(stmt)
     # Validation de la suppression en base
-    get_db().session.commit()
+    DB.session.commit()
 
     # Retourne "ok" pour confirmer la suppression
     return "ok"
@@ -721,8 +719,8 @@ def validate_declaration():
         .where(TDeclaration.id_declaration == id_declaration)
         .values(b_valid=b_valid, statut=1 if b_valid else 0)
     )
-    get_db().session.execute(stmt)
-    get_db().session.commit()
+    DB.session.execute(stmt)
+    DB.session.commit()
 
     # if not id_declaration:
     #     return {"error": "ID de déclaration manquant"}, 400
@@ -857,7 +855,7 @@ def export_declarations():
     )
     # Récupère les données à exporter selon l'utilisateur courant et le type d'export
     stmt_data = get_stmt_for_declarations_export(type_file=type_file, type_out=type_out)
-    result_data = get_db().session.execute(stmt_data)
+    result_data = DB.session.execute(stmt_data)
 
     # Exécution de la requête
     rows = result_data.fetchall()

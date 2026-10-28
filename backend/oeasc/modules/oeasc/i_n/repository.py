@@ -6,11 +6,9 @@ import math
 from statsmodels.regression.linear_model import OLS
 
 # from utils_flask_sqla.generic import GenericQuery
-from flask import current_app
 from .all_stmt import stmt_results
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 student = [0, 0, 12.71, 4.30, 3.18, 2.78, 2.57]
 

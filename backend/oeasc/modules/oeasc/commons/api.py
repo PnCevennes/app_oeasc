@@ -42,7 +42,7 @@ from ..nomenclature import nomenclature_oeasc_types
 grd = GenericRouteDefinitions()
 
 config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 definitions = {
     "content": {

@@ -4,14 +4,12 @@ ex: utils.print_date pour afficher la date au format jour-mois-année
 """
 
 from dateutil import parser
-from flask import current_app
 
 # from .repository import get_db
 from .declaration.repository import get_foret_type
 from .declaration.utils import get_areas_from_type_code
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 def print_date(s_date):

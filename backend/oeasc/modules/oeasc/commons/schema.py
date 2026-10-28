@@ -2,29 +2,25 @@
 Schema marshmallow pour la sérialisation et désérialisation des données
 """
 
-from flask import current_app
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 from marshmallow_sqlalchemy.fields import Nested, fields
 from marshmallow import EXCLUDE
 from .models import *
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 """
 pour mapper la vue user de oeasc_commons
 """
 
-from flask import current_app
 
 # from sqlalchemy.orm import column_property , relationship, Mapped
 # from sqlalchemy import select, String
 # from utils_flask_sqla.serializers import serializable
 
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 class TTagsSchema(SQLAlchemyAutoSchema):

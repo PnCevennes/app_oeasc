@@ -93,7 +93,7 @@ from pypnnomenclature.models import (
 
 
 config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 SESSION = session
 # chemin du dossier où seront stockés les rapports d'erreurs à la fin du traitement. Si le dossier n'existe pas, il sera créé.
 DOSSIER_RAPPORTS = Path(config["ROOT_DIR"]) / "static/erreurs_import_chasse/"

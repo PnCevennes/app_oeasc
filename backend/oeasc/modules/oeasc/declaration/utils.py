@@ -5,7 +5,6 @@ from oeasc.modules.oeasc.nomenclature import (
     get_nomenclature,
 )
 from oeasc.ref_geo_oeasc.models import VMAreasSimples
-from flask import current_app
 from sqlalchemy import func
 from .models import TForet
 from .schema import TForetSchema
@@ -13,8 +12,7 @@ from pypnusershub.db.models import User
 from pypnusershub.schemas import UserSchema
 from sqlalchemy import select
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 def get_areas_from_type_code(areas, type_code):

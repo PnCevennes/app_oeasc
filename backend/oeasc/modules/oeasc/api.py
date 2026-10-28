@@ -9,8 +9,7 @@ from utils_flask_sqla.response import json_resp
 
 # from .repository import get_db
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 bp = Blueprint("oeasc_api", __name__)
 

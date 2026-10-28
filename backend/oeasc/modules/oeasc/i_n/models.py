@@ -2,7 +2,6 @@
 IN models
 """
 
-from flask import current_app
 
 from sqlalchemy import Table, Column, Integer, Unicode, Boolean, Date, ForeignKey, Float
 from sqlalchemy import and_, select, func, case
@@ -10,8 +9,7 @@ from sqlalchemy.orm import relationship, column_property, Mapped
 from utils_flask_sqla.serializers import serializable
 from ..commons.models import TSecteurs, TEspeces
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 
 # les class heritent de CustomModel plutôt que de DB.Model pour ajouter allow_unmapped pour la migration vers sqlalchemy 2.0

@@ -48,8 +48,7 @@ from oeasc.modules.oeasc.chasse.models import (
 )
 from oeasc.modules.oeasc.commons.models import TEspeces, TNomenclaturesOeasc
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 # mnémonique du type de nomenclature « mode de chasse » (label_default : Affut / Approche / Battue / Individuel)
 MNEMONIQUE_MODE_CHASSE = "OEASC_MOD_CHASSE"

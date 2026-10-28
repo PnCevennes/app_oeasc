@@ -16,8 +16,7 @@ from .models import (
     TRealisationsChasse,
 )
 
-config = current_app.config
-DB = config["DB"]
+from oeasc.utils.env import db as DB
 
 # cache du mapping de la vue v_custom_result_attribution : la réflexion (introspection du
 # schéma en base) est coûteuse (vue avec 7 jointures) et n'a pas besoin d'être refaite à
