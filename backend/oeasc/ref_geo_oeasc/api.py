@@ -3,7 +3,7 @@ api pour la table ref_geo
 """
 
 # from geojson import FeatureCollection
-from sqlalchemy import text, select
+from sqlalchemy import bindparam, text, select
 from flask import Blueprint, request, current_app
 from utils_flask_sqla.response import json_resp
 
@@ -332,8 +332,10 @@ def get_areas_centroid_post(data_type):
         sql_text = text("SELECT ST_X(c),ST_Y(c) \
             FROM (SELECT ST_CENTROID(ST_UNION(geom_4326)) as c \
             FROM ref_geo.l_areas \
-            WHERE id_area in :areas )a").bindparams(areas=t)
-        result = DB.session.execute(sql_text).first()
+            WHERE id_area IN :areas )a").bindparams(
+            bindparam("areas", expanding=True)
+        )
+        result = DB.session.execute(sql_text, {"areas": list(t)}).first()
 
         # On inverse l'ordre des coordonnées pour obtenir [latitude, longitude].
         v = [result[1], result[0]]
