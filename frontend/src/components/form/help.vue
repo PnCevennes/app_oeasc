@@ -16,7 +16,6 @@ qui les charge directement depuis un fichier statique. On le garde le temps de t
           <v-card-text>
             <oeasc-content
               :code="code"
-              :containerClassIn="'content-help'"
             ></oeasc-content>
           </v-card-text>
         </v-card>

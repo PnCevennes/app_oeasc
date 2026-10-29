@@ -206,7 +206,6 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
       <oeasc-content
         :meta="configForm.meta"
         :code="configForm.code"
-        :containerClassIn="'content-container-form'"
       ></oeasc-content>
     </template>
     <template v-else-if="configForm.type === 'button'">

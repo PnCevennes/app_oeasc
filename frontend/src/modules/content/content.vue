@@ -1,6 +1,6 @@
 <template>
   <div
-    :class="{ 'content-page': isPage, 'content-appercu': this.nbLines }"
+    :class="{ 'content-page': isPage }"
     v-if="bInitialized"
   >
     <!-- @mouseover="onMouseOver()" @mouseout="onMouseOut()" -->
@@ -132,7 +132,6 @@
 // Chargement des contenu pour les type = "page" défini dans le index.js
 
 import { defineAsyncComponent } from 'vue';
-import { config } from '@/config/config.js';
 import components from './config/components';
 
 import './content.css';
@@ -165,16 +164,7 @@ export default {
     this.renderError = true;
     return false;
   },
-  props: [
-    'code',
-    'containerClassIn',
-    'meta',
-    'nbLines',
-    'displayContentDate',
-    'link',
-    'page',
-    'tagNames',
-  ],
+  props: ['code', 'meta', 'displayContentDate', 'page'],
   watch: {
     // Navigation entre deux pages /actualite/:code qui réutilisent ce composant.
     // Ne rien faire quand le code vient d'une prop (liste d'actualités) ou quand on QUITTE la
@@ -211,12 +201,8 @@ export default {
     },
   },
   data: () => ({
-    mouseIn: true,
-    dp: null,
     content: null,
     bEditContents: false,
-    containerClass: {},
-    mainConfig: config,
     dialogImg: false,
     dialogDoc: false,
     configContentForm,
@@ -226,14 +212,6 @@ export default {
     msgSnack: null,
     bInitialized: false,
     renderError: false,
-    contentValues: {
-      id_espece: null,
-      espece: null,
-      id_zone_indicative: [],
-      id_zone_cynegetique: [],
-      id_secteur: [],
-      id_saison: null,
-    },
   }),
   methods: {
     formatDateFr,
@@ -296,14 +274,7 @@ export default {
 
     initContent() {
       if (!this.getCode()) {
-        const content = {};
-        if (this.tagNames) {
-          const configStoreTag = this.$store.getters.configStore('commonsTag');
-          content.tags = this.$store.getters[configStoreTag.storeNames].filter((t) => {
-            return this.tagNames.includes(t.nom_tag);
-          });
-        }
-        this.setContent(content);
+        this.setContent({});
         return;
       }
 

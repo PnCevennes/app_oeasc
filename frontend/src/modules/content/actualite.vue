@@ -10,7 +10,6 @@
   - Utilise les composants Vuetify <v-btn> et <v-icon> pour le style et l'ergonomie du bouton d'ajout.
 
   - La propriété "displayContentDate" permet d'afficher la date de chaque actualité.
-    La propriété "link" définit le type de lien associé au contenu.
 
   - La gestion des droits d'accès est réalisée via le getter "$store.getters.droitMax" provenant du store Vuex.
 -->
@@ -35,7 +34,6 @@
         :key="content.code"
         displayContentDate="true"
         :code="content.code"
-        link="actualite"
       ></oeasc-content>
     </div>
   </div>

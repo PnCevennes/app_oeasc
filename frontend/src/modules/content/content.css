@@ -8,11 +8,6 @@
   width: 1000px;
 }
 
-.content-appercu {
-  max-height: 300px;
-  overflow: hidden;
-  box-shadow: inset 4px 2px -2px black;
-}
 
 /* .content, */
 .edit-content {
