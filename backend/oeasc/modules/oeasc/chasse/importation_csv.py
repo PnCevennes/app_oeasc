@@ -531,13 +531,26 @@ def uniformise_date(serie):
         "%Y/%m/%d %H:%M",
         "%Y.%m.%d %H:%M",
     ]
+    # Chaque format est essayé valeur par valeur : un fichier qui mélange
+    # plusieurs formats n'invalide pas les dates convertibles.
+    resultat = pd.Series(None, index=serie.index, dtype=object)
+    restantes = serie.notna()
     for fmt in formats:
+        if not restantes.any():
+            break
         try:
-            return pd.to_datetime(serie, format=fmt).dt.strftime("%Y-%m-%d")
+            converties = pd.to_datetime(serie[restantes], format=fmt, errors="coerce")
         except (ValueError, TypeError):
             continue
-    print(f"Impossible de convertir la date '{serie}' avec les formats connus.")
-    return None
+        ok = converties.notna()
+        resultat.loc[ok[ok].index] = converties[ok].dt.strftime("%Y-%m-%d")
+        restantes.loc[ok[ok].index] = False
+    if restantes.any():
+        print(
+            f"Impossible de convertir {restantes.sum()} date(s) avec les formats connus, "
+            f"ex. '{serie[restantes].iloc[0]}'."
+        )
+    return resultat
 
 
 def poid_vide_cerf(poids_entier_in):
