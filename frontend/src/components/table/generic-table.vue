@@ -46,7 +46,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn
-            color="green darken-1"
+            color="green-darken-1"
             variant="text"
             @click="
               deleteRow(idToDelete);
@@ -58,7 +58,7 @@
           </v-btn>
 
           <v-btn
-            color="green darken-1"
+            color="green-darken-1"
             variant="text"
             @click="
               idToDelete = null;
@@ -117,10 +117,10 @@
         :headers="configTable.headers"
         :items="filteredItems"
         multi-sort
-        :dense="configTable.dense"
+        :density="configTable.dense ? 'compact' : 'default'"
         :loading="!configTable.items"
         loading-text="Chargement en cours... merci de patienter"
-        :footer-props="{ 'items-per-page-options': [20, 50, 100] }"
+        :items-per-page-options="[20, 50, 100]"
         @update:options="onUpdateOptions"
       >
         <template v-slot:body.prepend>
@@ -131,11 +131,11 @@
             >
               <v-text-field
                 v-if="!header.noSearch"
-                dense
+                density="compact"
                 v-model="searchs[header.value]"
                 type="text"
               ></v-text-field>
-              <v-tooltip top>
+              <v-tooltip location="top">
                 <template v-slot:activator="{ props: tooltipActivatorProps }">
                   <v-btn
                     v-bind="tooltipActivatorProps"
@@ -195,7 +195,7 @@
               <div v-if="bEditCell(props)">
                 <v-btn
                   v-if="value != 'actions'"
-                  small
+                  size="small"
                   @click="edit(value, props.item[configTable.idFieldName])"
                 >
                   <!-- HTML uniquement si la colonne le déclare (html: true) ET échappe ses valeurs -->
@@ -210,7 +210,7 @@
                 <!-- si value == true  ou si value == false on affiche un icone -->
                 <v-icon
                   v-if="cell === true || cell === false"
-                  small
+                  size="small"
                   :color="cell ? 'success' : 'error'"
                 >
                   {{ cell ? 'mdi-check-bold' : 'mdi-close-thick' }}

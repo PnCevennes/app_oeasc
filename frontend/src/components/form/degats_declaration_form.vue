@@ -297,7 +297,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                   <th v-if="item_type_degat.cd_nomenclature !== 'P/C'">
                     <div>
                       <v-btn
-                        small
+                        size="small"
                         color="success"
                         :disabled="
                           !degatEssence.essence ||
@@ -311,7 +311,7 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                         <v-icon>mdi-check</v-icon>
                       </v-btn>
                       <v-btn
-                        small
+                        size="small"
                         color="error"
                         @click="cancelDegatEssence(item_type_degat.id_nomenclature)"
                       >
@@ -345,8 +345,8 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                 <tr>
                   <td colspan="5">
                     <v-btn
-                      color="light-green lighten-3"
-                      small
+                      color="light-green-lighten-3"
+                      size="small"
                       style="text-transform: none"
                       @click="displayDegatEssenceForm(item_type_degat.id_nomenclature)"
                     >

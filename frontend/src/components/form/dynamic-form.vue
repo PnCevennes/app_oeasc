@@ -217,7 +217,7 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
       ></oeasc-content>
     </template>
     <template v-else-if="configForm.type === 'button'">
-      <v-tooltip bottom>
+      <v-tooltip location="bottom">
         <template v-slot:activator="{ props: tooltipActivatorProps }">
           <v-btn
             v-bind="tooltipActivatorProps"
