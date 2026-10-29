@@ -21,19 +21,18 @@ const processTableConfig = (configStore) => {
   };
 
   const headerDefs = {};
+  // rang de chaque colonne dans configStore.columns (évite un indexOf à chaque comparaison)
+  const columnOrder = configStore.columns
+    ? new Map(configStore.columns.map((col, i) => [col, i]))
+    : null;
   // transformation des defintion de configStore.defs en tableau de valeurs
   for (const [keyCol, col] of Object.entries(configStore.defs)
     // On ne garde que les colonnes qui sont dans configStore.columns si elles existent
     // et trie les colonnes dans l'ordre de configStore.columns
     .filter(([keyCol]) => !configStore.columns || configStore.columns.includes(keyCol))
     // trie les colonnes dans l'ordre de configStore.columns
-    .sort((a, b) =>
-      configStore.columns
-        ? configStore.columns.indexOf(b[0]) - configStore.columns.indexOf(a[0]) < 0
-          ? 1
-          : -1
-        : 0
-    )) {
+    .sort(([a], [b]) => (columnOrder ? columnOrder.get(a) - columnOrder.get(b) : 0))
+  ) {
     headerDefs[keyCol] = {
       ...col,
       text: col.text || col.label,
