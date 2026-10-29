@@ -1576,13 +1576,9 @@ def etape__integration_zones_dans_df(df, apiResponse):
 def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
     """Retrouve les id_lieu_tir_synonyme correspondant au lieu dit de tir saisi dans le csv d'importation en comparant avec les lieux de tir synonymes de la base de données.
      La comparaison se fait en vérifiant que le nom du lieu dit saisi dans le csv correspond au nom_lieu_tir_synonyme dans la base de données
-    Il y a plusieurs étapes dans cette comparaison: :
-    1. le lieu dit saisi est identique et est dans la même zone indicative
-    2. le lieu dit saisi est similaire et est dans la même zone indicative
-    3. le lieu dit saisi est identique et est dans une même zone cynegetique
-    4. le lieu dit saisi est similaire et est dans une même zone cynegetique
-    5. le lieu dit saisi est identique et est dans une même commune
-    6. le lieu dit saisi est similaire et est dans une même commune
+    La recherche se fait uniquement dans la zone cynégétique du tir (la ZI et la commune sont trop larges, risque de faux positifs) :
+    1. le lieu dit saisi est identique à un synonyme de la même zone cynegetique
+    2. le lieu dit saisi est similaire à un synonyme de la même zone cynegetique
 
     tous les cas  sont enregistrés dans un dict de bilan qui permettra d'augmenter le nombre de synonymes de lieux de tir dans la bdd.
     On y gardera dans ce dict les id_zone_indicative_affectee, id_zone_cynegetique_affectee et id_commune, latitude et longitude pour créer des nouveaux lieux dits à l'avenir.
@@ -1659,26 +1655,8 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
             df_lts[_col] = pd.to_numeric(df_lts[_col], errors="coerce")
 
         _EMPTY_LTS = df_lts.iloc[0:0]
-        _groups_zi = df_lts.groupby(
-            ["id_zi_lieu_tir", "nom_lieu_tir_synonyme"], sort=False
-        )
-        _groups_commune = df_lts.groupby(
-            ["id_area_commune_lieu_tir", "nom_lieu_tir_synonyme"], sort=False
-        )
         _groups_zc = df_lts.groupby(
             ["id_zc_lieu_tir", "nom_lieu_tir_synonyme"], sort=False
-        )
-        _names_by_zi = (
-            df_lts.groupby("id_zi_lieu_tir", sort=False)["nom_lieu_tir_synonyme"]
-            .apply(list)
-            .to_dict()
-        )
-        _names_by_commune = (
-            df_lts.groupby("id_area_commune_lieu_tir", sort=False)[
-                "nom_lieu_tir_synonyme"
-            ]
-            .apply(list)
-            .to_dict()
         )
         _names_by_zc = (
             df_lts.groupby("id_zc_lieu_tir", sort=False)["nom_lieu_tir_synonyme"]
@@ -1746,13 +1724,11 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
             ]
 
         # parcours de df pour trouver l'id_lieu_tir_synonyme correspondant à lieu_tir_txt.
-        # Recherche en cascade : nom exact puis similaire dans la ZI, puis dans la commune, puis dans la ZC.
-        # Les correspondances trouvées dans la ZC ne sont pas affectées (trop de risque d'erreur), seulement signalées en commentaire.
-        # NB : une zone sans synonyme n'arrête pas la recherche, on passe au niveau suivant.
+        # Recherche en cascade dans la ZC uniquement : nom exact puis similaire.
+        # La ZI et la commune ne sont pas utilisées (trop de risque de faux positifs).
+        # NB : une ZC sans synonyme n'est pas une erreur, le tir finit en "AUCUNE" dans le bilan.
         for index, row in df.iterrows():
-            id_zone_indicative_realisee = row["id_zone_indicative_realisee"]
             id_zone_cynegetique_realisee = row["id_zone_cynegetique_realisee"]
-            id_commune = row["commune_id_area"]
             nom_parc_lieu_dit = row["lieu_tir_txt"]
             # nom du lieu dit d'origine en majuscules pour les commentaires
             nom_save_lieu_dit = (
@@ -1764,92 +1740,32 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                 continue
             numero_bracelet = row["numero_bracelet"]
 
-            # 1. nom exact dans la même ZI
-            df_result = _grp(_groups_zi, (id_zone_indicative_realisee, nom_parc_lieu_dit))
+            # 1. nom exact dans la même ZC
+            df_result = _grp(
+                _groups_zc, (id_zone_cynegetique_realisee, nom_parc_lieu_dit)
+            )
             if df_result.shape[0] >= 1:
                 synonyme = df_result.iloc[0]
                 affecter(index, synonyme)
                 if df_result.shape[0] == 1:
                     dict_bilan_synonymes[numero_bracelet] = entree_bilan(
-                        row, "EXACTE_ZI", "Nom exact retrouvé dans la ZI", synonyme
+                        row, "EXACTE_ZC", "Nom exact retrouvé dans la ZC", synonyme
                     )
                 else:
                     # plusieurs correspondances exactes : on prend la première et on le signale
                     liste_nom_lieu_tir_synonyme = df_result["nom_lieu_tir"].tolist()
                     df.at[
                         index, "commentaires_erreurs"
-                    ] += f"{df_result.shape[0]} correspondances trouvées dans les lieux de tir synonymes pour le lieu dit {nom_save_lieu_dit} dans la ZI: {liste_nom_lieu_tir_synonyme}"
+                    ] += f"{df_result.shape[0]} correspondances trouvées dans les lieux de tir synonymes pour le lieu dit {nom_save_lieu_dit} dans la ZC: {liste_nom_lieu_tir_synonyme}"
                     dict_bilan_synonymes[numero_bracelet] = entree_bilan(
                         row,
-                        "EXACTE_MULTIPLE_ZI",
-                        "Plusieurs noms exacts retrouvés dans la ZI",
+                        "EXACTE_MULTIPLE_ZC",
+                        "Plusieurs noms exacts retrouvés dans la ZC",
                         synonyme,
                     )
                 continue
 
-            # 2. nom similaire dans la même ZI
-            synonyme, meilleur_match = meilleur_similaire(
-                _groups_zi, _names_by_zi, id_zone_indicative_realisee, nom_parc_lieu_dit
-            )
-            if synonyme is not None and synonyme is not False:
-                affecter(index, synonyme)
-                df.at[
-                    index, "commentaires_erreurs"
-                ] += f"Lieu tir {nom_save_lieu_dit}: nom similaire trouvé dans la même ZI: {meilleur_match} "
-                dict_bilan_synonymes[numero_bracelet] = entree_bilan(
-                    row, "SIMILAIRE_ZI", "Nom similaire retrouvé dans la ZI", synonyme
-                )
-                continue
-
-            # 3. nom exact dans la même commune
-            df_result = _grp(_groups_commune, (id_commune, nom_parc_lieu_dit))
-            if df_result.shape[0] >= 1:
-                synonyme = df_result.iloc[0]
-                affecter(index, synonyme)
-                df.at[
-                    index, "commentaires_erreurs"
-                ] += f"Lieu tir {nom_save_lieu_dit}: Un même lieu dit a été trouvé dans la commune mais pas dans la ZI."
-                dict_bilan_synonymes[numero_bracelet] = entree_bilan(
-                    row,
-                    "EXACTE_COMMUNE",
-                    "Nom exact retrouvé dans la commune",
-                    synonyme,
-                )
-                continue
-
-            # 4. nom similaire dans la même commune
-            synonyme, meilleur_match = meilleur_similaire(
-                _groups_commune, _names_by_commune, id_commune, nom_parc_lieu_dit
-            )
-            if synonyme is not None and synonyme is not False:
-                affecter(index, synonyme)
-                df.at[
-                    index, "commentaires_erreurs"
-                ] += f" Lieu tir {nom_save_lieu_dit}: Nom similaire trouvé dans la commune: {meilleur_match}  mais pas dans la ZI. "
-                dict_bilan_synonymes[numero_bracelet] = entree_bilan(
-                    row,
-                    "SIMILAIRE_COMMUNE",
-                    "Nom similaire retrouvé dans la commune",
-                    synonyme,
-                )
-                continue
-
-            # 5. nom exact dans la même ZC : signalé mais non affecté
-            df_result = _grp(
-                _groups_zc, (id_zone_cynegetique_realisee, nom_parc_lieu_dit)
-            )
-            if df_result.shape[0] >= 1:
-                df.at[index, "id_lieu_tir_synonyme"] = None
-                df.at[index, "nom_lieu_tir_synonyme"] = None
-                df.at[
-                    index, "commentaires_erreurs"
-                ] += f"Lieu tir {nom_save_lieu_dit} déclaré: Un même lieu dit a été trouvé dans la même ZC mais pas dans la ZI."
-                dict_bilan_synonymes[numero_bracelet] = entree_bilan(
-                    row, "EXACTE_ZC", "Nom exact retrouvé dans la ZC", df_result.iloc[0]
-                )
-                continue
-
-            # 6. nom similaire dans la même ZC : signalé mais non affecté
+            # 2. nom similaire dans la même ZC
             synonyme, meilleur_match = meilleur_similaire(
                 _groups_zc,
                 _names_by_zc,
@@ -1857,20 +1773,19 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                 nom_parc_lieu_dit,
             )
             if synonyme is not None and synonyme is not False:
-                df.at[index, "id_lieu_tir_synonyme"] = None
-                df.at[index, "nom_lieu_tir_synonyme"] = None
+                affecter(index, synonyme)
                 df.at[
                     index, "commentaires_erreurs"
-                ] += f"Lieu tir {nom_save_lieu_dit} déclaré: Nom similaire trouvé dans la ZC: {meilleur_match}  mais pas dans la ZI."
+                ] += f"Lieu tir {nom_save_lieu_dit}: nom similaire trouvé dans la même ZC: {meilleur_match} "
                 dict_bilan_synonymes[numero_bracelet] = entree_bilan(
                     row, "SIMILAIRE_ZC", "Nom similaire retrouvé dans la ZC", synonyme
                 )
                 continue
 
-            # 7. aucune correspondance : erreur de saisie ou lieu dit absent de la bdd (à ajouter comme synonyme)
+            # 3. aucune correspondance : erreur de saisie ou lieu dit absent de la bdd (à ajouter comme synonyme)
             df.at[
                 index, "commentaires_erreurs"
-            ] += f"Aucun lieu de tir synonyme trouvé pour le lieu dit {nom_save_lieu_dit} dans la ZI, ZC ou la commune. "
+            ] += f"Aucun lieu de tir synonyme trouvé pour le lieu dit {nom_save_lieu_dit} dans la ZC. "
             dict_bilan_synonymes[numero_bracelet] = entree_bilan(
                 row, "AUCUNE", "Aucun nom similaire retrouvé"
             )
