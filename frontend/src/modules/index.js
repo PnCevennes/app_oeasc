@@ -20,7 +20,6 @@ import {
 import { ROUTE as sylviculture_routes } from './sylviculture';
 import { ROUTE as content_routes, STORE as content_store } from './content';
 import { ROUTE as declaration_routes, STORE as declaration_store } from './declaration';
-import { ROUTE as test_routes } from './test';
 import { ROUTE as restitution_routes, STORE as restitution_store } from './restitution';
 import { ROUTE as restitution2_routes, STORE as restitution2_store } from './restitution2';
 import { ROUTE as page_routes } from './page';
@@ -36,7 +35,6 @@ const MODULES_ROUTES = [
   ...chasse_routes,
   ...content_routes,
   ...declaration_routes,
-  ...test_routes,
   ...page_routes,
   ...restitution_routes,
   ...restitution2_routes,
