@@ -329,10 +329,21 @@ export default {
       } catch (err) {
         console.error('pollStatus:', err);
         // on retente quelques instants plus tard plutôt que d'abandonner
+        // abandon après 20 échecs consécutifs (~1 min) au lieu de boucler indéfiniment
+        this.pollFailures = (this.pollFailures || 0) + 1;
+        if (this.pollFailures >= 20) {
+          this.pollFailures = 0;
+          this.stopPolling();
+          this.message = 'Suivi de l’import interrompu : serveur injoignable.';
+          this.error = true;
+          this.uploading = false;
+          return;
+        }
         this.pollTimer = setTimeout(() => this.pollStatus(), 3000);
         return;
       }
 
+      this.pollFailures = 0;
       if (!res || res.success === false || !res.import_status) {
         this.message = (res && res.user_message) || "Suivi de l'import indisponible.";
         this.error = true;

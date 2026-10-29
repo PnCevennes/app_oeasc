@@ -332,13 +332,10 @@ export default {
 
     const actions = {};
 
-    actions[configStore.count] = ({ getters, commit }) => {
-      return new Promise((resolve) => {
-        getters;
-        apiRequest('GET', `${api}s`, { params: { count: true } }).then((count) => {
-          commit(configStore.count, count);
-          resolve(count);
-        });
+    actions[configStore.count] = ({ commit }) => {
+      return apiRequest('GET', `${api}s`, { params: { count: true } }).then((count) => {
+        commit(configStore.count, count);
+        return count;
       });
     };
 
@@ -355,11 +352,7 @@ export default {
         const objList = getters[storeNames];
         // on vérifie si les données sont déjà chargées
         if (objList && objList.length && loaded && !options.notCommit) {
-          if (options) {
-            // on vérifie si les options sont définies
-            resolve(getters[configStore.find](options));
-          }
-          resolve(objList); // on retourne les données du cache
+          resolve(getters[configStore.find](options)); // données du cache, filtrées par les options
           return;
         }
         // si apis finit par un / on le supprime pour éviter les doublons
@@ -444,7 +437,9 @@ export default {
           // const configStore = getters.configStore(storeName);
           /** verification des arguments */
           let error;
-          if (['PATCH', 'GET', 'DELETE'].includes(requestType) && !value) {
+          if (['PATCH', 'GET', 'DELETE'].includes(requestType) &&
+            (value === null || value === undefined)
+          ) {
             error = `genericAction Error :  pas d'id fournie pour une requête ${requestType}`;
           }
           if (['PATCH', `POST`].includes(requestType) && !postData) {
@@ -595,6 +590,7 @@ export default {
           },
           (error) => {
             console.error(`error in request ${api} : ${error}`);
+            commit('removePending', api); // sinon la requête échouée resterait réutilisée
             reject(error);
           }
         );

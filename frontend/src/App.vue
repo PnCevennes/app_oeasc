@@ -144,69 +144,14 @@ export default {
     };
   },
 
-  watch: {
-    $route() {
-      // si changement de page on lance la fonction process
-      this.process();
-    },
-  },
-
-  methods: {
-    process() {
-      this.loading = true;
-      return this.$store
-        .dispatch('testConnexion', {})
-        .then(
-          // verifie si l'utilisateur est connecté
-          (user) => {
-            this.$store.commit('user', user); // met à jour les données de l'utilisateur
-            this.checkRigths(); //
-            // titre
-            this.setTitle();
-            return user;
-          },
-          (error) => {
-            // si erreur on déconnecte l'utilisateur
-            this.$store.commit('user', {});
-            this.checkRigths();
-            // titre
-            this.setTitle();
-            // rethrow to allow callers to handle the error if needed
-            throw error;
-          }
-        )
-        .finally(() => {
-          this.loading = false;
-        });
-    },
-    setTitle() {
-      // modifie le titre de la page
-      const title = this.$route.meta.title || this.$route.meta.label;
-      document.title = title ? `OEASC - ${title}` : 'OEASC';
-    },
-    checkRigths() {
-      // vefifie l'accès en fonction de la valeur access dans le index.js de chaque module
-      const access = this.$route.meta.access;
-      const droitMax = this.$store.getters.droitMax;
-
-      if (!access) {
-        return;
-      }
-
-      if (access > droitMax) {
-        // si les droit ne sont pas suffisant on redirige vers la page de login
-        this.$router.push({
-          name: 'user.login',
-          query: { redirect: this.$route.fullPath },
-        });
-      }
-    },
-  },
   // permet de garder les données de l'utilisateur en cas de rechargement de la page
   // notamment pour les droits d'accès et le menu espace utilisateur
   created: function () {
-    // a la creation de la page on lance la fonction process.
-    this.process();
+    // la session et les droits sont gérés par les gardes du routeur (router/guards.js) :
+    // on attend la fin de la navigation initiale avant d'afficher l'application
+    this.$router.isReady().then(() => {
+      this.loading = false;
+    });
   },
 };
 </script>

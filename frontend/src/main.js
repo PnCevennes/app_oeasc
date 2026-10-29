@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import router from '@/router';
+import { installGuards } from '@/router/guards.js';
 import store from '@/store/store';
 
 import vuetify from '@/plugins/vuetify'; // path to vuetify export
@@ -22,6 +23,7 @@ const app = createApp(App);
 app.config.compilerOptions.whitespace = 'condense';
 app.config.compilerOptions.isCustomElement = (tag) => tag === 'center';
 
+installGuards(router, store); // avant app.use(router) : la navigation initiale passe par les gardes
 app.use(router);
 app.use(store);
 app.use(session);

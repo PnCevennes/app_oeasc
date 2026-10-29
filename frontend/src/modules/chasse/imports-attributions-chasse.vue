@@ -336,10 +336,19 @@ export default {
       } catch (err) {
         // erreur réseau transitoire : on retente un peu plus tard
         console.error('pollStatus', err);
+        // abandon après 20 échecs consécutifs (~1 min) au lieu de boucler indéfiniment
+        this.pollFailures = (this.pollFailures || 0) + 1;
+        if (this.pollFailures >= 20) {
+          this.pollFailures = 0;
+          this.stopPolling();
+          this.echec('Suivi de l’import interrompu : serveur injoignable.');
+          return;
+        }
         this.pollTimer = setTimeout(() => this.pollStatus(), 3000);
         return;
       }
 
+      this.pollFailures = 0;
       if (!res || res.success === false || !res.import_status) {
         this.echec((res && res.user_message) || "Suivi de l'import indisponible.");
         return;

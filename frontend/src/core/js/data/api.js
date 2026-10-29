@@ -295,8 +295,10 @@ const simple_fetch = async (method, urlRelative, body = null, options = {}) => {
     const response = await fetch(url, configRequest);
 
     if (response.status === 401) {
-      // Rediriger vers login si la session Flask a expiré
-      window.location.href = '/login';
+      // Session Flask expirée : l'app est en hash history (et servie sous /front/), donc on
+      // change le hash vers la route SPA /login, pas l'URL serveur
+      const redirect = window.location.hash.replace(/^#/, '');
+      window.location.hash = `#/login${redirect && redirect !== '/login' ? `?redirect=${encodeURIComponent(redirect)}` : ''}`;
       return;
     }
 
