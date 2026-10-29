@@ -1,3 +1,14 @@
+/**
+ * Restitution (v1) — traitement des données côté client
+ *
+ * Utilisé pour les déclarations de dégâts (dataType 'declaration') : graphique, tableau et carte.
+ * Balise CMS : <restitution>. Pages CMS concernées : resultats.declarations (+ copies de travail).
+ *
+ * Ne pas confondre avec modules/restitution2 (v2, données server side, chasse uniquement, graphique seul).
+ * Les deux modules coexistent volontairement : la v2 ne couvre pas encore tableau, carte, nb_max ni cascades
+ * (voir doc/todo-restitution2.md).
+ */
+
 const ROUTE = [
   {
     path: '/restitution/test',

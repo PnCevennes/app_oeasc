@@ -36,8 +36,8 @@ const dynamicFormGroup = defineAsyncComponent(() => import('@/components/form/dy
  * - contentImg : Composant pour l'affichage des images de contenu.
  * - listePartenaire : Composant pour la liste des partenaires.
  * - actualiteBandeau : Affiche les 4 dernières actualités sur la page d'accueil.
- * - restitution : Composant pour la restitution des données.
- * - restitution2 : Variante du composant de restitution.
+ * - restitution : restitution v1, côté client (déclarations : graphique, tableau, carte).
+ * - restitution2 : restitution v2, côté serveur (chasse : graphique seul).
  * - dynamicForm : Composant pour la gestion des formulaires dynamiques.
  * - dynamicFormGroup : Composant pour la gestion des groupes de formulaires dynamiques.
  * - VBtn, VIcon, VRow, VCol : composants Vuetify utilisés directement dans le contenu CMS (balises

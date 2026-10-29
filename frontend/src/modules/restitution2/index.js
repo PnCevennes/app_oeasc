@@ -1,7 +1,11 @@
 /**
  * Restitution2
  *
- * nouvelle version 'server side'
+ * nouvelle version 'server side' (balise CMS : <restitution2>)
+ *
+ * Coexiste volontairement avec modules/restitution (v1, déclarations, client side) :
+ * la v2 ne remplace pas la v1 tant que tableau, carte, nb_max et cascades ne sont pas portés
+ * (voir doc/todo-restitution2.md). Page CMS concernée : chasse_restitution_gd_public.
  *
  * dataType
  *  - 'chasse' : données chasse (en cours)
