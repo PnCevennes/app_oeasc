@@ -57,7 +57,6 @@ from oeasc.modules.oeasc.chasse.models import (
 )
 from oeasc.modules.oeasc.chasse.schema import (
     TRealisationsChasseSchema,
-    TZoneIndicativesSchema,
 )
 
 config = current_app.config
@@ -1545,55 +1544,6 @@ def etape__integration_communes_dans_df(df, apiResponse):
         return pd.DataFrame(), apiResponse
 
 
-def etape__integration_zones_dans_df(df, apiResponse):
-    """Intégration des données sur les zones indicative avec leurs géométries dans la dataframe.
-    La jointure se fait avec l'id_zone_indicative_realisee qui est présent dans le dataframe
-    Pas utilisé pour l'instant mais pourrait permettre de vérifier qu'une latitude et longitude du lieu de tir se trouve
-    bien dans la zone indicative. Je garde ça sous le coude.
-    """
-
-    try:
-        liste_zone_indicative = df["id_zone_indicative_realisee"].to_list()
-        liste_zone_indicative = list(set(liste_zone_indicative))
-
-        with app.app_context():
-            stmt_zone_indicative = select(
-                TZoneIndicatives,
-                func.ST_AsGeoJSON(func.ST_Transform(TZoneIndicatives.geom, 4326)).label(
-                    "geom"
-                ),
-            ).where(TZoneIndicatives.id_zone_indicative.in_(liste_zone_indicative))
-            rows = DB.session.execute(
-                stmt_zone_indicative
-            ).all()  # retourne [(TZoneIndicatives, geom), ...]
-            liste = []
-            for area, geom_json in rows:
-                d = TZoneIndicativesSchema().dump(area)
-                d["geom"] = geom_json
-                liste.append(d)
-            df_zones_indicatives = pd.json_normalize(liste)
-
-            # df_zones_indicatives = df_zones_indicatives.set_index('id_zone_indicative')
-            df_zones_indicatives = df_zones_indicatives[["id_zone_indicative", "geom"]]
-
-            df_zones_indicatives = df_zones_indicatives.rename(
-                columns={"geom": "zi_geom"}
-            )
-            df_fusion = df.merge(
-                df_zones_indicatives,
-                left_on="id_zone_indicative_realisee",
-                right_on="id_zone_indicative",
-                how="left",
-            ).drop(columns=["id_zone_indicative"])
-            return df_fusion, apiResponse
-
-    except Exception as e:
-        user_message = "Une erreur est survenue lors de l'intégration des zones indicatives dans le dataframe. Veuillez vérifier que le fichier est au bon format et réessayer."
-        apiResponse.add_log(message=user_message, type_log="ERROR")
-        apiResponse.add_error(system_error=str(e), user_message=user_message)
-        return pd.DataFrame(), apiResponse
-
-
 def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
     """Retrouve les id_lieu_tir_synonyme correspondant au lieu dit de tir saisi dans le csv d'importation en comparant avec les lieux de tir synonymes de la base de données.
      La comparaison se fait en vérifiant que le nom du lieu dit saisi dans le csv correspond au nom_lieu_tir_synonyme dans la base de données
@@ -2154,7 +2104,7 @@ def traitement_import_realisation_chasse(
     elif update == "false":
         update = False
 
-    _TOTAL_ETAPES = 11
+    _TOTAL_ETAPES = 10
     _compteur = {"n": 0}
 
     def _progress(api, label=""):
@@ -2198,10 +2148,6 @@ def traitement_import_realisation_chasse(
         return apiResponse
     df, apiResponse = etape__integration_communes_dans_df(df, apiResponse)
     _progress(apiResponse, "Rapprochement des communes")
-    if apiResponse.success == False:
-        return apiResponse
-    df, apiResponse = etape__integration_zones_dans_df(df, apiResponse)
-    _progress(apiResponse, "Rapprochement des zones")
     if apiResponse.success == False:
         return apiResponse
     # dict_bilan_synonymes contiendra un bilan des correspondances trouvées entre les lieux dits saisis dans le csv et les lieux de tir synonymes de la bdd
