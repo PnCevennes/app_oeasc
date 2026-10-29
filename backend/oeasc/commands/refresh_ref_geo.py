@@ -172,17 +172,6 @@ def _get_oeasc_geom():
     return loads(row[0])
 
 
-def _create_gist_index(conn, table="l_areas_new"):
-    """Crée/rafraîchit l'index GIST sur la table après un chargement."""
-    cur = conn.cursor()
-    cur.execute(
-        f"CREATE INDEX IF NOT EXISTS ix_{table}_geom_tmp "
-        f"ON ref_geo.{table} USING GIST (geom)"
-    )
-    conn.commit()
-    cur.close()
-
-
 def _bulk_insert_areas(raw_conn, rows, chunksize=500):
     """
     Insère en masse dans ref_geo.l_areas_new.
@@ -660,7 +649,6 @@ def step_load_cadastres():
 
     raw_conn = _raw_conn()
     _bulk_insert_areas(raw_conn, rows)
-    _create_gist_index(raw_conn)
     raw_conn.close()
     LOG.info(f"  {len(rows)} cadastres insérés.")
     _report["volumes"]["cadastres"] = len(rows)
@@ -1010,7 +998,6 @@ def step_load_ug_onf():
 
     raw_conn = _raw_conn()
     _bulk_insert_areas(raw_conn, rows)
-    _create_gist_index(raw_conn)
     raw_conn.close()
     LOG.info(f"  {len(rows)} UG ONF insérées.")
     _report["volumes"]["ug_onf"] = len(rows)
@@ -1143,20 +1130,7 @@ def step_build_cor_area_intersect():
     """))
     db.session.commit()
 
-    # Index spatial sur l_areas_new pour accélérer les jointures
-    raw_conn = _raw_conn()
-    cur = raw_conn.cursor()
-    cur.execute(
-        "CREATE INDEX IF NOT EXISTS ix_l_areas_new_geom_build "
-        "ON ref_geo.l_areas_new USING GIST (geom)"
-    )
-    cur.execute(
-        "CREATE INDEX IF NOT EXISTS ix_l_areas_new_id_type "
-        "ON ref_geo.l_areas_new (id_type)"
-    )
-    raw_conn.commit()
-    cur.close()
-    raw_conn.close()
+    # Les index geom/id_type sont déjà copiés par LIKE ... INCLUDING ALL (étape 1)
 
     # Corriger les géométries invalides avant les opérations d'intersection
     n_invalid = db.session.execute(
