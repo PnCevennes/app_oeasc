@@ -1054,6 +1054,14 @@ def etape__verification_donnees_geochasse(df, apiResponse):
             "Le numéro de bracelet n'existe pas dans les attributions de la saison. ",
         )
 
+        # un bracelet ne peut être réalisé qu'une fois (index unique sur id_attribution) :
+        # toutes les lignes d'un bracelet en double sont écartées, sans deviner laquelle est la bonne.
+        _signaler(
+            df,
+            df.index.duplicated(keep=False) & df["id_attribution"].notna().to_numpy(),
+            "Le numéro de bracelet apparaît plusieurs fois dans le fichier. ",
+        )
+
         ########################################   TRAITEMENT DE L'ESPÈCE  ############################################
         # id_nomenclature_espece permet de retrouver la catégorie de l'espèce (FAON, BICHETTE, DAGUET etc..)
         df["id_nomenclature_espece"] = df["espece"].map(LISTE_NOMENCLATURE_ESPECE)
