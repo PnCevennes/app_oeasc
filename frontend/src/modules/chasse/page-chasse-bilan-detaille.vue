@@ -202,9 +202,7 @@
 </template>
 
 <script>
-import Highcharts from 'highcharts';
-import exportingInit from 'highcharts/modules/exporting';
-import offlineExporting from 'highcharts/modules/offline-exporting';
+import { Chart as highcharts } from '@/core/js/highcharts.js';
 import genericForm from '@/components/form/generic-form.vue';
 import camembert from '../../components/graph/camembert.vue';
 import graph_lignes_multiples from '../../components/graph/graph_lignes_multiples.vue';
@@ -212,10 +210,6 @@ import graph_bilan_evolution from './graph/graph_bilan_evolution.vue';
 import { apiRequest } from '@/core/js/data/api.js';
 import histogramme_comparatif from '../../components/graph/histogramme_comparatif.vue';
 import colonnes_empilees from '../../components/graph/colonnes_empilees.vue';
-
-// Modification de highcharts pour permettre l'export des graphiques
-exportingInit(Highcharts); // initialise le module export, doit être fait après l'import de highcharts
-offlineExporting(Highcharts); // initialise l'export coté client, doit être fait après l'import de highcharts
 
 export default {
   name: 'pageChasseBilanDetaille',

@@ -33,7 +33,7 @@
 import './content.css';
 import contentImg from './content-img';
 import marked from 'marked';
-import UtilsContent from './utils.js';
+import { formatDateFr } from '@/core/js/util/util.js';
 
 export default {
   name: 'actualites-bandeau',
@@ -68,7 +68,7 @@ export default {
               src: imgSrc || 'pages_degats_agricole_b_algoet.jpg',
               title: (title && title.textContent) || 'Pas de titre',
               to: `actualite/${content.code}`,
-              date: UtilsContent.displayDateFr(content.meta_create_date),
+              date: formatDateFr(content.meta_create_date),
             };
           });
       });

@@ -22,7 +22,7 @@
 
         <!-- affichage de la date de création et de modification pour les actu -->
         <div v-if="displayContentDate">
-          <i>Le {{ displayDate(content.meta_create_date) }}</i>
+          <i>Le {{ formatDateFr(content.meta_create_date) }}</i>
         </div>
 
         <!-- affichage du contenu -->
@@ -140,7 +140,7 @@ import configContentForm from './config/form-content';
 import configImgForm from './config/form-img';
 import configDocForm from './config/form-doc';
 import marked from 'marked';
-import { escapeHtml } from '@/core/js/util/util.js';
+import { escapeHtml, formatDateFr } from '@/core/js/util/util.js';
 
 import VRuntimeTemplate from 'vue3-runtime-template'; // pour l'affichage du contenu markdown dynamique
 
@@ -229,16 +229,9 @@ export default {
     },
   }),
   methods: {
+    formatDateFr,
     // onMouseOver() { // non utilisé
 
-    displayDate(date) {
-      if (!date) return '';
-      const d = new Date(date);
-      const day = String(d.getDate()).padStart(2, '0');
-      const month = String(d.getMonth() + 1).padStart(2, '0');
-      const year = d.getFullYear();
-      return `${day}/${month}/${year}`;
-    },
     getImg(event) {
       // attributs toujours entre guillemets et échappés : le snippet est ensuite compilé comme template Vue
       const attr = (name, val) => (val ? ` ${name}="${escapeHtml(val)}"` : '');

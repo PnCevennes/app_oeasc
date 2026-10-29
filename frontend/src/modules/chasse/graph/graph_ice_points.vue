@@ -42,18 +42,10 @@
 </template>
 
 <script>
-import Highcharts from 'highcharts';
-import exportingInit from 'highcharts/modules/exporting';
-import offlineExporting from 'highcharts/modules/offline-exporting';
-import { Chart as highcharts } from 'highcharts-vue';
+import Highcharts, { Chart as highcharts } from '@/core/js/highcharts.js';
 import { round } from '@/core/js/util/util.js';
 import { dataTxt, localisationTitle } from '../config/util.js';
 import { apiRequest } from '@/core/js/data/api.js';
-
-// Initialise le module d'exportation de Highcharts (permet l'export PNG, PDF, etc. depuis le menu du graphique)
-exportingInit(Highcharts);
-// Initialise le module d'exportation hors-ligne de Highcharts (permet l'export même sans connexion internet)
-offlineExporting(Highcharts);
 
 export default {
   name: 'graphChasseIcePoints',

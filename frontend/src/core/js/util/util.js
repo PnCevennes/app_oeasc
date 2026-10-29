@@ -160,6 +160,26 @@ const escapeHtml = (value) => {
     .replace(/'/g, '&#39;');
 };
 
+/**
+ * Formate une date en JJ/MM/AAAA (calendrier local).
+ * Accepte une chaîne 'AAAA-MM-JJ' (convertie sans passer par Date, donc sans décalage de fuseau),
+ * une chaîne ISO avec heure, un timestamp ou un objet Date. Retourne '' si vide ou invalide.
+ * @param {string|number|Date} date
+ * @returns {string}
+ */
+const formatDateFr = (date) => {
+  if (!date) return '';
+  if (typeof date === 'string') {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
+    if (m) return `${m[3]}/${m[2]}/${m[1]}`;
+  }
+  const d = new Date(date);
+  if (isNaN(d)) return '';
+  const day = String(d.getDate()).padStart(2, '0');
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  return `${day}/${month}/${d.getFullYear()}`;
+};
+
 export {
   copy,
   sortDate,
@@ -171,4 +191,5 @@ export {
   fde,
   addPxSuffix,
   escapeHtml,
+  formatDateFr,
 };

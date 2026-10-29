@@ -10,8 +10,7 @@
 </template>
 
 <script>
-import Highcharts from 'highcharts';
-import { Chart as highcharts } from 'highcharts-vue';
+import Highcharts, { Chart as highcharts } from '@/core/js/highcharts.js';
 export default {
   name: 'restitution-graph',
   components: { highcharts },

@@ -236,18 +236,6 @@ const displayParcelles = function (parcelles) {
     .join(', ');
 };
 
-const displayDate = function (date) {
-  // retourne unet date au format jj/mm/aaaa
-  if (!date) {
-    return '';
-  }
-  const d = new Date(date);
-  const day = String(d.getDate()).padStart(2, '0');
-  const month = String(d.getMonth() + 1).padStart(2, '0');
-  const year = d.getFullYear();
-  return `${day}/${month}/${year}`;
-};
-
 /**
  * Affiche le statut d'une déclaration à partir de son code. Calcule le numéro de relance
  * la première relance correspond normalement a 100, la deuxième a 101 etc
@@ -273,7 +261,6 @@ export {
   displayParcelles,
   rawToDisplay,
   getDeclarationData,
-  displayDate,
   displayStatut,
   // declarationForetAreas,
   // declarationLocalisationAreas

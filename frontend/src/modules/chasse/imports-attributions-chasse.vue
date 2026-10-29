@@ -141,13 +141,16 @@
  * (GET `import-attributions/etat`), rechargé après chaque import réussi.
  * Un seul import à la fois : `uploading` verrouille tous les formulaires.
  */
-import { apiRequest, simple_fetch } from '@/core/js/data/api.js';
+import { apiRequest } from '@/core/js/data/api.js';
+import { formatDateFr } from '@/core/js/util/util.js';
+import { asyncImportMixin } from '@/core/js/mixins/async-import.js';
 import { snackbarStore } from '@/store/snackbar';
 import ImportSectionAttributions from './import-section-attributions.vue';
 
 export default {
   name: 'imports-attributions-chasse',
   components: { ImportSectionAttributions },
+  mixins: [asyncImportMixin],
   data() {
     return {
       // état renvoyé par le backend : { saison_courante, saison_ok,
@@ -156,10 +159,7 @@ export default {
       uploading: false, // un import est en cours (verrouille tous les formulaires)
       etapeEnCours: null, // 'saison-dates' | 'massifs' | 'attributions' pendant l'import
       derniereEtape: null, // dernière étape jouée (pour garder son journal affiché après coup)
-      idImport: null, // id du suivi backend en cours de polling
-      etapeMessage: '', // libellé « Étape n/total : … » renvoyé par le suivi
       journal: [], // lignes formatées { type, message } issues du journal backend
-      pollTimer: null, // handle setTimeout du polling
 
       // Tableaux d'exemple affichés sous chaque formulaire (données statiques,
       // juste indicatives des colonnes attendues et de leur format).
@@ -255,11 +255,7 @@ export default {
     },
   },
   methods: {
-    formatDate(iso) {
-      if (!iso) return '';
-      const [y, m, d] = iso.split('-');
-      return `${d}/${m}/${y}`;
-    },
+    formatDate: formatDateFr,
 
     // journal affiché sous une étape : seulement celui de l'étape en cours ou de
     // la dernière étape jouée.
@@ -277,13 +273,6 @@ export default {
       }
     },
 
-    stopPolling() {
-      if (this.pollTimer) {
-        clearTimeout(this.pollTimer);
-        this.pollTimer = null;
-      }
-    },
-
     // Envoie le fichier de l'étape et démarre le polling. `etape` est le segment
     // d'URL backend ('saison-dates' | 'massifs' | 'attributions').
     async lancerImport(etape, file) {
@@ -292,94 +281,40 @@ export default {
         snackbarStore.show(this.erreurBloquante, 'error');
         return;
       }
-      this.stopPolling();
       this.uploading = true;
       this.etapeEnCours = etape;
       this.derniereEtape = etape;
-      this.idImport = null;
-      this.etapeMessage = 'Import en attente de traitement…';
       this.journal = [];
 
-      try {
-        const formData = new FormData();
-        formData.append('file', file);
-        // 202 immédiat : le traitement tourne dans un thread côté serveur
-        const response = await simple_fetch(
-          'POST',
-          `api/chasse/import-attributions/${etape}`,
-          formData
-        );
-
-        if (!response) {
-          // simple_fetch renvoie undefined + redirige vers /login sur un 401
-          this.echec('Vous devez être connecté pour lancer un import.');
-          return;
-        }
-        if (response.success === false || !response.id_import) {
-          this.echec(response.user_message || "Erreur lors du lancement de l'import.");
-          return;
-        }
-        this.idImport = response.id_import;
-        this.pollStatus();
-      } catch (err) {
-        console.error('lancerImport', err);
-        this.echec(err.message || "Erreur lors de l'import.");
-      }
+      const formData = new FormData();
+      formData.append('file', file);
+      // 202 immédiat : le traitement tourne dans un thread côté serveur
+      await this.startAsyncImport(`api/chasse/import-attributions/${etape}`, formData);
     },
 
-    // Interroge le suivi backend toutes les 2 s jusqu'au statut final.
-    async pollStatus() {
-      if (!this.idImport) return;
-      let res;
-      try {
-        res = await simple_fetch('GET', `api/chasse/import/status/${this.idImport}`);
-      } catch (err) {
-        // erreur réseau transitoire : on retente un peu plus tard
-        console.error('pollStatus', err);
-        // abandon après 20 échecs consécutifs (~1 min) au lieu de boucler indéfiniment
-        this.pollFailures = (this.pollFailures || 0) + 1;
-        if (this.pollFailures >= 20) {
-          this.pollFailures = 0;
-          this.stopPolling();
-          this.echec('Suivi de l’import interrompu : serveur injoignable.');
-          return;
-        }
-        this.pollTimer = setTimeout(() => this.pollStatus(), 3000);
-        return;
-      }
+    // --- hooks de asyncImportMixin
+    statusUrl(idImport) {
+      return `api/chasse/import/status/${idImport}`;
+    },
 
-      this.pollFailures = 0;
-      if (!res || res.success === false || !res.import_status) {
-        this.echec((res && res.user_message) || "Suivi de l'import indisponible.");
-        return;
-      }
-
-      const st = res.import_status;
+    onImportProgress(st) {
       this.journal = this.formatJournal(st.journal || []);
-      this.etapeMessage = st.message || '';
-
-      if (st.statut === 'TERMINE' || st.statut === 'ERREUR') {
-        this.stopPolling();
-        this.uploading = false;
-        this.etapeEnCours = null;
-        this.etapeMessage = '';
-        if (st.statut === 'ERREUR' || st.success === false) {
-          snackbarStore.show(st.message || "L'import a échoué. Voir le journal.", 'error');
-        } else {
-          snackbarStore.show(st.message || 'Import terminé.', 'success');
-          this.chargerEtat(); // déverrouille l'étape suivante
-        }
-        return;
-      }
-
-      this.pollTimer = setTimeout(() => this.pollStatus(), 2000);
     },
 
-    echec(message) {
-      this.stopPolling();
+    onImportFinished(st, hasError) {
       this.uploading = false;
       this.etapeEnCours = null;
-      this.etapeMessage = '';
+      if (hasError) {
+        snackbarStore.show(st.message || "L'import a échoué. Voir le journal.", 'error');
+      } else {
+        snackbarStore.show(st.message || 'Import terminé.', 'success');
+        this.chargerEtat(); // déverrouille l'étape suivante
+      }
+    },
+
+    onImportError(message) {
+      this.uploading = false;
+      this.etapeEnCours = null;
       snackbarStore.show(message, 'error');
     },
 
@@ -405,9 +340,6 @@ export default {
     this.chargerEtat();
   },
 
-  beforeUnmount() {
-    this.stopPolling();
-  },
 };
 </script>
 

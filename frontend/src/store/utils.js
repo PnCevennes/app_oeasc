@@ -350,7 +350,7 @@ export default {
         if (apis_final.endsWith('/')) {
           apis_final = apis_final.slice(0, -1);
         }
-        apiRequest('GET', `${apis_final}`, { params: options }, { commit, getters }).then(
+        apiRequest('GET', `${apis_final}`, { params: options, dedupe: true }).then(
           (data) => {
             const items = data.items || data;
 
@@ -555,35 +555,22 @@ export default {
 
     /** ACTIONS */
     actions[storeNames] = ({ getters, commit }, { forceReload = false } = {}) => {
-      return new Promise((resolve, reject) => {
-        const obj = getters[storeNames];
-        if (obj && !forceReload) {
-          resolve(obj);
-          return;
+      const obj = getters[storeNames];
+      if (obj && !forceReload) {
+        return Promise.resolve(obj);
+      }
+      // si api finit par / on le supprime pour éviter les doublons
+      const apiUrl = api.endsWith('/') ? api.slice(0, -1) : api;
+      return apiRequest('GET', apiUrl, { dedupe: true }).then(
+        (data) => {
+          commit(storeNames, data);
+          return data;
+        },
+        (error) => {
+          console.error(`error in request ${apiUrl} : ${error}`);
+          throw error;
         }
-
-        if (!getters.pendings(api)) {
-          // id api finie par / on la supprime pour éviter les doublons
-          if (api.endsWith('/')) {
-            api = api.slice(0, -1);
-          }
-          commit('addPending', { api, request: apiRequest('GET', `${api}`) });
-        }
-        const request = getters.pendings(api);
-
-        request.then(
-          (data) => {
-            commit(storeNames, data);
-            commit('removePending', api); // remove pending
-            resolve(data);
-          },
-          (error) => {
-            console.error(`error in request ${api} : ${error}`);
-            commit('removePending', api); // sinon la requête échouée resterait réutilisée
-            reject(error);
-          }
-        );
-      });
+      );
     };
 
     const store = {

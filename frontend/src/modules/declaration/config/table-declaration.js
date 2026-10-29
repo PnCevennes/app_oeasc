@@ -1,6 +1,6 @@
 import { apiRequest } from '../../../core/js/data/api.js';
-import { escapeHtml } from '@/core/js/util/util.js';
-import { displayParcelles, displayDate, displayStatut } from '../declaration.js';
+import { escapeHtml, formatDateFr } from '@/core/js/util/util.js';
+import { displayParcelles, displayStatut } from '../declaration.js';
 import config_variables from '@/../../config/variables/declaration.json';
 
 export default {
@@ -115,12 +115,12 @@ export default {
     declaration_date: {
       text: 'Date déclaration',
       display: (val) => {
-        return displayDate(val.declaration_date);
+        return formatDateFr(val.declaration_date);
       },
     },
     date_fin: {
       text: 'Date fin validité',
-      display: (val) => displayDate(val.date_fin),
+      display: (val) => formatDateFr(val.date_fin),
     },
     label_foret: {
       text: 'Nom forêt',

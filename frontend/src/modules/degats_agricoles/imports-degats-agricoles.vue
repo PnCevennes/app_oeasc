@@ -59,10 +59,10 @@
         color="primary"
       ></v-progress-linear>
       <div
-        v-if="etape_message"
+        v-if="etapeMessage"
         style="margin-top: 0.35rem; font-size: 0.9rem; color: #555"
       >
-        {{ etape_message }}
+        {{ etapeMessage }}
       </div>
       <div style="margin-top: 0.15rem; font-size: 0.8rem; color: #888">
         Le traitement s'exécute sur le serveur et se terminera même si l'opération est longue. Merci
@@ -169,10 +169,15 @@
 </template>
 
 <script>
-import { simple_fetch } from '@/core/js/data/api.js';
+import {
+  asyncImportMixin,
+  updatePopupMixin,
+  parseJournal,
+} from '@/core/js/mixins/async-import.js';
 
 export default {
   name: 'imports-degats-agricoles',
+  mixins: [asyncImportMixin, updatePopupMixin],
   data() {
     return {
       file: null,
@@ -180,52 +185,19 @@ export default {
       message: '',
       reponse_affichee: [],
       error: false,
-      doUpdate: false,
-      affiche_popup_update: false, // etat de la checkbox
-      id_import: null, // id de la ligne de suivi de l'import lancé en tâche de fond
-      etape_message: '', // libellé de l'étape en cours (ex. "Étape 3/5 : ...")
-      pollTimer: null, // timer de polling du statut
     };
   },
   methods: {
     clear() {
       // réinitialise tout si la personne clic sur annuler
-      this.stopPolling();
+      this.resetAsyncImport();
       this.file = null;
       this.message = '';
       this.error = false;
       this.doUpdate = false;
       this.affiche_popup_update = false;
       this.reponse_affichee = [];
-      this.id_import = null;
-      this.etape_message = '';
       this.uploading = false;
-    },
-
-    stopPolling() {
-      if (this.pollTimer) {
-        clearTimeout(this.pollTimer);
-        this.pollTimer = null;
-      }
-    },
-
-    close_popup_update() {
-      // ferme la popup de confirmation pour la mise à jour des données existantes et décoche la checkbox
-      this.doUpdate = false;
-      this.affiche_popup_update = false;
-    },
-
-    afficherPopup() {
-      // affiche la popup de confirmation pour la mise à jour des données existantes
-      if (this.doUpdate == true) {
-        this.affiche_popup_update = true;
-      }
-    },
-
-    confirmUpdate_action() {
-      // Si la personne confirme la mise à jour dans la popup, on passe doUpdate à true
-      this.affiche_popup_update = false;
-      this.doUpdate = true;
     },
 
     async upload() {
@@ -235,126 +207,41 @@ export default {
         return;
       }
 
-      this.stopPolling();
       this.message = '';
       this.error = false;
       this.reponse_affichee = [];
-      this.etape_message = '';
-      this.id_import = null;
+      this.uploading = true;
 
-      try {
-        this.uploading = true;
-        const formData = new FormData();
-        formData.append('file', this.file);
-        formData.append('update', this.doUpdate.toString());
+      const formData = new FormData();
+      formData.append('file', this.file);
+      formData.append('update', this.doUpdate.toString());
+      await this.startAsyncImport('api/agricole/import', formData);
+    },
 
-        // Lancement de l'import : le backend enregistre le fichier, crée une ligne
-        // de suivi et traite en tâche de fond. Réponse immédiate (202) avec id_import.
-        const response = await simple_fetch('POST', 'api/agricole/import', formData);
+    // --- hooks de asyncImportMixin
+    statusUrl(idImport) {
+      return `api/agricole/import/status/${idImport}`;
+    },
 
-        // simple_fetch redirige vers /login et retourne undefined en cas de 401
-        if (!response) {
-          this.message = 'Vous devez être connecté pour importer un fichier.';
-          this.error = true;
-          this.uploading = false;
-          return;
-        }
+    onImportProgress(st) {
+      this.reponse_affichee = parseJournal(st.journal).lignes;
+    },
 
-        if (response.success === false || !response.id_import) {
-          this.message = response.user_message || "Erreur lors du lancement de l'import.";
-          this.error = true;
-          this.uploading = false;
-          return;
-        }
-
-        this.id_import = response.id_import;
-        this.etape_message = 'Import en attente de traitement…';
-        this.pollStatus();
-      } catch (err) {
-        console.error("Erreur lors de l'import:", err);
-        this.message = err.message || "Erreur lors de l'import.";
+    onImportFinished(st, hasError) {
+      this.uploading = false;
+      if (hasError) {
         this.error = true;
-        this.uploading = false;
+        if (st.message) this.message = st.message;
+      } else {
+        this.message = 'Importation terminée.';
       }
     },
 
-    async pollStatus() {
-      // interroge périodiquement l'état de l'import jusqu'à TERMINE / ERREUR
-      if (!this.id_import) return;
-      let res;
-      try {
-        res = await simple_fetch('GET', `api/agricole/import/status/${this.id_import}`);
-      } catch (err) {
-        console.error('pollStatus:', err);
-        // on retente quelques instants plus tard plutôt que d'abandonner
-        // abandon après 20 échecs consécutifs (~1 min) au lieu de boucler indéfiniment
-        this.pollFailures = (this.pollFailures || 0) + 1;
-        if (this.pollFailures >= 20) {
-          this.pollFailures = 0;
-          this.stopPolling();
-          this.message = 'Suivi de l’import interrompu : serveur injoignable.';
-          this.error = true;
-          this.uploading = false;
-          return;
-        }
-        this.pollTimer = setTimeout(() => this.pollStatus(), 3000);
-        return;
-      }
-
-      this.pollFailures = 0;
-      if (!res || res.success === false || !res.import_status) {
-        this.message = (res && res.user_message) || "Suivi de l'import indisponible.";
-        this.error = true;
-        this.uploading = false;
-        return;
-      }
-
-      const st = res.import_status;
-      this.traitement_journal(st.journal || []);
-      this.etape_message = st.message || '';
-
-      if (st.statut === 'TERMINE' || st.statut === 'ERREUR') {
-        this.stopPolling();
-        this.uploading = false;
-        this.etape_message = '';
-        if (st.statut === 'ERREUR' || st.success === false) {
-          this.error = true;
-          if (st.message) this.message = st.message;
-        } else {
-          this.message = 'Importation terminée.';
-        }
-        return;
-      }
-
-      // toujours en cours : on reprogramme un poll
-      this.pollTimer = setTimeout(() => this.pollStatus(), 2000);
+    onImportError(message) {
+      this.message = message;
+      this.error = true;
+      this.uploading = false;
     },
-
-    traitement_journal(journal) {
-      // reconstruit reponse_affichee à partir du journal (liste de lignes taguées
-      // [ERROR] / [INFO] / [WARNING]). Idempotent : appelé à chaque poll.
-      const lines = Array.isArray(journal) ? journal : [];
-      const maxDisplay = 1000;
-      const out = [];
-
-      for (const log of lines) {
-        if (log.includes('[ERROR]')) {
-          out.push({ type: 'error', message: log.replace('[ERROR] ', '') });
-        } else if (log.includes('[INFO]')) {
-          out.push({ type: 'info', message: log.replace('[INFO] ', '') });
-        } else if (log.includes('[WARNING]')) {
-          out.push({ type: 'warning', message: log.replace('[WARNING] ', '') });
-        }
-      }
-
-      this.reponse_affichee = out.length > maxDisplay ? out.slice(-maxDisplay) : out;
-      return this.reponse_affichee;
-    },
-  },
-
-  beforeUnmount() {
-    // stoppe le polling si l'utilisateur quitte la page pendant un import
-    this.stopPolling();
   },
 };
 </script>

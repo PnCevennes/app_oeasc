@@ -23,18 +23,11 @@
 </template>
 
 <script>
-import Highcharts from 'highcharts';
-import exportingInit from 'highcharts/modules/exporting';
-import offlineExporting from 'highcharts/modules/offline-exporting';
-import { Chart as highcharts } from 'highcharts-vue';
+import Highcharts, { Chart as highcharts } from '@/core/js/highcharts.js';
 import processData from './process/graph-custom.js';
 import restitutions from './config/restitutions.js';
 import props from './config/props.js';
 import { jsoncopy, fde } from '../../core/js/util/util.js';
-
-// Modification de highcharts pour permettre l'export des graphiques
-exportingInit(Highcharts); // initialise le module export, doit être fait après l'import de highcharts
-offlineExporting(Highcharts); // initialise l'export coté client, doit être fait après l'import de highcharts
 
 export default {
   name: 'restitution-graph',

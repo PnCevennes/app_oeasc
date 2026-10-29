@@ -1,7 +1,3 @@
-import domtoimage from 'dom-to-image';
-import html2pdf from 'html2pdf.js';
-import html2canvas from 'html2canvas';
-
 const mapExport = {
   /**
    * Génère une image à partir d'un élément de carte et l'ajoute au DOM.
@@ -19,7 +15,7 @@ const mapExport = {
    * - Redimensionne l'élément selon les options fournies.
    * - Force le redessin de la carte et réinitialise le zoom.
    * - Attend que la carte soit redessinée avant d'exporter l'image.
-   * - Utilise la librairie dom-to-image pour générer l'image au format demandé.
+   * - Utilise html2canvas (chargé à la demande) pour générer l'image au format demandé.
    * - Ajoute l'image générée juste après l'élément source dans le DOM.
    * - Cache l'élément source après l'export.
    */
@@ -43,8 +39,10 @@ const mapExport = {
       this.reinitZoom();
 
       // Wait for redraw
-      setTimeout(() => {
+      setTimeout(async () => {
         elem = document.getElementById(this._id);
+        // html2canvas est volumineux : chargé à la demande, pas dans le chunk des cartes
+        const html2canvas = (await import('html2canvas')).default;
         html2canvas(elem, {
           height,
           width,

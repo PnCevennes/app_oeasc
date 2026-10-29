@@ -9,6 +9,7 @@ import {
   jsoncopy,
   fde,
   escapeHtml,
+  formatDateFr,
 } from './util.js';
 
 describe('util.js', () => {
@@ -60,5 +61,13 @@ describe('util.js', () => {
     expect(escapeHtml("l'été & co")).toBe('l&#39;été &amp; co');
     expect(escapeHtml(null)).toBe('');
     expect(escapeHtml(12)).toBe('12');
+  });
+
+  it('formatDateFr formate en JJ/MM/AAAA', () => {
+    expect(formatDateFr('2026-09-01')).toBe('01/09/2026');
+    expect(formatDateFr('2026-09-01T10:30:00')).toBe('01/09/2026');
+    expect(formatDateFr(new Date(2026, 0, 5))).toBe('05/01/2026');
+    expect(formatDateFr(null)).toBe('');
+    expect(formatDateFr('pas une date')).toBe('');
   });
 });

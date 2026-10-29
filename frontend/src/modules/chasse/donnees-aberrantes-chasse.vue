@@ -146,6 +146,7 @@
 import { apiRequest } from '@/core/js/data/api.js';
 import { describeApiError } from '@/core/js/data/api-messages.js';
 import { snackbarStore } from '@/store/snackbar';
+import { formatDateFr } from '@/core/js/util/util.js';
 
 // champs de t_realisations modifiables dans le tableau
 const CHAMPS_MESURE = [
@@ -245,9 +246,7 @@ export default {
       return LIBELLE_MESURE[mesure] || mesure;
     },
 
-    formatDate(date) {
-      return date ? new Date(date).toLocaleDateString('fr-FR') : '';
-    },
+    formatDate: formatDateFr,
 
     chargerFiltres() {
       apiRequest('GET', 'api/generic/chasse/saisons')

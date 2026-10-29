@@ -7,7 +7,6 @@
 
 import { createStore } from 'vuex';
 import { MODULES_STORE } from '@/modules';
-import { STORE as API_STORE } from '@/core/js/data/api.js';
 import { STORE as FORM_STORE } from '@/components/form';
 
 const storeDefinition = {
@@ -17,7 +16,7 @@ const storeDefinition = {
   state: {},
 };
 
-const stores = [MODULES_STORE, API_STORE, FORM_STORE];
+const stores = [MODULES_STORE, FORM_STORE];
 
 for (const store of stores) {
   for (const key of Object.keys(storeDefinition)) {
