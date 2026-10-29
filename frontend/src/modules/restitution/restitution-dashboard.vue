@@ -1,7 +1,7 @@
 <template>
   <div class="page-restitution">
     <h2>Tableau de bord - restitution</h2>
-    <v-tooltip bottom>
+    <v-tooltip location="bottom">
       <template v-slot:activator="{ props: tooltipActivatorProps }">
         <v-btn
           v-bind="tooltipActivatorProps"

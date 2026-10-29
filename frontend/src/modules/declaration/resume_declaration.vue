@@ -172,7 +172,7 @@
             <v-chip
               v-for="area_commune in areas_commune_computed"
               :key="area_commune.id_area"
-              small
+              size="small"
               class="ma-1"
             >
               {{ area_commune }}
@@ -185,7 +185,7 @@
             <v-chip
               v-for="area_section in areas_section_computed"
               :key="area_section.id_area"
-              small
+              size="small"
               class="ma-1"
             >
               {{ area_section }}
@@ -199,7 +199,7 @@
             <v-chip
               v-for="area_cadastre in areas_cadastre_computed"
               :key="area_cadastre.id_area"
-              small
+              size="small"
               class="ma-1"
             >
               {{ area_cadastre }}
@@ -213,7 +213,7 @@
             <v-chip
               v-for="area_ug in areas_ug_computed"
               :key="area_ug.id_area"
-              small
+              size="small"
               class="ma-1"
             >
               {{ area_ug }}

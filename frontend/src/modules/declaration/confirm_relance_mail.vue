@@ -32,7 +32,7 @@
         <v-card-actions style="justify-content: center">
           <v-btn
             style="margin-right: 10px"
-            color="green lighten-2"
+            color="green-lighten-2"
             @click="sendRelanceMail"
             :loading="processing"
             :disabled="processing"
@@ -40,7 +40,7 @@
             Oui
           </v-btn>
           <v-btn
-            color="red lighten-2"
+            color="red-lighten-2"
             @click="closePopup"
             :disabled="processing"
           >

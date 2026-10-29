@@ -32,7 +32,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
       <span v-if="show_buttom_relance_mail">
         <v-btn
           style="margin-left: 16px"
-          color="orange lighten-2"
+          color="orange-lighten-2"
           title="Envoyer un mail de relance pour cette déclaration"
           @click="show_popup_relance = true"
         >

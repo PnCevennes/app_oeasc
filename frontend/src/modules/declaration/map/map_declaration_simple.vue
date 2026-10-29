@@ -14,6 +14,7 @@
 
 <script>
 import L from 'leaflet';
+import { markRaw } from 'vue';
 import 'leaflet/dist/leaflet.css';
 import { escapeHtml } from '@/core/js/util/util.js';
 import { fetch_oeasc_perimetre } from '@/modules/declaration/utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
@@ -306,7 +307,9 @@ export default {
         return;
       }
       // création de la carte avec contrôle de zoom activé
-      this.map = L.map(container, { zoomControl: true, preferCanvas: true, renderer: L.canvas() });
+      this.map = markRaw(
+        L.map(container, { zoomControl: true, preferCanvas: true, renderer: L.canvas() })
+      );
 
       // couche de fond basique (pas de crossOrigin en affichage normal : évite que Chrome
       // rejette les tuiles quand un proxy/antivirus retire les en-têtes CORS -> carte grise)

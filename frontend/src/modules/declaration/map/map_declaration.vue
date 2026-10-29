@@ -145,6 +145,7 @@ permet de zoomer dans les zones sélectionnées -->
 <script>
 import { configMap } from '@/config/config-map.js'; // Importez la configuration de la carte
 import L from 'leaflet';
+import { markRaw } from 'vue';
 import 'leaflet/dist/leaflet.css';
 
 // Correctif d'un bug Leaflet (confirmé dans node_modules/leaflet/src/layer/Tooltip.js, v1.9.4) :
@@ -300,6 +301,15 @@ export default {
     await this.initialise_areas(); // Initialise les zones avant le rendu de la carte
     this.fetch_new_geojson_data(this.typeCarte); // recupère les contours des layers à afficher
     this.initialized = true; // Indique que le composant est prêt à être affiché
+  },
+
+  beforeUnmount() {
+    // libère la carte (tuiles, couches, écouteurs) à la navigation
+    if (this.map) {
+      this.map.off();
+      this.map.remove();
+      this.map = null;
+    }
   },
 
   methods: {
@@ -881,7 +891,8 @@ export default {
         configBaseSelect,
       } = configMap;
       // creation de la carte Leaflet
-      this.map = L.map('map').setView(INIT_VIEW, INIT_ZOOM);
+      // markRaw : l'instance Leaflet ne doit pas être rendue réactive (proxy profond coûteux)
+      this.map = markRaw(L.map('map').setView(INIT_VIEW, INIT_ZOOM));
 
       // Pane dédié au périmètre OEASC, en dessous de l'overlayPane (z-index 400)
       this.map.createPane('perimetre-pane');

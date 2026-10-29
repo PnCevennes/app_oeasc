@@ -67,21 +67,37 @@ export default {
         (key) => this.results.items[key].zoomOnFilter
       );
       if (zoomOnFilterKey) {
-        setTimeout(() => {
-          document.getElementById(this.mapId).addEventListener('layer-data', ($event) => {
-            const key = $event.detail.key;
-            if (key != zoomOnFilterKey) {
-              return;
-            }
-            this.zoomOnFilter(key, this.results.items[zoomOnFilterKey].zoomOnFilter);
-          });
-        }, 100);
+        // un seul écouteur à la fois : processConfig est rappelé à chaque changement de results
+        this.removeLayerDataListener();
+        this.layerDataHandler = ($event) => {
+          if ($event.detail.key != zoomOnFilterKey) {
+            return;
+          }
+          this.zoomOnFilter(zoomOnFilterKey, this.results.items[zoomOnFilterKey].zoomOnFilter);
+        };
+        this.$nextTick(() => {
+          const elem = document.getElementById(this.mapId);
+          if (elem && this.layerDataHandler) {
+            elem.addEventListener('layer-data', this.layerDataHandler);
+          }
+        });
         this.zoomOnFilter(zoomOnFilterKey, this.results.items[zoomOnFilterKey].zoomOnFilter);
       }
+    },
+    removeLayerDataListener() {
+      const elem = document.getElementById(this.mapId);
+      if (elem && this.layerDataHandler) {
+        elem.removeEventListener('layer-data', this.layerDataHandler);
+      }
+      this.layerDataHandler = null;
     },
   },
   mounted() {
     this.processConfig();
+  },
+  beforeUnmount() {
+    // l'élément est encore dans le DOM ici (contrairement à unmounted)
+    this.removeLayerDataListener();
   },
 };
 </script>
