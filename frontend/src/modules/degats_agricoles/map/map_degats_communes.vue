@@ -32,6 +32,7 @@
 
 <script>
 import L from 'leaflet';
+import { markRaw } from 'vue';
 import 'leaflet/dist/leaflet.css';
 import { config } from '@/config/config.js';
 import { fetch_oeasc_perimetre } from '@/modules/declaration/utils/api_request.js';
@@ -184,7 +185,7 @@ export default {
   },
   mounted() {
     // la carte et sa couche ne sont volontairement pas réactives (objets Leaflet)
-    this.map = L.map(this.$refs.map).setView([44.3, 3.7], 9);
+    this.map = markRaw(L.map(this.$refs.map).setView([44.3, 3.7], 9));
     L.tileLayer(TILE_URL, { maxZoom: 18, opacity: 0.7, attribution: TILE_ATTRIBUTION }).addTo(
       this.map
     );

@@ -9,7 +9,7 @@
 
     <div>
       <!-- boutton pour copier le code du widget dans le presse papier -->
-      <v-tooltip bottom>
+      <v-tooltip location="bottom">
         <template v-slot:activator="{ props: tooltipActivatorProps }">
           <v-btn
             v-bind="tooltipActivatorProps"
