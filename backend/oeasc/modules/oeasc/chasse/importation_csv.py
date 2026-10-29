@@ -20,11 +20,7 @@
 # Une fois traité, il faudrait enregistrer tous les nouveaux synonymes des lieux de tir
 
 
-import sys
-
-# ensure project root is on sys.path so `import config.config` works
-sys.path.append("/home/thibaut/appli/app_oeasc")
-sys.path.append("/home/thibaut/appli/app_oeasc/backend")
+from contextlib import nullcontext
 from pathlib import Path
 
 from app import app
@@ -38,7 +34,7 @@ from pyproj import Transformer
 from marshmallow.exceptions import ValidationError
 
 from sqlalchemy import func, select
-from flask import request, current_app
+from flask import request, current_app, has_app_context
 from oeasc.utils.current_user import get_current_user
 
 from oeasc.utils.apiResponse import ApiResponse
@@ -61,6 +57,13 @@ from oeasc.modules.oeasc.chasse.schema import (
 
 config = current_app.config
 from oeasc.utils.env import db as DB
+
+
+def _app_context():
+    """Contexte applicatif seulement si aucun n'est déjà actif (thread d'import
+    async et route Flask fournissent déjà le leur — on réutilise alors la même
+    session)."""
+    return nullcontext() if has_app_context() else app.app_context()
 
 # --- Contournement d'un coût inutile de marshmallow_sqlalchemy 1.4.1 ---
 # _cast_data() est appelé à CHAQUE schema.load() et invoque
@@ -875,7 +878,7 @@ def etape__recupération_attributions(df, id_saison, update, apiResponse):
             return pd.DataFrame(), apiResponse
 
         # on fait une requete à la base de données pour trouver toutes les attributions de la saison id_saison
-        with app.app_context():
+        with _app_context():
 
             # Récupération directe des seules colonnes utiles.
             # Remplace un dump Marshmallow imbriqué (zones + géométries + réalisation)
@@ -1433,7 +1436,7 @@ def etape__integration_communes_dans_df(df, apiResponse):
     """
 
     try:
-        with app.app_context():
+        with _app_context():
             # récupération des communes de la bdd.
             # Sélection explicite des colonnes utiles pour éviter d'invoquer
             # des colonnes absentes sur certaines bases (ex: description).
@@ -1569,7 +1572,7 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
         dict_bilan_synonymes = {}
 
         # récupération des lieux de tir synonymes de la base de données avec les informations sur les lieux de tir associés, les zones indicatives et les zones cynégétiques
-        with app.app_context():
+        with _app_context():
             # Récupération directe des colonnes utiles (remplace un dump Marshmallow
             # imbriqué lieu_tir -> zone_indicative -> zone_cynegetique sur ~1800 synonymes).
             # order_by explicite : plusieurs branches prennent le "premier" résultat
@@ -1820,7 +1823,7 @@ def etape__insert_new_realisations(df, apiResponse):
     """Vérifie la validité de chaque ligne avant de les insérer dans la base de données. On enregistre en bdd les lignes valides.
     Les lignes invalides sont retournées dans un dataframe pour être corrigé par l'utilisateur.
     """
-    with app.app_context():
+    with _app_context():
         df_insert = df.loc[
             ((df["id_realisation"].isna()) & (df["valide"] == True))
         ].copy()
@@ -1929,7 +1932,7 @@ def etape__update_realisations(df, apiResponse):
 
             list_id_realisations = df_update.index.tolist()
 
-            with app.app_context():
+            with _app_context():
                 # 1. Récupérer toutes les instances
                 instances = (
                     DB.session.execute(
