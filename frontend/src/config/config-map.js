@@ -118,24 +118,6 @@ const configMap = {
   },
 };
 
-// Configuration de base pour les sélections sur la carte (utilisée pour les couches interactives)
-const select_map_base = {
-  zoom: true, // Active le zoom sur la sélection
-  tooltip: {
-    label: 'label', // Champ utilisé pour l'affichage du tooltip
-  },
-  hover: {
-    style: styles.hover, // Style appliqué au survol
-  },
-  select: {
-    style: styles.selected, // Style appliqué à la sélection
-  },
-  dataFieldNames: {
-    value: 'id_area', // Champ utilisé comme identifiant
-    text: 'label', // Champ utilisé comme texte affiché
-  },
-};
-
 // Pré-configuration de la carte pour différents contextes d'affichage
 const preConfigMap = {
   // Configuration pour l'affichage du périmètre
@@ -151,20 +133,6 @@ const preConfigMap = {
           label: 'label',
         },
       },
-    },
-  },
-  // Configuration pour la sélection des forêts ONF
-  select_map_onf_frt: {
-    layerList: {
-      po: {},
-      foret_onf: { ...select_map_base },
-    },
-  },
-  // Configuration pour la sélection des parcelles ONF
-  select_map_onf_prf: {
-    layerList: {
-      po: {},
-      parcelle_onf: { ...select_map_base },
     },
   },
 };

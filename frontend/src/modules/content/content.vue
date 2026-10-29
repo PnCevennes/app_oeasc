@@ -184,6 +184,13 @@ export default {
       if (this.code || !newCode) return;
       this.initContent();
     },
+    // Navigation entre deux pages CMS (page.vue) : le routeur réutilise le même composant, seul le
+    // code passé en prop change. Sans ce watcher, le contenu de la première page restait affiché.
+    code(newCode, oldCode) {
+      if (!this.bInitialized || newCode === oldCode) return;
+      this.bEditContents = false;
+      this.initContent();
+    },
     'content.html'() {
       this.renderError = false;
     },

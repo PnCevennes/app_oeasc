@@ -331,7 +331,7 @@ const rules = {
     // Ajout de la règle "required" selon le type de champ
     if (config.required) {
       let ruleRequired = rules.required;
-      if (['list-form', 'nomenclature', 'select_map', 'essence'].includes(config.type)) {
+      if (['list-form', 'nomenclature', 'essence'].includes(config.type)) {
         ruleRequired = config.multiple ? rules.requiredListMultiple : rules.requiredListSimple;
       } else if (['bool_radio', 'bool_switch'].includes(config.type)) {
         ruleRequired = rules.requiredBool;

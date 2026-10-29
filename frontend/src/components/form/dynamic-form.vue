@@ -192,13 +192,6 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
 
     <!-- essence -->
 
-    <!-- select map -->
-    <template v-else-if="configForm.type === 'select_map'">
-      <select-map
-        :config="configForm"
-        :baseModel="baseModel"
-      ></select-map>
-    </template>
 
     <!-- list form -->
     <template v-else-if="configForm.type === 'list_form'">
@@ -238,7 +231,6 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
 import { defineAsyncComponent } from 'vue';
 import nomenclatureForm from './nomenclature-form.vue';
 import listForm from './list-form.vue';
-import selectMap from './select-map.vue';
 import help from './help.vue'; // contenu d'aide inscrit dans la bdd. Remplacer après pas static help.vue pour un contenu statique
 import list from './list.vue';
 import { copy } from '@/core/js/util/util.js';
@@ -249,7 +241,6 @@ export default {
 
   components: {
     nomenclatureForm,
-    selectMap,
     listForm,
     // import dynamique pour casser le cycle content.vue -> generic-form.vue -> dynamic-form-group.vue -> dynamic-form.vue -> content.vue
     // (un import statique provoque une ReferenceError de TDZ sous Vite/ESM natif, alors que webpack/CommonJS le tolérait)
@@ -272,7 +263,6 @@ export default {
       'text_area', // Champ de saisie de texte multilignes
       'nomenclature', // Champ de nomenclature (sélection dans une liste de valeurs)
       'number', // Champ de saisie numérique
-      'select_map', // Champ de sélection sur une carte
       'essence', // Champ spécifique pour l'essence (commenté dans le template)
       'list_form', // Champ permettant d'afficher un formulaire sous forme de liste
       'degats', // Champ spécifique pour les dégâts (non utilisé ici)
