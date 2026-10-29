@@ -1748,8 +1748,7 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
         # parcours de df pour trouver l'id_lieu_tir_synonyme correspondant à lieu_tir_txt.
         # Recherche en cascade : nom exact puis similaire dans la ZI, puis dans la commune, puis dans la ZC.
         # Les correspondances trouvées dans la ZC ne sont pas affectées (trop de risque d'erreur), seulement signalées en commentaire.
-        # NB : la recherche ne passe au niveau suivant que si la zone courante contient des synonymes
-        # (si elle n'en contient aucun, le tir reste sans lieu et sans entrée de bilan).
+        # NB : une zone sans synonyme n'arrête pas la recherche, on passe au niveau suivant.
         for index, row in df.iterrows():
             id_zone_indicative_realisee = row["id_zone_indicative_realisee"]
             id_zone_cynegetique_realisee = row["id_zone_cynegetique_realisee"]
@@ -1792,9 +1791,7 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
             synonyme, meilleur_match = meilleur_similaire(
                 _groups_zi, _names_by_zi, id_zone_indicative_realisee, nom_parc_lieu_dit
             )
-            if synonyme is None:
-                continue
-            if synonyme is not False:
+            if synonyme is not None and synonyme is not False:
                 affecter(index, synonyme)
                 df.at[
                     index, "commentaires_erreurs"
@@ -1824,9 +1821,7 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
             synonyme, meilleur_match = meilleur_similaire(
                 _groups_commune, _names_by_commune, id_commune, nom_parc_lieu_dit
             )
-            if synonyme is None:
-                continue
-            if synonyme is not False:
+            if synonyme is not None and synonyme is not False:
                 affecter(index, synonyme)
                 df.at[
                     index, "commentaires_erreurs"
@@ -1861,9 +1856,7 @@ def etape__recherche_lieux_dits_de_tir_de_realisation(df, apiResponse):
                 id_zone_cynegetique_realisee,
                 nom_parc_lieu_dit,
             )
-            if synonyme is None:
-                continue
-            if synonyme is not False:
+            if synonyme is not None and synonyme is not False:
                 df.at[index, "id_lieu_tir_synonyme"] = None
                 df.at[index, "nom_lieu_tir_synonyme"] = None
                 df.at[
