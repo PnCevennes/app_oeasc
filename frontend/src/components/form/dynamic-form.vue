@@ -191,9 +191,6 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
     </template>
 
     <!-- essence -->
-    <!-- <template v-else-if="configForm.type === 'essence'">
-      <essence-form :config="configForm" :baseModel="baseModel"></essence-form>
-    </template> -->
 
     <!-- select map -->
     <template v-else-if="configForm.type === 'select_map'">
@@ -201,7 +198,6 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
         :config="configForm"
         :baseModel="baseModel"
       ></select-map>
-      <!-- <div>##### ConfigForm {{ configForm }}</div> -->
     </template>
 
     <!-- list form -->

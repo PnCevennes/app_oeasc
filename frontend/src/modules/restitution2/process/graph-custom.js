@@ -17,7 +17,6 @@ const seriesSimple = (data, typeGraph, text) => {
       colorByPoint: true,
       data: data.map((d) => ({
         name: `<b>${d.text}</b><br> ${d.count} (${Math.round((100.0 * d.count) / total)}%)`,
-        // name: `${d.text}: ${d.count}<br>(${Math.round(100.0*d.count/total)}%)`,
         useHTML: true,
         y: d.count,
         color: null,
@@ -142,8 +141,6 @@ export default (data, options, text) => {
     },
     yAxis: {
       min: 0,
-      // endOnTick: false,
-      // startOnTick: false,
       title: {
         text: 'nb',
       },

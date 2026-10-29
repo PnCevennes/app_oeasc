@@ -95,9 +95,7 @@ export default {
         'GET',
         `api/declaration/send_mail_renouvellement?id_declaration=${this.declaration_data.id_declaration}`
       )
-        .then((response) => {
-          console.log('Relance envoyée avec succès :', response);
-          // this.$emit('show-snackbar', 'Relance envoyée avec succès');
+        .then(() => {
           snackbarStore.show('Relance envoyée avec succès', 'success');
         })
         .catch((error) => {

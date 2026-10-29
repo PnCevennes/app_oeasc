@@ -92,32 +92,15 @@ const ROUTE = [
 
 const STORE = {
   state: {
-    // _configDeclaration: {},
-    // _declarationForm: {},
     _declarations: [],
-    // _foret: {},
-    // _declarationTableHeight: null,
   },
 
   getters: {
-    // declarationTableHeight: (state) => state._declarationTableHeight,
-
-    // configDeclaration: (state) => {
-    //   return state._configDeclaration;
-    // },
-
-    // declarationForm: (state) => {
-    //   return state._declarationForm;
-    // },
 
     declarations: (state) => {
       return state._declarations;
     },
 
-    // foret: (state) => (id_foret) => {
-    //   return state._foret[id_foret];
-    // },
-    // nbDeclarationsValid: (state) => {
     //   // depuis degats et remove doublons
     //   return (
     //     (state.declarationDegats &&
@@ -126,56 +109,22 @@ const STORE = {
     //         .map((d) => d.id_declaration)
     //         .filter((id, index, self) => self.indexOf(id) == index).length) ||
     //     '(...chargement en cours)'
-    //   );
-    // },
-    // nbDegatsValid: (state) => {
     //   return (
     //     (state.declarationDegats &&
     //       state.declarationDegats.filter((d) => d.valide == 'Validé').length) ||
     //     '(...chargement en cours)'
-    //   );
-    // },
   },
 
   mutations: {
-    // declarationTableHeight: (state, h) => {
-    //   state._declarationTableHeight = h;
-    // },
-
-    // configDeclaration: (state, configDeclaration) => {
-    //   state._configDeclaration = configDeclaration;
-    // },
-
-    // declarationForm: (state, declarationForm) => {
-    //   state._declarationForm = declarationForm;
-    //   state._declarations = [];
-    // },
 
     declarations: (state, declarations) => {
       state._declarations = declarations;
     },
 
-    // foret: (state, foret) => {
-    //   state._foret[foret.id_foret] = foret;
-    // },
   },
 
   actions: {
     // récupère les données sur une déclaration et l'enregistre en cache dans le state _declarationForm
-    // declarationForm: ({ commit }, id) => {
-    //   return new Promise((resolve, reject) => {
-    //     apiRequest('GET', `api/declaration/declaration/${id || ''}`).then(
-    //       (apiData) => {
-    //         commit('declarationForm', apiData);
-    //         resolve(apiData);
-    //       },
-    //       (error) => {
-    //         commit('declarationForm', {});
-    //         reject(error);
-    //       }
-    //     );
-    //   });
-    // },
 
     declarations: ({ state, commit }) => {
       return new Promise((resolve, reject) => {
@@ -185,7 +134,6 @@ const STORE = {
         }
         apiRequest('GET', `api/declaration/declarations`).then(
           (apiData) => {
-            // console.log('Données des déclarations reçues :', apiData);
             commit('declarations', apiData);
             resolve(apiData);
           },
@@ -198,50 +146,7 @@ const STORE = {
     },
 
     // pb
-    // foretFromCode: ({ commit }, codeForet) => {
-    //   return new Promise((resolve, reject) => {
-    //     apiRequest('GET', `api/declaration/foret_from_code/${codeForet}`).then(
-    //       (apiData) => {
-    //         commit('foret', apiData);
-    //         resolve(apiData);
-    //       },
-    //       (error) => {
-    //         console.error(`subscribe foret error: ${error}`);
-    //         reject(error);
-    //       }
-    //     );
-    //   });
-    // },
 
-    // proprietaireFromIdDeclarant: ({ commit }, idDeclarant) => {
-    //   return new Promise((resolve, reject) => {
-    //     apiRequest('GET', `api/declaration/proprietaire_from_id_declarant/${idDeclarant}`).then(
-    //       (apiData) => {
-    //         commit;
-    //         resolve(apiData);
-    //       },
-    //       (error) => {
-    //         console.error(`subscribe proprietaire error: ${error}`);
-    //         reject(error);
-    //       }
-    //     );
-    //   });
-    // },
-
-    // proprietaireFromId: ({ commit }, idProprietaire) => {
-    //   return new Promise((resolve, reject) => {
-    //     apiRequest('GET', `api/declaration/proprietaire_from_id/${idProprietaire}`).then(
-    //       (apiData) => {
-    //         commit;
-    //         resolve(apiData);
-    //       },
-    //       (error) => {
-    //         console.error(`subscribe proprietaire error: ${error}`);
-    //         reject(error);
-    //       }
-    //     );
-    //   });
-    // },
   },
 };
 

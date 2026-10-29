@@ -1,10 +1,7 @@
 // Affiche une notification globale en bas de l'écran, pour informer l'utilisateur d'une action
 // réussie, d'une info ou d'une erreur.
-//
 // Utilisation depuis n'importe quelle vue :
-//   import { snackbarStore } from '@/store/snackbar.js';
 //   snackbarStore.show('Message à afficher', 'error');   // 'error' | 'success' | 'info' | 'warning'
-//
 // Le rendu (styles, icône, couleurs) est géré dans App.vue à partir de `state.type`.
 // Le snackbar est monté une seule fois dans App.vue pour être accessible partout.
 

@@ -65,7 +65,6 @@
         <tr v-if="declaration_data.org_mnemo">
           <td class="gauche">Organisme</td>
           <td class="droite">{{ declaration_data.organisme }}</td>
-          <!-- <td class="droite">{{declaration_data.org_mnemo || "Non renseigné"}}</td> -->
         </tr>
         <tr v-if="declaration_data.email">
           <td class="gauche">Email</td>
@@ -75,18 +74,6 @@
           <td class="gauche">Téléphone</td>
           <td class="droite">{{ declaration_data.telephone || 'Non renseigné' }}</td>
         </tr>
-        <!-- <tr v-if="declaration_data.adresse">
-          <td class="gauche">Adresse</td>
-          <td class="droite">{{declaration_data.adresse || "Non renseigné"}}</td>
-        </tr>
-        <tr v-if="declaration_data.s_code_postal">
-          <td class="gauche">Code postal</td>
-          <td class="droite">{{declaration_data.s_code_postal || "Non renseigné"}}</td>
-        </tr>
-        <tr v-if="declaration_data.s_commune_proprietaire">
-          <td class="gauche">Commune</td>
-          <td class="droite">{{declaration_data.s_commune_proprietaire || "Non renseigné"}}</td>
-        </tr> -->
       </tbody>
 
       <!-- ------------------------------- FORET -------------------------------- -->
@@ -219,21 +206,6 @@
             </v-chip>
           </td>
         </tr>
-
-        <!-- <tr v-if="declaration_data.areas_localisation_cadastre.length > 0">
-
-            <td class="gauche">Parcelle(s) cadastrale(s) (id)</td>
-            <td class="droite">
-              <v-chip
-              v-for="area_cadastre in declaration_data.areas_localisation_cadastre"
-              :key="area_cadastre"
-              small
-              class="ma-1" 
-              >
-              {{ area_cadastre }}
-            </v-chip>
-            </td>
-          </tr> -->
 
         <tr v-if="areas_ug_computed.length > 0">
           <td class="gauche">Unités de gestion ONF</td>
@@ -558,7 +530,6 @@
           </th>
         </tr>
         <tr>
-          <!-- <td class="gauche"></td> -->
           <td
             class="droite"
             colspan="2"
@@ -682,7 +653,6 @@ export default {
     if (this.declaration_data && this.nomenclature) {
       this.bInit = true;
     }
-    console.log('areas_commune_computed', this.areas_commune_computed);
   },
 };
 </script>

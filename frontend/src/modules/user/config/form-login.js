@@ -6,7 +6,7 @@ export default {
       ...baseModel,
       id_application: globalConfig.ID_APPLICATION,
     }),
-    onSuccess: ({ data, $session, $store, $router, $route }) => {
+    onSuccess: ({ data, $store, $router, $route }) => {
       const user = { ...data.user, expires: data.expires };
       // redirection interne uniquement : chemin absolu SPA, pas d'URL externe ni de '//'
       const queryRedirect = $route.query.redirect;
@@ -14,7 +14,6 @@ export default {
         typeof queryRedirect === 'string' && /^\/(?![/\\])/.test(queryRedirect)
           ? queryRedirect
           : '/';
-      $session.set('user', user);
       $store.commit('user', user);
       setTimeout(() => {
         $router.push(redirect);

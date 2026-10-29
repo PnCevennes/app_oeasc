@@ -23,7 +23,6 @@ const dataString = function (STORE, state, getterKey, n, dataKey) {
     .map((id) => {
       const data = STORE.getters[getterKey](state)(id);
       return (data && data[dataKey]) || '';
-      // return ((data && data[dataKey]) || "").toLowerCase();
     })
     .join(', ');
 };

@@ -135,7 +135,6 @@ export default {
       return JSON.parse(JSON.stringify(this.settings));
     },
     emitSettings() {
-      // this.n = this.n+1;
 
       const settings = this.options();
       settings.n = this.n;

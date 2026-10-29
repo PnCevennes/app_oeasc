@@ -130,9 +130,7 @@
         Section spécifique pour l'espèce "Cerf".
         Affiche des graphiques supplémentaires par catégorie de bracelet.
       -->
-      <!-- <div v-if="infos.nom_espece == 'Cerf'"> -->
       <div>
-        <!-- <h2>Résultats par catégories</h2> -->
         <v-row>
           <v-col style="width: 70%">
             <camembert
@@ -416,14 +414,10 @@ export default {
      * - Elle permet de s'assurer que seules les requêtes valides sont envoyées au store.
      */
     recuperation_data(bilanParams) {
-      // this.infos = {};
       // si il manque la saison ou l'espece on annule.
       if (!this.bilanParams.id_saison || !this.bilanParams.id_espece) {
         return;
       }
-
-      // console.log("bilanParams", bilanParams);
-      // this.graph_categories = apiRequest("GET", 'api/chasse/results/infos',  { params });
 
       apiRequest('GET', 'api/chasse/results/infos', { params: bilanParams }).then((infos) => {
         this.infos = infos;
@@ -449,13 +443,11 @@ export default {
         params: { ...bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_count_realisations_par_type_de_bracelet = result;
-        // console.log("data_count_realisations_par_type_de_bracelet", this.data_count_realisations_par_type_de_bracelet);
       });
       apiRequest('GET', 'api/chasse/difference_nbRealisations_nbAttributions', {
         params: { ...bilanParams, nb_saison: this.nb_saison_chronologie },
       }).then((result) => {
         this.data_nbRealisations_vs_nbAttributions = result;
-        // console.log("data_nbRealisations_vs_nbAttributions", this.data_nbRealisations_vs_nbAttributions);
       });
       apiRequest('GET', 'api/chasse/count_realisations_par_par_mois_par_type_bracelet', {
         params: { ...bilanParams, nb_saison: this.nb_saison_chronologie },

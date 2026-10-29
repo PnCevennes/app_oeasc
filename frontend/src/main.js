@@ -5,12 +5,10 @@ import { installGuards } from '@/router/guards.js';
 import store from '@/store/store';
 
 import vuetify from '@/plugins/vuetify'; // path to vuetify export
-import session from '@/plugins/session';
 
 import VueMatomo from 'vue-matomo';
 
 // port d'ecoute du serveur backend 5000. Mettre le meme dans config/config.py
-// Vue.config.devServer = { port: 8080, proxy: 'http://localhost:5005' };
 
 const app = createApp(App);
 
@@ -26,7 +24,6 @@ app.config.compilerOptions.isCustomElement = (tag) => tag === 'center';
 installGuards(router, store); // avant app.use(router) : la navigation initiale passe par les gardes
 app.use(router);
 app.use(store);
-app.use(session);
 
 // vutify est un framework css pour vuejs pour les formulaires, boutons, etc
 app.use(vuetify);

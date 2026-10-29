@@ -14,7 +14,6 @@ const val = defineAsyncComponent(() => import('../val.vue'));
 const faqDeclaration = defineAsyncComponent(() => import('../faq-declaration.vue'));
 const tableAide = defineAsyncComponent(() => import('../table-aide.vue'));
 const listePartenaire = defineAsyncComponent(() => import('../liste-partenaire.vue'));
-// import declarationTable from '@/modules/declaration/declaration-table.vue';
 const baseMap = defineAsyncComponent(() => import('@/components/map/base-map.vue'));
 const contentImg = defineAsyncComponent(() => import('../content-img.vue'));
 const restitution = defineAsyncComponent(() => import('@/modules/restitution/restitution.vue'));

@@ -1,4 +1,3 @@
-// import { copy } from "@/core/js/util/util";
 
 export default {
   group: 'in',
@@ -13,7 +12,6 @@ export default {
     sortDesc: [true], // tri en ordre décroissant
     // fields: [ //les des champs des modèles à intégrer à la requête get
     //   "secteur.id_secteur", "secteur.nom_secteur",
-    // ]
   },
 
   columns: [
@@ -57,13 +55,11 @@ export default {
     secteur: {
       text: 'Secteur',
       label: 'Secteur',
-      // storeName: 'commonsSecteur',
       displayFieldName: 'code_secteur',
       type: 'list_form',
       list_type: 'select',
       returnObject: true,
       dataReloadOnSearch: true,
-      // preProcess: (d) => d.circuit.secteur,
       display: (d) => (
         d.circuit && d.circuit.secteur && d.circuit.secteur.code_secteur ? d.circuit.secteur.code_secteur : ''
       ),
@@ -77,7 +73,6 @@ export default {
       multiple: true,
       storeName: 'inObserver',
       returnObject: true,
-      // dataReloadOnSearch: true,
       display: (d) => (d && d.length ? d.map((dd) => dd.nom_observer).join(', ') : ''),
     },
 
@@ -204,16 +199,5 @@ export default {
       //on n'affiche valide_ZC que si le secteur du circuit est "Causse-Gorges", on le met à true par défaut pour éviter les erreurs de validation
       
     },
-    // action: {
-    // preProcess: ({ baseModel }) => {
-    //   const out = copy(baseModel);
-    //   out.tags = baseModel.tags.map(t => ({
-    //     id_observation: t.id_observation,
-    //     id_tag: t.id_tag,
-    //     valild: t.valid
-    //   }));
-    //   return out;
-    // }
-    // }
   },
 };

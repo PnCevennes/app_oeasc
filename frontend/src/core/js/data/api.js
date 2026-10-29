@@ -74,54 +74,6 @@ var url = (urlRelative, params = {}) => {
   return builtUrl;
 };
 
-// fonction qui permet de gérer les erreurs
-// lors de l'appel à une API
-// elle affiche un message d'erreur dans la console
-// et renvoie une erreur
-// var fail = (msg) => {
-//   console.error(`apiRequest fail : ${msg}`);
-// };
-
-/**
- * Fonction asynchrone permettant de récupérer des données depuis une API via une requête GET.
- * @param {*} urlRelative - L'URL relative de l'API à interroger.
- * @param {*} options - Les options de la requête (params pour les paramètres de l'URL, headers pour les en-têtes HTTP).
- * @returns {Promise} - Une promesse résolue avec les données récupérées ou undefined en cas d'erreur.
- */
-const fetchData = async (urlRelative, options = {}) => {
-  // Construction de l'URL complète à partir de l'URL relative et des éventuels paramètres
-  let url_ = url(urlRelative, options.params);
-
-  // Préparation des options pour la requête fetch
-  var fetchOptions = {
-    method: 'GET', // Méthode HTTP utilisée : GET
-    headers: {
-      'Content-Type': 'application/json', // Type de contenu attendu en réponse
-      ...options.headers, // Fusion des éventuels headers supplémentaires passés en option
-    },
-    credentials: 'include', // Permet d'envoyer les cookies avec la requête (authentification, session, etc.)
-  };
-
-  // si url_ finit par un / on le supprime pour éviter les doublons
-  if (url_.href.endsWith('/')) {
-    url_ = new URL(url_.href.slice(0, -1));
-  }
-
-  try {
-    // Exécution de la requête fetch vers l'API
-    const response = await fetch(url_, fetchOptions);
-
-    // Conversion de la réponse en JSON
-    const data = await response.json();
-
-    // Renvoi des données récupérées
-    return data;
-  } catch (error) {
-    // Affichage d'une erreur dans la console en cas d'échec de la requête
-    console.error('Erreur lors de la récupération des données:', error);
-  }
-};
-
 /**
  * Effectue une requête API.
  * @param {*} method - La méthode HTTP à utiliser (GET, POST, etc.).
@@ -314,4 +266,4 @@ const simple_fetch = async (method, urlRelative, body = null, options = {}) => {
   }
 };
 
-export { apiRequest, url, fetchData, STORE, simple_fetch };
+export { apiRequest, url, STORE, simple_fetch };

@@ -23,15 +23,6 @@
         <!-- affichage de la date de création et de modification pour les actu -->
         <div v-if="displayContentDate">
           <i>Le {{ displayDate(content.meta_create_date) }}</i>
-
-          <i
-            v-if="
-              displayDate(content.meta_create_date) != displayDate(content.meta_update_date) &&
-              false
-            "
-          >
-            , modifié le {{ displayDate(content.meta_create_date) }}
-          </i>
         </div>
 
         <!-- affichage du contenu -->
@@ -145,7 +136,6 @@ import { config } from '@/config/config.js';
 import components from './config/components';
 
 import './content.css';
-// import Vue from "vue";
 import configContentForm from './config/form-content';
 import configImgForm from './config/form-img';
 import configDocForm from './config/form-doc';
@@ -194,10 +184,6 @@ export default {
       if (this.code || !newCode) return;
       this.initContent();
     },
-    content: {
-      handler() {},
-      deep: true,
-    },
     'content.html'() {
       this.renderError = false;
     },
@@ -219,7 +205,6 @@ export default {
   },
   data: () => ({
     mouseIn: true,
-    keysPressed: {},
     dp: null,
     content: null,
     bEditContents: false,
@@ -245,11 +230,6 @@ export default {
   }),
   methods: {
     // onMouseOver() { // non utilisé
-    //   this.mouseIn = true;
-    // },
-    // onMouseOut() { // non utilisé
-    //   this.mouseIn = false;
-    // },
 
     displayDate(date) {
       if (!date) return '';
@@ -296,19 +276,9 @@ export default {
     },
 
     // getFormData(ref, key) { // non utilisé
-    //   setTimeout(() => {
 
-    //     var out = this.$refs && this.$refs[ref] && this.$refs[ref].baseModel;
-    //     console.log(this.$refs, ref, out)
-    //     for (const k of key.split('.')) {
-    //       if (!out) {
-    //         break;
-    //       }
-    //       out = out[k]
-    //     }
     //     return out
     //   }, 1000)
-    // },
 
     setContent(data) {
       // recupère le contenu est le transforme en html. Place ce contenu dans content.html qui sera ensuite intégré au template
@@ -344,7 +314,6 @@ export default {
           // réponse périmée (navigation entre-temps) ou composant démonté : on ignore
           if (this.$.isUnmounted || code !== this.getCode()) return;
           this.setContent(data);
-          // console.log(data);
         },
         // si erreur => content vide (comportement prod != dev)
         (error) => {
@@ -355,52 +324,6 @@ export default {
       );
     },
 
-    // Non utilisé. Permet des raccourcis clavier dans les formulaires
-    manageKeys() {
-      if (['Control', ' '].every((key) => Object.keys(this.keysPressed).includes(key))) {
-        const elem = document.querySelector(
-          '.content :is(h1, h2, h3, h4, h5, h6):hover, .content p:hover, .content li:hover'
-        );
-
-        if (elem && elem.innerHTML) {
-          const preText =
-            elem.tagName[0].toLowerCase() == 'h'
-              ? '# '
-              : elem.tagName.toLowerCase() == 'li'
-                ? '* '
-                : '';
-          const text = preText + elem.innerHTML;
-
-          let index = this.content.md
-            .replace(this.$store.getters.mediaDocPath, '')
-            .replace(this.$store.getters.mediaImgPath, '')
-            .indexOf(text);
-          for (let s = text.length; s >= 5 || index == -1; s--) {
-            index = this.content.md.indexOf(text.substring(0, s));
-          }
-          setTimeout(() => {
-            const textAreaContent =
-              this.$refs[`content-form_${this.getCode()}`].$el.querySelector('textarea');
-            textAreaContent.focus();
-            if (index != -1) {
-              textAreaContent.setSelectionRange(index, index);
-            }
-          }, 500);
-        }
-
-        // var elementMouseIsOver = document.elementFromPoint(x, y);
-        const btnEditContent = this.$refs[`btn-edit-content_${this.getCode()}`];
-        if (btnEditContent) {
-          btnEditContent.click({});
-        }
-        const btnValidFormContent =
-          this.$refs[`content-form_${this.getCode()}`] &&
-          this.$refs[`content-form_${this.getCode()}`].$refs[`btn-valid-form`];
-        if (btnValidFormContent) {
-          btnValidFormContent.click({});
-        }
-      }
-    },
 
     triggerValidForm() {
       const btnValidFormContent =
@@ -410,27 +333,7 @@ export default {
         btnValidFormContent.click({});
       }
     },
-    // onKeyUp(event) {
-    //   if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
-    //     return;
-    //   }
-    //   setTimeout(() => {
-    //     if (this.keysPressed[event.key]) {
-    //       delete this.keysPressed[event.key];
-    //     }
-    //     this.keysPressed = {};
-    //   }, 50);
-    // },
-    // onKeyDown(event) {
 
-    //   if (this.$store.getters.droitMax <= 5 || !event || !this.mouseIn) {
-    //     return;
-    //   }
-    //   if (!Object.keys(this.keysPressed).includes(event.key)) {
-    //     this.keysPressed[event.key] = true;
-    //     this.manageKeys(event);
-    //   }
-    // }
   },
   mounted() {
     // load Tags
@@ -442,12 +345,6 @@ export default {
       this.initContent();
     });
 
-    // document.removeEventListener("keyup", this.onKeyUp);
-    // document.addEventListener("keyup", this.onKeyUp);
-
-    // document.removeEventListener("keydown", this.onKeyDown);
-    // document.addEventListener("keydown", this.onKeyDown);
   },
-  created() {},
 };
 </script>

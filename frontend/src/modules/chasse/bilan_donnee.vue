@@ -179,7 +179,6 @@ export default {
      * Les données récupérées sont ensuite stockées dans les variables d'état du composant (infos, data_cam_sexe_age, data_ice_masse_corporelle, data_ice_dagues) pour être utilisées dans les graphiques.
      */
     recuperation_data(bilanParams) {
-      // this.infos = {};
       // si il manque la saison ou l'espece on annule.
       if (!this.bilanParams.id_saison || !this.bilanParams.id_espece) {
         return;

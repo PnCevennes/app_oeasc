@@ -194,7 +194,6 @@ export default {
     },
   },
   mounted() {
-    // this.process();
   },
 };
 </script>

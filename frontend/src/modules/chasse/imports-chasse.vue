@@ -206,7 +206,6 @@ export default {
       file: null,
       uploading: false,
       message: '',
-      // json_data_bdd: null,
       reponse_affichee: [],
       error: false,
       saisons: [],
@@ -425,7 +424,6 @@ export default {
     // récupérer les saisons disponibles via l'API
     apiRequest('GET', 'api/generic/chasse/saisons')
       .then((res) => {
-        // console.log('API response for saisons:', res);
         this.saisons = res.items || [];
         // tri des saisons par ordre décroissant d'id (du plus récent au plus ancien)
         this.saisons.sort((a, b) => b.id_saison - a.id_saison);
@@ -438,7 +436,6 @@ export default {
               ? this.saisons[0].id_saison
               : null;
         }
-        // console.log('Saisons chargées', this.saisons);
       })
       .catch((err) => {
         console.error('Failed to fetch saisons', err);

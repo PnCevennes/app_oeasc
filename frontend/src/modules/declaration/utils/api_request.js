@@ -16,28 +16,6 @@ const CODE_AREA = {
   333: 'OEASC_SECTION',
 };
 
-// export async function fetch_declaration_by_id(id) {
-//   try {
-//     // const response = await fetch(`/api/declarations/${id}`);
-//     const response = await apiRequest('GET', `api/declaration/declaration${id ? `/${id}` : ''}`);
-//     console.log('Réponse de l’API pour la déclaration:', response);
-//     return response;
-//   } catch (error) {
-//     console.error('Erreur lors de la récupération des données', error);
-//     return null;
-//   }
-// }
-
-// export async function fetch_declarations(id) {
-//   try {
-//     const response = await apiRequest('GET', `api/declaration/declarations`);
-//     return response;
-//   } catch (error) {
-//     console.error('Erreur lors de la liste des déclarations', error);
-//     return null;
-//   }
-// }
-
 export async function fetch_oeasc_perimetre() {
   try {
     const response = await apiRequest(
@@ -63,44 +41,14 @@ export async function fetch_forets_from_code(codeForet) {
   }
 }
 
-// export async function fetch_all_foret_onf() {
-//   try {
-//     const response = await apiRequest(
 //       'GET',
 //       `api/ref_geo/areas_simples_from_type_code/l/OEASC_ONF_FRT`
-//     );
-//     return response;
-//   } catch (error) {
-//     console.error('Erreur lors de la récupération des forêts par code', error);
-//     return null;
-//   }
-// }
 
-// export async function fetch_all_foret_dgd() {
-//   try {
-//     const response = await apiRequest(
 //       'GET',
 //       `api/ref_geo/areas_simples_from_type_code/l/OEASC_DGD`
-//     );
-//     return response;
-//   } catch (error) {
-//     console.error('Erreur lors de la récupération des forêts par code', error);
-//     return null;
-//   }
-// }
 
-// export async function fetch_proprietaires_from_id_declarant(idDeclarant) {
-//   try {
-//     const response = await apiRequest(
 //       'GET',
 //       `api/declaration/proprietaire_from_id_declarant/${idDeclarant}`
-//     );
-//     return response;
-//   } catch (error) {
-//     console.error('Erreur lors de la récupération des propriétaires par ID déclarant', error);
-//     return null;
-//   }
-// }
 
 export async function fetch_proprietaires_from_id(id_proprietaire) {
   try {

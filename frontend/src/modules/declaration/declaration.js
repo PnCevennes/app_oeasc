@@ -1,4 +1,3 @@
-// import moment from "moment";
 import { copy } from '@/core/js/util/util';
 
 import config_variables from '@/../../config/variables/declaration.json';

@@ -1,5 +1,4 @@
 import './map-legend.css';
-// import * as chroma from "chroma-js";
 import chroma from 'chroma-js';
 
 var L = window.L;

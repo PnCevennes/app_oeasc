@@ -34,7 +34,6 @@ const processRouteName = function (routeName, { $store, $router }) {
   const processRoute = {};
 
   if (!route) {
-    // console.error(`route ${routeName} non définie`)
     return {};
   }
 

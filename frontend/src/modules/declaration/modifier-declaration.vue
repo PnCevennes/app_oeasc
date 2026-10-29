@@ -871,11 +871,6 @@
       "
     ></div>
 
-    <!-- <div style="width: 70%;">
-      <br><br>
-      <pre> declaration_data: {{ JSON.stringify(declaration_data, null, 2)}}</pre>
-    </div> -->
-
     <v-dialog
       v-model="affichage_fenetre_succes"
       max-width="600"
@@ -1091,7 +1086,6 @@ export default {
         'GET',
         `api/declaration/declaration?${this.declarationId ? `id=${this.declarationId}` : ''}`
       );
-      // console.log("Response de l'API pour la déclaration:", this.response);
     } else {
       // l'utilisateur n'est pas connecté, on vérifie si c'est un renouvellement avec token
       if (this.type_action === 'RENOUVELLEMENT' || this.type_action === 'CLOTURE') {
@@ -1116,14 +1110,11 @@ export default {
         this.declaration_data.id_declarant = this.$store.getters.user.id_role;
         this.declaration_data.email = this.$store.getters.user.email;
         this.declaration_data.nom_proprietaire = this.$store.getters.user.nom_complet;
-        // this.declaration_data.b_document = null; // On laisse le choix à l'utilisateur de renseigner ou non le document de gestion
-        // this.declaration_data.b_statut_public = null;
       }
 
       if (!this.declaration_data.b_valid) {
         this.declaration_data.b_valid = false; // Par défaut, la déclaration n'est pas validée
       }
-      // console.log("Données de la déclaration après traitement du renouvellement:", this.declaration_data);
       await this.refresh_areas_infos();
       this.initialized = true;
     }
@@ -1150,7 +1141,6 @@ export default {
      */
     async submitDeclaration() {
       // Vérification des règles de validation
-      // const isValid = this.$refs.form.validate();
 
       if (this.processing) {
         return;

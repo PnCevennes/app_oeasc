@@ -109,9 +109,6 @@ export default {
     org_mnemo: {
       text: 'Organisme',
     },
-    // organisme: {
-    //   text: "Organisme"
-    // },
     secteur: {
       text: 'Secteur',
     },
@@ -136,19 +133,10 @@ export default {
     type_foret: {
       text: 'Type forêt',
     },
-    // peuplement_ess_1_mnemo: {
-    //   text: 'Ess. objectif',
-    // },
     parcelles: {
       text: 'Parcelle(s)',
       display: (val) => displayParcelles(val.parcelles),
     },
-    // peuplement_type_mnemo: {
-    //   text: 'Type peupl.',
-    // },
-    // peuplement_origine2_mnemo: {
-    //   text: 'Origine plants touchés',
-    // },
     degat_type_mnemos: {
       // si besoin d'un peu de place on peut éventuellement retirer cette colonne
       text: 'Type dégâts',
@@ -183,7 +171,6 @@ export default {
                 // change le statut de la déclaration en "En cours" si elle est validée, ou "Brouillon" si elle est invalidée
               };
             }
-            // this.$store.commit('declarations', {});
           },
         },
         formDefs: {

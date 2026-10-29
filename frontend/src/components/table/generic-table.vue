@@ -254,7 +254,6 @@ import { defineAsyncComponent } from 'vue';
 import { copy, sortDate } from '@/core/js/util/util.js';
 import { describeApiError } from '@/core/js/data/api-messages.js';
 import { snackbarStore } from '@/store/snackbar';
-// import { sortDateTable } from './util';
 // generic-table est monté sur quasi toutes les pages d'admin ; genericForm n'est affiché que
 // dans le dialogue d'édition (v-if="configForm && bEditDialog"), donc chargé à la demande plutôt
 // qu'à chaque affichage de tableau.
@@ -624,13 +623,8 @@ export default {
         header.sortable = header.sortable ?? true;
 
         // le tri ne fonctionne pas correctement à cause du format de la date. On récupère maintenant le bon format en bdd et on modifie l'affiche avec la fonction display dans le fichier de config de la table
-        //  if (header.type == 'date') {
-        //   sortDate; // apparemment inutilisé
-        //   header.display = (a) =>
         //     a && a[header.value] && a[header.value].includes('-')
         //       ? a[header.value].split('-').reverse().join('/')
-        //       : a[header.value];
-        // }
 
         if (header.storeName) {
           const configStore = this.$store.getters.configStore(header.storeName);
@@ -638,7 +632,6 @@ export default {
 
           /** test pour ne pas avoir deux fois le même store name */
           if (!Object.values(config.stores).includes(header.storeName)) {
-            // config.stores[value] = header.storeName;
           }
           if (header.displayFieldName) {
             // on change ça

@@ -90,16 +90,6 @@ export default {
       name: 'type_foret',
       process: restitutionUtils.split(', '),
     },
-    // communes: {
-    //   text: "Commune",
-    //   name: "communes",
-    //   process: restitutionUtils.split(", ")
-    // },
-    // declarant: {
-    //   text: "Déclarant",
-    //   name: "declarant",
-    //   process: restitutionUtils.split(", ")
-    // },
     b_peuplement_paturage_presence: {
       text: 'Pâturage',
       process: restitutionUtils.replace([
@@ -114,10 +104,8 @@ export default {
         [false, 'Non'],
       ]),
     },
-    // peuplement_acces_label: {
     //   text: "Accès au peuplement",
     //   process: restitutionUtils.split(", ")
-    // },
     peuplement_ess_1_label: {
       text: 'Essence principale',
       process: restitutionUtils.split(', '),
@@ -155,8 +143,6 @@ export default {
     nbMax1: 7,
     nbMax2: 7,
     choix1: 'degat_type_label',
-    // choix2: "degat_essence_label",
-    // choix2: "degat_gravite_label",
     n: 0,
     height: '600px',
     filters: {

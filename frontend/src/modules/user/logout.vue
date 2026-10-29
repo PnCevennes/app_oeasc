@@ -17,7 +17,6 @@ export default {
     }).then(
       () => {
         this.msg = "Déconnexion réussie, redirection vers la page d'accueil";
-        this.$session.set('user', null);
         this.$store.commit('user', null);
         this.bMsg = true;
         setTimeout(() => {

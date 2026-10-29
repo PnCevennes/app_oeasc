@@ -13,12 +13,6 @@
         <restitution-graph :results="results"></restitution-graph>
       </div>
 
-      <!-- <div class="infos">
-        Données {{results.nbDataFiltered}} / {{results.nbData}}.
-        <template
-          v-if="results.filtersDisplay"
-        >Filtres : {{results.filtersDisplay}}</template>
-      </div> -->
     </div>
     <div v-else>
       <p>Chargement des données en cours</p>

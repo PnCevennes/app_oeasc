@@ -133,9 +133,6 @@ export default {
           },
         },
         yAxis: {
-          // min: -0.01,
-          // endOnTick: false,
-          // startOnTick: false,
           title: {
             text: dataTypeAxis, // Libellé dynamique selon le type de données (ex: "ICE (kg/ha/jour)")
           },
@@ -201,9 +198,6 @@ export default {
   },
   mounted() {
     // Pas besoin de faire la requête ici, elle est déclenchée par le watch sur les props.
-    // if (this.$props.do_api_request) {
-    //   this.do_request();
-    // }
   },
 };
 </script>

@@ -11,7 +11,6 @@ export default {
     sortDesc: [true], // tri en ordre décroissant
     // fields: [ //les des champs des modèles à intégrer à la requête get
     //   "secteur.id_secteur", "secteur.nom_secteur", "secteur.code_secteur"
-    // ]
   },
 
   defs: {

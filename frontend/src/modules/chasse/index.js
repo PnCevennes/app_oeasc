@@ -6,7 +6,6 @@ import { apiRequest } from '@/core/js/data/api.js'; // pour intégrer apiRequest
 import { round } from '@/core/js/util/util.js';
 
 // Import des fichiers de configuration des stores
-// import genericForm from "./form/generic-form.vue";
 import { generateConfigformDef } from './config/form-content-chasse.js';
 import configStoreZoneCynegetique from './config/store-zone-cynegetique.js';
 import configStoreZoneIndicative from './config/store-zone-indicative.js';
@@ -161,14 +160,8 @@ const ROUTE = [
   },
 
   // {
-  //   name: "chasse.bilan",
-  //   path: "/chasse/bilan",
   //   label: "Bilan données chasse", // titre dans le menu (mais pas dans la page)
   //   hideTitle: true,// True => cache le bandeau header pour plus de place
-  //   type: "page",
-  //   content: "bilanChasse",
-  //   access: 4
-  // },
 
   // j'ai repassé la page bilan données en composant classique (au lieu d'une page dynamique) car il y avait des défauts
   // comme le fait que des requêtes api étaient refaites plusieurs fois.

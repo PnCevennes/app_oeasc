@@ -162,15 +162,6 @@ export default {
 
       // si le chart existe déjà, on utilise l'API update pour forcer l'animation
       // try {
-      //   if (this.$refs.hc && this.$refs.hc.chart) {
-      //     // update(options, redraw=true, oneToOne=true)
-      //     this.$refs.hc.chart.update({ series: newSeries }, true, true);
-      //     return;
-      //   }
-      // } catch (e) {
-      //   // si update échoue, on retombe sur l'affectation classique
-      //   console.warn('Highcharts update failed:', e);
-      // }
 
       // titre et unité peuvent changer avec les props : on les recalcule à chaque fois
       const unite = this.$props.unite ? ` ${this.$props.unite}` : '';

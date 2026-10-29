@@ -147,7 +147,6 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                   <tr v-if="declaration_data.organisme">
                     <td class="gauche">Organisme</td>
                     <td class="droite">{{ declaration_data.organisme }}</td>
-                    <!-- <td class="droite">{{declaration_data.org_mnemo || "Non renseigné"}}</td> -->
                   </tr>
                 </tbody>
 
@@ -436,7 +435,6 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
                     </th>
                   </tr>
                   <tr>
-                    <!-- <td class="gauche"></td> -->
                     <td
                       class="droite"
                       colspan="2"
@@ -728,7 +726,6 @@ export default {
 
         if (statut === config_statut['Active'] && dateFin && dateFin < new Date()) {
           this.show_buttom_relance_mail = true;
-          // console.log('Active show_buttom_relance_mail:', this.show_buttom_relance_mail);
         }
       }
     },
@@ -765,7 +762,6 @@ export default {
         } else {
           if (this.declaration_data.statut_public_foret == true) {
             liste.push('FORETS_ONF');
-            // liste.push('PARCELLES_ONF');
             liste.push('UG_ONF');
           } else {
             liste.push('FORETS_DGD');
@@ -780,7 +776,6 @@ export default {
         } else {
           if (this.declaration_data.statut_public_foret == true) {
             liste.push('FORETS_ONF');
-            // liste.push('PARCELLES_ONF');
             liste.push('UG_ONF');
           } else {
             liste.push('FORETS_DGD');

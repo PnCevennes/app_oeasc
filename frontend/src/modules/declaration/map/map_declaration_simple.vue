@@ -1,6 +1,5 @@
 <!--
 
-
 -->
 <template>
   <div style="width: 100%; display: flex; flex-direction: row">
@@ -212,7 +211,6 @@ export default {
         `api/declaration/all_areas_declaration?id=${this.declaration_data.id_declaration}&list_id_types=${list_id_types}`
       );
       this.all_areas_geojson = result;
-      //   console.debug('MapDeclarationSimple: fetched all_areas_geojson', this.all_areas_geojson && (this.all_areas_geojson.features ? this.all_areas_geojson.features.length : 'no-features'));
     } catch (error) {
       console.error(
         'Erreur lors de la récupération de toutes les aires de la déclaration :',
@@ -415,14 +413,12 @@ export default {
                 this.map.setZoom(this.map.getZoom() + this.zoom_offset);
                 this.map.options.zoomSnap = previousZoomSnap;
               }
-              //   console.debug('MapDeclarationSimple: fitBounds applied to targetBounds', targetBounds);
             } else {
               // fallback général
               console.warn(
                 'MapDeclarationSimple: no valid bounds found from data, setting default view'
               );
               this.map.setView([46.5, 2.5], 6);
-              //   console.debug('MapDeclarationSimple: no bounds found, set default view');
             }
             // if declaration_data.centroid exists, add a marker
             try {
@@ -438,8 +434,6 @@ export default {
                   // remove existing marker if present
                   this.removeDeclarationMarker();
                   // create marker with a high zIndex offset so it stays above other layers
-                  // this.declarationMarker = L.marker([lat, lng], { zIndexOffset: 1000, preferCanvas: true  });
-                  // this.declarationMarker.addTo(this.map);
                   L.circleMarker([lat, lng], {
                     radius: 10,
                     fillColor: '#ff0000',
@@ -687,7 +681,6 @@ export default {
                   break;
                 }
               } catch (e) {
-                // console.warn('Erreur placement label candidat', cand, e);
               }
             }
             // si aucun candidat n'a pu être placé sans collision, on place le label à sa position centrale par défaut (même si ça peut générer des chevauchements, au moins le label est affiché)

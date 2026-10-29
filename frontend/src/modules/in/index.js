@@ -1,6 +1,5 @@
 import { defineAsyncComponent } from 'vue';
 import storeUtils from '@/store/utils';
-// import configStoreTag from './config/store-tag';
 import configStoreObserver from './config/store-observer';
 import configStoreCircuit from './config/store-circuit';
 import configStoreRealisation from './config/store-realisation';
@@ -16,21 +15,12 @@ const inTable = defineAsyncComponent(() => import('@/modules/in/in-table.vue'));
 const ROUTE = [
   // {
   //   // index
-  //   name: "in.index",
-  //   path: "/in/index",
-  //   label: "Indices nocturnes",
-  //   type: "page",
-  //   content: "in.index",
-  //   parent: "page.accueil",
-  //   access: 5
-  // },
 
   {
     // admin
     name: 'in.admin',
     path: '/in/admin',
     label: 'Indices nocturnes ',
-    // parent: "in.index",
     hideTitle: true,
     component: () => import('@/components/admin.vue'),
     props: {

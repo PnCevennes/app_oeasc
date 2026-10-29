@@ -114,17 +114,8 @@ export default {
   // utilisé dans les index.js des modules pour traiter leurs stores de données
   // construit des éléments comme des getters, mutations, actions, state et les ajoute à STORE
   // configIn est le fichier de config du store dans chaque module
-  // group: "chasse",
-  // name: "typeBracelet",
   // label: "Type de bracelet",
   // labels: "Types de bracelet",
-  // displayFieldName: "code_type_bracelet",
-  // defs: {
-  //   id_type_bracelet: {
-  //     label: "ID",
-  //     type: "text",
-  //     hidden: true,
-  //   },
 
   /**
    * Ajoute un store au store Vuex basé sur un objet de configuration.
@@ -159,7 +150,6 @@ export default {
       configIn.api = configIn.api.slice(0, -1);
     }
 
-    // console.log(`Adding store ${configIn.group}/${configIn.name} with api ${configIn.api || `api/generic/${configIn.group}/${snakeName}`}`);
     const api = configIn.api || `api/generic/${configIn.group}/${snakeName}`;
     const apis = `${api}s`;
 
@@ -434,7 +424,6 @@ export default {
         { value = null, fieldName = configStore.idFieldName, postData = null }
       ) => {
         return new Promise((resolve, reject) => {
-          // const configStore = getters.configStore(storeName);
           /** verification des arguments */
           let error;
           if (['PATCH', 'GET', 'DELETE'].includes(requestType) &&

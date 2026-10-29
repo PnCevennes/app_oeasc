@@ -88,19 +88,6 @@ export default {
               '';
 
             // total de la colonne: somme des y de chaque série pour cet index
-            // let totalCol = 0;
-            // if (chart && Array.isArray(chart.series)) {
-            //   chart.series.forEach(s => {
-            //     if (!s || !s.data) return;
-            //     const cell = s.data[xIndex];
-            //     if (cell == null) return;
-            //     if (typeof cell === 'number') {
-            //       totalCol += cell;
-            //     } else if (typeof cell.y === 'number') {
-            //       totalCol += cell.y;
-            //     }
-            //   });
-            // }
 
             // nom de la ligne (série) et total de la ligne (si présent dans les options sinon somme)
             const lineName = (point.series && point.series.name) || '';
@@ -171,7 +158,6 @@ export default {
         },
 
         dataLabels: {
-          //
           style: {
             fontSize: '1em',
             fontWeight: 1,
@@ -271,7 +257,6 @@ export default {
   },
 
   mounted() {
-    // this.actualisation_propriete();
   },
 };
 </script>

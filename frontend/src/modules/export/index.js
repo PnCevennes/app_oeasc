@@ -1,5 +1,4 @@
 import html2pdf from 'html2pdf.js';
-// import html2canvas from "html2canvas";
 
 /**
  * Réinitialise le style d'un élément de carte après une exportation ou une modification.
@@ -23,8 +22,6 @@ const resetMapStyle = (elem) => {
   elem.style.display = 'block';
   elem.style.width = this.widthSave + 'px';
   elem.style.height = this.heightSave + 'px';
-  // this._map.invalidateSize();
-  // this.reinitZoom();
 };
 
 /**
@@ -64,8 +61,6 @@ const exportPDF = function (id, filename, $store) {
       const mapImgpromises = $store.getters
         .elemMapServices(id) // Obtient les services de carte liés à l'élément avec l'id donné
         .map((mapService) => mapService.toImg()); // Pour chaque service, génère une image de la carte
-
-      // console.log(mapImgpromises)
 
       Promise.all(mapImgpromises).then((mapElems) => {
         // Utilise html2pdf pour convertir l'élément en PDF avec les options spécifiées

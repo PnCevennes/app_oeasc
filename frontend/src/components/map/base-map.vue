@@ -183,7 +183,6 @@ export default {
         },
         value: {
           filename: 'export_carte_oeasc.png',
-          // width: 1000,
           width: this.$refs[this.mapId].clientWidth,
           height: this.$refs[this.mapId].clientHeight,
         },

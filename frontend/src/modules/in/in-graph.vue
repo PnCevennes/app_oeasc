@@ -288,7 +288,6 @@ export default {
                 plotOptions: {
                   series: {
                     dataLabels: {
-                      // enabled: true,
                     },
                   },
                 },

@@ -62,7 +62,6 @@ export default {
     process() {
       // test pour ne pas lancer plusieurs requêtes en meme temps
       if (this.isProcessing && fde(this.$props, this.processedProps)) {
-        // console.log('processing', this.$props, this.processedProps)
         return;
       }
 
@@ -94,9 +93,6 @@ export default {
             this.$props,
             restitution.items[params.fieldName].text
           );
-          // console.log("data", data);
-          // console.log("params", params);
-          // console.log("props", this.$props);
           // process terminé
           this.isProcessing = false;
           this.processedProps = null;

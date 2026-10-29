@@ -413,7 +413,6 @@ export default {
             if (this.config.action.onSuccess) {
               this.config.action.onSuccess({
                 data,
-                $session: this.$session,
                 $store: this.$store,
                 $router: this.$router,
                 $route: this.$route,

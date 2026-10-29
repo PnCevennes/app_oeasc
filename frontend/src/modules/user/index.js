@@ -128,8 +128,6 @@ const STORE = {
         return false;
       }
       // check date
-      // const date = new Date(state._user.expires);
-      // const now = new Date();
       return !!(state._user && state._user.id_role);
     },
     /**

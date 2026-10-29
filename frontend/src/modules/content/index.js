@@ -1,5 +1,4 @@
 import storeUtils from '@/store/utils';
-// import { apiRequest } from "@/core/js/data/api.js";
 
 import configStoreTag from './config/store-tag';
 import configStoreContent from './config/store-content';

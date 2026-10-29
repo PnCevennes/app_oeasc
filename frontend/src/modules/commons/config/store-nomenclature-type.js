@@ -29,7 +29,6 @@ export default {
     },
     definition_default: {
       label: 'Description',
-      // required: true,
       type: 'text',
     },
   },

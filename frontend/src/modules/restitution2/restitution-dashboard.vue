@@ -58,7 +58,6 @@
 import restitutionForm from './restitution-form';
 import restitution2 from './restitution.vue';
 import { addPxSuffix } from '../../core/js/util/util.js';
-// import deepEqual from "fast-deep-equal";
 
 export default {
   name: 'restitution-dashboard',

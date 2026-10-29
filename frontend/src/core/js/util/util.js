@@ -1,6 +1,5 @@
 /* Quelques fonctions simples */
 
-// import moment from "moment";
 import fastDeepEqual from 'fast-deep-equal';
 /** Functions utiles */
 

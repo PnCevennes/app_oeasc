@@ -149,7 +149,6 @@ export default {
         },
 
         series: [],
-        // colorByPoint: true,
 
         height: this.$props.height || '600px',
         width: this.$props.width || '600px',
@@ -275,7 +274,6 @@ export default {
 
   mounted() {
     // finalement pas besoin de lancer actualisation_propriete au montage, car le watch sur $props avec immediate: true s'en charge déjà et évite un double appel à la fonction de création de la série
-    // this.actualisation_propriete();
   },
 };
 </script>

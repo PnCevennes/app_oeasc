@@ -25,7 +25,6 @@
           v-model="configDrawer.show"
         ></oeasc-app-bar>
         <div class="oeasc-app-bar space"></div>
-        <!-- <v-card color="grey lighten-4" flat tile> -->
         <div
           class="img-titre"
           v-if="!$route.meta.hideTitle"
@@ -83,11 +82,6 @@
       </div>
     </v-snackbar>
 
-    <!-- <pre>CONFIG:::{{ JSON.stringify(test_affichage_config, null, 2) }}</pre> -->
-    <!-- <pre>session:::{{ JSON.stringify(test_affichage_session, null, 2) }}</pre> -->
-    <!-- <pre>STORE::: {{ JSON.stringify(test_affichage_store, null, 2) }}</pre> -->
-    <!-- <pre>STORE_MUTATION::: {{ JSON.stringify(test_store_mutation, null, 2) }}</pre> -->
-    <!-- <pre>STORE_ACTION::: {{ JSON.stringify(test_store_action, null, 2) }}</pre> -->
   </v-app>
 </template>
 
@@ -110,11 +104,6 @@ export default {
   components: { oeascAppBar, oeascDrawer, breadcrump },
 
   computed: {
-    test_affichage_store() {
-      // a retirer. C'est pour voir le contenu du store sans l'objet _user  }
-      const { ...rest } = this.$store.state;
-      return rest;
-    },
     snackbarState() {
       return snackbarStore.state;
     },
@@ -139,8 +128,6 @@ export default {
         show: false,
       },
       drawerShow: false,
-      // test_affichage_store: this.$store.state, // a retirer. C'est pour voir le contenu du store
-      // test_store_unique: this.$store.configDrawer
     };
   },
 

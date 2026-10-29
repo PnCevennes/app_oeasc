@@ -134,9 +134,6 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
                       }}
                     </span>
                     <!-- sinon on affiche l'essence selectionnée dans le dégat -->
-                    <!-- <span v-else>
-                          {{ get_essence_of_degat_from_declaration(item_type_degat.id_nomenclature, item_degat_essence.id_nomenclature_degat_essence).label_fr }}
-                        </span> -->
                   </th>
 
                   <th
@@ -371,9 +368,6 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
       </p>
     </div>
 
-    <!-- <pre> Liste des degats: {{ this.declaration_data.degats}}</pre> -->
-    <!-- <pre> Liste des essences secondaire: {{ declaration_data.nomenclatures_peuplement_essence_secondaire}}</pre>  -->
-    <!-- <pre> {{ this.$store.state }}</pre> -->
   </div>
 </template>
 
@@ -458,7 +452,6 @@ export default {
         if (!this.declaration_data || !this.declaration_data['degats']) {
           return []; // evite une erreur si declaration_data n'est pas encore initialisé et que degats n'existe pas
         }
-        // return this.declaration_data.degats;
         return this.declaration_data.degats.map((d) => d.id_nomenclature_degat_type);
       },
 

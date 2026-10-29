@@ -115,9 +115,6 @@ export default {
           },
         },
         yAxis: {
-          // min: -0.01,
-          // endOnTick: false,
-          // startOnTick: false,
           title: {
             text: 'Réalisation',
           },
@@ -157,7 +154,6 @@ export default {
     },
 
     recuperation_data_bilan() {
-      //
 
       this.processing = true;
       if (!this.bilanParams.id_espece) {
@@ -172,7 +168,6 @@ export default {
   },
   mounted() {
     // pas besoin de récupérer les données à l'initialisation, le watcher sur les props s'en charge et est déclenché immédiatement grâce à immediate: true
-    // this.recuperation_data_bilan();
   },
 };
 </script>

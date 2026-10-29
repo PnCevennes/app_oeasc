@@ -44,7 +44,6 @@ on utilisera un fichier du type help_content.vue pour le contenu de la fenêtre.
 <script>
 export default {
   name: 'help',
-  // props: ["code"],
   components: {},
   data: () => ({
     dialog: false,

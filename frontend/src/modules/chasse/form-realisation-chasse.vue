@@ -12,7 +12,6 @@
     ></v-progress-linear>
 
     <!-- Affiche le numéro de bracelet actuellement sélectionné dans le formulaire -->
-    <!-- {{$refs.form && $refs.form.baseModel.attribution && $refs.form.baseModel.attribution.numero_bracelet}} -->
 
     <!-- Liste des réalisations déjà saisies, permet de les éditer en cliquant dessus -->
     <div v-if="realisations.length">
@@ -75,7 +74,6 @@ export default {
      */
     // (re) initialisation du formulaire
     initForm(realisation = null) {
-      // this.config.value = realisation
       // suppression du composant generic-form pour forcer sa recréation
       this.displayForm = false;
 

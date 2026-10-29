@@ -49,19 +49,12 @@ export default {
     // résumé de la structure attendue des données :
     // data_db = [
     //   {"fieldGroup": "janvier",
-    //    data: [
     //      "nom du bloc values_field": "CEFF", "valeur du bloc values_field": 10},
     //      {"nom du bloc values_field": "CEM", "valeur du bloc values_field": 5},
     //      ...
-    //    ]
-    //   },
-    //   {"fieldGroup": "février",
-    //    data: [
     //      {"nom du bloc values_field": "CEFF", "valeur du bloc values_field": 8},
     //      {"nom du bloc values_field": "CEM", "valeur du bloc values_field": 3},
     //      ...
-    //    ]
-    //   },
     //   ...
 
     title: { default: '' },
@@ -144,7 +137,6 @@ export default {
         },
 
         series: [],
-        // colorByPoint: true,
 
         height: this.$props.height || '600px',
         width: this.$props.width || '600px',
@@ -283,7 +275,6 @@ export default {
   },
 
   mounted() {
-    // this.actualisation_propriete();
   },
 };
 </script>

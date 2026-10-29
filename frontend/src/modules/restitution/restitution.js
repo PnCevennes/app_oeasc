@@ -1,4 +1,3 @@
-// import * as chroma from "chroma-js";
 import restitutionUtils from './utils.js';
 import chroma from 'chroma-js';
 
@@ -18,7 +17,6 @@ class Restitution {
       'triangle',
       'wifi-strength-4',
     ],
-    // colors: ["#1b9e77", "#d95f02", "#7570b3"],
     colors: chroma.brewer.Dark2,
 
     icon: 'circle',
@@ -58,7 +56,6 @@ class Restitution {
             ? this._options[key]
             : JSON.parse(JSON.stringify(this.default[key]));
       }
-      // this._options = this.default;
     }
   }
 
@@ -71,7 +68,6 @@ class Restitution {
     return data.map((d) => {
       const d_ = {};
       for (const key of keys) {
-        // for (const key of Object.keys(d)) {
         d_[key] = this.getValue(d, key);
       }
       return d_;
@@ -389,9 +385,6 @@ class Restitution {
   }
 
   filteredData(filters = null) {
-    // if(!this._filteredData) {
-    //   this._filteredData  = this.filterData(this.data(), filters);
-    // }
     // return this._filteredData
     return this.filterData(this.data(), filters);
   }

@@ -104,9 +104,7 @@
                     <th>y = ax + b</th>
                     <th>a</th>
                     <th>b</th>
-                    <!-- <th>R<sup>2</sup></th> -->
                     <th>p-val</th>
-                    <!-- <th>p-val b</th> -->
                   </tr>
                 </thead>
                 <tbody>
@@ -115,13 +113,7 @@
                     <!-- round() : méthode pour arrondir les valeurs -->
                     <td>{{ round(dataUg.reg_lin.params[0], dec) }}</td>
                     <td>{{ round(dataUg.reg_lin.params[1], dec) }}</td>
-                    <!-- <td>
-                    {{ round(dataUg.reg_lin.R2, dec) }}
-                    </td>-->
                     <td>{{ round(dataUg.reg_lin.pvalues[0], dec) }}</td>
-                    <!-- <td>
-                    {{ round(dataUg.reg_lin.pvalues[1], dec) }}
-                    </td>-->
                   </tr>
                 </tbody>
               </v-table>
@@ -429,7 +421,6 @@ export default {
       this.freezeValid = true;
       const postData = {};
       // Prépare les données à envoyer à l'API
-      // postData.id_tag = circuit.id_tag;
       postData.id_realisation = circuit.id_realisation;
       postData.valide_PNC = circuit.valide_PNC;
       postData.valide_ZC = circuit.valide_ZC;

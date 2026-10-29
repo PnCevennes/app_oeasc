@@ -572,11 +572,8 @@ export default {
       if (this.declaration_data.b_document == false) {
         // ################## CAS DES SECTIONS ET COMMUNES ##################
 
-        // console.log(
         //   'areas_foret_communes avant ajout : ',
         //   this.declaration_data.areas_foret_communes
-        // );
-        // console.log('actual_commune : ', this.actual_commune);
         if (this.declaration_data.areas_foret_communes.includes(this.actual_commune) == false) {
           this.declaration_data.areas_foret_communes.push(this.actual_commune); // Ajoute la commune à la liste des zones sélectionnées
         }
@@ -901,7 +898,6 @@ export default {
       this.baseLayer = L.tileLayer(tileConf.url, {
         attribution: tileConf.attribution,
       }).addTo(this.map);
-      // this.add_buttom_precedent_on_map();
     },
 
     /**
