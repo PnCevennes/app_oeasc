@@ -20,7 +20,8 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
       <span>
         <v-btn
           color="red"
-          :disabled="!declaration_data"
+          :disabled="!declaration_data || isExporting"
+          :loading="isExporting"
           @click="exportToPdf"
           title="Exporter la déclaration au format pdf"
         >
@@ -71,381 +72,13 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
         <div
           id="resume_declaration"
           ref="ref_resume_declaration"
-          style="width: 100%; margin: auto"
+          :style="{ width: pdfCompact ? '450px' : '100%', margin: 'auto' }"
         >
           <template v-if="bInit == true">
-            <div>
-              <v-table
-                density="compact"
-                style="margin-bottom: 16px; width: 100%; max-width: 100%; margin: auto"
-              >
-                <thead>
-                  <tr>
-                    <th colspan="2">Résumé de la déclaration</th>
-                  </tr>
-                </thead>
-
-                <!-- ------------------------------- INFORMATIONS -------------------------------- -->
-                <tbody>
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Informations
-                    </th>
-                  </tr>
-                  <!-- seulement visible par les admins -->
-                  <tr v-if="this.$store.getters.droitMax >= 4">
-                    <td class="gauche">Validité</td>
-                    <td class="droite">{{ declaration_data.valide }}</td>
-                  </tr>
-
-                  <tr>
-                    <td class="gauche">Partage d'information</td>
-                    <td class="droite">
-                      {{ declaration_data.autorisation }}
-                    </td>
-                  </tr>
-                  <tr v-if="this.$store.getters.droitMax >= 2">
-                    <td class="gauche">Statut</td>
-                    <td class="droite">
-                      {{ declaration_data.statut_label }}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td class="gauche">Date de création</td>
-                    <td class="droite">
-                      {{ declaration_data.declaration_date }}
-                    </td>
-                  </tr>
-
-                  <tr>
-                    <td class="gauche">Date de fin</td>
-                    <td class="droite">
-                      {{ declaration_data.date_fin }}
-                    </td>
-                  </tr>
-                </tbody>
-
-                <!-- ------------------------------- DECLARANT -------------------------------- -->
-                <tbody v-if="declaration_data.declarant || declaration_data.organisme">
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Déclarant
-                    </th>
-                  </tr>
-
-                  <tr v-if="declaration_data.declarant">
-                    <td class="gauche">Nom du propriétaire</td>
-                    <td class="droite">{{ declaration_data.declarant }}</td>
-                  </tr>
-                  <tr v-if="declaration_data.organisme">
-                    <td class="gauche">Organisme</td>
-                    <td class="droite">{{ declaration_data.organisme }}</td>
-                  </tr>
-                </tbody>
-
-                <!-- ------------------------------- FORET -------------------------------- -->
-                <tbody>
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Forêt
-                    </th>
-                  </tr>
-
-                  <tr v-if="declaration_data.nom_foret">
-                    <td class="gauche">Nom</td>
-                    <td class="droite">{{ declaration_data.nom_foret }}</td>
-                  </tr>
-
-                  <tr v-if="declaration_data.statut_public">
-                    <td class="gauche">Statut</td>
-                    <td class="droite">
-                      {{ declaration_data.statut_public }}
-                    </td>
-                  </tr>
-
-                  <tr v-if="declaration_data.document">
-                    <td class="gauche">Document de gestion durable</td>
-                    <td class="droite">
-                      {{ declaration_data.document }}
-                      <span v-if="declaration_data.b_document && declaration_data.b_statut_public">
-                        <i>(régime forestier)</i>
-                      </span>
-                      <span
-                        v-else-if="declaration_data.b_document && !declaration_data.b_statut_public"
-                      >
-                        <i>(document de gestion durable)</i>
-                      </span>
-                    </td>
-                  </tr>
-
-                  <tr v-if="declaration_data.type_foret">
-                    <td class="gauche">Type</td>
-                    <td class="droite">
-                      <!-- ici le type de foret affiché a été renommé par foretType, voir dans les script -->
-                      {{ declaration_data.type_foret }}
-                    </td>
-                  </tr>
-
-                  <tr v-if="declaration_data.espece_label">
-                    <td class="gauche">Espèces présentes</td>
-                    <td class="droite">
-                      {{ declaration_data.espece_label }}
-                    </td>
-                  </tr>
-                </tbody>
-
-                <!-- ------------------------------- PEUPLEMENT LOCALISATION -------------------------------- -->
-                <tbody>
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Peuplement - localisation
-                    </th>
-                  </tr>
-                  <tr v-if="declaration_data.secteur">
-                    <td class="gauche">Secteur</td>
-                    <td class="droite">{{ declaration_data.secteur }}</td>
-                  </tr>
-
-                  <tr v-if="declaration_data.communes">
-                    <td class="gauche">Commune(s)</td>
-                    <td class="droite">{{ declaration_data.communes }}</td>
-                  </tr>
-
-                  <tr v-if="declaration_data.parcelles">
-                    <td class="gauche">Parcelle(s)</td>
-                    <td class="droite">{{ declaration_data.parcelles }}</td>
-                  </tr>
-
-                  <tr v-if="declaration_data.accessibilite">
-                    <td class="gauche">Accessibilité</td>
-                    <td class="droite">
-                      {{ declaration_data.accessibilite }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.precision_localisation">
-                    <td class="gauche">Précisions sur la localisation</td>
-                    <td class="droite">
-                      {{ declaration_data.precision_localisation || 'Non renseigné' }}
-                    </td>
-                  </tr>
-                </tbody>
-
-                <!-- ---------------------------PEUPLEMENT - ESSENCES --------------------------- -->
-                <tbody>
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Peuplement - essences
-                    </th>
-                  </tr>
-                  <tr v-if="declaration_data.peuplement_ess_1">
-                    <td class="gauche">Principale</td>
-                    <td class="droite">
-                      {{ declaration_data.peuplement_ess_1 }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.peuplement_ess_2">
-                    <td class="gauche">Secondaire(s)</td>
-                    <td class="droite">
-                      {{ declaration_data.peuplement_ess_2 }}
-                    </td>
-                  </tr>
-
-                  <tr v-if="declaration_data.peuplement_ess_3">
-                    <td class="gauche">Complémentaire(s)</td>
-                    <td class="droite">
-                      {{ declaration_data.peuplement_ess_3 }}
-                    </td>
-                  </tr>
-                </tbody>
-
-                <!-- --------------------------- PEUPLEMENT - DESCRIPTION --------------------------- -->
-                <tbody>
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Peuplement - description
-                    </th>
-                  </tr>
-                  <tr v-if="declaration_data.surface_renseignee">
-                    <td class="gauche">Superficie du peuplement (ha)</td>
-                    <td class="droite">
-                      {{
-                        declaration_data.surface_renseignee
-                          ? declaration_data.surface_renseignee
-                          : 'Non renseignée'
-                      }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.origine_peuplement">
-                    <td class="gauche">Origine</td>
-                    <td class="droite">
-                      {{ declaration_data.origine_peuplement }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.origine_plants_touches">
-                    <td class="gauche">Origine des plants touchés</td>
-                    <td class="droite">
-                      {{ declaration_data.origine_plants_touches }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.peuplement_type">
-                    <td class="gauche">Type</td>
-                    <td class="droite">
-                      {{ declaration_data.peuplement_type }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.peuplement_maturite">
-                    <td class="gauche">Maturité</td>
-                    <td class="droite">
-                      {{ declaration_data.peuplement_maturite }}
-                    </td>
-                  </tr>
-                </tbody>
-
-                <!-- --------------------------- PEUPLEMENT - PROTECTION --------------------------- -->
-                <tbody>
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Peuplement - protection
-                    </th>
-                  </tr>
-                  <tr>
-                    <td class="gauche">Existence</td>
-                    <td class="droite">
-                      {{ declaration_data.peuplement_protection_type ? 'Oui' : 'Non' }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.peuplement_protection_type">
-                    <td class="gauche">Type</td>
-                    <td class="droite">
-                      {{ declaration_data.peuplement_protection_type }}
-                    </td>
-                  </tr>
-                </tbody>
-
-                <!-- --------------------------- PEUPLEMENT - PATURAGE --------------------------- -->
-                <tbody v-if="declaration_data.peuplement_paturage_type">
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Peuplement - pâturage
-                    </th>
-                  </tr>
-
-                  <tr v-if="declaration_data.peuplement_paturage_type">
-                    <td class="gauche">Type</td>
-                    <td class="droite">
-                      {{ declaration_data.peuplement_paturage_type }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.paturage_statut">
-                    <td class="gauche">Statut</td>
-                    <td class="droite">
-                      {{ declaration_data.paturage_statut }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.paturage_frequence">
-                    <td class="gauche">Fréquence</td>
-                    <td class="droite">
-                      {{ declaration_data.paturage_frequence }}
-                    </td>
-                  </tr>
-                  <tr v-if="declaration_data.peuplement_paturage_saison">
-                    <td class="gauche">Saison</td>
-                    <td class="droite">
-                      {{ declaration_data.peuplement_paturage_saison }}
-                    </td>
-                  </tr>
-                </tbody>
-
-                <!-- --------------------------- DEGATS --------------------------- -->
-                <tbody>
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Dégâts
-                    </th>
-                  </tr>
-
-                  <tr
-                    v-for="(item_degat, index) in declaration_data.degats"
-                    :key="index"
-                  >
-                    <td class="gauche">{{ item_degat.degat_type_label }}</td>
-                    <td class="droite">
-                      <!-- si le type de degat n'est pas un degat sur cloture-->
-                      <template v-if="item_degat.degat_type_code != 'P/C'">
-                        <div
-                          v-for="(item_degat_essence, index_essence) in item_degat.essences"
-                          :key="index_essence"
-                        >
-                          <strong>
-                            {{ item_degat_essence.degat_essence_label }}
-                          </strong>
-                          <!-- si le degat n'est pas un defaut de regeneration, on affiche les détails -->
-                          <span v-if="item_degat.degat_type_code != 'ABS'">
-                            :
-                            {{ item_degat_essence.degat_etendue_label }},
-                            {{ item_degat_essence.degat_gravite_label }},
-                            {{ item_degat_essence.degat_anteriorite_label }}
-                          </span>
-                        </div>
-                      </template>
-                      <template v-if="item_degat.id_nomenclature_degat_type == 480">
-                        <!-- si le type de degat est un degat sur cloture  on met juste oui-->
-                        Oui
-                      </template>
-                    </td>
-                  </tr>
-                </tbody>
-
-                <!-- --------------------------- COMMENTAIRES --------------------------- -->
-                <tbody v-if="declaration_data.commentaire">
-                  <tr>
-                    <th
-                      colspan="2"
-                      class="sous_titre"
-                    >
-                      Commentaires
-                    </th>
-                  </tr>
-                  <tr>
-                    <td
-                      class="droite"
-                      colspan="2"
-                      style="padding: 10px"
-                    >
-                      {{ declaration_data.commentaire }}
-                    </td>
-                  </tr>
-                </tbody>
-              </v-table>
-            </div>
+            <voir-declaration-table
+              :declaration_data="declaration_data"
+              :compact="pdfCompact"
+            />
           </template>
         </div>
       </div>
@@ -492,7 +125,7 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
 <script>
 import { apiRequest } from '@/core/js/data/api';
 import './declaration.css';
-import resumeDeclaration from './resume_declaration.vue';
+import VoirDeclarationTable from './voir-declaration-table.vue';
 import MapDeclarationSimple from './map/map_declaration_simple.vue';
 import confirmRelanceMail from './confirm_relance_mail.vue';
 import config_variables from '@/../../config/variables/declaration.json';
@@ -506,6 +139,7 @@ export default {
   name: 'voir_declaration',
   data: () => ({
     pdfProcessing: false,
+    pdfCompact: false, // tableau en mode dense pendant la capture de l'export PDF
     declaration_data: null,
     b_init: false,
     mapList: ['secteur', 'foret', 'parcelles'],
@@ -517,7 +151,7 @@ export default {
   }),
 
   components: {
-    resumeDeclaration,
+    VoirDeclarationTable,
     MapDeclarationSimple,
     confirmRelanceMail,
   },
@@ -609,42 +243,64 @@ export default {
         const pageWidth = pdf.internal.pageSize.getWidth();
         const pageHeight = pdf.internal.pageSize.getHeight();
         const margin = 10;
-        const contentWidth = pageWidth - margin * 2;
-        let currentY = margin;
+        // marges réduites sur la page du tableau pour lui laisser le maximum de place
+        const tableMargin = 6;
+        const tableMarginX = 15; // marges gauche/droite
+        const tableContentWidth = pageWidth - tableMarginX * 2;
+        let currentY = tableMargin;
         const dateStr = new Date().toLocaleString();
 
-        pdf.setFontSize(14);
-        pdf.text(`Déclaration no : ${this.declaration_data.id_declaration}`, margin, currentY);
-        currentY += 10;
-        pdf.setFontSize(12);
+        // titre et date sur une seule ligne, pour laisser le maximum de place au tableau
+        pdf.setFontSize(18);
         pdf.setTextColor(40, 40, 40);
-        pdf.text(`Exporté le : ${dateStr}`, margin, currentY);
+        pdf.text(
+          `Déclaration no : ${this.declaration_data.id_declaration}`,
+          tableMarginX,
+          currentY + 6
+        );
+        pdf.setFontSize(7);
+        pdf.text(`Exporté le : ${dateStr}`, pageWidth - tableMarginX, currentY + 6, {
+          align: 'right',
+        });
         currentY += 10;
 
         // ---- TABLEAU RÉCAPITULATIF ----
         const tableEl = document.getElementById('resume_declaration');
         if (tableEl) {
+          // tableau en mode dense uniquement le temps de la capture, dans un conteneur étroit (450 px) :
+          // l'image est mise à la largeur de la page, donc plus le tableau est étroit, plus sa police
+          // est grande dans le PDF (avant : 1000 px de large, le tableau n'occupait que la moitié de la
+          // page). Si le tableau devient trop haut, il est réduit pour tenir (voir scaleFit).
+          // tableau en mode dense uniquement le temps de la capture
+          this.pdfCompact = true;
           await this.$nextTick();
           await this._yield(150);
           try {
             const table = await this.captureElement(tableEl, { scale: tableScale, format: 'png' });
-            const tableHeight = (contentWidth * table.height) / table.width;
-            if (currentY + tableHeight > pageHeight - margin) {
-              pdf.addPage();
-              currentY = margin;
-            }
+            // le tableau doit tenir sur la 1re page, sous le titre : on le réduit (police
+            // comprise, c'est une image) pour qu'il tienne en hauteur, sans l'agrandir au-delà
+            // de la largeur utile, et on le centre.
+            const maxHeight = pageHeight - tableMargin - currentY;
+            const scaleFit = Math.min(
+              tableContentWidth / table.width,
+              maxHeight / table.height
+            );
+            const tableWidthMm = table.width * scaleFit;
+            const tableHeight = table.height * scaleFit;
             pdf.addImage(
               table.data,
               'PNG',
-              margin,
+              tableMarginX + (tableContentWidth - tableWidthMm) / 2,
               currentY,
-              contentWidth,
+              tableWidthMm,
               tableHeight,
               undefined,
               'FAST'
             );
           } catch (e) {
             console.error('Tableau non capturé pour le PDF :', e);
+          } finally {
+            this.pdfCompact = false;
           }
         }
         await this._yield(50);
