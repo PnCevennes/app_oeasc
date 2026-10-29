@@ -22,8 +22,7 @@
           ></content-img>
           <v-card-text
             class="card-title"
-            v-html="content.title"
-          ></v-card-text>
+          >{{ content.title }}</v-card-text>
         </v-card>
       </v-col>
     </v-row>
@@ -60,15 +59,14 @@ export default {
           .sort((c1, c2) => new Date(c2.meta_create_date) - new Date(c1.meta_create_date))
           .filter((_, i) => i < (this.nb || 3))
           .map((content) => {
-            const elem = document.createElement('div');
-            let html = marked(content.md || '');
-            elem.innerHTML = html;
+            // DOMParser produit un document inerte : pas de chargement d'<img> ni d'exécution d'onerror
+            const elem = new DOMParser().parseFromString(marked(content.md || ''), 'text/html').body;
             const title = elem.querySelector(':is(h1, h2, h3, h4, h5, h6)');
             const img = elem.querySelector(':is(content-img)');
-            const imgSrc = img && img.attributes.src.nodeValue;
+            const imgSrc = img && img.getAttribute('src');
             return {
               src: imgSrc || 'pages_degats_agricole_b_algoet.jpg',
-              title: (title && title.innerHTML) || 'Pas de titre',
+              title: (title && title.textContent) || 'Pas de titre',
               to: `actualite/${content.code}`,
               date: UtilsContent.displayDateFr(content.meta_create_date),
             };

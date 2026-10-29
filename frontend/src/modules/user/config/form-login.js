@@ -8,11 +8,16 @@ export default {
     }),
     onSuccess: ({ data, $session, $store, $router, $route }) => {
       const user = { ...data.user, expires: data.expires };
-      const redirect = $route.query.redirect;
+      // redirection interne uniquement : chemin absolu SPA, pas d'URL externe ni de '//'
+      const queryRedirect = $route.query.redirect;
+      const redirect =
+        typeof queryRedirect === 'string' && /^\/(?![/\\])/.test(queryRedirect)
+          ? queryRedirect
+          : '/';
       $session.set('user', user);
       $store.commit('user', user);
       setTimeout(() => {
-        $router.push(redirect || '/');
+        $router.push(redirect);
       }, 1000);
     },
     request: {

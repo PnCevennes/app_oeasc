@@ -16,6 +16,7 @@
 <script>
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { escapeHtml } from '@/core/js/util/util.js';
 import { fetch_oeasc_perimetre } from '@/modules/declaration/utils/api_request.js'; // Importez les fonctions nécessaires si elles existent
 import { apiRequest } from '@/core/js/data/api';
 import { config } from '@/config/config.js';
@@ -545,7 +546,7 @@ export default {
             const cfg = this.stylesById[id] || DEFAULT_STYLE;
             const textColor =
               cfg && cfg.fillColor ? cfg.fillColor : cfg && cfg.color ? cfg.color : '#000';
-            const html = `<div class="area-label-box" style="background:rgba(255,255,255,0.5);border:1px solid ${textColor};padding:2px 6px;border-radius:4px;display:inline-block;white-space:nowrap;"><div class=\"area-label\" style=\"color:${textColor};font-size:18px;font-weight:700;white-space:nowrap;display:inline-block;\">${String(areaName)}</div></div>`;
+            const html = `<div class="area-label-box" style="background:rgba(255,255,255,0.5);border:1px solid ${textColor};padding:2px 6px;border-radius:4px;display:inline-block;white-space:nowrap;"><div class=\"area-label\" style=\"color:${textColor};font-size:18px;font-weight:700;white-space:nowrap;display:inline-block;\">${escapeHtml(areaName)}</div></div>`;
             // place le label à son centre géographique, le placement effectif et la résolution des chevauchements seront gérés ensuite dans placeLabels()
             this.labelItems.push({ feature: f, center, html });
           } catch (e) {

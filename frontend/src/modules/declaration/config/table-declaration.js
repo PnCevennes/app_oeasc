@@ -1,4 +1,5 @@
 import { apiRequest } from '../../../core/js/data/api.js';
+import { escapeHtml } from '@/core/js/util/util.js';
 import { displayParcelles, displayDate, displayStatut } from '../declaration.js';
 import config_variables from '@/../../config/variables/declaration.json';
 
@@ -96,10 +97,11 @@ export default {
     },
     id_declaration: {
       text: 'Id',
+      html: true,
       display: (val) =>
         val.id_declaration_originale
-          ? `${val.id_declaration} (<a href="#/declaration/voir_declaration/${val.id_declaration_originale}">${val.id_declaration_originale}</a>)`
-          : `${val.id_declaration}`,
+          ? `${escapeHtml(val.id_declaration)} (<a href="#/declaration/voir_declaration/${encodeURIComponent(val.id_declaration_originale)}">${escapeHtml(val.id_declaration_originale)}</a>)`
+          : escapeHtml(val.id_declaration),
     },
     declarant: {
       text: 'Déclarant',
@@ -125,9 +127,11 @@ export default {
     },
     label_foret: {
       text: 'Nom forêt',
+      html: true,
       display: (val) =>
-        val.label_foret ||
-        '<span class="red--text"><i class="mdi mdi-alert"></i> Aucune forêt</span>',
+        val.label_foret
+          ? escapeHtml(val.label_foret)
+          : '<span class="text-red"><i class="mdi mdi-alert"></i> Aucune forêt</span>',
     },
     type_foret: {
       text: 'Type forêt',

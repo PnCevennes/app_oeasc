@@ -28,6 +28,7 @@ from .schema import (
 )
 
 from oeasc.modules.oeasc.commons.models import TSecteurs
+from oeasc.utils.current_user import get_current_user
 from oeasc.modules.oeasc.commons.schema import TSecteursSchema
 
 
@@ -223,6 +224,15 @@ def api_add_images(dir_file):
     Cette fonction est typiquement appelée lors de l'envoi d'un fichier depuis un formulaire client.
     """
 
+    # Écriture dans static/medias : réservée aux éditeurs de contenu (droit >= 5, comme commonsContent)
+    current_user = get_current_user()
+    if not current_user or current_user["max_level_profil"] < 5:
+        return {
+            "success": False,
+            "message": "Vous n'avez pas les droits nécessaires pour effectuer cette action.",
+            "code": 403,
+        }, 403
+
     # Vérifie que le répertoire demandé est autorisé ("img" ou "doc")
     if not dir_file in ["img", "doc"]:
         return
@@ -250,6 +260,10 @@ def api_add_images(dir_file):
     filename = file.filename
     for c in "/!;, ()}{}":
         filename = filename.replace(c, "_")
+
+    # Refuse les noms vides, cachés ou de remontée de répertoire
+    if not filename or filename.startswith("."):
+        return {"success": False, "message": "Nom de fichier invalide.", "code": 400}, 400
 
     # Sauvegarde le fichier dans le répertoire cible sur le serveur
     file.save(os.path.join(config["ROOT_DIR"], "static/medias/" + dir_file, filename))

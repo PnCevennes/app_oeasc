@@ -150,6 +150,7 @@ import configContentForm from './config/form-content';
 import configImgForm from './config/form-img';
 import configDocForm from './config/form-doc';
 import marked from 'marked';
+import { escapeHtml } from '@/core/js/util/util.js';
 
 import VRuntimeTemplate from 'vue3-runtime-template'; // pour l'affichage du contenu markdown dynamique
 
@@ -259,18 +260,20 @@ export default {
       return `${day}/${month}/${year}`;
     },
     getImg(event) {
-      let str_img = '<content-img ';
+      // attributs toujours entre guillemets et échappés : le snippet est ensuite compilé comme template Vue
+      const attr = (name, val) => (val ? ` ${name}="${escapeHtml(val)}"` : '');
+      let str_img = '<content-img';
       str_img += !event.position
         ? ''
         : event.position == 'center'
           ? ' center'
-          : ` float=${event.position}`;
-      str_img += !event.src ? '' : ` src=${event.src}`;
-      str_img += !event.source ? '' : ` source=${event.source}`;
-      str_img += !event.author ? '' : ` author=${event.author}`;
-      str_img += !event.title ? '' : ` title=${event.title}`;
-      str_img += !event.height ? '' : ` height=${event.height}`;
-      str_img += !event.width ? '' : ` width=${event.width}`;
+          : attr('float', event.position);
+      str_img += attr('src', event.src);
+      str_img += attr('source', event.source);
+      str_img += attr('author', event.author);
+      str_img += attr('title', event.title);
+      str_img += attr('height', event.height);
+      str_img += attr('width', event.width);
       str_img += ' ></content-img>';
       navigator.clipboard.writeText(str_img).then(() => {
         this.dialogImg = false;
@@ -279,9 +282,12 @@ export default {
       });
     },
     getDoc(event) {
-      const str_doc = `<a :href="docPath + '${
-        event.src
-      }'" target="_blanck">${event.txt || event.src}</a>`;
+      // src est inséré dans une chaîne JS d'une expression Vue, elle-même dans un attribut HTML :
+      // on échappe d'abord pour JS (\ et '), puis pour HTML. Le texte du lien ne doit pas
+      // pouvoir ouvrir une interpolation Vue ({{ }}).
+      const srcJs = String(event.src ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      const txt = escapeHtml(event.txt || event.src).replace(/\{/g, '&#123;');
+      const str_doc = `<a :href="docPath + '${escapeHtml(srcJs)}'" target="_blank" rel="noopener noreferrer">${txt}</a>`;
       navigator.clipboard.writeText(str_doc).then(() => {
         this.dialogDoc = false;
         this.bSnack = true;

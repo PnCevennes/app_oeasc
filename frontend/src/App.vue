@@ -139,11 +139,7 @@ export default {
         show: false,
       },
       drawerShow: false,
-      test_affichage_session: this.$session, // a retirer. C'est pour voir le contenu de la session
-      test_affichage_config: config, // a retirer. C'est pour voir le contenu de config
       // test_affichage_store: this.$store.state, // a retirer. C'est pour voir le contenu du store
-      test_store_mutation: this.$store._mutations, // a retirer. C'est pour voir le contenu des mutations du store
-      test_store_action: this.$store._actions, // a retirer. C'est pour voir le contenu des mutations du store
       // test_store_unique: this.$store.configDrawer
     };
   },

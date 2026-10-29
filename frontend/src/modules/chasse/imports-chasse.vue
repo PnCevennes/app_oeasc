@@ -151,6 +151,7 @@
                 <a
                   :href="create_url_fichier_erreur(value.message)"
                   target="_blank"
+                  rel="noopener noreferrer"
                 >
                   {{ value.message }}
                 </a>

@@ -187,29 +187,41 @@
               </template>
             </div>
 
-            <div v-if="bEditCell(props)">
-              <v-btn
-                v-if="value != 'actions'"
-                small
-                @click="edit(value, props.item[configTable.idFieldName])"
-              >
-                <span v-html="displayCell(props, value)"></span>
-              </v-btn>
-            </div>
-            <div v-else>
-              <!-- si value == true  ou si value == false on affiche un icone -->
-              <v-icon
-                v-if="displayCell(props, value) === true || displayCell(props, value) === false"
-                small
-                :color="displayCell(props, value) ? 'success' : 'error'"
-              >
-                {{ displayCell(props, value) ? 'mdi-check-bold' : 'mdi-close-thick' }}
-              </v-icon>
-              <span
-                v-else
-                v-html="displayCell(props, value)"
-              ></span>
-            </div>
+            <!-- displayCell n'est évalué qu'une fois par cellule (v-for sur un tableau à 1 élément) -->
+            <template
+              v-for="cell of [displayCell(props, value)]"
+              :key="'cell-' + index"
+            >
+              <div v-if="bEditCell(props)">
+                <v-btn
+                  v-if="value != 'actions'"
+                  small
+                  @click="edit(value, props.item[configTable.idFieldName])"
+                >
+                  <!-- HTML uniquement si la colonne le déclare (html: true) ET échappe ses valeurs -->
+                  <span
+                    v-if="props.column.html"
+                    v-html="cell"
+                  ></span>
+                  <span v-else>{{ cell }}</span>
+                </v-btn>
+              </div>
+              <div v-else>
+                <!-- si value == true  ou si value == false on affiche un icone -->
+                <v-icon
+                  v-if="cell === true || cell === false"
+                  small
+                  :color="cell ? 'success' : 'error'"
+                >
+                  {{ cell ? 'mdi-check-bold' : 'mdi-close-thick' }}
+                </v-icon>
+                <span
+                  v-else-if="props.column.html"
+                  v-html="cell"
+                ></span>
+                <span v-else>{{ cell }}</span>
+              </div>
+            </template>
           </div>
         </template>
       </component>

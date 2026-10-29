@@ -145,6 +145,22 @@ const addPxSuffix = (value) => {
   return /px$/i.test(str) ? str : `${str}px`;
 };
 
+/**
+ * Échappe les caractères spéciaux HTML d'une valeur avant de l'insérer dans une chaîne HTML
+ * (utilisée avec v-html ou innerHTML). null/undefined donnent une chaîne vide.
+ * @param {*} value - Valeur à échapper (convertie en chaîne).
+ * @returns {string} - Chaîne sûre à insérer dans du HTML (contenu ou attribut entre guillemets).
+ */
+const escapeHtml = (value) => {
+  if (value === null || value === undefined) return '';
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+};
+
 export {
   copy,
   sortDate,
@@ -155,4 +171,5 @@ export {
   jsoncopy,
   fde,
   addPxSuffix,
+  escapeHtml,
 };

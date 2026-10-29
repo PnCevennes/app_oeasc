@@ -8,6 +8,7 @@ import {
   isObject,
   jsoncopy,
   fde,
+  escapeHtml,
 } from './util.js';
 
 describe('util.js', () => {
@@ -50,5 +51,14 @@ describe('util.js', () => {
   it('isObject distingue les objets des tableaux', () => {
     expect(isObject({})).toBe(true);
     expect(isObject([])).toBe(false);
+  });
+
+  it('escapeHtml neutralise les caractères HTML', () => {
+    expect(escapeHtml('<img src=x onerror="a(1)">')).toBe(
+      '&lt;img src=x onerror=&quot;a(1)&quot;&gt;',
+    );
+    expect(escapeHtml("l'été & co")).toBe('l&#39;été &amp; co');
+    expect(escapeHtml(null)).toBe('');
+    expect(escapeHtml(12)).toBe('12');
   });
 });
