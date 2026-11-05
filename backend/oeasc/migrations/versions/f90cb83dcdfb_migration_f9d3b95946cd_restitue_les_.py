@@ -18,21 +18,13 @@ depends_on = None
 # Chemin du fichier contenant les views SQL
 
 VIEW_FILE_PATH1 = f"./data/oeasc_views/oeasc_commons_views.sql"
-VIEW_FILE_PATH2 = f"./data/oeasc_views/oeasc_declarations_views.sql"
-VIEW_FILE_PATH3 = f"./data/oeasc_views/oeasc_resultats_views.sql"
+# Les vues oeasc_declarations_views.sql / oeasc_resultats_views.sql ont été supprimées du dépôt
+# (vues devenues inutiles, cf. migration e5b7d3a91c24) : seule v_users est recréée ici.
 
 
 def upgrade():
-    # Récupère les fichiers contenant les views et les réintègre dans la base
+    # Récupère le fichier contenant la vue v_users et la réintègre dans la base
     with open(VIEW_FILE_PATH1, "r", encoding="utf-8") as file:
-        views_sql = file.read()
-        op.execute(views_sql)
-
-    with open(VIEW_FILE_PATH2, "r", encoding="utf-8") as file:
-        views_sql = file.read()
-        op.execute(views_sql)
-
-    with open(VIEW_FILE_PATH3, "r", encoding="utf-8") as file:
         views_sql = file.read()
         op.execute(views_sql)
 
