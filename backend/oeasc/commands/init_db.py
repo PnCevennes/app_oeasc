@@ -60,6 +60,8 @@ SCHEMAS_OEASC = [
 # tables de ref_geo propres à l'application (le reste de ref_geo vient du paquet ref_geo)
 TABLES_REF_GEO_OEASC = {"communes_aoa", "cor_area_intersect", "cor_hierarchie_area"}
 
+# oeasc_declarations_views.sql et oeasc_resultats_views.sql ne sont plus exécutés : leurs vues
+# n'existent plus en production (cf. migration e5b7d3a91c24)
 # fichiers SQL (fonctions et vues), relatifs à la racine du projet, dans l'ordre d'exécution
 FICHIERS_SQL = [
     "install/data/functions/generic.sql",
@@ -67,8 +69,6 @@ FICHIERS_SQL = [
     "install/data/functions/ref_geo.sql",
     "install/data/oeasc_schemas/oeasc_functions.sql",
     "data/oeasc_views/oeasc_commons_views.sql",
-    "data/oeasc_views/oeasc_declarations_views.sql",
-    "data/oeasc_views/oeasc_resultats_views.sql",
     "data/oeasc_views/oeasc_chasse_views.sql",
 ]
 
