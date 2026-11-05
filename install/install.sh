@@ -20,6 +20,52 @@ SERVICE=oeasc
 
 SKIP_APT=0; SKIP_NPM=0; SKIP_RESTART=0; FORCE_NPM=0; REMOVE_VENV=0; WITH_APACHE=0
 
+step() { echo; echo "==> $*"; }
+die()  { echo "ERREUR : $*" >&2; exit 1; }
+
+########################################################################
+# Lecture de config_principal.yaml -> variables bash
+# Utilisable par les autres scripts : eval "$(install/install.sh --env [fichier.yaml])"
+# (db_host, db_port, db_name, user_pg, user_pg_pass, URL_*, APP_PORT, gun_*, ...)
+########################################################################
+exporter_config() {
+    local python=python3
+    [ -x "$ROOT_DIR/venv/bin/python" ] && python="$ROOT_DIR/venv/bin/python"
+    "$python" - "$1" <<'PYEOF2' || die "lecture de la configuration impossible (PyYAML installé ?)"
+import shlex
+import sys
+
+import yaml
+
+with open(sys.argv[1], encoding="utf-8") as f:
+    c = yaml.safe_load(f)
+
+db, urls, app, adm, gun, mail = (
+    c["base_de_donnees"], c["urls"], c["application"], c["administrateur"], c["gunicorn"], c["mail"],
+)
+variables = {
+    "db_host": db["host"], "db_port": db["port"], "db_name": db["nom"],
+    "user_pg": db["utilisateur"], "user_pg_pass": db["mot_de_passe"],
+    "user_install": db.get("utilisateur_install", ""), "user_install_pass": db.get("mot_de_passe_install", ""),
+    "reset_geom": db.get("reset_geom", False),
+    "MODE_TEST": app.get("mode_test", 0), "ID_APP": app["id_app"],
+    "APP_PORT": urls.get("port", 5005),
+    "URL_FRONTEND": urls["frontend"], "URL_APPLICATION": urls["application"], "URL_USERSHUB": urls["usershub"],
+    "ADMIN_APPLICATION_LOGIN": adm["login"], "ADMIN_APPLICATION_PASSWORD": adm["mot_de_passe"],
+    "ADMIN_APPLICATION_MAIL": adm["mail"],
+    "gun_num_workers": gun["num_workers"], "gun_host": gun["host"], "gun_timeout": gun.get("timeout", 30),
+    "ANIMATEUR_APPLICATION_MAIL": mail["animateur_mail"],
+    "MAIL_SERVER": mail["server"], "MAIL_PORT": mail["port"],
+    "MAIL_USERNAME": mail["username"], "MAIL_PASSWORD": mail["password"],
+    "SECRET_KEY": app["secret_key"],
+}
+for nom, valeur in variables.items():
+    if isinstance(valeur, bool):
+        valeur = "true" if valeur else "false"
+    print(f"export {nom}={shlex.quote(str(valeur))}")
+PYEOF2
+}
+
 usage() {
     cat <<USAGE
 Usage : install/install.sh [options]
@@ -29,9 +75,18 @@ Usage : install/install.sh [options]
   --force-npm       réinstaller node_modules (npm ci) même si package-lock.json est inchangé
   --remove-venv     supprimer et recréer le virtualenv
   --with-apache     installer le vhost Apache (install/assets/apache2/oeasc.conf)
+  --env [fichier]   (seul) affiche la configuration en `export VAR=valeur` pour `eval`, et quitte
   -h, --help        cette aide
 USAGE
 }
+
+# mode lecture de config pour les autres scripts : install.sh --env [fichier.yaml]
+if [ "$1" = "--env" ]; then
+    [ -n "$2" ] && CONFIG_FILE=$2
+    [ -f "$CONFIG_FILE" ] || die "$CONFIG_FILE absent"
+    exporter_config "$CONFIG_FILE"
+    exit 0
+fi
 
 for arg in "$@"; do
     case "$arg" in
@@ -45,9 +100,6 @@ for arg in "$@"; do
         *) echo "Option inconnue : $arg"; usage; exit 1 ;;
     esac
 done
-
-step() { echo; echo "==> $*"; }
-die()  { echo "ERREUR : $*" >&2; exit 1; }
 
 [ -f "$CONFIG_FILE" ] || die "$CONFIG_FILE absent : copier install/config_principal.yaml.sample et l'adapter"
 cd "$ROOT_DIR"
@@ -117,13 +169,15 @@ source venv/bin/activate
 pip install --quiet --upgrade pip
 # pip ne (ré)installe que ce qui manque ou ne respecte pas les versions de requirements.txt
 pip install -r requirements.txt
+# l'ancien paquet "oeasc" (install/setup.py) n'existe plus : les migrations sont référencées dans backend/app.py
+pip uninstall -y oeasc >/dev/null 2>&1 || true
 pip check || echo "(avertissement : dépendances python incohérentes, voir ci-dessus)"
 
 ########################################################################
 # 3. configuration
 ########################################################################
 step "Lecture de la configuration ($CONFIG_FILE)"
-. "$ROOT_DIR/install/load_config.sh" "$CONFIG_FILE"
+eval "$(exporter_config "$CONFIG_FILE")"
 echo "Backend : port $APP_PORT, gunicorn $gun_num_workers workers sur $gun_host"
 
 ########################################################################

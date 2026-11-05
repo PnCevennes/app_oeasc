@@ -1,6 +1,6 @@
 # pgsqla.sh
 
-. install/load_config.sh
+eval "$(install/install.sh --env)"
 
 if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
 then

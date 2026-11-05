@@ -9,7 +9,7 @@ fi
 
 log_file=/tmp/init_view_oeasc.log
 echo 'init_view oeasc' > $log_file
-. "$(dirname "$(readlink -e "$0")")/../../install/load_config.sh" "$settings"
+eval "$("$(dirname "$(readlink -e "$0")")/../../install/install.sh" --env "$settings")"
 
 # cat $settings
 for file in $(echo \

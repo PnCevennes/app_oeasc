@@ -65,7 +65,7 @@ then
     exit -1;
 fi
 
-. ${ROOT_DIR}/install/load_config.sh $setting_file
+eval "$(${ROOT_DIR}/install/install.sh --env "$setting_file")"
 
 if [ "$db_name" = "" ] || [ "$db_host" = "" ] || [ "$db_port" = "" ] || [ "$user_pg" = "" ] || [ "$user_pg_pass" = "" ]
 then

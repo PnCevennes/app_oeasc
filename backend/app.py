@@ -166,14 +166,16 @@ def configure_alembic(alembic_config):
     # Ignore version_locations provided in configuration as TaxHub migrations are also
     # detected by iter_entry_points so we current_app.config["ID_APP"]avoid adding twice
     # version_locations = alembic_config.get_main_option('version_locations', default='').split()
-    version_locations = []
+    # migrations d'oeasc : référencées directement (plus de setup.py / entry point à installer)
+    version_locations = ["oeasc.migrations:versions"]
     if "ALEMBIC_VERSION_LOCATIONS" in current_app.config:
         version_locations.extend(
             current_app.config["ALEMBIC_VERSION_LOCATIONS"].split()
         )
     for entry_point in iter_entry_points("alembic", "migrations"):
         _, migrations = str(entry_point).split("=", 1)
-        version_locations += [migrations.strip()]
+        if migrations.strip() not in version_locations:  # évite le doublon si oeasc est aussi installé en package
+            version_locations += [migrations.strip()]
     alembic_config.set_main_option("version_locations", " ".join(version_locations))
     return alembic_config
 

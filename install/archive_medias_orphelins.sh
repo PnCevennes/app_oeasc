@@ -31,7 +31,7 @@ case "${1:-}" in
 esac
 
 CONFIG_FILE="${BASE_DIR}/install/config_principal.yaml"
-. "${BASE_DIR}/install/load_config.sh" "${CONFIG_FILE}"
+eval "$("${BASE_DIR}/install/install.sh" --env "${CONFIG_FILE}")"
 if [ -z "${user_pg}" ] || [ -z "${db_name}" ]; then
     echo "base_de_donnees introuvable dans ${CONFIG_FILE}" >&2
     exit 1

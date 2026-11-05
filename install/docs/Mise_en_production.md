@@ -43,7 +43,7 @@ git clone https://github.com/PnCevennes/app_oeasc.git
 cd oeasc
 python3 -m venv venv
 source venv/bin/activate
-pip install -e install/
+pip install -r requirements.txt
 ```
 
 
@@ -55,9 +55,9 @@ cp install/config_principal.yaml.sample install/config_principal.yaml
 mettre les bonnes adresses, les identifiants de bdd, de mail et sentry (voir `install/docs/configuration.md`)
 
 
-### Installation de systemd
+### Installation complète (paquets, venv, npm, build, systemd)
 ```sh
-./install/install.sh
+./install/install.sh      # voir ./install/install.sh --help
 ```
 
 ## MIGRATION DE LA BASE DE DONNÉE
