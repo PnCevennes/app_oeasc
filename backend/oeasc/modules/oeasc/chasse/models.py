@@ -18,6 +18,7 @@ from sqlalchemy import (
     func,
     exists,
     select,
+    UniqueConstraint,
 )
 
 from ..commons.models import TEspeces, TSecteurs, TNomenclaturesOeasc
@@ -215,6 +216,39 @@ class TTypeBracelets(CustomModel):
     espece: Mapped["TEspeces"] = relationship(TEspeces, foreign_keys=id_espece)
     code_type_bracelet: Mapped[str] = Column(Unicode)
     description_type_bracelet: Mapped[str] = Column(Unicode)
+
+
+@serializable
+class TBilanChasseHistorique(CustomModel):
+    """Totaux historiques par saison, espèce et zone indicative (lus par export_chasse.py et la vue v_pre_bilan_histo)"""
+
+    __tablename__ = "t_bilan_chasse_historique"
+    __table_args__ = (
+        UniqueConstraint(
+            "id_saison",
+            "id_espece",
+            "id_zone_indicative",
+            name="unique_t_bilan_chasse_historique_saison_espece_zi",
+        ),
+        {"schema": "oeasc_chasse", "extend_existing": True},
+    )
+
+    id_bilan_chasse_historique: Mapped[int] = Column(Integer, primary_key=True)
+    id_saison: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_chasse.t_saisons.id_saison"), nullable=False
+    )
+    id_espece: Mapped[int] = Column(
+        Integer, ForeignKey("oeasc_commons.t_especes.id_espece"), nullable=False
+    )
+    id_zone_indicative: Mapped[int] = Column(
+        Integer,
+        ForeignKey("oeasc_chasse.t_zone_indicatives.id_zone_indicative"),
+        nullable=False,
+    )
+    nb_affecte_min: Mapped[int] = Column(Integer)
+    nb_affecte_max: Mapped[int] = Column(Integer)
+    nb_realise: Mapped[int] = Column(Integer)
+    nb_realise_avant_11: Mapped[int] = Column(Integer)
 
 
 @serializable

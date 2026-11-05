@@ -444,6 +444,8 @@ class TDeclaration(CustomModel):
     id_declaration_originale: Mapped[int] = Column(Integer, nullable=True)
 
     geom: Mapped[object] = Column(Geometry("MULTIPOLYGON", 4326))
+    # géométrie en WGS84, calculée à partir de la géométrie Lambert-93 stockée dans geom (cf. init_db.py)
+    geom_4326: Mapped[object] = Column(Geometry("MULTIPOLYGON", 4326))
 
 
 ################################################################
