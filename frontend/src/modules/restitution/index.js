@@ -6,7 +6,7 @@
  *
  * Ne pas confondre avec modules/restitution2 (v2, données server side, chasse uniquement, graphique seul).
  * Les deux modules coexistent volontairement : la v2 ne couvre pas encore tableau, carte, nb_max ni cascades
- * (voir doc/todo-restitution2.md).
+ * (voir install/docs/todo-restitution2.md).
  */
 
 const ROUTE = [

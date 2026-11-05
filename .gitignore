@@ -54,6 +54,8 @@ static/imports_chasse/*
 
 !.gitkeep
 !data/README.md
+!install/docs/
+!install/docs/**/*.md
 TODO.md
 # Archives locales (anciens fichiers retirés du dépôt)
 archive/
