@@ -1,7 +1,7 @@
 set -x
 EXEC_DIR=$(readlink -e "${0%/*}")
 OEASC_DIR=${EXEC_DIR}/../../..
-source ${OEASC_DIR}/config/settings.ini
+source ${OEASC_DIR}/install/load_config.sh
 
 
 export PGPASSWORD=$user_pg_pass;

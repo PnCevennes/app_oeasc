@@ -1,6 +1,6 @@
 # pgsqla.sh
 
-. config/settings.ini
+. install/load_config.sh
 
 if [ "$user_install" != "" ] && [ "$user_install_pass" != "" ]
 then

@@ -1,6 +1,6 @@
 import { copy } from '@/core/js/util/util';
 
-import config_variables from '@/../../config/variables/declaration.json';
+import config_variables from 'virtual:config-declaration';
 
 /**
  * Retourne les zones de localisation associées à une déclaration selon son statut public et la présence d'un document.

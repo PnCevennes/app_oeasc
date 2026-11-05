@@ -42,7 +42,7 @@ then
 cp $ROOT_DIR/server.py.sample $ROOT_DIR/server.py
 fi
 
-$ROOT_DIR/install/init_config.sh $ROOT_DIR/config/settings.ini
+$ROOT_DIR/install/init_config.sh $ROOT_DIR/install/config_principal.yaml
 
 echo "Installation"
 echo "Aucune suppression du venv configuré pour le test; Refaire le fichier d'installation pour la phase de production"

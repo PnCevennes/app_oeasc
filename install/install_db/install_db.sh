@@ -52,9 +52,9 @@ dir_script=$ROOT_DIR/install/install_db
 dir_data=$ROOT_DIR/install/data
 
 
-# chargement de la configuration SQL dans settings.ini et tests de connextion
+# chargement de la configuration SQL dans config_principal.yaml et tests de connextion
 
-setting_file=${ROOT_DIR}/config/settings.ini
+setting_file=${ROOT_DIR}/install/config_principal.yaml
 log_file=$ROOT_DIR/logs/install_db.log
 
 echo "install_db" > $log_file
@@ -65,7 +65,7 @@ then
     exit -1;
 fi
 
-. $setting_file
+. ${ROOT_DIR}/install/load_config.sh $setting_file
 
 if [ "$db_name" = "" ] || [ "$db_host" = "" ] || [ "$db_port" = "" ] || [ "$user_pg" = "" ] || [ "$user_pg_pass" = "" ]
 then

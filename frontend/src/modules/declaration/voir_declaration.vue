@@ -128,7 +128,7 @@ import './declaration.css';
 import VoirDeclarationTable from './voir-declaration-table.vue';
 import MapDeclarationSimple from './map/map_declaration_simple.vue';
 import confirmRelanceMail from './confirm_relance_mail.vue';
-import config_variables from '@/../../config/variables/declaration.json';
+import config_variables from 'virtual:config-declaration';
 
 // jsPDF et html2canvas sont volumineux et uniquement utiles pour l'export PDF :
 // on les charge à la demande (voir exportToPdf) pour alléger le bundle initial.

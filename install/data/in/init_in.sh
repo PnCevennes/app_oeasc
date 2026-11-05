@@ -2,13 +2,13 @@ settings=$1
 
 if [ -z "$1" ];
 then 
-echo 'Veuillez specifier un fichier settings.ini'
+echo 'Veuillez specifier le fichier install/config_principal.yaml'
 exit 1
 fi
 
 log_file=/tmp/init_view_oeasc.log
 echo 'init_view oeasc' > $log_file
-. $settings
+. "$(dirname "$(readlink -e "$0")")/../../load_config.sh" "$settings"
 
 # cat $settings
     

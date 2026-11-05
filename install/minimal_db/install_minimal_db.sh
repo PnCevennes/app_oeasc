@@ -7,7 +7,7 @@ ROOT_DIR=$(readlink -e "${0%/*}")/../..
 log_file=${ROOT_DIR}/logs/install_db.log
 
 MINIMAL_INSTALL_DIR=${ROOT_DIR}/install/minimal_db
-. ${ROOT_DIR}/config/settings.ini
+. ${ROOT_DIR}/install/load_config.sh
 
 
 echo "Installation de la base minimale pour l'OEASC" > $log_file

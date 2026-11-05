@@ -40,8 +40,8 @@ from flask_mail import Mail
 # permet de définir des actions apres l'enregistrement d'un utilisateur (envoi de mail, ...)
 from pypnusershub.env import REGISTER_POST_ACTION_FCT
 
-# import config.config as cfg
-import config.config as cfg  # en prod
+# configuration lue dans install/config_principal.yaml (voir backend/config.py)
+import config as cfg
 
 #######################################################################################
 ############## AFFICHAGE DES MESSAGES D'ERREURS ET WARNING ############################
@@ -90,13 +90,8 @@ cors = CORS(
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_prefix=1)
 
 
-# intégration des données de configuration dans l'application. Mettre silent=True en production
-if (
-    cfg.MODE_DEVELOPPEMENT
-):  # pour le mode développement, affiche les erreurs et les warnings
-    app.config.from_pyfile("../config/config.py", silent=False)
-else:
-    app.config.from_pyfile("../config/config.py", silent=True)
+# intégration des données de configuration (backend/config.py -> install/config_principal.yaml) dans l'application
+app.config.from_object(cfg)
 
 ROOT_DIR = Path(__file__).absolute().parent.parent
 app.config["ROOT_DIR"] = ROOT_DIR
@@ -127,7 +122,7 @@ except AttributeError:
 
 
 # initialisation de sqlalchemy pour Flask. Créé les engines et les sessions
-# récupère les paramètres de la base de données dans config.py via app.config
+# récupère les paramètres de la base de données dans la configuration via app.config
 db.init_app(app)
 
 # ajoute l'instance sqlalchemy à la configuration de l'application pour y acceder facilement
@@ -137,11 +132,11 @@ app.config["DB"] = db
 ##################### CONFIGURATION DES MAIL ############################
 mail = Mail()
 app.config["MAIL"] = mail
-# initialisation des parametres de mails. Récupère les paramètres dans config.py via app.config
+# initialisation des parametres de mails. Récupère les paramètres dans la configuration via app.config
 mail.init_app(app)
 
 # pour signer les cookies de session et proteger contre les attaques CSRF
-# inutile c'est déja déclaré dans app.config.from_pyfile("../config/config.py", silent=True)
+# inutile c'est déja déclaré dans app.config.from_object(cfg)
 app.secret_key = app.config["SECRET_KEY"]
 
 

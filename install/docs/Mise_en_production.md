@@ -50,9 +50,9 @@ pip install -e .
 ### Configuration du backend
 
 ```sh
-cp backend/config/config.py.sample backend/config/config.py
+cp install/config_principal.yaml.sample install/config_principal.yaml
 ```
-mettre les bonnes addresse ip, les identifiants de bdd et sentry
+mettre les bonnes adresses, les identifiants de bdd, de mail et sentry (voir `install/docs/configuration.md`)
 
 
 ### Installation de systemd

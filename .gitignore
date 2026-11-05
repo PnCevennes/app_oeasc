@@ -5,9 +5,7 @@ __pycache__/
 venv/
 
 # Configuration locale / secrets
-settings.ini
-config/settings.ini_*
-config/config.py
+install/config_principal.yaml
 frontend/src/config/config.js
 frontend/.env.local
 frontend/.env.*.local

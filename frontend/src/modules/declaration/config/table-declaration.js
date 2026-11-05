@@ -1,7 +1,7 @@
 import { apiRequest } from '../../../core/js/data/api.js';
 import { escapeHtml, formatDateFr } from '@/core/js/util/util.js';
 import { displayParcelles, displayStatut } from '../declaration.js';
-import config_variables from '@/../../config/variables/declaration.json';
+import config_variables from 'virtual:config-declaration';
 
 export default {
   idFieldName: 'id_declaration',

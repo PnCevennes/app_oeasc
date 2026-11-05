@@ -2,12 +2,35 @@ import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import vuetify from 'vite-plugin-vuetify';
+import { existsSync, readFileSync } from 'node:fs';
+import yaml from 'js-yaml';
+
+// Expose au frontend uniquement la section `declaration.STATUT_DECLARATION` de
+// install/config_principal.yaml (repli sur le .sample si le fichier réel est absent, ex. CI).
+// Les autres sections contiennent des secrets : elles ne doivent jamais atteindre le bundle.
+const CONFIG_DECLARATION_ID = 'virtual:config-declaration';
+function configDeclaration() {
+  const dossier = fileURLToPath(new URL('../install/', import.meta.url));
+  const reel = `${dossier}config_principal.yaml`;
+  const fichier = process.env.OEASC_CONFIG || (existsSync(reel) ? reel : `${reel}.sample`);
+  return {
+    name: 'oeasc-config-declaration',
+    resolveId: (id) => (id === CONFIG_DECLARATION_ID ? `\0${id}` : null),
+    load(id) {
+      if (id !== `\0${CONFIG_DECLARATION_ID}`) return null;
+      this.addWatchFile(fichier);
+      const config = yaml.load(readFileSync(fichier, 'utf-8'));
+      const { STATUT_DECLARATION } = config.declaration;
+      return `export default ${JSON.stringify({ STATUT_DECLARATION })};`;
+    },
+  };
+}
 
 export default defineConfig(({ mode }) => ({
   // autoImport : n'importe que les composants Vuetify réellement utilisés dans chaque .vue,
   // au lieu de charger les ~300 composants/directives de la librairie sur toutes les pages
   // (c'était la cause des centaines de requêtes .js/.vue sans rapport à chaque rechargement)
-  plugins: [vue(), vuetify({ autoImport: true })],
+  plugins: [vue(), vuetify({ autoImport: true }), configDeclaration()],
   resolve: {
     alias: [
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },

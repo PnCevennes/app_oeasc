@@ -16,7 +16,7 @@
 #   ./install/archive_medias_orphelins.sh            # simulation (dry-run)
 #   ./install/archive_medias_orphelins.sh --apply    # déplace réellement
 #
-# Prérequis : psql, python3, SQLALCHEMY_DATABASE_URI dans config/config.py
+# Prérequis : psql, python3, base_de_donnees dans install/config_principal.yaml
 
 set -eo pipefail
 
@@ -30,12 +30,14 @@ case "${1:-}" in
     *) echo "Usage : $0 [--apply]" >&2; exit 1 ;;
 esac
 
-CONFIG_FILE="${BASE_DIR}/config/config.py"
-DB_URI=$(sed -nE 's/^SQLALCHEMY_DATABASE_URI\s*=\s*"(.*)"/\1/p' "${CONFIG_FILE}" | head -1)
-if [ -z "${DB_URI}" ]; then
-    echo "SQLALCHEMY_DATABASE_URI introuvable dans ${CONFIG_FILE}" >&2
+CONFIG_FILE="${BASE_DIR}/install/config_principal.yaml"
+. "${BASE_DIR}/install/load_config.sh" "${CONFIG_FILE}"
+if [ -z "${user_pg}" ] || [ -z "${db_name}" ]; then
+    echo "base_de_donnees introuvable dans ${CONFIG_FILE}" >&2
     exit 1
 fi
+# identifiants échappés (le mot de passe peut contenir ; @ / ...)
+DB_URI=$(python3 -I -c 'import sys, urllib.parse as u; print("postgresql://%s:%s@%s:%s/%s" % (u.quote(sys.argv[1], safe=""), u.quote(sys.argv[2], safe=""), sys.argv[3], sys.argv[4], sys.argv[5]))' "${user_pg}" "${user_pg_pass}" "${db_host}" "${db_port}" "${db_name}")
 
 TMP_MD=$(mktemp)
 trap 'rm -f "${TMP_MD}"' EXIT
@@ -72,7 +74,6 @@ code_dirs = [
     base / "frontend" / "src",
     base / "frontend" / "dist",
     base / "backend" / "oeasc",
-    base / "config",
 ]
 code = []
 for d in code_dirs:

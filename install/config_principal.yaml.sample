@@ -1,0 +1,125 @@
+# Configuration principale de l'application OEASC.
+#
+# Source unique de la configuration : copier ce fichier en
+# install/config_principal.yaml (ignoré par git, il contient des secrets)
+# puis l'adapter.
+#
+# Il est lu par :
+#   - backend/config.py            (application Flask)
+#   - install/load_config.sh       (scripts d'installation bash : variables db_host, user_pg, ...)
+#   - frontend/vite.config.js      (uniquement la section declaration.STATUT_DECLARATION)
+#
+# Le chemin peut être surchargé avec la variable d'environnement OEASC_CONFIG.
+
+############################################################################################################
+# BASE DE DONNÉES
+############################################################################################################
+base_de_donnees:
+  host: localhost
+  port: 5432
+  nom: oeasc
+  utilisateur: user_pg                 # propriétaire de la base de l'application
+  mot_de_passe: mot_de_passe_complexe
+  # facultatif : utilisateur ayant des droits superutilisateur (installation)
+  utilisateur_install: ""
+  mot_de_passe_install: ""
+  reset_geom: false
+  sqlalchemy_echo: false               # true pour afficher les requêtes SQL
+  sqlalchemy_engine_options:
+    pool_recycle: 300                  # secondes avant de recycler une connexion inactive
+    pool_pre_ping: true                # vérifie la connexion avant de l'utiliser
+    pool_timeout: 10                   # secondes d'attente avant expiration lors de l'obtention d'une connexion
+    pool_size: 1                       # nombre de connexions persistantes
+    max_overflow: 10                   # connexions supplémentaires au-delà de pool_size
+    future: true                       # mode SQLAlchemy 2.0
+    connect_args:
+      connect_timeout: 10              # timeout (secondes) lors de la connexion
+      application_name: oeasc_app      # nom de l'application côté PostgreSQL
+
+############################################################################################################
+# URL ET PORTS
+############################################################################################################
+urls:
+  application: "localhost:5005"        # url backend flask
+  frontend: "http://localhost:8080/"   # url frontend vuejs
+  # UsersHub (gestion des utilisateurs du parc), service différent de pypn_userhub_authentification.
+  # Nécessaire pour l'inscription de nouveaux utilisateurs (https://github.com/PnX-SI/UsersHub)
+  usershub: "http://localhost:5001/"
+  port: 5005                           # port d'écoute du serveur flask
+  redirect_on_forbidden: login         # page de redirection en cas d'interdiction d'accès
+
+############################################################################################################
+# APPLICATION
+############################################################################################################
+application:
+  debug: true                          # Flask recharge le serveur à chaque modification et affiche plus d'erreurs
+  mode_developpement: true             # affiche les erreurs et warnings
+  mode_test: 0
+  id_app: 500                          # identifie l'application dans la base ou le certificat de contexte
+  code_application: OEASC              # utilisé dans l'authentification
+  secret_key: "changer-cette-cle"      # signature des cookies de session et protection CSRF
+  pass_method: hash                    # méthode de hashage des mots de passe
+  cookie_expiration: 43200             # durée de vie des cookies en secondes (43200 = 12 h)
+  cookie_autorenew: true               # renouvelle les cookies après expiration pour garder les sessions ouvertes
+  enable_nomenclature_taxonomic_filters: true  # filtre selon le groupe taxonomique (pypnnomenclature)
+  python_path: /usr/bin/python3        # utilisé par les scripts d'installation
+
+# Compte administrateur (utilisé dans usershub et userhub_authentification)
+administrateur:
+  login: un_login_admin
+  mot_de_passe: un_mot_de_passe_complexe
+  mail: mail@nom_domaine.fr
+
+# Serveur gunicorn (production)
+gunicorn:
+  num_workers: 4
+  host: 0.0.0.0
+  port: 5001
+
+############################################################################################################
+# MAIL (compte animateur)
+############################################################################################################
+mail:
+  animateur_mail: mail@domaine.fr
+  server: mail.domaine.fr
+  port: 465
+  use_ssl: true
+  use_tls: false
+  username: adresse@domaine.fr
+  password: mot_de_passe_complexe
+  debug: false
+  ascii_attachments: false
+  code_application_mail: OEASC         # ajouté dans le sujet des mails pour identifier l'application
+
+############################################################################################################
+# SENTRY (monitoring) : laisser vide pour désactiver
+############################################################################################################
+sentry:
+  dsn: ""
+
+############################################################################################################
+# DÉCLARATIONS (anciennement config/variables/declaration.json)
+# Les clés restent en majuscules : elles sont lues telles quelles par le backend
+# (get_variables_declaration) et le frontend (STATUT_DECLARATION uniquement).
+############################################################################################################
+declaration:
+  # Relance est à 100 mais on incrémente de 1 à chaque relance. Par exemple la 3eme relance aura le statut 102.
+  # Cela permet de différencier les déclarations en relance des déclarations archivées.
+  STATUT_DECLARATION:
+    "Non validée": 0
+    "Active": 1
+    "Archivée": 2
+    "Archivée sans réponse": 3
+    "Relance": 100
+    "Erreur Refgeo": 999
+  # Nombre de jours après la date de fin de la déclaration pour envoyer la première relance.
+  # Ensuite, une relance tous les NB_JOURS_RELANCE_MAIL jours tant que la déclaration n'est pas renouvelée,
+  # jusqu'à un maximum de NB_RELANCES_MAX relances.
+  NB_JOURS_RELANCE_MAIL: 30
+  # Nombre maximum de relances à envoyer. Au delà, la déclaration est archivée sans réponse.
+  NB_RELANCES_MAX: 12
+  # Une déclaration dure 3 ans (1095 jours)
+  NB_JOURS_VALIDITE_DECLARATION: 1095
+  # Mails des animateurs mis en copie des relances (pour qu'ils puissent aussi répondre avec des mails personnalisés)
+  LISTE_MAILS_ANIMATEURS:
+    - animateur@domaine.fr
