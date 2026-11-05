@@ -207,23 +207,12 @@ def all_areas_declaration():
 # fond topographique multi-échelles en accès libre, sans clé d'API, qui a
 # remplacé l'ancienne couche GEOGRAPHICALGRIDSYSTEMS.MAPS (Cartes/Scan25).
 
-TILE_CACHE_MAX_AGE = 7 * 24 * 3600  # durée de validité d'une tuile en cache (7 jours)
-TILE_UPSTREAM_URL = (
-    "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0"
-    "&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal"
-    "&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fpng"
-)
-TILE_USER_AGENT = (
-    "app_oeasc / Parc national des Cevennes (https://www.cevennes-parcnational.fr)"
-)
-
-
 def _tile_cache_dir():
     root = current_app.config.get("ROOT_DIR")
     base = Path(root) if root else Path(current_app.root_path).parent.parent
     # sous-dossier par fournisseur/couche : évite de resservir une tuile en cache
     # d'un ancien fournisseur (ex. OSM) si celui-ci change un jour, sans purge manuelle
-    return base / "data" / "cache" / "tile" / "ign_planignv2"
+    return base / "data" / "cache" / "tile" / current_app.config["TILE_CACHE_DIR_NAME"]
 
 
 @bp.route("tiles/v2/<int:z>/<int:x>/<int:y>.png", methods=["GET"])
@@ -243,7 +232,9 @@ def proxy_tile(z, x, y):
 
     tile_path = _tile_cache_dir() / str(z) / str(x) / f"{y}.png"
 
-    def _send(content, max_age=TILE_CACHE_MAX_AGE):
+    tile_max_age = current_app.config["TILE_CACHE_MAX_AGE"]
+
+    def _send(content, max_age=tile_max_age):
         return Response(
             content,
             content_type="image/png",
@@ -254,7 +245,7 @@ def proxy_tile(z, x, y):
     try:
         if (
             tile_path.is_file()
-            and (time.time() - tile_path.stat().st_mtime) < TILE_CACHE_MAX_AGE
+            and (time.time() - tile_path.stat().st_mtime) < tile_max_age
         ):
             return _send(tile_path.read_bytes())
     except OSError:
@@ -263,9 +254,9 @@ def proxy_tile(z, x, y):
     # 2. téléchargement depuis le Géoportail IGN
     try:
         resp = requests.get(
-            TILE_UPSTREAM_URL.format(z=z, x=x, y=y),
-            headers={"User-Agent": TILE_USER_AGENT},
-            timeout=6,
+            current_app.config["TILE_UPSTREAM_URL"].format(z=z, x=x, y=y),
+            headers={"User-Agent": current_app.config["TILE_USER_AGENT"]},
+            timeout=current_app.config["TILE_TIMEOUT"],
         )
         resp.raise_for_status()
         content = resp.content

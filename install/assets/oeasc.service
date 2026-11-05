@@ -5,14 +5,14 @@ After=network.target
 
 [Service]
 Type=simple
-User=${USER}
-Group=${USER}
-WorkingDirectory=${BASE_DIR}/
+User=${USER_SERVICE}
+Group=${USER_SERVICE}
+WorkingDirectory=${BASE_DIR}/backend
 Environment=GUNICORN_PROC_NAME=oeasc
-Environment=GUNICORN_NUM_WORKERS=4
-Environment=GUNICORN_HOST=127.0.0.1
-Environment=GUNICORN_PORT=5005
-Environment=GUNICORN_TIMEOUT=30
+Environment=GUNICORN_NUM_WORKERS=${GUN_NUM_WORKERS}
+Environment=GUNICORN_HOST=${GUN_HOST}
+Environment=GUNICORN_PORT=${GUN_PORT}
+Environment=GUNICORN_TIMEOUT=${GUN_TIMEOUT}
 Environment=GUNICORN_LOG_FILE=/var/log/oeasc/%N%I.log
 EnvironmentFile=-${BASE_DIR}/environ
 ExecStart=${BASE_DIR}/venv/bin/gunicorn app:app \

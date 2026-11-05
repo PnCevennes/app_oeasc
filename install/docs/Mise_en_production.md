@@ -57,7 +57,7 @@ mettre les bonnes adresses, les identifiants de bdd, de mail et sentry (voir `in
 
 ### Installation de systemd
 ```sh
-./install/configure_systemd.sh
+./install/install.sh
 ```
 
 ## MIGRATION DE LA BASE DE DONNÉE

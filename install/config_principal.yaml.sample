@@ -61,8 +61,18 @@ application:
   pass_method: hash                    # méthode de hashage des mots de passe
   cookie_expiration: 43200             # durée de vie des cookies en secondes (43200 = 12 h)
   cookie_autorenew: true               # renouvelle les cookies après expiration pour garder les sessions ouvertes
+  # derrière un reverse proxy (apache/nginx) : nombre de proxys de confiance pour X-Forwarded-Proto/Host/Prefix
+  proxy_fix:
+    x_proto: 1
+    x_host: 1
+    x_prefix: 1
+  # authentification (module pypnusershub)
+  auth_provider:
+    module: pypnusershub.auth.providers.default.LocalProvider
+    id_provider: local_provider
+  # fichier de vérification Google Search Console servi depuis static/ (laisser vide pour désactiver la route)
+  google_verification_file: google4b0945b8a2f6425f.html
   enable_nomenclature_taxonomic_filters: true  # filtre selon le groupe taxonomique (pypnnomenclature)
-  python_path: /usr/bin/python3        # utilisé par les scripts d'installation
 
 # Compte administrateur (utilisé dans usershub et userhub_authentification)
 administrateur:
@@ -71,10 +81,10 @@ administrateur:
   mail: mail@nom_domaine.fr
 
 # Serveur gunicorn (production)
-gunicorn:
+gunicorn:  # le port d'écoute est urls.port
   num_workers: 4
   host: 0.0.0.0
-  port: 5001
+  timeout: 30                        # secondes avant qu'un worker bloqué soit tué
 
 ############################################################################################################
 # MAIL (compte animateur)
@@ -96,6 +106,18 @@ mail:
 ############################################################################################################
 sentry:
   dsn: ""
+  traces_sample_rate: 1.0          # part des requêtes tracées (0 à 1) ; réduire en production
+
+############################################################################################################
+# FOND DE CARTE : proxy de tuiles (route /api/declaration/tiles/v2/<z>/<x>/<y>.png) avec cache disque
+# dans data/cache/tile/. Placeholders {z} {x} {y} obligatoires dans l'url.
+############################################################################################################
+tuiles:
+  url: "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}&FORMAT=image%2Fpng"
+  user_agent: "app_oeasc / Parc national des Cevennes (https://www.cevennes-parcnational.fr)"
+  cache_jours: 7                       # durée de validité d'une tuile en cache (serveur et navigateur)
+  timeout: 6                           # secondes d'attente maximale du fournisseur de tuiles
+  dossier_cache: ign_planignv2         # sous-dossier de data/cache/tile/ (à changer avec le fournisseur)
 
 ############################################################################################################
 # DÉCLARATIONS (anciennement config/variables/declaration.json)

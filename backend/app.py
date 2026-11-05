@@ -87,7 +87,7 @@ cors = CORS(
 )
 
 
-app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1, x_prefix=1)
+app.wsgi_app = ProxyFix(app.wsgi_app, **cfg.PROXY_FIX)
 
 
 # intégration des données de configuration (backend/config.py -> install/config_principal.yaml) dans l'application
@@ -112,7 +112,7 @@ try:
         sentry_sdk.init(
             sentry_config,
             integrations=[FlaskIntegration()],
-            traces_sample_rate=1.0,
+            traces_sample_rate=app.config["SENTRY_TRACES_SAMPLE_RATE"],
         )
 except AttributeError:
     pass
@@ -143,12 +143,7 @@ app.secret_key = app.config["SECRET_KEY"]
 # configuration et initialisation du gestionnaire d'authentification propre au parc (pypnusershub)
 # configure aussi le blueprint de l'authentification
 # on utilise le provider local par défaut
-providers_config = [
-    {
-        "module": "pypnusershub.auth.providers.default.LocalProvider",
-        "id_provider": "local_provider",
-    },
-]
+providers_config = [dict(cfg.AUTH_PROVIDER)]
 # initialise et integre les route "auth/"
 auth_manager.init_app(app, providers_declaration=providers_config)
 
@@ -195,9 +190,11 @@ def configure_alembic(alembic_config):
 
 
 # route de verification google
-@app.route("/google4b0945b8a2f6425f.html")
-def google():
-    return redirect(url_for("static", filename="google4b0945b8a2f6425f.html"))
+if cfg.GOOGLE_VERIFICATION_FILE:
+
+    @app.route("/" + cfg.GOOGLE_VERIFICATION_FILE)
+    def google():
+        return redirect(url_for("static", filename=cfg.GOOGLE_VERIFICATION_FILE))
 
 
 # Importation des routes des modules

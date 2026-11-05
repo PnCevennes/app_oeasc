@@ -37,6 +37,7 @@ _urls = _cfg["urls"]
 _app = _cfg["application"]
 _admin = _cfg["administrateur"]
 _mail = _cfg["mail"]
+_tuiles = _cfg["tuiles"]
 
 
 def _uri_base(db):
@@ -72,6 +73,9 @@ SECRET_KEY = _app["secret_key"]
 PASS_METHOD = _app["pass_method"]
 COOKIE_EXPIRATION = _app["cookie_expiration"]
 COOKIE_AUTORENEW = _app["cookie_autorenew"]
+PROXY_FIX = _app["proxy_fix"]
+AUTH_PROVIDER = _app["auth_provider"]
+GOOGLE_VERIFICATION_FILE = _app.get("google_verification_file", "")
 ENABLE_NOMENCLATURE_TAXONOMIC_FILTERS = _app["enable_nomenclature_taxonomic_filters"]
 
 ############################## ADMINISTRATEUR ##############################
@@ -93,6 +97,14 @@ CODE_APPLICATION_MAIL = _mail["code_application_mail"]
 
 ############################## SENTRY ##############################
 SENTRY_DSN = _cfg.get("sentry", {}).get("dsn", "")
+SENTRY_TRACES_SAMPLE_RATE = _cfg.get("sentry", {}).get("traces_sample_rate", 1.0)
+
+############################## TUILES (fond de carte) ##############################
+TILE_UPSTREAM_URL = _tuiles["url"]
+TILE_USER_AGENT = _tuiles["user_agent"]
+TILE_CACHE_MAX_AGE = int(_tuiles["cache_jours"] * 24 * 3600)
+TILE_TIMEOUT = _tuiles["timeout"]
+TILE_CACHE_DIR_NAME = _tuiles["dossier_cache"]
 
 ############################## DÉCLARATIONS ##############################
 # dict partagé : ne pas le modifier (voir oeasc/modules/oeasc/declaration/variables.py)
