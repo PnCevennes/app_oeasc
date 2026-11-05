@@ -6,7 +6,8 @@
 #
 # Il est lu par :
 #   - backend/config.py            (application Flask)
-#   - install/load_config.sh       (scripts d'installation bash : variables db_host, user_pg, ...)
+#   - install/install.sh           (installation de production ; `install.sh --env` expose les variables
+#                                   db_host, user_pg, ... aux autres scripts bash)
 #   - frontend/vite.config.js      (uniquement la section declaration.STATUT_DECLARATION)
 #
 # Le chemin peut être surchargé avec la variable d'environnement OEASC_CONFIG.
@@ -52,8 +53,8 @@ urls:
 # APPLICATION
 ############################################################################################################
 application:
-  debug: true                          # Flask recharge le serveur à chaque modification et affiche plus d'erreurs
-  mode_developpement: true             # affiche les erreurs et warnings
+  debug: true                          # Flask recharge le serveur à chaque modification et affiche plus d'erreurs (false en production : install.sh l'exige)
+  mode_developpement: true             # affiche les erreurs et warnings (false en production : install.sh l'exige)
   mode_test: 0
   id_app: 500                          # identifie l'application dans la base ou le certificat de contexte
   code_application: OEASC              # utilisé dans l'authentification
@@ -83,8 +84,8 @@ administrateur:
 # Serveur gunicorn (production)
 gunicorn:  # le port d'écoute est urls.port
   num_workers: 4
-  host: 0.0.0.0
-  timeout: 30                        # secondes avant qu'un worker bloqué soit tué
+  host: 127.0.0.1                    # 127.0.0.1 : joignable seulement via Apache (0.0.0.0 l'expose au réseau)
+  timeout: 30                       # secondes avant qu'un worker bloqué soit tué
 
 ############################################################################################################
 # MAIL (compte animateur)

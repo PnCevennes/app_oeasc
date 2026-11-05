@@ -33,10 +33,22 @@ Fichiers à copier à la main (ignorés par git, cf. `data/README.md`) : `data/r
 ./install/install.sh --help     # --skip-apt --skip-npm --skip-restart --force-npm --remove-venv --with-apache
 ```
 
+Le script sert **uniquement en production** (en développement : `flask run` et `npm run serve`). Il se lance
+avec l'utilisateur qui fera tourner le service, **pas en root ni avec sudo** : il appelle sudo lui-même
+(mot de passe demandé une fois au début).
+
+Il refuse de continuer si le yaml n'est pas prêt pour la production : `application.debug` ou
+`application.mode_developpement` à `true`, `secret_key` d'exemple ou de moins de 16 caractères, mots de passe
+d'exemple (base, administrateur). Il prévient aussi si `gunicorn.host` vaut `0.0.0.0` (backend exposé sans
+Apache), si la section mail contient les valeurs d'exemple ou si le port est déjà occupé.
+
 Le script installe les paquets, crée le virtualenv (`venv/`) et installe `requirements.txt`, lit le yaml,
-installe les dépendances npm (Node ≥ 24, voir `.nvmrc`) et construit le frontend (`frontend/dist`), puis installe
-le service systemd `oeasc` (gunicorn, port `urls.port`) et logrotate. Avec `--with-apache`, il installe aussi
-le vhost `install/assets/apache2/oeasc.conf` :
+installe les dépendances npm (Node ≥ 24, installé avec nvm s'il manque) et construit le frontend (`frontend/dist`), puis installe
+le service systemd `oeasc` (gunicorn, port `urls.port`, variable `OEASC_CONFIG` pointant sur le yaml utilisé
+pour le build) et logrotate. Il vérifie ensuite que gunicorn répond en HTTP. Il affiche enfin les branches
+Alembic dont la révision courante n'est pas la tête, sans rien appliquer. Avec `--with-apache`, il installe aussi
+la configuration `install/assets/apache2/oeasc.conf`. Si `apache2ctl configtest` la refuse, l'ancienne est remise
+en place et Apache n'est pas rechargé. Le script signale aussi si `www-data` ne peut pas lire `frontend/dist` :
 
 - le frontend est servi sous `/front/` depuis `frontend/dist` ;
 - l'API est relayée de `/oeasc/api` vers gunicorn (`127.0.0.1:5005`).

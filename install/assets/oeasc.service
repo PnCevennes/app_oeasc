@@ -8,6 +8,8 @@ Type=simple
 User=${USER_SERVICE}
 Group=${USER_SERVICE}
 WorkingDirectory=${BASE_DIR}/backend
+# même fichier de configuration que celui utilisé pour le build du frontend
+Environment="OEASC_CONFIG=${OEASC_CONFIG_FILE}"
 Environment=GUNICORN_PROC_NAME=oeasc
 Environment=GUNICORN_NUM_WORKERS=${GUN_NUM_WORKERS}
 Environment=GUNICORN_HOST=${GUN_HOST}
