@@ -126,13 +126,13 @@ CREATE OR REPLACE FUNCTION oeasc_declarations.get_id_areas(myiddeclaration integ
 $BODY$
 --Function which return the label from the id_nomenclature
 DECLARE
-	theidareas character varying;
+	theidareas integer[];
   BEGIN
   SELECT INTO theidareas ARRAY_AGG(DISTINCT l.id_area)
   FROM oeasc_declarations.cor_areas_declarations c
   LEFT JOIN ref_geo.l_areas l
     ON c.id_area = l.id_area
-        AND l.id_type = ref_geo.get_id_type(myareatype) OR myareatype = '*'
+        AND (l.id_type = ref_geo.get_id_type(myareatype) OR myareatype = '*')
     WHERE id_declaration = myiddeclaration
     AND l.id_area IS NOT NULL
     ;
