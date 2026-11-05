@@ -109,6 +109,21 @@ sentry:
   traces_sample_rate: 1.0          # part des requêtes tracées (0 à 1) ; réduire en production
 
 ############################################################################################################
+# FRONTEND : seule cette section (avec urls.application, urls.frontend et application.id_app) est lue par
+# le build Vite (frontend/vite.config.js, module virtual:config-frontend) et donc visible dans le navigateur :
+# n'y mettre aucun secret. Un changement nécessite de reconstruire le frontend (install/install.sh).
+############################################################################################################
+frontend:
+  # suivi des visites (vue-matomo) : laisser host vide pour désactiver
+  matomo:
+    host: ""
+    site_id: 1
+  # fond de carte Mapbox : jeton public (à restreindre par domaine chez Mapbox)
+  mapbox:
+    token: ""
+    style: mapbox/streets-v11
+
+############################################################################################################
 # FOND DE CARTE : proxy de tuiles (route /api/declaration/tiles/v2/<z>/<x>/<y>.png) avec cache disque
 # dans data/cache/tile/. Placeholders {z} {x} {y} obligatoires dans l'url.
 ############################################################################################################

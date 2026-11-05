@@ -7,6 +7,7 @@ import store from '@/store/store';
 import vuetify from '@/plugins/vuetify'; // path to vuetify export
 
 import VueMatomo from 'vue-matomo';
+import { config } from '@/config/config.js';
 
 // port d'ecoute du serveur backend 5000. Mettre le meme dans config/config.py
 
@@ -29,11 +30,13 @@ app.use(store);
 app.use(vuetify);
 
 // vue-matomo est une librairie pour suivre les statistiques de visite (Matomo)
-app.use(VueMatomo, {
-  // Configurez votre instance Matomo en renseignant :
-  host: 'https://stats.cevennes-parcnational.net',
-  siteId: 6,
-  router,
-});
+// configuré dans install/config_principal.yaml (frontend.matomo) ; désactivé si host est vide
+if (config.MATOMO.host) {
+  app.use(VueMatomo, {
+    host: config.MATOMO.host,
+    siteId: config.MATOMO.site_id,
+    router,
+  });
+}
 
 app.mount('#app');

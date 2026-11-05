@@ -6,7 +6,6 @@ venv/
 
 # Configuration locale / secrets
 install/config_principal.yaml
-frontend/src/config/config.js
 frontend/.env.local
 frontend/.env.*.local
 

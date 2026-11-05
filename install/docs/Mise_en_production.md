@@ -113,11 +113,7 @@ mettre les bonnes adresses, les identifiants de bdd, de mail et sentry (voir `in
 
 ### Configuration
 
-```sh
-cp src/frontend/config/config.js.sample src/frontend/config/config.js
-```
-mettre la bonne adresse du server dans src/frontend/config/config.js
-
+Aucun fichier à copier : le frontend lit `install/config_principal.yaml` (urls, `application.id_app`, section `frontend`) au moment du build.
 
 ### Installation et deploiement
 

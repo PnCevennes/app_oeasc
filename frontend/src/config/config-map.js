@@ -1,12 +1,13 @@
 // Importation des styles des couches depuis le fichier de configuration
+import frontend from 'virtual:config-frontend';
 import { styles } from './config-style.js';
 
 // Clés d'accès pour les différents fournisseurs de tuiles cartographiques
 // Les fonds IGN sont servis par la Géoplateforme (data.geopf.fr), en accès libre
 // sans clé d'API. L'ancien service à clé (wxs.ign.fr) est décommissionné.
-const MAPBOX_ACCESS_TOKEN =
-  'pk.eyJ1Ijoiam9lbGNsZW1zIiwiYSI6ImNrbDBtaDkzcDBwZGwycG1sejQxczh0bWIifQ.LkAgAh9XQXuK1UeAcisSAA'; // Token d'accès Mapbox
-const MAPBOX_ID = 'mapbox/streets-v11'; // Identifiant du style Mapbox
+// Mapbox : token et style viennent de install/config_principal.yaml (frontend.mapbox)
+const MAPBOX_ACCESS_TOKEN = frontend.MAPBOX.token || '';
+const MAPBOX_ID = frontend.MAPBOX.style || 'mapbox/streets-v11';
 
 // Objet principal de configuration de la carte
 const configMap = {

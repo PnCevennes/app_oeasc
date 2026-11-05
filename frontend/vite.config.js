@@ -5,23 +5,41 @@ import vuetify from 'vite-plugin-vuetify';
 import { existsSync, readFileSync } from 'node:fs';
 import yaml from 'js-yaml';
 
-// Expose au frontend uniquement la section `declaration.STATUT_DECLARATION` de
-// install/config_principal.yaml (repli sur le .sample si le fichier réel est absent, ex. CI).
+// Expose au frontend, depuis install/config_principal.yaml (repli sur le .sample si le fichier réel
+// est absent, ex. CI), uniquement :
+//   - `virtual:config-declaration` : declaration.STATUT_DECLARATION
+//   - `virtual:config-frontend`    : urls (application, frontend), application.id_app et section `frontend`
+//     (matomo, mapbox)
 // Les autres sections contiennent des secrets : elles ne doivent jamais atteindre le bundle.
 const CONFIG_DECLARATION_ID = 'virtual:config-declaration';
-function configDeclaration() {
+const CONFIG_FRONTEND_ID = 'virtual:config-frontend';
+
+// "localhost:5005" -> "http://localhost:5005" : le navigateur a besoin d'un schéma explicite
+const avecSchema = (url) => (/^https?:\/\//.test(url) ? url : `http://${url}`);
+
+function configPrincipal() {
   const dossier = fileURLToPath(new URL('../install/', import.meta.url));
   const reel = `${dossier}config_principal.yaml`;
   const fichier = process.env.OEASC_CONFIG || (existsSync(reel) ? reel : `${reel}.sample`);
+  const exposes = {
+    [CONFIG_DECLARATION_ID]: (c) => ({ STATUT_DECLARATION: c.declaration.STATUT_DECLARATION }),
+    [CONFIG_FRONTEND_ID]: (c) => ({
+      URL_APPLICATION: avecSchema(c.urls.application),
+      URL_FRONTEND: avecSchema(c.urls.frontend),
+      ID_APPLICATION: String(c.application.id_app),
+      MATOMO: c.frontend?.matomo || {},
+      MAPBOX: c.frontend?.mapbox || {},
+    }),
+  };
   return {
-    name: 'oeasc-config-declaration',
-    resolveId: (id) => (id === CONFIG_DECLARATION_ID ? `\0${id}` : null),
+    name: 'oeasc-config-principal',
+    resolveId: (id) => (id in exposes ? `\0${id}` : null),
     load(id) {
-      if (id !== `\0${CONFIG_DECLARATION_ID}`) return null;
+      const cle = id.slice(1);
+      if (!id.startsWith('\0') || !(cle in exposes)) return null;
       this.addWatchFile(fichier);
       const config = yaml.load(readFileSync(fichier, 'utf-8'));
-      const { STATUT_DECLARATION } = config.declaration;
-      return `export default ${JSON.stringify({ STATUT_DECLARATION })};`;
+      return `export default ${JSON.stringify(exposes[cle](config))};`;
     },
   };
 }
@@ -30,7 +48,7 @@ export default defineConfig(({ mode }) => ({
   // autoImport : n'importe que les composants Vuetify réellement utilisés dans chaque .vue,
   // au lieu de charger les ~300 composants/directives de la librairie sur toutes les pages
   // (c'était la cause des centaines de requêtes .js/.vue sans rapport à chaque rechargement)
-  plugins: [vue(), vuetify({ autoImport: true }), configDeclaration()],
+  plugins: [vue(), vuetify({ autoImport: true }), configPrincipal()],
   resolve: {
     alias: [
       { find: '@', replacement: fileURLToPath(new URL('./src', import.meta.url)) },

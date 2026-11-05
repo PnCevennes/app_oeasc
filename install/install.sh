@@ -5,9 +5,8 @@
 #   1. paquets système (apt)                           [sudo]
 #   2. virtualenv Python + dépendances de requirements.txt (seulement celles qui manquent)
 #   3. lecture de install/config_principal.yaml (variables db_*, URL_*, gun_*, APP_PORT, ...)
-#   4. frontend/src/config/config.js généré depuis la config
-#   5. dépendances npm (seulement si package-lock.json a changé) + build du frontend
-#   6. service systemd + logrotate + (re)démarrage     [sudo]
+#   4. dépendances npm (seulement si package-lock.json a changé) + build du frontend
+#   5. service systemd + logrotate + (re)démarrage     [sudo]
 #
 # Le mot de passe sudo est demandé une seule fois au début (sauf si root ou sudo sans mot de passe).
 # La base de données n'est PAS touchée (migrations : `flask db upgrade <révision>`, voir install/docs/alembic.md).
@@ -128,19 +127,7 @@ step "Lecture de la configuration ($CONFIG_FILE)"
 echo "Backend : port $APP_PORT, gunicorn $gun_num_workers workers sur $gun_host"
 
 ########################################################################
-# 4. config du frontend
-########################################################################
-step "Configuration du frontend"
-CONFIG_JS=frontend/src/config/config.js
-cp frontend/src/config/config.js.sample "$CONFIG_JS"
-# la config peut contenir "localhost:5005" : le frontend a besoin d'un schéma explicite
-case "$URL_APPLICATION" in http://*|https://*) ;; *) URL_APPLICATION="http://$URL_APPLICATION" ;; esac
-sed -i -e "s!URL_APPLICATION.*!URL_APPLICATION: '$URL_APPLICATION',!" \
-       -e "s!URL_FRONTEND.*!URL_FRONTEND: '$URL_FRONTEND',!" "$CONFIG_JS"
-echo "$CONFIG_JS généré"
-
-########################################################################
-# 5. npm + build
+# 4. npm + build
 ########################################################################
 if [ "$SKIP_NPM" = 0 ]; then
     step "Node ($NODE_MIN+) et paquets npm"
@@ -159,6 +146,7 @@ if [ "$SKIP_NPM" = 0 ]; then
     node_ok || die "node >= $NODE_MIN introuvable"
     echo "node $(node -v), npm $(npm -v)"
 
+    export OEASC_CONFIG="$CONFIG_FILE"
     cd "$ROOT_DIR/frontend"
     STAMP=node_modules/.package-lock.sha256
     LOCK_HASH=$(sha256sum package-lock.json package.json | sha256sum | cut -d' ' -f1)
@@ -169,13 +157,13 @@ if [ "$SKIP_NPM" = 0 ]; then
     else
         echo "node_modules à jour (package.json / package-lock.json inchangés)"
     fi
-    step "Build du frontend"
+    step "Build du frontend (config lue dans $CONFIG_FILE)"
     npm run build
     cd "$ROOT_DIR"
 fi
 
 ########################################################################
-# 6. systemd, logrotate, apache, redémarrage
+# 5. systemd, logrotate, apache, redémarrage
 ########################################################################
 if [ "$SKIP_RESTART" = 0 ]; then
     step "Service systemd '$SERVICE'"
