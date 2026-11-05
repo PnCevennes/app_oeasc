@@ -212,6 +212,15 @@ export default {
     msgSnack: null,
     bInitialized: false,
     renderError: false,
+    // Utilisé par les gabarits CMS (html des contenus) : formulaires de sélection espèce/secteur/saison...
+    contentValues: {
+      id_espece: null,
+      espece: null,
+      id_zone_indicative: [],
+      id_zone_cynegetique: [],
+      id_secteur: [],
+      id_saison: null,
+    },
   }),
   methods: {
     formatDateFr,
