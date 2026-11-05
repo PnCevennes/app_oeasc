@@ -43,6 +43,7 @@ EXTENSIONS = [
     "unaccent",
     "intarray",
     "pg_trgm",
+    "plr",  # fonctions de régression de l'indice ICE (oeasc_chasse.fct_calcul_ice_mc)
 ]
 
 # branches Alembic des dépendances (installées avec les paquets pypn*)

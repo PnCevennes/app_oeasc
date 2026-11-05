@@ -2,6 +2,61 @@
 -- Généré le 2026-11-05 depuis la base oeasc2 (référence : les modèles et la base de production,
 -- les anciens fichiers install/data/chasse/*.sql sont périmés). Exécuté par `flask init-db`.
 
+-- Fonctions R (extension plr) et de régression utilisées par oeasc_chasse.fct_calcul_ice_mc
+CREATE OR REPLACE FUNCTION public.r_lm_slope_a(double precision[], double precision[])
+ RETURNS double precision[]
+ LANGUAGE plr
+AS $function$
+	    res <- lm(arg1 ~ arg2)
+	    summary(res)
+	    coefs <- res$coefficients
+	    r <- summary(res)$r.squared
+	    outa <- array(0, 5)
+	    outa[1] <- res$coefficients[1]
+	    outa[2] <- res$coefficients[2]
+	    outa[3] <- summary(res)$coefficients[1, 4]
+	    outa[4] <- summary(res)$coefficients[2, 4]
+	    outa[5] <- summary(res)$r.squared
+	    return (outa)
+	$function$;
+
+CREATE OR REPLACE FUNCTION public.tinv(p_value_in double precision, df_in integer)
+ RETURNS double precision
+ LANGUAGE plr
+AS $function$
+	    return (abs(qt(p_value_in, df = df_in)));
+	$function$;
+
+CREATE OR REPLACE FUNCTION public.r_lm_slope_t(y_in double precision[], x_in double precision[])
+ RETURNS TABLE(intercept double precision, slope double precision, p_value_intercept double precision, p_value_slope double precision, r2 double precision, x double precision[], y double precision[], nb integer)
+ LANGUAGE plpgsql
+AS $function$
+		DECLARE
+			lm_res FLOAT[];
+		BEGIN
+			SELECT INTO lm_res r_lm_slope_a(y_in, x_in);
+			RETURN QUERY
+				SELECT
+					lm_res[1] AS intercept,
+					lm_res[2] AS slope,
+					lm_res[3] AS p_value_interept,
+					lm_res[4] AS p_value_slope,
+					lm_res[5] AS r2,
+					x_in,
+					y_in,
+					array_length(x, 1) AS nb;
+		END;
+	$function$;
+
+CREATE OR REPLACE FUNCTION public.r_lm_slope_j(y double precision[], x double precision[])
+ RETURNS jsonb
+ LANGUAGE plpgsql
+AS $function$
+		BEGIN
+			RETURN row_to_json(lm) FROM r_lm_slope_t(y, x) lm;
+		END
+	$function$;
+
 CREATE OR REPLACE FUNCTION oeasc_chasse.fct_calcul_ice_mc(id_espece_in integer, id_zone_cynegetique_in integer)
  RETURNS jsonb
  LANGUAGE plpgsql
