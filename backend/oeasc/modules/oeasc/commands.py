@@ -29,6 +29,7 @@ from oeasc.commands.init_db import init_db_cmd
 from oeasc.commands.fix_vm_lareas_simples_simplification import (
     fix_vm_lareas_simples_simplification_cmd,
 )
+from oeasc.commands.archive_medias_orphelins import archive_medias_orphelins_cmd
 
 
 # Commande CLI pour tester la création ou mise à jour d'une réalisation de chasse
@@ -81,4 +82,5 @@ commands = [
     refresh_ref_geo_cmd,
     init_db_cmd,
     fix_vm_lareas_simples_simplification_cmd,
+    archive_medias_orphelins_cmd,
 ]
