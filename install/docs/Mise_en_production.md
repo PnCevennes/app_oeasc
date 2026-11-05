@@ -43,7 +43,7 @@ git clone https://github.com/PnCevennes/app_oeasc.git
 cd oeasc
 python3 -m venv venv
 source venv/bin/activate
-pip install -e .
+pip install -e install/
 ```
 
 
@@ -228,22 +228,22 @@ curl -sI https://<domaine>/oeasc/api/declaration/tiles/9/256/178.png | grep -iE 
     dans le repertoire Userhub-authentification, executer
     git fetch origin
     git checkout -b fix/register_user origin/fix/register_user
-    pip install -e .
+    pip install -e install/
 
 - ### TaxeHub
     git clone https://github.com/Fargo48/TaxHub.git
     git fetch origin
     git checkout -b feat/sqlalchemy2 origin/feat/sqlalchemy2
-    pip install -e .
+    pip install -e install/
 
 - ### Utils-flask-sqlalchemy
     git clone https://github.com/Fargo48/Utils-Flask-SQLAlchemy.git
     git fetch origin
     git checkout -b feat/sql-alchemy2-rebase origin/feat/sql-alchemy2-rebase
-    pip install -e .
+    pip install -e install/
 
 - ### Utils-flask-sqlalchemy-Geo
     git clone https://github.com/Fargo48/Utils-Flask-SQLAlchemy-Geo.git
     git fetch origin
     git checkout -b feat/sqlalchemy2 origin/feat/sqlalchemy2
-    pip install -e .
+    pip install -e install/

@@ -1,8 +1,8 @@
 import setuptools
 from pathlib import Path
 
-# Définition du répertoire racine du projet (là où se trouve ce fichier setup.py)
-root_dir = Path(__file__).absolute().parent
+# Définition du répertoire racine du projet (setup.py est dans install/)
+root_dir = Path(__file__).absolute().parent.parent
 
 # Lecture du numéro de version depuis le fichier VERSION
 with (root_dir / "VERSION").open() as f:
@@ -24,9 +24,9 @@ setuptools.setup(
     python_requires=">=3.8",  # Version minimale de Python requise
     version=version,  # Version du package (lue dans VERSION)
     # Recherche des packages dans le dossier 'backend', incluant uniquement 'oeasc'
-    packages=setuptools.find_packages(where="backend", include=["oeasc"]),
+    packages=setuptools.find_packages(where=str(root_dir / "backend"), include=["oeasc"]),
     package_dir={
-        "": "backend",  # Indique que les packages sont dans le dossier 'backend'
+        "": "../backend",  # Les packages sont dans backend/ (chemin relatif à install/)
     },
     # Fichiers supplémentaires à inclure dans le package (templates, static, migrations, etc.)
     package_data={
@@ -40,9 +40,11 @@ setuptools.setup(
         ],
     },
     # Dépendances du package (lues depuis requirements.txt)
-    install_requires=list(
-        open("requirements.txt", "r"),
-    ),
+    install_requires=[
+        l.strip()
+        for l in (root_dir / "requirements.txt").read_text().splitlines()
+        if l.strip() and not l.startswith("#")
+    ],
     # Dépendances optionnelles pour les tests et la documentation
     extras_require={
         "tests": [
@@ -62,4 +64,4 @@ setuptools.setup(
 )
 
 # Ce fichier setup.py est utilisé lors de l'installation ou la distribution du package.
-# Il est exécuté par la commande 'pip install .' ou 'python setup.py install'.
+# Il est exécuté par la commande 'pip install -e .' depuis la racine du projet (via install/).
