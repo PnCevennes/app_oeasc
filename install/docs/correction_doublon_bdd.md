@@ -1,5 +1,6 @@
-Requêtes pour retirer des erreurs dans l'ancienne table de l'oeasc. (Voir doc mise_en_production.md)
-Si vous avez une bdd vierge et que vous avez effectué toutes les migrations, ce code est inutile.
+Requêtes pour retirer les doublons de l'ancienne base OEASC (voir [Mise_en_production.md](Mise_en_production.md), section « Base existante »).
+À lancer **avant** les migrations `437c188c6344` (clé primaire `cor_dgd_cadastre`) et `0a44db773490` (clé primaire `t_communes`).
+Inutile avec une base créée par `flask init-db` ou une base déjà migrée.
 
 
 ###############################################################################

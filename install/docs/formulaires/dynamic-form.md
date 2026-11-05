@@ -1,13 +1,10 @@
 # DynamicForm
 
+Composant : `frontend/src/components/form/dynamic-form.vue`.
+
 ### Input
-- `config`: `dict` la configuration du formulaire dynamique:
-
+- `config`: `dict` la configuration du formulaire dynamique (voir ci-dessous).
 - `baseModel`: `dict` les valeurs du formulaire.
-
-- `config`: `dict` la configuration du formulaire dynamique:
-
-- `baseModel`: `dict`
 
 #### Paramètres de la config
 
@@ -26,7 +23,6 @@ Les paramètres principaux sont:
 - `disabled`: `bool|func`, spécifie si le champs est visible mais non modifiable (grisé)
 - `label`: `string`, Texte du champs de formulaire,
 - `type`: le type de formulaire (texte, liste déroulante, ect...),
-- ``
 
 #### Les types
 - champs classiques:
@@ -51,16 +47,14 @@ Les paramètres principaux sont:
     - `displayFieldName` *text*: le nom du champs pour la valeur affichée
     - `url`: l'URL de l'api qui renvoie la liste des items
  - `nomenclature`: se base sur le précédent pour le choix des nomenclatures,
- - `essence`: se base sur le précédent pour le  choix des essences (+ gestion de celles déjà choisie...),
-- choix dans une liste et sur une carte:
- - `select_map`,
-
 - edition de contenu:
  - `content`,
 
-- liste d'object (ou liste de formulaires)
+- liste d'objets (ou liste de formulaires)
  - `list`
 
-- sur mesure
- - `degats`,
+- fichier, bouton
+ - `file`, `button`
+
+Le formulaire de dégâts en forêt (`degats_declaration_form.vue`) définit aussi ses propres types (par ex. `essence`).
 

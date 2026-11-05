@@ -1,5 +1,8 @@
 ### Generic form
 
+Composant : `frontend/src/components/form/generic-form.vue`.
+
+
 - Gestion des données:
   - chargement des données (si modification)
 - Gestion des requêtes:

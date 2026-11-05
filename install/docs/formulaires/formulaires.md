@@ -17,8 +17,7 @@ Les concept généraux, les composants et les input partagées par ces composant
     - la définition d'un champs formulaire pour `DynamicForm`,
     - l'agencement de groupes de formulaire pour `DynamicFormGroup`
     - les paramètre de la requêtes pour `GenericForm`
-    - les définitions des formulaires enchaînés pour `ChainedForm`
-  - les paramètres (la plupart sauf un liste) 
+    -   - les paramètres (la plupart sauf un liste) 
     - peuvent avoir une valeurs fixe ou bien 
     - peuvent être dynamiques et dépendre de plusieurs variables comme:
       - les valeurs du fomulaires (`baseModel`),
@@ -36,16 +35,16 @@ Les concept généraux, les composants et les input partagées par ces composant
 ### [DynamicGroupForm](./dynamic-form-group.md)
 - Ce composant permet d'agencer les différents éléments du formulaire (en ligne en colonne)
 
-### [GénéricForm](./genericForm.md)
+### [GenericForm](./generic-form.md)
 - Ce composant permet de gérer un formulaire au niveau des actions à faire en cas de validation (requêtes, ...) ou annulation
-
-### [ChainedForm](./chainedForm.md)
-- Ce composant permet de gérer les formulaires enchaînés.
 
 Des exemples de configurations de formulaires peuvent être trouvés à :
 - [creation d'utilisateur](../../frontend/src/modules/user/config/form-create-user.js)
 
-- pour les formulaires chaînées on pourra regarder [la configuration des déclaration des dégâts en forêt](../../frontend/src/modules/declaration/config/form-chained-declaration.js) et les fichiers associées pour les définitions des formulaires et des sessions.
+- le formulaire de déclaration de dégâts en forêt est un composant sur mesure : `frontend/src/components/form/degats_declaration_form.vue` (configuration dans `frontend/src/modules/declaration/`).
+
+Les composants sont dans `frontend/src/components/form/` (`generic-form.vue`, `dynamic-form-group.vue`, `dynamic-form.vue`, `list-form.vue`, `nomenclature-form.vue`).
+Le composant `ChainedForm` (formulaires enchaînés) n'existe plus.
 
 ## Les patchs et remarque
 

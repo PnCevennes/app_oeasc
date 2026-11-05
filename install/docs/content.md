@@ -3,12 +3,12 @@
 
 ## Créer un nouveau contenu / Modifier un contenu
 
-Tropis possibilités
+Trois possibilités
 
 - Aller sur la page concernée et éditer
 - Depuis la page d'administration
 - Aller sur la page `#/content/<code>`, en remplacant `<code>` par n'importe quelle chaîne de caractère raisonnable.
-  - Pratique pour tester avant de publier ailleurs, attention à ne pas modifier un contenu existant   
+  - Pratique pour tester avant de publier ailleurs, attention à ne pas modifier un contenu existant
 
 
 
@@ -32,7 +32,7 @@ Permet de
 
 # Graphique
 
-Sur la page `#/restitution/test` accessible depuis le menu de droite pour un utilisateur ayant des droit >= 5, on peut
+Sur la page `#/restitution/test` (droit >= 1), on peut
 
 * Créer des éléments de restituion
 * Copier le code du widget dans un presse papier
@@ -84,4 +84,9 @@ permet de gérer les différents éléments
 Tableau des contenus, possibilité d'éditer, modifier, supprimer les contenus
 
 ### Tags
-Possibilité de gérer des tags pour organiser ces contenus 
+Possibilité de gérer des tags pour organiser ces contenus
+
+## Sécurité
+
+Le markdown est compilé comme un template Vue : un contenu peut exécuter du code. L'édition est donc réservée au
+droit >= 5 (vérifié côté backend). Voir [securite-frontend.md](securite-frontend.md).

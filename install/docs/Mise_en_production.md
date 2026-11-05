@@ -1,187 +1,122 @@
+# Mise en production
 
-# Prérequis serveur
+Deux scénarios :
+
+- **nouvelle installation** (base vide) : § 1 à 4, la base est créée par `flask init-db` ;
+- **reprise d'une base existante** (dump de production) : § 1, 2, 3, puis § « Base existante ».
+
+La configuration (`install/config_principal.yaml`) est décrite dans [configuration.md](configuration.md).
+
+## 1. Prérequis serveur
+
+PostgreSQL + PostGIS (base et utilisateurs créés, voir `base_de_donnees` dans le yaml), un serveur web
+(Apache, vhost fourni) et un accès sudo. Le reste (paquets apt, Node ≥ 24, virtualenv, build, service systemd)
+est installé par `install/install.sh`.
+
+## 2. Récupérer le code et configurer
 
 ```sh
-sudo apt update
-sudo apt-get install python3-venv  python3-dev libpq-dev build-essential curl git nginx
-```
-
-## installation de nvm
-```sh
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
-source ~/.bashrc
-```
-
-## Base de données
-
-
-### Migration de serveur de base de données
-```sh
-# -- Suppresion, création et restauration de la base si nécessaire
-psql -d postgres -h localhost -U pnc_dbadmin -c "DROP DATABASE oeasc_prod;"
-psql -d postgres -h localhost -U pnc_dbadmin -c "CREATE DATABASE oeasc_prod WITH OWNER oeascadmin;"
-pg_restore  -F c -h localhost -d oeasc_prod -U pnc_dbadmin ~/database/backup/dump_oeasc_prod2025-08-13.backup
-# -- suppression de postgres_fdw qui est inutile
-sudo su postgres psql -d oeasc_prod  -c "DROP SERVER data_oeasc_prod CASCADE;"
-sudo su postgres psql -d oeasc_prod  -c "DROP EXTENSION postgres_fdw;"
-# -- Correction des droits et des propriétés de la base
-sudo su postgres psql -d oeasc_prod  -c "REASSIGN OWNED BY pnc_dbadmin TO oeascadmin;"
-```
-
-
-### Correction des données requises
-Lancer le script sql de correction des doublons contenues dans le fichier correction_doublons_bdd.md
-
-
-# Installation d'OEASC
-
-## Installation du backend
-```sh
-mkdir ~/apps
-cd ~/apps
+mkdir ~/apps && cd ~/apps
 git clone https://github.com/PnCevennes/app_oeasc.git
-cd oeasc
-python3 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-
-
-### Configuration du backend
-
-```sh
+cd app_oeasc
 cp install/config_principal.yaml.sample install/config_principal.yaml
-```
-mettre les bonnes adresses, les identifiants de bdd, de mail et sentry (voir `install/docs/configuration.md`)
-
-
-### Installation complète (paquets, venv, npm, build, systemd)
-```sh
-./install/install.sh      # voir ./install/install.sh --help
+# renseigner : urls, base de données, mail, sentry, administrateur, tuiles... (voir configuration.md)
 ```
 
-## MIGRATION DE LA BASE DE DONNÉE
+Fichiers à copier à la main (ignorés par git, cf. `data/README.md`) : `data/ref_geo/*.gpkg`,
+`data/degat_agricoles/*`, `static/medias/`.
+
+## 3. Installation complète
 
 ```sh
-### stamp de la base de l'oeasc d'origine
-    flask db stamp 8857f2169f96
-
-## migration utilisateur
-    flask db stamp fa35dfe5ff27
-    # flask db upgrade 830cc8f4daef# inutile f4bf21ac6238 suffi
-    # flask db upgrade 5b334b77f5f5 # inutile f4bf21ac6238 suffi
-    # flask db upgrade 951b8270a1cf # inutile f4bf21ac6238 suffi
-    # flask db upgrade 10e87bc144cd # inutile f4bf21ac6238 suffi
-    # flask db upgrade 112ccf1024ce # inutile f4bf21ac6238 suffi
-    flask db upgrade f4bf21ac6238
-
-## mise à jour oeasc pour supprimer une vue en conflit
-    flask db upgrade 3fc01cbe83a2
-
-## passe de la mise à jour utilisateur en conflit avec la vue oeasc
-    flask db upgrade f9d3b95946cd
-    flask db upgrade b3dec57f13d8
-
-## mise à jour oeasc pour remettre la vue supprimée
-## Attention de bien être dans le dossier racine car cette requête récupère le contenu d'un autre fichier
-    flask db upgrade f90cb83dcdfb
-
-## lancer les script pour retirer les doublons dans oeasc_forets.cor_dgd_cadastre et commons.t_communes
-## script dans correction_doublons_bdd.md
-    flask db upgrade 96ebff8bac23
-
-
-## mise a jour des nomenclatures
-    flask db stamp 6015397d686a
-    # flask db upgrade 11e7741319fd  # inutile b820c66d8daa suffi
-    # flask db upgrade f8c2c8482419 # inutile b820c66d8daa suffi
-    flask db upgrade b820c66d8daa
-
-## ajout de clé primaire pour les cadastres. Retirer les doublons avant.
-    flask db upgrade 437c188c6344
-## ajout de clé primaire pour les communes. Retirer les doublons avant.
-    flask db upgrade 0a44db773490
-
-
-
-
-
-
+./install/install.sh            # idempotent, peut être relancé à chaque mise à jour
+./install/install.sh --help     # --skip-apt --skip-npm --skip-restart --force-npm --remove-venv --with-apache
 ```
 
-##  Frontend
+Le script installe les paquets, crée le virtualenv (`venv/`) et installe `requirements.txt`, lit le yaml,
+installe les dépendances npm (Node ≥ 24, voir `.nvmrc`) et construit le frontend (`frontend/dist`), puis installe
+le service systemd `oeasc` (gunicorn, port `urls.port`) et logrotate. Avec `--with-apache`, il installe aussi
+le vhost `install/assets/apache2/oeasc.conf` :
 
-### Configuration
+- le frontend est servi sous `/front/` depuis `frontend/dist` ;
+- l'API est relayée de `/oeasc/api` vers gunicorn (`127.0.0.1:5005`).
 
-Aucun fichier à copier : le frontend lit `install/config_principal.yaml` (urls, `application.id_app`, section `frontend`) au moment du build.
+**La base de données n'est jamais touchée par `install.sh`.**
 
-### Installation et deploiement
+## 4. Nouvelle base : `flask init-db`
 
 ```sh
-cd frontend
-nvm install 18
-nvm use
-npm ci
-npm run build
+source venv/bin/activate
+cd backend
+flask init-db
 ```
 
-### NGINX
+Détail des étapes et limites : [install_db.md](install_db.md). Ensuite, charger le référentiel géographique
+(`flask refresh-ref-geo`, voir [mise_a_jour_ref_geo.md](mise_a_jour_ref_geo.md)).
 
-Modifier le fichier de configuration pour pointer vers le build du frontend (root /home/oeasc/apps/app_oeasc/frontend/dist;) et l'utilisateur nginx si necessaire (nginx.conf)
+## Base existante (reprise d'un dump)
 
-
-##  Static
-Copier les fichiers statics
-
-
-# Cartes de la fiche déclaration — proxy des tuiles
-
-Les cartes de `voir_declaration.vue` récupèrent leur fond de carte via la route backend
-`GET /api/declaration/tiles/<z>/<x>/<y>.png`, qui relaie `tile.openstreetmap.org` et met les
-tuiles en cache disque dans `var/tile_cache/`. Objectif : que le poste client n'ait pas besoin
-d'atteindre `openstreetmap.org` (réseaux filtrants / antivirus qui casse le HTTPS/CORS →
-« cartes grises »).
-
-## 1. Vérifier l'accès sortant HTTPS du serveur
-
-Test direct, avec l'utilisateur du service systemd (`oeasc`) :
 ```sh
-sudo -u <user_du_service> curl -sS -o /dev/null \
-  -w "HTTP %{http_code} en %{time_total}s\n" \
-  https://tile.openstreetmap.org/9/256/178.png
+# Suppression, création et restauration de la base (utilisateur d'administration PostgreSQL)
+psql -d postgres -h localhost -U <admin_pg> -c "DROP DATABASE oeasc_prod;"
+psql -d postgres -h localhost -U <admin_pg> -c "CREATE DATABASE oeasc_prod WITH OWNER <user_oeasc>;"
+pg_restore -F c -h localhost -d oeasc_prod -U <admin_pg> <dump>.backup
+# postgres_fdw (si présent dans le dump) est inutile
+sudo -u postgres psql -d oeasc_prod -c "DROP SERVER data_oeasc_prod CASCADE;"
+sudo -u postgres psql -d oeasc_prod -c "DROP EXTENSION postgres_fdw;"
+# propriétaire des objets
+sudo -u postgres psql -d oeasc_prod -c "REASSIGN OWNED BY <admin_pg> TO <user_oeasc>;"
 ```
-`HTTP 200` attendu. `Could not resolve host` / timeout / `403` → sortie bloquée.
 
-Test bout-en-bout après déploiement :
+Puis aligner les migrations Alembic : voir [alembic.md](alembic.md). Cible : `flask db upgrade <révision>`
+**avec une révision explicite** (la base contient plusieurs branches Alembic).
+Une base issue de l'ancien OEASC peut contenir des doublons à nettoyer avant certaines migrations
+(clés primaires sur `oeasc_commons.t_communes` et `oeasc_forets.cor_dgd_cadastre`) :
+[correction_doublon_bdd.md](correction_doublon_bdd.md).
+
+## Cartes : proxy des tuiles
+
+Les cartes de la fiche déclaration (`voir_declaration.vue`) ne chargent pas leur fond directement depuis le
+navigateur : elles passent par la route backend
+
+```
+GET /api/declaration/tiles/v2/<z>/<x>/<y>.png
+```
+
+qui relaie le **Géoportail IGN** (couche « Plan IGN v2 », `data.geopf.fr`, sans clé d'API) et met les tuiles en
+cache disque dans `data/cache/tile/<dossier_cache>/` (7 jours par défaut, tuile périmée resservie si l'IGN est
+injoignable). Objectif : que le poste client n'ait pas à atteindre l'IGN (réseaux filtrants, antivirus qui casse
+le HTTPS/CORS → « cartes grises ») et que l'export PDF puisse capturer les tuiles.
+
+Paramétrage : section `tuiles` du yaml (`url`, `user_agent`, `cache_jours`, `timeout`, `dossier_cache`). Si
+le fournisseur change, changer `dossier_cache` et incrémenter le préfixe `v2/` de la route (sinon les
+navigateurs resservent leur cache pendant 7 jours). Le cache peut être vidé sans risque.
+
+### Vérifier l'accès sortant du serveur
+
 ```sh
-curl -sS -o /dev/null -w "%{http_code} %{content_type}\n" \
-  https://<domaine>/oeasc/api/declaration/tiles/9/256/178.png
-```
-`200 image/png` → OK. `502` → gunicorn n'atteint pas OSM (ou cache non inscriptible).
+# avec l'utilisateur du service systemd
+sudo -u <user_du_service> curl -sS -o /dev/null -w "HTTP %{http_code}\n" \
+  "https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM&TILEMATRIX=9&TILEROW=178&TILECOL=256&FORMAT=image%2Fpng"
 
-Si un proxy sortant est imposé, l'ajouter au fichier `environ` (EnvironmentFile du service) :
+# bout en bout, après déploiement
+curl -sS -o /dev/null -w "%{http_code} %{content_type}\n" https://<domaine>/oeasc/api/declaration/tiles/v2/9/256/178.png
 ```
-HTTPS_PROXY=http://proxy.mon-orga.fr:3128
-NO_PROXY=127.0.0.1,localhost
-```
+
+`200 image/png` attendu. `502` : le backend n'atteint pas l'IGN (ou cache non inscriptible). Si un proxy
+sortant est imposé, l'ajouter dans le fichier `environ` du service (`HTTPS_PROXY=...`, `NO_PROXY=127.0.0.1,localhost`)
 puis `sudo systemctl restart oeasc`.
 
-Vérifier que le cache est inscriptible :
-```sh
-sudo -u <user_du_service> mkdir -p <BASE_DIR>/var/tile_cache && echo "cache OK"
-```
+### (Optionnel) Cache Apache `mod_cache_disk`
 
-## 2. (Optionnel) Cache Apache mod_cache_disk
-
-Le cache disque Flask suffit dans la plupart des cas. `mod_cache_disk` n'économise en plus que
-l'aller-retour Apache→gunicorn : utile seulement en cas de forte consultation simultanée des fiches.
+Le cache disque du backend suffit en général ; `mod_cache_disk` n'économise que l'aller-retour Apache → gunicorn.
 
 ```sh
 sudo a2enmod cache cache_disk
 ```
 
-Dans le vhost (`install/assets/apache2/oeasc.conf`), à l'intérieur du `<VirtualHost>`
-(Flask envoie déjà `Cache-Control: public, max-age=604800`) :
+Dans le `<VirtualHost>` (le backend envoie déjà `Cache-Control: public, max-age=...`) :
+
 ```apache
 CacheRoot /var/cache/apache2/oeasc_tiles
 CacheDirLevels 2
@@ -194,52 +129,20 @@ CacheDirLength 1
 ```
 
 ```sh
-sudo mkdir -p /var/cache/apache2/oeasc_tiles
-sudo chown www-data:www-data /var/cache/apache2/oeasc_tiles
-sudo systemctl enable --now apache-htcacheclean   # purge auto ; taille dans /etc/default/apache-htcacheclean
+sudo mkdir -p /var/cache/apache2/oeasc_tiles && sudo chown www-data:www-data /var/cache/apache2/oeasc_tiles
+sudo systemctl enable --now apache-htcacheclean
 sudo apachectl configtest && sudo systemctl reload apache2
 ```
 
-Vérification (pas de `Set-Cookie` sur la réponse, `X-Cache: HIT` au 2e appel) :
-```sh
-curl -sI https://<domaine>/oeasc/api/declaration/tiles/9/256/178.png | grep -iE "set-cookie|cache-control|x-cache"
-```
+## Commandes de maintenance
 
+Toutes se lancent depuis `backend/`, virtualenv activé.
 
--------------------------------------------------------------------------------------------------------
-# Pour le dev
-
-# partie concernant les librairies pnx à installer. A installer dans un autre dossier que app_oeasc pour le dev
-1. ## les librairies d'orgine
-- ### UserHub
-    git clone https://github.com/PnX-SI/UsersHub.git
-    voir son installation ici https://usershub.readthedocs.io/fr/latest/
-- ### Nomenclature-api-module
-    git clone https://github.com/PnX-SI/Nomenclature-api-module.git
-
-
-2. ## les librairies qui ont été modifiées
-- ### UserHub Authentification
-    git clone https://github.com/Fargo48/UsersHub-authentification-oeasc-module.git
-    dans le repertoire Userhub-authentification, executer
-    git fetch origin
-    git checkout -b fix/register_user origin/fix/register_user
-    pip install -e install/
-
-- ### TaxeHub
-    git clone https://github.com/Fargo48/TaxHub.git
-    git fetch origin
-    git checkout -b feat/sqlalchemy2 origin/feat/sqlalchemy2
-    pip install -e install/
-
-- ### Utils-flask-sqlalchemy
-    git clone https://github.com/Fargo48/Utils-Flask-SQLAlchemy.git
-    git fetch origin
-    git checkout -b feat/sql-alchemy2-rebase origin/feat/sql-alchemy2-rebase
-    pip install -e install/
-
-- ### Utils-flask-sqlalchemy-Geo
-    git clone https://github.com/Fargo48/Utils-Flask-SQLAlchemy-Geo.git
-    git fetch origin
-    git checkout -b feat/sqlalchemy2 origin/feat/sqlalchemy2
-    pip install -e install/
+| Commande | Rôle |
+|---|---|
+| `flask init-db` | crée la base (voir [install_db.md](install_db.md)) |
+| `flask refresh-ref-geo` | reconstruit `ref_geo.l_areas` depuis `data/ref_geo/*.gpkg` ([mise_a_jour_ref_geo.md](mise_a_jour_ref_geo.md)) |
+| `flask fix-vm-lareas-simples-simplification` | recrée `ref_geo.vm_lareas_simples` avec la simplification limitée |
+| `flask send-relance` | envoie les mails de relance des déclarations |
+| `flask archive-medias-orphelins [--apply]` | déplace dans `archive/media_orphelins/` les médias de `static/medias/` plus référencés (simulation sans `--apply`) |
+| `flask db ...` | migrations Alembic ([alembic.md](alembic.md)) |

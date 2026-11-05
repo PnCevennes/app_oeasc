@@ -1,3 +1,10 @@
+# Historique des versions
+
+> Ce fichier ne couvre que 2022 (versions « 0.0.1 »). La version courante est dans `VERSION` ; l'historique
+> depuis se lit dans `git log` (et dans les migrations Alembic pour la base : [alembic.md](alembic.md)).
+> Les `data/upgrade/*.sql` et la configuration par `settings.ini` / `config.py` cités plus bas n'existent plus
+> (voir [configuration.md](configuration.md)).
+
 ## 0.0.1 2022-11-23
 * correction de la prise en compte des droits de l'utilisateur pour savoir quelles déclarations lui sont accessibles
 

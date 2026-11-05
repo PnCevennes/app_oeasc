@@ -2,10 +2,14 @@
 
 ### Fonctionnement global
 
-    Les stores sont configuré dans le "index.js" de chaques modules
+Vuex ; fabrique générique : `addStore` dans `frontend/src/store/utils.js`. Les routes REST associées sont les routes
+génériques du backend (`backend/oeasc/modules/oeasc/generic/`, voir aussi les `droits` C/R/U/D déclarés par module,
+par ex. dans `chasse/api.py`). Les échecs d'écriture remontent dans le snackbar global (`describeApiError()`).
+
+    Les stores sont configurés dans le "index.js" de chaque module
     - Dans l'index.js
         -- On crée un const STORE dans lequel on peut ajouter des state, getter, actions spécifiques aux modules
-        -- À la fin la fonction addStore qui se trouve dans 'store/utils.js' est utilisée pour créé un configStore générique à   partir du fichier de configuration situé dans le module/config/store-bidule.js
+        -- À la fin la fonction addStore qui se trouve dans 'store/utils.js' est utilisée pour créé un configStore générique à   partir du fichier de configuration situé dans `modules/<module>/config/store-bidule.js` (exemple : `modules/chasse/config/store-saison.js`)
         Un exemple est à la fin du fichier.
         -- les getters, mutations, et actions sont créé à partir du nom du store (storeName) à qui on a rajouté une majuscule au début. ex. getChasseZoneIndicative, postChasseZoneIndicative, getAllChasseZoneIndicative etc..
         -- les données inscrites dans "options": seront ajoutés à la requête GET
@@ -66,6 +70,12 @@
 
 
 Exemple d'un configStore
+
+(sortie de `addStore`, générée à partir d'un fichier `store-*.js` qui ne contient que `group`, `name`, `label`,
+`serverSide`, `options`, `defs`...; les champs `storeName`, `api`, `get`, `post`, `configForm`, `configTable`... sont ajoutés. Exemple
+simplifié : les réglages d'affichage de `configTable` (`dense`, `striped`, `small`) évoluent avec la migration Vuetify 3,
+se référer à `generic-table.vue`. Dans `options`, `sortBy` / `sortDesc` restent des tableaux simples : `generic-table.vue`
+convertit le format Vuetify 3 `[{key, order}]` vers celui-ci avant de requêter le backend.)
 
 
 "chassePersonneConfigStore": {

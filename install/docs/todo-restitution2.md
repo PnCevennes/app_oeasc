@@ -1,4 +1,7 @@
-# TODO
+# TODO restitution 2
+
+État : le module `frontend/src/modules/restitution2` coexiste avec la v1 (`modules/restitution`, déclarations de dégâts) ; la v2 ne couvre ni tableau, ni carte, ni `nb_max`, ni cascades.
+
 
 - changer fonction sql `oeasc_chasse.fct_custom_results_t` en fonction python qui construit la requete _a la main_
 

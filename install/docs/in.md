@@ -6,9 +6,11 @@
 
 ## Administration
 
-L'administration des données des Indices Nocturnes est accessible depuis le menu de gauche (sous-menu `Administration`) ou directement à l'adresse `#/admin/in`.
+L'administration des données des Indices Nocturnes est accessible depuis le menu de gauche (sous-menu `Administration`) ou directement à l'adresse `#/in/admin`.
 
 Il faut être connecté et avoir les droit >= 5 pour pouvoir y accéder.
+
+L'écran comporte les onglets **Statistiques**, **Réalisations**, **Circuits** et **Observateurs** (configuration : `frontend/src/modules/in/index.js`).
 
 ### Statistiques
 Cet onglet permet de :
@@ -33,18 +35,12 @@ Cet onglet permet de
 ![circuit](images/in/circuit.png)
 Il y a la possibilité de marquer les circuits comme non actif. Dans ce cas, ils n'apparaissent plus dans le menu déroulant des circuit pour une réalisation.
 
-### Tags
+### Tags et espèces
 
-Gestion des tags.
-
-Les Tags déjà présents sont `all` et `coeur`.
-Les tags permettent de valider une réalisation pour des contextes différents (par exemple `Méjean` et `Méjean  coeur`) sans avoir à dupliquer les circuits et les réalisations;
-
-### Espèces
-
-Gestion des espèces.
-
-Les espèces déjà présentes sont les cerfs, chevreuils, renards, lièvres.
+Pas d'onglet ni de route d'administration : ces tables (`oeasc_in`) se modifient directement en base.
+Les tags déjà présents sont `all` et `coeur` : ils permettent de valider une réalisation pour des contextes
+différents (par exemple `Méjean` et `Méjean coeur`) sans dupliquer les circuits et les réalisations.
+Les espèces présentes sont les cerfs, chevreuils, renards, lièvres.
 
 ### Observateurs
 
@@ -52,6 +48,6 @@ Gestion des observateurs.
 
 ## Resultats
 
-Les résutats des Indices nocturnes sont accéssible à tous depuis le menu horizontal `Résultats des suivi -> Indices Nocturnes` ou directement à l'adresse `resultats/in`.
+Les résutats des Indices nocturnes sont accéssible à tous depuis le menu horizontal `Résultats des suivi -> Indices Nocturnes` ou directement à l'adresse `#/resultats/in` (`#/resultats/in_all` pour tous les tags).
 
 
