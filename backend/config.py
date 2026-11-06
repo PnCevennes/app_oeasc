@@ -57,8 +57,9 @@ SQLALCHEMY_ECHO = _db["sqlalchemy_echo"]
 SQLALCHEMY_ENGINE_OPTIONS = _db["sqlalchemy_engine_options"]
 
 ############################## URL ##############################
-URL_APPLICATION = _urls["application"]
-URL_FRONTEND = _urls["frontend"]
+# normalisées : le code concatène URL_APPLICATION + "/api/..." et URL_FRONTEND + "login" / "#/..."
+URL_APPLICATION = str(_urls["application"]).rstrip("/")
+URL_FRONTEND = str(_urls["frontend"]).rstrip("/") + "/"
 URL_USERSHUB = _urls["usershub"]
 PORT = _urls["port"]
 REDIRECT_ON_FORBIDDEN = _urls["redirect_on_forbidden"]

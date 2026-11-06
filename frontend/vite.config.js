@@ -24,8 +24,9 @@ function configPrincipal() {
   const exposes = {
     [CONFIG_DECLARATION_ID]: (c) => ({ STATUT_DECLARATION: c.declaration.STATUT_DECLARATION }),
     [CONFIG_FRONTEND_ID]: (c) => ({
-      URL_APPLICATION: avecSchema(c.urls.application),
-      URL_FRONTEND: avecSchema(c.urls.frontend),
+      // normalisées comme dans backend/config.py : le code concatène URL_APPLICATION + '/api/...'
+      URL_APPLICATION: avecSchema(c.urls.application).replace(/\/+$/, ''),
+      URL_FRONTEND: `${avecSchema(c.urls.frontend).replace(/\/+$/, '')}/`,
       ID_APPLICATION: String(c.application.id_app),
       MATOMO: c.frontend?.matomo || {},
       MAPBOX: c.frontend?.mapbox || {},
