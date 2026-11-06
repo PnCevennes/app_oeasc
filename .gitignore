@@ -59,3 +59,7 @@ static/imports_chasse/*
 TODO.md
 # Archives locales (anciens fichiers retirés du dépôt)
 archive/
+
+
+install/config_principal_prod.yaml
+install/config_principal_dev.yaml
