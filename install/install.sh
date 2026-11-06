@@ -186,10 +186,11 @@ fi
 # shellcheck disable=SC1091
 source venv/bin/activate
 pip install --quiet --upgrade pip
+# l'ancien paquet "oeasc" (install/setup.py) n'existe plus : les migrations sont référencées dans backend/app.py.
+# Désinstallé AVANT requirements.txt : ses versions épinglées provoqueraient de faux conflits pip.
+pip uninstall -y oeasc >/dev/null 2>&1 || true
 # pip ne (ré)installe que ce qui manque ou ne respecte pas les versions de requirements.txt
 pip install -r requirements.txt
-# l'ancien paquet "oeasc" (install/setup.py) n'existe plus : les migrations sont référencées dans backend/app.py
-pip uninstall -y oeasc >/dev/null 2>&1 || true
 pip check || warn "dépendances python incohérentes, voir ci-dessus"
 
 ########################################################################
