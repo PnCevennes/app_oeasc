@@ -224,6 +224,18 @@ const couleurCulture = (rang) =>
     ? PALETTE_CULTURES[rang]
     : `hsl(${Math.round((rang * 137.508) % 360)}, 55%, 55%)`;
 
+// famille de couleur selon le type de culture ; teinte null => couleur de la palette
+const FAMILLES_COULEURS = [
+  { nom: 'prairies', motif: 'PRAIRIE', teinte: 120, saturation: 55 },
+  { nom: 'cereales', motif: 'CEREALE', teinte: 48, saturation: 90, eclaircie: 7 },
+  { nom: 'fruits', motif: 'FRUIT', teinte: 0, saturation: 70 },
+];
+const FAMILLE_AUTRE = { nom: 'autre', teinte: null };
+const familleCouleur = (nomType) => {
+  const nom = (nomType || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
+  return FAMILLES_COULEURS.find((f) => nom.includes(f.motif)) || FAMILLE_AUTRE;
+};
+
 const arrondi = (valeur, decimales) => Number(valeur.toFixed(decimales));
 
 // case « uniquement les unités de gestion agricole de l'OEASC » de chaque section
@@ -300,18 +312,54 @@ export default {
       const [plusPetit, ...autres] = noms.reverse();
       return [...autres, plusPetit];
     },
-    // { nom de la part: couleur } : une part garde la même couleur dans tous les camemberts
+    // nom de culture -> nom de son type de culture (pour colorer chaque culture selon son type)
+    typeParCulture() {
+      const types = {};
+      for (const c of [...this.culturesToutesSaisons, ...this.cultures]) {
+        types[c.nom_culture] = c.nom_type_culture;
+      }
+      return types;
+    },
+    // { nom de la part: couleur } : une part garde la même couleur dans tous les camemberts.
+    // Teinte par type de culture (prairies : verts, céréales : jaunes, fruits et légumes :
+    // rouges) ; par culture, dégradé de clair à foncé au sein de la teinte de son type
     couleursCultures() {
       const couleurs = {};
-      let rang = 0;
+      const noms = [];
       // les parts absentes du cumul (réponse pas encore arrivée) sont ajoutées à la suite
       for (const { nom } of [...this.partsToutesSaisons, ...this.partsCultures]) {
-        if (nom in couleurs) {
+        if (!noms.includes(nom)) {
+          noms.push(nom);
+        }
+      }
+      const typeDe = (nom) => (this.parCulture ? this.typeParCulture[nom] : nom);
+      // effectif de chaque famille de couleur, pour répartir le dégradé
+      const effectifs = {};
+      for (const nom of noms) {
+        const famille = familleCouleur(typeDe(nom));
+        effectifs[famille.nom] = (effectifs[famille.nom] || 0) + 1;
+      }
+      const rangs = {};
+      let rangAutre = 0;
+      for (const nom of noms) {
+        if (NOMS_NON_RENSEIGNES.includes(nom)) {
+          couleurs[nom] = COULEUR_NON_RENSEIGNEE;
           continue;
         }
-        couleurs[nom] = NOMS_NON_RENSEIGNES.includes(nom)
-          ? COULEUR_NON_RENSEIGNEE
-          : couleurCulture(rang++);
+        const famille = familleCouleur(typeDe(nom));
+        if (famille.teinte === null) {
+          couleurs[nom] = couleurCulture(rangAutre++);
+          continue;
+        }
+        const rang = rangs[famille.nom] || 0;
+        rangs[famille.nom] = rang + 1;
+        // un type seul garde sa teinte de base ; sinon dégradé du plus foncé au plus clair
+        couleurs[nom] =
+          this.parCulture && effectifs[famille.nom] > 1
+            ? `hsl(${famille.teinte}, ${famille.saturation}%, ${
+                35 + (famille.eclaircie || 0) + (rang * 35) / (effectifs[famille.nom] - 1)
+              }%)`
+            : `hsl(${famille.teinte}, ${famille.saturation}%, ${48 + (famille.eclaircie || 0)}%)`;
       }
       for (const { nom } of this.dataCamembert) {
         if (!(nom in couleurs)) {
