@@ -299,7 +299,24 @@ export default {
     this.initMap();
     this.add_layer_perimetre_oeasc();
     await this.initialise_areas(); // Initialise les zones avant le rendu de la carte
-    this.fetch_new_geojson_data(this.typeCarte); // recupère les contours des layers à afficher
+    // Modification / renouvellement d'une déclaration sur une forêt (DGD ou ONF) : on affiche
+    // directement les parcelles / UG de la forêt. Sans forêt sélectionnée, affichage inchangé.
+    const id_foret = this.get_selected_foret_id(this.typeCarte);
+    if (id_foret && this.typeCarte === FORETS_DGD) {
+      this.actual_foret_dgd = id_foret;
+      this.id_area_visible = id_foret;
+      this.last_typeCarte = FORETS_DGD; // le bouton retour ramène à la liste des forêts DGD
+      this.typeCarte = CADASTRES;
+      this.fetch_new_geojson_data(FORETS_DGD, id_foret); // type du parent, comme au clic
+    } else if (id_foret && this.typeCarte === FORETS_ONF) {
+      this.actual_foret_onf = id_foret;
+      this.id_area_visible = id_foret;
+      this.last_typeCarte = FORETS_ONF;
+      this.typeCarte = UG_ONF;
+      this.fetch_new_geojson_data(FORETS_ONF, id_foret); // charge les UG de la forêt
+    } else {
+      this.fetch_new_geojson_data(this.typeCarte); // recupère les contours des layers à afficher
+    }
     this.initialized = true; // Indique que le composant est prêt à être affiché
   },
 
@@ -313,6 +330,24 @@ export default {
   },
 
   methods: {
+    /**
+     * Retourne l'id_area de la forêt (DGD ou ONF selon typeCarte) déjà sélectionnée dans la
+     * déclaration (racine de areas_localisation), ou null s'il n'y en a pas.
+     */
+    get_selected_foret_id(typeCarte) {
+      const roots = (this.declaration_data.areas_localisation || []).filter(
+        (a) => a && !a.id_parent
+      );
+      const id_declare =
+        typeCarte === FORETS_DGD
+          ? this.declaration_data.areas_foret_dgd
+          : this.declaration_data.areas_foret_onf;
+      const root =
+        roots.find((a) => a.id_type === typeCarte) || roots.find((a) => a.id_area === id_declare);
+      // repli : forêt renseignée par le backend même si la hiérarchie n'a pas de racine forêt
+      return root ? root.id_area : id_declare || null;
+    },
+
     /**
      * vide toutes les zones sélectionnées dans la déclaration. Sert à réinitialiser la carte lorsque l'on change de type de carte.
      *
@@ -962,15 +997,16 @@ export default {
      * @param id_area peut etre null si on veut les couches de type communes, sections, forêts DGD et ONF.
      */
     is_layer_in_cache(id_type_carte, id_area = null) {
-      // Vérifie si les données GeoJSON sont déjà dans le cache
-      if (id_area) {
-        return (
-          this.layers_groupe_cache[id_type_carte] &&
-          this.layers_groupe_cache[id_type_carte][id_area]
-        );
-      } else {
-        return this.layers_groupe_cache[id_type_carte];
-      }
+      // Clé distincte pour les enfants d'une zone : ne doit pas écraser/masquer le cache du groupe
+      return !!this.layers_groupe_cache[this.cache_key(id_type_carte, id_area)];
+    },
+
+    /**
+     * Clé de cache : le groupe d'un type (id_area null) et les enfants d'une zone (type + id_area)
+     * sont stockés à plat sous des clés différentes.
+     */
+    cache_key(id_type_carte, id_area = null) {
+      return id_area ? `${id_type_carte}:${id_area}` : `${id_type_carte}`;
     },
 
     /**
@@ -979,16 +1015,7 @@ export default {
      * @param id_area peut etre null si on veut les couches de type communes, sections, forêts DGD et ONF.
      */
     get_layer_from_cache(id_type_carte, id_area = null) {
-      // Récupère les données GeoJSON du cache
-      if (id_area) {
-        // Si un id_area est fourni, on récupère dans un sous-objet
-        return this.layers_groupe_cache[id_type_carte]
-          ? this.layers_groupe_cache[id_type_carte][id_area]
-          : {};
-      } else {
-        // Sinon, on récupère directement
-        return this.layers_groupe_cache[id_type_carte] || {};
-      }
+      return this.layers_groupe_cache[this.cache_key(id_type_carte, id_area)] || {};
     },
 
     /**
@@ -998,18 +1025,7 @@ export default {
      * @param geojson Les données GeoJSON à enregistrer dans le cache
      */
     save_layer_in_cache(id_type_carte, id_area = null, geojson) {
-      // Enregistre les données GeoJSON dans le cache
-      if (id_area) {
-        // Si un id_area est fourni, on enregistre dans un sous-objet
-        if (!this.layers_groupe_cache[id_type_carte]) {
-          this.layers_groupe_cache[id_type_carte] = {};
-        }
-        this.layers_groupe_cache[id_type_carte][id_area] = geojson;
-        return;
-      } else {
-        // Sinon, on enregistre directement
-        this.layers_groupe_cache[id_type_carte] = geojson;
-      }
+      this.layers_groupe_cache[this.cache_key(id_type_carte, id_area)] = geojson;
     },
 
     /**
