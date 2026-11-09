@@ -231,6 +231,8 @@ def get_bilan_communes_geojson(
                 COALESCE(b.montant_total, 0),
                 COALESCE(b.nb_dossiers, 0),
                 COALESCE(b.nb_declarations, 0),
+                COALESCE(b.surface_ressemis, 0),
+                COALESCE(b.volume_detruit, 0),
                 ST_AsGeoJSON(
                     ST_Transform(
                         ST_SimplifyPreserveTopology(c.geom, :tolerance), 4326
@@ -244,6 +246,10 @@ def get_bilan_communes_geojson(
                     SUM(surface_detruite) FILTER (
                         WHERE lower(unit_quantite_detruite) = 'ha'
                     ) AS surface_detruite,
+                    SUM(surface_ressemis) FILTER (
+                        WHERE lower(unit_quantite_detruite) = 'ha'
+                    ) AS surface_ressemis,
+                    SUM(volume_detruit) AS volume_detruit,
                     SUM(montant_total_paye) AS montant_total,
                     COUNT(DISTINCT numero_dossier) AS nb_dossiers,
                     COUNT(*) AS nb_declarations
@@ -294,8 +300,10 @@ def get_bilan_communes_geojson(
                     "montant_total": float(r[4]),
                     "nb_dossiers": r[5],
                     "nb_declarations": r[6],
+                    "surface_ressemis": float(r[7]),
+                    "volume_detruit": float(r[8]),
                 },
-                "geometry": json.loads(r[7]) if r[7] else None,
+                "geometry": json.loads(r[9]) if r[9] else None,
             }
             for r in rows
         ],

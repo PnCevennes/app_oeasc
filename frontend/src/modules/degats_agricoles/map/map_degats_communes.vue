@@ -1,5 +1,5 @@
 <!--
-  Carte des communes de la zone OEASC colorées selon la surface détruite (ha)
+  Carte des communes de la zone OEASC colorées selon la mesure de l'onglet choisi (montant, surface, volume, surface remise en état)
   pour une saison ou cumulée sur toutes les saisons. Au survol : montant indemnisé et nombre de dossiers.
 -->
 <template>
@@ -22,7 +22,7 @@
       </div>
     </div>
     <div class="legende">
-      <b>Surface détruite :</b>
+      <b>{{ mesureCourante.titre }} :</b>
       <span
         v-for="classe of classes"
         :key="classe.label"
@@ -68,8 +68,16 @@ const CLASSES = [
 const COULEURS = CLASSES.map((c) => c.color);
 const CLASSE_NULLE = { color: '#ffffff', label: '0 ha' };
 
-const classeSurface = (surface, classes) =>
-  surface > 0 ? classes.find((c) => surface > c.min) : CLASSE_NULLE;
+const classeValeur = (valeur, classes) =>
+  valeur > 0 ? classes.find((c) => valeur > c.min) || classes[classes.length - 1] : CLASSE_NULLE;
+
+// mesures affichables (un onglet chacune) : propriété du geojson, unité, décimales
+const MESURES = [
+  { cle: 'montant', onglet: 'Par montant', titre: 'Montant indemnisé', propriete: 'montant_total', unite: '€', decimales: 0 },
+  { cle: 'surface', onglet: 'Par surface', titre: 'Surface détruite', propriete: 'surface_detruite', unite: 'ha', decimales: 1 },
+  { cle: 'volume', onglet: 'Par volume', titre: 'Volume détruit', propriete: 'volume_detruit', unite: 'qtx', decimales: 1 },
+  { cle: 'remise', onglet: 'Par surface remise en état', titre: 'Surface remise en état', propriete: 'surface_ressemis', unite: 'ha', decimales: 1 },
+];
 
 // quantile d'ordre p (0 à 1) d'une liste triée, par interpolation linéaire
 const quantile = (valeursTriees, p) => {
@@ -88,6 +96,7 @@ const nombre = (valeur, decimales = 0) =>
 export default {
   name: 'map_degats_communes',
   props: {
+    mesure: { default: 'montant' }, // montant, surface, volume ou remise (onglet de la page)
     // FeatureCollection des communes : properties { nom, surface_detruite, montant_total, nb_dossiers }
     geojson: { default: null },
     height: { default: '600px' },
@@ -95,44 +104,50 @@ export default {
     cumul: { default: false }, // true : surfaces cumulées sur toutes les saisons (autres seuils)
   },
   computed: {
-    // En cumul, les seuils fixes d'une saison ne conviennent plus (presque toutes les
-    // communes touchées dépassent 10 ha) : les seuils sont les quartiles des surfaces
-    // cumulées des communes touchées, soit environ un quart de ces communes par classe.
-    classesCumul() {
-      const surfaces = ((this.geojson && this.geojson.features) || [])
-        .map((f) => f.properties.surface_detruite)
-        .filter((surface) => surface > 0)
+    mesureCourante() {
+      return MESURES.find((m) => m.cle === this.mesure);
+    },
+    // Les seuils fixes ne valent que pour la surface détruite d'une saison. Sinon
+    // (autres mesures, ou cumul), les seuils sont les quartiles des valeurs non nulles
+    // des communes, soit environ un quart de ces communes par classe.
+    classesQuantiles() {
+      const { propriete, unite, decimales } = this.mesureCourante;
+      const valeurs = ((this.geojson && this.geojson.features) || [])
+        .map((f) => f.properties[propriete])
+        .filter((v) => v > 0)
         .sort((a, b) => a - b);
-      if (!surfaces.length) {
+      if (!valeurs.length) {
         return [];
       }
-      // seuils arrondis au dixième d'hectare pour que la légende corresponde exactement
-      // au classement ; les doublons (peu de communes, valeurs égales) sont retirés
+      // seuils arrondis pour que la légende corresponde exactement au classement ;
+      // les doublons (peu de communes, valeurs égales) sont retirés
       const seuils = [0.75, 0.5, 0.25]
-        .map((p) => Number(quantile(surfaces, p).toFixed(1)))
+        .map((p) => Number(quantile(valeurs, p).toFixed(decimales)))
         .filter((seuil, i, liste) => seuil > 0 && liste.indexOf(seuil) === i);
       const bornes = [...seuils, 0]; // bornes basses, de la plus forte à la plus faible
-      // les couleurs les plus fortes restent sur les classes les plus hautes
       return bornes.map((min, i) => {
         const max = bornes[i - 1];
-        let label = `${nombre(min, 1)} à ${nombre(max, 1)} ha`;
+        let label = `${nombre(min, decimales)} à ${nombre(max, decimales)} ${unite}`;
         if (i === 0) {
-          label = bornes.length > 1 ? `plus de ${nombre(min, 1)} ha` : 'plus de 0 ha';
+          label = bornes.length > 1 ? `plus de ${nombre(min, decimales)} ${unite}` : `plus de 0 ${unite}`;
         } else if (min === 0) {
-          label = `jusqu'à ${nombre(max, 1)} ha`;
+          label = `jusqu'à ${nombre(max, decimales)} ${unite}`;
         }
         return { min, color: COULEURS[i], label };
       });
     },
     classesSurface() {
-      return this.cumul ? this.classesCumul : CLASSES;
+      return this.mesure === 'surface' && !this.cumul ? CLASSES : this.classesQuantiles;
     },
     classes() {
-      return [...this.classesSurface, CLASSE_NULLE];
+      return [...this.classesSurface, { ...CLASSE_NULLE, label: `0 ${this.mesureCourante.unite}` }];
     },
   },
   watch: {
     geojson() {
+      this.afficherCommunes();
+    },
+    mesure() {
       this.afficherCommunes();
     },
   },
@@ -149,11 +164,12 @@ export default {
         return;
       }
       const classesSurface = this.classesSurface;
+      const { propriete } = this.mesureCourante;
       this.layer = L.geoJSON(this.geojson, {
         style: (feature) => ({
           color: '#555555',
           weight: 1,
-          fillColor: classeSurface(feature.properties.surface_detruite, classesSurface).color,
+          fillColor: classeValeur(feature.properties[propriete], classesSurface).color,
           fillOpacity: 0.75,
         }),
         onEachFeature: (feature, layer) => {
@@ -162,7 +178,9 @@ export default {
             `<b>${p.nom}</b><br/>` +
               `Total indemnisé : <b>${nombre(p.montant_total, 2)} €</b><br/>` +
               `Nombre de dossiers : <b>${nombre(p.nb_dossiers)}</b><br/>` +
-              `Surface détruite : <b>${nombre(p.surface_detruite, 2)} ha</b>`,
+              `Surface détruite : <b>${nombre(p.surface_detruite, 2)} ha</b><br/>` +
+              `Volume détruit : <b>${nombre(p.volume_detruit, 2)} qtx</b><br/>` +
+              `Surface remise en état : <b>${nombre(p.surface_ressemis, 2)} ha</b>`,
             { sticky: true }
           );
           layer.on('mouseover', () => layer.setStyle({ weight: 3, color: '#1565c0' }));

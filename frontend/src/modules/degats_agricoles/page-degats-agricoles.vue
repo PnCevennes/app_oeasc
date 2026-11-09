@@ -191,6 +191,22 @@
         ></v-checkbox>
       </selecteur-saison>
 
+      <v-tabs
+        v-model="mesureCarte"
+        color="primary"
+        bg-color="grey-lighten-3"
+        grow
+        class="onglets-mesure"
+      >
+        <v-tab
+          v-for="m of ONGLETS_MESURE"
+          :key="m.cle"
+          :value="m.cle"
+        >
+          {{ m.onglet }}
+        </v-tab>
+      </v-tabs>
+
       <filtres-graphiques
         v-if="optionsFiltres"
         v-model="filtresCarte"
@@ -200,6 +216,7 @@
 
       <map_degats_communes
         :geojson="geojsonCommunes"
+        :mesure="mesureCarte"
         :loading="chargementCarte"
         :cumul="!!(geojsonCommunes && geojsonCommunes.toutes_saisons)"
       ></map_degats_communes>
@@ -214,6 +231,14 @@ import graph_colonnes_saisons from './graph/graph_colonnes_saisons.vue';
 import map_degats_communes from './map/map_degats_communes.vue';
 import selecteurSaison from './selecteur-saison.vue';
 import filtresGraphiques from './filtres-graphiques.vue';
+
+// onglets de la carte des communes, dans l'ordre d'affichage
+const ONGLETS_MESURE = [
+  { cle: 'montant', onglet: 'Par montant' },
+  { cle: 'surface', onglet: 'Par surface' },
+  { cle: 'volume', onglet: 'Par volume' },
+  { cle: 'remise', onglet: 'Par surface remise en état' },
+];
 
 // part (en %) en dessous de laquelle une culture est regroupée dans « Autres cultures »
 // (affichage par culture uniquement : les types de culture, peu nombreux, restent séparés)
@@ -287,6 +312,8 @@ export default {
     saisons: [], // indicateurs par saison, de la plus ancienne à la plus récente
     idSaisonCultures: null,
     idSaisonCarte: null,
+    ONGLETS_MESURE,
+    mesureCarte: 'montant', // onglet de la carte : montant, surface, volume ou remise
     cultures: [], // indicateurs par culture pour idSaisonCultures
     // idem cumulés sur toutes les saisons : référence des couleurs, et données du camembert
     // quand toutesSaisonsCultures est coché
@@ -689,6 +716,19 @@ export default {
 /* case superposée au bas du graphique, à droite, sur la ligne de la légende */
 .bloc-graphique {
   position: relative;
+}
+.onglets-mesure {
+  margin: 8px 0;
+  border: 1px solid #bdbdbd;
+  border-radius: 4px;
+}
+.onglets-mesure :deep(.v-tab) {
+  font-size: 0.95rem;
+  font-weight: 600;
+  text-transform: none;
+}
+.onglets-mesure :deep(.v-tab--selected) {
+  background-color: #bbdefb;
 }
 .case-volume {
   position: absolute;
