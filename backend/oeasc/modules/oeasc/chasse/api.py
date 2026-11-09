@@ -852,10 +852,17 @@ def api_realisations_par_mois_sur_dernieres_saisons():
             )
     # on trie les mois en commençant par septembre pour que les saisons soient regroupées de septembre à aout
 
+    # Toutes les saisons doivent avoir exactement les mêmes mois (dans le même ordre),
+    # avec 0 pour les mois sans prélèvement : le graphique associe les valeurs
+    # aux mois par position, sinon les valeurs sont décalées d'une saison à l'autre.
+    mois_presents = {d["mois"] for saison in data for d in saison["data"]}
+    mois_liste = [m for m in MOIS_ORDER if m in mois_presents]
+
     for saison in data:
-        saison["data"] = sorted(
-            saison["data"], key=lambda x: MOIS_ORDER.index(x["mois"])
-        )
+        par_mois = {d["mois"]: d["nb_realisations"] for d in saison["data"]}
+        saison["data"] = [
+            {"mois": m, "nb_realisations": par_mois.get(m, 0)} for m in mois_liste
+        ]
     return data
 
 

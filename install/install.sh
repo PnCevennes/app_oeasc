@@ -219,6 +219,18 @@ case "$MAIL_SERVER $MAIL_USERNAME" in
     *domaine.fr*) warn "section mail : valeurs d'exemple (domaine.fr), les mails ne partiront pas" ;;
 esac
 
+# Connexion à la base : sans elle toutes les routes API répondent 500
+# (la vérification HTTP de fin d'installation ne le verrait pas : `/` ne touche pas la base)
+echo "Connexion à la base $db_name sur $db_host:$db_port (utilisateur $user_pg)"
+if ! erreur_pg=$(PGHOST=$db_host PGPORT=$db_port PGDATABASE=$db_name PGUSER=$user_pg PGPASSWORD=$user_pg_pass \
+        PGCONNECT_TIMEOUT=10 python -c 'import psycopg2; psycopg2.connect("").close()' 2>&1); then
+    echo "$erreur_pg" | grep -v '^Traceback\|^  ' >&2
+    die "base de données injoignable. Selon le message ci-dessus :
+  - 'No route to host' / 'timeout' : serveur éteint, mauvaise IP ou pare-feu (ping $db_host ; nc -zv $db_host $db_port)
+  - 'Connection refused' : PostgreSQL n'écoute pas sur cette adresse (listen_addresses dans postgresql.conf)
+  - 'no pg_hba.conf entry' / 'password authentication failed' : pg_hba.conf ou base_de_donnees.mot_de_passe"
+fi
+
 ########################################################################
 # 4. npm + build
 ########################################################################

@@ -24,7 +24,7 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 
 # import re
 from pathlib import Path
-from pkg_resources import iter_entry_points
+from importlib.metadata import entry_points
 from flask import Flask, redirect, session, request, url_for, current_app
 from flask_migrate import Migrate
 import logging
@@ -164,7 +164,7 @@ def configure_alembic(alembic_config):
     Thus, alembic will find migrations provided by all installed packages.
     """
     # Ignore version_locations provided in configuration as TaxHub migrations are also
-    # detected by iter_entry_points so we current_app.config["ID_APP"]avoid adding twice
+    # detected by the "alembic" entry points so we avoid adding twice
     # version_locations = alembic_config.get_main_option('version_locations', default='').split()
     # migrations d'oeasc : référencées directement (plus de setup.py / entry point à installer)
     version_locations = ["oeasc.migrations:versions"]
@@ -172,8 +172,9 @@ def configure_alembic(alembic_config):
         version_locations.extend(
             current_app.config["ALEMBIC_VERSION_LOCATIONS"].split()
         )
-    for entry_point in iter_entry_points("alembic", "migrations"):
-        _, migrations = str(entry_point).split("=", 1)
+    # importlib.metadata (bibliothèque standard) : pkg_resources est retiré de setuptools >= 81
+    for entry_point in entry_points(group="alembic", name="migrations"):
+        migrations = entry_point.value
         if migrations.strip() not in version_locations:  # évite le doublon si oeasc est aussi installé en package
             version_locations += [migrations.strip()]
     alembic_config.set_main_option("version_locations", " ".join(version_locations))
