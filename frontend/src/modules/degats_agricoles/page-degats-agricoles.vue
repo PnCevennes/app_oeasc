@@ -78,15 +78,6 @@
           unite="ha"
           :decimales="1"
         ></graph_colonnes_saisons>
-
-        <graph_colonnes_saisons
-          title="Surface détruite cumulée"
-          :categories="categories"
-          :series="[{ name: 'Surface détruite cumulée', data: surfaceCumulee, color: '#a23b72' }]"
-          yTitle="Surface cumulée (ha)"
-          unite="ha"
-          :decimales="1"
-        ></graph_colonnes_saisons>
       </div>
 
       <p class="note">
@@ -270,13 +261,6 @@ export default {
   computed: {
     categories() {
       return this.saisons.map((s) => s.nom_saison);
-    },
-    surfaceCumulee() {
-      let cumul = 0;
-      return this.saisons.map((s) => {
-        cumul += s.surface_detruite;
-        return arrondi(cumul, 2);
-      });
     },
     mesure() {
       return this.mesures.find((m) => m.value === this.mesureCultures);
