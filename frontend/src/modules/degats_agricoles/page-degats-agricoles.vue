@@ -38,6 +38,12 @@
         hide-details
       ></v-checkbox>
 
+      <filtres-graphiques
+        v-if="optionsFiltres"
+        v-model="filtres"
+        :options="optionsFiltres"
+      ></filtres-graphiques>
+
       <div class="grille-graphiques">
         <graph_colonnes_saisons
           title="Montant total indemnisé par saison"
@@ -119,6 +125,13 @@
         ></v-checkbox>
       </selecteur-saison>
 
+      <filtres-graphiques
+        v-if="optionsFiltres"
+        v-model="filtresCultures"
+        sansTypesCulture
+        :options="optionsFiltres"
+      ></filtres-graphiques>
+
       <v-btn-toggle
         v-model="mesureCultures"
         mandatory
@@ -178,6 +191,13 @@
         ></v-checkbox>
       </selecteur-saison>
 
+      <filtres-graphiques
+        v-if="optionsFiltres"
+        v-model="filtresCarte"
+        sansCommunes
+        :options="optionsFiltres"
+      ></filtres-graphiques>
+
       <map_degats_communes
         :geojson="geojsonCommunes"
         :loading="chargementCarte"
@@ -193,6 +213,7 @@ import camembert from '@/components/graph/camembert.vue';
 import graph_colonnes_saisons from './graph/graph_colonnes_saisons.vue';
 import map_degats_communes from './map/map_degats_communes.vue';
 import selecteurSaison from './selecteur-saison.vue';
+import filtresGraphiques from './filtres-graphiques.vue';
 
 // part (en %) en dessous de laquelle une culture est regroupée dans « Autres cultures »
 // (affichage par culture uniquement : les types de culture, peu nombreux, restent séparés)
@@ -253,7 +274,13 @@ const LIBELLE_OEASC = "Uniquement l'OEASC";
 
 export default {
   name: 'pageDegatsAgricoles',
-  components: { camembert, graph_colonnes_saisons, map_degats_communes, selecteurSaison },
+  components: {
+    camembert,
+    filtresGraphiques,
+    graph_colonnes_saisons,
+    map_degats_communes,
+    selecteurSaison,
+  },
   data: () => ({
     chargement: true,
     erreur: null,
@@ -269,6 +296,15 @@ export default {
     toutesSaisonsCarte: false, // carte : cumul de toutes les saisons au lieu de idSaisonCarte
     // par section : uniquement les déclarations des unités de gestion agricole de l'OEASC
     oeascSaisons: true,
+    // filtres des 4 graphiques par saison : options proposées et identifiants sélectionnés
+    // (tout est sélectionné par défaut, une fois les options chargées)
+    optionsFiltres: null,
+    cleSaisons: null, // paramètres de la dernière requête des saisons (ignore les réponses périmées)
+    filtres: { communes: [], typesCulture: [], especes: [] },
+    // idem pour le camembert (sélection indépendante de celle des graphiques par saison)
+    filtresCultures: { communes: [], typesCulture: [], especes: [] },
+    // idem pour la carte (types de culture et espèces uniquement)
+    filtresCarte: { communes: [], typesCulture: [], especes: [] },
     enVolume: false, // 4e graphique : volume détruit (qtx) au lieu des surfaces
     oeascCultures: true,
     oeascCarte: true,
@@ -425,6 +461,19 @@ export default {
     oeascSaisons() {
       this.chargerSaisons();
     },
+    filtres: {
+      deep: true,
+      handler() {
+        this.chargerSaisons();
+      },
+    },
+    filtresCultures: {
+      deep: true,
+      handler() {
+        this.chargerCulturesToutesSaisons();
+        this.chargerCultures(this.idSaisonCultures);
+      },
+    },
     oeascCultures() {
       this.chargerCulturesToutesSaisons();
       this.chargerCultures(this.idSaisonCultures);
@@ -437,6 +486,12 @@ export default {
     },
     oeascCarte() {
       this.chargerCommunes();
+    },
+    filtresCarte: {
+      deep: true,
+      handler() {
+        this.chargerCommunes();
+      },
     },
   },
   methods: {
@@ -465,23 +520,46 @@ export default {
       );
     },
     // toutes les saisons sont renvoyées (à 0 si besoin) : la liste sert aussi aux sélecteurs
+    // un filtre complètement coché n'est pas envoyé (pas de filtre : les déclarations sans
+    // culture ou sans espèce restent comptées) ; un filtre vide est envoyé vide (rien retenu)
+    paramFiltre(selection, options) {
+      return selection.length === options.length ? undefined : selection.join(',');
+    },
+    // paramètres de requête correspondant à une sélection de filtres
+    paramsFiltres(f) {
+      const o = this.optionsFiltres;
+      if (!o) {
+        return {};
+      }
+      return {
+        communes: this.paramFiltre(f.communes, o.communes),
+        types_culture: this.paramFiltre(f.typesCulture, o.types_culture),
+        especes: this.paramFiltre(f.especes, o.especes),
+      };
+    },
     chargerSaisons() {
       const uniquement_oeasc = this.oeascSaisons;
-      return apiRequest('GET', 'api/agricole/results/saisons', {
-        params: { uniquement_oeasc },
-      }).then((res) => {
-        // ignore une réponse arrivée après un nouveau changement de la case
-        if (uniquement_oeasc === this.oeascSaisons) {
+      const params = { uniquement_oeasc, ...this.paramsFiltres(this.filtres) };
+      const cle = JSON.stringify(params);
+      this.cleSaisons = cle;
+      return apiRequest('GET', 'api/agricole/results/saisons', { params }).then((res) => {
+        // ignore une réponse arrivée après un nouveau changement de la case ou des filtres
+        if (cle === this.cleSaisons) {
           this.saisons = res.items || [];
         }
       });
     },
     chargerCulturesToutesSaisons() {
       const uniquement_oeasc = this.oeascCultures;
+      const cle = JSON.stringify(this.filtresCultures);
       apiRequest('GET', 'api/agricole/results/cultures', {
-        params: { toutes_saisons: true, uniquement_oeasc },
+        params: {
+          toutes_saisons: true,
+          uniquement_oeasc,
+          ...this.paramsFiltres(this.filtresCultures),
+        },
       }).then((res) => {
-        if (uniquement_oeasc === this.oeascCultures) {
+        if (uniquement_oeasc === this.oeascCultures && cle === JSON.stringify(this.filtresCultures)) {
           this.culturesToutesSaisons = res.items || [];
         }
       });
@@ -492,17 +570,23 @@ export default {
         return;
       }
       const uniquement_oeasc = this.oeascCultures;
+      const cle = JSON.stringify(this.filtresCultures);
       apiRequest('GET', 'api/agricole/results/cultures', {
-        params: { id_saison, uniquement_oeasc },
+        params: { id_saison, uniquement_oeasc, ...this.paramsFiltres(this.filtresCultures) },
       }).then((res) => {
-        // ignore une réponse arrivée après un nouveau changement de saison ou de la case
-        if (id_saison === this.idSaisonCultures && uniquement_oeasc === this.oeascCultures) {
+        // ignore une réponse arrivée après un nouveau changement de saison, de case ou de filtre
+        if (
+          id_saison === this.idSaisonCultures &&
+          uniquement_oeasc === this.oeascCultures &&
+          cle === JSON.stringify(this.filtresCultures)
+        ) {
           this.cultures = res.items || [];
         }
       });
     },
-    requeteCarteCourante(id_saison, toutes_saisons, uniquement_oeasc) {
+    requeteCarteCourante(id_saison, toutes_saisons, uniquement_oeasc, cle) {
       return (
+        cle === JSON.stringify(this.filtresCarte) &&
         id_saison === this.idSaisonCarte &&
         toutes_saisons === this.toutesSaisonsCarte &&
         uniquement_oeasc === this.oeascCarte
@@ -518,25 +602,50 @@ export default {
         return;
       }
       this.chargementCarte = true;
-      const params = toutes_saisons
-        ? { toutes_saisons: true, uniquement_oeasc }
-        : { id_saison, uniquement_oeasc };
+      const cle = JSON.stringify(this.filtresCarte);
+      const { types_culture, especes } = this.paramsFiltres(this.filtresCarte);
+      const params = {
+        ...(toutes_saisons ? { toutes_saisons: true } : { id_saison }),
+        uniquement_oeasc,
+        types_culture,
+        especes,
+      };
       apiRequest('GET', 'api/agricole/results/communes', { params })
         .then((res) => {
           // ignore une réponse arrivée après un nouveau changement de saison, de cumul ou de case
-          if (this.requeteCarteCourante(id_saison, toutes_saisons, uniquement_oeasc)) {
+          if (this.requeteCarteCourante(id_saison, toutes_saisons, uniquement_oeasc, cle)) {
             this.geojsonCommunes = res;
           }
         })
         .finally(() => {
-          if (this.requeteCarteCourante(id_saison, toutes_saisons, uniquement_oeasc)) {
+          if (this.requeteCarteCourante(id_saison, toutes_saisons, uniquement_oeasc, cle)) {
             this.chargementCarte = false;
           }
         });
     },
   },
   mounted() {
-    this.chargerSaisons()
+    // options des filtres : tout est sélectionné par défaut (sans déclencher de rechargement
+    // superflu : le watcher ne s'applique qu'après le premier chargement des saisons)
+    const chargementFiltres = apiRequest('GET', 'api/agricole/results/filtres')
+      .then((res) => {
+        this.optionsFiltres = {
+          communes: res.communes || [],
+          types_culture: res.types_culture || [],
+          especes: res.especes || [],
+        };
+        const toutSelectionne = () => ({
+          communes: this.optionsFiltres.communes.map((c) => c.id),
+          typesCulture: this.optionsFiltres.types_culture.map((t) => t.id),
+          especes: this.optionsFiltres.especes.map((e) => e.id),
+        });
+        this.filtres = toutSelectionne();
+        this.filtresCultures = toutSelectionne();
+        this.filtresCarte = toutSelectionne();
+      })
+      .catch((err) => console.error('dégâts agricoles (filtres) :', err));
+    chargementFiltres
+      .then(() => this.chargerSaisons())
       .then(() => {
         this.chargerCulturesToutesSaisons();
         // saison la plus récente par défaut

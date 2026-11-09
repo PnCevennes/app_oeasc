@@ -30,6 +30,7 @@ from .repository import (
     ZONE,
     get_saison,
     get_bilan_saisons,
+    get_options_filtres,
     get_bilan_cultures,
     get_bilan_communes_geojson,
 )
@@ -186,6 +187,33 @@ def _uniquement_oeasc_from_args():
     return request.args.get("uniquement_oeasc", "true").lower() not in ("false", "0")
 
 
+def _liste_from_args(nom, type_=str):
+    """Paramètre liste séparé par des virgules. Absent => None (pas de filtre) ;
+    présent mais vide => liste vide (aucune valeur retenue)."""
+    valeur = request.args.get(nom)
+    if valeur is None:
+        return None
+    try:
+        return [type_(v) for v in valeur.split(",") if v.strip()]
+    except ValueError:
+        return []
+
+
+def _filtres_from_args():
+    """Filtres optionnels communes / types de culture / espèces (voir `_liste_from_args`)."""
+    return {
+        "communes": _liste_from_args("communes"),
+        "types_culture": _liste_from_args("types_culture", int),
+        "especes": _liste_from_args("especes", int),
+    }
+
+
+def _filtres_carte_from_args():
+    """Filtres de la carte : types de culture et espèces (pas de filtre par commune)."""
+    filtres = _filtres_from_args()
+    return {k: filtres[k] for k in ("types_culture", "especes")}
+
+
 def _saison_from_args():
     """Saison désignée par le paramètre `id_saison`, ou (None, réponse d'erreur)."""
     valeur = request.args.get("id_saison")
@@ -211,22 +239,35 @@ def _saison_from_args():
 def results_saisons():
     """Indicateurs par saison : montant indemnisé, nombre de déclarations et de
     dossiers, surfaces détruite et ressemée (ha).
-    `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non."""
+    `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non.
+    Filtres optionnels (listes séparées par des virgules) : `communes` (ids de communes),
+    `types_culture` (ids), `especes` (ids). Paramètre absent = pas de filtre."""
     uniquement_oeasc = _uniquement_oeasc_from_args()
     return jsonify(
         {
             "zone": ZONE,
             "uniquement_oeasc": uniquement_oeasc,
-            "items": get_bilan_saisons(uniquement_oeasc),
+            "items": get_bilan_saisons(
+                uniquement_oeasc,
+                **_filtres_from_args(),
+            ),
         }
     )
+
+
+@bp.route("results/filtres", methods=["GET"])
+def results_filtres():
+    """Valeurs proposées par les filtres des graphiques par saison :
+    communes (avec département), types de culture et espèces."""
+    return jsonify(get_options_filtres())
 
 
 @bp.route("results/cultures", methods=["GET"])
 def results_cultures():
     """Indicateurs par culture (avec son type de culture) pour la saison `id_saison`.
     Avec `toutes_saisons=true`, les indicateurs sont cumulés sur toutes les saisons.
-    `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non."""
+    `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non.
+    Filtres optionnels : `communes`, `types_culture`, `especes` (comme `results/saisons`)."""
     uniquement_oeasc = _uniquement_oeasc_from_args()
     if request.args.get("toutes_saisons", "").lower() in ("true", "1"):
         return jsonify(
@@ -236,7 +277,9 @@ def results_cultures():
                 "id_saison": None,
                 "nom_saison": None,
                 "toutes_saisons": True,
-                "items": get_bilan_cultures(uniquement_oeasc=uniquement_oeasc),
+                "items": get_bilan_cultures(
+                    uniquement_oeasc=uniquement_oeasc, **_filtres_from_args()
+                ),
             }
         )
     saison, erreur = _saison_from_args()
@@ -248,7 +291,9 @@ def results_cultures():
             "uniquement_oeasc": uniquement_oeasc,
             "id_saison": saison.id_saison,
             "nom_saison": saison.nom_saison,
-            "items": get_bilan_cultures(saison.id_saison, uniquement_oeasc),
+            "items": get_bilan_cultures(
+                saison.id_saison, uniquement_oeasc, **_filtres_from_args()
+            ),
         }
     )
 
@@ -258,10 +303,13 @@ def results_communes():
     """GeoJSON des communes de la zone OEASC avec les indicateurs de la saison
     `id_saison` (surface détruite, montant indemnisé, nombre de dossiers).
     Avec `toutes_saisons=true`, les indicateurs sont cumulés sur toutes les saisons.
-    `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non."""
+    `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non.
+    Filtres optionnels : `types_culture`, `especes` (ids séparés par des virgules)."""
     uniquement_oeasc = _uniquement_oeasc_from_args()
     if request.args.get("toutes_saisons", "").lower() in ("true", "1"):
-        geojson = get_bilan_communes_geojson(uniquement_oeasc=uniquement_oeasc)
+        geojson = get_bilan_communes_geojson(
+            uniquement_oeasc=uniquement_oeasc, **_filtres_carte_from_args()
+        )
         geojson.update(
             zone=ZONE,
             uniquement_oeasc=uniquement_oeasc,
@@ -273,7 +321,9 @@ def results_communes():
     saison, erreur = _saison_from_args()
     if erreur:
         return erreur
-    geojson = get_bilan_communes_geojson(saison.id_saison, uniquement_oeasc)
+    geojson = get_bilan_communes_geojson(
+        saison.id_saison, uniquement_oeasc, **_filtres_carte_from_args()
+    )
     geojson.update(
         zone=ZONE,
         uniquement_oeasc=uniquement_oeasc,

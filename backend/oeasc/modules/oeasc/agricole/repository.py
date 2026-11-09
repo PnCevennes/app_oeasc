@@ -19,6 +19,8 @@ from .models import (
 )
 
 from oeasc.utils.env import db as DB
+from oeasc.ref_geo_oeasc.models import TCommunesArea
+from ..commons.models import TEspeces
 
 ZONE = "OEASC"
 
@@ -58,14 +60,69 @@ def _filtre_oeasc(uniquement_oeasc):
     )
 
 
+def _filtre_declarations(communes=None, types_culture=None, especes=None):
+    """Conditions optionnelles sur les déclarations. Pour chaque critère :
+    `None` = pas de filtre ; liste = ne garder que ces valeurs (liste vide = rien).
+    - communes : ids de `ref_geo.communes_aoa` ;
+    - types_culture : ids de `t_type_culture` (via la culture de la déclaration) ;
+    - especes : ids de `t_especes`."""
+    conditions = []
+    if communes is not None:
+        conditions.append(TDeclarationAgricole.id_commune.in_(communes))
+    if types_culture is not None:
+        conditions.append(
+            TDeclarationAgricole.id_culture.in_(
+                select(TCulture.id_culture).where(
+                    TCulture.id_type_culture.in_(types_culture)
+                )
+            )
+        )
+    if especes is not None:
+        conditions.append(TDeclarationAgricole.id_espece.in_(especes))
+    return and_(true(), *conditions)
+
+
+def get_options_filtres():
+    """Valeurs proposées dans les filtres des graphiques : communes (triées par
+    département puis nom), types de culture et espèces présentes dans les déclarations."""
+    communes = DB.session.execute(
+        select(TCommunesArea.id, TCommunesArea.nom, TCommunesArea.insee_dep)
+        .order_by(TCommunesArea.insee_dep, TCommunesArea.nom)
+    ).all()
+    types_culture = DB.session.execute(
+        select(TTypeCulture.id_type_culture, TTypeCulture.nom_type_culture).order_by(
+            TTypeCulture.nom_type_culture
+        )
+    ).all()
+    especes = DB.session.execute(
+        select(TEspeces.id_espece, TEspeces.nom_espece)
+        .where(
+            TEspeces.id_espece.in_(
+                select(TDeclarationAgricole.id_espece).where(
+                    TDeclarationAgricole.id_espece.isnot(None)
+                )
+            )
+        )
+        .order_by(TEspeces.nom_espece)
+    ).all()
+    return {
+        "communes": [{"id": r[0], "nom": r[1], "departement": r[2]} for r in communes],
+        "types_culture": [{"id": r[0], "nom": r[1]} for r in types_culture],
+        "especes": [{"id": r[0], "nom": r[1]} for r in especes],
+    }
+
+
 def get_saison(id_saison):
     return DB.session.get(TSaisonAgricole, id_saison)
 
 
-def get_bilan_saisons(uniquement_oeasc=True):
+def get_bilan_saisons(
+    uniquement_oeasc=True, communes=None, types_culture=None, especes=None
+):
     """Indicateurs par saison, de la plus ancienne à la plus récente.
     Toutes les saisons sont renvoyées, à 0 si aucune déclaration ne passe le filtre
-    (la liste sert aussi aux sélecteurs de saison de la page)."""
+    (la liste sert aussi aux sélecteurs de saison de la page).
+    `communes`, `types_culture`, `especes` : filtres optionnels (voir `_filtre_declarations`)."""
     D = TDeclarationAgricole
     rows = DB.session.execute(
         select(
@@ -85,6 +142,7 @@ def get_bilan_saisons(uniquement_oeasc=True):
             and_(
                 D.id_saison == TSaisonAgricole.id_saison,
                 _filtre_oeasc(uniquement_oeasc),
+                _filtre_declarations(communes, types_culture, especes),
             ),
         )
         .group_by(TSaisonAgricole.id_saison)
@@ -107,7 +165,13 @@ def get_bilan_saisons(uniquement_oeasc=True):
     ]
 
 
-def get_bilan_cultures(id_saison=None, uniquement_oeasc=True):
+def get_bilan_cultures(
+    id_saison=None,
+    uniquement_oeasc=True,
+    communes=None,
+    types_culture=None,
+    especes=None,
+):
     """Indicateurs par culture pour une saison, avec le type de culture de
     chacune (le regroupement par type est fait par l'appelant).
     Sans `id_saison`, les indicateurs sont cumulés sur toutes les saisons."""
@@ -127,6 +191,7 @@ def get_bilan_cultures(id_saison=None, uniquement_oeasc=True):
             TTypeCulture, TTypeCulture.id_type_culture == TCulture.id_type_culture
         )
         .where(_filtre_oeasc(uniquement_oeasc))
+        .where(_filtre_declarations(communes, types_culture, especes))
         .group_by(nom_culture, nom_type_culture)
         .order_by(func.count(D.id_declaration).desc(), nom_culture)
     )
@@ -145,7 +210,9 @@ def get_bilan_cultures(id_saison=None, uniquement_oeasc=True):
     ]
 
 
-def get_bilan_communes_geojson(id_saison=None, uniquement_oeasc=True):
+def get_bilan_communes_geojson(
+    id_saison=None, uniquement_oeasc=True, types_culture=None, especes=None
+):
     """FeatureCollection des communes de la zone OEASC avec, pour la saison :
     surface détruite (ha), montant total indemnisé et nombre de dossiers.
     Sans `id_saison`, les indicateurs sont cumulés sur toutes les saisons.
@@ -190,6 +257,18 @@ def get_bilan_communes_geojson(id_saison=None, uniquement_oeasc=True):
                         WHERE in_oeasc
                     )
                   )
+                  AND (
+                    CAST(:types_culture AS integer[]) IS NULL
+                    OR id_culture IN (
+                        SELECT id_culture
+                        FROM oeasc_agricole.t_cultures
+                        WHERE id_type_culture = ANY(CAST(:types_culture AS integer[]))
+                    )
+                  )
+                  AND (
+                    CAST(:especes AS integer[]) IS NULL
+                    OR id_espece = ANY(CAST(:especes AS integer[]))
+                  )
                 GROUP BY id_commune
             ) b ON b.id_commune = c.id
             ORDER BY c.nom
@@ -197,6 +276,8 @@ def get_bilan_communes_geojson(id_saison=None, uniquement_oeasc=True):
         {
             "id_saison": id_saison,
             "uniquement_oeasc": bool(uniquement_oeasc),
+            "types_culture": types_culture,
+            "especes": especes,
             "tolerance": TOLERANCE_SIMPLIFICATION,
         },
     ).all()
