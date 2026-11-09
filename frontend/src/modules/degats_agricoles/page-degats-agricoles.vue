@@ -50,17 +50,17 @@
         ></graph_colonnes_saisons>
 
         <graph_colonnes_saisons
-          title="Nombre de déclarations par saison"
+          title="Nombre de parcelles endommagées par saison"
           :categories="categories"
-          :series="[{ name: 'Déclarations', data: valeurs('nb_declarations'), color: '#f7a35c' }]"
-          yTitle="Nombre de déclarations"
+          :series="[{ name: 'Parcelles endommagées', data: valeurs('nb_declarations'), color: '#f7a35c' }]"
+          yTitle="Nombre de parcelles endommagées"
         ></graph_colonnes_saisons>
 
         <graph_colonnes_saisons
-          title="Nombre de dossiers par saison"
+          title="Nombre de dossiers expertisés par saison"
           :categories="categories"
-          :series="[{ name: 'Dossiers', data: valeurs('nb_dossiers'), color: '#8085e9' }]"
-          yTitle="Nombre de dossiers"
+          :series="[{ name: 'Dossiers expertisés', data: valeurs('nb_dossiers'), color: '#8085e9' }]"
+          yTitle="Nombre de dossiers expertisés"
         ></graph_colonnes_saisons>
 
         <graph_colonnes_saisons
@@ -262,7 +262,7 @@ export default {
     geojsonCommunes: null, // communes + indicateurs pour idSaisonCarte (ou cumulés)
     mesureCultures: 'nb_declarations',
     mesures: [
-      { value: 'nb_declarations', label: 'Nombre de déclarations', decimales: 0, unite: '' },
+      { value: 'nb_declarations', label: 'Nombre de parcelles endommagées', decimales: 0, unite: '' },
       { value: 'surface_detruite', label: 'Surface détruite (ha)', decimales: 2, unite: 'Ha' },
       { value: 'montant_total', label: 'Montant indemnisé (€)', decimales: 0, unite: '€' },
     ],
