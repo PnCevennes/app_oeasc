@@ -63,21 +63,27 @@
           yTitle="Nombre de dossiers expertisés"
         ></graph_colonnes_saisons>
 
-        <graph_colonnes_saisons
-          title="Surface détruite et surface remise en état par saison"
-          :categories="categories"
-          :series="[
-            { name: 'Surface détruite', data: valeurs('surface_detruite'), color: '#e4572e' },
-            {
-              name: 'Surface remise en état (ressemis)',
-              data: valeurs('surface_ressemis'),
-              color: '#76b041',
-            },
-          ]"
-          yTitle="Surface (ha)"
-          unite="ha"
-          :decimales="1"
-        ></graph_colonnes_saisons>
+        <div class="bloc-graphique">
+          <graph_colonnes_saisons
+            :title="
+              enVolume
+                ? 'Volume détruit par saison'
+                : 'Surface détruite et surface remise en état par saison'
+            "
+            :categories="categories"
+            :series="seriesSurfaceVolume"
+            :yTitle="enVolume ? 'Volume (qtx)' : 'Surface (ha)'"
+            :unite="enVolume ? 'qtx' : 'ha'"
+            :decimales="1"
+          ></graph_colonnes_saisons>
+          <v-checkbox
+            v-model="enVolume"
+            class="case-volume"
+            label="Afficher en volume"
+            density="compact"
+            hide-details
+          ></v-checkbox>
+        </div>
       </div>
 
       <p class="note">
@@ -263,6 +269,7 @@ export default {
     toutesSaisonsCarte: false, // carte : cumul de toutes les saisons au lieu de idSaisonCarte
     // par section : uniquement les déclarations des unités de gestion agricole de l'OEASC
     oeascSaisons: true,
+    enVolume: false, // 4e graphique : volume détruit (qtx) au lieu des surfaces
     oeascCultures: true,
     oeascCarte: true,
     LIBELLE_OEASC,
@@ -278,6 +285,19 @@ export default {
   computed: {
     categories() {
       return this.saisons.map((s) => s.nom_saison);
+    },
+    seriesSurfaceVolume() {
+      if (this.enVolume) {
+        return [{ name: 'Volume détruit', data: this.valeurs('volume_detruit'), color: '#e4572e' }];
+      }
+      return [
+        { name: 'Surface détruite', data: this.valeurs('surface_detruite'), color: '#e4572e' },
+        {
+          name: 'Surface remise en état (ressemis)',
+          data: this.valeurs('surface_ressemis'),
+          color: '#76b041',
+        },
+      ];
     },
     mesure() {
       return this.mesures.find((m) => m.value === this.mesureCultures);
@@ -556,6 +576,15 @@ export default {
   .grille-graphiques {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+/* case superposée au bas du graphique, à droite, sur la ligne de la légende */
+.bloc-graphique {
+  position: relative;
+}
+.case-volume {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
 }
 .note {
   font-style: italic;

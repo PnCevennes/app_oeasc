@@ -78,6 +78,7 @@ def get_bilan_saisons(uniquement_oeasc=True):
             func.coalesce(func.sum(D.montant_total_paye), 0),
             _surface_ha(D.surface_detruite),
             _surface_ha(D.surface_ressemis),
+            func.coalesce(func.sum(D.volume_detruit), 0),
         )
         .outerjoin(
             D,
@@ -100,6 +101,7 @@ def get_bilan_saisons(uniquement_oeasc=True):
             "montant_total": float(r[6]),
             "surface_detruite": float(r[7]),
             "surface_ressemis": float(r[8]),
+            "volume_detruit": float(r[9]),
         }
         for r in rows
     ]

@@ -54,7 +54,13 @@ export default {
             },
           },
         },
-        legend: { enabled: this.series.length > 1 },
+        // légende à gauche, sur 65 % de la largeur : laisse la droite libre (case à cocher éventuelle)
+        legend: {
+          enabled: this.series.length > 1,
+          align: 'left',
+          verticalAlign: 'bottom',
+          width: '65%',
+        },
         tooltip: {
           shared: true,
           formatter() {
