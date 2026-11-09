@@ -21,6 +21,20 @@
         ></v-progress-circular>
       </div>
     </div>
+    <div class="options-contours">
+      <v-checkbox
+        v-model="afficherContourOeasc"
+        label="Contour de l'OEASC"
+        density="compact"
+        hide-details
+      ></v-checkbox>
+      <v-checkbox
+        v-model="afficherContoursUg"
+        label="Contours des unités de gestion (secteurs)"
+        density="compact"
+        hide-details
+      ></v-checkbox>
+    </div>
     <div class="legende">
       <b>{{ mesureCourante.titre }} :</b>
       <span
@@ -34,9 +48,19 @@
         ></span>
         {{ classe.label }}
       </span>
-      <span class="legende-item">
+      <span
+        v-if="afficherContourOeasc"
+        class="legende-item"
+      >
         <span class="legende-perimetre"></span>
         Périmètre OEASC
+      </span>
+      <span
+        v-if="afficherContoursUg"
+        class="legende-item"
+      >
+        <span class="legende-ug"></span>
+        Unités de gestion
       </span>
     </div>
   </div>
@@ -47,6 +71,7 @@ import L from 'leaflet';
 import { markRaw } from 'vue';
 import 'leaflet/dist/leaflet.css';
 import { config } from '@/config/config.js';
+import { apiRequest } from '@/core/js/data/api.js';
 import { fetch_oeasc_perimetre } from '@/modules/declaration/utils/api_request.js';
 
 // Fond de carte servi par le backend (proxy des tuiles IGN), comme map_declaration_simple.vue
@@ -54,6 +79,7 @@ const TILE_URL = `${config.URL_APPLICATION.replace(/\/$/, '')}/api/declaration/t
 const TILE_ATTRIBUTION = '&copy; <a href="http://www.ign.fr/">IGN</a>';
 
 // contour du périmètre OEASC : sans remplissage pour ne pas fausser les couleurs des communes
+const STYLE_UG = { color: '#1e88ff', weight: 2.5, opacity: 1, fill: false };
 const STYLE_PERIMETRE = { color: '#000000', weight: 3, opacity: 0.9, fill: false };
 
 // classes de surface détruite (ha), de la plus forte à la plus faible :
@@ -103,6 +129,10 @@ export default {
     loading: { default: false }, // true : spinner par-dessus la carte
     cumul: { default: false }, // true : surfaces cumulées sur toutes les saisons (autres seuils)
   },
+  data: () => ({
+    afficherContourOeasc: true,
+    afficherContoursUg: false,
+  }),
   computed: {
     mesureCourante() {
       return MESURES.find((m) => m.cle === this.mesure);
@@ -150,6 +180,15 @@ export default {
     mesure() {
       this.afficherCommunes();
     },
+    afficherContourOeasc() {
+      this.majContour('layerPerimetre', this.afficherContourOeasc);
+    },
+    afficherContoursUg() {
+      this.majContour('layerUg', this.afficherContoursUg);
+      if (this.afficherContoursUg && !this.layerUg) {
+        this.chargerUg();
+      }
+    },
   },
   methods: {
     afficherCommunes() {
@@ -196,6 +235,62 @@ export default {
       }
     },
 
+    // Affiche ou masque une couche de contour déjà chargée
+    majContour(nomCouche, visible) {
+      const couche = this[nomCouche];
+      if (!couche || !this.map) {
+        return;
+      }
+      if (visible) {
+        couche.addTo(this.map);
+      } else {
+        this.map.removeLayer(couche);
+      }
+    },
+
+    // Crée le pane (au-dessus des communes, non interactif) des contours
+    creerPaneContours() {
+      if (!this.map.getPane('perimetre-pane')) {
+        this.map.createPane('perimetre-pane');
+        this.map.getPane('perimetre-pane').style.zIndex = 450;
+        this.map.getPane('perimetre-pane').style.pointerEvents = 'none';
+      }
+    },
+
+    // Charge les contours des unités de gestion, à la première activation de l'option
+    async chargerUg() {
+      if (this.chargementUg) {
+        return;
+      }
+      this.chargementUg = true;
+      try {
+        const ug = await apiRequest('GET', 'api/agricole/results/ug');
+        if (!ug || !this.map) {
+          return;
+        }
+        this.creerPaneContours();
+        this.layerUg = L.geoJSON(ug, {
+          style: STYLE_UG,
+          pane: 'perimetre-pane',
+          interactive: false,
+          // nom de l'unité affiché en permanence au centre de son contour
+          onEachFeature: (feature, layer) =>
+            layer.bindTooltip(feature.properties.nom, {
+              permanent: true,
+              direction: 'center',
+              className: 'etiquette-ug',
+            }),
+        });
+        if (this.afficherContoursUg) {
+          this.layerUg.addTo(this.map);
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération des unités de gestion', error);
+      } finally {
+        this.chargementUg = false;
+      }
+    },
+
     // Ajoute le contour du périmètre OEASC, au-dessus des communes et non interactif
     // (il ne doit pas masquer les infobulles des communes)
     async afficherPerimetre() {
@@ -204,14 +299,15 @@ export default {
       if (!perimetre || !this.map) {
         return;
       }
-      this.map.createPane('perimetre-pane');
-      this.map.getPane('perimetre-pane').style.zIndex = 450;
-      this.map.getPane('perimetre-pane').style.pointerEvents = 'none';
+      this.creerPaneContours();
       this.layerPerimetre = L.geoJSON(perimetre, {
         style: STYLE_PERIMETRE,
         pane: 'perimetre-pane',
         interactive: false,
-      }).addTo(this.map);
+      });
+      if (this.afficherContourOeasc) {
+        this.layerPerimetre.addTo(this.map);
+      }
     },
   },
   mounted() {
@@ -231,6 +327,17 @@ export default {
   },
 };
 </script>
+
+<style>
+/* non scoped : l'infobulle Leaflet est créée hors du composant */
+.leaflet-tooltip.etiquette-ug {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid #1e88ff;
+  color: #0d47a1;
+  font-weight: bold;
+  pointer-events: none;
+}
+</style>
 
 <style scoped>
 .carte-wrapper {
@@ -262,6 +369,18 @@ export default {
   width: 18px;
   height: 18px;
   border: 1px solid #555555;
+}
+.options-contours {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 24px;
+  margin-top: 4px;
+}
+.legende-ug {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid #1e88ff;
 }
 .legende-perimetre {
   display: inline-block;

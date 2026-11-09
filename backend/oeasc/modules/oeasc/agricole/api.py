@@ -33,6 +33,7 @@ from .repository import (
     get_options_filtres,
     get_bilan_cultures,
     get_bilan_communes_geojson,
+    get_contours_ug_geojson,
 )
 from ..generic.definitions import GenericRouteDefinitions
 from ..user.utils import check_auth_redirect_login
@@ -296,6 +297,15 @@ def results_cultures():
             ),
         }
     )
+
+
+@bp.route("results/ug", methods=["GET"])
+def results_ug():
+    """GeoJSON des contours des unités de gestion agricoles (secteurs).
+    `uniquement_oeasc=false` : toutes les unités, OEASC ou non."""
+    geojson = get_contours_ug_geojson(_uniquement_oeasc_from_args())
+    geojson.update(zone=ZONE)
+    return jsonify(geojson)
 
 
 @bp.route("results/communes", methods=["GET"])

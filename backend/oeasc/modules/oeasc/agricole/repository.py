@@ -210,6 +210,50 @@ def get_bilan_cultures(
     ]
 
 
+def get_contours_ug_geojson(uniquement_oeasc=True):
+    """FeatureCollection des contours des unités de gestion agricoles (« secteurs »).
+    Une unité n'a pas de géométrie propre : son contour est l'union des communes
+    où elle a des déclarations (géométries Lambert-93, simplifiées puis en WGS84)."""
+    rows = DB.session.execute(
+        text("""
+            SELECT
+                u.id_ug_agricole,
+                u.nom_ug_agricole,
+                ST_AsGeoJSON(
+                    ST_Transform(
+                        ST_SimplifyPreserveTopology(ST_Union(c.geom), :tolerance), 4326
+                    ),
+                    5
+                )
+            FROM oeasc_agricole.t_ug_agricole u
+            JOIN (
+                SELECT DISTINCT id_ug_agricole, id_commune
+                FROM oeasc_agricole.t_declaration_agricole
+            ) d ON d.id_ug_agricole = u.id_ug_agricole
+            JOIN ref_geo.communes_aoa c ON c.id = d.id_commune
+            WHERE NOT :uniquement_oeasc OR u.in_oeasc
+            GROUP BY u.id_ug_agricole, u.nom_ug_agricole
+            ORDER BY u.nom_ug_agricole
+            """),
+        {
+            "uniquement_oeasc": bool(uniquement_oeasc),
+            "tolerance": TOLERANCE_SIMPLIFICATION,
+        },
+    ).all()
+    return {
+        "type": "FeatureCollection",
+        "features": [
+            {
+                "type": "Feature",
+                "id": r[0],
+                "properties": {"nom": r[1]},
+                "geometry": json.loads(r[2]),
+            }
+            for r in rows
+        ],
+    }
+
+
 def get_bilan_communes_geojson(
     id_saison=None, uniquement_oeasc=True, types_culture=None, especes=None
 ):
