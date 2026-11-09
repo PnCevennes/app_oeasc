@@ -17,7 +17,7 @@
       hide-details
       :min="anneeMin"
       :max="anneeMax"
-      :disabled="disabled"
+      :disabled="disabled || loading"
       style="max-width: 220px"
     ></v-number-input>
     <template v-if="!disabled">
@@ -45,6 +45,7 @@ export default {
     modelValue: { default: null }, // id_saison
     saisons: { default: () => [] }, // [{ id_saison, nom_saison, annee_debut }]
     disabled: { default: false },
+    loading: { default: false }, // chargement en cours : champ désactivé, nom de saison conservé
   },
   emits: ['update:modelValue'],
   data: () => ({

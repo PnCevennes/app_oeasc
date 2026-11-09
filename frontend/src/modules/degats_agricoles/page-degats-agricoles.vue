@@ -154,15 +154,18 @@
         v-model="idSaisonCarte"
         :saisons="saisons"
         :disabled="toutesSaisonsCarte"
+        :loading="chargementCarte"
       >
         <v-checkbox
           v-model="toutesSaisonsCarte"
+          :disabled="chargementCarte"
           label="Toutes les années cumulées"
           density="compact"
           hide-details
         ></v-checkbox>
         <v-checkbox
           v-model="oeascCarte"
+          :disabled="chargementCarte"
           :label="LIBELLE_OEASC"
           density="compact"
           hide-details
@@ -171,6 +174,7 @@
 
       <map_degats_communes
         :geojson="geojsonCommunes"
+        :loading="chargementCarte"
         :cumul="!!(geojsonCommunes && geojsonCommunes.toutes_saisons)"
       ></map_degats_communes>
     </div>
@@ -262,6 +266,7 @@ export default {
     oeascCultures: true,
     oeascCarte: true,
     LIBELLE_OEASC,
+    chargementCarte: false, // true pendant le chargement des communes de la carte
     geojsonCommunes: null, // communes + indicateurs pour idSaisonCarte (ou cumulés)
     mesureCultures: 'nb_declarations',
     mesures: [
@@ -476,27 +481,38 @@ export default {
         }
       });
     },
+    requeteCarteCourante(id_saison, toutes_saisons, uniquement_oeasc) {
+      return (
+        id_saison === this.idSaisonCarte &&
+        toutes_saisons === this.toutesSaisonsCarte &&
+        uniquement_oeasc === this.oeascCarte
+      );
+    },
     chargerCommunes() {
       const id_saison = this.idSaisonCarte;
       const toutes_saisons = this.toutesSaisonsCarte;
       const uniquement_oeasc = this.oeascCarte;
       if (!toutes_saisons && !id_saison) {
         this.geojsonCommunes = null;
+        this.chargementCarte = false;
         return;
       }
+      this.chargementCarte = true;
       const params = toutes_saisons
         ? { toutes_saisons: true, uniquement_oeasc }
         : { id_saison, uniquement_oeasc };
-      apiRequest('GET', 'api/agricole/results/communes', { params }).then((res) => {
-        // ignore une réponse arrivée après un nouveau changement de saison, de cumul ou de case
-        if (
-          id_saison === this.idSaisonCarte &&
-          toutes_saisons === this.toutesSaisonsCarte &&
-          uniquement_oeasc === this.oeascCarte
-        ) {
-          this.geojsonCommunes = res;
-        }
-      });
+      apiRequest('GET', 'api/agricole/results/communes', { params })
+        .then((res) => {
+          // ignore une réponse arrivée après un nouveau changement de saison, de cumul ou de case
+          if (this.requeteCarteCourante(id_saison, toutes_saisons, uniquement_oeasc)) {
+            this.geojsonCommunes = res;
+          }
+        })
+        .finally(() => {
+          if (this.requeteCarteCourante(id_saison, toutes_saisons, uniquement_oeasc)) {
+            this.chargementCarte = false;
+          }
+        });
     },
   },
   mounted() {

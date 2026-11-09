@@ -4,11 +4,23 @@
 -->
 <template>
   <div>
-    <div
-      ref="map"
-      class="map-container"
-      :style="`height:${height}; width:100%; z-index:0`"
-    ></div>
+    <div class="carte-wrapper">
+      <div
+        ref="map"
+        class="map-container"
+        :style="`height:${height}; width:100%; z-index:0`"
+      ></div>
+      <div
+        v-if="loading"
+        class="carte-chargement"
+      >
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          size="64"
+        ></v-progress-circular>
+      </div>
+    </div>
     <div class="legende">
       <b>Surface détruite :</b>
       <span
@@ -79,6 +91,7 @@ export default {
     // FeatureCollection des communes : properties { nom, surface_detruite, montant_total, nb_dossiers }
     geojson: { default: null },
     height: { default: '600px' },
+    loading: { default: false }, // true : spinner par-dessus la carte
     cumul: { default: false }, // true : surfaces cumulées sur toutes les saisons (autres seuils)
   },
   computed: {
@@ -202,6 +215,18 @@ export default {
 </script>
 
 <style scoped>
+.carte-wrapper {
+  position: relative;
+}
+.carte-chargement {
+  position: absolute;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.6);
+}
 .legende {
   display: flex;
   flex-wrap: wrap;
