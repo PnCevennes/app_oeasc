@@ -1,6 +1,5 @@
 import storeUtils from '@/store/utils';
 
-import configStoreTag from './config/store-tag';
 import configStoreContent from './config/store-content';
 
 // Récup«ration des  routes des actus et des commons pour les ajouter aux routes globales
@@ -19,9 +18,6 @@ const ROUTE = [
           content: {
             storeName: 'commonsContent',
           },
-          tag: {
-            storeName: 'commonsContent',
-          },
         },
       },
     },
@@ -35,7 +31,7 @@ const ROUTE = [
     parent: 'page.accueil',
     component: () => import('./actualite.vue'),
     props: {
-      tagNames: ['actualité'],
+      typePage: 'actualite',
     },
   },
   {
@@ -62,15 +58,14 @@ const ROUTE = [
     props: {
       page: true,
       code: null,
-      tagNames: ['actualité'],
+      typePage: 'actualite',
     },
   },
 ];
 
 const STORE = {};
 
-// on récupère les stores de content et tag pour les ajouter au store global
+// on récupère le store de content pour les ajouter au store global
 storeUtils.addStore(STORE, configStoreContent);
-storeUtils.addStore(STORE, configStoreTag);
 
 export { ROUTE, STORE };

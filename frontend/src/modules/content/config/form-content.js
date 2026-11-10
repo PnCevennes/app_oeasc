@@ -1,12 +1,6 @@
 export default {
   idFieldName: 'id_content',
 
-  options: {
-    // paramètres ajoutés à la requête get
-    // les champs des modèles liés
-    fields: ['tags.id_tag', 'tags.nom_tag', 'tags.code_tag'],
-  },
-
   formDefs: {
     id_content: {
       label: 'Id',
@@ -18,14 +12,11 @@ export default {
       type: 'text',
       required: true,
     },
-    tags: {
-      label: 'Tags',
-      type: 'list_form',
-      list_type: 'select',
-      multiple: true,
-      storeName: 'commonsTag',
-      // le backend (TContentsSchema.tags = Nested many) attend des objets {id_tag, …}, pas des ids
-      returnObject: true,
+    // 'actualite' ou 'page' : posé automatiquement à la création (non saisissable)
+    type_page: {
+      label: 'Type',
+      type: 'text',
+      hidden: true,
     },
     md: {
       label: 'Texte',

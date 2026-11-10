@@ -36,40 +36,6 @@ class CustomModel(DB.Model):
     __allow_unmapped__ = True
 
 
-cor_content_tag = Table(
-    "cor_content_tag",
-    DB.metadata,
-    Column(
-        "id_content",
-        Integer,
-        ForeignKey("oeasc_commons.t_contents.id_content"),
-        primary_key=True,
-    ),
-    Column(
-        "id_tag",
-        Integer,
-        ForeignKey("oeasc_commons.t_tags.id_tag"),
-        primary_key=True,
-    ),
-    schema="oeasc_commons",
-    extend_existing=True,
-)
-
-
-@serializable
-class TTags(CustomModel):
-    """
-    Tags for content
-    """
-
-    __tablename__ = "t_tags"
-    __table_args__ = {"schema": "oeasc_commons", "extend_existing": True}
-
-    id_tag: Mapped[int] = Column(Integer, primary_key=True)
-    nom_tag: Mapped[str] = Column(Unicode(30))
-    code_tag: Mapped[str] = Column(Unicode(10))
-
-
 @serializable
 class TListeOrganismes(CustomModel):
     """
@@ -99,9 +65,8 @@ class TContents(CustomModel):
         DateTime, default=func.now(), onupdate=func.now()
     )
 
-    tags: Mapped[list["TTags"]] = relationship(
-        "oeasc.modules.oeasc.commons.models.TTags", secondary=cor_content_tag
-    )
+    # 'actualite' ou 'page'
+    type_page: Mapped[str] = Column(String(20), nullable=False, default="page")
 
 
 @serializable

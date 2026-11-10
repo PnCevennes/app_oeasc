@@ -37,7 +37,7 @@ import { formatDateFr } from '@/core/js/util/util.js';
 
 export default {
   name: 'actualites-bandeau',
-  props: ['tagNames', 'nb', 'height'],
+  props: ['nb', 'height'],
   components: { contentImg },
   data: () => ({
     contents: [],
@@ -49,13 +49,7 @@ export default {
 
       this.$store.dispatch(configStore.getAll).then((contents) => {
         this.contents = contents
-          .filter((content) =>
-            this.tagNames && this.tagNames.length
-              ? this.tagNames.every((nom_tag) => {
-                  return content.tags.map((t) => t.nom_tag).includes(nom_tag);
-                })
-              : true
-          )
+          .filter((content) => content.type_page === 'actualite')
           .sort((c1, c2) => new Date(c2.meta_create_date) - new Date(c1.meta_create_date))
           .filter((_, i) => i < (this.nb || 3))
           .map((content) => {

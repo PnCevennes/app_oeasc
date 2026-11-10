@@ -12,7 +12,6 @@ from sqlalchemy import select, func, or_, and_
 
 from .models import (
     TContents,
-    TTags,
     TEspeces,
     TCommunesFrance,
     TNomenclaturesOeasc,
@@ -20,7 +19,6 @@ from .models import (
 )
 from .schema import (
     TContentsSchema,
-    TTagsSchema,
     TEspecesSchema,
     TCommunesFranceSchema,
     TNomenclaturesOeascSchema,
@@ -50,11 +48,6 @@ definitions = {
         "model": TContents,
         "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
         "schema": TContentsSchema,
-    },
-    "tag": {
-        "model": TTags,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
-        "schema": TTagsSchema,
     },
     "secteur": {
         "model": TSecteurs,

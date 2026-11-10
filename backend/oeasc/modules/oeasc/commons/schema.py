@@ -23,17 +23,6 @@ pour mapper la vue user de oeasc_commons
 from oeasc.utils.env import db as DB
 
 
-class TTagsSchema(SQLAlchemyAutoSchema):
-    id_tag = fields.Integer(allow_none=True)
-
-    class Meta:
-        model = TTags
-        load_instance = True
-        include_fk = True
-        sqla_session = (DB.session,)
-        unknown = EXCLUDE  # retire du schema les champs inconnus ou superflus
-
-
 class TListeOrganismesSchema(SQLAlchemyAutoSchema):
     id_organisme = fields.Integer(allow_none=True)
 
@@ -47,11 +36,6 @@ class TListeOrganismesSchema(SQLAlchemyAutoSchema):
 
 class TContentsSchema(SQLAlchemyAutoSchema):
     id_content = fields.Integer(allow_none=True)
-    tags = Nested(
-        TTagsSchema,
-        many=True,
-        metadata={"load_instance": True},
-    )
 
     class Meta:
         model = TContents

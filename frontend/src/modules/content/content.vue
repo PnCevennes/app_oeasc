@@ -125,7 +125,7 @@ export default {
     this.renderError = true;
     return false;
   },
-  props: ['code', 'meta', 'displayContentDate', 'page', 'tagNames'],
+  props: ['code', 'meta', 'displayContentDate', 'page', 'typePage'],
   // pont vers l'éditeur visuel (wysiwyg-editor.vue) : il y place sa fonction d'insertion, utilisée
   // par les boutons image / document pour insérer directement dans le texte
   provide() {
@@ -180,7 +180,6 @@ export default {
     bInitialized: false,
     renderError: false,
     editorBridge: { insert: null },
-    allTags: [], // tous les tags (pour pré-cocher ceux de la route à la création, ex. « actualité »)
     // Utilisé par les gabarits CMS (html des contenus) : formulaires de sélection espèce/secteur/saison...
     contentValues: {
       id_espece: null,
@@ -234,12 +233,8 @@ export default {
 
     initContent() {
       if (!this.getCode()) {
-        // création : les tags imposés par la route (ex. actualité) sont déjà cochés
-        const tags = (this.tagNames || [])
-          .map((nom) => this.allTags.find((t) => t.nom_tag === nom))
-          .filter(Boolean)
-          .map(({ id_tag, nom_tag, code_tag }) => ({ id_tag, nom_tag, code_tag }));
-        this.setContent(tags.length ? { tags } : {});
+        // création : type posé automatiquement (« actualite » via la route actualité, sinon « page »)
+        this.setContent({ type_page: this.typePage || 'page' });
         return;
       }
 
@@ -273,16 +268,8 @@ export default {
 
   },
   mounted() {
-    // load Tags
-
-    const configStoreTag = this.$store.getters.configStore('commonsTag');
-
-    this.$store.dispatch(configStoreTag.getAll).then((tags) => {
-      this.allTags = Array.isArray(tags) ? tags : [];
-      this.bInitialized = true;
-      this.initContent();
-    });
-
+    this.bInitialized = true;
+    this.initContent();
   },
 };
 </script>

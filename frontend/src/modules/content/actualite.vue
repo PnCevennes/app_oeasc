@@ -43,7 +43,7 @@
 import oeascContent from './content.vue';
 export default {
   name: 'actualites',
-  props: ['tagNames'],
+  props: ['typePage'],
   components: { oeascContent },
   data: () => ({
     contents: [],
@@ -56,7 +56,7 @@ export default {
         ...configStore.options,
         sortBy: ['meta_create_date'],
         sortDesc: [true],
-        'tags.nom_tag': this.tagNames,
+        type_page: this.typePage,
       };
 
       this.$store
@@ -67,12 +67,9 @@ export default {
             return;
           }
           // filtrage côté client (comme actualites-bandeau) : ne jamais afficher ici un contenu
-          // d'aide/page sans le tag demandé, ses templates dépendent de props absentes (ex. meta)
-          const tagNames = this.tagNames || [];
+          // d'aide/page sans le type demandé, ses templates dépendent de props absentes (ex. meta)
           this.contents = contents
-            .filter((c) =>
-              tagNames.every((nom_tag) => (c.tags || []).some((t) => t.nom_tag === nom_tag))
-            )
+            .filter((c) => !this.typePage || c.type_page === this.typePage)
             .sort((a, b) => {
             const tA = new Date(a.meta_create_date).getTime() || 0;
             const tB = new Date(b.meta_create_date).getTime() || 0;
