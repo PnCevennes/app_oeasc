@@ -5,8 +5,8 @@
   >
     <!-- @mouseover="onMouseOver()" @mouseout="onMouseOut()" -->
     <div>
-      <!-- si on n'est pas en mode édition et que le contenu est défini -->
-      <div v-if="!bEditContents && content">
+      <!-- contenu affiché (reste visible derrière la fenêtre d'édition) -->
+      <div v-if="content">
         <div>
           <!-- bouton pour éditer le contenu -->
           <v-btn
@@ -36,69 +36,38 @@
         ></v-runtime-template>
       </div>
       <div>
-        <!-- si on est en mode édition -->
-        <div
-          v-if="bEditContents && content"
-          class="edit-content"
+        <!-- mode édition (création ou modification) : fenêtre modale -->
+        <v-dialog
+          :model-value="bEditContents && !!content"
+          max-width="1200px"
+          scrollable
+          persistent
         >
-          <div>
-            <v-btn
-              icon
-              variant="text"
-              v-if="bEditContents"
-              @click="bEditContents = false"
-            >
-              <v-icon>cancel</v-icon>
-            </v-btn>
-            <v-btn
-              icon
-              variant="text"
-              v-if="bEditContents"
-              @click="
-                configImgForm.value = { position: 'center' };
-                dialogImg = true;
-              "
-            >
-              <v-icon>image</v-icon>
-            </v-btn>
-            <v-btn
-              icon
-              variant="text"
-              v-if="bEditContents"
-              @click="
-                configDocForm.value = null;
-                dialogDoc = true;
-              "
-            >
-              <v-icon>fa-file-alt</v-icon>
-            </v-btn>
-            <v-btn
-              icon
-              variant="text"
-              v-if="bEditContents"
-              @click="triggerValidForm()"
-            >
-              <v-icon>fa-check</v-icon>
-            </v-btn>
-          </div>
+          <v-card
+            v-if="bEditContents && content"
+            class="edit-content-modal"
+          >
+            <v-card-title class="d-flex align-center">
+              <span>{{ content.code ? `Modifier « ${content.code} »` : 'Nouveau contenu' }}</span>
+              <v-spacer></v-spacer>
+              <v-btn
+                icon
+                variant="text"
+                title="Insérer un document"
+                @click="
+                  configDocForm.value = null;
+                  dialogDoc = true;
+                "
+              >
+                <v-icon>fa-file-alt</v-icon>
+              </v-btn>
+            </v-card-title>
+            <v-card-text>
           <generic-form
             :ref="`content-form_${getCode()}`"
             :config="configForm"
-            @onSuccess="setContent($event)"
+            @onSuccess="onSaved($event)"
           ></generic-form>
-
-          <v-dialog
-            max-width="1400px"
-            v-model="dialogImg"
-          >
-            <v-card v-if="dialogImg">
-              <genericForm
-                class="edit-dialog"
-                :config="configImgForm"
-                @onSuccess="getImg($event)"
-              ></genericForm>
-            </v-card>
-          </v-dialog>
 
           <v-dialog
             max-width="1400px"
@@ -119,9 +88,26 @@
           >
             {{ msgSnack }}
           </v-snackbar>
-        </div>
-
-        <!-- fin -->
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                variant="text"
+                @click="cancelEdit()"
+              >
+                Annuler
+              </v-btn>
+              <v-btn
+                color="success"
+                variant="flat"
+                @click="triggerValidForm()"
+              >
+                <v-icon start>fa-check</v-icon>
+                Enregistrer
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
       </div>
     </div>
     <val />
@@ -136,9 +122,9 @@ import components from './config/components';
 
 import './content.css';
 import configContentForm from './config/form-content';
-import configImgForm from './config/form-img';
 import configDocForm from './config/form-doc';
 import { marked } from 'marked';
+import { estContenuHtml, MARQUE_HTML } from '@/components/form/wysiwyg/wysiwyg-marque.js';
 import { escapeHtml, formatDateFr } from '@/core/js/util/util.js';
 
 import VRuntimeTemplate from 'vue3-runtime-template'; // pour l'affichage du contenu markdown dynamique
@@ -164,7 +150,12 @@ export default {
     this.renderError = true;
     return false;
   },
-  props: ['code', 'meta', 'displayContentDate', 'page'],
+  props: ['code', 'meta', 'displayContentDate', 'page', 'tagNames'],
+  // pont vers l'éditeur visuel (wysiwyg-editor.vue) : il y place sa fonction d'insertion, utilisée
+  // par les boutons image / document pour insérer directement dans le texte
+  provide() {
+    return { editorBridge: this.editorBridge };
+  },
   watch: {
     // Navigation entre deux pages /actualite/:code qui réutilisent ce composant.
     // Ne rien faire quand le code vient d'une prop (liste d'actualités) ou quand on QUITTE la
@@ -196,6 +187,11 @@ export default {
     docPath() {
       return this.$store.getters.mediaDocPath;
     },
+    // chemin des images du serveur : utilisé par les images de l'éditeur visuel dans les textes
+    // (`<img :src="imgPath + 'nom.jpg'">`, voir wysiwyg-extensions.js)
+    imgPath() {
+      return this.$store.getters.mediaImgPath;
+    },
     isPage() {
       return this.page !== 'undefined';
     },
@@ -203,15 +199,15 @@ export default {
   data: () => ({
     content: null,
     bEditContents: false,
-    dialogImg: false,
     dialogDoc: false,
     configContentForm,
-    configImgForm,
     configDocForm,
     bSnack: false,
     msgSnack: null,
     bInitialized: false,
     renderError: false,
+    editorBridge: { insert: null },
+    allTags: [], // tous les tags (pour pré-cocher ceux de la route à la création, ex. « actualité »)
     // Utilisé par les gabarits CMS (html des contenus) : formulaires de sélection espèce/secteur/saison...
     contentValues: {
       id_espece: null,
@@ -226,28 +222,6 @@ export default {
     formatDateFr,
     // onMouseOver() { // non utilisé
 
-    getImg(event) {
-      // attributs toujours entre guillemets et échappés : le snippet est ensuite compilé comme template Vue
-      const attr = (name, val) => (val ? ` ${name}="${escapeHtml(val)}"` : '');
-      let str_img = '<content-img';
-      str_img += !event.position
-        ? ''
-        : event.position == 'center'
-          ? ' center'
-          : attr('float', event.position);
-      str_img += attr('src', event.src);
-      str_img += attr('source', event.source);
-      str_img += attr('author', event.author);
-      str_img += attr('title', event.title);
-      str_img += attr('height', event.height);
-      str_img += attr('width', event.width);
-      str_img += ' ></content-img>';
-      navigator.clipboard.writeText(str_img).then(() => {
-        this.dialogImg = false;
-        this.bSnack = true;
-        this.msgSnack = `Le code de l'image à été copié dans le presse-papier`;
-      });
-    },
     getDoc(event) {
       // src est inséré dans une chaîne JS d'une expression Vue, elle-même dans un attribut HTML :
       // on échappe d'abord pour JS (\ et '), puis pour HTML. Le texte du lien ne doit pas
@@ -255,10 +229,22 @@ export default {
       const srcJs = String(event.src ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
       const txt = escapeHtml(event.txt || event.src).replace(/\{/g, '&#123;');
       const str_doc = `<a :href="docPath + '${escapeHtml(srcJs)}'" target="_blank" rel="noopener noreferrer">${txt}</a>`;
-      navigator.clipboard.writeText(str_doc).then(() => {
-        this.dialogDoc = false;
+      this.insertInEditor(str_doc, 'le lien');
+    },
+
+    // insère le code (composant) à la position du curseur de l'éditeur visuel ; sans éditeur
+    // disponible, il est copié dans le presse-papier
+    insertInEditor(code, nom) {
+      this.dialogDoc = false;
+      if (this.editorBridge.insert) {
+        this.editorBridge.insert(code);
         this.bSnack = true;
-        this.msgSnack = `Le code du lien à été copié dans le presse-papier`;
+        this.msgSnack = `${nom.charAt(0).toUpperCase()}${nom.slice(1)} a été inséré dans le texte`;
+        return;
+      }
+      navigator.clipboard.writeText(code).then(() => {
+        this.bSnack = true;
+        this.msgSnack = `Le code de ${nom} a été copié dans le presse-papier`;
       });
     },
 
@@ -272,7 +258,8 @@ export default {
       this.content = data;
 
       this.configContentForm.value = this.content;
-      let html = marked(data.md || '');
+      // contenu enregistré par l'éditeur visuel : déjà du HTML ; anciens contenus : markdown
+      let html = estContenuHtml(data.md) ? data.md.slice(MARQUE_HTML.length) : marked(data.md || '');
       this.content.html = `<div>${html}</div>`;
       this.bEditContents = !this.content.code;
     },
@@ -281,9 +268,31 @@ export default {
       return this.code || this.$route.params.code;
     },
 
+    // contenu enregistré : la fenêtre se ferme ; après une création, on va sur la page du contenu
+    onSaved(data) {
+      this.setContent(data);
+      if (this.$route.name === 'actualite.new' && data && data.code) {
+        this.$router.push(`/actualite/${data.code}`);
+      }
+    },
+
+    // fermeture de la fenêtre d'édition sans enregistrer ; une création abandonnée n'a pas de
+    // page à afficher : retour à la liste des actualités
+    cancelEdit() {
+      this.bEditContents = false;
+      if (this.content && !this.content.code) {
+        this.$router.push('/actualites');
+      }
+    },
+
     initContent() {
       if (!this.getCode()) {
-        this.setContent({});
+        // création : les tags imposés par la route (ex. actualité) sont déjà cochés
+        const tags = (this.tagNames || [])
+          .map((nom) => this.allTags.find((t) => t.nom_tag === nom))
+          .filter(Boolean)
+          .map(({ id_tag, nom_tag, code_tag }) => ({ id_tag, nom_tag, code_tag }));
+        this.setContent(tags.length ? { tags } : {});
         return;
       }
 
@@ -305,12 +314,13 @@ export default {
     },
 
 
+    // enregistre le formulaire d'édition (bouton « Enregistrer » de la modale) : on appelle
+    // directement l'action du generic-form ; avec Vuetify 3 la ref d'un v-btn est une instance de
+    // composant (sans .click()), pas un élément DOM
     triggerValidForm() {
-      const btnValidFormContent =
-        this.$refs[`content-form_${this.getCode()}`] &&
-        this.$refs[`content-form_${this.getCode()}`].$refs[`btn-valid-form`];
-      if (btnValidFormContent) {
-        btnValidFormContent.click({});
+      const form = this.$refs[`content-form_${this.getCode()}`];
+      if (form && typeof form.processAction === 'function') {
+        form.processAction();
       }
     },
 
@@ -320,7 +330,8 @@ export default {
 
     const configStoreTag = this.$store.getters.configStore('commonsTag');
 
-    this.$store.dispatch(configStoreTag.getAll).then(() => {
+    this.$store.dispatch(configStoreTag.getAll).then((tags) => {
+      this.allTags = Array.isArray(tags) ? tags : [];
       this.bInitialized = true;
       this.initContent();
     });

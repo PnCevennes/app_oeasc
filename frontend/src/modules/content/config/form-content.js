@@ -24,12 +24,13 @@ export default {
       list_type: 'select',
       multiple: true,
       storeName: 'commonsTag',
+      // le backend (TContentsSchema.tags = Nested many) attend des objets {id_tag, …}, pas des ids
+      returnObject: true,
     },
     md: {
       label: 'Texte',
-      type: 'text_area',
+      type: 'wysiwyg',
       required: true,
-      rows: 15,
     },
   },
 

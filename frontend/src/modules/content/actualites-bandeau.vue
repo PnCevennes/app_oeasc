@@ -62,8 +62,16 @@ export default {
             // DOMParser produit un document inerte : pas de chargement d'<img> ni d'exécution d'onerror
             const elem = new DOMParser().parseFromString(marked(content.md || ''), 'text/html').body;
             const title = elem.querySelector(':is(h1, h2, h3, h4, h5, h6)');
+            // ancienne méthode : <content-img src="nom.jpg"> ; éditeur visuel : div[data-img-wysiwyg="nom.jpg"]
+            // (une adresse complète hors du dossier des images du site ne peut pas servir de vignette)
             const img = elem.querySelector(':is(content-img)');
-            const imgSrc = img && img.getAttribute('src');
+            const imgEditeur = elem.querySelector('[data-img-wysiwyg]');
+            const cheminImages = this.$store.getters.mediaImgPath;
+            let imgSrc = img && img.getAttribute('src');
+            if (!imgSrc && imgEditeur) {
+              const src = imgEditeur.getAttribute('data-img-wysiwyg') || '';
+              imgSrc = src.startsWith(cheminImages) ? src.slice(cheminImages.length) : /^([a-z][a-z0-9+.-]*:|\/|\.)/i.test(src) ? null : src;
+            }
             return {
               src: imgSrc || 'pages_degats_agricole_b_algoet.jpg',
               title: (title && title.textContent) || 'Pas de titre',

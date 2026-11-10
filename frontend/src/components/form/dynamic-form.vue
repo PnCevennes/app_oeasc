@@ -164,6 +164,17 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
       </v-textarea>
     </template>
 
+    <!-- éditeur visuel (WYSIWYG) : contenus des pages et actualités -->
+    <template v-else-if="configForm.type === 'wysiwyg'">
+      <template v-if="configForm.displayValue">
+        <span>{{ baseModel[configForm.name] }}</span>
+      </template>
+      <template v-else>
+        <label class="wysiwyg-label">{{ configForm.label }}</label>
+        <wysiwyg-editor v-model="baseModel[configForm.name]"></wysiwyg-editor>
+      </template>
+    </template>
+
     <template v-else-if="configForm.type === 'file'">
       <span v-if="configForm.displayValue">{{ baseModel[configForm.name] }}</span>
       <v-file-input
@@ -245,6 +256,8 @@ export default {
     // (un import statique provoque une ReferenceError de TDZ sous Vite/ESM natif, alors que webpack/CommonJS le tolérait)
     // defineAsyncComponent est indispensable en Vue 3 (cf. commentaire dans help.vue)
     oeascContent: defineAsyncComponent(() => import('@/modules/content/content.vue')),
+    // éditeur visuel : chargé à la demande (Tiptap pèse lourd, seuls les éditeurs de contenu l'utilisent)
+    wysiwygEditor: defineAsyncComponent(() => import('./wysiwyg/wysiwyg-editor.vue')),
     help,
     list,
   },
@@ -260,6 +273,7 @@ export default {
       'email', // Champ de saisie d'email
       'date', // Champ de sélection de date
       'text_area', // Champ de saisie de texte multilignes
+      'wysiwyg', // Éditeur de texte visuel (Tiptap)
       'nomenclature', // Champ de nomenclature (sélection dans une liste de valeurs)
       'number', // Champ de saisie numérique
       'essence', // Champ spécifique pour l'essence (commenté dans le template)
