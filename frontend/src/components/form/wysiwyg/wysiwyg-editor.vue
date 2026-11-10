@@ -297,6 +297,20 @@
       </v-card>
     </v-dialog>
 
+    <!-- document : choix d'un document existant ou envoi, inséré sous forme de lien -->
+    <v-dialog
+      v-model="documentOuvert"
+      max-width="1400px"
+    >
+      <v-card v-if="documentOuvert">
+        <generic-form
+          class="edit-dialog"
+          :config="configDocForm"
+          @onSuccess="appliqueDocument"
+        ></generic-form>
+      </v-card>
+    </v-dialog>
+
     <!-- code d'un composant -->
     <v-dialog
       v-model="composantOuvert"
@@ -341,13 +355,15 @@
 </template>
 
 <script>
-import { markRaw } from 'vue';
+import { defineAsyncComponent, markRaw } from 'vue';
 import { Editor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
 import TextAlign from '@tiptap/extension-text-align';
 import { Color, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import { TableKit } from '@tiptap/extension-table';
 import { apiRequest } from '@/core/js/data/api.js';
+import { escapeHtml } from '@/core/js/util/util.js';
+import configDocForm from '@/modules/content/config/form-doc';
 import {
   ComposantBloc,
   ComposantEnLigne,
@@ -358,6 +374,9 @@ import {
   editeurVersContenu,
   estEnLigne,
 } from './wysiwyg-extensions.js';
+
+// chargé à la demande (arbre generic-form -> dynamic-form volumineux)
+const genericForm = defineAsyncComponent(() => import('@/components/form/generic-form'));
 
 const COULEURS = [
   '#000000', '#4d4d4d', '#808080', '#b3b3b3',
@@ -376,7 +395,7 @@ const EMOJIS = [
 
 export default {
   name: 'wysiwygEditor',
-  components: { EditorContent },
+  components: { EditorContent, genericForm },
   props: {
     modelValue: { type: String, default: '' },
   },
@@ -391,6 +410,8 @@ export default {
     COULEURS,
     EMOJIS,
     lienOuvert: false,
+    documentOuvert: false,
+    configDocForm,
     adresse: '',
     composantOuvert: false,
     composantCode: '',
@@ -479,6 +500,7 @@ export default {
         ],
         [
           { titre: 'Lien', icone: 'mdi-link', actif: () => actif('link'), action: this.ouvreLien },
+          { titre: 'Insérer un document', icone: 'mdi-file-document-outline', action: this.ouvreDocument },
           { titre: 'Insérer une image', icone: 'mdi-image-outline', actif: () => actif('image'), action: this.ouvreImage },
           {
             titre: 'Insérer un tableau',
@@ -687,6 +709,21 @@ export default {
       if (noeud && noeud.type.name.startsWith('composant')) {
         view.dispatch(state.tr.setNodeMarkup(this.composantPosition, undefined, attributsComposant(brut)));
       }
+    },
+    // --- document (lien vers un fichier du serveur) ---
+    ouvreDocument() {
+      this.configDocForm.value = null;
+      this.documentOuvert = true;
+    },
+    appliqueDocument(event) {
+      this.documentOuvert = false;
+      // src est inséré dans une chaîne JS d'une expression Vue, elle-même dans un attribut HTML :
+      // échappement JS (\ et ') puis HTML. Le texte du lien ne doit pas ouvrir d'interpolation Vue.
+      const srcJs = String(event.src ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      const txt = escapeHtml(event.txt || event.src).replace(/\{/g, '&#123;');
+      this.insereBrut(
+        `<a :href="docPath + '${escapeHtml(srcJs)}'" target="_blank" rel="noopener noreferrer">${txt}</a>`,
+      );
     },
     // insère un composant (ou tout code HTML/Vue) à la position du curseur
     insereBrut(brut) {

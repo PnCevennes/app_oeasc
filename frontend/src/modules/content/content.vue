@@ -49,18 +49,6 @@
           >
             <v-card-title class="d-flex align-center">
               <span>{{ content.code ? `Modifier « ${content.code} »` : 'Nouveau contenu' }}</span>
-              <v-spacer></v-spacer>
-              <v-btn
-                icon
-                variant="text"
-                title="Insérer un document"
-                @click="
-                  configDocForm.value = null;
-                  dialogDoc = true;
-                "
-              >
-                <v-icon>fa-file-alt</v-icon>
-              </v-btn>
             </v-card-title>
             <v-card-text>
           <generic-form
@@ -69,18 +57,6 @@
             @onSuccess="onSaved($event)"
           ></generic-form>
 
-          <v-dialog
-            max-width="1400px"
-            v-model="dialogDoc"
-          >
-            <v-card v-if="dialogDoc">
-              <genericForm
-                class="edit-dialog"
-                :config="configDocForm"
-                @onSuccess="getDoc($event)"
-              ></genericForm>
-            </v-card>
-          </v-dialog>
           <v-snackbar
             color="success"
             v-model="bSnack"
@@ -122,10 +98,9 @@ import components from './config/components';
 
 import './content.css';
 import configContentForm from './config/form-content';
-import configDocForm from './config/form-doc';
 import { marked } from 'marked';
 import { estContenuHtml, MARQUE_HTML } from '@/components/form/wysiwyg/wysiwyg-marque.js';
-import { escapeHtml, formatDateFr } from '@/core/js/util/util.js';
+import { formatDateFr } from '@/core/js/util/util.js';
 
 import VRuntimeTemplate from 'vue3-runtime-template'; // pour l'affichage du contenu markdown dynamique
 
@@ -199,9 +174,7 @@ export default {
   data: () => ({
     content: null,
     bEditContents: false,
-    dialogDoc: false,
     configContentForm,
-    configDocForm,
     bSnack: false,
     msgSnack: null,
     bInitialized: false,
@@ -221,32 +194,6 @@ export default {
   methods: {
     formatDateFr,
     // onMouseOver() { // non utilisé
-
-    getDoc(event) {
-      // src est inséré dans une chaîne JS d'une expression Vue, elle-même dans un attribut HTML :
-      // on échappe d'abord pour JS (\ et '), puis pour HTML. Le texte du lien ne doit pas
-      // pouvoir ouvrir une interpolation Vue ({{ }}).
-      const srcJs = String(event.src ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-      const txt = escapeHtml(event.txt || event.src).replace(/\{/g, '&#123;');
-      const str_doc = `<a :href="docPath + '${escapeHtml(srcJs)}'" target="_blank" rel="noopener noreferrer">${txt}</a>`;
-      this.insertInEditor(str_doc, 'le lien');
-    },
-
-    // insère le code (composant) à la position du curseur de l'éditeur visuel ; sans éditeur
-    // disponible, il est copié dans le presse-papier
-    insertInEditor(code, nom) {
-      this.dialogDoc = false;
-      if (this.editorBridge.insert) {
-        this.editorBridge.insert(code);
-        this.bSnack = true;
-        this.msgSnack = `${nom.charAt(0).toUpperCase()}${nom.slice(1)} a été inséré dans le texte`;
-        return;
-      }
-      navigator.clipboard.writeText(code).then(() => {
-        this.bSnack = true;
-        this.msgSnack = `Le code de ${nom} a été copié dans le presse-papier`;
-      });
-    },
 
     // getFormData(ref, key) { // non utilisé
 
