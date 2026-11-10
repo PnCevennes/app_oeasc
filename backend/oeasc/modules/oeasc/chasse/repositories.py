@@ -14,6 +14,8 @@ from .models import (
     TAttributionMassifs,
     VPlanChasseRealisationBilan,
     TRealisationsChasse,
+    TAttributions,
+    TTypeBracelets,
 )
 
 from oeasc.utils.env import db as DB
@@ -72,6 +74,8 @@ def chasse_process_args():
         "id_zone_cynegetique": id_zone_cynegetique,
         "id_zone_indicative": id_zone_indicative,
         "poids_ou_dagues": poids_ou_dagues,
+        # date de fin (exclue) des réalisations "avant novembre", format MM-JJ (défaut 11-01)
+        "date_fin_realisation": request.args.get("date_fin_realisation") or "11-01",
     }
 
 
@@ -432,6 +436,70 @@ def get_chasse_bilan_realisation(params):
     return stmt
 
 
+def get_realisations_avant_date(params, mois, jour):
+    """
+    Compte, par saison, les réalisations dont la date exacte est strictement antérieure
+    au jour/mois donné (mois >= 7 : année de début de saison, sinon année suivante).
+    Même périmètre que la vue v_plan_chasse_realisation_bilan (zone réalisée = zone affectée).
+    Retourne {nom_saison: nombre} uniquement pour les saisons disposant de réalisations détaillées
+    (les saisons historiques, pré-agrégées, ne peuvent pas être recalculées).
+    """
+    annee_debut = cast(func.split_part(TSaisons.nom_saison, "-", 1), Integer)
+    annee = annee_debut + (1 if mois < 7 else 0)
+    date_limite = func.make_date(annee, mois, jour)
+
+    stmt = (
+        select(
+            TSaisons.nom_saison,
+            func.count(TRealisationsChasse.id_realisation.distinct()).label("nb_total"),
+            func.count(TRealisationsChasse.id_realisation.distinct())
+            .filter(
+                TRealisationsChasse.date_exacte.isnot(None),
+                TRealisationsChasse.date_exacte < date_limite,
+            )
+            .label("nb_avant"),
+        )
+        .select_from(TRealisationsChasse)
+        .join(
+            TAttributions,
+            TAttributions.id_attribution == TRealisationsChasse.id_attribution,
+        )
+        .join(TSaisons, TSaisons.id_saison == TAttributions.id_saison)
+        .join(
+            TTypeBracelets,
+            TTypeBracelets.id_type_bracelet == TAttributions.id_type_bracelet,
+        )
+        .join(
+            TZoneCynegetiques,
+            TZoneCynegetiques.id_zone_cynegetique
+            == TAttributions.id_zone_cynegetique_affectee,
+        )
+        .where(
+            TRealisationsChasse.id_zone_cynegetique_realisee
+            == TAttributions.id_zone_cynegetique_affectee,
+            TRealisationsChasse.id_zone_indicative_realisee
+            == TAttributions.id_zone_indicative_affectee,
+        )
+        .group_by(TSaisons.nom_saison)
+    )
+    if params["id_zone_indicative"]:
+        stmt = stmt.where(
+            TAttributions.id_zone_indicative_affectee.in_(params["id_zone_indicative"])
+        )
+    elif params["id_zone_cynegetique"]:
+        stmt = stmt.where(
+            TAttributions.id_zone_cynegetique_affectee.in_(
+                params["id_zone_cynegetique"]
+            )
+        )
+    elif params["id_secteur"]:
+        stmt = stmt.where(TZoneCynegetiques.id_secteur.in_(params["id_secteur"]))
+    if params["id_espece"]:
+        stmt = stmt.where(TTypeBracelets.id_espece == int(params["id_espece"]))
+
+    return {r[0]: int(r[2]) for r in DB.session.execute(stmt).all()}
+
+
 def get_plain_text_data(params):
     """
     Fonction utilitaire qui récupère les noms "lisibles" (texte) des entités (espèce, saison, zone)
@@ -571,6 +639,20 @@ def get_chasse_bilan(params):
             ]
             for r in res
         ]
+    # Date de fin personnalisée pour les réalisations "avant novembre" (défaut 11-01 = comportement de la vue)
+    date_fin = params.get("date_fin_realisation") or "11-01"
+    out["date_fin_realisation"] = date_fin
+    if date_fin != "11-01":
+        try:
+            mois, jour = [int(x) for x in date_fin.split("-")]
+            nb_avant = get_realisations_avant_date(params, mois, jour)
+        except (ValueError, SQLAlchemyError):
+            DB.session.rollback()
+            nb_avant = {}
+        out["nb_realisation_avant_11"] = [
+            [nom, nb_avant.get(nom, val)] for nom, val in out["nb_realisation_avant_11"]
+        ]
+
     # Calcul du taux de réalisation
     out["taux_realisation"] = [
         [

@@ -9,8 +9,36 @@
 
     <div
       v-if="chartOptions && chartOptions.series && chartOptions.series.length > 0"
-      :style="`height:${$props.height || '400px'}; width: ${$props.width || '100%'}`"
+      :style="`position: relative; margin-bottom: 40px; height:${$props.height || '400px'}; width: ${$props.width || '100%'}`"
     >
+      <!--
+        Petit formulaire de date placé à droite de la légende : définit la date de fin (exclue)
+        des réalisations représentées par la courbe "Réalisations avant ...". Défaut : 01/11.
+      -->
+      <div
+        class="date-fin-form"
+        title="Date de fin (exclue) des réalisations de la courbe verte"
+      >
+        <span class="date-fin-label">Date de la courbe verte : avant le</span>
+        <v-select
+          v-model="jourFin"
+          :items="jours"
+          density="compact"
+          variant="outlined"
+          hide-details
+          class="date-fin-select"
+        ></v-select>
+        <v-select
+          v-model="moisFin"
+          :items="mois"
+          item-title="title"
+          item-value="value"
+          density="compact"
+          variant="outlined"
+          hide-details
+          class="date-fin-select date-fin-select-mois"
+        ></v-select>
+      </div>
       <!-- 
         Composant Highcharts affiché si le traitement n'est pas en cours.
         Les options et l'instance Highcharts sont passées en props.
@@ -65,10 +93,36 @@ export default {
     hcInstance: Highcharts, // Instance de Highcharts utilisée par le composant <highcharts>
     data_bilan: null, // Données du bilan d'évolution des plans de chasse récupérées depuis l'API
     processing: false, // Booléen indiquant si un traitement (chargement des données) est en cours
+    jourFin: 1, // Jour de la date de fin des réalisations "avant novembre" (défaut 01/11)
+    moisFin: 11, // Mois de la date de fin
+    jours: Array.from({ length: 31 }, (_, i) => i + 1),
+    mois: [
+      'Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin', 'Juillet',
+      'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre',
+    ].map((title, i) => ({ title, value: i + 1 })),
     chartOptions: null, // Options de configuration du graphique Highcharts, générées dynamiquement en fonction des données récupérées
   }),
 
+  computed: {
+    // Date de fin au format MM-JJ attendu par l'API
+    dateFinParam() {
+      const pad = (n) => String(n).padStart(2, '0');
+      return `${pad(this.moisFin)}-${pad(this.jourFin)}`;
+    },
+    // Libellé de la série, ex : "Réalisations avant le 01/11"
+    labelAvant() {
+      const pad = (n) => String(n).padStart(2, '0');
+      return `Réalisations avant le ${pad(this.jourFin)}/${pad(this.moisFin)}`;
+    },
+  },
+
   watch: {
+    jourFin() {
+      this.recuperation_data_bilan();
+    },
+    moisFin() {
+      this.recuperation_data_bilan();
+    },
     $props: {
       handler() {
         this.recuperation_data_bilan();
@@ -117,6 +171,11 @@ export default {
           split: false,
           enabled: true,
         },
+        legend: {
+          // laisse la place au formulaire de date à droite de la légende
+          align: 'left',
+          width: '70%',
+        },
         series: [
           {
             type: 'column',
@@ -129,7 +188,7 @@ export default {
             data: data.nb_attribution_max,
           },
           {
-            name: 'Réalisations avant novembre',
+            name: this.labelAvant,
             data: data.nb_realisation_avant_11,
           },
           {
@@ -151,7 +210,7 @@ export default {
       if (!this.bilanParams.id_espece) {
         this.bilanParams.id_espece = 1; // om met les CERFS par défaut
       }
-      apiRequest('GET', 'api/chasse/results/bilan', { params: this.bilanParams }).then((result) => {
+      apiRequest('GET', 'api/chasse/results/bilan', { params: { ...this.bilanParams, date_fin_realisation: this.dateFinParam } }).then((result) => {
         this.data_bilan = result;
         this.maj_chartOptions();
         this.processing = false;
@@ -163,3 +222,31 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.date-fin-form {
+  position: absolute;
+  right: 8px;
+  bottom: 4px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.8rem;
+}
+.date-fin-select {
+  width: 75px;
+  flex: none;
+}
+.date-fin-select-mois {
+  width: 130px;
+}
+.date-fin-form :deep(.v-field__input) {
+  font-size: 0.8rem;
+  min-height: 30px;
+  padding: 2px 6px;
+}
+.date-fin-form :deep(.v-field) {
+  --v-input-control-height: 30px;
+}
+</style>
