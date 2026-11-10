@@ -62,5 +62,9 @@
   "description": "## Project setup ``` npm install ```",
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "overrides": {
+    "tmp": "^0.2.6",
+    "flatted": "^3.4.2"
+  }
 }
