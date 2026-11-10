@@ -138,7 +138,7 @@ import './content.css';
 import configContentForm from './config/form-content';
 import configImgForm from './config/form-img';
 import configDocForm from './config/form-doc';
-import marked from 'marked';
+import { marked } from 'marked';
 import { escapeHtml, formatDateFr } from '@/core/js/util/util.js';
 
 import VRuntimeTemplate from 'vue3-runtime-template'; // pour l'affichage du contenu markdown dynamique

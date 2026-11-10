@@ -32,7 +32,7 @@
 <script>
 import './content.css';
 import contentImg from './content-img';
-import marked from 'marked';
+import { marked } from 'marked';
 import { formatDateFr } from '@/core/js/util/util.js';
 
 export default {
