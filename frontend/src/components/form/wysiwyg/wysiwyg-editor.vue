@@ -358,6 +358,7 @@
 import { defineAsyncComponent, markRaw } from 'vue';
 import { Editor, EditorContent } from '@tiptap/vue-3';
 import StarterKit from '@tiptap/starter-kit';
+import { Extension } from '@tiptap/core';
 import TextAlign from '@tiptap/extension-text-align';
 import { Color, FontSize, TextStyle } from '@tiptap/extension-text-style';
 import { TableKit } from '@tiptap/extension-table';
@@ -392,6 +393,25 @@ const EMOJIS = [
   { titre: 'Objets', liste: '📅 📌 📎 📝 📄 📁 📊 📢 📞 📧 💻 📷 🔍 ⏰ 🎁 🎉 ☕ 🚗 🥾 🏠' },
   { titre: 'Symboles', liste: '✅ ✔️ ❌ ❗ ❓ ⚠️ ⛔ ℹ️ ⭐ ✨ ➡️ ⬅️ ⬆️ ⬇️ 🔴 🟠 🟡 🟢 🔵' },
 ].map(({ titre, liste }) => ({ titre, liste: liste.split(' ') }));
+
+// Touche Tab : insère une tabulation (dans une liste : change le niveau d'indentation) au lieu de
+// faire perdre le focus à l'éditeur
+const Tabulation = Extension.create({
+  name: 'tabulation',
+  addKeyboardShortcuts() {
+    return {
+      Tab: ({ editor }) => {
+        if (editor.isActive('listItem')) return editor.commands.sinkListItem('listItem') || true;
+        if (editor.isActive('tableCell') || editor.isActive('tableHeader')) return false;
+        return editor.commands.insertContent('\t');
+      },
+      'Shift-Tab': ({ editor }) => {
+        if (editor.isActive('listItem')) return editor.commands.liftListItem('listItem') || true;
+        return false;
+      },
+    };
+  },
+});
 
 export default {
   name: 'wysiwygEditor',
@@ -543,6 +563,7 @@ export default {
           ComposantBloc.configure({ cheminImages: this.cheminImages }),
           ComposantEnLigne.configure({ cheminImages: this.cheminImages }),
           TextAlign.configure({ types: ['heading', 'paragraph'] }),
+          Tabulation,
           TextStyle,
           FontSize,
           Color,

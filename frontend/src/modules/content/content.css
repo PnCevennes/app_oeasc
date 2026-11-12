@@ -19,6 +19,24 @@
   text-align: justify;
 }
 
+/* retours à la ligne et tabulations saisis dans l'éditeur conservés à l'affichage */
+.content p,
+.content li,
+.content td,
+.content th,
+.content h1,
+.content h2,
+.content h3,
+.content h4 {
+  white-space: pre-wrap;
+  tab-size: 4;
+}
+
+/* paragraphe vide (ligne sautée dans l'éditeur) : garde sa hauteur */
+.content p:empty::before {
+  content: '\00a0';
+}
+
 .map-content {
   height: 400px;
 }
