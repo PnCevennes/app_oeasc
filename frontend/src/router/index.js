@@ -1,12 +1,19 @@
 // importe les routes depuis les modules dans le repertoire modules/
 
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import { page } from '@/modules/page';
 import { MODULES_ROUTES } from '@/modules';
+import { convertirHashInitial } from './legacy-hash.js';
+
+// anciennes URLs #/... -> URLs propres. Doit précéder createWebHistory, qui lit l'URL à sa création.
+convertirHashInitial();
 
 // récupère les routes dans modules.index.js qui ont été rassemblées dans MODULES_ROUTES.
 export default createRouter({
-  history: createWebHashHistory(),
+  // URLs propres (/front/page) indexables par les moteurs de recherche. BASE_URL vaut '/front/' en
+  // production et '/' en dev (voir vite.config.js). Apache doit renvoyer index.html pour les chemins
+  // inconnus (FallbackResource, voir install/assets/apache2/oeasc.conf).
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     // Ajout des routes des modules
     ...MODULES_ROUTES.map((route) => {

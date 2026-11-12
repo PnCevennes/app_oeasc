@@ -1,6 +1,8 @@
 // Gardes de navigation : session utilisateur + contrôle d'accès (meta.access) AVANT le rendu de la route.
 // La vraie sécurité reste côté backend ; ceci évite de monter un composant protégé puis de rediriger.
 
+import { appliquerSeo } from './seo.js';
+
 let initialCheckDone = false;
 
 export function installGuards(router, store) {
@@ -24,8 +26,7 @@ export function installGuards(router, store) {
     }
   });
 
-  router.afterEach((to) => {
-    const title = to.meta.title || to.meta.label;
-    document.title = title ? `OEASC - ${title}` : 'OEASC';
-  });
+  // titre, description, canonical, robots et Open Graph (voir router/seo.js). Les pages de contenu CMS
+  // affinent ensuite titre et description une fois leur texte chargé (modules/content/content.vue).
+  router.afterEach((to) => appliquerSeo(to));
 }

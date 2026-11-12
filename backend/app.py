@@ -265,6 +265,11 @@ with app.app_context():
 
     app.register_blueprint(commons_api.bp, url_prefix="/api/commons")
 
+    # SEO : sitemap.xml et robots.txt (exposés par Apache, voir install/docs/seo.md)
+    from oeasc.modules.oeasc.seo import api as seo_api
+
+    app.register_blueprint(seo_api.bp, url_prefix="/seo")
+
     # generic gère des routes dynamiques pour plusieurs modules. Permet d'accéder à des models et de gérér les accès selon les droits utilisateurs
     from oeasc.modules.oeasc.generic import api as generic_api
 

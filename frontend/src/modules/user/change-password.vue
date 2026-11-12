@@ -40,7 +40,7 @@
         <p>Votre mot de passe à été modifié.</p>
         <p>
           Vous pouvez désormais vous identifier sur la
-          <a href="/#/login">page de connexion</a>
+          <router-link to="/login">page de connexion</router-link>
         </p>
       </div>
     </generic-form>

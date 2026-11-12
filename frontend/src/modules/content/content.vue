@@ -101,6 +101,7 @@ import configContentForm from './config/form-content';
 import { marked } from 'marked';
 import { estContenuHtml, MARQUE_HTML } from '@/components/form/wysiwyg/wysiwyg-marque.js';
 import { formatDateFr } from '@/core/js/util/util.js';
+import { appliquerSeo, descriptionDepuisHtml, titreDepuisHtml } from '@/router/seo.js';
 
 import VRuntimeTemplate from 'vue3-runtime-template'; // pour l'affichage du contenu markdown dynamique
 
@@ -208,6 +209,19 @@ export default {
       let html = estContenuHtml(data.md) ? data.md.slice(MARQUE_HTML.length) : marked(data.md || '');
       this.content.html = `<div>${html}</div>`;
       this.bEditContents = !this.content.code;
+      this.majSeo(html);
+    },
+
+    // contenu affiché comme page principale de la route (et non intégré dans une autre page, ex.
+    // liste d'actualités) : description (début du texte) et, pour une actualité, titre (premier titre)
+    majSeo(html) {
+      const code = this.getCode();
+      if (!code || code !== (this.$route.meta.content || this.$route.params.code)) return;
+      const estActualite = this.$route.name === 'actualite.content';
+      appliquerSeo(this.$route, {
+        titre: estActualite ? titreDepuisHtml(html) : undefined,
+        description: descriptionDepuisHtml(html),
+      });
     },
 
     getCode() {

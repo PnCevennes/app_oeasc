@@ -29,7 +29,8 @@
           class="img-titre"
           v-if="!$route.meta.hideTitle"
         >
-          <h1 class="oeasc-titre">Observatoire de l'équilibre agro‑sylvo‑cynégétique</h1>
+          <!-- div et non h1 : le h1 de la page est celui du contenu (SEO : un seul h1 par page, propre à la page) -->
+          <div class="oeasc-titre">Observatoire de l'équilibre agro‑sylvo‑cynégétique</div>
         </div>
         <!-- menu sur un panneau latéral -->
         <oeasc-drawer :config="configDrawer"></oeasc-drawer>

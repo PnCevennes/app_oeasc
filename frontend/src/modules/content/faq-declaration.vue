@@ -23,6 +23,9 @@
 </template>
 
 <script>
+// préfixe des URLs du site ('/front/' en production) : liens réels, explorables par les moteurs de recherche
+const BASE = import.meta.env.BASE_URL;
+
 export default {
   name: 'faqDeclaration',
   data: () => ({
@@ -31,12 +34,12 @@ export default {
         question: '<b>Quels types de dégâts puis-je puis signaler ?</b>',
         response: `Vous pouvez signaler des dégâts d’abroutissement, de frottis et d’écorçage, ou signaler une absence de régénération qui vous semble anormale et pourrait être liée à la présence de cervidés.
           <br><br> Vous pouvez également signaler des dégâts de sanglier ou des dommages provoqués sur vos pistes, clôtures ou murets.
-          <br><br> Les différents types de dégâts sont décrits et présentés <a href="#/declaration/degat_grand_gibier">ici</a>.`,
+          <br><br> Les différents types de dégâts sont décrits et présentés <a href="${BASE}declaration/degat_grand_gibier">ici</a>.`,
       },
       {
         question: '<b>Comment signaler des dégâts ?</b>',
         response: `Rien de plus simple !
-          <br><br> Connectez à votre compte « utilisateur » (si vous ne l’avez pas encore fait, <a href="#/user/creer_utilisateur">vous pouvez vous inscrire ici</a>), et suivez les étapes du formulaire en ligne.`,
+          <br><br> Connectez à votre compte « utilisateur » (si vous ne l’avez pas encore fait, <a href="${BASE}user/creer_utilisateur">vous pouvez vous inscrire ici</a>), et suivez les étapes du formulaire en ligne.`,
       },
       {
         question: '<b>Combien de temps cela va-t-il me prendre ?</b>',
@@ -46,7 +49,7 @@ export default {
       {
         question: "<b>Ma forêt est-elle incluse dans le périmètre de l'Observatoire ?</b>",
         response: `Le périmètre de l'Observatoire est constitué de l'ensemble des communes en partie incluses ou frontalières au coeur du Parc national des Cévennes.
-                  <br><br> Pour vérifier si votre forêt est située dans ce périmètre, consultez <a href='#/observatoire/perimetre'>la carte présentée ici</a>.`,
+                  <br><br> Pour vérifier si votre forêt est située dans ce périmètre, consultez <a href='${BASE}observatoire/perimetre'>la carte présentée ici</a>.`,
       },
       {
         question:

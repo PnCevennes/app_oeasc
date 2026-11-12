@@ -31,7 +31,7 @@
         </p>
       </div>
       <div slot="appendForm">
-        <a href="#/user/change_password">Mot de passe oublié ?</a>
+        <router-link to="/user/change_password">Mot de passe oublié ?</router-link>
       </div>
     </generic-form>
   </div>

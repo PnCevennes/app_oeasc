@@ -34,13 +34,57 @@
       crossorigin="anonymous"
     />
 
-    <title>OEASC</title>
+    <!-- SEO : valeurs par défaut (sans JavaScript ni avant navigation). Titre, description, canonical,
+         robots et Open Graph sont ensuite mis à jour page par page par src/router/seo.js -->
+    <title>OEASC - Observatoire Agro-Sylvo-Cynégétique du Parc national des Cévennes</title>
+    <meta
+      name="description"
+      content="Observatoire d'Étude Agro-Sylvo-Cynégétique (OEASC) du Parc national des Cévennes : suivi de la présence des grands gibiers (cerf, chevreuil, mouflon…), plans de chasse et dégâts en forêt et en agriculture."
+    />
+    <meta
+      name="theme-color"
+      content="#2e7d32"
+    />
+    <meta
+      property="og:type"
+      content="website"
+    />
+    <meta
+      property="og:site_name"
+      content="OEASC"
+    />
+    <meta
+      property="og:locale"
+      content="fr_FR"
+    />
+    <meta
+      property="og:title"
+      content="OEASC - Observatoire Agro-Sylvo-Cynégétique"
+    />
+    <meta
+      property="og:description"
+      content="Suivi de la présence des grands gibiers, plans de chasse et dégâts en forêt et en agriculture dans le Parc national des Cévennes."
+    />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "OEASC - Observatoire d'Étude Agro-Sylvo-Cynégétique",
+        "parentOrganization": {
+          "@type": "GovernmentOrganization",
+          "name": "Parc national des Cévennes",
+          "url": "https://www.cevennes-parcnational.fr"
+        },
+        "inLanguage": "fr"
+      }
+    </script>
   </head>
   <body>
     <noscript>
       <strong>
-        We're sorry but OEASC doesn't work properly without
-        JavaScript enabled. Please enable it to continue.
+        Le site de l'Observatoire d'Étude Agro-Sylvo-Cynégétique (OEASC)
+        du Parc national des Cévennes nécessite JavaScript pour fonctionner.
+        Merci de l'activer pour continuer.
       </strong>
     </noscript>
     <div id="app"></div>

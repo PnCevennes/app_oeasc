@@ -172,10 +172,13 @@ const simple_fetch = async (method, urlRelative, body = null, options = {}) => {
     const response = await fetch(url, configRequest);
 
     if (response.status === 401) {
-      // Session Flask expirée : l'app est en hash history (et servie sous /front/), donc on
-      // change le hash vers la route SPA /login, pas l'URL serveur
-      const redirect = window.location.hash.replace(/^#/, '');
-      window.location.hash = `#/login${redirect && redirect !== '/login' ? `?redirect=${encodeURIComponent(redirect)}` : ''}`;
+      // Session Flask expirée : navigation vers la route SPA /login (et non l'URL serveur), avec
+      // retour prévu vers la page courante. Import dynamique : api.js est chargé avant le router.
+      const { default: router } = await import('@/router');
+      const redirect = router.currentRoute.value.fullPath;
+      if (router.currentRoute.value.path !== '/login') {
+        router.push({ path: '/login', query: redirect !== '/' ? { redirect } : {} });
+      }
       return;
     }
 

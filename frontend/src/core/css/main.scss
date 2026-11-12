@@ -116,3 +116,13 @@ html body > .v-application__wrap,
 .noUi-connect {
   will-change: auto !important;
 }
+
+// titre présent pour les moteurs de recherche et lecteurs d'écran, non affiché
+.sr-only-titre {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}

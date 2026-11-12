@@ -100,7 +100,7 @@ export default {
       html: true,
       display: (val) =>
         val.id_declaration_originale
-          ? `${escapeHtml(val.id_declaration)} (<a href="#/declaration/voir_declaration/${encodeURIComponent(val.id_declaration_originale)}">${escapeHtml(val.id_declaration_originale)}</a>)`
+          ? `${escapeHtml(val.id_declaration)} (<a href="${import.meta.env.BASE_URL}declaration/voir_declaration/${encodeURIComponent(val.id_declaration_originale)}">${escapeHtml(val.id_declaration_originale)}</a>)`
           : escapeHtml(val.id_declaration),
     },
     declarant: {
