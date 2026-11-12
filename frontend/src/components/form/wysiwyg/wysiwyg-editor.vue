@@ -570,7 +570,7 @@ export default {
           TableKit.configure({ table: { resizable: true } }),
         ],
         editorProps: {
-          attributes: { role: 'textbox', 'aria-multiline': 'true' },
+          attributes: { role: 'textbox', 'aria-multiline': 'true', lang: 'fr', spellcheck: 'true' },
           // double-clic sur un composant : modification de son code
           handleDoubleClickOn: (view, pos, node, nodePos) => {
             if (node.type.name === 'image') {

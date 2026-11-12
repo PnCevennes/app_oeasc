@@ -153,6 +153,8 @@ dynamic-form est un composant de dynamic-form-group qui lui meme est un composan
         :label="configForm.label"
         :placeholder="configForm.placeholder"
         :rows="configForm.rows"
+        lang="fr"
+        spellcheck="true"
       >
         <template v-slot:append>
           <help
