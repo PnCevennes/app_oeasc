@@ -12,22 +12,18 @@ export default {
     bMsg: false,
   }),
   created: function () {
+    // quel que soit le résultat de l'appel (la redirection 302 du backend peut faire échouer
+    // la lecture JSON), on vide l'utilisateur du store et on retourne à l'accueil
     apiRequest('GET', 'auth/logout?redirect=/api/user/logout_external', {
       acceptedStatus: [200, 302],
-    }).then(
-      () => {
-        this.msg = "Déconnexion réussie, redirection vers la page d'accueil";
+    })
+      .catch((error) => {
+        console.error(`Erreur logout : ${error}`);
+      })
+      .finally(() => {
         this.$store.commit('user', null);
-        this.bMsg = true;
-        setTimeout(() => {
-          this.$router.push('observatoire/presentation');
-        }, 1000);
-      },
-      (error) => {
-        this.msg = `Error logout : ${error}`;
-        this.bMsg = true;
-      }
-    );
+        this.$router.push('/');
+      });
   },
 };
 </script>

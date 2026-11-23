@@ -102,6 +102,9 @@ const sendRequest = async (method, url_, urlRelative, options) => {
   // Liste des statuts HTTP considérés comme acceptés (par défaut 200)
   const acceptedStatus = options.acceptedStatus || [200];
   if (!acceptedStatus.includes(response.status)) {
+    if (response.status === 401) {
+      window.dispatchEvent(new Event('session-expired'));
+    }
     throw await errorFromResponse(response);
   }
   return response.json();

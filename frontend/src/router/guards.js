@@ -13,8 +13,17 @@ export function installGuards(router, store) {
       () => store.commit('user', {})
     );
 
+  // session expirée détectée par une requête API (401) : on vide le store et on retourne à l'accueil
+  window.addEventListener('session-expired', () => {
+    if (store.getters.isAuth) {
+      store.commit('user', null);
+      router.push('/');
+    }
+  });
+
   router.beforeEach(async (to) => {
     const access = to.meta.access || 0;
+    const wasAuth = store.getters.isAuth;
     // session testée à la première navigation, puis seulement avant une route protégée
     // (le store est tenu à jour par login/logout)
     if (!initialCheckDone || access) {
@@ -22,6 +31,10 @@ export function installGuards(router, store) {
       initialCheckDone = true;
     }
     if (access > store.getters.droitMax) {
+      // session perdue (expirée / déconnecté ailleurs) : retour à l'accueil
+      if (wasAuth && !store.getters.isAuth) {
+        return { path: '/' };
+      }
       return { name: 'user.login', query: { redirect: to.fullPath } };
     }
   });
