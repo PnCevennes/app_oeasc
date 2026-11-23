@@ -299,6 +299,13 @@ export default {
     this.initMap();
     this.add_layer_perimetre_oeasc();
     await this.initialise_areas(); // Initialise les zones avant le rendu de la carte
+    // Pré-remplit liste_areas_selected avec les zones déjà présentes (modification d'une
+    // déclaration) : select_area y lit la forêt ONF/DGD, qui n'a pas été "cliquée" dans ce cas.
+    (this.declaration_data.areas_localisation || []).forEach((a) => {
+      if (a && a.id_area && !this.liste_areas_selected[a.id_area]) {
+        this.liste_areas_selected[a.id_area] = { ...a };
+      }
+    });
     // Modification / renouvellement d'une déclaration sur une forêt (DGD ou ONF) : on affiche
     // directement les parcelles / UG de la forêt. Sans forêt sélectionnée, affichage inchangé.
     const id_foret = this.get_selected_foret_id(this.typeCarte);
