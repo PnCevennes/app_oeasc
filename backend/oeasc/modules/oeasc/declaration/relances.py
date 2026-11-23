@@ -110,9 +110,9 @@ def get_liste_relances():
             statut["Archivée"],
             statut["Archivée sans réponse"],
         )
-        # Le statut "Relance" + k correspond à la relance k+1 : la clôture automatique a lieu
-        # au passage où statut >= Relance + NB_RELANCES_MAX (cf. send_mail_actualisation_declaration).
-        restantes = max(0, nb_max - row["numero_relance"] + 1)
+        # la clôture automatique a lieu au passage suivant la relance n° NB_RELANCES_MAX
+        # (cf. send_mail_actualisation_declaration) : il reste NB_RELANCES_MAX - numéro relances
+        restantes = max(0, nb_max - row["numero_relance"])
         liste.append(
             {
                 "id_declaration": row["id_declaration"],

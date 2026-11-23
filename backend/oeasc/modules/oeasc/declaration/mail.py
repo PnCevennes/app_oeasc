@@ -277,11 +277,17 @@ def relance_toutes_declarations():
 
         for index, declaration in df_declaration.iterrows():
             try:
-                send_mail_actualisation_declaration(declaration)
-                response.add_log(
-                    f"Mail envoyé pour la déclaration {declaration['id_declaration']}",
-                    type_log="INFO",
-                )
+                resultat = send_mail_actualisation_declaration(declaration)
+                if resultat == "cloturee":
+                    response.add_log(
+                        f"Déclaration {declaration['id_declaration']} clôturée automatiquement (nombre de relances max atteint), aucun mail envoyé",
+                        type_log="INFO",
+                    )
+                else:
+                    response.add_log(
+                        f"Mail envoyé pour la déclaration {declaration['id_declaration']}",
+                        type_log="INFO",
+                    )
             except Exception as e:
                 response.add_log(
                     f"Erreur lors de l'envoi du mail pour la déclaration {declaration['id_declaration']} : {str(e)}",
@@ -331,11 +337,22 @@ def send_mail_actualisation_declaration(declaration, change_statut=True):
         if statut_actuel == statut_declaration["Active"]:
             # si la déclaration est "Active", on passe son statut à "Relance"
             new_statut = statut_declaration["Relance"]
-        elif statut_actuel >= statut_declaration["Relance"] + nb_max_renouvellement:
+        elif (
+            statut_actuel >= statut_declaration["Relance"] + nb_max_renouvellement - 1
+        ):
+            # NB_RELANCES_MAX relances ont déjà été envoyées (statut Relance .. Relance + MAX - 1) :
+            # clôture automatique, sans envoyer de mail
             print(
-                f"Nombre de relances max atteint pour la déclaration {declaration['id_declaration']}. Aucune relance envoyée."
+                f"Nombre de relances max atteint pour la déclaration {declaration['id_declaration']}. "
+                "Clôture automatique, aucune relance envoyée."
             )
-            new_statut = statut_declaration["Archivée sans réponse"]
+            DB.session.execute(
+                update(TDeclaration)
+                .where(TDeclaration.id_declaration == declaration["id_declaration"])
+                .values(statut=statut_declaration["Archivée sans réponse"])
+            )
+            DB.session.commit()
+            return "cloturee"
         elif (statut_actuel >= statut_declaration["Relance"]) and (
             statut_actuel != statut_declaration["Active"]
         ):
