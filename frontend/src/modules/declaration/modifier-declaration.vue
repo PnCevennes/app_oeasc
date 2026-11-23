@@ -734,7 +734,13 @@ export default {
             );
             return;
           }
-          this.declaration_data.b_valid = false; // Lors d'une modification, la déclaration doit être à nouveau validée par un admin
+          // Lors d'une modification, la déclaration doit être à nouveau validée par un admin :
+          // seuls les admins (droit >= 5) peuvent choisir de la valider directement via le formulaire
+          if (this.$store.getters.droitMax < 5) {
+            this.declaration_data.b_valid = false;
+          } else if (this.declaration_data.b_valid) {
+            this.declaration_data.statut = 1; // même statut que la route validate_declaration
+          }
 
           const options = { postData: { ...this.declaration_data } };
           const response = await apiRequest('PATCH', `api/declaration/declaration`, options);
