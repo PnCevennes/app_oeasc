@@ -1,0 +1,16 @@
+[Unit]
+Description=OEASC - relances automatiques des déclarations
+After=postgresql.service
+After=network.target
+
+[Service]
+Type=oneshot
+User=${USER_SERVICE}
+Group=${USER_SERVICE}
+WorkingDirectory=${BASE_DIR}/backend
+Environment="OEASC_CONFIG=${OEASC_CONFIG_FILE}"
+EnvironmentFile=-${BASE_DIR}/environ
+# n'envoie rien si les relances sont désactivées (Administration > Relances automatiques)
+ExecStart=${BASE_DIR}/venv/bin/flask --app app send-relance
+# un envoi ne doit pas bloquer indéfiniment (1 s d'attente entre chaque mail)
+TimeoutStartSec=2h

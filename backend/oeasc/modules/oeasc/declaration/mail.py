@@ -19,7 +19,12 @@ from oeasc.modules.oeasc.declaration.all_stmt import (
     stmt_liste_declarations_a_renouveler,
 )
 
+from .relances import get_relances_auto_actives, enregistre_relance
+
 from oeasc.utils.env import db as DB
+
+# nombre maximum de relances envoyées à chaque exécution de `flask send-relance` (timer quotidien)
+NB_MAX_RELANCES_PAR_EXECUTION = 5
 
 config = LocalProxy(lambda: current_app.config)
 mail = LocalProxy(lambda: config["MAIL"])
@@ -213,6 +218,16 @@ def relance_toutes_declarations():
 
     response = ApiResponse(log_file="send_all_mails_renouvellement.log", session=None)
 
+    # interrupteur de la page d'administration « Relances automatiques »
+    if not get_relances_auto_actives():
+        response.add_log(
+            "Relances automatiques désactivées : aucune relance envoyée",
+            type_log="INFO",
+            with_timestamp=True,
+        )
+        response.write_in_log_file()
+        return response
+
     vars_declaration = get_variables_declaration()
     statut_declaration = vars_declaration["STATUT_DECLARATION"]
 
@@ -230,8 +245,8 @@ def relance_toutes_declarations():
 
     df_declaration = pd.DataFrame(rows)
 
-    # pour les test on limite à 2 mails pour éviter d'en envoyer trop
-    df_declaration = df_declaration.head(2)
+    # limite le nombre de mails envoyés à chaque exécution (étale l'envoi sur plusieurs jours)
+    df_declaration = df_declaration.head(NB_MAX_RELANCES_PAR_EXECUTION)
 
     if isinstance(df_declaration, pd.Series):
         df_declaration = pd.DataFrame([df_declaration])
@@ -259,9 +274,6 @@ def relance_toutes_declarations():
             type_log="INFO",
             with_timestamp=True,
         )
-
-        # pour les test on limite à 2 mails pour éviter d'en envoyer trop. A commenter pour la production
-        df_declaration = df_declaration.head(2)
 
         for index, declaration in df_declaration.iterrows():
             try:
@@ -387,6 +399,9 @@ def send_mail_actualisation_declaration(declaration, change_statut=True):
                 f"Mise à jour du statut de la déclaration {declaration['id_declaration']} dans la BDD avec le statut {new_statut}"
             )
             DB.session.execute(stmt_update)
+            # historique des relances automatiques (pas pour les envois manuels ni la clôture auto)
+            if change_statut and new_statut >= statut_declaration["Relance"]:
+                enregistre_relance(declaration["id_declaration"], new_statut)
             DB.session.commit()
         except SMTPRecipientsRefused:
             print("Adresse invalide")

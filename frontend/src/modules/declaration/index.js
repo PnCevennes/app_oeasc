@@ -35,6 +35,16 @@ const ROUTE = [
   },
 
   {
+    name: 'declaration.relances_auto',
+    path: '/declaration/relances-auto',
+    label: 'Relances automatiques', // titre dans le menu (Administration)
+    hideTitle: true,
+    component: () => import('./relances-auto.vue'),
+    access: 5, // garde de redirection (App.vue checkRigths)
+    hidden: ({ $store }) => $store.getters.droitMax < 5,
+  },
+
+  {
     path: '/declaration/liste',
     label: 'Alerte signalées',
     access: 1,

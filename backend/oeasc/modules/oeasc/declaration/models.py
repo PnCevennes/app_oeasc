@@ -448,6 +448,46 @@ class TDeclaration(CustomModel):
     geom_4326: Mapped[object] = Column(Geometry("MULTIPOLYGON", 4326))
 
 
+@serializable
+class TRelanceDeclaration(CustomModel):
+    """
+    Historique des relances automatiques envoyées aux déclarants (une ligne par mail envoyé
+    par la commande send-relance). Conservé même quand la déclaration est ensuite renouvelée
+    ou clôturée (son statut ne porte alors plus le numéro de relance).
+    """
+
+    __tablename__ = "t_relances_declaration"
+    __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
+
+    id_relance: Mapped[int] = Column(Integer, primary_key=True)
+    id_declaration: Mapped[int] = Column(
+        Integer,
+        ForeignKey(
+            "oeasc_declarations.t_declarations.id_declaration", ondelete="CASCADE"
+        ),
+        nullable=False,
+        index=True,
+    )
+    numero_relance: Mapped[int] = Column(Integer, nullable=False)
+    date_relance: Mapped[DateTime] = Column(
+        DateTime, nullable=False, default=func.now()
+    )
+
+
+@serializable
+class TParametreDeclaration(CustomModel):
+    """
+    Paramètres modifiables à chaud depuis l'interface (clé / valeur texte).
+    Clé utilisée : "relances_auto_actives" ("true" / "false", absente = désactivées).
+    """
+
+    __tablename__ = "t_parametres"
+    __table_args__ = {"schema": "oeasc_declarations", "extend_existing": True}
+
+    cle: Mapped[str] = Column(Unicode(100), primary_key=True)
+    valeur: Mapped[str] = Column(Unicode, nullable=True)
+
+
 ################################################################
 ############ TABLES DU SCHEMAS OEASC_FORETS ############
 ################################################################

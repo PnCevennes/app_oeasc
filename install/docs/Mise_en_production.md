@@ -155,6 +155,12 @@ Toutes se lancent depuis `backend/`, virtualenv activé.
 | `flask init-db` | crée la base (voir [install_db.md](install_db.md)) |
 | `flask refresh-ref-geo` | reconstruit `ref_geo.l_areas` depuis `data/ref_geo/*.gpkg` ([mise_a_jour_ref_geo.md](mise_a_jour_ref_geo.md)) |
 | `flask fix-vm-lareas-simples-simplification` | recrée `ref_geo.vm_lareas_simples` avec la simplification limitée |
-| `flask send-relance` | envoie les mails de relance des déclarations |
+| `flask send-relance` | envoie les mails de relance des déclarations (sans effet si les relances automatiques sont désactivées dans Administration → Relances automatiques) |
+
+**Les relances automatiques sont désactivées par défaut** après une installation : les activer avec le bouton de la page Administration → Relances automatiques.
+Les relances sont lancées chaque jour à 08:00 par le timer systemd `oeasc-relance.timer` (installé par `install.sh`) :
+une même déclaration n'est relancée qu'après `NB_JOURS_RELANCE_MAIL` jours. Suivi : `systemctl list-timers oeasc-relance`,
+`journalctl -u oeasc-relance`, lancement manuel `sudo systemctl start oeasc-relance.service`. Sur un serveur déjà installé,
+relancer `install.sh` (ou copier les deux fichiers de `install/assets/` en substituant les variables) puis `systemctl enable --now oeasc-relance.timer`.
 | `flask archive-medias-orphelins [--apply]` | déplace dans `archive/media_orphelins/` les médias de `static/medias/` plus référencés (simulation sans `--apply`) |
 | `flask db ...` | migrations Alembic ([alembic.md](alembic.md)) |

@@ -437,11 +437,15 @@ export default {
           },
           (error) => {
             this.bSending = false;
+            // message spécifique au formulaire (ex. connexion) sinon message générique
+            const customMessage =
+              this.config.action.describeError && this.config.action.describeError(error);
             snackbarStore.show(
-              describeApiError(error, {
-                formDefs: this.config.formDefs,
-                action: this.idModel ? 'modification' : 'enregistrement',
-              }),
+              customMessage ||
+                describeApiError(error, {
+                  formDefs: this.config.formDefs,
+                  action: this.idModel ? 'modification' : 'enregistrement',
+                }),
               'error'
             );
           }

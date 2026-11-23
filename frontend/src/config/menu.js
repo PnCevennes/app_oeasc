@@ -64,6 +64,7 @@ const menus = {
       'chasse.imports_attributions',
       'degats_agricoles.imports',
       'degats_agricoles.admin',
+      'declaration.relances_auto',
     ],
   },
 

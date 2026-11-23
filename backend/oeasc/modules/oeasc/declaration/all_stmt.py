@@ -2,6 +2,7 @@
 Fonctions de traitement de données pour les déclarations
 """
 
+from datetime import datetime, timedelta
 from sqlalchemy import (
     select,
     case,
@@ -12,11 +13,13 @@ from sqlalchemy import (
     or_,
     update,
     union_all,
+    exists,
 )
 from sqlalchemy.orm import aliased
 
 from oeasc.modules.oeasc.declaration.models import (
     TDeclaration,
+    TRelanceDeclaration,
     CorAreasDeclaration,
     CorNomenclatureDeclarationEspece,
     CorNomenclatureDeclarationEssenceComplementaire,
@@ -1004,6 +1007,8 @@ def stmt_liste_declarations_a_renouveler(statut_declaration):
     avec en plus les colonnes nécessaires à l'envoi des emails de relance.
     """
     # On récupère les informations concernant le déclarants des déclarations à renouveler
+    nb_jours = get_variables_declaration()["NB_JOURS_RELANCE_MAIL"]
+    date_limite = datetime.now() - timedelta(days=nb_jours)
 
     # on récupère les mêmes colonnes que la page "alertes signalées" pour pouvoir afficher un tableau similaire.
     stmt_renew = get_stmt_liste_declaration()
@@ -1024,5 +1029,11 @@ def stmt_liste_declarations_a_renouveler(statut_declaration):
         ),  # statut "Active" ou "Relance"
         TDeclaration.b_valid == True,
         # VUsers.accept_email == True
+        # pas de nouvelle relance avant NB_JOURS_RELANCE_MAIL jours après la précédente :
+        # permet de lancer la commande plus souvent que ce délai (ex. tous les jours)
+        ~exists().where(
+            TRelanceDeclaration.id_declaration == TDeclaration.id_declaration,
+            TRelanceDeclaration.date_relance > date_limite,
+        ),
     )
     return stmt_renew

@@ -40,6 +40,11 @@ from .repository import (
     get_label_statut_declaration,
 )
 from ..user.utils import check_auth_redirect_login
+from .relances import (
+    get_liste_relances,
+    get_relances_auto_actives,
+    set_relances_auto_actives,
+)
 
 from .all_stmt import (
     get_stmt_for_declarations_export,
@@ -790,6 +795,49 @@ def send_mail():
             status_code=500,
         )
 
+    return response.response_to_frontend()
+
+
+##################################################################################
+###################    RELANCES AUTOMATIQUES  ####################################
+##################################################################################
+
+
+@bp.route("relances_auto", methods=["GET"])
+@check_auth_redirect_login(5)
+@json_resp
+def api_get_relances_auto():
+    """Page d'administration « Relances automatiques » : état de l'interrupteur
+    et liste des déclarations relancées automatiquement."""
+    return {
+        "actif": get_relances_auto_actives(),
+        "relances": get_liste_relances(),
+    }
+
+
+@bp.route("relances_auto/actif", methods=["POST"])
+@check_auth_redirect_login(5)
+def api_post_relances_auto_actif():
+    """Active ou désactive les relances automatiques. Corps : {"actif": true|false}."""
+    response = ApiResponse(log_file="declarations.log", session=session)
+    post_data = request.get_json(silent=True) or {}
+    actif = post_data.get("actif")
+    if not isinstance(actif, bool):
+        response.add_error(
+            user_message="Paramètre 'actif' manquant ou invalide",
+            system_error="relances_auto/actif : 'actif' doit être un booléen",
+            status_code=400,
+        )
+        return response.response_to_frontend()
+    try:
+        response.data = {"actif": set_relances_auto_actives(actif)}
+    except Exception as e:
+        DB.session.rollback()
+        response.add_error(
+            user_message="Erreur lors de la modification du paramètre",
+            system_error=str(e),
+            status_code=500,
+        )
     return response.response_to_frontend()
 
 

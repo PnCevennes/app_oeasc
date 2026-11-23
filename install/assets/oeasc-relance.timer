@@ -1,0 +1,13 @@
+[Unit]
+Description=OEASC - lancement quotidien des relances automatiques
+
+[Timer]
+# tous les jours : le délai entre deux relances d'une même déclaration (NB_JOURS_RELANCE_MAIL)
+# est vérifié par la commande elle-même
+OnCalendar=*-*-* 08:00:00
+# rattrape le passage manqué si le serveur était éteint à 08:00
+Persistent=true
+RandomizedDelaySec=10min
+
+[Install]
+WantedBy=timers.target

@@ -290,9 +290,16 @@ if [ "$SKIP_RESTART" = 0 ]; then
     USER=$USER_SERVICE envsubst '${USER}' < install/assets/log_rotate > "$TMP_DIR/oeasc.logrotate"
 
     sudo install -m 644 "$TMP_DIR/oeasc.service" /etc/systemd/system/oeasc.service
+
+    # relances automatiques des déclarations : service oneshot lancé par un timer quotidien
+    envsubst '${USER_SERVICE} ${BASE_DIR} ${OEASC_CONFIG_FILE}' \
+        < install/assets/oeasc-relance.service > "$TMP_DIR/oeasc-relance.service"
+    sudo install -m 644 "$TMP_DIR/oeasc-relance.service" /etc/systemd/system/oeasc-relance.service
+    sudo install -m 644 install/assets/oeasc-relance.timer /etc/systemd/system/oeasc-relance.timer
     sudo install -m 644 "$TMP_DIR/oeasc.logrotate" /etc/logrotate.d/oeasc
     sudo systemctl daemon-reload
     sudo systemctl enable "$SERVICE.service"
+    sudo systemctl enable --now oeasc-relance.timer
     sudo systemctl restart "$SERVICE.service"
 
     # Type=simple : "actif" dès le lancement, même si gunicorn plante ensuite ->
