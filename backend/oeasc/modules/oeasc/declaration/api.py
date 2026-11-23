@@ -426,6 +426,25 @@ def api_patch_declaration():
 
     post_data = clean_declaration_data(post_data)
 
+    # Une déclaration dont la date de validité est dépassée ne peut être modifiée que par un
+    # admin (droit >= 4). Les autres utilisateurs doivent la renouveler ou la clôturer.
+    id_declaration = post_data.get("id_declaration")
+    if id_declaration:
+        declaration_existante = DB.session.get(TDeclaration, id_declaration)
+        date_fin = declaration_existante.date_fin if declaration_existante else None
+        current_user = get_current_user()
+        niveau = (
+            current_user.get("max_level_profil", current_user.get("id_droit_max")) or 0
+        )
+        if date_fin and date_fin < date.today() and niveau < 4:
+            response = ApiResponse(log_file="declarations.log", session=session)
+            response.add_error(
+                system_error=f"Modification refusée de la déclaration {id_declaration} : date de validité dépassée",
+                user_message="La date de validité de cette déclaration est dépassée : vous ne pouvez plus la modifier, seulement la renouveler ou la clôturer.",
+                status_code=403,
+            )
+            return response.response_to_frontend()
+
     # Appelle la fonction qui crée ou met à jour la déclaration dans la base de données
     # Ici, on suppose que l'identifiant de la déclaration existe déjà dans post_data
     result_declaration, response = create_or_update_declaration(post_data)

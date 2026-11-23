@@ -610,6 +610,20 @@ export default {
 
     if (this.response && this.response['success'] == true) {
       this.declaration_data = this.response.data;
+      // Date de validité dépassée : seuls les admins peuvent modifier, les autres renouvellent ou clôturent
+      if (
+        this.type_action === 'MODIFICATION' &&
+        this.$store.getters.droitMax < 4 &&
+        this.declaration_data.date_fin &&
+        new Date(this.declaration_data.date_fin) < new Date()
+      ) {
+        snackbarStore.show(
+          'La date de validité de cette déclaration est dépassée : vous pouvez seulement la renouveler ou la clôturer.',
+          'error'
+        );
+        this.$router.replace(`/declaration/actualisation_declaration?id=${this.declarationId}&action=oui&keySession=all`);
+        return;
+      }
       this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
       if (!this.declaration_data.id_declarant) {
         this.declaration_data.id_declarant = this.$store.getters.user.id_role;

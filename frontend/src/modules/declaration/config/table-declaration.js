@@ -33,6 +33,9 @@ export default {
             if ( item.statut === config_variables['STATUT_DECLARATION']['Archivée']) {
               return false; // Les déclarations archivées ne peuvent pas être éditées
             }
+            if (dateFin && dateFin < aujourdhui) {
+              return false; // Date de validité dépassée : seuls les admins peuvent éditer (les autres renouvellent ou clôturent)
+            }
             if ($store.getters.user.id_role == item.id_declarant) {
               return true; // Les déclarants peuvent éditer leurs propres déclarations tant qu'elles ne sont pas expirées, même s'ils n'ont pas les droits nécessaires
             } else {
