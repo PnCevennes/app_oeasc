@@ -437,6 +437,8 @@ def api_patch_declaration():
     if id_declaration:
         declaration_existante = DB.session.get(TDeclaration, id_declaration)
         date_fin = declaration_existante.date_fin if declaration_existante else None
+        if isinstance(date_fin, datetime):
+            date_fin = date_fin.date()
         current_user = get_current_user()
         niveau = (
             current_user.get("max_level_profil", current_user.get("id_droit_max")) or 0
