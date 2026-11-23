@@ -33,14 +33,9 @@
       </div>
       </template>
       <template #appendForm>
-        <a
-          class="d-inline-block mt-4"
-          :href="urlUsershub"
-          target="_blank"
-          rel="noopener"
-        >
+        <router-link class="d-inline-block mt-4" to="/user/change_password">
           Mot de passe oublié ?
-        </a>
+        </router-link>
       </template>
     </generic-form>
   </div>
@@ -56,9 +51,6 @@ export default {
   name: 'login',
   components: { genericForm },
   computed: {
-    urlUsershub() {
-      return config.URL_USERSHUB;
-    },
     redirect() {
       return this.$route.query.redirect;
     },
