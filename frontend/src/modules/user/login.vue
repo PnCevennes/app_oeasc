@@ -4,7 +4,8 @@
       :config="config"
       ref="form"
     >
-      <div slot="prependForm">
+      <template #prependForm>
+      <div>
         <div v-if="redirect">
           <p>Vous n'avez pas les droits requis pour accéder à cette page.</p>
         </div>
@@ -30,9 +31,17 @@
           </v-btn>
         </p>
       </div>
-      <div slot="appendForm">
-        <router-link to="/user/change_password">Mot de passe oublié ?</router-link>
-      </div>
+      </template>
+      <template #appendForm>
+        <a
+          class="d-inline-block mt-4"
+          :href="urlUsershub"
+          target="_blank"
+          rel="noopener"
+        >
+          Mot de passe oublié ?
+        </a>
+      </template>
     </generic-form>
   </div>
 </template>
@@ -47,6 +56,9 @@ export default {
   name: 'login',
   components: { genericForm },
   computed: {
+    urlUsershub() {
+      return config.URL_USERSHUB;
+    },
     redirect() {
       return this.$route.query.redirect;
     },

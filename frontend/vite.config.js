@@ -28,6 +28,7 @@ function configPrincipal() {
       URL_APPLICATION: avecSchema(c.urls.application).replace(/\/+$/, ''),
       URL_FRONTEND: `${avecSchema(c.urls.frontend).replace(/\/+$/, '')}/`,
       ID_APPLICATION: String(c.application.id_app),
+      URL_USERSHUB: avecSchema(c.urls.usershub).replace(/\/+$/, ''),
       MATOMO: c.frontend?.matomo || {},
       MAPBOX: c.frontend?.mapbox || {},
     }),
