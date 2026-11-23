@@ -353,6 +353,20 @@ if [ "$WITH_APACHE" = 1 ]; then
             p=$(dirname "$p")
         done
     fi
+
+    # mode history de vue-router : un rechargement de /front/<route> doit renvoyer index.html (FallbackResource)
+    # et non la 404 d'Apache
+    code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 "http://127.0.0.1/front/observatoire/presentation" || true)
+    if [ "$code" = 200 ]; then
+        echo "Apache : le rechargement d'une page (/front/<route>) fonctionne"
+    else
+        warn "http://127.0.0.1/front/observatoire/presentation répond $code (200 attendu) :
+  un rechargement de page donnerait 'Not Found'. Vérifier que FallbackResource est actif sur frontend/dist
+  (un autre <VirtualHost> ou un autre fichier de conf Apache peut masquer oeasc.conf : apache2ctl -S)."
+    fi
+elif [ -f /etc/apache2/conf-available/oeasc.conf ] && ! grep -q '^[[:space:]]*FallbackResource' /etc/apache2/conf-available/oeasc.conf; then
+    warn "la configuration Apache installée (/etc/apache2/conf-available/oeasc.conf) est ancienne : sans FallbackResource,
+  recharger une page du site donne 'Not Found' (mode history). Relancer avec --with-apache pour la mettre à jour."
 fi
 
 ########################################################################
