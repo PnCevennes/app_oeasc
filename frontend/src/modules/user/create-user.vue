@@ -5,21 +5,23 @@
       ref="form"
       :config="config"
     >
-      <div slot="success">
-        <p>Votre demande d'inscription est bien prise en compte.</p>
-        <p>Un e-mail de vérification vous a été envoyé.</p>
+      <template #success>
+        <div>
+          <p>Votre demande d'inscription est bien prise en compte.</p>
+          <p>Un e-mail de vérification vous a été envoyé.</p>
 
-        <p>
-          Il est possible que celui-ci ait été placé par votre boite mail dans votre dossier "spam"
-          ou "courrier indésirable". Pensez donc à vérifier celui-ci si vous ne trouvez pas notre
-          e-mail dans votre boîte de réception habituelle.
-        </p>
-        <p>
-          Veuillez cliquer sur le lien de confirmation présent dans cet e-mail afin de valider votre
-          compte.
-        </p>
-      </div>
-      <div slot="prependForm"></div>
+          <p>
+            Il est possible que celui-ci ait été placé par votre boite mail dans votre dossier
+            "spam" ou "courrier indésirable". Pensez donc à vérifier celui-ci si vous ne trouvez pas
+            notre e-mail dans votre boîte de réception habituelle.
+          </p>
+          <p>
+            Veuillez cliquer sur le lien de confirmation présent dans cet e-mail afin de valider
+            votre compte.
+          </p>
+        </div>
+      </template>
+      <template #prependForm><div></div></template>
     </generic-form>
   </div>
 </template>

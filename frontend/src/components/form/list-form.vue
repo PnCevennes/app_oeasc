@@ -62,16 +62,18 @@
             @update:list-index="comboboxUpdateListIndex($event)"
           >
             <!-- Label du champ avec indication si plusieurs réponses sont possibles et si le champ est requis -->
-            <span slot="label">
-              {{ config.label }}
-              <i v-if="config.multiple">(plusieurs réponses possibles)</i>
-              <span
-                v-if="config.required"
-                class="required"
-              >
-                *
+            <template #label>
+              <span>
+                {{ config.label }}
+                <i v-if="config.multiple">(plusieurs réponses possibles)</i>
+                <span
+                  v-if="config.required"
+                  class="required"
+                >
+                  *
+                </span>
               </span>
-            </span>
+            </template>
           </v-combobox>
         </div>
 
@@ -101,22 +103,25 @@
             :disabled="config.disabled"
             no-data-text="Pas de donnée disponible"
           >
-            <span slot="label">
-              {{ config.label }}
-              <i v-if="config.multiple">(plusieurs réponses possibles)</i>
-              <span
-                v-if="config.required"
-                class="required"
-              >
-                *
+            <template #label>
+              <span>
+                {{ config.label }}
+                <i v-if="config.multiple">(plusieurs réponses possibles)</i>
+                <span
+                  v-if="config.required"
+                  class="required"
+                >
+                  *
+                </span>
               </span>
-            </span>
+            </template>
             <!-- Affiche l'aide si elle est définie dans la config -->
-            <help
-              slot="prepend"
-              :code="`form-${config.name}`"
-              v-if="config.help"
-            ></help>
+            <template #prepend>
+              <help
+                :code="`form-${config.name}`"
+                v-if="config.help"
+              ></help>
+            </template>
           </v-autocomplete>
         </div>
 
@@ -140,21 +145,24 @@
             :disabled="config.disabled"
             @update:model-value="change($event)"
           >
-            <span slot="label">
-              {{ config.label }}
-              <i v-if="config.multiple">(plusieurs réponses possibles)</i>
-              <span
-                v-if="config.required"
-                class="required"
-              >
-                *
+            <template #label>
+              <span>
+                {{ config.label }}
+                <i v-if="config.multiple">(plusieurs réponses possibles)</i>
+                <span
+                  v-if="config.required"
+                  class="required"
+                >
+                  *
+                </span>
               </span>
-            </span>
-            <help
-              slot="prepend"
-              :code="`form-${config.name}`"
-              v-if="config.help"
-            ></help>
+            </template>
+            <template #prepend>
+              <help
+                :code="`form-${config.name}`"
+                v-if="config.help"
+              ></help>
+            </template>
           </v-select>
         </div>
 
