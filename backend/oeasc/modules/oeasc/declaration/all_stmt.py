@@ -851,6 +851,7 @@ def get_stmt_for_declarations_export(type_file="csv", type_out="degat"):
         stmt = stmt.add_columns(TDeclaration.geom.label("geom"))
     elif type_file == "csv":
         stmt = stmt.add_columns(
+            VUsers.email.label("Email déclarant"),
             case(
                 (
                     and_(TForet.b_statut_public == True, TForet.b_document == True),
