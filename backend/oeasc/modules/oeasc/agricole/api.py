@@ -99,7 +99,7 @@ def import_degats_agricoles():
     traitement est délégué à un thread. La réponse (202) contient `id_import` ;
     le frontend suit l'avancement via `GET import/status/<id_import>`.
 
-    Paramètres POST (multipart) : update ("true"/"false"), file (csv, xls ou ods).
+    Paramètres POST (multipart) : update ("true"/"false"), file (csv, xls, xlsx ou ods).
     """
     update = request.form.get("update") == "true"
     file = request.files.get("file")

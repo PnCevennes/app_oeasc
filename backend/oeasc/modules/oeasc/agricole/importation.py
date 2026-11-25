@@ -1,7 +1,7 @@
 """
 Import des dégâts agricoles (tableur des indemnisations) -> schéma oeasc_agricole.
 
-Fichier attendu (csv, xls ou ods), une ligne par déclaration :
+Fichier attendu (csv, xls, xlsx ou ods), une ligne par déclaration :
     Campagnes comptables, Date de création, N° dossier, Date document, Secteur,
     Code insee, Commune du dossier, Culture, Surface détruite (ha),
     Volume détruit (qtx), Unité de la quantité détruite expertisé, Pourcentage,
@@ -53,7 +53,7 @@ from .models import TSaisonAgricole, TCulture, TUgAgricole, TDeclarationAgricole
 
 from oeasc.utils.env import db as DB
 
-EXTENSIONS_ACCEPTEES = (".csv", ".xls", ".ods")
+EXTENSIONS_ACCEPTEES = (".csv", ".xls", ".xlsx", ".ods")
 
 # {nom canonique: [entêtes acceptées]} — comparées après `_normalize_entete`
 # (casse, accents et ponctuation ignorés).
@@ -182,11 +182,11 @@ def resoudre_colonnes(colonnes, alias_map=ALIAS_COLONNES):
 
 
 def lire_fichier(path):
-    """Lit le fichier (csv, xls ou ods) et renvoie un DataFrame.
+    """Lit le fichier (csv, xls, xlsx ou ods) et renvoie un DataFrame.
 
     - csv : `lire_csv_auto` (séparateur autodétecté, tout en texte). Les exports
       Excel sont parfois en Windows-1252 : on retente alors après conversion.
-    - xls / ods : première feuille, types natifs (dates, nombres) conservés.
+    - xls / xlsx / ods : première feuille, types natifs (dates, nombres) conservés.
     Les lignes entièrement vides sont retirées.
     """
     path = Path(path)
@@ -200,6 +200,8 @@ def lire_fichier(path):
             df, _sep = lire_csv_auto(str(path_utf8))
     elif ext == ".xls":
         df = pd.read_excel(path, engine="xlrd")
+    elif ext == ".xlsx":
+        df = pd.read_excel(path, engine="openpyxl")
     elif ext == ".ods":
         df = pd.read_excel(path, engine="odf")
     else:

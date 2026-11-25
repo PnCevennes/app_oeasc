@@ -9,8 +9,8 @@
         <!-- input pour sélectionner le fichier à importer (la saison vient de la colonne « Campagnes comptables ») -->
         <v-file-input
           v-model="file"
-          label="Sélectionner un fichier (csv, xls ou ods)"
-          accept=".csv,.xls,.ods"
+          label="Sélectionner un fichier (csv, xls, xlsx ou ods)"
+          accept=".csv,.xls,.xlsx,.ods"
           outlined
           dense
           hide-details

@@ -67,7 +67,7 @@ def purger_vieux_suivis(jours=RETENTION_JOURS):
     limite = time.time() - jours * 86400
     try:
         for f in DOSSIER_SUIVI.iterdir():
-            if f.suffix.lower() not in (".json", ".csv", ".xls", ".ods"):
+            if f.suffix.lower() not in (".json", ".csv", ".xls", ".xlsx", ".ods"):
                 continue
             try:
                 if f.stat().st_mtime < limite:
