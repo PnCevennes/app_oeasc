@@ -17,6 +17,7 @@ import re
 import secrets
 import threading
 import time
+from oeasc.utils.cache import invalidate_data
 from datetime import datetime
 from pathlib import Path
 
@@ -224,6 +225,10 @@ def _traiter(
             except Exception:
                 pass
         finally:
+            try:
+                invalidate_data()  # l'import a pu modifier réalisations / attributions
+            except Exception:
+                pass
             try:
                 DB.session.remove()
             except Exception:

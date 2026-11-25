@@ -2,6 +2,8 @@
 api chasse
 """
 
+import json
+from oeasc.utils.cache import cache, data_version, TTL_RESULTATS
 from .models import (
     TZoneCynegetiques,
     TZoneIndicatives,
@@ -213,7 +215,13 @@ def chasse_bilan():
     # }
     params = chasse_process_args()
 
-    return get_chasse_bilan(params)
+    # résultat mis en cache (clé = paramètres + version des données, incrémentée à chaque écriture)
+    key = f"chasse_bilan:{data_version()}:{json.dumps(params, sort_keys=True, default=str)}"
+    res = cache.get(key)
+    if res is None:
+        res = get_chasse_bilan(params)
+        cache.set(key, res, timeout=TTL_RESULTATS)
+    return res
 
 
 @bp.route("results/ice", methods=["GET"])

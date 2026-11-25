@@ -1,9 +1,10 @@
-from flask import current_app
+from flask import current_app, g, has_request_context
 from pypnnomenclature.repository import get_nomenclature_list
 from oeasc.ref_geo_oeasc.repository import get_type_code
 
 from oeasc.ref_geo_oeasc.models import LAreas
 from sqlalchemy import select
+from oeasc.utils.cache import cache, KEY_NOMENCLATURE, TTL_REFERENCE
 
 # from sqlalchemy.orm import Session
 
@@ -38,6 +39,11 @@ nomenclature_oeasc_types = [
 ]
 
 
+def _set_in_request(data):
+    if has_request_context():
+        g._nomenclature_oeasc = data
+
+
 def nomenclature_oeasc():
     """
     Fonction pour récupérer toutes les nomenclatures qui concernent l'OEASC
@@ -52,59 +58,68 @@ def nomenclature_oeasc():
 
     # On vérifie si les nomenclatures sont déjà présentes dans la config Flask
     # (pour éviter de refaire la requête à chaque appel)
-    if not config.get("_nomenclature"):
-        # Si elles ne sont pas présentes, on les récupère depuis la base
-        list_data = (
-            nomenclature_oeasc_types  # Liste des types de nomenclature à charger
+    # 1) copie déjà lue pendant cette requête (la fonction est appelée très souvent par requête)
+    if has_request_context() and getattr(g, "_nomenclature_oeasc", None):
+        return g._nomenclature_oeasc
+    # 2) cache partagé entre workers
+    cached = cache.get(KEY_NOMENCLATURE)
+    if cached:
+        _set_in_request(cached)
+        return cached
+
+    # Si elles ne sont pas présentes, on les récupère depuis la base
+    list_data = (
+        nomenclature_oeasc_types  # Liste des types de nomenclature à charger
+    )
+
+    data = {}
+
+    # Pour chaque type de nomenclature, on récupère la liste correspondante
+    for type_code in list_data:
+        data[type_code] = get_nomenclature_list(code_type=type_code)
+
+        if not data[type_code]:
+            continue  # Si aucune donnée n'est trouvée, on passe au suivant
+
+        # On ne garde que les colonnes qui nous intéressent pour l'application
+        cols = ["id_nomenclature", "mnemonique", "cd_nomenclature", "label_fr"]
+        values = []
+
+        # On filtre chaque élément pour ne garder que les colonnes utiles
+        for d in data[type_code]["values"]:
+            d_new = {}
+            for key in cols:
+                d_new[key] = d.get(key, None)
+            values.append(d_new)
+        data[type_code][
+            "values"
+        ] = values  # On remplace la liste par la version filtrée
+
+    # On stocke le résultat dans la config Flask pour le réutiliser plus tard
+    config_nomenclature = data
+
+    # Certains types de nomenclature doivent être triés selon un ordre spécifique
+    dict_sort_nomenclature = {
+        "OEASC_DEGAT_TYPE": [
+            "ABR",
+            "FRO",
+            "ÉCO",
+            "SANG",
+            "LIEV",
+            "ABS",
+            "P/C",
+        ]
+    }
+
+    # On applique le tri personnalisé pour les types concernés
+    for key, value in dict_sort_nomenclature.items():
+        config_nomenclature[key]["values"].sort(
+            key=lambda e: value.index(e["cd_nomenclature"])
         )
 
-        data = {}
-
-        # Pour chaque type de nomenclature, on récupère la liste correspondante
-        for type_code in list_data:
-            data[type_code] = get_nomenclature_list(code_type=type_code)
-
-            if not data[type_code]:
-                continue  # Si aucune donnée n'est trouvée, on passe au suivant
-
-            # On ne garde que les colonnes qui nous intéressent pour l'application
-            cols = ["id_nomenclature", "mnemonique", "cd_nomenclature", "label_fr"]
-            values = []
-
-            # On filtre chaque élément pour ne garder que les colonnes utiles
-            for d in data[type_code]["values"]:
-                d_new = {}
-                for key in cols:
-                    d_new[key] = d.get(key, None)
-                values.append(d_new)
-            data[type_code][
-                "values"
-            ] = values  # On remplace la liste par la version filtrée
-
-        # On stocke le résultat dans la config Flask pour le réutiliser plus tard
-        config["_nomenclature"] = data
-
-        # Certains types de nomenclature doivent être triés selon un ordre spécifique
-        dict_sort_nomenclature = {
-            "OEASC_DEGAT_TYPE": [
-                "ABR",
-                "FRO",
-                "ÉCO",
-                "SANG",
-                "LIEV",
-                "ABS",
-                "P/C",
-            ]
-        }
-
-        # On applique le tri personnalisé pour les types concernés
-        for key, value in dict_sort_nomenclature.items():
-            config["_nomenclature"][key]["values"].sort(
-                key=lambda e: value.index(e["cd_nomenclature"])
-            )
-
-    # On retourne le dictionnaire des nomenclatures, soit depuis la mémoire, soit fraichement chargé
-    return config["_nomenclature"]
+    cache.set(KEY_NOMENCLATURE, config_nomenclature, timeout=TTL_REFERENCE)
+    _set_in_request(config_nomenclature)
+    return config_nomenclature
 
 
 def get_nomenclature_from_id(id_nomenclature, key=""):
@@ -204,41 +219,38 @@ def get_area_from_id(id_area):
     Returns:
         dict/None: Dictionnaire des attributs de l'aire, ou None si non trouvée.
     """
-    # On initialise le cache des aires dans la config Flask si nécessaire
-    if not config.get("_areas"):
-        config["_areas"] = {}
+    key = f"area:{id_area}"
+    # cache partagé entre workers (TTL + purge par `flask clear-cache` / `flask refresh-ref-geo`)
+    area_dict = cache.get(key)
+    if area_dict:
+        return area_dict
 
-    # Si l'aire n'est pas déjà présente dans le cache, on la récupère en base
-    if not config["_areas"].get(str(id_area), None):
+    # On sélectionne explicitement les colonnes attendues pour éviter
+    # toute colonne additionnelle d'un mapping externe (ex: description).
+    # Note: la colonne DB s'appelle 'comment' mais le modèle RefLAreas la nomme 'description'.
+    # On n'inclut pas cette colonne ici car elle n'est pas utilisée par les appelants.
+    stmt = select(
+        LAreas.id_area,
+        LAreas.id_type,
+        LAreas.area_name,
+        LAreas.area_code,
+        LAreas.source,
+        LAreas.enable,
+        LAreas.meta_create_date,
+        LAreas.meta_update_date,
+    ).where(LAreas.id_area == id_area)
+    data = DB.session.execute(stmt).mappings().first()
 
-        # On sélectionne explicitement les colonnes attendues pour éviter
-        # toute colonne additionnelle d'un mapping externe (ex: description).
-        # Note: la colonne DB s'appelle 'comment' mais le modèle RefLAreas la nomme 'description'.
-        # On n'inclut pas cette colonne ici car elle n'est pas utilisée par les appelants.
-        stmt = select(
-            LAreas.id_area,
-            LAreas.id_type,
-            LAreas.area_name,
-            LAreas.area_code,
-            LAreas.source,
-            LAreas.enable,
-            LAreas.meta_create_date,
-            LAreas.meta_update_date,
-        ).where(LAreas.id_area == id_area)
-        data = DB.session.execute(stmt).mappings().first()
+    if not data:
+        return None
 
-        if not data:
-            return None
+    # Conversion RowMapping -> dict Python standard
+    area_dict = dict(data)
 
-        # Conversion RowMapping -> dict Python standard
-        area_dict = dict(data)
-
-        # On ajoute le type_code à l'aire
-        area_dict["type_code"] = get_type_code(area_dict["id_type"])
-        config["_areas"][str(id_area)] = area_dict
-
-    # On retourne l'aire depuis le cache
-    return config["_areas"][str(id_area)]
+    # On ajoute le type_code à l'aire
+    area_dict["type_code"] = get_type_code(area_dict["id_type"])
+    cache.set(key, area_dict, timeout=TTL_REFERENCE)
+    return area_dict
 
 
 def get_dict_nomenclature_areas(dict_in):

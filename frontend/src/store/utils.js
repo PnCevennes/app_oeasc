@@ -1,4 +1,5 @@
 import { apiRequest } from '@/core/js/data/api.js';
+import { queryClient, isFresh, STALE_TIME } from '@/core/js/data/query-client.js';
 import { upFirstLetter, camelToSnakeCase } from '@/core/js/util/util.js';
 
 /**;
@@ -290,6 +291,11 @@ export default {
       }
     };
 
+    /** remplacement complet de la liste (liste non filtrée reçue du serveur) */
+    mutations[`${storeNames}Replace`] = (state, objList) => {
+      state[storeNames] = objList;
+    };
+
     /** assignation / modification d'un element */
     mutations[storeName] = (state, obj) => {
       const index = state[storeNames].findIndex(
@@ -336,41 +342,41 @@ export default {
      * si serverSide est activé, les données sont retournées directement depuis le serveur. peut être utilise pour l'autocompletion
      */
     actions[configStore.getAll] = ({ getters, commit }, options = {}) => {
-      return new Promise((resolve, reject) => {
-        const loaded = !options.forceReload && configStore.loaded;
-        const objList = getters[storeNames];
-        // on vérifie si les données sont déjà chargées
-        if (objList && objList.length && loaded && !options.notCommit) {
-          resolve(getters[configStore.find](options)); // données du cache, filtrées par les options
-          return;
-        }
-        // si apis finit par un / on le supprime pour éviter les doublons
-        let apis_final = apis;
-        if (apis_final.endsWith('/')) {
-          apis_final = apis_final.slice(0, -1);
-        }
-        apiRequest('GET', `${apis_final}`, { params: options, dedupe: true }).then(
-          (data) => {
+      // options de contrôle (non envoyées au serveur) vs filtres/paramètres de la requête
+      const { forceReload, notCommit, ...params } = options;
+      // si apis finit par un / on le supprime pour éviter les doublons
+      const apiUrl = apis.endsWith('/') ? apis.slice(0, -1) : apis;
+      const listKey = ['list', apiUrl, params];
+      const fullKey = ['list', apiUrl, {}];
+      const isFullList = Object.keys(params).length === 0;
+
+      // liste complète déjà en cache et fraîche : on filtre localement, sans nouvelle requête
+      if (!forceReload && !notCommit && !params.serverSide && !isFullList && isFresh(fullKey)) {
+        return Promise.resolve(getters[configStore.find](params));
+      }
+
+      return queryClient
+        .fetchQuery({
+          queryKey: listKey,
+          staleTime: forceReload ? 0 : STALE_TIME,
+          queryFn: async () => {
+            const data = await apiRequest('GET', apiUrl, { params, dedupe: true });
             const items = data.items || data;
-
-            if (!options.notCommit) {
-              commit(storeNameConfig, { loaded: true });
-              commit(storeNames, items);
+            if (!notCommit) {
+              // liste complète : on remplace (retire les éléments supprimés côté serveur) ;
+              // liste filtrée : on fusionne dans le store
+              commit(isFullList && !params.serverSide ? `${storeNames}Replace` : storeNames, items);
             }
-
-            if (options.serverSide) {
-              resolve(data);
-              return;
-            }
-
-            resolve(items);
+            return data;
           },
+        })
+        .then(
+          (data) => (params.serverSide ? data : data.items || data),
           (error) => {
             console.error(`error in request ${apis} : ${error}`);
-            reject(error);
+            throw error;
           }
         );
-      });
     };
 
     /**
@@ -553,23 +559,23 @@ export default {
     };
 
     /** ACTIONS */
-    actions[storeNames] = ({ getters, commit }, { forceReload = false } = {}) => {
-      const obj = getters[storeNames];
-      if (obj && !forceReload) {
-        return Promise.resolve(obj);
-      }
+    actions[storeNames] = ({ commit }, { forceReload = false } = {}) => {
       // si api finit par / on le supprime pour éviter les doublons
       const apiUrl = api.endsWith('/') ? api.slice(0, -1) : api;
-      return apiRequest('GET', apiUrl, { dedupe: true }).then(
-        (data) => {
-          commit(storeNames, data);
-          return data;
-        },
-        (error) => {
+      return queryClient
+        .fetchQuery({
+          queryKey: ['simple', apiUrl],
+          staleTime: forceReload ? 0 : STALE_TIME,
+          queryFn: async () => {
+            const data = await apiRequest('GET', apiUrl, { dedupe: true });
+            commit(storeNames, data);
+            return data;
+          },
+        })
+        .catch((error) => {
           console.error(`error in request ${apiUrl} : ${error}`);
           throw error;
-        }
-      );
+        });
     };
 
     const store = {

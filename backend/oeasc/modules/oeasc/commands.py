@@ -32,6 +32,16 @@ from oeasc.commands.fix_vm_lareas_simples_simplification import (
 from oeasc.commands.archive_medias_orphelins import archive_medias_orphelins_cmd
 
 
+@click.command("clear-cache")
+@with_appcontext
+def clear_cache_cmd():
+    """Vide le cache applicatif partagé (nomenclatures, aires, résultats calculés)."""
+    from oeasc.utils.cache import clear_all
+
+    clear_all()
+    click.echo("Cache applicatif vidé.")
+
+
 # Commande CLI pour tester la création ou mise à jour d'une réalisation de chasse
 @click.command("test_chasse_realisation")
 @click.option("-m", "--module_code", "module_code", default="test")
@@ -80,6 +90,7 @@ commands = [
     cmd_test_chasse_realisation,
     send_relance_command,
     refresh_ref_geo_cmd,
+    clear_cache_cmd,
     init_db_cmd,
     fix_vm_lareas_simples_simplification_cmd,
     archive_medias_orphelins_cmd,

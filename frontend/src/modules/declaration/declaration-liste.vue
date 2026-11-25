@@ -90,7 +90,8 @@ export default {
      * Charge les déclarations depuis le store et les trie par date de création.
      */
     loadDeclarations() {
-      this.$store.dispatch('declarations').then((declarations) => {
+      this.$store.dispatch('declarations').then((data) => {
+        const declarations = [...data]; // copie : ne pas trier le tableau du cache
         declarations.sort((a, b) => {
           return b.id_declaration - a.id_declaration;
         });

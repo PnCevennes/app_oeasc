@@ -2898,6 +2898,12 @@ def refresh_ref_geo_cmd(dry_run, skip_load, skip_intersect, force):
         step_verify()
         step_refresh_vm_lareas_simples()
 
+        # les aires ont été reconstruites : le cache partagé (aires, résultats) est périmé
+        from oeasc.utils.cache import clear_all
+
+        clear_all()
+        LOG.info("Cache applicatif vidé")
+
         _report["success"] = True
         _write_bilan_final()
         LOG.info("=== refresh-ref-geo terminé avec succès ===")

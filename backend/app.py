@@ -135,6 +135,11 @@ app.config["MAIL"] = mail
 # initialisation des parametres de mails. Récupère les paramètres dans la configuration via app.config
 mail.init_app(app)
 
+# cache applicatif partagé entre workers (voir oeasc/utils/cache.py)
+from oeasc.utils.cache import init_cache
+
+init_cache(app)
+
 # pour signer les cookies de session et proteger contre les attaques CSRF
 # inutile c'est déja déclaré dans app.config.from_object(cfg)
 app.secret_key = app.config["SECRET_KEY"]
@@ -233,6 +238,17 @@ with app.app_context():
                 # met a jour la session avec les données de l'utilisateur
                 session["current_user"] = current_user["user"]
 
+        return response
+
+    # toute écriture API réussie invalide les résultats calculés mis en cache (bilans...)
+    @app.after_request
+    def invalidate_cache_on_write(response):
+        if request.method in ("POST", "PATCH", "PUT", "DELETE") and response.status_code < 400:
+            from oeasc.utils.cache import cache, invalidate_data, KEY_NOMENCLATURE
+
+            invalidate_data()
+            if "nomenclature" in request.path:
+                cache.delete(KEY_NOMENCLATURE)
         return response
 
     # import du blueprint ref_geo_oeasc pour les données géographiques (zones, types de zones, communes, coordonnées)

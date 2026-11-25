@@ -759,9 +759,7 @@ export default {
           }
           const options = { postData: { ...this.declaration_data } };
           const response = await apiRequest('POST', `/api/declaration/declaration`, options);
-          if (check_success(response)) {
-            this.$store.commit('declarations', {});
-          }
+          check_success(response); // le cache des déclarations est invalidé par l'écriture API
         } else if (this.type_action === 'MODIFICATION') {
           // Envoi de la déclaration via l'API
           if (!this.declaration_data.id_declaration) {
@@ -781,10 +779,7 @@ export default {
 
           const options = { postData: { ...this.declaration_data } };
           const response = await apiRequest('PATCH', `api/declaration/declaration`, options);
-          if (check_success(response)) {
-            // on vide les données du store declarations pour recharger les données
-            this.$store.commit('declarations', {});
-          }
+          check_success(response); // le cache des déclarations est invalidé par l'écriture API
         }
       } catch (error) {
         console.error('Erreur lors de la soumission de la déclaration:', error);

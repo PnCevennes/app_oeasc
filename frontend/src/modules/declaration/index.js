@@ -1,4 +1,3 @@
-import { apiRequest } from '@/core/js/data/api.js';
 import storeUtils from '@/store/utils';
 import configResitutionDeclaration from './config/restitution-declaration';
 import configStoreDegat from './config/store-degat';
@@ -100,65 +99,11 @@ const ROUTE = [
   },
 ];
 
-const STORE = {
-  state: {
-    _declarations: [],
-  },
+const STORE = { state: {}, getters: {}, mutations: {}, actions: {} };
 
-  getters: {
-
-    declarations: (state) => {
-      return state._declarations;
-    },
-
-    //   // depuis degats et remove doublons
-    //   return (
-    //     (state.declarationDegats &&
-    //       state.declarationDegats
-    //         .filter((d) => d.valide == 'Validé')
-    //         .map((d) => d.id_declaration)
-    //         .filter((id, index, self) => self.indexOf(id) == index).length) ||
-    //     '(...chargement en cours)'
-    //   return (
-    //     (state.declarationDegats &&
-    //       state.declarationDegats.filter((d) => d.valide == 'Validé').length) ||
-    //     '(...chargement en cours)'
-  },
-
-  mutations: {
-
-    declarations: (state, declarations) => {
-      state._declarations = declarations;
-    },
-
-  },
-
-  actions: {
-    // récupère les données sur une déclaration et l'enregistre en cache dans le state _declarationForm
-
-    declarations: ({ state, commit }) => {
-      return new Promise((resolve, reject) => {
-        if (state._declarations.length) {
-          resolve(state._declarations);
-          return;
-        }
-        apiRequest('GET', `api/declaration/declarations`).then(
-          (apiData) => {
-            commit('declarations', apiData);
-            resolve(apiData);
-          },
-          (error) => {
-            commit('declarations', []);
-            reject(error);
-          }
-        );
-      });
-    },
-
-    // pb
-
-  },
-};
+// liste des déclarations : mise en cache par TanStack Query (clé ['simple', url]) et invalidée
+// automatiquement par toute écriture sur api/declaration/* (cf. store/store.js)
+storeUtils.addSimpleStore(STORE, 'declarations', 'api/declaration/declarations');
 
 storeUtils.addStore(STORE, configStoreDegat);
 

@@ -6,6 +6,7 @@
 */
 
 import { createStore } from 'vuex';
+import { queryClient, invalidateForWrite } from '@/core/js/data/query-client.js';
 import { MODULES_STORE } from '@/modules';
 import { STORE as FORM_STORE } from '@/components/form';
 
@@ -31,9 +32,14 @@ let store = createStore(storeDefinition);
 // Les stores génériques (addStore) mettent déjà leur état à jour eux-mêmes.
 window.addEventListener('api-write', (event) => {
   const url = String((event.detail && event.detail.url) || '').replace(/^\//, '');
-  if (url.startsWith('api/declaration/')) {
-    store.commit('declarations', []);
-  }
+  invalidateForWrite(url);
+});
+
+// Changement de session : on ne garde pas en cache les données d'un autre utilisateur
+window.addEventListener('session-expired', () => queryClient.clear());
+// idem à la connexion / déconnexion (mutation 'user')
+store.subscribe((mutation) => {
+  if (mutation.type === 'user') queryClient.clear();
 });
 
 export default store;
