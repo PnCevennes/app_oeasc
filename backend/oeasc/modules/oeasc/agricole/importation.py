@@ -287,6 +287,21 @@ def _ligne_exclue(secteur, insee):
     return gardees is not None and insee not in gardees
 
 
+def _par_departement(dossiers):
+    """{(département, numéro)} -> [(département, [numéros])]."""
+    res = {}
+    for dep, num in dossiers:
+        res.setdefault(dep, []).append(num)
+    return list(res.items())
+
+
+def _filtre_departement(dep):
+    """Condition SQL : la déclaration est dans une commune du département."""
+    return TDeclarationAgricole.id_commune.in_(
+        select(TCommunesArea.id).where(TCommunesArea.insee_com.like(f"{dep}%"))
+    )
+
+
 def _init_api(id_role, nom_complet):
     api = ApiResponse(log_file="import_degats_agricoles.log")
     api.id_role = id_role
@@ -368,7 +383,7 @@ def traitement_import_degats_agricoles(
       absentes de la base : créées.
     - Les lignes des cas particuliers (`_ligne_exclue`) ne sont pas importées ;
       avec `update` vrai, leurs dossiers déjà en base sont supprimés.
-    - Un dossier est identifié par son numéro et regroupe plusieurs déclarations.
+    - Un dossier est identifié par (département, numéro) et regroupe plusieurs déclarations.
       `update` faux : les dossiers déjà en base sont ignorés ; `update` vrai :
       toutes les déclarations des numéros de dossier présents dans le fichier
       sont supprimées, puis remplacées par celles du fichier. Les dossiers
@@ -475,7 +490,7 @@ def traitement_import_degats_agricoles(
                     )
                     exclus[motif] = exclus.get(motif, 0) + 1
                     if numero_dossier:
-                        dossiers_exclus.add(numero_dossier)
+                        dossiers_exclus.add((insee[:2], numero_dossier))
                     continue
 
                 id_commune = communes.get(insee)
@@ -516,6 +531,7 @@ def traitement_import_degats_agricoles(
                         valeurs,
                         nom_saison=saison[0],
                         numero_dossier=numero_dossier,
+                        departement=insee[:2],
                         id_commune=id_commune,
                         id_espece=id_espece,
                         nom_culture=" ".join(_texte(row[cols["culture"]]).split()),
@@ -588,61 +604,66 @@ def traitement_import_degats_agricoles(
             _progress(api, "Saisons, cultures et unités de gestion")
 
             # --- 5. déclarations ----------------------------------------------
-            # un dossier est identifié par son seul numéro, quelle que soit la saison
-            dossiers_fichier = {l["numero_dossier"] for l in lignes}
+            # un dossier est identifié par (département, numéro) : chaque
+            # département numérote ses dossiers de son côté (le département est
+            # les 2 premiers chiffres du code INSEE de la commune), quelle que
+            # soit la saison
+            dossiers_fichier = {(l["departement"], l["numero_dossier"]) for l in lignes}
             # dossiers dont toutes les lignes sont écartées (cas particuliers)
             dossiers_exclus -= dossiers_fichier
-            en_base = set(
-                DB.session.execute(
-                    select(TDeclarationAgricole.numero_dossier)
-                    .where(
-                        TDeclarationAgricole.numero_dossier.in_(
-                            dossiers_fichier | dossiers_exclus
+            en_base = set()
+            for dep, nums in _par_departement(dossiers_fichier | dossiers_exclus):
+                en_base |= {
+                    (dep, n)
+                    for n in DB.session.execute(
+                        select(TDeclarationAgricole.numero_dossier)
+                        .where(
+                            TDeclarationAgricole.numero_dossier.in_(nums),
+                            _filtre_departement(dep),
                         )
-                    )
-                    .distinct()
-                ).scalars()
-            )
+                        .distinct()
+                    ).scalars()
+                }
             dossiers_existants = en_base & dossiers_fichier
             dossiers_exclus_en_base = en_base & dossiers_exclus
+
+            def _supprimer(dossiers):
+                nb = 0
+                for dep, nums in _par_departement(dossiers):
+                    nb += (
+                        DB.session.execute(
+                            delete(TDeclarationAgricole).where(
+                                TDeclarationAgricole.numero_dossier.in_(nums),
+                                _filtre_departement(dep),
+                            ),
+                            execution_options={"synchronize_session": False},
+                        ).rowcount
+                        or 0
+                    )
+                return nb
 
             nb_suppr = 0
             nb_suppr_exclus = 0
             if do_update:
                 # toutes les déclarations de ces dossiers sont supprimées : après
                 # l'import, ils ne contiennent plus que les lignes du fichier
-                if dossiers_existants:
-                    nb_suppr = (
-                        DB.session.execute(
-                            delete(TDeclarationAgricole).where(
-                                TDeclarationAgricole.numero_dossier.in_(
-                                    dossiers_existants
-                                )
-                            )
-                        ).rowcount
-                        or 0
-                    )
+                nb_suppr = _supprimer(dossiers_existants)
                 # ... y compris les dossiers écartés importés avant ces règles
-                if dossiers_exclus_en_base:
-                    nb_suppr_exclus = (
-                        DB.session.execute(
-                            delete(TDeclarationAgricole).where(
-                                TDeclarationAgricole.numero_dossier.in_(
-                                    dossiers_exclus_en_base
-                                )
-                            )
-                        ).rowcount
-                        or 0
-                    )
+                nb_suppr_exclus = _supprimer(dossiers_exclus_en_base)
                 a_inserer = lignes
             else:
                 a_inserer = [
-                    l for l in lignes if l["numero_dossier"] not in dossiers_existants
+                    l
+                    for l in lignes
+                    if (l["departement"], l["numero_dossier"]) not in dossiers_existants
                 ]
 
             if a_inserer:
                 recaler_sequence_declarations()
-                DB.session.execute(insert(TDeclarationAgricole), a_inserer)
+                DB.session.execute(
+                    insert(TDeclarationAgricole),
+                    [{k: v for k, v in l.items() if k != "departement"} for l in a_inserer],
+                )
             DB.session.commit()
             _progress(api, "Enregistrement")
 
