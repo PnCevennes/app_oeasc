@@ -416,8 +416,10 @@ def send_mail_actualisation_declaration(declaration, change_statut=True):
                 f"Mise à jour du statut de la déclaration {declaration['id_declaration']} dans la BDD avec le statut {new_statut}"
             )
             DB.session.execute(stmt_update)
-            # historique des relances automatiques (pas pour les envois manuels ni la clôture auto)
-            if change_statut and new_statut >= statut_declaration["Relance"]:
+            # historique des relances : automatiques (avec n°) et manuelles ; pas la clôture auto
+            if not change_statut:
+                enregistre_relance(declaration["id_declaration"], manuelle=True)
+            elif new_statut >= statut_declaration["Relance"]:
                 enregistre_relance(declaration["id_declaration"], new_statut)
             DB.session.commit()
         except SMTPRecipientsRefused:

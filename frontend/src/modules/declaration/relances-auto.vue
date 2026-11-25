@@ -1,7 +1,7 @@
 <!--
   Page d'administration « Relances automatiques » (menu Administration, droit >= 5).
   - bouton en haut : active / désactive l'envoi automatique des relances (flask send-relance) ;
-  - tableau : une ligne par déclaration relancée, avec date et numéro de la dernière relance
+  - tableau : une ligne par déclaration relancée (automatiquement ou manuellement), avec date et numéro de la dernière relance
     (entre parenthèses : relances restantes avant la clôture automatique), renouvelée / clôturée.
   Données : GET api/declaration/relances_auto, POST api/declaration/relances_auto/actif.
 -->
@@ -42,7 +42,7 @@
       :items-per-page="25"
       item-value="id_declaration"
       loading-text="Chargement..."
-      no-data-text="Aucune relance automatique n'a encore été envoyée."
+      no-data-text="Aucune relance n'a encore été envoyée."
       items-per-page-text="Lignes par page"
     >
       <template #item.id_declaration="{ item }">
@@ -94,6 +94,7 @@ export default {
         { title: 'Dernière relance', key: 'date_derniere_relance', sortable: false },
         // numéro de la relance (relances restantes avant la clôture automatique)
         { title: 'N° relance (restantes)', key: 'numero_relance' },
+        { title: 'Relances manuelles', key: 'nb_manuelles', align: 'center' },
         { title: 'Renouvelée', key: 'renouvelee', align: 'center' },
         { title: 'Clôturée', key: 'cloturee', align: 'center' },
       ],

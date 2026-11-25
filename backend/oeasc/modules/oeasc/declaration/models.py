@@ -17,6 +17,7 @@ from sqlalchemy import (
     ARRAY,
     ForeignKey,
     func,
+    text,
 )
 
 from pypnnomenclature.models import TNomenclatures, BibNomenclaturesTypes
@@ -468,9 +469,14 @@ class TRelanceDeclaration(CustomModel):
         nullable=False,
         index=True,
     )
-    numero_relance: Mapped[int] = Column(Integer, nullable=False)
+    # None pour une relance manuelle (le statut de la déclaration n'est pas modifié)
+    numero_relance: Mapped[int] = Column(Integer, nullable=True)
     date_relance: Mapped[DateTime] = Column(
         DateTime, nullable=False, default=func.now()
+    )
+    # True si la relance a été envoyée à la main par un administrateur
+    manuelle: Mapped[bool] = Column(
+        Boolean, nullable=False, default=False, server_default=text("false")
     )
 
 
