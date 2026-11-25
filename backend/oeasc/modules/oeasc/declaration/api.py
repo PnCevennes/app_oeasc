@@ -723,12 +723,6 @@ def cloture_declaration():
 
     response = check_token_renouvellement_declaration(id_declaration, token)
     if response.success == False:
-        response.add_error(
-            user_message="Token de renouvellement invalide ou expiré. Seule la personne ayant effectué le dernier renouvellement peut clôturer la déclaration.",
-            system_error="Token de renouvellement invalide ou expiré pour la clôture de la déclaration",
-            status_code=200,
-        )
-
         return response.response_to_frontend()
 
     if not id_declaration:

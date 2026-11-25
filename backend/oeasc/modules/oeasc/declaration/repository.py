@@ -190,6 +190,16 @@ def get_form_declaration(id_declaration=None, session=None):
     id_declarant = declaration.id_declarant
     declaration_dict["id_declarant"] = id_declarant
 
+    # True si une déclaration fille (renouvellement) existe déjà
+    declaration_dict["renouvelee"] = (
+        DB.session.execute(
+            select(TDeclaration.id_declaration)
+            .where(TDeclaration.id_declaration_originale == id_declaration)
+            .limit(1)
+        ).scalar()
+        is not None
+    )
+
     # Pour chaque clé du dictionnaire, si la valeur est une liste d'objets contenant "id_nomenclature",
     # on transforme cette liste en une liste d'identifiants de nomenclature uniquement.
     # Cela permet de simplifier la structure des données retournées.
@@ -630,7 +640,29 @@ def check_token_renouvellement_declaration(id_declaration, token, session=None):
     stmt = stmt_one_declaration_a_renouveler(id_declaration)
     result = DB.session.execute(stmt).fetchone()
     if not result:
-        response.add_error(user_message="Déclaration non trouvée", status_code=200)
+        statut_actuel = DB.session.execute(
+            select(TDeclaration.statut).where(
+                TDeclaration.id_declaration == id_declaration
+            )
+        ).scalar()
+        if statut_actuel is None:
+            response.add_error(user_message="Déclaration non trouvée", status_code=200)
+        else:
+            deja_renouvelee = DB.session.execute(
+                select(TDeclaration.id_declaration)
+                .where(TDeclaration.id_declaration_originale == id_declaration)
+                .limit(1)
+            ).scalar()
+            response.add_error(
+                user_message=(
+                    "Cette déclaration est déjà renouvelée. "
+                    "Cette déclaration n'est plus à renouveler."
+                    if deja_renouvelee
+                    else "Cette déclaration n'est plus à renouveler (déjà clôturée)."
+                ),
+                system_error=f"Déclaration {id_declaration} non renouvelable (statut {statut_actuel})",
+                status_code=200,
+            )
         return response
 
     # Normalize row access to a mapping/dict for safety across SQLAlchemy versions
