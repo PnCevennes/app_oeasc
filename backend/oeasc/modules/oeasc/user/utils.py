@@ -50,12 +50,13 @@ def check_auth_redirect_login(level):
             # si il existe un temp_user dans la session, on verifie si le token est valide
 
             if (session.get("temp_user", None)) and (
-                (session["current_user"] == "") or (session["current_user"] is None)
+                not session.get("current_user")
             ):
                 print("temp_user in session:", session["temp_user"])
                 token = session["temp_user"].get("token", None)
                 id_verification = session["temp_user"].get("id_verification", None)
                 mode = session["temp_user"].get("mode", None)
+                response = None
                 if token and id_verification and mode:
                     if mode == "renouvellement_declaration":
                         response = check_token_renouvellement_declaration(

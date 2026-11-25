@@ -388,6 +388,31 @@ def declarations():
 ###############################################################################################
 
 
+def acces_declaration_autorise(id_declaration):
+    """
+    Vérifie que le demandeur a le droit d'agir sur la déclaration id_declaration :
+    - utilisateur connecté : la déclaration doit figurer parmi celles que ses droits lui
+      permettent de voir (les siennes, celles de son organisme, toutes pour droit >= 5)
+    - utilisateur temporaire (lien de renouvellement) : le token en session doit avoir été
+      émis pour cette même déclaration (le décorateur ne valide que le token de la session)
+    """
+    if not id_declaration:
+        return False
+    user = get_current_user()
+    if user:
+        return bool(get_liste_declarations(user=user, id_declaration=id_declaration))
+    temp_user = session.get("temp_user") or {}
+    return temp_user.get("mode") == "renouvellement_declaration" and str(
+        temp_user.get("id_verification")
+    ) == str(id_declaration)
+
+
+def reponse_acces_refuse(message="Vous n'avez pas les droits sur cette déclaration."):
+    response = ApiResponse(log_file="declarations.log", session=session)
+    response.add_error(user_message=message, system_error=message, status_code=403)
+    return response.response_to_frontend()
+
+
 def clean_declaration_data(declaration_data):
     """
     Nettoie la déclaration avant l'enregistrement en base de données.
@@ -418,7 +443,7 @@ def clean_declaration_data(declaration_data):
 # Elle est utilisée lorsqu'un utilisateur souhaite mettre à jour les informations d'une déclaration
 # déjà enregistrée dans la base de données, par exemple pour corriger une erreur ou ajouter des précisions.
 @bp.route("declaration", methods=["PATCH"])
-# @check_auth_redirect_login(1)  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
+@check_auth_redirect_login(1)  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
 # @json_resp  # Retourne la réponse au format JSON
 def api_patch_declaration():
     """
@@ -431,9 +456,22 @@ def api_patch_declaration():
 
     post_data = clean_declaration_data(post_data)
 
+    id_declaration = post_data.get("id_declaration") if post_data else None
+    if not id_declaration:
+        response = ApiResponse(log_file="declarations.log", session=session)
+        response.add_error(
+            user_message="ID de déclaration manquant pour la modification",
+            system_error="PATCH declaration sans id_declaration",
+            status_code=200,
+        )
+        return response.response_to_frontend()
+
+    # Le demandeur doit avoir des droits sur cette déclaration
+    if not acces_declaration_autorise(id_declaration):
+        return reponse_acces_refuse()
+
     # Une déclaration dont la date de validité est dépassée ne peut être modifiée que par un
     # admin (droit >= 4). Les autres utilisateurs doivent la renouveler ou la clôturer.
-    id_declaration = post_data.get("id_declaration")
     if id_declaration:
         declaration_existante = DB.session.get(TDeclaration, id_declaration)
         date_fin = declaration_existante.date_fin if declaration_existante else None
@@ -530,13 +568,33 @@ def duplicate_declaration():
         "NB_JOURS_VALIDITE_DECLARATION"
     )
 
-    post_data = request.get_json()
-    post_data = clean_declaration_data(post_data)
-    id_declaration = post_data.get("id_declaration")
+    post_data = clean_declaration_data(request.get_json())
+    id_declaration = post_data.get("id_declaration") if post_data else None
     if not id_declaration:
         apiResponse.add_error(
             user_message="ID de déclaration manquant",
             system_error="ID de déclaration manquant dans la requête",
+            status_code=200,
+        )
+        return apiResponse.response_to_frontend()
+
+    # Le token (ou les droits) doit concerner cette déclaration précise
+    if not acces_declaration_autorise(id_declaration):
+        return reponse_acces_refuse()
+
+    # La déclaration d'origine doit exister et ne pas être déjà archivée (évite les doublons)
+    declaration_originale = DB.session.get(TDeclaration, id_declaration)
+    if declaration_originale is None:
+        apiResponse.add_error(
+            user_message="Déclaration à renouveler introuvable",
+            system_error=f"Déclaration {id_declaration} inexistante",
+            status_code=200,
+        )
+        return apiResponse.response_to_frontend()
+    if declaration_originale.statut == statut_declaration.get("Archivée"):
+        apiResponse.add_error(
+            user_message="Cette déclaration est déjà archivée (probablement déjà renouvelée ou clôturée).",
+            system_error=f"Déclaration {id_declaration} déjà archivée",
             status_code=200,
         )
         return apiResponse.response_to_frontend()
@@ -555,7 +613,9 @@ def duplicate_declaration():
     post_data["meta_update_date"] = str(
         datetime.now()
     )  # Met à jour la date de mise à jour pour la nouvelle déclaration
-    date_fin = datetime.now().date() + timedelta(days=nb_jours_validite_declaration)
+    date_fin = datetime.now().date() + timedelta(
+        days=nb_jours_validite_declaration or 1095
+    )
     post_data["date_fin"] = str(
         date_fin
     )  # Met à jour la date de fin en fonction de la durée de validité définie dans les variables
@@ -564,7 +624,7 @@ def duplicate_declaration():
     )  # Met à jour le statut de la déclaration renouvelée à "Active"
 
     # met la toutes les valeurs "id_declaration". "id_degat" et "id_degat_essence" à null dans post_data pour éviter les conflits avec la déclaration originale lors de la création de la nouvelle déclaration
-    for degat in post_data["degats"]:
+    for degat in post_data.get("degats") or []:
         degat["id_declaration"] = None
         degat["id_degat"] = None
 
@@ -582,10 +642,13 @@ def duplicate_declaration():
         print(
             "Erreur lors de la création de la nouvelle déclaration pour le renouvellement. Envoi du mail d'échec de renouvellement."
         )
-        send_mail_echec_renouvellement_declaration(post_data)
+        send_mail_echec_renouvellement_declaration(
+            {**post_data, "id_declaration": id_declaration}
+        )
         return response.response_to_frontend()
 
     new_declaration = response.data
+    id_new_declaration = new_declaration.get("id_declaration")
 
     new_declaration["id_declaration_originale"] = id_declaration
     # new_declaration["prenom_role"] = session["current_user"]["prenom_role"]
@@ -607,6 +670,16 @@ def duplicate_declaration():
         DB.session.commit()
     except Exception as e:
         DB.session.rollback()
+        # on supprime la nouvelle déclaration pour qu'un nouvel essai ne crée pas de doublon
+        try:
+            DB.session.execute(
+                delete(TDeclaration).where(
+                    TDeclaration.id_declaration == id_new_declaration
+                )
+            )
+            DB.session.commit()
+        except Exception:
+            DB.session.rollback()
         response.add_error(
             user_message="Erreur lors de l'archivage de la déclaration originale",
             system_error=str(e),
@@ -642,8 +715,11 @@ def cloture_declaration():
 
     post_data = request.get_json()
 
-    id_declaration = post_data.get("id_declaration", int)
-    token = post_data.get("token_renouvellement", str)
+    id_declaration = post_data.get("id_declaration")
+    token = post_data.get("token_renouvellement")
+
+    if not acces_declaration_autorise(id_declaration):
+        return reponse_acces_refuse()
 
     response = check_token_renouvellement_declaration(id_declaration, token)
     if response.success == False:

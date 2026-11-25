@@ -107,7 +107,13 @@ const sendRequest = async (method, url_, urlRelative, options) => {
     }
     throw await errorFromResponse(response);
   }
-  return response.json();
+  const data = await response.json();
+  // Écriture réussie : on prévient l'application pour qu'elle invalide ses caches de données
+  // (voir store/store.js), afin que les listes affichent les changements sans recharger la page.
+  if (['POST', 'PATCH', 'PUT', 'DELETE'].includes(method)) {
+    window.dispatchEvent(new CustomEvent('api-write', { detail: { url: urlRelative, method } }));
+  }
+  return data;
 };
 
 /**

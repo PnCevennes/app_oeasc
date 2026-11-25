@@ -26,4 +26,14 @@ for (const store of stores) {
 
 let store = createStore(storeDefinition);
 
+// Après toute écriture API réussie (POST/PATCH/PUT/DELETE, cf. core/js/data/api.js), on vide les
+// caches qui ne sont pas mis à jour par les actions génériques, pour que les listes se rechargent.
+// Les stores génériques (addStore) mettent déjà leur état à jour eux-mêmes.
+window.addEventListener('api-write', (event) => {
+  const url = String((event.detail && event.detail.url) || '').replace(/^\//, '');
+  if (url.startsWith('api/declaration/')) {
+    store.commit('declarations', []);
+  }
+});
+
 export default store;

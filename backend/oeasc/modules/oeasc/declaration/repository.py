@@ -42,6 +42,9 @@ config = current_app.config
 from oeasc.utils.env import db as DB
 
 
+from marshmallow import ValidationError  # noqa: E402
+
+
 def get_config():
     return current_app.config
 
@@ -318,9 +321,9 @@ def create_or_update_declaration(post_data):
     # Regroupement des zones de localisation (aires) pour la déclaration
     post_data["areas_localisation"] = (
         []
-        + post_data["areas_localisation_cadastre"]
-        + post_data["areas_localisation_onf_prf"]
-        + post_data["areas_localisation_onf_ug"]
+        + (post_data.get("areas_localisation_cadastre") or [])
+        + (post_data.get("areas_localisation_onf_prf") or [])
+        + (post_data.get("areas_localisation_onf_ug") or [])
     )
     # suppression des éventuels doublons
     post_data["areas_localisation"] = list(set(post_data["areas_localisation"]))
@@ -402,6 +405,13 @@ def create_or_update_declaration(post_data):
                     status_code=200,
                 )
                 return arranged_post_data, response
+            if not foret:
+                response.add_error(
+                    user_message=f"Forêt introuvable (code {code_foret}) : la déclaration n'a pas été enregistrée",
+                    system_error=f"Aucune forêt avec code_foret={code_foret}",
+                    status_code=200,
+                )
+                return arranged_post_data, response
             arranged_post_data["id_foret"] = foret
 
     # Création ou modification de la déclaration
@@ -411,13 +421,30 @@ def create_or_update_declaration(post_data):
     if post_data.get("id_declaration"):
         arranged_post_data["id_declaration"] = post_data.get("id_declaration")
         declaration_bdd = DB.session.get(TDeclaration, post_data.get("id_declaration"))
+        if declaration_bdd is None:
+            DB.session.rollback()  # annule la forêt éventuellement créée (flush)
+            response.add_error(
+                user_message="Déclaration introuvable : modification impossible",
+                system_error=f"Déclaration {post_data.get('id_declaration')} inexistante",
+                status_code=200,
+            )
+            return arranged_post_data, response
 
-        declaration = declarationSchema.load(
-            arranged_post_data,
-            instance=declaration_bdd,
-            partial=True,  # Mise à jour partielle
-            session=DB.session,
-        )
+        try:
+            declaration = declarationSchema.load(
+                arranged_post_data,
+                instance=declaration_bdd,
+                partial=True,  # Mise à jour partielle
+                session=DB.session,
+            )
+        except ValidationError as e:
+            DB.session.rollback()
+            response.add_error(
+                user_message="Données de déclaration invalides",
+                system_error=str(e.messages),
+                status_code=200,
+            )
+            return arranged_post_data, response
         # declaration.degats = arranged_post_data.get("degats", [])
     else:
         # Création d'une nouvelle déclaration
@@ -440,9 +467,18 @@ def create_or_update_declaration(post_data):
                 "STATUT_DECLARATION"
             ]["Non validée"]
 
-        declaration = declarationSchema.load(
-            arranged_post_data, session=DB.session, partial=True
-        )
+        try:
+            declaration = declarationSchema.load(
+                arranged_post_data, session=DB.session, partial=True
+            )
+        except ValidationError as e:
+            DB.session.rollback()
+            response.add_error(
+                user_message="Données de déclaration invalides",
+                system_error=str(e.messages),
+                status_code=200,
+            )
+            return arranged_post_data, response
         DB.session.add(declaration)
 
     try:
@@ -528,11 +564,13 @@ def create_or_update_foret(post_data):
 
     # Regroupement des aires de la forêt
     post_data["areas_foret"] = (
-        [] + post_data["areas_foret_communes"] + post_data["areas_foret_sections"]
+        []
+        + (post_data.get("areas_foret_communes") or [])
+        + (post_data.get("areas_foret_sections") or [])
     )
-    if post_data["areas_foret_onf"]:
+    if post_data.get("areas_foret_onf"):
         post_data["areas_foret"].append(post_data["areas_foret_onf"])
-    if post_data["areas_foret_dgd"]:
+    if post_data.get("areas_foret_dgd"):
         post_data["areas_foret"].append(post_data["areas_foret_dgd"])
 
     data_foret["areas_foret"] = [
@@ -555,13 +593,15 @@ def create_or_update_foret(post_data):
             partial=True,  # Mise à jour partielle
             session=DB.session,
         )
-        DB.session.commit()  # modification de l'instance
+        # pas de commit ici : il est fait avec la déclaration (transaction unique,
+        # pas de forêt orpheline si la déclaration échoue)
+        DB.session.flush()
 
     else:
         # Création d'une nouvelle forêt
         foret = foretSchema.load(data_foret, session=DB.session, partial=True)
         DB.session.add(foret)
-        DB.session.commit()  # ajout de l'instance
+        DB.session.flush()  # obtient l'id ; commit avec la déclaration
         post_data["id_foret"] = foret.id_foret
 
     return foret

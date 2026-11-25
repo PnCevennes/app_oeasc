@@ -625,10 +625,12 @@ export default {
         return;
       }
       this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
-      if (!this.declaration_data.id_declarant) {
-        this.declaration_data.id_declarant = this.$store.getters.user.id_role;
-        this.declaration_data.email = this.$store.getters.user.email;
-        this.declaration_data.nom_proprietaire = this.$store.getters.user.nom_complet;
+      // Renouvellement par token : pas d'utilisateur connecté, on ne remplit rien
+      const user_connecte = this.$store.getters.user;
+      if (!this.declaration_data.id_declarant && user_connecte) {
+        this.declaration_data.id_declarant = user_connecte.id_role;
+        this.declaration_data.email = user_connecte.email;
+        this.declaration_data.nom_proprietaire = user_connecte.nom_complet;
       }
 
       if (!this.declaration_data.b_valid) {
@@ -692,9 +694,10 @@ export default {
         // fenêtre de succès, sinon une erreur applicative passe inaperçue
         // (« la requête retourne 200 mais rien ne se passe »).
         const check_success = (response) => {
-          if (response && response.success === false) {
+          // apiRequest renvoie null en cas d'erreur réseau/HTTP : ce n'est pas un succès
+          if (!response || response.success === false) {
             snackbarStore.show(
-              response.message ||
+              (response && response.message) ||
                 "Une erreur s'est produite lors de la soumission. Veuillez réessayer.",
               'error'
             );
@@ -964,7 +967,15 @@ export default {
           token_renouvellement: this.declaration_data.token_renouvellement,
         },
       })
-        .then(() => {
+        .then((response) => {
+          if (!response || response.success === false) {
+            snackbarStore.show(
+              (response && response.message) ||
+                "Une erreur s'est produite lors de la clôture. Veuillez réessayer.",
+              'error'
+            );
+            return;
+          }
           this.affichage_fenetre_succes = true; // Affiche la fenêtre de succès
         })
         .catch(() => {

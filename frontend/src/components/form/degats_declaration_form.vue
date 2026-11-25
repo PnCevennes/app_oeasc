@@ -368,6 +368,47 @@ TODO: eventuellement récupérer les nomencaltures dans le store si elles existe
       </p>
     </div>
 
+    <!-- confirmation de la suppression des dégâts liés à une essence retirée du peuplement -->
+    <v-dialog
+      v-model="dialogPurge"
+      max-width="600"
+      persistent
+    >
+      <v-card>
+        <v-card-title class="headline">Supprimer les dégâts associés ?</v-card-title>
+        <v-card-text>
+          <p>
+            Vous avez retiré une essence du peuplement qui est utilisée dans des dégâts. Les lignes
+            de dégâts suivantes seront supprimées :
+          </p>
+          <ul>
+            <li
+              v-for="(ligne, i) in lignesAPurger"
+              :key="i"
+            >
+              {{ ligne }}
+            </li>
+          </ul>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn
+            variant="text"
+            @click="annulerPurge"
+          >
+            Annuler (garder l'essence)
+          </v-btn>
+          <v-btn
+            color="error"
+            variant="flat"
+            @click="confirmerPurge"
+          >
+            Supprimer ces dégâts
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </div>
 </template>
 
@@ -398,25 +439,28 @@ export default {
       },
 
       displayMsgErrorValider: false, // Booléen pour afficher un message d'erreur lors de la validation du formulaire
+      dialogPurge: false, // fenêtre de confirmation de suppression des dégâts d'une essence retirée
+      lignesAPurger: [], // libellés des lignes de dégâts qui seront supprimées
+      snapshotEssences: this.prendreSnapshotEssences(), // dernier état validé des essences du peuplement (pour annuler)
       showDegatEssenceForm: null, // ID du type de dégât pour lequel le mini-formulaire d'ajout d'essence est affiché (null si aucun formulaire n'est affiché)
     };
   },
 
   watch: {
     'declaration_data.id_nomenclature_peuplement_essence_principale': function () {
-      this.liste_selection_essences = this.concateneEssencesPeuplement();
+      this.onEssencesChange();
     },
     // deep:true nécessaire en Vue 3 pour ces deux tableaux : les mutations (push/splice) ne
     // déclenchent plus un watcher par défaut comme en Vue 2 (voir compat WATCH_ARRAY)
     'declaration_data.nomenclatures_peuplement_essence_secondaire': {
       handler() {
-        this.liste_selection_essences = this.concateneEssencesPeuplement();
+        this.onEssencesChange();
       },
       deep: true,
     },
     'declaration_data.nomenclatures_peuplement_essence_complementaire': {
       handler() {
-        this.liste_selection_essences = this.concateneEssencesPeuplement();
+        this.onEssencesChange();
       },
       deep: true,
     },
@@ -594,6 +638,110 @@ export default {
       this.degatEssence.gravite = null;
       this.degatEssence.etendue = null;
       this.degatEssence.anteriorite = null;
+    },
+
+    prendreSnapshotEssences() {
+      const d = this.declaration_data || {};
+      return {
+        principale: d.id_nomenclature_peuplement_essence_principale,
+        secondaire: [...(d.nomenclatures_peuplement_essence_secondaire || [])],
+        complementaire: [...(d.nomenclatures_peuplement_essence_complementaire || [])],
+      };
+    },
+
+    /**
+     * Appelée à chaque modification des essences du peuplement. Si une essence retirée est
+     * utilisée dans des dégâts, demande confirmation avant de supprimer les lignes concernées.
+     */
+    onEssencesChange() {
+      this.liste_selection_essences = this.concateneEssencesPeuplement();
+      const lignes = this.lignesDegatsEssencesRetirees();
+      if (lignes.length === 0) {
+        this.snapshotEssences = this.prendreSnapshotEssences();
+        return;
+      }
+      this.lignesAPurger = lignes;
+      this.dialogPurge = true;
+    },
+
+    /** Libellés « type de dégât — essence » des lignes dont l'essence n'est plus dans le peuplement */
+    lignesDegatsEssencesRetirees() {
+      const degats = (this.declaration_data && this.declaration_data.degats) || [];
+      const label = (type, id) => {
+        const n = (this.nomenclature[type] || { values: [] }).values.find(
+          (v) => v.id_nomenclature === id
+        );
+        return n ? n.label_fr : id;
+      };
+      const lignes = [];
+      degats.forEach((degat) => {
+        (degat.degat_essences || []).forEach((de) => {
+          if (!this.liste_selection_essences.includes(de.id_nomenclature_degat_essence)) {
+            lignes.push(
+              `${label('OEASC_DEGAT_TYPE', degat.id_nomenclature_degat_type)} — ${label(
+                'OEASC_PEUPLEMENT_ESSENCE',
+                de.id_nomenclature_degat_essence
+              )}`
+            );
+          }
+        });
+      });
+      return lignes;
+    },
+
+    annulerPurge() {
+      // on remet les essences du peuplement dans leur état précédent
+      const snap = this.snapshotEssences;
+      this.declaration_data.id_nomenclature_peuplement_essence_principale = snap.principale;
+      this.declaration_data.nomenclatures_peuplement_essence_secondaire = [...snap.secondaire];
+      this.declaration_data.nomenclatures_peuplement_essence_complementaire = [
+        ...snap.complementaire,
+      ];
+      this.liste_selection_essences = this.concateneEssencesPeuplement();
+      this.dialogPurge = false;
+    },
+
+    confirmerPurge() {
+      this.purgeDegatsEssencesRetirees();
+      this.snapshotEssences = this.prendreSnapshotEssences();
+      this.dialogPurge = false;
+    },
+
+    /**
+     * Quand une essence est retirée du peuplement (principale, secondaire ou complémentaire),
+     * supprime ses lignes dans les dégâts (abroutissement, frottis, écorçage, sanglier...).
+     * Un type de dégât qui n'a plus aucune essence est supprimé à son tour. Les types sans
+     * essence par nature (absence, piste/clôture) ne sont jamais touchés.
+     */
+    purgeDegatsEssencesRetirees() {
+      const degats = this.declaration_data && this.declaration_data.degats;
+      if (!degats || !degats.length) {
+        return;
+      }
+      const essences = this.liste_selection_essences;
+      let modifie = false;
+      const restants = [];
+      degats.forEach((degat) => {
+        const lignes = degat.degat_essences || [];
+        const gardees = lignes.filter((de) =>
+          essences.includes(de.id_nomenclature_degat_essence)
+        );
+        if (gardees.length === lignes.length) {
+          restants.push(degat); // rien à retirer
+          return;
+        }
+        modifie = true;
+        degat.degat_essences = gardees;
+        if (gardees.length > 0) {
+          restants.push(degat);
+        }
+      });
+      if (modifie) {
+        this.declaration_data.degats = restants;
+        this.degatTypes = restants.map((d) => d.id_nomenclature_degat_type);
+        this.showDegatEssenceForm = null;
+        this.declaration_data.freeze = false;
+      }
     },
 
     /**
