@@ -1,6 +1,18 @@
 <template>
   <div style="margin: 40px; width: 100%">
     <h1>{{ title }}</h1>
+    <div
+      v-if="['RENOUVELLEMENT', 'CLOTURE'].includes(type_action) && declaration_deja_cloturee && !declaration_deja_renouvelee"
+      style="margin: 30px 0; text-align: center; font-size: 2rem; font-weight: bold; color: #b71c1c"
+    >
+      Cette déclaration est déjà clôturée.
+    </div>
+    <div
+      v-if="declaration_deja_renouvelee"
+      style="margin: 30px 0; text-align: center; font-size: 2rem; font-weight: bold; color: #b71c1c"
+    >
+      Cette déclaration est déjà renouvelée.
+    </div>
     <h3 v-if="declaration_data.id_declaration_originale">
       Renouvellement de la
       <router-link
@@ -221,6 +233,7 @@
                 <div style="margin-top: 30px; display: flex">
                   <v-btn
                     color="primary"
+                    :disabled="action_bloquee"
                     @click="action_terminer_declaration"
                   >
                     Terminer la déclaration
@@ -330,7 +343,7 @@
             <v-btn
               color="success"
               @click="submitDeclaration"
-              :disabled="processing == true"
+              :disabled="processing == true || action_bloquee"
             >
               <span v-if="type_action == 'RENOUVELLEMENT'">Renouveller ma déclaration</span>
               <span v-else>Soumettre la déclaration</span>
@@ -344,7 +357,7 @@
             <v-btn
               color="red"
               @click="closeDeclaration"
-              :disabled="processing"
+              :disabled="processing || action_bloquee"
               style="width: 100%; max-width: 400px; height: 50px"
             >
               Cloturer cette déclaration
@@ -516,6 +529,8 @@ export default {
       information_declarant: {}, // Informations sur la personne connectée
       // liste_selection_essences: [], // Liste des essences sélectionnées
       affichage_fenetre_succes: false, // Affichage de la fenêtre de succès après soumission
+      declaration_deja_renouvelee: false, // true si la déclaration a déjà été renouvelée (lien de renouvellement par token)
+      declaration_deja_cloturee: false, // true si la déclaration est déjà archivée (clôturée ou renouvelée)
       affichage_fenetre_token_invalide: false, // Affichage de la fenêtre invitant à se connecter si le token de renouvellement/clôture est invalide
       affichage_peuplement_maturite: false, // Affichage de la maturité du peuplement
       response: null, // Réponse de l'API lors de la récupération des données de la déclaration
@@ -523,7 +538,15 @@ export default {
     };
   },
 
-  computed: {},
+  computed: {
+    // Déclaration déjà renouvelée ou clôturée : on affiche le contenu mais on empêche toute nouvelle action
+    action_bloquee() {
+      return (
+        ['RENOUVELLEMENT', 'CLOTURE'].includes(this.type_action) &&
+        (this.declaration_deja_renouvelee || this.declaration_deja_cloturee)
+      );
+    },
+  },
   watch: {
     // si l'utilisateur à selectionné une autre foret, on met à jours les données de propriétaire et le nom et la superficie de la foret
     'declaration_data.code_foret'(newVal, oldVal) {
@@ -600,7 +623,13 @@ export default {
             `api/declaration/declaration_renouvellement?id=${this.declarationId}&token=${this.token_renouvellement}`
           );
           if (this.response['success'] == false) {
-            this.affichage_fenetre_token_invalide = true;
+            if ((this.response.message || '').includes('déjà renouvelée')) {
+              this.declaration_deja_renouvelee = true;
+            } else if ((this.response.message || '').includes("n'est plus à renouveler")) {
+              this.declaration_deja_cloturee = true;
+            } else {
+              this.affichage_fenetre_token_invalide = true;
+            }
           }
         } else {
           this.affichage_fenetre_token_invalide = true;
@@ -610,6 +639,11 @@ export default {
 
     if (this.response && this.response['success'] == true) {
       this.declaration_data = this.response.data;
+      // statuts 2 (Archivée) et 3 (Archivée sans réponse) : déjà clôturée
+      this.declaration_deja_cloturee = [2, 3].includes(this.declaration_data.statut);
+      if (this.declaration_data.renouvelee) {
+        this.declaration_deja_renouvelee = true;
+      }
       // Date de validité dépassée : seuls les admins peuvent modifier, les autres renouvellent ou clôturent
       if (
         this.type_action === 'MODIFICATION' &&
@@ -964,7 +998,8 @@ export default {
       apiRequest('POST', `api/declaration/cloture_declaration`, {
         postData: {
           id_declaration: this.declaration_data.id_declaration,
-          token_renouvellement: this.declaration_data.token_renouvellement,
+          token_renouvellement:
+            this.token_renouvellement || this.declaration_data.token_renouvellement,
         },
       })
         .then((response) => {
