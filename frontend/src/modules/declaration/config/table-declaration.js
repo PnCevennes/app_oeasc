@@ -54,7 +54,8 @@ export default {
           
             if ((dateFin > aujourdhui) 
               || item.statut === config_variables['STATUT_DECLARATION']['Archivée']
-              || item.b_valid === false) {
+              || item.b_valid === false
+              || item.renouvelee === true) {
               return false; // Les déclarations archivées ne peuvent pas être renouvelées, même par les admins
             }
 
@@ -83,6 +84,7 @@ export default {
             if ((dateFin > aujourdhui) 
               || item.statut === config_variables['STATUT_DECLARATION']['Archivée']
               || item.b_valid === false
+              || item.renouvelee === true
               || $store.getters.droitMax < 4) {
               return false; // Les déclarations archivées ne peuvent pas être renouvelées, même par les admins
             }else {

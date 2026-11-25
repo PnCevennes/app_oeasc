@@ -597,16 +597,14 @@ def duplicate_declaration():
     url_new_declaration = f"{get_config()['URL_FRONTEND']}#/declaration/voir_declaration/{new_declaration['id_declaration']}"
     new_declaration["url_new_declaration"] = url_new_declaration
 
+    # archivage de la déclaration originale (séparé de l'envoi du mail :
+    # une panne d'envoi ne doit pas être prise pour un échec d'archivage)
     try:
-        # archivage de la déclaration original
         stmt_update_statut = stmt_change_statut_declaration(
             id_declaration, statut_declaration.get("Archivée")
         )
         DB.session.execute(stmt_update_statut)
         DB.session.commit()
-
-        send_mail_alerte_renouvellement_declaration(new_declaration)
-
     except Exception as e:
         DB.session.rollback()
         response.add_error(
@@ -616,6 +614,12 @@ def duplicate_declaration():
         )
         send_mail_echec_renouvellement_declaration(new_declaration)
         return response.response_to_frontend()
+
+    try:
+        send_mail_alerte_renouvellement_declaration(new_declaration)
+    except Exception as e:
+        # la déclaration est renouvelée et archivée : on journalise seulement
+        print(f"Erreur d'envoi du mail de renouvellement : {e}")
 
     # send_mail_validation_declaration(post_data_arranged, True)
     return response.response_to_frontend()

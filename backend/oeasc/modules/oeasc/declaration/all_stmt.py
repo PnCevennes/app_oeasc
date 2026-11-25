@@ -334,6 +334,14 @@ def get_stmt_liste_declaration():
         select(
             TDeclaration.id_declaration,
             TDeclaration.id_declaration_originale,
+            # True si une déclaration fille (renouvellement) existe
+            exists()
+            .where(
+                aliased(TDeclaration, name="d_fille").id_declaration_originale
+                == TDeclaration.id_declaration
+            )
+            .correlate(TDeclaration)
+            .label("renouvelee"),
             # func.to_char(TDeclaration.meta_create_date, "DD/MM/YYYY").label("declaration_date"),
             func.to_char(TDeclaration.meta_create_date, "YYYY/MM/DD").label(
                 "declaration_date"
