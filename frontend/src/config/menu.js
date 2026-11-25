@@ -70,7 +70,7 @@ const menus = {
 
   dev: {
     icon: 'engineering',
-    label: 'DEV',
+    label: 'Création de graphiques',
     names: ['restitution.test', 'restitution2.test'],
     hidden: ({ $store }) => $store.getters.droitMax < 5,
   },

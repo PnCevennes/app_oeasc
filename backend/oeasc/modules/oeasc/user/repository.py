@@ -4,7 +4,7 @@ fonction acces DB pour la partie user
 
 from flask import current_app, session
 from oeasc.utils.current_user import get_current_user
-from sqlalchemy import select
+from sqlalchemy import select, func
 
 # from sqlalchemy.orm import Session
 from pypnusershub.db.models import User, Organisme
@@ -175,3 +175,55 @@ def get_id_organismes(liste_nom):
 
     # Retourne la liste des id_organisme trouvés
     return out
+
+
+def admin_update_user(id_role, data, current_id_role):
+    """
+    Met à jour par un administrateur l'email, l'organisme et/ou le rôle (desc_role) d'un utilisateur.
+    L'email est aussi l'identifiant de connexion : les deux champs sont modifiés ensemble
+    dans utilisateurs.t_roles (base locale).
+
+    Retourne (utilisateur_mis_à_jour, None) ou (None, (message, code_http)).
+    """
+    target = get_user(id_role)
+    caller = get_user(current_id_role)
+    if not target:
+        return None, ("Utilisateur introuvable", 404)
+    if not caller or caller["id_droit_max"] < 4 or caller["id_droit_max"] <= target["id_droit_max"]:
+        return None, ("Droits insuffisants pour modifier cet utilisateur", 403)
+
+    user = DB.session.get(User, id_role)
+
+    if "email" in data:
+        email = (data["email"] or "").strip()
+        if not email or "@" not in email:
+            return None, ("Adresse e-mail invalide", 400)
+        doublon = DB.session.execute(
+            select(User.id_role).where(
+                User.id_role != id_role,
+                (func.lower(User.email) == email.lower())
+                | (func.lower(User.identifiant) == email.lower()),
+            )
+        ).first()
+        if doublon:
+            return None, ("Cette adresse e-mail est déjà utilisée par un autre compte", 400)
+        user.email = email
+        user.identifiant = email  # l'e-mail sert d'identifiant de connexion
+
+    if "id_organisme" in data:
+        organisme = DB.session.get(Organisme, data["id_organisme"])
+        if not organisme:
+            return None, ("Organisme inconnu", 400)
+        user.id_organisme = organisme.id_organisme
+        champs = dict(user.champs_addi or {})
+        if "Autre" in (organisme.nom_organisme or "") and data.get("autre_organisme"):
+            champs["organisme"] = data["autre_organisme"]
+        else:
+            champs.pop("organisme", None)
+        user.champs_addi = champs
+
+    if "desc_role" in data:
+        user.desc_role = data["desc_role"]
+
+    DB.session.commit()
+    return get_user(id_role), None

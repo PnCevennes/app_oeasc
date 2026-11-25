@@ -7,7 +7,12 @@ from oeasc.utils.current_user import get_current_user
 from utils_flask_sqla.response import json_resp
 
 # from utils_flask_sqla.response import json_resp, json_resp_accept
-from .repository import get_user_form_email, get_users, get_liste_organismes_oeasc
+from .repository import (
+    get_user_form_email,
+    get_users,
+    get_liste_organismes_oeasc,
+    admin_update_user,
+)
 from ..user.utils import check_auth_redirect_login
 from utils_flask_sqla.response import csv_resp
 
@@ -186,3 +191,21 @@ def api_export_user():
         columns,
         separator,
     )  # Retourne les informations nécessaires à l'export CSV
+
+
+@bp.route("/admin_update/<int:id_role>", methods=["POST"])
+@check_auth_redirect_login(4)
+@json_resp
+def api_admin_update_user(id_role):
+    """
+    Modification par un administrateur (droit >= 4) de l'e-mail (= identifiant de connexion),
+    de l'organisme et/ou du rôle d'un utilisateur de droit strictement inférieur.
+    Retourne l'utilisateur mis à jour.
+    """
+    data = request.get_json() or {}
+    user, error = admin_update_user(
+        id_role, data, get_current_user().get("id_role")
+    )
+    if error:
+        return {"message": error[0]}, error[1]
+    return user

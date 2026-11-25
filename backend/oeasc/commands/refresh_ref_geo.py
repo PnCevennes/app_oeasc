@@ -1226,6 +1226,18 @@ def step_build_cor_area_intersect():
     """))
     db.session.commit()
 
+    # Index de jointure (la table est recréée à chaque refresh : cf. migration f3a9c1d27b58)
+    for col in (
+        "id_parcelle", "id_commune", "id_secteur", "id_foret_onf", "id_foret_dgd",
+        "id_foret_prive", "id_section_cadastrale", "id_parcelle_onf",
+    ):
+        db.session.execute(text(
+            f"CREATE INDEX IF NOT EXISTS ix_cor_area_intersect_{col} "
+            f"ON ref_geo.cor_area_intersect ({col})"
+        ))
+    db.session.execute(text("ANALYZE ref_geo.cor_area_intersect"))
+    db.session.commit()
+
     _alert_multi_commune()
 
     n = db.session.execute(

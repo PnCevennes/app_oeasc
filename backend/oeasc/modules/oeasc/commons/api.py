@@ -43,6 +43,10 @@ grd = GenericRouteDefinitions()
 config = current_app.config
 from oeasc.utils.env import db as DB
 
+# Données de référentiel (secteurs, espèces, communes, nomenclatures...) :
+# modification réservée au droit 6. Les contenus éditoriaux (content) restent au droit 5.
+DROITS_REFERENTIEL = {"C": 6, "R": 0, "U": 6, "D": 6}
+
 definitions = {
     "content": {
         "model": TContents,
@@ -51,34 +55,34 @@ definitions = {
     },
     "secteur": {
         "model": TSecteurs,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_REFERENTIEL,
         "schema": TSecteursSchema,
     },
     "espece": {
         "model": TEspeces,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_REFERENTIEL,
         "schema": TEspecesSchema,
     },
     "commune": {
         "model": TCommunesFrance,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_REFERENTIEL,
         "schema": TCommunesFranceSchema,
     },
     "liste_organismes": {
         "model": TListeOrganismes,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_REFERENTIEL,
         "schema": TListeOrganismesSchema,
     },
     "nomenclature": {
         "model": TNomenclaturesOeasc,
         "schema": TNomenclaturesOeascSchema,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_REFERENTIEL,
         "pre_filters": {"type": nomenclature_oeasc_types},
     },
     "nomenclature_type": {
         "model": BibNomenclaturesTypes,
         "schema": BibNomenclaturesTypesSchema,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_REFERENTIEL,
         "pre_filters": {"mnemonique": nomenclature_oeasc_types},
     },
 }

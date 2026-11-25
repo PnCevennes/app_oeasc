@@ -1,4 +1,23 @@
 import { config as globalConfig } from '@/config/config';
+import formDefsUser from './form-defs-user';
+
+// Édition par un administrateur : réservée aux utilisateurs de droit strictement inférieur
+const editAdmin = (fields) => ({
+  condition: ({ $store, baseModel }) =>
+    $store.getters.droitMax >= 4 && $store.getters.droitMax > baseModel.id_droit_max,
+  action: {
+    preProcess: ({ baseModel }) => {
+      const data = {};
+      fields.forEach((f) => (data[f] = baseModel[f]));
+      return data;
+    },
+    request: {
+      url: ({ id }) => `api/user/admin_update/${id}`,
+      method: 'POST',
+    },
+  },
+  formDefs: Object.fromEntries(fields.map((f) => [f, formDefsUser[f]])),
+});
 
 export default {
   idFieldName: 'id_role',
@@ -11,15 +30,18 @@ export default {
   headerDefs: {
     org_mnemo: {
       text: 'Organisme',
+      edit: editAdmin(['id_organisme', 'autre_organisme']),
     },
     nom_complet: {
       text: 'Nom, prénom',
     },
     email: {
       text: 'E-mail',
+      edit: editAdmin(['email']),
     },
     desc_role: {
       text: 'Rôle',
+      edit: editAdmin(['desc_role']),
       display: (d) => {
         const val = d['desc_role'];
         return val.split(' ')[0].split(',')[0];

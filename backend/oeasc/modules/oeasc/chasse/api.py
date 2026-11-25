@@ -95,6 +95,8 @@ grd = GenericRouteDefinitions()
 
 # définis les droit pour chaque route (C: create, R: read, U: update, D: delete)
 droits = {"C": 4, "R": 0, "U": 4, "D": 4}
+# zonages (zones cynégétiques et indicatives) : modification réservée au droit 6
+droits_zonage = {"C": 6, "R": 0, "U": 6, "D": 6}
 
 # pour certains graphiques on modifiera le numéro de mois par son nom.
 MOIS_MAPPING = {
@@ -133,17 +135,17 @@ MOIS_ORDER = [
 definitions = {
     "zone_cynegetique": {
         "model": TZoneCynegetiques,
-        "droits": droits,
+        "droits": droits_zonage,
         "schema": TZoneCynegetiquesSchema,
     },
     "zone_cynegetique": {
         "model": TZoneCynegetiques,
-        "droits": droits,
+        "droits": droits_zonage,
         "schema": TZoneCynegetiquesSchema,
     },
     "zone_indicative": {
         "model": TZoneIndicatives,
-        "droits": droits,
+        "droits": droits_zonage,
         "schema": TZoneIndicativesSchema,
     },
     "lieu_tir": {"model": TLieuTirs, "droits": droits, "schema": TLieuTirsSchema},
@@ -236,6 +238,12 @@ def api_result_ice():
     # Récupère les paramètres de la requête (id_espece, id_zone_indicative, id_zone_cynegetique, id_secteur, poids_ou_dagues)
     params = chasse_process_args()
 
+    # résultat mis en cache (même principe que le bilan : clé versionnée par data_version())
+    key = f"chasse_ice:{data_version()}:{json.dumps(params, sort_keys=True, default=str)}"
+    cached = cache.get(key)
+    if cached is not None:
+        return cached
+
     try:
         # Appelle la fonction SQL pour calculer l'ICE avec les paramètres récupérés
         req = func.oeasc_chasse.fct_calcul_ice_mc(
@@ -255,6 +263,9 @@ def api_result_ice():
                 "error": "Aucun résultat calculé - données insuffisantes",
                 "code": 204,
             }
+
+        # Seuls les calculs réussis sont mis en cache (pas les erreurs / données insuffisantes)
+        cache.set(key, res[0], timeout=TTL_RESULTATS)
 
         # Retourne le résultat du calcul ICE
         return res[0]

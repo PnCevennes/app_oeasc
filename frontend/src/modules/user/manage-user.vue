@@ -66,6 +66,7 @@ export default {
     },
   },
   mounted() {
+    this.$store.dispatch('organismes'); // liste des organismes pour l'édition
     this.$store.dispatch('users').then((users) => {
       this.users = users;
       this.configTable = { ...this.configTable, items: users };
