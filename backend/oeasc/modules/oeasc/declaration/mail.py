@@ -184,32 +184,43 @@ def send_mail_echec_renouvellement_declaration(declaration):
     """
 
     variables_declaration = get_variables_declaration()
-    # copie + ajout de l'admin (list.append renvoie None et muterait la liste en cache)
-    liste_mails_animateurs = list(
-        variables_declaration.get("LISTE_MAILS_ANIMATEURS") or []
-    )
-    if config["ADMIN_APPLICATION_MAIL"] not in liste_mails_animateurs:
-        liste_mails_animateurs.append(config["ADMIN_APPLICATION_MAIL"])
+    mail_admin = config["ADMIN_APPLICATION_MAIL"]
+    # les animateurs reçoivent un mail succinct (sans l'admin, qui reçoit le détail)
+    liste_mails_animateurs = [
+        m
+        for m in (variables_declaration.get("LISTE_MAILS_ANIMATEURS") or [])
+        if m != mail_admin
+    ]
+
+    envois = [
+        (
+            "modules/oeasc/mail/alerte_echec_renouvellement_declaration_admin.html",
+            [mail_admin],
+        ),
+    ]
+    if liste_mails_animateurs:
+        envois.append(
+            (
+                "modules/oeasc/mail/alerte_echec_renouvellement_declaration.html",
+                liste_mails_animateurs,
+            )
+        )
 
     with mail.connect() as conn:
-
-        html = render_template(
-            "modules/oeasc/mail/alerte_echec_renouvellement_declaration.html",
-            info_declaration=declaration,
-        )
-        msg = Message(
-            "[OEASC] [ANIMATEUR] Une déclaration a échoué à être renouvelée",
-            sender=config["ANIMATEUR_APPLICATION_MAIL"],
-            recipients=liste_mails_animateurs,
-            html=html,
-        )
-
-        try:
-            conn.send(msg)
-        except SMTPRecipientsRefused:
-            print("Adresse invalide")
-        except Exception as e:
-            print("Erreur lors de l'envoi du mail : ", e)
+        for template, destinataires in envois:
+            html = render_template(template, info_declaration=declaration)
+            msg = Message(
+                "[OEASC] [ANIMATEUR] Une déclaration a échoué à être renouvelée",
+                sender=config["ANIMATEUR_APPLICATION_MAIL"],
+                recipients=destinataires,
+                html=html,
+            )
+            try:
+                conn.send(msg)
+            except SMTPRecipientsRefused:
+                print("Adresse invalide")
+            except Exception as e:
+                print("Erreur lors de l'envoi du mail : ", e)
 
 
 def relance_toutes_declarations():
