@@ -184,11 +184,12 @@ def send_mail_echec_renouvellement_declaration(declaration):
     """
 
     variables_declaration = get_variables_declaration()
-    liste_mails_animateurs = variables_declaration["LISTE_MAILS_ANIMATEURS"]
-
-    liste_mails_animateurs = liste_mails_animateurs.append(
-        config["ADMIN_APPLICATION_MAIL"]
+    # copie + ajout de l'admin (list.append renvoie None et muterait la liste en cache)
+    liste_mails_animateurs = list(
+        variables_declaration.get("LISTE_MAILS_ANIMATEURS") or []
     )
+    if config["ADMIN_APPLICATION_MAIL"] not in liste_mails_animateurs:
+        liste_mails_animateurs.append(config["ADMIN_APPLICATION_MAIL"])
 
     with mail.connect() as conn:
 

@@ -457,9 +457,9 @@ def create_or_update_declaration(post_data):
                 "NB_JOURS_VALIDITE_DECLARATION"
             )
             if nb_jours_validite:
-                arranged_post_data["date_fin"] = str(
-                    datetime.now().date() + timedelta(days=nb_jours_validite)
-                )
+                arranged_post_data["date_fin"] = (
+                    datetime.now() + timedelta(days=nb_jours_validite)
+                ).isoformat(sep=" ", timespec="seconds")
 
         # Statut par défaut d'une nouvelle déclaration : "Non validée" (en attente de validation)
         if arranged_post_data.get("statut") is None:

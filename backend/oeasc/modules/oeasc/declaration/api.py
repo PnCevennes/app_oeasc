@@ -613,11 +613,9 @@ def duplicate_declaration():
     post_data["meta_update_date"] = str(
         datetime.now()
     )  # Met à jour la date de mise à jour pour la nouvelle déclaration
-    date_fin = datetime.now().date() + timedelta(
-        days=nb_jours_validite_declaration or 1095
-    )
-    post_data["date_fin"] = str(
-        date_fin
+    date_fin = datetime.now() + timedelta(days=nb_jours_validite_declaration or 1095)
+    post_data["date_fin"] = date_fin.isoformat(
+        sep=" ", timespec="seconds"
     )  # Met à jour la date de fin en fonction de la durée de validité définie dans les variables
     post_data["statut"] = statut_declaration.get(
         "Non validée"
@@ -642,6 +640,8 @@ def duplicate_declaration():
         print(
             "Erreur lors de la création de la nouvelle déclaration pour le renouvellement. Envoi du mail d'échec de renouvellement."
         )
+        print(f"  message : {response.message}")
+        print(f"  system_error : {response.system_error}")
         send_mail_echec_renouvellement_declaration(
             {**post_data, "id_declaration": id_declaration}
         )
