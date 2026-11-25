@@ -93,6 +93,17 @@ grd.add_generic_routes("agricole", definitions)
 @bp.route("import", methods=["POST"])
 @check_auth_redirect_login(5)
 def import_degats_agricoles():
+    return _lancer_import("degats_agricoles")
+
+
+@bp.route("import_cultures", methods=["POST"])
+@check_auth_redirect_login(5)
+def import_cultures_agricoles():
+    """Import du fichier « culture / type de culture » (mêmes paramètres)."""
+    return _lancer_import("cultures_agricoles")
+
+
+def _lancer_import(type_import):
     """Lance l'importation d'un fichier de dégâts agricoles en tâche de fond.
 
     Le fichier est enregistré sur disque, un fichier de suivi JSON est créé, et le
@@ -136,7 +147,7 @@ def import_degats_agricoles():
         )
 
     horodatage = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    chemin_fichier = DOSSIER_SUIVI / f"{horodatage}_degats_agricoles_{nom_sur}"
+    chemin_fichier = DOSSIER_SUIVI / f"{horodatage}_{type_import}_{nom_sur}"
     file.save(chemin_fichier)
 
     id_import = creer_suivi(
@@ -146,7 +157,7 @@ def import_degats_agricoles():
         chemin_fichier=chemin_fichier,
         id_role=id_role,
         nom_complet=nom_complet,
-        type_import="degats_agricoles",
+        type_import=type_import,
     )
     lancer_import_async(
         id_import=id_import,
@@ -155,7 +166,7 @@ def import_degats_agricoles():
         do_update=update,
         id_role=id_role,
         nom_complet=nom_complet,
-        type_import="degats_agricoles",
+        type_import=type_import,
     )
 
     return (
@@ -169,7 +180,10 @@ def import_degats_agricoles():
 def import_status(id_import):
     """Renvoie l'état d'un import lancé en tâche de fond (statut, journal, success)."""
     etat = lire_suivi(id_import)
-    if etat is None or etat.get("type_import") != "degats_agricoles":
+    if etat is None or etat.get("type_import") not in (
+        "degats_agricoles",
+        "cultures_agricoles",
+    ):
         return (
             jsonify({"success": False, "user_message": "Import introuvable."}),
             404,

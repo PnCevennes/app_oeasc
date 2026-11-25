@@ -73,7 +73,7 @@
     <!-- affichage des messages de succès ou d'erreur après l'import -->
     <div
       v-if="message"
-      class="mt-3"
+      class="mt-3 journal"
     >
       <div
         v-if="error"
@@ -91,7 +91,8 @@
 
     <!-- affichage de json_data_bdd sous forme du tableau -->
     <div
-      style="margin-top: 1rem; max-width: 100%"
+      class="journal"
+      style="margin-top: 1rem"
       v-if="reponse_affichee.length > 0"
     >
       <table>
@@ -134,6 +135,47 @@
       </table>
     </div>
 
+    <!-- exemple de fichier attendu -->
+    <div
+      class="mt-4"
+      style="max-width: 1000px; width: 100%"
+    >
+      <div style="font-size: 0.9rem; color: #555; margin-bottom: 0.25rem">
+        Exemple de fichier attendu (une ligne par déclaration ; la saison est lue dans la colonne
+        « Campagnes comptables » ; la colonne « Secteur » est facultative) :
+      </div>
+      <div style="overflow-x: auto; max-width: 100%">
+        <table class="exemple">
+          <thead>
+            <tr>
+              <th
+                v-for="c in exemple.colonnes"
+                :key="c"
+              >
+                {{ c }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(ligne, i) in exemple.lignes"
+              :key="i"
+            >
+              <td
+                v-for="(v, j) in ligne"
+                :key="j"
+              >
+                {{ v }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <v-divider class="my-8" style="max-width: 1000px"></v-divider>
+    <import-cultures-degats-agricoles />
+
     <!-- popup qui demande la confirmation pour la mise à jour des données existantes si l'utilisateur a coché la checkbox -->
     <v-dialog
       v-model="affiche_popup_update"
@@ -175,8 +217,11 @@ import {
   parseJournal,
 } from '@/core/js/mixins/async-import.js';
 
+import ImportCulturesDegatsAgricoles from './import-cultures-degats-agricoles.vue';
+
 export default {
   name: 'imports-degats-agricoles',
+  components: { ImportCulturesDegatsAgricoles },
   mixins: [asyncImportMixin, updatePopupMixin],
   data() {
     return {
@@ -185,6 +230,31 @@ export default {
       message: '',
       reponse_affichee: [],
       error: false,
+      exemple: {
+        colonnes: [
+          'Campagnes comptables',
+          'Date de création',
+          'N° dossier',
+          'Date document',
+          'Secteur',
+          'Code insee',
+          'Commune du dossier',
+          'Culture',
+          'Surface détruite (ha)',
+          'Volume détruit (qtx)',
+          'Unité de la quantité détruite expertisé',
+          'Pourcentage',
+          'Espèce',
+          'Montant payé PR (€)',
+          'Surface RESSEMIS (ha)',
+          'Montant payé RESSEMIS (€)',
+          'Montant total payé (€)',
+        ],
+        lignes: [
+          ['2023-2024', '12/09/2023', '2023-0145', '25/09/2023', '03 / MEYRUEIS', '48094', 'Meyrueis', 'Prairie', '1,2', '', 'ha', '30', 'Cerf', '420', '0', '0', '420'],
+          ['2023-2024', '03/10/2023', '2023-0187', '15/10/2023', '', '48075', 'Ispagnac', 'Blé', '0,8', '12', 'qtx', '50', 'Chevreuil', '610', '0,5', '95', '705'],
+        ],
+      },
     };
   },
   methods: {
@@ -252,5 +322,38 @@ export default {
 }
 .mt-3 {
   margin-top: 1rem;
+}
+.mt-4 {
+  margin-top: 1.5rem;
+}
+.journal {
+  max-width: 1000px;
+  width: 100%;
+}
+.journal table {
+  width: 100%;
+  table-layout: fixed;
+}
+.journal td,
+.journal th {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  text-align: left;
+}
+table.exemple {
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+table.exemple th,
+table.exemple td {
+  border: 1px solid #ddd;
+  padding: 0.25rem 0.5rem;
+  white-space: nowrap;
+}
+table.exemple th {
+  background: #f0f0f0;
+  white-space: normal;
+  min-width: 70px;
+  vertical-align: bottom;
 }
 </style>

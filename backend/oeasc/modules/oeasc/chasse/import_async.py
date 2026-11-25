@@ -31,7 +31,10 @@ from .import_attributions import (
     traitement_import_attribution_massifs,
     traitement_import_attributions,
 )
-from ..agricole.importation import traitement_import_degats_agricoles
+from ..agricole.importation import (
+    traitement_import_degats_agricoles,
+    traitement_import_cultures,
+)
 
 config = current_app.config
 
@@ -44,6 +47,7 @@ TRAITEMENTS = {
     "attribution_massifs": traitement_import_attribution_massifs,
     "attributions": traitement_import_attributions,
     "degats_agricoles": traitement_import_degats_agricoles,
+    "cultures_agricoles": traitement_import_cultures,
 }
 TYPE_IMPORT_DEFAUT = "realisations"
 

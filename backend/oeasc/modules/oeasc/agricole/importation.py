@@ -49,7 +49,13 @@ from oeasc.modules.oeasc.chasse.import_attributions import (
     lire_csv_auto,
 )
 from oeasc.ref_geo_oeasc.models import TCommunesArea
-from .models import TSaisonAgricole, TCulture, TUgAgricole, TDeclarationAgricole
+from .models import (
+    TSaisonAgricole,
+    TCulture,
+    TTypeCulture,
+    TUgAgricole,
+    TDeclarationAgricole,
+)
 
 from oeasc.utils.env import db as DB
 
@@ -715,5 +721,188 @@ def traitement_import_degats_agricoles(
     except Exception as e:  # noqa: BLE001
         DB.session.rollback()
         current_app.logger.exception("import degats agricoles")
+        api.add_error(system_error=str(e), user_message=f"Erreur inattendue : {e}")
+        return api
+
+
+# ---------------------------------------------------------------------------
+#  Import des cultures et de leur type de culture
+# ---------------------------------------------------------------------------
+
+ALIAS_COLONNES_CULTURES = {
+    "culture": ["culture", "nom culture", "nom de la culture"],
+    "type_culture": ["type de culture", "type culture", "type"],
+}
+
+
+def traitement_import_cultures(
+    path,
+    id_saison=None,  # ignoré (signature commune aux imports)
+    update="false",
+    id_role=None,
+    nom_complet=None,
+    progress_callback=None,
+):
+    """Importe un fichier « culture / type de culture » (csv, xls, xlsx, ods).
+
+    - Culture absente de la base : créée et rattachée à son type de culture.
+    - Type de culture absent de la base : créé.
+    - Culture déjà en base : `update` faux -> inchangée (un type différent est
+      signalé) ; `update` vrai -> son type de culture est remplacé par celui du
+      fichier.
+    - La moindre ligne invalide annule tout l'import (aucune écriture).
+    """
+    do_update = str(update).lower() == "true"
+    api = _init_api(id_role, nom_complet)
+    _progress = _make_progress(progress_callback, 3)
+    try:
+        with _app_context():
+            ext = Path(path).suffix.lower()
+            if ext not in EXTENSIONS_ACCEPTEES:
+                api.add_error(
+                    system_error=f"Extension refusée : {ext}",
+                    user_message="Format de fichier non pris en charge "
+                    f"(« {ext or 'sans extension'} »). Formats acceptés : "
+                    + ", ".join(EXTENSIONS_ACCEPTEES),
+                )
+                return api
+            try:
+                df = lire_fichier(path)
+            except Exception as e:  # noqa: BLE001
+                api.add_error(
+                    system_error=f"Lecture du fichier : {e}",
+                    user_message="Impossible de lire le fichier.",
+                )
+                return api
+            if df.empty:
+                api.add_error(
+                    system_error="Fichier vide.",
+                    user_message="Le fichier ne contient aucune ligne de données.",
+                )
+                return api
+            cols, approximations, manquantes = resoudre_colonnes(
+                df.columns, ALIAS_COLONNES_CULTURES
+            )
+            for canon, reel, score in approximations:
+                api.add_log(
+                    f"Colonne « {' '.join(reel.split())} » interprétée comme "
+                    f"« {ALIAS_COLONNES_CULTURES[canon][0]} » "
+                    f"(ressemblance {score} %).",
+                    type_log="WARNING",
+                )
+            if manquantes:
+                api.add_error(
+                    system_error=f"Colonnes manquantes : {manquantes}",
+                    user_message="Colonnes introuvables dans le fichier : "
+                    + ", ".join(ALIAS_COLONNES_CULTURES[c][0] for c in manquantes),
+                )
+                return api
+            _progress(api, "Lecture du fichier")
+
+            # --- validation sans écriture ------------------------------------
+            lignes = {}  # {clé normalisée de la culture: (nom, nom du type)}
+            erreurs = []
+            for i, row in df.iterrows():
+                n = i + 2  # numéro de ligne dans le tableur (entête = ligne 1)
+                nom = " ".join(_texte(row[cols["culture"]]).split())
+                nom_type = " ".join(_texte(row[cols["type_culture"]]).split())
+                if not nom or not nom_type:
+                    erreurs.append(
+                        f"Ligne {n} : culture ou type de culture manquant."
+                    )
+                    continue
+                cle = _normalize_entete(nom)
+                if cle in lignes and _normalize_entete(lignes[cle][1]) != (
+                    _normalize_entete(nom_type)
+                ):
+                    erreurs.append(
+                        f"Ligne {n} : la culture « {nom} » apparaît avec deux "
+                        "types de culture différents."
+                    )
+                    continue
+                lignes[cle] = (nom, nom_type)
+            if erreurs:
+                for e in erreurs:
+                    api.add_log(e, type_log="ERROR")
+                api.add_error(
+                    system_error=f"{len(erreurs)} ligne(s) invalide(s)",
+                    user_message=f"{len(erreurs)} ligne(s) invalide(s) : "
+                    "aucune donnée importée.",
+                )
+                return api
+            _progress(api, "Validation")
+
+            # --- écriture ------------------------------------------------------
+            types = {
+                _normalize_entete(t.nom_type_culture): t.id_type_culture
+                for t in DB.session.execute(select(TTypeCulture)).scalars()
+            }
+            existantes = {
+                _normalize_entete(c.nom_culture): c
+                for c in DB.session.execute(select(TCulture)).scalars()
+            }
+            types_crees, cultures_creees, mises_a_jour, divergentes = [], [], [], []
+            nb_identiques = 0
+            for cle, (nom, nom_type) in lignes.items():
+                cle_type = _normalize_entete(nom_type)
+                if cle_type not in types:
+                    t = TTypeCulture(nom_type_culture=nom_type)
+                    DB.session.add(t)
+                    DB.session.flush()
+                    types[cle_type] = t.id_type_culture
+                    types_crees.append(nom_type)
+                id_type = types[cle_type]
+                c = existantes.get(cle)
+                if c is None:
+                    DB.session.add(TCulture(nom_culture=nom, id_type_culture=id_type))
+                    cultures_creees.append(nom)
+                elif c.id_type_culture == id_type:
+                    nb_identiques += 1
+                elif do_update:
+                    c.id_type_culture = id_type
+                    mises_a_jour.append(nom)
+                else:
+                    divergentes.append(nom)
+            DB.session.commit()
+            _progress(api, "Enregistrement")
+
+            if types_crees:
+                api.add_log(
+                    f"{len(types_crees)} type(s) de culture créé(s) : "
+                    + ", ".join(types_crees),
+                    type_log="INFO",
+                )
+            if cultures_creees:
+                api.add_log(
+                    f"{len(cultures_creees)} culture(s) créée(s).", type_log="INFO"
+                )
+            if mises_a_jour:
+                api.add_log(
+                    f"{len(mises_a_jour)} culture(s) existante(s) rattachée(s) à un "
+                    "nouveau type : " + ", ".join(mises_a_jour),
+                    type_log="INFO",
+                )
+            if divergentes:
+                api.add_log(
+                    f"{len(divergentes)} culture(s) existante(s) avec un autre type "
+                    "dans la base, laissée(s) inchangée(s) (cochez « Mettre à jour "
+                    "les données existantes » pour les modifier) : "
+                    + ", ".join(divergentes),
+                    type_log="WARNING",
+                )
+            if nb_identiques:
+                api.add_log(
+                    f"{nb_identiques} culture(s) déjà en base avec le même type.",
+                    type_log="INFO",
+                )
+            api.success = True
+            api.message = (
+                f"Import des cultures terminé : {len(cultures_creees)} créée(s), "
+                f"{len(mises_a_jour)} mise(s) à jour."
+            )
+            return api
+    except Exception as e:  # noqa: BLE001
+        DB.session.rollback()
+        current_app.logger.exception("import cultures")
         api.add_error(system_error=str(e), user_message=f"Erreur inattendue : {e}")
         return api
