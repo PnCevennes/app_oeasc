@@ -10,7 +10,7 @@
 -->
 
 <template>
-  <div style="width: 100%">
+  <div style="width: 100%; padding: 0 16px; box-sizing: border-box">
     <h1>{{ config.title }} - Page d'administation</h1>
     <v-tabs
       v-model="tab"
