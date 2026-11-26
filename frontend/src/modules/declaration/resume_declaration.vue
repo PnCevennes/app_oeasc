@@ -27,7 +27,7 @@
           </th>
         </tr>
         <!-- seulement visible par les admins -->
-        <tr v-if="this.$store.getters.droitMax >= 5">
+        <tr v-if="this.$store.getters.droitMax >= this.$droits.ANIMATEUR">
           <td class="gauche">Validité</td>
           <td class="droite">{{ declaration_data.b_valid ? 'Validé' : 'Non validé' }}</td>
         </tr>

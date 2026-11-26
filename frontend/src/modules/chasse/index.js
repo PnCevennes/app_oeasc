@@ -20,6 +20,7 @@ import configStoreRealisation from './config/store-realisation.js';
 import configStoreStandardMesure from './config/store-standard-mesure.js';
 
 // composants disponibles dans les pages CMS (voir CONTENT plus bas) : chargés à la demande
+import { DROITS } from '@/config/droits.js';
 // seulement quand une page en fait effectivement usage, pas à chaque démarrage de l'app
 // (ce module est importé eagerly par modules/index.js pour construire le store Vuex central)
 const Graph_bilan_evolution = defineAsyncComponent(
@@ -80,7 +81,7 @@ const ROUTE = [
         },
       },
     },
-    access: 5, // droit d'accès minimum
+    access: DROITS.ADMIN, // consultation ; la modification des données exige ANIMATEUR (backend)
   },
 
   {
@@ -89,7 +90,8 @@ const ROUTE = [
     label: 'Saisie données chasse',
     hideTitle: true, // True => cache le bandeau header pour plus de place
     component: () => import('./form-realisation-chasse.vue'),
-    access: 4,
+    access: DROITS.ANIMATEUR,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ANIMATEUR,
   },
 
   {
@@ -98,7 +100,7 @@ const ROUTE = [
     label: 'Exports données chasse', // titre dans le menu (mais pas dans la page)
     hideTitle: true, // True => cache le bandeau header pour plus de place
     component: () => import('./exports-chasse.vue'),
-    access: 4,
+    access: DROITS.ADMIN,
   },
 
   {
@@ -107,7 +109,7 @@ const ROUTE = [
     label: 'Données aberrantes', // titre dans le menu (mais pas dans la page)
     hideTitle: true, // True => cache le bandeau header pour plus de place
     component: () => import('./donnees-aberrantes-chasse.vue'),
-    access: 4,
+    access: DROITS.ADMIN,
   },
 
   {
@@ -116,7 +118,8 @@ const ROUTE = [
     label: 'Imports données chasse', // titre dans le menu (mais pas dans la page)
     hideTitle: true, // True => cache le bandeau header pour plus de place
     component: () => import('./imports-chasse.vue'),
-    access: 4,
+    access: DROITS.ANIMATEUR,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ANIMATEUR,
   },
 
   {
@@ -125,10 +128,10 @@ const ROUTE = [
     label: 'Import attributions', // titre dans le menu (Administration)
     hideTitle: true,
     component: () => import('./imports-attributions-chasse.vue'),
-    access: 6, // garde de redirection (App.vue checkRigths)
+    access: DROITS.GESTIONNAIRE, // garde de redirection (App.vue checkRigths)
     // masque l'entrée dans le menu Administration (rendu par le drawer, qui ne
     // filtre pas sur meta.access) : cf. components/app/menu.js -> configMenu
-    hidden: ({ $store }) => $store.getters.droitMax < 6,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.GESTIONNAIRE,
   },
 
   {
@@ -171,7 +174,7 @@ const ROUTE = [
     label: 'Bilan données chasse', // titre dans le menu (mais pas dans la page)
     hideTitle: true, // True => cache le bandeau header pour plus de place
     component: () => import('./bilan_donnee.vue'),
-    access: 4,
+    // pas de `access` : page publique (les routes api/chasse/results/* et count_* sont publiques)
   },
 ];
 
@@ -367,16 +370,28 @@ const STORE = {
 };
 
 // Ajout des configStore en fonction des fichiers dans config
+// droitModification : masque les boutons de modification dans generic-table (aligné sur les droits C/U/D de chasse/api.py)
+configStoreZoneCynegetique.droitModification = DROITS.GESTIONNAIRE;
 storeUtils.addStore(STORE, configStoreZoneCynegetique);
+configStoreZoneIndicative.droitModification = DROITS.GESTIONNAIRE;
 storeUtils.addStore(STORE, configStoreZoneIndicative);
+configStoreLieuTir.droitModification = DROITS.ANIMATEUR;
 storeUtils.addStore(STORE, configStoreLieuTir);
+configStoreLieuTirSynonyme.droitModification = DROITS.ANIMATEUR;
 storeUtils.addStore(STORE, configStoreLieuTirSynonyme);
+configStoreSaison.droitModification = DROITS.ANIMATEUR;
 storeUtils.addStore(STORE, configStoreSaison);
+configStoreSaisonDate.droitModification = DROITS.ANIMATEUR;
 storeUtils.addStore(STORE, configStoreSaisonDate);
+configStoreAttributionMassif.droitModification = DROITS.ANIMATEUR;
 storeUtils.addStore(STORE, configStoreAttributionMassif);
+configStoreTypeBracelet.droitModification = DROITS.ANIMATEUR;
 storeUtils.addStore(STORE, configStoreTypeBracelet);
+configStoreAttribution.droitModification = DROITS.ANIMATEUR;
 storeUtils.addStore(STORE, configStoreAttribution);
+configStoreRealisation.droitModification = DROITS.ANIMATEUR;
 storeUtils.addStore(STORE, configStoreRealisation);
+configStoreStandardMesure.droitModification = DROITS.ANIMATEUR;
 storeUtils.addStore(STORE, configStoreStandardMesure);
 
 // liste des composants susceptibles d'être utilisés dans les pages créées dynamiquement.

@@ -2,11 +2,12 @@ import storeUtils from '@/store/utils';
 import configResitutionDeclaration from './config/restitution-declaration';
 import configStoreDegat from './config/store-degat';
 
+import { DROITS } from '@/config/droits.js';
 const ROUTE = [
   {
     path: '/declaration/declarer_en_ligne',
     label: 'Créér déclaration',
-    access: 1,
+    access: DROITS.CONNECTE,
     name: 'nouvelle_declaration',
     hideTitle: true,
     parent: 'declaration.systeme_alerte',
@@ -16,7 +17,7 @@ const ROUTE = [
   {
     path: '/declaration/modifier_declaration',
     label: 'Modifier déclaration',
-    access: 1,
+    access: DROITS.CONNECTE,
     hideTitle: true,
     parent: 'declaration.liste_declarations',
     name: 'modifier_declaration',
@@ -39,14 +40,14 @@ const ROUTE = [
     label: 'Relances automatiques', // titre dans le menu (Administration)
     hideTitle: true,
     component: () => import('./relances-auto.vue'),
-    access: 5, // garde de redirection (App.vue checkRigths)
-    hidden: ({ $store }) => $store.getters.droitMax < 5,
+    access: DROITS.ANIMATEUR, // garde de redirection (App.vue checkRigths)
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ANIMATEUR,
   },
 
   {
     path: '/declaration/liste',
     label: 'Alerte signalées',
-    access: 1,
+    access: DROITS.CONNECTE,
     name: 'declaration.liste_declarations',
     parent: 'declaration.systeme_alerte',
     component: () => import('./declaration-liste.vue'),
@@ -55,7 +56,7 @@ const ROUTE = [
   {
     path: '/declaration/voir_declaration/:id', // nouvelle vertion de voir_declaration. Supprimer l'anctienne quand c'est finit
     label: 'Déclaration',
-    access: 1,
+    access: DROITS.CONNECTE,
     name: 'voir_declaration',
     parent: 'declaration.liste_declarations',
     component: () => import('./voir_declaration.vue'),
@@ -85,7 +86,7 @@ const ROUTE = [
     label: 'Je signale des dégâts en forêt',
     content: 'signaler_degat_explication',
     parent: 'declaration.systeme_alerte',
-    access: 1,
+    access: DROITS.CONNECTE,
     type: 'page',
   },
   {

@@ -3,6 +3,7 @@ import { escapeHtml, formatDateFr } from '@/core/js/util/util.js';
 import { displayParcelles, displayStatut } from '../declaration.js';
 import config_variables from 'virtual:config-declaration';
 
+import { DROITS } from '@/config/droits.js';
 export default {
   idFieldName: 'id_declaration',
   addRoute: '/declaration/declarer_en_ligne', // bouton "+" : ouvre la page de création
@@ -28,7 +29,7 @@ export default {
             const aujourdhui = new Date();
             const dateFin = item.date_fin ? new Date(item.date_fin) : null;
 
-            if ($store.getters.droitMax >= 4) {
+            if ($store.getters.droitMax >= DROITS.ADMIN) {
               return true; // Les admins peuvent éditer n'importe quelle déclaration, même celles dont ils ne sont pas le déclarant ou pour lesquelles ils n'ont pas les droits nécessaires, tant qu'elles ne sont pas expirées
             }
             if ( item.statut === config_variables['STATUT_DECLARATION']['Archivée']) {
@@ -37,11 +38,12 @@ export default {
             if (dateFin && dateFin < aujourdhui) {
               return false; // Date de validité dépassée : seuls les admins peuvent éditer (les autres renouvellent ou clôturent)
             }
-            if ($store.getters.user.id_role == item.id_declarant) {
-              return true; // Les déclarants peuvent éditer leurs propres déclarations tant qu'elles ne sont pas expirées, même s'ils n'ont pas les droits nécessaires
-            } else {
-              return false; // Les autres utilisateurs ne peuvent éditer que les déclarations dont ils sont le déclarant ou pour lesquelles ils ont les droits nécessaires, tant qu'elles ne sont pas expirées
-            }
+            // Le backend ne renvoie que les déclarations visibles : les siennes et, à partir du
+            // niveau ORGANISME, celles de son organisme. Toutes sont modifiables tant qu'elles ne sont pas expirées.
+            return (
+              $store.getters.user.id_role == item.id_declarant ||
+              $store.getters.droitMax >= DROITS.ORGANISME
+            );
 
           },
         },
@@ -60,12 +62,14 @@ export default {
               return false; // Les déclarations archivées ne peuvent pas être renouvelées, même par les admins
             }
 
-            if (($store.getters.droitMax >= 4)) {
+            if (($store.getters.droitMax >= DROITS.ADMIN)) {
               return true; // Les admins peuvent renouveler n'importe quelle déclaration
-            }else if ( $store.getters.user.id_role == item.id_declarant) {
-              return true; // Les déclarants et les utilisateurs ayant les droits nécessaires peuvent renouveler les déclarations expirées dont ils sont le déclarant ou pour lesquelles ils ont les droits nécessaires
-            }else {
-              return false; // Les autres utilisateurs ne peuvent renouveler que les déclarations expirées dont ils sont le déclarant ou pour lesquelles ils ont les droits nécessaires
+            } else {
+              // déclarant, ou membre du même organisme (niveau >= ORGANISME ; liste déjà filtrée par le backend)
+              return (
+                $store.getters.user.id_role == item.id_declarant ||
+                $store.getters.droitMax >= DROITS.ORGANISME
+              );
             }
           
           },
@@ -86,7 +90,7 @@ export default {
               || item.statut === config_variables['STATUT_DECLARATION']['Archivée']
               || item.b_valid === false
               || item.renouvelee === true
-              || $store.getters.droitMax < 4) {
+              || $store.getters.droitMax < DROITS.ADMIN) {
               return false; // Les déclarations archivées ne peuvent pas être renouvelées, même par les admins
             }else {
               return true; // Les admins peuvent envoyer une relance pour n'importe quelle déclaration expirée, même celles dont ils ne sont pas le déclarant ou pour lesquelles ils n'ont pas les droits nécessaires
@@ -151,7 +155,7 @@ export default {
       display: (val) => (val.b_valid === true ? 'Oui' : val.b_valid === false ? 'Non' : '?'),
       width: '100px',
       text: 'Validé',
-      condition: ({ $store }) => $store.getters.droitMax >= 5,
+      condition: ({ $store }) => $store.getters.droitMax >= DROITS.ANIMATEUR,
       edit: {
         preloadData: ({ config, $store, id }) => {
           return apiRequest('get', `api/declaration/declaration?id=${id}`).then((response) => {

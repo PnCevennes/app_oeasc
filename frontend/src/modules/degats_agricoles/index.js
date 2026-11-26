@@ -8,6 +8,7 @@ import configStoreTypeCulture from './config/store-type-culture.js';
 import configStoreUgAgricole from './config/store-ug-agricole.js';
 import configStoreCommune from './config/store-commune.js';
 
+import { DROITS } from '@/config/droits.js';
 const ROUTE = [
   {
     name: 'degats_agricoles.restitution_gd_public',
@@ -25,7 +26,8 @@ const ROUTE = [
     label: 'Importation dégâts agricoles', // titre dans le menu (Administration)
     hideTitle: true, // True => cache le bandeau header pour plus de place
     component: () => import('./imports-degats-agricoles.vue'),
-    access: 5, // droit d'accès minimum
+    access: DROITS.ANIMATEUR, // droit d'accès minimum
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ANIMATEUR,
   },
 
   {
@@ -63,7 +65,8 @@ const ROUTE = [
         },
       },
     },
-    access: 5,
+    access: DROITS.ANIMATEUR,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ANIMATEUR,
   },
 ];
 

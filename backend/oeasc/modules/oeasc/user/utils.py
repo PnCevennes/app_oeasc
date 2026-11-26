@@ -49,9 +49,7 @@ def check_auth_redirect_login(level):
             # print("session in check_auth_redirect_login:", session)
             # si il existe un temp_user dans la session, on verifie si le token est valide
 
-            if (session.get("temp_user", None)) and (
-                not session.get("current_user")
-            ):
+            if (session.get("temp_user", None)) and (not session.get("current_user")):
                 print("temp_user in session:", session["temp_user"])
                 token = session["temp_user"].get("token", None)
                 id_verification = session["temp_user"].get("id_verification", None)

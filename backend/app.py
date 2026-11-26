@@ -265,6 +265,8 @@ with app.app_context():
     from oeasc.modules.oeasc.user import api as api_user
 
     app.register_blueprint(api_user.bp, url_prefix="/api/user")
+    # contrôle serveur du changement de droit (route de la librairie pypnusershub, sans contrôle de la cible)
+    app.before_request(api_user.controle_changement_droit)
 
     # retourne principalement des dictionnaire de nomenclatures.
     from oeasc.modules.oeasc import api as oeasc_api

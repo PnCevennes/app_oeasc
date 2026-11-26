@@ -2,6 +2,7 @@
 Fonctions de traitement de données pour les déclarations
 """
 
+from oeasc.modules.oeasc.user.droits import ADMIN, ANIMATEUR, CONNECTE, ORGANISME
 from oeasc.utils.apiResponse import ApiResponse
 from datetime import datetime, date, timedelta
 from sqlalchemy import (
@@ -263,7 +264,7 @@ def get_form_declaration(id_declaration=None, session=None):
         current_user = get_current_user(session)
         if (
             current_user
-            and (current_user["max_level_profil"] < 4)
+            and (current_user["max_level_profil"] < ADMIN)
             and (current_user["id_role"] != declaration_dict["id_declarant"])
         ):
             hide_proprietaire(declaration_dict)
@@ -732,10 +733,10 @@ def get_filtres_droits_declarations(user):
 
     niveau = user.get("max_level_profil", user.get("id_droit_max")) or 0
 
-    if niveau >= 5:
+    if niveau >= ANIMATEUR:
         return []
 
-    if niveau >= 2:
+    if niveau >= ORGANISME:
         # Liste des identifiants d'organismes considérés comme "solo" (particuliers, pas d'organisme, etc.)
         liste_id_organismes_solo = get_id_organismes(
             ["Autre (préciser)", "Pas d'organisme", "Aucun"]
@@ -743,7 +744,7 @@ def get_filtres_droits_declarations(user):
         if user["id_organisme"] not in liste_id_organismes_solo:
             return [VUsers.organisme == user["organisme"]]
 
-    if niveau >= 1:
+    if niveau >= CONNECTE:
         return [TDeclaration.id_declarant == user["id_role"]]
 
     return [false()]

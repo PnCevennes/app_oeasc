@@ -42,15 +42,20 @@ grd = GenericRouteDefinitions()
 
 config = current_app.config
 from oeasc.utils.env import db as DB
+from oeasc.modules.oeasc.user.droits import (
+    ANIMATEUR,
+    DROITS_ANIMATEUR,
+    DROITS_GESTIONNAIRE,
+)
 
 # Données de référentiel (secteurs, espèces, communes, nomenclatures...) :
 # modification réservée au droit 6. Les contenus éditoriaux (content) restent au droit 5.
-DROITS_REFERENTIEL = {"C": 6, "R": 0, "U": 6, "D": 6}
+DROITS_REFERENTIEL = DROITS_GESTIONNAIRE
 
 definitions = {
     "content": {
         "model": TContents,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_ANIMATEUR,
         "schema": TContentsSchema,
     },
     "secteur": {
@@ -223,7 +228,7 @@ def api_add_images(dir_file):
 
     # Écriture dans static/medias : réservée aux éditeurs de contenu (droit >= 5, comme commonsContent)
     current_user = get_current_user()
-    if not current_user or current_user["max_level_profil"] < 5:
+    if not current_user or current_user["max_level_profil"] < ANIMATEUR:
         return {
             "success": False,
             "message": "Vous n'avez pas les droits nécessaires pour effectuer cette action.",
@@ -260,7 +265,11 @@ def api_add_images(dir_file):
 
     # Refuse les noms vides, cachés ou de remontée de répertoire
     if not filename or filename.startswith("."):
-        return {"success": False, "message": "Nom de fichier invalide.", "code": 400}, 400
+        return {
+            "success": False,
+            "message": "Nom de fichier invalide.",
+            "code": 400,
+        }, 400
 
     # Sauvegarde le fichier dans le répertoire cible sur le serveur
     file.save(os.path.join(config["ROOT_DIR"], "static/medias/" + dir_file, filename))

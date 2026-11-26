@@ -37,6 +37,7 @@ from .repository import (
 )
 from ..generic.definitions import GenericRouteDefinitions
 from ..user.utils import check_auth_redirect_login
+from oeasc.modules.oeasc.user.droits import ANIMATEUR, DROITS_ANIMATEUR
 from ..chasse.import_async import (
     creer_suivi,
     lancer_import_async,
@@ -51,7 +52,7 @@ bp = Blueprint("agricole_api", __name__)
 grd = GenericRouteDefinitions()
 
 # définis les droit pour chaque route (C: create, R: read, U: update, D: delete)
-droits = {"C": 5, "R": 5, "U": 5, "D": 5}
+droits = {**DROITS_ANIMATEUR, "R": ANIMATEUR}
 
 definitions = {
     "declaration": {
@@ -83,7 +84,7 @@ definitions = {
     # listes de choix. Sans droit C/U/D défini, ces routes sont fermées.
     "commune": {
         "model": TCommunesArea,
-        "droits": {"R": 5},
+        "droits": {"R": ANIMATEUR},
         "schema": TCommunesAreaSchema,
     },
 }
@@ -91,13 +92,13 @@ grd.add_generic_routes("agricole", definitions)
 
 
 @bp.route("import", methods=["POST"])
-@check_auth_redirect_login(5)
+@check_auth_redirect_login(ANIMATEUR)
 def import_degats_agricoles():
     return _lancer_import("degats_agricoles")
 
 
 @bp.route("import_cultures", methods=["POST"])
-@check_auth_redirect_login(5)
+@check_auth_redirect_login(ANIMATEUR)
 def import_cultures_agricoles():
     """Import du fichier « culture / type de culture » (mêmes paramètres)."""
     return _lancer_import("cultures_agricoles")
@@ -176,7 +177,7 @@ def _lancer_import(type_import):
 
 
 @bp.route("import/status/<id_import>", methods=["GET"])
-@check_auth_redirect_login(5)
+@check_auth_redirect_login(ANIMATEUR)
 def import_status(id_import):
     """Renvoie l'état d'un import lancé en tâche de fond (statut, journal, success)."""
     etat = lire_suivi(id_import)
@@ -282,7 +283,8 @@ def results_cultures():
     """Indicateurs par culture (avec son type de culture) pour la saison `id_saison`.
     Avec `toutes_saisons=true`, les indicateurs sont cumulés sur toutes les saisons.
     `uniquement_oeasc=false` : toutes les unités de gestion, OEASC ou non.
-    Filtres optionnels : `communes`, `types_culture`, `especes` (comme `results/saisons`)."""
+    Filtres optionnels : `communes`, `types_culture`, `especes` (comme `results/saisons`).
+    """
     uniquement_oeasc = _uniquement_oeasc_from_args()
     if request.args.get("toutes_saisons", "").lower() in ("true", "1"):
         return jsonify(

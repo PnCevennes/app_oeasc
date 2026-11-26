@@ -12,7 +12,7 @@
           <v-btn
             icon
             variant="text"
-            v-if="!bEditContents && $store.getters.droitMax >= 5"
+            v-if="!bEditContents && $store.getters.droitMax >= $droits.ANIMATEUR"
             @click="bEditContents = true"
             :ref="`btn-edit-content_${getCode()}`"
           >

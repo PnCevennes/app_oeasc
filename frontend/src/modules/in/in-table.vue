@@ -188,7 +188,7 @@
                   <th>
                     <!-- Bouton pour recharger les données (admin uniquement) -->
                     <v-btn
-                      v-if="$store.getters.droitMax >= 5"
+                      v-if="$store.getters.droitMax >= $droits.ADMIN"
                       icon
                       color="primary"
                       @click="reload()"
@@ -243,7 +243,7 @@
                       :class="{ gris: indexCircuit % 2 }"
                     >
                       <input
-                        v-if="$store.getters.droitMax >= 5"
+                        v-if="$store.getters.droitMax >= $droits.ADMIN"
                         type="checkbox"
                         v-model="circuit.valide_PNC"
                         :disabled="freezeValid"
@@ -256,7 +256,7 @@
                     </td>
                     <td v-else>
                       <input
-                        v-if="$store.getters.droitMax >= 5"
+                        v-if="$store.getters.droitMax >= $droits.ADMIN"
                         type="checkbox"
                         v-model="circuit.valide_ZC"
                         :disabled="freezeValid"

@@ -1,3 +1,4 @@
+import { DROITS } from '@/config/droits.js';
 // Pour ajouter un menu il faut :
 //  Créer une définition de ce menu dans la variable `menus`
 //  Puis spécifier son emplacement configAppBar ou configDrawerMenus
@@ -55,7 +56,7 @@ const menus = {
   admin: {
     label: 'Administration',
     icon: 'fa-cog',
-    hidden: ({ $store }) => $store.getters.droitMax < 5,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ADMIN,
     // Un élément { label, icon, names } est un sous-menu (groupe)
     names: [
       {
@@ -85,7 +86,7 @@ const menus = {
     icon: 'engineering',
     label: 'Création de graphiques',
     names: ['restitution.test', 'restitution2.test'],
-    hidden: ({ $store }) => $store.getters.droitMax < 5,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ANIMATEUR,
   },
 
   resultats: {
@@ -96,6 +97,7 @@ const menus = {
       '-',
       'chasse.restitution_gd_public',
       'chasse.restitution_bilan_detaille',
+      'chasse.bilan',
       'resultats.declarations',
       'resultats.in',
       'chasse.restitution_indices_performances',
@@ -118,7 +120,7 @@ const menus = {
       'chasse.imports',
       'chasse.donnees_aberrantes',
     ],
-    hidden: ({ $store }) => $store.getters.droitMax < 5,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ADMIN,
   },
 
   documentation: {

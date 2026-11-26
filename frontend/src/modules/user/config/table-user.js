@@ -1,10 +1,11 @@
 import { config as globalConfig } from '@/config/config';
 import formDefsUser from './form-defs-user';
 
-// Édition par un administrateur : réservée aux utilisateurs de droit strictement inférieur
+// Édition par un modérateur : utilisateurs de droit strictement inférieur ; sans limite pour le niveau 6
+import { peutGererUtilisateur } from '@/config/droits.js';
 const editAdmin = (fields) => ({
   condition: ({ $store, baseModel }) =>
-    $store.getters.droitMax >= 4 && $store.getters.droitMax > baseModel.id_droit_max,
+    peutGererUtilisateur($store.getters.droitMax, baseModel.id_droit_max),
   action: {
     preProcess: ({ baseModel }) => {
       const data = {};
@@ -52,7 +53,7 @@ export default {
       display: (d) => d.droit_label || d.id_droit_max,
       edit: {
         condition: ({ $store, baseModel }) => {
-          return $store.getters.droitMax > baseModel.id_droit_max;
+          return peutGererUtilisateur($store.getters.droitMax, baseModel.id_droit_max);
         },
         action: {
           preProcess: ({ baseModel }) => {

@@ -9,6 +9,7 @@ from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
+from oeasc.modules.oeasc.user.droits import CONNECTE
 from sqlalchemy import select
 
 # from .repository import result_custom, cache_generic_table
@@ -17,6 +18,7 @@ from .repository import result_custom
 # from ..generic.repository import getlist
 
 from oeasc.utils.env import db as DB
+
 bp = Blueprint("resultat_api", __name__)
 
 # pour les rendus customisés (route 'custom/')
@@ -30,7 +32,7 @@ data_type_view_dict = {
 
 # en comnmentaire pour voir si on en a besoin
 @bp.route("get_view/<string:schema>/<string:view>", methods=["GET"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 @json_resp
 def get_view(schema, view):
     """
@@ -45,7 +47,7 @@ def get_view(schema, view):
 
 
 @bp.route("get_views", methods=["GET"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 @json_resp
 def get_views():
     """

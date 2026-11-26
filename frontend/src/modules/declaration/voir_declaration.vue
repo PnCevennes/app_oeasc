@@ -373,7 +373,7 @@ export default {
 
     define_show_buttom_relance_mail() {
       // le bouton de relance mail n'est affiché que pour les admins et si la déclaration est dans un statut qui autorise la relance
-      if (this.$store.getters.droitMax >= 4 && this.declaration_data) {
+      if (this.$store.getters.droitMax >= this.$droits.ADMIN && this.declaration_data) {
         const statut = this.declaration_data.statut;
         const config_statut = config_variables['STATUT_DECLARATION'];
         if (statut >= config_statut['Relance']) {

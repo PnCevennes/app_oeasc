@@ -1,3 +1,4 @@
+import { DROITS } from '@/config/droits.js';
 /**
  * Restitution (v1) — traitement des données côté client
  *
@@ -15,7 +16,7 @@ const ROUTE = [
     label: 'Restitution - tableau de bord',
     name: 'restitution.test',
     parent: 'restitution',
-    access: 1,
+    access: DROITS.CONNECTE,
     hideTitle: true,
     component: () => import('./restitution-dashboard.vue'),
   },

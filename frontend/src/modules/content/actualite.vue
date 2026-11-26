@@ -17,7 +17,7 @@
   <div>
     <!-- h1 de la page (SEO) : le bandeau de l'en-tête n'est plus un h1 ; masqué visuellement car le menu et le fil d'ariane donnent déjà le contexte -->
     <h1 class="sr-only-titre">Actualités</h1>
-    <div v-if="$store.getters.droitMax >= 5">
+    <div v-if="$store.getters.droitMax >= $droits.ANIMATEUR">
       <v-btn
         color="success"
         to="/actualite/"

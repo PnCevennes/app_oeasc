@@ -4,6 +4,7 @@ from flask import Blueprint, current_app, request
 from utils_flask_sqla.response import json_resp
 from sqlalchemy import update
 from oeasc.modules.oeasc.user.utils import check_auth_redirect_login
+from oeasc.modules.oeasc.user.droits import ADMIN, DROITS_ADMIN
 
 from .repository import in_data
 
@@ -33,22 +34,22 @@ from oeasc.utils.env import db as DB
 definitions = {
     "realisation": {
         "model": TRealisations,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_ADMIN,
         "schema": TRealisationsSchema,
     },
     "circuit": {
         "model": TCircuits,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_ADMIN,
         "schema": TCircuitsSchema,
     },
     "observer": {
         "model": TObservers,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_ADMIN,
         "schema": TObserversSchema,
     },
     "cor_realisation_observer": {
         "model": CorRealisationObserver,
-        "droits": {"C": 5, "R": 0, "U": 5, "D": 5},
+        "droits": DROITS_ADMIN,
         "schema": CorRealisationObserverSchema,
     },
 }
@@ -78,7 +79,7 @@ def in_test_results():
 
 
 @bp.route("valid_realisation", methods=["PATCH"])
-@check_auth_redirect_login(5)
+@check_auth_redirect_login(ADMIN)
 @json_resp
 def in_valid_realisation():
     """
@@ -86,7 +87,7 @@ def in_valid_realisation():
 
     Cette fonction est appelée lors d'une requête PATCH sur l'endpoint
     /valid_realisation/. Elle nécessite que l'utilisateur soit authentifié
-    avec un niveau de droit >= 5 (voir le décorateur check_auth_redirect_login).
+    avec un niveau de droit >= 4 (voir le décorateur check_auth_redirect_login).
     Elle est typiquement utilisée depuis l'interface pour valider ou invalider
     une réalisation (par exemple, après vérification ou correction).
     """

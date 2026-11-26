@@ -19,6 +19,9 @@ const processTableConfig = (configStore) => {
     striped: true,
     small: true,
     configForm: configStore.form,
+    // niveau de droit minimal pour modifier (ajouter/éditer/supprimer) ; absent = pas de restriction côté interface
+    // (le backend reste la référence : droits C/U/D des routes génériques)
+    droitModification: configStore.droitModification,
   };
 
   const headerDefs = {};

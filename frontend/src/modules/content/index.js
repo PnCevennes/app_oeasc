@@ -3,6 +3,7 @@ import storeUtils from '@/store/utils';
 import configStoreContent from './config/store-content';
 
 // Récup«ration des  routes des actus et des commons pour les ajouter aux routes globales
+import { DROITS } from '@/config/droits.js';
 const ROUTE = [
   {
     // admin
@@ -21,7 +22,7 @@ const ROUTE = [
         },
       },
     },
-    access: 5,
+    access: DROITS.ANIMATEUR,
   },
 
   {

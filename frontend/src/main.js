@@ -9,10 +9,14 @@ import vuetify from '@/plugins/vuetify'; // path to vuetify export
 
 import VueMatomo from 'vue-matomo';
 import { config } from '@/config/config.js';
+import { DROITS } from '@/config/droits.js';
 
 // port d'ecoute du serveur backend 5000. Mettre le meme dans config/config.py
 
 const app = createApp(App);
+
+// niveaux de droits, accessibles dans les composants et templates : this.$droits.ADMIN
+app.config.globalProperties.$droits = DROITS;
 
 // Configuration du compilateur de templates *à l'exécution* (utilisé par vue3-runtime-template
 // pour le contenu markdown/CMS dynamique dans modules/content/content.vue) :

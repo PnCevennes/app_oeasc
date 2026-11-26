@@ -180,30 +180,42 @@ def creer_compte(login, claims):
         _utilisateurs_par(models.User.email, email)
         or _utilisateurs_par(models.User.identifiant, email)
     ):
-        _refuse("e-mail %r déjà utilisé par un autre compte (identifiant %r)", email, login)
+        _refuse(
+            "e-mail %r déjà utilisé par un autre compte (identifiant %r)", email, login
+        )
 
     organisme = db.session.execute(
         sa.select(models.Organisme).where(
             models.Organisme.nom_organisme == CREATION_ORGANISME
         )
     ).scalar_one_or_none()
-    groupe = db.session.execute(
-        sa.select(models.User)
-        .join(
-            models.UserApplicationRight,
-            models.UserApplicationRight.id_role == models.User.id_role,
+    groupe = (
+        db.session.execute(
+            sa.select(models.User)
+            .join(
+                models.UserApplicationRight,
+                models.UserApplicationRight.id_role == models.User.id_role,
+            )
+            .join(
+                models.Profils,
+                models.UserApplicationRight.id_profil == models.Profils.id_profil,
+            )
+            .join(
+                models.Application,
+                models.UserApplicationRight.id_application
+                == models.Application.id_application,
+            )
+            .where(models.User.groupe.is_(True))
+            .where(models.Profils.code_profil == CREATION_CODE_PROFIL)
+            .where(
+                models.Application.code_application
+                == current_app.config["CODE_APPLICATION"]
+            )
         )
-        .join(
-            models.Profils, models.UserApplicationRight.id_profil == models.Profils.id_profil
-        )
-        .join(
-            models.Application,
-            models.UserApplicationRight.id_application == models.Application.id_application,
-        )
-        .where(models.User.groupe.is_(True))
-        .where(models.Profils.code_profil == CREATION_CODE_PROFIL)
-        .where(models.Application.code_application == current_app.config["CODE_APPLICATION"])
-    ).scalars().unique().all()
+        .scalars()
+        .unique()
+        .all()
+    )
     if organisme is None or len(groupe) != 1:
         current_app.logger.error(
             "Création de compte OpenID impossible : organisme %r %s, groupes de profil %s : %d",
@@ -231,7 +243,9 @@ def creer_compte(login, claims):
     user.groups.append(groupe[0])
     db.session.add(user)
     db.session.commit()
-    current_app.logger.info("Compte créé via Échange : %r (droit %d)", login, CREATION_CODE_PROFIL)
+    current_app.logger.info(
+        "Compte créé via Échange : %r (droit %d)", login, CREATION_CODE_PROFIL
+    )
     return user
 
 
@@ -264,5 +278,7 @@ def find_user(claims):
         .all()
     )
     if len(existants) != 1 or len(autorises) != 1 or autorises[0].active is False:
-        _refuse("compte %s=%r inactif, ambigu ou sans droit sur l'application", claim, login)
+        _refuse(
+            "compte %s=%r inactif, ambigu ou sans droit sur l'application", claim, login
+        )
     return autorises[0]

@@ -139,7 +139,7 @@
                 <template v-slot:activator="{ props: tooltipActivatorProps }">
                   <v-btn
                     v-bind="tooltipActivatorProps"
-                    v-if="header.value == 'actions'"
+                    v-if="header.value == 'actions' && peutModifier()"
                     color="primary"
                     icon
                     size="x-small"
@@ -170,7 +170,10 @@
                 :key="indexAction"
               >
                 <v-btn
-                  v-if="!action.condition || action.condition({ $store, item: props.item })"
+                  v-if="
+                    peutModifier() &&
+                    (!action.condition || action.condition({ $store, item: props.item }))
+                  "
                   icon
                   size="x-small"
                   variant="text"
@@ -327,6 +330,16 @@ export default {
     },
 
     /**
+     * Vrai si l'utilisateur a le droit de modifier ce tableau (configTable.droitModification,
+     * issu du configStore). Sans restriction définie, toujours vrai. Masque boutons "+", éditer,
+     * supprimer et édition de cellule ; le backend refuse de toute façon les écritures non autorisées.
+     */
+    peutModifier() {
+      const droit = this.configTable && this.configTable.droitModification;
+      return droit === undefined || droit === null || this.$store.getters.droitMax >= droit;
+    },
+
+    /**
      * Détermine si une cellule du tableau peut être éditée.
      *
      * Cette fonction vérifie d'abord si la propriété 'edit' est définie dans l'en-tête de la colonne.
@@ -338,6 +351,7 @@ export default {
      */
     bEditCell(props) {
       return (
+        this.peutModifier() &&
         props.column.edit &&
         (!props.column.edit.condition ||
           props.column.edit.condition({

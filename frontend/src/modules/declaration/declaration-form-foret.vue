@@ -5,7 +5,7 @@ parent (v-model sur ses propriétés), comme degats_declaration_form.vue. -->
     <!-- -------------  informations sur le declarant ---------------- -->
     <div
       style="margin-top: 30px"
-      v-if="$store.getters.droitMax >= 5 && liste_declarants.length > 0"
+      v-if="$store.getters.droitMax >= $droits.ANIMATEUR && liste_declarants.length > 0"
     >
       <h3>Informations sur le déclarant</h3>
       <div>

@@ -2,6 +2,7 @@
 fonction acces DB pour la partie user
 """
 
+from oeasc.modules.oeasc.user.droits import ANIMATEUR, peut_gerer_utilisateur
 from flask import current_app, session
 from oeasc.utils.current_user import get_current_user
 from sqlalchemy import select, func
@@ -117,7 +118,7 @@ def get_users():
         # - Si l'utilisateur courant a un droit max >= 5 (admin ou super utilisateur)
         # - OU si l'utilisateur courant appartient au même organisme que l'utilisateur parcouru
         #   et que le nom de l'organisme correspond (double vérification)
-        if current_user["id_droit_max"] >= 5 or (
+        if current_user["id_droit_max"] >= ANIMATEUR or (
             current_user["id_organisme"] == user.id_organisme
             and current_user["organisme"] == user.organisme
         ):
@@ -230,7 +231,9 @@ def admin_update_user(id_role, data, current_id_role):
     caller = get_user(current_id_role)
     if not target:
         return None, ("Utilisateur introuvable", 404)
-    if not caller or caller["id_droit_max"] < 4 or caller["id_droit_max"] <= target["id_droit_max"]:
+    if not caller or not peut_gerer_utilisateur(
+        caller["id_droit_max"], target["id_droit_max"]
+    ):
         return None, ("Droits insuffisants pour modifier cet utilisateur", 403)
 
     user = DB.session.get(User, id_role)
@@ -247,7 +250,10 @@ def admin_update_user(id_role, data, current_id_role):
             )
         ).first()
         if doublon:
-            return None, ("Cette adresse e-mail est déjà utilisée par un autre compte", 400)
+            return None, (
+                "Cette adresse e-mail est déjà utilisée par un autre compte",
+                400,
+            )
         user.email = email
         user.identifiant = email  # l'e-mail sert d'identifiant de connexion
 

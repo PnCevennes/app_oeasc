@@ -316,7 +316,7 @@
           <!-- --------------------- Validation directe de la déclaration pour les admins --------------------- -->
           <div v-if="type_action == 'CREATION' || type_action == 'MODIFICATION'">
             <div
-              v-if="this.$store.getters.droitMax >= 5"
+              v-if="this.$store.getters.droitMax >= this.$droits.ANIMATEUR"
               style="margin-top: 30px"
             >
               <h3>Validation de la déclaration pour les admins</h3>
@@ -623,7 +623,7 @@ export default {
     this.define_type_action();
 
     // si id_droit_max >= 5 on récupère la liste des déclarants
-    if (this.$store.getters.droitMax >= 5) {
+    if (this.$store.getters.droitMax >= this.$droits.ANIMATEUR) {
       this.liste_declarants = await apiRequest('GET', 'api/user/users');
     }
 
@@ -674,7 +674,7 @@ export default {
       // Date de validité dépassée : seuls les admins peuvent modifier, les autres renouvellent ou clôturent
       if (
         this.type_action === 'MODIFICATION' &&
-        this.$store.getters.droitMax < 4 &&
+        this.$store.getters.droitMax < this.$droits.ADMIN &&
         this.declaration_data.date_fin &&
         new Date(this.declaration_data.date_fin) < new Date()
       ) {
@@ -798,7 +798,7 @@ export default {
           }
           // Lors d'une modification, la déclaration doit être à nouveau validée par un admin :
           // seuls les admins (droit >= 5) peuvent choisir de la valider directement via le formulaire
-          if (this.$store.getters.droitMax < 5) {
+          if (this.$store.getters.droitMax < this.$droits.ANIMATEUR) {
             this.declaration_data.b_valid = false;
           } else if (this.declaration_data.b_valid) {
             this.declaration_data.statut = 1; // même statut que la route validate_declaration

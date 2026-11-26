@@ -2,6 +2,7 @@ import { config } from '@/config/config.js';
 import { apiRequest } from '@/core/js/data/api.js';
 
 // ROUTE: intègre les routes pour la connexion, l'inscription, la déconnexion et
+import { DROITS } from '@/config/droits.js';
 // la gestion du mot de passe oublié, ainsi que le profil utilisateur.
 // ROUTE vers l'administration des utilisateurs.
 // LE STORE stocke les informations de l'utilisateur connecté et les informations
@@ -37,7 +38,7 @@ const ROUTE = [
   {
     path: '/user/espace_utilisateur',
     label: 'Espace utilisateur',
-    access: 1,
+    access: DROITS.CONNECTE,
     icon: 'mdi-account',
     name: 'user.espace_utilisateur',
     parent: 'page.accueil',
@@ -59,9 +60,9 @@ const ROUTE = [
     name: 'user.admin',
     icon: 'mdi-account-group',
     parent: 'page.accueil',
-    access: 4,
+    access: DROITS.ADMIN,
     component: () => import('./manage-user.vue'),
-    hidden: ({ $store }) => !$store.getters.droitMax >= 4,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ADMIN,
   },
   {
     path: '/user/change_password',

@@ -48,6 +48,13 @@ from werkzeug.utils import secure_filename
 from utils_flask_sqla.response import json_resp, csv_resp
 from utils_flask_sqla.generic import GenericQuery
 from ..user.utils import check_auth_redirect_login
+from oeasc.modules.oeasc.user.droits import (
+    ADMIN,
+    ANIMATEUR,
+    DROITS_ANIMATEUR,
+    DROITS_GESTIONNAIRE,
+    GESTIONNAIRE,
+)
 from ..generic.errors import build_error_payload
 from .repositories import (
     get_chasse_bilan,
@@ -82,7 +89,6 @@ from py3o.template import Template
 config = current_app.config
 from oeasc.utils.env import db as DB
 
-
 bp = Blueprint("chasse_api", __name__)
 
 ############################################################################################
@@ -94,9 +100,10 @@ bp = Blueprint("chasse_api", __name__)
 grd = GenericRouteDefinitions()
 
 # définis les droit pour chaque route (C: create, R: read, U: update, D: delete)
-droits = {"C": 4, "R": 0, "U": 4, "D": 4}
+# référentiels et données chasse : consultation libre, modification réservée aux animateurs
+droits = DROITS_ANIMATEUR
 # zonages (zones cynégétiques et indicatives) : modification réservée au droit 6
-droits_zonage = {"C": 6, "R": 0, "U": 6, "D": 6}
+droits_zonage = DROITS_GESTIONNAIRE
 
 # pour certains graphiques on modifiera le numéro de mois par son nom.
 MOIS_MAPPING = {
@@ -239,7 +246,9 @@ def api_result_ice():
     params = chasse_process_args()
 
     # résultat mis en cache (même principe que le bilan : clé versionnée par data_version())
-    key = f"chasse_ice:{data_version()}:{json.dumps(params, sort_keys=True, default=str)}"
+    key = (
+        f"chasse_ice:{data_version()}:{json.dumps(params, sort_keys=True, default=str)}"
+    )
     cached = cache.get(key)
     if cached is not None:
         return cached
@@ -317,6 +326,7 @@ def api_result_custom():
 
 
 @bp.route("export/ods", methods=["GET"])
+@check_auth_redirect_login(ADMIN)
 def api_chasse_ods():
     """
     Route pour exporter le bilan de chasse au format ODS (OpenDocument Spreadsheet).
@@ -353,6 +363,7 @@ def api_chasse_ods():
 
 
 @bp.route("export/csv", methods=["GET"])
+@check_auth_redirect_login(ADMIN)
 @csv_resp
 def api_result_export():
     """
@@ -377,7 +388,7 @@ def api_result_export():
 
 
 @bp.route("import/traitement-csv", methods=["POST"])
-@check_auth_redirect_login(4)
+@check_auth_redirect_login(ANIMATEUR)
 def traitement_csv():
     """Lance l'importation d'un fichier CSV Geochasse en tâche de fond.
 
@@ -445,7 +456,7 @@ def traitement_csv():
 
 
 @bp.route("import/status/<id_import>", methods=["GET"])
-@check_auth_redirect_login(4)
+@check_auth_redirect_login(ANIMATEUR)
 def import_status(id_import):
     """Renvoie l'état d'un import lancé en tâche de fond (statut, journal, success)."""
     etat = lire_suivi(id_import)
@@ -458,6 +469,7 @@ def import_status(id_import):
 
 
 @bp.route("import/download-erreurs-csv/<file_name>", methods=["GET"])
+@check_auth_redirect_login(ANIMATEUR)
 def download_erreurs_csv(file_name):
     """Route pour télécharger le fichier CSV contenant les erreurs d'importation des réalisations de chasse.
     Le nom du fichier est passé en paramètre dans l'URL. Le fichier doit être situé dans le dossier static/erreurs_import_chasse.
@@ -491,14 +503,14 @@ _TYPES_IMPORT_ATTRIBUTIONS = {
 
 
 @bp.route("import-attributions/etat", methods=["GET"])
-@check_auth_redirect_login(6)
+@check_auth_redirect_login(GESTIONNAIRE)
 def import_attributions_etat():
     """État des 4 étapes pour la saison courante (pilote le déverrouillage front)."""
     return jsonify({"success": True, "etat": get_etat_import_attributions()})
 
 
 @bp.route("import-attributions/<etape>", methods=["POST"])
-@check_auth_redirect_login(6)
+@check_auth_redirect_login(GESTIONNAIRE)
 def import_attributions_lancer(etape):
     """Lance l'un des 3 imports du plan de chasse en tâche de fond.
 
@@ -581,7 +593,7 @@ def import_attributions_lancer(etape):
 
 
 @bp.route("donnees-aberrantes", methods=["GET"])
-@check_auth_redirect_login(4)
+@check_auth_redirect_login(ADMIN)
 def api_donnees_aberrantes():
     """Réalisations dont le poids ou la longueur de dagues sort de la fourchette standard.
 
@@ -614,7 +626,7 @@ def api_donnees_aberrantes():
 
 
 @bp.route("donnees-aberrantes/<int:id_realisation>", methods=["PATCH"])
-@check_auth_redirect_login(4)
+@check_auth_redirect_login(ADMIN)
 def api_donnees_aberrantes_modifier(id_realisation):
     """Corrige les mesures (poids / dagues) d'une réalisation.
 
@@ -978,9 +990,7 @@ def api_difference_nbRealisations_nbAttributions():
     stmt_realisation = _stmt_realisations(
         TTypeBracelets.code_type_bracelet, func.count().label("nb_realisations")
     )
-    stmt_realisation = _filtres_communs(
-        stmt_realisation, args, espece_obligatoire=True
-    )
+    stmt_realisation = _filtres_communs(stmt_realisation, args, espece_obligatoire=True)
     stmt_realisation = stmt_realisation.group_by(TTypeBracelets.code_type_bracelet)
     res_realisation = DB.session.execute(stmt_realisation).all()
 

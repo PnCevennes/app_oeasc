@@ -12,12 +12,19 @@ from utils_flask_sqla.response import json_resp
 from .repository import (
     get_user_form_email,
     get_users,
+    get_user,
     get_libelles_droits,
     get_liste_organismes_oeasc,
     admin_update_user,
     self_update_user,
 )
 from ..user.utils import check_auth_redirect_login
+from oeasc.modules.oeasc.user.droits import (
+    ADMIN,
+    CONNECTE,
+    GESTIONNAIRE,
+    peut_gerer_utilisateur,
+)
 from . import oidc
 from utils_flask_sqla.response import csv_resp
 
@@ -183,7 +190,7 @@ def api_get_user_from_mail(email):
 
 
 @bp.route("/user_information/<int:id_role>", methods=["GET"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 @json_resp
 def api_get_user(id_role):
     """
@@ -212,25 +219,72 @@ def api_get_user(id_role):
     return out  # Retourne l'utilisateur trouvé ou None si aucun ne correspond
 
 
+def controle_changement_droit():
+    """
+    Garde-fou (before_request de l'application) pour la route de la librairie pypnusershub
+    ``POST register/post_usershub/change_application_right``, qui n'exige que le niveau ADMIN
+    sans vérifier ni l'utilisateur ciblé ni le niveau attribué.
+
+    Refuse (403) si l'appelant ne peut pas gérer l'utilisateur cible (``peut_gerer_utilisateur``)
+    ou s'il attribue un niveau qui n'est pas strictement inférieur au sien (sauf GESTIONNAIRE).
+    Retourne None pour toute autre requête (ou si l'appelant n'est pas connecté : la route
+    d'origine le refuse elle-même).
+    """
+    if (
+        request.method != "POST"
+        or not (request.endpoint or "").endswith("post_usershub")
+        or (request.view_args or {}).get("type_action") != "change_application_right"
+    ):
+        return None
+
+    appelant = get_current_user()
+    if not appelant:
+        return None
+    droit_appelant = appelant.get("max_level_profil", appelant.get("id_droit_max")) or 0
+
+    data = request.get_json(silent=True) or {}
+    try:
+        id_role = int(data.get("id_role"))
+        nouveau_droit = int(data.get("id_droit"))
+    except (TypeError, ValueError):
+        return jsonify({"msg": "Paramètres id_role / id_droit invalides"}), 400
+
+    cible = get_user(id_role)
+    if not cible:
+        return jsonify({"msg": "Utilisateur introuvable"}), 404
+
+    if not peut_gerer_utilisateur(droit_appelant, cible["id_droit_max"]) or not (
+        nouveau_droit < droit_appelant or droit_appelant >= GESTIONNAIRE
+    ):
+        return (
+            jsonify(
+                {"msg": "Droits insuffisants pour modifier le droit de cet utilisateur"}
+            ),
+            403,
+        )
+    return None
+
+
 @bp.route("/libelles_droits", methods=["GET"])
-@check_auth_redirect_login(4)
+@check_auth_redirect_login(ADMIN)
 @json_resp
 def api_libelles_droits():
     """
     Niveaux de droit attribuables par l'utilisateur courant (strictement inférieurs
-    au sien) sous la forme [{value: niveau, text: intitulé du groupe UsersHub}].
+    au sien, jusqu'au sien inclus pour un gestionnaire) sous la forme [{value: niveau, text: intitulé du groupe UsersHub}].
     """
     user = get_current_user()
     droit_courant = user.get("max_level_profil", user.get("id_droit_max")) or 0
     return [
         {"value": niveau, "text": libelle}
         for niveau, libelle in sorted(get_libelles_droits().items())
-        if 1 <= niveau < droit_courant
+        if CONNECTE <= niveau
+        and (niveau < droit_courant or droit_courant >= GESTIONNAIRE)
     ]
 
 
 @bp.route("/users", methods=["GET"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 @json_resp
 def api_get_users():
     """
@@ -240,7 +294,7 @@ def api_get_users():
 
 
 @bp.route("/export", methods=["GET"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 @csv_resp
 def api_export_user():
     """
@@ -279,7 +333,7 @@ def api_export_user():
 
 
 @bp.route("/admin_update/<int:id_role>", methods=["POST"])
-@check_auth_redirect_login(4)
+@check_auth_redirect_login(ADMIN)
 @json_resp
 def api_admin_update_user(id_role):
     """
@@ -288,16 +342,14 @@ def api_admin_update_user(id_role):
     Retourne l'utilisateur mis à jour.
     """
     data = request.get_json() or {}
-    user, error = admin_update_user(
-        id_role, data, get_current_user().get("id_role")
-    )
+    user, error = admin_update_user(id_role, data, get_current_user().get("id_role"))
     if error:
         return {"message": error[0]}, error[1]
     return user
 
 
 @bp.route("/self_update", methods=["POST"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 @json_resp
 def api_self_update_user():
     """

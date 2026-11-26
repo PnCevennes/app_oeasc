@@ -25,7 +25,7 @@ resume_declaration.vue, qui affiche une déclaration en cours de saisie. -->
             </th>
           </tr>
           <!-- seulement visible par les admins -->
-          <tr v-if="this.$store.getters.droitMax >= 4">
+          <tr v-if="this.$store.getters.droitMax >= this.$droits.ADMIN">
             <td class="gauche">Validité</td>
             <td class="droite">{{ declaration_data.valide }}</td>
           </tr>
@@ -36,7 +36,7 @@ resume_declaration.vue, qui affiche une déclaration en cours de saisie. -->
               {{ declaration_data.autorisation }}
             </td>
           </tr>
-          <tr v-if="this.$store.getters.droitMax >= 2">
+          <tr v-if="this.$store.getters.droitMax >= this.$droits.ORGANISME">
             <td class="gauche">Statut</td>
             <td class="droite">
               {{ declaration_data.statut_label }}

@@ -40,6 +40,7 @@ from .repository import (
     get_label_statut_declaration,
 )
 from ..user.utils import check_auth_redirect_login
+from oeasc.modules.oeasc.user.droits import ADMIN, ANIMATEUR, CONNECTE
 from .relances import (
     get_liste_relances,
     get_relances_auto_actives,
@@ -75,7 +76,7 @@ def get_config():
 # Elle est utilisée lorsqu'on souhaite afficher ou utiliser les données d'une forêt spécifique,
 # ainsi que celles de son propriétaire. Elle cache le nom du propriétaire si celui-ci est privé.
 @bp.route("foret_from_code/<string:code_foret>", methods=["GET"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 def api_get_foret_from_code(code_foret):
     foret, _ = get_foret_from_code(code_foret)
 
@@ -105,7 +106,7 @@ def api_get_foret_from_code(code_foret):
 @bp.route("declaration", methods=["GET"])
 # @bp.route("declaration", methods=["GET"], defaults={"id_declaration": None})
 @check_auth_redirect_login(
-    1
+    CONNECTE
 )  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
 # @json_resp_accept_empty_list  # Retourne une liste vide si aucune déclaration n'est trouvée
 def api_get_declaration():
@@ -123,7 +124,7 @@ def api_get_declaration():
 
 
 @bp.route("voir_declaration/<int:id_declaration>", methods=["GET"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 @json_resp
 def route_declaration(id_declaration):
     """
@@ -219,6 +220,7 @@ def all_areas_declaration():
 # (décommissionné). Couche "Plan IGN" (GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2) :
 # fond topographique multi-échelles en accès libre, sans clé d'API, qui a
 # remplacé l'ancienne couche GEOGRAPHICALGRIDSYSTEMS.MAPS (Cartes/Scan25).
+
 
 def _tile_cache_dir():
     root = current_app.config.get("ROOT_DIR")
@@ -372,7 +374,7 @@ def degats():
 
 
 @bp.route("declarations", methods=["GET"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 @json_resp
 def declarations():
     """
@@ -451,7 +453,9 @@ def clean_declaration_data(declaration_data):
 # Elle est utilisée lorsqu'un utilisateur souhaite mettre à jour les informations d'une déclaration
 # déjà enregistrée dans la base de données, par exemple pour corriger une erreur ou ajouter des précisions.
 @bp.route("declaration", methods=["PATCH"])
-@check_auth_redirect_login(1)  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
+@check_auth_redirect_login(
+    CONNECTE
+)  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
 # @json_resp  # Retourne la réponse au format JSON
 def api_patch_declaration():
     """
@@ -489,7 +493,7 @@ def api_patch_declaration():
         niveau = (
             current_user.get("max_level_profil", current_user.get("id_droit_max")) or 0
         )
-        if date_fin and date_fin < date.today() and niveau < 4:
+        if date_fin and date_fin < date.today() and niveau < ADMIN:
             response = ApiResponse(log_file="declarations.log", session=session)
             response.add_error(
                 system_error=f"Modification refusée de la déclaration {id_declaration} : date de validité dépassée",
@@ -522,7 +526,7 @@ def api_patch_declaration():
 # Typiquement, cette route est appelée lors de la soumission d'un formulaire de déclaration par un utilisateur.
 @bp.route("declaration", methods=["POST"])
 @check_auth_redirect_login(
-    1
+    CONNECTE
 )  # Vérifie que l'utilisateur est authentifié (niveau 1 minimum)
 # @json_resp  # Retourne la réponse au format JSON
 def api_post_declaration():
@@ -560,7 +564,7 @@ def api_post_declaration():
 # renouvellement de déclaration. Ne pas utilser check_auth_redirect_login car cette route est appelée via un lien de renouvellement qui peut être utilisé par des utilisateurs non connectés ou avec des droits limités. La sécurité de cette route est assurée par la vérification du token de renouvellement et de sa date d'expiration dans la fonction check_token_declaration.
 @bp.route("duplicate_declaration", methods=["POST"])
 # @json_resp
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 def duplicate_declaration():
     """
     Duplique une déclaration existante.
@@ -707,7 +711,7 @@ def duplicate_declaration():
 
 
 @bp.route("cloture_declaration", methods=["POST"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 def cloture_declaration():
     """
     Clôture une déclaration existante.
@@ -772,7 +776,7 @@ def cloture_declaration():
 
 
 @bp.route("delete_declaration/<int:id_declaration>", methods=["POST"])
-@check_auth_redirect_login(4)
+@check_auth_redirect_login(ADMIN)
 @json_resp
 def delete_declaration(id_declaration):
     """
@@ -794,7 +798,7 @@ def delete_declaration(id_declaration):
 
 
 @bp.route("validate_declaration", methods=["POST"])
-@check_auth_redirect_login(4)
+@check_auth_redirect_login(ADMIN)
 @json_resp
 def validate_declaration():
     """
@@ -835,7 +839,7 @@ def validate_declaration():
 
 
 @bp.route("send_mail_renouvellement", methods=["GET"])
-@check_auth_redirect_login(3)
+@check_auth_redirect_login(ADMIN)  # comme le bouton de relance (réservé admin)
 def send_mail():
     """
     Envoie un mail de renouvellement de déclaration.
@@ -888,7 +892,7 @@ def send_mail():
 
 
 @bp.route("relances_auto", methods=["GET"])
-@check_auth_redirect_login(5)
+@check_auth_redirect_login(ANIMATEUR)
 @json_resp
 def api_get_relances_auto():
     """Page d'administration « Relances automatiques » : état de l'interrupteur
@@ -900,7 +904,7 @@ def api_get_relances_auto():
 
 
 @bp.route("relances_auto/actif", methods=["POST"])
-@check_auth_redirect_login(5)
+@check_auth_redirect_login(ANIMATEUR)
 def api_post_relances_auto_actif():
     """Active ou désactive les relances automatiques. Corps : {"actif": true|false}."""
     response = ApiResponse(log_file="declarations.log", session=session)
@@ -959,7 +963,7 @@ def get_file_name(type_out):
 
 
 @bp.route("export_liste_declarations", methods=["GET"])
-@check_auth_redirect_login(1)
+@check_auth_redirect_login(CONNECTE)
 def export_declarations():
     """
     Exporte les déclarations au format CSV ou GeoPackage selon les paramètres de la requête.

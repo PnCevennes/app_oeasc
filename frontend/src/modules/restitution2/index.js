@@ -29,12 +29,13 @@
 
 import { apiRequest } from '@/core/js/data/api.js';
 
+import { DROITS } from '@/config/droits.js';
 const ROUTE = [
   {
     path: '/restitution2/test',
     label: 'Restitution (nouvelle version) - tableau de bord',
     name: 'restitution2.test',
-    access: 1,
+    access: DROITS.CONNECTE,
     hideTitle: true,
     component: () => import('./restitution-dashboard.vue'),
   },

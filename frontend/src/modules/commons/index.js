@@ -4,6 +4,7 @@ import configStoreEspece from './config/store-espece.js';
 import configStoreNomenclature from './config/store-nomenclature.js';
 import configStoreNomenclatureType from './config/store-nomenclature-type.js';
 
+import { DROITS } from '@/config/droits.js';
 /**
  * @constant {Array<Object>} ROUTE
  * @description
@@ -49,14 +50,19 @@ const ROUTE = [
         },
       },
     },
-    access: 5,
+    access: DROITS.ANIMATEUR,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ANIMATEUR,
   },
 ];
 
 const STORE = {};
+configStoreEspece.droitModification = DROITS.GESTIONNAIRE; // référentiels : écriture réservée au niveau 6 (backend : DROITS_REFERENTIEL)
 storeUtils.addStore(STORE, configStoreEspece);
+configStoreSecteur.droitModification = DROITS.GESTIONNAIRE; // référentiels : écriture réservée au niveau 6 (backend : DROITS_REFERENTIEL)
 storeUtils.addStore(STORE, configStoreSecteur);
+configStoreNomenclature.droitModification = DROITS.GESTIONNAIRE; // référentiels : écriture réservée au niveau 6 (backend : DROITS_REFERENTIEL)
 storeUtils.addStore(STORE, configStoreNomenclature);
+configStoreNomenclatureType.droitModification = DROITS.GESTIONNAIRE; // référentiels : écriture réservée au niveau 6 (backend : DROITS_REFERENTIEL)
 storeUtils.addStore(STORE, configStoreNomenclatureType);
 
 export { ROUTE, STORE };
