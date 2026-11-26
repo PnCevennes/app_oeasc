@@ -12,6 +12,7 @@ Page affichant le tableau avec la liste des declarations. Affiche aussi un bouto
           v-if="$store.getters.isAuth"
           @click="bDialogExport = true"
           color="primary"
+          class="ml-4"
         >
           Exporter les données
         </v-btn>
