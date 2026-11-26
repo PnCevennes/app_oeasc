@@ -114,6 +114,9 @@ def api_get_declaration():
     Utilisée pour consulter ou afficher une déclaration avec ses zones géographiques.
     """
     id_declaration = request.args.get("id", type=int)
+    # Une déclaration existante n'est consultable que si les droits de l'utilisateur le permettent
+    if id_declaration and not acces_declaration_autorise(id_declaration):
+        return reponse_acces_refuse()
     apiResponse = get_form_declaration(id_declaration=id_declaration, session=session)
     # Retourne le dictionnaire de la déclaration complète au format JSON
     return apiResponse.response_to_frontend()
@@ -128,6 +131,11 @@ def route_declaration(id_declaration):
     utilisée pour la page "voir_declaration.vue" qui donne les informations détaillées et les géométries.
     """
     # Vérifie la présence d'un utilisateur dans la session et récupère l'objet utilisateur
+
+    # Pas de fiche (même vide) pour une déclaration hors des droits de l'utilisateur
+    if not acces_declaration_autorise(id_declaration):
+        message = "Vous n'avez pas les droits sur cette déclaration."
+        return {"success": False, "message": message}, 403
 
     response = get_fiche_declaration(id_declaration=id_declaration, session=session)
 

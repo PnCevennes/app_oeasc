@@ -124,6 +124,8 @@ Comprend le résumé de la déclaration, les cartes et le bouton d'export PDF. -
 
 <script>
 import { apiRequest } from '@/core/js/data/api';
+import { describeApiError } from '@/core/js/data/api-messages.js';
+import { snackbarStore } from '@/store/snackbar';
 import './declaration.css';
 import VoirDeclarationTable from './voir-declaration-table.vue';
 import MapDeclarationSimple from './map/map_declaration_simple.vue';
@@ -452,10 +454,17 @@ export default {
     this.id_declaration = this.$route.params.id;
     this.bInit = true;
     this.nomenclature = await apiRequest('GET', `api/oeasc/nomenclatures`);
-    this.declaration_data = await apiRequest(
-      'GET',
-      `api/declaration/voir_declaration/${this.id_declaration}`
-    );
+    try {
+      this.declaration_data = await apiRequest(
+        'GET',
+        `api/declaration/voir_declaration/${this.id_declaration}`
+      );
+    } catch (err) {
+      // 403 : déclaration hors des droits de l'utilisateur -> on ne montre pas la page
+      snackbarStore.show(describeApiError(err, { action: 'chargement' }), 'error');
+      this.$router.replace('/declaration/liste');
+      return;
+    }
     this.define_show_buttom_relance_mail();
   },
   async mounted() {

@@ -487,6 +487,7 @@ import help from '@/components/form/help_static.vue';
 import tableAide from '@/modules/content/table-aide.vue';
 import { formFunctions } from '@/components/form/functions/form.js';
 import { apiRequest } from '@/core/js/data/api';
+import { describeApiError } from '@/core/js/data/api-messages.js';
 import { fetch_forets_from_code } from './utils/api_request.js';
 import MapDeclaration from './map/map_declaration.vue';
 import degatsForm from '@/components/form/degats_declaration_form.vue';
@@ -629,10 +630,17 @@ export default {
     // si l'utilisateur est connecté
     if (this.$store.getters.isAuth) {
       this.information_declarant = this.$store.getters.user;
-      this.response = await apiRequest(
-        'GET',
-        `api/declaration/declaration?${this.declarationId ? `id=${this.declarationId}` : ''}`
-      );
+      try {
+        this.response = await apiRequest(
+          'GET',
+          `api/declaration/declaration?${this.declarationId ? `id=${this.declarationId}` : ''}`
+        );
+      } catch (err) {
+        // 403 : déclaration hors des droits de l'utilisateur
+        snackbarStore.show(describeApiError(err, { action: 'chargement' }), 'error');
+        this.$router.replace('/declaration/liste');
+        return;
+      }
     } else {
       // l'utilisateur n'est pas connecté, on vérifie si c'est un renouvellement avec token
       if (this.type_action === 'RENOUVELLEMENT' || this.type_action === 'CLOTURE') {
