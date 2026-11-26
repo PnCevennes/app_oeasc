@@ -15,9 +15,18 @@ déjà connectées à leur Nextcloud « Échange ». La connexion par identifian
    comme `auth/login` (cookie `token`, `session["current_user"]`).
 3. Code périmé (> 3 min) : le front repasse par Échange (sans page si la session Échange est active).
 
-Aucun compte n'est créé : l'utilisateur doit déjà exister dans `utilisateurs.t_roles`, actif et avec un
-droit sur l'application (`filter_by_app`). Sinon : message « compte Échange non rattaché ».
-Rapprochement par **identifiant** (claim configurable) et jamais par e-mail par défaut.
+## Comptes
+
+Rapprochement par **identifiant** (`t_roles.identifiant` = claim `claim_identifiant`, sans tenir compte de la casse).
+- **Compte existant** : jamais modifié. Il doit être unique, actif et avoir un droit sur l'application, sinon refus.
+- **Compte inconnu** : créé automatiquement (`oidc.py: creer_compte`) avec
+  droit 3 (appartenance au groupe « Grp OEASC Referent », profil 3), rôle « Salarié, agent, fonctionnaire »,
+  organisme « EP PNC », `champs_addi.accept_email = true`, mot de passe aléatoire inutilisable.
+  Nom / prénom / e-mail viennent des claims `family_name`, `given_name`, `email`.
+- **Garde-fou anti-doublon** : si l'e-mail du compte à créer est déjà l'e-mail ou l'identifiant d'un autre
+  compte, la connexion est refusée (message dans les logs). Les identifiants OEASC étant en général des
+  e-mails, `claim_identifiant: "email"` évite ce cas pour les comptes existants.
+- Désactiver la création : `creer_compte: false` dans la section `oidc`.
 
 ## Configuration
 
@@ -32,6 +41,7 @@ oidc:
   scope: "openid profile email"
   redirect_uri: ""                         # vide : <urls.frontend>oidc/retour
   claim_identifiant: "preferred_username"  # claim comparé à t_roles.identifiant (ex. "email")
+  creer_compte: true                       # crée le compte d'un utilisateur Échange inconnu (droit 3, salarié, EP PNC)
 ```
 
 Côté Nextcloud (app « OpenID Connect » / OIDC Identity Provider) : créer un client dont l'URL de

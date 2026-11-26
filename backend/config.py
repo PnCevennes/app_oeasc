@@ -92,6 +92,8 @@ OIDC = {
     "redirect_uri": _oidc.get("redirect_uri") or (URL_FRONTEND + "oidc/retour"),
     # claim comparé à t_roles.identifiant
     "claim_identifiant": _oidc.get("claim_identifiant") or "preferred_username",
+    # crée le compte (droit 3, salarié, EP PNC) d'un utilisateur Échange absent de UsersHub
+    "creer_compte": _oidc.get("creer_compte", True),
 }
 ENABLE_NOMENCLATURE_TAXONOMIC_FILTERS = _app["enable_nomenclature_taxonomic_filters"]
 
