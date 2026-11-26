@@ -11,7 +11,7 @@ L'utilisateur est cherché dans `utilisateurs.t_roles` par identifiant (claim
 configurable, `preferred_username` par défaut). S'il est inconnu (ni identifiant
 ni e-mail déjà présents), son compte est créé automatiquement (voir
 `creer_compte`) : droit 3 (groupe « Référent »), rôle « Salarié », organisme
-« EP PNC », réception des e-mails acceptée. Un compte existant n'est jamais
+« Parc national des Cévennes », réception des e-mails acceptée. Un compte existant n'est jamais
 modifié ni rapproché par e-mail : un e-mail déjà utilisé par un autre compte
 fait refuser la connexion (pas de doublon, pas de prise de contrôle d'un compte).
 
@@ -144,7 +144,7 @@ def exchange_code(code, code_verifier):
 
 # valeurs données aux comptes créés à la première connexion via Échange
 CREATION_DESC_ROLE = "Salarié, agent, fonctionnaire"
-CREATION_ORGANISME = "EP PNC"
+CREATION_ORGANISME = "Parc national des Cévennes"
 CREATION_CODE_PROFIL = 3
 
 
@@ -171,7 +171,7 @@ def creer_compte(login, claims):
     """
     Crée le compte d'un utilisateur Échange absent de UsersHub : droit 3 sur
     l'application (par appartenance au groupe de profil 3), rôle « Salarié »,
-    organisme « EP PNC », accept_email = true. Mot de passe aléatoire inutilisable
+    organisme « Parc national des Cévennes », accept_email = true. Mot de passe aléatoire inutilisable
     (la connexion se fait via Échange ; « mot de passe oublié » reste possible).
     """
     email = str(claims.get("email") or (login if "@" in login else "")).strip()

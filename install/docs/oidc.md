@@ -24,7 +24,7 @@ Rapprochement par **identifiant** (`t_roles.identifiant` = claim `claim_identifi
 - **Compte existant** : jamais modifié. Il doit être unique, actif et avoir un droit sur l'application, sinon refus.
 - **Compte inconnu** : créé automatiquement (`oidc.py: creer_compte`) avec
   droit 3 (appartenance au groupe « Grp OEASC Referent », profil 3), rôle « Salarié, agent, fonctionnaire »,
-  organisme « EP PNC », `champs_addi.accept_email = true`, mot de passe aléatoire inutilisable.
+  organisme « Parc national des Cévennes », `champs_addi.accept_email = true`, mot de passe aléatoire inutilisable.
   Nom / prénom / e-mail viennent des claims `family_name`, `given_name`, `email`.
 - **Garde-fou anti-doublon** : si l'e-mail du compte à créer est déjà l'e-mail ou l'identifiant d'un autre
   compte, la connexion est refusée (message dans les logs). Les identifiants OEASC étant en général des
@@ -44,7 +44,7 @@ oidc:
   scope: "openid profile email"
   redirect_uri: ""                         # vide : <urls.frontend>oidc/retour
   claim_identifiant: "preferred_username"  # claim comparé à t_roles.identifiant (ex. "email")
-  creer_compte: true                       # crée le compte d'un utilisateur Échange inconnu (droit 3, salarié, EP PNC)
+  creer_compte: true                       # crée le compte d'un utilisateur Échange inconnu (droit 3, salarié, Parc national des Cévennes)
 ```
 
 Côté Nextcloud (app « OpenID Connect » / OIDC Identity Provider) : créer un client dont l'URL de
