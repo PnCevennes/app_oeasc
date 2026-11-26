@@ -36,7 +36,11 @@
             </help>
           </p>
 
-          <v-form ref="form">
+          <v-form
+            ref="form"
+            class="form-champs-obligatoires"
+            validate-on="eager"
+          >
             <!-- premier encart -->
             <div>
               <h2>Informations sur la forêt</h2>
@@ -116,9 +120,16 @@
                 <!-- ------------------  La carte  ---------------------  -->
 
                 <div>
-                  <div><h3>Localisation</h3></div>
+                  <div>
+                    <h3 :class="{ 'localisation-manquante-titre': !localisation_renseignee }">
+                      Localisation<span class="required">*</span>
+                    </h3>
+                  </div>
 
-                  <div style="width: 100%; position: relative">
+                  <div
+                    style="width: 100%; position: relative"
+                    :class="{ 'localisation-manquante': !localisation_renseignee }"
+                  >
                     <MapDeclaration
                       :b_statut_public="declaration_data.b_statut_public"
                       :b_document="declaration_data.b_document"
@@ -284,6 +295,7 @@
             <v-radio-group
               v-model="declaration_data.b_autorisation"
               :rules="[rules.required]"
+              validate-on="eager"
               inline
               density="compact"
               hide-details="auto"
@@ -539,6 +551,13 @@ export default {
   },
 
   computed: {
+    // Au moins une area (cadastre ou ONF UG) sélectionnée sur la carte
+    localisation_renseignee() {
+      return (
+        (this.declaration_data.areas_localisation_cadastre || []).length > 0 ||
+        (this.declaration_data.areas_localisation_onf_ug || []).length > 0
+      );
+    },
     // Déclaration déjà renouvelée ou clôturée : on affiche le contenu mais on empêche toute nouvelle action
     action_bloquee() {
       return (
@@ -1024,6 +1043,27 @@ export default {
 
 <style>
 @import url('../../components/form/form.css');
+
+/* Aucune parcelle/UG sélectionnée sur la carte */
+.localisation-manquante {
+  outline: 2px solid rgb(var(--v-theme-error));
+  border-radius: 4px;
+}
+.localisation-manquante-titre {
+  color: rgb(var(--v-theme-error));
+}
+
+/* Champs obligatoires non remplis : libellés/contrôles en rouge, sans message d'erreur */
+.form-champs-obligatoires .v-input__details {
+  display: none;
+}
+.form-champs-obligatoires .v-input--error .v-label,
+.form-champs-obligatoires .v-input--error .v-field-label,
+.form-champs-obligatoires .v-input--error .v-selection-control .v-label,
+.form-champs-obligatoires .v-input--error .v-selection-control__input .v-icon {
+  color: rgb(var(--v-theme-error));
+  opacity: 1;
+}
 
 pre {
   background-color: #f4f4f4;
