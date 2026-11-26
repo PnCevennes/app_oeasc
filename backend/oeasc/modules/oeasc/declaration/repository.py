@@ -741,11 +741,15 @@ def get_filtres_droits_declarations(user):
         liste_id_organismes_solo = get_id_organismes(
             ["Autre (préciser)", "Pas d'organisme", "Aucun"]
         )
-        if user["id_organisme"] not in liste_id_organismes_solo:
+        if (
+            user.get("id_organisme") is not None
+            and user.get("organisme")
+            and user["id_organisme"] not in liste_id_organismes_solo
+        ):
             return [VUsers.organisme == user["organisme"]]
 
     if niveau >= CONNECTE:
-        return [TDeclaration.id_declarant == user["id_role"]]
+        return [TDeclaration.id_declarant == user.get("id_role")]
 
     return [false()]
 

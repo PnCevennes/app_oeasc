@@ -410,7 +410,11 @@ def acces_declaration_autorise(id_declaration):
         return False
     user = get_current_user()
     if user:
-        return bool(get_liste_declarations(user=user, id_declaration=id_declaration))
+        # L'utilisateur en session peut ne pas contenir l'organisme : on recharge depuis la base
+        user_db = get_user(user.get("id_role")) if user.get("id_role") else None
+        return bool(
+            get_liste_declarations(user=user_db or user, id_declaration=id_declaration)
+        )
     temp_user = session.get("temp_user") or {}
     return temp_user.get("mode") == "renouvellement_declaration" and str(
         temp_user.get("id_verification")
