@@ -18,6 +18,14 @@ const ROUTE = [
     hidden: ({ $store }) => !!$store.getters.isAuth,
   },
   {
+    // page de retour d'Échange (connexion OpenID), jamais affichée dans le menu
+    path: '/oidc/retour',
+    label: 'Connexion via Échange',
+    name: 'user.oidc_retour',
+    component: () => import('./oidc-retour.vue'),
+    hidden: () => true,
+  },
+  {
     path: '/logout',
     label: 'Déconnexion',
     name: 'user.logout',

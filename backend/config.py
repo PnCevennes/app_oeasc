@@ -77,6 +77,22 @@ COOKIE_AUTORENEW = _app["cookie_autorenew"]
 PROXY_FIX = _app["proxy_fix"]
 AUTH_PROVIDER = _app["auth_provider"]
 GOOGLE_VERIFICATION_FILE = _app.get("google_verification_file", "")
+
+############################## OIDC (Nextcloud « Échange ») ##############################
+# section facultative `oidc` de config_principal.yaml ; désactivé sans discovery_url + client_id
+# (voir install/docs/oidc.md)
+_oidc = _cfg.get("oidc") or {}
+OIDC = {
+    "provider_name": _oidc.get("provider_name") or "Échange",
+    "discovery_url": _oidc.get("discovery_url") or "",
+    "client_id": _oidc.get("client_id") or "",
+    "client_secret": _oidc.get("client_secret") or "",
+    "scope": _oidc.get("scope") or "openid profile email",
+    # page du front où le fournisseur renvoie le navigateur (à déclarer à l'identique dans Nextcloud)
+    "redirect_uri": _oidc.get("redirect_uri") or (URL_FRONTEND + "oidc/retour"),
+    # claim comparé à t_roles.identifiant
+    "claim_identifiant": _oidc.get("claim_identifiant") or "preferred_username",
+}
 ENABLE_NOMENCLATURE_TAXONOMIC_FILTERS = _app["enable_nomenclature_taxonomic_filters"]
 
 ############################## ADMINISTRATEUR ##############################

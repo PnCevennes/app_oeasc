@@ -2,7 +2,9 @@
 api user
 """
 
-from flask import Blueprint, request, redirect, current_app, session
+from flask import Blueprint, request, redirect, current_app, session, jsonify
+from flask_login import login_user
+from pypnusershub.schemas import UserSchema
 from oeasc.utils.current_user import get_current_user
 from utils_flask_sqla.response import json_resp
 
@@ -14,6 +16,7 @@ from .repository import (
     admin_update_user,
 )
 from ..user.utils import check_auth_redirect_login
+from . import oidc
 from utils_flask_sqla.response import csv_resp
 
 bp = Blueprint("user_api", __name__)
@@ -30,6 +33,69 @@ def api_test():
     Utile pour les tests d'intégration ou pour vérifier l'état de connexion côté frontend.
     """
     return get_current_user()
+
+
+@bp.route("oidc/config", methods=["GET"])
+def oidc_config():
+    """Indique au front si la connexion via Échange est activée."""
+    return {"enabled": oidc.is_enabled(), "provider": oidc.provider_name()}
+
+
+@bp.route("oidc/authorize", methods=["GET"])
+def oidc_authorize():
+    """
+    URL du fournisseur vers laquelle rediriger le navigateur.
+    `state` et le `code_verifier` PKCE sont gardés par le front (sessionStorage) ;
+    seule l'empreinte (`code_challenge`) est envoyée ici.
+    `silencieux=1` : prompt=none, sonde « suis-je connecté à Échange ? » sans page.
+    """
+    state = request.args.get("state", "")
+    code_challenge = request.args.get("code_challenge", "")
+    if (
+        not oidc.is_enabled()
+        or not state
+        or not oidc.RE_CHALLENGE.match(code_challenge)
+    ):
+        return {"err": "oidc unavailable"}, 400
+    try:
+        return {
+            "url": oidc.authorize_url(
+                state, code_challenge, silencieux=request.args.get("silencieux") == "1"
+            )
+        }
+    except (OSError, ValueError, KeyError):
+        return {"err": "provider unreachable"}, 502
+
+
+@bp.route("oidc/callback", methods=["POST"])
+def oidc_callback():
+    """
+    Échange le code renvoyé par Échange contre une session OEASC.
+    Données POST : {"code": str, "code_verifier": str}
+    Retour : même JSON que auth/login ({user, expires, token}), ou 400 / 403 / 502.
+    """
+    data = request.get_json(silent=True) or {}
+    code = str(data.get("code") or "")
+    code_verifier = str(data.get("code_verifier") or "")
+    if not oidc.is_enabled() or not code or not oidc.RE_VERIFIER.match(code_verifier):
+        return {"err": "oidc unavailable"}, 400
+    try:
+        user = oidc.find_user(oidc.exchange_code(code, code_verifier))
+    except oidc.InvalidAuthError:
+        return {"err": "invalid auth"}, 403
+    except (OSError, ValueError):
+        return {"err": "provider unreachable"}, 502
+
+    # même ouverture de session que auth/login (cookie « token » remember-me de flask-login)
+    login_user(user, remember=True)
+    # permet à auth/logout (qui exige un provider en session) de fonctionner
+    session["current_provider"] = "local_provider"
+    result = UserSchema(
+        exclude=["remarques"], only=["+max_level_profil", "+providers"]
+    ).dump_with_token(user)
+    # équivalent de after_login_method (app.py), qui ne reconnaît que l'endpoint auth.login
+    session["current_user"] = result["user"]
+    return jsonify(result)
 
 
 @bp.route("login_error", methods=["GET"])
