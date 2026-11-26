@@ -226,7 +226,12 @@ with app.app_context():
     @app.after_request
     def after_login_method(response):
         # verifie si le cookie de session est absent
-        if not request.cookies.get("token"):
+        # (sauf pour la connexion OpenID : la vue vient de poser current_user et le cookie
+        # « token » est justement posé par cette réponse, il n'est pas encore dans la requête)
+        connexion_oidc = (
+            request.endpoint == "user_api.oidc_callback" and response.status_code == 200
+        )
+        if not request.cookies.get("token") and not connexion_oidc:
             # l'utilisateur n'est pas connecté
             session["current_user"] = None
 
