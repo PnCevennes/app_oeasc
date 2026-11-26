@@ -22,7 +22,12 @@ export default {
     // sonde silencieuse : on retient juste si la personne est connectée à Échange
     if (demande.silencieux) {
       if (code) memoriseSonde('ok', { code, verifier: demande.verifier });
-      else memoriseSonde('non');
+      else {
+        // visible dans la console du navigateur : login_required = pas connecté à Échange,
+        // consent_required / invalid_* = problème de configuration du client Nextcloud
+        console.info('[OIDC Échange] sonde sans code :', this.$route.query.error, this.$route.query.error_description);
+        memoriseSonde('non');
+      }
       this.$router.replace(demande.retour);
       return;
     }
