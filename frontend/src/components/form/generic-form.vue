@@ -37,7 +37,7 @@
         </div>
 
         <div style="display: flex; gap: 12px">
-          <template v-if="!displayValue">
+          <template v-if="!displayValue && !config.hideActionButton">
             <v-btn
               v-if="config.action"
               ref="btn-valid-form"

@@ -27,4 +27,6 @@ export default {
 
   title: ({ id }) => (id ? `Modificiation du contenu ${id}` : "Création d'un contenu"),
   storeName: 'commonsContent',
+  // le bouton « Enregistrer » de la modale (content.vue) déclenche processAction : pas de doublon
+  hideActionButton: true,
 };
