@@ -84,6 +84,21 @@ const processMenu = function (menu, { $store, $router }) {
   return menuOut;
 };
 
+// Traite une liste de noms de routes ; un élément objet { label, icon, names }
+// est un sous-menu (groupe) dont les entrées sont traitées récursivement.
+const processNames = function (names, { $store, $router }) {
+  return names
+    .map((name) => {
+      if (name && typeof name === 'object') {
+        const menus = processNames(name.names || [], { $store, $router });
+        const visible = menus.filter((m) => m !== '-');
+        return { label: name.label, icon: name.icon, menus: visible.length ? menus : [], group: true };
+      }
+      return processRouteName(name, { $store, $router });
+    })
+    .filter((menu) => !menu.hidden && !(menu.group && !menu.menus.length));
+};
+
 /**
  *
  * @param {*} menuName
@@ -109,9 +124,7 @@ const configMenu = function (menuName, { $store, $router }) {
 
   return {
     ...menu,
-    menus: (menu.names || []) // Si menu à des sous éléments => traitement de ces derniers
-      .map((name) => processRouteName(name, { $store, $router }))
-      .filter((menu) => !menu.hidden),
+    menus: processNames(menu.names || [], { $store, $router }),
   };
 };
 

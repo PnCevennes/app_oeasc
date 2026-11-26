@@ -25,20 +25,44 @@
               <v-list-item-title>{{ item.label }}</v-list-item-title>
             </v-list-item>
           </template>
-          <v-list-item
+          <template
             v-for="(subItem, indexSub) of item.menus"
             :key="`itemSub.${index}.${indexSub}`"
-            :to="subItem.path"
-            @click="drawer = false"
           >
-            <template v-slot:prepend>
-              <v-icon>blougi</v-icon>
-            </template>
-            <v-list-item-title>{{ subItem.label }}</v-list-item-title>
-            <template v-slot:append>
-              <v-icon>{{ subItem.icon }}</v-icon>
-            </template>
-          </v-list-item>
+            <v-list-group
+              v-if="subItem.group"
+              :prepend-icon="subItem.icon"
+            >
+              <template v-slot:activator="{ props }">
+                <v-list-item v-bind="props">
+                  <v-list-item-title>{{ subItem.label }}</v-list-item-title>
+                </v-list-item>
+              </template>
+              <v-list-item
+                v-for="(subSub, indexSubSub) of subItem.menus"
+                :key="`itemSubSub.${index}.${indexSub}.${indexSubSub}`"
+                :to="subSub.path"
+              >
+                <v-list-item-title>{{ subSub.label }}</v-list-item-title>
+                <template v-slot:append>
+                  <v-icon>{{ subSub.icon }}</v-icon>
+                </template>
+              </v-list-item>
+            </v-list-group>
+            <v-list-item
+              v-else
+              :to="subItem.path"
+              @click="drawer = false"
+            >
+              <template v-slot:prepend>
+                <v-icon>blougi</v-icon>
+              </template>
+              <v-list-item-title>{{ subItem.label }}</v-list-item-title>
+              <template v-slot:append>
+                <v-icon>{{ subItem.icon }}</v-icon>
+              </template>
+            </v-list-item>
+          </template>
         </v-list-group>
 
         <v-list-item

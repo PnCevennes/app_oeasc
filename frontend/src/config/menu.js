@@ -56,15 +56,28 @@ const menus = {
     label: 'Administration',
     icon: 'fa-cog',
     hidden: ({ $store }) => $store.getters.droitMax < 5,
+    // Un élément { label, icon, names } est un sous-menu (groupe)
     names: [
-      'user.admin',
-      'commons.admin',
-      'in.admin',
-      'chasse.admin',
-      'chasse.imports_attributions',
-      'degats_agricoles.imports',
-      'degats_agricoles.admin',
-      'declaration.relances_auto',
+      {
+        label: 'Général',
+        icon: 'mdi-cog',
+        names: ['user.admin', 'commons.admin', 'in.admin'],
+      },
+      {
+        label: 'Dégâts forestiers',
+        icon: 'mdi-tree',
+        names: ['declaration.liste_declarations', 'declaration.relances_auto'],
+      },
+      {
+        label: 'Chasse',
+        icon: 'mdi-target',
+        names: ['chasse.admin', 'chasse.imports_attributions'],
+      },
+      {
+        label: 'Dégâts agricoles',
+        icon: 'mdi-sprout',
+        names: ['degats_agricoles.imports', 'degats_agricoles.admin'],
+      },
     ],
   },
 
