@@ -456,6 +456,11 @@ export default {
      * 4. Active la boîte de dialogue d'édition si la configuration du formulaire est correctement initialisée.
      */
     edit(value, id) {
+      // Si le tableau définit `addRoute`, le bouton "+" ouvre cette page au lieu du formulaire
+      if (value === 'actions' && !id && this.configTable.addRoute) {
+        this.$router.push(this.configTable.addRoute);
+        return;
+      }
       this.closeDialog();
       this.configForm = this.getConfigForm(value, id);
       this.saveVal = id

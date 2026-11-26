@@ -5,6 +5,7 @@ import config_variables from 'virtual:config-declaration';
 
 export default {
   idFieldName: 'id_declaration',
+  addRoute: '/declaration/declarer_en_ligne', // bouton "+" : ouvre la page de création
   dense: true,
   striped: true,
   small: true,
