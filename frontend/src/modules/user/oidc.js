@@ -83,8 +83,20 @@ export function termineOidc(state) {
 }
 
 // mémorise le résultat de la sonde silencieuse
-export function memoriseSonde(etat, { code, verifier } = {}) {
-  ecrit(CLE_SONDE, JSON.stringify({ etat, code, verifier, ts: Date.now() }));
+export function memoriseSonde(etat, { code, verifier, erreur } = {}) {
+  ecrit(CLE_SONDE, JSON.stringify({ etat, code, verifier, erreur, ts: Date.now() }));
+}
+
+// description lisible de la dernière sonde (page /login?diag=1)
+export function diagnosticSonde() {
+  try {
+    const s = JSON.parse(lit(CLE_SONDE));
+    if (!s) return 'aucune sonde enregistrée';
+    const age = Math.round((Date.now() - s.ts) / 1000);
+    return `sonde « ${s.etat} » il y a ${age} s` + (s.erreur ? ` — réponse d'Échange : ${s.erreur}` : '');
+  } catch (err) {
+    return 'sonde illisible';
+  }
 }
 
 // résultat récent de la sonde : 'ok' (connecté à Échange, code disponible), 'non' ou null

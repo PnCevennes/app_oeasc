@@ -9,6 +9,11 @@
       {{ messageOidc }}
     </v-alert>
 
+    <!-- /login?diag=1 : état de la connexion via Échange, pour comprendre l'absence du bouton -->
+    <v-alert v-if="$route.query.diag" type="info" variant="tonal" density="compact" class="mb-4">
+      Diagnostic Échange : {{ diagOidc }}
+    </v-alert>
+
     <!-- affiché seulement si la sonde silencieuse a montré que la personne est connectée à Échange -->
     <div v-if="echangeConnecte" class="mb-4">
       <v-btn
@@ -73,6 +78,7 @@ import {
   configOidc,
   demarreOidc,
   etatSonde,
+  diagnosticSonde,
   prendCodeSonde,
   connecteOidc,
   ouvreSession,
@@ -97,6 +103,7 @@ export default {
       nomFournisseur: 'Échange',
       oidcEnCours: false,
       messageOidc: '',
+      diagOidc: 'en cours…',
     };
   },
   methods: {
@@ -111,20 +118,31 @@ export default {
       this.messageOidc = motifs[this.$route.query.oidc] || '';
 
       const conf = await configOidc();
-      if (!conf || !conf.enabled) return;
+      if (!conf || !conf.enabled) {
+        this.diagOidc = conf
+          ? "connexion via Échange désactivée dans la configuration du serveur (section oidc)"
+          : "l'API api/user/oidc/config ne répond pas";
+        return;
+      }
       this.nomFournisseur = conf.provider;
       // pas de sonde pendant la validation d'un compte (?token=…) ni juste après un échec
-      if (this.token || this.$route.query.oidc) return;
+      if (this.token || this.$route.query.oidc) {
+        this.diagOidc = 'sonde non lancée (paramètre token ou oidc dans l\'URL) — ' + diagnosticSonde();
+        return;
+      }
 
       const etat = etatSonde();
+      this.diagOidc = diagnosticSonde();
       if (etat === 'ok') {
         this.echangeConnecte = true;
       } else if (etat === null) {
+        this.diagOidc = 'lancement de la sonde vers Échange…';
         try {
           // revient sur cette même page (query comprise) avec le résultat de la sonde
           await demarreOidc(this.$route.fullPath, { silencieux: true });
         } catch (err) {
           // stockage refusé ou Échange injoignable : simplement pas de bouton
+          this.diagOidc = 'sonde impossible : ' + ((err && (err.message || err.err)) || 'erreur inconnue');
         }
       }
     },

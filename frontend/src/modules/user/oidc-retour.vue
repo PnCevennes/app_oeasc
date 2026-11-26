@@ -26,7 +26,8 @@ export default {
         // visible dans la console du navigateur : login_required = pas connecté à Échange,
         // consent_required / invalid_* = problème de configuration du client Nextcloud
         console.info('[OIDC Échange] sonde sans code :', this.$route.query.error, this.$route.query.error_description);
-        memoriseSonde('non');
+        const { error, error_description: detail } = this.$route.query;
+        memoriseSonde('non', { erreur: [error, detail].filter(Boolean).join(' : ') || 'aucun code ni erreur' });
       }
       this.$router.replace(demande.retour);
       return;
