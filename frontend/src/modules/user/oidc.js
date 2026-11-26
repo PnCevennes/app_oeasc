@@ -17,6 +17,9 @@ const CLE_SILENCIEUX = PREFIXE + 'silencieux';
 const CLE_SONDE = PREFIXE + 'sonde';
 // un code d'autorisation vit peu de temps chez le fournisseur : on ne le garde que 3 minutes
 const VALIDITE_MS = 3 * 60 * 1000;
+// « pas connecté à Échange » ne se garde que très peu : la personne peut s'y connecter juste après
+// (la sonde est un aller-retour de page, d'où un court délai plutôt qu'aucun)
+const VALIDITE_NON_MS = 20 * 1000;
 
 // base64url sans remplissage, comme l'exige PKCE (RFC 7636)
 const base64url = (octets) =>
@@ -105,7 +108,8 @@ export function diagnosticSonde() {
 export function etatSonde() {
   try {
     const s = JSON.parse(lit(CLE_SONDE));
-    if (s && Date.now() - s.ts < VALIDITE_MS && ['ok', 'consentement', 'non'].includes(s.etat)) return s.etat;
+    const validite = s && s.etat === 'non' ? VALIDITE_NON_MS : VALIDITE_MS;
+    if (s && Date.now() - s.ts < validite && ['ok', 'consentement', 'non'].includes(s.etat)) return s.etat;
   } catch (err) {
     // valeur illisible : on refait la sonde
   }

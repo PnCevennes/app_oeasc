@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="page-login">
     <v-alert
       v-if="messageOidc"
       type="error"
@@ -14,56 +14,70 @@
       Diagnostic Échange : {{ diagOidc }}
     </v-alert>
 
-    <!-- affiché seulement si la sonde silencieuse a montré que la personne est connectée à Échange -->
-    <div v-if="echangeConnecte" class="mb-4">
-      <v-btn
-        color="primary"
-        size="large"
-        prepend-icon="mdi-cloud-outline"
-        :loading="oidcEnCours"
-        @click="connexionEchange"
-      >
-        Se connecter via {{ nomFournisseur }}
-      </v-btn>
-      <p class="text-caption mt-1">Vous êtes connecté à {{ nomFournisseur }} : un clic suffit.</p>
-    </div>
-
     <generic-form
       :config="config"
       ref="form"
     >
       <template #prependForm>
-      <div>
-        <div v-if="redirect">
-          <p>Vous n'avez pas les droits requis pour accéder à cette page.</p>
-        </div>
+        <div>
+          <!-- affiché seulement si la sonde silencieuse a montré que la personne est connectée à Échange -->
+          <v-card
+            v-if="echangeConnecte"
+            class="carte-echange mt-3 mb-2"
+            variant="tonal"
+            color="primary"
+            rounded="lg"
+          >
+            <v-card-text class="text-center">
+              <v-icon size="40" class="mb-2">mdi-account-check-outline</v-icon>
+              <div class="text-h6">Vous êtes connecté à {{ nomFournisseur }}</div>
+              <div class="text-body-2 mb-4">Accédez à OEASC en un clic, sans mot de passe.</div>
+              <v-btn
+                color="primary"
+                variant="elevated"
+                size="x-large"
+                block
+                prepend-icon="mdi-login-variant"
+                :loading="oidcEnCours"
+                @click="connexionEchange"
+              >
+                Se connecter via {{ nomFournisseur }}
+              </v-btn>
+            </v-card-text>
+          </v-card>
 
-        <div v-if="bValidToken">
-          <p>
+          <div v-if="echangeConnecte" class="separateur-ou my-4">
+            <span>ou avec votre identifiant OEASC</span>
+          </div>
+
+          <v-alert v-if="redirect" type="warning" variant="tonal" density="compact" class="mb-4">
+            Vous n'avez pas les droits requis pour accéder à cette page.
+          </v-alert>
+
+          <v-alert v-if="bValidToken" type="success" variant="tonal" density="compact" class="mb-4">
             Votre compte a bien été validé. Veuillez vous connecter avec votre identifiant et votre
             mot de passe.
+          </v-alert>
+
+          <p v-else-if="!echangeConnecte" class="mb-4">
+            Veuillez vous identifier avant de poursuivre votre navigation.
           </p>
         </div>
-
-        <div v-else>
-          <p>Veuillez vous identifier avant de poursuivre votre navigation</p>
-        </div>
-
-        <p>
-          Si vous n'êtes pas inscrit, vous pouvez
+      </template>
+      <template #appendForm>
+        <div class="liens-login mt-4">
+          <router-link to="/user/change_password">Mot de passe oublié ?</router-link>
+          <v-divider class="my-4" />
+          <span class="mr-2">Pas encore inscrit ?</span>
           <v-btn
             to="/user/creer_utilisateur"
             color="primary"
+            variant="outlined"
+            size="small"
           >
             Créer un compte
           </v-btn>
-        </p>
-      </div>
-      </template>
-      <template #appendForm>
-        <router-link class="d-inline-block mt-4" to="/user/change_password">
-          Mot de passe oublié ?
-        </router-link>
+        </div>
       </template>
     </generic-form>
   </div>
@@ -104,6 +118,7 @@ export default {
       oidcEnCours: false,
       messageOidc: '',
       diagOidc: 'en cours…',
+      sondeLancee: false,
     };
   },
   methods: {
@@ -136,14 +151,23 @@ export default {
       if (etat === 'ok' || etat === 'consentement') {
         this.echangeConnecte = true;
       } else if (etat === null) {
+        // une seule sonde à la fois (focus et visibilitychange peuvent se déclencher ensemble)
+        if (this.sondeLancee) return;
+        this.sondeLancee = true;
         this.diagOidc = 'lancement de la sonde vers Échange…';
         try {
           // revient sur cette même page (query comprise) avec le résultat de la sonde
           await demarreOidc(this.$route.fullPath, { silencieux: true });
         } catch (err) {
+          this.sondeLancee = false;
           // stockage refusé ou Échange injoignable : simplement pas de bouton
           this.diagOidc = 'sonde impossible : ' + ((err && (err.message || err.err)) || 'erreur inconnue');
         }
+      }
+    },
+    surRetourOnglet() {
+      if (document.visibilityState === 'visible' && !this.echangeConnecte && !this.oidcEnCours) {
+        this.initOidc();
       }
     },
     async connexionEchange() {
@@ -172,8 +196,15 @@ export default {
       }
     },
   },
+  beforeUnmount() {
+    document.removeEventListener('visibilitychange', this.surRetourOnglet);
+    window.removeEventListener('focus', this.surRetourOnglet);
+  },
   mounted() {
     this.initOidc();
+    // on revient sur cet onglet après s'être connecté à Échange ailleurs : nouvelle sonde
+    document.addEventListener('visibilitychange', this.surRetourOnglet);
+    window.addEventListener('focus', this.surRetourOnglet);
     if (this.token) {
       apiRequest('POST', 'register/post_usershub/valid_temp_user', {
         postData: {
@@ -194,3 +225,36 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.page-login {
+  max-width: 560px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+/* generic-form impose min-width: 800px : on l'annule ici pour que la page tienne sur mobile */
+.page-login :deep(.form-container) {
+  min-width: 0;
+}
+
+.carte-echange {
+  border: 2px solid rgb(var(--v-theme-primary));
+}
+
+/* « ou avec votre identifiant OEASC » : trait de part et d'autre du texte */
+.separateur-ou {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  font-size: 0.875rem;
+}
+
+.separateur-ou::before,
+.separateur-ou::after {
+  content: '';
+  flex: 1;
+  border-top: 1px solid rgba(var(--v-theme-on-surface), 0.2);
+}
+</style>

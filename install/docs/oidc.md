@@ -9,7 +9,10 @@ déjà connectées à leur Nextcloud « Échange ». La connexion par identifian
 1. À l'ouverture de `/login`, le front lance une **sonde silencieuse** (`prompt=none`) : le navigateur
    part chez Échange, qui le renvoie aussitôt sur `/oidc/retour` sans afficher de page.
    - connecté à Échange → un `code` est renvoyé : il est gardé 3 min dans le `sessionStorage`, le bouton s'affiche ;
-   - non connecté → erreur `login_required` : pas de bouton (résultat mémorisé 3 min, pas de boucle).
+   - connecté mais accord à donner (`consent_required` / `interaction_required`) : Échange ne peut pas afficher
+     de page en mode silencieux, mais la personne est bien connectée : le bouton s'affiche et son clic lance
+     une connexion **avec page** (demande d'autorisation d'Échange, une fois) ;
+   - non connecté → erreur `login_required` : pas de bouton (résultat mémorisé 20 s seulement, pas de boucle ; la sonde est relancée au retour sur l'onglet, pour qui se connecte à Échange après avoir ouvert `/login`).
 2. Au clic, le code (+ `code_verifier` PKCE) est envoyé à `POST /api/user/oidc/callback`. Le back l'échange
    avec le secret client (qui ne quitte jamais le serveur), lit `userinfo`, puis ouvre la session
    comme `auth/login` (cookie `token`, `session["current_user"]`).
@@ -53,8 +56,23 @@ dev : `http://localhost:8080/oidc/retour`).
 - back : `backend/oeasc/modules/oeasc/user/oidc.py`, routes `api/user/oidc/{config,authorize,callback}` dans `user/api.py`, `OIDC` dans `backend/config.py`
 - front : `frontend/src/modules/user/oidc.js`, `oidc-retour.vue`, bouton dans `login.vue`, route `/oidc/retour`
 
+## Diagnostic
+
+`/front/login?diag=1` affiche un encadré « Diagnostic Échange » : état de l'API (`api/user/oidc/config`),
+résultat de la dernière sonde et réponse d'Échange (`login_required`, `consent_required`…). La réponse est
+aussi écrite dans la console du navigateur (`[OIDC Échange] sonde sans code`). Utile quand le bouton
+n'apparaît pas :
+
+| Message | Cause |
+|---|---|
+| `login_required` | Échange ne voit pas la session (autre navigateur, fenêtre privée, cookies bloqués) |
+| `consent_required` | normal à la 1re connexion : le bouton s'affiche quand même |
+| `invalid_*` | client Nextcloud mal configuré (redirect_uri, scope) |
+| « désactivée dans la configuration » | section `oidc` absente ou worker gunicorn pas redémarré |
+| « l'API … ne répond pas » | URL d'API ou routage Apache |
+
 ## Limites connues
 
-- La sonde provoque un aller-retour de page (redirection) à la 1re visite de `/login` (puis toutes les 3 min).
+- La sonde provoque un aller-retour de page (redirection) à la visite de `/login` si le dernier résultat a plus de 20 s (3 min pour un code d'autorisation).
 - Se déconnecter d'OEASC ne déconnecte pas d'Échange : le bouton réapparaît.
 - Inspiré de `intranet` / `tizoutis` (`core/auth/oidc.py`).
