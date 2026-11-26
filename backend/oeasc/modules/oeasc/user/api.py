@@ -12,6 +12,7 @@ from utils_flask_sqla.response import json_resp
 from .repository import (
     get_user_form_email,
     get_users,
+    get_libelles_droits,
     get_liste_organismes_oeasc,
     admin_update_user,
     self_update_user,
@@ -209,6 +210,23 @@ def api_get_user(id_role):
             out = user  # Si trouvé, stocke l'utilisateur
 
     return out  # Retourne l'utilisateur trouvé ou None si aucun ne correspond
+
+
+@bp.route("/libelles_droits", methods=["GET"])
+@check_auth_redirect_login(4)
+@json_resp
+def api_libelles_droits():
+    """
+    Niveaux de droit attribuables par l'utilisateur courant (strictement inférieurs
+    au sien) sous la forme [{value: niveau, text: intitulé du groupe UsersHub}].
+    """
+    user = get_current_user()
+    droit_courant = user.get("max_level_profil", user.get("id_droit_max")) or 0
+    return [
+        {"value": niveau, "text": libelle}
+        for niveau, libelle in sorted(get_libelles_droits().items())
+        if 1 <= niveau < droit_courant
+    ]
 
 
 @bp.route("/users", methods=["GET"])

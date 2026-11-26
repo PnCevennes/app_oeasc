@@ -49,6 +49,7 @@ export default {
     },
     id_droit_max: {
       text: 'Droits',
+      display: (d) => d.droit_label || d.id_droit_max,
       edit: {
         condition: ({ $store, baseModel }) => {
           return $store.getters.droitMax > baseModel.id_droit_max;
@@ -67,14 +68,14 @@ export default {
           },
           onSuccess: ({ data }) => {
             data.id_droit_max = data.id_droit;
+            data.droit_label = String(data.id_droit);
           },
         },
         formDefs: {
           id_droit_max: {
             type: 'list_form',
             list_type: 'select',
-            items: ({ $store }) =>
-              [1, 2, 3, 4, 5, 6].filter((droit) => $store.getters.droitMax > droit),
+            url: 'api/user/libelles_droits',
             required: true,
           },
         },

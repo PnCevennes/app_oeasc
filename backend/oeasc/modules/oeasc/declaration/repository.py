@@ -89,8 +89,11 @@ def get_fiche_declaration(id_declaration, type_export=None, session=None):
 
     stmt = get_stmt_fiche_declaration(id_declaration)
 
-    # Restriction selon les droits de l'utilisateur
-    for filtre in get_filtres_droits_declarations(user):
+    # Restriction selon les droits de l'utilisateur.
+    # On recharge l'utilisateur depuis la base (comme la liste) : l'utilisateur en session
+    # peut ne pas contenir l'organisme (ex : comptes OpenID) -> fiche vide à tort.
+    user_db = get_user(user.get("id_role")) if user.get("id_role") else None
+    for filtre in get_filtres_droits_declarations(user_db or user):
         stmt = stmt.where(filtre)
 
     result = DB.session.execute(stmt).fetchone()

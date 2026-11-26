@@ -7,7 +7,13 @@ from oeasc.utils.current_user import get_current_user
 from sqlalchemy import select, func
 
 # from sqlalchemy.orm import Session
-from pypnusershub.db.models import User, Organisme
+from pypnusershub.db.models import (
+    User,
+    Organisme,
+    Profils,
+    Application,
+    UserApplicationRight,
+)
 from pypnusershub.schemas import UserSchema
 from ..commons.models import TListeOrganismes
 
@@ -54,6 +60,33 @@ def get_liste_organismes_oeasc():
     return v
 
 
+def get_libelles_droits():
+    """
+    Retourne {niveau de droit (int): intitulé du groupe UsersHub} pour l'application OEASC,
+    ex : {3: "grp OEASC Rédacteur"}. L'intitulé est le nom du groupe (nom_role) auquel
+    le profil (code_profil = niveau) est associé pour l'application.
+    """
+    stmt = (
+        select(Profils.code_profil, User.nom_role)
+        .select_from(UserApplicationRight)
+        .join(User, User.id_role == UserApplicationRight.id_role)
+        .join(Profils, Profils.id_profil == UserApplicationRight.id_profil)
+        .join(
+            Application,
+            Application.id_application == UserApplicationRight.id_application,
+        )
+        .where(User.groupe.is_(True))
+        .where(Application.code_application == current_app.config["CODE_APPLICATION"])
+    )
+    libelles = {}
+    for code_profil, nom_role in DB.session.execute(stmt).all():
+        try:
+            libelles[int(code_profil)] = nom_role
+        except (TypeError, ValueError):
+            continue
+    return libelles
+
+
 def get_users():
     """
     Retourne la liste des utilisateurs OEASC.
@@ -76,6 +109,8 @@ def get_users():
     # Exécute la requête et récupère tous les utilisateurs
     v = DB.session.execute(stmt_v).scalars().all()
 
+    libelles_droits = get_libelles_droits()
+
     # Parcours tous les utilisateurs récupérés
     for user in v:
         # Filtre selon les droits :
@@ -88,6 +123,12 @@ def get_users():
         ):
             # Sérialise l'utilisateur avec le schéma VUsersShema
             user_dict = VUsersShema().dump(user)
+            # intitulé du groupe UsersHub correspondant au droit
+            # (droit 0 ou absent : aucun groupe applicatif => "Visiteur")
+            droit = user.id_droit_max or 0
+            user_dict["droit_label"] = libelles_droits.get(
+                droit, "Visiteur" if droit == 0 else str(droit)
+            )
             v_out.append(user_dict)  # Ajoute l'utilisateur filtré à la liste de sortie
 
     # Retourne la liste des utilisateurs filtrés
