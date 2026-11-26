@@ -27,7 +27,12 @@ export default {
         // consent_required / invalid_* = problème de configuration du client Nextcloud
         console.info('[OIDC Échange] sonde sans code :', this.$route.query.error, this.$route.query.error_description);
         const { error, error_description: detail } = this.$route.query;
-        memoriseSonde('non', { erreur: [error, detail].filter(Boolean).join(' : ') || 'aucun code ni erreur' });
+        const erreur = [error, detail].filter(Boolean).join(' : ') || 'aucun code ni erreur';
+        // consent_required / interaction_required : la personne EST connectée à Échange, qui a
+        // seulement besoin d'afficher une page (accord pour OEASC) : le bouton s'affiche et son
+        // clic lance la connexion avec page
+        const connecte = ['consent_required', 'interaction_required'].includes(error);
+        memoriseSonde(connecte ? 'consentement' : 'non', { erreur });
       }
       this.$router.replace(demande.retour);
       return;

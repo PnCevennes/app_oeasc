@@ -99,12 +99,13 @@ export function diagnosticSonde() {
   }
 }
 
-// résultat récent de la sonde : 'ok' (connecté à Échange, code disponible), 'non' ou null
+// résultat récent de la sonde : 'ok' (connecté à Échange, code disponible), 'consentement' (connecté,
+// mais Échange demande l'accord de l'utilisateur : impossible sans page), 'non' ou null
 // (à (re)faire : jamais tentée ou périmée)
 export function etatSonde() {
   try {
     const s = JSON.parse(lit(CLE_SONDE));
-    if (s && Date.now() - s.ts < VALIDITE_MS && ['ok', 'non'].includes(s.etat)) return s.etat;
+    if (s && Date.now() - s.ts < VALIDITE_MS && ['ok', 'consentement', 'non'].includes(s.etat)) return s.etat;
   } catch (err) {
     // valeur illisible : on refait la sonde
   }

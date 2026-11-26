@@ -133,7 +133,7 @@ export default {
 
       const etat = etatSonde();
       this.diagOidc = diagnosticSonde();
-      if (etat === 'ok') {
+      if (etat === 'ok' || etat === 'consentement') {
         this.echangeConnecte = true;
       } else if (etat === null) {
         this.diagOidc = 'lancement de la sonde vers Échange…';
