@@ -227,3 +227,28 @@ def admin_update_user(id_role, data, current_id_role):
 
     DB.session.commit()
     return get_user(id_role), None
+
+
+def self_update_user(id_role, data):
+    """
+    Met à jour par l'utilisateur lui-même ses informations (nom, prénom, description,
+    acceptation des e-mails) dans utilisateurs.t_roles (base locale, sans UsersHub).
+    L'e-mail (identifiant de connexion) et l'organisme ne sont pas modifiables ici.
+
+    Retourne (utilisateur_mis_à_jour, None) ou (None, (message, code_http)).
+    """
+    user = DB.session.get(User, id_role)
+    if not user:
+        return None, ("Utilisateur introuvable", 404)
+
+    for champ in ("nom_role", "prenom_role", "desc_role"):
+        if champ in data:
+            setattr(user, champ, data[champ])
+
+    if data.get("accept_email") in (True, False):
+        champs = dict(user.champs_addi or {})
+        champs["accept_email"] = data["accept_email"]
+        user.champs_addi = champs
+
+    DB.session.commit()
+    return get_user(id_role), None

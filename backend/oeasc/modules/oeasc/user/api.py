@@ -14,6 +14,7 @@ from .repository import (
     get_users,
     get_liste_organismes_oeasc,
     admin_update_user,
+    self_update_user,
 )
 from ..user.utils import check_auth_redirect_login
 from . import oidc
@@ -272,6 +273,20 @@ def api_admin_update_user(id_role):
     user, error = admin_update_user(
         id_role, data, get_current_user().get("id_role")
     )
+    if error:
+        return {"message": error[0]}, error[1]
+    return user
+
+
+@bp.route("/self_update", methods=["POST"])
+@check_auth_redirect_login(1)
+@json_resp
+def api_self_update_user():
+    """
+    Modification par l'utilisateur connecté de ses propres informations (sans UsersHub).
+    """
+    data = request.get_json() or {}
+    user, error = self_update_user(get_current_user().get("id_role"), data)
     if error:
         return {"message": error[0]}, error[1]
     return user

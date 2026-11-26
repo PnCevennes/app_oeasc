@@ -42,7 +42,7 @@ export default {
       return baseModel;
     },
     request: {
-      url: 'register/post_usershub/update_user',
+      url: 'api/user/self_update',
       method: 'POST',
     },
   },
