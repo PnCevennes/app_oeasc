@@ -130,7 +130,7 @@
 <script>
 /**
  * Page « Import du plan de chasse » — /chasse/imports-attributions
- * (menu Administration, réservée id_droit_max >= 6).
+ * (menu Administration, réservée id_droit_max >= 5).
  *
  * 3 imports CSV asynchrones séquentiels vers le backend
  * (`/api/chasse/import-attributions/<etape>`), sur le modèle de

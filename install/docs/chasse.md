@@ -16,7 +16,7 @@ génériques (droit >= 4 pour créer / modifier / supprimer, lecture libre) ; co
 | `#/chasse/imports` | droit >= 4 | import des réalisations (CSV Géochasse) |
 | `#/chasse/export` | droit >= 4 | exports |
 | `#/chasse/donnees-aberrantes` | droit >= 4 | contrôle et correction des poids / dagues : [donnees_aberrantes.md](donnees_aberrantes.md) |
-| `#/chasse/imports-attributions` | droit >= 6 | import du plan de chasse annuel |
+| `#/chasse/imports-attributions` | droit >= 5 | import du plan de chasse annuel |
 
 ## Imports (asynchrones)
 
@@ -34,7 +34,7 @@ Les bilans CSV de synonymes de lieux de tir sont écrits dans `data/archives_lie
 
 ### Plan de chasse annuel (attributions)
 
-`#/chasse/imports-attributions`, droit >= 6. Trois imports CSV **séquentiels**, chacun conditionné par le précédent
+`#/chasse/imports-attributions`, droit >= 5. Trois imports CSV **séquentiels**, chacun conditionné par le précédent
 (`GET import-attributions/etat` pilote le déverrouillage des étapes) :
 
 1. `saison-dates` → `oeasc_chasse.t_saison_dates`

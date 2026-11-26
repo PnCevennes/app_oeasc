@@ -128,10 +128,10 @@ const ROUTE = [
     label: 'Import attributions', // titre dans le menu (Administration)
     hideTitle: true,
     component: () => import('./imports-attributions-chasse.vue'),
-    access: DROITS.GESTIONNAIRE, // garde de redirection (App.vue checkRigths)
+    access: DROITS.ANIMATEUR, // garde de redirection (App.vue checkRigths)
     // masque l'entrée dans le menu Administration (rendu par le drawer, qui ne
     // filtre pas sur meta.access) : cf. components/app/menu.js -> configMenu
-    hidden: ({ $store }) => $store.getters.droitMax < DROITS.GESTIONNAIRE,
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ANIMATEUR,
   },
 
   {

@@ -53,7 +53,6 @@ from oeasc.modules.oeasc.user.droits import (
     ANIMATEUR,
     DROITS_ANIMATEUR,
     DROITS_GESTIONNAIRE,
-    GESTIONNAIRE,
 )
 from ..generic.errors import build_error_payload
 from .repositories import (
@@ -503,14 +502,14 @@ _TYPES_IMPORT_ATTRIBUTIONS = {
 
 
 @bp.route("import-attributions/etat", methods=["GET"])
-@check_auth_redirect_login(GESTIONNAIRE)
+@check_auth_redirect_login(ANIMATEUR)
 def import_attributions_etat():
     """État des 4 étapes pour la saison courante (pilote le déverrouillage front)."""
     return jsonify({"success": True, "etat": get_etat_import_attributions()})
 
 
 @bp.route("import-attributions/<etape>", methods=["POST"])
-@check_auth_redirect_login(GESTIONNAIRE)
+@check_auth_redirect_login(ANIMATEUR)
 def import_attributions_lancer(etape):
     """Lance l'un des 3 imports du plan de chasse en tâche de fond.
 
