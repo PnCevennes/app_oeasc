@@ -297,6 +297,9 @@ COLUMNS_REALISATION = [
     "id_zone_cynegetique_realisee",
     "id_zone_indicative_realisee",
     "id_lieu_tir_synonyme",
+    "lieu_tir_txt",
+    "latitude",
+    "longitude",
     "date_exacte",
     "date_enreg",
     "mortalite_hors_pc",
@@ -550,6 +553,12 @@ def uniformise_date(serie):
         "%Y-%m-%d %H:%M",
         "%Y/%m/%d %H:%M",
         "%Y.%m.%d %H:%M",
+        "%d/%m/%Y %H:%M:%S",
+        "%d-%m-%Y %H:%M:%S",
+        "%d.%m.%Y %H:%M:%S",
+        "%Y-%m-%d %H:%M:%S",
+        "%Y/%m/%d %H:%M:%S",
+        "%Y.%m.%d %H:%M:%S",
     ]
     # Chaque format est essayé valeur par valeur : un fichier qui mélange
     # plusieurs formats n'invalide pas les dates convertibles.

@@ -1,11 +1,11 @@
 <template>
   <div>
     <br />
-    <h1>Importation des données Chasse</h1>
+    <h1 style="text-align: center">Importation des données Chasse</h1>
     <br />
 
     <div :disabled="uploading">
-      <div style="max-width: 650px">
+      <div style="max-width: 650px; margin: 0 auto">
         <!-- formulaire select pour la saison, affiche la saison en cours par défaut -->
         <v-select
           v-model="saison"
@@ -41,7 +41,7 @@
       <div style="margin-top: 1rem; align-items: center; margin: auto">
         <div
           class="mt-2"
-          style="display: flex; gap: 12px"
+          style="display: flex; gap: 12px; justify-content: center"
         >
           <v-btn
             :disabled="!file || uploading"
@@ -60,6 +60,50 @@
           </v-btn>
         </div>
       </div>
+    </div>
+
+
+    <!-- exemple de modèle de fichier à importer (noms de colonnes de l'export geochasse) -->
+    <div class="modele-fichier">
+      <h3>Exemple de fichier à importer</h3>
+      <p class="modele-aide">
+        Fichier CSV exporté depuis Geochasse (séparateur « ; » ou « , », encodage UTF-8), avec une
+        ligne d'en-tête. Seules les colonnes ci-dessous sont utilisées, les autres colonnes de
+        l'export sont ignorées. Le numéro de bracelet doit exister dans les attributions de la
+        saison.
+      </p>
+      <div class="modele-scroll">
+        <table class="modele-table">
+          <thead>
+            <tr>
+              <th
+                v-for="col in modeleColonnes"
+                :key="col"
+              >
+                {{ col }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="(ligne, idx) in modeleLignes"
+              :key="idx"
+            >
+              <td
+                v-for="(valeur, i) in ligne"
+                :key="i"
+              >
+                {{ valeur }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="modele-aide">
+        <b>ESPECE</b> : CERF, CHEVREUIL ou MOUFLON. <b>SEXE</b> : Male, Femelle ou Indéterminé.
+        <b>PESEE</b> : Plein ou Vidé. <b>TYPE CHASSE</b> : Individuel, Collective ou Battue.
+        <b>DATE</b> : jj/mm/aaaa ou aaaa-mm-jj. <b>LON</b> / <b>LAT</b> : degrés décimaux (WGS84).
+      </p>
     </div>
 
     <div
@@ -218,6 +262,63 @@ export default {
       saison: null,
       nom_fichier_erreur: null, // si il est différent de null, on propose un bouton de téléchargement du fichier d'erreur généré par le backend
       url_fichier_erreur: null,
+      // noms de colonnes tels qu'ils sont exportés par Geochasse
+      modeleColonnes: [
+        'ID',
+        'NUMERO',
+        'ESPECE',
+        'AGE',
+        'SEXE',
+        'POIDS',
+        'PESEE',
+        'TYPE CHASSE',
+        'DATE',
+        'COMMUNE',
+        'LON',
+        'LAT',
+        'COMMENTAIRE',
+        'NB CORS',
+        'PARC_NOM_TIREUR',
+        'PARC_LIEU_DIT',
+      ],
+      modeleLignes: [
+        [
+          '49816',
+          'CEM006575',
+          'CERF',
+          'Adulte',
+          'Male',
+          '146.3',
+          'Plein',
+          'Battue',
+          '2026-10-24',
+          'FRAISSINET DE FOURQUES',
+          '3.5412',
+          '44.2105',
+          '',
+          '6',
+          'Dupont Jean',
+          'Tabilloux',
+        ],
+        [
+          '49820',
+          'CHF004512',
+          'CHEVREUIL',
+          'Jeune',
+          'Femelle',
+          '14.2',
+          'Vidé',
+          'Individuel',
+          '2026-10-25',
+          'LE PONT DE MONTVERT',
+          '3.7935',
+          '44.4153',
+          '',
+          '',
+          'Martin Paul',
+          'Fretma',
+        ],
+      ],
     };
   },
   methods: {
@@ -341,5 +442,40 @@ export default {
 }
 .mt-3 {
   margin-top: 1rem;
+}
+.modele-fichier {
+  margin: 1.5rem auto 0;
+  width: 75%;
+  padding: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background: #fafafa;
+  text-align: center;
+}
+.modele-fichier h3 {
+  margin-bottom: 0.5rem;
+}
+.modele-aide {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.4rem 0;
+}
+.modele-scroll {
+  overflow-x: auto;
+}
+.modele-table {
+  margin: 0 auto;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+.modele-table th,
+.modele-table td {
+  border: 1px solid #ccc;
+  padding: 3px 8px;
+  text-align: left;
+}
+.modele-table th {
+  background: #f1f1f1;
 }
 </style>
