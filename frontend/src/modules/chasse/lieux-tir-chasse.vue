@@ -39,17 +39,23 @@
             hide-details
             class="mb-2"
           ></v-text-field>
-          <v-autocomplete
-            v-model="edition.id_zone_indicative"
-            :items="zonesIndicatives"
-            item-title="nom"
-            item-value="id"
-            label="Zone indicative"
-            density="compact"
-            clearable
-            hide-details
-            class="mb-2"
-          ></v-autocomplete>
+          <div class="zones-calculees mb-3">
+            <div class="text-caption">Calculées automatiquement à l'enregistrement :</div>
+            <div
+              v-for="z of ZONES_EDITION"
+              :key="z.cle"
+              class="d-flex align-center"
+            >
+              <span
+                class="legende-trait mr-2"
+                :style="`background: ${z.couleur}`"
+              ></span>
+              <span>
+                {{ z.label }} :
+                <b>{{ edition.zones && edition.zones[z.cle] ? edition.zones[z.cle].nom : 'aucune' }}</b>
+              </span>
+            </div>
+          </div>
           <v-combobox
             v-model="edition.synonymes"
             label="Synonymes (Entrée pour ajouter)"
@@ -228,26 +234,19 @@
           :edition="edition ? { points: edition.points } : null"
           @update:points="edition.points = $event"
           :lieux="lieuxCoches"
-          :contours="contours"
+          :contours="edition ? contoursEdition : contours"
           :lieu-actif="lieuActif"
         ></map-lieux-tir>
         <div class="legende">
           <span class="legende-item">
             <span
-              class="legende-point"
-              style="background: #e53935"
-            ></span>
-            Lieu de tir
-          </span>
-          <span class="legende-item">
-            <span
               class="legende-zone"
               style="background: rgba(229, 57, 53, 0.2); border: 2px solid #e53935"
             ></span>
-            Enveloppe (zone tampon de 1-2 points, polygone au-delà)
+            Lieu de tir (zone tampon pour 1-2 points, polygone au-delà ; points visibles en modification)
           </span>
           <span
-            v-if="idCommune"
+            v-if="idCommune || edition"
             class="legende-item"
           >
             <span
@@ -257,7 +256,7 @@
             Commune
           </span>
           <span
-            v-if="idZoneIndicative"
+            v-if="idZoneIndicative || edition"
             class="legende-item"
           >
             <span
@@ -267,7 +266,7 @@
             Zone indicative
           </span>
           <span
-            v-if="idZoneCynegetique"
+            v-if="idZoneCynegetique || edition"
             class="legende-item"
           >
             <span
@@ -285,7 +284,10 @@
       max-width="500"
       @update:model-value="lieuASupprimer = null"
     >
-      <v-card v-if="lieuASupprimer">
+      <v-card
+        v-if="lieuASupprimer"
+        class="carte-suppression"
+      >
         <v-card-title>Supprimer ce lieu de tir ?</v-card-title>
         <v-card-text>
           Le lieu « {{ lieuASupprimer.properties.nom_lieu_tir }} » sera supprimé définitivement
@@ -294,6 +296,23 @@
             {{ lieuASupprimer.properties.synonymes.join(', ') }}.
           </template>
           <template v-else>.</template>
+          <div class="mt-2">
+            <template v-if="chargementRealisations">Recherche des réalisations…</template>
+            <template v-else-if="realisationsLieu.length">
+              <b>{{ realisationsLieu.length }} réalisation(s)</b> sont rattachées à ce lieu
+              (<template
+                v-for="(id, i) of realisationsLieu"
+                :key="id"
+                ><a
+                  href="#"
+                  title="Modifier la réalisation"
+                  @click.prevent="ouvrirRealisation(id)"
+                  >{{ id }}</a
+                ><template v-if="i < realisationsLieu.length - 1">, </template></template
+              >) : elles seront conservées mais n'auront plus de lieu de tir associé.
+            </template>
+            <template v-else>Aucune réalisation n'est rattachée à ce lieu.</template>
+          </div>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
@@ -315,6 +334,21 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <!-- modification d'une réalisation rattachée au lieu à supprimer -->
+    <v-dialog
+      v-model="dialogRealisation"
+      persistent
+      max-width="1400px"
+    >
+      <v-card>
+        <generic-form
+          v-if="dialogRealisation && configRealisation"
+          class="pa-4"
+          :config="configRealisation"
+        ></generic-form>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -323,6 +357,7 @@ import { apiRequest } from '@/core/js/data/api.js';
 import { snackbarStore } from '@/store/snackbar';
 import { describeApiError } from '@/core/js/data/api-messages.js';
 import MapLieuxTir from './map/map-lieux-tir.vue';
+import GenericForm from '@/components/form/generic-form.vue';
 
 // normalise pour une recherche insensible à la casse et aux accents
 const norm = (texte) =>
@@ -333,7 +368,7 @@ const norm = (texte) =>
 
 export default {
   name: 'LieuxTirChasse',
-  components: { MapLieuxTir },
+  components: { MapLieuxTir, GenericForm },
   data: () => ({
     loading: false,
     lieux: [], // toutes les Features
@@ -350,9 +385,19 @@ export default {
     cacheContours: {},
     contours: [],
     edition: null, // lieu en cours de modification (copie de travail) ou null
+    contoursEdition: [], // contours de la commune / ZI / ZC calculées pour les points édités
+    ZONES_EDITION: [
+      { cle: 'commune', type: 'commune', label: 'Commune', couleur: '#1e88ff' },
+      { cle: 'zone_indicative', type: 'zone_indicative', label: 'Zone indicative', couleur: '#e53935' },
+      { cle: 'zone_cynegetique', type: 'zone_cynegetique', label: 'Zone cynégétique', couleur: '#000000' },
+    ],
     enregistrement: false,
     lieuASupprimer: null, // Feature dont la suppression attend confirmation
     suppression: false,
+    realisationsLieu: [], // numéros des réalisations rattachées au lieu à supprimer
+    chargementRealisations: false,
+    dialogRealisation: false,
+    configRealisation: null,
   }),
   computed: {
     // la liste des zones indicatives suit la zone cynégétique choisie
@@ -383,6 +428,21 @@ export default {
     },
   },
   watch: {
+    // à l'ouverture de la confirmation de suppression : réalisations rattachées au lieu
+    lieuASupprimer(lieu) {
+      this.realisationsLieu = [];
+      if (lieu) {
+        this.chargerRealisations();
+      }
+    },
+    // points modifiés : recalcul (temporisé) de la commune et des zones
+    'edition.points': {
+      deep: true,
+      handler() {
+        clearTimeout(this.minuteurZones);
+        this.minuteurZones = setTimeout(() => this.calculerZones(), 300);
+      },
+    },
     idCommune() {
       this.majContours();
     },
@@ -465,14 +525,47 @@ export default {
         id_lieu_tir: p.id_lieu_tir,
         nom_lieu_tir: p.nom_lieu_tir,
         code_lieu_tir: p.code_lieu_tir,
-        id_zone_indicative: p.id_zone_indicative,
+        zones: null, // commune / ZI / ZC calculées (voir calculerZones)
         synonymes: [...p.synonymes],
         points: lieu.geometry.coordinates.map((c) => [...c]),
       };
       this.$nextTick(() => this.$refs.carte.cadrerEdition());
+      this.calculerZones();
     },
     annulerEdition() {
+      clearTimeout(this.minuteurZones);
       this.edition = null;
+      this.contoursEdition = [];
+    },
+    async calculerZones() {
+      const e = this.edition;
+      if (!e) {
+        return;
+      }
+      const version = (this.versionZones = (this.versionZones || 0) + 1);
+      try {
+        const res = e.points.length
+          ? await apiRequest('POST', 'api/chasse/lieux-tir/zones', {
+              postData: { points: e.points },
+            })
+          : {};
+        const zones = {
+          commune: res.commune || null,
+          zone_indicative: res.zone_indicative || null,
+          zone_cynegetique: res.zone_cynegetique || null,
+        };
+        const contours = await Promise.all(
+          this.ZONES_EDITION.filter((z) => zones[z.cle]).map((z) => this.contour(z.type, zones[z.cle].id))
+        );
+        // une demande plus récente a pu être lancée, ou l'édition fermée
+        if (version === this.versionZones && this.edition === e) {
+          e.zones = zones;
+          this.contoursEdition = contours;
+        }
+      } catch (error) {
+        console.error(error);
+        snackbarStore.show(describeApiError(error), 'error');
+      }
     },
     async enregistrer() {
       const e = this.edition;
@@ -482,12 +575,11 @@ export default {
           postData: {
             nom_lieu_tir: e.nom_lieu_tir,
             code_lieu_tir: e.code_lieu_tir,
-            id_zone_indicative: e.id_zone_indicative,
             synonymes: e.synonymes,
             geometry: { type: 'MultiPoint', coordinates: e.points },
           },
         });
-        this.edition = null;
+        this.annulerEdition();
         await this.charger();
         this.cocher(e.id_lieu_tir, true);
         snackbarStore.show('Lieu de tir enregistré.', 'success');
@@ -497,6 +589,50 @@ export default {
       } finally {
         this.enregistrement = false;
       }
+    },
+    async chargerRealisations() {
+      const lieu = this.lieuASupprimer;
+      if (!lieu) {
+        return;
+      }
+      this.chargementRealisations = true;
+      try {
+        const res = await apiRequest(
+          'GET',
+          `api/chasse/lieux-tir/${lieu.properties.id_lieu_tir}/realisations`
+        );
+        // le lieu a pu changer pendant la requête
+        if (this.lieuASupprimer === lieu) {
+          this.realisationsLieu = res.realisations;
+        }
+      } catch (error) {
+        console.error(error);
+        snackbarStore.show(describeApiError(error), 'error');
+      } finally {
+        this.chargementRealisations = false;
+      }
+    },
+    // ouvre le formulaire de modification de la réalisation (config recréée à chaque ouverture :
+    // generic-form la modifie)
+    ouvrirRealisation(id) {
+      const fermer = () => {
+        this.dialogRealisation = false;
+        this.configRealisation = null;
+        // le lieu de la réalisation a pu changer : on rafraîchit la liste
+        this.chargerRealisations();
+      };
+      // copie de la config du store (avec formDefs : generic-form ne l'écrase alors pas), en mode
+      // édition directe
+      this.configRealisation = {
+        ...this.$store.getters.configStore('chasseRealisation').configForm,
+        switchDisplay: false,
+        displayValue: false,
+        value: { id_realisation: id },
+        title: `Modifier la réalisation ${id}`,
+        cancel: { action: fermer },
+        action: { onSuccess: fermer },
+      };
+      this.dialogRealisation = true;
     },
     async supprimer() {
       const id = this.lieuASupprimer.properties.id_lieu_tir;
@@ -581,6 +717,9 @@ export default {
      le texte était décalé à droite selon sa longueur */
   flex: 0 0 auto;
 }
+.carte-suppression a {
+  cursor: pointer;
+}
 .actions-lieu {
   flex: 0 0 auto;
   display: flex;
@@ -609,13 +748,6 @@ export default {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-}
-.legende-point {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid #fff;
-  box-shadow: 0 0 0 1px #888;
 }
 .legende-zone {
   width: 18px;

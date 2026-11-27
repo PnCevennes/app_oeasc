@@ -35,13 +35,6 @@ const STYLE_ENVELOPPE = {
   fillColor: '#e53935',
   fillOpacity: 0.2,
 };
-const STYLE_POINT = {
-  radius: 7,
-  color: '#ffffff',
-  weight: 2,
-  fillColor: '#e53935',
-  fillOpacity: 0.95,
-};
 
 // largeur fixe de l'encart (sinon Leaflet l'ajuste au contenu : elle varie d'un lieu à l'autre)
 const LARGEUR_POPUP = { minWidth: 300, maxWidth: 300 };
@@ -128,15 +121,13 @@ export default {
         if (this.couchesLieux.has(id)) {
           continue;
         }
-        // enveloppe (zone tampon pour 1-2 points, enveloppe convexe au-delà) sous les points
+        // enveloppe (zone tampon pour 1-2 points, enveloppe convexe au-delà)
         const enveloppe = L.geoJSON(
           { type: 'Feature', geometry: feature.properties.enveloppe },
           { style: STYLE_ENVELOPPE }
         );
-        const points = L.geoJSON(feature, {
-          pointToLayer: (_, latlng) => L.circleMarker(latlng, STYLE_POINT),
-        });
-        const couche = L.featureGroup([enveloppe, points]);
+        // les points ne sont visibles qu'en modification du lieu : seule l'enveloppe est affichée
+        const couche = L.featureGroup([enveloppe]);
         couche.bindPopup(contenuPopup(feature.properties), LARGEUR_POPUP);
         this.couchesLieux.set(id, couche);
         this.featuresLieux.set(id, feature);
@@ -231,7 +222,8 @@ export default {
         );
       }
       const bounds = this.groupeContours.getBounds();
-      if (this.contours.length && bounds.isValid()) {
+      // pas de recadrage en cours d'édition (la carte bougerait à chaque point posé)
+      if (!this.edition && this.contours.length && bounds.isValid()) {
         this.map.fitBounds(bounds, { padding: [20, 20] });
       }
     },

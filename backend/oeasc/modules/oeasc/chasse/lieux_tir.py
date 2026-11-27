@@ -193,6 +193,92 @@ def get_contour_geojson(type_contour, id_objet):
     }
 
 
+_GEOM_2154 = "ST_SetSRID(ST_Transform(ST_SetSRID(ST_GeomFromGeoJSON(:geom), 4326), 2154), 2154)"
+
+
+def calculer_zones(points):
+    """Commune, zone indicative et zone cynégétique d'un lieu à partir de ses points
+    (liste [lng, lat] WGS84). Quand plusieurs zones se chevauchent, on retient celle qui contient
+    le plus de points, puis celle dont l'intersection avec l'enveloppe du lieu est la plus grande.
+    La zone cynégétique est celle de la zone indicative retenue (à défaut, la mieux placée).
+    Retourne {commune, zone_indicative, zone_cynegetique}, chacun {id, nom} ou None."""
+    if not points:
+        return {"commune": None, "zone_indicative": None, "zone_cynegetique": None}
+    params = {
+        "geom": json.dumps({"type": "MultiPoint", "coordinates": points}),
+        "id_type": ID_TYPE_COMMUNE,
+        "rayon": RAYON_ENVELOPPE_M,
+    }
+    # `z` : zone candidate (géométrie en Lambert-93) ; score = nb de points contenus, puis surface
+    score = """
+        ORDER BY
+            (SELECT count(*) FROM pts WHERE ST_Intersects(z.geom, pts.p)) DESC,
+            ST_Area(ST_Intersection(z.geom, ST_Buffer(ST_ConvexHull(g.geom), :rayon))) DESC,
+            z.id
+        LIMIT 1
+    """
+    base = f"WITH g AS (SELECT {_GEOM_2154} AS geom), pts AS (SELECT (ST_Dump(geom)).geom AS p FROM g)"
+    commune = DB.session.execute(
+        text(f"""{base}
+            SELECT z.id, z.nom FROM g,
+                (SELECT id_area AS id, area_name AS nom, geom FROM ref_geo.l_areas
+                 WHERE id_type = :id_type) z
+            WHERE ST_Intersects(z.geom, g.geom) {score}"""),
+        params,
+    ).first()
+    zone_ind = DB.session.execute(
+        text(f"""{base}
+            SELECT z.id, z.nom, z.id_zone_cynegetique FROM g,
+                (SELECT id_zone_indicative AS id, nom_zone_indicative AS nom,
+                        id_zone_cynegetique, ST_SetSRID(geom, 2154) AS geom
+                 FROM oeasc_chasse.t_zone_indicatives WHERE geom IS NOT NULL) z
+            WHERE ST_Intersects(z.geom, g.geom) {score}"""),
+        params,
+    ).first()
+    id_zc = zone_ind[2] if zone_ind else None
+    if id_zc is None:
+        # pas de zone indicative : zone cynégétique dont les zones indicatives contiennent le plus de points
+        zc = DB.session.execute(
+            text(f"""{base}
+                SELECT z.id, z.nom FROM g,
+                    (SELECT zc.id_zone_cynegetique AS id, zc.nom_zone_cynegetique AS nom,
+                            ST_Union(ST_SetSRID(zi.geom, 2154)) AS geom
+                     FROM oeasc_chasse.t_zone_cynegetiques zc
+                     JOIN oeasc_chasse.t_zone_indicatives zi
+                        ON zi.id_zone_cynegetique = zc.id_zone_cynegetique
+                     WHERE zi.geom IS NOT NULL
+                     GROUP BY zc.id_zone_cynegetique, zc.nom_zone_cynegetique) z
+                WHERE ST_Intersects(z.geom, g.geom) {score}"""),
+            params,
+        ).first()
+    else:
+        zc = DB.session.execute(
+            text("""SELECT id_zone_cynegetique, nom_zone_cynegetique
+                    FROM oeasc_chasse.t_zone_cynegetiques WHERE id_zone_cynegetique = :id"""),
+            {"id": id_zc},
+        ).first()
+
+    def zone(row):
+        return {"id": row[0], "nom": row[1]} if row else None
+
+    return {
+        "commune": zone(commune),
+        "zone_indicative": zone(zone_ind),
+        "zone_cynegetique": zone(zc),
+    }
+
+
+def get_realisations_lieu_tir(id_lieu_tir):
+    """Numéros (id_realisation) des réalisations rattachées au lieu via ses synonymes."""
+    rows = DB.session.execute(
+        text("""SELECT r.id_realisation FROM oeasc_chasse.t_realisations r
+                JOIN oeasc_chasse.t_lieu_tir_synonymes s USING (id_lieu_tir_synonyme)
+                WHERE s.id_lieu_tir = :id ORDER BY r.id_realisation"""),
+        {"id": id_lieu_tir},
+    ).all()
+    return [r[0] for r in rows]
+
+
 class LieuTirErreur(Exception):
     """Erreur de validation / de contrainte, avec le code HTTP à renvoyer."""
 
@@ -213,9 +299,9 @@ def _nettoie_synonymes(synonymes):
 
 
 def modifier_lieu_tir(id_lieu_tir, data):
-    """Met à jour un lieu de tir : nom, code, zone indicative, synonymes et points (MultiPoint
+    """Met à jour un lieu de tir : nom, code, synonymes et points ; commune et zones sont recalculées (MultiPoint
     GeoJSON WGS84 dans data['geometry']). Les synonymes absents de la liste sont supprimés
-    (refusé s'ils sont utilisés par des réalisations)."""
+    (le lien des réalisations concernées passe à NULL)."""
     from sqlalchemy.exc import IntegrityError
 
     nom = (data.get("nom_lieu_tir") or "").strip()
@@ -233,7 +319,10 @@ def modifier_lieu_tir(id_lieu_tir, data):
     if not existe:
         raise LieuTirErreur("Lieu de tir introuvable.", 404)
 
-    id_zi = data.get("id_zone_indicative") or None
+    # commune et zones recalculées à partir des nouveaux points
+    zones = calculer_zones(points)
+    id_zone = lambda z: z["id"] if z else None  # noqa: E731
+    label_commune = zones["commune"]["nom"] if zones["commune"] else None
     try:
         # SRID conservé tel quel (stockage Lambert-93 sous un typage 4326, cf. docstring du module)
         DB.session.execute(
@@ -242,6 +331,9 @@ def modifier_lieu_tir(id_lieu_tir, data):
                 SET nom_lieu_tir = :nom,
                     code_lieu_tir = :code,
                     id_zone_indicative = :id_zi,
+                    id_zone_cynegetique = :id_zc,
+                    id_area_commune = :id_commune,
+                    label_commune = :label_commune,
                     geom = ST_SetSRID(
                         ST_Multi(ST_Transform(
                             ST_SetSRID(ST_GeomFromGeoJSON(:geom), 4326), 2154)),
@@ -251,7 +343,10 @@ def modifier_lieu_tir(id_lieu_tir, data):
             {
                 "nom": nom,
                 "code": (data.get("code_lieu_tir") or "").strip() or None,
-                "id_zi": id_zi,
+                "id_zi": id_zone(zones["zone_indicative"]),
+                "id_zc": id_zone(zones["zone_cynegetique"]),
+                "id_commune": id_zone(zones["commune"]),
+                "label_commune": label_commune,
                 "geom": json.dumps({"type": "MultiPoint", "coordinates": points}),
                 "id": id_lieu_tir,
             },
@@ -267,6 +362,11 @@ def modifier_lieu_tir(id_lieu_tir, data):
         actuels_min = {a[1].lower() for a in actuels}
         for id_syn, nom_syn in actuels:
             if nom_syn.lower() not in voulus_min:
+                DB.session.execute(
+                    text("""UPDATE oeasc_chasse.t_realisations SET id_lieu_tir_synonyme = NULL
+                            WHERE id_lieu_tir_synonyme = :id"""),
+                    {"id": id_syn},
+                )
                 DB.session.execute(
                     text("""DELETE FROM oeasc_chasse.t_lieu_tir_synonymes
                             WHERE id_lieu_tir_synonyme = :id"""),
@@ -291,10 +391,20 @@ def modifier_lieu_tir(id_lieu_tir, data):
 
 
 def supprimer_lieu_tir(id_lieu_tir):
-    """Supprime un lieu de tir et ses synonymes (refusé si des réalisations les utilisent)."""
+    """Supprime un lieu de tir et ses synonymes ; les réalisations liées gardent leurs données,
+    seul leur lien vers le synonyme passe à NULL."""
     from sqlalchemy.exc import IntegrityError
 
     try:
+        # les réalisations ne sont pas supprimées : leur lien vers le synonyme est mis à NULL
+        # (leur texte de lieu `lieu_tir_txt` est conservé)
+        DB.session.execute(
+            text("""UPDATE oeasc_chasse.t_realisations SET id_lieu_tir_synonyme = NULL
+                    WHERE id_lieu_tir_synonyme IN (
+                        SELECT id_lieu_tir_synonyme FROM oeasc_chasse.t_lieu_tir_synonymes
+                        WHERE id_lieu_tir = :id)"""),
+            {"id": id_lieu_tir},
+        )
         DB.session.execute(
             text("DELETE FROM oeasc_chasse.t_lieu_tir_synonymes WHERE id_lieu_tir = :id"),
             {"id": id_lieu_tir},

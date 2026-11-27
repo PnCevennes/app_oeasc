@@ -72,6 +72,8 @@ from .export_chasse import (
 from .lieux_tir import (
     get_carte_lieux_tir,
     get_contour_geojson,
+    calculer_zones,
+    get_realisations_lieu_tir,
     modifier_lieu_tir,
     supprimer_lieu_tir,
     LieuTirErreur,
@@ -529,6 +531,21 @@ def api_lieux_tir_contour():
     if contour is None:
         return jsonify({"success": False, "message": "contour introuvable"}), 404
     return jsonify({"success": True, "contour": contour})
+
+
+@bp.route("lieux-tir/zones", methods=["POST"])
+@check_auth_redirect_login(ANIMATEUR)
+def api_lieux_tir_zones():
+    """Commune et zones (indicative, cynégétique) calculées pour des points {points: [[lng, lat]]}."""
+    points = (request.get_json(silent=True) or {}).get("points") or []
+    return jsonify({"success": True, **calculer_zones(points)})
+
+
+@bp.route("lieux-tir/<int:id_lieu_tir>/realisations", methods=["GET"])
+@check_auth_redirect_login(ANIMATEUR)
+def api_lieux_tir_realisations(id_lieu_tir):
+    """Numéros des réalisations rattachées à un lieu de tir."""
+    return jsonify({"success": True, "realisations": get_realisations_lieu_tir(id_lieu_tir)})
 
 
 @bp.route("lieux-tir/<int:id_lieu_tir>", methods=["PATCH"])
