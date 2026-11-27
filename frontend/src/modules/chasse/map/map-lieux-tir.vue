@@ -5,11 +5,22 @@
   Un clic sur un lieu ouvre un encart avec ses informations et ses synonymes.
 -->
 <template>
-  <div
-    ref="map"
-    class="map-container"
-    :style="`height:${height}; width:100%; z-index:0`"
-  ></div>
+  <div style="position:relative; width:100%">
+    <div
+      ref="map"
+      class="map-container"
+      :style="`height:${height}; width:100%; z-index:0`"
+    ></div>
+    <!-- aide affichée uniquement en modification d'un lieu -->
+    <div v-if="edition && edition.points" class="aide-edition">
+      <b>Modification du lieu</b>
+      <ul>
+        <li><b>Ajouter</b> un point : clic sur la carte</li>
+        <li><b>Déplacer</b> un point : le glisser</li>
+        <li><b>Supprimer</b> un point : clic droit ou double-clic dessus</li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -278,6 +289,25 @@ export default {
 </script>
 
 <style>
+/* encart d'aide en haut à droite de la carte (au-dessus des panes Leaflet) */
+.aide-edition {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1000;
+  max-width: 280px;
+  padding: 8px 12px;
+  font-size: 13px;
+  line-height: 1.4;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 4px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+.aide-edition ul {
+  margin: 4px 0 0 18px;
+  padding: 0;
+}
 /* point déplaçable du mode édition (non scoped : l'icône est créée par Leaflet) */
 .point-edition {
   background: #e53935;

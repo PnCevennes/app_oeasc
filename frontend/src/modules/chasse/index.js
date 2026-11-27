@@ -63,12 +63,6 @@ const ROUTE = [
           saison_tab: {
             storeName: 'chasseSaison',
           },
-          lieuTir_tab: {
-            storeName: 'chasseLieuTir',
-          },
-          lieuTirSynonyme_tab: {
-            storeName: 'chasseLieuTirSynonyme',
-          },
           zoneIndicative_tab: {
             storeName: 'chasseZoneIndicative',
           },
