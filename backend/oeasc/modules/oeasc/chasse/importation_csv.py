@@ -387,6 +387,24 @@ def get_columns_mapping(
     return liste_columns_result
 
 
+def _nb_champs_lignes(file, sep):
+    """Nombre de champs des lignes de données du csv (max sur les 50 premières,
+    en-tête exclu). Le curseur du fichier est restauré."""
+    import csv
+
+    pos = file.tell()
+    try:
+        file.seek(0)
+        texte = file.read(500000).decode("utf-8-sig", errors="replace")
+    finally:
+        file.seek(pos)
+    lignes = texte.splitlines()[1:51]
+    return max(
+        (len(r) for r in csv.reader(lignes, delimiter=sep)),
+        default=0,
+    )
+
+
 def uniformise_communes(serie):
     """Retire les accents, les tirets et met en majuscules une série de pandas.
     Utilisée pour comparer des champs texte entre l'import csv et la base de données."""
@@ -708,6 +726,29 @@ def etape__récuperation_csv(apiResponse, source=None):
                 type_log="WARNING",
             )
 
+        # Decalage de l'export geochasse : l'en-tete peut avoir MOINS de noms que les
+        # lignes n'ont de champs (ex. 53 noms pour 56 champs, oct. 2026). Les noms
+        # PARC_NOM_TIREUR / PARC_LIEU_DIT, derniers de l'en-tete, designent alors
+        # des colonnes de mesures et non le tireur / le lieu, qui sont decales vers
+        # la droite. On insere des colonnes factices avant ces deux noms pour
+        # restaurer l'alignement (et on les supprime ensuite).
+        n_champs = _nb_champs_lignes(file_save, sep)
+        n_manquants = n_champs - len(liste_mapping)
+        if n_manquants >= 2:
+            # le dernier champ des lignes est un champ vide de fin (";" final)
+            n_avant = n_manquants - 1
+            liste_mapping = (
+                liste_mapping[:-2]
+                + [f"_decalage_{i}" for i in range(n_avant)]
+                + liste_mapping[-2:]
+                + ["_decalage_fin"]
+            )
+            apiResponse.add_log(
+                f"L'en-tête du CSV compte {n_manquants} colonne(s) de moins que les lignes : "
+                "alignement corrigé pour le tireur et le lieu de tir.",
+                type_log="WARNING",
+            )
+
         df = pd.read_csv(
             file_save,
             sep=sep,
@@ -715,6 +756,9 @@ def etape__récuperation_csv(apiResponse, source=None):
             skiprows=1,
             names=liste_mapping,
             index_col=False,
+        )
+        df = df.drop(
+            columns=[c for c in df.columns if str(c).startswith("_decalage_")]
         )
 
         if df.shape[0] == 0:
