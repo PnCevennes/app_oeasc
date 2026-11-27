@@ -72,7 +72,7 @@ const menus = {
       {
         label: 'Chasse',
         icon: 'mdi-target',
-        names: ['chasse.admin', 'chasse.imports_attributions'],
+        names: ['chasse.admin', 'chasse.imports_attributions', 'chasse.lieux_tir'],
       },
       {
         label: 'Dégâts agricoles',

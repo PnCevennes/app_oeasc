@@ -135,6 +135,16 @@ const ROUTE = [
   },
 
   {
+    name: 'chasse.lieux_tir',
+    path: '/chasse/lieux-tir',
+    label: 'Gestion des lieux de tirs', // titre dans le menu (Administration)
+    hideTitle: true,
+    component: () => import('./lieux-tir-chasse.vue'),
+    access: DROITS.ANIMATEUR, // l'API de la carte exige ANIMATEUR
+    hidden: ({ $store }) => $store.getters.droitMax < DROITS.ANIMATEUR,
+  },
+
+  {
     name: 'chasse.restitution_bilan_detaille',
     path: '/chasse/restitution_bilan_detaille',
     label: 'Chasse : analyse détaillée',

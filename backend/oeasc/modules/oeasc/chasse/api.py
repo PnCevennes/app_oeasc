@@ -3,7 +3,7 @@ api chasse
 """
 
 import json
-from oeasc.utils.cache import cache, data_version, TTL_RESULTATS
+from oeasc.utils.cache import cache, data_version, invalidate_data, TTL_RESULTATS
 from .models import (
     TZoneCynegetiques,
     TZoneIndicatives,
@@ -68,6 +68,14 @@ from .repositories import (
 from .export_chasse import (
     exportation_attributions_realises_chasse,
     get_data_all_especes_export_ods,
+)
+from .lieux_tir import (
+    get_carte_lieux_tir,
+    get_contour_geojson,
+    modifier_lieu_tir,
+    supprimer_lieu_tir,
+    LieuTirErreur,
+    TYPES_CONTOUR,
 )
 from .import_async import (
     creer_suivi,
@@ -499,6 +507,52 @@ _TYPES_IMPORT_ATTRIBUTIONS = {
     "massifs": "attribution_massifs",
     "attributions": "attributions",
 }
+
+
+@bp.route("lieux-tir/carte", methods=["GET"])
+@check_auth_redirect_login(ANIMATEUR)
+def api_lieux_tir_carte():
+    """Lieux de tir en GeoJSON WGS84 (avec zones et synonymes) + listes des filtres."""
+    return jsonify({"success": True, **get_carte_lieux_tir()})
+
+
+@bp.route("lieux-tir/contour", methods=["GET"])
+@check_auth_redirect_login(ANIMATEUR)
+def api_lieux_tir_contour():
+    """Contour GeoJSON WGS84 d'une commune, zone indicative ou zone cynégétique.
+    Paramètres : type (commune|zone_indicative|zone_cynegetique), id."""
+    type_contour = request.args.get("type")
+    id_objet = request.args.get("id", type=int)
+    if type_contour not in TYPES_CONTOUR or id_objet is None:
+        return jsonify({"success": False, "message": "paramètres type et id invalides"}), 400
+    contour = get_contour_geojson(type_contour, id_objet)
+    if contour is None:
+        return jsonify({"success": False, "message": "contour introuvable"}), 404
+    return jsonify({"success": True, "contour": contour})
+
+
+@bp.route("lieux-tir/<int:id_lieu_tir>", methods=["PATCH"])
+@check_auth_redirect_login(ANIMATEUR)
+def api_lieux_tir_modifier(id_lieu_tir):
+    """Modifie un lieu de tir (nom, code, zone indicative, synonymes, points)."""
+    try:
+        modifier_lieu_tir(id_lieu_tir, request.get_json(silent=True) or {})
+    except LieuTirErreur as e:
+        return jsonify({"success": False, "message": e.message}), e.code
+    invalidate_data()
+    return jsonify({"success": True})
+
+
+@bp.route("lieux-tir/<int:id_lieu_tir>", methods=["DELETE"])
+@check_auth_redirect_login(ANIMATEUR)
+def api_lieux_tir_supprimer(id_lieu_tir):
+    """Supprime un lieu de tir et ses synonymes."""
+    try:
+        supprimer_lieu_tir(id_lieu_tir)
+    except LieuTirErreur as e:
+        return jsonify({"success": False, "message": e.message}), e.code
+    invalidate_data()
+    return jsonify({"success": True})
 
 
 @bp.route("import-attributions/etat", methods=["GET"])

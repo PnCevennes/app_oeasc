@@ -54,3 +54,25 @@ saisons sont marquées « en cours », tout import est refusé. Ces imports remp
 
 Les fonctions et vues de `oeasc_chasse` (dont `fct_poid_vide`, `fct_custom_results_t`) viennent de
 `data/oeasc_views/oeasc_chasse_views.sql`, exécuté par `flask init-db` ([install_db.md](install_db.md)).
+
+## Page « Gestion des lieux de tirs » (Administration → Chasse)
+
+Route `/chasse/lieux-tir` (`chasse.lieux_tir`, droit ≥ 5), visualisation cartographique des lieux de tir (`oeasc_chasse.t_lieu_tirs`).
+
+- Liste des lieux avec case à cocher (décochée par défaut) : un lieu coché s'affiche sur la carte ; cliquer sur son nom le coche et ouvre son encart.
+- Filtres : commune, zone cynégétique, zone indicative (la liste des ZI suit la ZC choisie) et recherche texte (nom, code, synonymes). Le contour de chaque filtre actif est tracé sur la carte (commune en bleu, ZI en rouge, ZC en noir).
+- Clic sur un lieu de la carte : encart avec nom, code, commune, ZI, ZC et liste des synonymes.
+
+API (`chasse/lieux_tir.py`, routes dans `chasse/api.py`, droit ANIMATEUR) :
+- `GET /api/chasse/lieux-tir/carte` : lieux en GeoJSON WGS84 (avec zones et synonymes) + listes des filtres ;
+- `GET /api/chasse/lieux-tir/contour?type=commune|zone_indicative|zone_cynegetique&id=…` : contour simplifié (la ZC est l'union de ses ZI, elle n'a pas de géométrie propre).
+
+Les géométries sont stockées en Lambert-93 (EPSG:2154) bien que typées 4326 dans les modèles : la reprojection est faite en SQL. La commune d'un lieu est déterminée par sa position (`ST_Intersects` avec les communes `ref_geo.l_areas`, type 327) : `t_lieu_tirs.id_area_commune` est incohérent avec la géométrie et `label_commune` (ex. « la quille », Hures-la-Parade, pointe vers Saint-Privat-de-Vallongue) ; il n'est pas utilisé par la page. La zone cynégétique d'un lieu est `t_lieu_tirs.id_zone_cynegetique`, à défaut celle de sa zone indicative.
+
+### Modification et suppression des lieux de tir
+
+- Chaque ligne de la liste a une icône crayon (modifier) et une icône poubelle (supprimer).
+- **Suppression** : modale de confirmation ; supprime le lieu **et ses synonymes**. Refusée (409, message au snackbar) si des réalisations utilisent un de ces synonymes.
+- **Modification** : la colonne de gauche est remplacée par un formulaire (nom, code, zone indicative, synonymes). Sur la carte, seuls les points du lieu sont affichés : clic = ajouter un point, glisser = déplacer, clic droit ou double-clic sur un point = supprimer (au moins 1 point requis). Les synonymes retirés sont supprimés (refusé s'ils sont utilisés par des réalisations).
+- API (droit ANIMATEUR) : `PATCH /api/chasse/lieux-tir/<id>` (`nom_lieu_tir`, `code_lieu_tir`, `id_zone_indicative`, `synonymes`, `geometry` MultiPoint WGS84, reprojeté en 2154 en SQL) et `DELETE /api/chasse/lieux-tir/<id>`.
+- La commune et la zone cynégétique affichées sont déduites de la position / de la zone indicative : elles se mettent à jour après enregistrement.
